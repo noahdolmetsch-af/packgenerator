@@ -95,7 +95,8 @@ test('a template hint with its source, "Not now" into the History, the Home card
   // v0.39.0 (AP28): the list shows a quiet badge; the suggestions sit on the template's page under "More".
   await expect(page.locator('[data-tpl="tpl-test_data_gtp_"]')).toContainText(T('{n} suggestion', { n: 1 }));
   await page.locator('[data-tpl="tpl-test_data_gtp_"] a.main').click();
-  await page.getByRole('button', { name: new RegExp(T('From your debriefs')) }).click();
+  // SN3 «Seiten neu»: the suggestions stand open in their own section «From your debriefs» (was a button under «More»).
+  await expect(page.getByRole('heading', { name: T('From your debriefs') })).toBeVisible();
 
   const row = page.locator('[data-hint="out:AP01"]');
   await expect(row).toContainText(T('Take {name} out of the template?', { name: 'test_data_gtp_ Daunenjacke' }));

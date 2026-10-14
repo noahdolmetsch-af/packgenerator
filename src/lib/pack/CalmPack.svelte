@@ -48,7 +48,7 @@
   import { Sparkles } from '@lucide/svelte';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, lessons = [] } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, lessons = [], reminders = [] } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -142,6 +142,7 @@
     const m = /^#\/pack\?(?:.*&)?(weather|decide)\b/.exec(location.hash);
     if (!m) return;
     history.replaceState(null, '', '#/pack');
+    if (fixed) return; // TZ-2: a fixed trip's conditions do not change
     if (m[1] === 'decide' && bikeTrip) review = true;
     else show('conditions');
   });
@@ -153,7 +154,7 @@
   $effect(() => {
     if (!/^#\/pack\?add\b/.test(location.hash)) return;
     history.replaceState(null, '', '#/pack');
-    show('add');
+    if (!fixed) show('add');
   });
   // v0.77.0 KI-Helfer (answer 4a, K3a): «Liste prüfen» from the ••• menu and next to «Weiter: Packen»
   // (on a phone the sparkle on the left of the bar); a second tap asks again.
@@ -170,6 +171,11 @@
   const showRoute = $derived(bikeTrip || !!trip.route);
   const camps = $derived(!over && hasStages(trip) && trip.route?.line?.length > 1);
   const planTop = $derived(showRoute || (bikeTrip && bike) || hasStages(trip) || ev);
+  // TZ-2 «Fest nach der Fahrt» (mockup TZ2 Tour-Kopf, Noah 5a): a completed or rated trip (fixed) shows its
+  // list as ridden: no adding, moving or taking out, the conditions only to read; «Wieder öffnen» (band,
+  // menu «…») makes it planned again. A template comes from a planned or a rated trip (spec §4).
+  const tplHere = $derived(bikeTrip && (!fixed || !!phaseOpts.debriefDone));
+  const cellAct = (fn) => (fixed ? {} : { type: 'button', onclick: fn });
 </script>
 
 {#snippet go()}
@@ -186,7 +192,7 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={plus} weighHint={!made} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
@@ -195,14 +201,14 @@
         <div class="pcol">
           {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} />{/if}
           {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
-          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={() => show('bags')} />{/if}
+          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
           {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
         </div>
         <div class="pcol">
           {#if ev}<TripWeather {trip} kind="event" />{/if}
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
-          <LessonsCard {lessons} />
+          <LessonsCard {lessons} {reminders} />
         </div>
       </div>
     {/if}
@@ -211,10 +217,11 @@
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
         <section class="tp-card cond" aria-label={t('Trip conditions')}>
           <div class="cgrid" class:odd={oneDay && !routeText} class:three={oneDay && !!routeText}>
-            {#if !oneDay}<button type="button" class="cell" onclick={actions.edit}><Clock3 size={18} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></button>
-            <button type="button" class="cell" onclick={() => show('conditions')}><Mountain size={18} aria-hidden="true" /><span><small>{t('Per day')}</small>{perDay}</span></button>
-            {:else if routeText}<button type="button" class="cell" onclick={() => show('conditions')}><Mountain size={18} aria-hidden="true" /><span><small>{t('Route')}</small>{routeText}</span></button>{/if}
-            <button type="button" class="cell" onclick={() => show('conditions')}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></button>
+            <!-- TZ-2: a fixed trip shows its conditions to read only (a div, no tap) -->
+            {#if !oneDay}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(actions.edit)}><Clock3 size={18} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></svelte:element>
+            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={18} aria-hidden="true" /><span><small>{t('Per day')}</small>{perDay}</span></svelte:element>
+            {:else if routeText}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={18} aria-hidden="true" /><span><small>{t('Route')}</small>{routeText}</span></svelte:element>{/if}
+            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></svelte:element>
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
           <!-- v0.42.0 (Noah 2): the onion check, one quiet line under the weather -->
@@ -224,7 +231,7 @@
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row
              of the card that shows what the weather brought (alone when it brought nothing yet). -->
         {#snippet reviewRow()}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/snippet}
-        {#if bikeTrip && !edit && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
+        {#if bikeTrip && !edit && !fixed && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
         {#if wxRows.length || changeNote || ctxChanged || (bikeTrip && edit)}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
@@ -239,11 +246,11 @@
                 <button type="button" class="tp-chip" aria-pressed={noWx(trip.wx)} onclick={() => edit.wx({ min: null, max: null, rain: 'none' })}>{t('No weather|chip')}</button>
               </div>
             {/if}
-            {#if bikeTrip}{@render reviewRow()}{/if}
+            {#if bikeTrip && !fixed}{@render reviewRow()}{/if}
             {#if wxRows.length}
               <ul class="wxrows">
                 {#each wxRows as e (e.itemId)}
-                  <li><span class="nm"><b>{nameOf(itemsById[e.itemId])}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</b><small>{reasons[e.itemId].line}</small></span>{#if ctxRows[e.itemId]}<button type="button" class="tp-link" aria-label={t('Undo for {name}', { name: nameOf(itemsById[e.itemId]) })} onclick={() => actions.undoRow(e.itemId)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</li>
+                  <li><span class="nm"><b>{nameOf(itemsById[e.itemId])}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</b><small>{reasons[e.itemId].line}</small></span>{#if ctxRows[e.itemId] && !fixed}<button type="button" class="tp-link" aria-label={t('Undo for {name}', { name: nameOf(itemsById[e.itemId]) })} onclick={() => actions.undoRow(e.itemId)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</li>
                 {/each}
               </ul>
             {/if}
@@ -263,27 +270,29 @@
           <h2>{t('Packing list')}</h2>
           <div class="list-toolbar">
             <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping}><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
-            <button class="tp-link add-mat" onclick={() => show('add')}><Plus size={18} aria-hidden="true" />{t('Add material')}</button>
+            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')}><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} use:away onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
-                {#if isOn()}<button class="kh-menu-check" onclick={menu(openCheck)}><Sparkles size={16} aria-hidden="true" />{t('Check the list')}</button>{/if}
+                {#if isOn() && !fixed}<button class="kh-menu-check" onclick={menu(openCheck)}><Sparkles size={16} aria-hidden="true" />{t('Check the list')}</button>{/if}
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
                 <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
                 {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
                 <button onclick={menu(actions.newTrip)}>{t('New trip')}</button>
-                <button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
+                <!-- TZ-2: a fixed trip: «Wieder öffnen» first; what changes the list or the facts waits for it -->
+                {#if fixed}<button class="tz2-reopen" onclick={menu(actions.reopen)}>{t('Reopen')}</button>{/if}
+                {#if !fixed}<button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
                 <button onclick={menu(() => show('conditions'))}>{t('Edit trip conditions')}</button>
-                <button onclick={menu(() => show('bags'))}>{t('Bags for this trip')}</button>{#if bikeTrip}<button onclick={menu(actions.compare)}>{t('Compare bikes')}</button><button onclick={menu(actions.template)}>{t('Save as template')}</button>{/if}
-                <button onclick={menu(() => show('purposes'))}>{t('Name your bags')}</button>
+                <button onclick={menu(() => show('bags'))}>{t('Bags for this trip')}</button>{/if}{#if bikeTrip}{#if !fixed}<button onclick={menu(actions.compare)}>{t('Compare bikes')}</button>{/if}{#if tplHere}<button onclick={menu(actions.template)}>{t('Save as template')}</button>{/if}{/if}
+                {#if !fixed}<button onclick={menu(() => show('purposes'))}>{t('Name your bags')}</button>{/if}
                 {#if hasPhoto}<button onclick={menu(actions.photo)}>{t('Setup photo')}</button>{/if}
                 <a href="#/pack/templates">{t('Templates')}</a>
                 <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button>
-                <button onclick={menu(() => show('ready'))}>{t('Ready check')} {readyCount}/{readyTotal}</button>
+                {#if !fixed}<button onclick={menu(() => show('ready'))}>{t('Ready check')} {readyCount}/{readyTotal}</button>
                 {#if stats.packed}<button onclick={actions.resetPacked}>{t('Untick packed items')}</button>{/if}
-                <button onclick={actions.skip}>{bikeTrip ? trip.skipped ? t('Riding it after all') : t('Not riding') : trip.skipped ? t('Going after all') : t('Not going')}</button>
+                <button onclick={actions.skip}>{bikeTrip ? trip.skipped ? t('Riding it after all') : t('Not riding') : trip.skipped ? t('Going after all') : t('Not going')}</button>{/if}
               </div>
             </details>
           </div>
@@ -293,7 +302,8 @@
         {#if !trip.entries.length}
           <!-- v0.127.0 A-U2: the one empty building block -->
           <section class="empty-list" aria-labelledby="empty-list-h">
-            <Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} />
+            {#if fixed}<Empty level={3} headId="empty-list-h" title={t('No packing list for this trip.')} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: actions.reopen }} />
+            {:else}<Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} />{/if}
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
@@ -305,7 +315,7 @@
             {@const g = groupG(group)}
             {@const miss = groupMissing(group)}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <section class="bag-group" class:open={isOpen} aria-label={zoneTitle(group)} ondragover={(e) => { if (grouping === 'bags') e.preventDefault(); }} ondrop={(e) => { if (grouping !== 'bags') return; e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) actions.addTo(group.key, id); }}>
+            <section class="bag-group" class:open={isOpen} aria-label={zoneTitle(group)} ondragover={(e) => { if (grouping === 'bags' && !fixed) e.preventDefault(); }} ondrop={(e) => { if (grouping !== 'bags' || fixed) return; e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) actions.addTo(group.key, id); }}>
               <button class="bag-heading" aria-expanded={isOpen} aria-controls={`calm-bag-${group.key}`} onclick={() => flip(group.key)}>
                 <Icon size={20} strokeWidth={1.8} aria-hidden="true" /><strong>{zoneTitle(group)}</strong>
                 <small class="num">{#if full}<i class="tp-badge">{t('over {cap} L', { cap: num(full.cap) })}</i> {/if}{tn(group.entries.length, '{n} item', '{n} items')}{group.entries.length ? ` · ${miss === group.entries.length ? t('not weighed') : (miss ? '~' : '') + formatWeight(g)}` : ''}</small>
@@ -313,7 +323,7 @@
               </button>
               {#if !isOpen && group.entries.length}<p class="preview">{preview(group)}</p>{/if}
               <!-- v0.37.0 (Noah 3a): a trip without a bike still on a general bag: a quiet way to the real one. -->
-              {#if grouping === 'bags' && group.bag?.pack && !group.bag.real}<p class="real-pack"><button type="button" class="tp-link quiet-link" onclick={() => show('bags')}>{t('Choose a real backpack')}</button></p>{/if}
+              {#if grouping === 'bags' && group.bag?.pack && !group.bag.real && !fixed}<p class="real-pack"><button type="button" class="tp-link quiet-link" onclick={() => show('bags')}>{t('Choose a real backpack')}</button></p>{/if}
               {#if isOpen}
                 <div id={`calm-bag-${group.key}`}>
                   {#if grouping === 'bags' && group.noBag}<p class="calm-error">{t('This trip has no bag here. Move these items or choose a bag in "Bags for this trip".')}</p>{/if}
@@ -331,15 +341,16 @@
                       <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out.
                            v0.44.1 (AP21): Escape closes the open row and the focus goes back to its button. -->
                       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                      <li class="planning-row" class:open class:changed={!!ctx} draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
+                      <li class="planning-row" class:open class:changed={!!ctx} draggable={grouping === 'bags' && !phone.matches && !fixed} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
                         <GripVertical class="drag-handle" size={18} aria-hidden="true" />
-                        <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
+                        <!-- TZ-2: a fixed list: the row only to read (no amount, move or take out) -->
+                        <svelte:element this={fixed ? 'div' : 'button'} class="row-main" class:ro={fixed} {...(fixed ? {} : { 'aria-label': t('Amount, move or take out: {name}', { name }), 'aria-describedby': why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`, 'aria-expanded': open, 'aria-controls': `calm-act-${entry.itemId}`, onclick: () => (itemMenu = open ? null : entry.itemId) })}>
                           <span class="item-name"><span>{name}</span>{#if qty > 1}{' '}<span class="item-qty">× {qty}</span>{/if}{#if why?.line || why?.note}<small class="carry-hint row-reason" id={`calm-r-${entry.itemId}`}>{why.line}{#if why.note}{#if why.line}<br />{/if}{t('Note: {text}', { text: why.note })}{/if}</small>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>
                           <span class="item-weight" id={`calm-w-${entry.itemId}`}>{#if item?.weightG == null}<i class="tp-badge">{t('not weighed')}</i>{:else}{formatWeight(item.weightG * qty)}{/if}</span>
-                          <ChevronDown class="row-chevron" size={18} aria-hidden="true" />
-                        </button>
-                        {#if ctx}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
-                        {#if open}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
+                          {#if !fixed}<ChevronDown class="row-chevron" size={18} aria-hidden="true" />{/if}
+                        </svelte:element>
+                        {#if ctx && !fixed}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
+                        {#if open && !fixed}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
                           <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
                           <label>{t('Move to')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label>
                           <button class="text-button" onclick={() => { actions.remove(entry.itemId); itemMenu = null; }}>{t('Take out')}</button>
@@ -350,7 +361,7 @@
                       </li>
                     {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p></li>{/each}
                   </ul>
-                  <p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>
+                  {#if !fixed}<p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>{/if}
                 </div>
               {/if}
             </section>
@@ -404,6 +415,9 @@
   .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: break-word; }
   .cell:nth-child(-n + 2) { border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
   .cell :global(svg) { color: var(--ink-3); flex: none; }
+  /* TZ-2: a fixed trip's conditions and rows are to read: no hover, no hand */
+  .cell.ro, .calm-pack :global(.row-main.ro) { cursor: default; }
+  @media (hover: hover) { .cell.ro:hover, .calm-pack :global(.row-main.ro:hover) { background: none; } }
   .cell small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-3); }
   @media (hover: hover) { .cell:hover { background: var(--paper-2); } }
   .cfoot { margin: 4px 10px 6px; }

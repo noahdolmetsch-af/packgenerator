@@ -92,7 +92,7 @@ for (const lang of ['en', 'de']) {
     // v0.49.0 R1: one table; a done trip has no «Debrief open» badge.
     const row = page.locator('table.tt tbody tr').filter({ hasText: title });
     await expect(row).toBeVisible();
-    await expect(row.locator('.nbadge')).toHaveCount(0);
+    await expect(row.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
 
     // 5. The next day ride: New → Plan a trip → Start from a template → the template → Create (5 clicks, plus the name).
     // v0.30.0: the folded templates are in the New trip window.

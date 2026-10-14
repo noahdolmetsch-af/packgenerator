@@ -119,6 +119,9 @@ export default {
   'This trip differs from its setup.': 'Diese Tour weicht von ihrem Setup ab.',
   'Save into setup': 'Ins Setup übernehmen',
   'Saved into setup «{name}».': 'Ins Setup «{name}» übernommen.',
+  // So geht's (know/howto.js)
+  'Choose the bags and put your things into them.': 'Wähle die Taschen und lege deine Sachen hinein.',
+  'When planning a trip, tap «Setup: …» to switch.': 'Beim Planen einer Tour «Setup: …» tippen zum Wechseln.',
   // «Was die App kann» (features.js)
   'Bag setups per bike': 'Taschen-Setups pro Velo',
   'Several bag setups per bike: which bags and what goes where, weights, compare two or all, choose one when planning.': 'Mehrere Taschen-Setups pro Velo: welche Taschen und was wohin kommt, Gewichte, zwei oder alle vergleichen, beim Planen eins wählen.',

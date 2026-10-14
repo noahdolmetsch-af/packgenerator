@@ -16,6 +16,8 @@
   import { partAreas } from './overview.js';
   import Seg from '../ui/Seg.svelte';
   import { t, num, dateOf } from '../i18n.svelte.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   // v0.68.0 «Q1 Jeder km zählt» (Q1.7 a): q1 on: the column «Start point» (mounted on, at bike km) and
   // «km on part» instead of «Last done» and «since»; a part without one shows «without start point · set».
@@ -105,7 +107,7 @@
       <span class="sn num">{r.last ? sinceText(r) : ''}{#if r.last && r.hm}<small class="hm">{t('{n} m climbed', { n: num(r.hm) })}</small>{/if}</span>
       {/if}
       <span class="wb">{#if r.st.fill != null}<span class="bar {r.st.tone}" role="img" aria-label="{Math.round(r.st.fill * 100)} %"><i style="width:{Math.max(4, Math.round(r.st.fill * 100))}%"></i></span>{:else if r.last}<span class="bar empty" aria-hidden="true"></span>{/if}</span>
-      <span class="nx" class:late={isDueState(r.st.state)}>{r.st.next || (r.last ? '' : '–')}{#if BADGE[r.st.state]}{' '}<i class="pill" class:act={isDueState(r.st.state)} class:warn={r.st.state === 'soon'}>{t(BADGE[r.st.state])}</i>{/if}</span>
+      <span class="nx" class:late={isDueState(r.st.state)}>{r.st.next || (r.last ? '' : '–')}{#if BADGE[r.st.state]}{' '}<i class="pill" class:act={isDueState(r.st.state)} class:warn={r.st.state === 'soon'} data-sign={isDueState(r.st.state) ? signFor('warn') : null}>{t(BADGE[r.st.state])}</i>{/if}</span>
       <ChevronRight class="chev" size={18} aria-hidden="true" />
     </button>
   </li>

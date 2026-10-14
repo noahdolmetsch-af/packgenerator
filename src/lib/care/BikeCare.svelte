@@ -40,6 +40,8 @@
   import { careSuggestions, careMark } from '../helper/care.js';
   import { careRows, careTask } from '../helper/logic.js';
   import '../helper/helper.css';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   const bike = $derived(c.bike);
   const words = $derived(bikeCareWords(c.care));
@@ -222,7 +224,7 @@
       <span class="lt">{#if text.length}{text.join(' · ')}{#if r.last?.by === 'shop'}{@render shop()}{/if}{:else}<span class="m">–</span>{/if}</span>
       {#if typeof r.last?.main.km === 'number'}<span class="kmv num">{num(r.last.main.km)}</span>{/if}
     </span>
-    <span class="next" class:late={isDueState(r.st.state)}>{r.st.next || '–'}</span>
+    <span class="next" class:late={isDueState(r.st.state)} data-sign={isDueState(r.st.state) ? signFor('warn') : null}>{r.st.next || '–'}</span>
     <span class="wear">{@render bar(r.st)}</span>
     <span class="act">
       {#if x}

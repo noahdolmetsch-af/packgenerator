@@ -16,6 +16,22 @@ export default {
   'In the setup tap «move» in a bag and put a thing into another bag; tap «Add gear» and tick a thing.': 'Im Setup bei einer Tasche «verschieben» tippen und ein Teil in eine andere Tasche legen; «Material dazu» tippen und ein Teil anhaken.',
   'Back on Mein Setup tap «Compare», then «All as a table».': 'Zurück auf Mein Setup «Vergleichen» tippen, dann «Alle als Tabelle».',
   'Plan a trip with this bike: under «Bike and bags» tap «Setup: …» and choose another setup; «Undo» puts it back.': 'Plane eine Tour mit diesem Velo: unter «Velo und Taschen» «Setup: …» tippen und ein anderes Setup wählen; «Rückgängig» stellt es zurück.',
+  // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
+  'A greeting and your questions': 'Ein Gruss und deine Fragen',
+  'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',
+  'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to': 'Heute begrüsst dich auf Mundart je nach Tageszeit; ein Tipp, und du sagst, wie es dir geht und was du vorhast',
+  '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30': '«Wi gaht\'s?»: 50 verspielte Fragen, 31 davon an, jede mit eigenem Rhythmus, gefragt um 07:00 und 20:30',
+  'History and analysis: all your values in one place, with your normal range': 'Verlauf und Auswertung: alle deine Werte an einem Ort, mit deinem Normalbereich',
+  'Tour from komoot: suggestions near you, a shared tour becomes a planned trip': 'Tour aus komoot: Vorschläge in deiner Nähe, eine geteilte Tour wird eine geplante Tour',
+  'Functions, Trips, Favourites and the import check in a calmer look': 'Funktionen, Touren, Favoriten und Import prüfen in ruhigerem Look',
+  'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.': 'Öffne Heute: Der Gruss steht oben; tippe auf «Wie gaht\'s? / Was häsch vor?», wähle und speichere.',
+  'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».': 'Öffne Ich › «Wi gaht\'s?»: Schalte eine Frage ein, ändere ihren Rhythmus, lege eine eigene Frage an, schau «Feste Runden» an.',
+  'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.': 'Ab 07:00 stellt die Karte auf Heute die Morgen-Fragen; die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.',
+  'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.': 'Öffne Ich › Daten › Verlauf und Auswertung: Die Antworten stehen dort, alte Tageschecks auch.',
+  'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.': 'Tippe in «Neue Tour» auf «Tour aus komoot»: komoot öffnet sich mit Vorschlägen in deiner Nähe.',
+  'On the phone open Trips and Material: the main button sits at the bottom.': 'Öffne am Handy Touren und Material: Der wichtigste Knopf sitzt unten.',
+  'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
+  'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
 
   // 0.132.1 Langer Name passt (Fehler behoben)
   'Long names fit': 'Lange Namen passen',

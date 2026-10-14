@@ -2,7 +2,8 @@
 // questions, question 15 on Sundays and the line of «Deine 15 Fragen». Pure rules. Fictional data only;
 // days are calendar days (Europe/Zurich), counted with addDays.
 import { describe, it, expect } from 'vitest';
-import { balance, ringPaths, CATS, CAT, POOL_CAT } from '../src/lib/balance.js';
+import { balance, ringPaths, CATS, CAT, POOL_CAT, AREA_CAT, answerSignals } from '../src/lib/balance.js';
+import { AREAS as AB_AREAS, QUESTION, MIRROR, answerRow } from '../src/lib/abfragen.js';
 import { QUESTIONS, offOf, isOn, switchQuestion, poolFor, rotatingFor, eveningTurnFor, eveningTurn, isSunday, daysToSunday, visionToday, answeredToday, checkOf, checkPart, SEED_QUESTIONS } from '../src/lib/flowcheck.js';
 import { addDays } from '../src/lib/flow.js';
 
@@ -99,6 +100,93 @@ describe('the balance of the last 7 days', () => {
     expect(p).toHaveLength(9);
     expect(p.filter((x) => x.fg).map((x) => x.key)).toEqual(['fun', 'goals']);
     for (const x of p) expect(x.bg).toMatch(/^M [\d.]+ [\d.]+ L/);
+  });
+});
+
+// WG «Wi gaht's?» takes over the daily check: its answers count in the ring too
+describe('WG: the balance from the answers of «Wi gaht\'s?»', () => {
+  /** A fictional answer row as «Wi gaht's?» saves it. */
+  const ab = (qid, raw, day = T) => answerRow(QUESTION[qid], raw, { at: `${day}T07:05`, slot: `${day}T07:00` });
+  const val = (answers, checks = []) => Object.fromEntries(balance({ today: T, answers, checks }).cats.map((c) => [c.key, c.value]));
+
+  it('every area but «Körper und Werte» is one of the nine categories', () => {
+    expect(AREA_CAT).toEqual({ erholung: 'rest', spass: 'fun', sport: 'sport', achtsamkeit: 'mind', freunde: 'friends', natur: 'nature', visionen: 'vision', ziele: 'goals', erreicht: 'done' });
+    for (const a of AB_AREAS.filter((x) => x.key !== 'koerper')) expect(CAT[AREA_CAT[a.key]], a.key).toBeTruthy();
+    expect(AREA_CAT.koerper).toBeUndefined();
+  });
+
+  it('a scale (v − 1) / 9 in the category of its area', () => {
+    expect(answerSignals(ab('erholung.koerper', 10))).toEqual([['rest', 1]]);
+    expect(answerSignals(ab('sport.beine', 1))).toEqual([['sport', 0]]);
+    const v = val([ab('achtsamkeit.kopf', 4), ab('freunde.verbunden', 7), ab('natur.luft', 10), ab('visionen.neues', 1), ab('ziele.tempo', 10), ab('erreicht.zufrieden', 7), ab('spass.grinser', 10)]);
+    expect(v).toMatchObject({ mind: 33, friends: 67, nature: 100, vision: 0, goals: 100, done: 67, fun: 100 });
+    expect(v.rest).toBeNull();
+    expect(v.sport).toBeNull();
+  });
+
+  it('yes/no and chips with a value count their value', () => {
+    expect(answerSignals(ab('achtsamkeit.moment', 'yes'))).toEqual([['mind', 1]]);
+    expect(answerSignals(ab('erreicht.ziel', 'partly'))).toEqual([['done', 0.5]]);
+    expect(answerSignals(ab('spass.gelacht', 'no'))).toEqual([['fun', 0]]);
+    expect(answerSignals(ab('freunde.zeit', 'short'))).toEqual([['friends', 0.5]]);
+    expect(answerSignals(ab('erholung.sofa', 'ratherSaddle'))).toEqual([['rest', 0.75]]);
+    expect(answerSignals(ab('sport.bewegung', 'goat'))).toEqual([['sport', 1]]);
+    expect(answerSignals(ab('achtsamkeit.tabs', 'crashed'))).toEqual([['mind', 0]]);
+    // chips without a value (the trophy, the emoji, the weather) say nothing
+    expect(answerSignals(ab('erreicht.pokal', 'brave'))).toEqual([]);
+    expect(answerSignals(ab('spass.emoji', 'cool'))).toEqual([]);
+    expect(answerSignals(ab('natur.wetter', ['sun', 'wind']))).toEqual([]);
+    expect(answerSignals(ab('ziele.freude', ['nature']))).toEqual([]);
+  });
+
+  it('natur.draussen in the four steps of the time outside', () => {
+    expect(['m0', 'm30', 'm90', 'more'].map((k) => answerSignals(ab('natur.draussen', k))[0][1])).toEqual([0, 1 / 3, 2 / 3, 1]);
+    expect(answerSignals(ab('natur.draussen', 'm90'))[0][0]).toBe('nature');
+  });
+
+  it('a sentence to the goal of the day counts Ziele 1; other sentences and plain numbers are left out', () => {
+    expect(answerSignals(ab('ziele.ziel', 'Fiktive Runde am See'))).toEqual([['goals', 1]]);
+    for (const [qid, raw] of [['ziele.kette', 'Kette ölen'], ['erreicht.stolz', 'Früh los'], ['visionen.tour', 'Eine fiktive Tour'], ['erholung.kaffee', 2], ['freunde.gespraeche', 3], ['koerper.waage', 70.5], ['koerper.essen', 8]]) {
+      expect(answerSignals(ab(qid, raw)), qid).toEqual([]);
+    }
+  });
+
+  it('the highlights of the day (spass.coolstes) count like Q9', () => {
+    expect(answerSignals(ab('spass.coolstes', ['nature', 'sport', 'friends', 'calm', 'done', 'fun', 'new']))).toEqual([['nature', 1], ['sport', 1], ['friends', 1], ['rest', 1], ['done', 1]]);
+  });
+
+  it('sleep, energy and mood (MIRROR) count once, through the day\'s check', () => {
+    for (const qid of Object.keys(MIRROR)) expect(answerSignals(ab(qid, 9)), qid).toEqual([]);
+    // the answer and its mirror in flowChecks: the same as the check alone
+    const answers = [ab('erholung.schlaf', 10), ab('erholung.akku', 1), ab('spass.stimmung', 10)];
+    const checks = [{ day: T, sleep: 10, energy: 1, mood: 10 }];
+    const both = balance({ today: T, answers, checks }).cats;
+    const alone = balance({ today: T, checks }).cats;
+    expect(both.find((c) => c.key === 'rest')).toEqual(alone.find((c) => c.key === 'rest'));
+    expect(both.find((c) => c.key === 'fun')).toEqual(alone.find((c) => c.key === 'fun'));
+  });
+
+  it('the hello answers count by their area: the mood for Spass, a plan for Ziele', () => {
+    expect(answerSignals(answerRow(QUESTION['hallo.gaht'], 'guet', { at: `${T}T08:00` }))).toEqual([['fun', 0.75]]);
+    expect(answerSignals(answerRow(QUESTION['hallo.vor'], ['tour'], { at: `${T}T08:00` }))).toEqual([['goals', 1]]);
+    expect(answerSignals(answerRow(QUESTION['hallo.vor'], [], { at: `${T}T08:00`, note: 'nur ein Satz' }))).toEqual([]);
+  });
+
+  it('only the 7 days count; a day of «Wi gaht\'s?» without a goal is not a 0 for Ziele', () => {
+    expect(val([ab('natur.luft', 10, addDays(T, -7))]).nature).toBeNull();
+    expect(val([ab('natur.luft', 10, addDays(T, -6))]).nature).toBe(100);
+    // the mirrored check of an AB day has sleep, but the goal is asked in ziele.ziel: no 0
+    expect(val([ab('erholung.schlaf', 6)], [{ day: T, sleep: 6 }]).goals).toBeNull();
+    expect(val([ab('erholung.schlaf', 6), ab('ziele.ziel', 'Velo')], [{ day: T, sleep: 6 }]).goals).toBe(100);
+    // an old check without «Wi gaht's?» keeps its rule
+    expect(val([], [{ day: T, sleep: 6 }]).goals).toBe(0);
+  });
+
+  it('own questions and broken rows are left out', () => {
+    expect(answerSignals({ qid: 'own-x', area: 'eigene', kind: 'scale', value: 7, day: T })).toEqual([]);
+    expect(answerSignals({ qid: 'own-y', area: 'sport', kind: 'yesno', value: 'yes', day: T })).toEqual([['sport', 1]]);
+    expect(answerSignals(null)).toEqual([]);
+    expect(answerSignals({ qid: 'natur.luft', area: 'natur', kind: 'scale', value: null })).toEqual([]);
   });
 });
 

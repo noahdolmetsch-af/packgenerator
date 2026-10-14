@@ -4,6 +4,7 @@
 // L9  New trip without a bike adds one inline; a trip without any gear lands in a friendly empty Plan.
 // Fictional fixture plus test_data_gtp_ items, bikes and trips; nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
+import { endMenu } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -184,7 +185,7 @@ test('L7: during the trip "End the trip" on the way asks, ends it, and "Trip end
   await page.goto('./#/ride');
   // v0.67.0 (U004): before the last day no main button; the quiet link asks first («Weiterfahren» on top)
   await expect(goButton(page)).toHaveCount(0);
-  await page.getByRole('button', { name: T('End the trip …') }).click();
+  await endMenu(page, T); // SN1 (changed on purpose): «Tour beenden …» is in the band's «…»
   const sheet = page.locator('dialog.endsheet');
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();

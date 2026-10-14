@@ -2,6 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { isTestTrip, homeTrips, testTrips, archiveChanges, greeting, dayPart, weatherLine, dayDry, countdown, soonTrips, weekOf, streakWeeks, monthBars, stepOf, milestoneLevels, milestoneStep, milestonesNow, milestoneText, layoutOf, moveSection, toggleSection, SECTIONS } from '../src/lib/home/heute.js';
+import { greetFor, HELLO_WORDS, HELLO_ASK } from '../src/lib/home/hallo.js';
 import { FUNCTIONS, FIXED, orderFunctions, shownFunctions, bumpUsage, usageOf, dataUsed, usedFunctions, levelOf, untried, tryPick } from '../src/lib/home/functions.js';
 import { commandActions, fold } from '../src/lib/search.js';
 import { paletteOf, modeOf, resolveMode, DEFAULT_PALETTE } from '../src/lib/theme.svelte.js';
@@ -37,10 +38,12 @@ describe('greeting and weather', () => {
     expect(dayPart(7)).toBe('morning');
     expect(dayPart(13)).toBe('day');
     expect(dayPart(19)).toBe('evening');
-    expect(greeting(7, 'Noah')).toBe('Good morning, Noah.');
-    expect(greeting(20, '')).toBe('Good evening.');
+    // HG1 (1a 4b): the greeting is always Swiss German (home/hallo.js), in English and in German
+    expect(greeting(7, 'Lena')).toBe(greetFor(7, 'Lena'));
+    expect(greeting(7, 'Lena')).toBe(`${HELLO_WORDS.morning} Lena, ${HELLO_ASK}`);
+    expect(greeting(20, '')).toBe(`${HELLO_WORDS.evening}, ${HELLO_ASK}`);
     lang.v = 'de';
-    expect(greeting(8, 'Noah')).toBe('Guten Morgen, Noah.');
+    expect(greeting(8, 'Lena')).toBe(`${HELLO_WORDS.morning} Lena, ${HELLO_ASK}`);
   });
   const hourly = (p, t = 14) => ({ t: Array(24).fill(t), p });
   const fc = (days) => ({ days });
