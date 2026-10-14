@@ -5,8 +5,9 @@
  * with «Last place» = FE11) turns a plain start address into the chosen page; every page change is
  * kept as the last place.
  */
-import { OPS, OPS_KEY, opOf, buzzNow, START_KEY, LAST_KEY, startOf, lastOf, startHash, DEFAULT_START } from './bedienung.js';
+import { OPS, OPS_KEY, opOf, buzzNow, START_KEY, LAST_KEY, SEEN_KEY, startOf, lastOf, startHash, DEFAULT_START } from './bedienung.js';
 import { quietNow } from './quiet.js';
+import { miniAppOf } from './miniapps.js';
 
 export const ops = $state({ ...Object.fromEntries(OPS.map((o) => [o.key, o.on])), start: DEFAULT_START });
 
@@ -38,14 +39,28 @@ export function initOps() {
   ops.start = startOf(get(START_KEY));
   apply();
   if (typeof location === 'undefined') return;
-  const to = startHash({ start: ops.start, last: get(LAST_KEY), hash: location.hash, search: location.search });
+  // Regeln der App (14.10.2026): a small app starts on its own area and is never kept as the whole app's
+  // last place; «App öffnen bei» is for the whole app only
+  if (miniAppOf(location.pathname)) return;
+  let nav = '';
+  try {
+    nav = performance.getEntriesByType('navigation')[0]?.type ?? '';
+  } catch {
+    /* an old browser: no pause rule */
+  }
+  const to = startHash({ start: ops.start, last: get(LAST_KEY), hash: location.hash, search: location.search, nav, seen: get(SEEN_KEY) });
   if (to) history.replaceState(null, '', `${location.pathname}${to}`);
+  const seen = () => put(SEEN_KEY, String(Date.now()));
   const keep = () => {
     const h = lastOf(location.hash);
     if (h) put(LAST_KEY, h);
+    seen();
   };
   keep();
   window.addEventListener('hashchange', keep);
+  // 1b: the last moment the app was used, so a tab that comes back after a pause starts at the start place
+  window.addEventListener('pagehide', seen);
+  document.addEventListener('visibilitychange', seen);
 }
 
 export function setOp(key, on) {

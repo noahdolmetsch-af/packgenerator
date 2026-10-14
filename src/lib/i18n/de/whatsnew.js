@@ -4,6 +4,19 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.140.0 Regeln der App (nichts springt von selbst, ein Tipp öffnet zum Ändern)
+  'Nothing jumps on its own': 'Nichts springt von selbst',
+  'A tap opens things to change them, and the app no longer jumps to another page by itself.': 'Ein Tipp öffnet Dinge zum Ändern, und die App springt nicht mehr von selbst auf eine andere Seite.',
+  'On the phone a tap on an item in Material opens it to change, like on the computer': 'Am Handy öffnet ein Tipp auf ein Teil in Material es zum Ändern, wie am Computer',
+  'The pencil next to the bike\'s name opens the bike details: name, type, use and photo in one window': 'Der Stift neben dem Velonamen öffnet die Velodetails: Name, Art, Einsatz und Foto in einem Fenster',
+  'A day trip without a bike stays on Pack after packing, with a link to Today': 'Eine Tagestour ohne Velo bleibt nach dem Packen auf Packen, mit einem Link zu Heute',
+  'A browser tab that opens again after a pause starts on your start page; a reload stays where you were': 'Ein Browser-Tab, der nach einer Pause wieder aufgeht, startet auf deiner Startseite; Neuladen bleibt, wo du warst',
+  'Back closes every window first, now in all of them': 'Zurück schliesst zuerst das Fenster, jetzt bei allen',
+  '«n more due: open the bike» opens the bike; the old link «12 months» lands at the right part; a wishlist favourite opens in the wishlist': '«n weitere fällig: Velo öffnen» öffnet das Velo; der alte Link «12 Monate» landet beim richtigen Teil; ein Favorit auf der Wunschliste öffnet sich in der Wunschliste',
+  'On the phone open Material, tap an item: the fields can be changed, «Save» at the bottom.': 'Öffne am Handy Material, tippe auf ein Teil: Die Felder lassen sich ändern, «Speichern» unten.',
+  'Open Bikes, tap the pencil next to the name: «Bike details» opens, change the name and save.': 'Öffne Velos, tippe auf den Stift neben dem Namen: «Velodetails» öffnet sich, ändere den Namen und speichere.',
+  'Plan a day hike without a bike for today, pack everything, tap «Finish packing»: you stay on Pack, «Zu Heute» leads to Today.': 'Plane für heute eine Wanderung ohne Velo, packe alles, tippe «Packen abschliessen»: Du bleibst auf Packen, «Zu Heute» führt zu Heute.',
+  'Open any window, e.g. «Sort and filter» in Material, press the phone\'s back: the window closes, the page stays.': 'Öffne ein Fenster, z. B. «Sortieren und filtern» in Material, drücke am Handy Zurück: Das Fenster geht zu, die Seite bleibt.',
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

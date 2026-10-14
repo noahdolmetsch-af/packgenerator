@@ -941,7 +941,8 @@
 <svelte:window onclick={(e) => { if (moreEl?.open && !moreEl.contains(e.target)) moreEl.open = false; if (gmoreEl?.open && !gmoreEl.contains(e.target)) gmoreEl.open = false; }} />
 
 {#if dialog}
-  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
+  <!-- Regeln der App C b (Noah 14.10.2026, mockup C1): a tap opens the item to edit, on the phone too -->
+  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} onclose={() => (dialog = null)} />
 {/if}
 
 <style>

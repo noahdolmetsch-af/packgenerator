@@ -16,6 +16,30 @@
 
 export const WHATS_NEW = [
   {
+    // v0.140.0 «Regeln der App» (Noah 14.10.2026: A a nothing jumps, C b a tap opens to edit, mockups C1 C2 A1
+    // approved 20:29 UTC; App-Start 1b; the small fixes from the rules document)
+    version: '0.140.0',
+    date: '2026-10-15',
+    title: 'Nothing jumps on its own',
+    lead: 'A tap opens things to change them, and the app no longer jumps to another page by itself.',
+    points: [
+      { text: 'On the phone a tap on an item in Material opens it to change, like on the computer', href: '#/gear' },
+      { text: 'The pencil next to the bike\'s name opens the bike details: name, type, use and photo in one window', href: '#/bikes' },
+      { text: 'A day trip without a bike stays on Pack after packing, with a link to Today', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A browser tab that opens again after a pause starts on your start page; a reload stays where you were' },
+      { box: 'fixed', text: 'Back closes every window first, now in all of them' },
+      { box: 'fixed', text: '«n more due: open the bike» opens the bike; the old link «12 months» lands at the right part; a wishlist favourite opens in the wishlist' },
+    ],
+    test: [
+      'On the phone open Material, tap an item: the fields can be changed, «Save» at the bottom.',
+      'Open Bikes, tap the pencil next to the name: «Bike details» opens, change the name and save.',
+      'Plan a day hike without a bike for today, pack everything, tap «Finish packing»: you stay on Pack, «Zu Heute» leads to Today.',
+      'Open any window, e.g. «Sort and filter» in Material, press the phone\'s back: the window closes, the page stays.',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',

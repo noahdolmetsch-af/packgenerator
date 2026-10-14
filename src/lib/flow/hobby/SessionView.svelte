@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Hobby pages 2 «Kissenzeit»: a session runs (mockup B7, Noah 10.10.2026, H26a, H27a). The whole screen
    * for the clock: the arc that ran, the marks, the next one in orange, the time left large; only three
@@ -105,7 +106,7 @@
   }
 </script>
 
-<dialog class="sess" class:wide={wide.matches} bind:this={dlg} onclose={() => (ui.sessionOpen = false)} oncancel={(e) => (e.preventDefault(), small())} aria-labelledby="sess-h">
+<dialog use:backClose class="sess" class:wide={wide.matches} bind:this={dlg} onclose={() => (ui.sessionOpen = false)} oncancel={(e) => (e.preventDefault(), small())} aria-labelledby="sess-h">
   {#if ui.sessionOpen && tm?.session}
     <div class="body">
       <header class="top">

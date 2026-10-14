@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 (Noah 9a): the start values of a bike without part data, in three steps:
    * 1. the purchase date (= the mounting date of every part) and the km then,
@@ -71,7 +72,7 @@
 
 <!-- Design-Refresh P7 (V9, Noah 12.10.2026 «v5-v10 freigabe»): the start values as a window of the bike
      pages: the question, «bike · step n of 3», three named steps, «original / new» as chips. -->
-<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
+<dialog use:backClose class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
   <div class="fh vd-head">
     <div class="vd-t">
       <h2 id="sv-h" class="title">{[t('When did you buy it?'), t('How many km today?'), t('What is new since the purchase?')][step]}</h2>

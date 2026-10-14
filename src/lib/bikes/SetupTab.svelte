@@ -13,7 +13,7 @@
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, renameBike } from '../bikes.js';
+  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
@@ -278,19 +278,9 @@
   );
 
   /*
-   * v0.72.0 «Feinschliff» (Umbenennen 1a, Noah 10.10.2026): the pencil next to the bike's name opens
-   * only «Rename bike» (the sheet above the keyboard); type, use and photo stay in «Bike details»,
-   * one link further. After a rename the same bike stays chosen: its id goes into the address, else
-   * Setup would show the first bike by name and the new name looked lost.
+   * Regeln der App C b (Noah 14.10.2026, mockup C2): the pencil next to the bike's name opens «Bike details»
+   * right away, the name and everything else in one window (was: only «Rename bike», v0.72.0).
    */
-  let bikeRename = $state(null);
-  const tripsOn = (id) => ($tripsQ ?? []).filter((x) => x.bikeId === id).length;
-  async function renameThis(name) {
-    const b = bikeRename;
-    onbike?.(b.id);
-    const old = await renameBike(db, b.id, name);
-    offerRename(name, () => renameBike(db, b.id, old));
-  }
 
   function chooseBike(id) {
     onbike?.(id);
@@ -306,7 +296,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
+    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
     <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
     <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
 
@@ -558,21 +548,6 @@
 
 {#if bikeDialog}
   <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => onbike?.(id)} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
-{/if}
-
-{#if bikeRename}
-  <RenameSheet
-    kicker={t('Bike')}
-    title={t('Rename bike')}
-    value={bikeRename.name}
-    hint={tripsOn(bikeRename.id) ? tn(tripsOn(bikeRename.id), 'The new name counts everywhere: Setup, Care, {n} trip.', 'The new name counts everywhere: Setup, Care, {n} trips.') : t('The new name counts everywhere: Setup and Care.')}
-    onsave={renameThis}
-    onclose={() => (bikeRename = null)}
-  >
-    {#snippet extra()}
-      <button type="button" class="link more-d" onclick={() => ((bikeDialog = { bike: bikeRename }), (bikeRename = null))}>{t('Type, use and photo: Bike details')} ›</button>
-    {/snippet}
-  </RenameSheet>
 {/if}
 
 {#if photoRename}

@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.51.0 «Im Flow»: the countdown as a sheet from below (Noah 7: a countdown to the target time,
    * then it ends). A ring that empties, the time, Pause and «Fertig · abhaken». The singing bowl
@@ -83,7 +84,7 @@
   });
 </script>
 
-<dialog class="sheet from-below tsheet" bind:this={dlg} onclose={() => (ui.timerOpen = false)} onclick={(e) => e.target === dlg && small()} aria-labelledby="timer-h">
+<dialog use:backClose class="sheet from-below tsheet" bind:this={dlg} onclose={() => (ui.timerOpen = false)} onclick={(e) => e.target === dlg && small()} aria-labelledby="timer-h">
   {#if ui.timerOpen}
     <div class="grab" aria-hidden="true"></div>
     <div class="hd">

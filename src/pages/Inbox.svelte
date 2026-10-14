@@ -122,7 +122,7 @@
           <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('A suggestion is with each · tap «File»')}</p></div></div>
           {#if $notesQ && !notes.length}
             <!-- v0.127.0 A-U2: the one empty building block -->
-            <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + at the bottom right on any page when something comes up.')} action={{ label: t('Quick note'), onclick: onnew }} />
+            <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + on any page when something comes up.')} action={{ label: t('Quick note'), onclick: onnew }} />
           {:else if $notesQ && !openN}
             <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
           {/if}

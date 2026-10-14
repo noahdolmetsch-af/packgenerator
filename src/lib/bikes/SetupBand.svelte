@@ -40,7 +40,7 @@
   </div>
   <h2 class="name">
     <span>{bike.name}</span>
-    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Rename {name}', { name: bike.name })} title={t('Rename')}><Pencil size={16} aria-hidden="true" /></button>
+    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /></button>
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}

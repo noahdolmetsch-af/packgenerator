@@ -1303,3 +1303,13 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 15.10.2026: 0.140.0 «Regeln der App»
+
+- (Regeln freigegeben: «a a, b a, c b, freigabe» 14.10.2026; Mockups C1 C2 A1 «C1 C2 A1 freigegeben» 14.10.2026 20:29 UTC; App-Start 1b aus «1b 2b 3b 4a 5a» 19:59 UTC). Grundlage: `notes/navigation-analyse/regeln-der-app.md` im Projektordner (alle Regeln pro Seite mit Datei:Zeile).
+- **A a, nichts springt von selbst:** Nach einer Aktion bleibt die Seite; wo es weitergeht, steht eine Meldung mit Link. Hier: Tagestour ohne Velo nach dem Packen. Die Sprünge auf Heute am Tourtag und am letzten Abend folgen mit 0.140.1 (Karten ST1/ST2).
+- **C b, ein Tipp öffnet zum Ändern:** Teil am Handy direkt bearbeitbar; der Velo-Stift öffnet die Velodetails. Das eigene Blatt «Velo umbenennen» mit Rückgängig fällt dafür weg (der Name steht in den Velodetails).
+- **App-Start 1b:** Ein Tab mit einer alten Seite startet nach einer Pause (30 Min ohne die App) auf der Startseite; nur Neuladen (F5) und ein Link kurz nach der Benutzung bleiben. Geteilte Listen, geteilte Texte und die Strava-Rückkehr gewinnen immer.
+- **B a (ein Wort pro Sache)** baut der Thread «Durchklick».
+- **Selbst entschieden:** Pause = 30 Minuten; die Meldung «Alles gepackt» bleibt 8 s; «n weitere fällig» öffnet das Velo der nächsten fälligen Zeile; kleine Apps merken sich nicht als «letzter Ort» der ganzen App.
+

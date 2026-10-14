@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   import { localDay } from '../localday.js';
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
@@ -539,7 +540,7 @@
   {@const wb = viewById[workBike] ?? views[0]}
   <!-- v0.48.0 (Pflege C): «Record work»: pick the bike and the part; the part then offers Replace and Service. -->
   <!-- Design-Refresh P7: «Record work» as a window of the bike pages (bike and part as chips). -->
-  <dialog class="sheet vdlg" bind:this={workDialog} onclose={() => (workOpen = false)} aria-labelledby="work-h">
+  <dialog use:backClose class="sheet vdlg" bind:this={workDialog} onclose={() => (workOpen = false)} aria-labelledby="work-h">
     <div class="vd-head">
       <div class="vd-t"><h2 id="work-h" class="title">{t('Record work')}</h2><p class="vd-sub">{t('Pick the bike and the part')}</p></div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => workDialog.close()}><X size={20} aria-hidden="true" /></button>
