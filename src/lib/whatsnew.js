@@ -25,7 +25,7 @@ export const WHATS_NEW = [
     points: [
       { text: 'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both', href: '#/bikes?tab=care' },
       { text: 'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count', href: '#/gear' },
-      { text: 'A trip has one weight, all together with food and water: in its head, on the weight card and on Today', href: '#/trips' },
+      { text: 'A trip has one weight, all together with food and water: in its head and on the weight card', href: '#/trips' },
     ],
     small: [
       { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
