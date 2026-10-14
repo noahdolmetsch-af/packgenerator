@@ -16,6 +16,32 @@
 
 export const WHATS_NEW = [
   {
+    // v0.132.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
+    version: '0.132.0',
+    date: '2026-10-14',
+    title: 'A greeting and your questions',
+    lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',
+    points: [
+      { text: '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30', href: '#/me/abfragen' },
+      { text: 'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to', href: '#/me/look' },
+      { text: 'History and analysis: all your values in one place, with your normal range', href: '#/me/history' },
+    ],
+    small: [
+      { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
+      { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
+      { box: 'nicer', text: 'On the phone the main buttons sit at the bottom; colours always come with a sign; «?» explains hard fields' },
+    ],
+    test: [
+      'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
+      'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».',
+      'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.',
+      'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
+      'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
+      'On the phone open Trips and Material: the main button sits at the bottom.',
+    ],
+  },
+  {
     // v0.126.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151): Velo-Setup UC3 (#155), Kluge Suche (#154),
     // App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen vorbereiten BZ1/BZ2b (#156), Kleine Apps + Handbuch (#157)
     version: '0.126.0',

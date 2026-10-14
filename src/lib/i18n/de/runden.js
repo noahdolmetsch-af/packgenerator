@@ -16,4 +16,13 @@ export default {
   'Answer your questions or tick something in Aktiv: the ring fills by itself.': "Beantworte «Wi gaht's?» oder hake in Aktiv etwas ab: der Ring füllt sich von selbst.",
   'sleep, energy and mood · one tap per question': 'Schlaf, Energie und Stimmung · ein Tipp pro Frage',
   'Today|values': 'Heute',
+  // v0.132.0 the two new functions in «Was die App kann»
+  'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.': 'Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.',
+  'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.': 'komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.',
+  'Open Me › «Wi gaht\'s?».': 'Öffne Ich › «Wi gaht\'s?».',
+  'Switch questions on or off and change their rhythm.': 'Schalte Fragen ein oder aus und ändere ihren Rhythmus.',
+  'From 07:00 and 20:30 the card on Today asks them.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute.',
+  'Open New tour or On the way.': 'Öffne Neue Tour oder Unterwegs.',
+  'Tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
+  'Share a tour from komoot to the app: it becomes a planned trip.': 'Teile eine Tour aus komoot mit der App: Sie wird eine geplante Tour.',
 };

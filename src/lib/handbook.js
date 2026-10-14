@@ -311,6 +311,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
     example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
   },
+  'f.komoot': {
+    on: null,
+    steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
+    example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
+  },
   'f.problem': {
     on: 'Needs a bike first: Bikes › «Add bike».',
     steps: ['Tap «New» › «Problem with a bike».', 'One problem per row, with priority and deadline.'],
@@ -390,6 +395,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
+  },
+  // v0.132.0
+  'f.abfragen': {
+    on: null,
+    steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
+    example: 'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.',
   },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',
