@@ -18,10 +18,16 @@
   import { strava, loadDetail } from '../../lib/strava/client.svelte.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { dayWhen } from '../../lib/strava/when.js';
-  import { zoneSecs, shares, hmm, speed, sameRoute, typeKey, ZONE_NAMES, zoneRange } from '../../lib/training.js';
+  import { zoneSecs, shares, hmm, speed, sameRoute, typeKey, ZONE_NAMES, zoneRange, hasDetail } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { localDay } from '../../lib/localday.js';
+  import PowerBlock from '../../lib/training/act/PowerBlock.svelte';
+  import LoadCurve from '../../lib/training/act/LoadCurve.svelte';
+  import ActAnalyses from '../../lib/training/act/ActAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
 
   let { id = '' } = $props();
+  const today = localDay();
 
   const actQ = $derived(liveQuery(async () => (await db.activities.get(id)) ?? null));
   const allQ = liveQuery(() => db.activities.toArray());
@@ -42,7 +48,7 @@
   let asked = $state('');
   let fetchErr = $state('');
   $effect(() => {
-    if (!act || act.detail || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
+    if (!act || hasDetail(act) || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
     asked = act.id;
     loadDetail(db, act.id).catch((e) => (fetchErr = e?.code === 'strava_busy' ? t('Strava is busy right now; the heart rate comes with the next fetch.') : t('The heart rate could not be fetched just now.')));
   });
@@ -93,6 +99,8 @@
           {#if act.w20 != null}<span data-power="w20"><b>{act.w20} W</b><small>{t('best 20 min')}</small></span>{/if}
         </div>
 
+        <PowerBlock {act} all={$allQ ?? []} {today} />
+
         <Sec id="zones-h" title={t('Time in heart rate zones')} sub={source} more={{ label: t('change zones'), href: '#/flow/training?zones=1' }}>
           <div class="card zones" data-section="zone-time">
             {#if secs}
@@ -134,6 +142,8 @@
       </div>
 
       <div class="col">
+        <LoadCurve {act} all={$allQ ?? []} {today} />
+
         {#if same.list.length > 1}
           <Sec id="same-h" title={t('Same route')} sub={t('{n}× done', { n: same.list.length })}>
             <ul class="card same" data-section="same-route">
@@ -160,8 +170,11 @@
         <p class="kd"><KindIcon kind={act.kind} size={14} /> {t(typeKey(act.type))}</p>
       </div>
     </div>
+
+    <ActAnalyses {act} all={$allQ ?? []} {today} />
   {/if}
 </div>
+<AnaSheet />
 
 <style>
   .ta {
