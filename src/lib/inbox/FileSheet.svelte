@@ -14,6 +14,8 @@
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
   import { ICONS } from './icons.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
+  import { shrinkImage } from '../photo.js';
   import { ReceiptText, Check, X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
@@ -65,6 +67,20 @@
   let topic = $state(guessTopic(note.text ?? ''));
   let msg = $state('');
   let busy = $state(false);
+  // Kamera-Knopf (Noah, 14.10.2026 «bei Belegen immer»): a receipt note without a photo gets one here
+  let photo = $state(null);
+  let reading = $state(false);
+  async function addPhoto(file) {
+    reading = true;
+    msg = '';
+    try {
+      photo = await shrinkImage(file, 1200, 0.8);
+    } catch (err) {
+      msg = err.message || t('This photo could not be read.');
+    } finally {
+      reading = false;
+    }
+  }
 
   const shops = $derived(shopsOf(visits));
   const tripList = $derived([...trips].filter((x) => !x.skipped).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')).slice(0, 8));
@@ -108,7 +124,7 @@
     } else opts = { topic };
     busy = true;
     try {
-      const stored = await fileTo($state.snapshot(note), kind, opts);
+      const stored = await fileTo({ ...$state.snapshot(note), ...(photo ? { photo } : {}) }, kind, opts);
       onfiled?.(stored);
       dialog.close();
     } catch (err) {
@@ -171,6 +187,10 @@
       <div class="vd-chips chips" role="group" aria-label={t('What was done?')}>
         {#each JOBS as j (j.part)}{@const on = jobs.some((x) => x.part === j.part)}<button type="button" class="vd-chip" aria-pressed={on} onclick={() => toggleJob(j)}>{t(j.name)}</button>{/each}
       </div>
+      {#if !note.photo}
+        <p class="lbl">{t('Photo of the receipt')}</p>
+        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
+      {/if}
       <p class="name"><ReceiptText size={16} aria-hidden="true" /><span>{t('Name')}: {t('Receipt|target')} {receiptName(shop, date)}</span></p>
     {:else if kind === 'material' || kind === 'wish'}
       <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" bind:value={name} autocomplete="off" /></label>
@@ -202,6 +222,28 @@
 </dialog>
 
 <style>
+  .pick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .pick .th {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  .pick .link {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .ph {
     flex: none;
     width: 44px;

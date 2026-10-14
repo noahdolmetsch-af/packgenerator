@@ -12,6 +12,7 @@
   import { newNote, sortNote, nextNumber } from '../notes.js';
   import { addIdea, newVisit, parseChf } from '../hubs.js';
   import { shrinkImage } from '../photo.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
   import { t } from '../i18n.svelte.js';
 
   let { kind, bikes = [], bikeId = null, tripId = null, onclose, onsaved } = $props();
@@ -37,10 +38,7 @@
     dialog.showModal();
   });
 
-  async function addPhoto(event) {
-    const file = event.currentTarget.files[0];
-    event.currentTarget.value = '';
-    if (!file) return;
+  async function addPhoto(file) {
     reading = true;
     msg = '';
     try {
@@ -131,7 +129,7 @@
 
     {#if kind !== 'idea'}
       <div class="row">
-        <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : kind === 'visit' ? `+ ${t('Photo of the receipt')}` : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+        <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={kind === 'visit' ? 'Photograph the receipt' : 'Take photo'} />
         {#if photo}<img class="th" src={photo} alt={kind === 'visit' ? t('Photo of the receipt') : t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
       </div>
     {/if}
