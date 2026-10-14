@@ -74,6 +74,8 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   await expect(page.locator('.kz')).toBeVisible();
 
   // «Touren im Vergleich»: every row with its state pill (on a phone under the name)
+  // 0.159.1 (UI-Regeln Teil 2): on a phone it is a closed line first
+  if (info.project.name === 'phone') await page.locator('[data-group="rv-compare"] .ls-gh').click();
   const rows = page.locator('#compare table.st tbody tr');
   expect(await rows.count()).toBeGreaterThan(1);
   const pillIn = info.project.name === 'phone' ? '.ph-only [data-state]' : 'td [data-state]';

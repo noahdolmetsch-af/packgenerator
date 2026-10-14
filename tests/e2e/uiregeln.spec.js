@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, importAndSettle } from './settle.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
@@ -53,14 +53,14 @@ async function noSideScroll(page) {
   await page.setViewportSize(size);
 }
 
-async function shot(page, info, name) {
+async function shot(page, info, name, fullPage = false) {
   if (!SHOTS) return;
   mkdirSync(SHOTS, { recursive: true });
   const size = page.viewportSize();
   const desk = info.project.name === 'desktop';
   if (desk) await page.setViewportSize({ width: 1440, height: 900 });
   await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({ path: `${SHOTS}/${name}-${desk ? '1440' : '390'}.png` });
+  await page.screenshot({ path: `${SHOTS}/${name}-${desk ? '1440' : '390'}.png`, fullPage });
   await page.setViewportSize(size);
 }
 
@@ -98,5 +98,51 @@ test('Bausteine: the weight per group as one bar under the head', async ({ page,
   expect(Math.abs(pcs.reduce((a, b) => a + b, 0) - 100)).toBeLessThanOrEqual(names.length);
   await noSideScroll(page);
   await shot(page, info, 'UI-Teil1-Bausteine');
+  expect(errors).toEqual([]);
+});
+
+// 0.159.1 «UI-Regeln» Teil 2 (UI1, UI5; Noah «Seiten kürzer am Handy»): on a phone Rückblick shows the lower
+// sections as closed lines (SL ListGroup) and one more open debrief; on a computer everything stays open.
+const GTP = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
+test('Rückblick: closed lines on a phone, open sections on a computer', async ({ page, context }, info) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  page.on('dialog', (d) => d.accept());
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.clock.setFixedTime(new Date('2026-10-12T10:00:00+02:00'));
+  await page.goto('./');
+  await importAndSettle(page, GTP);
+  await page.goto('./#/debrief');
+  await expect(page.locator('[data-open-debrief]')).toBeVisible();
+  const groups = page.locator('main [data-group^="rv-"]');
+  if (info.project.name === 'phone') {
+    await expect(groups).toHaveCount(4);
+    for (const name of ['Trips compared', 'Last ride', 'Your pace', 'Learned|review']) {
+      const head = page.getByRole('button', { name: new RegExp(`^${T(name)}`) });
+      await expect(head).toHaveAttribute('aria-expanded', 'false');
+    }
+    // one tap opens a line and shows what was inside
+    const cmpHead = page.getByRole('button', { name: new RegExp(`^${T('Trips compared')}`) });
+    await cmpHead.click();
+    await expect(page.locator('[data-group="rv-compare"] table.st')).toBeVisible();
+    await cmpHead.click();
+    // the open debriefs: the first, one more, the rest behind one tap
+    const rest = page.locator('[data-open-debrief] .more-open li');
+    await expect(rest).toHaveCount(1);
+    const more = page.locator('[data-open-debrief] > .fold-btn');
+    if (await more.count()) {
+      await more.click();
+      await expect.poll(() => rest.count()).toBeGreaterThan(1);
+      await more.click();
+    }
+    await noSideScroll(page);
+  } else {
+    await expect(groups).toHaveCount(0);
+    await expect(page.locator('#cmp-h')).toBeVisible();
+    await expect(page.locator('#learn-h')).toBeVisible();
+  }
+  await page.locator('main').evaluate(() => window.scrollTo(0, 0));
+  await shot(page, info, 'UI-Teil2-Rueckblick', true);
   expect(errors).toEqual([]);
 });

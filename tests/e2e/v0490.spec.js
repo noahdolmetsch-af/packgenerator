@@ -54,6 +54,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(main.locator('.btn.hi')).toHaveCount(1);
   await expect(hero.getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
   // the last ride's numbers are folded at the end
+  // 0.159.1 (UI-Regeln Teil 2): on a phone «Letzte Fahrt» is a closed line first
+  if (info.project.name === 'phone') await main.locator('[data-group="rv-last"] .ls-gh').click();
   await main.getByRole('button', { name: 'Zahlen der letzten Fahrt' }).click();
   const last = main.locator('.lastride');
   await expect(last).toContainText('42');
@@ -76,6 +78,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(per.getByRole('columnheader', { name: 'Vorjahr' })).toHaveCount(0);
   // 3. trips compared: a table of the last 10 with their state; 7 small charts folded; «Gleiche Art» keeps the day rides
   const cmp = main.locator('#compare');
+  const phone = info.project.name === 'phone';
+  if (phone) await main.locator('[data-group="rv-compare"] .ls-gh').click(); // 0.159.1: a closed line on a phone
   await expect(cmp.locator('table.st tbody tr')).toHaveCount(10);
   await expect(cmp.locator('table.st tbody tr [data-state]').first()).toBeAttached();
   await cmp.getByRole('button', { name: 'Diagramme und alle Spalten' }).click();
@@ -84,7 +88,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(cmp.locator('table.st tbody tr')).toHaveCount(5);
   await expect(cmp).toContainText('Tagestour');
   // 4. one level below
-  for (const [name, url] of [['Dein Tempo', /#\/debrief\/pace$/], ['Alle Learnings', /#\/debrief\/learnings$/], ['Logbuch', /#\/debrief\/logbook$/]]) {
+  for (const [name, url, line] of [['Dein Tempo', /#\/debrief\/pace$/, 'rv-pace'], ['Alle Learnings', /#\/debrief\/learnings$/, 'rv-learned'], ['Logbuch', /#\/debrief\/logbook$/, null]]) {
+    if (phone && line) await main.locator(`[data-group="${line}"] .ls-gh`).click();
     await main.locator('.below').getByRole('link', { name, exact: true }).click();
     await expect(page).toHaveURL(url);
     await expect(main.locator('h1')).toBeVisible();
