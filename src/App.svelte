@@ -45,6 +45,7 @@
   import MeButton from './lib/nav/MeButton.svelte';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
+  import { ops } from './lib/bedienung.svelte.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
@@ -122,7 +123,8 @@
     const open = () => (keysOpen = true);
     let gAt = 0;
     const key = (e) => {
-      if (typing(e)) return;
+      // FE6 (Noah 13.10.2026): the shortcuts can be switched off in Ich › Darstellung › Bedienung
+      if (!ops.keys || typing(e)) return;
       const afterG = Date.now() - gAt < G_WAIT;
       const s = shortcutOf(e.key, afterG);
       gAt = s?.wait ? Date.now() : 0;

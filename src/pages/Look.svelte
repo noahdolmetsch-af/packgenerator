@@ -11,6 +11,8 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { ChevronLeft, ChevronRight, Check } from '@lucide/svelte';
+  import { OPS, START_PLACES } from '../lib/bedienung.js';
+  import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -62,6 +64,25 @@
           <Seg label={t('Text size')} value={theme.size} options={SIZES.map((z) => ({ key: z.key, name: t(z.name) }))} onchange={setSize} />
           <Seg label={t('Light or dark')} value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
         </div>
+      </section>
+
+      <!-- Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockup): small helps, each one can be switched off -->
+      <section aria-labelledby="look-ops" data-ops>
+        <h2 id="look-ops">{t('Handling')}</h2>
+        <p class="note">{t('Small helps, each one can be switched off')}</p>
+        <div class="segs">
+          <Seg label={t('Open the app at')} value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
+        </div>
+        <ul class="ops">
+          {#each OPS as o (o.key)}
+            <li>
+              <label class="op">
+                <span class="nm"><span>{t(o.name)}</span><small>{t(o.text)}</small></span>
+                <input type="checkbox" role="switch" class="opsw" data-op={o.key} checked={ops[o.key]} onchange={(e) => setOp(o.key, e.currentTarget.checked)} />
+              </label>
+            </li>
+          {/each}
+        </ul>
       </section>
     </div>
 
@@ -196,6 +217,61 @@
   .segs {
     display: grid;
     gap: var(--sp-3);
+  }
+  .ops {
+    display: grid;
+    gap: var(--sp-2);
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .op {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 52px;
+    padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .opsw {
+    appearance: none;
+    flex: none;
+    position: relative;
+    width: 44px;
+    height: 26px;
+    margin: 0;
+    border-radius: 999px;
+    background: var(--line-strong);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .opsw::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow);
+    transition: transform 0.15s;
+  }
+  .opsw:checked {
+    background: var(--hi);
+  }
+  .opsw:checked::after {
+    transform: translateX(18px);
+  }
+  .opsw:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
   }
 
   /* The preview: only where there is room next to the choices (a phone sees the whole app change). */

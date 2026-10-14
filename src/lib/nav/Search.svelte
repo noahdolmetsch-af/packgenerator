@@ -6,7 +6,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
-  import { searchAll, commandActions } from '../search.js';
+  import { searchAll, commandActions, COMMAND_HREF } from '../search.js';
+  import { ops } from '../bedienung.svelte.js';
   import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
@@ -31,7 +32,7 @@
   const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
-  const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
+  const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
   const feats = $derived(q.trim().length >= 2 ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
@@ -99,7 +100,7 @@
   async function run(c) {
     const cmd = c.cmd;
     remember(q);
-    countUse(USE[cmd.kind]);
+    if (USE[cmd.kind]) countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
       q = '';
@@ -116,6 +117,10 @@
     else if (cmd.kind === 'note') openNote(cmd.text ?? '');
     else if (cmd.kind === 'wear') openWear();
     else if (cmd.kind === 'trip') openNew('list');
+    // FE17 «Suche kann handeln» (Noah 13.10.2026): go there
+    else if (cmd.kind === 'quicknote') openNote('');
+    else if (cmd.kind === 'bike') location.hash = `#/bikes?bike=${encodeURIComponent(cmd.bikeId)}`;
+    else if (COMMAND_HREF[cmd.kind]) location.hash = COMMAND_HREF[cmd.kind];
   }
   async function undoDone() {
     const u = $state.snapshot(done?.undo); // a plain copy: IndexedDB cannot store Svelte proxies

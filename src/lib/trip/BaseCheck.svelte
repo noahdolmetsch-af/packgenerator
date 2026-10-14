@@ -4,6 +4,7 @@
    * The trip's ready check (trips.js READY_DEFAULT: lock, mini backpack, bottle, sunglasses, cap,
    * wind jacket …) as big tap buttons until everything is ticked, then one quiet line.
    */
+  import { buzz } from '../bedienung.svelte.js';
   import { db } from '../db.js';
   import { readyDone, tickReady, touched } from '../trips.js';
   import { t, num } from '../i18n.svelte.js';
@@ -20,7 +21,8 @@
   let show = $state(false);
 
   const save = (ready) => db.trips.update(trip.id, touched({ ready }));
-  const toggle = (row) => save($state.snapshot(trip.ready).map((r) => (r.id === row.id ? { ...r, done: !r.done } : r)));
+  // FE7 (Noah 13.10.2026): a short buzz when a check gets ticked, where the phone can
+  const toggle = (row) => (!readyDone(row, trip) && buzz(), save($state.snapshot(trip.ready).map((r) => (r.id === row.id ? { ...r, done: !r.done } : r))));
   const all = () => save(tickReady($state.snapshot(trip.ready)));
 </script>
 

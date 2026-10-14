@@ -21,6 +21,7 @@
   import { errorText } from '../stravasync.js';
   import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, CHECK_HASH } from './client.svelte.js';
   import StravaChanges from './StravaChanges.svelte';
+  import Skeleton from '../ui/Skeleton.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
 
@@ -162,6 +163,8 @@
     <VeloHead {crumbs} here="Strava" title={firstBusy ? t('Fetching all rides …') : t('All rides fetched')} sub={firstBusy ? t('Once, all old rides. This takes a moment.') : `${prefs.athlete ? `${t('Connected as «{name}»', { name: prefs.athlete })} · ` : ''}${t('first fetch done, {when}', { when: timeOf(summary.at) })}`} />
     {#if firstBusy}
       <p class="card wait" role="status"><RefreshCw size={18} aria-hidden="true" />{t('Fetching rides …')}</p>
+      <!-- FE9 «Ruhiges Laden» (Noah 13.10.2026): the summary's place held by calm bars, nothing jumps -->
+      <div class="skw"><Skeleton rows={5} /></div>
     {:else}
       {@const c = summary.counts}
       <div class="cols">
@@ -471,6 +474,9 @@
     margin: 0;
     color: var(--bad);
     font-weight: 500;
+  }
+  .skw {
+    margin-top: 12px;
   }
   .wait {
     display: flex;
