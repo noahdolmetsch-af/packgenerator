@@ -1,7 +1,7 @@
 # Deploys the server part (api/, Vercel project «packgen») only when api/ changes on main.
 # Noah 14.10.2026 «1a»: «packgen» is no longer linked to GitHub, so ordinary pushes and PRs
 # no longer use up Vercel's free limit (100 deployments a day; skipped builds count too).
-# Needs three repository secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PACKGEN_PROJECT_ID.
+# Needs one repository secret: VERCEL_TOKEN. The two IDs are not secret (Vercel shows them on every PR).
 name: Deploy api
 
 on:
@@ -21,8 +21,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PACKGEN_PROJECT_ID }}
+      VERCEL_ORG_ID: team_sTNSTHonBf3k8N7WGI6yQH9N
+      VERCEL_PROJECT_ID: prj_wiNk2GCNs35pybG9VgtY5yoLmPsK # «packgen»
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
