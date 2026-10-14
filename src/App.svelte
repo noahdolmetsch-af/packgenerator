@@ -39,6 +39,9 @@
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Abfragen from './pages/Abfragen.svelte';
+  import Verlauf from './pages/Verlauf.svelte';
+  import Auswertung from './pages/Auswertung.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -343,6 +346,15 @@
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
+  {:else if page === 'abfragen'}
+    <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
+    <Abfragen />
+  {:else if page === 'history'}
+    <!-- AB4: Ich › Daten › Verlauf, all values in one place -->
+    <Verlauf />
+  {:else if page === 'analysis'}
+    <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
+    <Auswertung />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

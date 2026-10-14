@@ -82,6 +82,10 @@ const ROUTES = [
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
+  // AB «Deine Abfragen»: Ich › Deine Abfragen and Ich › Daten › Verlauf, strict like their files
+  ['#/me/abfragen', 'Deine Abfragen'],
+  ['#/me/history', 'Verlauf'],
+  ['#/me/analysis', 'Auswertung'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

@@ -24,7 +24,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -101,6 +101,22 @@
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
               {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB1/AB5 «Deine Abfragen»: what the app asks you and how often -->
+            <a class="ich-row" href="#/me/abfragen">
+              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Your questions')}</b><small>{t('What the app asks you and how often')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB4: all values in one history -->
+            <a class="ich-row" href="#/me/history">
+              <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('History')}</b><small>{t('All values in one place: answers, Fitbit, Strava')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
