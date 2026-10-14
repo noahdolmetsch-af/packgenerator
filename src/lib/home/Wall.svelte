@@ -4,7 +4,7 @@
    * computer and 4 on a phone; a tile takes 1 (small), 2 (wide), a large block or a whole row.
    * The last field is always «+» (Add a tile).
    *
-   * Customising (Noah 2a): «Customise the start page» (or a long press on a tile on a phone) turns the
+   * Customising (Noah 2a): «Customise the start page» (or a long press on a tile) turns the
    * wall into edit mode. Then every tile has a handle to drag it, × to take it away, and a tap on it
    * shows ‹ › (one place earlier or later, also by keyboard) and its sizes. The tile's own buttons
    * rest meanwhile (inert). Every change goes to onchange(tiles) at once.
@@ -49,12 +49,15 @@
   const shown = $derived(drag ? drag.list : tiles);
   const pickedTile = $derived(picked ? (tiles.find((x) => x.id === picked) ?? null) : null);
 
-  /* a long press on a tile (finger or pen) opens edit mode; the tap that follows is swallowed */
+  /* a long press on a tile opens edit mode; the tap that follows is swallowed.
+     v0.127.0 «Tages-Check» 2 (mockup T3 «Eine Kachel lange drücken, um ihre Grösse zu ändern»): after
+     500 ms, with a finger, a pen or the mouse, and the tile pressed shows its sizes at once. Moving
+     more than 10 px (scrolling) or letting go earlier is an ordinary tap. */
   let holdTimer = null;
   let hold = null;
   let swallow = 0;
-  function holdDown(e) {
-    if (editing || e.button || (e.pointerType !== 'touch' && e.pointerType !== 'pen')) return;
+  function holdDown(e, id) {
+    if (editing || e.button) return;
     hold = { x: e.clientX, y: e.clientY };
     clearTimeout(holdTimer);
     holdTimer = setTimeout(() => {
@@ -66,7 +69,8 @@
         /* no vibration */
       }
       onedit?.();
-    }, 600);
+      picked = id;
+    }, 500);
   }
   function holdMove(e) {
     if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 10) (clearTimeout(holdTimer), (hold = null));
@@ -83,7 +87,7 @@
 
 <div class="wall" class:editing bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
   {#each shown as x, i (x.id)}
-    <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={holdDown} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+    <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
       <div class="body" inert={editing}>{@render body(x)}</div>
       {#if editing}
         <button type="button" class="pick" aria-pressed={picked === x.id} aria-label={t('{name}: move or change the size', { name: name(x.id) })} onclick={() => (picked = picked === x.id ? null : x.id)}></button>

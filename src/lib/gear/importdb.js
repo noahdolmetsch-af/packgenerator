@@ -8,12 +8,15 @@
  * - "Rückgängig" puts that backup back (backup.js restoreBackup) and the staged file too.
  * - "Archivieren" (Nicht im Import) sets ownership 'gone' and remembers the old one; never deletes.
  * - v0.37.1 "Zusammenlegen" (Nicht im Import, and the item window): see mergeitems.js.
+ * - SN5+ (Noah 4a, 5b): the place chosen for a new item (setPlace, staged.places) and the last three
+ *   applied imports (meta HISTORY, importplus.js), each of which can be undone on its own (undoEntry).
  */
 import { buildBackup, restoreBackup, LAST_IMPORT, LAST_CHANGE } from '../backup.js';
 import { buildWrites, remaining, validateGearImport } from '../gearimport.js';
 import { hasStep2, buildStep2, withoutStep2 } from '../importstep2.js';
 import { SETS_KEY } from '../sets.js';
 import { saveItems } from './bulk.js';
+import { HISTORY, importRecord, pushHistory, undoPlan } from './importplus.js';
 
 export const STAGED = 'gearImport';
 export const UNDO = 'gearImportUndo';
@@ -40,6 +43,16 @@ export async function decide(db, key, choice) {
   await db.table('meta').put({ ...rec, decisions });
 }
 
+/** SN5+ (I3): the category or bag chosen for a new item (patch: { category } or { bag }; null forgets it). */
+export async function setPlace(db, key, patch) {
+  const rec = await getStaged(db);
+  if (!rec) return;
+  const places = { ...(rec.places ?? {}) };
+  if (patch) places[key] = { ...(places[key] ?? {}), ...patch };
+  else delete places[key];
+  await db.table('meta').put({ ...rec, places });
+}
+
 /** Forget the staged file (nothing in the gear changes). */
 export const dropStaged = (db) => db.table('meta').delete(STAGED);
 
@@ -62,7 +75,7 @@ export async function applyImport(db, now = new Date().toISOString()) {
   const counts = await db.transaction('rw', db.items, db.learnings, db.table('meta'), async () => {
     const items = await db.items.toArray();
     const learnings = await db.learnings.toArray();
-    const w = buildWrites(staged.data, items, learnings, staged.decisions ?? {}, now);
+    const w = buildWrites(staged.data, items, learnings, staged.decisions ?? {}, now, staged.places ?? {});
     if (w.items.length) await db.items.bulkPut(w.items);
     if (w.learnings.add.length) await db.learnings.bulkPut(w.learnings.add);
     for (const u of w.learnings.update) await db.learnings.update(u.id, u.changes);
@@ -71,7 +84,15 @@ export async function applyImport(db, now = new Date().toISOString()) {
     if (rest.items.length || hasStep2(rest)) await db.table('meta').put({ ...staged, data: rest, decisions: {}, ...(rest.items.length ? {} : { step1At: now }) });
     else await db.table('meta').delete(STAGED);
     const lastImport = (await db.table('meta').get(LAST_IMPORT)) ?? null;
-    await db.table('meta').put({ key: UNDO, at: now, name: staged.name, counts: w.counts, backup, staged, lastImport });
+    // SN5+ (5b): what this apply added and changed, so it can be undone later on its own.
+    let histId = null;
+    if (w.items.length || w.learnings.add.length || w.learnings.update.length) {
+      const entry = importRecord({ at: now, name: staged.name, counts: w.counts, pre: items, written: w.items, learnPre: learnings, learnAdd: w.learnings.add, learnUpdate: w.learnings.update });
+      const hist = await db.table('meta').get(HISTORY);
+      await db.table('meta').put({ key: HISTORY, list: pushHistory(hist?.list, entry) });
+      histId = entry.id;
+    }
+    await db.table('meta').put({ key: UNDO, at: now, name: staged.name, counts: w.counts, backup, staged, lastImport, histId });
     return w.counts;
   });
   return counts;
@@ -95,6 +116,40 @@ export async function undoImport(db) {
   else await db.table('meta').delete(LAST_IMPORT);
   await db.table('meta').put({ ...rec.staged, key: STAGED });
   await db.table('meta').delete(UNDO);
+  // SN5+: this import is gone from «Letzte Importe» too.
+  const hist = await db.table('meta').get(HISTORY);
+  if (rec.histId && hist?.list?.some((e) => e.id === rec.histId)) await db.table('meta').put({ key: HISTORY, list: hist.list.filter((e) => e.id !== rec.histId) });
+}
+
+/* ---------- SN5+ «Letzte Importe» (Noah 5b): each of the last three can be undone ---------- */
+
+/** The last imports, newest first: [{ id, at, name, counts, grams, undone?, kept? }]. */
+export async function importHistory(db) {
+  return (await db.table('meta').get(HISTORY))?.list ?? [];
+}
+
+/**
+ * «Rückgängig» on one of the last imports: what it added goes, the values it changed come back,
+ * except where something changed since (that stays and is named in kept). The entry stays in the
+ * list, marked undone. The full-backup undo of the newest import is forgotten (it would bring the
+ * import back). Returns { kept, done }.
+ */
+export async function undoEntry(db, id, now = new Date().toISOString()) {
+  return db.transaction('rw', [db.items, db.learnings, db.trips, db.table('meta')], async () => {
+    const hist = await db.table('meta').get(HISTORY);
+    const entry = hist?.list?.find((e) => e.id === id);
+    if (!entry || entry.undone) throw new Error('Nothing to undo.');
+    const [items, learnings, trips] = await Promise.all([db.items.toArray(), db.learnings.toArray(), db.trips.toArray()]);
+    const p = undoPlan(entry, { items, learnings, trips }, now);
+    if (p.delItems.length) await db.items.bulkDelete(p.delItems);
+    if (p.putItems.length) await db.items.bulkPut(p.putItems);
+    if (p.delLearn.length) await db.learnings.bulkDelete(p.delLearn);
+    if (p.putLearn.length) await db.learnings.bulkPut(p.putLearn);
+    const kept = p.kept.map(({ id: kid, name, why, learning }) => ({ id: kid, name, why, ...(learning ? { learning } : {}) }));
+    await db.table('meta').put({ key: HISTORY, list: hist.list.map((e) => (e.id === id ? { ...e, undone: now, kept } : e)) });
+    if (await db.table('meta').get(UNDO)) await db.table('meta').delete(UNDO);
+    return { kept, done: p.done };
+  });
 }
 
 /** Forget the undo backup (the import stays). */

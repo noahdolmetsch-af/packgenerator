@@ -66,7 +66,7 @@
       {#if entry}
         <button type="button" class="btn del" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         <button type="button" class="btn" onclick={hide}>
-          {#if entry.hidden}<Eye size={16} aria-hidden="true" />{t('Show again')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hide')}{/if}
+          {#if entry.hidden}<Eye size={16} aria-hidden="true" />{t('Show again|list')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hide')}{/if}
         </button>
       {/if}
       <button type="submit" class="btn hi"><Check size={16} aria-hidden="true" />{t('Save')}</button>

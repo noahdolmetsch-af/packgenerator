@@ -109,6 +109,7 @@ export function makeEntry(fields, now = new Date()) {
     stravaId: fields.stravaId ?? null,
     hrAvg: fields.hrAvg ?? null,
     hrMax: fields.hrMax ?? null,
+    hm: Number.isFinite(fields.hm) ? fields.hm : null,
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
     state: fields.state ?? 'counted',
@@ -850,6 +851,21 @@ export function withStravaRides(rides = [], entries = []) {
   const files = rides ?? [];
   const extra = (entries ?? [])
     .filter((e) => e.source === 'strava' && e.kind === 'ride' && counts(e) && !files.some((r) => sameFileRide(e, r)))
-    .map((e) => ({ id: e.id, date: e.date, km: Number(e.km) || 0, bikeId: e.bikeId, source: 'strava' }));
+    .map((e) => ({ id: e.id, date: e.date, km: Number(e.km) || 0, gainM: Number.isFinite(e.hm) ? e.hm : null, bikeId: e.bikeId, source: 'strava' }));
   return [...files, ...extra];
+}
+
+/* ---------- «Werte überall» (Noah 13.10.2026 «1-5a», mockups WU1–WU4 approved «ich gebe alle bild mockups frei») ---------- */
+
+/** Climbing of a list of rides (file rides: gainM): { hm, n } with n = rides that know their climbing; null when none does. */
+export function hmOf(rides = []) {
+  const xs = (rides ?? []).filter((r) => Number.isFinite(r?.gainM));
+  return xs.length ? { hm: Math.round(xs.reduce((s, r) => s + r.gainM, 0)), n: xs.length } : null;
+}
+
+/** WU4: the metres climbed by one bike after `from` (a day, exclusive): the counted Strava rides of that bike. Null when none knows its climbing. */
+export function hmSince(entries = [], bikeId, from) {
+  if (!bikeId || !from) return null;
+  const xs = (entries ?? []).filter((e) => e.bikeId === bikeId && e.kind === 'ride' && counts(e) && e.date > from && Number.isFinite(e.hm));
+  return xs.length ? Math.round(xs.reduce((s, e) => s + e.hm, 0)) : null;
 }

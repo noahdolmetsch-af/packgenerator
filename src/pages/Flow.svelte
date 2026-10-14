@@ -7,6 +7,9 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
+   *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
+   *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -17,18 +20,19 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
-  import { averages, checkOf, complete, rotating, FIXED } from '../lib/flowcheck.js';
+  import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
-  import { ui, openTimer, actName, goalName, qText } from '../lib/flow/ui.svelte.js';
+  import { openTimer, actName, goalName } from '../lib/flow/ui.svelte.js';
   import { actGoalText, goalsText, dayShort } from '../lib/flow/words.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
+  import YearGoals from '../lib/flow/YearGoals.svelte';
   import Rows from '../lib/flow/kit/Rows.svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
@@ -45,6 +49,12 @@
   import Activity from './flow/Activity.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
+  import Week from './flow/Week.svelte';
+  import Bags from './flow/Bags.svelte';
+  import Rest from './flow/Rest.svelte';
+  import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
+  import { morePages } from '../lib/flow/morepages.js';
+  import { weekGoals } from '../lib/flowweek.js';
   import Meditation from './flow/Meditation.svelte';
   import MedTimer from './flow/MedTimer.svelte';
   import MedDone from './flow/MedDone.svelte';
@@ -53,6 +63,7 @@
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
   import { localDay } from '../lib/localday.js';
+  import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
   import { t, locale, lang, num } from '../lib/i18n.svelte.js';
 
@@ -85,9 +96,9 @@
   const params = $derived(new URLSearchParams(sub.split('?')[1] ?? ''));
   const editId = $derived(route[0] === 'edit' ? decodeURIComponent(route[1] ?? '') : route[0] === 'new' ? 'new' : null);
 
-  /* the daily check */
+  /* the daily check; WG: answered in «Wi gaht's?» (sleep, energy and mood are mirrored into the day's check) */
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
-  const rot = $derived(data ? rotating(data.pool, today) : null);
+  const known = $derived(FIXED.some((f) => check[f.key] != null));
   const avg = $derived(averages(data?.checks ?? [], today, 7));
   const n1 = (v) => (v == null ? '–' : v.toLocaleString(lang.v === 'de' ? 'de-DE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 
@@ -113,6 +124,8 @@
   const sparkLine = $derived(pts.map(([x, y]) => `${x},${y}`).join(' '));
   const sparkArea = $derived(pts.length ? `M0,60 ${pts.map(([x, y]) => `L${x},${y}`).join(' ')} L${pts.at(-1)[0]},60 Z` : '');
   let seasonOpen = $state(false);
+  // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
+  const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
   const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
   const moreRows = $derived([
     { key: 'goals', icon: Pulse, title: t('Goals × days'), sub: rings.move.of ? t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of }) : '', href: '#/flow/goals' },
@@ -184,6 +197,12 @@
   <Milestones {params} />
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'week'}
+  <Week />
+{:else if route[0] === 'bags'}
+  <Bags {params} />
+{:else if route[0] === 'rest'}
+  <Rest />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -247,6 +266,8 @@
             <div class="card"><GoalPath {path} unit={pathMs.m.unit} label={pathName} /></div>
           </Sec>
         {/if}
+        <!-- «Werte überall» WU3: the year goals and the footprint -->
+        <YearGoals {today} />
         <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
       </aside>
     </div>
@@ -261,6 +282,7 @@
     {#if data && !states.length}
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
+      <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
           <Sec id="tick-h" title={t('Tick off today')} sub={phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')}>
@@ -274,6 +296,8 @@
             <a class="card kmc" href="#/debrief/ride" data-section="km">
               <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
               <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>
+              <!-- «Werte überall» WU2 (Noah 13.10.2026 «1-5a»): the metres climbed this month, with the Everest as a picture -->
+              {#if km.hm}<small class="kmhm" data-month-hm><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(km.hm) })}</b>{#if km.hm >= 885}{' · '}{t('≈ {x}× Everest', { x: num(Math.round((km.hm / 8849) * 10) / 10) })}{/if}</small>{/if}
               {#if km.weeks.some((v) => v)}
                 <svg class="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
                   <path class="area" d={sparkArea} />
@@ -286,9 +310,14 @@
               {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
           </Sec>
+          <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
+          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
+            <p class="card azm" data-section="azm"><Timer size={18} aria-hidden="true" /><span>{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
+          </Sec>
         </div>
         <aside class="col">
-          <Sec id="chk-h" title={t('Daily check')} sub={t('4 questions · one tap per question')}>
+          <!-- WG: the daily check is «Wi gaht's?» now; the section keeps today's values and the 7 days -->
+          <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
             <div class="card">{@render checkRow()}</div>
           </Sec>
           {#if sumLine}
@@ -301,6 +330,8 @@
           </Sec>
         </aside>
       </div>
+      <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PageTiles page="flow" />
     {/if}
   </div>
 {/if}
@@ -308,15 +339,15 @@
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 
 {#snippet checkRow()}
-  {#if complete(check)}
-    <div class="crow done">
-      <span class="ct"><b>{t('Daily check done')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key]}`).join(' · ')} · {qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')} {check.extra}</small></span>
-      <button type="button" class="btn" onclick={() => (ui.checkOpen = true)}>{t('Change')}</button>
+  {#if known}
+    <div class="crow done" data-check-row="done">
+      <span class="ct"><b>{t('Today|values')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key] ?? '–'}`).join(' · ')}</small></span>
+      <a class="btn" href="#/me/abfragen">{t('Change')}</a>
     </div>
   {:else}
-    <div class="crow">
-      <span class="ct"><b>{t('Still open today')}</b>{#if rot}<small>{t('today also: «{q}»', { q: qText(rot.q) })}</small>{/if}</span>
-      <button type="button" class="btn hi" onclick={() => (ui.checkOpen = true)}>{t('Start|check')}</button>
+    <div class="crow" data-check-row="open">
+      <span class="ct"><b>{t('Still open today')}</b></span>
+      <a class="btn hi" href="#/me/abfragen">{t('Start|check')}</a>
     </div>
   {/if}
   {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}
@@ -389,6 +420,18 @@
   .kmc small {
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .kmc .kmhm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .azm {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin: 0;
+    color: var(--ink-3);
   }
   .kmn {
     display: flex;

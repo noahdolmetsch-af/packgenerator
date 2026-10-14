@@ -6,7 +6,7 @@
    * and becomes a workshop visit with the photo. «Anderes Ziel wählen» goes back to the list.
    */
   import DateInput from '../ui/DateInput.svelte';
-  import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic } from '../inbox.js';
+  import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
   import { guessBike } from '../notes.js';
   import { parseChf } from '../hubs.js';
@@ -14,6 +14,8 @@
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
   import { ICONS } from './icons.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
+  import { shrinkImage } from '../photo.js';
   import { ReceiptText, Check, X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
@@ -31,16 +33,8 @@
   };
   /** The main button of each form, named by where the entry lands (U1). */
   const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', keep: 'Keep as note' };
-  /** Jobs a receipt often lists (optional). */
-  const JOBS = [
-    { part: 'chain', action: 'replace', name: 'Chain replaced' },
-    { part: 'cassette', action: 'replace', name: 'Cassette replaced' },
-    { part: 'padsF', action: 'replace', name: 'Front pads replaced' },
-    { part: 'padsR', action: 'replace', name: 'Rear pads replaced' },
-    { part: 'tyres', action: 'replace', name: 'Tyres replaced' },
-    { part: 'brakeR', action: 'service', name: 'Brakes bled' },
-    { part: 'fork', action: 'service', name: 'Fork serviced' },
-  ];
+  /** Jobs a receipt often lists (optional); since v0.125.0 shared with the workshop visit window (inbox.js). */
+  const JOBS = VISIT_JOBS;
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -65,6 +59,20 @@
   let topic = $state(guessTopic(note.text ?? ''));
   let msg = $state('');
   let busy = $state(false);
+  // Kamera-Knopf (Noah, 14.10.2026 «bei Belegen immer»): a receipt note without a photo gets one here
+  let photo = $state(null);
+  let reading = $state(false);
+  async function addPhoto(file) {
+    reading = true;
+    msg = '';
+    try {
+      photo = await shrinkImage(file, 1200, 0.8);
+    } catch (err) {
+      msg = err.message || t('This photo could not be read.');
+    } finally {
+      reading = false;
+    }
+  }
 
   const shops = $derived(shopsOf(visits));
   const tripList = $derived([...trips].filter((x) => !x.skipped).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')).slice(0, 8));
@@ -108,7 +116,7 @@
     } else opts = { topic };
     busy = true;
     try {
-      const stored = await fileTo($state.snapshot(note), kind, opts);
+      const stored = await fileTo({ ...$state.snapshot(note), ...(photo ? { photo } : {}) }, kind, opts);
       onfiled?.(stored);
       dialog.close();
     } catch (err) {
@@ -171,6 +179,10 @@
       <div class="vd-chips chips" role="group" aria-label={t('What was done?')}>
         {#each JOBS as j (j.part)}{@const on = jobs.some((x) => x.part === j.part)}<button type="button" class="vd-chip" aria-pressed={on} onclick={() => toggleJob(j)}>{t(j.name)}</button>{/each}
       </div>
+      {#if !note.photo}
+        <p class="lbl">{t('Photo of the receipt')}</p>
+        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
+      {/if}
       <p class="name"><ReceiptText size={16} aria-hidden="true" /><span>{t('Name')}: {t('Receipt|target')} {receiptName(shop, date)}</span></p>
     {:else if kind === 'material' || kind === 'wish'}
       <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" bind:value={name} autocomplete="off" /></label>
@@ -202,6 +214,28 @@
 </dialog>
 
 <style>
+  .pick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .pick .th {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  .pick .link {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-size: var(--fs-small);
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .ph {
     flex: none;
     width: 44px;

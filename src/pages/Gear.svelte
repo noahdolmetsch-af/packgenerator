@@ -4,6 +4,7 @@
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
+  import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
   import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
@@ -16,6 +17,9 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: tiles at the page end, X7 at each wish
+  import Woanders from '../lib/sk/Woanders.svelte';
+  import { slotOf } from '../lib/sk/links.js';
   import AssignDialog from '../lib/gear/AssignDialog.svelte';
   import { assignSet } from '../lib/gear/assign.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
@@ -30,7 +34,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, Check, Search, Ellipsis } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, Check, Search, Ellipsis } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -530,7 +535,10 @@
   </header>
 
   {#if !items.length && $itemsQuery}
-    <p class="card">{t('No gear yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup), or add an item.')}</p>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
+      {t('Or import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}
+    </Empty>
   {/if}
 
   {#if mode}
@@ -550,7 +558,8 @@
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
             <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
-          <button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button>
+          <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
+          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
             <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>
@@ -693,6 +702,8 @@
                       <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                       <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
                     </button>
+                    <!-- SK X7 (SKX1): «Im Shop ansehen», your own link for this wish -->
+                    <div class="skw"><Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} /></div>
                   {/if}
                 </li>
               {:else}
@@ -748,6 +759,8 @@
         </section>
       </div>
     </div>
+    <!-- SK: the tile row at the page end (SK4) -->
+    {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}
 </div>
 
@@ -818,16 +831,10 @@
       <div class="acts"><button type="button" class="btn" onclick={() => setView('all')} data-explain={t('Show all items')}>{t('Show all|filter')}</button></div>
     </div>
   {:else}
-    <div class="card none">
-      <p>
-        {#if view === 'fav'}{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')}
-        {:else if view === 'unweighed'}{t('Everything is weighed.')}
-        {:else if view === 'wish'}{t('No wishlist items match.')}
-        {:else if view === 'most' || view === 'proven'}{t('Shows up once your debriefs say what you used.')}
-        {:else}{t('Nothing found.')}{/if}
-      </p>
-      {#if view !== 'all'}<div class="acts"><button type="button" class="btn" onclick={() => setView('all')} data-explain={t('Show all items')}>{t('Show all|filter')}</button></div>{/if}
-    </div>
+    <Empty
+      text={view === 'fav' ? t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.') : view === 'unweighed' ? t('Everything is weighed.') : view === 'wish' ? t('No wishlist items match.') : view === 'most' || view === 'proven' ? t('Shows up once your debriefs say what you used.') : t('Nothing found.')}
+      action={view !== 'all' ? { label: t('Show all|filter'), onclick: () => setView('all'), explain: t('Show all items') } : null}
+    />
   {/if}
 {/snippet}
 
@@ -837,13 +844,14 @@
 
 {#snippet nothing()}
   <!-- v0.23.0 (AP08): zero results offer to add what was searched for. -->
-  <div class="card none">
-    <p><b>{t('Nothing found.')}</b>{#if filter.q.trim()}{' '}{t('No item matches "{q}".', { q: filter.q.trim() })}{/if}</p>
-    <div class="acts">
-      {#if filter.q.trim()}<button type="button" class="btn hi" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}
-      <button type="button" class="btn" onclick={clearFilters} data-explain={t('Clear search and filters')}>{t('Reset|filters')}</button>
-    </div>
-  </div>
+  <!-- v0.127.0 A-U2: the one empty building block -->
+  <Empty
+    icon={Search}
+    title={t('Nothing found.')}
+    text={filter.q.trim() ? t('No item matches "{q}".', { q: filter.q.trim() }) : t('No item fits these filters.')}
+    action={filter.q.trim() ? { label: t('Add "{q}" as a new item', { q: filter.q.trim() }), onclick: () => addItem({ name: filter.q.trim() }) } : { label: t('Reset|filters'), onclick: clearFilters, explain: t('Clear search and filters') }}
+    action2={filter.q.trim() ? { label: t('Reset|filters'), onclick: clearFilters, explain: t('Clear search and filters') } : null}
+  />
 {/snippet}
 
 {#snippet pickRow(item, sub)}
@@ -1467,16 +1475,6 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .none p {
-    margin: 0 0 10px;
-    overflow-wrap: break-word;
-  }
-  .none .btn {
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: break-word;
-    text-align: left;
-  }
   .gone summary {
     cursor: pointer;
     font-weight: 700;
@@ -1517,6 +1515,18 @@
   }
   .wish .rows {
     background: transparent;
+  }
+  /* SK X7: the «Woanders» row under a wish, over the row's width */
+  .wish .fr {
+    flex-wrap: wrap;
+  }
+  .wish .skw {
+    flex-basis: 100%;
+    min-width: 0;
+    padding: 0 8px 10px;
+  }
+  .wish .skw :global(.sk-wo) {
+    margin-top: 0;
   }
   .wish .rows button {
     grid-template-columns: auto minmax(0, 1fr) auto;

@@ -27,6 +27,8 @@
   import { wearItems, undoBulk } from '../lib/gear/bulk.js';
   import { SvelteSet } from 'svelte/reactivity';
   import { ChevronDown, ChevronLeft, MoreHorizontal, Undo2, Check, Thermometer, Sparkles, Heart, Layers, X } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
+  import { addItem } from '../lib/nav.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
@@ -449,7 +451,8 @@
       {/if}
 
       {#if $itemsQ && !w.n}
-        <p class="surf empty">{t('No clothing here yet. Clothing is every item of the categories On-bike clothing, Rain & cold, Off-bike clothing and Shoes, and every item with a layer or a body zone.')}</p>
+        <!-- v0.127.0 A-U2: the one empty building block -->
+        <div class="nowear"><Empty icon={Layers} title={t('No clothing yet')} text={t('No clothing here yet. Clothing is every item of the categories On-bike clothing, Rain & cold, Off-bike clothing and Shoes, and every item with a layer or a body zone.')} action={{ label: t('Add item'), onclick: () => addItem() }} /></div>
       {/if}
 
       <!-- v0.47.0 (Noah 5b): the four layers side by side like a wardrobe on a computer, one below the other on a phone -->
@@ -707,7 +710,7 @@
     .filt {
       order: 4;
     }
-    .empty,
+    .nowear,
     .cols {
       order: 5;
     }
@@ -726,10 +729,6 @@
   }
   .surf {
     padding: 16px;
-  }
-  .empty {
-    margin: 0;
-    color: var(--ink-2);
   }
   .cap {
     margin-top: 0;

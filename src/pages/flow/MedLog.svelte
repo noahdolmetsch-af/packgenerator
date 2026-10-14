@@ -14,6 +14,7 @@
    * view=cal and view=chart (old links) open the overview; a filter or view=list opens the list.
    */
   import { ChevronLeft, ChevronRight, X, SlidersHorizontal, ArrowUp, ArrowDown, Activity as Pulse } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Rows from '../../lib/flow/kit/Rows.svelte';
@@ -226,8 +227,7 @@
           {@render sessRows(list)}
           <p class="hint">{t('Every row opens the session.')}{#if shown.length > limit}{' · '}<button type="button" class="lnk" onclick={() => (limit += STEP)}>{t('load older')}</button>{/if}</p>
         {:else}
-          <p class="hint">{rows.length ? t('No session fits these filters.') : t('No session yet.')}</p>
-          {#if nFilters}<button type="button" class="btn" onclick={reset}>{t('Reset the filters')}</button>{/if}
+          <Empty text={rows.length ? t('No session fits these filters.') : t('No session yet.')} action={nFilters ? { label: t('Reset the filters'), onclick: reset } : null} />
         {/if}
       </section>
     {:else}

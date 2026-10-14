@@ -75,6 +75,7 @@ const OWN = [
   { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
   // v0.124.0 «Neue Tour Teil 2» (B4/B5): the building blocks as big buttons in Packen; Repair slim for the ride
   { id: 'f.packblocks', group: 'before', title: 'Building blocks when packing', text: 'Big buttons in Packen: one tap adds or removes a whole block; Repair slimmed to at most 8 parts for the ride.', href: '#/pack?day', words: 'bausteine packen reparatur unterwegs schlank knöpfe' },
+  { id: 'f.tripstate', group: 'before', title: 'Trip states', text: 'Every trip shows its state: Planned, Completed or Rated, on Touren, in the trip header and on Today.', href: '#/trips', words: 'zustand geplant abgeschlossen bewertet status touren' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur' },
   { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku' },
@@ -97,6 +98,8 @@ const OWN = [
   { id: 'f.evening', group: 'onway', title: 'Evening block', text: 'On a trip of several days: charge tonight, lay out for tomorrow.', href: '#/ride', play: 'ride', words: 'abend laden morgen bereitlegen' },
   { id: 'f.ridenote', group: 'onway', title: 'Note on the way', text: 'A note for the trip and the day; it lands in the debrief.', href: '#/ride', play: 'ride', words: 'notiz unterwegs' },
   { id: 'f.finish', group: 'onway', title: 'End the trip', text: 'Ends the trip, earlier too, with Undo; then the next step.', href: '#/ride', play: 'ride', words: 'tour beenden fertig' },
+  // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
+  { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip
   { id: 'f.unneeded', group: 'after', title: 'What did you not need?', text: 'Tap what stayed in the bag; the app counts how much lighter it could be.', href: '#/debrief', play: 'after', words: 'nicht gebraucht rückblick' },
   { id: 'f.missing', group: 'after', title: 'What was missing?', text: 'Missing things suggest similar items or go to the wishlist.', href: '#/debrief', play: 'after', words: 'gefehlt fehlt wunschliste' },
@@ -109,6 +112,10 @@ const OWN = [
   { id: 'f.kmimport', group: 'bike', title: 'Import rides', text: 'A Strava export or Garmin files: km per bike, by sensor or your rules.', href: '#/bikes?tab=care&view=import', seen: 'imports', words: 'strava garmin fit import fahrten km' },
   // v0.116.0 «Strava-Verbindung» (E3)
   { id: 'f.strava', group: 'bike', title: 'Strava connection', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava verbinden fahrten holen automatisch velo km' },
+  // v0.132.0 «Velo-Setup» (UC3-1 to UC3-3)
+  { id: 'f.velosetup', group: 'bike', title: 'Bike setup and race rigs', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'setup race rig bikepacking fotos gewicht rennen vergleich links' },
+  { id: 'f.bagplan', group: 'bike', title: 'Bag plan', text: 'Which bag sits where, weight front, middle and rear, hints to move an item.', href: '#/bikes?tab=rig&view=bags', words: 'taschen plan gewicht verteilung vorne hinten umpacken' },
+  { id: 'f.setuplog', group: 'bike', title: 'Setup log', text: 'What you changed on the bike, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log', words: 'logbuch änderung kettenblatt reifen werkstatt' },
   { id: 'f.problem', group: 'bike', title: 'Problem on the bike', text: 'One problem per row with priority and deadline; the app sorts who fixes it.', run: 'problem', seen: 'problems', words: 'problem reparatur kaputt frist' },
   { id: 'f.workshop', group: 'bike', title: 'Workshop and receipts', text: 'Visits with amount, work and receipt photo; costs per year and per 1000 km.', href: '#/bikes?tab=shop', seen: 'visits', words: 'werkstatt besuch beleg kosten' },
   { id: 'f.equipment', group: 'bike', title: 'Equipment', text: 'Every part like a maker’s data sheet: name, details, weight, price.', href: '#/bikes?tab=compare', words: 'ausstattung teile datenblatt' },
@@ -125,6 +132,10 @@ const OWN = [
   { id: 'f.check', group: 'active', title: 'Rings and daily check', text: 'Move, mindful and recovery over 7 days; sleep, energy and mood.', href: '#/flow', seen: 'flowChecks', words: 'ringe tagescheck schlaf energie stimmung' },
   { id: 'f.stopwatch', group: 'active', title: 'Stopwatch with singing bowl', text: 'Long press an activity; it keeps running on every page.', href: '#/flow', words: 'stoppuhr countdown klangschale' },
   { id: 'f.goals', group: 'active', title: 'Goals and days', text: 'Rolling windows: daily, 7, 10 or 30 days, with a season.', href: '#/flow/goals', words: 'ziele tage saison' },
+  // v0.125.0 «Werte überall» (WU3): year goals for km, metres climbed and minutes, and the footprint
+  { id: 'f.yeargoals', group: 'active', title: 'Year goals and footprint', text: 'One year goal each for km, metres climbed and minutes, each can be switched off; the CO₂ your rides saved.', href: '#/flow/goals', words: 'jahresziel höhenmeter hm fussabdruck co2 km ziel jahr' },
+  // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
+  { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },
   { id: 'f.medlog', group: 'active', title: 'Meditation log', text: 'Every session, a streak heat map, the best time of day.', href: '#/flow/act/meditation/log', words: 'protokoll wärmebild serie' },

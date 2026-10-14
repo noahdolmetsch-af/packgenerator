@@ -15,6 +15,8 @@
   import MergeSheet from './MergeSheet.svelte';
   import { undoBulk } from './bulk.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
@@ -36,6 +38,9 @@
    */
   // onkept (v0.35.0): called with the new item when the window closes without "Save" after it was
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
+  import Woanders from '../sk/Woanders.svelte'; // SK X1, X7, X13
+  import { slotOf, ifixitUrl } from '../sk/links.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -563,7 +568,7 @@
       {/if}
       <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
       <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
-      <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" min="1" bind:value={draft.qty} /></label>
+      <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" inputmode="numeric" min="1" bind:value={draft.qty} /></label>
       <label class="cb wide"><input type="checkbox" bind:checked={draft.favorite} /> ★ {t('Favourite (tested, one of my best items)')}</label>
       {#if draft.favorite}
         <label class="wide"><span class="lbl">{t('Why it is a favourite')}</span><input class="inp" bind:value={draft.favNote} placeholder={t('e.g. Warm, packs small, never let me down')} /></label>
@@ -632,6 +637,14 @@
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
+  {#if !isNew}
+    <!-- SK X1 + X13 (SKX1): the maker's instructions (your link) and iFixit; X7 for a wish: the shop (your link) -->
+    {#if draft.ownership === 'wishlist' || draft.ownership === 'to-buy'}
+      <Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} />
+    {:else}
+      <Woanders context={nameOf(item)} links={[{ kind: 'x1', slot: slotOf('x1', item.id), icon: 'book', sub: t('Care and washing') }, { kind: 'x13', href: ifixitUrl(item), icon: 'hammer', sub: t('Guide at iFixit') }]} />
+    {/if}
+  {/if}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
   {#if !isNew}{@render fold('more', Ellipsis, t('More|item'), [t('Rename'), canMerge ? t('Merge with …') : '', readOnly ? '' : t('Delete')].filter(Boolean).join(', '), moreBody)}{/if}
 {/snippet}
@@ -646,7 +659,7 @@
       <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
     </div>
   {:else}
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <p class="meta">
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
@@ -661,7 +674,8 @@
         <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
-        <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        <!-- FE14: the «?» sits next to the label, outside it, so the field keeps its name -->
+        <div class="wide"><span class="lbl"><label for="it-grams">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></label> <Help field="it-grams" text={t(FIELD_HELP.grams)} /></span><input id="it-grams" class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></div>
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
@@ -679,7 +693,7 @@
 
     <p class="err" role="alert">{error}</p>
     <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
-    <div class="foot">
+    <div class="foot daumen-foot">
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       <button type="submit" class="btn hi">{t('Save')}</button>

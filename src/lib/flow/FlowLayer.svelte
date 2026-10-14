@@ -1,15 +1,14 @@
 <script>
   /**
    * v0.51.0 «Im Flow»: the flow windows over every page (App.svelte): the tick sheet of a long press,
-   * the countdown and its small floating version (bottom right, it keeps running on every page), the
-   * daily check and the «Rückgängig» toast. The «Stoppuhr» button floats on Today and on Im Flow.
+   * the countdown and its small floating version (bottom right, it keeps running on every page) and
+   * the «Rückgängig» toast (v0.127.0: the daily check is a page now, #/check/morning). The «Stoppuhr» button floats on Today and on Im Flow.
    * Hobby pages 2: a meditation session runs in its own full view (B7, SessionView); the mini clock
    * opens that view again.
    */
   import { Timer, Pause, Play, Check, Bell } from '@lucide/svelte';
   import TickSheet from './TickSheet.svelte';
   import TimerSheet from './TimerSheet.svelte';
-  import CheckDialog from './CheckDialog.svelte';
   import SessionView from './hobby/SessionView.svelte';
   import { flowQuery } from './data.svelte.js';
   import { ui, clockState, togglePause, openTimer, runUndo, actName } from './ui.svelte.js';
@@ -41,7 +40,6 @@
 {#if data}
   <TickSheet st={tickState} />
   <TimerSheet {states} bowl={data.bowl} />
-  <CheckDialog checks={data.checks} pool={data.pool} {today} />
 {/if}
 <SessionView acts={data?.acts ?? []} />
 

@@ -153,14 +153,16 @@ for (const lang of ['en', 'de']) {
 test('L6: a trip within 14 days leads; an old open debrief waits in Important today with All good', async ({ page, context }, info) => {
   const T = tr('de');
   const data = structuredClone(base);
-  data.tables.trips = [trip('Alt', day(-20), { days: 2 }), trip('Bald', day(10))];
+  // TZ-2: ended in the app (finished): it waits for its debrief (a trip never ended asks «Did you ride?» first)
+  data.tables.trips = [trip('Alt', day(-20), { days: 2, finished: day(-19) }), trip('Bald', day(10))];
   await start(page, context, info, { lang: 'de', data });
 
   // the hero is the trip in 10 days, not "How was …?"
   await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Alt' }) })).toHaveCount(0);
   const also = await imp(page, T);
-  const row = also.getByRole('listitem').filter({ hasText: T('Debrief still open: {title}', { title: 'test_data_gtp_ Alt' }) });
+  // TZ-2 (mockup TZ2 Heute): «… (date): Rückblick ausfüllen · 2 Min.», «Alles gut» beside it
+  const row = also.getByRole('listitem').filter({ hasText: T('{title} ({date}): fill in the debrief · 2 min.', { title: 'test_data_gtp_ Alt', date: 'X' }).split(' (X')[0] }).filter({ hasText: T('{title} ({date}): fill in the debrief · 2 min.', { title: 'X', date: 'Y' }).split('Y)')[1] });
   await expect(row).toBeVisible();
   const good = row.getByRole('button', { name: T('All good') });
   expect((await good.boundingBox()).height, 'All good is a 44 px target').toBeGreaterThanOrEqual(44);
@@ -181,10 +183,11 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Important to
 test('L6: nothing planned and an old debrief: no hero question, the line in Important today', async ({ page, context }, info) => {
   const T = tr('en');
   const data = structuredClone(base);
-  data.tables.trips = [trip('Herbst', day(-12))];
+  data.tables.trips = [trip('Herbst', day(-12), { finished: day(-12) })];
   await start(page, context, info, { lang: 'en', data });
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
-  await expect((await imp(page, T)).getByText(T('Debrief still open: {title}', { title: 'test_data_gtp_ Herbst' }))).toBeVisible();
+  await expect((await imp(page, T)).locator('[data-row="debrief"]')).toContainText('test_data_gtp_ Herbst');
+  await expect((await imp(page, T)).locator('[data-row="debrief"]')).toContainText(T('{title} ({date}): fill in the debrief · 2 min.', { title: 'X', date: 'Y' }).split('Y)')[1]);
 });
 
 test('L6: a fresh debrief and no trip within 14 days still asks in the hero', async ({ page, context }, info) => {
@@ -195,7 +198,8 @@ test('L6: a fresh debrief and no trip within 14 days still asks in the hero', as
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Gestern' }) })).toBeVisible();
   const also = await imp(page, T);
   await expect(also).toContainText(T('Next trip: {title}', { title: 'test_data_gtp_ Spaeter' }));
-  await expect(also.getByText(/Debrief still open/)).toHaveCount(0);
+  await expect(also.locator('[data-row="debrief"]')).toHaveCount(0);
+  await expect(also.locator('[data-row="ride"]')).toHaveCount(0); // TZ-2: the card already asks about it
 });
 
 /* ---------- L9: the first start ---------- */

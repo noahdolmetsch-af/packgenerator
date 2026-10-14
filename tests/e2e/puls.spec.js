@@ -69,15 +69,18 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   await shot(page, info, 'P1-fahrtenbuch');
 
   // P2 Rückblick: the last tour with its heart rate instead of «kommt später»
+  // (SN2 «Seiten neu»: the last ride's numbers are folded at the end of the Rückblick)
   await page.goto('./#/debrief');
+  await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
   await expect(page.locator('main .heart').first()).toContainText(T('Heart rate'));
   await shot(page, info, 'P2-rueckblick');
 
-  // P3 Touren: the average per trip with a column «Ø Puls»
+  // P3 Touren: the heart rate of each trip (SN4g «Touren-Seite, Runde 2»: «Ø Puls» and «max. Puls» in the values
+  // of every row of «Abgeschlossene Touren», instead of the average table behind «Bestwerte › Alle»)
   await page.goto('./#/trips');
-  await page.locator('main button.more', { hasText: T('All|best') }).click();
-  await expect(page.getByRole('columnheader', { name: T('Ø heart rate') })).toBeVisible();
-  await page.locator('table.avg').scrollIntoViewIfNeeded();
+  const hr = page.locator('[data-trip-list] [data-values] .vc').filter({ has: page.getByRole('term').filter({ hasText: new RegExp(`^${T('Ø heart rate')}$`) }) });
+  await expect(hr.filter({ hasText: new RegExp(`\\d+\\s*${T('bpm').replace('/', '\\/')}`) }).first()).toBeVisible();
+  await hr.first().scrollIntoViewIfNeeded();
   await shot(page, info, 'P3-touren');
 
   // P4 Aktiv: «Puls diese Woche» under «Velo diesen Monat»
@@ -93,6 +96,6 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
 
   // P6 Today: «This week» with the heart rate of this week's rides
   await page.goto('./');
-  await expect(page.locator('[data-section="week"] .sub')).toContainText(line(141, 168));
+  await expect(page.locator('[data-section="week"] [data-week-values]')).toContainText(line(141, 168));
   await shot(page, info, 'P6-heute');
 });

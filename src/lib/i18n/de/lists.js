@@ -25,7 +25,7 @@ export default {
   'Edit category': 'Kategorie bearbeiten',
   'Give the category a name.': 'Gib der Kategorie einen Namen.',
   'Standard name: «{name}». Your name only applies for you.': 'Standard-Name: «{name}». Dein Name gilt nur bei dir.',
-  'Show again': 'Wieder einblenden',
+  'Show again|list': 'Wieder einblenden',
   'Delete: no item has this category.': 'Löschen: kein Teil hat diese Kategorie.',
   'Delete: {n} item has this category. It then shows under «No category».': 'Löschen: {n} Teil hat diese Kategorie. Es steht danach unter «Ohne Kategorie».',
   'Delete: {n} items have this category. They then show under «No category».': 'Löschen: {n} Teile haben diese Kategorie. Sie stehen danach unter «Ohne Kategorie».',
@@ -34,6 +34,10 @@ export default {
   // Was die App kann (features.js)
   'Your own categories': 'Deine eigenen Kategorien',
   'Me › Lists and types: rename categories, add your own, hide, delete, change the order.': 'Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, löschen, Reihenfolge ändern.',
+  // So geht's (howto.js) and the handbook (handbook.js)
+  'Open Me › «Lists and types» › Categories.': 'Öffne Ich › «Listen und Typen» › Kategorien.',
+  'Tap the pen to rename, choose a symbol, hide or delete.': 'Tippe auf den Stift: umbenennen, Symbol wählen, ausblenden oder löschen.',
+  'Add your own category; «Back to Standard» undoes everything.': 'Nimm eine eigene Kategorie dazu; «Auf Standard zurücksetzen» macht alles rückgängig.',
   // the symbols (a screen reader says them)
   'Label|symbol': 'Etikett',
   'Lightning|symbol': 'Blitz',

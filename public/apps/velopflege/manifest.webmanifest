@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "Velopflege · Pack Generator",
+  "short_name": "Velopflege",
+  "description": "Velopflege: a small app of the Pack Generator, same data.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#D9DED4",
+  "theme_color": "#0F2E27",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

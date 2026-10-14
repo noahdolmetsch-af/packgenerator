@@ -43,12 +43,19 @@ import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
+import { initOps } from './lib/bedienung.svelte.js';
 import { installExplain } from './lib/ui/explain.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
+import { noteAppOpen } from './lib/know/wasneuStore.js';
+import { snapshotOnStart } from './lib/maintenance/snapshots.js';
+import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
+import { SEEN_KEY } from './lib/whatsnew.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
 initTheme();
+// Bedienung (Noah 13.10.2026): the small helps of Ich › Darstellung, high contrast before the first paint.
+initOps();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();
@@ -78,6 +85,9 @@ installExplain();
 takeReturn();
 window.addEventListener('hashchange', () => takeReturn());
 
+// SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
+noteAppOpen();
+
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
 
@@ -91,8 +101,25 @@ watchLists(db);
 navigator.storage?.persist?.();
 
 // One-time fixes for older data (brand/model split, bag list and bike setups).
-settling(() => tidyData(db))
+// «App-Wartung» BF4 (Noah 13.10.2026): on a new version, a copy of the data BEFORE the data updates run
+// (own database, never exported; Ich › Daten und Backup › «Before updates» brings it back).
+const seenVersion = (() => {
+  try {
+    return localStorage.getItem(SEEN_KEY);
+  } catch {
+    return null;
+  }
+})();
+settling(async () => {
+  await snapshotOnStart(db, { current: __APP_VERSION__, seen: seenVersion }).catch((err) => console.warn('snapshot', err?.name ?? err));
+  await tidyData(db);
+  await markFirstStart(db).catch(() => {}); // BF7: a first install checks a month later
+})
   .catch((err) => console.warn('tidyData', err))
   // v0.116.0 (decision 1a): fetch new rides from Strava when the app opens or comes back, at most every
   // 15 minutes, only on a device with a Strava key and «Automatisch beim Öffnen» on.
-  .finally(() => watchAutoFetch());
+  // BF7 «Wartungs-Check»: once a month the links, the keys and the Strava connection (quiet when offline).
+  .finally(() => {
+    watchAutoFetch();
+    autoCheck(db);
+  });

@@ -11,8 +11,14 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { FIELDS_KEY, VALUE_GROUPS, valueGroups, valueOf, setValue, toggleField, showAll, addOwnField, renameOwnField, removeOwnField, fieldsOf } from '../valuefields.js';
   import { t, num } from '../i18n.svelte.js';
-  import { Plus, Trash2 } from '@lucide/svelte';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP } from '../daumen.js';
+  const VALUE_HELP = { 'fit:pressureF': 'pressure', 'fit:pressureR': 'pressure', 'fit:forkSag': 'sag', 'fit:shockSag': 'sag' };
+  import { Plus, Trash2, Bike as BikeIcon } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
+  import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
+  import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, onbike } = $props();
 
@@ -77,7 +83,8 @@
 <div class="vp">
   {#if !bikes.length && $bikesQ}
     <h1 class="title">{t('Enter values')}</h1>
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
+    <!-- v0.127.0 A-U2: the shared empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <VeloHead
       crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }, { label: t('Equipment|tab'), href: bikesHash({ tab: 'compare', bike: bike.id }) }]}
@@ -86,7 +93,8 @@
       sub={[bike.name, t('{n} of {all} fields filled', { n: page.filled, all: page.total }), t('every entry saves at once')].join(' · ')}
     >
       <button type="button" class="btn" onclick={() => (choosing = true)}>{t('Choose fields')}</button>
-      <a class="btn hi" href={bikesHash({ tab: 'compare', bike: bike.id })}>{t('Done')}</a>
+      <!-- FE1: on a phone «Done» sits at the bottom, in reach of the thumb -->
+      <span class="daumen"><a class="btn hi" href={bikesHash({ tab: 'compare', bike: bike.id })}>{t('Done')}</a></span>
     </VeloHead>
     {#if bikes.length > 1}
       <div class="bchips" role="group" aria-label={t('Bike')}>
@@ -102,7 +110,8 @@
             <h2 id="vp-{g.key}">{t(g.name)}<small>{t('{n} of {all}|filled', { n: g.filled, all: g.total })}</small></h2>
             {#each g.rows as r (r.id)}
               <div class="row">
-                <label class="l" for="ve-{r.id}">{t(r.label)}{#if r.own}<span class="own">{t('own field')}</span>{/if}</label>
+                <!-- FE14: a difficult value gets a «?» next to its label (outside it, so the field keeps its name) -->
+                <label class="l" for="ve-{r.id}">{t(r.label)}{#if r.own}<span class="own">{t('own field')}</span>{/if}</label>{#if VALUE_HELP[r.id]}<Help field="ve-{r.id}" text={t(FIELD_HELP[VALUE_HELP[r.id]])} />{/if}
                 <span class="in">
                   <input
                     id="ve-{r.id}"
@@ -254,6 +263,14 @@
     min-height: 56px;
     padding: 6px 0;
     border-top: 1px solid var(--line);
+  }
+  /* FE14: while a «?» is open, its sentence takes its own line below the row */
+  .row:has(> :global(.help)) {
+    flex-wrap: wrap;
+  }
+  .row :global(.help) {
+    order: 3;
+    margin: 0 0 4px;
   }
   .l {
     flex: 1;

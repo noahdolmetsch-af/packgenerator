@@ -91,6 +91,15 @@ export const SETS = {
   food: 'Food|block',
   hygiene: 'Hygiene|block',
   comfort: 'Comfort|block',
+  // SN3+ «Bausteine je nach Lage»: the seven blocks that come as a suggestion when the trip fits
+  // (situation.js); they start empty, Noah fills them.
+  cold: 'Cold|block',
+  heat: 'Heat|block',
+  climb: 'Pass & climbing',
+  long: 'Long ride|block',
+  abroad: 'Abroad|block',
+  train: 'Train|block',
+  rain: 'Rain|block',
 };
 /** v0.66.0: the block keys before «Bausteine neu» (read only by the one-time update and older backups). */
 export const OLD_SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', light: 'Night: Light', lodging: 'Lodging' };

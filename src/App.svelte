@@ -26,6 +26,7 @@
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
+  import KomootSheet from './lib/komoot/KomootSheet.svelte';
   import Search from './lib/nav/Search.svelte';
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
@@ -38,6 +39,10 @@
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Abfragen from './pages/Abfragen.svelte';
+  import Verlauf from './pages/Verlauf.svelte';
+  import Auswertung from './pages/Auswertung.svelte';
+  import Pay from './pages/Pay.svelte';
   import Lists from './pages/Lists.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import SideBar from './lib/nav/SideBar.svelte';
@@ -45,12 +50,16 @@
   import MeButton from './lib/nav/MeButton.svelte';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
+  import { ops } from './lib/bedienung.svelte.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import ErrorPage from './lib/ui/ErrorPage.svelte';
+  import MiniBar from './lib/nav/MiniBar.svelte';
+  import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -68,12 +77,34 @@
     moved = r.old ?? null;
     return r.hash;
   };
+  // Kleine Apps (Noah 14.10.2026): …/apps/<key>/ is a small app (miniapps.js); it starts on its own area.
+  const mini = miniAppOf(location.pathname);
+  if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
+  // v0.127.0 A-U2 (mockup «Fehlerseite»): a page that throws shows the error page, never a white page.
+  // failReset: the boundary's reset while the error page shows; failName: the page's name in the text.
+  let failReset = null;
+  const onfail = (e, reset) => {
+    failReset = reset;
+    console.error(e);
+  };
+  const failName = $derived.by(() => {
+    if (place === 'me') return t('Me|place');
+    const tabEntry = (PLACE_TABS[place] ?? []).find((x) => x.key === tab);
+    const p = PLACES.find((x) => x.key === place);
+    return tabEntry && p ? `${t(p.label)} › ${t(tabEntry.label)}` : p ? t(p.label) : '';
+  });
   $effect(() => {
     const update = () => {
       spot = '';
       moved = null;
       hash = follow(location.hash);
+      // v0.127.0 A-U2: another address leaves the error page; the new page is built afresh
+      if (failReset) {
+        const r = failReset;
+        failReset = null;
+        r();
+      }
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', update);
@@ -101,7 +132,8 @@
     const open = () => (keysOpen = true);
     let gAt = 0;
     const key = (e) => {
-      if (typing(e)) return;
+      // FE6 (Noah 13.10.2026): the shortcuts can be switched off in Ich › Darstellung › Bedienung
+      if (!ops.keys || typing(e)) return;
       const afterG = Date.now() - gAt < G_WAIT;
       const s = shortcutOf(e.key, afterG);
       gAt = s?.wait ? Date.now() : 0;
@@ -216,6 +248,16 @@
     const today = localDay();
     return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
   });
+  // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
+  // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
+  let komootOpen = $state(false);
+  $effect(() => {
+    if (hash === '#/komoot/shared') {
+      history.replaceState(null, '', `${location.pathname}#/trips`);
+      hash = '#/trips';
+      komootOpen = true;
+    }
+  });
   $effect(() => {
     if (hash === '#/inbox/new') {
       history.replaceState(null, '', '#/inbox');
@@ -232,12 +274,12 @@
      their place or in «Ich».
      v0.98.0 Design-Refresh R2 (G4/G5 A★): the top bar and the sidebar are light; on a phone the + sits
      in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
-<div class="shell" class:wide={wide.matches}>
-{#if wide.matches}
+<div class="shell" class:wide={wide.matches && !mini} class:mini={!!mini}>
+{#if wide.matches && !mini}
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={page !== 'share'} onnew={() => (newMode = 'all')} />
 {:else}
   <header class="top">
-    <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>
+    {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
       <Search compact />
       {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
@@ -248,8 +290,9 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
-  {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
+  {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
     <Gear />
@@ -313,6 +356,18 @@
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
+  {:else if page === 'abfragen'}
+    <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
+    <Abfragen />
+  {:else if page === 'history'}
+    <!-- AB4: Ich › Daten › Verlauf, all values in one place -->
+    <Verlauf />
+  {:else if page === 'analysis'}
+    <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
+    <Auswertung />
+  {:else if page === 'pay'}
+    <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
+    <Pay />
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
     {#key hash}<Lists />{/key}
@@ -333,6 +388,8 @@
     <Home />
   {/if}
   {/key}
+  {#snippet failed(error, reset)}<ErrorPage {error} name={failName} onreset={() => ((failReset = null), reset())} />{/snippet}
+  </svelte:boundary>
 </main>
 
 {#if page !== 'share'}
@@ -341,7 +398,11 @@
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
-{#if !wide.matches}
+{#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
+{#if mini}
+  <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->
+  <MiniBar app={mini} {hash} />
+{:else if !wide.matches}
   <!-- v0.76.0: the five places at the bottom (also under a shared list). -->
   <PlaceBar {place} {hash} due={$dueQ ?? 0} />
 {/if}
@@ -424,7 +485,7 @@
     margin-left: auto;
   }
   @media (max-width: 719px) {
-    .top .long {
+    .top .long:not(.show) {
       display: none;
     }
   }

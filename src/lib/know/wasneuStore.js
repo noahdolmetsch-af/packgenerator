@@ -1,11 +1,13 @@
 /**
  * v0.110.0 Design-Refresh P10 (I11–I11e): the small device store of «Was ist neu» (rules in wasneu.js).
- * Everything lives in localStorage (sessionStorage for «Later»): only on this device, never in a
+ * Everything lives in localStorage: only on this device, never in a
  * backup. Every read and write is wrapped, so a private window simply counts and remembers nothing.
  */
 import { db } from '../db.js';
 import { demoState } from '../demo.js';
-import { USES_KEY, MUTE_KEY, UPDATE_KEY, LATER_KEY, PIN_KEY, TESTED_KEY, bumpUse, usesOf, HOME_FEATURE } from './wasneu.js';
+import { USES_KEY, MUTE_KEY, UPDATE_KEY, PIN_KEY, TESTED_KEY, bumpUse, usesOf, HOME_FEATURE } from './wasneu.js';
+import { WHATS_NEW } from '../whatsnew.js';
+import { openApp, opensOf, addSnap, snapsOf } from './sn6plus.js';
 
 function read(key, store = 'local') {
   try {
@@ -59,8 +61,6 @@ export const readUpdate = () => {
 export const writeUpdate = (u) => writeJson(UPDATE_KEY, u);
 export const readMute = () => read(MUTE_KEY);
 export const writeMute = (v) => write(MUTE_KEY, v);
-export const readLater = () => read(LATER_KEY, 'session');
-export const writeLater = (v) => write(LATER_KEY, v, 'session');
 export const readPin = () => readJson(PIN_KEY);
 export const writePin = (p) => writeJson(PIN_KEY, p);
 export function readTested(version) {
@@ -70,3 +70,22 @@ export function readTested(version) {
 export function writeTested(version, steps) {
   writeJson(TESTED_KEY, { [version]: steps });
 }
+
+/* ---------- SN6+ (rules in sn6plus.js): the app openings and the day records of the used count ---------- */
+
+/** localStorage: { last, prev } the last two openings of the app ({ at, v }). */
+export const OPENS_KEY = 'sn6p.opens';
+/** sessionStorage: this browser session already counted as an opening (a reload is no new visit). */
+export const OPEN_SESSION_KEY = 'sn6p.opened';
+/** localStorage: [{ at, n }] how many functions were used, one record per day. */
+export const PROGRESS_KEY = 'sn6p.progress';
+
+/** SN6+ answer 5b: count one opening of the app (once per session), at start (main.js). */
+export function noteAppOpen(now = new Date(), v = WHATS_NEW[0]?.version ?? null) {
+  if (read(OPEN_SESSION_KEY, 'session')) return;
+  write(OPEN_SESSION_KEY, '1', 'session');
+  writeJson(OPENS_KEY, openApp(readJson(OPENS_KEY), now.toISOString(), v));
+}
+export const readOpens = () => opensOf(readJson(OPENS_KEY));
+export const readProgress = () => snapsOf(readJson(PROGRESS_KEY));
+export const writeProgress = (n, today) => writeJson(PROGRESS_KEY, addSnap(readJson(PROGRESS_KEY), n, today));

@@ -33,6 +33,106 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
+    version: '0.133.0',
+    date: '2026-10-14',
+    title: 'A greeting and your questions',
+    lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',
+    points: [
+      { text: '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30', href: '#/me/abfragen' },
+      { text: 'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to', href: '#/me/look' },
+      { text: 'History and analysis: all your values in one place, with your normal range', href: '#/me/history' },
+    ],
+    small: [
+      { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
+      { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom' },
+    ],
+    test: [
+      'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
+      'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».',
+      'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.',
+      'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
+      'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
+      'On the phone open Trips and Material: the main button sits at the bottom.',
+      'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.',
+    ],
+  },
+  {
+    // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
+    // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
+    // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),
+    // Kleine Apps + Handbuch (#157)
+    version: '0.132.0',
+    date: '2026-10-14',
+    title: 'Lots of new things at once',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
+    points: [
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/me/abfragen' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+    ],
+    small: [
+      { box: 'new', text: 'A search that finds similar words and small typos, and small apps for meditation, packing list and bike care with their own icon' },
+      { box: 'new', text: 'Every trip shows its state, a year goal for km, metres climbed and minutes, a workshop visit saved on the bike', href: '#/trips' },
+      { box: 'nicer', text: 'A backup before every update, high contrast outdoors, speaking instead of typing and an error never shows a white page', href: '#/me/data' },
+    ],
+    test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
+      'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
+      'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
+      'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
+      'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
+      'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.',
+    ],
+  },
+  {
+    // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
+    version: '0.131.3',
+    date: '2026-10-14',
+    title: 'Receipt photo in one tap',
+    lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',
+    points: [
+      { text: 'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera', href: '#/bikes?tab=shop' },
+      { text: 'Inbox › File as … Receipt: a note without a photo gets its receipt photo here', href: '#/inbox' },
+    ],
+    small: [
+      { box: 'new', text: 'New › Workshop visit: the note shows «Photograph the receipt» too' },
+      { box: 'nicer', text: '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»' },
+    ],
+    test: [
+      'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.',
+      'Take the photo: it shows small in the window; save the visit.',
+      'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.',
+    ],
+  },
+  {
+    // v0.131.2 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.131.2',
+    date: '2026-10-14',
+    title: 'Bikes back in line',
+    lead: 'The bike tabs follow the order you chose again.',
+    points: [
+      { text: 'Bike tabs in your order, your main bike first.', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The tidy-up of the last update had brought back the old order' },
+    ],
+    test: [
+      'Open Velos: the tabs start with your main bike, in the order you chose.',
+      'Open Velos › Pflege: the bikes come in the same order.',
+    ],
+  },
+  {
     // v0.131.1 «Abhaken wieder abwählbar» (bug fix, Noah 14.10.2026; same look, so no mockup)
     version: '0.131.1',
     date: '2026-10-14',

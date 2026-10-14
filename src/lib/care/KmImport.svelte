@@ -18,6 +18,8 @@
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   let { bikeId = null } = $props();
 
@@ -326,7 +328,7 @@
           <dl class="sum">
             <div><dt>{t('new rides')}</dt><dd class="num">{num(total.n)} · {num(total.km)} km</dd></div>
             <div><dt>{t('duplicates, merged')}</dt><dd class="num">{num(total.dup)}</dd></div>
-            <div><dt>{t('to check, not counting yet')}</dt><dd class="num" class:bad={total.open}>{num(total.open)}</dd></div>
+            <div><dt>{t('to check, not counting yet')}</dt><dd class="num" class:bad={total.open} data-sign={total.open ? signFor('bad') : null}>{num(total.open)}</dd></div>
           </dl>
           <div class="fb">
             <button type="button" class="btn hi" disabled={busy || !total.n} onclick={takeOver}>{t('Take over')}</button>

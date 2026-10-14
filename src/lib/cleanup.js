@@ -29,14 +29,16 @@ export const WEIGHT_NOTE_ID = 'note-weight-checks';
 
 /**
  * The bike IDs of the first Excel import. Only these IDs are matched, other data gets nothing.
- * order: the old fixed order on screen; aliases: words in a note that mean this bike; subjects:
- * the bike names in the Excel sheet "Wartung". Can go once every device has run the cleanup.
+ * order: their place on screen (array position, Noah 13.10.2026 «1a»: the newest bike first, then the
+ * gravel bike, the hardtail, the fully); aliases: words in a note that mean this bike; subjects: the bike names in the Excel sheet
+ * "Wartung". oldOrder: the order the first run of 0.131.0 wrote (Scale first, the old list in the
+ * code); a bike that still has it gets the new place once. Can go once every device has run the cleanup.
  */
 const EXCEL_BIKES = [
-  { id: 'scott-hardtail', aliases: ['hardtail', 'scale'], subjects: ['Hardtail'] },
-  { id: 'fully', aliases: ['fully', 'spark'], subjects: ['Full suspension', 'Fully'] },
-  { id: 'factor-ls', aliases: ['factor', 'gravel'], subjects: ['Factor'] },
-  { id: 'canyon-world-cup', aliases: ['canyon', 'lux'], subjects: [] },
+  { id: 'canyon-world-cup', aliases: ['canyon', 'lux'], subjects: [], oldOrder: 4 },
+  { id: 'factor-ls', aliases: ['factor', 'gravel'], subjects: ['Factor'], oldOrder: 3 },
+  { id: 'scott-hardtail', aliases: ['hardtail', 'scale'], subjects: ['Hardtail'], oldOrder: 1 },
+  { id: 'fully', aliases: ['fully', 'spark'], subjects: ['Full suspension', 'Fully'], oldOrder: 2 },
 ];
 
 /** Step 1, pure: the bike and task changes ({ bikes: [[id, patch]], tasks: [[id, patch]] }). */
@@ -47,7 +49,7 @@ export function excelBikeChanges(bikes, tasks) {
     const bike = bikes.find((b) => b.id === x.id);
     if (!bike) return;
     const patch = {};
-    if (bike.order == null) patch.order = n + 1;
+    if (bike.order == null || bike.order === x.oldOrder) patch.order = n + 1;
     if (bike.aliases == null) patch.aliases = [...x.aliases];
     if (Object.keys(patch).length) out.bikes.push([bike.id, patch]);
   });

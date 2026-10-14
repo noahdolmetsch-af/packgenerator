@@ -10,6 +10,11 @@
    * 4. One level below: Dein Tempo, Gelernt, Logbuch (their own pages; v0.61.0 R2 rebuilt them).
    * «Fahrt hochladen» is a quiet button in the head. #/review and #/debrief/compare land here.
    * Numbers: review/rueckblick.js (tested); unknown is a calm «–».
+   * SN2 «Seiten neu» (mockup approved 13.10.2026, ★ 2a): the state pills Abgeschlossen · n, Bewertet · n
+   * in the head; on top the trip whose debrief is missing with the one main button «Bewerten» and a
+   * quiet «Nicht gefahren» (with Undo); the period as four tiles and the bars, the long table open
+   * under «Alle Kennzahlen» (answer 2b, it can be folded); «Touren im Vergleich» with a column Zustand (on a phone the pill under
+   * the name), the small charts and all columns folded; the last ride's details folded at the end.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -26,7 +31,13 @@
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import MiniBars from './MiniBars.svelte';
-  import { Upload, ChevronRight, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Clock, Gauge, BookOpen, Notebook, Mountain, Route } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
+  import Skeleton from '../ui/Skeleton.svelte';
+  import { Upload, ChevronRight, ChevronLeft, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Clock, Gauge, BookOpen, Mountain, Archive, Flag, Star } from '@lucide/svelte';
+  import TripState from '../ui/TripState.svelte';
+  import Btn from '../ui/Btn.svelte';
+  import { factStates, factCounts, PERIOD_KEY } from './state.js';
+  import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
 
   let { spot = '' } = $props();
@@ -37,7 +48,7 @@
   // the same trips as Today's «Letzte 12 Monate»: no archived and no test trips (home/heute.js)
   const facts = $derived(data ? tripFacts({ ...data, trips: homeTrips(data.trips), today }) : []);
 
-  const KEEP = 'review.period';
+  const KEEP = PERIOD_KEY;
   const keepGet = (k, d) => {
     try {
       return localStorage.getItem(k) || d;
@@ -83,6 +94,33 @@
     { key: '12m', name: t('12 months') },
     { key: 'same', name: t('Same kind') },
   ]);
+  // SN2: the state of every row (Abgeschlossen / Bewertet) and how many of each are in the period
+  const states = $derived(data ? factStates(facts, { debriefs: data.debriefs, rides: data.rides, today }) : {});
+  // the head counts the trips of the period, the same as the tile «Touren» (an uploaded ride alone is no trip)
+  const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
+  const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
+  const extraOf = (id) => stateExtraText(states[id]?.extra);
+  let allFigures = $state(true); // SN2 answer 2b (Noah 13.10.2026): the long table is open as before
+  let allColumns = $state(false);
+  let lastOpen = $state(false);
+  // SN2: «Nicht gefahren» on the trip whose debrief is missing: it leaves every count (skipped), with Undo
+  let undo = $state(null);
+  let undoTimer;
+  async function notRidden(r) {
+    const before = await db.trips.get(r.trip.id);
+    if (!before) return;
+    await db.trips.update(r.trip.id, { skipped: true, updatedAt: new Date().toISOString() });
+    clearTimeout(undoTimer);
+    undo = { before, text: t('Not ridden: {title}.', { title: r.title }) };
+    undoTimer = setTimeout(() => (undo = null), 10000);
+  }
+  async function undoSkip() {
+    const u = undo;
+    undo = null;
+    clearTimeout(undoTimer);
+    if (u) await db.trips.put($state.snapshot(u.before));
+  }
+  const wxLine = (r) => [rainText(r.rain, r.days), temps(r.tmin, r.tmax)].filter((x) => x !== DASH).join(', ');
   const periodName = $derived(mode === 'year' ? year : mode === 'all' ? t('All years') : t('Last 12 months'));
   const rangeText = $derived(stats ? (stats.period.from ? `${dayLong(stats.period.from)} – ${dayLong(stats.period.to)}` : t('since {date}', { date: dayLong(facts.at(-1)?.start) })) : '');
 
@@ -176,190 +214,232 @@
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
 {/snippet}
 
-<!-- v0.109.0 Design-Refresh P6 (T17 «Rückblick», approved 12.10.2026): the open debriefs as a soft band on top,
-     then two columns as in the mockup. Left: the last trip with its number tiles, the 12 months with the bars
-     (B14 Diagramme), trips compared. Right: your pace, Gelernt and «Mehr» (Logbuch, past trips, upload). -->
+<!-- v0.109.0 Design-Refresh P6 (T17 «Rückblick», approved 12.10.2026): two columns as in the mockup.
+     SN2: the head with the state pills, the trip whose debrief is missing on top, then left the period
+     (tiles, bars, «Alle Kennzahlen») and trips compared; right your pace, Gelernt and «Mehr». -->
 <div class="hub rv-page">
-  <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
+  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Look back|page')}</span></nav>
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Look back|page')}</h1>
-      {#if stats}<p class="page-sub num">{[rangeText, tn(stats.stats[0].value ?? 0, '{n} trip', '{n} trips'), open ? tn(open, '{n} debrief open', '{n} debriefs open') : ''].filter(Boolean).join(' · ')}</p>{/if}
+      {#if stats && (counts.done || counts.rated)}
+        <p class="pills">{#if counts.done}<TripState state="done" extra={num(counts.done)} />{/if}{#if counts.rated}<TripState state="rated" extra={num(counts.rated)} />{/if}</p>
+      {/if}
+      {#if stats}<p class="page-sub num">{periodShort} · {tn(stats.stats[0].value ?? 0, '{n} trip ridden', '{n} trips ridden')}</p>{/if}
     </div>
     <div class="hacts">
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
     </div>
   </header>
+  {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}
-    <p class="page-sub">{t('Loading…')}</p>
+    <!-- v0.127.0 A-U2: a calm placeholder while loading, the one empty building block when there is nothing -->
+    <Skeleton rows={3} />
   {:else if !facts.length}
-    <section class="rv-box pad empty">
-      <b>{t('Nothing to look back on yet.')}</b>
-      <p>{t('A trip shows up here the day after it ends, an uploaded ride at once.')}</p>
-      <a class="btn" href="#/debrief/ride"><Upload size={18} aria-hidden="true" />{t('Upload ride')}</a>
-    </section>
+    <Empty icon={Upload} title={t('Nothing to look back on yet.')} text={t('A trip shows up here the day after it ends, an uploaded ride at once.')} action={{ label: t('Upload ride'), href: '#/debrief/ride' }} />
   {:else}
     {#if openList.length}
-      <!-- v0.78.0 (O2.4a): «Rückblick offen» on top -->
-      <section class="openlist" aria-labelledby="open-h">
-        <h2 id="open-h" class="sr">{t('Debrief open')}</h2>
-        <ul class="ol">
-          {#each openList as r (r.id)}
-            <li>
-              <span class="rv-ic" aria-hidden="true"><Notebook size={18} /></span>
-              <span class="m"><small>{t('Debrief open')}</small><b>{r.title}</b><small>{[dates(r.start, r.end), r.bike, r.debrief === 'draft' ? t('started') : ''].filter(Boolean).join(' · ')}</small></span>
-              <a class="btn sm wr" href="#/debrief/{encodeURIComponent(r.id)}" onclick={() => openTrip(r.id)} aria-label="{t('Write')}: {r.title}">{t('Write')}<ChevronRight size={16} aria-hidden="true" /></a>
-            </li>
-          {/each}
-        </ul>
+      <!-- SN2: the trip whose debrief is missing, with the one main button «Bewerten» -->
+      {@const r = openList[0]}
+      <section class="rv-box pad hero" aria-labelledby="open-h" data-open-debrief>
+        <span class="hic" aria-hidden="true"><Flag size={22} /></span>
+        <span class="hm">
+          <TripState state="done" extra={r.debrief === 'draft' ? t('debrief started') : t('debrief missing')} />
+          <b id="open-h" class="hname">{r.title}</b>
+          <small>{[dates(r.start, r.end), r.bike, wxLine(r)].filter(Boolean).join(' · ')}</small>
+        </span>
+        <span class="rowacts">
+          {#if r.trip}<Btn kind="quiet" label={t('Not ridden')} explain={t('It was not ridden: it leaves every count. You can undo it.')} onclick={() => notRidden(r)} />{/if}
+          <Btn kind="hi" icon={Star} label={r.debrief === 'draft' ? t('Continue|debrief') : t('Rate|debrief')} href="#/debrief/{encodeURIComponent(r.id)}" onclick={() => openTrip(r.id)} aria="{t('Rate|debrief')}: {r.title}" />
+        </span>
+        {#if openList.length > 1}
+          <ul class="more-open">
+            {#each openList.slice(1) as o (o.id)}
+              <li>
+                <span class="rv-m"><span class="rv-t">{o.title}</span><span class="rv-s">{[dates(o.start, o.end), extraOf(o.id)].filter(Boolean).join(' · ')}</span></span>
+                <Btn label={t('Rate|debrief')} href="#/debrief/{encodeURIComponent(o.id)}" onclick={() => openTrip(o.id)} aria="{t('Rate|debrief')}: {o.title}" />
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </section>
     {/if}
     <div class="rv-lay">
       <div class="rv-col">
-        <!-- 1. the last ride -->
-        {#if last}
-          <section class="rv-box pad lastride" aria-labelledby="last-h">
-            <p class="kick">{[t('Last ride'), dates(last.start, last.end), last.trip ? t(ARTNAME[last.art]) : t('Uploaded ride')].join(' · ')}</p>
-            <h2 id="last-h" class="lt">{last.title}</h2>
-            <dl class="rv-tiles big">
-              <div class="rv-tile"><dd><b>{n0(last.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
-              <div class="rv-tile"><dd><b>{n0(last.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
-              <div class="rv-tile"><dd><b>{hours(last.movingH)} h</b></dd><dt><small>{last.totalH && last.movingH && last.totalH > last.movingH ? t('moving · {h} total', { h: hours(last.totalH) }) : t('moving')}</small></dt></div>
-              <div class="rv-tile"><dd><b>{n1(last.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
-            </dl>
-            <ul class="facts">
-              <li>{@render rainIcon(last.rain)}{rainText(last.rain, last.days)}</li>
-              <li><Thermometer size={16} aria-hidden="true" />{temps(last.tmin, last.tmax)}</li>
-              <li><Bike size={16} aria-hidden="true" />{last.bike ?? DASH}</li>
-              {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {num(last.pauses.min)} min</li>{/if}
-              {#if highest(last.profile)}<li><Mountain size={16} aria-hidden="true" />{t('GPX · {m} m highest point', { m: num(highest(last.profile)) })}</li>{/if}
-            </ul>
-            {#if lastPlan}
-              {@const mins = Math.round(lastPlan.diff * 60)}
-              <p class="plan"><Gauge size={16} aria-hidden="true" /><span>{t('Planned {plan} h, ridden {real} h:', { plan: hours(lastPlan.plan), real: hours(lastPlan.real) })} <b>{mins < 0 ? t('{n} min faster', { n: -mins }) : mins > 0 ? t('{n} min slower', { n: mins }) : t('right on time')}</b>.</span></p>
-            {/if}
-            {#if last.learnings.length || last.special}
-              <ul class="learned">
-                {#each last.learnings.slice(0, 2) as l (l.id)}<li><Lightbulb size={16} aria-hidden="true" />{l.rule}</li>{/each}
-                {#if last.special}<li class="sp"><Sparkles size={16} aria-hidden="true" />{last.special}</li>{/if}
-              </ul>
-            {/if}
-            {#if lastHeart}
-              <p class="heart"><HeartLine heart={lastHeart} size={16} label={t('Heart rate')} /> <span class="pill">{t('from Strava · observation')}</span></p>
-            {:else}
-              <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
-            {/if}
-            <div class="acts">
-              {#if last.debrief === 'open' || last.debrief === 'draft'}
-                <a class="btn hi" href={last.href} onclick={() => last.trip && openTrip(last.trip.id)}>{last.debrief === 'draft' ? t('Continue the debrief') : t('Write the debrief')}<ChevronRight size={18} aria-hidden="true" /></a>
-              {:else}
-                <a class="btn" href={last.href} onclick={() => last.trip && openTrip(last.trip.id)}>{last.kind === 'ride' ? t('Open the ride') : t('Open its debrief')}<ChevronRight size={18} aria-hidden="true" /></a>
-              {/if}
-            </div>
-          </section>
-        {/if}
-
-        <!-- 2. the period -->
+        <!-- 1. the period: four tiles, the bars, the long table folded (SN2, ★ 2a) -->
         <section class="rv-sec period" aria-labelledby="per-h">
-          <div class="rv-h"><div><h2 id="per-h">{periodName}</h2><p class="rv-sub num">{rangeText}</p></div></div>
-          <div class="rv-box pad">
-            {#if stats.bars.length > 1}
-              <p class="bcap">{mode === 'all' ? t('km per year') : t('km per month')}</p>
-              <div class="bars">
-                <span class="ax num" aria-hidden="true"><span>{num(axisTop)}</span><span>{num(axisTop / 2)}</span></span>
+          <div class="rv-h"><div><h2 id="per-h">{periodName}</h2><p class="rv-sub num">{rangeText} · {t('only Completed and Rated')}</p></div></div>
+          <div class="rv-box ptiles">
+            <ul class="rv-tiles" aria-label={periodName}>
+              {#each stats.stats.filter((s) => ['trips', 'km', 'gainM', 'rain'].includes(s.key)) as s (s.key)}
+                <li class="rv-tile"><b class="num">{s.key === 'rain' ? num(s.value ?? 0) : value(s)}</b><small>{s.key === 'trips' ? tn(s.value ?? 0, 'trip|unit', 'trips|unit') : s.key === 'km' ? 'km' : s.key === 'gainM' ? t('Climbing|hm') : t('with rain')}</small></li>
+              {/each}
+            </ul>
+            <div class="pin">
+              {#if stats.bars.length > 1}
                 <div class="cols" role="img" aria-label={mode === 'all' ? t('km per year') : t('km per month')}>
                   {#each stats.bars as b, i (b.key)}
-                    <span class="col" title="{mode === 'all' ? b.key : monthLong(b.key)}: {num(b.km)} km"><i class:now={i === stats.bars.length - 1} style:height="{b.km ? Math.max(3, (b.km / axisTop) * 100) : 0}%"></i><small>{barLabel(b)}</small></span>
+                    <span class="col" title="{mode === 'all' ? b.key : monthLong(b.key)}: {num(b.km)} km"><i class:now={i === stats.bars.length - 1} style:height="{b.km ? Math.max(3, (b.km / axisTop) * 100) : 3}%"></i><small>{barLabel(b)}</small></span>
                   {/each}
                 </div>
-              </div>
-            {/if}
-            <table class="kz">
-              <thead><tr><th scope="col">{t('Figure')}</th><th scope="col" class="n">{periodName}</th>{#if mode !== 'all'}<th scope="col" class="n">{t('Previous year')}</th>{/if}<th scope="col">{t('Average')}</th><th scope="col">{t('Best')}</th></tr></thead>
-              <tbody>
-                {#each stats.stats as s (s.key)}
-                  <tr>
-                    <th scope="row">{t(LABEL[s.key])}</th>
-                    <td class="n v num"><b>{value(s)}</b>{#if unit(s)} <span class="u">{unit(s)}</span>{/if}</td>
-                    {#if mode !== 'all'}<td class="n d num" class:up={s.delta > 0}>{deltaText(s)}</td>{/if}
-                    <td class="a">{avgText(s)}</td>
-                    <td class="b">{bestText(s)}</td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 3. trips compared -->
-        <section class="rv-sec cmp" id="compare" aria-labelledby="cmp-h">
-          <div class="rv-h"><div><h2 id="cmp-h">{t('Trips compared')}</h2>{#if sentence}<p class="rv-sub">{sentence}</p>{/if}</div><Seg full={false} label={t('Compare with')} value={base} options={BASES} onchange={setBase} /></div>
-          <div class="rv-box pad">
-            {#if cmp.rows.length < 2}
-              <p class="muted">{t('Two trips are needed to compare.')}</p>
-            {:else}
-              <p class="lead muted">{base === 'same' && cmp.latest ? t('Bars = the last {n} trips of the kind «{art}», the newest orange, dashed = average.', { n: cmp.rows.length, art: t(ARTNAME[cmp.latest.art]) }) : t('Bars = the last {n} trips, the newest orange, dashed = average.', { n: cmp.rows.length })}</p>
-              <ul class="minis">
-                {#each cmp.metrics as m (m.key)}
-                  <li class="mini">
-                    <span class="ml">{t(CMP[m.key])}</span>
-                    <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null} <span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
-                    <MiniBars values={m.values} mark={cmp.latest?.id} avg={m.avg} label={t(CMP[m.key])} />
-                    <span class="mf num">{cmpFoot(m)}</span>
-                  </li>
-                {/each}
-              </ul>
-              <div class="tscroll" role="region" aria-label={t('Trips compared')} tabindex="0">
-                <table class="tt">
-                  <thead>
-                    <tr><th scope="col" class="first">{t('Trip')}</th><th scope="col" class="n">km</th><th scope="col" class="n">Hm</th><th scope="col" class="n">{t('Time')}</th><th scope="col" class="n">km/h</th><th scope="col" class="n">{t('Base')}</th><th scope="col">{t('Rain|weather')}</th><th scope="col" class="n">{t('Temp.')}</th><th scope="col" class="n">{t('Learn.')}</th></tr>
-                  </thead>
+              {/if}
+              <button type="button" class="fold-btn" aria-expanded={allFigures} aria-controls="kz-all" onclick={() => (allFigures = !allFigures)}>{t('All figures')}<ChevronRight size={15} aria-hidden="true" /></button>
+              {#if allFigures}
+                <table class="kz" id="kz-all">
+                  <thead><tr><th scope="col">{t('Figure')}</th><th scope="col" class="n">{periodName}</th>{#if mode !== 'all'}<th scope="col" class="n">{t('Previous year')}</th>{/if}<th scope="col">{t('Average')}</th><th scope="col">{t('Best')}</th></tr></thead>
                   <tbody>
-                    {#each cmp.rows as r (r.id)}
-                      {@const me = r.id === cmp.latest?.id}
-                      <tr class:me>
-                        <th scope="row" class="first"><a href={r.href} onclick={() => r.trip && openTrip(r.trip.id)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)}</small></a></th>
-                        <td class="n num">{n0(r.km)}<i class="sc" style:width="{pct(r.km, scale.km)}%"></i></td>
-                        <td class="n num">{n0(r.gainM)}<i class="sc" style:width="{pct(r.gainM, scale.gainM)}%"></i></td>
-                        <td class="n num">{hours(r.movingH)}<i class="sc" style:width="{pct(r.movingH, scale.movingH)}%"></i></td>
-                        <td class="n num">{n1(r.kmh)}<i class="sc" style:width="{pct(r.kmh, scale.kmh)}%"></i></td>
-                        <td class="n num">{r.baseG ? n1(r.baseG / 1000) : DASH}{#if r.baseG}<i class="sc" style:width="{pct(r.baseG, scale.baseG)}%"></i>{/if}</td>
-                        <td class="wx">{@render rainIcon(r.rain)}<span class="sr">{rainText(r.rain, r.days)}</span></td>
-                        <td class="n num">{temps(r.tmin, r.tmax)}</td>
-                        <td class="n num">{r.trip ? num(r.learnings.length) : DASH}</td>
+                    {#each stats.stats as s (s.key)}
+                      <tr>
+                        <th scope="row">{t(LABEL[s.key])}</th>
+                        <td class="n v num"><b>{value(s)}</b>{#if unit(s)} <span class="u">{unit(s)}</span>{/if}</td>
+                        {#if mode !== 'all'}<td class="n d num" class:up={s.delta > 0}>{deltaText(s)}</td>{/if}
+                        <td class="a">{avgText(s)}</td>
+                        <td class="b">{bestText(s)}</td>
                       </tr>
                     {/each}
                   </tbody>
                 </table>
+              {/if}
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. trips compared: name, state, km, weather; the small charts and all columns folded -->
+        <section class="rv-sec cmp" id="compare" aria-labelledby="cmp-h">
+          <div class="rv-h"><div><h2 id="cmp-h">{t('Trips compared')}</h2><p class="rv-sub">{cmp.rows.length >= 2 ? t('the last {n}, newest first', { n: cmp.rows.length }) : ''}</p></div></div>
+          <div class="rv-box pad">
+            {#if cmp.rows.length < 2}
+              <p class="muted">{t('Two trips are needed to compare.')}</p>
+            {:else}
+              <table class="st">
+                <thead><tr><th scope="col">{t('Trip')}</th><th scope="col" class="ph-hide">{t('State|trip')}</th><th scope="col" class="n">km</th><th scope="col" class="ph-hide">{t('Weather')}</th><th scope="col" class="n ph-hide">{t('Temp.')}</th></tr></thead>
+                <tbody>
+                  {#each cmp.rows as r (r.id)}
+                    <tr data-state={states[r.id]?.state}>
+                      <th scope="row"><a href={r.href} onclick={() => r.trip && openTrip(r.trip.id)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)}</small></a><span class="ph-only"><TripState state={states[r.id]?.state} extra={extraOf(r.id)} /></span></th>
+                      <td class="ph-hide"><TripState state={states[r.id]?.state} extra={extraOf(r.id)} /></td>
+                      <td class="n num">{n0(r.km)}</td>
+                      <td class="ph-hide">{rainText(r.rain, r.days)}</td>
+                      <td class="n num ph-hide">{temps(r.tmin, r.tmax)}</td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+              <div class="cfoot">
+                <Seg full={false} label={t('Compare with')} value={base} options={BASES} onchange={setBase} />
+                <a class="rv-more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
               </div>
-              <p class="more"><a class="rv-more" href="#/pack/past">{t('All {n} trips as a table', { n: facts.length })}<ChevronRight size={16} aria-hidden="true" /></a></p>
+              <button type="button" class="fold-btn" aria-expanded={allColumns} aria-controls="cmp-all" onclick={() => (allColumns = !allColumns)}>{t('Charts and all columns')}<ChevronRight size={15} aria-hidden="true" /></button>
+              {#if allColumns}
+                <div id="cmp-all">
+                  {#if sentence}<p class="lead">{sentence}</p>{/if}
+                  <p class="lead muted">{base === 'same' && cmp.latest ? t('Bars = the last {n} trips of the kind «{art}», the newest orange, dashed = average.', { n: cmp.rows.length, art: t(ARTNAME[cmp.latest.art]) }) : t('Bars = the last {n} trips, the newest orange, dashed = average.', { n: cmp.rows.length })}</p>
+                  <ul class="minis">
+                    {#each cmp.metrics as m (m.key)}
+                      <li class="mini">
+                        <span class="ml">{t(CMP[m.key])}</span>
+                        <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null} <span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
+                        <MiniBars values={m.values} mark={cmp.latest?.id} avg={m.avg} label={t(CMP[m.key])} />
+                        <span class="mf num">{cmpFoot(m)}</span>
+                      </li>
+                    {/each}
+                  </ul>
+                  <div class="tscroll" role="region" aria-label={t('Trips compared')} tabindex="0">
+                    <table class="tt">
+                      <thead>
+                        <tr><th scope="col" class="first">{t('Trip')}</th><th scope="col" class="n">km</th><th scope="col" class="n">Hm</th><th scope="col" class="n">{t('Time')}</th><th scope="col" class="n">km/h</th><th scope="col" class="n">{t('Base')}</th><th scope="col">{t('Rain|weather')}</th><th scope="col" class="n">{t('Temp.')}</th><th scope="col" class="n">{t('Learn.')}</th></tr>
+                      </thead>
+                      <tbody>
+                        {#each cmp.rows as r (r.id)}
+                          {@const me = r.id === cmp.latest?.id}
+                          <tr class:me>
+                            <th scope="row" class="first"><a href={r.href} onclick={() => r.trip && openTrip(r.trip.id)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)}</small></a></th>
+                            <td class="n num">{n0(r.km)}<i class="sc" style:width="{pct(r.km, scale.km)}%"></i></td>
+                            <td class="n num">{n0(r.gainM)}<i class="sc" style:width="{pct(r.gainM, scale.gainM)}%"></i></td>
+                            <td class="n num">{hours(r.movingH)}<i class="sc" style:width="{pct(r.movingH, scale.movingH)}%"></i></td>
+                            <td class="n num">{n1(r.kmh)}<i class="sc" style:width="{pct(r.kmh, scale.kmh)}%"></i></td>
+                            <td class="n num">{r.baseG ? n1(r.baseG / 1000) : DASH}{#if r.baseG}<i class="sc" style:width="{pct(r.baseG, scale.baseG)}%"></i>{/if}</td>
+                            <td class="wx">{@render rainIcon(r.rain)}<span class="sr">{rainText(r.rain, r.days)}</span></td>
+                            <td class="n num">{temps(r.tmin, r.tmax)}</td>
+                            <td class="n num">{r.trip ? num(r.learnings.length) : DASH}</td>
+                          </tr>
+                        {/each}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              {/if}
             {/if}
           </div>
         </section>
+
+        <!-- 3. the last ride: its numbers, weather, plan against real, heart rate and learnings, folded (SN2) -->
+        {#if last}
+          <section class="rv-sec" aria-labelledby="last-h">
+            <div class="rv-h"><div><h2 id="last-h">{t('Last ride')}</h2><p class="rv-sub">{[last.title, dates(last.start, last.end), last.trip ? t(ARTNAME[last.art]) : t('Uploaded ride')].join(' · ')}</p></div></div>
+            <div class="rv-box pad lastride">
+              <button type="button" class="fold-btn top" aria-expanded={lastOpen} aria-controls="last-all" onclick={() => (lastOpen = !lastOpen)}>{t('Numbers of the last ride')}<ChevronRight size={15} aria-hidden="true" /></button>
+              {#if lastOpen}
+                <div id="last-all">
+                  <dl class="rv-tiles big">
+                    <div class="rv-tile"><dd><b>{n0(last.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
+                    <div class="rv-tile"><dd><b>{n0(last.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
+                    <div class="rv-tile"><dd><b>{hours(last.movingH)} h</b></dd><dt><small>{last.totalH && last.movingH && last.totalH > last.movingH ? t('moving · {h} total', { h: hours(last.totalH) }) : t('moving')}</small></dt></div>
+                    <div class="rv-tile"><dd><b>{n1(last.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
+                  </dl>
+                  <ul class="facts">
+                    <li>{@render rainIcon(last.rain)}{rainText(last.rain, last.days)}</li>
+                    <li><Thermometer size={16} aria-hidden="true" />{temps(last.tmin, last.tmax)}</li>
+                    <li><Bike size={16} aria-hidden="true" />{last.bike ?? DASH}</li>
+                    {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {num(last.pauses.min)} min</li>{/if}
+                    {#if highest(last.profile)}<li><Mountain size={16} aria-hidden="true" />{t('GPX · {m} m highest point', { m: num(highest(last.profile)) })}</li>{/if}
+                  </ul>
+                  {#if lastPlan}
+                    {@const mins = Math.round(lastPlan.diff * 60)}
+                    <p class="plan"><Gauge size={16} aria-hidden="true" /><span>{t('Planned {plan} h, ridden {real} h:', { plan: hours(lastPlan.plan), real: hours(lastPlan.real) })} <b>{mins < 0 ? t('{n} min faster', { n: -mins }) : mins > 0 ? t('{n} min slower', { n: mins }) : t('right on time')}</b>.</span></p>
+                  {/if}
+                  {#if last.learnings.length || last.special}
+                    <ul class="learned">
+                      {#each last.learnings.slice(0, 2) as l (l.id)}<li><Lightbulb size={16} aria-hidden="true" />{l.rule}</li>{/each}
+                      {#if last.special}<li class="sp"><Sparkles size={16} aria-hidden="true" />{last.special}</li>{/if}
+                    </ul>
+                  {/if}
+                  {#if lastHeart}
+                    <p class="heart"><HeartLine heart={lastHeart} size={16} label={t('Heart rate')} /> <span class="pill">{t('from Strava · observation')}</span></p>
+                  {:else}
+                    <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
+                  {/if}
+                  <div class="acts">
+                    <Btn href={last.href} onclick={() => last.trip && openTrip(last.trip.id)} label={last.kind === 'ride' ? t('Open the ride') : last.debrief === 'open' || last.debrief === 'draft' ? t('Rate|debrief') : t('Open its debrief')} />
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </section>
+        {/if}
       </div>
 
       <!-- 4. one level below -->
       <div class="rv-col below">
         <section class="rv-sec sub" aria-labelledby="pace-h">
-          <div class="rv-h"><div><h2 id="pace-h">{t('Your pace')}</h2></div></div>
-          <div class="rv-box">
-            <p class="ptext">{rule ? t('On the flat you ride {kmh} km/h and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) }) : t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(pace.kmh), m: num(pace.climbMh) })}<small>{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride and your rule takes over the riding time.', '{n} more rides and your rule takes over the riding time.') : t('The riding time uses the standard rule, as you chose.')}</small></p>
-            <a class="rv-row" href="#/debrief/pace" aria-label={t('Your pace')}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
-          </div>
+          <div class="rv-h"><div><h2 id="pace-h">{t('Your pace')}</h2><p class="rv-sub">{pace.mine ? tn(pace.n, 'your rule, from {n} ride', 'your rule, from {n} rides') : pace.need ? tn(pace.need + pace.n, 'standard rule, until {n} ride is there', 'standard rule, until {n} rides are there') : t('standard rule, as you chose')}</p></div></div>
+          <ul class="rv-box">
+            <li><a class="rv-row" href="#/debrief/pace" aria-label={t('Your pace')}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('{kmh} km/h · 1 h per {m} Hm', { kmh: num(rule && pace.mine ? rule.kmh : pace.kmh), m: num(rule && pace.mine ? rule.climbMh : pace.climbMh) })}</span><span class="rv-s">{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride, then your own pace counts', '{n} more rides, then your own pace counts') : t('The riding time uses the standard rule, as you chose.')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+          </ul>
         </section>
         <section class="rv-sec" aria-labelledby="learn-h">
-          <div class="rv-h"><div><h2 id="learn-h">{t('Learned|review')}</h2><p class="rv-sub num">{tn(data.learnings.length, '{n} learning', '{n} learnings')}</p></div><a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+          <div class="rv-h"><div><h2 id="learn-h">{t('Learned|review')}</h2><p class="rv-sub num">{data.learnings.length ? tn(data.learnings.length, '{n} learning', '{n} learnings') : t('from every debrief')}</p></div>{#if data.learnings.length}<a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}</div>
           <ul class="rv-box">
             {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{l.source === 'import' ? t('From the import') : l.source}</span>{/if}</span></li>
-            {:else}<li class="rv-row muted">{t('No learnings yet. They come from every debrief.')}</li>{/each}
+            {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Rate» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
           </ul>
         </section>
         <section class="rv-sec" aria-labelledby="hmore-h">
           <div class="rv-h"><div><h2 id="hmore-h">{t('More')}</h2></div></div>
           <ul class="rv-box">
-            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? log.slice(0, 2).map((e) => e.title).join(' · ') : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('All past trips')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? t('every trip with its state') : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
           </ul>
         </section>
@@ -369,43 +449,6 @@
 </div>
 
 <style>
-  .openlist {
-    margin: 0 0 var(--sp-4);
-  }
-  .ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .ol li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-3);
-    padding: var(--sp-2) 0;
-    border-top: 1px solid var(--line);
-  }
-  .ol li:first-child {
-    border-top: 0;
-  }
-  .ol .m {
-    display: grid;
-    flex: 1 1 200px;
-    min-width: 0;
-  }
-  .ol .m b {
-    overflow-wrap: break-word;
-  }
-  .ol .m small {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .wr {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-1);
-    min-height: 44px;
-  }
   .crumb {
     display: flex;
     align-items: center;
@@ -417,8 +460,15 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    min-width: 44px;
-    color: var(--accent);
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .crumb [aria-current] {
+    color: var(--ink);
   }
   .head {
     display: flex;
@@ -440,46 +490,7 @@
   .muted {
     color: var(--ink-3);
   }
-  .empty {
-    display: grid;
-    gap: 8px;
-    justify-items: start;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
-  }
-  .ch {
-    display: flex;
-    align-items: center;
-    gap: 8px 12px;
-    margin: 0;
-    font-size: var(--fs-sub);
-    font-weight: 600;
-  }
-  .ch > span:first-child {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .ch .r {
-    margin-left: auto;
-    font-size: var(--fs-small);
-    font-weight: 400;
-    color: var(--ink-3);
-    text-align: right;
-  }
   /* 1. the last ride */
-  .kick {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .lt {
-    margin: 2px 0 0;
-    font: 600 var(--fs-section) / 1.2 var(--font-body);
-    overflow-wrap: break-word;
-  }
   .u {
     margin-left: 2px;
     color: var(--ink-3);
@@ -561,25 +572,7 @@
     gap: 8px 20px;
     margin-top: 16px;
   }
-  .acts .btn {
-    min-height: 44px;
-  }
   /* 2. the period */
-  .bars {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .bars .ax {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 96px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    text-align: right;
-  }
   .cols {
     display: flex;
     align-items: stretch;
@@ -822,32 +815,199 @@
   .tt .wx :global(svg) {
     color: var(--ink-3);
   }
-  .more {
-    margin: 8px 0 0;
-  }
   /* 4. one level below */
 
   /* v0.109.0 Design-Refresh P6 (T17) */
-  .openlist {
-    margin: 0 0 22px;
+  /* SN2: the head's state pills, the trip whose debrief is missing, the folds */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 6px 0 4px;
   }
-  .openlist .ol li {
-    gap: 12px;
-    margin-top: 8px;
-    padding: 12px 16px;
+  .undo {
+    margin: 0 0 var(--sp-3);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ulink {
+    min-height: 44px;
+    padding: 0 4px;
     border: 0;
-    border-radius: var(--radius-card);
-    background: var(--hi-soft);
+    background: none;
+    color: var(--ink);
+    font: 600 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
   }
-  .openlist .ol li:first-child {
-    margin-top: 0;
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin: 0 0 22px;
+    padding: 18px 20px;
   }
-  .openlist .rv-ic {
-    background: var(--hi);
-    color: var(--hi-ink);
+  .hic {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-ctl);
+    background: var(--st-done-soft);
+    color: var(--st-done);
   }
-  .ol .m small:first-child {
+  .hm {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+    flex: 1 1 240px;
+    min-width: 0;
+  }
+  .hname {
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+    overflow-wrap: break-word;
+  }
+  .hm small {
     color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .more-open {
+    flex: 1 1 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .more-open li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 0 0;
+    margin-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .ptiles {
+    padding: 0;
+  }
+  .ptiles .rv-tiles {
+    margin: 0;
+    list-style: none;
+  }
+  .pin {
+    padding: 0 16px 10px;
+  }
+  .pin .cols {
+    margin-bottom: 4px;
+    border-top: 0;
+  }
+  .fold-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .fold-btn:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .fold-btn :global(svg) {
+    transition: transform 0.15s;
+  }
+  .fold-btn[aria-expanded='true'] :global(svg) {
+    transform: rotate(90deg);
+  }
+  .fold-btn.top {
+    margin-top: -6px;
+  }
+  .st {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+  }
+  .st thead th {
+    padding: 4px 10px 8px 0;
+    color: var(--ink-3);
+    font-weight: 500;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .st .n {
+    text-align: right;
+  }
+  .st tbody th,
+  .st td {
+    padding: 8px 10px 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-weight: 400;
+    text-align: left;
+    vertical-align: middle;
+  }
+  .st td.n {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .st th:last-child,
+  .st td:last-child {
+    padding-right: 0;
+  }
+  .st tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .st tbody th a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .st tbody th a .tn {
+    font-size: var(--fs-body);
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .st tbody th a:hover .tn {
+    text-decoration: underline;
+  }
+  .st tbody th small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ph-only {
+    display: none;
+  }
+  @media (max-width: 719px) {
+    .ph-hide {
+      display: none;
+    }
+    .ph-only {
+      display: block;
+      margin: 2px 0 4px;
+    }
+    /* the name column takes the room, a long pill gives way with «…» instead of widening the page */
+    .st {
+      table-layout: fixed;
+    }
+    .st th.n,
+    .st td.n {
+      width: 4.5em;
+    }
+  }
+  .cfoot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-top: 12px;
   }
   .lastride .big {
     margin: 10px -16px 0;
@@ -859,23 +1019,6 @@
   .lastride .big dd,
   .lastride .big dt {
     margin: 0;
-  }
-  .bcap {
-    margin: 0 0 8px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .ptext {
-    margin: 0;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--line);
-    line-height: 1.45;
-  }
-  .ptext small {
-    display: block;
-    margin-top: 6px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .rv-row.muted {
     color: var(--ink-3);
