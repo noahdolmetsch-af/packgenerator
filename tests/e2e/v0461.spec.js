@@ -205,8 +205,9 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // v0.125.0 TZ-1 «Zustand sichtbar»: the count line and the groups are the three trip states
     await expect(page.getByText(/\d+ geplant/).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^Neue Tour/ }).first()).toBeVisible();
-    // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»
-    await expect(page.locator('section[data-planned], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Abgeschlossen/]);
+    // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»;
+    // AT1 (14.10.2026): «Abgeschlossene Touren» are the Strava activities, the trips packed in the app «Packmodus»
+    await expect(page.locator('section[data-planned], section[data-activities], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Abgeschlossen/, /Packmodus/]);
     await expect(page.getByRole('heading', { name: 'Bestwerte', exact: true })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     for (const b of await page.locator('.trips .go, .trips .btn.hi').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);

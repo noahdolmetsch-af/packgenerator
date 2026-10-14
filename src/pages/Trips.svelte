@@ -19,6 +19,10 @@
    *     period, chips and filters, except «Zum Vorjahr».
    *   - «Weiter»: the tiles DG-O1 Gute Tage (never filtered), DG-O2 Offene Rückblicke and DG-O5 Karte aller
    *     Touren (both follow the filters), touren/TourTiles.svelte.
+   * AT1 «Abgeschlossene Touren aus Strava» (mockup AT1, Noah 14.10.2026 21:19 «1a 2a 3b 4b at1 freigeben»):
+   * «Abgeschlossene Touren» is now every Strava activity with its values (touren/Activities.svelte); the
+   * trips packed in the app follow as «Packmodus» (the name instead of «App-Touren»), the only place to rate.
+   * Their rows are short: the state, the things packed and the Strava activity of the trip.
    * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
    * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
@@ -43,9 +47,7 @@
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import Help from '../lib/ui/Help.svelte';
-  import { FIELD_HELP } from '../lib/daumen.js'; // FE14
-  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search } from '@lucide/svelte';
+  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
@@ -55,12 +57,19 @@
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
-  import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
+  import { n0, dates, monthLong } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
   import TourTiles from '../lib/touren/TourTiles.svelte';
+  // AT1: the Strava activities
+  import Activities from '../lib/touren/Activities.svelte';
+  import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
+  import { loadActs } from '../lib/review/actdata.js';
+  import { ftpEstimate } from '../lib/training.js';
+  import { zones } from '../lib/strava/zones.svelte.js';
+  import { strava } from '../lib/strava/client.svelte.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
@@ -132,6 +141,13 @@
   });
   const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
 
+  /* ---- AT1: «Abgeschlossene Touren» = every Strava activity; a trip of the Packmodus marks its own ---- */
+  const actsQ = liveQuery(() => loadActs(db));
+  const acts = $derived($actsQ ?? []);
+  const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
+  const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
+  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '' });
+
   let mode = $state('12m');
   const year = today.slice(0, 4);
   const PERIODS = $derived([
@@ -172,8 +188,6 @@
   const openRow = (r) => r.trip && openTrip(r.trip.id);
   // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
-  const secs = (s) => hours(s ? s / 3600 : null);
-  const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
 
   /* ---- SN4h: «In Zahlen» (all groups open at first; Blöcke and closed blocks remembered) ---- */
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
@@ -222,40 +236,14 @@
   {/if}
 {/snippet}
 
-{#snippet cell(label, value, unit = '', help = '')}
-  <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
-  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
-{/snippet}
-
-{#snippet values(r)}
-  {@const v = vals[r.id]}
-  {@const ride = hasRide(v)}
-  {@const tempText = r.tmin != null || r.tmax != null ? temps(r.tmin, r.tmax) : v?.tempAvg != null ? `${v.tempAvg}°` : DASH}
-  <div class="vals" data-values>
-    <dl class="vg">
-      {#if ride}
-        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
-        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
-        {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
-        {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
-        {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
-      {/if}
-      {@render cell(t('Weather'), rainText(r.rain, r.days))}
-      {@render cell(t('Temp.'), tempText)}
-    </dl>
-    {#if v?.watts}
-      <div class="pw" data-power>
-        <span class="pwh"><Zap size={15} aria-hidden="true" />{t('Power')}</span>
-        <dl class="vg">
-          {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
-          {@render cell(t('Max. power'), n0(v.wMax), 'W')}
-          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
-        </dl>
-      </div>
-    {:else}
-      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
-    {/if}
-  </div>
+{#snippet packInfo(r)}
+  <!-- AT1: the Packmodus row stays short: the things packed and the Strava activity of the trip -->
+  {@const ents = r.trip?.entries ?? []}
+  {@const sv = stravaOf(r)}
+  <p class="pinfo" data-pack-info>
+    {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
+    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{sv.n > 1 ? t('Strava: {n} activities', { n: sv.n }) : sv.n === 1 ? t('Strava: {name}', { name: sv.name || t('1 activity') }) : t('no Strava activity')}</span>
+  </p>
 {/snippet}
 
 <div class="trips">
@@ -334,11 +322,15 @@
         {/if}
       </section>
 
-      <!-- SN4g: «Abgeschlossene Touren» (answers 4a, 5a, 6) -->
-      <section class="done" aria-labelledby="trips-done" data-finished>
+      <!-- AT1: «Abgeschlossene Touren», every Strava activity (answers 1a 2a 3b 4b) -->
+      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} />{/if}
+
+      <!-- AT1: «Packmodus» (was «App-Touren»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a) -->
+      <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
           <div>
-            <h2 id="trips-done">{t('Completed trips')}</h2>
+            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('Pack mode|section')}</h2>
+            <p class="ss">{t('Trips you packed in the app: what came along and what proved itself')}</p>
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
           </div>
           <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
@@ -380,7 +372,7 @@
                       <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
                     {/if}
                     <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
-                    {@render values(r)}
+                    {@render packInfo(r)}
                   </li>
                 {/each}
               </ul>
@@ -390,7 +382,6 @@
             <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
             <li><i class="lg done"></i>{t('grey: no Rückblick yet (Completed), a tap opens it anyway')}</li>
           </ul>
-          <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. Without a value it says «–». Only to look at, no rating.')}</span></p>
         {/if}
       </section>
 
@@ -440,6 +431,9 @@
     margin: 0 0 var(--sp-2);
   }
   .sh h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0;
     font: 600 var(--fs-section) / 1.25 var(--font-body);
   }
@@ -749,76 +743,20 @@
     align-self: center;
     color: var(--ink-3);
   }
-  .vals {
+  /* AT1: the short line of a Packmodus row */
+  .pinfo {
     grid-area: vals;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 20px;
-    min-width: 0;
-  }
-  .vg {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-    margin: 0;
-  }
-  .vc {
-    display: grid;
-    min-width: 64px;
-  }
-  .vc dt {
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  /* FE14: the «?» of a value stays small; its sentence opens over the row, the full width of the values */
-  .vg {
-    position: relative;
-  }
-  .vc dt :global(.q) {
-    z-index: 1; /* above the link of the whole row */
-    width: 20px;
-    height: 20px;
-    font-size: var(--fs-tiny);
-  }
-  .vc dt :global(.help) {
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: 3;
-    box-shadow: 0 6px 18px var(--shadow);
-  }
-  .vc dd {
-    margin: 0;
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .vc dd small {
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-    font-weight: 400;
-  }
-  .pw {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 20px;
-    padding-left: 16px;
-    border-left: 1px solid var(--line-strong);
-  }
-  .pwh,
-  .nw {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    gap: 4px 18px;
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .nw {
-    color: var(--ink-3);
-  }
-  .nw :global(svg) {
-    flex: none;
+  .pinfo span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .legend {
     display: grid;
@@ -846,9 +784,6 @@
     background: var(--st-rated-soft);
     border-left: 3px solid var(--st-rated);
   }
-  .hint {
-    margin-top: var(--sp-3);
-  }
   @media (max-width: 719px) {
     .fbtn {
       margin-left: 0;
@@ -866,28 +801,6 @@
       display: inline-flex;
       align-items: baseline;
       gap: 4px;
-    }
-    .vals {
-      display: grid;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: var(--r-ctl);
-      background: var(--paper);
-    }
-    .vg {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .vc {
-      min-width: 0;
-    }
-    .pw {
-      display: grid;
-      gap: 6px;
-      padding: 8px 0 0;
-      border-left: 0;
-      border-top: 1px solid var(--line);
     }
     .rr :global(.btn) {
       display: flex;
