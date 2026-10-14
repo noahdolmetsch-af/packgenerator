@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |
 | 0.131.2 | Velo-Reihenfolge: Velo-Reiter in Noahs Reihenfolge, Korrektur nach 0.131.0 | live (#162) |
 | 0.131.1 | Abhaken wieder abwählbar (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Doppeltipp hakt nur einmal ab, Abwählen und «Rückgängig» wirken, Pendeln zurücknehmbar; Ziel 1 | live (#163) |
