@@ -34,7 +34,7 @@
     background: var(--ink);
     color: var(--paper);
     font: 600 var(--fs-body) var(--font-body);
-    box-shadow: 0 6px 18px var(--shadow, rgba(0, 0, 0, 0.2));
+    box-shadow: 0 6px 18px var(--shadow);
     cursor: pointer;
   }
   .ls-top:focus-visible {

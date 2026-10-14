@@ -75,7 +75,7 @@
     background: var(--tint, var(--ground));
   }
   .ls-bar.stuck {
-    box-shadow: 0 6px 12px -10px var(--shadow, rgba(0, 0, 0, 0.3));
+    box-shadow: 0 6px 12px -10px var(--shadow);
   }
   .ls-cur {
     display: flex;
