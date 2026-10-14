@@ -24,7 +24,8 @@
   import { tripStateInfo } from '../tripstate.js';
   import TripState from '../ui/TripState.svelte';
 
-  let { trips, debriefs, today, hour, cardId = null, banner = false, rides = [] } = $props();
+  // noLast: Today shows the card «Letzter Abend» with the trip card (Start-Karten ST2, Noah 14.10.2026 «2a»)
+  let { trips, debriefs, today, hour, cardId = null, banner = false, rides = [], noLast = false } = $props();
   const STEP_ICON = { plan: MapIcon, pack: Backpack, ride: Bike, debrief: NotebookPen };
 
   const done = (x) => debriefs.some((d) => d.tripId === x.id && d.status === 'done');
@@ -32,7 +33,7 @@
   const step = $derived(lead && !sameAsCard(lead.id, cardId) ? stepOf(lead, today, { debriefDone: done(lead) }) : null);
   const eve = $derived(trips.find((x) => eveningBefore(x, today, hour)) ?? null);
   const leadState = $derived(lead ? tripStateInfo(lead, { debrief: debriefs.find((d) => d.tripId === lead.id) ?? null, rides, today }).state : null);
-  const last = $derived(trips.find((x) => lastEvening(x, today, hour, { debriefDone: done(x) })) ?? null);
+  const last = $derived(noLast ? null : trips.find((x) => lastEvening(x, today, hour, { debriefDone: done(x) })) ?? null);
 </script>
 
 {#if eve || last || (lead && step)}

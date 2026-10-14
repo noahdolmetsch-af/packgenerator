@@ -166,14 +166,18 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   await expect(main(page)).toHaveText(T('Continue to On the way'));
 });
 
-test('the last day: «Letzten Tag abschliessen» without a question in the evening; the evening opens «Tour beendet» once (U22 a+b)', async ({ page, context }, info) => {
+test('the last day: «Letzten Tag abschliessen» without a question in the evening; the evening card leads to «Tour beendet» (U22a, ST2)', async ({ page, context }, info) => {
   await open(page, context, info, [trip('Emmental', day(-2), { entries: entries(6, 6), packedAt: day(-3) })], { hour: 20, current: ID('Emmental') });
-  // U22b: on the last evening Today opens the interstitial by itself, once
+  // Start-Karten ST2 (Noah 14.10.2026 «2a», replaces U22b): Today stays, the card «Letzter Abend» leads there
+  await expect(page).toHaveURL(/#\/$/);
+  const card = page.locator('[data-startkarte="evening"]');
+  await expect(card).toContainText(T('Last evening'));
+  await card.click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Emmental')}/ended$`));
   await expect(page.getByRole('link', { name: T('Still on the way? Back to On the way') })).toBeVisible();
   await page.goto('./#/');
   await page.reload();
-  await expect(page.locator('[data-row="last"]')).toBeVisible();
+  await expect(card).toBeVisible();
   await expect(page).toHaveURL(/#\/$/);
   await go(page, '#/ride');
   await expect(main(page)).toHaveText(T('Finish the last day'));

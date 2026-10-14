@@ -1313,3 +1313,10 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **B a (ein Wort pro Sache)** baut der Thread «Durchklick».
 - **Selbst entschieden:** Pause = 30 Minuten; die Meldung «Alles gepackt» bleibt 8 s; «n weitere fällig» öffnet das Velo der nächsten fälligen Zeile; kleine Apps merken sich nicht als «letzter Ort» der ganzen App.
 
+## 15.10.2026: 0.140.1 «Start-Karten»
+
+- (Mockups ST1–ST2 freigegeben: «1a 2a 3b ST1–ST2 freigegeben» 14.10.2026 21:18 UTC; Platz bei der Tourkarte nach HN4 «1a 2a 3a 4b HN4 freigegeben» 21:51 UTC).
+- **1a:** eigene Karte am Tourtag statt des Sprungs zu Unterwegs. **2a:** Karte am letzten Abend mit «Tour abschliessen». **3b:** die Tourtag-Karte bleibt, bis Unterwegs an diesem Tag einmal offen war.
+- **Platz:** die Karte gehört zur Tourkarte und wandert mit ihr (HN4); Reihenfolge oben auf Heute: Meditation, Tageskarte, dann Tourkarte mit Start-Karte.
+- **Selbst entschieden:** am letzten Abend gewinnt die Abend-Karte; die Karte fehlt für eine heute erstellte Tour (wie bisher der Sprung, Noah 6a).
+

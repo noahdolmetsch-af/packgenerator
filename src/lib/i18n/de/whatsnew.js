@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.140.1 Start-Karten (eine Karte statt eines Sprungs)
+  'A card instead of a jump': 'Eine Karte statt eines Sprungs',
+  'On a trip day and on the last evening Today stays where it is; a card with your trip leads on.': 'Am Tourtag und am letzten Abend bleibt Heute, wo es ist; eine Karte bei deiner Tour führt weiter.',
+  'On a trip day the card «Heute unterwegs» with «Unterwegs öffnen», until you opened On the way once': 'Am Tourtag die Karte «Heute unterwegs» mit «Unterwegs öffnen», bis du Unterwegs einmal geöffnet hast',
+  'On the last evening the card «Letzter Abend» with «Tour abschliessen»': 'Am letzten Abend die Karte «Letzter Abend» mit «Tour abschliessen»',
+  'Today no longer opens On the way or «Tour beendet» by itself': 'Heute öffnet Unterwegs oder «Tour beendet» nicht mehr von selbst',
+  'On a trip day open the app: Today stays, on top of your trip stands «Heute unterwegs»; tap «Unterwegs öffnen», go back to Today: the card is gone.': 'Öffne die App an einem Tourtag: Heute bleibt, über deiner Tour steht «Heute unterwegs»; tippe «Unterwegs öffnen», geh zurück zu Heute: Die Karte ist weg.',
+  'On the last day of a trip after 18:00 open the app: the card «Letzter Abend» leads to «Tour beendet».': 'Öffne die App am letzten Tourtag nach 18 Uhr: Die Karte «Letzter Abend» führt zu «Tour beendet».',
   // 0.140.0 Regeln der App (nichts springt von selbst, ein Tipp öffnet zum Ändern)
   'Nothing jumps on its own': 'Nichts springt von selbst',
   'A tap opens things to change them, and the app no longer jumps to another page by itself.': 'Ein Tipp öffnet Dinge zum Ändern, und die App springt nicht mehr von selbst auf eine andere Seite.',

@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.140.1 «Start-Karten» (Noah 14.10.2026, App-Start 2b/3b, ST1–ST2 «1a 2a 3b» 21:18 UTC; HN4: with the trip card)
+    version: '0.140.1',
+    date: '2026-10-15',
+    title: 'A card instead of a jump',
+    lead: 'On a trip day and on the last evening Today stays where it is; a card with your trip leads on.',
+    points: [
+      { text: 'On a trip day the card «Heute unterwegs» with «Unterwegs öffnen», until you opened On the way once', href: '#/ride' },
+      { text: 'On the last evening the card «Letzter Abend» with «Tour abschliessen»', href: '#/trips' },
+    ],
+    small: [{ box: 'nicer', text: 'Today no longer opens On the way or «Tour beendet» by itself' }],
+    test: [
+      'On a trip day open the app: Today stays, on top of your trip stands «Heute unterwegs»; tap «Unterwegs öffnen», go back to Today: the card is gone.',
+      'On the last day of a trip after 18:00 open the app: the card «Letzter Abend» leads to «Tour beendet».',
+    ],
+  },
+  {
     // v0.140.0 «Regeln der App» (Noah 14.10.2026: A a nothing jumps, C b a tap opens to edit, mockups C1 C2 A1
     // approved 20:29 UTC; App-Start 1b; the small fixes from the rules document)
     version: '0.140.0',
