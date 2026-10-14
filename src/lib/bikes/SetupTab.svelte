@@ -23,6 +23,7 @@
   import SetupFold from './SetupFold.svelte';
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
+  import GarminCard from './GarminCard.svelte';
   import FitCard from './FitCard.svelte';
   import SheetFolder from './SheetFolder.svelte';
   import Help from '../ui/Help.svelte';
@@ -407,6 +408,9 @@
             <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
           </ul>
         </section>
+
+        <!-- «Garmin-Seiten» GA-A1 (Noah 14.10.2026 «GA-A1–A3 freigegeben»): the bike's Garmin pages -->
+        <GarminCard {bike} />
 
         <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care) -->
         <div class="card vk-imp">

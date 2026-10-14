@@ -341,4 +341,9 @@ export default {
   'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
   'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
   'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
+  // f.garmin (0.146.0 «Garmin-Seiten»)
+  'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
+  'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.',
+  'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
+  'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.',
 };

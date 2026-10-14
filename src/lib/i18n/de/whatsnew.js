@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.146.0 Garmin-Seiten
+  'Your Edge pages, once and for all': 'Deine Edge-Seiten, einmal für immer',
+  'Every bike now keeps model pages for the Garmin Edge 1040 and 540, with the reason for every value.': 'Jedes Velo hat jetzt Muster-Seiten für den Garmin Edge 1040 und 540, mit dem Grund für jeden Wert.',
+  'On the bike page: «Garmin pages» with one row per Garmin profile and its pages as small pictures': 'Auf der Velo-Seite: «Garmin-Seiten» mit einer Zeile pro Garmin-Profil und seinen Seiten als kleine Bilder',
+  'Ten pages from short and big to power in detail, switch each on or off, on the Edge 540 at most 6 fields': 'Zehn Seiten von «Kurz & gross» bis «Leistung im Detail», jede ein- und ausschaltbar, auf dem Edge 540 höchstens 6 Felder',
+  'Open a page: both Edges side by side, why each value is there, change fields, tick «set up on the device»': 'Eine Seite öffnen: beide Edges nebeneinander, warum jeder Wert dort steht, Felder ändern, «am Gerät eingerichtet» abhaken',
+  'A gravel bike also gets a «Bikepacking» profile; take over the pages from another bike': 'Ein Gravelbike bekommt zusätzlich ein Profil «Bikepacking»; Seiten von einem anderen Velo übernehmen',
+  '«Time in zones» comes as bars with a free Connect IQ app': '«Zeit in Zonen» kommt als Balken mit einer kostenlosen Connect-IQ-App',
+  'Open Bike: below «Care and equipment» is «Garmin pages» with your bike as a profile and small pictures of its pages.': 'Öffne Velo: Unter «Pflege und Ausstattung» steht «Garmin-Seiten» mit deinem Velo als Profil und kleinen Bildern seiner Seiten.',
+  'Tap the profile, tick «Power pedals» under the sensors: the page «Power in detail» appears. Choose Edge 540: it says «540: shortened».': 'Tippe auf das Profil und wähle bei den Sensoren «Leistungspedale»: Die Seite «Leistung im Detail» erscheint. Wähle Edge 540: Dort steht «540: gekürzt».',
+  'Open a page, tap «Change fields», tick «Edge 1040» under «Set up on the device?»: it stays after a reload.': 'Öffne eine Seite, tippe auf «Felder ändern» und hake unter «Am Gerät eingerichtet?» «Edge 1040» ab: Das bleibt nach dem Neuladen.',
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

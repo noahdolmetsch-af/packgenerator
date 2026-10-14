@@ -1293,6 +1293,15 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
+## 14.10.2026: Garmin-Seiten (0.146.0)
+
+- **Muster-Seiten pro Velo** (Idee Noah 13.10.2026, Ort «b»: auf der Velo-Seite, ein Satz pro Velo): zehn Garmin-Datenseiten GA-1–GA-10 mit 2–8 Feldern und dem Grund für jeden Wert; einige übersichtlich, einige ausführlich mit selten beachteten Werten.
+- **1a:** Ein Gravelbike bekommt zusätzlich ein eigenes Profil «Bikepacking»; weitere Profile frei benennbar (wie das Aktivitätsprofil am Edge).
+- **2b:** Der Edge 540 zeigt höchstens 6 Felder pro Seite; längere Seiten werden für den 540 gekürzt und so markiert, ein 7. Feld wird abgelehnt.
+- **3b:** «Zeit in Zonen» als Balken über eine kostenlose Connect-IQ-App, mit eigenem Haken «installiert».
+- **4a / App-Bild:** GA-A1–A3 wie gezeichnet (Mockup-Freigabe: GA-1–GA-10 «1a 2b 3b 4a ga freigeben» (Noah 14.10.2026 20:57 UTC) und App-Bild GA-A1–A3 «GA-A1–A3 freigegeben» (21:04 UTC)).
+- **Selbst entschieden:** Sensoren des Velos als Chips auf der Seiten-Übersicht; ohne Leistungspedale weicht ein Leistungsfeld einem Ersatz (z. B. Tempo) oder fällt weg; auf dem 540 fallen IF (GA-6), Phase (GA-7) und Temperatur (GA-10) weg; Seite «Climbs» heisst deutsch «Klettern», weil «Höhenmeter» schon vergeben ist; die Karte steht in der Seitenspalte nach «Pflege und Ausstattung». Die App schickt nichts an den Edge, die Haken dienen nur zum Abhaken. Echte Profilnamen bleiben auf dem Gerät, nie im Repo.
+
 ## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
 
 - **Bei Belegen immer die Kamera** (Noah 14.10.2026 «bei belegen immer», Mockups K1–K4 «freigegeben»): Überall, wo ein Beleg dazukommt, steht auf dem Handy «Beleg fotografieren» (öffnet die Kamera direkt) und «Galerie». Am Computer (keine grobe Zeigereingabe) bleibt ein Knopf «Foto wählen», weil der Browser dort ohnehin den Dateidialog zeigt.

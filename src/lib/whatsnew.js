@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.146.0 «Garmin-Seiten» (GA-1–GA-10, GA-A1–A3; Noah 14.10.2026 «1a 2b 3b 4a ga freigeben», «GA-A1–A3 freigegeben»)
+    version: '0.146.0',
+    date: '2026-10-14',
+    title: 'Your Edge pages, once and for all',
+    lead: 'Every bike now keeps model pages for the Garmin Edge 1040 and 540, with the reason for every value.',
+    points: [
+      { text: 'On the bike page: «Garmin pages» with one row per Garmin profile and its pages as small pictures', href: '#/bikes' },
+      { text: 'Ten pages from short and big to power in detail, switch each on or off, on the Edge 540 at most 6 fields', href: '#/bikes' },
+      { text: 'Open a page: both Edges side by side, why each value is there, change fields, tick «set up on the device»', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'new', text: 'A gravel bike also gets a «Bikepacking» profile; take over the pages from another bike' },
+      { box: 'new', text: '«Time in zones» comes as bars with a free Connect IQ app' },
+    ],
+    test: [
+      'Open Bike: below «Care and equipment» is «Garmin pages» with your bike as a profile and small pictures of its pages.',
+      'Tap the profile, tick «Power pedals» under the sensors: the page «Power in detail» appears. Choose Edge 540: it says «540: shortened».',
+      'Open a page, tap «Change fields», tick «Edge 1040» under «Set up on the device?»: it stays after a reload.',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',

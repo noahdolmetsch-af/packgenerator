@@ -311,6 +311,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
     example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
   },
+  'f.garmin': {
+    on: 'Needs a bike under Bikes first.',
+    steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
+    example: 'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
