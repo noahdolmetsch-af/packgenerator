@@ -135,9 +135,10 @@ export function formatTwint(s) {
 
 /**
  * The text of the invoice e-mail (opened in the mail program, nobody in between). tr = t() of the app.
- * Bank details and TWINT details only for the ways that are switched on.
+ * Bank details and TWINT details only for the ways that are switched on. link: the payer page
+ * («Ich habe bezahlt», mockup QR5), when there is one.
  */
-export function invoiceMail(inv, account, tr) {
+export function invoiceMail(inv, account, tr, link = '') {
   const lines = [
     tr('Hello {name},', { name: inv.name }),
     '',
@@ -152,6 +153,7 @@ export function invoiceMail(inv, account, tr) {
     lines.push(tr('Account: {iban}, {name}', { iban: account?.iban ?? '', name: account?.name ?? '' }));
     lines.push(tr('Reference: {ref}', { ref: inv.ref }), '');
   }
+  if (link) lines.push(tr('Paid? Tell me with one tap: {link}', { link }), '');
   lines.push(tr('Thank you!'), account?.name ?? '');
   return {
     subject: tr('Invoice {no}: {purpose}', { no: inv.no, purpose: inv.purpose }),

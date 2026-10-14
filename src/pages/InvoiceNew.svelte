@@ -10,7 +10,8 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import BillPreview from '../lib/pay/BillPreview.svelte';
   import { t } from '../lib/i18n.svelte.js';
-  import { Landmark, Mail, Share2, Pencil } from '@lucide/svelte';
+  import { Landmark, Mail, Share2, Pencil, Link } from '@lucide/svelte';
+  import { readKey, boxOf, payLink } from '../lib/pay/report.js';
   import { readAccount, writeAccount, createInvoice, listInvoices, formatTwint, invoiceMail, mailtoHref } from '../lib/pay/invoices.js';
   import { accountProblems, cleanIban, formatIban, parseAmount, referenceFor } from '../lib/pay/qrbill.js';
   import { invoicePdf } from '../lib/pay/billpdf.js';
@@ -106,8 +107,25 @@
   async function sendMail() {
     const inv = saved ?? (await make());
     if (!inv) return;
-    location.href = mailtoHref(inv.email, invoiceMail(inv, account, t));
+    location.href = mailtoHref(inv.email, invoiceMail(inv, account, t, await linkOf(inv)));
     note = inv.ways.qr ? t('Your mail program opens. Attach the PDF from «Share PDF» if the person wants to pay by bank.') : t('Your mail program opens with the invoice text.');
+  }
+
+  /** The payer page with «Ich habe bezahlt» (mockup QR5); empty when this device cannot keep a key. */
+  async function linkOf(inv) {
+    const key = readKey();
+    return key ? payLink(inv, account, await boxOf(key)) : '';
+  }
+  async function copyLink() {
+    const inv = saved ?? (await make());
+    if (!inv) return;
+    const link = await linkOf(inv);
+    try {
+      await navigator.clipboard.writeText(link);
+      note = t('Link copied. Send it with WhatsApp or SMS: the person sees how to pay and can tap «I have paid».');
+    } catch {
+      note = link;
+    }
   }
 
   async function sharePdf() {
@@ -198,6 +216,7 @@
         <div class="inv-btns">
           <button class="btn hi" type="button" onclick={sendMail} disabled={busy}><Mail size={18} aria-hidden="true" />{t('Send by e-mail')}</button>
           <button class="btn" type="button" onclick={sharePdf} disabled={busy}><Share2 size={18} aria-hidden="true" />{t('Share PDF')}</button>
+          <button class="btn" type="button" onclick={copyLink} disabled={busy}><Link size={18} aria-hidden="true" />{t('Copy pay link')}</button>
         </div>
         {#if note}<p class="ich-fine" role="status">{note}</p>{/if}
         <p class="ich-fine">{t('Free, nobody in between. TWINT is free between private people; whoever sells regularly needs a TWINT business account, which costs fees.')}</p>

@@ -18,6 +18,7 @@
   import PayDetect from '../lib/pay/PayDetect.svelte';
   import StatementResult from '../lib/pay/StatementResult.svelte';
   import PayTabs from '../lib/pay/PayTabs.svelte';
+  import PayReports from '../lib/pay/PayReports.svelte';
   import '../lib/ich/ich.css';
 
   let list = $state([]);
@@ -144,6 +145,7 @@
   <div class="invs-two">
     <div class="invs-main">
       {#if done}<p class="invs-done" role="status">{done}</p>{/if}
+      {#if loaded}<PayReports invoices={list} onchange={load} />{/if}
 
       {#if list.length}
         <div class="invs-tabs">

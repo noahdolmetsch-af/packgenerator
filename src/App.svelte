@@ -43,6 +43,7 @@
   import Pay from './pages/Pay.svelte';
   import Invoices from './pages/Invoices.svelte';
   import Bills from './pages/Bills.svelte';
+  import PayLink from './pages/PayLink.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -356,6 +357,9 @@
   {:else if page === 'invoices'}
     <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
     <Invoices />
+  {:else if page === 'paylink'}
+    <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
+    <PayLink part={param} />
   {:else if page === 'bills'}
     <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
     <Bills />
