@@ -63,9 +63,9 @@ export const TILES = [
   // v0.116.0 «Strava-Verbindung» (S4): the last fetch from Strava; it goes on top of the wall once, when this device connects
   { id: 'strava', area: 'bikes', label: 'Strava', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.116.0', pitch: 'New rides from Strava with their km, fetched by themselves.' },
   // v0.127.0 «Tages-Check» 2 (mockup T3, Noah «T1–T4 freigegeben»): the balance ring, the morning check, the 15 questions
-  { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.125.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
-  { id: 'morningcheck', area: 'flow', label: 'Morning check', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.125.0', pitch: 'Sleep, energy and mood of today and your goal; from 20:30 the evening review.' },
-  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.125.0', pitch: 'Which questions come when; each one can be switched off.' },
+  { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
+  { id: 'morningcheck', area: 'flow', label: 'Morning check', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'Sleep, energy and mood of today and your goal; from 20:30 the evening review.' },
+  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.132.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
