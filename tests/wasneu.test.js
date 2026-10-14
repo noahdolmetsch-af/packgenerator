@@ -30,9 +30,9 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.quickstart']).toBe('0.119.0'); // v0.119.0 «Schnellstart»
     expect(SINCE['f.packblocks']).toBe('0.124.0'); // v0.124.0 «Neue Tour Teil 2»
     // v0.132.0 Tagespaket (changed on purpose: 0.125.0 never went live, its functions come with 0.132.0)
-    expect(SINCE['f.tripstate']).toBe(WHATS_NEW[0].version); // TZ-1 «Zustand sichtbar»
-    expect(SINCE['f.yeargoals']).toBe(WHATS_NEW[0].version); // «Werte überall»
-    expect(SINCE['f.velosetup']).toBe(WHATS_NEW[0].version); // v0.132.0 «Velo-Setup»
+    expect(SINCE['f.tripstate']).toBe('0.132.0'); // TZ-1 «Zustand sichtbar»
+    expect(SINCE['f.yeargoals']).toBe('0.132.0'); // «Werte überall»
+    expect(SINCE['f.velosetup']).toBe('0.132.0'); // v0.132.0 «Velo-Setup»
     expect(SINCE['f.training']).toBe(WHATS_NEW[0].version); // «Training» TR1–TR4
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
@@ -89,7 +89,7 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.training').state).toBe('new'); // new in this version
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
     expect(by['f.tripstate'].state).toBe('never');
-    expect(rowsOf().find((r) => r.id === 'f.tripstate').state).toBe('new'); // new in this version (0.132.0)
+    expect(rowsOf(undefined, undefined, '0.132.0').find((r) => r.id === 'f.tripstate').state).toBe('new'); // new in its version (0.132.0)
     expect(rowsOf(undefined, undefined, '0.131.0').find((r) => r.id === 'f.tripstate').state).toBe('never'); // not yet in 0.131.0
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {

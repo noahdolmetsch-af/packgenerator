@@ -296,6 +296,11 @@ export const HANDBOOK = {
     steps: ['Tap «Connect Strava» and allow access.', 'Match each Strava bike to a bike in the app.'],
     example: 'Example: Saturday’s ride on Strava → its 64 km land on the right bike by themselves.',
   },
+  'f.training': {
+    on: 'Connect Strava under Bikes › Care › Strava.',
+    steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
+    example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
+  },
   'f.velosetup': {
     on: 'Needs a bike under Bikes first.',
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],

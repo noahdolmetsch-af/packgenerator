@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 95 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 96 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -882,6 +882,18 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 2. Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
+
+### Training mit Pulszonen
+
+Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rückblick.
+
+**Aufschalten:** Strava verbinden unter Velos › Pflege › Strava.
+
+1. Öffne Aktiv › Training: die Woche mit deinem Plan und dem Rückblick.
+2. Tippe bei einem Tag auf +, um eine Einheit mit Dauer und Zone zu planen.
+3. Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.
+
+**Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
 
 ### Meilensteine
 
