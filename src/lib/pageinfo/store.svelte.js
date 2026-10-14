@@ -23,7 +23,13 @@ export function pageInfo() {
     get loaded() {
       return loaded;
     },
-    save: (next) => next && putSetting(db, PAGEINFO_KEY, next),
+    /** Change the stored value with fn(stored) → next, read and written in one transaction, so two quick taps never undo each other; fn may return null (nothing to save). */
+    save: (fn) =>
+      db.transaction('rw', db.settings, async () => {
+        const next = fn((await db.settings.get(PAGEINFO_KEY))?.value);
+        if (next) await putSetting(db, PAGEINFO_KEY, next);
+        return next;
+      }),
   };
 }
 

@@ -68,6 +68,8 @@ export default {
   'all your stars': 'alle deine Sterne',
   'stars of meditation': 'Sterne der Meditation',
   // «Wusstest du» WD1–WD3 (approved 18:34)
+  'Tips and «Did you know»': 'Tipps und «Wusstest du»',
+  'One tip a day, what the app can do on the page, tiles to the next places and your own links; Earth and Everest in Past trips.': 'Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.',
   'What should come?': 'Was soll kommen?',
   'Applies to all pages': 'Gilt für alle Seiten',
   'Only useful tips': 'Nur nützliche Tipps',

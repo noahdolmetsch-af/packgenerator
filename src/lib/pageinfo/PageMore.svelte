@@ -41,9 +41,9 @@
   }
   function save(e) {
     e.preventDefault();
-    const next = addLink(pi.info, page, title, url);
-    if (!next) return (error = t('Enter a web address, for example strava.com'));
-    pi.save(next);
+    const [name, address] = [title, url];
+    if (!addLink(pi.info, page, name, address)) return (error = t('Enter a web address, for example strava.com'));
+    pi.save((v) => addLink(v, page, name, address));
     dialog.close();
   }
 </script>
@@ -60,7 +60,7 @@
         <li><a href={r.href} data-can={r.id}><b>{t(r.title)}</b><small>{t(r.sub)}</small></a></li>
       {/each}
     </ul>
-    <button type="button" class="lk" onclick={() => pi.save(setCan(pi.info, page, false))}>{t('Hide this line')}</button>
+    <button type="button" class="lk" onclick={() => pi.save((v) => setCan(v, page, false))}>{t('Hide this line')}</button>
   </details>
 {/if}
 
@@ -80,7 +80,7 @@
             <I size={18} aria-hidden="true" /><ExternalLink class="out" size={14} aria-label={t('opens outside the app')} />
             <b>{x.mine ? x.title : t(x.title)}</b>{#if x.sub}<small>{t(x.sub)}</small>{/if}<small class="dom">{x.domain}</small>
           </a>
-          {#if x.mine}<button type="button" class="rm" aria-label={t('Remove the link {name}', { name: x.title })} onclick={() => pi.save(removeLink(pi.info, page, x.id))}><X size={14} aria-hidden="true" /></button>{/if}
+          {#if x.mine}<button type="button" class="rm" aria-label={t('Remove the link {name}', { name: x.title })} onclick={() => pi.save((v) => removeLink(v, page, x.id))}><X size={14} aria-hidden="true" /></button>{/if}
         </span>
       {:else}
         <a class="card tile" href={x.href} data-tile={x.id}>

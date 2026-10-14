@@ -4,6 +4,19 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.136.0 Inhalte Flow + Wusstest du
+  'Good to know': 'Gut zu wissen',
+  'Aktiv now tells you a little more: one tip a day, what the app can do there and where to go next.': 'Aktiv erzählt jetzt ein bisschen mehr: einen Tipp pro Tag, was die App dort kann und wohin es weitergeht.',
+  'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather': 'Ein Tipp pro Tag auf Aktiv › Heute, mit «Wusstest du»-Sätzen und einem Satz, der zum Wetter passt',
+  '«What the app can do here» and tiles to the next places, with your own links': '«Das kann die App hier» und Kacheln zu den nächsten Orten, mit eigenen Links',
+  'Past trips: how far around the Earth and how often up the Everest you rode': 'Vergangene Touren: wie weit du schon um die Erde und wie oft auf den Everest gefahren bist',
+  '«All tips»: switch single tips off, only useful tips, or no tips at all': '«Alle Tipps»: einzelne Tipps aus, nur nützliche Tipps oder gar keine',
+  'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.': 'Öffne Aktiv › Heute: Unter dem Titel steht ein Tipp. Tippe auf «Alle Tipps ›»: alle Tipps der Seite, jeder mit Schalter.',
+  'In «All tips» tap «Only useful tips»: the «Did you know» sentences no longer come.': 'Tippe in «Alle Tipps» auf «Nur nützliche Tipps»: Die «Wusstest du»-Sätze kommen nicht mehr.',
+  'At the end of the page open «What the app can do here» and tap a row: the place opens.': 'Öffne am Seitenende «Das kann die App hier» und tippe eine Zeile an: Der Ort öffnet sich.',
+  'Tap «+ Own link», enter a name and an address: the tile shows; × removes it.': 'Tippe auf «+ Eigener Link», gib Name und Adresse ein: Die Kachel erscheint; × entfernt sie.',
+  'Open Touren › Rückblick › Vergangene Touren: under the sums, Earth and Everest.': 'Öffne Touren › Rückblick › Vergangene Touren: Unter den Summen stehen Erde und Everest.',
+
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',

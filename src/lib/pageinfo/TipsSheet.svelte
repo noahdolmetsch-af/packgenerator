@@ -30,7 +30,8 @@
   function add(e) {
     e.preventDefault();
     if (!draft.trim()) return;
-    pi.save(addTip(pi.info, page, draft));
+    const text = draft;
+    pi.save((v) => addTip(v, page, text));
     draft = '';
   }
 </script>
@@ -45,24 +46,24 @@
   </div>
   <div class="what" data-know>
     <p class="wh"><b id="tips-what">{t('What should come?')}</b><small>{t('Applies to all pages')}</small></p>
-    <Seg labelledby="tips-what" value={pi.info.knowOn ? 'know' : 'tips'} options={[{ key: 'tips', name: t('Only useful tips') }, { key: 'know', name: t('Also knowledge and fun') }]} onchange={(k) => pi.save(setKnowOn(pi.info, k === 'know'))} />
+    <Seg labelledby="tips-what" value={pi.info.knowOn ? 'know' : 'tips'} options={[{ key: 'tips', name: t('Only useful tips') }, { key: 'know', name: t('Also knowledge and fun') }]} onchange={(k) => pi.save((v) => setKnowOn(v, k === 'know'))} />
   </div>
   <ul>
     {#each tips as x (x.id)}
       <li class:now={tip?.id === x.id} data-tip-row={x.id}>
         <span class="tx"><span>{#if x.kind !== 'tip' || tips.some((y) => y.kind !== 'tip')}<KindTag kind={x.kind} />{/if}{tipText(x)}</span>{#if x.kind === 'today'}<small>{t(x.note)}</small>{/if}{#if tip?.id === x.id}<small>{t('today|tip')}</small>{:else if !x.on}<small>{t('hidden|tip')}</small>{/if}</span>
-        {#if x.own}<button type="button" class="ib sm" aria-label={t('Delete the own tip')} onclick={() => pi.save(removeTip(pi.info, page, x.id))}><Trash2 size={16} aria-hidden="true" /></button>{/if}
-        <label class="sw"><input type="checkbox" role="switch" checked={x.on} onchange={(e) => pi.save(setTip(pi.info, x.id, e.currentTarget.checked))} /><span class="vh">{t('Show this tip')}</span></label>
+        {#if x.own}<button type="button" class="ib sm" aria-label={t('Delete the own tip')} onclick={() => pi.save((v) => removeTip(v, page, x.id))}><Trash2 size={16} aria-hidden="true" /></button>{/if}
+        <label class="sw"><input type="checkbox" role="switch" checked={x.on} onchange={(e) => ((on) => pi.save((v) => setTip(v, x.id, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show this tip')}</span></label>
       </li>
     {/each}
     <li class="all">
       <span class="tx"><b>{t('Show tips on all pages')}</b><small>{t('Off: no tip line any more, the list stays here')}</small></span>
-      <label class="sw"><input type="checkbox" role="switch" data-tips-all checked={pi.info.tipsOn} onchange={(e) => pi.save(setTipsOn(pi.info, e.currentTarget.checked))} /><span class="vh">{t('Show tips on all pages')}</span></label>
+      <label class="sw"><input type="checkbox" role="switch" data-tips-all checked={pi.info.tipsOn} onchange={(e) => ((on) => pi.save((v) => setTipsOn(v, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show tips on all pages')}</span></label>
     </li>
     {#if PAGES[page]?.can?.length}
       <li class="all">
         <span class="tx"><b>{t('Show «What the app can do here»')}</b></span>
-        <label class="sw"><input type="checkbox" role="switch" data-can-show checked={canShown(pi.info, page)} onchange={(e) => pi.save(setCan(pi.info, page, e.currentTarget.checked))} /><span class="vh">{t('Show «What the app can do here»')}</span></label>
+        <label class="sw"><input type="checkbox" role="switch" data-can-show checked={canShown(pi.info, page)} onchange={(e) => ((on) => pi.save((v) => setCan(v, page, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show «What the app can do here»')}</span></label>
       </li>
     {/if}
   </ul>

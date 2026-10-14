@@ -32,7 +32,7 @@
       <span>{#if tip.kind === 'tip'}<b>{t('Good to know:')}</b>{:else}<KindTag kind={tip.kind} {deg} />{/if} {tipText(tip)}</span>
       <small>{#if tip.kind === 'today'}{t(tip.note)}{:else}{t('Tip {n} of {of} for {page}', { n: place.n, of: place.of, page: name })}{/if} · <button type="button" class="lk" onclick={() => (open = true)}>{t('All tips ›')}</button></small>
     </p>
-    <button type="button" class="ib" aria-label={t('Hide the tip for today')} onclick={() => pi.save(hideToday(pi.info, page, today))}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="ib" aria-label={t('Hide the tip for today')} onclick={() => pi.save((v) => hideToday(v, page, today))}><X size={18} aria-hidden="true" /></button>
   </div>
 {/if}
 

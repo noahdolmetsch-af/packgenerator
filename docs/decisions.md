@@ -959,6 +959,12 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 - **Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden.** SV1 nach Noahs Hinweis 17:06 UTC (Strava-Knopf nicht gefunden) und «a» 17:07 UTC.
 - **Selbst entschieden:** SV1 als Karte über der Kachel-Wand statt als Kachel (keine Umstellung gespeicherter Wände nötig); zurück über die Kachel «Strava» oder Velo › Pflege › Strava. Startwerte der Jahresziele 5 000 km, 50 000 Hm, 7 800 Min (150 pro Woche). Fussabdruck zählt alle Fahrten mit 0,15 kg CO₂ pro Auto-km. Höhenmeter je Teil nur aus Strava-Fahrten (hochgeladene GPX-Fahrten haben kein Velo). Farbe der Strava-Karte aus Tokens (`--warn-soft`), nicht Strava-Orange. Am Handy ist die Karte eine schmale Zeile (Titel, «Verbinden», «Später»), damit die Tour-Karte im ersten Bild bleibt (Noah 2b).
 
+## 14.10.2026: 0.136.0 «Inhalte Flow» + «Wusstest du»
+
+- Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW.
+- **Entscheide Noah:** 1b «Das kann die App hier» als Zeile zum Aufklappen (bewusste Ausnahme zu «Weniger Meta»), 2a Tipp-Zeile, 3a Kacheln «Weiter», 4a englische Seiten mit «EN» über Google Übersetzer (kommt mit den Sportarten), Flow zuerst; WD 1a Wissen zuerst an, 2a Erde/Everest immer für den gewählten Zeitraum.
+- **Selbst entschieden:** Untertitel der Kacheln fest statt mit Live-Zahlen; × blendet den Tipp für heute aus; eigene Links pro Seite (höchstens 8) neben höchstens 7 eigenen Kacheln; die ausgeblendete Zeile kommt über «Alle Tipps» zurück; «Tipps für diese Seite ›» unter den Kacheln, wenn keine Tipp-Zeile da ist; Föhn = trocken (unter 1 mm), Wind vor allem aus Süden (140–230°) und Böen ab 45 km/h aus Open-Meteo (keine Föhnmeldung von MeteoSchweiz frei verfügbar); Erde/Everest gehören zu «Wissen und Witziges» und verschwinden mit «Nur nützliche Tipps»; ohne Zeitschätzung «bei deinem Tempo» (der Zeitraum ist wählbar); IF2 Meditation wartet auf die neue Meditationsseite (anderer Thread).
+
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 
 - (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)

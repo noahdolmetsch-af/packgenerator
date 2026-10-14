@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.136.0 «Inhalte Flow» IF1–IF3 (approved 14.10.2026 04:32) + «Wusstest du» WD1–WD3 (approved 18:34, answers «1a 2a»)
+    version: '0.136.0',
+    date: '2026-10-14',
+    title: 'Good to know',
+    lead: 'Aktiv now tells you a little more: one tip a day, what the app can do there and where to go next.',
+    points: [
+      { text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
+      { text: '«What the app can do here» and tiles to the next places, with your own links', href: '#/flow' },
+      { text: 'Past trips: how far around the Earth and how often up the Everest you rode', href: '#/pack/past' },
+    ],
+    small: [{ box: 'new', text: '«All tips»: switch single tips off, only useful tips, or no tips at all' }],
+    test: [
+      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
+      'In «All tips» tap «Only useful tips»: the «Did you know» sentences no longer come.',
+      'At the end of the page open «What the app can do here» and tap a row: the place opens.',
+      'Tap «+ Own link», enter a name and an address: the tile shows; × removes it.',
+      'Open Touren › Rückblick › Vergangene Touren: under the sums, Earth and Everest.',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),

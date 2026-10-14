@@ -391,6 +391,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
+  'f.pagetips': {
+    on: null,
+    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here» and the tiles «Next», with «+ Own link».'],
+    example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
+  },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',
     steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
