@@ -523,9 +523,10 @@
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Gear|page')}</h1>
-      <!-- v0.47.2 (Noah 6a): one line instead of three numbers: items, known weight, not weighed, debriefs -->
+      <!-- v0.47.2 (Noah 6a): one line instead of three numbers: items, known weight, not weighed, debriefs.
+        v0.137.0 (Durchklick DK2): the same numbers as the tile and the view «Unweighed»: food included. -->
       <p class="page-sub num">
-        {[tn(stats.inventory.length, '{n} item', '{n} items'), t('{w} weighed', { w: formatWeight(stats.total) }), stats.totalMissing ? t('{n} not weighed', { n: stats.totalMissing }) : '', debriefN ? tn(debriefN, 'learnt from {n} debrief', 'learnt from {n} debriefs') : ''].filter(Boolean).join(' · ')}
+        {[tn(stats.inventory.length, '{n} item', '{n} items'), t('{w} weighed', { w: formatWeight(stats.total + stats.consumablesG) }), stats.unweighed ? t('{n} still without weight', { n: stats.unweighed }) : '', debriefN ? tn(debriefN, 'learnt from {n} debrief', 'learnt from {n} debriefs') : ''].filter(Boolean).join(' · ')}
       </p>
     </div>
   </header>
@@ -601,7 +602,7 @@
           </div>
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
-            <div><dt>{t('together')}</dt><dd class="num">{knownWeight(summary.g, summary.missing)}</dd></div>
+            <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.g)}</dd></div>
             {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
@@ -611,7 +612,8 @@
 
         {#if toWeigh && !selecting && !searching}
           <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
-          <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{t('{n} without weight · weigh', { n: toWeigh })}</button></p>
+          <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
+          <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button></p>
         {/if}
         {#if shownAs === 'cards'}
           {#if sorted.length}
@@ -648,7 +650,7 @@
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
                     <span class="gic" aria-hidden="true"><GIcon size={18} /></span>
                     <span class="title">{t(g.name)}</span>
-                    <b class="num k">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</b>
+                    <b class="num k">{formatWeight(catStats[g.key].g)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
                     {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
                   </button>

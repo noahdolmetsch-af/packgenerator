@@ -16,13 +16,16 @@
 
 export const WHATS_NEW = [
   {
-    // v0.137.0 «Fällig überall gleich» (Durchklick DK1/DK1b, Noah 14.10.2026 «1-5 freigeben», answer 1a)
+    // v0.137.0 «Eine Zahl pro Sache» (Durchklick DK1/DK1b «fällig», DK2 Material, DK3 Tour-Gewicht;
+    // Noah 14.10.2026 «1-5 freigeben», answers 1a and 2a)
     version: '0.137.0',
     date: '2026-10-14',
-    title: 'One number for «due»',
-    lead: 'Bike care, Bikes, Today and the menu now count the same things as due.',
+    title: 'One number for each thing',
+    lead: 'Due, weighed and the weight of a trip now show the same number everywhere.',
     points: [
       { text: 'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both', href: '#/bikes?tab=care' },
+      { text: 'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count', href: '#/gear' },
+      { text: 'A trip has one weight, all together with food and water: in its head, on the weight card and on Today', href: '#/trips' },
     ],
     small: [
       { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
@@ -32,6 +35,8 @@ export const WHATS_NEW = [
       'Open Bikes › Care: under the title a line says what due means.',
       'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».',
       'Compare the number in the menu with Bike care and Today: all three are the same.',
+      'Open Gear: the line under the title and the view «Unweighed» show the same number.',
+      'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.',
     ],
   },
   {

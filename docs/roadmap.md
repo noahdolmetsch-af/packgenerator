@@ -73,7 +73,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
-**14.10.2026, v0.137.0 «Fällig überall gleich»:** erstes Paket aus dem Durchklick (DK1/DK1b): Velopflege, Velos, Heute und Menü zählen dasselbe als fällig. Danach Material und Tour-Gewicht (DK2/DK3), Wörter und kleine Fehler (DK6/DK7), dann Testdaten-Hinweis (DK4) und Heute kürzer (DK5) nach 0.133.0.
+**14.10.2026, v0.137.0 «Eine Zahl pro Sache»:** erstes Paket aus dem Durchklick (DK1–DK3): Velopflege, Velos, Heute und Menü zählen dasselbe als fällig; Material und Tour zeigen je ein Gewicht. Danach Wörter und kleine Fehler (DK6/DK7), dann Testdaten-Hinweis (DK4) und Heute kürzer (DK5) nach 0.133.0.
 **14.10.2026, v0.131.3 «Kamera-Knopf»:** Belegfoto mit einem Tipp: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt (Mockups K1–K4).
 **14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
 
@@ -722,7 +722,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
-| 3.0 | 14.10.2026 | 0.137.0 «Fällig überall gleich» (Durchklick DK1/DK1b) |
+| 3.0 | 14.10.2026 | 0.137.0 «Eine Zahl pro Sache» (Durchklick DK1–DK3) |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

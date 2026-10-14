@@ -4,9 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.137.0 Fällig überall gleich (DK1)
-  'One number for «due»': 'Eine Zahl für «fällig»',
-  'Bike care, Bikes, Today and the menu now count the same things as due.': 'Velopflege, Velos, Heute und das Menü zählen jetzt dasselbe als fällig.',
+  // 0.137.0 Eine Zahl pro Sache (DK1 fällig, DK2 Material, DK3 Tour-Gewicht)
+  'One number for each thing': 'Eine Zahl pro Sache',
+  'Due, weighed and the weight of a trip now show the same number everywhere.': 'Fällig, gewogen und das Gewicht einer Tour zeigen jetzt überall dieselbe Zahl.',
+  'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count': 'Material: Kopf, Kachel und Ansicht «Ungewogen» zeigen dasselbe Gewicht und dieselbe Zahl',
+  'A trip has one weight, all together with food and water: in its head, on the weight card and on Today': 'Eine Tour hat ein Gewicht, alles zusammen mit Essen und Wasser: im Kopf, auf der Gewichtskarte und auf Heute',
+  'Open Gear: the line under the title and the view «Unweighed» show the same number.': 'Öffne Material: Die Zeile unter dem Titel und die Ansicht «Ungewogen» zeigen dieselbe Zahl.',
+  'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.': 'Öffne eine Tour: Das Gewicht im Kopf ist die grosse Zahl der Gewichtskarte; Essen und Wasser ist eine eigene Zeile.',
   'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both': 'Fällig heisst: ein Service ist fällig oder ein Problem muss vor der nächsten Fahrt behoben sein; die Velopflege zeigt beides',
   'Bike care no longer says «nothing due» while a problem waits for the next ride': 'Die Velopflege sagt nicht mehr «nichts fällig», wenn ein Problem auf die nächste Fahrt wartet',
   'The number in the menu counts the points due, the same as on Bikes and Today': 'Die Zahl im Menü zählt die fälligen Punkte, gleich wie bei Velos und Heute',

@@ -83,8 +83,8 @@ async function shot(page, info, name) {
 test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/gear');
-  // The quiet line counts the bike and the 3 items.
-  const row = page.getByRole('button', { name: T('{n} without weight · weigh', { n: 4 }) });
+  // The quiet line counts the 3 items, as the head and the view «Unweighed» (v0.137.0 DK2); the bike waits in the queue too.
+  const row = page.getByRole('button', { name: T('{n} without weight · weigh', { n: 3 }) });
   await expect(row).toBeVisible();
   await shot(page, info, 'material-wiegen-zeile');
   await row.click();
@@ -137,9 +137,9 @@ test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ p
   expect(await one(page, 'items', 'LX91')).toMatchObject({ weightG: 60, weightStatus: 'measured' });
   expect((await one(page, 'bikes', 'bike-gtp-city')).weightG).toBe(null);
 
-  // Done: back to the list, the quiet line counts only the bike now.
+  // Done: back to the list, every item has a weight; only the bike is left (v0.137.0 DK2).
   await weigh.getByRole('button', { name: T('Done') }).first().click();
-  await expect(page.getByRole('button', { name: T('{n} without weight · weigh', { n: 1 }) })).toBeVisible();
+  await expect(page.getByRole('button', { name: T('Weigh bikes and bags') })).toBeVisible();
   // The ••• of the page opens it too.
   await page.getByLabel(T('More for Gear')).click();
   await page.getByRole('button', { name: new RegExp(T('Record weights')) }).click();
