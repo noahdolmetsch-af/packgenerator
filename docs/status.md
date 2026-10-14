@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 13. Oktober 2026
+Stand: 14. Oktober 2026
 
 ## Aktuell live
 
@@ -38,6 +38,8 @@ Stand: 13. Oktober 2026
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
+
+- **Kleine Apps + Benutzerhandbuch (14.10.2026, Branch `claude/project-thread-ieyv9z`):** Meditation, Packliste und Velopflege als kleine Apps mit eigenem Symbol unter `apps/<key>/`, gleiche Daten ([kleine-apps.md](kleine-apps.md)). Handbuch-Daten `src/lib/handbook.js` + [handbuch.md](handbuch.md); Anzeige in der App wartet auf Mockup-Freigabe. Kommt ins Tagespaket.
 
 - **v0.124.0 «Neue Tour Teil 2» (Branch, PR folgt; Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★):** Packen zeigt die Bausteine der Tour als grosse Auswahl-Knöpfe (B4: «Dabei» grün mit Haken, «Dazunehmen» weiss mit +, Vorschlag gestrichelt; ein Tipp schaltet den ganzen Baustein; Maus darüber oder lange drücken zeigt den Inhalt). «Reparatur unterwegs» (B5): höchstens 8 Teile für unterwegs, der Rest bleibt im Material; eine schlanke Reparatur kommt mit neuen Touren wieder als Vorschlag. Neu `ui/OptionButton.svelte`, `lib/packblocks.js`, `lib/repairslim.js`, `pack/PackBlocks.svelte`, `pack/RepairSlim.svelte`. Tests `tests/packblocks.test.js`, `tests/repairslim.test.js`, `tests/e2e/teil2.spec.js`.
 - **v0.123.0 «Trophäen-Vitrine» (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC, Offene Mockups 2 #trophaeen-vitrine):** Aktiv › Aktivität › Meilensteine › «Alle Trophäen ansehen» öffnet #/flow/trophies: alle erreichten Sterne nach Bereich und Jahr, Filter, «Nach Jahr», «Als Nächstes erreichbar». Tests: tests/flowms.test.js (showcase), tests/e2e/vitrine.spec.js.

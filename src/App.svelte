@@ -49,6 +49,8 @@
   import { localDay } from './lib/localday.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import MiniBar from './lib/nav/MiniBar.svelte';
+  import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -66,6 +68,9 @@
     moved = r.old ?? null;
     return r.hash;
   };
+  // Kleine Apps (Noah 14.10.2026): …/apps/<key>/ is a small app (miniapps.js); it starts on its own area.
+  const mini = miniAppOf(location.pathname);
+  if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
   $effect(() => {
     const update = () => {
@@ -230,12 +235,12 @@
      their place or in «Ich».
      v0.98.0 Design-Refresh R2 (G4/G5 A★): the top bar and the sidebar are light; on a phone the + sits
      in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
-<div class="shell" class:wide={wide.matches}>
-{#if wide.matches}
+<div class="shell" class:wide={wide.matches && !mini} class:mini={!!mini}>
+{#if wide.matches && !mini}
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={page !== 'share'} onnew={() => (newMode = 'all')} />
 {:else}
   <header class="top">
-    <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>
+    {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
       <Search compact />
       {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
@@ -246,8 +251,8 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
-  {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
+  {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -336,7 +341,10 @@
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
-{#if !wide.matches}
+{#if mini}
+  <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->
+  <MiniBar app={mini} {hash} />
+{:else if !wide.matches}
   <!-- v0.76.0: the five places at the bottom (also under a shared list). -->
   <PlaceBar {place} {hash} due={$dueQ ?? 0} />
 {/if}
@@ -419,7 +427,7 @@
     margin-left: auto;
   }
   @media (max-width: 719px) {
-    .top .long {
+    .top .long:not(.show) {
       display: none;
     }
   }
