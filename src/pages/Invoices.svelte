@@ -19,6 +19,8 @@
   import StatementResult from '../lib/pay/StatementResult.svelte';
   import PayTabs from '../lib/pay/PayTabs.svelte';
   import PayReports from '../lib/pay/PayReports.svelte';
+  import ShotResult from '../lib/pay/ShotResult.svelte';
+  import { takeSharedShot } from '../lib/pay/twintshot.js';
   import '../lib/ich/ich.css';
 
   let list = $state([]);
@@ -36,6 +38,14 @@
     loaded = true;
   }
   load();
+
+  // A TWINT screenshot shared to the app (mockup QR6): the service worker keeps it, the app opens
+  // #/me/pay/invoices?shared=pay and reads it here.
+  let shot = $state(null);
+  if (location.hash.includes('shared=pay')) {
+    takeSharedShot().then((f) => (shot = f));
+    history.replaceState(null, '', location.hash.replace(/[?&]shared=pay/, ''));
+  }
 
   const sum = $derived(openSummary(list));
   const paidCount = $derived(list.filter((x) => x.status === 'paid').length);
@@ -145,6 +155,7 @@
   <div class="invs-two">
     <div class="invs-main">
       {#if done}<p class="invs-done" role="status">{done}</p>{/if}
+      {#if shot && loaded}<ShotResult file={shot} invoices={list} onchange={load} ondone={(line) => ((shot = null), (done = line))} />{/if}
       {#if loaded}<PayReports invoices={list} onchange={load} />{/if}
 
       {#if list.length}
