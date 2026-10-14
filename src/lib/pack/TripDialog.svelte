@@ -153,11 +153,8 @@
   // svelte-ignore state_referenced_locally
   let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : BIKEPACKING);
   // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
-  const SPORTS = [
-    { key: BIKEPACKING, name: 'Cycling|sport', icon: BikeIcon },
-    { key: 'ski', name: 'Ski touring', icon: MountainSnow },
-    { key: 'hiking', name: 'Hiking', icon: Footprints },
-  ].filter((x) => DOMAIN[x.key]);
+  // Data cleanup 14.10.2026: which areas are in sight, their names and icons come from domains.js (DOMAINS[].sport).
+  const SPORTS = TRIP_DOMAINS.filter((d) => d.sport).map((d) => ({ key: d.key, name: d.sportName ?? d.name, icon: EX_ICON[d.icon] ?? BikeIcon }));
   const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
   // svelte-ignore state_referenced_locally
   let othersOpen = $state(otherAreas.some((d) => d.key === area));

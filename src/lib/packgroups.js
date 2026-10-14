@@ -9,7 +9,7 @@
 import { isWorn } from './blocks2026.js';
 import { CLOTHING_CATEGORIES, CHARGE_CATEGORIES } from './gear.js';
 import { entriesWeight } from './sets.js';
-import { BIKEPACKING } from './domains.js';
+import { DOMAIN } from './domains.js';
 
 /** The four groups in display order, with the icon key and colour of each. */
 export const PACK_GROUPS = [
@@ -50,20 +50,6 @@ export function groupEntries(entries, items, warmIds = new Set()) {
   return { groups, worn, bag: bagEntries.length, w: entriesWeight(bagEntries, items) };
 }
 
-/** Two example templates per kind of trip (answer 3b): they start from Standard with these conditions. */
-export const EXAMPLES = {
-  [BIKEPACKING]: [
-    { id: 'ex:day', name: 'Day tour', icon: 'bike', days: 1, hours: 3, overnight: 'none' },
-    { id: 'ex:weekend', name: 'Weekend', icon: 'bag', days: 2, hours: 4, overnight: 'lodging' },
-  ],
-  ski: [
-    { id: 'ex:ski-day', name: 'Day tour', icon: 'ski', days: 1 },
-    { id: 'ex:ski-hut', name: 'Hut tour', icon: 'hut', days: 2 },
-  ],
-  hiking: [
-    { id: 'ex:hike-day', name: 'Day hike', icon: 'walk', days: 1 },
-    { id: 'ex:hike-hut', name: 'Hut hike', icon: 'hut', days: 2 },
-  ],
-};
-export const examplesFor = (area) => EXAMPLES[area] ?? [];
+/** Two example templates per kind of trip (answer 3b): they start from Standard with these conditions (domains.js DOMAINS[].examples). */
+export const examplesFor = (area) => DOMAIN[area]?.examples ?? [];
 export const EXAMPLES_HIDDEN = 'tplExamplesHidden';

@@ -279,7 +279,7 @@ export const PICKUP_SAFE = [
   { key: 'receipt', label: 'Receipt received and photographed', hint: 'Goes to Workshop & receipts' },
 ];
 /** The values to compare with before (section 2), from the fit values. */
-export const PICKUP_VALUES = ['forkPressure', 'shockPressure', 'pressureF', 'pressureR', 'seatHeight'];
+export const PICKUP_VALUES = KEEP; // the same five values (data cleanup 14.10.2026: one list)
 
 /** A new pick-up check from the order's jobs (the ones not taken off). */
 export function startPickup(rows, today) {
