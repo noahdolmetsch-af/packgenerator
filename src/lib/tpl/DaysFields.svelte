@@ -25,7 +25,7 @@
 
 <div class="df">
   <div class="two">
-    <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" value={tpl.days ?? 1} onchange={(e) => typedDays(e.currentTarget.value)} /></label>
+    <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="60" value={tpl.days ?? 1} onchange={(e) => typedDays(e.currentTarget.value)} /></label>
     {#if byBike}<label><span class="lbl">{t('Riding hours per day')}</span><input class="inp num" type="text" inputmode="decimal" value={tpl.hours ?? ''} placeholder={t('e.g. 2')} onchange={(e) => typedHours(e.currentTarget.value)} /></label>{/if}
   </div>
   <span class="lbl">{t('Overnight')}</span>

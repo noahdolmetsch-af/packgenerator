@@ -15,6 +15,7 @@
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { formatWeight, itemWeight, CATEGORY } from '../gear.js';
   import { catIcon } from './caticon.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   let { kind = '', items = [], onsave, onclose } = $props();
 
@@ -81,7 +82,7 @@
     <p class="sum num"><span>{tn(chosen.length, '{n} item', '{n} items')}</span><b>{formatWeight(grams)}</b></p>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
     <p class="hint"><Info size={15} aria-hidden="true" /><span>{t('Afterwards under Gear › Building blocks, one tap when you make a {kind} trip. Your stars stay as they are.', { kind })}</span></p>
-    <div class="foot">
+    <div class="foot daumen-foot">
       <button type="button" class="btn btn-link" onclick={() => dialog.close()}>{t('Cancel')}</button>
       <button type="submit" class="btn hi" disabled={!chosen.length}><Check size={17} aria-hidden="true" />{t('Save')}</button>
     </div>

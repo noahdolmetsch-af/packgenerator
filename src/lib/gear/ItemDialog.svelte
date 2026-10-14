@@ -15,6 +15,8 @@
   import MergeSheet from './MergeSheet.svelte';
   import { undoBulk } from './bulk.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
@@ -38,6 +40,7 @@
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
   import Woanders from '../sk/Woanders.svelte'; // SK X1, X7, X13
   import { slotOf, ifixitUrl } from '../sk/links.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -565,7 +568,7 @@
       {/if}
       <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
       <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
-      <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" min="1" bind:value={draft.qty} /></label>
+      <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" inputmode="numeric" min="1" bind:value={draft.qty} /></label>
       <label class="cb wide"><input type="checkbox" bind:checked={draft.favorite} /> ★ {t('Favourite (tested, one of my best items)')}</label>
       {#if draft.favorite}
         <label class="wide"><span class="lbl">{t('Why it is a favourite')}</span><input class="inp" bind:value={draft.favNote} placeholder={t('e.g. Warm, packs small, never let me down')} /></label>
@@ -656,7 +659,7 @@
       <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
     </div>
   {:else}
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <p class="meta">
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
@@ -671,7 +674,8 @@
         <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
-        <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        <!-- FE14: the «?» sits next to the label, outside it, so the field keeps its name -->
+        <div class="wide"><span class="lbl"><label for="it-grams">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></label> <Help field="it-grams" text={t(FIELD_HELP.grams)} /></span><input id="it-grams" class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></div>
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
@@ -689,7 +693,7 @@
 
     <p class="err" role="alert">{error}</p>
     <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
-    <div class="foot">
+    <div class="foot daumen-foot">
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       <button type="submit" class="btn hi">{t('Save')}</button>

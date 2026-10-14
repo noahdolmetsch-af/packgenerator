@@ -14,6 +14,7 @@
   import { t, num } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   let { bike, part, bikes = [], entries = [], missing = [], onsave, onnext, onclose } = $props();
 
@@ -83,7 +84,7 @@
     {/if}
   </div>
   {#if err}<p class="err" role="alert">{err}</p>{/if}
-  <div class="fb vd-foot">
+  <div class="fb vd-foot daumen-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
     {#if nextKey}<button type="button" class="btn" onclick={() => save(false)}>{t('Save')}</button><button type="button" class="btn hi" onclick={() => save(true)} data-explain={t('Save and next')}>{t('Next|save')}</button>
     {:else}<button type="button" class="btn hi" onclick={() => save(false)}>{t('Save')}</button>{/if}

@@ -13,6 +13,8 @@
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, rememberDomain, newPackTrip, readyKey, inDomain, hasBike } from '../domains.js';
   import { groupEntries, examplesFor, EXAMPLES_HIDDEN } from '../packgroups.js';
   import { coldLayer } from '../layers.js';
@@ -34,6 +36,7 @@
   import { komootSport } from '../komoot.js';
   import { newTripOff } from '../repairslim.js';
   import { similarHours, nameClash } from '../formprefill.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -712,7 +715,7 @@
 {/snippet}
 
 <dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
@@ -777,8 +780,8 @@
         </div>
         <div class="grid two">
           <!-- v0.40.0 (design check): the field for the days only with "More"; 1 and 2 days are the chips. -->
-          {#if moreDays}<label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
-          <label><input class="inp num" class:pre={hoursPre} type="text" inputmode="decimal" bind:value={ctx.hours} oninput={() => (hoursOwn = true)} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} aria-describedby={hoursPre ? 'tn-hoursfrom' : undefined} /><span class="sub">{t('Riding hours per day')}</span></label>
+          {#if moreDays}<label><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
+          <label><input id="tn-hours" class="inp num" class:pre={hoursPre} type="text" inputmode="decimal" bind:value={ctx.hours} oninput={() => (hoursOwn = true)} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} aria-describedby={hoursPre ? 'tn-hoursfrom' : undefined} /><span class="sub">{t('Riding hours per day')} <Help field="tn-hours" text={t(FIELD_HELP.hours)} /></span></label>
         </div>
         {#if hoursPre}<small class="prefrom" id="tn-hoursfrom">{hoursFrom}</small>{/if}
         {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
@@ -802,7 +805,7 @@
             </select>
           </label>
         {:else}
-          <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
+          <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} /></label>
         {/if}
       </div>
       {#if byBike}
@@ -810,8 +813,8 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('How long?')}</legend>
           <div class="grid">
-            <label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
-            <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
+            <label><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
+            <label><input id="te-hours" class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')} <Help field="te-hours" text={t(FIELD_HELP.hours)} /></span></label>
           </div>
           {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
         </fieldset>
@@ -833,7 +836,7 @@
       {/if}
     {/if}
     <p class="err" role="alert">{error}</p>
-    <div class="foot" class:fnew={isNew}>
+    <div class="foot daumen-foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}

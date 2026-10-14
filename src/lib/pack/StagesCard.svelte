@@ -10,6 +10,7 @@
   import { backClose } from '../ui/backclose.js';
   import { t, num } from '../i18n.svelte.js';
   import { ChevronRight, Tent, Flag } from '@lucide/svelte';
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { trip, onchange = null } = $props();
 
@@ -61,7 +62,7 @@
 
 {#if open}
   <dialog class="sheet stg" bind:this={el} use:backClose onclose={() => (open = false)} aria-labelledby="stg-h">
-    <form onsubmit={save}>
+    <form onsubmit={save} use:weiter>
       <h2 id="stg-h">{t('Divide into stages')}</h2>
       <p class="note">{hasRoute ? t('Where does each day end? In km from the start, and the place if you like. Empty: shared out evenly.') : t('Name the places where each day ends, if you like. With a GPX route the km follow.')}</p>
       <label class="fld"><span class="lbl">{t('Start')}</span><input class="inp" bind:value={form.start} placeholder={t('e.g. Biel')} /></label>

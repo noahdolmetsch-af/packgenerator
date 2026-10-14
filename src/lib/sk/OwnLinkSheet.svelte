@@ -14,6 +14,7 @@
   import { backClose } from '../ui/backclose.js';
   import { safeUrl } from './links.js';
   import { t } from '../i18n.svelte.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   let { title = '', context = '', value = null, name: defName = '', onsave, onoff = null, onremove = null, onclose } = $props();
 
@@ -67,7 +68,7 @@
         {#if onoff}<button type="button" class="sk-tx" onclick={() => (onoff(), dialog.close())}>{t('Don’t suggest any more')}</button>{/if}
       </p>
     {/if}
-    <div class="sk-foot">
+    <div class="sk-foot daumen-foot">
       <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
       <button type="submit" class="btn hi">{t('Save')}</button>
     </div>

@@ -1190,6 +1190,23 @@ dialog.sheet::backdrop {
 .udot.ok {
   background: var(--ok);
 }
+/* FE13: the dot carries its sign too (! urgent, ✓ ok), white on its colour */
+.udot {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  color: var(--paper);
+  font: 800 var(--fs-tiny)/1 var(--font-body);
+}
+.udot::before {
+  content: '!';
+  content: '!' / '';
+}
+.udot.ok::before {
+  content: '✓';
+  content: '✓' / '';
+}
 /* A light section head over a list: the name left, a count or rule right (tabular). */
 .sec-head {
   display: flex;
@@ -1425,6 +1442,21 @@ details[open] > summary.lrow .chev {
 .pill.bad {
   background: var(--bad-soft);
   color: var(--bad);
+}
+/* FE13 «Farbe nie allein» (Noah 13.10.2026 «a»): a status in colour also carries a sign, ✓ for ok and
+   ! for warn or bad, so it reads in sunlight and for weak colour vision. The sign has an empty
+   alternative text (the word stays the name); [data-nosign] for a pill that already shows one (↑ ↓). */
+.pill.ok:not([data-nosign])::before,
+.pill.warn:not([data-nosign])::before,
+.pill.bad:not([data-nosign])::before {
+  content: '✓';
+  content: '✓' / '';
+  font-weight: 700;
+}
+.pill.warn:not([data-nosign])::before,
+.pill.bad:not([data-nosign])::before {
+  content: '!';
+  content: '!' / '';
 }
 
 /* v0.51.0 «Im Flow»: a sheet that comes from below on a phone (tick, countdown, daily check). */

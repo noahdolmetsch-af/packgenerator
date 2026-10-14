@@ -15,6 +15,8 @@
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null, bike = true } = $props();
   let over = $state(null);
@@ -91,7 +93,7 @@
       <span class="hv" title={c.heavy.join(', ')}>{t('Heavy item high or far back: move to the frame bag?')}</span>
     {/if}
     {#if c.fill != null}
-      <span class="vol num" aria-hidden="true"><span class="bar" class:warn={c.fill > 100}><i style:width="{Math.min(100, c.fill)}%"></i></span>{#if !small}{formatVolume(c.vol)} / {formatVolume(c.cap)}{/if}</span>
+      <span class="vol num" aria-hidden="true" data-sign={c.fill > 100 ? signFor('warn') : null}><span class="bar" class:warn={c.fill > 100}><i style:width="{Math.min(100, c.fill)}%"></i></span>{#if !small}{formatVolume(c.vol)} / {formatVolume(c.cap)}{/if}</span>
     {/if}
   </button>
 {/snippet}

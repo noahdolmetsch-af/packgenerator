@@ -25,6 +25,8 @@
   import MiniBars from './MiniBars.svelte';
   import { CURVE_S } from './power.js';
   import './zones.css';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP } from '../daumen.js';
 
   let { values = null, zones = null, bike = '', tempo = null, power = null, effort = null, load = null, efforts = [], loads = [], mark = null, best = null, strava = false, sub = '' } = $props();
   const p = $derived(power ?? values?.power ?? null);
@@ -120,7 +122,7 @@
               </svg>
             {/if}
             {#if p.ftp}
-              <dl class="rv-tiles hpt one"><div class="rv-tile"><dd><b class="num">{num(p.ftp)}</b> <span class="u">W</span></dd><dt><small>{t('estimated FTP')}<span class="est">{t('best 20 min × 0.95')}</span></small></dt></div></dl>
+              <dl class="rv-tiles hpt one"><div class="rv-tile"><dd><b class="num">{num(p.ftp)}</b> <span class="u">W</span></dd><dt><small>{t('estimated FTP')}<span class="est">{t('best 20 min × 0.95')}</span></small><Help label={t('estimated FTP')} text={t(FIELD_HELP.ftp)} /></dt></div></dl>
               <p class="rv-note pm"><Info size={16} aria-hidden="true" /><span>{t('Only to look at. The app estimates the FTP from your best 20 min; it changes nothing by itself.')}</span></p>
             {/if}
           {/if}
@@ -148,7 +150,7 @@
               <div class="bars"><MiniBars values={efforts} {mark} label={t('Relative Effort of your last {n} trips', { n: efforts.length })} /><small>{t('your last {n} trips, this one on the right', { n: efforts.length })}</small></div></div>
           {/if}
           {#if load != null}
-            <div class="eff"><div class="rv-tile"><b class="num">{num(load)}</b><small>{t('Load|power')}</small><span class="est">NP ÷ FTP</span></div>
+            <div class="eff"><div class="rv-tile"><b class="num">{num(load)}</b><small>{t('Load|power')}</small><span class="est">NP ÷ FTP</span><Help label={t('Load|power')} text={t(FIELD_HELP.load)} /></div>
               <div class="bars"><MiniBars values={loads} {mark} label={t('Load of your last {n} trips with watts', { n: loads.length })} /><small>{t('trips with watts, this one on the right')}</small></div></div>
           {/if}
         </div>

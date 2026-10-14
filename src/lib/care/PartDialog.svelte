@@ -11,8 +11,11 @@
   import { timeDue } from '../workshop.js';
   import '../bikes/velo-dlg.css';
   import { t, tn, num as fmtNum, dateOf } from '../i18n.svelte.js';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { historyNewest } from './last.js';
   import { UserRound, Store } from '@lucide/svelte';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   /**
    * One part of a bike: measure it, say how it is, see everything that was done to it.
@@ -120,7 +123,7 @@
 
 <!-- Design-Refresh P7 (V8, Noah 12.10.2026 «v5-v10 freigabe»): the part as a window of the bike pages:
      the name, «bike · model» below, ✕ top right; «Done by» as chips; the history folded. -->
-<dialog class="sheet vdlg partdlg from-below" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
+<dialog class="sheet vdlg partdlg from-below" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'} use:weiter>
   {#if flow}
     <PartFlow {part} {bike} mode={flow} {shops} {by} onsave={flowSave} oncancel={() => (start ? dialog?.close() : (flow = null))} />
   {:else}
@@ -168,7 +171,7 @@
       <div class="grid">
         <label><span class="lbl">{t('Model')}</span><input class="inp" bind:value={model} placeholder={t('e.g. SRAM GX Eagle 12-speed')} /></label>
         <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
-        {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
+        {#if p.limit != null}<div><span class="lbl"><label for="pd-limit">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</label> <Help field="pd-limit" text={t(FIELD_HELP.limit)} /></span><input id="pd-limit" class="inp num" type="text" inputmode="decimal" bind:value={limit} /></div>{/if}
         {#each p.extra ?? [] as k (k)}
           <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={targetOf(k) != null ? `${t('Target')} ${fmtNum(targetOf(k))}` : t('optional')} /></label>
         {/each}
@@ -202,7 +205,7 @@
     </FoldRow>
   </div>
   <p class="err" role="alert">{error}</p>
-  <div class="vd-foot sn7">
+  <div class="vd-foot sn7 daumen-foot">
     <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog?.close()} />
     <Btn kind="hi" icon={CircleCheck} label={t('Enter|part')} disabled={!chosen} explain={chosen ? '' : t('Choose first what you did')} onclick={enter} />
   </div>

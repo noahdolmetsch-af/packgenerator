@@ -29,6 +29,8 @@
   import { openTrip } from '../nav.js';
   import { komootLinkIn, komootLink, komootSport, clashOn, routeMinutes, hoursText, tripFromKomoot, defaultDay, SHARE_TEXT } from '../komoot.js';
   import { t, num, locale } from '../i18n.svelte.js';
+  import '../ui/daumen.css'; // FE1: the main button stays at the bottom edge of the window on a phone
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { onclose } = $props();
 
@@ -139,7 +141,7 @@
 </script>
 
 <dialog class="sheet from-below km-sheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="km-h" data-komoot-sheet>
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <div class="km-head">
       <div>
         <h2 id="km-h">{t('Take over a tour from komoot')}</h2>
@@ -204,7 +206,7 @@
         {#if moreOpen}
           <div class="km-in km-more" id="km-more">
             <div class="km-two">
-              <label class="km-f"><span class="km-lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={days} /></label>
+              <label class="km-f"><span class="km-lbl">{t('Days')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={days} /></label>
               <label class="km-f"><span class="km-lbl">{t('Start time')}</span><input class="inp" type="time" bind:value={start} /></label>
             </div>
             <fieldset class="km-f">
@@ -220,7 +222,7 @@
 
       <p class="km-note km-lock"><Lock size={16} aria-hidden="true" /><span>{t('The file stays on your device. Nothing goes back to komoot.')}</span></p>
       {#if error}<p class="km-err" role="alert">{error}</p>{/if}
-      <div class="km-foot">
+      <div class="km-foot daumen-foot">
         <button type="button" class="btn btn-link" onclick={cancel}>{t('Cancel')}</button>
         <button type="submit" class="btn hi" disabled={busy}><Check size={18} aria-hidden="true" />{t('Create as planned trip')}</button>
       </div>

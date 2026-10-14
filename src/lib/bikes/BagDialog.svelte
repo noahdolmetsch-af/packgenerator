@@ -12,6 +12,8 @@
   import { formatWeight, parseGrams } from '../gear.js';
   import { TRIP_DOMAINS } from '../domains.js';
   import { t, nameOf } from '../i18n.svelte.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   /** bag: the bag to edit, or null for "Add bag" (slot: the place it is for, v0.31.0). Weight comes from the linked gear item. */
   let { bag, slot = null, items, bags, bikes, onclose } = $props();
@@ -127,7 +129,7 @@
 </script>
 
 <dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <!-- Design-Refresh P7 (V3): the name as the title, place and bikes in the quiet line, ✕ top right. -->
     <div class="vd-head">
       <div class="vd-t">
@@ -178,7 +180,7 @@
               {#each linkable as i (i.id)}<option value={i.id}>{nameOf(i)} · {i.id}</option>{/each}
             </select>
           </label>
-          {#if draft.itemId}<label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>{/if}
+          {#if draft.itemId}<label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" inputmode="numeric" min="1" bind:value={draft.pieces} /></label>{/if}
         </div>
       </FoldRow>
       <FoldRow icon={StickyNote} label={t('Note')} summary={draft.note?.trim() || t('optional')} bind:open={noteOpen} data-fold="note">
@@ -188,7 +190,7 @@
     <!-- v0.26.1 (Noah 15b): litres are optional; Pack only talks about volume when everything has litres. -->
     <p class="note">{t('Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.')}{#if worn}<br /><span class="quiet">{t('Worn bags count to On me, not to the bike.')}</span>{/if}</p>
     <p class="err" role="alert">{error}</p>
-    <div class="vd-foot sn7">
+    <div class="vd-foot sn7 daumen-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
       <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog.close()} />
       <Btn kind="hi" type="submit" label={t('Save')} />
