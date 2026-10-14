@@ -16,6 +16,7 @@
   import { formatAmount, parseAmount, formatIban, formatReference } from '../lib/pay/qrbill.js';
   import { readQrImage } from '../lib/pay/qrread.js';
   import { shrinkImage } from '../lib/photo.js';
+  import PhotoPick from '../lib/ui/PhotoPick.svelte';
   import { localDay } from '../lib/localday.js';
   import '../lib/ich/ich.css';
 
@@ -43,12 +44,19 @@
 
   const blank = (extra = {}) => ({ read: false, to: '', iban: '', amount: '', ref: '', refType: 'NON', purpose: '', due: addDays(localDay(), DUE_DAYS), remindDays: REMIND_DAYS, photo: null, ...extra });
 
-  async function pick(e) {
+  let reading = $state(false);
+  async function pick(file) {
     problem = '';
     done = '';
-    const file = e.currentTarget.files?.[0];
-    e.currentTarget.value = '';
     if (!file) return;
+    reading = true;
+    try {
+      await readBill(file);
+    } finally {
+      reading = false;
+    }
+  }
+  async function readBill(file) {
     let photo = null;
     try {
       photo = await shrinkImage(file);
@@ -127,11 +135,14 @@
 
   <div class="bills-two" class:one={!form}>
     <div class="bills-main">
-      <label class="card bills-up">
-        <span class="bills-ib"><Upload size={20} aria-hidden="true" /></span>
-        <span><b>{t('Upload a bill')}</b><small>{t('Photo or screenshot with the QR code. The app reads recipient, amount and reference.')}</small></span>
-        <input class="bills-file" type="file" accept="image/*" aria-label={t('Upload a bill')} onchange={pick} />
-      </label>
+      <div class="card bills-up">
+        <div class="bills-uptop">
+          <span class="bills-ib"><Upload size={20} aria-hidden="true" /></span>
+          <span><b>{t('Upload a bill')}</b><small>{t('Photo or screenshot with the QR code. The app reads recipient, amount and reference.')}</small></span>
+        </div>
+        <!-- Kamera-Knopf (0.131.3): on the phone the camera opens at once, the gallery for a screenshot -->
+        <PhotoPick onfile={pick} busy={reading} has={false} camera="Photograph the bill" />
+      </div>
       {#if !form}<button class="btn btn-link sm bills-hand" type="button" onclick={() => ((form = blank()), (problem = ''), (done = ''))}><PenLine size={15} aria-hidden="true" />{t('Enter by hand')}</button>{/if}
       {#if problem}<p class="bills-err" role="alert">{problem}</p>{/if}
       {#if done}<p class="bills-done" role="status">{done}</p>{/if}
@@ -234,17 +245,16 @@
   }
   .bills-up {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
     padding: 14px 16px;
     margin-bottom: 8px;
     border: 1.5px dashed var(--line-strong);
-    cursor: pointer;
-    position: relative;
   }
-  .bills-up:focus-within {
-    outline: var(--focus-ring);
-    outline-offset: 2px;
+  .bills-uptop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .bills-up b {
     display: block;
@@ -262,13 +272,6 @@
     display: grid;
     place-items: center;
     flex: none;
-  }
-  .bills-file {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
   }
   .bills-hand {
     margin: 0 0 12px;

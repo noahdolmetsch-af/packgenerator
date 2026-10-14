@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.135.0 Rechnungen: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link, TWINT-Screenshot, Zu zahlen
+  'Money in, money out': 'Geld rein, Geld raus',
+  'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.': 'Schreib eine QR-Rechnung mit TWINT, sieh, wer bezahlt hat, und behalte die Rechnungen, die du zahlen musst, in einer Liste.',
+  'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link': 'Eine QR-Rechnung aus deinem eigenen Konto, mit TWINT als zweitem Zahlweg; per Mail, als PDF oder als Zahl-Link verschicken',
+  'See who paid: «Paid» by hand, by amount, from your bank statement or when the person taps «I have paid»': 'Sehen, wer bezahlt hat: «Bezahlt» von Hand, über den Betrag, aus dem Kontoauszug oder wenn die Person «Ich habe bezahlt» tippt',
+  '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due': '«Zu zahlen»: Fotografiere eine Rechnung, die du bekommen hast; die App liest sie und erinnert dich drei Tage vor der Fälligkeit',
+  'Share a TWINT screenshot with the app: it reads amount and message on your phone and suggests the invoice': 'Teile einen TWINT-Screenshot mit der App: Sie liest Betrag und Mitteilung auf deinem Handy und schlägt die Rechnung vor',
+  'Your account and TWINT number stay only on this device; no fees, nobody in between': 'Dein Konto und deine TWINT-Nummer bleiben nur auf diesem Gerät; keine Gebühren, niemand dazwischen',
+  'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.': 'Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung». Gib einmal ein erfundenes Konto ein, dann einen Namen, einen Betrag und wofür: Die Vorschau zeigt TWINT und den Zahlteil.',
+  'Tap «Copy pay link» and open the link in another browser window: you see how to pay and «I have paid».': 'Tippe «Zahl-Link kopieren» und öffne den Link in einem anderen Browserfenster: Du siehst, wie man zahlt, und «Ich habe bezahlt».',
+  'Back in «Invoices» tap «Money received», type the amount: the open invoice appears, tap «This one».': 'Zurück in «Rechnungen» tippe «Geld erhalten» und gib den Betrag ein: Die offene Rechnung erscheint, tippe «Diese».',
+  'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».': 'Tippe den Tab «Zu zahlen», dann «Von Hand erfassen»: Eine Rechnung mit Fälligkeit in zwei Tagen zeigt «fällig in 2 Tagen».',
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',

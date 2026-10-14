@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.135.0 Rechnungen (mockups QR1–QR9, Noah 14.10.2026 04:00 «a», QR9 05:10 «a»): QR bill with TWINT, the invoice list,
+    // «Geld erhalten», bank statement (camt), bill from the e-banking, «Ich habe bezahlt» link, TWINT screenshot, «Zu zahlen»
+    version: '0.135.0',
+    date: '2026-10-14',
+    title: 'Money in, money out',
+    lead: 'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.',
+    points: [
+      { text: 'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link', href: '#/me/pay/invoices/new' },
+      { text: 'See who paid: «Paid» by hand, by amount, from your bank statement or when the person taps «I have paid»', href: '#/me/pay/invoices' },
+      { text: '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due', href: '#/me/pay/bills' },
+    ],
+    small: [
+      { box: 'new', text: 'Share a TWINT screenshot with the app: it reads amount and message on your phone and suggests the invoice' },
+      { box: 'new', text: 'Your account and TWINT number stay only on this device; no fees, nobody in between' },
+    ],
+    test: [
+      'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.',
+      'Tap «Copy pay link» and open the link in another browser window: you see how to pay and «I have paid».',
+      'Back in «Invoices» tap «Money received», type the amount: the open invoice appears, tap «This one».',
+      'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),

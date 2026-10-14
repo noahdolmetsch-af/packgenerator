@@ -451,6 +451,16 @@ export const HANDBOOK = {
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
   },
+  'f.invoices': {
+    on: 'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.',
+    steps: ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.', 'When money arrives: «Paid», «Money received» or upload the bank statement.'],
+    example: 'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».',
+  },
+  'f.bills': {
+    on: 'Nothing to switch on.',
+    steps: ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
+    example: 'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.',
+  },
   'f.tidy': {
     on: 'Only shows when something has «test» in its name.',
     steps: ['Open Me › Clean up test data.', 'Archive it all; «Undo» brings it back.'],

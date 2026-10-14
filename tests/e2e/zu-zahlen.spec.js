@@ -40,7 +40,7 @@ test('upload a received QR bill, see the payment part, mark it paid; by hand wit
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('To pay'));
   await expect(page.getByRole('button', { name: T('To pay') })).toHaveAttribute('aria-pressed', 'true');
 
-  await page.locator("input.bills-file").setInputFiles({ name: 'rechnung.png', mimeType: 'image/png', buffer: PNG });
+  await page.locator(".bills-up input[type=file]").last().setInputFiles({ name: 'rechnung.png', mimeType: 'image/png', buffer: PNG });
   await expect(page.getByRole('heading', { level: 2, name: T('Bill read from the photo') })).toBeVisible();
   await expect(page.getByRole('textbox', { name: T('To|payee'), exact: true })).toHaveValue('Velo-Werkstatt Beispiel');
   await expect(page.getByLabel(T('Amount|money'))).toHaveValue('189.50');
