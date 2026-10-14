@@ -965,6 +965,12 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 - **Entscheide Noah:** 1b «Das kann die App hier» als Zeile zum Aufklappen (bewusste Ausnahme zu «Weniger Meta»), 2a Tipp-Zeile, 3a Kacheln «Weiter», 4a englische Seiten mit «EN» über Google Übersetzer (kommt mit den Sportarten), Flow zuerst; WD 1a Wissen zuerst an, 2a Erde/Everest immer für den gewählten Zeitraum.
 - **Selbst entschieden:** Untertitel der Kacheln fest statt mit Live-Zahlen; × blendet den Tipp für heute aus; eigene Links pro Seite (höchstens 8) neben höchstens 7 eigenen Kacheln; die ausgeblendete Zeile kommt über «Alle Tipps» zurück; «Tipps für diese Seite ›» unter den Kacheln, wenn keine Tipp-Zeile da ist; Föhn = trocken (unter 1 mm), Wind vor allem aus Süden (140–230°) und Böen ab 45 km/h aus Open-Meteo (keine Föhnmeldung von MeteoSchweiz frei verfügbar); Erde/Everest gehören zu «Wissen und Witziges» und verschwinden mit «Nur nützliche Tipps»; ohne Zeitschätzung «bei deinem Tempo» (der Zeitraum ist wählbar); IF2 Meditation wartet auf die neue Meditationsseite (anderer Thread).
 
+## 14.10.2026: 0.132.1 «Langer Name passt»
+
+- Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup
+- **Ursache:** `.tally` in `Between.svelte` ist ein zentriertes Grid (max. 340 px); sein `<small>` hat `min-width: auto` und wird nie schmaler als das längste Wort. `overflow-wrap: break-word` allein senkt diese Mindestbreite nicht.
+- **Selbst entschieden:** eigenes kleines Update statt im Tipps-Paket, damit der Fix sofort live gehen kann (Koordination: Mein Überblick).
+
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 
 - (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)

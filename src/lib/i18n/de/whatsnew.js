@@ -16,6 +16,13 @@ export default {
   'At the end of the page open «What the app can do here» and tap a row: the place opens.': 'Öffne am Seitenende «Das kann die App hier» und tippe eine Zeile an: Der Ort öffnet sich.',
   'Tap «+ Own link», enter a name and an address: the tile shows; × removes it.': 'Tippe auf «+ Eigener Link», gib Name und Adresse ein: Die Kachel erscheint; × entfernt sie.',
   'Open Touren › Rückblick › Vergangene Touren: under the sums, Earth and Everest.': 'Öffne Touren › Rückblick › Vergangene Touren: Unter den Summen stehen Erde und Everest.',
+  // 0.132.1 Langer Name passt (Fehler behoben)
+  'Long names fit': 'Lange Namen passen',
+  'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',
+  'On «Trip ended» a long trip name wraps inside the grey box': 'Bei «Tour beendet» bricht ein langer Tourname in der grauen Box um',
+  'Also on «All packed»: a name without spaces breaks inside the box': 'Auch bei «Alles gepackt»: Ein Name ohne Leerschläge bricht in der Box um',
+  'On a phone the name wraps over several lines, the page does not scroll sideways.': 'Am Handy bricht der Name über mehrere Zeilen um, die Seite scrollt nicht seitwärts.',
+  'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.': 'Gib einer Tour einen sehr langen Namen ohne Leerschläge und beende sie: Bei «Tour beendet» bleibt der Name in der grauen Box.',
 
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
