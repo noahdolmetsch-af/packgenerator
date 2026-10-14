@@ -35,7 +35,7 @@ export default {
   'See all {n} functions': 'Alle {n} Funktionen ansehen',
   Functions: 'Funktionen',
   // the functions: before the trip
-  'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.': 'Ein Fenster «Neue Tour»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.',
+  'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.': 'Ein Fenster «Rahmenbedingungen»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.',
   'Clothing for the coldest hour of a day ride, from your own wardrobe.': 'Kleidung für die kälteste Stunde einer Tagestour, aus deinem Kleiderschrank.',
   'Layer check': 'Zwiebel-Check',
   'Checks every layer for the coldest riding hour and suggests the kit.': 'Prüft jede Schicht für die kälteste Fahrstunde und schlägt das Kit vor.',
@@ -73,10 +73,10 @@ export default {
   'Tap what stayed in the bag; the app counts how much lighter it could be.': 'Tippe an, was in der Tasche blieb; die App zählt, wie viel leichter es ginge.',
   'Missing things suggest similar items or go to the wishlist.': 'Fehlendes schlägt ähnliche Teile vor oder kommt auf die Wunschliste.',
   'Upload a ride (GPX)': 'Fahrt hochladen (GPX)',
-  'Distance, climbing, pauses, planned against real, up to 3 learnings.': 'Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Erkenntnisse.',
-  'A table with km, climbing, time, rain and the learning of each trip.': 'Eine Tabelle mit km, Höhenmetern, Zeit, Regen und der Erkenntnis jeder Tour.',
+  'Distance, climbing, pauses, planned against real, up to 3 learnings.': 'Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.',
+  'A table with km, climbing, time, rain and the learning of each trip.': 'Eine Tabelle mit km, Höhenmetern, Zeit, Regen und dem Learning jeder Tour.',
   'A diary of all trips, old ones too; filter by year and kind.': 'Ein Tagebuch aller Touren, auch alter; Filter nach Jahr und Art.',
-  'All learnings by topic, with a search.': 'Alle Erkenntnisse nach Thema, mit Suche.',
+  'All learnings by topic, with a search.': 'Alle Learnings nach Thema, mit Suche.',
   'Best values': 'Bestwerte',
   'Longest trip, longest day, most climbing, from your GPX.': 'Längste Tour, weitester Tag, meiste Höhenmeter, aus deinen GPX.',
   // bike

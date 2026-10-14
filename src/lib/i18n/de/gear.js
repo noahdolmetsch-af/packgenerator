@@ -142,7 +142,7 @@ export default {
   'When worn, instead of': 'Getragen anstelle von',
   'Overnight set': 'Übernachtungsset',
   Quantity: 'Anzahl',
-  'Learning:': 'Erkenntnis:',
+  'Learning:': 'Learning:',
   'Weight of one piece (g)': 'Gewicht pro Stück (g)',
   Name: 'Name',
   'e.g. {x}': 'z. B. {x}',
@@ -233,7 +233,7 @@ export default {
   'Show all items': 'Alle Teile zeigen',
   'No favourites on the wishlist.': 'Keine Favoriten auf der Wunschliste.',
   // v0.22.0 (AP04): unknown weight is not zero.
-  'known: {w}': '{w} (gewogen)',
+  'known: {w}': 'bekannt: {w}',
   '{n} weight missing': '{n} Gewicht fehlt',
   '{n} weights missing': '{n} Gewichte fehlen',
   measured: 'gemessen',

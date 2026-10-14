@@ -6,7 +6,7 @@ export default {
   Helper: 'Helfer',
   'Ask the helper': 'Frag den Helfer',
   'The helper is not set up yet': 'Der Helfer ist noch nicht eingerichtet',
-  'It suggests packing lists, learnings and bike care. Without it everything works as before.': 'Er schlägt dir Packlisten, Erkenntnisse und Velopflege vor. Ohne ihn funktioniert alles wie bisher.',
+  'It suggests packing lists, learnings and bike care. Without it everything works as before.': 'Er schlägt dir Packlisten, Learnings und Velopflege vor. Ohne ihn funktioniert alles wie bisher.',
   'Set up': 'Einrichten',
   'What goes to Claude?': 'Was geht an Claude?',
   'Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.': 'Nur deine Frage und die nötigen Namen aus Liste und Material, dazu deine Notizen. Nie Fotos, Belege oder Gesundheitsdaten.',
@@ -43,8 +43,8 @@ export default {
   'Draft from the helper': 'Entwurf vom Helfer',
   'from {n} note on the way': 'aus {n} Notiz unterwegs',
   'from {n} notes on the way': 'aus {n} Notizen unterwegs',
-  'Learnings for next time': 'Erkenntnisse fürs nächste Mal',
-  'Drop learning {rule}': 'Erkenntnis «{rule}» verwerfen',
+  'Learnings for next time': 'Learnings fürs nächste Mal',
+  'Drop learning {rule}': 'Learning «{rule}» verwerfen',
   Summary: 'Zusammenfassung',
   'A draft, you decide what stays.': 'Entwurf, du entscheidest, was bleibt.',
   'The helper found nothing to suggest this time.': 'Der Helfer hat diesmal nichts vorzuschlagen.',
@@ -69,7 +69,7 @@ export default {
   'Drop the suggestion for {part}': 'Vorschlag zu {part} verwerfen',
   'A suggestion from your km and notes, not a workshop diagnosis.': 'Vorschlag aus deinen km und Notizen, keine Werkstatt-Diagnose.',
   // settings
-  'Suggestions from Claude for packing lists, learnings and bike care. Everything stays changeable.': 'Vorschläge von Claude für Packlisten, Erkenntnisse und Velopflege. Alles bleibt änderbar.',
+  'Suggestions from Claude for packing lists, learnings and bike care. Everything stays changeable.': 'Vorschläge von Claude für Packlisten, Learnings und Velopflege. Alles bleibt änderbar.',
   'set up': 'eingerichtet',
   'not set up': 'nicht eingerichtet',
   'switched off': 'ausgeschaltet',
@@ -88,7 +88,7 @@ export default {
   'Limit per month (CHF)': 'Limit pro Monat (CHF)',
   'Monthly limit: a number of francs from 0.50 to 500.': 'Monatslimit: ein Betrag in Franken von 0.50 bis 500.',
   'When the limit is reached, the helper pauses until next month. The server has its own limit as well.': 'Ist das Limit erreicht, macht der Helfer Pause bis nächsten Monat. Der Server hat zusätzlich sein eigenes Limit.',
-  'Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.': 'Pro Anfrage nur, was diese Aufgabe braucht: Namen, Kategorien und Gewichte deiner Teile, Bausteine, Temperaturbereiche, die Bedingungen der Tour, deine Erkenntnisse und Notizen, und für die Velopflege die Teile mit km, Intervallen und letztem Service. Keine Beträge, keine Werkstattnamen, keine Dokumente, nie der Helfer-Code.',
+  'Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.': 'Pro Anfrage nur, was diese Aufgabe braucht: Namen, Kategorien und Gewichte deiner Teile, Bausteine, Temperaturbereiche, die Bedingungen der Tour, deine Learnings und Notizen, und für die Velopflege die Teile mit km, Intervallen und letztem Service. Keine Beträge, keine Werkstattnamen, keine Dokumente, nie der Helfer-Code.',
   // v0.77.0 (K1a): the row on «Ich»
   'Suggestions from Claude, only on request': 'Vorschläge von Claude, nur auf Wunsch',
 };

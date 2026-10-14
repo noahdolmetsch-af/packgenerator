@@ -56,7 +56,7 @@ const allTrips = (page) =>
 async function openNew(page, info) {
   await tap(page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }), info);
   await tap(page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: 'Tour planen' }), info);
-  const dlg = page.getByRole('dialog', { name: 'Neue Tour' }); // v0.137.0 DK6: the window is called «Neue Tour»
+  const dlg = page.getByRole('dialog', { name: 'Rahmenbedingungen' });
   await expect(dlg).toBeVisible();
   return dlg;
 }

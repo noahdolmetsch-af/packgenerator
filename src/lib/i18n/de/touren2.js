@@ -69,6 +69,6 @@ export default {
   'Weather at the campsites': 'Wetter an den Zeltplätzen',
   'where each day ends · Open-Meteo': 'wo jeder Tag endet · Open-Meteo',
   'The forecast comes about two weeks before the trip, online.': 'Die Vorhersage kommt etwa zwei Wochen vor der Tour, online.',
-  '{n} learning fits': '{n} Erkenntnis passt',
-  '{n} learnings fit': '{n} Erkenntnisse passen',
+  '{n} learning fits': '{n} Learning passt',
+  '{n} learnings fit': '{n} Learnings passen',
 };

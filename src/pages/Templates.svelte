@@ -293,8 +293,6 @@
   .mainc,
   .side {
     display: grid;
-    /* v0.137.0 (Durchklick DK7a): a long name without spaces no longer widens the column */
-    grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-5);
     min-width: 0;
   }
@@ -361,7 +359,6 @@
     margin: 2px 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    overflow-wrap: break-word;
   }
   .sh + .card,
   .ss + .card {
@@ -388,7 +385,6 @@
     border-radius: var(--r-ctl);
     color: var(--ink);
     text-decoration: none;
-    grid-template-columns: minmax(0, 1fr);
   }
   .gcard:hover b {
     text-decoration: underline;
@@ -402,7 +398,6 @@
     margin-top: 6px;
     font-size: var(--fs-small);
     font-weight: 600;
-    overflow-wrap: break-word;
   }
   .gcard small {
     color: var(--ink-2);
@@ -446,7 +441,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    overflow-wrap: break-word;
   }
   .list {
     margin: 0;
@@ -484,7 +478,6 @@
     align-content: center;
     color: var(--ink);
     text-decoration: none;
-    grid-template-columns: minmax(0, 1fr);
   }
   .main:hover .nm {
     text-decoration: underline;
@@ -558,7 +551,6 @@
     display: grid;
     flex: 1;
     min-width: 0;
-    grid-template-columns: minmax(0, 1fr);
   }
   .st b {
     font-weight: 500;

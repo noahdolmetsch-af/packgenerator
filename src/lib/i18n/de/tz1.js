@@ -11,7 +11,7 @@ export default {
   'Still ahead of you. Packing list, date and bike can be changed any time. Templates come from here.':
     'Noch vor dir. Packliste, Datum und Velo sind jederzeit änderbar. Daraus machst du Vorlagen.',
   'Ridden: ended in the app or uploaded as a ride. The list stays as you rode it.': 'Gefahren: in der App beendet oder als Fahrt hochgeladen. Die Liste bleibt, wie du gefahren bist.',
-  'Debrief saved. Its learnings help the next trip.': 'Rückblick gespeichert. Die Erkenntnisse wirken auf die nächste Tour.',
+  'Debrief saved. Its learnings help the next trip.': 'Rückblick gespeichert. Die Learnings wirken auf die nächste Tour.',
   // the small extra of the pill
   'on the way|state': 'unterwegs',
   'date passed': 'Datum vorbei',
