@@ -17,7 +17,7 @@
   import { checkOf, FIXED } from '../flowcheck.js';
   import { abQuery } from '../abdb.js';
   import { configOf, isEveningRound, lastAnswer, stampOf } from '../abfragen.js';
-  import { tickWith, actName } from '../flow/ui.svelte.js';
+  import { tickWith, untickCommute, actName } from '../flow/ui.svelte.js';
   import { phone } from '../media.svelte.js';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
@@ -91,7 +91,8 @@
       <a class="lk" href="#/flow">{t('In the flow')}<ChevronRight size={16} aria-hidden="true" /></a>
       {#if commuter}
         {#if commuter.commuteToday}
-          <span class="quiet cm"><Check size={16} aria-hidden="true" />{t('{name} today: commute', { name: actName(commuter.act) })}</span>
+          <!-- Fix 14.10.: the commute line is a button now: a tap takes today's commute back (with «Rückgängig») -->
+          <button type="button" class="quiet cm" aria-pressed="true" onclick={() => untickCommute(commuter.act, today)}><Check size={16} aria-hidden="true" />{t('{name} today: commute', { name: actName(commuter.act) })}</button>
         {:else}
           <button type="button" class="btn sm cmb" onclick={() => tickWith(commuter.act, { via: 'commute', n: 1 })}><Bike size={16} aria-hidden="true" />{t('Commute')}</button>
         {/if}
@@ -225,6 +226,13 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    /* Fix 14.10.: a button that looks like the quiet line it was */
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
   }
   .cmb {
     border-color: var(--line);
