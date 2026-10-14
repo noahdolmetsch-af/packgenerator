@@ -73,6 +73,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
+
 **14.10.2026, v0.131.0 «Daten einmal bereinigen»:** Grundlage für das Profil «Standard»/«Noah» (Thread «Persönlich und Standard-Profil»): Daten und Listen aufgeräumt, Regeln in [daten.md](daten.md). Danach geht der Profil-Thread mit seinen Fragen weiter.
 
 Die AP-IDs, fachlichen Verträge und ursprünglichen Abhängigkeiten bleiben erhalten. Noah hat zusätzlich ausdrücklich die Entwürfe 2 und 3 ausgewählt und zur Umsetzung freigegeben. Deshalb wurden Teile von AP13–AP15/AP19/AP21/AP24 vorgezogen. Das ist ein dokumentierter Teilschritt; die fehlenden Grundlagen werden nicht als erledigt umetikettiert.
