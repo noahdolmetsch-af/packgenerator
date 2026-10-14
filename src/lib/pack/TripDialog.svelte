@@ -775,7 +775,7 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill"><Star size={12} class="sv-star" aria-hidden="true" />{t('Standard')}</span>{/if}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
           {#if stdPre}
             <p class="sv-hint std-pre"><Star size={14} class="sv-star" aria-hidden="true" /><span><b>{t('Standard bike')}</b> {t('is chosen. A tap on another bike counts only for this trip.')} <button type="button" class="std-link" onclick={() => (orderOpen = true)}>{t('Change standard')}</button></span></p>

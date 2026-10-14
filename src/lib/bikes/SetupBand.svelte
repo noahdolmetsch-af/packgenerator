@@ -36,7 +36,7 @@
   <div class="tabsrow">
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
-        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" /><span class="sr">{t('Standard bike')}</span>{/if}</button>
+        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</button>
       {/each}
     </div>
     <button type="button" class="add" onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={16} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
