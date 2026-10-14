@@ -62,12 +62,25 @@
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
+  import OldTripsSports from '../lib/trip/OldTripsSports.svelte';
+  import '../lib/sports.css';
+  import { oldTripSuggestions, OLD_TRIPS_DONE, oldTripsLater } from '../lib/sports.js';
+
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
+  // SA3 (Noah 14.10.2026 «SA1–SA3 freigegeben», «4b»): once, a sport for the old bike trips (sports.js).
+  // A quiet band opens the window («nothing jumps by itself», app rules 14.10.2026); «Später» hides it
+  // until the app is opened again, «Alle übernehmen» for good.
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const oldDoneQ = liveQuery(() => db.settings.get(OLD_TRIPS_DONE).then((r) => r ?? null));
+  let oldLater = $state(oldTripsLater.v);
+  const oldRows = $derived(loaded && $bikesQ && $oldDoneQ !== undefined && !$oldDoneQ?.value && !oldLater ? oldTripSuggestions($tripsQ, $bikesQ) : []);
+  // the rows are fixed while the window is open (a trip saved meanwhile does not move them)
+  let shownRows = $state(null);
   const rides = $derived($ridesQ ?? []);
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
   const counts = $derived(overviewCounts(view));
@@ -252,6 +265,12 @@
     </div>
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
+  {#if oldRows.length}
+    <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
+      <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
+      <ChevronRight size={18} aria-hidden="true" />
+    </button>
+  {/if}
   {#if view}
     {#if view.empty}
       <!-- v0.127.0 A-U2: the one empty building block -->
@@ -381,6 +400,9 @@
     <Skeleton rows={4} />
   {/if}
 </div>
+{#if shownRows}
+  <OldTripsSports rows={shownRows} bikes={$bikesQ ?? []} onclose={(later) => ((shownRows = null), later && ((oldLater = true), (oldTripsLater.v = true)))} />
+{/if}
 
 {#if sheet}
   <FilterSheet {filter} {st} rows={inPeriod} {ctx} {states} {bikes} saved={tours.saved} onapply={(f, s) => ((filter = f), (st = s))} onsave={(name, f) => saveTours({ saved: saveFilter(tours.saved, name, f) })} ondrop={(id) => saveTours({ saved: dropFilter(tours.saved, id) })} onclose={() => (sheet = false)} />
