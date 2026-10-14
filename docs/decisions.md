@@ -1138,3 +1138,13 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
+
+## 14.10.2026: Release-Analyse «Was wurde verdrängt?»
+
+Noah 14.10.2026 00:41 UTC: zu jedem Release die neuen Features, was wichtig war, und ob spätere Releases Früheres verdrängt, überschrieben oder unsichtbar gemacht haben. Geprüft wurden alle 137 Versionen (0.1.0 bis 0.124.0) am gebauten main mit erfundenen Daten. Ergebnis: rund 160 von 180 Funktionen sind wie vorher da; 16 Funde (F1–F16), meist «tiefer gerutscht». Häufigste Ursache: Nebenwirkungen unter «Selbst entschieden» im Design-Refresh 0.103–0.109; dazu Ersetzen ohne Frage (0.114 «wie letzte Tour», 0.119 Schnellstart) und neue Kacheln, die Altes nach unten schieben.
+
+Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
+- **(1a)** Alle wichtigen und mittleren Funde bekommen Mockups als ein Paket «Wieder sichtbar» (WS1–WS7). Meditation (F1) und Stoppuhr am Computer (F8) laufen über das schon freigegebene Meditations-Paket.
+- **(2a)** Nur noch Schnellstart: die alte «Tagestour jetzt» verschwindet aus dem Neu-Menü, der Suche und den Tipps.
+- **(3a)** Jeder Release-PR hat ab jetzt einen Abschnitt **«Was fällt weg oder rutscht tiefer»**: was nicht mehr da ist, was hinter «Mehr», in eine Falte oder weiter nach unten wandert, oder «nichts». Noah sieht es vor dem Merge.
+- **(4a)** Das Meditations-Paket (ME1–ME3, Z1–Z5) kommt vor Bündel B.
