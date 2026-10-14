@@ -17,7 +17,7 @@
 export const WHATS_NEW = [
   {
     // «Training» TR1–TR4 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»)
-    version: '0.133.0',
+    version: '0.138.0',
     date: '2026-10-14',
     title: 'Your heart rate, zone by zone',
     lead: 'Every activity from Strava now has its own page, with the time in each heart rate zone.',

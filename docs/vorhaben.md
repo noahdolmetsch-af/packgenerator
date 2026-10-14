@@ -38,7 +38,7 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (14.10.2026, 0.133.0)
+## Stand heute (14.10.2026, 0.138.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
-| 0.133.0 | Training TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen und Rückblick | Branch, nächstes Tagespaket |
+| 0.138.0 | Training TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen und Rückblick | Branch, nächstes Tagespaket |
 | 0.132.0 | **Tagespaket 14.10.** (ein Release zusammen mit 0.125.0 in PR #151: Velo-Setup UC3-1–UC3-3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/FE6/FE7/FE8/FE9/FE10/FE11/FE17/FE18, Bezahlen vorbereiten mit Erklär-Seite Ich › Bezahlen BZ1/BZ2b (#156), Kleine Apps Meditation/Packliste/Velopflege + Benutzerhandbuch (#157), Doku «Links nach aussen» DG-X1–X16 (nur Spezifikation)) | PR #151 offen, Noah merged |
 | 0.132.0 (Teil) | Kleine Apps: Meditation, Packliste, Velopflege mit eigenem Symbol, gleiche Daten; Benutzerhandbuch im Repo (#157) | im Tagespaket |
 | 0.132.0 (Teil) | Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156, unsichtbar ausser Erklär-Seite) | im Tagespaket |

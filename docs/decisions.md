@@ -862,7 +862,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: Training TR1–TR4 (0.133.0)
+## 13.10.2026: Training TR1–TR4 (0.138.0)
 
 - **Noah 13.10.2026 18:06 UTC «1-5a»:** 1 Training als eigener Reiter in Aktiv; 2 alle Strava-Aktivitäten, nur Velofahrten zählen für die Velos; 3 Pulszonen aus Strava, änderbar; 4 Woche planen mit Dauer und Zone pro Tag, gefahrene kommen aus Strava; 5 die bestehende Strava-Kachel wird «Letzte Aktivität».
 - **Leistung (Noah 13.10.2026 18:41/18:42 UTC «a», Thread «Mockup-Durchgang»):** Zeit in Pulszonen, Höchstpuls, Ø Leistung, max Leistung und beste 20 Minuten überall: auf der Aktivität (TR3) jetzt; Tour-Rückblick und Tempo baut Design-Refresh mit denselben Feldern (`wAvg`, `wMax`, `wDevice`, `w20` in `activities`).

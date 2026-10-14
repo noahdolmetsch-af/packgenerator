@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.133.0 Training (TR1–TR4)
+  // 0.138.0 Training (TR1–TR4)
   'Your heart rate, zone by zone': 'Dein Puls, Zone für Zone',
   'Every activity from Strava now has its own page, with the time in each heart rate zone.': 'Jede Aktivität aus Strava hat jetzt ihre eigene Seite, mit der Zeit in jeder Pulszone.',
   'Today: the tile «Last activity» with time, km, Hm, heart rate and zones': 'Heute: die Kachel «Letzte Aktivität» mit Dauer, km, Hm, Puls und Pulszonen',
