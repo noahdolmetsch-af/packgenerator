@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, MAX_TILES, MAX_OWN, infoOf, allTips, tipOfDay, tipPlace, canRows, tilesOf, domainOf, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, addLink, removeLink } from '../src/lib/pageinfo.js';
+import { PAGES, MAX_TILES, MAX_OWN, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, tilesOf, domainOf, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, addLink, removeLink } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day, fold, tiles.
@@ -16,8 +16,8 @@ describe('the tip of the day', () => {
     expect(tipOfDay(undefined, 'aktiv', '2026-10-14').id).toBe(a.id);
     expect(tipOfDay(undefined, 'aktiv', day('2026-10-14', 1)).id).not.toBe(a.id);
   });
-  it('goes through all tips that are on', () => {
-    const n = PAGES.aktiv.tips.length;
+  it('goes through all tips that are on (not the «Passt zu heute» ones)', () => {
+    const n = PAGES.aktiv.tips.filter((x) => x.kind !== 'today').length;
     const seen = new Set(Array.from({ length: n }, (_, i) => tipOfDay(undefined, 'aktiv', day('2026-10-14', i)).id));
     expect(seen.size).toBe(n);
   });
@@ -30,6 +30,7 @@ describe('the tip of the day', () => {
   it('a switched-off tip never comes; all off: no tip line', () => {
     let i;
     for (const x of PAGES.aktiv.tips.slice(1)) i = setTip(i, x.id, false);
+    i = setTip(i, 'today-heat', true);
     for (let k = 0; k < 6; k++) expect(tipOfDay(i, 'aktiv', day('2026-10-14', k)).id).toBe(PAGES.aktiv.tips[0].id);
     expect(tipPlace(i, 'aktiv', '2026-10-14')).toEqual({ n: 1, of: 1 });
     expect(tipOfDay(setTipsOn(i, false), 'aktiv', '2026-10-14')).toBeNull();
@@ -42,7 +43,7 @@ describe('the tip of the day', () => {
     expect(allTips(removeTip(i, 'aktiv', own.id), 'aktiv').some((x) => x.own)).toBe(false);
   });
   it('a broken stored value falls back to the defaults', () => {
-    expect(infoOf('x')).toEqual({ tipsOn: true, off: [], own: {}, gone: {}, canOff: {}, links: {} });
+    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {}, links: {} });
     expect(tipOfDay({ off: 'no', own: [] }, 'aktiv', '2026-10-14')).toBeTruthy();
   });
 });
@@ -89,5 +90,43 @@ const ownCount = (i) => tilesOf(i, 'meditation').filter((x) => x.mine).length;
 describe('German', () => {
   it('every built-in text has a German entry', () => {
     for (const p of Object.values(PAGES)) for (const s of [...p.tips.map((x) => x.text), ...p.can.flatMap((x) => [x.title, x.sub]), ...p.tiles.flatMap((x) => [x.title, x.sub])]) expect(DE[s], s).toBeTruthy();
+  });
+});
+
+describe('«Wusstest du» WD1–WD3', () => {
+  const rest = (page) => PAGES[page].tips.filter((x) => x.kind !== 'today');
+  it('knowledge is on at first (1a); «Only useful tips» leaves out the «Wusstest du» ones', () => {
+    const seen = (i) => new Set(Array.from({ length: 30 }, (_, k) => tipOfDay(i, 'aktiv', day('2026-10-14', k)).kind));
+    expect(seen(undefined).has('know')).toBe(true);
+    expect(seen(setKnowOn(undefined, false))).toEqual(new Set(['tip']));
+    expect(tipPlace(setKnowOn(undefined, false), 'aktiv', '2026-10-14').of).toBe(rest('aktiv').filter((x) => x.kind !== 'know').length);
+  });
+  it('a fitting «Passt zu heute» comes first, only on its day, and can be switched off', () => {
+    const ctx = { heat: true, max: 31 };
+    expect(tipOfDay(undefined, 'aktiv', '2026-07-18', ctx).id).toBe('today-heat');
+    expect(tipPlace(undefined, 'aktiv', '2026-07-18', ctx)).toEqual({ n: 1, of: 1 });
+    expect(tipOfDay(setTip(undefined, 'today-heat', false), 'aktiv', '2026-07-18', ctx).kind).not.toBe('today');
+    for (let k = 0; k < 20; k++) expect(tipOfDay(undefined, 'aktiv', day('2026-10-14', k)).kind).not.toBe('today');
+  });
+  it('the kind of day: heat, cold, föhn, sauna, a long tour', () => {
+    const T = '2026-07-18';
+    expect(contextOf({ day: { min: 18, max: 31, rainMm: 0 } }, T)).toMatchObject({ heat: true, cold: false, foehn: false, max: 31 });
+    expect(contextOf({ day: { min: 2, max: 9 } }, T).cold).toBe(true);
+    expect(contextOf({ day: { min: 12, max: 22, rainMm: 0, windDir: 180, gust: 60 } }, T).foehn).toBe(true);
+    expect(contextOf({ day: { min: 12, max: 22, rainMm: 4, windDir: 180, gust: 60 } }, T).foehn).toBe(false);
+    expect(contextOf({ day: { min: 12, max: 22, rainMm: 0, windDir: 270, gust: 60 } }, T).foehn).toBe(false);
+    expect(contextOf({ log: [{ day: T, actId: 'sauna' }] }, T).sauna).toBe(true);
+    expect(contextOf({ log: [{ day: '2026-07-17', actId: 'sauna' }] }, T).sauna).toBe(false);
+    expect(contextOf({ trips: [{ startDate: '2026-07-19', route: { km: 140 } }] }, T).long).toBe(true);
+    expect(contextOf({ trips: [{ startDate: '2026-07-19', route: { km: 60 } }] }, T).long).toBe(false);
+    expect(contextOf({}, T)).toMatchObject({ heat: false, cold: false, foehn: false, sauna: false, long: false, max: null });
+  });
+  it('around the Earth and up the Everest', () => {
+    expect(farOf(8412, 96310)).toEqual({
+      earth: { x: 0.2, pct: 20, fill: 8412 / 40075, next: 1, left: 31663 },
+      everest: { x: 10.8, pct: 1088, fill: 96310 / 8849 - 10, next: 11, left: 1029 },
+    });
+    expect(farOf(50000, 0).earth).toMatchObject({ x: 1.2, next: 2, left: 30150 });
+    expect(farOf(null, null)).toEqual({ earth: null, everest: null });
   });
 });

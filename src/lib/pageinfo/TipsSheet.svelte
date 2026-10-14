@@ -2,11 +2,15 @@
   /**
    * «Inhalte Flow» IF3 (mockup approved 14.10.2026 04:32): every tip of a page; each can be switched off,
    * tips can be switched off everywhere, own tips can be added and deleted. Also the switch for the fold
-   * «What the app can do here», so a hidden fold comes back here.
+   * «What the app can do here», so a hidden fold comes back here. WD1 (approved 18:34, «1a»): on top the
+   * choice «Only useful tips / Also knowledge and fun» for all pages (knowledge on at first); each tip
+   * carries its tag, a «Passt zu heute» tip says when it comes.
    */
   import { X, Plus, Trash2 } from '@lucide/svelte';
-  import { pageInfo } from './store.svelte.js';
-  import { tipOfDay, allTips, setTip, setTipsOn, addTip, removeTip, setCan, canShown, PAGES } from '../pageinfo.js';
+  import Seg from '../ui/Seg.svelte';
+  import KindTag from './KindTag.svelte';
+  import { pageInfo, dayContext } from './store.svelte.js';
+  import { tipOfDay, allTips, setTip, setTipsOn, setKnowOn, addTip, removeTip, setCan, canShown, PAGES } from '../pageinfo.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
@@ -14,7 +18,8 @@
   let { page, name, onclose } = $props();
   const pi = pageInfo();
   const today = localDay();
-  const tip = $derived(tipOfDay(pi.info, page, today));
+  const dc = dayContext(today);
+  const tip = $derived(tipOfDay(pi.info, page, today, dc.ctx));
   const tips = $derived(allTips(pi.info, page));
   const tipText = (x) => (x.own ? x.text : t(x.text));
   let dialog;
@@ -38,10 +43,14 @@
     </div>
     <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
+  <div class="what" data-know>
+    <p class="wh"><b id="tips-what">{t('What should come?')}</b><small>{t('Applies to all pages')}</small></p>
+    <Seg labelledby="tips-what" value={pi.info.knowOn ? 'know' : 'tips'} options={[{ key: 'tips', name: t('Only useful tips') }, { key: 'know', name: t('Also knowledge and fun') }]} onchange={(k) => pi.save(setKnowOn(pi.info, k === 'know'))} />
+  </div>
   <ul>
     {#each tips as x (x.id)}
       <li class:now={tip?.id === x.id} data-tip-row={x.id}>
-        <span class="tx">{tipText(x)}{#if tip?.id === x.id}<small>{t('today|tip')}</small>{:else if !x.on}<small>{t('hidden|tip')}</small>{/if}</span>
+        <span class="tx"><span>{#if x.kind !== 'tip' || tips.some((y) => y.kind !== 'tip')}<KindTag kind={x.kind} />{/if}{tipText(x)}</span>{#if x.kind === 'today'}<small>{t(x.note)}</small>{/if}{#if tip?.id === x.id}<small>{t('today|tip')}</small>{:else if !x.on}<small>{t('hidden|tip')}</small>{/if}</span>
         {#if x.own}<button type="button" class="ib sm" aria-label={t('Delete the own tip')} onclick={() => pi.save(removeTip(pi.info, page, x.id))}><Trash2 size={16} aria-hidden="true" /></button>{/if}
         <label class="sw"><input type="checkbox" role="switch" checked={x.on} onchange={(e) => pi.save(setTip(pi.info, x.id, e.currentTarget.checked))} /><span class="vh">{t('Show this tip')}</span></label>
       </li>
@@ -96,6 +105,21 @@
   }
   .sub {
     margin: 4px 0 0;
+  }
+  .what {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .wh {
+    margin: 0;
+    display: grid;
+  }
+  .wh small {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
   ul {
     list-style: none;

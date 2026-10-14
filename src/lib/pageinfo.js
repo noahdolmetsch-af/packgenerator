@@ -5,6 +5,10 @@
  *     (IF3: switch single tips off, all tips off, add an own tip);
  *   - the fold «Das kann die App hier»: closed, a few rows, each opens the place in the app (1b);
  *   - the tiles «Weiter» at the end of the page: places in the app, links outside (3a) and own links.
+ * «Wusstest du» WD1 + WD3 (Noah 14.10.2026, mockups approved 18:34 «wd1-wd3 freigegeben», «1a»): a tip has a
+ * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
+ * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold
+ * or long; such a tip comes first on its day).
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
@@ -14,6 +18,20 @@ export const PAGEINFO_KEY = 'pageInfo';
 /** Built-in tiles at most (SK1–SK6: 7 plus the empty «+»), and own links at most. */
 export const MAX_TILES = 7;
 export const MAX_OWN = 8;
+
+/** Heat from this many °C, cold below this many °C, a long tour from this many km (WD3). */
+export const HEAT_C = 28;
+export const COLD_C = 5;
+export const LONG_KM = 100;
+
+/** «Passt zu heute» (WD3): each only on a day that fits; `note` says when, in the list «All tips». */
+export const TODAY_TIPS = [
+  { id: 'today-heat', kind: 'today', when: 'heat', note: 'only from 28 °C', text: 'In the heat plan about half a litre of water per hour. A fountain on the way is lighter than the third bottle.' },
+  { id: 'today-foehn', kind: 'today', when: 'foehn', note: 'only on a föhn day', text: 'Föhn today: warm, dry wind from the south. Against the wind the way home can take longer than the way out.' },
+  { id: 'today-sauna', kind: 'today', when: 'sauna', note: 'only on a day with sauna', text: 'Finland has about 3 million saunas for about 5.5 million people.' },
+  { id: 'today-cold', kind: 'today', when: 'cold', note: 'only below 5 °C', text: 'Below 5 °C fingers and toes get cold first. Gloves and overshoes make the ride much nicer.' },
+  { id: 'today-long', kind: 'today', when: 'long', note: 'only before a tour over 100 km', text: 'A long tour is coming: a spare tube, a pump and food for the whole day belong in the bag.' },
+];
 
 /**
  * The pages with their tips, rows and tiles. In hrefs `{base}` is the page's own address (an activity page).
@@ -27,6 +45,10 @@ export const PAGES = {
       { id: 'aktiv-one-ring', text: 'Move, Mindful, Recovery: if you only fill one ring, you see it here first.' },
       { id: 'aktiv-amount', text: 'A long press enters another amount, for example 25 push-ups instead of 10.' },
       { id: 'aktiv-strava', text: 'Rides from Strava and trip days count on «Cycling outdoors» by themselves.' },
+      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.' },
+      { id: 'know-strava', kind: 'know', text: 'The name Strava comes from the Swedish «sträva», which means «to strive».' },
+      { id: 'know-star', kind: 'know', text: 'Every star was once a «just quickly».' },
+      ...TODAY_TIPS,
     ],
     can: [
       { id: 'rings', title: 'Rings over 7 days', sub: 'Move, Mindful and Recovery count on a rolling basis', href: '#/flow/goals' },
@@ -50,6 +72,9 @@ export const PAGES = {
       { id: 'med-depth', text: 'The depth after the gong is only for you. Under Patterns you see when it goes deepest.' },
       { id: 'med-gongs', text: 'Interval gongs help you come back when your thoughts wander.' },
       { id: 'med-tpl', text: 'Templates keep the length, sound and place. One tap and it runs.' },
+      { id: 'know-meditari', kind: 'know', text: 'The word «meditation» comes from the Latin «meditari»: to ponder or to practise.' },
+      { id: 'know-after-ride', kind: 'know', text: 'Idea: try a session right after a ride, when the body calms down anyway.' },
+      ...TODAY_TIPS.filter((x) => x.when === 'sauna'),
     ],
     can: [
       { id: 'tpl', title: 'Templates', sub: 'length, sound and place with one tap', href: '{base}/timer' },
@@ -74,6 +99,7 @@ export function infoOf(v) {
   const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
   return {
     tipsOn: o.tipsOn !== false,
+    knowOn: o.knowOn !== false,
     off: Array.isArray(o.off) ? o.off.filter((x) => typeof x === 'string') : [],
     own: obj(o.own),
     gone: obj(o.gone),
@@ -90,25 +116,58 @@ export const ownTips = (info, page) => list(infoOf(info).own[page]).filter((x) =
 export function allTips(info, page) {
   const i = infoOf(info);
   const off = new Set(i.off);
-  const base = list(PAGES[page]?.tips).map((x) => ({ ...x, on: !off.has(x.id) }));
-  return [...base, ...ownTips(i, page).map((x) => ({ id: x.id, text: x.text, own: true, on: !off.has(x.id) }))];
+  const base = list(PAGES[page]?.tips).map((x) => ({ kind: 'tip', ...x, on: !off.has(x.id) }));
+  return [...base, ...ownTips(i, page).map((x) => ({ id: x.id, kind: 'tip', text: x.text, own: true, on: !off.has(x.id) }))];
 }
 
 const dayNo = (day) => Math.floor(Date.parse(`${day}T00:00:00Z`) / 864e5);
-/** The tip of the day (the same all day, the next one tomorrow), null when tips are off, hidden today or none is on. */
-export function tipOfDay(info, page, today) {
+const pick = (xs, day) => xs[((dayNo(day) % xs.length) + xs.length) % xs.length];
+/** The tips that can come today: switched on, «Wusstest du» only while knowOn, «Passt zu heute» only when ctx fits. */
+function dayTips(i, page, ctx = {}) {
+  const on = allTips(i, page).filter((x) => x.on && (x.kind !== 'know' || i.knowOn));
+  const fit = on.filter((x) => x.kind === 'today' && ctx[x.when]);
+  return { fit, rest: on.filter((x) => x.kind !== 'today') };
+}
+/**
+ * The tip of the day (the same all day, the next one tomorrow); a fitting «Passt zu heute» comes first.
+ * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, max } (contextOf).
+ */
+export function tipOfDay(info, page, today, ctx = {}) {
   const i = infoOf(info);
   if (!i.tipsOn || i.gone[page] === today) return null;
-  const on = allTips(i, page).filter((x) => x.on);
-  if (!on.length) return null;
-  const n = dayNo(today);
-  return on[((n % on.length) + on.length) % on.length];
+  const { fit, rest } = dayTips(i, page, ctx);
+  if (fit.length) return pick(fit, today);
+  return rest.length ? pick(rest, today) : null;
 }
-/** Which number the tip of the day is among the tips that are on (1-based), and how many there are. */
-export function tipPlace(info, page, today) {
-  const tip = tipOfDay(info, page, today);
-  const on = allTips(info, page).filter((x) => x.on);
-  return tip ? { n: on.findIndex((x) => x.id === tip.id) + 1, of: on.length } : null;
+/** Which number the tip of the day is among the tips that can come today (1-based), and how many there are. */
+export function tipPlace(info, page, today, ctx = {}) {
+  const tip = tipOfDay(info, page, today, ctx);
+  if (!tip) return null;
+  const { fit, rest } = dayTips(infoOf(info), page, ctx);
+  const all = tip.kind === 'today' ? fit : rest;
+  return { n: all.findIndex((x) => x.id === tip.id) + 1, of: all.length };
+}
+
+/**
+ * What kind of day it is (WD3), from today's home forecast day ({ min, max, rainMm, windDir, gust }), the
+ * activity log of today ([{ actId }]) and the trips ([{ startDate, route: { km } }]). Föhn: dry (under
+ * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more.
+ */
+export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
+  const max = typeof day?.max === 'number' ? day.max : null;
+  const min = typeof day?.min === 'number' ? day.min : null;
+  const dir = day?.windDir;
+  const tomorrow = new Date(`${today}T00:00:00Z`);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const soon = [today, tomorrow.toISOString().slice(0, 10)];
+  return {
+    max,
+    heat: max != null && max >= HEAT_C,
+    cold: min != null && min < COLD_C,
+    foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,
+    sauna: list(log).some((x) => x?.day === today && /sauna/i.test(String(x.actId ?? ''))),
+    long: list(trips).some((x) => soon.includes(x?.startDate) && Number(x?.route?.km) > LONG_KM),
+  };
 }
 
 /** The rows of «Das kann die App hier» with the page's address filled in. */
@@ -139,6 +198,8 @@ export function domainOf(url) {
 
 /* ---------- changes (each returns the new stored value) ---------- */
 export const setTipsOn = (info, on) => ({ ...infoOf(info), tipsOn: !!on });
+/** WD1: «Only useful tips» (false) or «Also knowledge and fun» (true), for all pages. */
+export const setKnowOn = (info, on) => ({ ...infoOf(info), knowOn: !!on });
 export function setTip(info, id, on) {
   const i = infoOf(info);
   const off = new Set(i.off);
@@ -175,4 +236,22 @@ export function addLink(info, page, title, url, now = Date.now()) {
 export function removeLink(info, page, id) {
   const i = infoOf(info);
   return { ...i, links: { ...i.links, [page]: ownLinks(i, page).filter((x) => x.id !== id) } };
+}
+
+/* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
+export const EARTH_KM = 40075;
+export const EVEREST_M = 8849;
+/**
+ * How far around the Earth (at the equator) and how often up the Everest the km and metres climbed of a
+ * period go. Each null when there is nothing to count. pct: % of the first round; laps/times with one
+ * decimal; fill: the bar (the part of the round or Everest under way); left: km or m to the next one.
+ */
+export function farOf(km, gainM) {
+  const part = (v, of) => {
+    if (!(Number(v) > 0)) return null;
+    const x = v / of;
+    const next = Math.floor(x) + 1;
+    return { x: Math.floor(x * 10) / 10, pct: Math.floor(x * 100), fill: x - Math.floor(x), next, left: Math.ceil(next * of - v) };
+  };
+  return { earth: part(km, EARTH_KM), everest: part(gainM, EVEREST_M) };
 }
