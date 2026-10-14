@@ -53,14 +53,17 @@
   <section class="fc surf" data-section="flow" aria-labelledby="fc-h">
     <div class="hd">
       <h2 id="fc-h" class="sh">{t('In the flow')}</h2>
-      <span class="quiet">{t('last 7 days')}</span>
+      <span class="quiet hq">{t('last 7 days')}</span>
+      <!-- KT (1b): the head is a way in too; for screen readers and the keyboard the same link «Im Flow ›»
+           waits below, so this one is a tap shortcut only (no second link of the same name) -->
+      <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" data-head-go><ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" /></a>
     </div>
     <div class="body">
       <div class="rg"><Rings {rings} size={phone.matches ? 104 : 120} compact /></div>
       <div class="now">
         {#if openToday.length}
           <p class="kick">{t('Still today')}</p>
-          <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} />
+          <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} help />
         {/if}
         {#if evening}
           <!-- WG: from the evening round time the entry offers the evening round of «Wi gaht's?» -->
@@ -128,6 +131,31 @@
   .quiet {
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .hq {
+    margin-left: auto;
+  }
+  /* KT (1b): the round › of the head, 28 px, its tap area 44 px (::after) */
+  .go {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    align-self: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    color: var(--accent);
+  }
+  .go::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .go:hover {
+    background: var(--accent);
+    color: var(--paper);
   }
   .body {
     display: grid;

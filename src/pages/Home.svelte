@@ -94,6 +94,8 @@
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
+  import IntroKT from '../lib/home/IntroKT.svelte';
+  import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
@@ -135,7 +137,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress'];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -737,6 +739,26 @@
   // v0.127.0 «Tages-Check» 2: the hint to the long press shows until it is closed (settings, in every backup)
   const HINT_KEY = 'homeHintLongPress';
   const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
+  // KT «Kacheln antippbar» (Noah 14.10.2026, 3a, mockup KT3): the short intro, once after the update (or
+  // again from Me). Not while editing, over a sheet, in the playground or with «Nachtruhe»; it waits a
+  // moment until Today has laid out its tiles. Its end closes the long-press tip too (it says the same).
+  let introOn = $state(false);
+  $effect(() => {
+    if (introOn || !ready || $demoQ === undefined) return;
+    if (!introDue({ value: S[INTRO_KEY], updated: !!newsUpdate, editing, play: !!$demoQ, hush })) return;
+    const id = setTimeout(() => {
+      const onToday = /^#?\/?(\?.*)?$/.test(location.hash);
+      if (onToday && !editing && !document.querySelector('dialog[open]')) introOn = true;
+    }, 700);
+    return () => clearTimeout(id);
+  });
+  async function endIntro() {
+    introOn = false;
+    await db.settings.bulkPut([
+      { key: INTRO_KEY, value: true },
+      { key: HINT_KEY, value: true },
+    ]);
+  }
   // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
   let stravaCard = $state(false);
   // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
@@ -822,7 +844,7 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
         {#if askName}<NameAsk />{/if}
       </div>
-      {#if !phone.matches && !editing}<button type="button" class="btn adapt" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
+      {#if !phone.matches && !editing}<button type="button" class="btn adapt" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
     {#if suggestion && !slim}
       <div class="sugg" data-suggestion>
@@ -1077,7 +1099,7 @@
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
     {:else if phone.matches}
-      <button type="button" class="lkb" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+      <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
   </div>
 
@@ -1086,6 +1108,9 @@
     {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
   </footer>
 </div>
+
+<!-- KT (3a): the short intro, once -->
+{#if introOn}<IntroKT onend={endIntro} />{/if}
 
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}

@@ -63,7 +63,8 @@ test('a long press picks the place: Yoga at home', async ({ page, context }) => 
 
 test('the countdown runs to its target on a fake clock, small it keeps running, then ticks', async ({ page, context }, info) => {
   await open(page, context);
-  await page.getByRole('button', { name: T('Stopwatch') }).first().click();
+  // KT: the «•••» of each activity names the stopwatch too; it opens the tick sheet, not the countdown
+  await page.getByRole('button', { name: T('Stopwatch') }).and(page.locator(':not([data-more])')).first().click();
   const sheet = page.locator('dialog.tsheet[open]');
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: 'Meditation', exact: true }).click();
