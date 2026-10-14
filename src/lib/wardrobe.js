@@ -487,7 +487,7 @@ export function gapWish(gap, items = [], { name, reason, now = new Date().toISOS
   const zone = ZONES.find((z) => z.key === gap.zone)?.set ?? gap.zone;
   return {
     id: nextId(items, 'onbike'), name: name || gap.wish, brand: '', model: '', category: 'onbike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'body',
-    defaultBag: 'body', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['velo'], layer: gap.layer, zone,
+    defaultBag: 'body', ownership: 'wishlist', role: null, sets: [], domains: ['velo'], layer: gap.layer, zone,
     note: reason || '', from: 'wardrobe', updatedAt: now,
   };
 }

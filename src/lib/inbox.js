@@ -169,7 +169,7 @@ export function fileNote(note, kind, { bike = null, trip = null, topic = null, n
     const wish = kind === 'wish';
     out.item = {
       id: ids.item, name: (name || short).trim(), brand: '', model: '', category: wish ? 'lux' : category, weightG: typeof grams === 'number' ? grams : null, qty: 1,
-      weightStatus: typeof grams === 'number' ? 'measured' : 'missing', carry: 'luggage', defaultBag: null, ownership: wish ? 'wishlist' : 'owned', role: null, sets: [], kits: [],
+      weightStatus: typeof grams === 'number' ? 'measured' : 'missing', carry: 'luggage', defaultBag: null, ownership: wish ? 'wishlist' : 'owned', role: null, sets: [],
       domains: ['bikepacking'], note: `From the inbox (${note.at.slice(0, 10)}): ${note.text}`, updatedAt: now,
     };
     to = { kind, label: wish ? 'Wishlist' : 'Gear', ref: ids.item, made: [['items', ids.item]] };

@@ -407,7 +407,7 @@ export function newItem(imp, all, now = new Date().toISOString()) {
     ownership: imp.owned === false ? 'wishlist' : 'owned',
     role: null,
     sets: [],
-    kits: [],
+   
     domains: areas.length ? areas : ['bikepacking'],
     note: str(imp.notes),
     ...Object.fromEntries(Object.entries(importFields(imp)).filter(([, v]) => v != null)),

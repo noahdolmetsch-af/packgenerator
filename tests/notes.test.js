@@ -3,11 +3,12 @@ import { newNote, guessBike, guessKind, sortNote, nextNumber, runningTrip, rideC
 import { addRideNote } from '../src/lib/ride.js';
 import { taskBike, openRepairs } from '../src/lib/care.js';
 
+// Data cleanup 14.10.2026: the extra names are on the bike (bike.aliases), no longer a list in the code.
 const bikes = [
-  { id: 'scott-hardtail', name: 'Scott Scale' },
-  { id: 'fully', name: 'Scott Spark' },
-  { id: 'factor-ls', name: 'Factor LS' },
-  { id: 'canyon-world-cup', name: 'Canyon Lux World Cup' },
+  { id: 'scott-hardtail', name: 'Scott Scale', aliases: ['hardtail', 'scale'] },
+  { id: 'fully', name: 'Scott Spark', aliases: ['fully', 'spark'] },
+  { id: 'factor-ls', name: 'Factor LS', aliases: ['factor', 'gravel'] },
+  { id: 'canyon-world-cup', name: 'Canyon Lux World Cup', aliases: ['canyon', 'lux'] },
 ];
 const AT = '2026-10-05T08:00:00.000Z';
 const note = (text, over = {}) => newNote({ text, page: 'pack', tripId: 'trip-1', bikeId: 'fully', ...over }, { id: 'n1', now: AT });

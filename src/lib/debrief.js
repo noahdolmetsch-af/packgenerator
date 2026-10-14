@@ -250,7 +250,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
     newItems.push({
       id: newItemId(newItems.length + 1), name, brand: from?.brand ?? '', model: from?.model ?? '', category: from?.category ?? 'lux', weightG: from?.weightG ?? null, qty: 1,
       weightStatus: from?.weightG != null ? from.weightStatus : 'missing', carry: from?.carry ?? 'luggage', defaultBag: from?.defaultBag ?? null, ownership: 'wishlist',
-      role: null, sets: [], kits: [], domains: ['bikepacking'], note, updatedAt: now,
+      role: null, sets: [], domains: ['bikepacking'], note, updatedAt: now,
     });
 
   for (const id of on) {

@@ -421,7 +421,7 @@ export function kitItem(rowKey, bike, items = [], { now = new Date().toISOString
     ownership: 'owned',
     role: null,
     sets: ['repair'],
-    kits: [],
+   
     domains: ['bikepacking'],
     note: t('From the Repair kit of {bike}.', { bike: bike?.name ?? '' }),
     updatedAt: now,

@@ -3,7 +3,7 @@
  * Pure functions only (no database, no screen), so they are easy to test.
  */
 import { t } from './i18n.svelte.js';
-import { inStandard, isWorn, leaveHome, blockKeys } from './blocks2026.js';
+import { inStandard, isWorn, leaveHome, blockKeys, oldFieldsPatch } from './blocks2026.js';
 
 /** Categories in display order, with the Trail Journal colour of each. */
 export const CATEGORIES = [
@@ -268,7 +268,7 @@ export function itemDraft(item, preset = {}) {
   const layerFields = (src) => ({ ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' });
   return item
     ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: item.domains?.length ? item.domains : ['bikepacking'], favNote: item.favNote ?? '', ...layerFields(item) }
-    : { id: '', name: '', brand: '', model: '', category: '', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) };
+    : { id: '', name: '', brand: '', model: '', category: '', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) };
 }
 
 const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
@@ -282,14 +282,16 @@ const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFini
  * Every other field of the draft is kept as it is.
  */
 export function itemRecord(draft, { item = null, items = [], weightG = null, now = new Date().toISOString() } = {}) {
-  const { grams, ...rest } = draft;
+  // Data cleanup 14.10.2026 (Noah 3a): the old fields role standard / optional, always and kits are
+  // not written again; what they said goes into the blocks (blocks2026.js oldFieldsPatch).
+  const { grams, always, kits, ...old } = draft;
+  const rest = { ...old, ...oldFieldsPatch(draft) };
   return {
     ...rest,
     id: item ? item.id : nextId(items, rest.category),
     name: rest.name.trim(),
     qty: Math.max(1, Number(rest.qty) || 1),
-    role: rest.role || null,
-    always: rest.always ? true : rest.always === false ? false : null,
+    role: rest.role === 'worn' ? 'worn' : null,
     favorite: rest.favorite ? true : null,
     favNote: rest.favorite ? rest.favNote?.trim() || null : (item?.favNote ?? null),
     domains: rest.domains?.length ? rest.domains : ['bikepacking'],

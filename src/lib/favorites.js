@@ -55,7 +55,7 @@ export function planFavorites(data, items, now = new Date().toISOString()) {
     if (!found.length && row.item) {
       const item = {
         brand: '', model: '', weightG: null, qty: 1, weightStatus: 'missing', weightNote: '', carry: 'luggage', defaultBag: null, position: '',
-        ownership: 'owned', rating: '', learning: '', note: '', role: null, sets: [], kits: [], volumeL: null, wishPriority: null, domains: ['bikepacking'],
+        ownership: 'owned', rating: '', learning: '', note: '', role: null, sets: [], volumeL: null, wishPriority: null, domains: ['bikepacking'],
         ...row.item,
         id: nextId(all, row.item.category),
         sources: `favourites list ${now.slice(0, 10)}`,

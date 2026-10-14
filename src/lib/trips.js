@@ -40,8 +40,6 @@ export const READY_DEFAULT = [
 ];
 /** The ids of the ready check before 0.45.2 (basicCheck2026 replaces them, own rows stay). */
 export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'tyres', 'wallet', 'tracking'];
-/** Where the old "Always with me" checks put a missing item (used once when trips are updated). */
-export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'body', HY01: 'top', WZ23: 'frame' };
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
 export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standard?.length ? standard : fallback).map((r) => ({ id: r.id, label: r.label, done: false }));
 
