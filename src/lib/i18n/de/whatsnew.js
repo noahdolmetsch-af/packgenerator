@@ -28,6 +28,14 @@ export default {
   'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
   'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.': 'Öffne Ich › Bezahlen: Es erklärt, was vorbereitet ist; nichts ist gesperrt und es fliesst kein Geld.',
 
+  // 0.131.2 Velo-Reihenfolge
+  'Bikes back in line': 'Velos wieder in Reih und Glied',
+  'The bike tabs follow the order you chose again.': 'Die Velo-Reiter folgen wieder deiner Reihenfolge.',
+  'Bike tabs in your order, your main bike first.': 'Velo-Reiter in deiner Reihenfolge, dein Haupt-Velo zuerst.',
+  'The tidy-up of the last update had brought back the old order': 'Das Aufräumen im letzten Update hatte die alte Reihenfolge zurückgebracht',
+  'Open Velos: the tabs start with your main bike, in the order you chose.': 'Öffne Velos: Die Reiter beginnen mit deinem Haupt-Velo, in deiner Reihenfolge.',
+  'Open Velos › Pflege: the bikes come in the same order.': 'Öffne Velos › Pflege: Die Velos kommen in derselben Reihenfolge.',
+
   // 0.131.1 Abhaken wieder abwählbar (Fehler behoben)
   'Ticked is ticked once': 'Abgehakt ist einmal abgehakt',
   'A quick double tap no longer ticks an activity twice, so a tap takes it back again.': 'Ein schneller Doppeltipp hakt eine Aktivität nicht mehr doppelt ab, darum nimmt ein Tipp sie wieder zurück.',
