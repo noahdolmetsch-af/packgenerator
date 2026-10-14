@@ -19,6 +19,7 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num } from '../lib/i18n.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
+  import Profile from '../lib/ui/Profile.svelte';
   import '../lib/review/review.css';
   import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Check } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -156,7 +157,7 @@
               {#each g.rows as r (r.id)}
                 <tr>
                   <th scope="row" class="first">
-                    <a href={r.href} onclick={() => go(r)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)} · {what(r)}</small></a>
+                    <a href={r.href} onclick={() => go(r)}><span class="tn">{r.title}</span>{#if r.rideProfile}<span class="mprof"><Profile points={r.rideProfile} small label="Elevation of the ride" /></span>{/if}<small>{dates(r.start, r.end)} · {what(r)}</small></a>
                     {#if r.debrief === 'open' || r.debrief === 'draft'}<span class="nbadge"><span class="udot" aria-hidden="true"></span>{r.debrief === 'draft' ? t('Debrief started') : t('Debrief open')}</span>{/if}
                   </th>
                   <td class="n num">{n0(r.km)}</td>
@@ -265,6 +266,13 @@
     border-radius: var(--radius);
     background: var(--paper);
     box-shadow: 0 6px 20px var(--shadow);
+  }
+  /* v0.151.0 HP5 (Noah «3a»): a small profile under each trip with a GPX ride */
+  .mprof {
+    display: block;
+    width: 140px;
+    max-width: 40vw;
+    margin: 4px 0 2px;
   }
   @media (max-width: 719px) {
     .artlist {

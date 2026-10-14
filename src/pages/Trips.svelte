@@ -36,6 +36,7 @@
   import Continue from '../lib/home/Continue.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import Seg from '../lib/ui/Seg.svelte';
+  import Profile from '../lib/ui/Profile.svelte';
   import PlaceIcon from '../lib/nav/PlaceIcon.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { Plus, ChevronRight, Route, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin, Pencil, Flag, Star } from '@lucide/svelte';
@@ -153,11 +154,16 @@
           </li>
         {:else}
           {@const p = r.kind === 'trip' || r.kind === 'ride' ? pct(r.state) : null}
+          {@const rt = g.key === 'plan' && r.kind === 'trip' ? byId[r.tripId]?.route : null}
           <li class="tile" data-trip={r.tripId}>
             {@render map(r)}
             <div class="body">
               <h3 class="tt">{r.title}</h3>
               <p class="s">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
+              <!-- v0.151.0 HP4 (Noah «2a»): a planned trip with a route shows its small profile -->
+              {#if rt?.profile?.length > 1}
+                <div class="mprof"><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+              {/if}
               {#if p != null}<span class="bar" role="img" aria-label={t('{done} of {n} packed', { done: r.state.done ?? 0, n: r.state.total })}><i style:width="{p}%"></i></span>
               {:else if r.kind === 'trip' || r.kind === 'ride'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
               {#if r.kind === 'replan'}
@@ -783,5 +789,13 @@
     margin: 0;
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.4 var(--font-body);
+  }
+  .mprof {
+    margin: 2px 0 8px;
+  }
+  .mprof .ms {
+    margin: 4px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
 </style>

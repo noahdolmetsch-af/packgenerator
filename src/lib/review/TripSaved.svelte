@@ -14,6 +14,7 @@
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
+  import Profile from '../ui/Profile.svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
   let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null } = $props();
@@ -65,6 +66,8 @@
           <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
           <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
         </dl>
+        <!-- v0.151.0 HP2 (F13): the ridden profile, the planned route dashed over it -->
+        {#if row?.rideProfile}<div class="sprof"><Profile points={row.rideProfile} plan={row.planProfile} label="Elevation of the ride" /></div>{/if}
         <ul class="facts">
           <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
           <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
@@ -413,5 +416,8 @@
   .rv-ic.broken,
   .rv-ic.unused {
     background: var(--warn-soft);
+  }
+  .sprof {
+    margin: 14px 0 6px;
   }
 </style>

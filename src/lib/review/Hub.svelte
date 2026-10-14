@@ -28,6 +28,7 @@
   import MiniBars from './MiniBars.svelte';
   import Empty from '../ui/Empty.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
+  import Profile from '../ui/Profile.svelte';
   import { Upload, ChevronRight, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Clock, Gauge, BookOpen, Notebook, Mountain, Route } from '@lucide/svelte';
   import './review.css';
 
@@ -234,6 +235,8 @@
               {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {num(last.pauses.min)} min</li>{/if}
               {#if highest(last.profile)}<li><Mountain size={16} aria-hidden="true" />{t('GPX · {m} m highest point', { m: num(highest(last.profile)) })}</li>{/if}
             </ul>
+            <!-- v0.151.0 HP1 (F13, Noah «1a»): the profile of the ridden GPX, the planned route dashed over it -->
+            {#if last.rideProfile}<div class="lprof"><Profile points={last.rideProfile} plan={last.planProfile} label="Elevation of the ride" /></div>{/if}
             {#if lastPlan}
               {@const mins = Math.round(lastPlan.diff * 60)}
               <p class="plan"><Gauge size={16} aria-hidden="true" /><span>{t('Planned {plan} h, ridden {real} h:', { plan: hours(lastPlan.plan), real: hours(lastPlan.real) })} <b>{mins < 0 ? t('{n} min faster', { n: -mins }) : mins > 0 ? t('{n} min slower', { n: mins }) : t('right on time')}</b>.</span></p>
@@ -460,6 +463,9 @@
     text-align: right;
   }
   /* 1. the last ride */
+  .lprof {
+    margin: 4px 0 14px;
+  }
   .kick {
     margin: 0;
     color: var(--ink-3);
