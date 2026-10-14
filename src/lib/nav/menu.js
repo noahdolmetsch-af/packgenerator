@@ -61,6 +61,8 @@ export const PAGE_GROUPS = [
       { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen ablegen abgelegt to sort file zettel beleg' },
       // v0.48.0 (Noah 12a-17a): the Notes page (notes kept, topics, pinned, checklists).
       { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
+      // «Inspiration» UC2-1: your own links to rigs, packing lists, videos, routes and more.
+      { id: 'inspiration', title: 'Inspiration', href: '#/inspiration', icon: 'compass', words: 'inspiration inspiriert links link rigs rig packing lists packlisten videos video routes routen podcast hör-tipps hörtipps products produkte races rennen bikepacking.com ideen ideas' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
       { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
