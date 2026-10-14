@@ -36,7 +36,7 @@ export const WHATS_NEW = [
       'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
       'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
       'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
-      'On the phone open …/packgenerator/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
       'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
       'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
       ],

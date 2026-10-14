@@ -16,7 +16,7 @@ export default {
   'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.': 'Öffne Velos › Setup: Fotos, Gesamtgewicht, Taschen-Plan, Logbuch, Vergleich, Rennen und Ideen von anderen.',
   'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.': 'Tippe auf «Ganzer Taschen-Plan» und bei einem Hinweis auf «Verschieben»: Die Sache liegt in der anderen Tasche dieser Packliste.',
   'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.': 'Suche «regenjacke» oder «materal»: ähnliche Wörter und das korrigierte Wort werden gefunden; «backup» bietet oben Daten und Backup an, Enter öffnet es.',
-  'On the phone open …/packgenerator/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.': 'Öffne auf dem Handy …/packgenerator/apps/meditation/ und füge es zum Startbildschirm hinzu: Es startet bei Meditation, «Ganze App» führt zurück.',
+  'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.': 'Öffne auf dem Handy …/apps/meditation/ und füge es zum Startbildschirm hinzu: Es startet bei Meditation, «Ganze App» führt zurück.',
   'Open Me › Data and backup › «Before updates», and Me › «App maintenance».': 'Öffne Ich › Daten und Backup › «Vor Updates» und Ich › «App-Wartung».',
   'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
 
