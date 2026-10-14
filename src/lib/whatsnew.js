@@ -16,63 +16,57 @@
 
 export const WHATS_NEW = [
   {
-    // v0.127.0 Gesamtprüfung A-U1, A-U2, A-U5 (mockups, Noah 13.10.2026 «A-U1–A-U5 freigeben», answers 2a 3a)
-    version: '0.127.0',
-    date: '2026-10-13',
-    title: 'Less typing, no pop-up',
-    lead: 'A new trip fills in what the app already knows, the news wait in a calm banner, and an error never shows a white page.',
+    // v0.126.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151): Velo-Setup UC3 (#155), Kluge Suche (#154),
+    // App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen vorbereiten BZ1/BZ2b (#156), Kleine Apps + Handbuch (#157)
+    version: '0.126.0',
+    date: '2026-10-14',
+    title: 'Setup, search and small apps',
+    lead: 'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.',
     points: [
-      { text: 'A new trip suggests the riding hours of your similar trips and your home place as the start, on a green field that says where from.', href: '#/trips' },
-      { text: 'After an update a calm banner on Today instead of a window: «View» opens the news, × closes it, after 7 days it goes by itself.', href: '#/me/news' },
-      { text: 'Empty lists look the same everywhere, with the next step; while loading calm grey placeholders.', href: '#/trips' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+      { text: 'Smart search: similar words, small typos and filters; it can also act, «backup» opens Data and backup' },
+      { text: 'Small apps: Meditation, packing list and bike care with their own icon on the phone, same data.' },
     ],
     small: [
-      { box: 'new', text: 'A trip name that already exists says so at the field, with a free name to take', href: '#/trips' },
-      { box: 'fixed', text: 'A page that breaks shows «Something went wrong here» with To Today, Reload and Report a problem' },
+      { box: 'new', text: 'Before every update the app keeps a backup; a monthly check watches keys, links and Strava limits', href: '#/me/data' },
+      { box: 'nicer', text: 'Speak instead of typing, high contrast outdoors, quiet at night and your own start place', href: '#/me/look' },
+      { box: 'new', text: 'Me › Payments explains what is prepared; nothing is locked and no money moves', href: '#/me/pay' },
     ],
     test: [
-      'Plan a new trip of 2 days: «Riding hours per day» is green with «like your last … two-day trips»; type another number.',
-      'Type the name of an existing trip: below the field «This name already exists» with a suggestion to tap.',
-      'After the next update: Today shows a banner on top; tap × and it stays away.',
-    ],
-  },
-  {
-    // v0.126.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»)
-    version: '0.126.0',
-    date: '2026-10-13',
-    title: 'Every trip has a state',
-    lead: 'Blue is planned, grey is ridden, green is rated: every trip shows where it stands.',
-    points: [
-      { text: 'Trips are grouped by state, with chips to show only one state and a short legend «Three states».', href: '#/trips' },
-      { text: 'The trip header shows the state with a small extra, like «Planned · tomorrow» or «Completed · debrief missing».', href: '#/pack' },
-      { text: 'Today shows the state of the next trip and of an open debrief.', href: '#/' },
-    ],
-    small: [{ box: 'nicer', text: 'An uploaded ride is a completed trip with «GPX» on its pill', href: '#/trips' }],
-    test: [
-      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
-      'Open a trip that is still ahead: at the top the blue pill «Planned» with when it starts.',
-      'Open Heute: the next trip has the pill «Planned».',
-    ],
-  },
-  {
-    // v0.125.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
+      'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
+      'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
+      'On the phone open …/packgenerator/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
+      'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
+      ],
+    },
+    {
+    // v0.125.0 «Tagespaket 13.10.»: Tages-Check 1+2 (#151), Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152),
+    // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
     version: '0.125.0',
     date: '2026-10-13',
-    title: 'Straight to the workshop',
-    lead: 'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.',
+    title: 'Lots of new things at once',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.',
     points: [
-      { text: 'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.', href: '#/bikes?tab=shop' },
-      { text: 'The km come from the km book and the workshop from your last visit, on a green field that says where from; change anything.', href: '#/bikes?tab=shop' },
-      { text: 'Report a problem lives in New and at the bike; Me points the way for 30 days.', href: '#/bikes?tab=care' },
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Metres climbed and heart rate next to your km, a year goal for each value, and «Connect Strava» on Today', href: '#/flow/goals' },
     ],
     small: [
-      { box: 'new', text: 'Tick what was done (chain, pads, tyres …) right in the visit', href: '#/bikes?tab=shop' },
-      { box: 'nicer', text: 'After saving: «Workshop visit saved.» with Undo', href: '#/bikes?tab=shop' },
+      { box: 'new', text: 'Every trip shows its state: planned, completed or rated', href: '#/trips' },
+      { box: 'new', text: 'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.', href: '#/bikes?tab=shop' },
+      { box: 'nicer', text: 'A new trip fills in what the app knows, news wait in a calm banner, an error never shows a white page', href: '#/trips' },
     ],
     test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
       'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
-      'Tick «Chain replaced», type a cost and tap «Save»: the bike\'s Workshop & receipts shows the visit.',
-      'Tap «Undo» in the message: the visit is gone again.',
+      'After the next update: Today shows a banner on top; tap × and it stays away.',
     ],
   },
   {

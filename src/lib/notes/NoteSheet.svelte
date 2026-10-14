@@ -14,6 +14,8 @@
   import { nextId } from '../gear.js';
   import { switchTrip } from '../nav.js';
   import { t } from '../i18n.svelte.js';
+  import SpeakButton from '../ui/SpeakButton.svelte';
+  import { appendSpoken } from '../speak.js';
   import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
@@ -126,6 +128,8 @@
     </div>
     <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp ttl" type="text" bind:value={draft.title} placeholder={t('Title')} /></label>
     <label class="fld"><span class="lbl">{t('Text')}</span><textarea class="inp" rows="3" bind:value={draft.text} placeholder={t('Text')}></textarea></label>
+    <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
+    <p class="spk"><SpeakButton onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></p>
     {#if draft.link?.url}
       <p class="lk"><Link2 size={16} aria-hidden="true" /><span><b>{draft.link.title}</b><a href={draft.link.url} target="_blank" rel="noopener noreferrer">{draft.link.url}</a></span></p>
     {/if}
@@ -205,6 +209,16 @@
 </dialog>
 
 <style>
+  .spk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: -4px 0 10px;
+  }
+  .spk:not(:has(button)) {
+    display: none;
+  }
   .fld {
     display: block;
     margin: 0 0 10px;

@@ -6,7 +6,7 @@
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { addDays, normAct, tripDays } from '../flow.js';
-import { QUESTIONS_KEY, poolOf } from '../flowcheck.js';
+import { QUESTIONS_KEY, poolOf, OFF_KEY, offOf } from '../flowcheck.js';
 import { BOWL_KEY, bowlOf } from '../flowbowl.js';
 import { homeTrips } from '../home/heute.js';
 import { ensureSeed, ensureSeed2, ensureMedSeed } from '../flowdb.js';
@@ -17,6 +17,7 @@ import { HIDDEN_KEY } from '../flowsugg.js';
 import { SEED2_KEY } from '../flowtiles.js';
 import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { toWx } from '../weather.js';
+import { withStravaRides } from '../kmbook.js';
 
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
@@ -163,3 +164,69 @@ export async function seedMed(data, actId) {
     seedingMed = false;
   }
 }
+
+/* ---------- v0.127.0 «Tages-Check» 1: the morning check and the evening review ---------- */
+/**
+ * What the two check pages read: the flow records (activities, the log of 70 days, the checks of 30
+ * days, the question pool), today's rides (files and counted Strava rides), the trips to come and
+ * today's home weather from the saved forecast (never fetched here).
+ */
+export function checkQuery(today) {
+  return liveQuery(async () => {
+    const [acts, log, checks, pool, trips, rides, book, place, forecast] = await Promise.all([
+      db.flowActs.toArray(),
+      db.flowLog.where('day').aboveOrEqual(addDays(today, -70)).toArray(),
+      db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray(),
+      db.settings.get(QUESTIONS_KEY),
+      db.trips.toArray(),
+      db.rides.where('date').equals(today).toArray(),
+      db.kmBook.where('date').equals(today).toArray(),
+      db.settings.get(HOME_PLACE),
+      db.meta.get(HOME_FORECAST),
+    ]);
+    const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
+    const wx = day ? toWx([day]) : null;
+    return {
+      acts: acts.map(normAct).sort((a, b) => a.order - b.order),
+      log,
+      checks,
+      pool: poolOf(pool?.value),
+      trips: homeTrips(trips),
+      tripDays: tripDays(homeTrips(trips), today),
+      rides: withStravaRides(rides, book).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null, source: r.source ?? 'file' })),
+      weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
+      seeded: acts.length > 0,
+    };
+  });
+}
+
+/* ---------- v0.127.0 «Tages-Check» 2: the tiles on Heute and the 15 questions ---------- */
+/**
+ * What «Deine Balance», «Morgen-Check» and «Deine 15 Fragen» read: the checks and the log of the last
+ * 7 days, the activities (their ring), the rides of those days (files and counted Strava rides), the
+ * pool and the questions switched off.
+ */
+export function balanceQuery(today) {
+  const from = addDays(today, -6);
+  return liveQuery(async () => {
+    const [acts, log, checks, rides, book, pool, off] = await Promise.all([
+      db.flowActs.toArray(),
+      db.flowLog.where('day').aboveOrEqual(from).toArray(),
+      db.flowChecks.where('day').aboveOrEqual(from).toArray(),
+      db.rides.where('date').aboveOrEqual(from).toArray(),
+      db.kmBook.where('date').aboveOrEqual(from).toArray(),
+      db.settings.get(QUESTIONS_KEY),
+      db.settings.get(OFF_KEY),
+    ]);
+    return {
+      acts: acts.map(normAct),
+      log: log.filter((e) => e.day <= today),
+      checks: checks.filter((c) => c.day <= today),
+      rides: withStravaRides(rides, book).filter((r) => r.date <= today).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null })),
+      pool: poolOf(pool?.value),
+      off: offOf(off?.value),
+    };
+  });
+}
+/** The questions switched off, live (the two check pages and the catalogue). */
+export const offQuery = () => liveQuery(async () => offOf((await db.settings.get(OFF_KEY))?.value));

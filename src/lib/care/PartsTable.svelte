@@ -9,7 +9,9 @@
    */
   import { ChevronRight, ChevronDown, ArrowLeftRight, Droplet, Wrench, Check, Ruler, Tag, CircleAlert } from '@lucide/svelte';
   import { PART, kmSince, isMore, partName } from '../care.js';
-  import { partStart, partKm } from '../kmbook.js';
+  import { partStart, partKm, hmSince } from '../kmbook.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
   import { lastWork, partStatus, workWords, isDueState, RANK } from './last.js';
   import { partAreas } from './overview.js';
   import Seg from '../ui/Seg.svelte';
@@ -44,13 +46,16 @@
     }
   }
 
+  // «Werte überall» WU4 (Noah 13.10.2026 «1-5a»): the metres climbed since the last work, from the Strava rides
+  const kmQ = $derived(liveQuery(() => db.kmBook.where('bikeId').equals(bike.id).toArray()));
   const rowOf = (part) => {
     const last = lastWork(part);
     const st = partStatus(bike, part, time, today);
     const since = last ? kmSince(bike, last.main) : null;
     const days = last?.main?.date ? Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${last.main.date}T00:00:00Z`)) / 864e5) : null;
     const start = q1 ? partStart(part) : null;
-    return { part, last, st, since, days, start, onPart: start ? partKm(bike, part) : null };
+    const hm = last?.main?.date ? hmSince($kmQ ?? [], bike.id, last.main.date) : null;
+    return { part, last, st, since, days, hm, start, onPart: start ? partKm(bike, part) : null };
   };
   const rows = $derived((bike.parts ?? []).map(rowOf));
   const groups = $derived(partAreas(bike.parts ?? [], isMore));
@@ -96,10 +101,10 @@
             <span class="nost" data-set><i class="pill warn">{t('without start point')}</i> <u>{t('set|start')}</u></span>
           {/if}
         </span>
-        <span class="sn num">{r.onPart != null ? `${num(r.onPart)} km` : '?'}</span>
+        <span class="sn num">{r.onPart != null ? `${num(r.onPart)} km` : '?'}{#if r.last && r.hm}<small class="hm">{t('{n} m climbed', { n: num(r.hm) })}</small>{/if}</span>
       {:else}
       <span class="lw">{#if r.last}<L size={15} aria-hidden="true" /><span>{workWords(r.part.key, r.last.main)} {dateOf(r.last.main.date)}</span>{:else}<span class="m">–</span>{/if}</span>
-      <span class="sn num">{r.last ? sinceText(r) : ''}</span>
+      <span class="sn num">{r.last ? sinceText(r) : ''}{#if r.last && r.hm}<small class="hm">{t('{n} m climbed', { n: num(r.hm) })}</small>{/if}</span>
       {/if}
       <span class="wb">{#if r.st.fill != null}<span class="bar {r.st.tone}" role="img" aria-label="{Math.round(r.st.fill * 100)} %"><i style="width:{Math.max(4, Math.round(r.st.fill * 100))}%"></i></span>{:else if r.last}<span class="bar empty" aria-hidden="true"></span>{/if}</span>
       <span class="nx" class:late={isDueState(r.st.state)}>{r.st.next || (r.last ? '' : '–')}{#if BADGE[r.st.state]}{' '}<i class="pill" class:act={isDueState(r.st.state)} class:warn={r.st.state === 'soon'} data-sign={isDueState(r.st.state) ? signFor('warn') : null}>{t(BADGE[r.st.state])}</i>{/if}</span>
@@ -266,6 +271,11 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     white-space: nowrap;
+  }
+  .sn .hm {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .nx {
     color: var(--ink-2);

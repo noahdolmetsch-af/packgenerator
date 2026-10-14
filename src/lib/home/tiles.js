@@ -62,12 +62,18 @@ export const TILES = [
   { id: 'suggest', area: 'today', label: 'Swim or sauna today?', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.102.0', pitch: 'A suggestion for today with alternatives; any of them can become a challenge.' },
   // v0.116.0 «Strava-Verbindung» (S4): the last fetch from Strava; it goes on top of the wall once, when this device connects
   { id: 'strava', area: 'bikes', label: 'Strava', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.116.0', pitch: 'New rides from Strava with their km, fetched by themselves.' },
+  // v0.127.0 «Tages-Check» 2 (mockup T3, Noah «T1–T4 freigegeben»): the balance ring, the morning check, the 15 questions
+  { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.125.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
+  { id: 'morningcheck', area: 'flow', label: 'Morning check', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.125.0', pitch: 'Sleep, energy and mood of today and your goal; from 20:30 the evening review.' },
+  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.125.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
 /** v0.102.0: the suggestion tile; a stored wall of before gets it once, after Im Flow. */
 export const ADDED_0102 = ['suggest'];
+/** v0.127.0: the three tiles of the daily check; a stored wall of before gets them once, after Im Flow. */
+export const ADDED_0127 = ['balance', 'morningcheck', 'questions'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /** The ready wall (mockup A, Noah 3a): the trip, what is important, Im Flow, the series, the news, then the buttons. */
@@ -75,6 +81,9 @@ export const READY = [
   ['trip', 'long'],
   ['important', 'l'],
   ['flow', 'l'],
+  ['balance', 'l'],
+  ['morningcheck', 'l'],
+  ['questions', 'long'],
   ['suggest', 'l'],
   ['week', 'l'],
   ['month', 'w'],
@@ -117,13 +126,19 @@ export function wallOf(value, legacy = null) {
       const at = out.findIndex((x) => x.id === 'flow');
       out.splice(at < 0 ? out.length : at + 1, 0, { id: 'suggest', size: TILE.suggest.size });
     }
+    // v0.127.0 «Tages-Check» 2: the balance, the morning check and the 15 questions once, after Im Flow
+    if ((value.v ?? 1) < 4) {
+      const add = ADDED_0127.filter((id) => !out.some((x) => x.id === id)).map((id) => ({ id, size: TILE[id].size }));
+      const at = out.findIndex((x) => x.id === 'flow');
+      out.splice(at < 0 ? out.length : at + 1, 0, ...add);
+    }
     return out;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
 /** The record to store. */
-export const wallRecord = (tiles) => ({ v: 3, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+export const wallRecord = (tiles) => ({ v: 4, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

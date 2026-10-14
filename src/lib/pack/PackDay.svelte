@@ -19,6 +19,7 @@
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import { tick as settle, untrack } from 'svelte';
+  import { buzz } from '../bedienung.svelte.js';
   import TripBand from '../trip/TripBand.svelte';
   import { askReopen } from '../trip/reopen.svelte.js';
   import Empty from '../ui/Empty.svelte';
@@ -118,6 +119,7 @@
     if (busy.has(e.itemId)) return;
     busy.add(e.itemId);
     const willFill = !e.packed && step.done + 1 === step.entries.length;
+    if (!e.packed) buzz(); // FE7 (Noah 13.10.2026): a short buzz when an item goes in, where the phone can
     try {
       remember();
       await ontoggle(e.itemId);
@@ -137,6 +139,7 @@
     const key = `ready:${r.id ?? r.itemId}`;
     if (busy.has(key)) return;
     busy.add(key);
+    if (!readyDone(r, trip)) buzz(); // FE7: only when it gets ticked
     try {
       remember();
       await onready(r);

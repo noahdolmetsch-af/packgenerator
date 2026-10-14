@@ -15,7 +15,7 @@ import { sessionRecords } from '../flowmed.js';
 import { saveSession } from '../flowdb.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
-export const ui = $state({ tick: null, timerOpen: false, checkOpen: false, toast: null, sessionOpen: false });
+export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false });
 
 /* ---------- names in the current language ---------- */
 export const actName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');

@@ -3,11 +3,11 @@
    * v0.101.0 Design-Refresh P2 (H1): «This week» on Today: Monday to Sunday, a dot for each activity
    * ticked in Im Flow and for a ride (with its km), today framed. Reads the rides and the Im Flow log.
    */
-  import { Activity } from '@lucide/svelte';
+  import { Activity, Bike, Mountain, Timer } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
   import { flowQuery } from '../flow/data.svelte.js';
   import { actName } from '../flow/ui.svelte.js';
-  import { weekDays, activeCount } from './bausteine.js';
+  import { weekDays, activeCount, weekTotals } from './bausteine.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -23,13 +23,15 @@
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? []) }));
   const n = $derived(activeCount(days));
+  // «Werte überall» WU1 (Noah 13.10.2026 «1-5a»): km · Hm · minutes in one line, the heart rate next to it
+  const tot = $derived(weekTotals(days.filter((d) => !d.future)));
   const heart = $derived(days.length ? heartBetween($kmQ ?? [], days[0].day, today) : null);
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
 
 <section class="wk surf" aria-labelledby="wk-h" data-section="week">
   <TileHead icon={Activity} id="wk-h" title={t('This week')} {isnew} />
-  <p class="sub">{tn(n, '{n} day active', '{n} days active')}{#if heart} · <HeartLine {heart} size={12} />{/if}</p>
+  <p class="sub">{tn(n, '{n} day active', '{n} days active')}</p>
   <ol class="days">
     {#each days as d (d.day)}
       <li class:now={d.day === today} class:future={d.future} data-day={d.day}>
@@ -42,6 +44,12 @@
       </li>
     {/each}
   </ol>
+  <p class="vals" data-week-values>
+    <span><Bike size={14} aria-hidden="true" /><b class="num">{num(tot.km)} km</b></span>
+    {#if tot.hm}<span><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(tot.hm) })}</b></span>{/if}
+    <span class="soon"><Timer size={14} aria-hidden="true" />{t('Minutes come with Fitbit')}</span>
+    {#if heart}<span><HeartLine {heart} size={14} /></span>{/if}
+  </p>
 </section>
 
 <style>
@@ -57,6 +65,22 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .vals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .vals span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .vals .soon {
+    color: var(--ink-3);
   }
   .days {
     display: grid;

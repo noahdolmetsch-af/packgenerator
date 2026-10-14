@@ -862,7 +862,43 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: Formulare, Leer/Laden/Fehler, Update-Banner, A-U5 + A-U2 + A-U1 (0.127.0)
+## 13.10.2026: 0.125.0 «Tagespaket 13.10.», ein Release aus vier Paketen
+
+- **Entscheid:** Tages-Check Schritt 1+2 (#151), Aktiv ausweiten AK1–AK3 Woche/Sporttasche/Erholung (#150), Feinschliff A-J1 Werkstattbesuch, TZ-1 drei Tour-Zustände, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + Strava verbinden SV1 (#153) gehen als ein Release 0.125.0. Die Versionen 0.126.0, 0.127.0 und 0.130.0 der Einzel-Branches entfallen; «Was ist neu» hat einen Eintrag 0.125.0, die Funktionen «Tour-Zustand» und «Jahresziele» und die drei neuen Kacheln haben «seit 0.125.0».
+
+## 13.10.2026: Tages-Check Schritt 1, Morgen-Check und Abend-Rückblick (0.125.0 Tagespaket)
+
+- (Mockup-Freigabe: T1–T4 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC; gebaut T1–T2, T3–T4 folgen in Schritt 2, Offene Mockups #tages-check-4). Vor Fitbit/Google gebaut (Noah). Morgen-Check #/check/morning (Fragen 1–4, 6, 7 und «Gestern Abend»; daneben «Vorschlag für heute», «Heute im Blick», «Deine Nacht» als gestrichelter Platzhalter) und Abend-Rückblick #/check/evening (Fragen 8–14; daneben «Tag in Zahlen», «Morgen → Abend», «Woche bisher»). Alles freiwillig, jede Frage überspringbar, jede Antwort speichert sofort in der Tageszeile `flowChecks` (neue Felder, kein neues Schema). Heute (Im Flow-Karte, Kachel «Tagescheck») und Aktiv öffnen die Seite, ab 20:30 den Abend-Rückblick. Das alte Check-Fenster ist weg.
+- **Selbst entschieden:** Frage 4 bleibt die wechselnde Frage aus dem bearbeitbaren Pool (jeden Tag die nächste; «Wechselnde Fragen bearbeiten» jetzt auf der Seite). Die Aufteilung in 4/5 (Körper/Kopf) und 12–14 aus dem Pool kommt mit dem Fragen-Katalog (T4, Schritt 2), damit eigene Pool-Fragen nicht verloren gehen. Ziel-Vorschläge: «Velo nach der Arbeit», «20 Min meditieren», «Früh schlafen» + eigener Satz. Der Vorschlag ist eine einfache Regel (müde → leicht; Ruhe → Meditation/Sauna; trocken + Natur/Sport → Velo; nass → drinnen; Freunde → abmachen), mit «Nicht heute» und wieder zeigen; «Als Challenge» aus dem Mockup kommt später. Frage 11 wird aus den heutigen Fahrten (Dateien und gezählte Strava-Fahrten) vorgefüllt: Fahrzeit der Datei, sonst km/18 km/h geschätzt; bei «Fertig» bleibt die vorgefüllte Antwort gespeichert. Frage 12 und 13 wechseln nach Kalendertag. Frage 14 entfällt, wenn heute eine Meditation im Protokoll ist (grüne Zeile, gespeichert als `auto`). «Sprechen» nur, wo der Browser Spracherkennung hat. «Morgen → Abend» vergleicht ehrlich Stimmung am Morgen mit Zufriedenheit am Abend (zwei verschiedene Fragen), weil es abends keine Stimmungsfrage gibt. «Aktiv-Ziele» zählt die gerade erreichten Ziele (laufende Fenster) statt «diese Woche». «Heute im Blick» zeigt nur, was es gibt: Wetter aus der gespeicherten Vorhersage, Meditation (heute/gestern, Serie), nächste Tour; feste Termine gibt es noch nicht. Der Strich unter einer Zahl zeigt gestern (wie im Mockup gezeichnet; der Text sagt «Strich»). Version 0.127.0 (im Tagespaket jetzt 0.125.0), weil 0.123.0 (Trophäen-Vitrine) vorher.
+
+## 13.10.2026: Tages-Check Schritt 2, Balance-Ring, Fragen-Katalog und Frage 15 (0.125.0 Tagespaket)
+
+- (Mockup-Freigabe: T1–T4 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC und «T1–T4 freigegeben»; Bilder `design/tages-check-4/` T3/T4, Offene Mockups 2 #tages-check-4). Gleiche Version 0.127.0 wie Schritt 1 (noch nicht live).
+- **T3 Heute:** drei neue Kacheln in der Kachel-Wand (`tiles.js`, Bereich Aktiv, «neu» für 14 Tage, verschieb-, grössen- und abwählbar wie alle): «Deine Balance» (gross oder ganze Zeile), «Morgen-Check» (breit oder gross) und «Deine 15 Fragen» (ganze Zeile). Eine gespeicherte Wand von vorher (v 3) bekommt sie einmal direkt nach «Im Flow»; weggenommen bleiben sie weg (Wand jetzt v 4).
+- **Balance-Ring (`src/lib/balance.js`):** 9 Kategorien, Wert 0–100 aus den letzten 7 Tagen (heute mit). Jede Antwort ist ein Signal 0–1 (Skala 1–10 = (v−1)/9, Auswahl nach Stufe, Coolstes-Chip = 1), der Wert ist der Schnitt × 100. Von selbst: Meditation und andere Aktiv-Häkchen nach ihrem Ring (Bewegen → Sport, Achtsam → Achtsamkeit, Erholung → Erholung) und Fahrten (Sport, Natur) zählen einmal pro Woche als Anteil einer ruhigen Woche (Fahrten an 3 Tagen, Achtsamkeit an 5, Sport an 3, Erholung an 2). Ohne Daten bleibt eine Kategorie leer («–»), nie 0 erfunden. Fitbit/Google bleibt Platzhalter.
+- **Fragen-Katalog** `#/check/questions` (T4): Tabelle der 15 Fragen nach Morgen/Abend/Sonntag mit Wie oft, Antwort, Kategorie und Schalter; am Handy ohne Wie oft/Antwort. Ausgeschaltete Fragen stehen in `settings.checkQuestionsOff` (reist im Backup mit) und kommen auf den Check-Seiten nicht mehr.
+- **Frage 15** am Sonntag (Kalendertag Europe/Zurich) im Abend-Rückblick: 1–10 und 1 Satz (`vision`, `visionNote` in der Tageszeile).
+- **Tipp und langes Drücken:** Hinweis auf Heute, bis er geschlossen wird (`settings.homeHintLongPress`). Langes Drücken (500 ms, Finger, Stift und Maus) auf eine Kachel öffnet «Startseite anpassen» mit den Grössen dieser Kachel; mehr als 10 px Bewegung (Scrollen) oder früher loslassen bleibt ein normaler Tipp.
+- **Selbst entschieden:**
+  - Fragen 4 und 5 sind die wechselnde Morgenfrage: Schalter 4 nimmt «Körper» (`body`), Schalter 5 «Ruhe» (`calm`) aus dem Pool; die anderen Pool-Fragen wechseln weiter. Die Nummer zeigt 5, wenn «Ruhe» dran ist.
+  - Ist Frage 12 oder 13 aus, kommt die andere jeden Abend; beide aus → keine.
+  - Frage 10 kommt nur mit einem Ziel vom Morgen; Frage 14 aus → auch die automatische Meditation wird nicht als Antwort gespeichert (zählt im Ring trotzdem über das Protokoll).
+  - Ziele: ein Morgen mit Antworten ohne Ziel zählt 0, mit Ziel 1. «Am wenigsten» erst ab 3 Kategorien mit Wert. Vorschläge sind sanfte Fragen pro Kategorie, z. B. «Sa Velo mit Freunden?».
+  - Untertitel «letzte 7 Tage» statt «diese Woche» (der Ring rechnet rollend 7 Tage); in der Mitte «7 Tage».
+  - Der Tipp nennt den echten Knopf «Startseite anpassen» statt «Heute anpassen».
+  - «Morgen · n Tipps» rechnet die eingeschalteten Fragen (4/5 und 12/13 je ein Tipp); «7:00» aus dem Mockup fehlt, weil es keine Morgen-Erinnerung gibt.
+  - «Morgen-Check»-Kachel zeigt die Uhrzeit der ersten Morgenantwort (`mAt`), sonst «erledigt heute»; ab 20:30 führt sie zum Abend-Rückblick.
+  - Die drei kleinen Im-Flow-Ringe bleiben vorerst (Noah «ring gross auf Heute» = ersetzen?), Frage an Noah.
+
+## 13.10.2026: Woche (0.125.0 Tagespaket, Aktiv ausweiten AK1)
+
+- (Mockup-Freigabe: AK1 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten). AK1: Seite «Woche» (#/flow/week) Montag bis Sonntag: Erledigtes, feste Termine, Eingeplantes und Vorschläge nach offenen Zielen und Wohnort-Wetter; antippen = einplanen, × blendet aus. Rechts «Ziele diese Woche» (rollend), «Feste Termine» (einmal eintragen, jede Woche), Tipp «bestes Wetter der Woche», Kalenderdatei (.ics). Einstieg: Karten «Mehr in Aktiv» auf Aktiv › Heute (Frage 1a).
+- **Selbst entschieden:** die drei Seiten kommen als drei kleine Releases (Woche, dann Sporttasche, dann Erholung); die Karten «Mehr in Aktiv» zeigen nur, was schon gebaut ist. Höchstens 2 Vorschläge pro Tag, damit die Woche lesbar bleibt. Die Tabs bleiben wie heute (Meditation als erster Tab gehört zum Paket «Meditation zentral»). Termin ohne «möglich»-Markierung und ohne «2 h frei» (kein Kalenderzugriff); eingeplante Vorschläge gehen als ganztägige Termine in die .ics-Datei. Am Handy zuerst die Ziele, dann die Tage (wie im Mockup). Version 0.130.0 (im Tagespaket jetzt 0.125.0), weil 0.124.0 (#146) und 0.125.0–0.127.0+ (Design-Refresh, Tages-Check) schon vergeben sind.
+- **Sporttasche (AK3, im selben Paket)** (Mockup-Freigabe: AK3 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten): Seite «Sporttasche» (#/flow/bags) mit einer Tasche pro Sport (5 erfundene Start-Taschen: Yoga, Tennis, Gym + Sauna, Eishockey, Velo Pendeln), daneben die offene Tasche zum Abhaken, «Alles drin», «+ Teil», «nicht gebraucht? antippen». Erinnerung am Vorabend eines festen Termins ab 17:00 auf Heute (4a), abschaltbar.
+- **Selbst entschieden (Sporttasche):** «oft vergessen» ab 2×: ein Teil zählt als vergessen, wenn die Tasche für einen Tag teilweise gepackt war und es draussen blieb (eine unberührte Tasche zählt nichts). Die Erinnerung beginnt um 17:00 statt fix 20:00 (wie «Morgen geht's los» auf Heute). Taschen nur mit festem Termin aus «Woche» erinnern; ohne Termin packt man für heute.
+- **Erholung (AK2, im selben Paket)** (Mockup-Freigabe: AK2 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten): Seite «Erholung» (#/flow/rest) mit dem Erholungs-Ring der Woche (derselbe wie auf Aktiv), Tipp nach 3 aktiven Tagen in Folge (antippen = abhaken, «Heute nicht» blendet für heute aus), Erholung abhaken (zweites Tippen nimmt zurück), Ideen hinzufügen, die letzten 14 Tage als Punkte.
+- **Selbst entschieden (Erholung):** Schlaf, Ruhepuls und HRV und der 14-Nächte-Schlaf aus dem Mockup kommen mit der Fitbit-Verbindung (Antwort 3a); bis dahin ein Hinweis statt erfundener Werte, und statt des Schlaf-Diagramms die Erholungs- und Aktiv-Tage der letzten 14 Tage. Höchstens 4 Ideen auf einmal, «Früh schlafen» als neue Idee zuerst. Kein eigenes Wochenziel: der Ring nutzt die Ziele der Erholungs-Aktivitäten.
+## 13.10.2026: Formulare, Leer/Laden/Fehler, Update-Banner, A-U5 + A-U2 + A-U1 (0.125.0 Tagespaket)
 
 Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-U1–A-U5 «A-D1–A-D5 und A-U1–A-U5 freigeben» 13.10.2026 16:04 UTC (Mein Überblick, cmsg_018WAR7H251KvEyztXFE5y9QSrnbx2M9TfQHMNXXx7fa2K)**; Antworten 2a (vorbelegte Felder grün mit «aus …», änderbar) und 3a (Update-Hinweis als ruhiges Banner auf Heute statt Fenster).
 
@@ -883,7 +919,7 @@ Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-1
   - Klasse `.prefrom` statt `.from` (die Teile-Tabelle nutzt `small.from` schon anders).
 - **Nicht gebaut:** Reihenfolge der Felder im Neue-Tour-Fenster wie im Mockup (Tage, Stunden, Start, Velo, Name); das Fenster behält seinen Aufbau von 0.114.0. Die Kachel «Neu» auf Heute (I11e, 14 Tage oben) bleibt; zusammen mit dem Banner sind es zwei «neu»-Markierungen (Frage an Noah).
 
-## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.126.0)
+## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.125.0 Tagespaket)
 
 Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»). Mockups TZ0–TZ3 (`design/tour-zustaende/`). **Mockup-Freigabe: TZ1–TZ3 «TZ1–TZ3 freigegeben» 13.10.2026 15:38 UTC, Antworten «1-5 a» 15:37 UTC.**
 
@@ -901,7 +937,7 @@ Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Ak
   - Die Gruppenüberschrift heisst nur «Abgeschlossen» (Mockup «Abgeschlossen · Rückblick fehlt»), weil dort auch hochgeladene Fahrten ohne Rückblick stehen.
   - Linienfarben dunkel (nicht in der Spezifikation): `#6a9fd6`, `#8e9aa6`, `#5fb185`.
 
-## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.125.0)
+## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.125.0 Tagespaket)
 
 Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.
 
@@ -917,6 +953,11 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
   - Nach dem Speichern Werkstatt & Belege statt Pflege: In der Pflege steht zuoberst das km-Buch, der neue Besuch wäre nicht zu sehen; unter Werkstatt & Belege steht er gleich oben.
   - Der Satz in «Was ist neu» nennt «Velomech» statt «Werkstattbesuch», weil das lange Wort auf der Heute-Kachel am Handy umbricht (Wächter-Test).
 - **Nicht gebaut (Mockup zeigt es, A-J1 verlangt es nicht):** neue Gruppen im Neu-Blatt («Neu / Am Velo / Sonst», Schild «neu»), neues Problem-Formular und Pflege-Ansicht nach dem Speichern. Die Zeile «Problem melden» unter den Velo-Karten auf Heute bleibt (Frage an Noah).
+## 13.10.2026: Werte überall + Strava verbinden (0.125.0 Tagespaket)
+
+- **Noah 13.10.2026 «1-5a»:** 1 Höhenmeter und Puls zuerst, Aktivzonenminuten mit Fitbit; 2 ein Jahresziel pro Wert, jedes abwählbar; 3 Puls als Wochen-Durchschnitt, ohne Bewertung; 4 «Diese Woche» zeigt km · Hm · Minuten in einer Zeile; 5 zuerst Hm, Fussabdruck und Velopflege.
+- **Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden.** SV1 nach Noahs Hinweis 17:06 UTC (Strava-Knopf nicht gefunden) und «a» 17:07 UTC.
+- **Selbst entschieden:** SV1 als Karte über der Kachel-Wand statt als Kachel (keine Umstellung gespeicherter Wände nötig); zurück über die Kachel «Strava» oder Velo › Pflege › Strava. Startwerte der Jahresziele 5 000 km, 50 000 Hm, 7 800 Min (150 pro Woche). Fussabdruck zählt alle Fahrten mit 0,15 kg CO₂ pro Auto-km. Höhenmeter je Teil nur aus Strava-Fahrten (hochgeladene GPX-Fahrten haben kein Velo). Farbe der Strava-Karte aus Tokens (`--warn-soft`), nicht Strava-Orange. Am Handy ist die Karte eine schmale Zeile (Titel, «Verbinden», «Später»), damit die Tour-Karte im ersten Bild bleibt (Noah 2b).
 
 ## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
@@ -1186,3 +1227,29 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
+
+## 14.10.2026: Velo-Setup neu (0.126.0)
+
+- **UC3 «1-5a» (Noah 14.10.2026 00:34 UTC):** Mein Setup oben, eine Seite pro Velo, Rennrig-Links als grosse Galerie, «Dein Velo im Vergleich» bleibt, «Deine Rennen» bleibt auf dieser Seite. Ausbau «1 ja 2 ja 3ja» (00:35 UTC): Taschen-Plan, Setup-Logbuch, Gesamtgewicht. Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC.
+- **Selbst entschieden:** Reiter heisst «Setup» (5. Reiter unter Velos). Daten ohne neue Datenbank-Version: Links in `settings.rigLinks`, Logbuch und Vergleich am Velo (`setupLog`, `rigCompare`, `logSkipped`). «In Packen öffnen» statt «Für Packen übernehmen», weil «Verschieben» sofort speichert. «Verpflegung und Wasser» statt «Essen und Wasser». Kein «Standard»-Schild an den Velo-Chips, bis VS1–VS4 freigegeben sind. Zeitraum für Werkstatt-Angebote 180 Tage; «Zurück?» nach 3 schlechten Touren.
+
+## 14.10.2026: Bezahlfunktion vorbereiten (unsichtbar, Testmodus)
+
+- **Noah 01:12–01:16 UTC:** «1a und b 2 a (einmal oder als abo) 3 a und b möglich 4 beides vorbereiten 5 kosten 0, mit testmodus starten», «für den nutzer bleibt es im Front End vorerst unsichtbar», «6 a und b», «7 beides vorbereiten». Details: [Bezahlen](bezahlen.md).
+- **Selbst entschieden:** Stripe (keine Grundgebühr, gratis Testmodus, Connect für andere Verkäufer); Lizenz als signierte Notiz statt Konto-Pflicht; Live-Schlüssel werden vom Server abgelehnt, bis Noah live gehen will; Preise und Artikel sind Platzhalter.
+- **Bewusst nicht:** nichts Sichtbares (Mockups zuerst), kein echtes Geld.
+- **Erklär-Seite (Noah 01:25 «doku … unter ich einsehbar», Mockups BZ1 + BZ2b, 01:31 «1a 2b», «bz freigeben»):** Zeile «Bezahlen» unter Ich › Die App, Seite `#/me/pay` mit Ideen als Karten zuoberst. Pro = Strava, Fitbit, Garmin (01:27 «1a»); Vorlagen-Verkauf vorbereitet (01:27 «2a»).
+
+## Kleine Apps und Benutzerhandbuch (14.10.2026)
+
+- **Noah 14.10.2026 01:36 UTC «eigene kleinere Apps, zum Beispiel Meditation, Packliste oder Velo-Pflege», 01:46 UTC «verstehe. bitte freigegeben. bitte umsetzen»** (auf die Beschreibung: zweites Symbol, öffnet direkt den Bereich, unten nur dessen Tabs, gleiche Daten, grosse App bleibt): drei kleine Apps Meditation, Packliste, Velopflege unter `apps/<key>/`, je mit eigenem Manifest und Symbol, gleiche Datenbank. Details [kleine-apps.md](kleine-apps.md).
+- **Gleiche Nachricht:** ein kurzes Benutzerhandbuch für jede Funktion (aufschalten, nutzen, Beispiel), im Repo und später in der App. Eine Quelle `src/lib/handbook.js` (ein Eintrag pro Funktion aus `features.js`, ein Test hält sie vollständig), daraus `docs/handbuch.md` (`node tools/handbuch.mjs`). Die Anzeige in der App («Was die App kann») kommt erst nach Mockup und Noahs Freigabe.
+- **Selbst entschieden:** Bezahlfunktion bleibt getrennt (Thread «Bezahlfunktion», `docs/bezahlen.md`); kleine Apps kosten nichts. Weitere kleine Apps nur mit eigener Freigabe.
+
+## 14.10.2026: Tagespaket 0.126.0 (ein Release mit 0.125.0 in PR #151)
+
+- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.126.0 auf PR #151 (0.125.0 bleibt als eigener Eintrag in «Was ist neu»).
+- **Selbst entschieden (Bedienung):** FE11/FE18 «App öffnen bei» hat **Heute** als Standard (★); «Wo ich zuletzt war» öffnet nie ein Fenster wieder, ein Link auf eine Seite gewinnt immer. FE2 «Hoher Kontrast (draussen)» ist aus als Standard und ein eigener Block am Ende von `app.css` (eigener Commit, kann einzeln zurückgehalten werden). Alle Hilfen sind Schalter in Ich › Darstellung › Bedienung, nur auf diesem Gerät.
+- **Selbst entschieden (App-Wartung):** Kopie vor jedem Update in einer eigenen IndexedDB (`pack-generator-snapshots`), nie im Export oder Backup, die letzten 3 bleiben; Zurückgehen behält zuerst den Stand jetzt. Monats-Check alle 30 Tage (Strava, Schlüssel mit Enddatum, Links über `api/linkcheck.js` mit fester Liste); offline heisst es «nicht geprüft», nie Fehler. Auf Heute höchstens eine ruhige Zeile ab 80 % Strava-Grenze oder bei einem Befund; sie wartet hinter «Strava verbinden», der Lang-drücken-Tipp wartet hinter ihr und in der Nachtruhe.
+- **Selbst entschieden (Suche):** Die Aktionen der Suche (FE17) bleiben zuoberst und Enter macht die erste; der Hinweis der Kluge Suche und «Claude fragen» stehen darunter, vor den Treffern. Die Treffer kommen aus `smartSearch` (ähnliche Wörter, Tippfehler, Filter), `searchAll` bleibt unverändert darunter.
+- **Selbst entschieden (Zusammenführen):** Der Setup-Reiter zeigt «Noch keine Velos» mit dem Leer-Baustein wie die übrigen Velo-Reiter (A-U2). Das Benutzerhandbuch hat Einträge für Setup, Taschen-Plan, Setup-Logbuch, Tour-Zustände und Jahresziele. Keine neue Datenbank-Version.
