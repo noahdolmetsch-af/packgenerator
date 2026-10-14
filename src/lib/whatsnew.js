@@ -21,7 +21,7 @@ export const WHATS_NEW = [
     date: '2026-10-14',
     title: 'The base for your own lists',
     lead: 'Behind the scenes all base lists of the app now sit in one neutral package, ready for you to change them later.',
-    points: [{ text: 'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.' }],
+    points: [{ text: 'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.', href: '#/gear' }],
     small: [{ box: 'nicer', text: 'Your own changes to a list will be kept apart from the Standard, so you can always go back' }],
     test: ['Nothing new on screen: the app looks and works as before.', 'Open Material and a trip: categories, places and checklists are the same as before.'],
   },
