@@ -82,12 +82,12 @@ describe('the list and its sorts', () => {
     expect(by['f.packblocks'].state).toBe('never');
     expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('never'); // 0.119.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.packblocks').state).toBe('never'); // 0.124.0, older than this version
-    expect(rowsOf(undefined, undefined, '0.132.0').find((r) => r.id === 'f.yeargoals').state).toBe('new'); // new in 0.132.0 (with the content of 0.125.0; 0.132.2 brought no new function)
-    expect(rowsOf(undefined, undefined, '0.132.0').find((r) => r.id === 'f.velosetup').state).toBe('new'); // new in this version
+    expect(rowsOf(new Set(), {}, '0.132.0').find((r) => r.id === 'f.yeargoals').state).toBe('new'); // new in 0.132.0 (with the content of 0.125.0)
+    expect(rowsOf(new Set(), {}, '0.132.0').find((r) => r.id === 'f.velosetup').state).toBe('new'); // new in 0.132.0 (0.132.1 brought no new function)
     expect(rowsOf(undefined, undefined, '0.124.0').find((r) => r.id === 'f.packblocks').state).toBe('new'); // new in its version (0.131.0 brought no new function)
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
     expect(by['f.tripstate'].state).toBe('never');
-    expect(rowsOf(undefined, undefined, '0.132.0').find((r) => r.id === 'f.tripstate').state).toBe('new'); // new in this version (0.132.0)
+    expect(rowsOf(new Set(), {}, '0.132.0').find((r) => r.id === 'f.tripstate').state).toBe('new'); // new in 0.132.0
     expect(rowsOf(undefined, undefined, '0.131.0').find((r) => r.id === 'f.tripstate').state).toBe('never'); // not yet in 0.131.0
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
