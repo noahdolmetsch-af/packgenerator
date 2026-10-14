@@ -16,7 +16,8 @@
   import Face from '../lib/timer/Face.svelte';
   import { timer, loadPrefs, savePrefs, start, togglePause, plusMinute, reset, finish, setNote, closeDone } from '../lib/timer/run.svelte.js';
   import { timerLogQuery, MED_ACT } from '../lib/timer/data.js';
-  import { MODES, DEFAULTS, CHIPS, BLOCKS, FACES, parseTime, setupOk, setupSec, position, setupWords, short, faceFor, dayStats, recentSetups, rowName, modeOf, hmOf, dur } from '../lib/timer.js';
+  import { radioStep } from '../lib/timer/radios.js';
+  import { MODES, MODE_IDS, DEFAULTS, CHIPS, BLOCKS, FACES, parseTime, setupOk, setupSec, position, setupWords, short, faceFor, dayStats, recentSetups, rowName, modeOf, hmOf, dur } from '../lib/timer.js';
   import { medQuery, seedMed } from '../lib/flow/data.svelte.js';
   import { beginMed, lastStart, medTemplates, tplStart } from '../lib/flow/hobby/medstart.js';
   import { localDay } from '../lib/localday.js';
@@ -81,6 +82,14 @@
     return parts.join(' · ');
   });
 
+  // the kinds are one tab stop; the arrow keys choose (not while a timer runs)
+  function modeKeys(e) {
+    const id = run ? null : radioStep(e.key, MODE_IDS, cur.mode);
+    if (!id) return;
+    e.preventDefault();
+    pickMode(id);
+    e.currentTarget.parentElement.querySelector(`[data-mode="${id}"]`)?.focus();
+  }
   function pickMode(id) {
     if (run) return;
     cur = DEFAULTS[id];
@@ -172,7 +181,7 @@
       <div class="modes" role="radiogroup" aria-label={t('Kind of timer')}>
         {#each MODES as m (m.id)}
           {@const Icon = MODE_ICON[m.id]}
-          <button type="button" role="radio" class="mode" class:on={shownSetup.mode === m.id} aria-checked={shownSetup.mode === m.id} disabled={!!run && shownSetup.mode !== m.id} onclick={() => pickMode(m.id)} data-mode={m.id}>
+          <button type="button" role="radio" class="mode" class:on={shownSetup.mode === m.id} aria-checked={shownSetup.mode === m.id} disabled={!!run && shownSetup.mode !== m.id} tabindex={shownSetup.mode === m.id ? 0 : -1} onclick={() => pickMode(m.id)} onkeydown={modeKeys} data-mode={m.id}>
             <Icon size={18} aria-hidden="true" />
             <b>{t(m.label)}</b>
             <small>{t(m.sub)}</small>

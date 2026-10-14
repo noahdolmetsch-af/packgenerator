@@ -192,3 +192,16 @@ describe('the log (Z5)', () => {
     expect(recentSetups(rows).map((r) => r.label)).toEqual(['Kaffee', 'Fokus 52/17']);
   });
 });
+
+describe('the kinds as one tab stop', () => {
+  it('the arrow keys move the choice round, Home and End jump, other keys do nothing', async () => {
+    const { radioStep } = await import('../src/lib/timer/radios.js');
+    const ids = ['up', 'down', 'interval'];
+    expect(radioStep('ArrowRight', ids, 'down')).toBe('interval');
+    expect(radioStep('ArrowRight', ids, 'interval')).toBe('up');
+    expect(radioStep('ArrowLeft', ids, 'up')).toBe('interval');
+    expect(radioStep('Home', ids, 'interval')).toBe('up');
+    expect(radioStep('End', ids, 'up')).toBe('interval');
+    expect(radioStep('a', ids, 'up')).toBe(null);
+  });
+});
