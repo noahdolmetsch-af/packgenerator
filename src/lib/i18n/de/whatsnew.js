@@ -6,7 +6,7 @@
 export default {
   // 0.148.0 Leistung und Analysen (TR5–TR7)
   'Watts, weight and a closer look': 'Watt, Gewicht und ein genauerer Blick',
-  'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.': 'Mit Leistungsmesser zeigt jede Fahrt ihre Leistung, und Training hat Analysen auf jeder Aktivität und über die Wochen; jede lässt sich ausblenden.',
+  'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.': 'Jede Fahrt mit Wattmesser zeigt jetzt ihre Leistung, und Training hat Analysen auf jeder Aktivität und über die Wochen; jede lässt sich ausblenden.',
   'One activity: power, load, power curve, power zones and analyses like sections, course and climbs': 'Eine Aktivität: Leistung, Belastung, Leistungskurve, Leistungsbereiche und Analysen wie Abschnitte, Verlauf und Anstiege',
   'Training › Week: fitness, fatigue and form, load per week, power curve, efficiency, month and year compared': 'Training › Woche: Fitness, Ermüdung und Form, Belastung pro Woche, Leistungskurve, Effizienz, Monat und Jahr im Vergleich',
   'Me › Weight: voluntary, only on this device, with a curve and watts per kg': 'Ich › Gewicht: freiwillig, nur auf diesem Gerät, mit Verlauf und Watt pro kg',

@@ -33,7 +33,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   const card = (k) => sec.locator(`[data-ana="${k}"]`);
   // every week card, in the order of «Analysen anpassen», with its German title
   const keys = ANALYSES.week.map((a) => a.key);
-  for (const a of ANALYSES.week) await expect(card(a.key).getByRole('heading', { name: T(a.title) })).toBeVisible();
+  for (const a of ANALYSES.week) await expect(card(a.key).getByRole('heading', { name: T(a.head ?? a.title) })).toBeVisible();
   await expect(sec.locator('[data-ana]')).toHaveCount(keys.length);
   expect(await sec.locator('[data-ana]').evaluateAll((els) => els.map((e) => e.dataset.ana))).toEqual(keys);
 
