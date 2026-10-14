@@ -13,6 +13,7 @@
    * Home place, Language), The app (what it can do, help, Helper, what it has learned) and More (try it
    * out, clean up test data, report a problem). «Data and backup» is its own page now (#/me/data, I2),
    * the home place a window (I10). Everything that was here stays.
+   * Bezahlen (mockup BZ1, Noah 14.10.2026 «1a», «bz freigeben»): last row of «The app», #/me/pay.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -24,7 +25,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, CreditCard } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -195,6 +196,13 @@
             <a class="ich-row" href="#/debrief/learnings">
               <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What the app has learned')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/me/pay">
+              <span class="ich-ib"><CreditCard size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Payments')} <span class="pill warn">{t('prepared|pay')}</span></b><small>{t('What is already there and what you could use it for')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
