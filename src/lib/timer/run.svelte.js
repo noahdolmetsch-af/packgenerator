@@ -110,8 +110,8 @@ export function reset() {
 
 /** The end: sound, write the log, show «Fertig» (Z4). Stopping early (or a «Timer» that counts up) logs what ran. */
 export async function finish(early = false) {
-  const run = timer.run;
-  if (!run) return null;
+  if (!timer.run) return null;
+  const run = $state.snapshot(timer.run); // a plain object: IndexedDB cannot keep a state proxy
   const now = Date.now();
   const p = position(run, now);
   timer.run = null;

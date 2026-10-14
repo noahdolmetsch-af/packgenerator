@@ -133,7 +133,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
 
   // B: «Wie letztes Mal · 1 Min», the other templates, the rows
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator('.ptabs').getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the first tab of Aktiv
   await expect(main.locator('[data-start="last"]')).toContainText(T('Like last time · {n} min', { n: 1 }));
   await expect(main.locator('[data-tpl]')).toHaveCount(SEED_TEMPLATES.length - 1);
   await expect(main.locator('[data-row="week"]')).toContainText(T('{n} of 7 days', { n: 1 }));
@@ -143,7 +143,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   // C: «Mehr»: every section folded; the sound opens with «anhören»; the milestone counts up
   await main.locator('[data-to="more"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/mehr$/);
-  await expect(page.locator('.ptabs').getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the first tab of Aktiv
   await expect(main.locator('details[data-fold]')).toHaveCount(7);
   await expect(main.locator('details[data-fold][open]')).toHaveCount(0);
   await main.locator('[data-fold="sound"] summary').click();
@@ -162,7 +162,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
 
   // the log lists the session with its note; the filter «mit Notiz» keeps it; calendar and chart views
-  await main.locator('[data-row="log"]').click();
+  await main.locator('[data-to="log"]').click(); // ME2: «Logbuch» above the last sessions
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/log$/);
   // Design-Refresh P8 (A14 «Logbuch neu»): the log opens on «Übersicht»; the list is the tab «Liste»
   await expect(main.getByRole('heading', { level: 1, name: T('Logbook') })).toBeVisible();
@@ -294,7 +294,7 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   await fits(page, 'Meditation after ending early');
 
   // the session: save it as a template, delete it, «Rückgängig» brings it back
-  await main.locator('[data-row="log"]').click();
+  await main.locator('[data-to="log"]').click(); // ME2: «Logbuch» above the last sessions
   await main.locator('[data-session]').click();
   await expect(main.getByRole('heading', { level: 1, name: 'Atemzüge zählen' })).toBeVisible();
   await expect(main).toContainText(T('No note yet.'));

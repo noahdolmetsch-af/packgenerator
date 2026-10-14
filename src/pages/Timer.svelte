@@ -496,6 +496,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px;
     color: var(--ink);
     text-decoration: none;
     font-size: var(--fs-small);
