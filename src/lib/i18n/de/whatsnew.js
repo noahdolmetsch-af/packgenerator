@@ -13,6 +13,17 @@ export default {
   'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.': 'Ich › Listen und Typen › Kategorien: eine Kategorie mit dem Stift umbenennen und speichern; im Material steht der neue Name.',
   'Add an own category, then open «+ Item» in Gear: it is in the category choice.': 'Eine eigene Kategorie dazunehmen, dann im Material «+ Teil» öffnen: sie steht in der Auswahl.',
   'Back in Categories, tap «Back to Standard»: everything is as before.': 'Zurück in Kategorien «Auf Standard zurücksetzen» antippen: alles ist wie vorher.',
+  // 0.131.1 Abhaken wieder abwählbar (Fehler behoben)
+  'Ticked is ticked once': 'Abgehakt ist einmal abgehakt',
+  'A quick double tap no longer ticks an activity twice, so a tap takes it back again.': 'Ein schneller Doppeltipp hakt eine Aktivität nicht mehr doppelt ab, darum nimmt ein Tipp sie wieder zurück.',
+  'A ticked activity can be unticked again with one tap; «Undo» brings it back': 'Eine abgehakte Aktivität lässt sich mit einem Tipp wieder abwählen; «Rückgängig» bringt sie zurück',
+  'A quick double tap ticks only once; double ticks from before go away with the next untick': 'Ein schneller Doppeltipp hakt nur einmal ab; doppelte Häkchen von früher gehen beim nächsten Abwählen weg',
+  'A ticked commute on «In the flow» can be tapped to take it back': 'Ein abgehaktes Pendeln in «Im Flow» lässt sich antippen und zurücknehmen',
+  'On Today tap an activity in «In the flow»: it is ticked. Tap it again: it is unticked.': 'Tippe auf Heute in «Im Flow» auf eine Aktivität: Sie ist abgehakt. Tippe nochmals: Sie ist abgewählt.',
+  'Tick it, then tap «Undo» in the message below: the tick is gone again.': 'Hake sie ab und tippe unten in der Meldung auf «Rückgängig»: Das Häkchen ist wieder weg.',
+  'Tap an activity twice quickly: it is ticked once, one more tap unticks it.': 'Tippe zweimal schnell auf eine Aktivität: Sie ist einmal abgehakt, ein weiterer Tipp wählt sie ab.',
+  'Tap «Commute», then tap the line «… today: commute»: the commute is taken back.': 'Tippe auf «Pendeln», dann auf die Zeile «… heute: Pendeln»: Das Pendeln ist zurückgenommen.',
+
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
