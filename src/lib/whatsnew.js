@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.138.0 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»; working number)
-    version: '0.138.0',
+    // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
+    version: '0.131.3',
     date: '2026-10-14',
     title: 'Receipt photo in one tap',
     lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',

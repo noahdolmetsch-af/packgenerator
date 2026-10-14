@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.138.0 Kamera-Knopf
+  // 0.131.3 Kamera-Knopf
   'Receipt photo in one tap': 'Belegfoto mit einem Tipp',
   'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.': 'Auf dem Handy geht die Kamera für einen Beleg mit einem Tipp auf, überall wo ein Beleg dazukommt.',
   'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera': 'Velos › Werkstatt › Werkstattbesuch erfassen: «Beleg fotografieren» öffnet die Kamera',
