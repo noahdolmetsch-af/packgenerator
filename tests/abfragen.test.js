@@ -8,7 +8,9 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound,
 } from '../src/lib/abfragen.js';
+import { redirectOf, pageOf, OLD_CHECK } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
 import { addDays } from '../src/lib/flow.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -118,8 +120,95 @@ describe('own questions (AB2)', () => {
   });
 });
 
+// WG «Wi gaht's?» takes over the daily check (Noah 14.10.2026 «a) ja, alle drei übernehmen»): the two fixed rounds
+describe('WG: the two fixed rounds 07:00 and 20:30', () => {
+  it('on by default with 07:00 and 20:30; a stored record keeps them, broken values fall back', () => {
+    expect(ROUNDS).toEqual({ on: true, morning: '07:00', evening: '20:30' });
+    expect(configOf({}).rounds).toEqual(ROUNDS);
+    expect(configOf({ since: null, q: {}, own: [] }).rounds).toEqual(ROUNDS); // a record of before
+    expect(roundsOf({ on: false, morning: '6:30', evening: '21:00' })).toEqual({ on: false, morning: '06:30', evening: '21:00' });
+    expect(roundsOf({ on: 'yes', morning: '25:00', evening: 'x' })).toEqual(ROUNDS);
+    const c = setRounds({ since: `${d(-1)}T06:00` }, { evening: '21:15' });
+    expect(c.rounds).toEqual({ on: true, morning: '07:00', evening: '21:15' });
+    expect(setRounds(c, { on: false }).rounds).toEqual({ on: false, morning: '07:00', evening: '21:15' });
+    expect(c.since).toBe(`${d(-1)}T06:00`);
+  });
+
+  it('the boundaries: before 12:00 the morning time, from 18:00 the evening time, 12:00–17:59 its own', () => {
+    expect(roundTime('08:00', ROUNDS)).toBe('07:00');
+    expect(roundTime('11:59', ROUNDS)).toBe('07:00');
+    expect(roundTime('12:00', ROUNDS)).toBe('12:00');
+    expect(roundTime('17:59', ROUNDS)).toBe('17:59');
+    expect(roundTime('18:00', ROUNDS)).toBe('20:30');
+    expect(roundTime('23:30', ROUNDS)).toBe('20:30');
+    expect(roundTime('05:00', ROUNDS)).toBe('07:00');
+  });
+
+  it('switched off every question keeps its own time; own round times move them there', () => {
+    const off = { on: false, morning: '07:00', evening: '20:30' };
+    expect(roundTime('08:00', off)).toBe('08:00');
+    expect(roundTime('20:00', off)).toBe('20:00');
+    const own = { on: true, morning: '06:15', evening: '21:45' };
+    expect(roundTime('09:00', own)).toBe('06:15');
+    expect(roundTime('19:00', own)).toBe('21:45');
+    expect(roundTime('13:00', own)).toBe('13:00');
+  });
+
+  it('daily, several times, weekly and monthly alike; off stays off', () => {
+    expect(roundEvery({ kind: 'daily', time: '08:00' }, ROUNDS)).toEqual({ kind: 'daily', time: '07:00' });
+    expect(roundEvery({ kind: 'times', times: ['08:00', '13:00', '20:00'] }, ROUNDS)).toEqual({ kind: 'times', times: ['07:00', '13:00', '20:30'] });
+    // two morning times become one: asked once
+    expect(roundEvery({ kind: 'times', times: ['08:00', '09:00'] }, ROUNDS)).toEqual({ kind: 'daily', time: '07:00' });
+    expect(roundEvery({ kind: 'weekly', dow: 0, time: '19:00' }, ROUNDS)).toEqual({ kind: 'weekly', dow: 0, time: '20:30' });
+    expect(roundEvery({ kind: 'monthly', time: '19:00' }, ROUNDS)).toEqual({ kind: 'monthly', time: '20:30' });
+    expect(roundEvery({ kind: 'off' }, ROUNDS)).toEqual({ kind: 'off' });
+    expect(roundEvery({ kind: 'daily', time: '08:00' }, { on: false })).toEqual({ kind: 'daily', time: '08:00' });
+  });
+
+  it('dueList asks at the round times: the morning questions at 07:00, the evening ones at 20:30', () => {
+    const c = { since: `${D0}T06:00` };
+    const ids = (now, cfg = c) => dueList(cfg, [], now).map((x) => x.q.id);
+    // 07:00: sleep (7:00) and battery (8:00 → 7:00) and the goal (8:00 → 7:00) together
+    expect(ids(`${D0}T06:59`)).toEqual([]);
+    expect(ids(`${D0}T07:00`)).toEqual(expect.arrayContaining(['erholung.schlaf', 'erholung.akku', 'ziele.ziel']));
+    expect(dueList(c, [], `${D0}T07:00`).every((x) => x.slot === `${D0}T07:00`)).toBe(true);
+    // 13:00 keeps its own time; 20:00 waits for 20:30
+    expect(dueList(c, [{ qid: 'erholung.akku', at: `${D0}T07:05` }], `${D0}T13:00`).find((x) => x.q.id === 'erholung.akku').slot).toBe(`${D0}T13:00`);
+    expect(ids(`${D0}T20:29`)).not.toContain('erreicht.zufrieden');
+    expect(dueList(c, [], `${D0}T20:30`).find((x) => x.q.id === 'erreicht.zufrieden').slot).toBe(`${D0}T20:30`);
+    // switched off: the own times again
+    const offC = setRounds(c, { on: false });
+    expect(ids(`${D0}T07:00`, offC)).toEqual(['erholung.schlaf', 'koerper.ruhepuls']);
+    expect(dueList(offC, [], `${D0}T20:00`).find((x) => x.q.id === 'erreicht.zufrieden').slot).toBe(`${D0}T20:00`);
+  });
+
+  it('the part of an answer and the evening round', () => {
+    expect(partOf({ slot: `${D0}T07:00`, at: `${D0}T09:10` }, ROUNDS)).toBe('morning');
+    expect(partOf({ slot: `${D0}T20:30`, at: `${D0}T21:00` }, ROUNDS)).toBe('evening');
+    expect(partOf({ slot: `${D0}T13:00` }, ROUNDS)).toBe('day');
+    expect(partOf({ at: `${D0}T19:00` }, ROUNDS)).toBe('evening'); // no question time: the time it was given
+    expect(partOf({ slot: `${D0}T17:30` }, { on: true, morning: '07:00', evening: '17:30' })).toBe('evening');
+    expect(partOf({}, ROUNDS)).toBe(null);
+    expect(isEveningRound(`${D0}T20:29`, ROUNDS)).toBe(false);
+    expect(isEveningRound(`${D0}T20:30`, ROUNDS)).toBe(true);
+    expect(isEveningRound(`${D0}T19:00`, { evening: '19:00' })).toBe(true);
+  });
+
+  it('the old daily-check pages lead to «Wi gaht\'s?»', () => {
+    for (const h of [...OLD_CHECK, '#/check']) {
+      expect(redirectOf(h)).toEqual({ hash: '#/me/abfragen', spot: '', old: null });
+      expect(pageOf(h)).toBe('abfragen');
+    }
+    expect(redirectOf('#/me/checks')).toBe(null);
+    expect(redirectOf('#/checklist')).toBe(null);
+  });
+});
+
 describe('what is due now (AB3)', () => {
-  const start = { since: `${d(-3)}T06:00` };
+  // WG: these check the own times of the questions, so the fixed rounds (on by default) are off here;
+  // the rounds have their own tests below
+  const OWN = { rounds: { on: false } };
+  const start = { since: `${d(-3)}T06:00`, ...OWN };
 
   it('every question on whose time has come and that is not answered since, oldest time first', () => {
     const due = dueList(start, [], `${D0}T09:00`);
@@ -138,7 +227,7 @@ describe('what is due now (AB3)', () => {
   });
 
   it('several times a day: each time asks once', () => {
-    const c = { since: `${D0}T06:00`, q: {} };
+    const c = { since: `${D0}T06:00`, q: {}, ...OWN };
     const at = (hm, ans = []) => dueList(c, ans, `${D0}T${hm}`).find((x) => x.q.id === 'erholung.kaffee')?.slot ?? null;
     expect(at('11:00')).toBe(null);
     expect(at('12:10')).toBe(`${D0}T12:00`);
@@ -160,7 +249,7 @@ describe('what is due now (AB3)', () => {
   it('2a: a missed question stays until it is answered or tapped away', () => {
     expect(pendingSlot({ kind: 'daily', time: '07:00' }, `${d(-5)}T00:00`, `${D0}T09:00`)).toBe(`${d(-5)}T07:00`);
     expect(pendingSlot({ kind: 'daily', time: '07:00' }, `${D0}T08:00`, `${D0}T09:00`)).toBe(null);
-    const c = { since: `${d(-2)}T21:00` };
+    const c = { since: `${d(-2)}T21:00`, ...OWN };
     const wait = (ans, snooze = {}, now = `${D0}T09:00`) => dueList(c, ans, now, snooze).find((x) => x.q.id === 'spass.emoji') ?? null;
     expect(wait([]).slot).toBe(`${d(-1)}T20:00`); // yesterday evening, still there this morning
     expect(wait([], {}, `${d(1)}T09:00`).slot).toBe(`${d(-1)}T20:00`); // and the day after

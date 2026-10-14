@@ -13,6 +13,7 @@
  */
 import { checkOf, outsideStep, rideMinutes } from './flowcheck.js';
 import { lastDays } from './flow.js';
+import { QUESTION, MIRROR } from './abfragen.js';
 
 /** The 9 categories in the order of the ring (mockup T3). label: English key for t(). */
 export const CATS = [
@@ -40,13 +41,49 @@ const FULL_DAYS = { sport: 3, mind: 5, rest: 2, ride: 3 };
 const scale = (v) => (v == null ? null : (v - 1) / 9);
 const STEP = { outside: { 0: 0, lt30: 1 / 3, '30-90': 2 / 3, gt90: 1 }, people: { no: 0, short: 0.5, lots: 1 }, goalDone: { yes: 1, part: 0.5, no: 0 }, mindful: { yes: 1, auto: 1, no: 0 } };
 
+/** WG «Wi gaht's?» takes over the daily check: the areas of its questions → the categories (koerper is not in the ring). */
+export const AREA_CAT = { erholung: 'rest', spass: 'fun', sport: 'sport', achtsamkeit: 'mind', freunde: 'friends', natur: 'nature', visionen: 'vision', ziele: 'goals', erreicht: 'done' };
+/** WG: natur.draussen in the four steps of Q11 (STEP.outside). */
+const OUTSIDE_KEY = { m0: '0', m30: 'lt30', m90: '30-90', more: 'gt90' };
+const YESNO = { yes: 1, no: 0 };
+
+/**
+ * WG: the signals of one «Wi gaht's?» answer → [[cat, 0–1]]. A scale (v − 1) / 9; yes/no and chips with a
+ * value v their v; natur.draussen in the steps of Q11; a sentence to ziele.ziel a goal set (1); the
+ * highlights of spass.coolstes like Q9 (BEST_CAT, 1 each). Plain numbers and other sentences are left out,
+ * and so are the questions mirrored into the daily check (MIRROR: they count through flowChecks already).
+ */
+export function answerSignals(r) {
+  if (!r?.qid || MIRROR[r.qid] || r.value == null) return [];
+  const q = QUESTION[r.qid];
+  const cat = AREA_CAT[r.area ?? q?.area];
+  if (!cat) return [];
+  const kind = r.kind ?? q?.form?.kind;
+  const v = r.value;
+  if (kind === 'scale') return typeof v === 'number' && v >= 1 && v <= 10 ? [[cat, scale(v)]] : [];
+  if (r.qid === 'ziele.ziel' || (r.qid === 'hallo.vor' && kind === 'chips')) return [['goals', 1]]; // a goal or a plan for the day
+  if (kind === 'text') return [];
+  if (r.qid === 'natur.draussen') {
+    const k = OUTSIDE_KEY[Array.isArray(v) ? v[0] : v];
+    return k ? [['nature', STEP.outside[k]]] : [];
+  }
+  if (r.qid === 'spass.coolstes') return (Array.isArray(v) ? v : [v]).filter((k) => BEST_CAT[k]).map((k) => [BEST_CAT[k], 1]);
+  if (kind === 'yesno' || kind === 'chips') {
+    const opts = q?.form?.options;
+    const vs = (Array.isArray(v) ? v : [v]).map((k) => (opts ? opts.find((o) => o.key === k)?.v : kind === 'yesno' ? YESNO[k] : null)).filter((x) => typeof x === 'number' && x >= 0 && x <= 1);
+    return vs.length ? [[cat, vs.reduce((s, x) => s + x, 0) / vs.length]] : [];
+  }
+  return [];
+}
+
 /**
  * The balance of the last `days` days up to `today`.
  * checks: flowChecks rows; log: flowLog rows ({ actId, day }); acts: activities ({ id, ring });
- * rides: rides of those days ({ date, km, movingH?, totalH? }, Strava ones included).
+ * rides: rides of those days ({ date, km, movingH?, totalH? }, Strava ones included);
+ * answers: WG the «Wi gaht's?» answers (abAnswers rows { qid, area, day, kind, value }), see answerSignals.
  * → { cats: [{ key, value (0–100 or null), n (signals) }], mean (0–100 or null), least (key or null), days }
  */
-export function balance({ checks = [], log = [], acts = [], rides = [], today, days = 7 } = {}) {
+export function balance({ checks = [], log = [], acts = [], rides = [], answers = [], today, days = 7 } = {}) {
   const span = lastDays(today, days);
   const inSpan = new Set(span);
   const sig = Object.fromEntries(CATS.map((c) => [c.key, []]));
@@ -63,6 +100,14 @@ export function balance({ checks = [], log = [], acts = [], rides = [], today, d
     rideMin[r.date] = (rideMin[r.date] ?? 0) + min;
   }
 
+  // WG: the «Wi gaht's?» answers of the span, each one or more signals
+  const abDays = new Set();
+  for (const r of answers) {
+    if (!inSpan.has(r?.day)) continue;
+    abDays.add(r.day);
+    for (const [k, v] of answerSignals(r)) add(k, v);
+  }
+
   for (const row of checks) {
     if (!inSpan.has(row?.day)) continue;
     const c = checkOf(row);
@@ -73,7 +118,7 @@ export function balance({ checks = [], log = [], acts = [], rides = [], today, d
     // Q7: a goal set on a morning that was answered (a morning without a goal counts 0)
     const morning = c.sleep != null || c.energy != null || c.mood != null || c.joy.length > 0;
     if (c.goal) add('goals', 1);
-    else if (morning) add('goals', 0);
+    else if (morning && !abDays.has(c.day)) add('goals', 0); // WG: a day of «Wi gaht's?» says its goal there (ziele.ziel)
     add('done', scale(c.sat));
     if (c.goalDone) add('done', STEP.goalDone[c.goalDone]);
     for (const b of c.best) if (BEST_CAT[b]) add(BEST_CAT[b], 1);

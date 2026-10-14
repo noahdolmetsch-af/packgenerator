@@ -6,6 +6,8 @@
    * (a tap opens the choice) and a switch. Under «Eigene» your own questions (AB2), «Eigene Frage anlegen»
    * at the end. Right: where the answers go, where the values come from, the answer kinds.
    * Everything is a suggestion: every question can be switched off, changed and switched on again.
+   * WG «Wi gaht's?» takes over the daily check: «Feste Runden», the two fixed rounds (07:00 and 20:30) with
+   * a switch and both times changeable; the rule is roundTime in abfragen.js.
    */
   import { ChevronDown, ChevronUp, Plus, Pencil, Hand, Watch, CircleDashed, Smartphone, Info, RotateCcw, Gauge, ChartLine, ChevronRight } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
@@ -14,7 +16,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig } from '../lib/abdb.js';
-  import { AREAS, OWN_AREA, QUESTIONS, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts, stampOf } from '../lib/abfragen.js';
+  import { AREAS, OWN_AREA, QUESTIONS, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts, stampOf, setRounds, timeOf } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -48,6 +50,11 @@
     const own = x.id ? x : newOwn(x);
     if (own) save(putOwn(cfg, own, stampOf()));
   }
+  // WG: the fixed rounds; a time that is none keeps the one before
+  const setTime = (key, value) => {
+    const v = timeOf(value);
+    if (v) save(setRounds(cfg, { [key]: v }));
+  };
   const ICON_SRC = { hand: Hand, later: Watch, open: CircleDashed, only: Hand, app: Smartphone };
   const exOf = (list) => list.find((q) => settingOf(cfg, q).on) ?? list[0];
 </script>
@@ -108,6 +115,22 @@
     </div>
 
     <div class="ich-side">
+      <!-- WG: «Feste Runden», a suggestion: on by default, can be switched off, both times changeable -->
+      <section class="ich-sec" aria-labelledby="ab-rounds-h" data-rounds>
+        <div class="ich-h"><div><h2 id="ab-rounds-h">{t('Fixed rounds')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
+        <div class="card side">
+          <div class="rsw">
+            <span class="rm"><b>{t('Ask in two rounds')}</b><small>{t('Questions before 12:00 come in the morning round, from 18:00 in the evening round; the others keep their own time.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('Ask in two rounds')}</span><input type="checkbox" role="switch" checked={cfg.rounds.on} onchange={(e) => save(setRounds(cfg, { on: e.currentTarget.checked }))} /></label>
+          </div>
+          {#if cfg.rounds.on}
+            <div class="rtimes">
+              <label><span>{t('Morning round')}</span><input class="inp num" type="time" value={cfg.rounds.morning} onchange={(e) => setTime('morning', e.currentTarget.value)} data-round="morning" /></label>
+              <label><span>{t('Evening round')}</span><input class="inp num" type="time" value={cfg.rounds.evening} onchange={(e) => setTime('evening', e.currentTarget.value)} data-round="evening" /></label>
+            </div>
+          {/if}
+        </div>
+      </section>
       <section class="ich-sec" aria-labelledby="ab-where-h">
         <div class="ich-h"><div><h2 id="ab-where-h">{t('Where the answers go')}</h2></div></div>
         <div class="card side">
@@ -300,6 +323,48 @@
   }
   .forms small {
     grid-column: 2;
+  }
+  /* WG: «Feste Runden» */
+  .rsw {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rm {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rm b {
+    font-weight: 500;
+  }
+  .rm small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .rtimes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .rtimes label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rtimes span {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .rtimes input {
+    min-height: 44px;
+    box-sizing: border-box;
   }
   .hint {
     display: flex;

@@ -18,7 +18,7 @@
 import { addDays } from './flow.js';
 import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
 
-/** The settings record of «Deine Abfragen»: { since, q: { [id]: { on, every, since } }, own: [question] }. */
+/** The settings record of «Deine Abfragen»: { since, q: { [id]: { on, every, since } }, own: [question], rounds }. */
 export const AB_KEY = 'abfragen';
 /** The settings record of «Jetzt nicht»: { [id]: slot } (the time of the question that was put away). */
 export const AB_SNOOZE_KEY = 'abfragen.snooze';
@@ -231,13 +231,61 @@ export function ownOf(x) {
 /** A new own question with a fresh id (the time it was made). */
 export const newOwn = (fields = {}, now = new Date()) => ownOf({ ...fields, id: `own-${now.getTime().toString(36)}` });
 
-/** The stored settings made safe: { since, q, own }. */
+/** The stored settings made safe: { since, q, own, rounds }. */
 export function configOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const own = (Array.isArray(v.own) ? v.own : []).map(ownOf).filter(Boolean);
   const qs = v.q && typeof v.q === 'object' ? v.q : {};
-  return { since: typeof v.since === 'string' ? v.since : null, q: qs, own };
+  return { since: typeof v.since === 'string' ? v.since : null, q: qs, own, rounds: roundsOf(v.rounds) };
 }
+
+/* ---------------------------------------------------------------- WG: the two fixed rounds */
+
+/**
+ * WG «Wi gaht's?» takes over the daily check (Noah 14.10.2026 «a) ja, alle drei übernehmen»): two fixed
+ * rounds, 07:00 and 20:30. While they are on, a question whose own time is before 12:00 asks at the
+ * morning time, one from 18:00 at the evening time; 12:00–17:59 keeps its own time. A suggestion only:
+ * the rounds can be switched off and both times changed (Ich › «Wi gaht's?» › «Feste Runden»).
+ */
+export const ROUNDS = { on: true, morning: '07:00', evening: '20:30' };
+/** WG: the stored rounds made safe (missing: on, 07:00 and 20:30). */
+export function roundsOf(r) {
+  const v = r && typeof r === 'object' ? r : {};
+  return { on: typeof v.on === 'boolean' ? v.on : ROUNDS.on, morning: timeOf(v.morning) ?? ROUNDS.morning, evening: timeOf(v.evening) ?? ROUNDS.evening };
+}
+/** WG: the rounds changed (on, morning, evening; the rest kept). */
+export const setRounds = (cfg, patch = {}) => {
+  const c = configOf(cfg);
+  return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
+};
+/** WG: the time a question asks at with the rounds: before 12:00 the morning, from 18:00 the evening time. */
+export function roundTime(time, rounds) {
+  const r = roundsOf(rounds);
+  const hm = timeOf(time);
+  if (!r.on || !hm) return hm;
+  return hm < '12:00' ? r.morning : hm >= '18:00' ? r.evening : hm;
+}
+/** WG: an interval with the rounds applied (several times a day, daily, weekly and monthly alike). */
+export function roundEvery(every, rounds) {
+  const e = everyOf(every);
+  if (!roundsOf(rounds).on || e.kind === 'off') return e;
+  if (e.kind === 'times') return everyOf({ kind: 'times', times: e.times.map((x) => roundTime(x, rounds)) });
+  return { ...e, time: roundTime(e.time, rounds) };
+}
+/**
+ * WG: the part of the day an answer belongs to, by its question time (else the time it was given):
+ * 'morning', 'day' or 'evening'; the two round times always count as their round.
+ */
+export function partOf(row, rounds) {
+  const hm = hmOf(row?.slot || row?.at);
+  if (!hm) return null;
+  const r = roundsOf(rounds);
+  if (r.on && hm === r.evening) return 'evening';
+  if (r.on && hm === r.morning) return 'morning';
+  return hm < '12:00' ? 'morning' : hm >= '18:00' ? 'evening' : 'day';
+}
+/** WG: is it the evening round yet (from the evening time on; also with the rounds off, the time stays the border)? */
+export const isEveningRound = (now, rounds) => hmOf(now) >= roundsOf(rounds).evening;
 
 /** One question's setting: on, its interval and since when it asks (switched on later: from then). */
 export function settingOf(cfg, question) {
@@ -328,9 +376,10 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
     const s = settingOf(c, x);
     if (!s.on) continue;
     const floor = [s.since, lastAt[x.id], snooze?.[x.id]].filter(Boolean).sort().at(-1) ?? null;
-    const slot = pendingSlot(s.every, floor, now);
+    const every = roundEvery(s.every, c.rounds); // WG: the fixed rounds move the morning and evening times
+    const slot = pendingSlot(every, floor, now);
     if (!slot) continue;
-    out.push({ q: x, slot, last: lastSlot(s.every, now) });
+    out.push({ q: x, slot, last: lastSlot(every, now) });
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }

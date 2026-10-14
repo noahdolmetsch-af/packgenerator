@@ -11,7 +11,7 @@ import { homeTrips } from '../home/heute.js';
 import { bikeCare } from '../readiness.js';
 import { withVisits } from '../workshop.js';
 import { sortBikes } from '../bikes.js';
-import { checkOf, complete } from '../flowcheck.js';
+import { checkOf } from '../flowcheck.js';
 import { isMedAct } from '../flow/hobby/medstart.js';
 import { daysBetween } from './tiles.js';
 
@@ -50,7 +50,7 @@ const T = {
   x4g: { id: 'x4g', label: 'GotCourts', icon: 'calendarcheck', url: GOTCOURTS_URL, link: 'x4g' },
   ms: { id: 'ms', label: 'Milestones', icon: 'star', href: '#/flow/milestones' },
   lookback: { id: 'lookback', label: 'Look back|page', icon: 'chart', href: '#/debrief' },
-  daycheck: { id: 'daycheck', label: 'Daily check', icon: 'check', spot: 'chk-h' },
+  daycheck: { id: 'daycheck', label: 'Your questions', icon: 'check', spot: 'chk-h' }, // WG: the daily check is «Wi gaht's?» now
 };
 const ex = (d) => ({ ...d, extra: true });
 
@@ -168,7 +168,9 @@ export function hintsFor(page, data = {}, today) {
   }
   if (data.flowChecks) {
     const c = data.flowChecks.find((x) => x.day === today);
-    h.daycheck = c && complete(checkOf(c, today)) ? { quiet: t('done today') } : { text: t('Still open today · 4 questions') };
+    // WG: answered in «Wi gaht's?» (sleep, energy and mood come into the day's check)
+    const k = c ? checkOf(c, today) : null;
+    h.daycheck = k && (k.sleep != null || k.energy != null || k.mood != null) ? { quiet: t('done today') } : { text: t('Still open today') };
   }
   h.x4s = { text: t('Your latest activity') };
   h.x4g = { text: t('Book a tennis court') };

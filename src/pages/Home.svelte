@@ -98,9 +98,7 @@
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
-  import MorningCheckTile from '../lib/home/MorningCheckTile.svelte';
-  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
-  import { checkHref } from '../lib/flowcheck.js';
+  import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -991,7 +989,6 @@
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
-  {:else if x.id === 'check'}<SmallTile tile={TILE.check} size={x.size} href={checkHref(now)} />
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
@@ -1003,8 +1000,7 @@
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} />
-  {:else if x.id === 'morningcheck'}<MorningCheckTile {today} size={x.size} isnew={newTile('morningcheck')} />
-  {:else if x.id === 'questions'}<QuestionsTile {today} isnew={newTile('questions')} />
+  {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}

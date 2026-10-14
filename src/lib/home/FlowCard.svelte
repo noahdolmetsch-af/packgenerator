@@ -5,14 +5,19 @@
    * check (Start, or the four numbers when done), «Im Flow ›» and a commute in one tap.
    * v0.94.0 «Kachel-Wand»: a tap on Meditation opens its start sheet here too, as on Aktiv (Q5 a).
    * v0.127.0 «Tages-Check» 1: the check row opens the morning check page; from 20:30 the evening review.
+   * WG «Wi gaht's?» takes over the daily check: the row shows today's sleep, energy and mood (answered in
+   * «Wi gaht's?», mirrored into the day's check) and leads to «Wi gaht's?» (#/me/abfragen); from the
+   * evening round time the evening round with the satisfaction of «Wi gaht's?».
    */
   import { ChevronRight, Sun, Moon, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
   import TickGrid from '../flow/TickGrid.svelte';
   import { flowQuery, seedIfNeeded } from '../flow/data.svelte.js';
   import { flowStates, rings as ringsOf } from '../flow.js';
-  import { checkOf, complete, rotating, FIXED, isEvening, eveningDone } from '../flowcheck.js';
-  import { tickWith, actName, qText } from '../flow/ui.svelte.js';
+  import { checkOf, FIXED } from '../flowcheck.js';
+  import { abQuery } from '../abdb.js';
+  import { configOf, isEveningRound, lastAnswer, stampOf } from '../abfragen.js';
+  import { tickWith, actName } from '../flow/ui.svelte.js';
   import { phone } from '../media.svelte.js';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
@@ -29,13 +34,17 @@
   const openToday = $derived(states.filter((s) => !s.resting && s.daily && (s.open || s.todayDone)).slice(0, phone.matches ? 2 : 4));
   const commuter = $derived(states.find((s) => !s.resting && s.act.counts.includes('commute')) ?? null);
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
-  const rot = $derived(data ? rotating(data.pool, today) : null);
-  // v0.127.0 «Tages-Check» 1: from 20:30 local time the check row offers the evening review
-  let evening = $state(isEvening());
+  // WG: the evening round from its time (Ich › «Wi gaht's?» › «Feste Runden»), the satisfaction from «Wi gaht's?»
+  const abq = $derived(abQuery(today));
+  const ab = $derived($abq);
+  let now = $state(stampOf());
   $effect(() => {
-    const id = setInterval(() => (evening = isEvening()), 60_000);
+    const id = setInterval(() => (now = stampOf()), 60_000);
     return () => clearInterval(id);
   });
+  const evening = $derived(isEveningRound(now, configOf(ab?.cfg).rounds));
+  const sat = $derived(lastAnswer((ab?.answers ?? []).filter((a) => a.day === today), 'erreicht.zufrieden')?.value ?? check.sat);
+  const known = $derived(FIXED.some((f) => check[f.key] != null));
   let medFor = $state(null);
   const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
 </script>
@@ -54,26 +63,26 @@
           <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} />
         {/if}
         {#if evening}
-          <!-- v0.127.0 «Tages-Check» 1: from 20:30 the entry offers the evening review (page T2) -->
-          <div class="crow" class:done={eveningDone(check)} data-check-entry="evening">
+          <!-- WG: from the evening round time the entry offers the evening round of «Wi gaht's?» -->
+          <div class="crow" class:done={sat != null} data-check-entry="evening">
             <Moon size={20} aria-hidden="true" />
-            <span class="ct"><b>{t('Evening review')}</b><small>{eveningDone(check) ? t('Satisfaction {n} of 10', { n: check.sat }) : t('How was your day? · about 30 seconds')}</small></span>
-            <a class="btn start" href="#/check/evening">{eveningDone(check) ? t('Change') : t('Start|check')}</a>
+            <span class="ct"><b>{t('Evening round')}</b><small>{sat != null ? t('Satisfaction {n} of 10', { n: sat }) : t('How was your day? · about 30 seconds')}</small></span>
+            <a class="btn start" href="#/me/abfragen">{sat != null ? t('Change') : t('Start|check')}</a>
           </div>
-        {:else if complete(check)}
+        {:else if known}
+          <!-- WG: today's sleep, energy and mood from «Wi gaht's?» (through the day's check) -->
           <div class="crow done" data-check-entry="morning">
             <Sun size={20} aria-hidden="true" />
             <ul class="nums">
-              {#each FIXED as f (f.key)}<li><b class="num">{check[f.key]}</b><small>{t(f.short)}</small></li>{/each}
-              <li><b class="num">{check.extra}</b><small>{qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')}</small></li>
+              {#each FIXED as f (f.key)}<li data-val={f.key}><b class="num">{check[f.key] ?? '–'}</b><small>{t(f.short)}</small></li>{/each}
             </ul>
-            <a class="btn start" href="#/check/morning" aria-label={t('Change the morning check')}>{t('Change')}</a>
+            <a class="btn start" href="#/me/abfragen">{t('Change')}</a>
           </div>
         {:else}
           <div class="crow" data-check-entry="morning">
             <Sun size={20} aria-hidden="true" />
-            <span class="ct"><b>{t('Morning check')}</b><small>{t('a few questions · one tap each')}</small></span>
-            <a class="btn start" href="#/check/morning">{t('Start|check')}</a>
+            <span class="ct"><b>{t('Morning round')}</b><small>{t('a few questions · one tap each')}</small></span>
+            <a class="btn start" href="#/me/abfragen">{t('Start|check')}</a>
           </div>
         {/if}
       </div>
@@ -178,7 +187,7 @@
   .nums {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 0;
     padding: 0;
     list-style: none;
