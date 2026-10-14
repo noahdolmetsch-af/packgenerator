@@ -12,6 +12,6 @@ export default {
   'Two short questions, both optional': 'Zwei kurze Fragen, beide freiwillig',
   'Only an observation, no judgement.': 'Nur Beobachtung, keine Wertung.',
   'In a few words': 'In ein paar Worten',
-  'lands in the history of «Your questions»': 'landet im Verlauf von «Wi gaht's?»',
-  'Saved in the history of «Your questions».': 'Gespeichert im Verlauf von «Wi gaht's?».',
+  'lands in the history of «Your questions»': 'landet im Verlauf von «Wi gaht\'s?»',
+  'Saved in the history of «Your questions».': 'Gespeichert im Verlauf von «Wi gaht\'s?».',
 };
