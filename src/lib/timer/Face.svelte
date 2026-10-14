@@ -104,14 +104,19 @@
     position: relative;
     display: grid;
     place-items: center;
-    width: min(100%, 320px);
+    width: 320px;
+    max-width: 100%;
     aspect-ratio: 1;
+    container-type: inline-size;
   }
   .s .wrap {
     width: 150px;
   }
+  .m .wrap {
+    width: 240px;
+  }
   .xl .wrap {
-    width: min(100%, 480px);
+    width: 480px;
   }
   .wrap svg {
     position: absolute;
@@ -141,10 +146,12 @@
     align-items: center;
     text-align: center;
   }
+  /* the time and the line under it stay inside the ticks (inner ring ≈ 70 % of the width) */
   .mid b {
-    font: 800 var(--fs-mid) / 1 var(--font-brand);
+    font: 800 min(var(--fs-mid), 20cqi) / 1 var(--font-brand);
   }
   .mid small {
+    max-width: 58cqi;
     margin-top: 6px;
     color: var(--ink-2);
     font-size: var(--fs-body);
