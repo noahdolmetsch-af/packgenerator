@@ -18,11 +18,12 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   });
 }
 
-const save = (state, db = appDb) => db.settings.put({ key: ANA_KEY, value: { hidden: state.hidden, order: state.order } });
+// plain copies: IndexedDB cannot keep Svelte's state proxies
+const save = (state, db = appDb) => db.settings.put({ key: ANA_KEY, value: JSON.parse(JSON.stringify({ hidden: state.hidden, order: state.order })) });
 
 /** «…» › Ausblenden: hidden, with «Rückgängig» in the toast. */
 export async function hideAna(key, db = appDb) {
-  const before = { hidden: ana.hidden, order: ana.order };
+  const before = $state.snapshot({ hidden: ana.hidden, order: ana.order });
   await save(setShown(ana, key, false), db);
   offerDone(t('«{name}» hidden', { name: t(anaOf(key)?.title ?? key) }), () => save(before, db));
 }
