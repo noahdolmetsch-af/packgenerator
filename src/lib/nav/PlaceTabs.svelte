@@ -97,7 +97,7 @@
 
 <div class="ptwrap" bind:this={wrap} style={fit}>
 {#if tabs.length > 1 && cur}
-  <nav class="ptabs noswipe" aria-label={t('Pages of {place}', { place: placeName })}>
+  <nav class="ptabs noswipe" class:many={tabs.length > 4} aria-label={t('Pages of {place}', { place: placeName })}>
     {#each tabs as x (x.key)}
       <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{t(x.label)}</a>
     {/each}
@@ -159,6 +159,16 @@
       padding: 0 var(--sp-2);
     }
   }
+  /* UC3 (14.10.2026): Velos has five tabs; on a phone they get the smaller label size so all five stay in view */
+  @media (max-width: 719px) {
+    .ptabs.many {
+      gap: 0;
+    }
+    .ptabs.many a {
+      padding: 0 var(--sp-1);
+      font-size: var(--fs-label);
+    }
+  }
   /* 320 px: four tabs («Overview · Care · Workshop · Measures») still fit side by side */
   @media (max-width: 380px) {
     .ptabs {
@@ -168,6 +178,10 @@
     .ptabs a {
       padding: 0 var(--sp-1);
       font-size: var(--fs-label);
+    }
+    .ptabs.many a {
+      padding: 0 var(--sp-1);
+      font-size: var(--fs-tiny);
     }
   }
   .dots {

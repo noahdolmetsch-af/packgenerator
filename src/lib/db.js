@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 9; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: Strava activities
+export const SCHEMA_VERSION = 10; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: kept for «Deine Abfragen». 10: Strava activities
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -82,7 +82,7 @@ export const DATA_TABLES = [
  * @property {string} [weightNote]
  *
  * @typedef {Object} Visit          One workshop visit (Noah, 4.10.2026, answer 7a)
- * @property {string} id            e.g. "biketech-R6439"
+ * @property {string} id            e.g. "shop-1234"
  * @property {string} bikeId
  * @property {string} date          YYYY-MM-DD
  * @property {string} shop
@@ -155,9 +155,10 @@ export function createDb(name = 'pack-generator') {
     flowTemplates: 'id, actId, usedAt',
     flowStars: 'id, msId, day',
   });
-  // Version 9 («Training», TR1–TR4) only adds every Strava activity (rides, runs, hikes …) with its
+  // Version 10 («Training», TR1–TR4) only adds every Strava activity (rides, runs, hikes …) with its
   // heart rate per zone; only the rides count for the bikes (kmBook). Existing data stays as it is.
-  db.version(9).stores({
+  // Version 9 is kept free for «Deine Abfragen» (abAnswers); Dexie allows the gap.
+  db.version(10).stores({
     activities: 'id, day, kind',
   });
   return db;

@@ -9,6 +9,7 @@
   import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
+  import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
@@ -355,6 +356,9 @@
         {#if message}<p class="msg" role="status">{message}</p>{/if}
       </div>
     </section>
+
+    <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
+    <BeforeUpdates />
 
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">

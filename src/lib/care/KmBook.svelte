@@ -8,6 +8,7 @@
    * bike: the bike (as stored); bikes: all bikes (for the buttons and «Change bike»).
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { MoreHorizontal } from '@lucide/svelte';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
@@ -233,7 +234,7 @@
     {/if}
     <p class="hint">{t('Tap ⋯ on a row to change it or leave it out. A left-out ride stays visible as an entry until you remove it.')}</p>
   {:else}
-    <p class="hint">{t('No entries yet. Enter the km by hand or import your rides (Strava activities.csv, FIT files).')}</p>
+    <Empty text={t('No entries yet. Enter the km by hand or import your rides (Strava activities.csv, FIT files).')} />
   {/if}
 </section>
 

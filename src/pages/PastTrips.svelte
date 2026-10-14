@@ -21,6 +21,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import '../lib/review/review.css';
   import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Check } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -103,11 +104,8 @@
   </header>
 
   {#if $dataQ && !facts.length}
-    <div class="rv-box pad empty">
-      <b>{t('No finished trips yet.')}</b>
-      <p>{t('A trip shows up here the day after it ends, or as soon as you end it on the ride day.')}</p>
-      <a class="btn" href="#/trips">{t('Open Trips')}</a>
-    </div>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <div class="nopast"><Empty icon={Check} title={t('No finished trips yet.')} text={t('A trip shows up here the day after it ends, or as soon as you end it on the ride day.')} action={{ label: t('Open Trips'), href: '#/trips' }} /></div>
   {:else if $dataQ}
     <label class="rv-search find"><Search size={18} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Trip, place or learning')} aria-label={t('Search trips and learnings')} /></label>
     <div class="tools">
@@ -135,11 +133,7 @@
     </section>
 
     {#if !rows.length}
-      <div class="rv-box pad empty">
-        <b>{t('No trip matches.')}</b>
-        <p>{filtered ? t('Try another word or kind.') : t('No trip in this period.')}</p>
-        {#if filtered}<button type="button" class="btn" onclick={reset} data-explain={t('Show all kinds')}>{t('Show all|filter')}</button>{:else if mode !== 'all'}<button type="button" class="btn" onclick={() => (mode = 'all')} data-explain={t('Show all years')}>{t('Show all|filter')}</button>{/if}
-      </div>
+      <div class="nopast"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Try another word or kind.') : t('No trip in this period.')} action={filtered ? { label: t('Show all|filter'), onclick: reset, explain: t('Show all kinds') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
     {:else}
       <div class="tbox" role="region" aria-label={t('Past trips')} tabindex="0">
         <table class="tt">
@@ -228,15 +222,8 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .empty {
-    display: grid;
-    gap: 8px;
-    justify-items: start;
+  .nopast {
     margin-top: 12px;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
   }
   .tools {
     display: flex;

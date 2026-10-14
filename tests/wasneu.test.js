@@ -7,7 +7,7 @@ import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
 import {
   SINCE, BEST, SORTS, PLANNED, HOME_FEATURE, sinceOf, sortKey, usesOf, bumpUse, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth,
-  daysBetween, showMessage, messageOn, tileDaysLeft, pinNews, unpinNews, TILE_DAYS,
+  daysBetween, messageOn, BANNER_DAYS, tileDaysLeft, pinNews, unpinNews, TILE_DAYS,
 } from '../src/lib/know/wasneu.js';
 
 // v0.110.0 Design-Refresh P10 «Was ist neu» (I11–I11e)
@@ -29,7 +29,10 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.explain']).toBe('0.117.0'); // v0.117.0 «Knöpfe neu»
     expect(SINCE['f.quickstart']).toBe('0.119.0'); // v0.119.0 «Schnellstart»
     expect(SINCE['f.packblocks']).toBe('0.124.0'); // v0.124.0 «Neue Tour Teil 2»
-    expect(SINCE['f.yeargoals']).toBe('0.125.0'); // v0.125.0 «Werte überall»
+    // v0.132.0 Tagespaket (changed on purpose: 0.125.0 never went live, its functions come with 0.132.0)
+    expect(SINCE['f.tripstate']).toBe(WHATS_NEW[0].version); // TZ-1 «Zustand sichtbar»
+    expect(SINCE['f.yeargoals']).toBe(WHATS_NEW[0].version); // «Werte überall»
+    expect(SINCE['f.velosetup']).toBe(WHATS_NEW[0].version); // v0.132.0 «Velo-Setup»
     expect(SINCE['f.training']).toBe(WHATS_NEW[0].version); // «Training» TR1–TR4
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
@@ -80,10 +83,15 @@ describe('the list and its sorts', () => {
     expect(by['f.packblocks'].state).toBe('never');
     expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('never'); // 0.119.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.packblocks').state).toBe('never'); // 0.124.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.125.0, older than this version
+    expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.132.0, older than this version
+    expect(rowsOf().find((r) => r.id === 'f.velosetup').state).toBe('never'); // 0.132.0, older than this version
+    expect(rowsOf(undefined, undefined, '0.124.0').find((r) => r.id === 'f.packblocks').state).toBe('new'); // new in its version (0.131.0 brought no new function)
     expect(rowsOf().find((r) => r.id === 'f.training').state).toBe('new'); // new in this version
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
-        expect(by['f.theft'].state).toBe('never');
+    expect(by['f.tripstate'].state).toBe('never');
+    expect(rowsOf().find((r) => r.id === 'f.tripstate').state).toBe('new'); // new in this version (0.132.0)
+    expect(rowsOf(undefined, undefined, '0.131.0').find((r) => r.id === 'f.tripstate').state).toBe('never'); // not yet in 0.131.0
+    expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);
       expect(PAGE_GROUPS.some((g) => g.key === r.place), r.id).toBe(true);
@@ -91,7 +99,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 6))).toEqual(['f.training', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newest.slice(0, 10))).toEqual(['f.training', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -118,11 +126,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.training', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.training', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.training', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.training', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.training', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.training', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.training', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.training', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();
@@ -152,15 +160,18 @@ describe('all versions by month', () => {
 describe('the message after an update (I11b) and the tile «New» (I11e)', () => {
   const v = '0.110.0';
   const update = { v, from: '0.108.0', at: '2026-10-12' };
-  it('comes at each start after the update until «Do not show again»; «Later» only for this start', () => {
-    expect(showMessage({ update, mute: null, later: null, current: v })).toBe(true);
-    expect(showMessage({ update, mute: v, later: null, current: v })).toBe(false);
-    expect(showMessage({ update, mute: '0.108.0', later: null, current: v })).toBe(true); // the next update brings it back
-    expect(showMessage({ update, mute: null, later: v, current: v })).toBe(false);
-    expect(showMessage({ update: null, current: v })).toBe(false); // a first install
-    expect(showMessage({ update: { ...update, v: '0.108.0' }, current: v })).toBe(false);
-    expect(messageOn({ update, mute: null, current: v })).toBe(true);
-    expect(messageOn({ update, mute: v, current: v })).toBe(false);
+  // v0.127.0 A-U1 (changed on purpose): a banner on Today instead of the window; × or «View» closes it until
+  // the next update, after BANNER_DAYS calendar days it goes by itself; no «Later» any more
+  it('the banner shows after the update until × and for 7 calendar days', () => {
+    expect(BANNER_DAYS).toBe(7);
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-12' })).toBe(true);
+    expect(messageOn({ update, mute: v, current: v, today: '2026-10-12' })).toBe(false);
+    expect(messageOn({ update, mute: '0.108.0', current: v, today: '2026-10-12' })).toBe(true); // the next update brings it back
+    expect(messageOn({ update: null, current: v, today: '2026-10-12' })).toBe(false); // a first install
+    expect(messageOn({ update: { ...update, v: '0.108.0' }, current: v })).toBe(false);
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-18' })).toBe(true); // day 6
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-19' })).toBe(false); // day 7: gone
+    expect(messageOn({ update, mute: null, current: v })).toBe(true); // without a day: not counted
   });
   it('the tile stays 14 days, counted by the calendar (over the change to winter time too)', () => {
     expect(daysBetween('2026-10-12', '2026-10-26')).toBe(14);

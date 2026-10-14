@@ -12,7 +12,7 @@
   import { ridesIntoDark } from '../blockplan.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
-  import { t, tn, num, nameOf } from '../i18n.svelte.js';
+  import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, rememberDomain, newPackTrip, readyKey, inDomain, hasBike } from '../domains.js';
   import { groupEntries, examplesFor, EXAMPLES_HIDDEN } from '../packgroups.js';
   import { coldLayer } from '../layers.js';
@@ -23,7 +23,7 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { selectAll } from '../ui/selectall.js';
-  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
+  import { rideName, rideDate, freeTitle, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
@@ -31,6 +31,7 @@
   import { take } from '../nav.js';
   import OptionButton from '../ui/OptionButton.svelte';
   import { newTripOff } from '../repairslim.js';
+  import { similarHours, nameClash } from '../formprefill.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -153,19 +154,16 @@
   // svelte-ignore state_referenced_locally
   let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : BIKEPACKING);
   // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
-  const SPORTS = [
-    { key: BIKEPACKING, name: 'Cycling|sport', icon: BikeIcon },
-    { key: 'ski', name: 'Ski touring', icon: MountainSnow },
-    { key: 'hiking', name: 'Hiking', icon: Footprints },
-  ].filter((x) => DOMAIN[x.key]);
+  // Data cleanup 14.10.2026: which areas are in sight, their names and icons come from domains.js (DOMAINS[].sport).
+  // v0.124.0: the examples' icons (also the sports) for the shared option button (ui/OptionButton.svelte).
+  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
+  const SPORTS = TRIP_DOMAINS.filter((d) => d.sport).map((d) => ({ key: d.key, name: d.sportName ?? d.name, icon: EX_ICON[d.icon] ?? BikeIcon }));
   const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
   // svelte-ignore state_referenced_locally
   let othersOpen = $state(otherAreas.some((d) => d.key === area));
   // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
   let example = $state(null);
   let tplOpen = $state(false);
-  // v0.124.0: the examples' icons for the shared option button (ui/OptionButton.svelte).
-  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
   const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
   const examples = $derived($hiddenQ?.value ? [] : examplesFor(area));
   const chosenEx = $derived(examples.find((x) => x.id === example) ?? null);
@@ -197,8 +195,39 @@
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
   $effect(() => {
-    if (autoName) draft.title = rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days });
+    // v0.127.0 A-U5: the made name is one no other trip has («… (2)»), like the day ride's
+    if (autoName) draft.title = freeTitle(rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days }), trips);
   });
+
+  /* ---------- v0.127.0 A-U5 «Formulare nutzen vorhandene Daten» (formprefill.js) ---------- */
+  // The riding hours of the last similar trips (same days), on a green field with where they come from;
+  // typing replaces them, a template or an example sets its own. Nothing is locked.
+  const simHours = $derived(isNew && byBike ? similarHours(trips, days) : null);
+  let hoursOwn = $state(false);
+  let hoursSet = ''; // the value the suggestion put in last
+  $effect(() => {
+    if (!isNew || hoursOwn) return;
+    const v = simHours ? String(simHours.hours) : '';
+    if (ctx.hours === '' || ctx.hours === hoursSet) {
+      ctx.hours = v;
+      hoursSet = v;
+    }
+  });
+  const hoursPre = $derived(isNew && !hoursOwn && !!simHours && ctx.hours === String(simHours.hours));
+  const hoursFrom = $derived(
+    !simHours ? '' : days === 1 ? tn(simHours.n, 'like your last day ride · you can change it', 'like your last {n} day rides · you can change it') : days === 2 ? tn(simHours.n, 'like your last two-day trip · you can change it', 'like your last {n} two-day trips · you can change it') : tn(simHours.n, 'like your last trip of {d} days · you can change it', 'like your last {n} trips of {d} days · you can change it', { d: days }),
+  );
+  // the bike of the last trip (chosen above), said once below the chips until another one is tapped
+  // svelte-ignore state_referenced_locally
+  const bikeAtStart = isNew && trips.some((x) => hasBike(x) && !x.skipped && x.bikeId === draft.bikeId) ? draft.bikeId : null;
+  // svelte-ignore state_referenced_locally
+  const bikeFromOpen = bikes.some((b) => b.id === defaultBikeId);
+  let bikeOwn = $state(false);
+  const bikePre = $derived(!!bikeAtStart && !bikeOwn && draft.bikeId === bikeAtStart && bikes.length > 1);
+  // the check at the name field: another trip has this name → a free one to take with one tap
+  const clash = $derived(nameClash(draft.title, trips, trip?.id ?? null));
+  const clashWhen = $derived(clash?.trip.startDate ? new Date(`${clash.trip.startDate}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '');
+  const takeFree = () => ((draft.title = clash.suggestion), (autoName = false));
 
   // v0.25.1 (Noah 3a): with a home place and the internet, the weather preset comes from the
   // forecast for the start date (short timeout; offline or failed: nothing happens). Once Noah
@@ -218,6 +247,8 @@
     const home = homeOf($homeQ?.value);
     if (isNew && !placeTyped && !wxPlace && home) placeText = home.name ?? '';
   });
+  // v0.127.0 A-U5: the home place as the start, green with where it comes from, until changed
+  const placePre = $derived(isNew && !placeTyped && !wxPlace && !!homeOf($homeQ?.value)?.name && placeText === homeOf($homeQ?.value)?.name);
   async function findPlace() {
     const q = placeText.trim();
     if (!q || placeBusy) return;
@@ -552,8 +583,9 @@
     {#if isNew}
       <!-- v0.114.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
       <div class="plz">
-        <label class="plzin"><MapPin size={18} aria-hidden="true" /><input class="inp" bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
-        <p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>
+        <label class="plzin" class:pre={placePre}><MapPin size={18} aria-hidden="true" /><input class="inp" class:pre={placePre} aria-describedby={placePre ? 'tn-placefrom' : undefined} bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
+        {#if placePre && !placeBusy && !placeErr}<small class="prefrom" id="tn-placefrom">{t('from your home place · you can change it')}</small>
+        {:else}<p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>{/if}
       </div>
       {#if fcWx}
         <div class="fcard" aria-live="polite">
@@ -581,6 +613,11 @@
     {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
     {:else if !isNew}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
   </fieldset>
+{/snippet}
+
+{#snippet clashMsg()}
+  <!-- v0.127.0 A-U5: the check at the field, before saving; a free name to take with one tap (never forced) -->
+  {#if clash}<p class="fieldmsg" id="tn-clash">{clashWhen ? t('This name already exists ({when}).', { when: clashWhen }) : t('This name already exists.')} <button type="button" class="tp-link" onclick={takeFree}>{t('Suggestion: «{name}»', { name: clash.suggestion })}</button></p>{/if}
 {/snippet}
 
 {#snippet helperItems()}
@@ -689,14 +726,16 @@
       </fieldset>
     {/if}
     {#if isNew && byBike}
-      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+      {@render clashMsg()}
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
       {#if bikes.length}
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => (draft.bikeId = b.id)}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
           </div>
+          {#if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
         </fieldset>
       {:else}
         <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
@@ -729,8 +768,9 @@
         <div class="grid two">
           <!-- v0.40.0 (design check): the field for the days only with "More"; 1 and 2 days are the chips. -->
           {#if moreDays}<label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
-          <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
+          <label><input class="inp num" class:pre={hoursPre} type="text" inputmode="decimal" bind:value={ctx.hours} oninput={() => (hoursOwn = true)} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} aria-describedby={hoursPre ? 'tn-hoursfrom' : undefined} /><span class="sub">{t('Riding hours per day')}</span></label>
         </div>
+        {#if hoursPre}<small class="prefrom" id="tn-hoursfrom">{hoursFrom}</small>{/if}
         {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
@@ -741,7 +781,8 @@
       {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+        {#if clash}<div class="wide">{@render clashMsg()}</div>{/if}
         <label><span class="lbl">{t('Start date')}</span><DateInput bind:value={draft.startDate} /></label>
         {#if byBike}
           <label>
@@ -1008,6 +1049,14 @@
     border: 1px solid var(--line-strong);
     border-radius: var(--r-ctl);
     background: var(--paper);
+  }
+  /* v0.127.0 A-U5: the home place as the start, the whole field green */
+  .plzin.pre {
+    background: var(--ok-soft);
+    border-color: var(--ok);
+  }
+  .plzin .inp.pre {
+    background: transparent;
   }
   .plzin .inp {
     flex: 1;

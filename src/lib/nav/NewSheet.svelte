@@ -6,6 +6,9 @@
    * Desktop: the orange "New" in the top bar; phone: the + in the middle of the bottom bar.
    * v0.30.0 (Noah, finding 2): "Plan a trip" opens the "New trip" window straight away with the
    * standard set; the area, a template or a copy of the last trip are chosen in that window.
+   * v0.125.0 A-J1 (mockup, Noah «aj-aj5 ok», answer 1a): «Workshop visit» opens the real visit window
+   * (BikeQuickDialog 'visit', km and last workshop filled in), no note any more. After saving: the bike's
+   * «Workshop & receipts» with «Workshop visit saved. · Undo».
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -15,15 +18,32 @@
   import { parseKm } from '../care.js';
   import { setReading } from '../kmbookdb.js';
   import ProblemForm from './ProblemForm.svelte';
+  import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
+  import { startBike } from '../problems.js';
+  import { bikesHash } from '../bikes.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X } from '@lucide/svelte';
 
   let { mode = $bindable(null), onnote } = $props();
+  let visitOpen = $state(false);
+  const lastBike = () => {
+    try {
+      return localStorage.getItem('problem.lastBike');
+    } catch {
+      return null;
+    }
+  };
+  function visitSaved({ bikeId, id }) {
+    location.hash = bikesHash({ tab: 'shop', bike: bikeId });
+    offerDone(t('Workshop visit saved.'), id ? () => db.visits.delete(id) : null);
+  }
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes($bikesQ ?? []));
 
   let dialog = $state();
   $effect(() => {
+    if (mode === 'visit') return void ((mode = null), (visitOpen = true)); // openNew('visit')
     if (mode && dialog && !dialog.open) dialog.showModal();
     if (!mode && dialog?.open) dialog.close();
   });
@@ -90,10 +110,11 @@
     </ul>
     <h3 class="ngrp">{t('Bikes|place')}</h3>
     <ul class="opts">
-      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
+      <!-- v0.125.0 A-J1: the visit first (the real window, no note), then the problem, then the km -->
+      {#if bikes.length}<li><button type="button" class="opt" onclick={() => run(() => (visitOpen = true))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Opens the visit, km already filled in')}</span></span></button></li>{/if}
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}
-      <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
     </ul>
     <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
@@ -101,6 +122,9 @@
     </ul>
   {/if}
 </dialog>
+{#if visitOpen}
+  <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} onsaved={visitSaved} onclose={() => (visitOpen = false)} />
+{/if}
 
 <style>
   .new {

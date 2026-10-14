@@ -109,9 +109,10 @@ describe('stage 1: the same packing lists as before (stage 2: 11a apart)', () =>
         Object.assign(d, setPlace(d, c.body ? 'body' : 'bag'));
         return itemRecord(d, { item: i, items: data.tables.items, weightG: i.weightG ?? null, now: i.updatedAt });
       });
+      // Data cleanup 14.10.2026 (Noah 3a): the old fields become the blocks; what the item says stays the same.
       for (const [n, i] of items.entries()) {
         const old = data.tables.items[n];
-        expect([i.role ?? null, !!i.always, i.defaultBag ?? null, i.sets ?? []]).toEqual([old.role ?? null, !!old.always, old.defaultBag ?? null, old.sets ?? []]);
+        expect([comesOf(i), i.defaultBag ?? null]).toEqual([comesOf(old), old.defaultBag ?? null]);
       }
       expect(lists(data, items)).toEqual(all[f]);
     });
@@ -128,7 +129,9 @@ describe('stage 1: the same packing lists as before (stage 2: 11a apart)', () =>
   });
 });
 
-describe('the item dialog buttons write the new fields and the old ones in step', () => {
+// Data cleanup 14.10.2026 (Noah 3a): the buttons write only the new fields (the block Standard, the
+// mark leaveHome, role 'worn' for Am Körper); an old "On every trip" is switched off when it is still there.
+describe('the item dialog buttons write the new fields', () => {
   const d = (f) => itemDraft({ id: 'X', name: 'test_data_gtp_ X', category: 'tools', defaultBag: 'top', ownership: 'owned', role: null, sets: [], ...f });
 
   it('reads: Standard = On me, the block Standard, standard pack or "on every trip"; Am Körper = worn; optional is a mark', () => {
@@ -144,45 +147,43 @@ describe('the item dialog buttons write the new fields and the old ones in step'
     expect(comesOf(d({ defaultBag: 'body' })).body).toBe(false);
   });
 
-  it('Standard on: the block standard + role standard + always; on Am Körper the role stays worn; off: all three go', () => {
-    expect(setStandard(d({}), true)).toEqual({ role: 'standard', always: true, sets: ['standard'] });
-    expect(setStandard(d({ role: 'optional' }), true)).toEqual({ role: 'standard', always: true, sets: ['standard'], leaveHome: false });
-    expect(setStandard(d({ role: 'worn' }), true)).toEqual({ role: 'worn', always: true, sets: ['standard'] });
+  it('Standard on: the block standard; on Am Körper the role stays worn; off: the block goes', () => {
+    expect(setStandard(d({}), true)).toEqual({ role: '', sets: ['standard'] });
+    expect(setStandard(d({ role: 'optional' }), true)).toEqual({ role: '', sets: ['standard'], leaveHome: false });
+    expect(setStandard(d({ role: 'worn' }), true)).toEqual({ role: 'worn', sets: ['standard'] });
     expect(setStandard(d({ sets: ['sleep', 'standard'] }), true).sets).toEqual(['sleep', 'standard']);
     expect(setStandard(d({ role: 'standard', always: true, sets: ['standard', 'sleep'] }), false)).toEqual({ role: '', always: false, sets: ['sleep'] });
-    expect(setStandard(d({ always: true }), false)).toEqual({ role: '', always: false, sets: [] });
+    expect(setStandard(d({ sets: ['standard'] }), false)).toEqual({ role: '', sets: [] });
   });
 
   it('Am Körper writes role worn and leaves the default bag; a bag again: back to Standard', () => {
     expect(setPlace(d({}), 'body')).toEqual({ role: 'worn' });
-    expect(setPlace(d({ role: 'standard', always: true }), 'body')).toEqual({ role: 'worn' });
-    expect(setPlace(d({ role: 'optional', leaveHome: true }), 'body')).toEqual({ role: 'worn', leaveHome: false });
-    expect(setPlace(d({ role: 'worn' }), 'bag')).toEqual({ role: 'standard', sets: ['standard'] });
-    expect(setPlace(d({ role: 'standard' }), 'bag')).toEqual({ role: 'standard' });
+    expect(setPlace(d({ sets: ['standard'] }), 'body')).toEqual({ role: 'worn' });
+    expect(setPlace(d({ leaveHome: true }), 'body')).toEqual({ role: 'worn', leaveHome: false });
+    expect(setPlace(d({ role: 'worn' }), 'bag')).toEqual({ role: '', sets: ['standard'] });
     expect(setPlace(d({ role: '' }), 'bag')).toEqual({ role: '' });
-    expect(setPlace(d({ role: 'optional' }), 'bag')).toEqual({ role: 'optional' });
     expect('defaultBag' in setPlace(d({}), 'body')).toBe(false);
   });
 
   it('the mark "stays at home" can be taken back', () => {
     expect(clearOptional(d({ role: 'optional', leaveHome: true }))).toEqual({ role: '', leaveHome: false });
-    expect(clearOptional(d({ role: 'standard' }))).toEqual({ role: 'standard', leaveHome: false });
+    expect(clearOptional(d({ leaveHome: true }))).toEqual({ role: '', leaveHome: false });
   });
 
-  it('"Leave at home" (Gear, debrief): out of Standard, marked, old fields in step', () => {
-    expect(leaveHomeFields(d({ role: 'standard', sets: ['standard', 'sleep'] }))).toEqual({ role: 'optional', leaveHome: true, sets: ['sleep'] });
-    expect(leaveHomeFields(d({ always: true, sets: ['standard'] }))).toEqual({ role: 'optional', leaveHome: true, sets: [], always: false });
+  it('"Leave at home" (Gear, debrief): out of Standard and marked', () => {
+    expect(leaveHomeFields(d({ sets: ['standard', 'sleep'] }))).toEqual({ role: '', leaveHome: true, sets: ['sleep'] });
+    expect(leaveHomeFields(d({ always: true, sets: ['standard'] }))).toEqual({ role: '', leaveHome: true, sets: [], always: false });
     const after = { ...d({ role: 'standard', always: true, sets: ['standard'] }), ...leaveHomeFields(d({ role: 'standard', always: true, sets: ['standard'] })) };
     expect([inStandard(after), comesOf(after)]).toEqual([false, { standard: false, body: false, optional: true }]);
   });
 
-  it('every write stays readable by an older version: role and always agree with the new fields', () => {
-    const steps = [(x) => setStandard(x, true), (x) => setPlace(x, 'body'), (x) => setPlace(x, 'bag'), (x) => setStandard(x, false), (x) => leaveHomeFields(x), (x) => clearOptional(x)];
-    let x = d({});
-    for (const step of steps) {
-      x = { ...x, ...step(x) };
-      const old = { ...x, sets: (x.sets ?? []).filter((k) => k !== 'standard'), leaveHome: undefined }; // what 0.32 reads
-      expect([comesOf(old).standard, comesOf(old).body]).toEqual([comesOf(x).standard, comesOf(x).body]);
+  it('saving an item from before the cleanup writes the old fields as blocks: the same say, no role standard / optional, no always', () => {
+    for (const f of [{ role: 'standard' }, { always: true }, { role: 'optional' }, { role: 'optional', leaveHome: false }, { role: 'worn', always: true }, { role: 'standard', leaveHome: true }]) {
+      const item = { ...d(f), grams: '' };
+      const rec = itemRecord(item, { item: { ...item, id: 'X' }, items: [] });
+      expect(comesOf(rec)).toEqual(comesOf(d(f)));
+      expect(['standard', 'optional']).not.toContain(rec.role);
+      expect('always' in rec).toBe(false);
     }
   });
 });

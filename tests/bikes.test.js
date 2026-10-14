@@ -22,8 +22,9 @@ describe('bikes and bags', () => {
 
   it('completes a bike once and keeps what is already set', () => {
     const c = startContainers(items);
-    const b = completeBike({ id: 'scott-hardtail', name: 'Scott' }, c, { bikeWeightG: 13000 });
-    expect(b.weightG).toBe(13000);
+    // Data cleanup 14.10.2026: no weight from the logbook for one bike ID any more; the weight stays open.
+    const b = completeBike({ id: 'scott-hardtail', name: 'Scott' }, c);
+    expect(b.weightG).toBe(null);
     expect(b.setup).toEqual({ seat: 'bag-TA02', top: 'bag-TA06', pouchL: 'bag-TA08-L', pouchR: 'bag-TA08-R' });
     expect(completeBike({ id: 'gravel', name: 'Gravel' }, c).weightG).toBe(null);
     const mine = { id: 'gravel', weightG: 9000, slots: ['seat'], setup: { seat: null } };

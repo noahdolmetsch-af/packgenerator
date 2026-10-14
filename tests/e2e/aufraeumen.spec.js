@@ -39,9 +39,12 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await page.goto('./');
   await importAndSettle(page, file);
 
-  // H: Touren shows the trip ended before it began in its own group, not as ridden.
+  // H: Touren shows the trip ended before it began as still planned, not as ridden
+  // (TZ-1 «Zustand sichtbar»: no own group any more; it stands under Geplant with its line)
   await page.goto('./#/trips');
-  await expect(page.getByRole('heading', { name: new RegExp(T('Ended before it began')) })).toBeVisible();
+  const planned = page.locator('section[data-group="plan"]');
+  await expect(planned.getByText(T('Marked as ended, the date is still ahead'))).toBeVisible();
+  await expect(page.locator('section[data-group="done"]')).toHaveCount(0);
   await expect(page.getByText(TEST)).toBeVisible();
 
   // F: Ich › Testdaten aufräumen: the test trip and the fixture's «Test …» bags, archived.

@@ -12,12 +12,16 @@ Stand: 8. Oktober 2026 (live v0.35.0). Verbindliche Quelle: dieses Repository, a
 | Welche Arbeitsschritte und Abnahmen sind geplant, was kommt als Nächstes? | [Roadmap AP01–AP30](roadmap.md) | Einzige aktive Gesamtroadmap, Status/Abhängigkeiten/Erfolgskriterien; [Stand und nächste Pakete](roadmap.md#stand-und-nächste-pakete-8102026) |
 | Was beweist eine Prüfung tatsächlich? | [Prüfregister](verification.md) | Teilnachweise, PF01–PF16, offene Messungen und Prüfgrenzen |
 | Wie arbeiten Daten und Code zusammen? | [Architektur und Datenverträge](architecture.md) | Tatsächliche Pfade, Geltungsbereiche und Speicherwege |
+| Wo liegt welche Liste, was gilt für Daten? | [Daten](daten.md) | Eine Liste, ein Ort; nichts Persönliches im Code; Besitzer jeder Tabelle (seit 14.10.2026) |
 | Was änderte ein Release genau? | [Releases](releases/) und die [Historie im Projektstand](status.md#historie-veröffentlichter-funktionen) | Ausführlicher Beleg bisher für [07.10.2026 / PR #32](releases/2026-10-07-calm-preparation.md); spätere Releases: Kurzeintrag im Status und Pull Request auf GitHub |
 | Was ist neu für Noah, in einfachen Worten? | `src/lib/whatsnew.js`, in der App unter „Was die App alles kann“ | Die letzten Releases mit Knopf „Ausprobieren“ |
 | Wie funktionieren die zwei neuen Screens? | [Entwürfe 2 und 3](calm-preparation.md) | Konkreter Ablauf und erfüllte Teilkriterien |
 | Welche Pakete folgen aus der Strategie (119 Fragen)? | [Strategie-Pakete](strategie-pakete.md) | Design D1–D6, Im Flow, Server S1–S5, Neuland N1 |
 | Wie prüfen wir das Design regelmässig, Screen für Screen? | [Design-Audits](design-audit.md) | Regel: vor jeder neuen Funktion ein Audit; Screen-Inventar mit Noten |
 | Wie sehen sie aus, welche Abweichungen sind bewusst? | [Design-QA](../design-qa.md) und [Bilder](../qa/) | Synthetische Beispiele; Herkunft/Vergleich/Prüfgrenzen |
+| Wie ist die Bezahlfunktion vorbereitet? | [Bezahlen](bezahlen.md) | Unsichtbar, nur Testmodus; Server, Lizenz, Codes, Shop und Buchung |
+| Welche Links nach aussen kommen (komoot, Strava, SBB, MeteoSchweiz …)? | [Links nach aussen](links-nach-aussen.md) | Spezifikation DG-X1–X16 vom 13.10.2026, noch nicht gebaut |
+| Wie nutze ich jede Funktion (aufschalten, Beispiel)? | [Benutzerhandbuch](handbuch.md) und [Kleine Apps](kleine-apps.md) | Aus `src/lib/handbook.js` erzeugt (`node tools/handbuch.mjs`) |
 | Wie kann ich den Code verstehen? | [Lern-Seite](learn/README.md) | Einfache technische Erklärung |
 
 ## Historische und private Quellen

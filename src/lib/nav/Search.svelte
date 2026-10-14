@@ -6,7 +6,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
-  import { searchAll, commandActions } from '../search.js';
+  import { commandActions, COMMAND_HREF } from '../search.js';
+  import { ops } from '../bedienung.svelte.js';
   import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
@@ -14,6 +15,8 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
   import SearchAnswer from '../helper/SearchAnswer.svelte';
+  import SearchFree from '../kisuche/SearchFree.svelte';
+  import { smartSearch } from '../kisuche/smart.js';
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
 
@@ -28,10 +31,12 @@
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
-  const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
+  // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
+  const smart = $derived(q.trim().length >= 2 && $all ? smartSearch(q, $all) : { groups: [], also: [], fixed: null });
+  const groups = $derived(smart.groups);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
-  const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
+  const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
   const feats = $derived(q.trim().length >= 2 ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
@@ -99,7 +104,7 @@
   async function run(c) {
     const cmd = c.cmd;
     remember(q);
-    countUse(USE[cmd.kind]);
+    if (USE[cmd.kind]) countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
       q = '';
@@ -116,6 +121,10 @@
     else if (cmd.kind === 'note') openNote(cmd.text ?? '');
     else if (cmd.kind === 'wear') openWear();
     else if (cmd.kind === 'trip') openNew('list');
+    // FE17 «Suche kann handeln» (Noah 13.10.2026): go there
+    else if (cmd.kind === 'quicknote') openNote('');
+    else if (cmd.kind === 'bike') location.hash = `#/bikes?bike=${encodeURIComponent(cmd.bikeId)}`;
+    else if (COMMAND_HREF[cmd.kind]) location.hash = COMMAND_HREF[cmd.kind];
   }
   async function undoDone() {
     const u = $state.snapshot(done?.undo); // a plain copy: IndexedDB cannot store Svelte proxies
@@ -260,6 +269,8 @@
           {/each}
         </ul>
       {/if}
+      <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} />
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>

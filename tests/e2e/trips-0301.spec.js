@@ -260,13 +260,12 @@ test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte 
   // The standard set as the app has it after its own updates of the fixture (they run on start, e.g.
   // the light set): write the template with it.
   await page.reload();
-  // lightSet2026 updates LI01, LI02 and LI03 one after the other: wait for all of them, not only the
-  // first (reading the items between two updates put "Licht" into the template line now and then).
-  await expect.poll(async () => (await table(page, 'items')).filter((i) => ['LI01', 'LI02', 'LI03'].includes(i.id)).every((i) => i.lightSetDone)).toBe(true);
-  // v0.46.0: and wait for the last start-up update (its marker), so no update runs while the items are read.
+  // v0.46.0: wait for the last start-up update (its marker), so no update runs while the items are read.
   await expect.poll(async () => (await table(page, 'settings')).some((r) => r.key === 'update.templatesLinked2026')).toBe(true);
+  // Data cleanup 14.10.2026 (cleanup.js, after the updates): wait until no item has the old block fields.
+  await expect.poll(async () => (await table(page, 'items')).every((i) => !('always' in i) && !('kits' in i) && i.role !== 'standard')).toBe(true);
   const all = await table(page, 'items');
-  const stdNow = all.filter((i) => ['owned', 'unclear'].includes(i.ownership) && (['standard', 'worn'].includes(i.role) || i.always) && (!i.domains?.length || i.domains.includes('bikepacking')) && !i.sets?.includes('firstaid')).map((i) => i.id);
+  const stdNow = all.filter((i) => ['owned', 'unclear'].includes(i.ownership) && (i.role === 'worn' || i.sets?.includes('standard')) && (!i.domains?.length || i.domains.includes('bikepacking')) && !i.sets?.includes('firstaid')).map((i) => i.id);
   const value = [{ ...tpl, entries: [...stdNow, 'GTP1', 'LX01'].map((itemId) => ({ itemId, slot: 'seat', qty: 1 })) }];
   await page.evaluate((v) => new Promise((ok) => {
     const r = indexedDB.open('pack-generator');

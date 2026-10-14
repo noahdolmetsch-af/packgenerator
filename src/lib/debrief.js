@@ -12,10 +12,11 @@
  *     km, kmApplied }   km of this trip (answer 7a); kmApplied: what was already added to the bike
  * Pure functions only, so the rules are easy to test.
  */
-import { isInventory } from './gear.js';
+import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
+import { tripEnd } from './tripstate.js';
 import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
 import { inStandard, isWorn } from './blocks2026.js';
 import { leaveHomeFields } from './gear/comes.js';
@@ -38,7 +39,8 @@ export const BAGS_OK = [
 export const ITEM_STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' };
 
 /** Clothing that can wait at home on a warm trip ("only below 10 °C"). */
-const CLOTHING = ['onbike', 'rain', 'offbike'];
+// The clothing the cold question asks about: as before without shoes.
+const CLOTHING = CLOTHING_CATEGORIES.filter((c) => c !== 'shoes');
 export const WARM_LIMIT = 10;
 /** Answer 8b (4.10.2026): "leave at home" after an item was not used on 3 trips. */
 export const LEAVE_AFTER = 3;
@@ -52,15 +54,8 @@ export function unusedTimes(debriefs, tripId = null) {
   return out;
 }
 
-const iso = (d) => d.toISOString().slice(0, 10);
-const addDays = (isoDate, n) => {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + n);
-  return iso(d);
-};
-
-/** Last day of a trip (YYYY-MM-DD), or null without a start date. */
-export const tripEnd = (trip) => (trip?.startDate ? addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1) : null);
+/** Last day of a trip (YYYY-MM-DD), or null without a start date. Since v0.125.0 in tripstate.js. */
+export { tripEnd };
 
 /** Is the trip over (its last day is before today, or it was ended on the ride day)? Answer 4a: the debrief shows up the day after. */
 export const isOver = (trip, today = localDay()) => {
@@ -250,7 +245,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
     newItems.push({
       id: newItemId(newItems.length + 1), name, brand: from?.brand ?? '', model: from?.model ?? '', category: from?.category ?? 'lux', weightG: from?.weightG ?? null, qty: 1,
       weightStatus: from?.weightG != null ? from.weightStatus : 'missing', carry: from?.carry ?? 'luggage', defaultBag: from?.defaultBag ?? null, ownership: 'wishlist',
-      role: null, sets: [], kits: [], domains: ['bikepacking'], note, updatedAt: now,
+      role: null, sets: [], domains: ['bikepacking'], note, updatedAt: now,
     });
 
   for (const id of on) {

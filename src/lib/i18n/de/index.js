@@ -79,13 +79,47 @@ import kiaus from './kiaus.js';
 // v0.119.0 Schnellstart: one click on Heute plans a trip
 import schnellstart from './schnellstart.js';
 import teil2 from './teil2.js';
+// v0.125.0 A-J1: one way to record a workshop visit
+import aj1 from './aj1.js';
+// v0.125.0 TZ-1 «Zustand sichtbar»: the three trip states
+import tz1 from './tz1.js';
+import au from './au.js';
+// Data cleanup 14.10.2026: old fields and personal lists out of the code
+import datenbereinigen from './datenbereinigen.js';
 
 // Bugfix Dateneingabe D1–D4: values on the Pick-up check, «Enter values», own fields
 import dateneingabe from './dateneingabe.js';
 // v0.123.0 Trophäen-Vitrine: all stars by area and year
 import vitrine from './vitrine.js';
+// v0.127.0 «Tages-Check» 1: morning check and evening review
+import tagescheck from './tagescheck.js';
+// v0.127.0 «Tages-Check» 2: the balance ring, the tiles, the 15 questions
+import tagescheck2 from './tagescheck2.js';
+import woche from './woche.js';
+import sporttasche from './sporttasche.js';
+import erholung from './erholung.js';
+
 // «Werte überall» WU1–WU4 and «Strava verbinden» SV1
 import werte from './werte.js';
+// «App-Wartung» BF4 BF7 BF8: backup before updates, Strava free limits, the monthly check
+import wartung from './wartung.js';
+// Bedienung (Noah 13.10.2026): FE2 FE6 FE7 FE8 FE9 FE10 FE11 FE17 FE18
+import bedienung from './bedienung.js';
+// Kluge Suche: similar words, typos, filters, «Für Claude kopieren», Chrome-KI
+import kisuche from './kisuche.js';
+// UC3 Velos › Setup: photos, total weight, bag plan, setup log, ideas from others
+import setuprig from './setuprig.js';
+// Ich › Bezahlen (mockups BZ1 + BZ2b)
+import bezahlen from './bezahlen.js';
+// Kleine Apps: Meditation, Packliste, Velopflege with their own icon
+import kleineapps from './kleineapps.js';
+// Benutzerhandbuch: how to switch on and use every function (src/lib/handbook.js)
+import handbuch from './handbuch.js';
+
+// Kamera-Knopf: one tap opens the camera, always for receipts
+import kamera from './kamera.js';
+
+// «Training» TR1–TR4: Strava activities, heart rate zones, week plan
 import training from './training.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...werte, ...training };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...kamera, ...training };

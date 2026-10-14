@@ -16,6 +16,9 @@
  *                           power from a power meter; never the route)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
  *
+ * BF8 «Gratis-Grenzen» (Noah 13.10.2026): every answer after a call to Strava carries `rate`, Strava's
+ * request numbers from its headers (X-RateLimit-* and X-ReadRateLimit-*, "15 min,day"), also with a 429.
+ *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
  *   STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, optional ALLOWED_ATHLETE_ID, KV_REST_API_URL / KV_REST_API_TOKEN.
  * In the Strava API settings the «Authorization Callback Domain» must be packgen-three.vercel.app.
@@ -25,6 +28,7 @@
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './_lib/core.js';
 import { needDevice, newDevice, saveState, takeState, backToApp, jsonBody } from './_lib/oauth.js';
+import { rateOf } from './_lib/rate.js';
 
 export const AUTHORIZE_URL = 'https://www.strava.com/oauth/authorize';
 export const TOKEN_URL = 'https://www.strava.com/oauth/token';
@@ -232,7 +236,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
     return fresh.access_token;
   }
 
-  async function stravaGet(cfg, store, path) {
+  async function stravaGet(cfg, store, path, ctx = {}) {
     const token = await accessToken(cfg, store);
     let res;
     try {
@@ -240,7 +244,9 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
     } catch {
       throw new ApiError(502, 'strava_unreachable', 'Strava could not be reached.');
     }
-    if (res.status === 429) throw new ApiError(429, 'strava_busy', 'Strava allows only a few requests per 15 minutes. Try again later.');
+    const rate = rateOf(res.headers);
+    if (rate) ctx.rate = rate;
+    if (res.status === 429) throw new ApiError(429, 'strava_busy', 'Strava allows only a few requests per 15 minutes. Try again later.', rate ? { rate } : null);
     if (res.status === 401) throw new ApiError(401, 'strava_login_needed', 'Strava needs a new login.');
     if (!res.ok) throw new ApiError(502, 'strava_error', 'Strava answered with an error.');
     return res.json();
@@ -278,15 +284,17 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
 
         await needDevice(request, store);
         setUp(cfg);
+        const ctx = {};
+        const withRate = (body) => (ctx.rate ? { ...body, rate: ctx.rate } : body);
         if (step === 'status') {
           const raw = await store.get('strava:tokens');
           if (!raw) return json(request, 200, { ok: true, connected: false });
-          const me = await stravaGet(cfg, store, '/athlete');
-          return json(request, 200, { ok: true, connected: true, athlete: { firstname: me.firstname ?? '' }, scope: JSON.parse(raw).scope ?? '' });
+          const me = await stravaGet(cfg, store, '/athlete', ctx);
+          return json(request, 200, withRate({ ok: true, connected: true, athlete: { firstname: me.firstname ?? '' }, scope: JSON.parse(raw).scope ?? '' }));
         }
         if (step === 'gear') {
-          const me = await stravaGet(cfg, store, '/athlete');
-          return json(request, 200, { ok: true, bikes: (me.bikes ?? []).map(trimBike) });
+          const me = await stravaGet(cfg, store, '/athlete', ctx);
+          return json(request, 200, withRate({ ok: true, bikes: (me.bikes ?? []).map(trimBike) }));
         }
         if (step === 'activities') {
           const p = url.searchParams;
@@ -297,9 +305,9 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const q = new URLSearchParams({ page: String(page), per_page: String(PER_PAGE) });
           if (after != null) q.set('after', String(after));
           if (before != null) q.set('before', String(before));
-          const list = await stravaGet(cfg, store, `/athlete/activities?${q}`);
+          const list = await stravaGet(cfg, store, `/athlete/activities?${q}`, ctx);
           const arr = Array.isArray(list) ? list : [];
-          return json(request, 200, { ok: true, page, more: arr.length === PER_PAGE, activities: arr.map(trimActivity) });
+          return json(request, 200, withRate({ ok: true, page, more: arr.length === PER_PAGE, activities: arr.map(trimActivity) }));
         }
         if (step === 'zones') {
           return json(request, 200, { ok: true, ...trimZones(await stravaGet(cfg, store, '/athlete/zones')) });

@@ -1,5 +1,6 @@
 <script>
   import { localDay } from '../lib/localday.js';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
    * #/debrief            trips to debrief, finished debriefs, all learnings
@@ -20,7 +21,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
-  import { endedTooEarly } from '../lib/tripsoverview.js';
+  import { endedTooEarly } from '../lib/tripstate.js';
   import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
   import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen, ChevronLeft } from '@lucide/svelte';
@@ -417,7 +418,7 @@
 
 {#if tripId}
   {#if !$tripsQ}
-    <p class="muted">{t('Loading…')}</p>
+    <Skeleton rows={3} />
   {:else if !trip}
     <p class="card">{t('This trip does not exist any more.')} <a href="#/debrief">{t('Back to Debrief')}</a></p>
   {:else if early}

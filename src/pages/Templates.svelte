@@ -16,6 +16,7 @@
    */
   import { liveQuery } from 'dexie';
   import { Archive, Plus, Backpack, ChevronRight, Ellipsis } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
@@ -226,11 +227,8 @@
             </ul>
           </section>
         {:else if !archived.length}
-          <div class="card empty">
-            <b>{t('No templates yet.')}</b>
-            <p>{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
-            <button type="button" class="btn" onclick={saveCurrent} data-explain={t('Save the current trip as a template')}>{t('As template|save')}</button>
-          </div>
+          <!-- v0.127.0 A-U2: the one empty building block -->
+          <Empty icon={Backpack} title={t('No templates yet.')} text={t('A template is building blocks plus single items, so the next trip starts packed.')} action={{ label: t('As template|save'), onclick: saveCurrent, explain: t('Save the current trip as a template') }} />
         {/if}
       </div>
 
@@ -574,14 +572,5 @@
   .hint :global(svg) {
     flex: none;
     margin-top: 2px;
-  }
-  .empty {
-    display: grid;
-    gap: 6px;
-    justify-items: start;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
   }
 </style>

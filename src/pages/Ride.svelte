@@ -1,5 +1,7 @@
 <script>
   import { localDay } from '../lib/localday.js';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   /**
    * On the way (v0.29.0, Noah 1a, 7a, 8a; was "Ride day", v0.18.0): what do I need NOW? The block of
    * the hour on top ("Now"): what to wear, eat, drink, and light. Quick notes for the debrief in two taps
@@ -30,7 +32,7 @@
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
-  import { openTrip } from '../lib/nav.js';
+  import { openTrip, newTrip } from '../lib/nav.js';
   import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk } from '../lib/phase.js';
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
@@ -379,7 +381,8 @@
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
 
 {#if !trip}
-  {#if $tripsQ}<p class="card">{t('No trip yet. Create one in')} <a href="#/pack">{t('Plan|stage')}</a>.</p>{/if}
+  <!-- v0.127.0 A-U2: the one empty building block -->
+  {#if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : null} aside={main.kind ? pen : null} extra={endLink} hint={main.kind === 'last' ? t('End the trip when you are back home.') : ''} />

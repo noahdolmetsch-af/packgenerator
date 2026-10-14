@@ -57,8 +57,7 @@ export function mergeFields(target, old, now) {
   const sets = union(out.sets, (old.sets ?? []).filter(keep));
   if (inStandard(old) && !inStandard(out) && !leaveHome(out)) {
     if (!sets.includes(STANDARD)) sets.push(STANDARD);
-    out.always = true;
-    if (empty(out.role)) out.role = old.role === 'worn' ? 'worn' : 'standard';
+    if (empty(out.role) && old.role === 'worn') out.role = 'worn';
   }
   if (!same(sets, out.sets ?? [])) out.sets = sets;
   out.mergedFrom = union(out.mergedFrom, [old.id]);

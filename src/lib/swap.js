@@ -15,14 +15,14 @@
  * Pure functions only, tested in tests/swap.test.js.
  */
 import { isInventory } from './gear.js';
-import { isClothing, zoneGroup, layerKey, guessZone, guessLayer, tempKey, warmToCold, rainProof, coldest, isWet, SLACK } from './wardrobe.js';
+import { LAYER_KEYS, isClothing, zoneGroup, layerKey, guessZone, guessLayer, tempKey, warmToCold, rainProof, coldest, isWet, SLACK } from './wardrobe.js';
 import { rainOf } from './layers.js';
 
 /** The settings record of the picks. */
 export const SWAP_MEMORY = 'swap.memory';
 /** Head to feet, as the card and the mockup show the body. */
 export const ZONE_ORDER = ['head', 'upper', 'legs', 'hands', 'feet'];
-const LAYER_ORDER = ['base', 'mid', 'outer', 'accessory'];
+const LAYER_ORDER = LAYER_KEYS;
 
 /** The zone and layer of a piece: its own, else the guess from the name (null when neither knows). */
 export const zoneOf = (item) => zoneGroup(item?.zone) ?? guessZone(item?.name);

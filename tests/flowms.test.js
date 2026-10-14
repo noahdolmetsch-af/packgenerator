@@ -254,7 +254,7 @@ describe('suggestions, ideas, connections', () => {
 
 describe('the database: version 8', () => {
   it('only adds the three tables, which go into the backup', () => {
-    expect(SCHEMA_VERSION).toBe(9); // «Training» adds version 9 (activities) on top
+    expect(SCHEMA_VERSION).toBe(10); // «Training» adds version 10 (activities; 9 is kept for «Deine Abfragen») on top
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowSessions', 'flowTemplates', 'flowStars']));
   });
   it('the upgrade from version 7 keeps the old data', async () => {
@@ -271,7 +271,7 @@ describe('the database: version 8', () => {
 
     const db = createDb(name);
     await db.open();
-    expect(db.verno).toBe(SCHEMA_VERSION); // 9 since «Training»: the upgrade goes through version 8 to the newest
+    expect(db.verno).toBe(SCHEMA_VERSION); // 10 since «Training»: the upgrade goes through version 8 to the newest
     expect(await db.flowActs.count()).toBe(12);
     expect(await db.flowLog.toArray()).toMatchObject([{ actId: 'meditation', min: 20 }]);
     expect(await db.items.get('test_item')).toMatchObject({ name: 'Fictional tent' });

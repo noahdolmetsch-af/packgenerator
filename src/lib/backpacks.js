@@ -18,23 +18,14 @@
 import { isWornBag, isWornSlot } from './bikes.js';
 import { DOMAIN } from './domains.js';
 
-/**
- * What each area looks for in its bags, by litres (min–max), in the order of the area's packs
- * (domains.js DOMAINS[].packs). Noah 3a: hiking a 12 or 15 L running pack; weekend and world trip
- * a 20 L duffle and a 20 L daypack. Areas not listed look for the litres of their generic pack ±5 L.
- */
-export const PACK_WANTS = {
-  hiking: [{ min: 12, max: 15 }],
-  weekend: [{ min: 18, max: 22 }, { min: 18, max: 22 }],
-  travel: [{ min: 18, max: 22 }, { min: 18, max: 22 }],
-};
 /** Noah 3a: an ultra race on the bike: the running vest (about 15 L) on Back. */
 export const ULTRA_WANT = { min: 12, max: 15 };
 
 /** The litres a pack of an area looks for, or null when nothing is known. */
 export function wantFor(domain, index, pack = null) {
-  const own = PACK_WANTS[domain]?.[index];
-  if (own) return own;
+  // Data cleanup 14.10.2026: what an area looks for is on its pack in domains.js (DOMAINS[].packs[].want).
+  const own = DOMAIN[domain]?.packs?.[index]?.want;
+  if (own) return { ...own };
   const l = Number(pack?.volumeL ?? DOMAIN[domain]?.packs?.[index]?.volumeL);
   return l > 0 ? { min: Math.max(1, l - 5), max: l + 5 } : null;
 }

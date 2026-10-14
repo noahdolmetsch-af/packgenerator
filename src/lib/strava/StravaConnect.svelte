@@ -12,11 +12,13 @@
   import { t } from '../i18n.svelte.js';
 
   const STRAVA_CARD_KEY = 'strava.card';
-  let { wide = true } = $props();
+  // shown: tells Today the card is on top, so the long-press tip waits (one hint at a time, Tagespaket 0.125.0)
+  let { wide = true, shown = $bindable(false) } = $props();
   const cardQ = liveQuery(async () => (await db.settings.get(STRAVA_CARD_KEY)) ?? null);
   // undefined while the settings load: nothing shows, so the card never flashes after «Later»
   const later = $derived($cardQ === undefined ? null : $cardQ?.value === 'later');
   const show = $derived(!strava.key && later === false);
+  $effect(() => { shown = show; });
   const hide = () => db.settings.put({ key: STRAVA_CARD_KEY, value: 'later' });
 </script>
 

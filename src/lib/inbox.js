@@ -105,6 +105,17 @@ export function filedRows(notes, { query = '', filter = 'all', names = {} } = {}
     .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''));
 }
 
+/** Jobs a receipt or a workshop visit often lists (optional), for the chips «What was done?» (FileSheet, BikeQuickDialog). */
+export const VISIT_JOBS = [
+  { part: 'chain', action: 'replace', name: 'Chain replaced' },
+  { part: 'cassette', action: 'replace', name: 'Cassette replaced' },
+  { part: 'padsF', action: 'replace', name: 'Front pads replaced' },
+  { part: 'padsR', action: 'replace', name: 'Rear pads replaced' },
+  { part: 'tyres', action: 'replace', name: 'Tyres replaced' },
+  { part: 'brakeR', action: 'service', name: 'Brakes bled' },
+  { part: 'fork', action: 'service', name: 'Fork serviced' },
+];
+
 /** The shops of earlier visits with how often, most often first: [{ shop, n }]. */
 export function shopsOf(visits) {
   const by = {};
@@ -169,7 +180,7 @@ export function fileNote(note, kind, { bike = null, trip = null, topic = null, n
     const wish = kind === 'wish';
     out.item = {
       id: ids.item, name: (name || short).trim(), brand: '', model: '', category: wish ? 'lux' : category, weightG: typeof grams === 'number' ? grams : null, qty: 1,
-      weightStatus: typeof grams === 'number' ? 'measured' : 'missing', carry: 'luggage', defaultBag: null, ownership: wish ? 'wishlist' : 'owned', role: null, sets: [], kits: [],
+      weightStatus: typeof grams === 'number' ? 'measured' : 'missing', carry: 'luggage', defaultBag: null, ownership: wish ? 'wishlist' : 'owned', role: null, sets: [],
       domains: ['bikepacking'], note: `From the inbox (${note.at.slice(0, 10)}): ${note.text}`, updatedAt: now,
     };
     to = { kind, label: wish ? 'Wishlist' : 'Gear', ref: ids.item, made: [['items', ids.item]] };

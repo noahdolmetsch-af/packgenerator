@@ -159,7 +159,9 @@ test('gear: change the category, links survive a reload', async ({ page, context
   expect((await table(page, 'containers')).find((c) => c.id === 'bag-test_data_gtp_roll')).toMatchObject({ itemId: BAG, pieces: 2 });
   const tpl = (await table(page, 'settings')).find((s) => s.key === 'templates').value[0];
   expect(tpl.entries).toEqual([{ itemId: ID, slot: 'bar', qty: 2 }]);
-  expect((await table(page, 'weightChecks'))[0].itemId).toBe(ID);
+  // Data cleanup 14.10.2026 (cleanup.js): the weight checks became one kept note at the start.
+  expect(await table(page, 'weightChecks')).toEqual([]);
+  expect((await table(page, 'notes')).some((x) => x.id === 'note-weight-checks')).toBe(true);
   expect((await table(page, 'learnings'))[0].itemIds).toEqual([ID]);
 
   // Gear shows it under its new category.

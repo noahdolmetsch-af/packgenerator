@@ -32,13 +32,11 @@ const fullItem = () => ({
   carry: 'bike',
   defaultBag: 'bar',
   ownership: 'owned',
-  role: 'standard',
-  always: true,
+  role: null,
   favorite: true,
   favNote: 'never let me down',
   lists: ['test_data_gtp_list'],
-  sets: ['base'],
-  kits: ['test_data_gtp_K'],
+  sets: ['standard', 'bivy'],
   domains: ['bikepacking', 'weekend'],
   ride: 'daily',
   rain: 'yes',
@@ -103,17 +101,12 @@ async function expectIntact(category) {
   expect(tpls[0].entries).toEqual([{ itemId: ID, slot: 'bar', qty: 2 }]);
   const fresh = tripFromTemplate({ title: 'x', startDate: '2026-11-01', days: 1, bike }, tpls[0], items, 1);
   expect(fresh.entries.find((e) => e.itemId === ID)).toMatchObject({ slot: 'bar', qty: 2, packed: false });
-  // kit
-  expect(item.kits).toEqual(['test_data_gtp_K']);
-  expect(await db.kits.get('test_data_gtp_K')).toBeTruthy();
   // bag link and its weight
   const bag = await db.containers.get(container.id);
   expect(bag.itemId).toBe(ID);
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   expect(containerWeight(bag, byId)).toBe(600);
   expect(bikeSetup(bike, [bag], items).bagsG).toBe(600);
-  // weight check
-  expect(await db.weightChecks.get(1)).toMatchObject({ itemId: ID, item: 'test_data_gtp_ Roll bag', adoptedG: 300 });
   // favourite
   expect(item.favorite).toBe(true);
   expect(item.favNote).toBe('never let me down');
@@ -129,18 +122,16 @@ async function expectIntact(category) {
 beforeEach(async () => {
   db = createDb(`category-${++n}`);
   await db.items.put(fullItem());
-  await db.kits.put({ id: 'test_data_gtp_K', name: 'test_data_gtp_ Kit', domain: 'bikepacking' });
   await db.trips.put(trip);
   await saveTemplates(db, [template]);
   await db.containers.put(container);
   await db.bikes.put(bike);
-  await db.weightChecks.put({ id: 1, item: 'test_data_gtp_ Roll bag', itemId: ID, logbook: '320 g', online: '290 g', adoptedG: 300, decision: 'weighed', sources: '', link: '' });
   await db.learnings.put({ id: 'test_data_gtp_L1', topic: 'Bags', rule: 'Strap it tight', action: '', itemIds: [ID], source: 'test', appliesTo: ['all'], priority: 'high' });
   await db.debriefs.put({ tripId: trip.id, status: 'done', items: { [ID]: 'used' }, missing: [] });
 });
 
 describe('changing the category of an item (AP09)', () => {
-  it('keeps the ID and every link: trip, template, kit, bag, weight check, favourite, learning', async () => {
+  it('keeps the ID and every link: trip, template, bag, favourite, learning (kits and weight checks went in the data cleanup 14.10.2026)', async () => {
     await expectIntact('bags');
     const saved = await changeCategory(ID, 'lux');
     expect(saved.id).toBe(ID);

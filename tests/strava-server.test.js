@@ -163,6 +163,20 @@ describe('Strava data', () => {
     expect((await res.json()).code).toBe('strava_busy');
   });
 
+  it('passes Strava\'s request numbers along (BF8 «Gratis-Grenzen»), also with a 429', async () => {
+    const headers = { 'X-RateLimit-Limit': '200,2000', 'X-RateLimit-Usage': '170,400', 'X-ReadRateLimit-Limit': '100,1000', 'X-ReadRateLimit-Usage': '90,400' };
+    const w = world({ [TOKEN_URL]: stravaToken(), [`${API}/athlete/activities`]: () => Response.json([], { headers }) });
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(h, w)).get('key');
+    const body = await (await h(get('/api/strava?step=activities', { key }))).json();
+    expect(body.rate).toEqual({ limit: [200, 2000], usage: [170, 400], readLimit: [100, 1000], readUsage: [90, 400] });
+    const busy = world({ [TOKEN_URL]: stravaToken(), [`${API}/athlete/activities`]: () => new Response('', { status: 429, headers }) });
+    const h2 = stravaHandler({ env: sEnv(), doFetch: busy.doFetch, now: () => NOW });
+    const key2 = fragment(await connect(h2, busy)).get('key');
+    const res = await (await h2(get('/api/strava?step=activities', { key: key2 }))).json();
+    expect(res).toMatchObject({ code: 'strava_busy', rate: { usage: [170, 400] } });
+  });
+
   it('disconnect withdraws access and forgets the tokens, the device key stays', async () => {
     const w = world({ [TOKEN_URL]: stravaToken(), [DEAUTH_URL]: () => Response.json({}) });
     const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
