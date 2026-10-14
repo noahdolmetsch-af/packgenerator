@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.131.1 «Abhaken wieder abwählbar» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.131.1',
+    date: '2026-10-14',
+    title: 'Ticked is ticked once',
+    lead: 'A quick double tap no longer ticks an activity twice, so a tap takes it back again.',
+    points: [
+      { text: 'A ticked activity can be unticked again with one tap; «Undo» brings it back', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A quick double tap ticks only once; double ticks from before go away with the next untick' },
+      { box: 'fixed', text: 'A ticked commute on «In the flow» can be tapped to take it back' },
+    ],
+    test: [
+      'On Today tap an activity in «In the flow»: it is ticked. Tap it again: it is unticked.',
+      'Tick it, then tap «Undo» in the message below: the tick is gone again.',
+      'Tap an activity twice quickly: it is ticked once, one more tap unticks it.',
+      'Tap «Commute», then tap the line «… today: commute»: the commute is taken back.',
+    ],
+  },
+  {
     // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
     version: '0.131.0',
     date: '2026-10-14',
