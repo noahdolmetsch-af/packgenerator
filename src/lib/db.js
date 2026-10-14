@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 9; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen»
+export const SCHEMA_VERSION = 10; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -40,6 +40,7 @@ export const DATA_TABLES = [
   'flowTemplates', // hobby pages: timer templates
   'flowStars', // hobby pages: milestone stars reached (id = `${msId}:${star}`), kept forever (flowms.js)
   'abAnswers', // AB «Deine Abfragen»: one row per answer, the history under Ich › Daten › Verlauf (abfragen.js)
+  'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
 ];
 
 /**
@@ -159,6 +160,12 @@ export function createDb(name = 'pack-generator') {
   // checks stay in flowChecks and the history reads both (abfragen.js mergeHistory).
   db.version(9).stores({
     abAnswers: 'id, qid, day, at',
+  });
+  // Version 10 («Training», TR1–TR4) only adds every Strava activity (rides, runs, hikes …) with its
+  // heart rate per zone; only the rides count for the bikes (kmBook). Existing data stays as it is.
+  // Version 9 is kept free for «Deine Abfragen» (abAnswers); Dexie allows the gap.
+  db.version(10).stores({
+    activities: 'id, day, kind',
   });
   return db;
 }
