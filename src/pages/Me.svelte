@@ -34,6 +34,7 @@
   import { localDay } from '../lib/localday.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+  import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
   import '../lib/ich/ich.css';
 
   // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
@@ -199,6 +200,9 @@
           </li>
         </ul>
       </section>
+
+      <!-- «App-Wartung» (Noah 13.10.2026, BF7 BF8): Strava's free limits and the monthly check -->
+      <MaintenanceCard />
 
       <section class="ich-sec" aria-labelledby="me-more-h">
         <div class="ich-h"><div><h2 id="me-more-h">{t('More')}</h2></div></div>

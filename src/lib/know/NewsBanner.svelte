@@ -11,8 +11,12 @@
   import { writeMute } from './wasneuStore.js';
   import { t } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
+  import { snapDb, snapshotFor } from '../maintenance/snapshots.js';
 
   let { entries = [], onclose } = $props();
+  // «App-Wartung» BF4 (Noah 13.10.2026): one calm line when the app kept a copy before this update
+  const snapQ = liveQuery(() => snapshotFor(snapDb(), typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''));
   const e = $derived(entries[0] ?? null);
   const titles = $derived(entries.slice(0, 3).map((x) => t(x.title)).filter(Boolean).join(' · '));
   // × and «View» both close it for this version (until the next update; back on under Ich › Was ist neu)
@@ -27,6 +31,7 @@
     <div class="nb-t">
       <h2 id="nb-h">{t('New in {v}|banner', { v: shortVersion(e.version) })}</h2>
       {#if titles}<p>{titles}{entries.length > 3 ? ' …' : ''}</p>{/if}
+      {#if $snapQ}<p class="nb-snap" data-news-snapshot>{t('Your data was backed up before the update. Something wrong?')} <a href="#/me/data?at=before-updates">{t('Back to the state before the update')}</a></p>{/if}
     </div>
     <a class="nb-go" href={NEWS_HREF} onclick={done}>{t('View|news')}</a>
     <button type="button" class="nb-x" aria-label={t('Close the hint')} onclick={done}><X size={20} aria-hidden="true" /></button>
@@ -58,6 +63,11 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  .nb-snap a {
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .nb-go {
     flex: none;
