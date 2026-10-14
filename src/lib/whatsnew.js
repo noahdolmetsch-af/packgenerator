@@ -51,7 +51,7 @@ export const WHATS_NEW = [
     title: 'Lots of new things at once',
     lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
     points: [
-      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/me/abfragen' },
       { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
       { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
     ],

@@ -209,6 +209,14 @@
     min-width: 0;
     break-inside: avoid-page;
   }
+  /* 0.133.0: on a narrow phone the «As building block» button goes under the kind's name instead of
+     squeezing it until a word breaks («Bikepacking» at 320 px) */
+  .grp :global(.ssh) {
+    flex-wrap: wrap;
+  }
+  .grp :global(.sst) {
+    min-width: min-content;
+  }
   .frow {
     break-inside: avoid;
   }
