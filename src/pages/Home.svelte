@@ -75,6 +75,9 @@
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
+  import HelloSheet from '../lib/home/HelloSheet.svelte'; // HG1d
+  import NameAsk from '../lib/home/NameAsk.svelte'; // HG1b
+  import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
@@ -127,7 +130,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -229,6 +232,10 @@
     homeForecast(db); // saves into meta; the greeting follows the saved forecast
   });
   const hello = $derived(greeting(now.getHours(), S.userName ?? ''));
+  // HG1 3: at night only «Guät Nacht, Nachtülä», no tap line and no name question
+  const night = $derived(helloPart(now.getHours()) === 'night');
+  // HG1b: no name yet: one quiet row under the greeting, asked only once
+  const askName = $derived(ready && !night && !editing && !String(S.userName ?? '').trim() && !S[NAME_ASKED_KEY]);
   const wx = $derived(fc ? weatherLine(fc, now) : null);
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
@@ -791,6 +798,7 @@
     <div class="ghead">
       <div class="hi-text">
         <h1 id="hello-h" class="hello">{hello}</h1>
+        {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if !wx && ready}
           {#if !place}
@@ -798,6 +806,7 @@
           {/if}
         {/if}
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
+        {#if askName}<NameAsk />{/if}
       </div>
       {#if !phone.matches && !editing}<button type="button" class="btn adapt" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
@@ -986,7 +995,10 @@
 
 <div class="home">
   {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
-  <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
+  <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
+  {@render greetingS()}
+  <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
+       (HG1 2a: right under the greeting). -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
@@ -1011,7 +1023,6 @@
     </section>
   {/if}
 
-  {@render greetingS()}
   {#if editing}
     <div class="ebar" role="region" aria-label={t('Customise the start page')}>
       <b>{t('Customise the start page')}</b>
@@ -1195,7 +1206,7 @@
     min-width: 0;
   }
   .hi-text {
-    flex: 1 1 320px;
+    flex: 1 1 440px; /* HG1a: room for the greeting's question (was 320px) */
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -1204,6 +1215,9 @@
   .hello {
     margin: 0;
     font: 700 var(--fs-page) / 1.1 var(--font-body);
+    /* HG1a: the longer Swiss greeting (a question) is a little smaller, as in the mockup */
+    font-size: var(--fs-title);
+    line-height: 1.15;
     letter-spacing: -0.01em;
     overflow-wrap: break-word;
   }
@@ -1218,7 +1232,7 @@
   }
   @media (max-width: 719px) {
     .hello {
-      font-size: 26px;
+      font-size: 25px;
     }
   }
   .pf {

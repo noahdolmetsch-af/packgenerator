@@ -15,6 +15,7 @@
 import { t, tn, num } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tripEnd } from '../debrief.js';
+import { greetFor } from './hallo.js'; // HG1
 
 /* ---------- test trips ---------- */
 
@@ -39,13 +40,11 @@ export const archiveChanges = (now = new Date().toISOString()) => ({ archivedAt:
 /** 'morning' before 12, 'day' until 18, 'evening' from 18 (Noah 32a: the evening puts other rows first). */
 export const dayPart = (hour) => (hour < 12 && hour >= 4 ? 'morning' : hour >= 12 && hour < 18 ? 'day' : 'evening');
 
-/** "Good morning, Noah." (the name only when there is one). */
-export function greeting(hour, name = '') {
-  const part = dayPart(hour);
-  const who = String(name ?? '').trim();
-  const key = { morning: who ? 'Good morning, {name}.' : 'Good morning.', day: who ? 'Hello, {name}.' : 'Hello.', evening: who ? 'Good evening, {name}.' : 'Good evening.' }[part];
-  return t(key, { name: who });
-}
+/**
+ * HG1 «Begrüssung auf Heute» (1a 4b 3): the heading of Today, always Swiss German by time of day
+ * (home/hallo.js greetFor; was «Guten Morgen, ….» through t() until HG1). The name only when there is one.
+ */
+export const greeting = (hour, name = '') => greetFor(hour, name);
 
 /** Rain from this probability (%) on in an hour counts as wet. */
 export const WET_PCT = 50;
