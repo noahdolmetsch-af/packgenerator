@@ -16,6 +16,8 @@ const NEWEST = WHATS_NEW[0];
 const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
 const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
 const NEW_FN = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[0];
+// a version can bring several functions (0.126.0: three); the page sorts those by their shown name
+const NEW_FNS = SINCE_ALL.filter(([, v]) => v === SINCE_ALL.find(([k]) => k === NEW_FN)[1]).map(([k]) => k);
 const NEW_IN_NEWEST = SINCE_ALL.some(([, v]) => v === NEWEST.version);
 const V = shortVersion(NEWEST.version);
 const BEFORE = WHATS_NEW[1].version;
@@ -98,7 +100,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.locator('.wn-rows > li')).toHaveCount(FEATURE_N);
   expect(LIST_ROWS).toBeLessThan(FEATURE_N);
   // the function of the newest version first, marked «new»
-  expect((await rows(page))[0]).toBe(NEW_FN);
+  expect((await rows(page)).slice(0, NEW_FNS.length).sort()).toEqual([...NEW_FNS].sort());
   // «New» marks the functions of the newest version only (v0.114.0 brings none of its own)
   if (NEW_IN_NEWEST) await expect(page.locator(`.wn-rows > li[data-feature="${NEW_FN}"] .wn-new`)).toBeVisible();
   else await expect(page.locator('.wn-rows .wn-new')).toHaveCount(0);
