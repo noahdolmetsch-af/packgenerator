@@ -105,6 +105,7 @@
   import YearAgoTile from '../lib/home/YearAgoTile.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
+  import AbCard from '../lib/abfragen/AbCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
@@ -1023,6 +1024,8 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
+  <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
+  {#if !editing && ready}<AbCard {today} />{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
