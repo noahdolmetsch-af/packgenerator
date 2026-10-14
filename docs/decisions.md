@@ -1239,3 +1239,9 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Stripe (keine Grundgebühr, gratis Testmodus, Connect für andere Verkäufer); Lizenz als signierte Notiz statt Konto-Pflicht; Live-Schlüssel werden vom Server abgelehnt, bis Noah live gehen will; Preise und Artikel sind Platzhalter.
 - **Bewusst nicht:** nichts Sichtbares (Mockups zuerst), kein echtes Geld.
 - **Erklär-Seite (Noah 01:25 «doku … unter ich einsehbar», Mockups BZ1 + BZ2b, 01:31 «1a 2b», «bz freigeben»):** Zeile «Bezahlen» unter Ich › Die App, Seite `#/me/pay` mit Ideen als Karten zuoberst. Pro = Strava, Fitbit, Garmin (01:27 «1a»); Vorlagen-Verkauf vorbereitet (01:27 «2a»).
+
+## Kleine Apps und Benutzerhandbuch (14.10.2026)
+
+- **Noah 14.10.2026 01:36 UTC «eigene kleinere Apps, zum Beispiel Meditation, Packliste oder Velo-Pflege», 01:46 UTC «verstehe. bitte freigegeben. bitte umsetzen»** (auf die Beschreibung: zweites Symbol, öffnet direkt den Bereich, unten nur dessen Tabs, gleiche Daten, grosse App bleibt): drei kleine Apps Meditation, Packliste, Velopflege unter `apps/<key>/`, je mit eigenem Manifest und Symbol, gleiche Datenbank. Details [kleine-apps.md](kleine-apps.md).
+- **Gleiche Nachricht:** ein kurzes Benutzerhandbuch für jede Funktion (aufschalten, nutzen, Beispiel), im Repo und später in der App. Eine Quelle `src/lib/handbook.js` (ein Eintrag pro Funktion aus `features.js`, ein Test hält sie vollständig), daraus `docs/handbuch.md` (`node tools/handbuch.mjs`). Die Anzeige in der App («Was die App kann») kommt erst nach Mockup und Noahs Freigabe.
+- **Selbst entschieden:** Bezahlfunktion bleibt getrennt (Thread «Bezahlfunktion», `docs/bezahlen.md`); kleine Apps kosten nichts. Weitere kleine Apps nur mit eigener Freigabe.

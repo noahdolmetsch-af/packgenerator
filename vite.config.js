@@ -17,6 +17,18 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
   test: { include: ['tests/*.test.js'] },
+  // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest
+  // (public/apps/<key>/), so the phone installs it with its own icon; same bundle, same data.
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        meditation: 'apps/meditation/index.html',
+        packliste: 'apps/packliste/index.html',
+        velopflege: 'apps/velopflege/index.html',
+      },
+    },
+  },
   plugins: [
     svelte(),
     VitePWA({
@@ -73,5 +85,14 @@ export default defineConfig({
         ],
       },
     }),
+    // Kleine Apps: a small app's page keeps only its own manifest (the PWA plugin adds the big app's one too).
+    {
+      name: 'mini-app-manifest',
+      enforce: 'post',
+      transformIndexHtml: {
+        order: 'post',
+        handler: (html) => (/apps\/[a-z]+\/manifest\.webmanifest/.test(html) ? html.replace(/<link rel="manifest" href="[^"]*\/manifest\.webmanifest">/g, (m) => (/apps\//.test(m) ? m : '')) : html),
+      },
+    },
   ],
 });

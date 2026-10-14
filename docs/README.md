@@ -20,6 +20,7 @@ Stand: 8. Oktober 2026 (live v0.35.0). Verbindliche Quelle: dieses Repository, a
 | Wie sehen sie aus, welche Abweichungen sind bewusst? | [Design-QA](../design-qa.md) und [Bilder](../qa/) | Synthetische Beispiele; Herkunft/Vergleich/Prüfgrenzen |
 | Wie ist die Bezahlfunktion vorbereitet? | [Bezahlen](bezahlen.md) | Unsichtbar, nur Testmodus; Server, Lizenz, Codes, Shop und Buchung |
 | Welche Links nach aussen kommen (komoot, Strava, SBB, MeteoSchweiz …)? | [Links nach aussen](links-nach-aussen.md) | Spezifikation DG-X1–X16 vom 13.10.2026, noch nicht gebaut |
+| Wie nutze ich jede Funktion (aufschalten, Beispiel)? | [Benutzerhandbuch](handbuch.md) und [Kleine Apps](kleine-apps.md) | Aus `src/lib/handbook.js` erzeugt (`node tools/handbuch.mjs`) |
 | Wie kann ich den Code verstehen? | [Lern-Seite](learn/README.md) | Einfache technische Erklärung |
 
 ## Historische und private Quellen
