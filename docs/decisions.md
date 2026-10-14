@@ -862,6 +862,13 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: Leistung und Analysen TR5–TR7 (0.148.0)
+
+- **Mockup-Freigabe: TR5–TR7 «TR5–TR7 freigegeben» Noah 14.10.2026 21:08 UTC im Thread «Design-Refresh alle Seiten»; Runde 1 TR5/TR6/TR7a–c auf Offene Mockups 2 #training-leistung, Runde 2 TR5b/TR6b/TR7d–g auf eigener Seite https://claude.ai/artifact/RJ6mbASqajNLXzccfEz9d8; Wunsch Noah 20:51 «TR5 -TR7 alle mit weiteren sinnvollen diagrammen und werten und analysen wo möglich», 20:53 «a a».**
+- **Noah 13.10.2026 19:43 UTC «a und b»:** Belastung als Relative Effort (Strava) und aus Leistung (NP ÷ FTP); mit Watt NP, Ø, max, Leistungsbereiche, Leistungskurve, FTP geschätzt; Gewicht unter Ich › Meine Daten, nur auf dem Gerät. 21:24 UTC: alle 6 Analysen, im Frontend ausblendbar.
+- **Coordinator 14.10.2026 21:08 UTC:** TR6 umfasst nur den Gewichtseintrag unter Ich › Meine Daten, nicht die Wochenfrage auf Heute (die kommt über «Deine Abfragen»).
+- **Selbst entschieden:** Die Zeile «Gewicht» öffnet eine eigene Seite (TR6b) mit «Gewicht eintragen» (Tag und kg, Entfernen) statt nur des Fensters aus TR6; dazu eine Liste der letzten 12 Einträge zum Ändern. In «Analysen anpassen» jede Analyse einzeln (TR7c) statt «Abschnitte … Bestwerte» als eine Zeile (TR7g), gruppiert nach «Auf der Aktivität» und «In der Woche». Die Leistungs-, Belastungs- und Kurvenkarten aus TR5 bleiben fest (nicht ausblendbar), wie im Mockup ohne «…». Zahlen im Schweizer Format mit Punkt (de-CH). FTP-Schätzung bleibt 95 % der besten 20 Minuten aus 90 Tagen; Belastung ohne Leistungsmesser = Relative Effort. Fitness 42 Tage, Ermüdung 7 Tage (übliche Mittel).
+
 ## 13.10.2026: Training TR1–TR4 (0.138.0)
 
 - **Noah 13.10.2026 18:06 UTC «1-5a»:** 1 Training als eigener Reiter in Aktiv; 2 alle Strava-Aktivitäten, nur Velofahrten zählen für die Velos; 3 Pulszonen aus Strava, änderbar; 4 Woche planen mit Dauer und Zone pro Tag, gefahrene kommen aus Strava; 5 die bestehende Strava-Kachel wird «Letzte Aktivität».
