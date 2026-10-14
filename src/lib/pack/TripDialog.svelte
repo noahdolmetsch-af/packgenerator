@@ -154,6 +154,8 @@
   let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : BIKEPACKING);
   // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
   // Data cleanup 14.10.2026: which areas are in sight, their names and icons come from domains.js (DOMAINS[].sport).
+  // v0.124.0: the examples' icons (also the sports) for the shared option button (ui/OptionButton.svelte).
+  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
   const SPORTS = TRIP_DOMAINS.filter((d) => d.sport).map((d) => ({ key: d.key, name: d.sportName ?? d.name, icon: EX_ICON[d.icon] ?? BikeIcon }));
   const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
   // svelte-ignore state_referenced_locally
@@ -161,8 +163,6 @@
   // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
   let example = $state(null);
   let tplOpen = $state(false);
-  // v0.124.0: the examples' icons for the shared option button (ui/OptionButton.svelte).
-  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
   const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
   const examples = $derived($hiddenQ?.value ? [] : examplesFor(area));
   const chosenEx = $derived(examples.find((x) => x.id === example) ?? null);

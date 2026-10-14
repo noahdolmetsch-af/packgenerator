@@ -5,7 +5,7 @@
  */
 export default {
   // 0.131.0 Daten einmal bereinigen
-  'Tidied up once': 'Einmal aufgeräumt',
+  'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
   'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».': 'Die Gewichts-Prüfungen aus der Excel sind jetzt eine Notiz: Notizen › «Gewichts-Prüfungen aus der Excel».',
   'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.': 'Alte Kits, alte Baustein-Marken und «Auf jeder Tour» stecken in deinen Bausteinen; die alten Kopien sind weg.',
