@@ -29,6 +29,7 @@
 import { CATEGORIES, CATEGORY, nextId, PREFIX } from './gear.js';
 import { itemDomains, DOMAINS } from './domains.js';
 import { validateStep2 } from './importstep2.js';
+import { suggestBag } from './gear/importplus.js';
 import DE from './i18n/de/index.js';
 import GEAR_DE from './i18n/de/gear.js';
 
@@ -374,9 +375,13 @@ export function enrich(item, imp, now = new Date().toISOString()) {
   return { changes, adds };
 }
 
-/** A new app item from an import item. all: the items so far (for the next free ID). */
-export function newItem(imp, all, now = new Date().toISOString()) {
-  const category = resolveCategory(imp.category);
+/**
+ * A new app item from an import item. all: the items so far (for the next free ID).
+ * SN5+ (I3, Noah 4a): place = { category?, bag? } chosen on the staging page; without a chosen bag the
+ * item gets the bag suggested for its category (importplus.js suggestBag), changeable later.
+ */
+export function newItem(imp, all, now = new Date().toISOString(), place = null) {
+  const category = resolveCategory(place?.category || imp.category);
   const weightG = numOrNull(imp.weightG) != null && numOrNull(imp.weightG) > 0 ? Math.round(numOrNull(imp.weightG)) : null;
   const areas = mapAreas(imp.areas);
   const sid = str(imp.sourceId);
@@ -392,7 +397,7 @@ export function newItem(imp, all, now = new Date().toISOString()) {
     weightStatus: weightG == null ? 'missing' : 'logbook',
     weightNote: '',
     carry: 'luggage',
-    defaultBag: null,
+    defaultBag: place && 'bag' in place ? place.bag ?? null : suggestBag(category),
     ownership: imp.owned === false ? 'wishlist' : 'owned',
     role: null,
     sets: [],
@@ -483,14 +488,14 @@ export function planLearnings(list, existing, now = new Date().toISOString()) {
  * { same: [row + adds], fresh: [row + item], unsure: [row], skipped: [row], notIn: [items], learnings }.
  * same rows with nothing to add carry adds: [].
  */
-export function planGearImport(data, items, learnings = [], now = new Date().toISOString()) {
+export function planGearImport(data, items, learnings = [], now = new Date().toISOString(), places = {}) {
   const { rows, notIn } = match(data.items ?? [], items, data.appliedItemIds ?? []);
   const all = [...items];
   const out = { same: [], fresh: [], unsure: [], skipped: [], notIn };
   for (const r of rows) {
     if (r.kind === 'same') out.same.push({ ...r, adds: enrich(r.item, r.imp, now).adds });
     else if (r.kind === 'fresh') {
-      const item = newItem(r.imp, all, now);
+      const item = newItem(r.imp, all, now, places?.[r.key] ?? null);
       all.push(item);
       out.fresh.push({ ...r, item });
     } else if (r.kind === 'unsure') out.unsure.push(r);
@@ -505,15 +510,18 @@ export function planGearImport(data, items, learnings = [], now = new Date().toI
  * rows Noah decided (decisions: { [key]: 'new' | <app item id> }). Several imports on one app item
  * are applied one after the other (each only fills what is still empty).
  * Returns { items: [records to put], learnings: { add, update }, done: [keys applied], counts }.
+ * SN5 «Import prüfen»: a new row Noah tapped off («Übernehmen» not pressed: decisions[key] === SKIP)
+ * is not added; it stays in the import for later (counts.left).
  */
-export function buildWrites(data, items, learnings = [], decisions = {}, now = new Date().toISOString()) {
-  const plan = planGearImport(data, items, learnings, now);
+export const SKIP = 'skip';
+export function buildWrites(data, items, learnings = [], decisions = {}, now = new Date().toISOString(), places = {}) {
+  const plan = planGearImport(data, items, learnings, now, places);
   const byId = new Map(items.map((i) => [i.id, { ...i }]));
   const changed = new Set();
   const all = [...items];
   const added = [];
   const done = [];
-  const counts = { enriched: 0, unchanged: 0, added: 0, wishlist: 0, merged: 0, open: 0 };
+  const counts = { enriched: 0, unchanged: 0, added: 0, wishlist: 0, merged: 0, open: 0, left: 0 };
   const into = (id, imp) => {
     const cur = byId.get(id);
     const { changes } = enrich(cur, imp, now);
@@ -524,8 +532,8 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     }
     return false;
   };
-  const fresh = (imp) => {
-    const item = newItem(imp, all, now);
+  const fresh = (imp, key) => {
+    const item = newItem(imp, all, now, places?.[key] ?? null);
     all.push(item);
     added.push(item);
     byId.set(item.id, item);
@@ -544,13 +552,17 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     done.push(r.key);
   }
   for (const r of plan.fresh) {
-    lineTo.set(r.key, fresh(r.imp));
+    if (decisions[r.key] === SKIP) {
+      counts.left++;
+      continue;
+    }
+    lineTo.set(r.key, fresh(r.imp, r.key));
     done.push(r.key);
   }
   for (const r of plan.unsure) {
     let d = decisions[r.key];
     if (typeof d === 'string' && d.startsWith(LINE)) d = lineTo.get(d.slice(LINE.length)) ?? null;
-    if (d === 'new') lineTo.set(r.key, fresh(r.imp));
+    if (d === 'new') lineTo.set(r.key, fresh(r.imp, r.key));
     else if (d && byId.has(d)) {
       lineTo.set(r.key, d);
       took.push(d);

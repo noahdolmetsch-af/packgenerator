@@ -28,4 +28,11 @@ export default {
   '{kg} kg saved for {day}.': '{kg} kg für den {day} gespeichert.',
   '{kg} kg · {day} · only on this device': '{kg} kg · {day} · nur auf diesem Gerät',
   'Voluntary, for watts per kg · only on this device': 'Freiwillig, für Watt pro kg · nur auf diesem Gerät',
+  // How it works (f.analyses, f.weight)
+  'Open Aktiv › Training and tap a ride.': 'Öffne Aktiv › Training und tippe eine Fahrt an.',
+  'Power, load and the analyses stand on its page.': 'Leistung, Belastung und die Analysen stehen auf ihrer Seite.',
+  'Tap «…» on an analysis to hide or move it.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben.',
+  'Open Me › Weight.': 'Öffne Ich › Gewicht.',
+  'Tap «Enter weight», type it and save.': 'Tippe «Gewicht eintragen», gib es ein und speichere.',
+  'The curve and watts per kg follow by themselves.': 'Der Verlauf und Watt pro kg folgen von selbst.',
 };

@@ -1,18 +1,20 @@
-// v0.127.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
-// on a phone and a computer, in German, with a fixed clock in Europe/Zurich.
-// 1. Morning (07:52): the check row on Heute opens #/check/morning; the four numbers (yesterday's
-//    line under the number), «Worauf freust du dich?» with an own chip, the goal, «Gestern Abend»,
-//    the suggestion («Nicht heute» and back), «Heute im Blick» with today's meditation, the night as a
-//    placeholder; the answers stay after a reload; «Fertig» goes back to Heute, which shows the numbers.
-// 2. Evening (21:00): the row on Heute offers the evening review; Q11 is filled in from today's ride,
-//    Q14 found from today's meditation, Q10 asks about the morning's goal; the side shows the day in
-//    numbers, morning → evening and the week; «Sprechen» only where the browser can; «Fertig» keeps
-//    the filled-in answers. No sideways scroll, no page errors. Fictional data only.
-// 3. Step 2 (T3, T4): the balance ring, the morning-check tile and «Deine 15 Fragen» on Heute, the
-//    catalogue with its switches, question 15 on Sundays, the tip about the long press and the long press.
+// v0.127.0 «Tages-Check» 1 + 2 (mockups T1–T4, Noah 13.10.2026) and WG «Wi gaht's?» takes over the daily
+// check (Noah 14.10.2026 «a) ja, alle drei übernehmen», «ok. freigabe»): on a phone and a computer, in
+// German, with a fixed clock in Europe/Zurich. The old pages #/check/morning, …/evening and …/questions
+// are gone; the tests that covered them are adapted to what took their place:
+// 1. WG morning (07:52, was «the morning check»): the Im Flow row and the round tile «Morgen-Runde» lead
+//    to «Wi gaht's?»; the morning round asks sleep, battery, mood (moved from 08:00 to 07:00) and the goal
+//    on Heute; saved, the tile shows when, the goal and the three numbers, Im Flow shows them too and the
+//    day's check has them (the mirror). No sideways scroll, no page errors.
+// 2. WG evening (21:00, was «the evening review»): «Abend-Runde», the satisfaction from «Wi gaht's?».
+// 3. WG old links (was «Sprechen»): the three old addresses lead to «Wi gaht's?».
+// 4. Step 2 (T3): the balance ring from the meditation and the answers of «Wi gaht's?», the round tile,
+//    no more «Deine 15 Fragen»; «Feste Runden» (was the catalogue of the 15 questions); the Sunday
+//    question in the evening round (was question 15); the tip about the long press and the long press.
+// Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { eveningTurn } from '../../src/lib/flowcheck.js';
+import { ON_AT_START } from '../../src/lib/abfragen.js';
 import { ready } from './settle.js';
 import { put, addDays } from './aktiv-fixture.js';
 
@@ -67,128 +69,128 @@ const row = (page) =>
     DAY,
   );
 
-test('the morning check: four numbers, joy, goal, last night, the suggestion; saved at once', async ({ page, context }) => {
+/**
+ * WG: «Wi gaht's?» started yesterday evening, with only the questions of the two rounds on: sleep, battery,
+ * mood (its own time 08:00, so the morning round asks it), the goal and the satisfaction.
+ */
+function abConfig() {
+  const on = ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel', 'erreicht.zufrieden'];
+  const q = Object.fromEntries([...ON_AT_START].map((id) => [id, { on: false }])); // the list of the app, all off
+  for (const id of on) q[id] = { on: true };
+  q['spass.stimmung'] = { on: true, every: { kind: 'daily', time: '08:00' } };
+  return { key: 'abfragen', value: { since: `${addDays(DAY, -1)}T21:00`, q, own: [] } };
+}
+const answers = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+          g.onsuccess = () => (res(g.result ?? []), r.result.close());
+        };
+      }),
+  );
+
+test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on Heute, the tile and Im Flow show its numbers', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
-  await put(page, rows());
+  await put(page, { ...rows(), settings: [abConfig()] });
   await page.reload();
   await ready(page);
 
+  // the Im Flow row and the round tile lead to «Wi gaht's?»
   const entry = page.locator('[data-check-entry="morning"]');
+  await expect(entry).toContainText(T('Morning round'));
   await entry.getByRole('link', { name: T('Start|check') }).click();
-  await expect(page).toHaveURL(/#\/check\/morning$/);
-  await expect(page.getByRole('heading', { level: 1, name: T('Good morning') })).toBeVisible();
+  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
+  await page.goto('./#/');
+  await ready(page);
+  const mc = page.locator('[data-section="morningcheck"]');
+  await expect(mc).toHaveAttribute('data-part', 'morning');
+  await expect(mc).toHaveAttribute('data-done', 'false');
+  await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
+  await expect(mc).toContainText(T('{n} due now', { n: 4 }));
+  await expect(mc).toContainText(T('Start|check'));
 
-  // 1–3: yesterday's answer is marked under its number
-  await expect(page.locator('[data-q="sleep"] .sv.y')).toHaveText('7');
-  for (const [k, v] of [['sleep', 6], ['energy', 5], ['mood', 7], ['extra', 6]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
-  await expect(page.locator('[data-q="mood"] .sv').nth(6)).toHaveAttribute('aria-pressed', 'true');
-  // a tap on the chosen number takes it back (every question can be skipped)
-  await page.locator('[data-q="extra"] .sv').nth(5).click();
-  await expect(page.locator('[data-q="extra"] .sv[aria-pressed="true"]')).toHaveCount(0);
+  // the morning round on Heute: all four at 07:00 (mood moved from its own 08:00)
+  const card = page.locator('[data-section="abfragen"]');
+  await expect(card.getByText(T('{n} due now', { n: 4 }))).toBeVisible();
+  for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
+  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '6', exact: true }).click();
+  await card.locator('[data-q="erholung.akku"]').getByRole('button', { name: '5', exact: true }).click();
+  await card.locator('[data-q="spass.stimmung"]').getByRole('button', { name: '7', exact: true }).click();
+  await card.locator('[data-q="ziele.ziel"]').getByRole('textbox').fill('Velo nach der Arbeit');
+  await card.locator('[data-ab-save]').click();
+  await expect(card).toHaveCount(0);
 
-  // 6: two chips and an own one
-  const joy = page.locator('[data-chips="joy"]');
-  await joy.getByRole('button', { name: T('Nature|joy'), exact: true }).click();
-  await joy.getByRole('button', { name: T('Sport|joy'), exact: true }).click();
-  await joy.getByRole('button', { name: T('own|chip') }).click();
-  await joy.getByRole('textbox').fill('Konzert');
-  await joy.getByRole('button', { name: T('Add|chip') }).click();
-  await expect(joy.getByRole('button', { name: 'Konzert' })).toHaveAttribute('aria-pressed', 'true');
-  // 7: the goal; «Gestern Abend»
-  await page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') }).click();
-  await page.locator('[data-chips="last"]').getByRole('button', { name: T('Phone in bed') }).click();
-
-  // the suggestion: never mandatory, «Nicht heute» puts it away, it can come back
-  const sugg = page.locator('[data-sugg]');
-  await expect(sugg).toContainText(T('Suggestion for today'));
-  await sugg.getByRole('button', { name: T('Not today|sugg') }).click();
-  await expect(sugg).toContainText(T('Not today. Fine.'));
-  await sugg.getByRole('button', { name: T('Show the suggestion again') }).click();
-  await expect(sugg.getByRole('button', { name: T('Not today|sugg') })).toBeVisible();
-
-  // what the app already knows: today's meditation; the night as a small placeholder
-  await expect(page.locator('[data-row="med"]')).toContainText(T('today {min} min', { min: 20 }));
-  await expect(page.locator('[data-row="med"]')).toContainText(T('{n} days in a row', { n: 6 }));
-  await expect(page.getByText(T('Comes with Fitbit/Google: sleep, resting pulse and HRV next to your feeling, with your normal. Until then this space stays small.'))).toBeVisible();
+  // the tile: when, the goal, the three numbers, the evening round to come
+  await expect(mc).toHaveAttribute('data-done', 'true');
+  await expect(mc).toContainText(T('done {time}', { time: '07:52' }));
+  await expect(mc).toContainText(T('Goal: {goal}', { goal: 'Velo nach der Arbeit' }));
+  await expect(mc.locator('[data-val="sleep"] b')).toHaveText('6');
+  await expect(mc.locator('[data-val="energy"] b')).toHaveText('5');
+  await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
+  await expect(mc).toContainText(T('From {time} the evening round comes here.', { time: '20:30' }));
+  // Im Flow: the three numbers, through the day's check (the mirror)
+  await expect(entry.locator('.nums li')).toHaveCount(3);
+  await expect(entry.locator('[data-val="mood"]')).toContainText('7');
+  await expect.poll(async () => (await row(page))?.mood).toBe(7);
+  expect(await row(page)).toMatchObject({ sleep: 6, energy: 5, mood: 7 });
+  expect((await answers(page)).map((a) => a.qid).sort()).toEqual(['erholung.akku', 'erholung.schlaf', 'spass.stimmung', 'ziele.ziel']);
+  // the Im Flow page: today's values and the 7 days
+  await page.goto('./#/flow');
+  await expect(page.locator('[data-check-row="done"]')).toContainText(`${T('Sleep|flow')} 6`);
+  await expect(page.locator('[data-check-row="done"]').getByRole('link', { name: T('Change') })).toHaveAttribute('href', '#/me/abfragen');
+  await expect(page.locator('.avg')).toContainText(T('⌀ 7 days'));
   expect(await noScroll(page)).toBe(true);
-
-  // saved at once: a reload shows the answers
-  await expect.poll(async () => (await row(page))?.last).toEqual(['phone']);
-  await page.reload();
-  await expect(page.locator('[data-q="sleep"] .sv').nth(5)).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') })).toHaveAttribute('aria-pressed', 'true');
-  expect(await row(page)).toMatchObject({ sleep: 6, energy: 5, mood: 7, extra: null, joy: ['nature', 'sport', 'Konzert'], goal: { id: 'ride' }, last: ['phone'] });
-
-  // the 4th answered, «Fertig»: Heute shows the four numbers
-  await page.locator('[data-q="extra"] .sv').nth(5).click();
-  await page.locator('[data-check-done]').click();
-  await expect(page).toHaveURL(/#\/$/);
-  await expect(page.locator('[data-check-entry="morning"] .nums li')).toHaveCount(4);
   expect(errors).toEqual([]);
 });
 
-test('the evening review: filled in from the ride and the meditation, the day in numbers', async ({ page, context }) => {
+test('WG evening (was «the evening review»): «Abend-Runde» with the satisfaction from «Wi gaht\'s?»', async ({ page, context }) => {
   const errors = await open(page, context, '21:00');
-  await put(page, { ...rows({ todayCheck: { sleep: 6, energy: 5, mood: 7, goal: { id: 'ride' } } }), rides: [{ id: 'test_ride_today', date: DAY, km: 24, movingH: 1.08, totalH: 1.1, tripId: null, name: 'Fiktive Feierabendrunde' }] });
+  const at = (hm) => `${DAY}T${hm}`;
+  const ab = (qid, area, kind, value, slot, when) => ({ id: `test_ab_${qid}`, qid, area, day: DAY, at: at(when), slot: at(slot), kind, value, note: null, unit: null, src: 'hand' });
+  await put(page, {
+    ...rows({ todayCheck: { sleep: 6, energy: 5, mood: 7 } }),
+    settings: [abConfig()],
+    abAnswers: [ab('erholung.schlaf', 'erholung', 'scale', 6, '07:00', '07:10'), ab('ziele.ziel', 'ziele', 'text', 'Fiktive Runde', '07:00', '07:11')],
+  });
   await page.reload();
   await ready(page);
 
+  const mc = page.locator('[data-section="morningcheck"]');
+  await expect(mc).toHaveAttribute('data-part', 'evening');
+  await expect(mc.getByRole('heading', { name: T('Evening round') })).toBeVisible();
+  await expect(mc).toHaveAttribute('data-done', 'false');
+  await expect(mc).toContainText(T('Start|check'));
   const entry = page.locator('[data-check-entry="evening"]');
-  await expect(entry).toContainText(T('Evening review'));
-  await entry.getByRole('link', { name: T('Start|check') }).click();
-  await expect(page).toHaveURL(/#\/check\/evening$/);
-  await expect(page.getByRole('heading', { level: 1, name: T('How was your day?') })).toBeVisible();
+  await expect(entry).toContainText(T('Evening round'));
+  await expect(entry).toContainText(T('How was your day? · about 30 seconds'));
+  await expect(entry.getByRole('link', { name: T('Start|check') })).toHaveAttribute('href', '#/me/abfragen');
 
-  // 8 and 9
-  await page.locator('[data-q="sat"] .sv').nth(7).click();
-  await page.locator('[data-chips="best"]').getByRole('button', { name: T('Nature|joy'), exact: true }).click();
-  await page.locator('[data-story]').fill('Ein fiktiver Abend am See.');
-  await page.locator('[data-story]').blur();
-  await expect(page.locator('[data-speak]')).toHaveCount(0); // no speech recognition in this browser
-  // 10: the goal of the morning
-  await expect(page.locator('[data-q="goalDone"]')).toContainText(T('Goal from this morning: «{goal}»', { goal: T('Ride after work') }));
-  await page.locator('[data-chips="goalDone"]').getByRole('button', { name: T('Yes|goal') }).click();
-  // 11: filled in from today's ride (66 min → 30–90), changeable
-  await expect(page.locator('[data-chips="outside"]').getByRole('button', { name: T('30–90 min') })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-q="outside"]')).toContainText(T('filled in from your ride, changeable'));
-  // 12 or 13, by the day
-  if (eveningTurn(DAY) === 'people') {
-    await expect(page.locator('[data-q="fun"]')).toHaveCount(0);
-    await page.locator('[data-chips="people"]').getByRole('button', { name: T('Briefly') }).click();
-  } else {
-    await expect(page.locator('[data-q="people"]')).toHaveCount(0);
-    await page.locator('[data-q="fun"] .sv').nth(7).click();
-  }
-  // 14: found by itself
-  await expect(page.locator('[data-mindful-auto]')).toContainText(T('found by itself: meditation {min} min at {time}', { min: 20, time: '06:40' }));
-
-  // the side: the day in numbers, morning → evening, the week so far
-  await expect(page.locator('[data-num="km"]')).toContainText('24 km');
-  await expect(page.locator('[data-num="med"]')).toContainText(T('{min} min|check', { min: 20 }));
-  await expect(page.locator('[data-cmp]')).toContainText('7 → 8');
-  await expect(page.getByRole('region', { name: T('The week so far') })).toContainText(`${T('Nature|joy')}3×`);
+  // the evening round on Heute: the satisfaction at 20:30
+  const card = page.locator('[data-section="abfragen"]');
+  await expect(card.locator('[data-q="erreicht.zufrieden"]')).toContainText('20:30');
+  await card.locator('[data-q="erreicht.zufrieden"]').getByRole('button', { name: '8', exact: true }).click();
+  await card.locator('[data-ab-save]').click();
+  await expect(mc).toHaveAttribute('data-done', 'true');
+  await expect(mc.locator('[data-sat]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
+  await expect(mc).toContainText(T('Goal: {goal}', { goal: 'Fiktive Runde' }));
+  await expect(mc.locator('[data-val="sleep"] b')).toHaveText('6');
+  await expect(entry).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
+  await expect(entry.getByRole('link', { name: T('Change') })).toBeVisible();
   expect(await noScroll(page)).toBe(true);
-
-  // «Fertig»: the filled-in answers are kept, back on Heute the row shows the satisfaction
-  await page.locator('[data-check-done]').click();
-  await expect(page).toHaveURL(/#\/$/);
-  await expect.poll(async () => (await row(page))?.mindful).toBe('auto');
-  expect(await row(page)).toMatchObject({ mood: 7, sat: 8, best: ['nature'], story: 'Ein fiktiver Abend am See.', goalDone: 'yes', outside: '30-90', mindful: 'auto' });
-  await expect(page.locator('[data-check-entry="evening"]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
   expect(errors).toEqual([]);
 });
 
-test('«Sprechen» shows where the browser can turn speech into text', async ({ page, context }) => {
-  await context.addInitScript(() => {
-    window.SpeechRecognition = class {
-      start() {}
-      stop() {}
-      abort() {}
-    };
-  });
-  await open(page, context, '21:00', { speech: true });
-  await page.goto('./#/check/evening');
-  await expect(page.locator('[data-speak]')).toHaveText(T('Speak'));
+test('WG old links (was «Sprechen»): the old check pages lead to «Wi gaht\'s?»', async ({ page, context }) => {
+  await open(page, context, '21:00');
+  for (const h of ['#/check/morning', '#/check/evening', '#/check/questions']) {
+    await page.goto(`./${h}`);
+    await expect(page).toHaveURL(/#\/me\/abfragen$/);
+    await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
+  }
 });
 
 /* ---------- v0.127.0 «Tages-Check» 2 (mockups T3, T4, Noah 13.10.2026 «T1–T4 freigegeben») ---------- */
@@ -205,9 +207,12 @@ const setting = (page, key) =>
     key,
   );
 
-test('Heute: «Deine Balance» ring from the answers and the meditation, the morning-check tile, «Deine 15 Fragen»', async ({ page, context }) => {
+test('Heute: «Deine Balance» ring from the meditation and the answers of «Wi gaht\'s?», the round tile, no more «Deine 15 Fragen»', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
-  await put(page, rows());
+  const y = addDays(DAY, -1);
+  const ab = (qid, area, kind, value) => ({ id: `test_ab_${qid}`, qid, area, day: y, at: `${y}T20:35`, slot: `${y}T20:30`, kind, value, note: null, unit: null, src: 'hand' });
+  // WG: yesterday's evening round: time with friends «a lot», fresh air 10, the time outside 30–90 min
+  await put(page, { ...rows(), abAnswers: [ab('freunde.zeit', 'freunde', 'chips', 'much'), ab('natur.luft', 'natur', 'scale', 10), ab('natur.draussen', 'natur', 'chips', 'm90')] });
   await page.reload();
   await ready(page);
 
@@ -217,97 +222,98 @@ test('Heute: «Deine Balance» ring from the answers and the meditation, the mor
   // meditation on 6 of the last 7 days: Achtsamkeit full; nothing about visions: empty, never invented
   await expect(ring.locator('[data-cat="mind"] em')).toHaveText('100');
   await expect(ring.locator('[data-cat="vision"] em')).toHaveText('–');
-  await expect(ring.locator('[data-cat="friends"] em')).toHaveText('–');
+  // WG: the answers of «Wi gaht's?» count: Freunde 100; Natur: two old highlights «Natur» (1, 1), fresh
+  // air 10 (1) and 30–90 min outside (2/3) → 92
+  await expect(ring.locator('[data-cat="friends"] em')).toHaveText('100');
+  await expect(ring.locator('[data-cat="nature"] em')).toHaveText('92');
   // one segment per category with a value, the least one with a gentle suggestion
   const known = await ring.locator('.lg em').evaluateAll((els) => els.filter((e) => e.textContent !== '–').length);
   await expect(ring.locator('path[data-seg]')).toHaveCount(known);
   await expect(ring.locator('[data-least]')).toContainText(T('Least:'));
-  await expect(ring.getByRole('img')).toHaveAttribute('aria-label', new RegExp(T('Mindfulness|cat') + ' 100'));
+  await expect(ring.getByRole('img')).toHaveAttribute('aria-label', new RegExp(T('Friends|cat') + ' 100'));
 
-  // the morning-check tile: not yet today → it starts the check; afterwards it shows the numbers
+  // the round tile: «Morgen-Runde», not yet today; the old tiles are gone
   const mc = page.locator('[data-section="morningcheck"]');
   await expect(mc).toHaveAttribute('data-done', 'false');
-  await expect(mc).toContainText(T('not yet today · about 40 seconds'));
-  // «Deine 15 Fragen»: 0 of the morning, question 15 on Sunday (15.10.2026 is a Thursday)
-  const qs = page.locator('[data-section="questions"]');
-  await expect(qs).toContainText(T('{n} of {m} this morning', { n: 0, m: 6 }));
-  await expect(qs).toContainText(T('Sunday comes question 15'));
-
+  await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
+  await expect(page.locator('[data-section="questions"]')).toHaveCount(0);
   await mc.click();
-  await expect(page).toHaveURL(/#\/check\/morning$/);
-  for (const [k, v] of [['sleep', 6], ['energy', 5], ['mood', 7]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
-  await page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') }).click();
-  await page.locator('[data-check-done]').click();
-  await expect(page).toHaveURL(/#\/$/);
-  await expect(mc).toHaveAttribute('data-done', 'true');
-  await expect(mc).toContainText(T('done {time}', { time: '07:52' }));
-  await expect(mc).toContainText(T('Goal: {goal}', { goal: T('Ride after work') }));
-  await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
-  await expect(mc).toContainText(T('From 20:30 the evening review comes here.'));
-  await expect(qs).toContainText(T('{n} of {m} this morning', { n: 4, m: 6 }));
-  expect(await noScroll(page)).toBe(true);
+  await expect(page).toHaveURL(/#\/me\/abfragen$/);
   expect(errors).toEqual([]);
 });
 
-test('«Deine 15 Fragen»: the table by part, a switch hides the question in the check and stays', async ({ page, context }, info) => {
+test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on Ich › «Wi gaht\'s?», kept and used on Heute', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
-  await page.locator('[data-section="questions"]').click();
-  await expect(page).toHaveURL(/#\/check\/questions$/);
-  await expect(page.getByRole('heading', { level: 1, name: T('Your 15 questions') })).toBeVisible();
-  await expect(page.locator('tr[data-question]')).toHaveCount(15);
-  await expect(page.getByText(T('Comes by itself'))).toBeVisible();
-  await expect(page.getByText(T('with Fitbit/Google, later'))).toBeVisible();
-  // a phone leaves the columns «Wie oft» and «Antwort» away
-  await expect(page.getByRole('columnheader', { name: T('How often') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);
-  await expect(page.getByRole('columnheader', { name: T('Answer|table') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);
+  await put(page, { settings: [abConfig()] });
+  await page.goto('./#/me/abfragen');
+  await ready(page);
+  const sec = page.locator('[data-rounds]');
+  await expect(sec.getByRole('heading', { name: T('Fixed rounds') })).toBeVisible();
+  await expect(sec).toContainText(T('a suggestion, can be switched off'));
+  const sw = sec.getByRole('switch', { name: T('Ask in two rounds') });
+  await expect(sw).toBeChecked();
+  await expect(sec.locator('[data-round="morning"]')).toHaveValue('07:00');
+  await expect(sec.locator('[data-round="evening"]')).toHaveValue('20:30');
   expect(await noScroll(page)).toBe(true);
 
-  // question 6 off: the morning check no longer asks it; the choice stays after a reload
-  const sw = page.locator('tr[data-question="6"]').getByRole('switch');
-  await expect(sw).toHaveAttribute('aria-checked', 'true');
+  // an own evening time: kept, and the round tile names it
+  await sec.locator('[data-round="evening"]').fill('21:15');
+  await sec.locator('[data-round="evening"]').blur();
+  await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds).toEqual({ on: true, morning: '07:00', evening: '21:15' });
+  await page.goto('./#/');
+  await ready(page);
+  const card = page.locator('[data-section="abfragen"]');
+  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '6', exact: true }).click();
+  await card.locator('[data-ab-save]').click();
+  await expect(page.locator('[data-section="morningcheck"]')).toContainText(T('From {time} the evening round comes here.', { time: '21:15' }));
+
+  // switched off: the questions keep their own times (the battery waits for 08:00), the times are hidden
+  await page.goto('./#/me/abfragen');
   await sw.click();
-  await expect(sw).toHaveAttribute('aria-checked', 'false');
-  await expect(page.locator('tr.g').first()).toContainText(T('Morning · {n} taps', { n: 5 }));
-  await expect.poll(() => setting(page, 'checkQuestionsOff')).toEqual([6]);
+  await expect(sw).not.toBeChecked();
+  await expect(sec.locator('[data-round]')).toHaveCount(0);
+  await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds?.on).toBe(false);
   await page.reload();
-  await expect(page.locator('tr[data-question="6"]').getByRole('switch')).toHaveAttribute('aria-checked', 'false');
-  await page.goto('./#/check/morning');
-  await expect(page.locator('[data-q="sleep"]')).toBeVisible();
-  await expect(page.locator('[data-q="joy"]')).toHaveCount(0);
-  await expect(page.locator('[data-q="goal"]')).toBeVisible();
-  // the morning page leads to the catalogue too; on again, the question is back
-  await page.locator('[data-all-questions]').click();
-  await expect(page).toHaveURL(/#\/check\/questions$/);
-  await page.locator('tr[data-question="6"]').getByRole('switch').click();
-  await page.goto('./#/check/morning');
-  await expect(page.locator('[data-q="joy"]')).toBeVisible();
+  await expect(page.locator('[data-rounds]').getByRole('switch', { name: T('Ask in two rounds') })).not.toBeChecked();
+  await page.goto('./#/');
+  await ready(page);
+  await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
+  await expect(card.locator('[data-q="ziele.ziel"]')).toHaveCount(0);
+  // on again: the morning round asks them at 07:00
+  await page.goto('./#/me/abfragen');
+  await page.locator('[data-rounds]').getByRole('switch', { name: T('Ask in two rounds') }).click();
+  await page.goto('./#/');
+  await ready(page);
+  await expect(card.locator('[data-q="ziele.ziel"]')).toContainText('7:00');
   expect(errors).toEqual([]);
 });
 
-test('question 15 on a Sunday evening: 1–10 and one sentence, saved', async ({ page, context }) => {
+test('the Sunday question (was question 15): «Näher an deiner Vision?» in the Sunday evening round at 20:30, saved', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
-  await page.clock.install({ time: new Date('2026-10-18T21:00:00+02:00') }); // a Sunday
-  await page.goto('./#/check/evening');
-  const q15 = page.locator('[data-q="vision"]');
-  await expect(q15).toContainText(T('Did you get closer to your vision?'));
-  await q15.locator('.sv').nth(6).click();
-  await page.locator('[data-vision-note]').fill('Ein fiktiver Schritt.');
-  await page.locator('[data-vision-note]').blur();
-  await expect
-    .poll(() => page.evaluate(() => new Promise((res) => {
-      const r = indexedDB.open('pack-generator');
-      r.onsuccess = () => {
-        const g = r.result.transaction('flowChecks').objectStore('flowChecks').get('2026-10-18');
-        g.onsuccess = () => (res(g.result ? { vision: g.result.vision, visionNote: g.result.visionNote } : null), r.result.close());
-      };
-    })))
-    .toEqual({ vision: 7, visionNote: 'Ein fiktiver Schritt.' });
-  // not on a weekday
-  await page.clock.setSystemTime(new Date('2026-10-19T21:00:00+02:00'));
+  await page.clock.install({ time: new Date('2026-10-18T20:00:00+02:00') }); // a Sunday
+  await page.goto('./#/');
+  await ready(page);
+  // only the Sunday question on (the list of the app, all others off), «Wi gaht's?» since this morning
+  const q = { ...Object.fromEntries([...ON_AT_START].map((id) => [id, { on: false }])), 'visionen.vision': { on: true } };
+  await put(page, { settings: [{ key: 'abfragen', value: { since: '2026-10-18T06:00', q, own: [] } }] });
   await page.reload();
-  await expect(page.locator('[data-q="sat"]')).toBeVisible();
-  await expect(page.locator('[data-q="vision"]')).toHaveCount(0);
+  await ready(page);
+  // 20:00: its own time (19:00) moved to the evening round, not yet
+  await expect(page.locator('[data-q="visionen.vision"]')).toHaveCount(0);
+  await page.clock.setSystemTime(new Date('2026-10-18T20:31:00+02:00'));
+  await page.reload();
+  await ready(page);
+  const v = page.locator('[data-section="abfragen"] [data-q="visionen.vision"]');
+  await expect(v).toContainText('20:30');
+  await v.getByRole('button', { name: '7', exact: true }).click();
+  await page.locator('[data-section="abfragen"] [data-ab-save]').click();
+  await expect.poll(async () => (await answers(page)).find((a) => a.qid === 'visionen.vision')?.value).toBe(7);
+  // not on a weekday
+  await page.clock.setSystemTime(new Date('2026-10-19T20:31:00+02:00'));
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-q="visionen.vision"]')).toHaveCount(0);
 });
 
 test('the tip about the long press closes for good; a long press shows the sizes of the tile', async ({ page, context }, info) => {

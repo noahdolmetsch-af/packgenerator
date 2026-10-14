@@ -5,31 +5,35 @@
  * with items. A suggestion gets a dashed frame and a small label: an own rain block when the weather is
  * wet, and a Repair that is not slim yet (its tap opens «Reparatur unterwegs», B5).
  * One tap switches the whole block (trips.js toggleSet, the same as the old switches); nothing is forced.
- * Pure functions only, tested in tests/packblocks.test.js.
+ * SN3+ «Bausteine je nach Lage» (answer 5a): the seven blocks of situation.js come the same way, dashed
+ * with their reason; the rain suggestion is now the rule of the block Regen (an own block named like
+ * rain follows the same rule, so nothing changes for it).
+ * Pure functions only, tested in tests/packblocks.test.js and tests/situation.test.js.
  */
 import { allSets, setView } from './sets.js';
 import { NIGHT_SETS } from './trips.js';
 import { activeBlocks, OFFER_ONLY } from './context.js';
 import { tempKits, rainChance } from './wardrobe.js';
 import { needsSlim, repairItems, REPAIR } from './repairslim.js';
+import { SITUATION_BLOCKS, situationHits } from './situation.js';
 
 /** The built-in blocks shown in Packen, in this order: the ride's (first aid, light, repair, charging, race, cook), food, hygiene. */
-export const PACK_BLOCKS = [...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene'];
+export const PACK_BLOCKS = [...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene', ...SITUATION_BLOCKS];
 /** An own block for rain, by its name. */
 export const RAIN_WORDS = /rain|regen|nass|wet/i;
-/** From this rain chance (%) an own rain block is suggested. */
+/** From this rain chance (%) an own rain block is suggested (SN3+: the standard of the rule Regen). */
 export const RAIN_PCT = 30;
 
 /** Is the trip's weather wet? → the rain chance in % (null when only «showers/rain» is known) or false. */
-export function wetTrip(trip) {
+export function wetTrip(trip, limit = RAIN_PCT) {
   const pct = rainChance(trip);
-  if (pct != null && pct >= RAIN_PCT) return pct;
+  if (pct != null && pct >= limit) return pct;
   return trip?.wx?.rain === 'rain' || trip?.wx?.rain === 'showers' ? null : false;
 }
 
 /**
  * The buttons of one trip: { on: [row], add: [row] }. row: { key, name, n, g, missing, ids, on,
- * suggest: null | { kind: 'rain', pct } | { kind: 'slim', n } }. Only blocks with owned items; the
+ * suggest: null | { kind: 'rain', pct } | { kind: 'slim', n } | a reason of situation.js ruleHit }. Only blocks with owned items; the
  * temperature kits (the onion's) and Comfort (offered item by item) are left out.
  */
 export function blockRows(trip, items, setsValue) {
@@ -39,7 +43,8 @@ export function blockRows(trip, items, setsValue) {
   const kits = new Set(tempKits(setsValue).map((k) => k.key));
   const builtIn = PACK_BLOCKS.map((k) => sets.find((s) => s.key === k)).filter(Boolean);
   const own = sets.filter((s) => !s.builtIn && !kits.has(s.key) && !OFFER_ONLY.includes(s.key));
-  const wet = wetTrip(trip);
+  // SN3+: the blocks «je nach Lage» that fit this trip ({ cold: { kind, c }, rain: { kind, pct }, … })
+  const hits = situationHits(trip, setsValue);
   const slim = needsSlim(items);
   const rows = [...builtIn, ...own]
     .map((s) => {
@@ -47,7 +52,8 @@ export function blockRows(trip, items, setsValue) {
       const on = active.has(s.key);
       let suggest = null;
       if (!on && s.key === REPAIR && slim) suggest = { kind: 'slim', n: repairItems(items).length };
-      else if (!on && !s.builtIn && wet !== false && RAIN_WORDS.test(s.name)) suggest = { kind: 'rain', pct: wet };
+      else if (!on && hits[s.key]) suggest = { ...hits[s.key] };
+      else if (!on && !s.builtIn && hits.rain && RAIN_WORDS.test(s.name)) suggest = { kind: 'rain', pct: hits.rain.pct };
       return { key: s.key, name: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, builtIn: s.builtIn, n: v.inventory.length, g: v.g, missing: v.missing, ids: v.inventory.map((i) => i.id), on, suggest };
     })
     .filter((r) => r.n > 0);

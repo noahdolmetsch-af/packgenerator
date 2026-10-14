@@ -5,6 +5,7 @@
 // Fictional data only (tests/e2e/fixture.json, test_data_gtp_ records). Labels come from the app's
 // German texts (src/lib/i18n/de), the button names from phase.js.
 import { test, expect } from '@playwright/test';
+import { endMenu } from './ending.js';
 import { base, tr, mockWeather } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
 
@@ -130,8 +131,8 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   await expect(main(page)).toHaveText(T('Continue to On the way'));
   await go(page, '#/ride');
   // U004: no «Weiter: Rückblick» before the last day; ending is quiet and asks
-  await expect(page.locator('.trip-band .btn.hi')).toHaveCount(0);
-  await page.getByRole('button', { name: T('End the trip …') }).click();
+  await expect(page.locator('.trip-band .btn.hi.go')).toHaveCount(0); // SN1: «Notiz» is the main button, no «Weiter …»
+  await endMenu(page, T); // SN1 (changed on purpose): «Tour beenden …» is in the band's «…»
   const sheet = page.locator('dialog.endsheet');
   await expect(sheet.getByRole('heading', { name: T('End the trip now?') })).toBeVisible();
   // U25a: «Weiterfahren» first, «Tour beenden» below it
@@ -141,7 +142,7 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   await btns.nth(0).click();
   await expect(sheet).toBeHidden();
   await expect(page).toHaveURL(/#\/ride$/);
-  await page.getByRole('button', { name: T('End the trip …') }).click();
+  await endMenu(page, T); // SN1 (changed on purpose): «Tour beenden …» is in the band's «…»
   await sheet.getByRole('button', { name: T('Breakdown') }).click();
   await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Jura')}/ended$`));
@@ -152,9 +153,9 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   expect(await page.locator('.toast .undo').evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe('0px');
   await page.locator('.toast').getByRole('button', { name: T('Undo') }).click();
   await expect(page).toHaveURL(/#\/ride$/);
-  await expect(page.locator('.trip-band .btn.hi')).toHaveCount(0);
+  await expect(page.locator('.trip-band .btn.hi.go')).toHaveCount(0); // SN1: «Notiz» is the main button, no «Weiter …»
   // ended again: «Doch noch unterwegs?» until tomorrow (U005)
-  await page.getByRole('button', { name: T('End the trip …') }).click();
+  await endMenu(page, T); // SN1 (changed on purpose): «Tour beenden …» is in the band's «…»
   await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
   await expect(page).toHaveURL(/\/ended$/);
   await page.reload();

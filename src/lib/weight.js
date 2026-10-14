@@ -4,8 +4,11 @@
  * backup file you make yourself); never sent to Strava or a server. Observation only: no goal, no rating.
  *
  * Stored under WEIGHT_KEY: { entries: [{ day: 'YYYY-MM-DD', kg }] }, one entry per day.
+ * RIDER_KEY: the one body weight in grams that Packen, Velos › Setup and «Wi gaht's?» read; it follows
+ * the newest entry, and a weight from «Wi gaht's?» becomes that day's entry here (abdb.js).
  */
 export const WEIGHT_KEY = 'me.weight';
+export const RIDER_KEY = 'riderWeightG';
 export const KG_MIN = 30;
 export const KG_MAX = 250;
 

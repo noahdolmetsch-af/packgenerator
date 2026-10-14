@@ -868,6 +868,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Noah 13.10.2026 19:43 UTC «a und b»:** Belastung als Relative Effort (Strava) und aus Leistung (NP ÷ FTP); mit Watt NP, Ø, max, Leistungsbereiche, Leistungskurve, FTP geschätzt; Gewicht unter Ich › Meine Daten, nur auf dem Gerät. 21:24 UTC: alle 6 Analysen, im Frontend ausblendbar.
 - **Coordinator 14.10.2026 21:08 UTC:** TR6 umfasst nur den Gewichtseintrag unter Ich › Meine Daten, nicht die Wochenfrage auf Heute (die kommt über «Deine Abfragen»).
 - **Selbst entschieden:** Die Zeile «Gewicht» öffnet eine eigene Seite (TR6b) mit «Gewicht eintragen» (Tag und kg, Entfernen) statt nur des Fensters aus TR6; dazu eine Liste der letzten 12 Einträge zum Ändern. In «Analysen anpassen» jede Analyse einzeln (TR7c) statt «Abschnitte … Bestwerte» als eine Zeile (TR7g), gruppiert nach «Auf der Aktivität» und «In der Woche». Die Leistungs-, Belastungs- und Kurvenkarten aus TR5 bleiben fest (nicht ausblendbar), wie im Mockup ohne «…». Zahlen im Schweizer Format mit Punkt (de-CH). FTP-Schätzung bleibt 95 % der besten 20 Minuten aus 90 Tagen; Belastung ohne Leistungsmesser = Relative Effort. Fitness 42 Tage, Ermüdung 7 Tage (übliche Mittel).
+- **Selbst entschieden (mit 0.133.0 «Wi gaht's?»):** Ein Gewicht für die ganze App. Der neuste Eintrag unter Ich › Gewicht ist auch das Körpergewicht, das Packen und Velos › Setup lesen (`riderWeightG`); ein Gewicht aus «Wi gaht's?» wird der Eintrag dieses Tages. Test `tests/gewicht-sync.test.js`.
 
 ## 13.10.2026: Training TR1–TR4 (0.138.0)
 
@@ -876,6 +877,24 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training.**
 - **Noah 13.10.2026 21:15 UTC «1a 2a 3a 4a»:** 1 Rückblick auf der Ansicht «Woche» neben dem Plan, kein eigener Reiter; 2 Training öffnet mit «Woche»; 3 alles in einem Paket; 4 Wetter bei einer Aktivität später nachbauen.
 - **Selbst entschieden:** Feste Termine und Erholung aus Aktiv › Woche (AK1/AK2) kommen mit «Aktiv ausweiten». Plan und Ziel in den Einstellungen (`training.plan`, `training.goal`, im Backup), geplante Einheiten älter als 120 Tage fallen weg. Eine geplante Einheit gilt als gemacht, wenn am Tag eine Aktivität derselben Art kommt. Der Server schickt den Puls als Sekunden pro Schlag, so braucht eine geänderte Zone keinen neuen Abruf; nie Strecke oder Karte. Von selbst nur die neusten 8 Aktivitäten mit Puls der letzten 90 Tage (Strava erlaubt 100 Abrufe pro 15 Minuten, die App teilt sich den Zugang), ältere beim Öffnen. Ohne Strava-Zonen: Standard aus Maximalpuls 190 (60/70/80/90 %). «Gleiche Strecke» = gleicher Name und gleiche Art, Distanz ±10 %. Die Notiz bleibt in der App, nicht in Strava. Wetter und Kalorien: Kalorien aus Strava, Wetter noch nicht. Eigene Farben für die Zonen als Tokens `--z1` bis `--z5`. Trennen mit «Fahrten löschen» löscht auch die Aktivitäten.
+
+## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)
+
+- (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC)
+- **«Wi gaht's?» ersetzt den Tages-Check:** ein Satz Fragen statt Tagescheck und Wochengewicht. Antworten in `abAnswers` (Dexie v9); Schlaf, Energie, Stimmung zusätzlich in die Tageszeile `flowChecks` (Ringe, Rückblick, 7-Tage-Werte lesen weiter dort), Gewicht auch als Körpergewicht. Alte Tageschecks bleiben und stehen im Verlauf.
+- **Feste Runden (WG):** Einstellung `abfragen.rounds` (an, 07:00, 20:30). Eine Fragezeit vor 12:00 fragt zur Morgenzeit, ab 18:00 zur Abendzeit, dazwischen bleibt die eigene Zeit. Abschaltbar unter Ich › «Wi gaht's?» › Feste Runden.
+- **Balance-Ring:** liest zusätzlich die Antworten der 7 Tage (Bereich → Kategorie; Körper und Werte nicht im Ring); Schlaf, Energie, Stimmung zählen nur einmal.
+- **Begrüssung:** immer Mundart (feste Texte in `home/hallo.js`, nicht über t()), ab 22 Uhr «Guät Nacht, Nachtülä»; die Antworten beim Antippen landen im Verlauf von «Wi gaht's?».
+- **Selbst entschieden:**
+  - Alte Adressen `#/check/morning`, `#/check/evening`, `#/check/questions` leiten still auf «Wi gaht's?» um; Kacheln «Tagescheck» und «Deine 15 Fragen» verschwinden auch aus gespeicherten Wänden.
+  - Bestehende Nutzer: Runden sind sofort an (Fragen um 08:00 und 20:00 wandern auf 07:00 und 20:30).
+  - Ein Tag mit Antworten aus «Wi gaht's?» zählt die alte Regel «Morgen ohne Ziel = Ziele 0» nicht.
+  - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.132.0.
+  - Die Regeln des alten Checks in `flowcheck.js` bleiben (alte Zeilen lesbar); Aufräumen später in einem kleinen Release.
+- **KT «Kacheln antippbar»** (Mockup-Freigabe: KT1–KT4, Antworten «1 a und b 2a 3a 4a» und «KT freigegeben» Noah 14.10.2026 10:31 UTC; Bilder `design/kachel-tipp/`): «Öffnen ›» auf jeder kleinen Kachel, › im Kopf von «Im Flow», ••• auf jeder Aktivität (wie langes Drücken) mit Hilfezeile auf Heute, kurze Einführung in drei Schritten (`homeIntroKT`), Anheben am Computer.
+  - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
+- **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
+
 
 ## 13.10.2026: 0.125.0 «Tagespaket 13.10.», ein Release aus vier Paketen
 
@@ -973,6 +992,18 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 - **Noah 13.10.2026 «1-5a»:** 1 Höhenmeter und Puls zuerst, Aktivzonenminuten mit Fitbit; 2 ein Jahresziel pro Wert, jedes abwählbar; 3 Puls als Wochen-Durchschnitt, ohne Bewertung; 4 «Diese Woche» zeigt km · Hm · Minuten in einer Zeile; 5 zuerst Hm, Fussabdruck und Velopflege.
 - **Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden.** SV1 nach Noahs Hinweis 17:06 UTC (Strava-Knopf nicht gefunden) und «a» 17:07 UTC.
 - **Selbst entschieden:** SV1 als Karte über der Kachel-Wand statt als Kachel (keine Umstellung gespeicherter Wände nötig); zurück über die Kachel «Strava» oder Velo › Pflege › Strava. Startwerte der Jahresziele 5 000 km, 50 000 Hm, 7 800 Min (150 pro Woche). Fussabdruck zählt alle Fahrten mit 0,15 kg CO₂ pro Auto-km. Höhenmeter je Teil nur aus Strava-Fahrten (hochgeladene GPX-Fahrten haben kein Velo). Farbe der Strava-Karte aus Tokens (`--warn-soft`), nicht Strava-Orange. Am Handy ist die Karte eine schmale Zeile (Titel, «Verbinden», «Später»), damit die Tour-Karte im ersten Bild bleibt (Noah 2b).
+
+## 14.10.2026: 0.132.2 «Velo draussen ohne falschen Haken»
+
+- (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup)
+- **Ursache:** «Velo draussen» zählt auch «Velotour» (`counts: ['trip']`); `tripDays` nahm jeden Tour-Tag bis und mit heute, auch von nur geplanten Touren. Der Tour-Tag liess sich nicht antippen (ein Tipp setzt oder nimmt nur das eigene Häkchen), darum blieb der Haken stehen.
+- **Selbst entschieden:** Der heutige Tour-Tag zählt erst, wenn die Tour beendet ist (`finished`, `status: 'done'` oder aus einer Fahrt); vergangene Tage zählen wie bisher. Touren ohne Velo zählen nicht als Velotour: Wandern, Skitour, Wochenende und Reisen tragen ihre Rucksäcke als `packs` an der Tour, Velotouren (Bikepacking, Tagestour) nie, ihre Taschen hängen am Velo, wie im Editor «Velotour» heisst.
+
+## 14.10.2026: 0.132.1 «Langer Name passt»
+
+- Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup
+- **Ursache:** `.tally` in `Between.svelte` ist ein zentriertes Grid (max. 340 px); sein `<small>` hat `min-width: auto` und wird nie schmaler als das längste Wort. `overflow-wrap: break-word` allein senkt diese Mindestbreite nicht.
+- **Selbst entschieden:** eigenes kleines Update statt im Tipps-Paket, damit der Fix sofort live gehen kann (Koordination: Mein Überblick).
 
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 

@@ -1,6 +1,6 @@
 // v0.51.0 «Im Flow – kleiner Start»: one tap ticks with Undo, a second tap takes it back, the long
 // press picks the place, the countdown runs on a fake clock to its end, an activity is edited, the
-// daily check answers four questions (v0.127.0: on its own page). The app seeds its own fictional activities; no personal data.
+// daily check answers four questions (v0.127.0: on its own page; WG: «Wi gaht's?» took it over). The app seeds its own fictional activities; no personal data.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -63,7 +63,8 @@ test('a long press picks the place: Yoga at home', async ({ page, context }) => 
 
 test('the countdown runs to its target on a fake clock, small it keeps running, then ticks', async ({ page, context }, info) => {
   await open(page, context);
-  await page.getByRole('button', { name: T('Stopwatch') }).first().click();
+  // KT: the «•••» of each activity names the stopwatch too; it opens the tick sheet, not the countdown
+  await page.getByRole('button', { name: T('Stopwatch') }).and(page.locator(':not([data-more])')).first().click();
   const sheet = page.locator('dialog.tsheet[open]');
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: 'Meditation', exact: true }).click();
@@ -134,14 +135,31 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
   await expect(row.locator('.st')).toHaveText('0 / 4');
 });
 
-test('the daily check: four taps on its page, then Today shows the numbers', async ({ page, context }) => {
-  // v0.127.0 «Tages-Check» 1: the check is a page now (#/check/morning), «Fertig» goes back to Today
-  await open(page, context, '#/');
+// WG «Wi gaht's?» takes over the daily check: the row leads to «Wi gaht's?», its answers show as the numbers
+test('WG the daily check (was «four taps on its page»): the row leads to «Wi gaht\'s?», its answers show on Today', async ({ page, context }) => {
+  await open(page, context, '#/', '[data-section="flow"]');
   const card = page.locator('[data-section="flow"]');
   await card.getByRole('link', { name: T('Start|check') }).click();
-  await expect(page).toHaveURL(/#\/check\/morning$/);
-  for (const [k, v] of [['sleep', 7], ['energy', 6], ['mood', 8], ['extra', 5]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
-  await page.locator('[data-check-done]').click();
+  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  // «Wi gaht's?» started yesterday evening (fictional): the morning round is due on Today
+  await page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('settings', 'readwrite');
+          tx.objectStore('settings').put({ key: 'abfragen', value: { since: '2026-10-08T21:00', q: {}, own: [] } });
+          tx.oncomplete = () => (r.result.close(), res());
+        };
+      }),
+  );
+  await page.goto('./#/');
+  const ab = page.locator('[data-section="abfragen"]');
+  await ab.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '7', exact: true }).click();
+  await ab.locator('[data-q="erholung.akku"]').getByRole('button', { name: '6', exact: true }).click();
+  await ab.locator('[data-ab-save]').click();
   await expect(card.locator('.nums')).toContainText('7');
-  await expect(card.locator('.nums li')).toHaveCount(4);
+  await expect(card.locator('.nums li')).toHaveCount(3);
+  await expect(card.locator('[data-val="energy"]')).toContainText('6');
+  await expect(card.locator('[data-val="mood"]')).toContainText('–'); // asked at 13:00, not yet
 });

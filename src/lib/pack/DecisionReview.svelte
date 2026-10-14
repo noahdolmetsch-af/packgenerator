@@ -62,7 +62,7 @@
                     <div class="decision-choice">
                       {#if row.alts.length}<select class="sel" aria-label={t('Alternative for {name}', { name: nameOf(byId[row.slot]) })} value={row.id} onchange={(e) => update(row.slot, { id: e.currentTarget.value, selected: true })}>{#each row.alts as id}<option value={id}>{nameOf(byId[id])}</option>{/each}</select>{/if}
                       {#if item?.perHours || row.qty > 1}
-                        <label class="review-qty"><span>{t('Amount')}</span><input class="inp num" type="number" min="1" max={item?.maxQty || 20} value={row.qty} aria-label={t('Amount for {name}', { name: nameOf(item) })} onchange={(e) => update(row.slot, { qty: e.currentTarget.value, selected: true })} /></label>
+                        <label class="review-qty"><span>{t('Amount')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max={item?.maxQty || 20} value={row.qty} aria-label={t('Amount for {name}', { name: nameOf(item) })} onchange={(e) => update(row.slot, { qty: e.currentTarget.value, selected: true })} /></label>
                       {/if}
                     </div>
                   {/if}

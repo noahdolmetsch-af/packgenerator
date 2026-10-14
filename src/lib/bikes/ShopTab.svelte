@@ -15,6 +15,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks, Plus, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
+  import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, visitId = null, onbike } = $props();
 
@@ -114,7 +115,8 @@
     </div>
 
     <aside class="sside">
-      <button type="button" class="btn hi addv" onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Log a workshop visit')}</button>
+      <!-- FE1: on a phone «Log a workshop visit» sits at the bottom, in reach of the thumb -->
+      <span class="daumen"><button type="button" class="btn hi addv" onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Log a workshop visit')}</button></span>
       {#if visits.length}
         <section class="ssec" aria-labelledby="rc-h">
           <h2 id="rc-h" class="sh">{t('Receipts')}</h2>
