@@ -79,9 +79,14 @@ export const DEFAULT_SETUP = {
   tool: 'bag-TA09',
 };
 
-/** Bag list to start with, from the gear items that exist. */
+/**
+ * Bag list to start with, from the gear items of the first Excel import that exist. Without any of
+ * them (an empty app, other data) there is no start list: the cargo cage and the mini bag only came
+ * with that Excel (Noah 14.10.2026: they showed up in an empty app).
+ */
 export function startContainers(items) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
+  if (!START_BAGS.some((b) => b.itemId && byId[b.itemId])) return [];
   return START_BAGS.filter((b) => !b.itemId || byId[b.itemId]).map((b) => {
     const item = b.itemId ? byId[b.itemId] : null;
     const pieces = b.pieces ?? 1;
