@@ -24,6 +24,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import Section from '../lib/ui/Section.svelte';
+  import '../lib/ui/daumen.css'; // FE1
   import Btn from '../lib/ui/Btn.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import TripState from '../lib/ui/TripState.svelte';
@@ -178,7 +179,8 @@
   <div class="tpls">
     <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Templates')} sub={[active.length ? tn(active.length, '{n} template', '{n} templates') : '', t('Building blocks plus single items, so the next trip starts packed')].filter(Boolean).join(' · ')}>
       <!-- SN3: one main button; with no template yet the empty card below carries it -->
-      <Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} />
+      <!-- FE1: on a phone «New template» sits at the bottom, in reach of the thumb -->
+      <span class="daumen"><Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} /></span>
     </PathHead>
 
     {#if showSwitch}

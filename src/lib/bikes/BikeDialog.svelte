@@ -11,6 +11,8 @@
   import Btn from '../ui/Btn.svelte';
   import './velo-dlg.css';
   import { SURFACES } from '../review/werte.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   /** bike: the bike to edit, or null for "Add bike". */
   let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
@@ -96,7 +98,7 @@
 </script>
 
 <dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <!-- Design-Refresh P7 (V2): title and a quiet line, ✕ top right, «Delete bike» next to «Cancel». -->
     <div class="vd-head">
       <div class="vd-t">
@@ -134,7 +136,7 @@
     </div>
     {#if !isNew && used}<p class="vd-note"><TriangleAlert size={16} aria-hidden="true" />{tn(used, 'You can delete it once no trip uses this bike. {n} trip uses it.', 'You can delete it once no trip uses this bike. {n} trips use it.')}</p>{/if}
     <p class="err" role="alert">{error}</p>
-    <div class="vd-foot sn7">
+    <div class="vd-foot sn7 daumen-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
       <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog.close()} />
       <Btn kind="hi" type="submit" label={isNew ? t('Add|bike') : t('Save')} />

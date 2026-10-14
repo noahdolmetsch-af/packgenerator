@@ -23,6 +23,8 @@
   import Btn from '../ui/Btn.svelte';
   import { explain } from '../ui/explain.js';
   import { t, dateOf } from '../i18n.svelte.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { kind, bikes = [], bikeId = null, tripId = null, onclose, onsaved } = $props();
 
@@ -136,7 +138,7 @@
 </script>
 
 <dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
-  <form onsubmit={save}>
+  <form onsubmit={save} use:weiter>
     <h2 id="bq-h" class="title">{t(TITLE[kind])}</h2>
     {#if kind === 'idea'}<p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>{/if}
     <label class="field">
@@ -184,7 +186,7 @@
     {/if}
     {#if kind === 'problem'}<p class="hint">{t('Lands in Bike care as an open repair.')}</p>{/if}
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
-    <div class="foot">
+    <div class="foot daumen-foot">
       <Btn type="submit" kind="hi" label={t('Save')} explain={explain('Save')} disabled={busy || reading} />
       <Btn kind="quiet" label={t('Cancel')} explain={explain('Cancel')} onclick={() => dialog.close()} />
     </div>

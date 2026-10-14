@@ -5,13 +5,26 @@
    * paragraph under the title. A tap (or Enter) shows the text right below; again hides it.
    * label: what the explanation is about (for screen readers), children: the text.
    */
-  let { label = '', children } = $props();
+  /*
+   * FE14 «? an Ort und Stelle» (Noah 13.10.2026 «a»): the same «?» explains a difficult field in one
+   * sentence. text: the sentence (already translated, instead of children); field: the id of the
+   * field it explains, which then names the open sentence in its aria-describedby.
+   */
+  let { label = '', children = null, text = '', field = '' } = $props();
   let open = $state(false);
   const id = `help-${Math.random().toString(36).slice(2, 9)}`;
+  $effect(() => {
+    if (!field || !open) return;
+    const el = document.getElementById(field);
+    if (!el) return;
+    const own = el.getAttribute('aria-describedby');
+    el.setAttribute('aria-describedby', own ? `${own} ${id}` : id);
+    return () => (own ? el.setAttribute('aria-describedby', own) : el.removeAttribute('aria-describedby'));
+  });
 </script>
 
-<button type="button" class="q" aria-expanded={open} aria-controls={id} aria-label={label ? t('Explain: {what}', { what: label }) : t('Explain')} onclick={() => (open = !open)}>?</button>
-{#if open}<div class="help" {id} role="note">{@render children()}</div>{/if}
+<button type="button" class="q" aria-expanded={open} aria-controls={id} aria-describedby={open ? id : undefined} aria-label={label ? t('Explain: {what}', { what: label }) : t('Explain')} onclick={() => (open = !open)}>?</button>
+{#if open}<div class="help" {id} role="note" data-help>{#if children}{@render children()}{:else}{text}{/if}</div>{/if}
 
 <style>
   .q {
@@ -49,7 +62,9 @@
     border-radius: 0 6px 6px 0;
     color: var(--ink-2);
     font-size: 14px;
+    font-weight: 400; /* FE14: also inside a bold label */
     line-height: 1.45;
+    text-align: left;
   }
   .help :global(p) {
     margin: 0 0 6px;

@@ -8,6 +8,7 @@
   import { db } from '../db.js';
   import { saveTripAsTemplate } from '../templates.js';
   import { t } from '../i18n.svelte.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   let { trip, templates = [], onclose, onsaved } = $props();
 
@@ -39,7 +40,7 @@
     <p class="note">{t('Saves the bags, every item with its place and amount, the ready check, the kind of ride, the days, the riding hours per day, the overnight stay and the bike. Not saved: the weather and what is ticked.')}</p>
     {#if source}<p class="note upd">{t('Update replaces the items, places and amounts of «{name}» (and its days, hours, overnight stay and bike). Trips made from it before stay unchanged.', { name: source.name })}</p>{/if}
     <p class="err" role="alert">{error}</p>
-    <div class="foot">
+    <div class="foot daumen-foot">
       {#if source}
         <button type="button" class="btn hi" onclick={() => store(false)} data-explain={t('Update template «{name}»', { name: source.name })}>{t('Update|template')}</button>
         <button type="button" class="btn" onclick={() => store(true)} data-explain={t('Save as new template')}>{t('New template|save')}</button>

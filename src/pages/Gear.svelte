@@ -4,6 +4,7 @@
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
+  import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
   import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
@@ -557,7 +558,8 @@
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
             <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
-          <button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button>
+          <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
+          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
             <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>

@@ -7,6 +7,7 @@
   import { t, num } from '../i18n.svelte.js';
   import { zoneRows, validBounds } from '../review/werte.js';
   import '../review/zones.css';
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { zones = null, onsave } = $props();
   const rows = $derived(zones ? zoneRows(zones.bounds) : []);
@@ -44,7 +45,7 @@
       <p class="none">{t('No heart rate yet. Rides from Strava bring it.')}</p>
     {/if}
     {#if edit}
-      <form class="ze" onsubmit={save}>
+      <form class="ze" onsubmit={save} use:weiter>
         {#each [0, 1, 2, 3] as i (i)}
           <label><span>{t('Z{n} up to', { n: i + 1 })}</span><input class="inp num" type="number" inputmode="numeric" min="60" max="230" bind:value={draft[i]} /></label>
         {/each}

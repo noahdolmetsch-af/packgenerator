@@ -41,6 +41,8 @@
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import Help from '../lib/ui/Help.svelte';
+  import { FIELD_HELP } from '../lib/daumen.js'; // FE14
   import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
@@ -58,6 +60,7 @@
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
   import TourTiles from '../lib/touren/TourTiles.svelte';
   import '../lib/review/review.css';
+  import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -205,8 +208,9 @@
   {/if}
 {/snippet}
 
-{#snippet cell(label, value, unit = '')}
-  <div class="vc"><dt>{label}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
+{#snippet cell(label, value, unit = '', help = '')}
+  <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
+  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
 {/snippet}
 
 {#snippet values(r)}
@@ -216,8 +220,8 @@
   <div class="vals" data-values>
     <dl class="vg">
       {#if ride}
-        {@render cell(t('Moving time|col'), secs(v.movingS))}
-        {@render cell(t('Elapsed|col'), secs(v.elapsedS))}
+        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
+        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
         {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
         {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
         {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
@@ -231,7 +235,7 @@
         <dl class="vg">
           {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
           {@render cell(t('Max. power'), n0(v.wMax), 'W')}
-          {@render cell(t('NP'), n0(v.wNorm), 'W')}
+          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
         </dl>
       </div>
     {:else}
@@ -269,7 +273,8 @@
           </div>
           <div class="sha">
             {#if tours.band === 'hidden'}<button type="button" class="btn btn-link" onclick={() => saveTours({ band: null })} data-band-show><Backpack size={16} aria-hidden="true" />{t('Show the pack mode band')}</button>{/if}
-            <button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button>
+            <!-- FE1: on a phone «New trip» sits at the bottom, in reach of the thumb -->
+            <span class="daumen"><button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button></span>
           </div>
         </div>
         {#if plan.length}
@@ -741,6 +746,23 @@
   .vc dt {
     color: var(--ink-3);
     font-size: var(--fs-tiny);
+  }
+  /* FE14: the «?» of a value stays small; its sentence opens over the row, the full width of the values */
+  .vg {
+    position: relative;
+  }
+  .vc dt :global(.q) {
+    z-index: 1; /* above the link of the whole row */
+    width: 20px;
+    height: 20px;
+    font-size: var(--fs-tiny);
+  }
+  .vc dt :global(.help) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    box-shadow: 0 6px 18px var(--shadow);
   }
   .vc dd {
     margin: 0;
