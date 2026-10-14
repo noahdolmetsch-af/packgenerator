@@ -127,13 +127,14 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
   await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('Functions'));
   await expect(page.locator('.vhead .vsub')).toContainText(T('tap to go there'));
-  // «Neu für dich»: at most three tips, one main button
-  const tips = page.getByRole('region', { name: T('New for you') });
+  // SN6+ (answer 1b, intended change): «Neu für dich» is replaced by «Neu seit deinem letzten Besuch»;
+  // its debrief and playground tips stand in «Passt gerade» (at most three tips)
+  await expect(page.getByRole('region', { name: T('New for you') })).toHaveCount(0);
+  const tips = page.getByRole('region', { name: T('New since your last visit') });
   await expect(tips).toBeVisible();
-  const n = await tips.locator('.ftip').count();
+  const n = await page.getByRole('region', { name: T('Fits right now') }).locator('[data-fit]').count();
   expect(n).toBeGreaterThan(0);
   expect(n).toBeLessThanOrEqual(3);
-  await expect(tips.locator('.btn.hi')).toHaveCount(1);
   // six cards, three rows each at most, no orange «Noch nie benutzt» pill and no row buttons
   const groups = page.locator('section[data-group]');
   await expect(groups).toHaveCount(6);
@@ -147,7 +148,7 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   await page.getByRole('button', { name: T('By situation'), exact: true }).click();
   await expect(groups).toHaveCount(6);
   if (info.project.name === 'phone') {
-    for (const b of await page.locator('main .fmain, main .ma .dots, main .fall, main .ftip .btn').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    for (const b of await page.locator('main .fmain, main .ma .dots, main .fall, main [data-fit] .btn').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
   }
   await shot(page, info, 'SN6-funktionen');
   await fits(page, info);

@@ -10,19 +10,31 @@
    * a tick = used (moves down), a spark = new in the last versions. The row itself takes you there;
    * «Take me there» and «Try it» (the playground) are in its «…». The situation chips are gone (each
    * card's «All n» shows the whole group), the news fold sits at the end, a legend under the cards.
+   * SN6+ «SN6 plus» (mockups SN6p, Noah 13.10.2026 «freigabe SN6p», answers 1b 2b 3b 4a 5b; rules in
+   * know/sn6plus.js): from the top the head, K1 the progress bar, K3 «Fits right now», K2 «Your top 5»
+   * (since the start), the search, K6 «New since your last visit» (since the previous opening of the app;
+   * it replaces «New for you», whose debrief and playground tips moved to K3) and the six cards, each with
+   * its own small bar. K4: the «…» of a row holds «How it works», three short steps, open as text.
    */
   import { liveQuery } from 'dexie';
-  import { catalogue, findFeatures, FEATURE, FEATURES } from '../lib/features.js';
+  import { catalogue, findFeatures, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
   import { sinceOf } from '../lib/know/wasneu.js';
-  import { WHATS_NEW, compareVersions, shortVersion } from '../lib/whatsnew.js';
-  import { tripStates } from '../lib/tripstate.js';
+  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
-  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, CircleDashed, Sparkles, Star, Play } from '@lucide/svelte';
+  import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
+  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, CircleDashed, Sparkles, Star, Play, ListChecks, Mountain, Wrench, Info } from '@lucide/svelte';
+  import { TIP } from '../lib/tips.js';
+  import { TIP_ICON } from '../lib/know/icons.js';
+  import { howtoOf } from '../lib/know/howto.js';
+  import { rowsOf } from '../lib/know/wasneu.js';
+  import { topFive, newSinceOpen, fitsNow, moreThanMonth, share } from '../lib/know/sn6plus.js';
+  import { readUses, readOpens, readProgress, writeProgress } from '../lib/know/wasneuStore.js';
+  import { switchTrip } from '../lib/nav.js';
+  import { slfUrl } from '../lib/sk/links.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
@@ -62,35 +74,51 @@
     queueMicrotask(() => document.querySelector(`[data-feature="${CSS.escape(wantId)}"]`)?.scrollIntoView({ block: 'center' }));
   });
 
-  /* ---------- SN6: «New for you», three tips that fit you ---------- */
-  // 1. the newest function you never used; 2. a trip that waits for its debrief (else the next newest);
-  // 3. the playground while never tried (else the next newest). Each a suggestion: nothing has to be done.
-  const tips = $derived.by(() => {
-    if (!all) return [];
-    const usedNow = new Set(all.groups.flatMap((g) => g.items.filter((x) => x.used).map((x) => x.id)));
-    const fresh = FEATURES.filter((f) => !usedNow.has(f.id) && f.id !== 'f.playground').sort((a, b) => compareVersions(sinceOf(b.id), sinceOf(a.id)));
-    const out = [];
-    const fn = (f, main = false) => ({ key: f.id, icon: Sparkles, tone: 'new', title: t(f.title), sub: t('new in {v}', { v: shortVersion(sinceOf(f.id)) }) + ' · ' + t(f.text), label: t('Show|tip'), main, go: () => goFeature(f, { bikeId }) });
-    if (fresh[0]) out.push(fn(fresh[0], true));
-    const states = tripStates(d.trips, { debriefs: d.debriefs, today: localDay() });
-    const wait = d.trips
-      .filter((x) => states[x.id]?.state === 'done' && x.entries?.length && !x.noDebrief)
-      .sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? '')))[0];
-    if (wait) out.push({ key: `debrief-${wait.id}`, icon: Star, tone: 'rate', title: t('Rate|tip'), sub: t('{name} waits for its debrief', { name: wait.title }), label: t('Show|tip'), href: `#/debrief/${encodeURIComponent(wait.id)}` });
-    else if (fresh[1]) out.push(fn(fresh[1]));
-    if (!usedNow.has('f.playground') && !d.demo) out.push({ key: 'f.playground', icon: Play, tone: 'play', title: t('Playground'), sub: t('try it out, without your data'), label: t('Try it'), go: () => goFeature(FEATURE['f.playground'], { bikeId }) });
-    for (const f of fresh.slice(1)) {
-      if (out.length >= 3) break;
-      if (!out.some((x) => x.key === f.id)) out.push(fn(f));
-    }
-    return out.slice(0, 3);
+  /* ---------- SN6+ (answers 1b 2b 3b 5b): progress, «Fits right now», «Your top 5», «New since your last visit» ---------- */
+  const usedNow = $derived(all ? new Set(all.groups.flatMap((g) => g.items.filter((x) => x.used).map((x) => x.id))) : new Set());
+  // K2: the counts of this device since the start (wasneu.js), fresh after every opening of a function
+  let uses = $state(readUses());
+  $effect(() => {
+    const again = () => (uses = readUses());
+    window.addEventListener('pg:uses', again);
+    return () => window.removeEventListener('pg:uses', again);
   });
+  const top = $derived(topFive(uses, usedNow));
+  // K1: today's count is kept once a day (not while a demo runs), «more than a month ago» from it
+  const today = localDay();
+  const progress = readProgress();
+  const more = $derived(all ? moreThanMonth(progress, all.used, today) : null);
+  $effect(() => {
+    if (all && d && !d.demo) writeProgress(all.used, today);
+  });
+  // K6: the previous opening of the app (main.js), read once when the page opens
+  const opens = readOpens();
+  const fresh = $derived(newSinceOpen(opens.prev, rowsOf(usedNow, uses)));
+  const sinceDay = (at) => new Date(at).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
+  // K3: what fits the situation now (the debrief and the playground came from «New for you»)
+  const fits = $derived(d ? fitsNow({ trips: d.trips, bikes: d.bikes, debriefs: d.debriefs, used: usedNow, demo: d.demo, today }) : []);
+  const startsIn = (n) => (n < 0 ? t('on the way now') : n === 0 ? t('starts today') : n === 1 ? t('starts tomorrow') : t('starts in {n} days', { n }));
+  const FIT_ICON = { trip: ListChecks, bulletin: Mountain, chain: Wrench, rate: Star, play: Play };
+  function fitOf(x) {
+    if (x.kind === 'trip') return { title: t('Check the packing list'), sub: `${x.trip.title}: ${startsIn(x.days)}`, label: t('Check|fit'), go: () => switchTrip(x.trip.id, '#/pack') };
+    if (x.kind === 'bulletin') return { title: t('Avalanche bulletin'), sub: t('{name}: read it the evening before', { name: x.trip.title }), label: t('Open|fit'), href: slfUrl(lang.v), out: true };
+    if (x.kind === 'chain') return { title: t('Care for the chain'), sub: t('{bike}: {km} km since the last chain care', { bike: x.bike.name, km: x.since }), label: t('Show|tip'), href: `#/bikes?tab=care&bike=${encodeURIComponent(x.bike.id)}` };
+    if (x.kind === 'rate') return { title: t('Rate|tip'), sub: t('{name} waits for its debrief', { name: x.trip.title }), label: t('Show|tip'), href: `#/debrief/${encodeURIComponent(x.trip.id)}` };
+    return { title: t('Playground'), sub: t('try it out, without your data'), label: t('Try it'), go: () => goFeature(FEATURE['f.playground'], { bikeId }) };
+  }
+  /** The icon of a function: its tip's, else its group's. */
+  const iconOf = (f) => (f.tip && TIP_ICON[TIP[f.tip]?.icon]) || GROUP_ICON[FEATURE_GROUPS.find((g) => g.key === f.group)?.icon] || Sparkles;
 
   /** The «…» of a row: «Take me there» (the same as a tap on the row) and «Try it» in the playground. */
   const rowActions = (x) => [
     { name: t('Take me there'), explain: t('Opens the place in the app'), icon: ChevronRight, run: () => document.querySelector(`[data-feature="${CSS.escape(x.id)}"] .fmain`)?.click() },
     ...(x.play && !x.used && !d?.demo ? [{ name: t('Try it'), explain: t('In the playground, without changing your data'), icon: Play, run: () => (play = x.play) }] : []),
   ];
+  /** SN6+ K4: «How it works» in the «…», three short steps open as text (answer 4a). */
+  function howOf(x) {
+    const steps = howtoOf(x.id).map((st) => t(st));
+    return steps.length ? { title: t('How it works'), count: tn(steps.length, '{n} step', '{n} steps'), steps } : null;
+  }
 </script>
 
 {#snippet body(x)}
@@ -109,14 +137,67 @@
     {:else}
       <button type="button" class="fmain" onclick={() => goFeature(x, { bikeId })}>{@render body(x)}</button>
     {/if}
-    <MoreActions title={t(x.title)} label={t('More for {title}', { title: t(x.title) })} actions={rowActions(x)} />
+    <MoreActions title={t(x.title)} label={t('More for {title}', { title: t(x.title) })} actions={rowActions(x)} howto={howOf(x)} />
   </li>
 {/snippet}
 
-<div class="feat">
+<div class="feat" data-blocks="sn6plus">
   <!-- Design-Refresh P9 (I7): the path back to Ich. SN6: «Ich › Funktionen», one line with «tap to go there». -->
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Functions')} title={t('What the app can do')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
-  <div class="ftop">
+  <!-- SN6+ K1: how many functions you use, with a small bar -->
+  {#if all}
+    <div class="fprog" data-block="progress">
+      <span class="bar" aria-hidden="true"><i style:width="{share(all.used, all.total)}%"></i></span>
+      <span><b class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</b>{#if more > 0}<span class="more"> · {t('{n} more than a month ago', { n: more })}</span>{/if}</span>
+    </div>
+  {/if}
+  <!-- SN6+ K3 «Fits right now» (answer 3b: on top) -->
+  {#if d}
+    <section class="fblock" data-block="fits" aria-labelledby="ffit-h">
+      <h2 id="ffit-h">{t('Fits right now')}</h2>
+      <p class="fsub">{t('changes with your situation')}</p>
+      {#if fits.length}
+        <ul class="fcard fits">
+          {#each fits as x (x.key)}
+            {@const f = fitOf(x)}
+            {@const Icon = FIT_ICON[x.kind]}
+            <li class="fline" data-fit={x.kind}>
+              <span class="tic {x.kind}" aria-hidden="true"><Icon size={18} /></span>
+              <span class="fm"><span class="ft">{f.title}</span><span class="fs">{f.sub}</span></span>
+              {#if f.href}<a class="btn" href={f.href} target={f.out ? '_blank' : undefined} rel={f.out ? 'noopener noreferrer' : undefined}>{f.label}</a>
+              {:else}<button type="button" class="btn" onclick={f.go}>{f.label}</button>{/if}
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('Nothing fits right now. A trip coming up, chain care or a debrief brings a tip here.')}</span></p>
+      {/if}
+    </section>
+  {/if}
+  <!-- SN6+ K2 «Your top 5» since the start (answer 2b) -->
+  {#if d}
+    <section class="fblock" data-block="top" aria-labelledby="ftop-h">
+      <h2 id="ftop-h">{t('Your top 5')}</h2>
+      <p class="fsub">{t('what you use most since the start · tap to go there')}</p>
+      {#if top.length}
+        <ol class="ftop5">
+          {#each top as x, i (x.id)}
+            {@const Icon = iconOf(x)}
+            <li data-top={x.id}>
+              <button type="button" class="ftopb" onclick={() => goFeature(FEATURE[x.id], { bikeId })}>
+                <span class="rank num" aria-hidden="true">{i + 1}</span>
+                <span class="tic" aria-hidden="true"><Icon size={18} /></span>
+                <span class="fm"><span class="ft">{t(x.title)}</span><span class="fs num">{t('{n} times|top', { n: x.n })}</span></span>
+              </button>
+            </li>
+          {/each}
+        </ol>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('After a few days your most used functions stand here.')}</span></p>
+      {/if}
+    </section>
+  {/if}
+  <div class="ftop" data-block="search">
     <label class="ffind">
       <Search size={18} aria-hidden="true" />
       <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
@@ -124,20 +205,26 @@
     <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
     <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
-  {#if tips.length && !hits}
-    <section class="fnew" aria-labelledby="fnew-h">
-      <h2 id="fnew-h">{t('New for you')}</h2>
-      <p class="fsub">{tn(tips.length, '{n} tip that fits you', '{n} tips that fit you')}</p>
-      <ul class="ftips">
-        {#each tips as x (x.key)}
-          <li class="ftip" data-tip={x.key}>
-            <span class="tic {x.tone}" aria-hidden="true"><x.icon size={18} /></span>
-            <span class="fm"><span class="ft">{x.title}</span><span class="fs">{x.sub}</span></span>
-            {#if x.href}<a class="btn" class:hi={x.main} href={x.href}>{x.label}</a>
-            {:else}<button type="button" class="btn" class:hi={x.main} onclick={x.go}>{x.label}</button>{/if}
-          </li>
-        {/each}
-      </ul>
+  <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
+  {#if d && !hits}
+    <section class="fblock" data-block="news" aria-labelledby="fsince-h">
+      <h2 id="fsince-h">{t('New since your last visit')}</h2>
+      {#if fresh.rows.length}
+        <p class="fsub">{t('since {date}', { date: sinceDay(fresh.from) })} · {tn(fresh.rows.length, '{n} new function', '{n} new functions')}</p>
+        <ul class="fcard fresh">
+          {#each fresh.rows as x (x.id)}
+            <li data-new={x.id}>
+              <button type="button" class="fline" onclick={() => goFeature(FEATURE[x.id], { bikeId })}>
+                <span class="tic new" aria-hidden="true"><Sparkles size={18} /></span>
+                <span class="fm"><span class="ft">{t(x.title)}</span><span class="fs">{t('new in {v}', { v: shortVersion(x.since) })} · {t(x.text)}</span></span>
+                <ChevronRight size={18} aria-hidden="true" />
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('Nothing new has come since your last visit.')}</span></p>
+      {/if}
     </section>
   {/if}
   {#if all && !groups.length}
@@ -151,8 +238,9 @@
         <header class="fgh">
           <span class="fgi" aria-hidden="true"><Icon size={20} /></span>
           <h2 id="fg-{g.key}">{t(g.label)}</h2>
-          <span class="fgn num" title={t('{n} of {total} used', { n: g.used, total: g.total })}>{t('{n} of {total}', { n: g.used, total: g.total })}</span>
+          <span class="fgn num">{t('{n} of {total} used', { n: g.used, total: g.total })}</span>
         </header>
+        <span class="bar sm" aria-hidden="true"><i style:width="{share(g.used, g.total)}%"></i></span>
         <ul class="flist">
           {#each open ? g.rows : g.rows.slice(0, SHOWN) as x (x.id)}{@render row(x)}{/each}
         </ul>
@@ -216,8 +304,43 @@
     flex: none;
     max-width: 100%;
   }
-  /* SN6: «Neu für dich», three tips in a row (one under the other on a phone) */
-  .fnew h2 {
+  /* SN6+ K1: the progress bar under the head, and a small one in every card */
+  .fprog {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    margin-top: calc(-1 * var(--sp-2));
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .fprog b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .bar {
+    flex: none;
+    display: block;
+    width: 200px;
+    max-width: 100%;
+    height: 8px;
+    border-radius: 9px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+  }
+  .bar.sm {
+    width: 100%;
+    height: 5px;
+    margin: 2px 0 var(--sp-2);
+  }
+  /* SN6+ K3, K2, K6: a heading, a short line, then one card with rows (or one quiet line) */
+  .fblock h2 {
     margin: 0;
     font: 600 var(--fs-sub)/1.3 var(--font-body);
   }
@@ -226,28 +349,134 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .ftips {
+  .fcard {
     list-style: none;
     margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--sp-3);
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-  }
-  .ftip {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    min-width: 0;
-    padding: var(--sp-3) var(--sp-4);
+    padding: var(--sp-1) var(--sp-4);
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
   }
-  .ftip .btn {
+  .fcard > li {
+    border-top: 1px solid var(--line);
+  }
+  .fcard > li:first-child {
+    border-top: 0;
+  }
+  .fline {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: var(--sp-2) 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  button.fline {
+    cursor: pointer;
+  }
+  button.fline :global(svg:last-child) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  button.fline:focus-visible,
+  .ftopb:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  .fline .btn {
     flex: none;
     min-height: 44px;
+    min-width: 96px;
+  }
+  .fquiet {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fquiet :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .ftop5 {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-3);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .ftop5 > li {
+    min-width: 0;
+  }
+  .ftopb {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    width: 100%;
+    height: 100%;
+    min-height: 56px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  /* a long single word (Wettervorschläge) breaks inside the narrow tile instead of widening the page */
+  .ftopb .fm {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+  .ftopb .ft {
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .rank {
+    flex: none;
+    min-width: 1.2em;
+    color: var(--ink-2);
+    font-weight: 600;
+    text-align: center;
+  }
+  /* on a phone the first place is wide, the others two by two (as in the mockup) */
+  @media (max-width: 900px) {
+    .ftop5 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ftop5 > li:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+  /* a phone: the button of a «Fits right now» row goes under its text, full width (as in the mockup);
+     the small top tiles keep their words and leave the icon out */
+  @media (max-width: 600px) {
+    .fits .fline {
+      flex-wrap: wrap;
+    }
+    .fits .fline .fm {
+      flex: 1 1 calc(100% - 52px);
+    }
+    .fits .fline .btn {
+      flex: 1 1 100%;
+    }
+    .ftop5 > li:not(:first-child) .tic {
+      display: none;
+    }
   }
   .tic {
     flex: none;
@@ -265,6 +494,7 @@
     color: var(--warn);
   }
   .tic.rate,
+  .tic.chain,
   .fic.used {
     background: var(--ok-soft);
     color: var(--ok);

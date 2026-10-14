@@ -44,6 +44,7 @@ import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 import { installExplain } from './lib/ui/explain.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
+import { noteAppOpen } from './lib/know/wasneuStore.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -76,6 +77,9 @@ installExplain();
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();
 window.addEventListener('hashchange', () => takeReturn());
+
+// SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
+noteAppOpen();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
