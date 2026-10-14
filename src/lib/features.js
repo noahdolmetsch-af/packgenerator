@@ -98,6 +98,8 @@ const OWN = [
   { id: 'f.ridenote', group: 'onway', title: 'Note on the way', text: 'A note for the trip and the day; it lands in the debrief.', href: '#/ride', play: 'ride', words: 'notiz unterwegs' },
   { id: 'f.finish', group: 'onway', title: 'End the trip', text: 'Ends the trip, earlier too, with Undo; then the next step.', href: '#/ride', play: 'ride', words: 'tour beenden fertig' },
   // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
+  // 0.156.0 «Sportart statt Tourart» (SA1–SA3): one sports list, a standard bike per sport, old trips get a sport
+  { id: 'f.sports', group: 'before', title: 'Sport of a trip', text: 'Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Ski touring or Hiking: each bike sport brings its own standard bike.', href: '#/trips', words: 'sportart sport gravel cross country xc downhill bikepacking skitour wandern standard velo' },
   { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip
   { id: 'f.unneeded', group: 'after', title: 'What did you not need?', text: 'Tap what stayed in the bag; the app counts how much lighter it could be.', href: '#/debrief', play: 'after', words: 'nicht gebraucht rückblick' },

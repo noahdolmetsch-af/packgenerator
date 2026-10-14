@@ -23,4 +23,9 @@ export default {
   'Sport for {name}': 'Sportart für {name}',
   'Nothing changes without your tap. Trips without a bike stay as they are.': 'Nichts ändert sich ohne deinen Tipp. Touren ohne Velo bleiben, wie sie sind.',
   'Take all': 'Alle übernehmen',
+  'Sport of a trip': 'Sportart einer Tour',
+  'Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Ski touring or Hiking: each bike sport brings its own standard bike.': 'Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren oder Wandern: Jede Velo-Sportart bringt ihr eigenes Standard-Velo.',
+  'Open New tour.': 'Öffne Neue Tour.',
+  'Choose the sport: a bike sport brings its own standard bike.': 'Wähle die Sportart: Eine Velo-Sportart bringt ihr eigenes Standard-Velo.',
+  'Tap another bike and «Make standard for …» to keep it for that sport.': 'Tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.',
 };

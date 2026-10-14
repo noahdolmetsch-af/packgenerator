@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.156.0 «Sportart statt Tourart» (SA1–SA3, Noah 14.10.2026 «SA1–SA3 freigegeben», «1a 2a 3a 4b 5b»)
+    version: '0.156.0',
+    date: '2026-10-15',
+    title: 'Every trip has its sport',
+    lead: 'Fahrrad, Gravel, Cross Country, Downhill and Bikepacking are sports of their own, and each brings its bike.',
+    points: [
+      { text: 'One sports list in «New tour»: the sports you use most come first', href: '#/trips' },
+      { text: 'Each bike sport brings its own standard bike; «Make standard for …» keeps another one', href: '#/trips' },
+      { text: 'On Trips: a sport suggested for your old bike trips, by bike and days', href: '#/trips' },
+    ],
+    small: [{ box: 'new', text: 'A night with a day sport: a quiet hint «Switch to Bikepacking»' }],
+    test: [
+      'Open «New tour»: Fahrrad is chosen; tap Gravel: the gravel bike is chosen with «Standard for Gravel».',
+      'Choose 2 days and «Hotel/hut»: the hint «Switch to Bikepacking» shows; tap it.',
+      'Open Trips: tap «New: every trip has a sport», change one row, tap «Take all».',
+    ],
+  },
+  {
     // v0.145.0 «Standard-Velo» (Noah 14.10.2026: mockups VS1–VS4 «freigegeben» 05:58 UTC, «1a 2b 3a» 20:41;
     // Home keeps the bike ridden last, «1b» 21:25)
     version: '0.145.0',

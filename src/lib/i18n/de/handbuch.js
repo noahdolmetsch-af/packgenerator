@@ -345,4 +345,9 @@ export default {
   'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
   'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
+  // 0.156.0 Sportart statt Tourart (SA1–SA3)
+  'In New tour choose the sport: the sports you use most come first.': 'Wähle in Neue Tour die Sportart: Die meistgenutzten stehen zuerst.',
+  'A bike sport brings its standard bike; tap another bike and «Make standard for …» to keep it for that sport.': 'Eine Velo-Sportart bringt ihr Standard-Velo; tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.',
+  'On Trips, «New: every trip has a sport» suggests a sport for your old bike trips.': 'Auf Touren schlägt «Neu: Jede Tour hat eine Sportart» eine Sportart für deine alten Velotouren vor.',
+  'Example: Gravel → the gravel bike is chosen; 2 days with a hotel → the hint «Switch to Bikepacking».': 'Beispiel: Gravel → das Gravel-Velo ist vorgewählt; 2 Tage mit Hotel → der Hinweis «Zu Bikepacking».',
 };

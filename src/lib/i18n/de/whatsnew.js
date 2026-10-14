@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.156.0 Sportart statt Tourart (SA1–SA3)
+  'Every trip has its sport': 'Jede Tour hat ihre Sportart',
+  'Fahrrad, Gravel, Cross Country, Downhill and Bikepacking are sports of their own, and each brings its bike.': 'Fahrrad, Gravel, Cross Country, Downhill und Bikepacking sind eigene Sportarten, und jede bringt ihr Velo mit.',
+  'One sports list in «New tour»: the sports you use most come first': 'Eine Sportart-Liste in «Neue Tour»: Die meistgenutzten stehen zuerst',
+  'Each bike sport brings its own standard bike; «Make standard for …» keeps another one': 'Jede Velo-Sportart bringt ihr eigenes Standard-Velo; «Als Standard für …» behält ein anderes',
+  'On Trips: a sport suggested for your old bike trips, by bike and days': 'Auf Touren: eine Sportart für deine alten Velotouren, vorgeschlagen nach Velo und Tagen',
+  'A night with a day sport: a quiet hint «Switch to Bikepacking»': 'Eine Übernachtung bei einer Tages-Sportart: ein leiser Hinweis «Zu Bikepacking»',
+  'Open «New tour»: Fahrrad is chosen; tap Gravel: the gravel bike is chosen with «Standard for Gravel».': 'Öffne «Neue Tour»: Fahrrad ist gewählt; tippe Gravel: Das Gravel-Velo ist gewählt, mit «Standard für Gravel».',
+  'Choose 2 days and «Hotel/hut»: the hint «Switch to Bikepacking» shows; tap it.': 'Wähle 2 Tage und «Hotel/Hütte»: Der Hinweis «Zu Bikepacking» erscheint; tippe ihn an.',
+  'Open Trips: tap «New: every trip has a sport», change one row, tap «Take all».': 'Öffne Touren: Tippe «Neu: Jede Tour hat eine Sportart», ändere eine Zeile, tippe «Alle übernehmen».',
   // 0.145.0 Standard-Velo (Stern, Reihenfolge, was eine neue Tour bringt)
   'Your standard bike ★': 'Dein Standard-Velo ★',
   'The first bike is your standard bike: a new trip brings it, and you set the order of your bikes.': 'Das erste Velo ist dein Standard-Velo: Eine neue Tour bringt es, und du legst die Reihenfolge deiner Velos fest.',
