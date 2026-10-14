@@ -45,3 +45,12 @@ describe('WS2 Schnellstart everywhere', () => {
     for (const en of ['Quick start', 'today, 2.5 h, the bike ridden last', 'Quick start with the {bike}', 'Quick start created', 'Tap «New» › «Quick start», or «Quick start» on Today.']) expect(DE[en], en).toBeTruthy();
   });
 });
+
+describe('WS2 tip (Noah «2a»)', () => {
+  it('the day ride tip says Schnellstart, in German too', async () => {
+    const { TIP } = await import('../src/lib/tips.js');
+    expect(TIP.dayride).toMatchObject({ title: 'Quick start in 1 tap', button: 'Quick start', go: { run: 'dayRide' } });
+    expect(DE[TIP.dayride.title]).toBe('Schnellstart in 1 Tipp');
+    expect(DE[TIP.dayride.text]).toBeTruthy();
+  });
+});
