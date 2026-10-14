@@ -11,6 +11,7 @@ import { openHome, homeFixture } from './home0460-fixture.js';
 import { WHATS_NEW, BOXES, shortVersion } from '../../src/lib/whatsnew.js';
 import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';
 import { readFileSync } from 'node:fs';
+import { closeDialog } from './settle.js';
 
 const PLACES = [...readFileSync(new URL('../../src/lib/helper/places.js', import.meta.url), 'utf8').matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
 const CODE = 'test_data_gtp_code';
@@ -149,7 +150,8 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   const cat = page.getByRole('dialog', { name: T('Add a tile') });
   await expect(cat.locator('[data-add]').first()).toBeVisible();
   await expect(cat.locator(`[data-add="${HELPER_TILES[0]}"]`)).toHaveCount(0);
-  await page.keyboard.press('Escape');
+  // wait until the dialog took its history entry away, else its step back undoes the next address
+  await closeDialog(page);
 
   // one switch: every place is back at once
   await page.goto('./#/helper');
