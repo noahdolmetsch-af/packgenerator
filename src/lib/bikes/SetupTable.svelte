@@ -29,8 +29,7 @@
   const href = $derived(ticked.length === 2 ? bikesHash({ tab: 'rig', view: 'compare', bike: bike.id, a: ticked[0], b: ticked[1] }) : null);
   const ROWS = [
     { key: 'bagsG', name: 'Bags empty', from: 'from Gear' },
-    { key: 'contentG', name: 'Contents', from: 'from Gear' },
-    { key: 'waterG', name: 'Water' },
+    { key: 'contentG', name: 'Gear|setup', from: 'from Gear' },
     { key: 'bikeG', name: 'Bike' },
   ];
 </script>
@@ -69,7 +68,19 @@
         </tr>
       {/each}
       <tr class="sum">
-        <th scope="row" class="fc">{t('Total|setup')}</th>
+        <th scope="row" class="fc">{t('Base weight')}</th>
+        {#each calcs as c, i (setups[i].id)}<td><b class="num">{kg1(c.baseG)}</b></td>{/each}
+      </tr>
+      <tr>
+        <th scope="row" class="fc">{t('Food')}</th>
+        {#each calcs as c, i (setups[i].id)}<td><b class="num">{w(c.foodG)}</b></td>{/each}
+      </tr>
+      <tr>
+        <th scope="row" class="fc">{t('Water')}</th>
+        {#each calcs as c, i (setups[i].id)}<td><b class="num">{w(c.waterG)}</b></td>{/each}
+      </tr>
+      <tr class="all">
+        <th scope="row" class="fc">{t('Total|setup')}<small>{t('with food and water')}</small></th>
         {#each calcs as c, i (setups[i].id)}<td><b class="num">{kg1(c.totalG)}</b></td>{/each}
       </tr>
       <tr>

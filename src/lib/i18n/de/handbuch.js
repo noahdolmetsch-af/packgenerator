@@ -167,6 +167,12 @@ export default {
   'Open Trips.': 'Öffne Touren.',
   'The «Best values» card shows your records; «All» shows more.': 'Die Karte «Bestwerte» zeigt deine Rekorde; «Alle» zeigt mehr.',
   'Example: longest day 148 km, most climbing 2600 m.': 'Beispiel: längster Tag 148 km, meiste Höhenmeter 2600 Hm.',
+  // 0.147.0 Taschen-Setups
+  'Needs a bike with bags first: Gear › Bags.': 'Braucht zuerst ein Velo mit Taschen: Material › Taschen.',
+  'Open Bikes › My setup and tap «New setup».': 'Öffne Velos › Mein Setup und tippe «Neues Setup».',
+  'In the setup choose the bags and put your things into them.': 'Wähle im Setup die Taschen und lege deine Sachen hinein.',
+  'When planning a trip, tap «Setup: …» to take another one.': 'Beim Planen einer Tour tippe «Setup: …», um ein anderes zu nehmen.',
+  'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.': 'Beispiel: «Bikepacking 3 Tage» 12.4 kg Basisgewicht, «Tagestour leicht» 10.9 kg.',
   'Needs a bike first: Bikes › «Add bike».': 'Braucht zuerst ein Velo: Velos › «Velo hinzufügen».',
   'Open Bikes and choose a bike.': 'Öffne Velos und wähle ein Velo.',
   'Under setup, put each bag on its place with its weight.': 'Setz im Setup jede Tasche an ihren Platz, mit Gewicht.',

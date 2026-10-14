@@ -959,6 +959,12 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 - **Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden.** SV1 nach Noahs Hinweis 17:06 UTC (Strava-Knopf nicht gefunden) und «a» 17:07 UTC.
 - **Selbst entschieden:** SV1 als Karte über der Kachel-Wand statt als Kachel (keine Umstellung gespeicherter Wände nötig); zurück über die Kachel «Strava» oder Velo › Pflege › Strava. Startwerte der Jahresziele 5 000 km, 50 000 Hm, 7 800 Min (150 pro Woche). Fussabdruck zählt alle Fahrten mit 0,15 kg CO₂ pro Auto-km. Höhenmeter je Teil nur aus Strava-Fahrten (hochgeladene GPX-Fahrten haben kein Velo). Farbe der Strava-Karte aus Tokens (`--warn-soft`), nicht Strava-Orange. Am Handy ist die Karte eine schmale Zeile (Titel, «Verbinden», «Später»), damit die Tour-Karte im ersten Bild bleibt (Noah 2b).
 
+## 14.10.2026: 0.147.0 «Taschen-Setups»
+
+- Mockup-Freigabe: TS0–TS5 «TS0–TS5 freigegeben» Noah 14.10.2026 21:06 UTC (Antworten «1a 2b 3a 4b …» 20:41, «3 a und b, 4a … 5a» 20:43, «setup 1a und 2a freigeben» 20:48, «1a 2a 3b 4 erkläre mir das» 21:04, «material a» 21:06, Flaschen «3a» 21:27), Bilder design/taschen-setups/.
+- **Entscheide Noah:** mehrere Setups pro Velo; die Vorlage sagt WAS mitkommt, das Setup WO (1a); Vergleich zwei nebeneinander und Tabelle aller (3 a und b); neue Tour nimmt das zuletzt genutzte Setup, änderbar beim Planen (4a); Verschieben gilt nur für diese Tour, mit «Ins Setup übernehmen» (2a); Karten Gesamtgewicht und Taschen-Plan bleiben klein für das zuletzt genutzte Setup (3b); Wasser ist ein Material-Teil (4a); Taschengewichte aus Material (5a, «material a»); Reiter «Mein Setup» (4b); leere Flasche zählt zum Basisgewicht, Wasser darin nicht (3a).
+- **Selbst entschieden:** Essen = Kategorie «Essen & Trinken» ohne Liter Wasser; eine Flasche in dieser Kategorie zählt als Essen. Flaschenhalter wiegen leer 0 g (wie bisher `addedWeight`). Ein Teil, das das Setup nicht kennt, macht die Tour nicht «abweichend» (das ist der Teil der Vorlage). Kein Schild «aus Setup …» über der Packliste, der Chip zeigt es. Velo im Tour-Fenster wechseln nimmt weiter «Standard» (TripDialog gehört WS3/Velo-Standard). Standard-Velo ★ (5a) bleibt beim Velo-Standard-Paket.
+
 ## 14.10.2026: 0.132.1 «Langer Name passt»
 
 - Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup

@@ -11,13 +11,16 @@
  *  - trip.setupId    the setup a trip started from (missing = «Standard»). Moving an item in a trip
  *                    changes only that trip; «Ins Setup übernehmen» saves it into the setup (2a).
  * Weights: the bike from the bike data, empty bags and contents from Material, water apart (items
- * with waterL, 4a). Everything is a suggestion: every setup can be changed, copied or deleted.
+ * with waterL, 4a). Noah 14.10.2026 «3a»: an empty bottle is gear and counts to the base weight; the
+ * water in it («Wasser 0.75 L») and food are consumables outside it. Base weight = bike + empty bags
+ * + gear; the total adds food and water. Everything is a suggestion: every setup can be changed, copied or deleted.
  *
  * Pure functions, tested in tests/setups.test.js.
  */
 import { SLOTS, addedWeight, isWornSlot } from './bikes.js';
 import { slotFor } from './trips.js';
 import { bagPlan, sideOf, sideShares, SIDES } from './rig.js';
+import { isConsumable } from './gear.js';
 
 export const STD = 'std';
 
@@ -191,14 +194,16 @@ export function setupCalc(setup, bike, items, containers) {
   const bagsById = Object.fromEntries(containers.map((c) => [c.id, c]));
   const plan = bagPlan(asTrip(setup, bike), items, containers, bike);
   const isWater = (id) => Number(itemsById[id]?.waterL) > 0;
+  const isFood = (id) => !isWater(id) && !!itemsById[id] && isConsumable(itemsById[id]);
   const list = [...plan.bags]
     .sort((a, b) => orderOf(a.key) - orderOf(b.key))
     .map((b, n) => {
       const bag = bagsById[setup.bags?.[b.key]] ?? null;
       const emptyG = bag ? addedWeight(bag, itemsById) : null;
       const waterG = b.items.filter((x) => isWater(x.itemId)).reduce((t, x) => t + (x.grams ?? 0), 0);
-      const contentG = b.items.filter((x) => !isWater(x.itemId)).reduce((t, x) => t + (x.grams ?? 0), 0);
-      return { ...b, n: n + 1, bag, emptyG, contentG, waterG, sumG: (emptyG ?? 0) + contentG + waterG, items: b.items.map((x) => ({ ...x, item: itemsById[x.itemId] ?? null, water: isWater(x.itemId) })) };
+      const foodG = b.items.filter((x) => isFood(x.itemId)).reduce((t, x) => t + (x.grams ?? 0), 0);
+      const contentG = b.items.filter((x) => !isWater(x.itemId) && !isFood(x.itemId)).reduce((t, x) => t + (x.grams ?? 0), 0);
+      return { ...b, n: n + 1, bag, emptyG, contentG, foodG, waterG, sumG: (emptyG ?? 0) + contentG + foodG + waterG, items: b.items.map((x) => ({ ...x, item: itemsById[x.itemId] ?? null, water: isWater(x.itemId), food: isFood(x.itemId) })) };
     });
   const sides = { front: 0, middle: 0, rear: 0 };
   for (const b of list) {
@@ -208,11 +213,12 @@ export function setupCalc(setup, bike, items, containers) {
   const bagsG = list.reduce((t, b) => t + (b.emptyG ?? 0), 0);
   const contentG = list.reduce((t, b) => t + b.contentG, 0);
   const waterG = list.reduce((t, b) => t + b.waterG, 0);
+  const foodG = list.reduce((t, b) => t + b.foodG, 0);
   const bikeG = bike?.weightG ?? 0;
-  const loadG = bagsG + contentG + waterG;
+  const loadG = bagsG + contentG + foodG + waterG;
   const missing = list.filter((b) => b.bag && b.emptyG == null).length + list.reduce((t, b) => t + b.unweighed, 0) + (bike?.weightG == null ? 1 : 0);
   const loose = (setup.items ?? []).filter((x) => !x.slot || !setup.bags?.[x.slot]).map((x) => ({ itemId: x.itemId, item: itemsById[x.itemId] ?? null, grams: itemsById[x.itemId]?.weightG ?? null }));
-  return { setup, list, sides, shares: sideShares(sides), bagsG, contentG, waterG, bikeG, loadG, totalG: bikeG + loadG, missing, loose };
+  return { setup, list, sides, shares: sideShares(sides), bagsG, contentG, foodG, waterG, bikeG, loadG, baseG: bikeG + bagsG + contentG, totalG: bikeG + loadG, missing, loose };
 }
 
 /** The item names of a setup (for «only in A / only in B»). */
@@ -233,7 +239,7 @@ export function compareTwo(a, b) {
   const ib = itemIds(b);
   return {
     rows,
-    totals: ['bikeG', 'bagsG', 'contentG', 'waterG', 'totalG'].map((k) => ({ key: k, a: a[k], b: b[k], diff: b[k] - a[k] })),
+    totals: ['bikeG', 'bagsG', 'contentG', 'baseG', 'foodG', 'waterG', 'totalG'].map((k) => ({ key: k, a: a[k], b: b[k], diff: b[k] - a[k] })),
     onlyA: [...ia].filter((id) => !ib.has(id)),
     onlyB: [...ib].filter((id) => !ia.has(id)),
   };

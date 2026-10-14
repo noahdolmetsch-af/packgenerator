@@ -311,6 +311,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
     example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
   },
+  'f.bagsetups': {
+    on: 'Needs a bike with bags first: Gear › Bags.',
+    steps: ['Open Bikes › My setup and tap «New setup».', 'In the setup choose the bags and put your things into them.', 'When planning a trip, tap «Setup: …» to take another one.'],
+    example: 'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.',
+  },
   'f.problem': {
     on: 'Needs a bike first: Bikes › «Add bike».',
     steps: ['Tap «New» › «Problem with a bike».', 'One problem per row, with priority and deadline.'],

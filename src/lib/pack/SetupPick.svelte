@@ -69,7 +69,7 @@
             <button type="button" class="opt" aria-pressed={s.id === current.id} onclick={() => pick(s)}>
               <span class="rd" aria-hidden="true">{#if s.id === current.id}<Check size={14} />{/if}</span>
               <span class="ot"><b>{nm(s)}</b><small>{line(s)}</small></span>
-              <b class="num ok">{kg(c.totalG)}</b>
+              <b class="num ok" title={t('Base weight')}>{kg(c.baseG)}</b>
             </button>
           {/each}
           <div class="ex">
@@ -99,7 +99,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 14px;
     border: 0;
     border-radius: 999px;
@@ -118,7 +118,7 @@
     color: var(--ink-2);
   }
   .lnk {
-    min-height: 32px;
+    min-height: 44px;
     padding: 0;
     border: 0;
     background: none;

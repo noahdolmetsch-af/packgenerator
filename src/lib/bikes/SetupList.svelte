@@ -91,7 +91,7 @@
               {#if s.std}<span class="badge">{t('Standard · for old trips')}</span>{:else if !used[s.id]}<span class="badge new">{t('not used yet')}</span>{/if}
             </h3>
             <p class="bags">{c.list.length ? `${tn(c.list.length, '{n} bag', '{n} bags')}: ${bagNames(c)}` : t('No bags yet')}</p>
-            <p class="kg"><b class="num">{kg(c.totalG)} kg</b> <span>{t('total · luggage {kg} kg', { kg: kg(c.loadG) })}</span></p>
+            <p class="kg"><b class="num">{kg(c.baseG)} kg</b> <span>{t('base weight · with food and water {kg} kg', { kg: kg(c.totalG) })}</span></p>
           </div>
         </div>
         <SetupBar calc={c} />
@@ -105,7 +105,7 @@
       </article>
     {/each}
   </div>
-  <p class="hint">{t('Weights: the bike from the bike data, empty bags and contents from Gear, water apart. Only suggestions: every setup can be changed, copied or deleted.')}</p>
+  <p class="hint">{t('Base weight: bike from the bike data, empty bags and gear from Gear. Food and water only in the total. Only suggestions: every setup can be changed, copied or deleted.')}</p>
 </section>
 
 {#if dialog}

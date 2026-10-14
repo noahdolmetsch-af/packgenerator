@@ -159,7 +159,8 @@
     <section class="card blk" aria-labelledby="rg-weight">
       <header class="bh"><h2 id="rg-weight">{t('Total weight')}</h2>{#if calc}<p>{t('Setup «{name}»', { name: setupName })}</p>{/if}</header>
       {#if calc && calc.list.length}
-        <p class="tot"><b class="num">{kg(calc.totalG)} kg</b> <span>{t('Bike + bags + contents + water')}</span></p>
+        <p class="tot"><b class="num">{kg(calc.baseG)} kg</b> <span>{t('Base weight: bike + bags + gear')}</span></p>
+        <p class="hint">{t('With food and water: {kg}', { kg: `${kg(calc.totalG)} kg` })}</p>
         <SetupBar {calc} legend />
         {#if calc.missing}<p class="hint">{tn(calc.missing, '{n} thing has no weight yet.', '{n} things have no weight yet.')}</p>{/if}
         {#if withLoad.length}

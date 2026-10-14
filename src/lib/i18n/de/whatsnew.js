@@ -4,6 +4,19 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.147.0 Taschen-Setups
+  'Bag setups 🎒': 'Taschen-Setups 🎒',
+  'Several bag setups per bike: which bags are on, what goes where, and what it weighs.': 'Mehrere Taschen-Setups pro Velo: welche Taschen dran sind, was wohin kommt und was es wiegt.',
+  'Mein Setup: save several bag setups per bike, copy, rename and delete them': 'Mein Setup: mehrere Taschen-Setups pro Velo speichern, kopieren, umbenennen und löschen',
+  'Compare two setups bag by bag, or all of them in one table': 'Zwei Setups Tasche für Tasche vergleichen, oder alle in einer Tabelle',
+  'Planning a trip: the last used setup comes along and can be changed with one tap': 'Tour planen: das zuletzt genutzte Setup kommt mit und lässt sich mit einem Tipp wechseln',
+  'The base weight (bike, bags, gear) is the big number; food and water only in the total': 'Das Basisgewicht (Velo, Taschen, Ausrüstung) ist die grosse Zahl; Essen und Wasser nur im Total',
+  'A bottle cage with its 0.75 L bottle no longer says «over 0.75 L»': 'Ein Flaschenhalter mit seiner 0.75-L-Flasche zeigt nicht mehr «über 0.75 L»',
+  'Open Velos › Mein Setup: on top «Bag setups». Tap «New setup», give it a name, tap «Create».': 'Öffne Velos › Mein Setup: oben «Taschen-Setups». Tippe «Neues Setup», gib einen Namen ein, tippe «Erstellen».',
+  'In the setup tap «move» in a bag and put a thing into another bag; tap «Add gear» and tick a thing.': 'Im Setup bei einer Tasche «verschieben» tippen und ein Teil in eine andere Tasche legen; «Material dazu» tippen und ein Teil anhaken.',
+  'Back on Mein Setup tap «Compare», then «All as a table».': 'Zurück auf Mein Setup «Vergleichen» tippen, dann «Alle als Tabelle».',
+  'Plan a trip with this bike: under «Bike and bags» tap «Setup: …» and choose another setup; «Undo» puts it back.': 'Plane eine Tour mit diesem Velo: unter «Velo und Taschen» «Setup: …» tippen und ein anderes Setup wählen; «Rückgängig» stellt es zurück.',
+
   // 0.132.1 Langer Name passt (Fehler behoben)
   'Long names fit': 'Lange Namen passen',
   'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',

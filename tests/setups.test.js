@@ -150,8 +150,9 @@ describe('the numbers of a setup', () => {
     expect(cage).toMatchObject({ emptyG: 0, contentG: 0, waterG: 750 }); // cages are weighed with the bike
   });
 
-  it('adds up bike, empty bags, contents and water and splits front / middle / rear', () => {
-    expect(calc).toMatchObject({ bikeG: 9400, bagsG: 900, contentG: 1840, waterG: 750, totalG: 9400 + 900 + 1840 + 750, missing: 0 });
+  it('adds up bike, empty bags, gear, food and water and splits front / middle / rear', () => {
+    // Noah «3a»: base weight = bike + empty bags + gear; food (the bars) and water only in the total.
+    expect(calc).toMatchObject({ bikeG: 9400, bagsG: 900, contentG: 1600, foodG: 240, waterG: 750, baseG: 9400 + 900 + 1600, totalG: 9400 + 900 + 1600 + 240 + 750, missing: 0 });
     expect(calc.sides).toEqual({ front: 900, middle: 440 + 750, rear: 1400 });
     expect(calc.shares.front + calc.shares.middle + calc.shares.rear).toBe(100);
   });
@@ -165,6 +166,14 @@ describe('the numbers of a setup', () => {
     expect(cmp.onlyA.sort()).toEqual(['quilt', 'riegel', 'wasser', 'zelt']);
     expect(cmp.onlyB).toEqual(['regen']);
     expect(tablePlaces([calc, std])).toEqual(['bar', 'frame', 'cage1', 'seat']);
+  });
+});
+
+describe('bottles (Noah «3a»)', () => {
+  it('an empty bottle is gear in the base weight, the water in it is not', () => {
+    const its = [...items, { id: 'flasche', name: 'Flasche leer', weightG: 80, volumeL: 0.75, category: 'bike' }];
+    const c = setupCalc({ id: 'x', bags: { cage1: 'cage' }, items: [{ itemId: 'flasche', slot: 'cage1', qty: 1 }, { itemId: 'wasser', slot: 'cage1', qty: 1 }] }, bike, its, containers);
+    expect(c).toMatchObject({ contentG: 80, waterG: 750, baseG: 9400 + c.bagsG + 80, totalG: 9400 + c.bagsG + 80 + 750 });
   });
 });
 

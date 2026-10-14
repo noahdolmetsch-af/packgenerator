@@ -38,10 +38,11 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (14.10.2026, 0.132.1)
+## Stand heute (14.10.2026, 0.147.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.147.0 | Taschen-Setups TS0–TS5 (Mockup-Freigabe «TS0–TS5 freigegeben» Noah 14.10.2026 21:06 UTC): mehrere Taschen-Setups pro Velo, vergleichen, beim Planen wählen, Basisgewicht ohne Essen und Wasser; Ziel 1 | lokal gebaut, wartet auf Slot |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |
 | 0.131.2 | Velo-Reihenfolge: Velo-Reiter in Noahs Reihenfolge, Korrektur nach 0.131.0 | live (#162) |

@@ -95,7 +95,8 @@
 
     <section class="card blk" aria-labelledby="sd-tot">
       <header class="bh"><h2 id="sd-tot">{t('Total weight')}</h2><p>{t('with this setup')}</p></header>
-      <p class="tot"><b class="num">{kg(calc.totalG)}</b> <span>{t('Bike + bags + contents + water')}</span></p>
+      <p class="tot"><b class="num">{kg(calc.baseG)}</b> <span>{t('Base weight: bike + bags + gear')}</span></p>
+      <p class="tot2">{t('With food and water: {kg}', { kg: kg(calc.totalG) })}</p>
       <SetupBar {calc} legend />
       <p class="hint">{calc.missing ? tn(calc.missing, 'Only a hint, not a goal. Without a weight: {n} thing.', 'Only a hint, not a goal. Without a weight: {n} things.') : t('Only a hint, not a goal.')}</p>
     </section>
@@ -255,6 +256,11 @@
   .tot b {
     font-size: var(--fs-title);
     color: var(--ink);
+  }
+  .tot2 {
+    margin: -4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .pl {
     display: grid;

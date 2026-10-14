@@ -25,7 +25,7 @@
   const nm = (s) => (s.std ? t('Standard|setup') : s.name);
   const w = (g) => (g == null ? '–' : Math.abs(g) >= 1000 ? `${num(Math.round(g / 10) / 100)} kg` : `${num(Math.round(g))} g`);
   const diff = (g) => (Math.round(g) === 0 ? '±0' : `${g > 0 ? '+' : '−'}${w(Math.abs(g))}`);
-  const TOT = { bikeG: 'Bike', bagsG: 'Bags empty', contentG: 'Contents', waterG: 'Water', totalG: 'Total|setup' };
+  const TOT = { bikeG: 'Bike', bagsG: 'Bags empty', contentG: 'Gear|setup', baseG: 'Base weight', foodG: 'Food', waterG: 'Water', totalG: 'Total|setup' };
   const go = (na, nb) => (location.hash = bikesHash({ tab: 'rig', view: 'compare', bike: bike.id, a: na, b: nb }));
   const sub = (s) => {
     const u = used[s.id];
@@ -63,7 +63,7 @@
       </div>
     {/each}
     {#each cmp.totals as x (x.key)}
-      <div class="r tr" class:sum={x.key === 'totalG'}>
+      <div class="r tr" class:sum={x.key === 'baseG'} class:all={x.key === 'totalG'}>
         <div class="pl"><b>{t(TOT[x.key])}</b></div>
         <div class="sa"><b class="num w">{w(x.a)}</b></div>
         <div class="df"><span class="num dpill" class:zero={Math.round(x.diff) === 0}>{diff(x.diff)}</span></div>
@@ -196,6 +196,9 @@
     border: 0;
     border-radius: 12px;
     background: var(--paper-2);
+  }
+  .tr.all {
+    color: var(--ink-2);
   }
   .tr.sum .dpill {
     background: none;

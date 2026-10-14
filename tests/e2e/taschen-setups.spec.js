@@ -57,11 +57,12 @@ test('Mein Setup: make a bag setup, change it, copy, rename and delete with undo
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
   await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
   await expect(page.getByRole('heading', { level: 2, name: 'Taschen-Setups' })).toBeVisible();
-  // «Standard» is the setup of the trip: last used, the fallback for old trips; 9.4 + 0.9 bags (the cage counts 0) + 2.07 contents + 0.75 water.
+  // «Standard» is the setup of the trip: last used, the fallback for old trips; base weight 9.4 + 0.9 bags (the cage counts 0) + 2.07 gear; the 0.75 L water only in the total.
   const std = card(page, 'Standard');
   await expect(std).toContainText('zuletzt genutzt');
   await expect(std).toContainText('Standard · für alte Touren');
-  await expect(std).toContainText('13.1 kg');
+  await expect(std.locator('.kg b')).toHaveText('12.4 kg');
+  await expect(std).toContainText('mit Essen und Wasser 13.1 kg');
   await expect(std.getByRole('button', { name: /Mehr zu/ })).toBeVisible();
 
   // A new setup, a copy of «Standard»; the page of the new setup opens.
@@ -139,7 +140,9 @@ test('Setups vergleichen: two side by side and all as a table', async ({ page, c
   await page.getByRole('link', { name: 'Alle als Tabelle' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Alle Setups' })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: /Tagestour leicht/ })).toBeVisible();
-  await expect(page.locator('tr.sum')).toContainText('13.1 kg');
+  // Noah «3a»: the base weight (bike, empty bags, gear) is the sum; water only in the total.
+  await expect(page.locator('tr.sum')).toContainText('12.4 kg');
+  await expect(page.locator('tr.all')).toContainText('13.1 kg');
   await expect(page.getByRole('link', { name: '2 nebeneinander' })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'ts4');

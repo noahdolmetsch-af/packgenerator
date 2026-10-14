@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // v0.147.0 «Taschen-Setups» TS0–TS5 (Noah 14.10.2026 «TS0–TS5 freigegeben», answers 1a 2a 3b 4a 5a, «material a», «3a» bottles)
+    version: '0.147.0',
+    date: '2026-10-14',
+    title: 'Bag setups 🎒',
+    lead: 'Several bag setups per bike: which bags are on, what goes where, and what it weighs.',
+    points: [
+      { text: 'Mein Setup: save several bag setups per bike, copy, rename and delete them', href: '#/bikes?tab=rig' },
+      { text: 'Compare two setups bag by bag, or all of them in one table', href: '#/bikes?tab=rig' },
+      { text: 'Planning a trip: the last used setup comes along and can be changed with one tap', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The base weight (bike, bags, gear) is the big number; food and water only in the total' },
+      { box: 'fixed', text: 'A bottle cage with its 0.75 L bottle no longer says «over 0.75 L»' },
+    ],
+    test: [
+      'Open Velos › Mein Setup: on top «Bag setups». Tap «New setup», give it a name, tap «Create».',
+      'In the setup tap «move» in a bag and put a thing into another bag; tap «Add gear» and tick a thing.',
+      'Back on Mein Setup tap «Compare», then «All as a table».',
+      'Plan a trip with this bike: under «Bike and bags» tap «Setup: …» and choose another setup; «Undo» puts it back.',
+    ],
+  },
+  {
     // v0.132.1 «Langer Name passt» (bug fix, Noah 14.10.2026 18:41 UTC «BUG auf live version dringend»; same look, so no mockup)
     version: '0.132.1',
     date: '2026-10-14',
