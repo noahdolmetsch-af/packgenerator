@@ -871,7 +871,8 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - Name «Meditation» überall; der Spitzname «Kissenzeit» geht mit einer einmaligen Datenänderung, ein eigener Name bleibt.
 - Timer: «Timer» zählt hoch, Ziffernblatt Digital zuerst, Klangschale am Ende, das Log füllt sich selbst, Notiz freiwillig (Z «1-5a»).
 - «Was dir hilft» im Rückblick ist nur Beobachtung, nie ein Rat.
-- ME4 Yoga ist nicht dabei; es wartet auf «ME4 freigegeben».
+- ME4 Yoga ist nicht dabei; es kommt als eigener Teil (freigegeben 14.10.2026 «ME4 freigabe»).
+- Regel A (Noah 14.10.2026 20:15 UTC «a a»: nichts springt von selbst): Nach dem End-Gong öffnet sich die Auswertung nicht mehr von selbst; unten steht «Fertig · 20 Min gespeichert» mit dem Link «Wie war's? ›», bis man tippt oder schliesst. «Beenden» (ein Tipp) öffnet die Auswertung weiter direkt.
 - **Selbst entschieden:** die Zeile «Uhr» auf der Meditationsseite führt zu den Ziffernblättern; die Timer-Arten sind ein Tabstopp, die Pfeiltasten wählen.
 
 ## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)

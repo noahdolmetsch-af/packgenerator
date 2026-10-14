@@ -38,4 +38,7 @@ export default {
   'Open «What the app can do» › Timer, or search «Timer».': 'Öffne «Was die App kann» › Timer, oder suche «Timer».',
   'Choose a kind and a time, tap «Start».': 'Wähle eine Art und eine Zeit, tippe «Start».',
   'Open «Log» to add a note.': 'Öffne «Log», um eine Notiz dazuzuschreiben.',
+  // rule A (nothing jumps by itself): after the end gong a message with a link
+  'Done · {n} min saved': 'Fertig · {n} Min gespeichert',
+  'How was it?|med': "Wie war's?",
 };

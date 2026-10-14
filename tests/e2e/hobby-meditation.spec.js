@@ -104,10 +104,20 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   await page.clock.runFor(30_000);
   await expect(sess.locator('[role="timer"]')).toHaveAttribute('data-left', '30');
 
-  // the end gong: the session saves itself (log entry + details, the same id) and E opens
+  // the end gong: the session saves itself (log entry + details, the same id); rule A (Noah 14.10.2026
+  // «a a», nothing jumps by itself): a message with a link to E instead of opening it
+  const before = page.url();
   await page.clock.runFor(31_000);
-  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/done\/fl-s-/);
   await expect(page.locator('dialog.sess[open]')).toHaveCount(0);
+  const link = page.locator('[data-toast-link]');
+  await expect(link).toHaveText(T('How was it?|med'));
+  await expect(page.locator('.ftoast')).toContainText(T('Done · {n} min saved', { n: 1 }));
+  expect(page.url()).toBe(before);
+  await page.clock.runFor(20_000);
+  await expect(link).toBeVisible(); // it stays until tapped or closed
+  await link.click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/done\/fl-s-/);
+  await expect(page.locator('.ftoast')).toHaveCount(0);
   await expect.poll(() => count(page, 'flowSessions')).toBe(1);
   expect(await count(page, 'flowLog')).toBe(1);
 
