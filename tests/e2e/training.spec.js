@@ -93,13 +93,18 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await tile.locator('[data-last-activity]').click();
   await expect(page.getByRole('heading', { level: 1, name: `${P}Abendrunde` })).toBeVisible();
   const values = page.locator('[data-section="values"]');
-  await expect(values).toContainText('Dauer (Bewegung 1:42)');
+  await expect(values.locator('[data-val="moving"]')).toContainText('1:42');
+  await expect(values.locator('[data-val="moving"]')).toContainText('Dauer in Bewegung');
+  await expect(values.locator('[data-val="elapsed"]')).toContainText('1:48');
   await expect(values).toContainText('890');
   await expect(values).toContainText('171');
-  await expect(values.locator('[data-power="avg"]')).toContainText('188 W');
-  await expect(values.locator('[data-power="max"]')).toContainText('612 W');
-  await expect(values.locator('[data-power="w20"]')).toContainText('231 W');
-  await expect(values.locator('[data-power="w20"]')).toContainText('beste 20 Min');
+  // TR5: with a power meter the power values are in their own card «Leistung»
+  await expect(values.locator('[data-power]')).toHaveCount(0);
+  const power = page.locator('[data-section="power"]');
+  await expect(power.locator('[data-power="avg"]')).toContainText('188 W');
+  await expect(power.locator('[data-power="max"]')).toContainText('612 W');
+  await expect(power.locator('[data-power="w20"]')).toContainText('231 W');
+  await expect(power.locator('[data-power="w20"]')).toContainText('beste 20 Min');
   const zt = page.locator('[data-section="zone-time"]');
   await expect(zt.locator('li[data-zone]')).toHaveCount(5);
   await expect(zt.locator('li[data-zone="2"]')).toContainText('Grundlage');
