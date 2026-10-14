@@ -16,7 +16,7 @@ export default {
   'Answer your questions or tick something in Aktiv: the ring fills by itself.': "Beantworte «Wi gaht's?» oder hake in Aktiv etwas ab: der Ring füllt sich von selbst.",
   'sleep, energy and mood · one tap per question': 'Schlaf, Energie und Stimmung · ein Tipp pro Frage',
   'Today|values': 'Heute',
-  // v0.132.0 the two new functions in «Was die App kann»
+  // v0.133.0 the two new functions in «Was die App kann»
   'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.': 'Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.',
   'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.': 'komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.',
   'Open Me › «Wi gaht\'s?».': 'Öffne Ich › «Wi gaht\'s?».',

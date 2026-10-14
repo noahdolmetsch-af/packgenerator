@@ -862,7 +862,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 14.10.2026: 0.132.0 «Design-Refresh» (Bündel A)
+## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)
 
 - (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC)
 - **«Wi gaht's?» ersetzt den Tages-Check:** ein Satz Fragen statt Tagescheck und Wochengewicht. Antworten in `abAnswers` (Dexie v9); Schlaf, Energie, Stimmung zusätzlich in die Tageszeile `flowChecks` (Ringe, Rückblick, 7-Tage-Werte lesen weiter dort), Gewicht auch als Körpergewicht. Alte Tageschecks bleiben und stehen im Verlauf.

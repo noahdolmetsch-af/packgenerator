@@ -97,7 +97,7 @@ const OWN = [
   { id: 'f.evening', group: 'onway', title: 'Evening block', text: 'On a trip of several days: charge tonight, lay out for tomorrow.', href: '#/ride', play: 'ride', words: 'abend laden morgen bereitlegen' },
   { id: 'f.ridenote', group: 'onway', title: 'Note on the way', text: 'A note for the trip and the day; it lands in the debrief.', href: '#/ride', play: 'ride', words: 'notiz unterwegs' },
   { id: 'f.finish', group: 'onway', title: 'End the trip', text: 'Ends the trip, earlier too, with Undo; then the next step.', href: '#/ride', play: 'ride', words: 'tour beenden fertig' },
-  // v0.132.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
+  // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
   { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip
   { id: 'f.unneeded', group: 'after', title: 'What did you not need?', text: 'Tap what stayed in the bag; the app counts how much lighter it could be.', href: '#/debrief', play: 'after', words: 'nicht gebraucht rückblick' },
@@ -133,7 +133,7 @@ const OWN = [
   { id: 'f.goals', group: 'active', title: 'Goals and days', text: 'Rolling windows: daily, 7, 10 or 30 days, with a season.', href: '#/flow/goals', words: 'ziele tage saison' },
   // v0.125.0 «Werte überall» (WU3): year goals for km, metres climbed and minutes, and the footprint
   { id: 'f.yeargoals', group: 'active', title: 'Year goals and footprint', text: 'One year goal each for km, metres climbed and minutes, each can be switched off; the CO₂ your rides saved.', href: '#/flow/goals', words: 'jahresziel höhenmeter hm fussabdruck co2 km ziel jahr' },
-  // v0.132.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
+  // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
   { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },

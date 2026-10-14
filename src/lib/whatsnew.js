@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.132.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
-    version: '0.132.0',
+    version: '0.133.0',
     date: '2026-10-14',
     title: 'A greeting and your questions',
     lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',

@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.132.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
+  // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',
   'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to': 'Heute begrüsst dich auf Mundart je nach Tageszeit; ein Tipp, und du sagst, wie es dir geht und was du vorhast',

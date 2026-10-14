@@ -396,7 +396,7 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
-  // v0.132.0
+  // v0.133.0
   'f.abfragen': {
     on: null,
     steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
