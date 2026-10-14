@@ -87,7 +87,7 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(cmp.locator('table.st tbody tr')).toHaveCount(5);
   await expect(cmp).toContainText('Tagestour');
   // 4. one level below
-  for (const [name, url] of [['Dein Tempo', /#\/debrief\/pace$/], ['Alle Learnings', /#\/debrief\/learnings$/], ['Logbuch', /#\/debrief\/logbook$/]]) {
+  for (const [name, url] of [['Dein Tempo', /#\/debrief\/pace$/], ['Alle Erkenntnisse', /#\/debrief\/learnings$/], ['Logbuch', /#\/debrief\/logbook$/]]) {
     await main.locator('.below').getByRole('link', { name, exact: true }).click();
     await expect(page).toHaveURL(url);
     await expect(main.locator('h1')).toBeVisible();
@@ -140,7 +140,7 @@ test('c) Past trips: one table, the name fixed, filters and a search that finds 
   if (info.project.name === 'phone') await expect(table.locator('thead')).toBeHidden();
   await shot(page, info, 'vergangene');
   // the search finds a learning
-  await main.getByRole('searchbox', { name: 'Touren und Learnings suchen' }).fill('riegel');
+  await main.getByRole('searchbox', { name: 'Touren und Erkenntnisse suchen' }).fill('riegel');
   await expect(table.locator('tbody th[scope="row"]')).toHaveCount(1);
   await expect(row('Drei-Täler-Loop')).toBeVisible();
   await main.getByRole('searchbox').fill('');

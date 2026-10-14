@@ -39,8 +39,8 @@ export default {
   'Bought from the wishlist': 'Von der Wunschliste gekauft',
 
   // learned
-  'learning added': 'Learning dazu',
-  'learnings added': 'Learnings dazu',
+  'learning added': 'Erkenntnis dazu',
+  'learnings added': 'Erkenntnisse dazu',
   'Clothing after the trip': 'Kleidung nach der Tour',
 
   // bikes
@@ -54,7 +54,7 @@ export default {
   'Longest trip: {title}, {km} km.': 'Längste Tour: {title}, {km} km.',
   '{n} item came along and was never used.': '{n} Teil war dabei und wurde nie gebraucht.',
   '{n} items came along and were never used.': '{n} Teile waren dabei und wurden nie gebraucht.',
-  '{n} learning added.': '{n} Learning dazugekommen.',
-  '{n} learnings added.': '{n} Learnings dazugekommen.',
+  '{n} learning added.': '{n} Erkenntnis dazugekommen.',
+  '{n} learnings added.': '{n} Erkenntnisse dazugekommen.',
   'Your pace: {kmh} km/h.': 'Dein Tempo: {kmh} km/h.',
 };

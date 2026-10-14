@@ -24,7 +24,7 @@ export default {
     'Dein Teil bleibt, wie es ist. Nur leere Felder werden ergänzt; Notizen und Reisearten kommen dazu.',
   '{n} item without anything new': '{n} Teil ohne Neues',
   '{n} items without anything new': '{n} Teile ohne Neues',
-  'Learnings: {add} new, {upd} completed. They keep their original date.': 'Learnings: {add} neu, {upd} ergänzt. Sie behalten ihr ursprüngliches Datum.',
+  'Learnings: {add} new, {upd} completed. They keep their original date.': 'Erkenntnisse: {add} neu, {upd} ergänzt. Sie behalten ihr ursprüngliches Datum.',
   Unsure: 'Unsicher',
   '{a} of {b} decided': '{a} von {b} entschieden',
   'Maybe already in your gear. Tap the item it is, or "New item".': 'Vielleicht schon in deiner Ausrüstung. Tippe auf das Teil, das es ist, oder auf «Neues Teil».',
@@ -49,7 +49,7 @@ export default {
   'Discard import': 'Import verwerfen',
   'Discard this import? Nothing in your gear changes.': 'Diesen Import verwerfen? In deiner Ausrüstung ändert sich nichts.',
   'Import applied {when}.': 'Import übernommen {when}.',
-  '{enriched} completed, {added} new, {learn} learnings. A backup was made first.': '{enriched} ergänzt, {added} neu, {learn} Learnings. Vorher wurde eine Sicherung angelegt.',
+  '{enriched} completed, {added} new, {learn} learnings. A backup was made first.': '{enriched} ergänzt, {added} neu, {learn} Erkenntnisse. Vorher wurde eine Sicherung angelegt.',
   'To the gear': 'Zur Ausrüstung',
   'Keep, forget the backup': 'Behalten, Sicherung vergessen',
   'Changes made after the import are undone too. Undo anyway?': 'Auch Änderungen nach dem Import werden zurückgenommen. Trotzdem rückgängig machen?',
@@ -66,11 +66,11 @@ export default {
   // The file (gearimport.js validateGearImport)
   'This is not a gear import file.': 'Das ist keine Ausrüstungsliste zum Importieren.',
   'The file has no version.': 'Die Datei hat keine Version.',
-  'The learnings in the file are not a list.': 'Die Learnings in der Datei sind keine Liste.',
+  'The learnings in the file are not a list.': 'Die Erkenntnisse in der Datei sind keine Liste.',
 
   // Your data (DataPanel)
   'a gear list with {items} items and {learnings} learnings. Nothing is changed yet: check it first.':
-    'eine Ausrüstungsliste mit {items} Teilen und {learnings} Learnings. Noch ist nichts geändert: prüfe sie zuerst.',
+    'eine Ausrüstungsliste mit {items} Teilen und {learnings} Erkenntnisse. Noch ist nichts geändert: prüfe sie zuerst.',
   Later: 'Später',
   'The list waits under Gear → ••• → Check import.': 'Die Liste wartet unter Ausrüstung → ••• → Import prüfen.',
 
