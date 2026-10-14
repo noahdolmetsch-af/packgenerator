@@ -1,5 +1,8 @@
 // «Leistung und Analysen» TR5–TR7 (Noah 14.10.2026 «TR5–TR7 freigegeben»): the shared «Analysen» cards and «Analysen anpassen».
 export default {
+  'Power and analyses': 'Leistung und Analysen',
+  'With a power meter: power, load and power curve on each ride; analyses on the activity and over the weeks, each can be hidden.': 'Mit Leistungsmesser: Leistung, Belastung und Leistungskurve auf jeder Fahrt; Analysen auf der Aktivität und über die Wochen, jede ausblendbar.',
+  'Voluntary, only on this device: your weight with a curve, for watts per kg.': 'Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.',
   'More from the power': 'Mehr aus der Leistung',
   'W/kg, kJ, IF, VI': 'W/kg, kJ, IF, VI',
   'Power zones as bars': 'Leistungsbereiche als Balken',

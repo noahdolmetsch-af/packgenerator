@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.148.0 Leistung und Analysen (TR5–TR7)
+  'Watts, weight and a closer look': 'Watt, Gewicht und ein genauerer Blick',
+  'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.': 'Mit Leistungsmesser zeigt jede Fahrt ihre Leistung, und Training hat Analysen auf jeder Aktivität und über die Wochen; jede lässt sich ausblenden.',
+  'One activity: power, load, power curve, power zones and analyses like sections, course and climbs': 'Eine Aktivität: Leistung, Belastung, Leistungskurve, Leistungsbereiche und Analysen wie Abschnitte, Verlauf und Anstiege',
+  'Training › Week: fitness, fatigue and form, load per week, power curve, efficiency, month and year compared': 'Training › Woche: Fitness, Ermüdung und Form, Belastung pro Woche, Leistungskurve, Effizienz, Monat und Jahr im Vergleich',
+  'Me › Weight: voluntary, only on this device, with a curve and watts per kg': 'Ich › Gewicht: freiwillig, nur auf diesem Gerät, mit Verlauf und Watt pro kg',
+  '«…» on every analysis: hide, move up or down; «Adjust analyses» brings everything back': '«…» auf jeder Analyse: ausblenden, nach oben oder unten; «Analysen anpassen» holt alles zurück',
+  'All values from Strava on one activity: moving and elapsed time, Ø and max speed, cadence, temperature, breaks': 'Alle Werte aus Strava auf einer Aktivität: Dauer in Bewegung und verstrichen, Ø und max km/h, Kadenz, Temperatur, Pausen',
+  'Open Me › Weight, tap «Enter weight», type 72 and save.': 'Öffne Ich › Gewicht, tippe «Gewicht eintragen», gib 72 ein und speichere.',
+  'Open Aktiv › Training › Activities and tap a ride with a power meter: power, load and the analyses show.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt mit Leistungsmesser an: Leistung, Belastung und die Analysen erscheinen.',
+  'On an analysis tap «…» › «Hide»; tap «Undo» in the message.': 'Auf einer Analyse «…» › «Ausblenden» tippen; in der Meldung «Rückgängig» tippen.',
+  'Open Training › Week and scroll under the look back: the analyses over the weeks.': 'Öffne Training › Woche und scrolle unter den Rückblick: die Analysen über die Wochen.',
   // 0.138.0 Training (TR1–TR4)
   'Your heart rate, zone by zone': 'Dein Puls, Zone für Zone',
   'Every activity from Strava now has its own page, with the time in each heart rate zone.': 'Jede Aktivität aus Strava hat jetzt ihre eigene Seite, mit der Zeit in jeder Pulszone.',

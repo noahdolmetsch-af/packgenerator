@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // «Leistung und Analysen» TR5–TR7 (mockups TR5–TR7 rounds 1 and 2, Noah 14.10.2026 «TR5–TR7 freigegeben»)
+    version: '0.148.0',
+    date: '2026-10-14',
+    title: 'Watts, weight and a closer look',
+    lead: 'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.',
+    points: [
+      { text: 'One activity: power, load, power curve, power zones and analyses like sections, course and climbs', href: '#/flow/training?view=list' },
+      { text: 'Training › Week: fitness, fatigue and form, load per week, power curve, efficiency, month and year compared', href: '#/flow/training' },
+      { text: 'Me › Weight: voluntary, only on this device, with a curve and watts per kg', href: '#/me/weight' },
+    ],
+    small: [
+      { box: 'new', text: '«…» on every analysis: hide, move up or down; «Adjust analyses» brings everything back', href: '#/flow/training' },
+      { box: 'nicer', text: 'All values from Strava on one activity: moving and elapsed time, Ø and max speed, cadence, temperature, breaks', href: '#/flow/training?view=list' },
+    ],
+    test: [
+      'Open Me › Weight, tap «Enter weight», type 72 and save.',
+      'Open Aktiv › Training › Activities and tap a ride with a power meter: power, load and the analyses show.',
+      'On an analysis tap «…» › «Hide»; tap «Undo» in the message.',
+      'Open Training › Week and scroll under the look back: the analyses over the weeks.',
+    ],
+  },
+  {
     // «Training» TR1–TR4 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»)
     version: '0.138.0',
     date: '2026-10-14',
