@@ -83,7 +83,23 @@ import teil2 from './teil2.js';
 import aj1 from './aj1.js';
 // v0.125.0 TZ-1 «Zustand sichtbar»: the three trip states
 import tz1 from './tz1.js';
+// TZ-2 «Fest nach der Fahrt»: the fixed list, «Wieder öffnen», «Bist du gefahren?»
+import tz2 from './tz2.js';
 import au from './au.js';
+// SN1 Unterwegs and SN6 Funktionen (mockup round «Seiten neu»)
+import sna from './sna.js';
+// SN2 + SN4 «Seiten neu»: Rückblick, Logbuch, Dein Tempo, Vergangene Touren
+import snb from './snb.js';
+// SN3, SN5, SN7 «Seiten neu»: Vorlagen, Bausteine, Import prüfen, Favoriten, the old windows
+import snc from './snc.js';
+// SN2+ «SN2 plus»: Puls und Leistung, Aus Vorlage, Logbuch-Filter, Tempo pro Velo und Untergrund, die Monate
+import sn2plus from './sn2plus.js';
+// SN4+ «SN4 plus»: Vergangene Touren mit Strava-Spalten, «Spalten» und «In Zahlen»
+import sn4plus from './sn4plus.js';
+// SN3+ «Bausteine je nach Lage»: the seven blocks with a rule, the suggestion in Packen, pass / country / getting there
+import sn3plus from './sn3plus.js';
+// SN2x «SN2 extra»: the whole Rückblick of one trip (groups, day switch, Puls und Leistung, U2–U6, Vergleich)
+import sn2x from './sn2x.js';
 // Data cleanup 14.10.2026: old fields and personal lists out of the code
 import datenbereinigen from './datenbereinigen.js';
 
@@ -91,6 +107,28 @@ import datenbereinigen from './datenbereinigen.js';
 import dateneingabe from './dateneingabe.js';
 // v0.123.0 Trophäen-Vitrine: all stars by area and year
 import vitrine from './vitrine.js';
+// SK «Seiten-Kacheln» and «Links nach aussen»: the tiles at the page end, the links elsewhere, own links
+import sk from './sk.js';
+// SN5+ «SN5 plus»: Favoriten (bar, zuletzt dabei, Oft dabei, Als Baustein) and Import prüfen (weight, bag, Schon da, Letzte Importe)
+import sn5plus from './sn5plus.js';
+// SN4g–SN4i «Touren-Seite, Runde 2»: Band Packmodus, Geplant, Werte pro Tour, Filter FL1–FL8, alles offen, drei Kacheln
+import sn4g from './sn4g.js';
+
+// SN1b–SN1d «Tour aus komoot»: the row on Unterwegs and in «Neue Tour», the sheet, «In komoot öffnen»
+import komoot from './komoot.js';
+
+// SN6+ «SN6 plus»: Funktionen with progress, Passt gerade, Deine Top 5, Neu seit deinem letzten Besuch, So geht's
+import sn6plus from './sn6plus.js';
+
+// AB «Deine Abfragen»: the 50 questions in 10 areas, Ich › Deine Abfragen, the card on Heute, Ich › Daten › Verlauf
+import abfragen from './abfragen.js';
+
+// FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
+import daumen from './daumen.js';
+
+// HG1 «Begrüssung auf Heute»: the name question, «Dein Name» in Ich › Darstellung, the sheet behind the greeting
+import hg1 from './hg1.js';
+
 // v0.127.0 «Tages-Check» 1: morning check and evening review
 import tagescheck from './tagescheck.js';
 // v0.127.0 «Tages-Check» 2: the balance ring, the tiles, the 15 questions
@@ -115,8 +153,12 @@ import bezahlen from './bezahlen.js';
 import kleineapps from './kleineapps.js';
 // Benutzerhandbuch: how to switch on and use every function (src/lib/handbook.js)
 import handbuch from './handbuch.js';
+// WG «Wi gaht's?» takes over the daily check: the round tile, «Feste Runden», the rows in Im Flow
+import runden from './runden.js';
+// KT «Kacheln antippbar»: «Öffnen ›», «•••» and the help line, the short intro of the start page
+import kacheln from './kacheln.js';
 
 // Kamera-Knopf: one tap opens the camera, always for receipts
 import kamera from './kamera.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...kamera };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera };

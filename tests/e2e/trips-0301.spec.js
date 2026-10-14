@@ -135,7 +135,7 @@ test('C1, C2: On the way shows the Now card without a route; one tap is one note
   await page.goto('./#/ride');
   const now = page.locator('section.now');
   await expect(now).toBeVisible();
-  await expect(now.locator('.tt')).toContainText(T('Now'));
+  await expect(now.locator('h2')).toContainText(T('Now')); // SN1 (changed on purpose): the time line is the card's heading
   for (const lab of ['Wear', 'Eat', 'Drink', 'Light']) await expect(now.getByText(T(lab), { exact: true })).toBeVisible();
   await expect(now).toContainText(T('{n} h riding', { n: '2' }));
   await page.screenshot({ path: info.outputPath('ride-now.png') });
@@ -200,7 +200,7 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   // v0.49.0 R1: one table; km in its own column.
   const doneRow = page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ Morgen' });
   await expect(doneRow).toContainText('42');
-  await expect(doneRow.locator('.nbadge')).toHaveCount(0);
+  await expect(doneRow.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
   await page.goto('./#/');
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
   expect(errors).toEqual([]);

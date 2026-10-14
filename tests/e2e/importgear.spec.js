@@ -48,7 +48,9 @@ async function start(page, context, info) {
   await expect(panel.getByRole('dialog')).toHaveCount(0);
 }
 
-const section = (page, name) => page.locator('details.sec').filter({ has: page.locator('summary .h', { hasText: new RegExp(`^${name}$`) }) });
+// SN5 «Seiten neu»: the groups are open sections (data-sec); only «Nicht im Import» is a fold.
+const section = (page, key) => page.locator(`[data-sec="${key}"]`);
+const tiles = (page) => page.locator('dl.nums dd');
 async function unfold(sec) {
   if (!(await sec.evaluate((d) => d.open))) await sec.locator('> summary').click();
   await expect.poll(() => sec.evaluate((d) => d.open)).toBe(true);
@@ -67,36 +69,34 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
   await box.getByRole('link', { name: T('Check import') }).click();
   await expect(page).toHaveURL(/#\/gear\/import$/);
 
-  // 2. The staging page: three folded groups with their counts, then "Nicht im Import".
+  // 2. The staging page: four numbers on top (new, already there, unsure, not in the import), the
+  // groups open below; only «Nicht im Import» is folded (SN5 «Seiten neu»).
   await expect(page.getByRole('heading', { level: 1, name: T('Check import') })).toBeVisible();
-  const same = section(page, T('Already there'));
-  const fresh = section(page, T('New'));
-  const unsure = section(page, T('Unsure'));
-  const notIn = section(page, T('Not in the import'));
-  await expect(same.locator('summary .n')).toHaveText('2');
-  await expect(fresh.locator('summary .n')).toHaveText('2');
-  await expect(unsure.locator('summary .n')).toHaveText('1');
-  await expect(notIn.locator('summary .n')).toHaveText(String(before.length - 3));
-  for (const s of [same, fresh, unsure, notIn]) expect(await s.evaluate((d) => d.open)).toBe(false);
+  const same = section(page, 'same');
+  const fresh = section(page, 'fresh');
+  const unsure = section(page, 'unsure');
+  const notIn = section(page, 'notin');
+  await expect(tiles(page)).toHaveText(['2', '2', '1', String(before.length - 3)]);
+  expect(await notIn.evaluate((d) => d.open)).toBe(false);
+  // New: every item chosen.
+  await expect(fresh.getByRole('button', { name: new RegExp(T('Apply {name}', { name: '' })) })).toHaveCount(2);
+  for (const b of await fresh.locator('button[aria-pressed]').all()) await expect(b).toHaveAttribute('aria-pressed', 'true');
 
   // What "Schon da" adds is said quietly; the weight of the app item is not touched.
-  await unfold(same);
   await expect(same.locator('li').filter({ hasText: 'Rain jacket' })).toContainText(T('Body zone'));
-  await unfold(fresh);
   await expect(fresh.locator('li').filter({ hasText: 'test_data_gtp_Packraft' }).locator('.badge')).toHaveText([T('Wishlist'), T('Optional')]);
 
   // One tap decides the unsure one.
-  await unfold(unsure);
   const pick = unsure.getByRole('button', { name: new RegExp(T('Same as {name}', { name: 'Sun cream' })) });
   await pick.click();
   await expect(pick).toHaveAttribute('aria-pressed', 'true');
-  await expect(unsure.locator('summary .s')).toHaveText(T('{a} of {b} decided', { a: 1, b: 1 }));
+  await expect(page.getByRole('region', { name: T('Unsure') })).toContainText(T('{a} of {b} decided', { a: 1, b: 1 }));
 
   // No horizontal scroll, also at 320 px on the phone (all groups open).
   const fits = () => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
   expect(await fits()).toBe(true);
   if (info.project.name === 'phone') {
-    await unfold(section(page, T('Not in the import')));
+    await unfold(notIn);
     await page.setViewportSize({ width: 320, height: 700 });
     expect(await fits()).toBe(true);
     await page.setViewportSize({ width: 390, height: 844 });
@@ -110,8 +110,8 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
     await page.screenshot({ path: `${shots}/import-pruefen-${info.project.name}.png`, fullPage: true });
   }
 
-  // 3. "Alle sicheren übernehmen": the main (orange) action.
-  const apply = page.getByRole('button', { name: T('Apply safe') });
+  // 3. «Übernehmen» (SN5, was «Alle sicheren übernehmen»): the one main action in the head.
+  const apply = page.getByRole('button', { name: T('Apply|import'), exact: true });
   await expect(apply).toHaveClass(/\bhi\b/);
   await apply.click();
   await expect(page.locator('.done')).toContainText(T('Import applied {when}.', { when: '' }).replace(/\s*\.$/, ''));
@@ -144,10 +144,10 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
   await expect.poll(async () => (await table(page, 'items')).length).toBe(before.length);
   expect(await table(page, 'items')).toEqual(before);
   expect((await table(page, 'learnings')).length).toBe(0);
-  await expect(section(page, T('Unsure')).locator('summary .n')).toHaveText('1');
+  await expect(tiles(page).nth(2)).toHaveText('1');
 
   // 6. "Nicht im Import": archive keeps the item (Gear → Gone), with its own undo.
-  const ni = section(page, T('Not in the import'));
+  const ni = section(page, 'notin');
   await unfold(ni);
   await ni.getByRole('button', { name: T('Archive {name}', { name: 'Paperback book' }) }).click();
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'LX01')?.ownership).toBe('gone');

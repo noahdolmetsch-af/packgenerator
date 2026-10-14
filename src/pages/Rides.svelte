@@ -13,6 +13,7 @@
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
+  import { sharedKind } from '../lib/komoot.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
@@ -89,7 +90,10 @@
       try {
         const res = await (await caches.open(SHARE_CACHE)).match(sharedUrl());
         if (!res) return (msg = t('The shared file is not here any more. Choose it again.'));
-        await read(await res.text(), decodeURIComponent(res.headers.get('X-File-Name') ?? 'ride.gpx'));
+        const text = await res.text();
+        // SN1b: a GPX without times is a planned route (from komoot): the sheet «Tour aus komoot übernehmen»
+        if (sharedKind(text) === 'route') return location.replace('#/komoot/shared');
+        await read(text, decodeURIComponent(res.headers.get('X-File-Name') ?? 'ride.gpx'));
       } catch {
         msg = t('The shared file could not be opened. Choose it again.');
       }

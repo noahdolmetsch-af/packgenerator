@@ -354,7 +354,7 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
   await shot(page, 's5-step1');
   // G001 (fixed in 0.45.1): the second line of the same item waits under "Unsure", never a second item
   await expect(page.locator('ul.rows.unsure li').filter({ hasText: T('is twice in the file') })).toHaveCount(3);
-  await page.getByRole('button', { name: T('Apply safe') }).click();
+  await page.getByRole('button', { name: T('Apply|import'), exact: true }).click(); // SN5 «Seiten neu»: was «Apply safe»
   await expect(page.getByRole('button', { name: T('Undo') }).first()).toBeVisible();
   const items = await table(page, 'items');
   // the broken row without a name is left out; everything else is there once

@@ -14,6 +14,8 @@
    * out, clean up test data, report a problem). «Data and backup» is its own page now (#/me/data, I2),
    * the home place a window (I10). Everything that was here stays.
    * Bezahlen (mockup BZ1, Noah 14.10.2026 «1a», «bz freigeben»): last row of «The app», #/me/pay.
+   * KT «Kacheln antippbar» (Noah 14.10.2026, 3a): under «Help and keyboard shortcuts» a row shows the
+   * short intro of the start page again (lib/home/IntroKT.svelte).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -25,7 +27,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, CreditCard, BookOpen, LayoutGrid } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -33,6 +35,7 @@
   import { take } from '../lib/nav.js';
   import { movedHint } from '../lib/visitprefill.js';
   import { localDay } from '../lib/localday.js';
+  import { INTRO_KEY } from '../lib/home/introkt.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
@@ -72,6 +75,11 @@
   });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
+  // KT: false asks Today for the intro again (true = seen); then off to Today
+  async function introAgain() {
+    await db.settings.put({ key: INTRO_KEY, value: false });
+    location.hash = '#/';
+  }
   // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
   const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
@@ -103,6 +111,22 @@
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
               {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB1/AB5 «Deine Abfragen»: what the app asks you and how often -->
+            <a class="ich-row" href="#/me/abfragen">
+              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Your questions')}</b><small>{t('What the app asks you and how often')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB4: all values in one history -->
+            <a class="ich-row" href="#/me/history">
+              <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('History')}</b><small>{t('All values in one place: answers, Fitbit, Strava')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -197,6 +221,14 @@
             <button type="button" class="ich-row" onclick={keys} aria-haspopup="dialog">
               <span class="ich-ib"><Keyboard size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Help and keyboard shortcuts')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          <li>
+            <!-- KT (3a): the short intro of the start page once more -->
+            <button type="button" class="ich-row" onclick={introAgain} data-intro-again>
+              <span class="ich-ib"><Hand size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Show the start page intro again')}</b></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
           </li>

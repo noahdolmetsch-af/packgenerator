@@ -68,7 +68,9 @@ test('the list: last used first, area switch, long not used with Keep, Archive w
   // "long not used" (6a): the Alpenbrevet template was last used in July 2025.
   const brevet = page.locator('[data-tpl="tpl-brevet"]');
   await expect(brevet).toContainText(T('long not used'));
-  await brevet.getByRole('button', { name: T('Keep') }).click();
+  // SN3 «Seiten neu»: «Keep» sits under «…» now, with Edit, Duplicate and Archive.
+  await brevet.getByRole('button', { name: T('More for {name}', { name: 'test_data_gtp_ Alpenbrevet 2025' }) }).click();
+  await page.getByRole('menuitem', { name: T('Keep') }).click();
   await expect(brevet).not.toContainText(T('long not used'));
   await expect.poll(async () => (await templates(page)).find((x) => x.id === 'tpl-brevet').keptAt).toBeTruthy();
 

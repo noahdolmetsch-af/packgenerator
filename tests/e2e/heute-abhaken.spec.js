@@ -135,3 +135,39 @@ test('Today: the challenge tile ticks and unticks, a quick double tap ticks once
   await expect(tick).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+const logCount = (page) =>
+  page.evaluate(async () => {
+    const db = await new Promise((r) => {
+      const q = indexedDB.open('pack-generator');
+      q.onsuccess = () => r(q.result);
+    });
+    return new Promise((r) => {
+      const q = db.transaction('flowLog').objectStore('flowLog').count();
+      q.onsuccess = () => r(q.result);
+    });
+  });
+
+// 0.133.0: the same on the suggestion tiles of Aktiv › Activity and Meditation › More
+for (const [where, hash, id] of [['Aktiv › Activity', '#/flow/activity', 'sg-aktiv'], ['Meditation › More', '#/flow/act/meditation/mehr', 'sg-med']]) {
+  test(`${where}: the suggestion tile ticks and unticks, a quick double tap ticks once`, async ({ page, context }, info) => {
+    const errors = await open(page, context);
+    await page.goto(`./${hash}`);
+    const tick = page.locator(`[data-suggest][aria-labelledby="${id}"] .tick`);
+    await expect(tick).toHaveAttribute('aria-pressed', 'false');
+    await press(tick, info);
+    await expect(tick).toHaveAttribute('aria-pressed', 'true');
+    await press(tick, info);
+    await expect(tick).toHaveAttribute('aria-pressed', 'false');
+    const before = await logCount(page);
+    await tick.evaluate((b) => (b.click(), b.click()));
+    await expect(tick).toHaveAttribute('aria-pressed', 'true');
+    // a suggested activity is ticked in «Im Flow» too, but only once
+    await expect.poll(() => logCount(page)).toBeLessThanOrEqual(before + 1);
+    await press(tick, info);
+    await expect(tick).toHaveAttribute('aria-pressed', 'false');
+    await page.reload();
+    await expect(tick).toHaveAttribute('aria-pressed', 'false');
+    expect(errors).toEqual([]);
+  });
+}

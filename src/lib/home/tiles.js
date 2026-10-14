@@ -45,7 +45,6 @@ export const TILES = [
   { id: 'meditation', area: 'flow', label: 'Meditation', icon: 'lotus', sizes: ['s', 'w'], size: 's', since: '0.94.0', pitch: 'Start a meditation like last time, in one tap.' },
   { id: 'play', area: 'app', label: 'Playground', icon: 'flask', sizes: ['s', 'w'], size: 's', since: '0.88.0', pitch: 'Try everything with made-up data; afterwards all is as before.' },
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),
-  { id: 'check', area: 'flow', label: 'Daily check', icon: 'sun', sizes: ['s', 'w'], size: 's', pitch: 'Four short questions about your day, one tap each.' },
   { id: 'milestones', area: 'flow', label: 'Milestones', icon: 'star', sizes: ['s', 'w'], size: 's', pitch: 'All milestones of all areas on one page.' },
   { id: 'try', area: 'app', label: 'Tried it yet?', icon: 'bulb', sizes: ['w', 'l'], size: 'w', pitch: 'One function you have not used yet, with one button.' },
   { id: 'bikes', area: 'bikes', label: 'Bikes|place', icon: 'bike', sizes: ['l', 'long'], size: 'long', pitch: 'Your bikes with their km and what is due.' },
@@ -64,16 +63,21 @@ export const TILES = [
   { id: 'strava', area: 'bikes', label: 'Strava', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.116.0', pitch: 'New rides from Strava with their km, fetched by themselves.' },
   // v0.127.0 «Tages-Check» 2 (mockup T3, Noah «T1–T4 freigegeben»): the balance ring, the morning check, the 15 questions
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
-  { id: 'morningcheck', area: 'flow', label: 'Morning check', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'Sleep, energy and mood of today and your goal; from 20:30 the evening review.' },
-  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.132.0', pitch: 'Which questions come when; each one can be switched off.' },
+  // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
+  { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
 /** v0.102.0: the suggestion tile; a stored wall of before gets it once, after Im Flow. */
 export const ADDED_0102 = ['suggest'];
-/** v0.127.0: the three tiles of the daily check; a stored wall of before gets them once, after Im Flow. */
-export const ADDED_0127 = ['balance', 'morningcheck', 'questions'];
+/** v0.127.0: the tiles of the daily check; a stored wall of before gets them once, after Im Flow (WG: without «Deine 15 Fragen»). */
+export const ADDED_0127 = ['balance', 'morningcheck'];
+/**
+ * WG «Wi gaht's?» takes over the daily check: the old daily-check tiles (the small «Tagescheck» and
+ * «Deine 15 Fragen») are gone; a stored wall that still has them loses them when it is read.
+ */
+export const GONE = ['check', 'questions'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /** The ready wall (mockup A, Noah 3a): the trip, what is important, Im Flow, the series, the news, then the buttons. */
@@ -83,7 +87,6 @@ export const READY = [
   ['flow', 'l'],
   ['balance', 'l'],
   ['morningcheck', 'l'],
-  ['questions', 'long'],
   ['suggest', 'l'],
   ['week', 'l'],
   ['month', 'w'],
@@ -113,7 +116,8 @@ export const sizeFor = (id, size) => (TILE[id]?.sizes.includes(size) ? size : TI
 export function wallOf(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
     const seen = new Set();
-    const out = value.tiles.filter((x) => x && TILE[x.id] && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
+    // WG: the old daily-check tiles (GONE) are filtered out like any tile that is no more
+    const out = value.tiles.filter((x) => x && TILE[x.id] && !GONE.includes(x.id) && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
     // v0.101.0 (H1 «neue Bausteine kommen als Kacheln dazu»): a wall stored before gets the new tiles
     // once, after Im Flow (else at the end); taken away later, they stay away (the wall is v 2 then).
     if ((value.v ?? 1) < 2) {
@@ -126,7 +130,7 @@ export function wallOf(value, legacy = null) {
       const at = out.findIndex((x) => x.id === 'flow');
       out.splice(at < 0 ? out.length : at + 1, 0, { id: 'suggest', size: TILE.suggest.size });
     }
-    // v0.127.0 «Tages-Check» 2: the balance, the morning check and the 15 questions once, after Im Flow
+    // v0.127.0 «Tages-Check» 2: the balance and the morning check once, after Im Flow (WG: now the round tile)
     if ((value.v ?? 1) < 4) {
       const add = ADDED_0127.filter((id) => !out.some((x) => x.id === id)).map((id) => ({ id, size: TILE[id].size }));
       const at = out.findIndex((x) => x.id === 'flow');

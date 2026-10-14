@@ -295,6 +295,10 @@
     font: 700 var(--fs-section) / 1.1 var(--font-body);
   }
   .tally small {
+    /* 0.132.1: a long name without spaces breaks inside the box (a grid item never shrinks below its longest word otherwise) */
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
     color: var(--ink-2);
     font-size: var(--fs-tiny);
     overflow-wrap: break-word;

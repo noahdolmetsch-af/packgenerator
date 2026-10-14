@@ -12,18 +12,19 @@
    * label    the «…» button's accessible name (also its bubble, ui/explain.js)
    * actions  [{ name, explain?, icon?, run, current? }]; `current` marks the row's main action (shaded)
    * small    a «…» of the old small size (32 px, 44 on touch) for dense rows
+   * howto    SN6+ K4 (answer 4a): { title, count, steps } short steps shown open above the actions as text
    *
    * It closes after a choice, on Escape (focus back on «…»), on a tap next to it (ui/away.js, 0.115.0),
    * when the focus leaves it, on the sheet's dark background and on the phone's back key.
    */
   import { tick } from 'svelte';
-  import { Ellipsis } from '@lucide/svelte';
+  import { Ellipsis, BookOpenText } from '@lucide/svelte';
   import { phone } from '../media.svelte.js';
   import { inView } from './inview.js';
   import { backClose } from './backclose.js';
   import { away } from './away.js';
 
-  let { title = '', label = '', actions = [], small = false, class: cls = '' } = $props();
+  let { title = '', label = '', actions = [], small = false, howto = null, class: cls = '' } = $props();
   let open = $state(false);
   let wrap = $state(null);
   let btn = $state(null);
@@ -36,6 +37,10 @@
     await tick();
     if (phone.matches) sheet?.showModal();
     (phone.matches ? sheet : wrap)?.querySelector('[role="menuitem"]')?.focus();
+  }
+  /** SK: open the list from outside (a long press on a page tile, SK6). */
+  export function show() {
+    if (!open) toggle();
   }
   function close(refocus = true) {
     if (!open) return;
@@ -73,19 +78,39 @@
   }
 </script>
 
+{#snippet items(size)}
+  {#each actions as a, n (n)}
+    <button type="button" role="menuitem" class="ma-i" class:cur={a.current} data-explain="off" onclick={() => choose(a)}>
+      {#if a.icon}<a.icon {size} aria-hidden="true" />{:else}<span class="ma-ic" aria-hidden="true"></span>{/if}
+      <span class="ma-t"><b>{a.name}</b>{#if a.explain}<small>{a.explain}</small>{/if}</span>
+    </button>
+  {/each}
+{/snippet}
+
+<!-- SN6+ K4 «So geht's»: the steps, open as text (no button), above the actions -->
+{#snippet how(size)}
+  <section class="ma-how" aria-label={howto.title}>
+    <p class="ma-how-h"><BookOpenText {size} aria-hidden="true" /><b>{howto.title}</b>{#if howto.count}<small>{howto.count}</small>{/if}</p>
+    <ol>
+      {#each howto.steps as s, n (n)}<li>{s}</li>{/each}
+    </ol>
+  </section>
+{/snippet}
+
 <!-- v0.115.0 Menü-Fix: a tap anywhere next to the open list closes it (ui/away.js); the phone sheet closes on its background -->
 <span class="ma {cls}" bind:this={wrap} onfocusout={left} use:away={() => open && !phone.matches && close(false)}>
   <button type="button" class="btn dots" class:sm={small} bind:this={btn} aria-label={label} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? uid : undefined} onclick={toggle}><Ellipsis size={18} aria-hidden="true" /></button>
   {#if open && !phone.matches}
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-    <div class="ma-list" id={uid} role="menu" tabindex="-1" aria-label={title || label} use:inView onkeydown={keys}>
+    <!-- SN6+ K4: with steps the list is a group of the steps and the menu (a menu holds only its entries) -->
+    <div class="ma-list" id={uid} role={howto ? 'group' : 'menu'} tabindex="-1" aria-label={title || label} use:inView onkeydown={keys}>
       {#if title}<p class="ma-h">{title}</p>{/if}
-      {#each actions as a, n (n)}
-        <button type="button" role="menuitem" class="ma-i" class:cur={a.current} data-explain="off" onclick={() => choose(a)}>
-          {#if a.icon}<a.icon size={18} aria-hidden="true" />{:else}<span class="ma-ic" aria-hidden="true"></span>{/if}
-          <span class="ma-t"><b>{a.name}</b>{#if a.explain}<small>{a.explain}</small>{/if}</span>
-        </button>
-      {/each}
+      {#if howto}
+        {@render how(18)}
+        <div role="menu" aria-label={title || label}>{@render items(18)}</div>
+      {:else}
+        {@render items(18)}
+      {/if}
     </div>
   {/if}
 </span>
@@ -94,14 +119,8 @@
   <dialog class="ma-sheet" id={uid} bind:this={sheet} aria-label={title || label} use:backClose onclose={() => (open = false)} onkeydown={keys} onclick={(e) => e.target === sheet && close()}>
     <span class="ma-grip" aria-hidden="true"></span>
     {#if title}<p class="ma-h">{title}</p>{/if}
-    <div role="menu" aria-label={title || label}>
-      {#each actions as a, n (n)}
-        <button type="button" role="menuitem" class="ma-i" class:cur={a.current} data-explain="off" onclick={() => choose(a)}>
-          {#if a.icon}<a.icon size={20} aria-hidden="true" />{:else}<span class="ma-ic" aria-hidden="true"></span>{/if}
-          <span class="ma-t"><b>{a.name}</b>{#if a.explain}<small>{a.explain}</small>{/if}</span>
-        </button>
-      {/each}
-    </div>
+    {#if howto}{@render how(20)}{/if}
+    <div role="menu" aria-label={title || label}>{@render items(20)}</div>
   </dialog>
 {/if}
 
@@ -180,6 +199,47 @@
     font-size: var(--fs-small);
     line-height: 1.35;
     overflow-wrap: break-word;
+  }
+  /* SN6+ K4: «So geht's», a calm box with the numbered steps */
+  .ma-how {
+    margin: 2px 6px 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .ma-how-h {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+  }
+  .ma-how-h :global(svg) {
+    flex: none;
+    color: var(--ink-2);
+  }
+  .ma-how-h b {
+    flex: 1;
+    font-weight: 600;
+  }
+  .ma-how-h small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ma-how ol {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding-left: 22px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+  .ma-how li {
+    overflow-wrap: break-word;
+  }
+  .ma-sheet .ma-how {
+    margin: 0 8px 8px;
   }
   /* the phone: a sheet from the bottom over a dark background */
   .ma-sheet {

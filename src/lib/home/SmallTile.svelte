@@ -1,5 +1,5 @@
 <script module>
-  import { Zap, Backpack, Shirt, Scale, Wrench, Route, FileText, Layers, Heart, ChartColumn, StickyNote, Gauge, Blocks, Star, BookOpen, TriangleAlert, Activity, Flame, Sparkles, Flower2, FlaskConical, Sun, Lightbulb, Bike, MessageCircle, Info, Inbox, Database, Plus, List } from '@lucide/svelte';
+  import { Zap, Backpack, Shirt, Scale, Wrench, Route, FileText, Layers, Heart, ChartColumn, StickyNote, Gauge, Blocks, Star, BookOpen, TriangleAlert, Activity, Flame, Sparkles, Flower2, FlaskConical, Sun, Lightbulb, Bike, MessageCircle, Info, Inbox, Database, Plus, List, ChevronRight } from '@lucide/svelte';
   /** The icons of the tiles (tiles.js icon keys). */
   // a long word may break on a small phone tile: only where German breaks it (a soft hyphen after the
   // first part, «Kleider-schrank»). → the label in pieces, each piece its own span.
@@ -15,6 +15,8 @@
    * href: a link; else onclick. size: 's' or 'w'.
    * v0.101.0 Design-Refresh P2 (H1): a light card with a soft shadow, the icon in a quiet grey square;
    * the dark tile is gone.
+   * KT «Kacheln antippbar» (Noah 14.10.2026, 1a + 1b, mockup KT4): a line «Öffnen ›» at the bottom says
+   * the tile opens something; on a computer the tile lifts a little under the mouse (4a).
    */
   import { t, num } from '../i18n.svelte.js';
 
@@ -28,12 +30,14 @@
   {#if badge}<span class="bd num" aria-hidden="true">{num(badge)}</span>{:else if isnew}<span class="nw" aria-hidden="true">{t('New|tile')}</span>{/if}
   <span class="lb">{#each soft(t(tile.label)) as p, i (i)}<span>{p}</span>{/each}</span>
   {#if sub}<span class="su">{sub}</span>{/if}
+  <!-- KT: the sign that the tile opens its page (the tile's own name stays its label) -->
+  <span class="op" aria-hidden="true">{t('Open|tile')}<span class="go"><ChevronRight size={12} strokeWidth={2.6} /></span></span>
 {/snippet}
 
 {#if href}
-  <a class="st {size}" class:hot {href} data-fn={fn} aria-label={label} onclick={onclick}>{@render inner()}</a>
+  <a class="st {size}" class:hot {href} data-fn={fn} data-opens aria-label={label} onclick={onclick}>{@render inner()}</a>
 {:else}
-  <button type="button" class="st {size}" class:hot data-fn={fn} aria-label={label} {onclick}>{@render inner()}</button>
+  <button type="button" class="st {size}" class:hot data-fn={fn} data-opens aria-label={label} {onclick}>{@render inner()}</button>
 {/if}
 
 <style>
@@ -85,6 +89,50 @@
     font-weight: 400;
     line-height: 1.25;
   }
+  /* KT: «Öffnen ›» in the accent colour, the › in a small round */
+  .op {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
+    color: var(--accent);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .go {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    color: var(--accent);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  /* KT (4a): on a computer the tile lifts a little under the mouse and its › fills */
+  @media (hover: hover) and (pointer: fine) {
+    .st {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .st:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px var(--shadow);
+    }
+    .st:hover .go {
+      background: var(--accent);
+      color: var(--paper);
+    }
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .st,
+    .st:hover {
+      transform: none;
+      transition: none;
+    }
+  }
   .bd,
   .nw {
     position: absolute;
@@ -126,6 +174,11 @@
     }
     .st.s .lb {
       font-weight: 500;
+    }
+    /* KT: on the small phone square the line stays one short row, the tile hardly grows */
+    .st.s .op {
+      margin-top: 0;
+      gap: 3px;
     }
     .bd,
     .nw {

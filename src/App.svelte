@@ -20,14 +20,13 @@
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
-  import Check from './pages/Check.svelte';
-  import CheckQuestions from './pages/CheckQuestions.svelte';
   import Between from './pages/Between.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
+  import KomootSheet from './lib/komoot/KomootSheet.svelte';
   import Search from './lib/nav/Search.svelte';
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
@@ -40,6 +39,9 @@
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Abfragen from './pages/Abfragen.svelte';
+  import Verlauf from './pages/Verlauf.svelte';
+  import Auswertung from './pages/Auswertung.svelte';
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
@@ -53,7 +55,6 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
-  import { checkPart } from './lib/flowcheck.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -247,6 +248,16 @@
     const today = localDay();
     return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
   });
+  // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
+  // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
+  let komootOpen = $state(false);
+  $effect(() => {
+    if (hash === '#/komoot/shared') {
+      history.replaceState(null, '', `${location.pathname}#/trips`);
+      hash = '#/trips';
+      komootOpen = true;
+    }
+  });
   $effect(() => {
     if (hash === '#/inbox/new') {
       history.replaceState(null, '', '#/inbox');
@@ -279,7 +290,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'check'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key switchN}
@@ -327,10 +338,6 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
-  {:else if page === 'check'}
-    <!-- v0.127.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
-    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
-    {#key hash}{#if checkPart(hash) === 'questions'}<CheckQuestions />{:else}<Check part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
@@ -355,6 +362,15 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <MiniApps />
+  {:else if page === 'abfragen'}
+    <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
+    <Abfragen />
+  {:else if page === 'history'}
+    <!-- AB4: Ich › Daten › Verlauf, all values in one place -->
+    <Verlauf />
+  {:else if page === 'analysis'}
+    <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
+    <Auswertung />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
@@ -385,6 +401,7 @@
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
+{#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->
   <MiniBar app={mini} {hash} />

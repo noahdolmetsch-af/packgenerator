@@ -45,6 +45,8 @@ for (const lang of ['en', 'de']) {
     await page.goto(`./#/debrief/${TRIP}`);
     await expect(page.getByRole('heading', { level: 1, name: new RegExp(title) })).toBeVisible();
     // the saved Rückblick: every packed item counts as used
+    // SN2x: «Nicht gebraucht» sits in the folding group «Gepäck und Velo»
+    await page.locator('section[data-group="pack"] button.gb').click();
     await expect(page.getByText(T('{used} of {total} items used').replace('{used}', n).replace('{total}', n))).toBeVisible();
     await expect(page.getByText(T('Everything on the list was used.'))).toBeVisible();
     // «Antworten ändern» opens the chips: none marked as not used

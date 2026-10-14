@@ -15,7 +15,8 @@
   import { Check, Zap } from '@lucide/svelte';
   import './trip.css';
 
-  let { trip, items = [], night = null, head = false } = $props();
+  // SN1: all: «Alle geladen» under the card also with the head (On the way)
+  let { trip, items = [], night = null, head = false, all = false } = $props();
 
   const list = $derived(chargeList(trip, items));
   const count = $derived(chargeCount(trip, list, night));
@@ -59,7 +60,9 @@
         </li>
       {/each}
     </ul>
-    {#if !head}
+    {#if head && all && count.done < count.total}
+      <p class="foot end"><button type="button" class="tp-link" onclick={tickAll}>{t('All charged')}</button></p>
+    {:else if !head}
       <p class="foot">
         <span class="tp-badge num" class:ok={count.done === count.total}>{t('{done} of {n} charged', { done: count.done, n: count.total })}</span>
         {#if count.done < count.total}<button type="button" class="tp-link" onclick={tickAll}>{t('All charged')}</button>{/if}
@@ -87,5 +90,6 @@
   .q { color: var(--ink-3); }
   .it :global(.zap) { flex: none; color: var(--ink-2); }
   .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 6px 0 0; }
+  .foot.end { justify-content: flex-end; }
   .num { font-variant-numeric: tabular-nums; }
 </style>

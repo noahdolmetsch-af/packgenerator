@@ -282,6 +282,7 @@ test('extras: Bike care shows a part\'s history with the newest action first', a
   // v0.48.0: a row of the part table opens the part.
   await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Kette', { exact: true }) }).click();
   const dlg = page.getByRole('dialog', { name: 'Kette' });
+  await dlg.locator('details[data-fold="history"] > summary').click(); // SN7 «Seiten neu»: the history is a fold row
   const hist = dlg.locator('ol.hist > li');
   await expect(hist).toHaveCount(2);
   await expect(hist.first()).toContainText(`${P} neu`);

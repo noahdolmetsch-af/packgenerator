@@ -16,6 +16,48 @@
 
 export const WHATS_NEW = [
   {
+    // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
+    version: '0.133.0',
+    date: '2026-10-14',
+    title: 'A greeting and your questions',
+    lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',
+    points: [
+      { text: '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30', href: '#/me/abfragen' },
+      { text: 'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to', href: '#/me/look' },
+      { text: 'History and analysis: all your values in one place, with your normal range', href: '#/me/history' },
+    ],
+    small: [
+      { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
+      { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom' },
+    ],
+    test: [
+      'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
+      'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».',
+      'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.',
+      'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
+      'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
+      'On the phone open Trips and Material: the main button sits at the bottom.',
+      'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.',
+    ],
+  },
+  {
+    // v0.132.1 «Langer Name passt» (bug fix, Noah 14.10.2026 18:41 UTC «BUG auf live version dringend»; same look, so no mockup)
+    version: '0.132.1',
+    date: '2026-10-14',
+    title: 'Long names fit',
+    lead: 'A long trip name no longer runs out of the box when a trip ends.',
+    points: [
+      { text: 'On «Trip ended» a long trip name wraps inside the grey box', href: '#/trips' },
+    ],
+    small: [{ box: 'fixed', text: 'Also on «All packed»: a name without spaces breaks inside the box' }],
+    test: [
+      'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.',
+      'On a phone the name wraps over several lines, the page does not scroll sideways.',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),
@@ -25,7 +67,7 @@ export const WHATS_NEW = [
     title: 'Lots of new things at once',
     lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
     points: [
-      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/me/abfragen' },
       { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
       { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
     ],

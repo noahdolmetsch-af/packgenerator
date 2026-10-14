@@ -132,7 +132,7 @@
             {#if editing === 'area'}
               <label>{t('Area')}<select class="sel" bind:value={cond.area}>{#each areas as a (a.key)}<option value={a.key}>{a.name}</option>{/each}</select></label>
             {:else if editing === 'days'}
-              <label>{t('Days')}<input class="inp kh-num" type="number" min="1" max="60" bind:value={cond.days} /></label>
+              <label>{t('Days')}<input class="inp kh-num" type="number" inputmode="numeric" min="1" max="60" bind:value={cond.days} /></label>
             {:else if editing === 'overnight'}
               <label>{t('Overnight')}<select class="sel" bind:value={cond.overnight}>{#each Object.entries(NIGHT) as [k, n] (k)}<option value={k}>{t(n)}</option>{/each}</select></label>
               {#if cond.overnight === 'outdoor'}<label><input type="checkbox" bind:checked={cond.cook} /> {t('Cooking')}</label>{/if}
