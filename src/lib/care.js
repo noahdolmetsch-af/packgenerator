@@ -251,9 +251,8 @@ export function replaceHint(part) {
 
 /* ---------- tasks from the Excel sheet "Wartung" ---------- */
 
-const SUBJECT_BIKE = { Hardtail: 'scott-hardtail', 'Full suspension': 'fully', Fully: 'fully', Factor: 'factor-ls' };
-/** Which bike a repair from the Excel belongs to (null: not a bike, e.g. shoes). */
-export const taskBike = (task) => task.bikeId ?? SUBJECT_BIKE[task.subject] ?? null;
+/** Which bike a repair belongs to (null: not a bike, e.g. shoes). The Excel subjects got their bike in the data cleanup (cleanup.js). */
+export const taskBike = (task) => task.bikeId ?? null;
 export const isPrep = (task) => task.area === 'Preparation' || task.area === 'Vorbereitung';
 
 /** Repairs that still need something: open, work needed, or not looked at since the Excel (June). */
@@ -351,7 +350,7 @@ export function wishFor(part, bike, items, id, price = null) {
   if (items.some((i) => i.name === name && i.ownership !== 'gone' && i.ownership !== 'owned')) return null;
   return {
     id, name, brand: '', model: p.model || price?.model || '', category: 'bike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'bike',
-    defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'],
+    defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], domains: ['bikepacking'],
     priceChf: price?.chf ?? null,
     note: tr('From Bike care: {part} on the {bike} needs replacing.', { part: tr(p.name), bike: bike.name }) + (price ? ` ${tr('Last time CHF {chf} ({shop}, {date}).', { chf: price.chf.toFixed(2), shop: price.shop, date: price.date })}` : ''),
     updatedAt: new Date().toISOString(),

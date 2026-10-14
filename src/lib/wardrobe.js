@@ -20,7 +20,7 @@
  *
  * Pure functions only (no database, no screen), so they are easy to test.
  */
-import { isInventory, itemWeight, nextId } from './gear.js';
+import { isInventory, itemWeight, nextId, CLOTHING_CATEGORIES } from './gear.js';
 import { addSet } from './sets.js';
 import { itemDomains, inDomain, BIKEPACKING } from './domains.js';
 import { rainOf } from './layers.js';
@@ -52,7 +52,7 @@ export const zoneGroup = (zone) => ZONES.find((z) => z.of.includes(String(zone ?
 export const layerKey = (layer) => (LAYER_KEYS.includes(String(layer ?? '').toLowerCase()) ? String(layer).toLowerCase() : null);
 
 /** Categories that are clothing (gear.js CATEGORIES). */
-export const CLOTHING_CATEGORIES = ['onbike', 'rain', 'offbike', 'shoes'];
+export { CLOTHING_CATEGORIES };
 /** Is this item clothing? A clothing category, or a layer or a zone from the import. Gone items never. */
 export const isClothing = (item) => !!item && item.ownership !== 'gone' && (CLOTHING_CATEGORIES.includes(item.category) || !!item.zone || !!item.layer);
 
@@ -487,7 +487,7 @@ export function gapWish(gap, items = [], { name, reason, now = new Date().toISOS
   const zone = ZONES.find((z) => z.key === gap.zone)?.set ?? gap.zone;
   return {
     id: nextId(items, 'onbike'), name: name || gap.wish, brand: '', model: '', category: 'onbike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'body',
-    defaultBag: 'body', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['velo'], layer: gap.layer, zone,
+    defaultBag: 'body', ownership: 'wishlist', role: null, sets: [], domains: ['velo'], layer: gap.layer, zone,
     note: reason || '', from: 'wardrobe', updatedAt: now,
   };
 }

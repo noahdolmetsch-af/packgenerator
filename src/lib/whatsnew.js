@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
+    version: '0.131.0',
+    date: '2026-10-14',
+    title: 'Tidied up once',
+    lead: 'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.',
+    points: [
+      { text: 'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».', href: '#/notes' },
+      { text: 'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Before tidying up, the app keeps a full copy of your data on this device' },
+      { box: 'nicer', text: 'The order of your bikes and their extra names are part of your data now', href: '#/bikes' },
+    ],
+    test: [
+      'Download a backup first: Ich › Daten › Backup.',
+      'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.',
+      'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.',
+    ],
+  },
+  {
     // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
     version: '0.124.0',
     date: '2026-10-13',

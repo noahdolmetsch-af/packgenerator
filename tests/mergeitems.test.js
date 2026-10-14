@@ -84,7 +84,8 @@ describe('merge plan (pure)', () => {
   it('the target keeps its values; only empty fields are filled, flags OR-ed, lists, areas and blocks joined', () => {
     const p = mergePlan(state(), 'OB01', ['EL20'], opts);
     const t = p.items.find((i) => i.id === 'EL20');
-    expect(t).toMatchObject({ name: N('Garmin Halterung'), category: 'elec', sourceId: 'M0210', note: N('alt'), favorite: true, weightG: 40, weightStatus: 'measured', always: true, role: 'standard', mergedFrom: ['OB01'] });
+    expect(t).toMatchObject({ name: N('Garmin Halterung'), category: 'elec', sourceId: 'M0210', note: N('alt'), favorite: true, weightG: 40, weightStatus: 'measured', role: null, mergedFrom: ['OB01'] });
+    expect('always' in t).toBe(false); // data cleanup 14.10.2026 (Noah 3a): Standard is the block only
     expect(t.lists).toEqual(['daily', 'bike']);
     expect(t.domains).toEqual(['bikepacking', 'velo']);
     expect(t.sets).toEqual(['standard', 'u-rain']);

@@ -44,7 +44,7 @@ describe('bike care', () => {
     const tasks = [
       { id: 23, area: 'Preparation', leadWeeks: 2, task: 'Check brake pads are above 50 %, replace if not, take spares' },
       { id: 29, area: 'Preparation', leadWeeks: 0.4, task: 'Clean or wax the chain, wash the bike, lube the chain' },
-      { id: 1, area: 'Bike', subject: 'Hardtail', status: 'check', task: 'Shifting' },
+      { id: 1, area: 'Bike', subject: 'Hardtail', bikeId: 'scott-hardtail', status: 'check', task: 'Shifting' },
     ];
     const rows = prepFor({ startDate: '2026-10-15', prep: { 29: { result: 'done' } } }, tasks, '2026-10-04');
     expect(rows.map((r) => [r.task.id, r.due, r.overdue, r.finished])).toEqual([
@@ -72,7 +72,7 @@ describe('bike care log', () => {
     parts = logPart(parts, 'tyres', { date: '2026-09-01', km: 100, action: 'service', result: 'done', pressureF: 1.6, sealantMl: 30 });
     parts = logPart(parts, 'rotorF', { date: '2026-10-02', km: 200, action: 'check', result: 'ok', value: 1.7, limit: 1.55 });
     expect(parts.find((p) => p.key === 'rotorF').limit).toBe(1.55);
-    const tasks = [{ id: 1, area: 'Bike', subject: 'Hardtail', status: 'done', statusDate: '2026-10-03', task: 'Inner bar ends' }];
+    const tasks = [{ id: 1, area: 'Bike', subject: 'Hardtail', bikeId: 'scott-hardtail', status: 'done', statusDate: '2026-10-03', task: 'Inner bar ends' }];
     const log = bikeLog({ id: 'scott-hardtail', parts }, tasks);
     expect(log.map((h) => h.what)).toEqual(['Inner bar ends', 'Brake rotor front', 'Tyres + sealant']);
     expect(log[2]).toMatchObject({ pressureF: 1.6, sealantMl: 30 });
@@ -86,8 +86,8 @@ describe('care before a trip', () => {
     const tasks = [
       { id: 1, area: 'Preparation', task: 'Check chain wear', leadWeeks: 2 },
       { id: 2, area: 'Preparation', task: 'Pump tyres', leadWeeks: 0 },
-      { id: 3, area: 'Bike', subject: 'Hardtail', task: 'Fix shifting', status: 'open' },
-      { id: 4, area: 'Bike', subject: 'Factor', task: 'Other bike', status: 'open' },
+      { id: 3, area: 'Bike', subject: 'Hardtail', bikeId: 'scott-hardtail', task: 'Fix shifting', status: 'open' },
+      { id: 4, area: 'Bike', subject: 'Factor', bikeId: 'factor-ls', task: 'Other bike', status: 'open' },
     ];
     const trip = { id: 't', startDate: '2026-10-15', bikeId: 'scott-hardtail', prep: { 2: { result: 'ok' } } };
     const bike = { id: 'scott-hardtail', parts: [] };
@@ -101,7 +101,7 @@ describe('care before a trip', () => {
       { id: 1, area: 'Preparation', task: 'Check chain wear', leadWeeks: 2 },
       { id: 2, area: 'Preparation', task: 'Pump tyres', leadWeeks: 0 },
       { id: 3, area: 'Vorbereitung', task: 'Pack bags', leadWeeks: 1 },
-      { id: 4, area: 'Bike', subject: 'Hardtail', task: 'Fix shifting', status: 'open' },
+      { id: 4, area: 'Bike', subject: 'Hardtail', bikeId: 'scott-hardtail', task: 'Fix shifting', status: 'open' },
     ];
     const trip = { startDate: '2026-10-15', prep: { 2: { result: 'ok' }, 3: { result: 'needed' } } };
     expect(prepSummary(prepFor(trip, tasks, '2026-10-05'))).toEqual({ open: 2, overdue: 1, needed: 1, done: 1, total: 3 });
