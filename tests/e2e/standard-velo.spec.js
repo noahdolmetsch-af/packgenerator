@@ -116,7 +116,7 @@ test('VS4: a new bike asks «Neues Standard-Velo?»; «Ja» puts it on top', asy
   await page.locator('section.setup-band').getByRole('button', { name: T('Add bike') }).click();
   const bd = page.locator('dialog.vdlg', { has: page.locator('#bike-dlg-h') });
   await bd.getByLabel(T('Name'), { exact: true }).fill('test_data_gtp_ Enduro');
-  await bd.getByRole('button', { name: T('Add bike') }).click();
+  await bd.getByRole('button', { name: T('Add|bike') }).click();
   const ask = page.locator('dialog.nb-std');
   await expect(ask.getByRole('heading', { name: T('New standard bike?') })).toBeVisible();
   await expect(ask.getByRole('button', { name: new RegExp(T('No, {name} stays', { name: GRAVEL })) })).toHaveAttribute('aria-pressed', 'true');
