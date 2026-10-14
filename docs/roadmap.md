@@ -73,7 +73,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
-**14.10.2026, v0.134.0 «Standard-Paket»:** Schritt S4 aus «Daten einmal bereinigen», unsichtbar. Reihenfolge danach (Noah 3a): zuerst «Listen und Typen» (Mockups LI1–LI3 warten auf Freigabe), dann der Profil-Schalter unter Ich › Die App (4a), dann Menü und Seiten selber gestalten (M1–M3, noch ohne Fragen).
+**14.10.2026, v0.134.0 «Standard-Paket» und «Listen und Typen»:** Schritt S4 aus «Daten einmal bereinigen» und die Kategorien änderbar (LI1–LI4 freigegeben). Danach (Noah «a»): jede weitere Liste als eigenes kleines Release (Sportarten, Taschenplätze, Fragen …), dann der Profil-Schalter unter Ich › Die App (4a), dann Menü und Seiten selber gestalten (M1–M3, noch ohne Fragen).
 
 **14.10.2026, v0.131.0 «Daten einmal bereinigen»:** Grundlage für das Profil «Standard»/«Noah» (Thread «Persönlich und Standard-Profil»): Daten und Listen aufgeräumt, Regeln in [daten.md](daten.md). Danach geht der Profil-Thread mit seinen Fragen weiter.
 

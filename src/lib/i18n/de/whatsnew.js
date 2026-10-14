@@ -4,13 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.134.0 Standard-Paket
-  'The base for your own lists': 'Bereit für deine eigenen Listen',
-  'Behind the scenes all base lists of the app now sit in one neutral package, ready for you to change them later.': 'Im Hintergrund stecken jetzt alle Grundlisten der App in einem neutralen Paket, bereit, damit du sie später selber ändern kannst.',
-  'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.': 'Sportarten, Kategorien, Plätze am Velo, Checklisten und Fragen kommen aus einem Verzeichnis; am Bildschirm ändert sich noch nichts.',
-  'Your own changes to a list will be kept apart from the Standard, so you can always go back': 'Deine eigenen Änderungen an einer Liste bleiben getrennt vom Standard, so kannst du immer zurück',
-  'Nothing new on screen: the app looks and works as before.': 'Am Bildschirm nichts Neues: Die App sieht aus und funktioniert wie vorher.',
-  'Open Material and a trip: categories, places and checklists are the same as before.': 'Öffne Material und eine Tour: Kategorien, Plätze und Checklisten sind wie vorher.',
+  // 0.134.0 Listen und Typen
+  'Lists your way': 'Listen nach deinem Mass',
+  'The categories of your gear are yours now: rename, add your own, hide, delete and change the order.': 'Die Kategorien deines Materials gehören jetzt dir: umbenennen, eigene dazunehmen, ausblenden, löschen und die Reihenfolge ändern.',
+  'Me › Lists and types › Categories: arrows change the order, the pen opens a category (name, symbol, hide, delete).': 'Ich › Listen und Typen › Kategorien: die Pfeile ändern die Reihenfolge, der Stift öffnet eine Kategorie (Name, Symbol, ausblenden, löschen).',
+  'In Gear › Sort and filter, «Edit list» opens the categories right away.': 'In Material › Sortieren und filtern öffnet «Liste bearbeiten» direkt die Kategorien.',
+  'Your changes stay apart from the Standard: «Back to Standard» brings everything back': 'Deine Änderungen bleiben getrennt vom Standard: «Auf Standard zurücksetzen» holt alles zurück',
+  'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.': 'Ich › Listen und Typen › Kategorien: eine Kategorie mit dem Stift umbenennen und speichern; im Material steht der neue Name.',
+  'Add an own category, then open «+ Item» in Gear: it is in the category choice.': 'Eine eigene Kategorie dazunehmen, dann im Material «+ Teil» öffnen: sie steht in der Auswahl.',
+  'Back in Categories, tap «Back to Standard»: everything is as before.': 'Zurück in Kategorien «Auf Standard zurücksetzen» antippen: alles ist wie vorher.',
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',

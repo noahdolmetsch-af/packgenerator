@@ -10,10 +10,11 @@
  * so it travels in the backup); the Standard itself never changes in the data. A change of the Standard
  * reaches a person as a suggestion «übernehmen?» (Noah 1a), see standardChanges.
  *
- * Nothing here is shown yet. Pure functions, tested in tests/standard.test.js.
+ * Pure functions, tested in tests/standard.test.js. lists.js puts the changes in place (so far the
+ * categories, v0.134.0 «Listen und Typen»).
  */
 import { DOMAINS } from './domains.js';
-import { CATEGORIES, BAGS, SETS } from './gear.js';
+import { STD_CATEGORIES, BAGS, SETS } from './gear.js';
 import { SLOTS } from './bikes.js';
 import { LAYERS, ZONES } from './wardrobe.js';
 import { PARTS, AREAS } from './care.js';
@@ -24,7 +25,7 @@ import { ARTS } from './flowmed.js';
 import { FUN_IDEAS } from './flowsugg.js';
 import { TODAY_OPTIONS } from './challenge.js';
 
-/** The settings record of a person's changes: { [list key]: { names, hidden, order, own } }. */
+/** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons } }. */
 export const OVERRIDES_KEY = 'listOverrides';
 
 /** Entries as { id, name } (name: the English key for t()). */
@@ -48,7 +49,7 @@ function checkLists() {
 export const STANDARD_LISTS = [
   { key: 'domains', area: 'trips', name: 'Sports and areas', entries: () => keyed(DOMAINS) },
   ...checkLists(),
-  { key: 'categories', area: 'gear', name: 'Categories', entries: () => keyed(CATEGORIES) },
+  { key: 'categories', area: 'gear', name: 'Categories', entries: () => keyed(STD_CATEGORIES) },
   { key: 'bagPlaces', area: 'gear', name: 'Default places', entries: () => keyed(BAGS) },
   { key: 'blocks', area: 'gear', name: 'Building blocks', entries: () => Object.entries(SETS).map(([id, name]) => ({ id, name })) },
   { key: 'layers', area: 'gear', name: 'Clothing layers', entries: () => keyed(LAYERS) },
@@ -71,31 +72,39 @@ export const standardSnapshot = () => Object.fromEntries(STANDARD_LISTS.map((l) 
 
 const arr = (x) => (Array.isArray(x) ? x : []);
 
-/** A stored override made whole: { names: {id: name}, hidden: [id], order: [id], own: [{ id, name }] }. */
+/**
+ * A stored override made whole: { names: {id: name}, hidden: [id], order: [id], own: [{ id, name,
+ * color?, icon? }], deleted: [id], icons: {id: icon name} }. deleted (LI answer 1b): Standard entries
+ * the person removed; «Auf Standard zurücksetzen» brings them back.
+ */
 export function overrideOf(value) {
-  const names = value?.names && typeof value.names === 'object' ? Object.fromEntries(Object.entries(value.names).filter(([, n]) => typeof n === 'string' && n.trim()).map(([id, n]) => [id, n.trim()])) : {};
-  const own = arr(value?.own).filter((e) => e && typeof e.id === 'string' && typeof e.name === 'string' && e.name.trim()).map((e) => ({ id: e.id, name: e.name.trim() }));
+  const words = (x) => (x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).filter(([, n]) => typeof n === 'string' && n.trim()).map(([id, n]) => [id, n.trim()])) : {});
+  const own = arr(value?.own)
+    .filter((e) => e && typeof e.id === 'string' && typeof e.name === 'string' && e.name.trim())
+    .map((e) => ({ id: e.id, name: e.name.trim(), ...(typeof e.color === 'string' ? { color: e.color } : {}), ...(typeof e.icon === 'string' ? { icon: e.icon } : {}) }));
   const uniq = (list) => [...new Set(arr(list).filter((id) => typeof id === 'string'))];
-  return { names, hidden: uniq(value?.hidden), order: uniq(value?.order), own };
+  return { names: words(value?.names), hidden: uniq(value?.hidden), order: uniq(value?.order), own, deleted: uniq(value?.deleted), icons: words(value?.icons) };
 }
 
 /** Has the person changed anything in this list? */
 export const isChanged = (value) => {
   const o = overrideOf(value);
-  return Object.keys(o.names).length > 0 || o.hidden.length > 0 || o.order.length > 0 || o.own.length > 0;
+  return Object.keys(o.names).length > 0 || o.hidden.length > 0 || o.order.length > 0 || o.own.length > 0 || o.deleted.length > 0 || Object.keys(o.icons).length > 0;
 };
 
 /**
- * A list as the person sees it: [{ id, name, std, own, renamed, hidden }]. std: the Standard name
- * (null for an own entry). Order: the person's order first, then the rest in Standard order, own
- * entries after the Standard ones. Hidden entries stay in the list (flag), so a page can show them
- * greyed out and nothing that uses them breaks; visible() leaves them out.
+ * A list as the person sees it: [{ id, name, std, own, renamed, hidden, icon, color }]. std: the
+ * Standard name (null for an own entry). Order: the person's order first, then the rest in Standard
+ * order, own entries after the Standard ones. Hidden entries stay in the list (flag), so a page can
+ * show them greyed out and nothing that uses them breaks; visible() leaves them out. Deleted Standard
+ * entries are left out.
  */
 export function applyOverrides(entries, value) {
   const o = overrideOf(value);
+  const std = arr(entries).filter((e) => !o.deleted.includes(e.id));
   const all = [
-    ...arr(entries).map((e) => ({ id: e.id, std: e.name, own: false })),
-    ...o.own.filter((e) => !arr(entries).some((s) => s.id === e.id)).map((e) => ({ id: e.id, std: null, own: true, name: e.name })),
+    ...std.map((e) => ({ id: e.id, std: e.name, own: false })),
+    ...o.own.filter((e) => !arr(entries).some((s) => s.id === e.id)).map((e) => ({ id: e.id, std: null, own: true, name: e.name, color: e.color, icon: e.icon })),
   ];
   const rank = new Map(o.order.map((id, i) => [id, i]));
   const sorted = all
@@ -104,7 +113,7 @@ export function applyOverrides(entries, value) {
     .map(({ e }) => e);
   return sorted.map((e) => {
     const name = o.names[e.id] ?? e.name ?? e.std;
-    return { id: e.id, name, std: e.std, own: e.own, renamed: !e.own && name !== e.std, hidden: o.hidden.includes(e.id) };
+    return { id: e.id, name, std: e.std, own: e.own, renamed: !e.own && name !== e.std, hidden: o.hidden.includes(e.id), icon: o.icons[e.id] ?? e.icon ?? null, color: e.color ?? null };
   });
 }
 

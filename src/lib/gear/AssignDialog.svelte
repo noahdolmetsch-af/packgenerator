@@ -11,7 +11,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { BAGS, BAG, CATEGORIES, CATEGORY, namesList } from '../gear.js';
+  import { BAGS, BAG, choosable, CATEGORY, namesList } from '../gear.js';
   import { Check, X } from '@lucide/svelte';
   import { DOMAINS, domainName } from '../domains.js';
   import Seg from '../ui/Seg.svelte';
@@ -74,7 +74,7 @@
     : kind === 'bag' ? BAGS.map((b) => ({ key: b.key, name: t(b.name) }))
     : kind === 'template' ? templates.map((x) => ({ key: x.id, name: x.name }))
     : kind === 'area' ? DOMAINS.map((d) => ({ key: d.key, name: t(d.name) }))
-    : kind === 'category' ? CATEGORIES.map((c) => ({ key: c.key, name: t(c.name) }))
+    : kind === 'category' ? choosable().map((c) => ({ key: c.key, name: t(c.name) }))
     : trips.map((x) => ({ key: x.id, name: tripLabel(x) })),
   );
   function tripLabel(trip) {

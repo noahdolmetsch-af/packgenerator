@@ -16,14 +16,21 @@
 
 export const WHATS_NEW = [
   {
-    // v0.134.0 «Standard-Paket» (Noah 14.10.2026, thread «Persönlich und Standard», 1a 2 3a 4a 5; nothing new on screen, so no mockups)
+    // v0.134.0 «Listen und Typen» (mockups LI1–LI4, Noah «LI1–LI4 freigegeben» 14.10.2026, «a»: categories first) on top of the «Standard-Paket»
     version: '0.134.0',
     date: '2026-10-14',
-    title: 'The base for your own lists',
-    lead: 'Behind the scenes all base lists of the app now sit in one neutral package, ready for you to change them later.',
-    points: [{ text: 'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.', href: '#/gear' }],
-    small: [{ box: 'nicer', text: 'Your own changes to a list will be kept apart from the Standard, so you can always go back' }],
-    test: ['Nothing new on screen: the app looks and works as before.', 'Open Material and a trip: categories, places and checklists are the same as before.'],
+    title: 'Lists your way',
+    lead: 'The categories of your gear are yours now: rename, add your own, hide, delete and change the order.',
+    points: [
+      { text: 'Me › Lists and types › Categories: arrows change the order, the pen opens a category (name, symbol, hide, delete).', href: '#/me/lists?categories' },
+      { text: 'In Gear › Sort and filter, «Edit list» opens the categories right away.', href: '#/gear' },
+    ],
+    small: [{ box: 'nicer', text: 'Your changes stay apart from the Standard: «Back to Standard» brings everything back' }],
+    test: [
+      'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.',
+      'Add an own category, then open «+ Item» in Gear: it is in the category choice.',
+      'Back in Categories, tap «Back to Standard»: everything is as before.',
+    ],
   },
   {
     // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)

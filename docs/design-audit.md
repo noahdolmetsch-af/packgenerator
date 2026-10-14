@@ -65,7 +65,7 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
-14.10.2026 (v0.134.0 «Standard-Paket»): keine Änderung am Bildschirm, darum kein Audit.
+14.10.2026 (v0.134.0 «Listen und Typen»): neue Seiten Ich › Listen und Typen und Kategorien im Ich-Stil (ich.css), das Fenster «Kategorie bearbeiten» im Velo-Fensterstil (velo-dlg.css), kleiner Link «Liste bearbeiten» in Sortieren und filtern. Wächter streng für beide Seiten (0 Befunde, 320 bis 1440 px); auf dem Handy volle 44-px-Pfeile nebeneinander, das Auge im Fenster.
 
 14.10.2026 (v0.131.0 «Daten einmal bereinigen»): keine Änderung am Bildschirm, darum kein Audit; neu ist nur die Notiz «Gewichts-Prüfungen aus der Excel» auf der Notizen-Seite (bestehende Darstellung einer Notiz).
 

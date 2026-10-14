@@ -3,7 +3,7 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
-  import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
+  import { choosable, CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
   import { liveQuery } from 'dexie';
   import { SETS_KEY, allSets } from '../sets.js';
   import { TEMPLATES_KEY } from '../templates.js';
@@ -531,7 +531,7 @@
         <span class="lbl">{t('Category')}</span>
         <select class="sel" bind:value={draft.category}>
           {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
-          {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+          {#each choosable(item?.category) as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
         </select>
       </label>
       {@render photoRow()}
@@ -591,7 +591,7 @@
     <span class="lbl">{t('Category')} <small class="req">{t('required')}</small></span>
     <select class="sel" bind:value={draft.category} required>
       {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
-      {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+      {#each choosable(item?.category) as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
     </select>
   </label>
 {/snippet}

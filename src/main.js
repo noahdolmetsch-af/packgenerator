@@ -37,6 +37,7 @@ import './lib/ui/touch.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
+import { loadLists, watchLists } from './lib/lists.js';
 import { settling } from './lib/settled.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
@@ -79,6 +80,11 @@ window.addEventListener('hashchange', () => takeReturn());
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
+
+// v0.134.0 «Listen und Typen»: the person's own lists (categories) without holding up the start
+// (App.svelte draws the page again once they are in place); later changes as they come.
+loadLists(db);
+watchLists(db);
 
 // Ask the browser to keep our data even when the device runs low on space.
 // Without this, a browser may delete website data it considers unimportant.

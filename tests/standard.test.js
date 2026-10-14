@@ -30,13 +30,13 @@ describe('Standard register', () => {
 
 describe('overrides', () => {
   it('makes a stored value whole and drops broken parts', () => {
-    expect(overrideOf(null)).toEqual({ names: {}, hidden: [], order: [], own: [] });
-    expect(overrideOf({ names: { a: '  A2 ', b: '' }, hidden: ['a', 'a', 3], own: [{ id: 'x', name: ' ' }, { id: 'y', name: 'Own' }] })).toEqual({ names: { a: 'A2' }, hidden: ['a'], order: [], own: [{ id: 'y', name: 'Own' }] });
+    expect(overrideOf(null)).toEqual({ names: {}, hidden: [], order: [], own: [], deleted: [], icons: {} });
+    expect(overrideOf({ names: { a: '  A2 ', b: '' }, hidden: ['a', 'a', 3], own: [{ id: 'x', name: ' ' }, { id: 'y', name: 'Own' }] })).toEqual({ names: { a: 'A2' }, hidden: ['a'], order: [], own: [{ id: 'y', name: 'Own' }], deleted: [], icons: {} });
     expect(isChanged({})).toBe(false);
     expect(isChanged({ hidden: ['a'] })).toBe(true);
   });
   it('without overrides is the Standard', () => {
-    expect(applyOverrides(E, undefined)).toEqual(E.map((e) => ({ id: e.id, name: e.name, std: e.name, own: false, renamed: false, hidden: false })));
+    expect(applyOverrides(E, undefined)).toEqual(E.map((e) => ({ id: e.id, name: e.name, std: e.name, own: false, renamed: false, hidden: false, icon: null, color: null })));
   });
   it('renames, hides, adds own entries and keeps the Standard name', () => {
     const list = applyOverrides(E, { names: { b: 'Bravo' }, hidden: ['c'], own: [{ id: 'own-1', name: 'Tennis' }] });
@@ -50,6 +50,14 @@ describe('overrides', () => {
   });
   it('a name of an entry the Standard no longer has is ignored, an own entry with a Standard id is not doubled', () => {
     expect(applyOverrides(E, { names: { gone: 'Old' }, own: [{ id: 'a', name: 'Dup' }] }).map((e) => e.id)).toEqual(['a', 'b', 'c']);
+  });
+  it('deleted Standard entries are gone, an own entry keeps its colour and symbol, a symbol can change', () => {
+    const list = applyOverrides(E, { deleted: ['b'], icons: { a: 'Heart' }, own: [{ id: 'own-1', name: 'Tennis', color: '#123456', icon: 'Sun' }] });
+    expect(list.map((e) => e.id)).toEqual(['a', 'c', 'own-1']);
+    expect(list[0].icon).toBe('Heart');
+    expect(list[2]).toMatchObject({ color: '#123456', icon: 'Sun' });
+    expect(isChanged({ deleted: ['b'] })).toBe(true);
+    expect(isChanged({ icons: { a: 'Heart' } })).toBe(true);
   });
   it('reset takes only that list back to the Standard', () => {
     expect(resetList({ categories: { hidden: ['elec'] }, domains: { hidden: ['ski'] } }, 'categories')).toEqual({ domains: { hidden: ['ski'] } });

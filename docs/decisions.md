@@ -1139,7 +1139,7 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
-## 14.10.2026: Persönlich und Standard, Standard-Paket (0.134.0)
+## 14.10.2026: Persönlich und Standard, Standard-Paket und «Listen und Typen» (0.134.0)
 
 - **Änderungen im Standard kommen als Vorschlag (Noah 1a):** Ändert sich der Standard, sieht die Person «Neu im Standard: übernehmen?»; nie automatisch. Grundlage: `standardChanges` in `src/lib/standard.js`.
 - **Standard enthält beides (2):** die Grundlisten und erfundenes Beispiel-Material, Beispiel-Touren und Vorlagen.
@@ -1147,3 +1147,5 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Umschalten (4a):** ein Schalter unter Ich › Die App.
 - **Neuer Nutzer (5, «passt»):** Die Grundlisten sind immer da; beim ersten Start fragt die App einmal «Mit Beispielen starten» oder «Leer starten»; Beispiele lassen sich später entfernen.
 - **Selbst entschieden:** Das Verzeichnis kopiert keine Liste, es liest jede von ihrem Ort (`docs/daten.md` Regel 2). Eigene Änderungen liegen getrennt als Einstellung `listOverrides` (reist im Backup mit); ausgeblendete Einträge bleiben in der Liste markiert, damit nichts, was sie nutzt, bricht. Die Start-Aktivitäten «Im Flow» und die Ideen bleiben vorerst, wie sie sind; neutrale Beispiele kommen mit «Mit Beispielen starten» (eigene Mockups).
+- **«Listen und Typen» (Mockups LI1–LI4, Noah «LI1–LI4 freigegeben»):** Standard-Einträge dürfen auch gelöscht werden (1b); Reihenfolge mit Pfeilen hoch und runter (2b); zusätzlich «Liste bearbeiten» dort, wo die Liste vorkommt (3b). **Kategorien zuerst (Noah «a»):** jede weitere Liste kommt später als eigenes kleines Release.
+- **Selbst entschieden («Listen und Typen»):** Auf dem Handy ist das Auge nicht in der Zeile (Platz für den Namen bei 320 px); Ausblenden geht dort im Fenster des Eintrags. «Gilt für» (Sportarten-Chips in LI3) ist noch nicht gebaut: Kategorien haben heute keinen Bezug zu Sportarten; Frage an Noah. Die Übersicht zeigt nur Listen, die schon änderbar sind (Kategorien, Checks pro Reiseart). «Liste bearbeiten» steht in Material › Sortieren und filtern, wo die Kategorien gewählt werden.

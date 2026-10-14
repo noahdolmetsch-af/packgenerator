@@ -10,7 +10,7 @@
   import { fileTo } from '../inboxdb.js';
   import { guessBike } from '../notes.js';
   import { parseChf } from '../hubs.js';
-  import { CATEGORIES, parseGrams } from '../gear.js';
+  import { choosable, parseGrams } from '../gear.js';
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
   import { ICONS } from './icons.js';
@@ -176,7 +176,7 @@
       <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" bind:value={name} autocomplete="off" /></label>
       <div class="two">
         {#if kind === 'material'}
-          <label class="fld"><span class="lbl">{t('Category')}</span><select class="sel" bind:value={category}>{#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}</select></label>
+          <label class="fld"><span class="lbl">{t('Category')}</span><select class="sel" bind:value={category}>{#each choosable() as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}</select></label>
         {/if}
         <label class="fld"><span class="lbl">{t('Weight g')} <span class="q">{t('optional')}</span></span><input class="inp num" type="text" inputmode="numeric" bind:value={grams} /></label>
       </div>
