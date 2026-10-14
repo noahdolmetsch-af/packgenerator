@@ -3,9 +3,11 @@
    * v0.102.0 Design-Refresh P4 «Touren» (T5 «Aus früheren Touren», approved 12.10.2026): the learnings
    * from the debriefs that fit this trip (debrief.js learningsFor: the season, the gear on the list),
    * the same ones the packing day shows. Read-only; they are kept and changed in the debrief.
+   * «Inspiration» UC2-2 (5a): under them the packing rules taken over from your inspiration links.
    */
   import { t, tn } from '../i18n.svelte.js';
   import { Lightbulb } from '@lucide/svelte';
+  import PackHints from '../inspiration/PackHints.svelte';
 
   let { lessons = [] } = $props();
 </script>
@@ -21,6 +23,7 @@
     </ul>
   </section>
 {/if}
+<PackHints />
 
 <style>
   .lc {

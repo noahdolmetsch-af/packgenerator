@@ -29,6 +29,13 @@ export const RULES = ['colour', 'breakword', 'global', 'fontsize'];
  * button). Everything still in the baseline is «noch umbauen» (docs/design-audit.md), one release at a time.
  */
 export const STRICT_STYLE = [
+  // «Inspiration» UC2-1, UC2-2, UC2-4 (all new, all strict)
+  'src/pages/Inspiration.svelte',
+  'src/lib/inspiration/InspoCard.svelte',
+  'src/lib/inspiration/LinkDialog.svelte',
+  'src/lib/inspiration/TakeDialog.svelte',
+  'src/lib/inspiration/InspoHint.svelte',
+  'src/lib/inspiration/PackHints.svelte',
   // v0.127.0 «Tages-Check» 1: the morning check and the evening review (all new, all strict)
   'src/pages/Check.svelte',
   'src/lib/flow/check/Scale.svelte',
@@ -116,7 +123,7 @@ export const STRICT_STYLE = [
   'src/pages/Checks.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
-export const STRICT_ROUTES = ['#/check/morning', '#/check/evening', '#/check/questions', '#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/me/look', '#/me/checks', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart', '#/bikes?tab=care&view=strava', '#/bikes?tab=care&view=strava-check'];
+export const STRICT_ROUTES = ['#/check/morning', '#/check/evening', '#/check/questions', '#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/me/look', '#/me/checks', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart', '#/bikes?tab=care&view=strava', '#/bikes?tab=care&view=strava-check', '#/inspiration'];
 /** «noch umbauen»: every file the baseline still lists (not strict), most violations first. */
 export const stillToRebuild = (base = {}) =>
   Object.entries(base)

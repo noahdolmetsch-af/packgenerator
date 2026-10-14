@@ -87,6 +87,8 @@ const ROUTES = [
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
+  // «Inspiration» UC2-1: your own links (empty in this fixture), strict like its files
+  ['#/inspiration', 'Inspiration'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
