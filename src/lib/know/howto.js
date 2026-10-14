@@ -97,6 +97,11 @@ export const HOWTO = {
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
   'f.news': ['Open Me › What is new.', 'The newest version stands on top.', 'Below every function and all versions by month.'],
+  // Tagespaket #151 functions (Velos › Setup, Jahresziele)
+  'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
+  'f.bagplan': ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear.', 'Tap «Move» on a hint.'],
+  'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],
+  'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
 };
 
 /** The steps of a function, or [] when it has none. */

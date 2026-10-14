@@ -286,4 +286,12 @@ export default {
   'Open Me › What is new.': 'Öffne «Ich» › «Was ist neu».',
   'The newest version stands on top.': 'Die neuste Version steht oben.',
   'Below every function and all versions by month.': 'Darunter jede Funktion und alle Versionen nach Monat.',
+  // Tagespaket #151 functions: their three steps
+  'Add photos and check the total weight.': 'Füge Fotos hinzu und prüfe das Gesamtgewicht.',
+  'Add race-rig links with your own key words.': 'Füge Links zu Renn-Setups mit eigenen Stichworten hinzu.',
+  'See the weight front, middle and rear.': 'Sieh das Gewicht vorne, in der Mitte und hinten.',
+  'Tap «Move» on a hint.': 'Tippe bei einem Hinweis auf «Verschieben».',
+  'Each entry shows the km since the change.': 'Jeder Eintrag zeigt die km seit der Änderung.',
+  'Open Aktiv › Goals.': 'Öffne Aktiv › Ziele.',
+  '«Year goals» show km, metres climbed and minutes.': '«Jahresziele» zeigen km, Höhenmeter und Minuten.',
 };
