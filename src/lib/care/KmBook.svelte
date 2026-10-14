@@ -9,7 +9,9 @@
    */
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
-  import { MoreHorizontal } from '@lucide/svelte';
+  import { MoreHorizontal, ChevronDown, ChevronRight } from '@lucide/svelte';
+  import ListNav from '../list/ListNav.svelte';
+  import { byMonthOf, shownRows as shownList } from '../list/listen.js';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
   import { parseKm } from '../care.js';
@@ -19,7 +21,7 @@
   import { addEntries, updateEntry, restoreEntries, deleteEntries, undoImport, LAST_KM_IMPORT } from '../kmbookdb.js';
   import KmChips from './KmChips.svelte';
   import DateInput from '../ui/DateInput.svelte';
-  import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { bike, bikes = [] } = $props();
@@ -39,9 +41,31 @@
   const FILTERS = ['all', 'open', 'corr'];
   let filter = $state('all');
   const shownRows = $derived(filter === 'open' ? rows.filter((r) => r.state === 'open') : filter === 'corr' ? rows.filter((r) => r.kind === 'correction' || r.kind === 'reading') : rows);
-  let all = $state(false);
-  const LIMIT = 12;
-  const visible = $derived(all ? shownRows : shownRows.slice(0, LIMIT));
+  // SL3: by month, the newest year first, older years on a tap; a filter shows every month open
+  // an entry without a date counts to the newest year
+  const yearOf = (r) => String(r.date ?? '').slice(0, 4) || '9999';
+  const months = $derived(byMonthOf(shownRows.filter((r) => yearOf(r) >= upTo || filter !== 'all'), (r) => r.date));
+  const years = $derived([...new Set(shownRows.map(yearOf))].filter((y) => y !== '9999').map((key) => ({ key, n: shownRows.filter((r) => yearOf(r) === key).length })));
+  let upTo = $state('');
+  $effect(() => {
+    if (!upTo && years.length) upTo = years[0].key;
+  });
+  const nextYear = $derived(filter === 'all' ? years.find((y) => y.key < upTo) ?? null : null);
+  const yearJumps = $derived(years.map((y) => ({ id: y.key, label: y.key, n: y.n })));
+  let opened = $state({});
+  let wide = $state({});
+  const isOpen = (m, i) => opened[m.key] ?? (filter !== 'all' || i === 0);
+  const monthName = (key) => (key ? new Date(`${key}-15T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : t('Without a date'));
+  // the km a month adds: what counts (left out and open rides do not)
+  const monthKm = (list) => Math.round(list.filter((r) => r.state !== 'removed' && r.state !== 'open').reduce((s, r) => s + (Number(r.km) || 0), 0));
+  function jumpYear(y) {
+    if (y < upTo) upTo = y;
+    const first = shownRows.find((r) => yearOf(r) === y);
+    if (!first) return;
+    const key = String(first.date).slice(0, 7);
+    opened = { ...opened, [key]: true };
+    requestAnimationFrame(() => document.getElementById(`km-${bike.id}-${key}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  }
 
   /* ---------- what was just done, with Undo ---------- */
   let notice = $state(null);
@@ -155,7 +179,7 @@
     </div>
     <div class="filt" role="group" aria-label={t('Show entries')}>
       {#each FILTERS as f (f)}
-        <button type="button" class="fchip f-{f}" aria-pressed={filter === f} onclick={() => ((filter = f), (all = false))}>
+        <button type="button" class="fchip f-{f}" aria-pressed={filter === f} onclick={() => (filter = f)}>
           {f === 'all' ? t('All|entries') : f === 'open' ? `${t('unclear')} ${n.open.length}` : `${t('Corrections')} ${n.corrections}`}
         </button>
       {/each}
@@ -175,63 +199,33 @@
 
   {#if rows.length}
     <div class="cols" aria-hidden="true"><span>{t('Date')}</span><span>{t('Ride · unit · profile')}</span><span class="r">km</span><span>{t('Source · how sure')}</span><span class="r">{t('Bike km after')}</span><span></span></div>
-    <ul class="rows">
-      {#each visible as r (r.id)}
-        <li class="row" class:open={r.state === 'open'} class:gone={r.state === 'removed'}>
-          <span class="d num">{dateOf(r.date)}</span>
-          <span class="w">
-            <b>{entryTitle(r)}</b>
-            {#if entryDetail(r)}<small>{entryDetail(r)}</small>{/if}
-            {#if heartOf([r])}<small><HeartLine heart={heartOf([r])} size={12} /></small>{/if}
-            {#if r.state === 'open'}
-              <small class="why">{t('Counts only after you confirm it.')} {reasonText(r.reason, nameOf)}</small>
-              <span class="pick" role="group" aria-label={t('Which bike?')}>
-                {#each offers(r) as id (id)}<button type="button" class="btn sm" onclick={() => confirm(r, id)}>{nameOf(id)}</button>{/each}
-                <button type="button" class="btn sm" aria-expanded={otherFor === r.id} onclick={() => (otherFor = otherFor === r.id ? null : r.id)}>{t('other …')}</button>
-                {#if otherFor === r.id}
-                  <select class="sel mini" aria-label={t('Bike')} onchange={(e) => e.currentTarget.value && confirm(r, e.currentTarget.value)}>
-                    <option value="">{t('Choose a bike')}</option>
-                    {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-                  </select>
-                {/if}
-              </span>
-            {:else if r.state === 'removed'}
-              <small class="why">{t('Left out: does not count.')}</small>
-            {/if}
-          </span>
-          <span class="k num" class:neg={r.km < 0}>{r.kind === 'correction' || r.kind === 'reading' ? `${r.km > 0 ? '+' : ''}${num(r.km)}` : num(r.km)} km</span>
-          <span class="s"><KmChips source={r.source} kind={r.kind} sure={r.kind === 'ride' ? r.sure : null} /></span>
-          <span class="a num">{r.after != null ? `${num(Math.round(r.after))} km` : '–'}</span>
-          <span class="m">
-            <button type="button" class="more" aria-expanded={editing === r.id} aria-label={t('Change or leave out: {what}', { what: entryTitle(r) })} onclick={() => edit(r)}><MoreHorizontal size={18} aria-hidden="true" /></button>
-          </span>
-          {#if editing === r.id}
-            <div class="ed">
-              <label><span class="lbl">{t('Bike')}</span>
-                <select class="sel" bind:value={eBike}>
-                  <option value="">{t('no bike yet (unclear)')}</option>
-                  {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-                </select>
-              </label>
-              <label><span class="lbl">km</span><input class="inp num" type="text" inputmode="decimal" bind:value={eKm} /></label>
-              <label><span class="lbl">{t('Date')}</span><DateInput bind:value={eDate} /></label>
-              <label class="wide"><span class="lbl">{r.kind === 'correction' ? t('Reason') : t('Name|ride')}</span><input class="inp" type="text" bind:value={eName} /></label>
-              <div class="fb">
-                <button type="button" class="btn ink sm" onclick={() => saveEdit(r)}>{t('Save')}</button>
-                {#if r.state === 'removed'}
-                  <button type="button" class="btn sm" onclick={() => takeBack(r)}>{t('Take back')}</button>
-                  <button type="button" class="btn sm" onclick={() => remove(r)}>{t('Remove for good')}</button>
-                {:else}
-                  <button type="button" class="btn sm" onclick={() => leaveOut(r)}>{t('Leave out')}</button>
-                {/if}
-              </div>
-            </div>
+    <!-- SL3 (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): the rides by month with their km, the
+         newest month open, five rows and «Show n more»; older years come on a tap; a jump bar by year -->
+    {#if years.length > 1}<div class="kjump"><ListNav groups={yearJumps} active={null} onjump={jumpYear} /></div>{/if}
+    {#each months as m, mi (m.key)}
+      {@const open = isOpen(m, mi)}
+      {@const mrows = open ? (wide[m.key] || filter !== 'all' ? m.entries : shownList(m.entries)) : []}
+      <div class="mg" class:open data-group={m.key} id="km-{bike.id}-{m.key}">
+        <button type="button" class="mh" aria-expanded={open} onclick={() => (opened = { ...opened, [m.key]: !open })}>
+          {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+          <b>{monthName(m.key)}</b>
+          <span class="mn num">{tn(m.entries.length, '{n} entry', '{n} entries')}</span>
+          <span class="mk num">{num(monthKm(m.entries))} km</span>
+        </button>
+        {#if open}
+          <ul class="rows">
+            {#each mrows as r (r.id)}
+              {@render entryRow(r)}
+            {/each}
+          </ul>
+          {#if mrows.length < m.entries.length}
+            <button type="button" class="kmore" onclick={() => (wide = { ...wide, [m.key]: true })}><ChevronDown size={16} aria-hidden="true" />{t('Show {n} more|list', { n: m.entries.length - mrows.length })}</button>
           {/if}
-        </li>
-      {/each}
-    </ul>
-    {#if shownRows.length > LIMIT}
-      <button type="button" class="btn sm allbtn" onclick={() => (all = !all)}>{all ? t('Show fewer') : t('Show all {n}', { n: shownRows.length })}</button>
+        {/if}
+      </div>
+    {/each}
+    {#if nextYear}
+      <button type="button" class="kmore kyear" onclick={() => (upTo = nextYear.key)}><ChevronDown size={16} aria-hidden="true" />{t('Load {year} · {n}', { year: nextYear.key, n: tn(nextYear.n, '{n} entry', '{n} entries') })}</button>
     {/if}
     <p class="hint">{t('Tap ⋯ on a row to change it or leave it out. A left-out ride stays visible as an entry until you remove it.')}</p>
   {:else}
@@ -242,6 +236,60 @@
 {#if notice}
   {#key notice.id}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undo}>{t('Undo')}</button>{/if}</p>{/key}
 {/if}
+
+{#snippet entryRow(r)}
+    <li class="row" class:open={r.state === 'open'} class:gone={r.state === 'removed'}>
+      <span class="d num">{dateOf(r.date)}</span>
+      <span class="w">
+        <b>{entryTitle(r)}</b>
+        {#if entryDetail(r)}<small>{entryDetail(r)}</small>{/if}
+        {#if heartOf([r])}<small><HeartLine heart={heartOf([r])} size={12} /></small>{/if}
+        {#if r.state === 'open'}
+          <small class="why">{t('Counts only after you confirm it.')} {reasonText(r.reason, nameOf)}</small>
+          <span class="pick" role="group" aria-label={t('Which bike?')}>
+            {#each offers(r) as id (id)}<button type="button" class="btn sm" onclick={() => confirm(r, id)}>{nameOf(id)}</button>{/each}
+            <button type="button" class="btn sm" aria-expanded={otherFor === r.id} onclick={() => (otherFor = otherFor === r.id ? null : r.id)}>{t('other …')}</button>
+            {#if otherFor === r.id}
+              <select class="sel mini" aria-label={t('Bike')} onchange={(e) => e.currentTarget.value && confirm(r, e.currentTarget.value)}>
+                <option value="">{t('Choose a bike')}</option>
+                {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+              </select>
+            {/if}
+          </span>
+        {:else if r.state === 'removed'}
+          <small class="why">{t('Left out: does not count.')}</small>
+        {/if}
+      </span>
+      <span class="k num" class:neg={r.km < 0}>{r.kind === 'correction' || r.kind === 'reading' ? `${r.km > 0 ? '+' : ''}${num(r.km)}` : num(r.km)} km</span>
+      <span class="s"><KmChips source={r.source} kind={r.kind} sure={r.kind === 'ride' ? r.sure : null} /></span>
+      <span class="a num">{r.after != null ? `${num(Math.round(r.after))} km` : '–'}</span>
+      <span class="m">
+        <button type="button" class="more" aria-expanded={editing === r.id} aria-label={t('Change or leave out: {what}', { what: entryTitle(r) })} onclick={() => edit(r)}><MoreHorizontal size={18} aria-hidden="true" /></button>
+      </span>
+      {#if editing === r.id}
+        <div class="ed">
+          <label><span class="lbl">{t('Bike')}</span>
+            <select class="sel" bind:value={eBike}>
+              <option value="">{t('no bike yet (unclear)')}</option>
+              {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+            </select>
+          </label>
+          <label><span class="lbl">km</span><input class="inp num" type="text" inputmode="decimal" bind:value={eKm} /></label>
+          <label><span class="lbl">{t('Date')}</span><DateInput bind:value={eDate} /></label>
+          <label class="wide"><span class="lbl">{r.kind === 'correction' ? t('Reason') : t('Name|ride')}</span><input class="inp" type="text" bind:value={eName} /></label>
+          <div class="fb">
+            <button type="button" class="btn ink sm" onclick={() => saveEdit(r)}>{t('Save')}</button>
+            {#if r.state === 'removed'}
+              <button type="button" class="btn sm" onclick={() => takeBack(r)}>{t('Take back')}</button>
+              <button type="button" class="btn sm" onclick={() => remove(r)}>{t('Remove for good')}</button>
+            {:else}
+              <button type="button" class="btn sm" onclick={() => leaveOut(r)}>{t('Leave out')}</button>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    </li>
+{/snippet}
 
 <style>
   .kmbook {
@@ -481,9 +529,76 @@
   .ed .fb {
     grid-column: 1 / -1;
   }
-  .allbtn {
-    margin-top: 8px;
+  /* SL3: a month is one line (name, entries, km); open it shows its rows */
+  .kjump {
+    margin: 4px 0 10px;
+  }
+  .mg {
+    scroll-margin-top: var(--ls-top, 72px);
+    border-bottom: 1px solid var(--line);
+  }
+  .mh {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    padding: 8px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mh:focus-visible {
+    outline: var(--focus-ring);
+  }
+  .mh > :global(svg) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .mh b {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+  }
+  .mn {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .mk {
+    min-width: 72px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-align: right;
+  }
+  .mg.open .rows {
+    border-top: 1px solid var(--line);
+  }
+  .mg .row:last-child {
+    border-bottom: 0;
+  }
+  .kmore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
     min-height: 44px;
+    margin: 6px 0 10px;
+    border: 1px dashed var(--line);
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-body) var(--font-body);
+    cursor: pointer;
+  }
+  .kmore:focus-visible {
+    outline: var(--focus-ring);
+  }
+  .kyear {
+    margin-top: 12px;
   }
   .hint {
     margin: 10px 0 0;

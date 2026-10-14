@@ -11,4 +11,6 @@ export default {
   'Yesterday, {d}': 'Gestern, {d}',
   'No update found for «{q}».': 'Kein Update für «{q}» gefunden.',
   'That is all: {n} updates on {d} days.': 'Das ist alles: {n} Updates an {d} Tagen.',
+  'Load {year} · {n}': '{year} laden · {n}',
+  'Without a date': 'Ohne Datum',
 };
