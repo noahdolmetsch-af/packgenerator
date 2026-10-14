@@ -45,6 +45,7 @@
   import Pay from './pages/Pay.svelte';
   import Reminders from './pages/Reminders.svelte';
   import Merken from './pages/Merken.svelte';
+  import ListPage from './pages/ListPage.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -293,6 +294,8 @@
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
+  {#if page !== 'share' && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
   {#key switchN}
   {#if page === 'gear'}
@@ -375,6 +378,9 @@
   {:else if page === 'calendar'}
     <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
     <Merken />
+  {:else if page === 'list'}
+    <!-- Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list in Kalender › Merken -->
+    {#key hash}<ListPage id={hash.split('/')[3] ?? ''} />{/key}
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -401,7 +407,6 @@
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
-{#if page !== 'share'}<RemindCard />{/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}

@@ -1,7 +1,7 @@
 <script>
   /**
    * Erinnerungen überall (mockups ER1 + ER2, Noah «1a 2a 3a 4a 5b er1-er3 freigabe» 14.10.2026): the card
-   * «Soll ich dich in Zukunft erinnern?» right under what was just saved (1a). The time comes from the
+   * «Soll ich dich in Zukunft erinnern?» on top of the next page, in the page so it never covers a button (1a). The time comes from the
    * history (3a); «Nein danke» asks again after 30 days (2a), «Nie fragen» never. Everything is a
    * suggestion: each chip can be deselected, and Ich › Erinnerungen changes or switches it off later.
    */
@@ -129,21 +129,16 @@
 
 <style>
   .rmc {
-    position: fixed;
-    left: 50%;
-    bottom: 88px;
-    z-index: 31;
-    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: min(520px, calc(100vw - 32px));
+    max-width: 720px;
+    margin: 0 0 16px;
     padding: 14px 16px;
     border: 1.5px solid var(--accent);
     border-radius: 16px;
     background: var(--paper);
     color: var(--ink);
-    box-shadow: 0 10px 30px var(--shadow);
   }
   .q {
     display: flex;
@@ -256,16 +251,6 @@
   .solo {
     flex-direction: row;
     flex-wrap: wrap;
-    width: auto;
-    max-width: calc(100vw - 32px);
     padding: 6px 14px;
-    white-space: nowrap;
-  }
-  @media (max-width: 719px) {
-    .rmc {
-      bottom: calc(146px + env(safe-area-inset-bottom));
-      max-height: calc(100vh - 220px);
-      overflow-y: auto;
-    }
   }
 </style>

@@ -4,6 +4,7 @@
    * Only «What?» is needed; date, reminder and repeat are suggestions, each one tap. A reminder is the
    * same window with «Remind» already chosen (reminder = true). Saving offers Undo (ondone(result)).
    * ER3 (Ich › Erinnerungen): with todo set, the window changes that to-do or reminder.
+   * PL2 (Noah «2a»): «Auch in Google-Kalender» saves a calendar file with an alarm (remind.js remindIcs).
    */
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
@@ -16,6 +17,9 @@
   import { addDays } from '../merken.js';
   import { addTodo, updateTodo, removeTodo } from '../merkendb.js';
   import { t } from '../i18n.svelte.js';
+  import { remindIcs } from '../remind.js';
+  import { icsCalendar } from '../flowmed.js';
+  import { CalendarPlus } from '@lucide/svelte';
 
   let { text: start = '', reminder = false, todo = null, onclose, ondone } = $props();
 
@@ -33,6 +37,7 @@
   let repeat = $state(from?.repeat?.every === 'rain' ? 'no' : (from?.repeat?.every ?? 'no')); // no · day · week · month · km
   let km = $state(from?.repeat?.km ?? 300);
   let bikeId = $state(from?.repeat?.bikeId ?? '');
+  let google = $state(false);
   let error = $state('');
   let dialog;
   let input;
@@ -59,6 +64,17 @@
     ondone?.({ undo, removed: true });
   }
 
+  /** The calendar file of this one reminder (2a: free, no Google account in the app). */
+  function download(todo) {
+    const url = URL.createObjectURL(new Blob([remindIcs([todo], icsCalendar)], { type: 'text/calendar' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'erinnerung.ics';
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   async function save(e) {
     e?.preventDefault();
     if (!text.trim()) {
@@ -74,7 +90,8 @@
     if (from?.repeat?.every === 'rain' && repeat === 'no') fields.repeat = from.repeat; // «after rain» stays
     if (from?.repeat?.every === 'month' && repeat === 'month') fields.repeat = from.repeat; // keeps «every 6 months»
     if (from?.repeat?.every === 'km' && repeat === 'km' && fields.repeat && fields.repeat.bikeId === from.repeat.bikeId) fields.repeat.fromKm = from.repeat.fromKm;
-    const r = from ? { undo: await updateTodo(db, from.id, fields) } : await addTodo(db, fields);
+    const r = from ? { undo: await updateTodo(db, from.id, fields), todo: { ...from, ...fields } } : await addTodo(db, fields);
+    if (google && fields.remind && r?.todo) download(r.todo);
     dialog.close();
     ondone?.(r);
   }
@@ -111,7 +128,8 @@
           <button type="button" class="chip" aria-pressed={remind === 'time'} onclick={() => (remind = 'time')}>{t('Time …')}</button>
           {#if remind === 'time' || remind === 'before'}<input class="inp time" type="time" bind:value={time} aria-label={t('Time')} />{/if}
         </div>
-        <p class="hint">{t('It then shows at the top of Today.')}</p>
+        <p class="hint">{t('It then shows in Calendar › Remember.')}</p>
+        {#if remind !== 'no'}<button type="button" class="chip gcal" aria-pressed={google} onclick={() => (google = !google)}><CalendarPlus size={16} aria-hidden="true" />{t('Also in Google Calendar (file with alarm)')}</button>{/if}
       </fieldset>
     {/if}
 
@@ -223,6 +241,10 @@
   }
   .time {
     width: 120px;
+  }
+  .gcal {
+    gap: 6px;
+    margin-top: 8px;
   }
   .hint {
     margin: 6px 0 0;
