@@ -98,7 +98,7 @@ export default {
   'no data|light': 'keine Daten',
   '+ log km': '+ km nachtragen',
   '{n} due soon': '{n} bald fällig',
-  'base weight': 'Grundgewicht',
+  'base weight': 'Basisgewicht',
   'km per month, last 12 months': 'km pro Monat, letzte 12 Monate',
   Series: 'Serie',
   '{n} week in a row': '{n} Woche in Folge',

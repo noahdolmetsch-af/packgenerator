@@ -473,7 +473,7 @@ export default {
   'A trip shows up here the day after it ends, or as soon as you end it on the ride day.': 'Eine Tour erscheint hier am Tag nach ihrem Ende oder sobald du sie am Fahrtag beendest.',
   'Open Pack': 'Packen öffnen',
   'Edit trip': 'Tour bearbeiten',
-  'Base': 'Grundgewicht',
+  'Base': 'Basisgewicht',
   'Gear in the bags and on the bike, without what you wear and without food and water': 'Material in den Taschen und am Velo, ohne was du trägst und ohne Verpflegung und Wasser',
   'On you': 'Am Körper',
   'What you wear, without food in the pockets': 'Was du trägst, ohne Verpflegung in den Trikottaschen',
