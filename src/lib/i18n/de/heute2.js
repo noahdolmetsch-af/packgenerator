@@ -24,7 +24,7 @@ export default {
   '{n} more trips to your {at}th': 'Noch {n} Touren bis zur {at}.',
   'Your first ride or trip starts the count.': 'Deine erste Fahrt oder Tour startet die Zählung.',
   'No trip around this day last year.': 'Letztes Jahr um diese Zeit keine Tour.',
-  'Monday to Sunday: what you did each day, rides and Im Flow.': 'Montag bis Sonntag: was du an jedem Tag gemacht hast, Fahrten und Im Flow.',
+  'Monday to Sunday: what you did each day, rides and Im Flow.': 'Montag bis Sonntag: was du an jedem Tag gemacht hast, Fahrten und Aktiv.',
   'The km of this month, against last month.': 'Die km dieses Monats, verglichen mit dem letzten Monat.',
   'How far to the next 1000 km of a bike, or the next number of trips.': 'Wie weit bis zu den nächsten 1000 km eines Velos oder zur nächsten Anzahl Touren.',
   'The trip of this time last year, with a line from its debrief.': 'Die Tour von dieser Zeit letztes Jahr, mit einer Zeile aus ihrem Rückblick.',

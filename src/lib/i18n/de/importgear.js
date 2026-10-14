@@ -2,11 +2,11 @@
 export default {
   // The page (pages/GearImport.svelte)
   'Check import': 'Import prüfen',
-  'More for Gear': 'Mehr zur Ausrüstung',
+  'More for Gear': 'Mehr zum Material',
   'No import is waiting. Choose a gear list (a JSON file of the kind "gear-import"); nothing goes into your gear before you check it here.':
-    'Es wartet kein Import. Wähle eine Ausrüstungsliste (eine JSON-Datei der Art «gear-import»); nichts kommt in deine Ausrüstung, bevor du es hier geprüft hast.',
+    'Es wartet kein Import. Wähle eine Materialliste (eine JSON-Datei der Art «gear-import»); nichts kommt in dein Material, bevor du es hier geprüft hast.',
   'Choose file': 'Datei wählen',
-  'Gear list': 'Ausrüstungsliste',
+  'Gear list': 'Materialliste',
   'chosen {when}': 'gewählt {when}',
   'nothing applied yet': 'noch nichts übernommen',
   // v0.45.0 (coordinator fixes)
@@ -27,7 +27,7 @@ export default {
   'Learnings: {add} new, {upd} completed. They keep their original date.': 'Erkenntnisse: {add} neu, {upd} ergänzt. Sie behalten ihr ursprüngliches Datum.',
   Unsure: 'Unsicher',
   '{a} of {b} decided': '{a} von {b} entschieden',
-  'Maybe already in your gear. Tap the item it is, or "New item".': 'Vielleicht schon in deiner Ausrüstung. Tippe auf das Teil, das es ist, oder auf «Neues Teil».',
+  'Maybe already in your gear. Tap the item it is, or "New item".': 'Vielleicht schon in deinem Material. Tippe auf das Teil, das es ist, oder auf «Neues Teil».',
   'two lines point to the same item': 'zwei Zeilen zeigen auf dasselbe Teil',
   'is twice in the file': 'steht zweimal in der Datei',
   'What is {name}?': 'Was ist {name}?',
@@ -38,19 +38,19 @@ export default {
   '{n} lines without a name are skipped.': '{n} Zeilen ohne Namen werden übersprungen.',
   'Not in the import': 'Nicht im Import',
   'In your gear, but not in the list. Archived items move to Gear → Gone; past trips stay complete. Nothing is deleted.':
-    'In deiner Ausrüstung, aber nicht in der Liste. Archivierte Teile kommen zu Ausrüstung → Weg; vergangene Touren bleiben vollständig. Nichts wird gelöscht.',
+    'In deinem Material, aber nicht in der Liste. Archivierte Teile kommen zu Material → Weg; vergangene Touren bleiben vollständig. Nichts wird gelöscht.',
   Archive: 'Archivieren',
   'Archive selected': 'Auswahl archivieren',
   'Archive {name}': '{name} archivieren',
   'Archive {n} item': '{n} Teil archivieren',
   'Archive {n} items': '{n} Teile archivieren',
-  '{n} item archived (Gear → Gone).': '{n} Teil archiviert (Ausrüstung → Weg).',
-  '{n} items archived (Gear → Gone).': '{n} Teile archiviert (Ausrüstung → Weg).',
+  '{n} item archived (Gear → Gone).': '{n} Teil archiviert (Material → Weg).',
+  '{n} items archived (Gear → Gone).': '{n} Teile archiviert (Material → Weg).',
   'Discard import': 'Import verwerfen',
-  'Discard this import? Nothing in your gear changes.': 'Diesen Import verwerfen? In deiner Ausrüstung ändert sich nichts.',
+  'Discard this import? Nothing in your gear changes.': 'Diesen Import verwerfen? In deinem Material ändert sich nichts.',
   'Import applied {when}.': 'Import übernommen {when}.',
   '{enriched} completed, {added} new, {learn} learnings. A backup was made first.': '{enriched} ergänzt, {added} neu, {learn} Erkenntnisse. Vorher wurde eine Sicherung angelegt.',
-  'To the gear': 'Zur Ausrüstung',
+  'To the gear': 'Zum Material',
   'Keep, forget the backup': 'Behalten, Sicherung vergessen',
   'Changes made after the import are undone too. Undo anyway?': 'Auch Änderungen nach dem Import werden zurückgenommen. Trotzdem rückgängig machen?',
   'Undone: everything is as before the import. The list waits here again.': 'Rückgängig gemacht: alles ist wie vor dem Import. Die Liste wartet wieder hier.',
@@ -64,15 +64,15 @@ export default {
   Rule: 'Regel',
 
   // The file (gearimport.js validateGearImport)
-  'This is not a gear import file.': 'Das ist keine Ausrüstungsliste zum Importieren.',
+  'This is not a gear import file.': 'Das ist keine Materialliste zum Importieren.',
   'The file has no version.': 'Die Datei hat keine Version.',
   'The learnings in the file are not a list.': 'Die Erkenntnisse in der Datei sind keine Liste.',
 
   // Your data (DataPanel)
   'a gear list with {items} items and {learnings} learnings. Nothing is changed yet: check it first.':
-    'eine Ausrüstungsliste mit {items} Teilen und {learnings} Erkenntnisse. Noch ist nichts geändert: prüfe sie zuerst.',
+    'eine Materialliste mit {items} Teilen und {learnings} Erkenntnisse. Noch ist nichts geändert: prüfe sie zuerst.',
   Later: 'Später',
-  'The list waits under Gear → ••• → Check import.': 'Die Liste wartet unter Ausrüstung → ••• → Import prüfen.',
+  'The list waits under Gear → ••• → Check import.': 'Die Liste wartet unter Material → ••• → Import prüfen.',
 
   // The new areas (domains.js)
   Cycling: 'Velo',
@@ -84,7 +84,7 @@ export default {
 
   // What is new (whatsnew.js, 0.36.0)
   '"Check import": your reviewed gear list waits on its own page; nothing goes into Gear before you check it.':
-    '«Import prüfen»: deine geprüfte Ausrüstungsliste wartet auf einer eigenen Seite; nichts kommt in die Ausrüstung, bevor du sie prüfst.',
+    '«Import prüfen»: deine geprüfte Materialliste wartet auf einer eigenen Seite; nichts kommt ins Material, bevor du sie prüfst.',
   'One button takes the safe ones; unsure items are decided with one tap. A backup comes first, "Undo" puts it back.':
     'Ein Knopf übernimmt die sicheren Teile; unsichere entscheidest du mit einem Tipp. Vorher wird gesichert, «Rückgängig» stellt alles wieder her.',
   'Items the list does not name can be archived: they move to Gone, past trips stay complete.':

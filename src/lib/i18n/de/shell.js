@@ -1,7 +1,7 @@
 /** Navigation, start page, New, search, Inbox, your data. */
 export default {
   Home: 'Start',
-  Gear: 'Ausrüstung',
+  Gear: 'Material',
   Pack: 'Packen',
   Bikes: 'Velos',
   Debrief: 'Rückblick',
@@ -42,7 +42,7 @@ export default {
   'Leave at home': 'Zu Hause lassen',
   'Quick note': 'Notiz',
   'Quick notes': 'Notizen',
-  'Gear item': 'Ausrüstungsteil',
+  'Gear item': 'Materialteil',
   'not weighed': 'nicht gewogen',
   '{n} item': '{n} Teil',
   '{n} items': '{n} Teile',
@@ -84,7 +84,7 @@ export default {
   'Your data lives only in this browser: one file keeps it safe (every {n} days).':
     'Deine Daten sind nur in diesem Browser: eine Datei sichert sie (alle {n} Tage).',
   'Download backup': 'Backup herunterladen',
-  '{w} gear': '{w} Ausrüstung',
+  '{w} gear': '{w} Material',
   'On the way': 'Unterwegs',
   'to go': 'bis Start',
   '{n} day to go': 'noch {n} Tag',
@@ -271,7 +271,7 @@ export default {
   'Open Pack Generator': 'Pack Generator öffnen',
 
   /* ---------- your data (DataPanel, backup.js, demo.js) ---------- */
-  'Gear + wishlist': 'Ausrüstung + Wunschliste',
+  'Gear + wishlist': 'Material + Wunschliste',
   Kits: 'Kits',
   Debriefs: 'Rückblicke',
   Events: 'Ereignisse',
@@ -300,7 +300,7 @@ export default {
     'Eine Demo läuft: Backups sind aus, bis du sie beendest (gelber Balken oben).',
   'Apply favourites': 'Favoriten übernehmen',
   '{stars} items in your gear get a ★, {adds} new items are added, and a template with all favourites is saved.':
-    '{stars} Teile deiner Ausrüstung bekommen einen ★, {adds} neue Teile kommen dazu, und eine Vorlage mit allen Favoriten wird gespeichert.',
+    '{stars} Teile deines Materials bekommen einen ★, {adds} neue Teile kommen dazu, und eine Vorlage mit allen Favoriten wird gespeichert.',
   'Weights, bags and everything else you typed in stay as they are. Nothing is deleted.':
     'Gewichte, Taschen und alles andere, was du eingegeben hast, bleiben, wie sie sind. Nichts wird gelöscht.',
   'End the running demo first, else the stars would vanish with it.':
@@ -313,8 +313,8 @@ export default {
   'End the running demo first.': 'Beende zuerst die laufende Demo.',
   // v0.44.1 (AP22): one or many for each count ("1 Tour", not "1 Touren").
   'contains {items}, {trips} and {learnings}.': 'enthält {items}, {trips} und {learnings}.',
-  '{n} gear item': '{n} Ausrüstungsteil',
-  '{n} gear items': '{n} Ausrüstungsteile',
+  '{n} gear item': '{n} Materialteil',
+  '{n} gear items': '{n} Materialteile',
   'Replace all data': 'Alle Daten ersetzen',
   Merge: 'Zusammenführen',
   'Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.':
@@ -385,7 +385,7 @@ export default {
   // v0.46.1: the empty search sheet on a phone
   'Type two letters or more, or say what you want to do: "weigh", "day ride".': 'Tippe zwei Buchstaben oder mehr, oder sag, was du tun willst: «wiegen», «Tagestour».',
   'Search everything': 'Alles durchsuchen',
-  'Find gear, trips, bikes, notes': 'Ausrüstung, Touren, Velos, Notizen finden',
+  'Find gear, trips, bikes, notes': 'Material, Touren, Velos, Notizen finden',
   'Search results': 'Suchergebnisse',
   '{n} more': '{n} weitere',
   'Nothing found for "{q}".': 'Nichts gefunden für «{q}».',
