@@ -512,6 +512,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 14.10.2026 (v0.131.1):** «Abhaken wieder abwählbar» (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Häkchen auf Heute lassen sich wieder abwählen, «Rückgängig» wirkt, Pendeln lässt sich zurücknehmen.
 **Nachtrag 13.10.2026 (v0.124.0, Branch):** «Neue Tour Teil 2» nach den Mockups B4/B5 (Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★): Bausteine als grosse Knöpfe in Packen, «Reparatur unterwegs» mit höchstens 8 Teilen, schlanke Reparatur wieder Standard bei neuen Touren. Offen: «Neues Teil direkt beim Packen» (NP1, Mockup wartet auf Freigabe). Ziel 1 «Schneller packen».
 
 **Nachtrag 13.10.2026 (v0.123.0):** «Trophäen-Vitrine» (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC): alle Sterne an einem Ort nach Bereich und Jahr, Link «Alle Trophäen ansehen» im Regal. Strava-, Fitbit- und Tages-Check-Sterne folgen mit Bündel B und D. Ziel «Eine App, die mich im Alltag unterstützt».
