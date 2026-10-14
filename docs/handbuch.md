@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 90 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 95 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -180,6 +180,17 @@ Grosse Knöpfe in Packen: Ein Tipp nimmt einen ganzen Baustein dazu oder weg; Re
 2. Tippe einen grossen Baustein-Knopf: der ganze Baustein kommt rein oder raus.
 
 **Beispiel:** Tipp auf «Reparatur» → höchstens 8 Teile: Schlauch, Heber, Minitool.
+
+### Tour-Zustände
+
+Jede Tour zeigt ihren Zustand: Geplant, Abgeschlossen oder Bewertet, unter Touren, im Tour-Kopf und auf Heute.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren: Unter dem Titel steht «n geplant · n abgeschlossen · n bewertet».
+2. Tippe einen Chip wie «Abgeschlossen»: Nur diese Touren bleiben.
+
+**Beispiel:** Eine Tour nach ihrem letzten Tag zeigt «Abgeschlossen», bis du sie bewertest.
 
 ### Was ziehe ich an?
 
@@ -661,6 +672,39 @@ Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt
 
 **Beispiel:** Die Samstagsfahrt auf Strava → ihre 64 km landen von selbst beim richtigen Velo.
 
+### Velo-Setup und Race-Rigs
+
+Deine Setup-Fotos, das Gesamtgewicht, deine Race-Rig-Links und Rennen, und dein Velo im Vergleich.
+
+**Aufschalten:** Braucht zuerst ein Velo unter Velos.
+
+1. Öffne Velos › Setup und wähle das Velo.
+2. Füge Fotos hinzu, prüfe das Gesamtgewicht, füge Race-Rig-Links mit eigenen Stichworten hinzu.
+
+**Beispiel:** Link zu einem Race-Rig mit Stichworten «Rahmentasche, 2 Flaschen» → eine Karte mit gezeichnetem Bild.
+
+### Taschen-Plan
+
+Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.
+
+**Aufschalten:** Braucht eine Packliste mit Taschen (Packen).
+
+1. Öffne Velos › Setup › «Ganzer Taschen-Plan».
+2. Sieh das Gewicht vorne, Mitte und hinten; tippe bei einem Hinweis auf «Verschieben».
+
+**Beispiel:** Hinweis «Hinten ist schwer» → den Kocher in die Rahmentasche verschieben.
+
+### Setup-Logbuch
+
+Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.
+
+**Aufschalten:** Braucht zuerst ein Velo unter Velos.
+
+1. Öffne Velos › Setup › Logbuch und trage ein, was du geändert hast.
+2. Notiere nach der nächsten Tour, wie es sich angefühlt hat.
+
+**Beispiel:** «Neue Reifen 45 mm» am 3. Mai → 420 km seither, «ruhiger auf Schotter».
+
 ### Problem am Velo
 
 Ein Problem pro Zeile mit Priorität und Frist; die App sortiert, wer es behebt.
@@ -827,6 +871,17 @@ Rollende Fenster: täglich, 7, 10 oder 30 Tage, mit Saison.
 2. Setz ein Ziel pro Tag oder für 7, 10 oder 30 Tage, auf Wunsch mit Saison.
 
 **Beispiel:** «3-mal Kraft in 7 Tagen», nur von Oktober bis März.
+
+### Jahresziele und Fussabdruck
+
+Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂, das deine Fahrten gespart haben.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.
+2. Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.
+
+**Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
 ### Meilensteine
 

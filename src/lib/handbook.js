@@ -76,6 +76,11 @@ export const HANDBOOK = {
     steps: ['Open the trip in Pack.', 'Tap a big block button: the whole block goes in or out.'],
     example: 'Example: tap «Repair» → at most 8 parts for the ride: tube, levers, mini tool.',
   },
+  'f.tripstate': {
+    on: null,
+    steps: ['Open Trips: under the title «n planned · n completed · n rated».', 'Tap a chip like «Completed»: only those trips show.'],
+    example: 'Example: a trip after its last day shows «Completed» until you rate it.',
+  },
   'f.wear': {
     on: 'Works best with clothes under Gear › Clothes and a home place.',
     steps: ['On Today, tap «What do I wear?».', 'See the clothes for the coldest hour of the ride.'],
@@ -291,6 +296,21 @@ export const HANDBOOK = {
     steps: ['Tap «Connect Strava» and allow access.', 'Match each Strava bike to a bike in the app.'],
     example: 'Example: Saturday’s ride on Strava → its 64 km land on the right bike by themselves.',
   },
+  'f.velosetup': {
+    on: 'Needs a bike under Bikes first.',
+    steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],
+    example: 'Example: link to a race rig with key words «frame bag, 2 bottles» → a card with a drawn picture.',
+  },
+  'f.bagplan': {
+    on: 'Needs a packing list with bags (Pack).',
+    steps: ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear; tap «Move» on a hint.'],
+    example: 'Example: hint «Rear is heavy» → move the stove to the frame bag.',
+  },
+  'f.setuplog': {
+    on: 'Needs a bike under Bikes first.',
+    steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
+    example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
+  },
   'f.problem': {
     on: 'Needs a bike first: Bikes › «Add bike».',
     steps: ['Tap «New» › «Problem with a bike».', 'One problem per row, with priority and deadline.'],
@@ -365,6 +385,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Active › Goals.', 'Set a goal per day or for 7, 10 or 30 days, with a season if you like.'],
     example: 'Example: «3 times strength in 7 days», only from October to March.',
+  },
+  'f.yeargoals': {
+    on: null,
+    steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
+    example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',

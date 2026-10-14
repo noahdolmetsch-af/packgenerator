@@ -9,6 +9,8 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
+  import Empty from '../ui/Empty.svelte';
+  import { wantBike } from '../nav.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { bikePhotos, shrinkImage } from '../photo.js';
   import { localDay } from '../localday.js';
@@ -106,7 +108,7 @@
 </script>
 
 {#if !bikes.length && $bikesQ}
-  <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
+  <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
 {:else if bike && view === 'log'}
