@@ -1,4 +1,5 @@
 /**
+import './charts.css';
  * TR7c/TR7g: the analyses shown, live for every page; hide (with Rückgängig), move, switch, reset.
  * The rules are analyses.js.
  */
