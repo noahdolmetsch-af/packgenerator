@@ -4,6 +4,7 @@
  * One setting for all activities. Pure rules; the live state is analyses.svelte.js.
  *
  * Stored in db.settings under ANA_KEY: { hidden: [key], order: { act: [key], week: [key], weight: [key] } }.
+ * head: the card's own heading where it is longer than the name in «Analysen anpassen».
  * A key the app does not know (any more) is dropped; a new one shows, at the end of its group.
  */
 export const ANA_KEY = 'training.analyses';
@@ -14,7 +15,7 @@ export const ANALYSES = {
     { key: 'more', title: 'More from the power', sub: 'W/kg, kJ, IF, VI' },
     { key: 'pzbars', title: 'Power zones as bars', sub: 'Minutes' },
     { key: 'cadence', title: 'Cadence spread', sub: 'Bars' },
-    { key: 'climbs', title: 'Climbs', sub: 'VAM per climb' },
+    { key: 'climbs', head: 'Climbs of this ride', title: 'Climbs', sub: 'VAM per climb' },
     { key: 'sections', title: 'Sections|ana', sub: 'Table per 5 km' },
     { key: 'timeline', title: 'Course', sub: 'Elevation, heart rate and power' },
     { key: 'grid', title: 'Heart rate by power', sub: 'Grid in minutes' },
@@ -23,10 +24,10 @@ export const ANALYSES = {
     { key: 'best', title: 'Best values', sub: 'Table' },
   ],
   week: [
-    { key: 'form', title: 'Fitness, fatigue, form', sub: 'Lines' },
+    { key: 'form', head: 'Fitness, fatigue and form', title: 'Fitness, fatigue, form', sub: 'Lines' },
     { key: 'wload', title: 'Load per week', sub: 'Bars' },
-    { key: 'pcurve', title: 'Power curve 90 days / year', sub: 'Lines' },
-    { key: 'eff', title: 'Efficiency', sub: 'Watts per heartbeat' },
+    { key: 'pcurve', head: 'Power curve: 90 days against the year', title: 'Power curve 90 days / year', sub: 'Lines' },
+    { key: 'eff', head: 'Efficiency: watts per heartbeat', title: 'Efficiency', sub: 'Watts per heartbeat' },
     { key: 'month', title: 'Month against month', sub: 'Bars' },
     { key: 'year', title: 'Year against year', sub: 'Bars' },
   ],

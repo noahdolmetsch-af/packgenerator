@@ -12,7 +12,7 @@
 
   let { key, sub = '', groups = null, wide = false, children } = $props();
   const a = $derived(anaOf(key));
-  const title = $derived(t(a?.title ?? key));
+  const title = $derived(t(a?.head ?? a?.title ?? key));
   const shown = $derived(keysOf(ana, groupOf(key)));
   const actions = $derived([
     { name: t('Hide|ana'), icon: EyeOff, run: () => hideAna(key) },
