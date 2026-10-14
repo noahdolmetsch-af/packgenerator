@@ -79,4 +79,10 @@ export default {
   'From your inspiration:': 'Aus deiner Inspiration:',
   'Hide this hint': 'Diesen Hinweis ausblenden',
   'Your note on «{title}», taken over on the Inspiration page.': 'Deine Notiz zu «{title}», übernommen auf der Seite Inspiration.',
+  // v0.133.3 «Was die App kann» (features.js f.inspiration, howto.js)
+  'Your own links to rigs, routes, videos and races; the kind comes from the address, a note becomes a packing rule.':
+    'Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Adresse, aus einer Notiz wird eine Packregel.',
+  'Open Inspiration: on a computer in the sidebar, on the phone under Me.': 'Öffne Inspiration: am Computer in der Seitenleiste, am Handy unter Ich.',
+  'Paste a link: the app recognises the kind from the address.': 'Füge einen Link ein: Die App erkennt die Art an der Adresse.',
+  'Tap «What I take from it»: packing rule, wishlist or note.': 'Tippe auf «Das übernehme ich»: Packregel, Wunschliste oder Notiz.',
 };

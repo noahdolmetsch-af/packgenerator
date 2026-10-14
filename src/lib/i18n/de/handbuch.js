@@ -341,4 +341,9 @@ export default {
   'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
   'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
   'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
+  // v0.133.3 «Inspiration»
+  'Open Inspiration (computer: sidebar; phone: Me › Inspiration) and paste your link.': 'Öffne Inspiration (Computer: Seitenleiste; Handy: Ich › Inspiration) und füge deinen Link ein.',
+  'Tap «What I take from it»: a packing rule, a wishlist item or a note.': 'Tippe auf «Das übernehme ich»: eine Packregel, ein Teil auf der Wunschliste oder eine Notiz.',
+  'A race gives a calendar file (.ics), a route a trip draft.': 'Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.',
+  'Example: a rig video with the note «spare brake pads» → a quiet hint while packing your next trip.': 'Beispiel: ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.',
 };

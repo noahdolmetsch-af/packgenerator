@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4)
+  'Collect inspiration': 'Inspiration sammeln',
+  'Your own links to rigs, routes, videos and races in one place, and what you take from them goes into the app.': 'Deine eigenen Links zu Rigs, Routen, Videos und Rennen an einem Ort, und was du daraus übernimmst, kommt in die App.',
+  'Your own links: the app recognises the kind from the address, it loads nothing': 'Eigene Links: Die App erkennt die Art an der Adresse und lädt nichts',
+  'A note becomes a packing rule: a quiet hint while packing': 'Aus einer Notiz wird eine Packregel: ein ruhiger Hinweis beim Packen',
+  'A race becomes a calendar file (.ics), a route a trip draft, a product a wishlist item': 'Ein Rennen wird eine Kalenderdatei (.ics), eine Route ein Tourentwurf, ein Produkt ein Teil auf der Wunschliste',
+  'On a computer Inspiration sits in the sidebar, on the phone under Me': 'Am Computer steht Inspiration in der Seitenleiste, am Handy unter Ich',
+  'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.': 'Öffne Inspiration (Handy: Ich › Inspiration) und füge einen Link ein, z. B. ein Rig von bikepacking.com: «Erkannt: Rig» erscheint.',
+  'On a card tap «What I take from it», write a short rule and choose «Packing rule».': 'Tippe auf einer Karte auf «Das übernehme ich», schreib eine kurze Regel und wähle «Packregel».',
+  'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.': 'Öffne Packen für eine geplante Tour: Unter «Aus früheren Touren» steht deine Regel als ruhiger Hinweis.',
+
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

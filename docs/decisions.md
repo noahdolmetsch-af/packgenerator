@@ -1304,9 +1304,9 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
 
-## 14.10.2026: Inspiration (UC2-1, UC2-2, UC2-4) gebaut lokal 14.10.
+## 14.10.2026: Inspiration sammeln (UC2-1, UC2-2, UC2-4), 0.133.3 (Arbeitsnummer)
 
-- **Freigabe:** Mockups UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» (13.10.2026), Noah «3b» + «a» (nur eigene Links, keine Liste der App), 4a (Packregel, Wunschliste oder Notiz), 5a (Hinweis beim Packen). Lokal gebaut, noch kein PR (GitHub pausiert); Version, «Was ist neu» und Funktionskatalog kommen mit dem Release.
+- **Freigabe:** Mockups UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» (13.10.2026), Noah «3b» + «a» (nur eigene Links, keine Liste der App), 4a (Packregel, Wunschliste oder Notiz), 5a (Hinweis beim Packen). Lokal gebaut, noch kein PR (GitHub pausiert); Version, «Was ist neu» und Funktionskatalog sind ergänzt (0.133.3).
 - **Seite `#/inspiration`:** am Computer ein Eintrag unter den fünf Orten (mit «neu», bis er einmal offen war), am Handy Ich › Inspiration (Daten, unter Notizen), nicht in der unteren Leiste; Suche findet sie (`menu.js`).
 - **Art aus der Adresse (`inspiration.js` detectType):** Video, Hör-Tipp, Route, Rig, Packliste, Rennen, Produkt, Anleitung; erkennt die App nichts, wählst du die Art. Nichts wird geladen, kein fremder Text, kein Foto; Titel nur als Vorschlag aus der Adresse, Zahlen und Stichworte sind deine eigenen.
 - **Speicher ohne neue Tabelle und ohne Datenbank-Version:** Rigs und Rennen bleiben in `settings.rigLinks` (gleiche Liste wie Velos › Setup, nie doppelt), alle anderen Arten in `settings.inspoLinks`. Wechselt die Art, zieht der Link um. Beide sind im Backup (Test in `tests/inspiration.test.js`).
@@ -1317,4 +1317,5 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
   - Vorschau «So sieht es beim Packen aus» zeigt den echten Hinweis über angedeuteten Zeilen statt einer erfundenen Packliste.
   - Hör-Tipp: der Schalter «Im Bereit-Check vor der Fahrt zeigen» aus dem Mockup ist nicht gebaut (braucht den Bereit-Check, eigenes Paket); ein Hör-Tipp hat «Das übernehme ich» mit → Packregel und → Notiz. Typ «Anleitung» hat einen eigenen Filter-Chip «Anleitungen».
   - Velos › Setup behält beim Ändern eines Rig-Links, was Inspiration ergänzt hat (Notiz, Zahlen, Übernahmen).
-  - Kein Funktionskatalog-Eintrag (`features.js`/Handbuch) in diesem Stand: der Katalog verlangt eine «seit»-Version aus «Was ist neu»; das Release ergänzt `f.inspiration` mit Handbuch.
+  - Funktionskatalog: `f.inspiration` in der Gruppe «Vor der Tour», seit 0.133.3, drei Schritte (`howto.js`) und Handbuch-Eintrag; `docs/handbuch.md` neu erzeugt (bringt auch die fehlenden Einträge «Tour aus komoot» und «Wi gaht's?» mit).
+  - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.
