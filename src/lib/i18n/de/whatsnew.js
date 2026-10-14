@@ -4,6 +4,21 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.157.0 Fitbit verbinden
+  'Your watch talks to the app ⌚': 'Deine Uhr spricht mit der App ⌚',
+  'Sleep, resting heart rate, HRV, steps and active zone minutes come from Fitbit into the app every day by themselves.': 'Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten kommen jeden Tag von selbst von Fitbit in die App.',
+  'Connect Fitbit once with Google; the app only reads and fetches what is new when it opens': 'Fitbit einmal mit Google verbinden; die App liest nur und holt beim Öffnen, was neu ist',
+  '«Data and backup» shows how current each value is, with «Fetch now», «Choose values» and «Disconnect»': '«Daten und Backup» zeigt, wie aktuell jeder Wert ist, mit «Jetzt holen», «Werte wählen» und «Trennen»',
+  'The past since 2020 comes once from your Fitbit file: Import backup › Merge': 'Die Vergangenheit seit 2020 kommt einmal aus deiner Fitbit-Datei: Backup importieren › Zusammenführen',
+  'Open Me › Data and backup › Fitbit and tap «Connect with Google».': 'Öffne Ich › Daten und Backup › Fitbit und tippe «Mit Google verbinden».',
+  'Back in the app: «Health data» shows sleep, resting heart rate, steps and active zone minutes with the time fetched.': 'Zurück in der App: «Gesundheitsdaten» zeigt Schlaf, Ruhepuls, Schritte und Aktivzonen-Minuten mit der Zeit, wann geholt.',
+  // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
+  'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',
+  'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.': 'Eine Tour für heute hakt «Velo draussen» nicht mehr ab, bevor du gefahren bist.',
+  '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again': 'Eine Velotour hakt «Velo draussen» erst ab, wenn die Tour beendet ist; ein Tipp hakt wieder ab und wählt wieder ab',
+  'Hiking, ski tours and other trips without a bike no longer count as a bike trip': 'Wandern, Skitouren und andere Touren ohne Velo zählen nicht mehr als Velotour',
+  'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.': 'Plane eine Velotour für heute und öffne Aktiv: «Velo draussen» ist nicht abgehakt.',
+  'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.': 'Tippe auf «Velo draussen»: Es ist abgehakt. Tippe nochmals: Es ist abgewählt.',
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

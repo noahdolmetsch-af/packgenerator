@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.157.0 «Fitbit verbinden» (mockups G1–G2, Noah 13.10.2026 17:03 «g1-g2 freigeben»; his wish 14.10.2026 «ich möchte fitbit anbindung sofort»)
+    version: '0.157.0',
+    date: '2026-10-14',
+    title: 'Your watch talks to the app ⌚',
+    lead: 'Sleep, resting heart rate, HRV, steps and active zone minutes come from Fitbit into the app every day by themselves.',
+    points: [
+      { text: 'Connect Fitbit once with Google; the app only reads and fetches what is new when it opens', href: '#/me/fitbit' },
+      { text: '«Data and backup» shows how current each value is, with «Fetch now», «Choose values» and «Disconnect»', href: '#/me/data' },
+    ],
+    small: [
+      { box: 'new', text: 'The past since 2020 comes once from your Fitbit file: Import backup › Merge' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Connect with Google».',
+      'Back in the app: «Health data» shows sleep, resting heart rate, steps and active zone minutes with the time fetched.',
+    ],
+  },
+  {
+    // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.132.2',
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',
