@@ -16,6 +16,42 @@
 
 export const WHATS_NEW = [
   {
+    // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
+    // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
+    // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),
+    // Kleine Apps + Handbuch (#157)
+    version: '0.132.0',
+    date: '2026-10-14',
+    title: 'Lots of new things at once',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
+    points: [
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+    ],
+    small: [
+      { box: 'new', text: 'A search that finds similar words and small typos, and small apps for meditation, packing list and bike care with their own icon' },
+      { box: 'new', text: 'Every trip shows its state, a year goal for km, metres climbed and minutes, a workshop visit saved on the bike', href: '#/trips' },
+      { box: 'nicer', text: 'A backup before every update, high contrast outdoors, speaking instead of typing and an error never shows a white page', href: '#/me/data' },
+    ],
+    test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
+      'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
+      'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
+      'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
+      'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
+      'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.',
+    ],
+  },
+  {
     // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
     version: '0.131.3',
     date: '2026-10-14',

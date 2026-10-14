@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { importAndSettle } from './settle.js';
+import { importAndSettle, closeDialog } from './settle.js';
 
 const T = (en) => DE[en] ?? en;
 const fixture = fileURLToPath(new URL('./fixture.json', import.meta.url));
@@ -58,23 +58,37 @@ test('Bikes › Workshop: the visit dialog offers the camera for the receipt', a
   expect(errors).toEqual([]);
 });
 
-test('New › Workshop visit: the note opens with the camera for the receipt', async ({ page, context }, info) => {
+test('New › Workshop visit: the visit opens with the camera for the receipt; a receipt note and its filing too', async ({ page, context }, info) => {
   await load(page, context);
   await page.goto('./#/');
-  await page.keyboard.press('n');
-  await page
-    .getByRole('dialog', { name: T('New') })
-    .getByRole('button', { name: new RegExp(T('Workshop visit')) })
-    .click();
+  const phone = info.project.name === 'phone';
+  const pickNew = async (name) => {
+    await page.keyboard.press('n');
+    await page
+      .getByRole('dialog', { name: T('New') })
+      .getByRole('button', { name: T(name) })
+      .click();
+  };
+  // since 0.125.0 A-J1 «Workshop visit» in New opens the real visit (not a note), with the camera
+  await pickNew('Workshop visit');
+  const visit = page.getByRole('dialog', { name: T('Log a workshop visit') });
+  await expect(visit).toBeVisible();
+  if (phone) {
+    await expect(visit.locator('label', { hasText: T('Photograph the receipt') }).locator('input')).toHaveAttribute('capture', 'environment');
+    await expect(visit.getByText(T('Gallery'))).toBeVisible();
+  } else await expect(visit.getByText(T('Choose photo'))).toBeVisible();
+  await shot(page, `K3-neu-werkstattbesuch-${phone ? 390 : 1440}`);
+  await closeDialog(page);
+  // a receipt note (New › Note + photo, «Werkstatt-Quittung: …»): the camera says «Beleg fotografieren»
+  await pickNew('Note + photo');
   const dlg = page.getByRole('dialog', { name: T('Note + photo') });
   await expect(dlg).toBeVisible();
-  if (info.project.name === 'phone') {
+  await dlg.getByRole('textbox', { name: T('Note') }).fill(`${T('Workshop receipt: ')}test_data_gtp_ Service`);
+  if (phone) {
     await expect(dlg.locator('label', { hasText: T('Photograph the receipt') }).locator('input')).toHaveAttribute('capture', 'environment');
     await expect(dlg.getByText(T('Gallery'))).toBeVisible();
   } else await expect(dlg.getByText(T('Choose photo'))).toBeVisible();
-  await shot(page, `K3-neu-werkstattbesuch-${info.project.name === 'phone' ? 390 : 1440}`);
   // saved without a photo: filing it as a receipt in the Inbox offers the camera again
-  await dlg.getByRole('textbox', { name: T('Note') }).fill(`${T('Workshop receipt: ')}test_data_gtp_ Service`);
   await dlg.getByRole('button', { name: T('Save'), exact: true }).click();
   await expect(dlg).toBeHidden();
   await page.goto('./#/inbox');
@@ -88,7 +102,6 @@ test('New › Workshop visit: the note opens with the camera for the receipt', a
   await file.getByRole('button', { name: bike.name }).click();
   const shop = file.getByPlaceholder(T('Name of the shop'));
   if (await shop.isVisible()) await shop.fill('test_data_gtp_ Velo');
-  const phone = info.project.name === 'phone';
   await file
     .locator('label', {
       hasText: T(phone ? 'Photograph the receipt' : 'Choose photo'),

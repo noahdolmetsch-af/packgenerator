@@ -6,6 +6,7 @@
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { visitTotal } from '../workshop.js';
@@ -91,7 +92,7 @@
       <section class="ssec" aria-labelledby="visits-h">
         <h2 id="visits-h" class="sh">{t('Visits and receipts')}</h2>
         {#if !visits.length}
-          <p class="quiet">{t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')}</p>
+          <Empty icon={ReceiptText} text={t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')} />
         {:else}
           <ul class="card srows">
             {#each months as m (m.key)}

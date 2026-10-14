@@ -12,12 +12,21 @@
    * on the side the «Wetter-Fenster» (the next 7 days at home, the best days framed) and the best values
    * as a list with «Alle» for the period and the averages. The four steps and the template tiles are gone
    * from here (the steps are on every trip, the templates have their own tab).
+   * v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three trip
+   * states (tripstate.js): Geplant, Abgeschlossen, Bewertet. Filter chips «Alle · Geplant · Abgeschlossen ·
+   * Bewertet» with their numbers, the state pill on every tile (ui/TripState.svelte, icon + word + extra),
+   * the tile's map in the state's colour, and the legend «Drei Zustände» (on the side; on a phone folded
+   * under the chips). Rules of TZ-2 (the list fixed, «Wieder öffnen», «Bist du gefahren?») come later.
    */
   import { liveQuery } from 'dexie';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import { tripsOverview, GROUPS } from '../lib/tripsoverview.js';
+  import { STATE_NAMES, STATE_HELP, stateExtra } from '../lib/tripstate.js';
+  import { stateExtraText } from '../lib/tripstatetext.js';
+  import TripState from '../lib/ui/TripState.svelte';
   import { routeOf, routePath, bestValues, PERIODS, hmm } from '../lib/tripsboard.js';
-  import { overviewCounts, weatherWindow, daysTo } from '../lib/touren.js';
+  import { overviewCounts, weatherWindow } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { switchTrip, openNew } from '../lib/nav.js';
@@ -25,10 +34,11 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import Continue from '../lib/home/Continue.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import PlaceIcon from '../lib/nav/PlaceIcon.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Plus, ChevronRight, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin } from '@lucide/svelte';
+  import { Plus, ChevronRight, Route, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin, Pencil, Flag, Star } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -37,9 +47,14 @@
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
-  const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today) : null);
-  const counts = $derived(overviewCounts(view));
   const rides = $derived($ridesQ ?? []);
+  const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
+  const counts = $derived(overviewCounts(view));
+  // v0.125.0 TZ-1: the filter chips (all, or one state); kept while the page is open
+  let filter = $state('all');
+  const GICON = { plan: Pencil, done: Flag, rated: Star };
+  const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
+  const extraOf = (r) => stateExtraText(stateExtra(r.tstate, { trip: byId[r.tripId], debrief: debriefOf[r.tripId] ?? null, today }));
   const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const routes = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, routeOf(x, rides)])));
 
@@ -96,54 +111,56 @@
   };
   const tripDays = (id) => Math.max(1, Number(byId[id]?.days) || 1);
   const line = (r, km = false) => [day(r.date), tn(tripDays(r.tripId), '{n} day', '{n} days'), r.bike, km && typeof r.km === 'number' ? `${num(r.km)} km` : ''].filter(Boolean).join(' · ');
-  const when = (iso) => {
-    const n = daysTo(iso, today);
-    if (n == null || n < 0) return '';
-    return n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days');
-  };
-  const sign = (g, r) => (g === 'debrief' ? t('Debrief open') : g === 'soon' || g === 'planning' ? when(r.date) : '');
   const go = (r) => switchTrip(r.tripId, r.go.href);
   const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
-  // the debrief and the ended-early groups stand side by side on a computer, as in the mockup
-  const pair = $derived(!!view && view.debrief.length > 0 && view.replan.length > 0);
+  const total = (k) => (k === 'plan' ? view.plan.length : k === 'done' ? view.doneTotal : view.ratedTotal);
+  const ALL = { done: ['All {n} completed trips', 'All {n} completed trips'], rated: ['All {n} rated trips', 'All {n} rated trips'] };
 </script>
 
-{#snippet map(g, r)}
+{#snippet map(r)}
   {@const rt = routes[r.tripId]}
   {@const p = rt ? routePath(rt.line, 260, 96) : null}
-  {@const s = sign(g, r)}
-  <div class="map" class:warm={g === 'debrief'} class:none={!p}>
+  <div class="map st-{r.tstate.state}" class:none={!p}>
     {#if p}
       <svg viewBox="0 0 260 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="rt" d={p.d} /><circle class="end" cx={p.end[0]} cy={p.end[1]} r="4.5" /></svg>
     {:else}
       <span class="nomap" aria-hidden="true"><PlaceIcon place="trips" size={24} /></span>
     {/if}
-    {#if s}<span class="sign">{s}</span>{/if}
+    <span class="sign"><TripState state={r.tstate.state} extra={extraOf(r)} /></span>
   </div>
 {/snippet}
 
+{#snippet legend()}
+  <ul class="lg">
+    {#each GROUPS as g (g.key)}
+      <li><TripState state={g.key} /><span>{t(STATE_HELP[g.key])}</span></li>
+    {/each}
+  </ul>
+{/snippet}
+
 {#snippet group(g)}
-  <section class="grp" aria-labelledby="trips-{g.key}">
-    <h2 class="gh" id="trips-{g.key}"><span>{t(g.name)}</span><span class="n num">{g.key === 'ridden' ? view.riddenTotal : view[g.key].length}</span></h2>
-    <ul class="tiles" class:one={pair && (g.key === 'debrief' || g.key === 'replan')}>
+  {@const Icon = GICON[g.key]}
+  <section class="grp" aria-labelledby="trips-{g.key}" data-group={g.key}>
+    <h2 class="gh st-{g.key}" id="trips-{g.key}"><Icon size={15} fill={g.key === 'rated' ? 'currentColor' : 'none'} aria-hidden="true" /><span>{t(STATE_NAMES[g.key])}</span><span class="n num">{total(g.key)}</span></h2>
+    <ul class="tiles">
       {#each view[g.key] as r (r.id)}
-        {#if g.key === 'ridden'}
-          <li class="tile">
+        {#if r.kind === 'past'}
+          <li class="tile" data-trip={r.tripId}>
             <a class="whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">
-              {@render map(g.key, r)}
+              {@render map(r)}
               <span class="body"><span class="tt">{r.title}</span><span class="s">{line(r, true)}</span></span>
             </a>
           </li>
         {:else}
-          {@const p = g.key === 'soon' || g.key === 'planning' ? pct(r.state) : null}
-          <li class="tile">
-            {@render map(g.key, r)}
+          {@const p = r.kind === 'trip' || r.kind === 'ride' ? pct(r.state) : null}
+          <li class="tile" data-trip={r.tripId}>
+            {@render map(r)}
             <div class="body">
               <h3 class="tt">{r.title}</h3>
-              <p class="s">{g.key === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
+              <p class="s">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
               {#if p != null}<span class="bar" role="img" aria-label={t('{done} of {n} packed', { done: r.state.done ?? 0, n: r.state.total })}><i style:width="{p}%"></i></span>
-              {:else if g.key !== 'replan' && g.key !== 'debrief'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
-              {#if g.key === 'replan'}
+              {:else if r.kind === 'trip' || r.kind === 'ride'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
+              {#if r.kind === 'replan'}
                 <button type="button" class="btn go" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</button>
               {:else}
                 <a class="btn go" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</a>
@@ -152,39 +169,53 @@
           </li>
         {/if}
       {/each}
-      {#if g.key === 'planning'}
+      {#if g.key === 'plan'}
         <li class="tile add"><button type="button" class="addb" onclick={() => openNew('list')}><Plus size={22} aria-hidden="true" /><b>{t('New trip')}</b><small>{t('or from a template')}</small></button></li>
       {/if}
     </ul>
-    {#if g.key === 'ridden' && view.riddenTotal > view.ridden.length}<a class="all" href="#/pack/past">{t('All {n} ridden trips', { n: view.riddenTotal })}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+    {#if ALL[g.key] && total(g.key) > view[g.key].length}<a class="all" href="#/pack/past">{tn(total(g.key), ...ALL[g.key])}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
   </section>
 {/snippet}
 
 <div class="trips">
   <header class="ph">
     <h1 class="title">{t('Trips|place')}</h1>
-    {#if counts}<p class="cnt num">{[tn(counts.planning, '{n} in planning', '{n} in planning'), tn(counts.debrief, '{n} debrief open', '{n} debriefs open'), tn(counts.ridden, '{n} ridden', '{n} ridden')].join(' · ')}</p>{/if}
+    {#if counts}<p class="cnt num">{[tn(counts.plan, '{n} planned', '{n} planned'), tn(counts.done, '{n} completed', '{n} completed'), tn(counts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
   </header>
   {#if view}
     {#if view.empty}
-      <div class="card empty">
-        <p>{t('No trips yet. A trip is the packing list for one ride or journey.')}</p>
-        <button type="button" class="btn hi" onclick={() => openNew('list')} data-explain={t('Create the first trip')}><Plus size={18} aria-hidden="true" />{t('Create a trip|first')}</button>
-        <p class="quiet">{t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></p>
-      </div>
+      <!-- v0.127.0 A-U2: the one empty building block -->
+      <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
+        {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
+      </Empty>
     {:else}
-      <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {today} hour={new Date().getHours()} banner />
+      <div class="fchips" role="group" aria-label={t('Show trips')}>
+        <button type="button" class="fc all-c" aria-pressed={filter === 'all'} onclick={() => (filter = 'all')}>{t('All|trips')}<span class="num">{counts.all}</span></button>
+        {#each GROUPS as g (g.key)}
+          {@const Icon = GICON[g.key]}
+          <button type="button" class="fc st-{g.key}" aria-pressed={filter === g.key} onclick={() => (filter = filter === g.key ? 'all' : g.key)}><Icon size={14} fill={g.key === 'rated' ? 'currentColor' : 'none'} aria-hidden="true" />{t(STATE_NAMES[g.key])}<span class="num">{counts[g.key]}</span></button>
+        {/each}
+      </div>
+      <details class="lgfold">
+        <summary>{t('What do the three states mean?')}</summary>
+        {@render legend()}
+      </details>
+      <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {rides} {today} hour={new Date().getHours()} banner />
       <div class="cols">
         <div class="groups">
-          {#each GROUPS.filter((g) => !(pair && g.key === 'replan')) as g (g.key)}
-            {#if pair && g.key === 'debrief'}
-              <div class="pair">{@render group(g)}{@render group(GROUPS.find((x) => x.key === 'replan'))}</div>
-            {:else if view[g.key].length || g.key === 'planning'}
+          {#each GROUPS.filter((g) => filter === 'all' || filter === g.key) as g (g.key)}
+            {#if view[g.key].length || g.key === 'plan'}
               {@render group(g)}
             {/if}
           {/each}
         </div>
         <aside class="side-col">
+          <section class="sbox lgbox" aria-labelledby="lg-h">
+            <div class="card">
+              <h2 class="bh" id="lg-h">{t('Three states')}</h2>
+              {@render legend()}
+            </div>
+          </section>
           <section class="sbox" aria-labelledby="wx-h">
             <h2 class="bh" id="wx-h">{t('Weather window')}</h2>
             <p class="bs">{t('best days for a trip · Open-Meteo')}</p>
@@ -253,6 +284,9 @@
         </aside>
       </div>
     {/if}
+  {:else}
+    <!-- v0.127.0 A-U2: a calm placeholder while the trips load -->
+    <Skeleton rows={4} />
   {/if}
 </div>
 
@@ -291,11 +325,6 @@
   .grp {
     min-width: 0;
   }
-  .pair {
-    display: grid;
-    gap: var(--sp-5);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
-  }
   .gh {
     display: flex;
     align-items: center;
@@ -313,6 +342,116 @@
     font: 600 var(--fs-tiny) / 1.6 var(--font-body);
     letter-spacing: 0;
   }
+  .gh :global(svg) {
+    flex: none;
+  }
+  .gh.st-plan {
+    color: var(--st-plan);
+  }
+  .gh.st-done {
+    color: var(--st-done);
+  }
+  .gh.st-rated {
+    color: var(--st-rated);
+  }
+  /* v0.125.0 TZ-1: the filter chips «Alle · Geplant · Abgeschlossen · Bewertet» */
+  .fchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 0 0 var(--sp-3);
+  }
+  .fc {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.2 var(--font-body);
+    cursor: pointer;
+  }
+  .fc .num {
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+  .fc.st-plan {
+    border-color: color-mix(in srgb, var(--st-plan-line) 45%, transparent);
+    background: var(--st-plan-soft);
+    color: var(--st-plan);
+  }
+  .fc.st-done {
+    border-color: color-mix(in srgb, var(--st-done-line) 45%, transparent);
+    background: var(--st-done-soft);
+    color: var(--st-done);
+  }
+  .fc.st-rated {
+    border-color: color-mix(in srgb, var(--st-rated-line) 45%, transparent);
+    background: var(--st-rated-soft);
+    color: var(--st-rated);
+  }
+  .fc[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .fc[aria-pressed='true'] .num {
+    color: var(--paper);
+  }
+  .fc:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  /* the legend: on the side of a computer, folded under the chips on a phone */
+  .lg {
+    display: grid;
+    margin: var(--sp-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lg li {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-1);
+    padding: var(--sp-2) 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+    font: 400 var(--fs-small) / 1.4 var(--font-body);
+  }
+  .lg li:first-child {
+    border-top: 0;
+  }
+  .lgfold {
+    margin: 0 0 var(--sp-3);
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .lgfold summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
+  }
+  .lgfold[open] {
+    padding-bottom: var(--sp-2);
+  }
+  @media (min-width: 1100px) {
+    .lgfold {
+      display: none;
+    }
+  }
+  @media (max-width: 1099px) {
+    .lgbox {
+      display: none;
+    }
+  }
   .tiles {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -320,9 +459,6 @@
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .tiles.one {
-    grid-template-columns: minmax(0, 1fr);
   }
   @media (max-width: 719px) {
     .tiles {
@@ -351,10 +487,23 @@
     display: grid;
     place-items: center;
     height: 74px;
-    background: var(--hi-soft);
+    /* the state pill sits at the top: the route or the icon below it */
+    padding-top: 22px;
+    box-sizing: border-box;
+    background: var(--paper-2);
   }
-  .map.warm {
-    background: var(--warn-soft);
+  /* v0.125.0 TZ-1: the map in the colour of the trip's state, the route in its line colour */
+  .map.st-plan {
+    --st-l: var(--st-plan-line);
+    background: var(--st-plan-soft);
+  }
+  .map.st-done {
+    --st-l: var(--st-done-line);
+    background: var(--st-done-soft);
+  }
+  .map.st-rated {
+    --st-l: var(--st-rated-line);
+    background: var(--st-rated-soft);
   }
   .map svg {
     width: 100%;
@@ -362,7 +511,7 @@
   }
   .rt {
     fill: none;
-    stroke: var(--hi);
+    stroke: var(--st-l, var(--hi));
     stroke-width: 3;
     stroke-linejoin: round;
     stroke-linecap: round;
@@ -379,11 +528,9 @@
     position: absolute;
     top: var(--sp-2);
     left: var(--sp-2);
-    padding: 2px var(--sp-2);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 600 var(--fs-tiny) / 1.4 var(--font-body);
+    right: var(--sp-2);
+    display: flex;
+    min-width: 0;
   }
   .body {
     display: flex;
@@ -636,15 +783,5 @@
     margin: 0;
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.4 var(--font-body);
-  }
-  .empty {
-    display: grid;
-    gap: 10px;
-    justify-items: start;
-    margin-top: 12px;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
   }
 </style>

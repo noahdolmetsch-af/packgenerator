@@ -4,8 +4,8 @@
    * version as people read it: the version badge and the day, its own title, one sentence, the main
    * points as rows with a picture and › (each leads to its place) and the small things in their boxes
    * (New, Nicer, Fixed, Faster), one short line each, also leading to their place when they have one.
-   * Used by the window after an update (know/NewsSheet.svelte, `card` off: the rows on a soft panel) and
-   * by Ich › Was ist neu (pages/WasNeu.svelte, `card` on: a white card).
+   * Used by Ich › Was ist neu (pages/WasNeu.svelte, `card` on: a white card; off: the rows on a soft panel).
+   * The window after an update (know/NewsSheet.svelte) is a banner on Today since v0.127.0 A-U1.
    *
    *   <VersionNews e={entry} card level={3} onnav={(p, ev) => …}>{#snippet extra()}buttons{/snippet}</VersionNews>
    *

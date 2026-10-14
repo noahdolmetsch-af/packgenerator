@@ -47,6 +47,7 @@
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
   import { Wrench, Package, ChevronRight, BatteryCharging, Undo2 } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -785,7 +786,11 @@
 </script>
 
 {#if !trips.length && $tripsQ}
-  <h1 class="title big">{t('Pack')}</h1><p>{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button class="btn hi" onclick={() => dialog = { trip: null }}>{t('Create a trip')}</button></p>
+  <h1 class="title big">{t('Pack')}</h1>
+  <!-- v0.127.0 A-U2: the one empty building block -->
+  <Empty icon={Package} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => (dialog = { trip: null }) }}>
+    {t('Or import your data on the')} <a href="#/">{t('start page')}</a>.
+  </Empty>
 <!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
      moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
 {:else if trip && stats && $itemsQ}

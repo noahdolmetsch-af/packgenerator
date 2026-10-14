@@ -12,6 +12,7 @@
    * Rarely needed things (weight in detail, before the trip, ballast, weather suggestions) fold into rows with ›.
    */
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import DecisionReview from './DecisionReview.svelte';
   import WornCard from './WornCard.svelte';
   import SwapSheet from './SwapSheet.svelte';
@@ -290,10 +291,9 @@
         {#if checking}{#key checking}<ListCheck {trip} {items} onadd={actions.helperAdd} onremove={actions.remove} onsearch={(name) => { q = name; show('add'); }} onclose={() => (checking = 0)} />{/key}{/if}
         <!-- L9: a trip made without any gear lands here: say so kindly and lead to adding the first item. -->
         {#if !trip.entries.length}
-          <section class="tp-card empty-list" aria-labelledby="empty-list-h">
-            <h3 id="empty-list-h">{t('Your packing list is still empty.')}</h3>
-            <p class="tp-muted tp-small">{items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')}</p>
-            <button type="button" class="btn" onclick={() => show('add')}><Plus size={18} aria-hidden="true" />{t('Add gear')}</button>
+          <!-- v0.127.0 A-U2: the one empty building block -->
+          <section class="empty-list" aria-labelledby="empty-list-h">
+            <Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} />
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
@@ -455,8 +455,6 @@
   /* v0.40.0 (Noah 6a): open work shows as the badge's small dot, not an orange frame. */
   .wxcard .fold-btn { margin: 10px 0 2px; border-radius: 8px; min-height: 48px; padding: 4px 12px; }
   .empty-list { margin: 0 0 10px; }
-  .empty-list h3 { margin: 0 0 4px; font-size: 17px; }
-  .empty-list p { margin: 0 0 12px; }
   .ask-sheet { max-width: 520px; }
   .ask-sheet > header { margin-bottom: 12px; }
   .ask-sheet > p { margin: 0; overflow-wrap: break-word; }

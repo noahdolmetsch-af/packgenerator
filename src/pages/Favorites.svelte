@@ -8,6 +8,8 @@
   import { favoritesByDomain } from '../lib/domains.js';
   import { formatWeight, itemWeight, CATEGORY } from '../lib/gear.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import Empty from '../lib/ui/Empty.svelte';
+  import { Star } from '@lucide/svelte';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const groups = $derived(favoritesByDomain($itemsQ ?? []));
@@ -46,7 +48,8 @@
         </ul>
       </section>
     {:else}
-      <p class="card">{t('No favourites yet. In Gear tap the ☆ in front of an item.')}</p>
+      <!-- v0.127.0 A-U2: the one empty building block -->
+      <Empty icon={Star} title={t('No favourites yet')} text={t('No favourites yet. In Gear tap the ☆ in front of an item.')} action={{ label: t('Open Gear'), href: '#/gear' }} />
     {/each}
   {/if}
 </div>

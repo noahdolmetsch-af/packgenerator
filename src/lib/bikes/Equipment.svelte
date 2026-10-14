@@ -9,6 +9,7 @@
    * A tap on a part opens a small sheet for name, weight and price. «Compare bikes» is one tap away.
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash, bikeTypeName } from '../bikes.js';
   import { equipmentGroups, equipmentTotals, setPartBasics } from '../equipment.js';
@@ -17,7 +18,8 @@
   import { t, num } from '../i18n.svelte.js';
   import FitCard from './FitCard.svelte';
   import Seg from '../ui/Seg.svelte';
-  import { Columns3, ChevronRight, ChevronDown, PencilLine } from '@lucide/svelte';
+  import { Columns3, ChevronRight, ChevronDown, PencilLine, Bike as BikeIcon } from '@lucide/svelte';
+  import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
 
   let { bikeId = null, onbike } = $props();
@@ -69,7 +71,8 @@
 <div class="eq">
   {#if !bikes.length && $bikesQ}
     <h1 class="title">{t('Equipment|tab')}</h1>
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
          «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->

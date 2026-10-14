@@ -8,6 +8,7 @@
    * the last 13 weeks; the records count every session.
    */
   import { Lightbulb } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
@@ -110,7 +111,7 @@
               {/each}
             </ul>
           {:else}
-            <p class="card pad none">{t('Nothing noted yet. After a session, «How was it?» asks what helped.')}</p>
+            <Empty icon={Lightbulb} text={t('Nothing noted yet. After a session, «How was it?» asks what helped.')} />
           {/if}
         </Sec>
         <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Only observation, no rating. The calendar and every session are in the log.')}</span></p>

@@ -14,7 +14,7 @@ const dayOf = (x) => (typeof x === 'string' && /^\d{4}-\d{2}-\d{2}/.test(x) ? x.
  * the weeks after today are null. → { km, pct, weeks: [km | null] }
  */
 export function monthWeeks(rides = [], today) {
-  const { km, pct } = monthKm(rides, today);
+  const { km, pct, hm } = monthKm(rides, today);
   const m = today.slice(0, 7);
   const dd = Number(today.slice(8, 10));
   const weeks = [0, 1, 2, 3].map((w) => {
@@ -32,7 +32,7 @@ export function monthWeeks(rides = [], today) {
         .reduce((s, r) => s + (Number(r.km) || 0), 0),
     );
   });
-  return { km, pct, weeks };
+  return { km, pct, weeks, hm };
 }
 
 /**
