@@ -73,7 +73,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
-**14.10.2026, v0.135.0 «Rechnungen ohne Gebühren»:** QR-Rechnung mit TWINT, Rechnungsliste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot lesen und «Zu zahlen» (Mockups QR1–QR9). Danach: Heute-Karten und Teilen-Weg, dann Shop (SHOP1–SHOP4b).
+**14.10.2026, v0.139.0 «Rechnungen ohne Gebühren»:** QR-Rechnung mit TWINT, Rechnungsliste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot lesen und «Zu zahlen» (Mockups QR1–QR9). Danach: Heute-Karten und Teilen-Weg, dann Shop (SHOP1–SHOP4b).
 **14.10.2026, v0.131.3 «Kamera-Knopf»:** Belegfoto mit einem Tipp: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt (Mockups K1–K4).
 **14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
 
@@ -721,7 +721,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
-| 3.0 | 14.10.2026 | 0.135.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
+| 3.0 | 14.10.2026 | 0.139.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 

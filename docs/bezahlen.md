@@ -23,7 +23,7 @@ Stand: 14.10.2026. Noahs Wunsch «ich möchte eine bezahlfunktion einführen» (
 - **Codes** `tools/pay-code.mjs`: Noah erzeugt Freischalt-Codes auf seinem Computer.
 - **Tests** `tests/pay-server.test.js`, `tests/pay-licence.test.js`, `tests/pay-shop.test.js` (nur erfundene Werte).
 
-## Rechnungen ohne Gebühren (0.135.0, Mockups QR1–QR9)
+## Rechnungen ohne Gebühren (0.139.0, Mockups QR1–QR9)
 
 Der Gratis-Weg ohne Stripe (Noah 14.10.2026, alle Mockups freigegeben 04:00 UTC «a», QR9 05:10 UTC «a»):
 

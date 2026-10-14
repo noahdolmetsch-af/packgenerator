@@ -230,7 +230,7 @@ export default {
   'There are no open invoices.': 'Es gibt keine offenen Rechnungen.',
   'The picture is read only on your phone and not kept.': 'Das Bild wird nur auf deinem Handy gelesen und danach nicht gespeichert.',
   'Photograph the bill': 'Rechnung fotografieren',
-  // «Was die App kann» und Handbuch (0.135.0)
+  // «Was die App kann» und Handbuch (0.139.0)
   'Invoices with QR bill and TWINT': 'Rechnungen mit QR-Rechnung und TWINT',
   'A Swiss QR bill from your account with TWINT; see who paid by hand, by amount, from the bank statement or the pay link.': 'Eine Schweizer QR-Rechnung aus deinem Konto mit TWINT; sieh, wer bezahlt hat: von Hand, über den Betrag, aus dem Kontoauszug oder über den Zahl-Link.',
   'Bills to pay': 'Rechnungen zu zahlen',

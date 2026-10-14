@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.135.0 Rechnungen: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link, TWINT-Screenshot, Zu zahlen
+  // 0.139.0 Rechnungen: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link, TWINT-Screenshot, Zu zahlen
   'Money in, money out': 'Geld rein, Geld raus',
   'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.': 'Schreib eine QR-Rechnung mit TWINT, sieh, wer bezahlt hat, und behalte die Rechnungen, die du zahlen musst, in einer Liste.',
   'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link': 'Eine QR-Rechnung aus deinem eigenen Konto, mit TWINT als zweitem Zahlweg; per Mail, als PDF oder als Zahl-Link verschicken',

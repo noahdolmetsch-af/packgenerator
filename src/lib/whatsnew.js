@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.135.0 Rechnungen (mockups QR1–QR9, Noah 14.10.2026 04:00 «a», QR9 05:10 «a»): QR bill with TWINT, the invoice list,
+    // v0.139.0 Rechnungen (mockups QR1–QR9, Noah 14.10.2026 04:00 «a», QR9 05:10 «a»): QR bill with TWINT, the invoice list,
     // «Geld erhalten», bank statement (camt), bill from the e-banking, «Ich habe bezahlt» link, TWINT screenshot, «Zu zahlen»
-    version: '0.135.0',
+    version: '0.139.0',
     date: '2026-10-14',
     title: 'Money in, money out',
     lead: 'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.',

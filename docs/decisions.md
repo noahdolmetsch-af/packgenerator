@@ -1270,7 +1270,7 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
-## 14.10.2026: Rechnungen ohne Gebühren (0.135.0)
+## 14.10.2026: Rechnungen ohne Gebühren (0.139.0)
 
 - **Gratis-Weg statt Stripe** (Noah 14.10.2026 02:36 «1 a und b 2 a und b», 03:39 «1a 2a und b 3a oder b möglich», 03:43 «1a mit auswahlmöglichkeit für andere», 03:52 «alle A-D als mockup», 04:00 «a»): QR-Rechnung aus dem eigenen Konto und hochladbar aus dem E-Banking; bezahlt von Hand und über den Kontoauszug; Rechnungen unter Ich › Bezahlen › Rechnungen; zwei Knöpfe «Bezahlt» und «Bezahlt + Mail»; ohne Referenz schlägt die App vor und bietet «Selbst wählen»; TWINT standardmässig an, pro Rechnung abwählbar; Wege A–D (Kunde meldet, TWINT-Screenshot, Geld erhalten, Sonntags-Erinnerung).
 - **«Zu zahlen»** (Noah 05:02 «a», 05:10 «1-4a» und «a»): Tab neben Rechnungen, Erinnerung 3 Tage vorher (änderbar), Foto bleibt als Beleg, ohne Fälligkeit 30 Tage.

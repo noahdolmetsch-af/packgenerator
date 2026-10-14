@@ -334,7 +334,7 @@ export default {
   'Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.': 'Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.',
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.': 'Beispiel: Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.',
-  // 0.135.0 Rechnungen und Zu zahlen
+  // 0.139.0 Rechnungen und Zu zahlen
   'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.': 'Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.',
   'Open Me › Payments › Invoices and tap «New QR invoice».': 'Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».',
   'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.': 'Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.',
