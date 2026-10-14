@@ -16,6 +16,7 @@
   import StravaPage from '../lib/strava/StravaPage.svelte';
   import StravaCheck from '../lib/strava/StravaCheck.svelte';
   import SheetView from '../lib/bikes/SheetView.svelte';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import RigTab from '../lib/bikes/RigTab.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
@@ -78,6 +79,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <SetupTab bikeId={route.bike} more={route.open} onbike={pickBike} onopened={opened} />
+    <PageTiles page="bikes" />
   {/if}
 </div>
 

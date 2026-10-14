@@ -45,6 +45,7 @@ import { initTheme } from './lib/theme.svelte.js';
 import { initOps } from './lib/bedienung.svelte.js';
 import { installExplain } from './lib/ui/explain.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
+import { noteAppOpen } from './lib/know/wasneuStore.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
@@ -82,6 +83,9 @@ installExplain();
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();
 window.addEventListener('hashchange', () => takeReturn());
+
+// SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
+noteAppOpen();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });

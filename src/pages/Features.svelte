@@ -4,27 +4,50 @@
    * v0.96.0 «F1 Alles finden» (Noah 11.10.2026, mockup A «1-5 a»): every function of the app
    * (features.js), in 6 groups by the situation you are in, or switched to 5 by the page it lives on
    * (Noah «1 a und b beides umstellbar», 11.10. «1-2 freigeben»). In each group what you never used
-   * comes first, 4 rows («2 mit 4 zeilen»), «All n ›» opens the rest; used rows are quiet with ✓. Each row: «Take me there»
-   * opens the place (or starts the action), «Try it» plays it in the playground without touching
-   * your data. A search field and chips (wrapping on a phone) narrow the list. #/features?f=<id> opens at one function.
+   * comes first, «All n ›» opens the rest. A search field narrows the list. #/features?f=<id> opens at one function.
+   * SN6 (mockup «Seiten neu», Noah 13.10.2026 «ich gebe alle bild mockups frei»): on top three tips «New
+   * for you» (the first one the main button); each group a card with 3 rows; a quiet circle = never used,
+   * a tick = used (moves down), a spark = new in the last versions. The row itself takes you there;
+   * «Take me there» and «Try it» (the playground) are in its «…». The situation chips are gone (each
+   * card's «All n» shows the whole group), the news fold sits at the end, a legend under the cards.
+   * SN6+ «SN6 plus» (mockups SN6p, Noah 13.10.2026 «freigabe SN6p», answers 1b 2b 3b 4a 5b; rules in
+   * know/sn6plus.js): from the top the head, K1 the progress bar, K3 «Fits right now», K2 «Your top 5»
+   * (since the start), the search, K6 «New since your last visit» (since the previous opening of the app;
+   * it replaces «New for you», whose debrief and playground tips moved to K3) and the six cards, each with
+   * its own small bar. K4: the «…» of a row holds «How it works», three short steps, open as text.
    */
   import { liveQuery } from 'dexie';
-  import { catalogue, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
+  import { catalogue, findFeatures, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
+  import { sinceOf } from '../lib/know/wasneu.js';
+  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
-  import { t } from '../lib/i18n.svelte.js';
-  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search } from '@lucide/svelte';
+  import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
+  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, CircleDashed, Sparkles, Star, Play, ListChecks, Mountain, Wrench, Info } from '@lucide/svelte';
+  import { TIP } from '../lib/tips.js';
+  import { TIP_ICON } from '../lib/know/icons.js';
+  import { howtoOf } from '../lib/know/howto.js';
+  import { rowsOf } from '../lib/know/wasneu.js';
+  import { topFive, newSinceOpen, fitsNow, moreThanMonth, share } from '../lib/know/sn6plus.js';
+  import { readUses, readOpens, readProgress, writeProgress } from '../lib/know/wasneuStore.js';
+  import { switchTrip } from '../lib/nav.js';
+  import { slfUrl } from '../lib/sk/links.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
 
   const GROUP_ICON = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save };
-  /** Rows shown per group before «All n ›». */
-  const SHOWN = 4;
+  /** Rows shown per group before «All n ›» (SN6: 3, as in the mockup). */
+  const SHOWN = 3;
+  /** SN6: a function that came with one of the last 3 versions and was never used shows a spark. */
+  const RECENT = new Set(WHATS_NEW.slice(0, 3).map((e) => e.version));
+  const isNew = (x) => !x.used && RECENT.has(sinceOf(x.id));
 
   // v0.110.0: the reading moved to know/featureData.js (shared with Ich › Was ist neu), unchanged
   const dataQ = liveQuery(featureData);
@@ -39,114 +62,197 @@
   const wanted = typeof location !== 'undefined' ? (location.hash.match(/[?&]f=([^&]+)/)?.[1] ?? null) : null;
   const wantId = wanted ? decodeURIComponent(wanted) : null;
   let q = $state('');
-  let only = $state('all');
   let opened = $state({});
   let play = $state(null); // the day the playground starts on («Try it»)
   const hits = $derived(q.trim().length >= 2 ? new Set(findFeatures(q, t).map((x) => x.featureId)) : null);
-  const groups = $derived(
-    all
-      ? all.groups
-          .filter((g) => only === 'all' || g.key === only)
-          .map((g) => ({ ...g, rows: hits ? g.items.filter((x) => hits.has(x.id)) : g.items }))
-          .filter((g) => g.rows.length)
-      : [],
-  );
-  // a computer with room: the news and «How to read the list» in a column on the right (mockup A)
-  const sideQ = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1180px)') : null;
-  let sideOn = $state(sideQ?.matches ?? false);
-  $effect(() => {
-    const on = (e) => (sideOn = e.matches);
-    sideQ?.addEventListener('change', on);
-    return () => sideQ?.removeEventListener('change', on);
-  });
-  const isOpen = (g) => !!hits || only !== 'all' || !!opened[g.key] || (wantId != null && g.items.findIndex((x) => x.id === wantId) >= SHOWN);
+  const groups = $derived(all ? all.groups.map((g) => ({ ...g, rows: hits ? g.items.filter((x) => hits.has(x.id)) : g.items })).filter((g) => g.rows.length) : []);
+  const isOpen = (g) => !!hits || !!opened[g.key] || (wantId != null && g.items.findIndex((x) => x.id === wantId) >= SHOWN);
   let scrolled = false; // once, when the list is there (not on every change of the data)
   $effect(() => {
     if (!all || !wantId || scrolled) return;
     scrolled = true;
     queueMicrotask(() => document.querySelector(`[data-feature="${CSS.escape(wantId)}"]`)?.scrollIntoView({ block: 'center' }));
   });
+
+  /* ---------- SN6+ (answers 1b 2b 3b 5b): progress, «Fits right now», «Your top 5», «New since your last visit» ---------- */
+  const usedNow = $derived(all ? new Set(all.groups.flatMap((g) => g.items.filter((x) => x.used).map((x) => x.id))) : new Set());
+  // K2: the counts of this device since the start (wasneu.js), fresh after every opening of a function
+  let uses = $state(readUses());
+  $effect(() => {
+    const again = () => (uses = readUses());
+    window.addEventListener('pg:uses', again);
+    return () => window.removeEventListener('pg:uses', again);
+  });
+  const top = $derived(topFive(uses, usedNow));
+  // K1: today's count is kept once a day (not while a demo runs), «more than a month ago» from it
+  const today = localDay();
+  const progress = readProgress();
+  const more = $derived(all ? moreThanMonth(progress, all.used, today) : null);
+  $effect(() => {
+    if (all && d && !d.demo) writeProgress(all.used, today);
+  });
+  // K6: the previous opening of the app (main.js), read once when the page opens
+  const opens = readOpens();
+  const fresh = $derived(newSinceOpen(opens.prev, rowsOf(usedNow, uses)));
+  const sinceDay = (at) => new Date(at).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
+  // K3: what fits the situation now (the debrief and the playground came from «New for you»)
+  const fits = $derived(d ? fitsNow({ trips: d.trips, bikes: d.bikes, debriefs: d.debriefs, used: usedNow, demo: d.demo, today }) : []);
+  const startsIn = (n) => (n < 0 ? t('on the way now') : n === 0 ? t('starts today') : n === 1 ? t('starts tomorrow') : t('starts in {n} days', { n }));
+  const FIT_ICON = { trip: ListChecks, bulletin: Mountain, chain: Wrench, rate: Star, play: Play };
+  function fitOf(x) {
+    if (x.kind === 'trip') return { title: t('Check the packing list'), sub: `${x.trip.title}: ${startsIn(x.days)}`, label: t('Check|fit'), go: () => switchTrip(x.trip.id, '#/pack') };
+    if (x.kind === 'bulletin') return { title: t('Avalanche bulletin'), sub: t('{name}: read it the evening before', { name: x.trip.title }), label: t('Open|fit'), href: slfUrl(lang.v), out: true };
+    if (x.kind === 'chain') return { title: t('Care for the chain'), sub: t('{bike}: {km} km since the last chain care', { bike: x.bike.name, km: x.since }), label: t('Show|tip'), href: `#/bikes?tab=care&bike=${encodeURIComponent(x.bike.id)}` };
+    if (x.kind === 'rate') return { title: t('Rate|tip'), sub: t('{name} waits for its debrief', { name: x.trip.title }), label: t('Show|tip'), href: `#/debrief/${encodeURIComponent(x.trip.id)}` };
+    return { title: t('Playground'), sub: t('try it out, without your data'), label: t('Try it'), go: () => goFeature(FEATURE['f.playground'], { bikeId }) };
+  }
+  /** The icon of a function: its tip's, else its group's. */
+  const iconOf = (f) => (f.tip && TIP_ICON[TIP[f.tip]?.icon]) || GROUP_ICON[FEATURE_GROUPS.find((g) => g.key === f.group)?.icon] || Sparkles;
+
+  /** The «…» of a row: «Take me there» (the same as a tap on the row) and «Try it» in the playground. */
+  const rowActions = (x) => [
+    { name: t('Take me there'), explain: t('Opens the place in the app'), icon: ChevronRight, run: () => document.querySelector(`[data-feature="${CSS.escape(x.id)}"] .fmain`)?.click() },
+    ...(x.play && !x.used && !d?.demo ? [{ name: t('Try it'), explain: t('In the playground, without changing your data'), icon: Play, run: () => (play = x.play) }] : []),
+  ];
+  /** SN6+ K4: «How it works» in the «…», three short steps open as text (answer 4a). */
+  function howOf(x) {
+    const steps = howtoOf(x.id).map((st) => t(st));
+    return steps.length ? { title: t('How it works'), count: tn(steps.length, '{n} step', '{n} steps'), steps } : null;
+  }
 </script>
+
+{#snippet body(x)}
+  <span class="fic" class:used={x.used} class:fresh={isNew(x)} aria-hidden="true">{#if x.used}<Check size={16} strokeWidth={2.5} />{:else if isNew(x)}<Sparkles size={16} />{:else}<CircleDashed size={18} />{/if}</span>
+  <span class="fm">
+    <span class="ft">{t(x.title)}</span>
+    <span class="fs">{t(x.text)}</span>
+    <span class="sr">{x.used ? t('Used|tips') : t('Never used|features')}</span>
+  </span>
+{/snippet}
 
 {#snippet row(x)}
   <li data-feature={x.id} class="frow" class:used={x.used} class:want={x.id === wantId}>
-    <div class="fm">
-      <span class="ft">{t(x.title)}</span>
-      <span class="fs">{t(x.text)}</span>
-      {#if x.used}
-        <span class="fused"><Check size={14} strokeWidth={3} aria-hidden="true" />{t('Used|tips')}</span>
-      {:else}
-        <span class="pill warn fnever">{t('Never used|features')}</span>
-      {/if}
-    </div>
-    <div class="fa">
-      {#if x.tip}
-        <TipButton id={x.tip} {next} cls="btn sm fgo">{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></TipButton>
-      {:else}
-        <button type="button" class="btn sm fgo" onclick={() => goFeature(x, { bikeId })}>{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></button>
-      {/if}
-      {#if x.play && !x.used && !d?.demo}
-        <button type="button" class="ftry" onclick={() => (play = x.play)}>{t('Try it')}</button>
-      {/if}
-    </div>
+    {#if x.tip}
+      <TipButton id={x.tip} {next} cls="fmain">{@render body(x)}</TipButton>
+    {:else}
+      <button type="button" class="fmain" onclick={() => goFeature(x, { bikeId })}>{@render body(x)}</button>
+    {/if}
+    <MoreActions title={t(x.title)} label={t('More for {title}', { title: t(x.title) })} actions={rowActions(x)} howto={howOf(x)} />
   </li>
 {/snippet}
 
-<div class="feat">
-  <!-- Design-Refresh P9 (I7 neu, Noah 12.10.2026 «Runde 20 freigegeben»: «Seite lassen wie sie ist, nur neues
-       Design»): the path back to Ich, the same parts as before in the new style. -->
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('What the app can do')} sub={all ? t('{total} functions · you use {n}', { total: all.total, n: all.used }) : ''} />
-  <div class="cols">
-    <div class="mainc">
-      <label class="ffind">
-        <Search size={18} aria-hidden="true" />
-        <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
-      </label>
-      {#if !sideOn}<WhatsNew />{/if}
-      <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
-      <div class="fby" role="group" aria-label={t('Sort')}>
-        <button type="button" class="fbyb" aria-pressed={by === 'situation'} onclick={() => { by = 'situation'; only = 'all'; }}>{t('By situation')}</button>
-        <button type="button" class="fbyb" aria-pressed={by === 'page'} onclick={() => { by = 'page'; only = 'all'; }}>{t('By page')}</button>
-      </div>
-      <div class="fchips" role="group" aria-label={by === 'page' ? t('Page|features') : t('Situation')}>
-        <button type="button" class="fchip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All|features')}</button>
-        {#each by === 'page' ? PAGE_GROUPS : FEATURE_GROUPS as g (g.key)}
-          <button type="button" class="fchip" aria-pressed={only === g.key} onclick={() => (only = only === g.key ? 'all' : g.key)}>{t(g.label)}</button>
-        {/each}
-      </div>
-      {#if all && !groups.length}
-        <p class="fnone" role="status">{t('No function found for «{q}».', { q: q.trim() })}</p>
-      {/if}
-      <div class="fgrid">
-        {#each groups as g (g.key)}
-          {@const Icon = GROUP_ICON[g.icon]}
-          {@const open = isOpen(g)}
-          <section class="fgroup" data-group={g.key} aria-labelledby="fg-{g.key}">
-            <header class="fgh">
-              <span class="fgi" aria-hidden="true"><Icon size={20} /></span>
-              <h2 id="fg-{g.key}">{t(g.label)}</h2>
-              <span class="fgn num">{t('{n} of {total} used', { n: g.used, total: g.total })}</span>
-            </header>
-            <ul class="flist">
-              {#each open ? g.rows : g.rows.slice(0, SHOWN) as x (x.id)}{@render row(x)}{/each}
-            </ul>
-            {#if !open && g.rows.length > SHOWN}
-              <button type="button" class="fall" onclick={() => (opened = { ...opened, [g.key]: true })}>{t('All {n}|features', { n: g.rows.length })}<ChevronRight size={16} aria-hidden="true" /></button>
-            {/if}
-          </section>
-        {/each}
-      </div>
+<div class="feat" data-blocks="sn6plus">
+  <!-- Design-Refresh P9 (I7): the path back to Ich. SN6: «Ich › Funktionen», one line with «tap to go there». -->
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Functions')} title={t('What the app can do')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
+  <!-- SN6+ K1: how many functions you use, with a small bar -->
+  {#if all}
+    <div class="fprog" data-block="progress">
+      <span class="bar" aria-hidden="true"><i style:width="{share(all.used, all.total)}%"></i></span>
+      <span><b class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</b>{#if more > 0}<span class="more"> · {t('{n} more than a month ago', { n: more })}</span>{/if}</span>
     </div>
-    {#if sideOn}
-    <aside class="side">
-      <WhatsNew />
-      <section class="howto" aria-labelledby="howto-h">
-        <h2 id="howto-h">{t('How to read the list')}</h2>
-        <p>{t('On top of each group is what you have never used. Used things are quiet, with ✓. «Take me there» opens the place in the app; «Try it» plays it in the playground without changing your data.')}</p>
-      </section>
-    </aside>
-    {/if}
+  {/if}
+  <!-- SN6+ K3 «Fits right now» (answer 3b: on top) -->
+  {#if d}
+    <section class="fblock" data-block="fits" aria-labelledby="ffit-h">
+      <h2 id="ffit-h">{t('Fits right now')}</h2>
+      <p class="fsub">{t('changes with your situation')}</p>
+      {#if fits.length}
+        <ul class="fcard fits">
+          {#each fits as x (x.key)}
+            {@const f = fitOf(x)}
+            {@const Icon = FIT_ICON[x.kind]}
+            <li class="fline" data-fit={x.kind}>
+              <span class="tic {x.kind}" aria-hidden="true"><Icon size={18} /></span>
+              <span class="fm"><span class="ft">{f.title}</span><span class="fs">{f.sub}</span></span>
+              {#if f.href}<a class="btn" href={f.href} target={f.out ? '_blank' : undefined} rel={f.out ? 'noopener noreferrer' : undefined}>{f.label}</a>
+              {:else}<button type="button" class="btn" onclick={f.go}>{f.label}</button>{/if}
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('Nothing fits right now. A trip coming up, chain care or a debrief brings a tip here.')}</span></p>
+      {/if}
+    </section>
+  {/if}
+  <!-- SN6+ K2 «Your top 5» since the start (answer 2b) -->
+  {#if d}
+    <section class="fblock" data-block="top" aria-labelledby="ftop-h">
+      <h2 id="ftop-h">{t('Your top 5')}</h2>
+      <p class="fsub">{t('what you use most since the start · tap to go there')}</p>
+      {#if top.length}
+        <ol class="ftop5">
+          {#each top as x, i (x.id)}
+            {@const Icon = iconOf(x)}
+            <li data-top={x.id}>
+              <button type="button" class="ftopb" onclick={() => goFeature(FEATURE[x.id], { bikeId })}>
+                <span class="rank num" aria-hidden="true">{i + 1}</span>
+                <span class="tic" aria-hidden="true"><Icon size={18} /></span>
+                <span class="fm"><span class="ft">{t(x.title)}</span><span class="fs num">{t('{n} times|top', { n: x.n })}</span></span>
+              </button>
+            </li>
+          {/each}
+        </ol>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('After a few days your most used functions stand here.')}</span></p>
+      {/if}
+    </section>
+  {/if}
+  <div class="ftop" data-block="search">
+    <label class="ffind">
+      <Search size={18} aria-hidden="true" />
+      <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
+    </label>
+    <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
+    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
+  <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
+  {#if d && !hits}
+    <section class="fblock" data-block="news" aria-labelledby="fsince-h">
+      <h2 id="fsince-h">{t('New since your last visit')}</h2>
+      {#if fresh.rows.length}
+        <p class="fsub">{t('since {date}', { date: sinceDay(fresh.from) })} · {tn(fresh.rows.length, '{n} new function', '{n} new functions')}</p>
+        <ul class="fcard fresh">
+          {#each fresh.rows as x (x.id)}
+            <li data-new={x.id}>
+              <button type="button" class="fline" onclick={() => goFeature(FEATURE[x.id], { bikeId })}>
+                <span class="tic new" aria-hidden="true"><Sparkles size={18} /></span>
+                <span class="fm"><span class="ft">{t(x.title)}</span><span class="fs">{t('new in {v}', { v: shortVersion(x.since) })} · {t(x.text)}</span></span>
+                <ChevronRight size={18} aria-hidden="true" />
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('Nothing new has come since your last visit.')}</span></p>
+      {/if}
+    </section>
+  {/if}
+  {#if all && !groups.length}
+    <p class="fnone" role="status">{t('No function found for «{q}».', { q: q.trim() })}</p>
+  {/if}
+  <div class="fgrid">
+    {#each groups as g (g.key)}
+      {@const Icon = GROUP_ICON[g.icon]}
+      {@const open = isOpen(g)}
+      <section class="fgroup" data-group={g.key} aria-labelledby="fg-{g.key}">
+        <header class="fgh">
+          <span class="fgi" aria-hidden="true"><Icon size={20} /></span>
+          <h2 id="fg-{g.key}">{t(g.label)}</h2>
+          <span class="fgn num">{t('{n} of {total} used', { n: g.used, total: g.total })}</span>
+        </header>
+        <span class="bar sm" aria-hidden="true"><i style:width="{share(g.used, g.total)}%"></i></span>
+        <ul class="flist">
+          {#each open ? g.rows : g.rows.slice(0, SHOWN) as x (x.id)}{@render row(x)}{/each}
+        </ul>
+        {#if !open && g.rows.length > SHOWN}
+          <button type="button" class="fall" onclick={() => (opened = { ...opened, [g.key]: true })}>{t('All {n}|features', { n: g.rows.length })}<ChevronRight size={16} aria-hidden="true" /></button>
+        {/if}
+      </section>
+    {/each}
+  </div>
+  <p class="legend"><CircleDashed size={16} aria-hidden="true" /><span>{t('Circle = never used, tick = used (moves down). Under «…»: try it in the playground.')}</span></p>
+  <!-- the news of the last versions, folded at the end (Ich › Was ist neu has them all) -->
+  <div class="fnews"><WhatsNew /></div>
 </div>
 {#if play}<PlaySheet running={!!d?.demo} kind="weekend" day={play} onclose={() => (play = null)} />{/if}
 
@@ -154,28 +260,23 @@
   .feat {
     max-width: 1200px;
     margin: 0 auto;
-  }
-  .cols {
     display: grid;
-    gap: var(--sp-5);
-  }
-  .mainc {
-    min-width: 0;
-    display: grid;
-    gap: var(--sp-3);
+    gap: var(--sp-4);
     align-content: start;
   }
-  .side {
-    display: grid;
-    gap: var(--sp-3);
-    align-content: start;
+  .feat > :global(.vhead) {
+    margin: 0;
   }
-  @media (min-width: 1180px) {
-    .cols {
-      grid-template-columns: minmax(0, 1fr) 320px;
-    }
+  /* SN6: the search and «Nach Situation | Nach Seite» on one row (on a phone below each other) */
+  .ftop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3);
   }
   .ffind {
+    flex: 1 1 320px;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: var(--sp-2);
@@ -200,45 +301,203 @@
     font: 400 var(--fs-body) var(--font-body);
   }
   .fby {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-  }
-  .fbyb {
-    min-height: 44px;
-    padding: 0 var(--sp-4);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-label) var(--font-body);
-    cursor: pointer;
-  }
-  .fbyb[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .fchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-  }
-  .fchip {
     flex: none;
-    min-height: 44px;
-    padding: 0 var(--sp-3);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
+    max-width: 100%;
   }
-  .fchip[aria-pressed='true'] {
-    background: var(--accent-soft);
-    border-color: var(--accent-soft);
+  /* SN6+ K1: the progress bar under the head, and a small one in every card */
+  .fprog {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    margin-top: calc(-1 * var(--sp-2));
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .fprog b {
     color: var(--ink);
     font-weight: 600;
+  }
+  .bar {
+    flex: none;
+    display: block;
+    width: 200px;
+    max-width: 100%;
+    height: 8px;
+    border-radius: 9px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+  }
+  .bar.sm {
+    width: 100%;
+    height: 5px;
+    margin: 2px 0 var(--sp-2);
+  }
+  /* SN6+ K3, K2, K6: a heading, a short line, then one card with rows (or one quiet line) */
+  .fblock h2 {
+    margin: 0;
+    font: 600 var(--fs-sub)/1.3 var(--font-body);
+  }
+  .fsub {
+    margin: 2px 0 var(--sp-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .fcard {
+    list-style: none;
+    margin: 0;
+    padding: var(--sp-1) var(--sp-4);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .fcard > li {
+    border-top: 1px solid var(--line);
+  }
+  .fcard > li:first-child {
+    border-top: 0;
+  }
+  .fline {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: var(--sp-2) 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  button.fline {
+    cursor: pointer;
+  }
+  button.fline :global(svg:last-child) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  button.fline:focus-visible,
+  .ftopb:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  .fline .btn {
+    flex: none;
+    min-height: 44px;
+    min-width: 96px;
+  }
+  .fquiet {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fquiet :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .ftop5 {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-3);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .ftop5 > li {
+    min-width: 0;
+  }
+  .ftopb {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    width: 100%;
+    height: 100%;
+    min-height: 56px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  /* a long single word (Wettervorschläge) breaks inside the narrow tile instead of widening the page */
+  .ftopb .fm {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+  .ftopb .ft {
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .rank {
+    flex: none;
+    min-width: 1.2em;
+    color: var(--ink-2);
+    font-weight: 600;
+    text-align: center;
+  }
+  /* on a phone the first place is wide, the others two by two (as in the mockup) */
+  @media (max-width: 900px) {
+    .ftop5 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ftop5 > li:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+  /* a phone: the button of a «Fits right now» row goes under its text, full width (as in the mockup);
+     the small top tiles keep their words and leave the icon out */
+  @media (max-width: 600px) {
+    .fits .fline {
+      flex-wrap: wrap;
+    }
+    .fits .fline .fm {
+      flex: 1 1 calc(100% - 52px);
+    }
+    .fits .fline .btn {
+      flex: 1 1 100%;
+    }
+    .ftop5 > li:not(:first-child) .tic {
+      display: none;
+    }
+  }
+  .tic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .tic.new,
+  .fic.fresh {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .tic.rate,
+  .tic.chain,
+  .fic.used {
+    background: var(--ok-soft);
+    color: var(--ok);
   }
   .fnone {
     margin: var(--sp-2) 0;
@@ -247,7 +506,7 @@
   .fgrid {
     display: grid;
     gap: var(--sp-4);
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
     align-items: start;
   }
   .fgroup {
@@ -262,8 +521,7 @@
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    padding-bottom: var(--sp-2);
-    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--sp-1);
   }
   .fgi {
     flex: none;
@@ -280,19 +538,19 @@
   .fgn {
     flex: none;
     color: var(--ink-3);
-    font-size: var(--fs-tiny);
+    font-size: var(--fs-small);
   }
   .flist {
     list-style: none;
     margin: 0;
     padding: 0;
   }
+  /* SN6: the row takes you there; its «…» holds the rest */
   .frow {
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: var(--sp-2) var(--sp-3);
-    padding: var(--sp-3) 0;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: var(--sp-2) 0;
     border-top: 1px solid var(--line);
   }
   .frow:first-child {
@@ -301,8 +559,39 @@
   .frow.want {
     background: var(--hi-soft);
   }
+  .frow :global(.fmain) {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    min-height: 44px;
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .frow :global(.fmain:focus-visible) {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  .fic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-3);
+  }
   .fm {
-    flex: 1 1 12em;
+    flex: 1 1 auto;
     min-width: 0;
     display: grid;
     gap: 2px;
@@ -313,46 +602,21 @@
     line-height: 1.3;
     overflow-wrap: break-word;
   }
+  /* SN6: the line under the name stays short: two lines at most */
   .fs {
     color: var(--ink-2);
     font-size: var(--fs-small);
     line-height: 1.4;
     overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .used .ft,
   .used .fs {
     color: var(--ink-3);
-  }
-  .fused {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .fnever {
-    margin-top: 4px;
-  }
-  .fa {
-    flex: none;
-    display: grid;
-    gap: 2px;
-    justify-items: end;
-  }
-  .fa :global(.fgo) {
-    min-height: 44px;
-    border-color: var(--line);
-    color: var(--ink);
-    font-weight: 500;
-  }
-  .ftry {
-    min-height: 44px;
-    padding: 0 var(--sp-1);
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
   }
   .fall {
     display: inline-flex;
@@ -366,20 +630,16 @@
     font: 500 var(--fs-label) var(--font-body);
     cursor: pointer;
   }
-  .howto {
-    padding: var(--sp-4);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-  }
-  .howto h2 {
-    margin: 0 0 var(--sp-2);
-    font: 600 var(--fs-sub)/1.25 var(--font-body);
-  }
-  .howto p {
+  .legend {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
     margin: 0;
-    color: var(--ink-2);
+    color: var(--ink-3);
     font-size: var(--fs-small);
-    line-height: 1.5;
+  }
+  .legend :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
 </style>

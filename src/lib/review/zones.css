@@ -1,0 +1,39 @@
+/* SN2+ «SN2 plus»: the heart rate zones in one calm grey-blue ramp (observation only, no colour for good
+   or bad). Built from the ink and paper of the theme, so it works in light and dark. */
+.zc-1 {
+  background: color-mix(in srgb, var(--ink-3) 22%, var(--paper));
+}
+.zc-2 {
+  background: color-mix(in srgb, var(--ink-3) 40%, var(--paper));
+}
+.zc-3 {
+  background: color-mix(in srgb, var(--ink-3) 58%, var(--paper));
+}
+.zc-4 {
+  background: color-mix(in srgb, var(--ink-2) 72%, var(--paper));
+}
+.zc-5 {
+  background: color-mix(in srgb, var(--ink-2) 92%, var(--paper));
+}
+/* SN2x «SN2 extra»: the power zones Z1–Z7 (Coggan) in the same calm ramp, seven steps. */
+.pz-1 {
+  background: color-mix(in srgb, var(--ink-3) 16%, var(--paper));
+}
+.pz-2 {
+  background: color-mix(in srgb, var(--ink-3) 30%, var(--paper));
+}
+.pz-3 {
+  background: color-mix(in srgb, var(--ink-3) 44%, var(--paper));
+}
+.pz-4 {
+  background: color-mix(in srgb, var(--ink-3) 60%, var(--paper));
+}
+.pz-5 {
+  background: color-mix(in srgb, var(--ink-2) 68%, var(--paper));
+}
+.pz-6 {
+  background: color-mix(in srgb, var(--ink-2) 82%, var(--paper));
+}
+.pz-7 {
+  background: color-mix(in srgb, var(--ink-2) 96%, var(--paper));
+}

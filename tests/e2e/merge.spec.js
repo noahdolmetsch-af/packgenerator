@@ -78,7 +78,10 @@ async function start(page, context, info) {
   await expect(page).toHaveURL(/#\/gear\/import$/);
 }
 
-const section = (page, name) => page.locator('details.sec').filter({ has: page.locator('summary .h', { hasText: new RegExp(`^${name}$`) }) });
+// SN5 «Import prüfen» (approved): «Nicht im Import» is a quiet section whose rows fold away in one card
+// («Anschauen»); its count is the fourth number tile on top.
+const notInFold = (page) => page.locator('details[data-sec="notin"]');
+const notInCount = (page) => page.locator('.nums > div').filter({ has: page.locator('dt', { hasText: new RegExp(`^${T('not in the import, they stay')}$`) }) }).locator('dd');
 async function unfold(sec) {
   if (!(await sec.evaluate((d) => d.open))) await sec.locator('> summary').click();
   await expect.poll(() => sec.evaluate((d) => d.open)).toBe(true);
@@ -90,9 +93,10 @@ test('Zusammenlegen: propose, confirm, undo; a collection into its pieces; past 
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info);
   const shots = process.env.V0371_SHOTS;
-  const ni = section(page, T('Not in the import'));
+  await expect(page.getByRole('heading', { level: 2, name: T('Not in the import'), exact: true })).toBeVisible();
+  const ni = notInFold(page);
   await unfold(ni);
-  const count = Number(await ni.locator('summary .n').textContent());
+  const count = Number(await notInCount(page).textContent());
   expect(count).toBe(base.tables.items.length + 2);
 
   // 1. A double: the sheet proposes the imported item, chosen already.
@@ -119,7 +123,7 @@ test('Zusammenlegen: propose, confirm, undo; a collection into its pieces; past 
   const toast = page.locator('.toast');
   await expect(toast).toContainText(T('Merged'));
   if (shots) await page.screenshot({ path: `${shots}/merge-toast-${info.project.name}.png` });
-  await expect(ni.locator('summary .n')).toHaveText(String(count - 1));
+  await expect(notInCount(page)).toHaveText(String(count - 1));
   await expect(ni.getByRole('button', { name: T('Merge {name}', { name: old }) })).toHaveCount(0);
 
   expect(await one(page, 'items', 'ON05')).toMatchObject({ ownership: 'gone', archivedBy: 'merge', mergedInto: ['EL40'], archivedFrom: 'owned' });
@@ -135,7 +139,7 @@ test('Zusammenlegen: propose, confirm, undo; a collection into its pieces; past 
   await expect.poll(async () => (await one(page, 'items', 'ON05')).ownership).toBe('owned');
   expect((await one(page, 'settings', 'templates')).value[0].entries[0].itemId).toBe('ON05');
   expect(await ids('next')).toEqual(['ON05', 'TO05']);
-  await expect(ni.locator('summary .n')).toHaveText(String(count));
+  await expect(notInCount(page)).toHaveText(String(count));
 
   // 3. A collection: the three pieces are proposed; the first is chosen, two more taps.
   const coll = N('Minipumpe / CO2 + Pumpenkopf');

@@ -108,14 +108,18 @@ test('Rückblick gespeichert (T16): «Fertig. Gute Tour!» with four number tile
   await fits(page, info);
 });
 
-test('Rückblick (T17): the last trip with tiles, 12 months and the comparison left, pace and «Mehr» right', async ({ page, context }, info) => {
+// SN2 «Seiten neu» (mockup approved 13.10.2026): the trip whose debrief is missing on top, the period as
+// tiles (the long table folded), the comparison with its state column; the last ride's numbers folded.
+test('Rückblick (T17, SN2): the missing debrief on top, 12 months and the comparison left, pace and «Mehr» right', async ({ page, context }, info) => {
   await start(page, context);
   await page.goto('./#/debrief');
-  await expect(page.locator('section.lastride .rv-tiles')).toBeVisible();
-  await expect(page.locator('section.period')).toBeVisible();
-  await expect(page.locator('#compare table.tt')).toBeVisible();
+  await expect(page.locator('[data-open-debrief]')).toBeVisible();
+  await expect(page.locator('section.period .rv-tiles')).toBeVisible();
+  await expect(page.locator('#compare table.st')).toBeVisible();
+  await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
+  await expect(page.locator('.lastride .rv-tiles')).toBeVisible();
   await expect(page.locator('.below section.sub')).toBeVisible();
-  await twoColumns(page, info, 'section.lastride', '.below');
+  await twoColumns(page, info, 'section.period', '.below');
   await targets(page);
   await fits(page, info);
 });
@@ -134,13 +138,15 @@ test('Gelernt (T18): the search, every topic as a section of rows', async ({ pag
   await fits(page, info);
 });
 
-test('Dein Tempo (T19): the rule as a card and the charts left, «Deine Fahrten» right', async ({ page, context }, info) => {
+// SN2: «Fahrt hochladen» is the main button in the rule's card; «Woher die Fahrten kommen» on the right.
+test('Dein Tempo (T19, SN2): the rule as a card and the charts left, where the rides come from right', async ({ page, context }, info) => {
   await start(page, context);
   await page.goto('./#/debrief/pace');
   await expect(page.locator('section.rule .rv-box h2')).toBeVisible();
   await expect(page.locator('section.rule [role="status"]')).toBeVisible();
-  await expect(page.locator('section.rides-c input[type=file]')).toHaveCount(1);
-  await twoColumns(page, info, 'section.rule', 'section.rides-c');
+  await expect(page.locator('section.rule label.btn input[type=file]')).toHaveCount(1);
+  await expect(page.locator('.rides-c label.rv-row input[type=file]')).toHaveCount(1);
+  await twoColumns(page, info, 'section.rule', '.rides-c');
   await targets(page);
   await fits(page, info);
 });
@@ -169,7 +175,8 @@ test('Vergangene Touren (T21): «In diesem Zeitraum» as tiles, the table in a w
   await start(page, context);
   await page.goto('./#/pack/past');
   await expect(page.getByRole('heading', { level: 1, name: T('Past trips') })).toBeVisible();
-  await expect(page.locator('section.sums .rv-tile')).toHaveCount(5);
+  // SN4: four tiles as in the mockup (trips, km, climbing, with rain)
+  await expect(page.locator('section.sums .rv-tile')).toHaveCount(4);
   await expect(page.locator('table.tt tbody th[scope="row"]').first()).toBeVisible();
   await expect(page.getByRole('searchbox', { name: T('Search trips and learnings') })).toBeVisible();
   await targets(page);

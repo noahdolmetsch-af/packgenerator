@@ -338,4 +338,11 @@ export default {
   'Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.': 'Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.',
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.': 'Beispiel: Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.',
+  // v0.133.0 «Wi gaht's?» and «Tour aus komoot»
+  'Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.': 'Öffne Ich › «Wi gaht\'s?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.',
+  'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.',
+  'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.': 'Beispiel: «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.',
+  'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
+  'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
+  'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
 };

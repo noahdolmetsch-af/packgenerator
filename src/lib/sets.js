@@ -29,9 +29,11 @@ export function allSets(value) {
   const list = Array.isArray(value) ? value : [];
   const rec = (key) => list.find((s) => s.key === key);
   // v0.26.0 (Noah 5b): a built-in block can get its own name (saved on its record, as written).
-  const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) } }));
+  // SN3+: a block «je nach Lage» carries its changed rule (situation.js) on the same record.
+  const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) }, ...(rec(key)?.rule ? { rule: { ...rec(key).rule } } : {}) }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
-  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
+  // SN5+: a block made from the favourites keeps its kind and the favourites of that moment (favplus.js).
+  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
   // v0.66.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
   const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];
@@ -180,6 +182,15 @@ export function setUse(key) {
       return t('Comes only on a trip marked as an event');
     case 'comfort':
       return t('Nice to have: its items are only offered, never packed by themselves');
+    // SN3+ «je nach Lage»: a dashed suggestion in Packen when the trip fits its rule, never by itself.
+    case 'cold':
+    case 'heat':
+    case 'climb':
+    case 'long':
+    case 'abroad':
+    case 'train':
+    case 'rain':
+      return t('Suggested in Pack when the trip fits its rule; never added by itself');
     default:
       return t('Add it in Pack: Add material → Building blocks');
   }

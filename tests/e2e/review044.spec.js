@@ -98,9 +98,16 @@ test('Review: the old address leads to the 12 months on the look back page, no s
   await expect(page).toHaveURL(/#\/debrief$/);
   const card = page.locator('section.period');
   await expect(card.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
-  await expect(card.getByRole('row', { name: /Touren/ }).first()).toBeVisible();
-  await expect(card.getByRole('rowheader', { name: 'Distanz' })).toBeVisible();
+  // SN2 «Seiten neu» (★ 2a, changed on purpose): the period shows four tiles and the bars; the long
+  // table with Vorjahr, Durchschnitt and Bestwert is open under «Alle Kennzahlen» (answer 2b).
+  await expect(card.getByRole('list', { name: 'Letzte 12 Monate' }).locator('li').filter({ hasText: /Touren?$/ })).toHaveCount(1);
   await expect(card.getByRole('img', { name: 'km pro Monat' })).toBeVisible();
+  const all = card.getByRole('button', { name: 'Alle Kennzahlen' });
+  await expect(all).toHaveAttribute('aria-expanded', 'true');
+  await expect(card.getByRole('rowheader', { name: 'Touren' })).toBeVisible();
+  await expect(card.getByRole('rowheader', { name: 'Distanz' })).toBeVisible();
+  // the comparison with the 12 months before is in each row (on a phone the column heads are hidden)
+  await expect(card.locator('table.kz tbody tr').filter({ has: page.getByRole('rowheader', { name: 'Touren' }) }).locator('td.d')).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'seite', true);
   if (info.project.name === 'phone') {

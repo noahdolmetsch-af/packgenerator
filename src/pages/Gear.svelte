@@ -4,6 +4,7 @@
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
+  import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
   import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
@@ -16,6 +17,9 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: tiles at the page end, X7 at each wish
+  import Woanders from '../lib/sk/Woanders.svelte';
+  import { slotOf } from '../lib/sk/links.js';
   import AssignDialog from '../lib/gear/AssignDialog.svelte';
   import { assignSet } from '../lib/gear/assign.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
@@ -554,7 +558,8 @@
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
             <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
-          <button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button>
+          <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
+          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
             <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>
@@ -697,6 +702,8 @@
                       <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                       <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
                     </button>
+                    <!-- SK X7 (SKX1): «Im Shop ansehen», your own link for this wish -->
+                    <div class="skw"><Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} /></div>
                   {/if}
                 </li>
               {:else}
@@ -752,6 +759,8 @@
         </section>
       </div>
     </div>
+    <!-- SK: the tile row at the page end (SK4) -->
+    {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}
 </div>
 
@@ -1506,6 +1515,18 @@
   }
   .wish .rows {
     background: transparent;
+  }
+  /* SK X7: the «Woanders» row under a wish, over the row's width */
+  .wish .fr {
+    flex-wrap: wrap;
+  }
+  .wish .skw {
+    flex-basis: 100%;
+    min-width: 0;
+    padding: 0 8px 10px;
+  }
+  .wish .skw :global(.sk-wo) {
+    margin-top: 0;
   }
   .wish .rows button {
     grid-template-columns: auto minmax(0, 1fr) auto;
