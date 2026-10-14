@@ -1,6 +1,8 @@
 // UC3 Velos › Setup (Noah 14.10.2026 «1-5a», «UC3-1-UC3-3 freigeben»): one page per bike with photos,
 // total weight, bag plan, setup log, «Dein Velo im Vergleich», races and your own race-rig links.
 // Fictional v048 fixture plus a trip on the Gravel with bags, own links and one log entry.
+// Taschen-Setups (14.10.2026): the tab is «Mein Setup», the photo card «Fotos», the bag setups come
+// first and the weight card shows the last used setup (here «Standard», its places from the trip).
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
@@ -62,11 +64,12 @@ async function start(page, context, info) {
 test('Setup: photos, weight, bag plan, log, compare, races and own links on one page', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
-  await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Setup' })).toHaveAttribute('aria-current', /page|true/);
-  for (const h of ['Mein Setup', 'Gesamtgewicht', 'Taschen-Plan', 'Setup-Logbuch', 'Dein Velo im Vergleich', 'Deine Rennen', 'Ideen von anderen']) await expect(page.getByRole('heading', { level: 2, name: h })).toBeVisible();
-  // Total: bike 9.4 + luggage (bags 1.02 + gear 2.41) = 12.8 kg; the saved rig had 6 kg luggage.
-  await expect(page.getByText('Packliste «test_data_gtp_ Jura Wochenende»')).toBeVisible();
-  await expect(page.locator('.tot b').first()).toHaveText('12.8 kg');
+  await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
+  for (const h of ['Taschen-Setups', 'Fotos', 'Gesamtgewicht', 'Taschen-Plan', 'Setup-Logbuch', 'Dein Velo im Vergleich', 'Deine Rennen', 'Ideen von anderen']) await expect(page.getByRole('heading', { level: 2, name: h })).toBeVisible();
+  // Total of «Standard»: bike 9.4 + bags 1.02 + contents 2.32 (the lamp sits in the fork, a place
+  // without a bag) = 12.7 kg; the saved rig had 6 kg luggage.
+  await expect(page.getByText('Setup «Standard»')).toBeVisible();
+  await expect(page.locator('.tot b').first()).toHaveText('12.7 kg');
   await expect(page.getByLabel('Deine gespeicherten Rigs')).toContainText('du leichter');
   // The newest log entry with its km line, the race with its rig.
   await expect(page.getByText(`${P} Kettenblatt 40 → 38 Z.`)).toBeVisible();

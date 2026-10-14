@@ -195,7 +195,7 @@
         <div class="pcol">
           {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} />{/if}
           {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
-          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} onbag={openBag} onphoto={actions.photo} onbags={() => show('bags')} />{/if}
+          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={() => show('bags')} />{/if}
           {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
         </div>
         <div class="pcol">

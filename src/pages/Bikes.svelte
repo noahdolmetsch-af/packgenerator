@@ -61,8 +61,9 @@
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
     <Equipment bikeId={route.bike} onbike={pickBike} />
   {:else if route.tab === 'rig'}
-    <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log -->
-    <RigTab bikeId={route.bike} view={route.view ?? null} onbike={pickBike} />
+    <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log;
+         Taschen-Setups TS2–TS4: &view=setup one setup, &view=compare two side by side, &view=table all -->
+    <RigTab bikeId={route.bike} view={route.view ?? null} setupId={route.setup ?? null} a={route.a ?? null} b={route.b ?? null} onbike={pickBike} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'strava'}
