@@ -30,8 +30,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
       { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
-      { box: 'nicer', text: 'On the phone the main buttons sit at the bottom; colours always come with a sign; «?» explains hard fields' },
-      { box: 'nicer', text: 'Tiles show «Open ›», every activity has a ••• button, and a short intro shows Today once' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom' },
     ],
     test: [
       'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
