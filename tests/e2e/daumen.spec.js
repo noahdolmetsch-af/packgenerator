@@ -3,7 +3,8 @@
 // (test_data_gtp_), German, phone + desktop. FE_SHOTS=<dir> also writes screenshots.
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { start, DE } from './gesamttest/lib.js';
+import { start, DE, fixture, day } from './gesamttest/lib.js';
+import { at1Acts } from './at1-acts.js';
 import { SIGN, FIELD_HELP } from '../../src/lib/daumen.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -99,7 +100,9 @@ test('FE13 Farbe nie allein: every coloured status carries a sign', async ({ pag
 });
 
 test('FE14 help in place: a tap shows the sentence, again hides it', async ({ page, context }, info) => {
-  const errors = await start(page, context, info);
+  // AT1: the values of Touren are those of the Strava activities, so the data carries a few fictional ones
+  const base = fixture().data;
+  const errors = await start(page, context, info, { data: { ...base, tables: { ...base.tables, activities: at1Acts(day) } } });
   await page.goto('./#/gear');
   await page.locator('main .addb').click();
   const dlg = page.locator('dialog[open]');
@@ -121,10 +124,10 @@ test('FE14 help in place: a tap shows the sentence, again hides it', async ({ pa
   await expect(grams).not.toHaveAttribute('aria-describedby', new RegExp(id));
   await page.keyboard.press('Escape');
 
-  // Touren: «Fahrzeit» and «Verstrichen» explain themselves in the values of a trip
+  // Touren: «Dauer» and «Verstrichen» explain themselves in the values of an activity (AT1)
   await page.goto('./#/trips');
-  const vals = page.locator('[data-values]').first();
-  const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Moving time|col'))}` });
+  const vals = page.locator('[data-act-values]').first();
+  const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Duration|act'))}` });
   await moving.click();
   await expect(vals.getByRole('note')).toHaveText(T(FIELD_HELP.moving));
   await shot(page, info, 'fe14-touren');
