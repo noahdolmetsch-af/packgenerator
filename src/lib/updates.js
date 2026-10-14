@@ -6,7 +6,7 @@
  * items left the code (they had already run on that data). Updates here work on any data.
  */
 
-import { READY_DEFAULT, READY_OLD_IDS } from './trips.js';
+import { READY_DEFAULT, READY_OLD_IDS } from './checks.js';
 import { loadTemplates, saveTemplates, TEMPLATES_KEY, linkTemplate, isLinked } from './templates.js';
 import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
@@ -232,7 +232,7 @@ export async function templatesLinked2026(db) {
 }
 
 /**
- * v0.45.2 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
+ * v0.45.2 (Noah 9.10.2026): the new base check before every ride (checks.js READY_DEFAULT) replaces
  * the old suggested rows of a saved standard; its own rows stay after the new ones. Trips keep the
  * check they have (an import keeps the records exactly as in the file); new trips get the new one.
  */

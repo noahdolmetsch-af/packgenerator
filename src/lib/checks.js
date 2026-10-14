@@ -13,6 +13,57 @@
  */
 import { BIKEPACKING, domainOf } from './domains.js';
 
+// Data cleanup 14.10.2026 (Noah 2a–4a): every suggested check list lives here, in one place: the ready
+// check (bike trips and per area), the evening before and back home. Keys of areas are written out
+// ('bikepacking'), because domains.js reads this file too.
+
+/**
+ * The ready check suggested for every new trip (decision 7: editable per trip).
+ * Cleaned up 4.10.2026 with Noah: one short list without groups; the "always with me" items
+ * are now normal items marked "On every trip" (see alwaysEntries). Noah can save his own
+ * list as the standard (setting "readyStandard"), which then replaces this one.
+ */
+// v0.45.2 (Noah 9.10.2026, "gilt primär"): the base check before every ride starts with his six
+// things; from the old list stay what still makes sense (kit, charged, tyres, phone/wallet/keys).
+// Dropped: food, "Backpack packed" (now the mini backpack), route on the Garmin, live tracking.
+export const READY_DEFAULT = [
+  { id: 'lock', label: 'Lock' },
+  { id: 'minipack', label: 'Mini backpack' },
+  { id: 'bottle', label: 'Bottle filled' },
+  { id: 'glasses', label: 'Sunglasses' },
+  { id: 'cap', label: 'Cap' },
+  { id: 'wind', label: 'Wind jacket' },
+  { id: 'kit', label: 'Helmet, shoes, gloves' },
+  { id: 'charged', label: 'Devices charged' },
+  { id: 'tyres', label: 'Tyre pressure checked' },
+  { id: 'wallet', label: 'Phone, wallet, keys' },
+];
+/** The ids of the ready check before 0.45.2 (basicCheck2026 replaces them, own rows stay). */
+export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'tyres', 'wallet', 'tracking'];
+
+/** The ready check suggested for a trip without a bike (the bike one speaks of helmet and tyres). */
+export const READY_BY_DOMAIN = {
+  ski: [
+    { id: 'lvs', label: 'Avalanche transceiver on and tested' },
+    { id: 'bulletin', label: 'Avalanche bulletin read' },
+    { id: 'skins', label: 'Skins, crampons, poles' },
+    { id: 'charged', label: 'Devices charged' },
+    { id: 'wallet', label: 'Phone, wallet, keys' },
+  ],
+  weekend: [
+    { id: 'tickets', label: 'Tickets or route checked' },
+    { id: 'charged', label: 'Devices charged' },
+    { id: 'wallet', label: 'Phone, wallet, keys' },
+  ],
+  travel: [
+    { id: 'passport', label: 'Passport, visa, insurance' },
+    { id: 'cards', label: 'Cards and some cash' },
+    { id: 'charged', label: 'Devices charged, adapter packed' },
+    { id: 'wallet', label: 'Phone, wallet, keys' },
+  ],
+};
+
+
 export const CHECK_KINDS = ['eve', 'after'];
 
 const EVE_BASE = [
@@ -31,7 +82,7 @@ const AFTER_BASE = [
 export const CHECKS_BY_DOMAIN = {
   // v0.111.0 (mockup V4 «Checks pro Reiseart», Noah «v1-v4 ok» 12.10.2026 22:34): each trip type its own list
   eve: {
-    [BIKEPACKING]: [
+    bikepacking: [
       { id: 'weather', label: 'Look at the weather again' },
       { id: 'gps', label: 'Route on the GPS' },
       { id: 'charge', label: 'Charge lights, GPS and phone' },
@@ -68,7 +119,7 @@ export const CHECKS_BY_DOMAIN = {
     ],
   },
   after: {
-    [BIKEPACKING]: [{ id: 'bike', label: 'Clean the bike and oil the chain' }, ...AFTER_BASE],
+    bikepacking: [{ id: 'bike', label: 'Clean the bike and oil the chain' }, ...AFTER_BASE],
     // v0.111.0 (mockups V4 and V6, Noah «v5-6 ok» 12.10.2026 22:39)
     ski: [
       { id: 'skins', label: 'Skins on their foil, to dry' },
@@ -125,7 +176,7 @@ export const CHECK_LINKS = {
 };
 
 /** «Gilt für»: all trips of a type (V3), and the plural for the button. */
-export const ALL_OF = { [BIKEPACKING]: 'All bikepacking trips', ski: 'All ski tours', hiking: 'All hikes', weekend: 'All weekends', travel: 'All world trips' };
+export const ALL_OF = { bikepacking: 'All bikepacking trips', ski: 'All ski tours', hiking: 'All hikes', weekend: 'All weekends', travel: 'All world trips' };
 
 /** The first row not ticked yet, or null. */
 export const nextOpen = (list) => list.find((r) => !r.done) ?? null;

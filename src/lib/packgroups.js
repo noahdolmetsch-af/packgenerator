@@ -7,6 +7,7 @@
  * from the standard set. Pure functions only.
  */
 import { isWorn } from './blocks2026.js';
+import { CLOTHING_CATEGORIES, CHARGE_CATEGORIES } from './gear.js';
 import { entriesWeight } from './sets.js';
 import { BIKEPACKING } from './domains.js';
 
@@ -17,14 +18,12 @@ export const PACK_GROUPS = [
   { key: 'elec', name: 'Electronics', color: '#C99A06' },
   { key: 'warm', name: 'Extra warm', color: '#6A5ACD' },
 ];
-const CLOTHES = ['onbike', 'offbike', 'shoes', 'rain'];
-const ELEC = ['elec', 'light'];
 
 /** The group of one item; warmIds: the cold layers the weather brings. */
 export function groupOf(item, warmIds = new Set()) {
   if (warmIds.has(item?.id)) return 'warm';
-  if (CLOTHES.includes(item?.category)) return 'clothes';
-  if (ELEC.includes(item?.category)) return 'elec';
+  if (CLOTHING_CATEGORIES.includes(item?.category)) return 'clothes';
+  if (CHARGE_CATEGORIES.includes(item?.category)) return 'elec';
   return 'gear';
 }
 

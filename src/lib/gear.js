@@ -24,6 +24,10 @@ export const CATEGORIES = [
   { key: 'lux', name: 'Comfort & luxury', color: '#B8935A' },
 ];
 export const CATEGORY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
+/** Groups of categories several pages use (data cleanup 14.10.2026: one place instead of five copies). */
+export const CLOTHING_CATEGORIES = ['onbike', 'rain', 'offbike', 'shoes'];
+/** Things that need charging: electronics and lights (charge.js, packgroups.js). */
+export const CHARGE_CATEGORIES = ['elec', 'light'];
 
 /** Where an item goes by default (same keys as the prototype). */
 export const BAGS = [

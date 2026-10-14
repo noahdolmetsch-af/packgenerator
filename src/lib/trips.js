@@ -16,30 +16,8 @@ import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
 import { isOver } from './debrief.js';
 import { localDay } from './localday.js';
+import { READY_DEFAULT } from './checks.js';
 
-/**
- * The ready check suggested for every new trip (decision 7: editable per trip).
- * Cleaned up 4.10.2026 with Noah: one short list without groups; the "always with me" items
- * are now normal items marked "On every trip" (see alwaysEntries). Noah can save his own
- * list as the standard (setting "readyStandard"), which then replaces this one.
- */
-// v0.45.2 (Noah 9.10.2026, "gilt primär"): the base check before every ride starts with his six
-// things; from the old list stay what still makes sense (kit, charged, tyres, phone/wallet/keys).
-// Dropped: food, "Backpack packed" (now the mini backpack), route on the Garmin, live tracking.
-export const READY_DEFAULT = [
-  { id: 'lock', label: 'Lock' },
-  { id: 'minipack', label: 'Mini backpack' },
-  { id: 'bottle', label: 'Bottle filled' },
-  { id: 'glasses', label: 'Sunglasses' },
-  { id: 'cap', label: 'Cap' },
-  { id: 'wind', label: 'Wind jacket' },
-  { id: 'kit', label: 'Helmet, shoes, gloves' },
-  { id: 'charged', label: 'Devices charged' },
-  { id: 'tyres', label: 'Tyre pressure checked' },
-  { id: 'wallet', label: 'Phone, wallet, keys' },
-];
-/** The ids of the ready check before 0.45.2 (basicCheck2026 replaces them, own rows stay). */
-export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'tyres', 'wallet', 'tracking'];
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
 export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standard?.length ? standard : fallback).map((r) => ({ id: r.id, label: r.label, done: false }));
 

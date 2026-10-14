@@ -13,9 +13,10 @@
  *   trip.chargeNight  { [date]: { [itemId]: true } } the evenings on the way (Ride, evening block)
  */
 import { nameOf } from './i18n.svelte.js';
+import { CHARGE_CATEGORIES } from './gear.js';
 
 /** The categories whose items are devices to charge. */
-export const CHARGE_CATEGORIES = ['elec', 'light'];
+export { CHARGE_CATEGORIES };
 /** Not a device, even in Electronics: cables, adapters, chargers, plugs, memory cards. */
 export const NOT_A_DEVICE = /\b(cable|kabel|adapter|charger|ladeger(ä|ae)t|lader|plug|stecker|sd[- ]?card|speicherkarte|card|karte)s?\b/i;
 /** A device in another category: the name says so. */

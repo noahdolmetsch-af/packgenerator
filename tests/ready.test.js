@@ -1,7 +1,8 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { newTrip, freshReady, alwaysEntries, READY_DEFAULT } from '../src/lib/trips.js';
+import { newTrip, freshReady, alwaysEntries } from '../src/lib/trips.js';
+import { READY_DEFAULT } from '../src/lib/checks.js';
 
 const bike = { id: 'scott', name: 'Scott', setup: { top: 'bag-top', seat: 'bag-seat' } };
 
@@ -31,7 +32,7 @@ describe('ready check cleanup (4.10.2026)', () => {
 import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { basicCheck2026 } from '../src/lib/updates.js';
-import { READY_OLD_IDS } from '../src/lib/trips.js';
+import { READY_OLD_IDS } from '../src/lib/checks.js';
 
 describe('base check 2026', () => {
   it('starts with lock, mini backpack, bottle, sunglasses, cap, wind jacket', () => {

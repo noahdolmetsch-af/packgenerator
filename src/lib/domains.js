@@ -10,6 +10,10 @@
  */
 import { isInventory, CATEGORIES } from './gear.js';
 import { inStandard, isWorn } from './blocks2026.js';
+import { READY_BY_DOMAIN } from './checks.js';
+
+// Data cleanup 14.10.2026: the check lists live in checks.js (one place); re-exported for the pages.
+export { READY_BY_DOMAIN };
 
 export const BIKEPACKING = 'bikepacking';
 
@@ -88,27 +92,6 @@ export function rememberDomain(key) {
 
 /* ---------- trips without a bike ---------- */
 
-/** The ready check suggested for a trip without a bike (the bike one speaks of helmet and tyres). */
-export const READY_BY_DOMAIN = {
-  ski: [
-    { id: 'lvs', label: 'Avalanche transceiver on and tested' },
-    { id: 'bulletin', label: 'Avalanche bulletin read' },
-    { id: 'skins', label: 'Skins, crampons, poles' },
-    { id: 'charged', label: 'Devices charged' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-  weekend: [
-    { id: 'tickets', label: 'Tickets or route checked' },
-    { id: 'charged', label: 'Devices charged' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-  travel: [
-    { id: 'passport', label: 'Passport, visa, insurance' },
-    { id: 'cards', label: 'Cards and some cash' },
-    { id: 'charged', label: 'Devices charged, adapter packed' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-};
 /** Where the own standard ready check of an area is stored (settings key). */
 export const readyKey = (domain) => (!domain || domain === BIKEPACKING ? 'readyStandard' : `readyStandard.${domain}`);
 
