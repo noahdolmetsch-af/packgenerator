@@ -66,7 +66,7 @@
   import { weightText } from '../lib/gear.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { toWx } from '../lib/weather.js';
-  import { tourBikeId } from '../lib/tourbike.svelte.js';
+  import { lastBikeId } from '../lib/dayride.js';
   import { quickPlan, quickStart } from '../lib/quickstart.js';
   import { RAIN } from '../lib/trips.js';
   import Btn from '../lib/ui/Btn.svelte';
@@ -259,8 +259,7 @@
   const tripOnRideDay = $derived(trips.some((x) => !x.skipped && !x.finished && x.startDate && onTripDay(x, today)));
   const suggestBikeId = $derived.by(() => {
     if (otherBike && bikes.some((b) => b.id === otherBike)) return otherBike;
-    // VS1 (Noah 14.10.2026): the standard bike, or the one ridden last when that was chosen
-    const last = tourBikeId(trips, bikes, undefined, today);
+    const last = lastBikeId(trips, bikes, today);
     const tone = (b) => readyLight(b, { tasks, visits, today }).tone;
     const lastBike = bikes.find((b) => b.id === last);
     if (lastBike && tone(lastBike) !== 'due') return last;
