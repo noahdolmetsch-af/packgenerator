@@ -39,6 +39,38 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.132.2',
+    date: '2026-10-14',
+    title: 'Only ticked when ridden',
+    lead: 'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.',
+    points: [
+      { text: '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Hiking, ski tours and other trips without a bike no longer count as a bike trip' },
+    ],
+    test: [
+      'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.',
+      'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.',
+    ],
+  },
+  {
+    // v0.132.1 «Langer Name passt» (bug fix, Noah 14.10.2026 18:41 UTC «BUG auf live version dringend»; same look, so no mockup)
+    version: '0.132.1',
+    date: '2026-10-14',
+    title: 'Long names fit',
+    lead: 'A long trip name no longer runs out of the box when a trip ends.',
+    points: [
+      { text: 'On «Trip ended» a long trip name wraps inside the grey box', href: '#/trips' },
+    ],
+    small: [{ box: 'fixed', text: 'Also on «All packed»: a name without spaces breaks inside the box' }],
+    test: [
+      'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.',
+      'On a phone the name wraps over several lines, the page does not scroll sideways.',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),

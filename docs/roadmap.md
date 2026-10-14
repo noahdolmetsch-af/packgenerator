@@ -12,6 +12,7 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 14.10.2026 (v0.132.1):** «Langer Name passt» (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bleibt bei «Tour beendet» in der grauen Box.
 **Nachtrag 08.10.2026 (Version 1.2):** Live ist v0.35.0. M1 bis M4 und AP25 sind als Software ausgeliefert, M5 teilweise; AP29 ist erledigt. Was pro Meilenstein mit welchem Release kam und die Reihenfolge nach 0.36 steht unten in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Die Abschnitte bis zum Fortschrittsregister beschreiben weiterhin den Plan und seine Kriterien.
 
 ## Global Constraints
@@ -517,6 +518,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 **Nachtrag 13.10.2026 (v0.138.0):** «Training» TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen mit Ziel und Rückblick. Feste Termine aus AK1 Woche kommen mit «Aktiv ausweiten». Ziel «Eine App, die mich im Alltag unterstützt».
 
+**Nachtrag 14.10.2026 (v0.132.2):** «Velo draussen ohne falschen Haken» (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab.
 **Nachtrag 14.10.2026 (v0.132.0 «Tagespaket 14.10.»):** ein Release zusammen mit 0.125.0 in PR #151: Velo-Setup UC3-1–UC3-3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/FE6/FE7/FE8/FE9/FE10/FE11/FE17/FE18, Bezahlen vorbereiten mit Erklär-Seite Ich › Bezahlen BZ1/BZ2b (#156), Kleine Apps Meditation/Packliste/Velopflege + Benutzerhandbuch (#157), Doku «Links nach aussen» DG-X1–X16 (nur Spezifikation). Velo-Setup steht als Teil darunter. Als Nächstes: Noah merged #151 (0.125.0 + 0.132.0), dann Links nach aussen (DG-X) über Design-Refresh.
 **Nachtrag 14.10.2026 (v0.132.0, Branch):** «Velo-Setup» nach UC3-1–UC3-3 (Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC, Antworten «1-5a» 00:34 UTC, Ausbau «1 ja 2 ja 3ja» 00:35 UTC): neuer Reiter Velos › Setup mit Mein Setup, Gesamtgewicht, Taschen-Plan pro Tour (`view=bags`), Setup-Logbuch (`view=log`), «Dein Velo im Vergleich», «Deine Rennen» und Galerie «Ideen von anderen». Ersetzt den Entwurf UC2-3.
 **Nachtrag 14.10.2026 (v0.131.1):** «Abhaken wieder abwählbar» (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Häkchen auf Heute lassen sich wieder abwählen, «Rückgängig» wirkt, Pendeln lässt sich zurücknehmen.
