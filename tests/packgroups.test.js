@@ -1,7 +1,7 @@
 // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, answers 4b, 7a, 3b): the new trip's list in four groups,
 // worn items apart, and two example templates per kind of trip. Fictional items only.
 import { describe, it, expect } from 'vitest';
-import { groupOf, groupEntries, PACK_GROUPS, EXAMPLES, examplesFor } from '../src/lib/packgroups.js';
+import { groupOf, groupEntries, PACK_GROUPS, examplesFor } from '../src/lib/packgroups.js';
 import { TRIP_DOMAINS } from '../src/lib/domains.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -38,8 +38,10 @@ describe('groupEntries', () => {
 
 describe('example templates (answer 3b)', () => {
   it('two per offered kind of trip, with German names and days', () => {
-    for (const key of Object.keys(EXAMPLES)) {
-      expect(TRIP_DOMAINS.some((d) => d.key === key), key).toBe(true);
+    // Data cleanup 14.10.2026: the examples are on the areas (domains.js DOMAINS[].examples).
+    const withExamples = TRIP_DOMAINS.filter((d) => d.examples).map((d) => d.key);
+    expect(withExamples).toEqual(['bikepacking', 'ski', 'hiking']);
+    for (const key of withExamples) {
       expect(examplesFor(key)).toHaveLength(2);
       for (const ex of examplesFor(key)) {
         expect(DE[ex.name], ex.name).toBeTruthy();

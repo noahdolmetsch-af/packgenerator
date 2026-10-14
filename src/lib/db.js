@@ -81,7 +81,7 @@ export const DATA_TABLES = [
  * @property {string} [weightNote]
  *
  * @typedef {Object} Visit          One workshop visit (Noah, 4.10.2026, answer 7a)
- * @property {string} id            e.g. "biketech-R6439"
+ * @property {string} id            e.g. "shop-1234"
  * @property {string} bikeId
  * @property {string} date          YYYY-MM-DD
  * @property {string} shop

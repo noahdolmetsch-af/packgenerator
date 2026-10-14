@@ -2,6 +2,7 @@ import { tidyBrands } from './brand.js';
 import { ensureBikeSetup } from './bikes.js';
 import { ensureTrips } from './trips.js';
 import { applyUpdates } from './updates.js';
+import { cleanupData } from './cleanup.js';
 import { refreshSnapshots } from './templates.js';
 import { ensureKmBook } from './kmbookdb.js';
 
@@ -14,6 +15,7 @@ export async function tidyData(db) {
   await ensureBikeSetup(db);
   await ensureTrips(db); // needs the bikes to be set up first
   await applyUpdates(db); // changes Noah asked for in the chat
+  await cleanupData(db); // 14.10.2026: old fields and lists from the code move into the data (after the updates)
   // v0.68.0 «Q1 Jeder km zählt» (step 1): every km counter becomes the opening entry of the bike's
   // ride ledger; a counter changed outside the ledger gets a visible entry (after the updates, so
   // the km they set are in it). Idempotent.

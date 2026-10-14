@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
+
+- (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)
+- **Ursache:** `tapAct` entschied aus `state.todayDone` (liveQuery, hinkt nach); ein zweiter Tipp vor dem Nachladen hakte nochmals ab, Abwählen nahm nur den letzten Eintrag zurück.
+- **Selbst entschieden:** Abwählen nimmt alle eigenen Häkchen des Tages zurück (räumt alte Doppel-Häkchen auf); Pendeln bleibt über die Pendel-Zeile zurücknehmbar; der gleiche Doppeltipp-Schutz bei Challenges auf den Aktiv-Seiten (MedMore, Activity) folgt mit 0.133.0 oder später.
+
 ## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
@@ -1130,3 +1136,11 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
+## 14.10.2026: Daten einmal bereinigen (0.131.0)
+
+- **Persönliches raus aus dem Code (Noah 1a):** Echte Velos, km, Gewichte, Taschen und Gegenstände von Noah stehen nicht mehr im öffentlichen Code. Die einmaligen Umzüge dafür waren auf seinen Daten schon gelaufen und sind entfernt; eine Sicherung liegt privat. Der Import aus Noahs Excel bleibt als Werkzeug für genau diese Datei.
+- **Nur unsichtbar aufräumen (2a):** Das neutrale Standard-Paket baut der Thread «Persönlich und Standard-Profil».
+- **Alte Felder umziehen und löschen, mit Sicherung (3a):** `cleanup.js` macht vor der ersten Änderung eine Kopie aller Daten in `meta`; Kits und Gewichts-Prüfungen sind danach leer (die Tabellen bleiben im Schema, damit alte Backups aufgehen), `role` kennt nur noch «worn», `always` gibt es nicht mehr.
+- **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
+- **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
+- **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).

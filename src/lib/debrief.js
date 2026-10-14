@@ -12,7 +12,7 @@
  *     km, kmApplied }   km of this trip (answer 7a); kmApplied: what was already added to the bike
  * Pure functions only, so the rules are easy to test.
  */
-import { isInventory } from './gear.js';
+import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
@@ -38,7 +38,8 @@ export const BAGS_OK = [
 export const ITEM_STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' };
 
 /** Clothing that can wait at home on a warm trip ("only below 10 °C"). */
-const CLOTHING = ['onbike', 'rain', 'offbike'];
+// The clothing the cold question asks about: as before without shoes.
+const CLOTHING = CLOTHING_CATEGORIES.filter((c) => c !== 'shoes');
 export const WARM_LIMIT = 10;
 /** Answer 8b (4.10.2026): "leave at home" after an item was not used on 3 trips. */
 export const LEAVE_AFTER = 3;
@@ -250,7 +251,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
     newItems.push({
       id: newItemId(newItems.length + 1), name, brand: from?.brand ?? '', model: from?.model ?? '', category: from?.category ?? 'lux', weightG: from?.weightG ?? null, qty: 1,
       weightStatus: from?.weightG != null ? from.weightStatus : 'missing', carry: from?.carry ?? 'luggage', defaultBag: from?.defaultBag ?? null, ownership: 'wishlist',
-      role: null, sets: [], kits: [], domains: ['bikepacking'], note, updatedAt: now,
+      role: null, sets: [], domains: ['bikepacking'], note, updatedAt: now,
     });
 
   for (const id of on) {

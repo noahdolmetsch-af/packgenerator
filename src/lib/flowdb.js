@@ -33,6 +33,14 @@ export async function tick(db, act, opts) {
 }
 export const removeEntry = (db, id) => db.flowLog.delete(id);
 export const putEntry = (db, e) => db.flowLog.put(e);
+/**
+ * Fix 14.10.: today's own ticks of an activity, read from the saved log (the page shows them a moment
+ * later). keep(e) narrows them, for example to the commutes.
+ */
+export const dayEntries = async (db, actId, day, keep = () => true) => (await db.flowLog.where('actId').equals(actId).toArray()).filter((e) => e.day === day && keep(e));
+/** Fix 14.10.: take ticks back all at once (a quick double tap could save two); «Rückgängig» puts them back. */
+export const removeEntries = (db, list) => db.flowLog.bulkDelete(list.map((e) => e.id));
+export const putEntries = (db, list) => db.flowLog.bulkPut(list);
 
 export const saveAct = (db, act) => db.flowActs.put(JSON.parse(JSON.stringify(normAct(act))));
 /** Delete an activity with its history and its session details (pausing keeps them). Stars reached stay. */

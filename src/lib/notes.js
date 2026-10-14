@@ -57,12 +57,12 @@ export function tripNotes(debrief, notes, tripId) {
   return [...old, ...fresh].sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
 }
 
-/** The bike a note talks about: a bike name or kind in the text, else the note's own bike. */
+/** The bike a note talks about: a bike name, kind or extra name (bike.aliases) in the text, else the note's own bike. */
 export function guessBike(text, bikes, fallback = null) {
   const t = text.toLowerCase();
-  const words = (b) => [b.name, ...(b.name ?? '').split(/\s+/), b.kind, b.id, ...(b.aliases ?? [])].filter((w) => w && w.length >= 4).map((w) => w.toLowerCase());
-  const extra = { 'scott-hardtail': ['hardtail', 'scale'], fully: ['fully', 'spark'], 'factor-ls': ['factor', 'gravel'], 'canyon-world-cup': ['canyon', 'lux'] };
-  const hit = bikes.find((b) => [...words(b), ...(extra[b.id] ?? [])].some((w) => t.includes(w)));
+  const words = (b) => [b.name, ...(b.name ?? '').split(/\s+/), b.kind, b.id].filter((w) => w && w.length >= 4).map((w) => w.toLowerCase());
+  const extra = (b) => (b.aliases ?? []).filter(Boolean).map((w) => String(w).toLowerCase());
+  const hit = bikes.find((b) => [...words(b), ...extra(b)].some((w) => t.includes(w)));
   return hit?.id ?? fallback;
 }
 
@@ -88,7 +88,7 @@ export function sortNote(note, kind, { bikeId = null, tripId = null, ids = {}, n
   if (kind === 'wish') {
     out.item = {
       id: ids.item, name: short, brand: '', model: '', category: 'lux', weightG: null, qty: 1, weightStatus: 'missing', carry: 'luggage', defaultBag: null,
-      ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'], note: `From a quick note (${note.at.slice(0, 10)}): ${note.text}`, updatedAt: now,
+      ownership: 'wishlist', role: null, sets: [], domains: ['bikepacking'], note: `From a quick note (${note.at.slice(0, 10)}): ${note.text}`, updatedAt: now,
     };
   }
   if (kind === 'learning') {

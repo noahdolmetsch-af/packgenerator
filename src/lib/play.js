@@ -57,7 +57,7 @@ export function playFile(kind, today) {
   if (kind !== 'empty') {
     const d = playDates(kind, today);
     const gear = GEAR.filter((g) => kind === 'weekend' || DAY_GEAR.has(g[0]));
-    tables.items = gear.map(([id, name, category, carry, weightG]) => ({ id, name: t(name), category, carry, weightG, qty: 1, weightStatus: 'measured', ownership: 'owned', defaultBag: null, role: null, sets: [], kits: [], domains: ['bikepacking'] }));
+    tables.items = gear.map(([id, name, category, carry, weightG]) => ({ id, name: t(name), category, carry, weightG, qty: 1, weightStatus: 'measured', ownership: 'owned', defaultBag: null, role: null, sets: [], domains: ['bikepacking'] }));
     const bags = gear.filter((g) => g[2] === 'bags');
     tables.containers = bags.map(([id, name]) => ({ id: `bag-${id}`, name: t(name), slot: id === 'play-seat' ? 'seat' : 'frame', volumeL: id === 'play-seat' ? 12 : 4, itemId: id, pieces: 1 }));
     const setup = { seat: bags.some((b) => b[0] === 'play-seat') ? 'bag-play-seat' : null, frame: 'bag-play-frame' };

@@ -166,10 +166,10 @@ describe('11a in the debrief and the ballast: Standard means also the old "On ev
     expect(ids).not.toContain('optional:test_data_gtp_HELMET');
   });
 
-  it('applying it writes the new mark, takes it out of Standard and keeps role / always in step', () => {
+  it('applying it writes the new mark and takes it out of Standard (an old «On every trip» is switched off)', () => {
     const out = applyDebrief(d, trip, items, [], [], ['optional:test_data_gtp_PHONE'], { now: 'N' });
     const [phone] = out.items;
-    expect(phone).toMatchObject({ role: 'optional', leaveHome: true, always: false, sets: [], updatedAt: 'N' });
+    expect(phone).toMatchObject({ role: '', leaveHome: true, always: false, sets: [], updatedAt: 'N' });
     expect(inStandard(phone)).toBe(false);
   });
 

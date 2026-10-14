@@ -10,35 +10,89 @@
  */
 import { isInventory, CATEGORIES } from './gear.js';
 import { inStandard, isWorn } from './blocks2026.js';
+import { READY_BY_DOMAIN } from './checks.js';
+
+// Data cleanup 14.10.2026: the check lists live in checks.js (one place); re-exported for the pages.
+export { READY_BY_DOMAIN };
 
 export const BIKEPACKING = 'bikepacking';
 
-/** The areas, in the order they are offered. packs: the bags a new trip of this area gets. */
+/**
+ * The areas, in the order they are offered: the ONE place for everything per area (data cleanup
+ * 14.10.2026, Noah 4a; before, seven files kept their own lists).
+ *   packs:    the bags a new trip of this area gets; want: the litres the bag suggestions look for
+ *             (Noah 3a: hiking a 12 or 15 L running pack; weekend and world trip a 20 L duffle and
+ *             a 20 L daypack; without want: the litres of the pack ±5 L, backpacks.js wantFor)
+ *   icon:     the icon key of the area (trip/checkicons.js, the New trip window)
+ *   sport:    shown in sight in the New trip window (v0.114.0, answer 2a; sportName: its name there);
+ *             the others behind «+ Andere»
+ *   words:    words for this area in an imported file (gearimport.js mapAreas)
+ *   examples: two example templates (answer 3b; packgroups.js examplesFor)
+ * The check lists per area live in checks.js (one file for all check lists).
+ */
 export const DOMAINS = [
-  { key: BIKEPACKING, name: 'Bikepacking', bike: true },
-  { key: 'ski', name: 'Ski touring', packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30 }] },
+  {
+    key: BIKEPACKING,
+    name: 'Bikepacking',
+    bike: true,
+    icon: 'bike',
+    sport: true,
+    sportName: 'Cycling|sport',
+    words: ['bikepacking'],
+    examples: [
+      { id: 'ex:day', name: 'Day tour', icon: 'bike', days: 1, hours: 3, overnight: 'none' },
+      { id: 'ex:weekend', name: 'Weekend', icon: 'bag', days: 2, hours: 4, overnight: 'lodging' },
+    ],
+  },
+  {
+    key: 'ski',
+    name: 'Ski touring',
+    packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30 }],
+    icon: 'ski',
+    sport: true,
+    words: ['ski', 'skitour'],
+    examples: [
+      { id: 'ex:ski-day', name: 'Day tour', icon: 'ski', days: 1 },
+      { id: 'ex:ski-hut', name: 'Hut tour', icon: 'hut', days: 2 },
+    ],
+  },
   {
     key: 'weekend',
     name: 'Weekend',
     packs: [
-      { key: 'bag', name: 'Travel bag', volumeL: null },
-      { key: 'day', name: 'Daypack', volumeL: null },
+      { key: 'bag', name: 'Travel bag', volumeL: null, want: { min: 18, max: 22 } },
+      { key: 'day', name: 'Daypack', volumeL: null, want: { min: 18, max: 22 } },
     ],
+    icon: 'ticket',
+    words: ['weekend', 'wochenende'],
   },
   {
     key: 'travel',
     name: 'World trip',
     packs: [
-      { key: 'pack', name: 'Backpack 60 L', volumeL: 60 },
-      { key: 'day', name: 'Daypack', volumeL: null },
+      { key: 'pack', name: 'Backpack 60 L', volumeL: 60, want: { min: 18, max: 22 } },
+      { key: 'day', name: 'Daypack', volumeL: null, want: { min: 18, max: 22 } },
     ],
+    icon: 'globe',
+    words: ['travel', 'reisen'],
   },
   // v0.36.0 (gear import): the areas of Noah's reviewed list. Velo is by bike: its items come along
   // on every bike trip (inDomain). Velo and Everyday are areas of items only, no trip area of their own
   // (trip: false, not offered in "New trip"); Hiking packs a backpack like ski touring.
-  { key: 'velo', name: 'Cycling', bike: true, trip: false },
-  { key: 'hiking', name: 'Hiking', packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30 }] },
-  { key: 'everyday', name: 'Everyday', trip: false },
+  { key: 'velo', name: 'Cycling', bike: true, trip: false, words: ['velo', 'bike'] },
+  {
+    key: 'hiking',
+    name: 'Hiking',
+    packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30, want: { min: 12, max: 15 } }],
+    icon: 'walk',
+    sport: true,
+    words: ['hiking', 'wandern'],
+    examples: [
+      { id: 'ex:hike-day', name: 'Day hike', icon: 'walk', days: 1 },
+      { id: 'ex:hike-hut', name: 'Hut hike', icon: 'hut', days: 2 },
+    ],
+  },
+  { key: 'everyday', name: 'Everyday', trip: false, words: ['everyday', 'alltag'] },
 ];
 /** v0.36.0: the areas a new trip can be of (Velo and Everyday are areas of items only). */
 export const TRIP_DOMAINS = DOMAINS.filter((d) => d.trip !== false);
@@ -88,32 +142,11 @@ export function rememberDomain(key) {
 
 /* ---------- trips without a bike ---------- */
 
-/** The ready check suggested for a trip without a bike (the bike one speaks of helmet and tyres). */
-export const READY_BY_DOMAIN = {
-  ski: [
-    { id: 'lvs', label: 'Avalanche transceiver on and tested' },
-    { id: 'bulletin', label: 'Avalanche bulletin read' },
-    { id: 'skins', label: 'Skins, crampons, poles' },
-    { id: 'charged', label: 'Devices charged' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-  weekend: [
-    { id: 'tickets', label: 'Tickets or route checked' },
-    { id: 'charged', label: 'Devices charged' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-  travel: [
-    { id: 'passport', label: 'Passport, visa, insurance' },
-    { id: 'cards', label: 'Cards and some cash' },
-    { id: 'charged', label: 'Devices charged, adapter packed' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
-};
 /** Where the own standard ready check of an area is stored (settings key). */
 export const readyKey = (domain) => (!domain || domain === BIKEPACKING ? 'readyStandard' : `readyStandard.${domain}`);
 
 /** A fresh copy of an area's bags for a new trip. */
-export const packsFor = (domain) => (DOMAIN[domain]?.packs ?? []).map((p) => ({ ...p }));
+export const packsFor = (domain) => (DOMAIN[domain]?.packs ?? []).map(({ want, ...p }) => ({ ...p }));
 
 /** Where an item lands on a trip without a bike: worn items on me, everything else in the first bag. */
 export function packSlot(item, packs) {
