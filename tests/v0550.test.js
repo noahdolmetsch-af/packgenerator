@@ -370,6 +370,6 @@ describe('«Bausteine prüfen» (4a)', () => {
 describe('German words', () => {
   it('the night and the blocks', () => {
     lang.v = 'de';
-    expect(allSets([]).map((s) => s.name)).toEqual(['Biwak', 'Zelt', 'Hotel/Hütte', 'Nacht: Kochen', 'Erste Hilfe', 'Reparatur', 'Laden', 'Licht', 'Rennen', 'Verpflegung', 'Hygiene', 'Komfort']);
+    expect(allSets([]).map((s) => s.name)).toEqual(['Biwak', 'Zelt', 'Hotel/Hütte', 'Nacht: Kochen', 'Erste Hilfe', 'Reparatur', 'Laden', 'Licht', 'Rennen', 'Verpflegung', 'Hygiene', 'Komfort', 'Kälte', 'Hitze', 'Pass & Höhenmeter', 'Lange Fahrt', 'Ausland', 'Zug', 'Regen']); // SN3+: the blocks «je nach Lage»
   });
 });

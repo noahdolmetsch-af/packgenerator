@@ -15,6 +15,7 @@
   import { addEntries, updateEntry, restoreEntries, KM_WEEK, KM_MONTH } from '../kmbookdb.js';
   import KmChips from '../care/KmChips.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { today } = $props();
 
@@ -120,7 +121,7 @@
             <button type="button" class="lnk" onclick={putOff}>{t('later')}</button>
           </div>
           {#if corr}
-            <form class="corr" onsubmit={(e) => saveCorr(e, main)}>
+            <form class="corr" onsubmit={(e) => saveCorr(e, main)} use:weiter>
               <label><span class="lbl">km</span><input class="inp num" type="text" inputmode="decimal" bind:value={cKm} /></label>
               <label class="wide"><span class="lbl">{t('Reason')}</span><input class="inp" type="text" bind:value={cWhy} placeholder={t('e.g. ride counted twice, both units ran')} /></label>
               {#if cErr}<p class="err" role="alert">{cErr}</p>{/if}

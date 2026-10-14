@@ -12,6 +12,13 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -199,6 +206,7 @@ test('Mehrfachauswahl: 3 Teile in einen Baustein, Undo; im Baustein und im Kleid
   await dlg.getByRole('button', { name: T('Assign'), exact: true }).click();
   await expect.poll(setsOf).toEqual([true, true, true]);
   await page.goto('./#/blocks');
+  await openGroups(page);
   const card = page.getByRole('listitem', { name: `${P} Werkzeug` });
   await card.locator('summary').click();
   await card.getByRole('button', { name: T('Select'), exact: true }).click();

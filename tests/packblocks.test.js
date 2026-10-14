@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { blockRows, wetTrip, PACK_BLOCKS } from '../src/lib/packblocks.js';
 import { NIGHT_SETS } from '../src/lib/trips.js';
+import { SITUATION_BLOCKS } from '../src/lib/situation.js';
 
 // v0.124.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen»: fictional items only.
 const item = (id, sets, weightG = 100, extra = {}) => ({ id, name: `test_data_gtp_ ${id}`, weightG, category: 'tools', ownership: 'owned', sets, ...extra });
@@ -17,8 +18,8 @@ const ITEMS = [
 const trip = (extra = {}) => ({ id: 't', overnight: 'none', sets: { charge: false }, entries: [], ...extra });
 
 describe('Bausteine beim Packen (B4)', () => {
-  it('the built-in blocks of the old switches, then food and hygiene', () => {
-    expect(PACK_BLOCKS).toEqual([...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene']);
+  it('the built-in blocks of the old switches, then food and hygiene, then the blocks «je nach Lage» (SN3+)', () => {
+    expect(PACK_BLOCKS).toEqual([...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene', ...SITUATION_BLOCKS]);
   });
   it('«Dabei» is what the trip brings or switched on; the rest «Dazunehmen»; only blocks with items, no kits, no Comfort', () => {
     const r = blockRows(trip(), ITEMS, SETS);

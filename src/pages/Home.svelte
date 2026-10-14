@@ -76,6 +76,9 @@
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
+  import HelloSheet from '../lib/home/HelloSheet.svelte'; // HG1d
+  import NameAsk from '../lib/home/NameAsk.svelte'; // HG1b
+  import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
@@ -83,19 +86,21 @@
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
-  import { tripState } from '../lib/tripstate.js';
+  import { tripState, tripStates } from '../lib/tripstate.js';
+  import { asksRide } from '../lib/trip/fixed.js';
+  import { answerRide } from '../lib/trip/reopen.svelte.js';
   import TripState from '../lib/ui/TripState.svelte';
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
+  import IntroKT from '../lib/home/IntroKT.svelte';
+  import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
-  import MorningCheckTile from '../lib/home/MorningCheckTile.svelte';
-  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
-  import { checkHref } from '../lib/flowcheck.js';
+  import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -108,6 +113,7 @@
   import YearAgoTile from '../lib/home/YearAgoTile.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
+  import AbCard from '../lib/abfragen/AbCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
@@ -131,7 +137,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress'];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -235,6 +241,10 @@
     homeForecast(db); // saves into meta; the greeting follows the saved forecast
   });
   const hello = $derived(greeting(now.getHours(), S.userName ?? ''));
+  // HG1 3: at night only «Guät Nacht, Nachtülä», no tap line and no name question
+  const night = $derived(helloPart(now.getHours()) === 'night');
+  // HG1b: no name yet: one quiet row under the greeting, asked only once
+  const askName = $derived(ready && !night && !editing && !String(S.userName ?? '').trim() && !S[NAME_ASKED_KEY]);
   const wx = $derived(fc ? weatherLine(fc, now) : null);
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
@@ -300,6 +310,13 @@
   // v0.67.0 (U007): «Open the trip» leads into the step the trip is in now, not always to Plan.
   const stepHere = (tr) => stepOf(tr, today, { debriefDone: debriefs.some((d) => d.tripId === tr.id && d.status === 'done') });
   const focus = $derived(loaded ? todayFocus(trips, debriefs, today) : null);
+  // TZ-2 «Fest nach der Fahrt» (mockup TZ2 Heute): a trip whose date passed but was never ended asks
+  // «Bist du gefahren?» (a row of its own) instead of waiting in the debrief row; a reopened trip does
+  // not wait for a debrief. The card's «How was …?» of a fresh trip stays («All good» says you rode).
+  const states = $derived(loaded && $ridesQ ? tripStates(trips, { debriefs, rides: $ridesQ, today }) : {});
+  const heroAsks = $derived(focus?.kind === 'debrief' ? focus.trip?.id : null);
+  const askTrips = $derived(trips.filter((x) => x.id !== heroAsks && asksRide(states[x.id])).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
+  const waitTrips = $derived(trips.filter((x) => !asksRide(states[x.id]) && !states[x.id]?.reopened));
   const lead = $derived(focus?.trip ?? null);
   const next = $derived(nextTrip(trips, today));
   // Noah 7a, 31a: the trip Today leads with, then the other trips still to come (swipe, "1 / 3 ›")
@@ -507,7 +524,13 @@
       backingUp = false;
     }
   }
-  const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
+  const debrief = $derived(loaded && focus?.kind !== 'debrief' ? openDebrief(null, waitTrips, debriefs, today) : null);
+  // TZ-2: «Ja» ends the trip on its last day, «Nicht gefahren» marks it skipped; both with Undo
+  async function rideAnswer(trip, yes) {
+    const undo = await answerRide($state.snapshot(trip), yes);
+    if (undo) say(yes ? t('Saved: you rode {trip}. The list is fixed now.', { trip: trip.title }) : t('{trip}: marked as not ridden.', { trip: trip.title }), undo);
+  }
+  const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && !x.id.startsWith('demo') && onTripDay(x, today)));
   const prep = $derived.by(() => {
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
@@ -609,7 +632,12 @@
         if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
       }
     }
-    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
+    // TZ-2 (mockup TZ2 Heute): «Jura-Höhen (1. Okt.): Rückblick ausfüllen · 2 Min.» with «Rückblick»; «All good»
+    // (v0.24.1, quickDebrief) stays beside it as a quiet second way
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('{title} ({date}): fill in the debrief · 2 min.', { title: debrief.title, date: shortDay(debrief.startDate) }), act: { label: t('Debrief'), trip: debrief.id, run: () => (location.hash = `#/debrief/${encodeURIComponent(debrief.id)}`) }, act2: { label: t('All good'), run: () => allGood(debrief), quiet: true } });
+    // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
+    const askT = askTrips[0];
+    if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -711,6 +739,26 @@
   // v0.127.0 «Tages-Check» 2: the hint to the long press shows until it is closed (settings, in every backup)
   const HINT_KEY = 'homeHintLongPress';
   const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
+  // KT «Kacheln antippbar» (Noah 14.10.2026, 3a, mockup KT3): the short intro, once after the update (or
+  // again from Me). Not while editing, over a sheet, in the playground or with «Nachtruhe»; it waits a
+  // moment until Today has laid out its tiles. Its end closes the long-press tip too (it says the same).
+  let introOn = $state(false);
+  $effect(() => {
+    if (introOn || !ready || $demoQ === undefined) return;
+    if (!introDue({ value: S[INTRO_KEY], updated: !!newsUpdate, editing, play: !!$demoQ, hush })) return;
+    const id = setTimeout(() => {
+      const onToday = /^#?\/?(\?.*)?$/.test(location.hash);
+      if (onToday && !editing && !document.querySelector('dialog[open]')) introOn = true;
+    }, 700);
+    return () => clearTimeout(id);
+  });
+  async function endIntro() {
+    introOn = false;
+    await db.settings.bulkPut([
+      { key: INTRO_KEY, value: true },
+      { key: HINT_KEY, value: true },
+    ]);
+  }
   // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
   let stravaCard = $state(false);
   // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
@@ -786,6 +834,7 @@
     <div class="ghead">
       <div class="hi-text">
         <h1 id="hello-h" class="hello">{hello}</h1>
+        {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if !wx && ready}
           {#if !place}
@@ -793,8 +842,9 @@
           {/if}
         {/if}
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
+        {#if askName}<NameAsk />{/if}
       </div>
-      {#if !phone.matches && !editing}<button type="button" class="btn adapt" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
+      {#if !phone.matches && !editing}<button type="button" class="btn adapt" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
     {#if suggestion && !slim}
       <div class="sugg" data-suggestion>
@@ -924,12 +974,17 @@
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
               {:else}
                 <span class="tx">{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{r.text}</span>
+                {#if r.act2?.run}
+                  <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
+                  <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
+                {:else}
                 {#if r.act}
                   {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
                   {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
                   {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
                 {/if}
                 {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+                {/if}
                 {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
               {/if}
             </li>
@@ -956,7 +1011,6 @@
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
-  {:else if x.id === 'check'}<SmallTile tile={TILE.check} size={x.size} href={checkHref(now)} />
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
@@ -968,8 +1022,7 @@
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} />
-  {:else if x.id === 'morningcheck'}<MorningCheckTile {today} size={x.size} isnew={newTile('morningcheck')} />
-  {:else if x.id === 'questions'}<QuestionsTile {today} isnew={newTile('questions')} />
+  {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
@@ -979,7 +1032,10 @@
 
 <div class="home">
   {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
-  <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
+  <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
+  {@render greetingS()}
+  <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
+       (HG1 2a: right under the greeting). -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
@@ -1006,7 +1062,6 @@
     </section>
   {/if}
 
-  {@render greetingS()}
   {#if editing}
     <div class="ebar" role="region" aria-label={t('Customise the start page')}>
       <b>{t('Customise the start page')}</b>
@@ -1019,6 +1074,8 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
+  <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
+  {#if !editing && ready}<AbCard {today} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
   {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
@@ -1042,7 +1099,7 @@
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
     {:else if phone.matches}
-      <button type="button" class="lkb" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+      <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
   </div>
 
@@ -1051,6 +1108,9 @@
     {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
   </footer>
 </div>
+
+<!-- KT (3a): the short intro, once -->
+{#if introOn}<IntroKT onend={endIntro} />{/if}
 
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}
@@ -1235,7 +1295,7 @@
     min-width: 0;
   }
   .hi-text {
-    flex: 1 1 320px;
+    flex: 1 1 440px; /* HG1a: room for the greeting's question (was 320px) */
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -1244,6 +1304,9 @@
   .hello {
     margin: 0;
     font: 700 var(--fs-page) / 1.1 var(--font-body);
+    /* HG1a: the longer Swiss greeting (a question) is a little smaller, as in the mockup */
+    font-size: var(--fs-title);
+    line-height: 1.15;
     letter-spacing: -0.01em;
     overflow-wrap: break-word;
   }
@@ -1258,7 +1321,7 @@
   }
   @media (max-width: 719px) {
     .hello {
-      font-size: 26px;
+      font-size: 25px;
     }
   }
   .pf {

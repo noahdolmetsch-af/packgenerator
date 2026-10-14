@@ -16,6 +16,9 @@
    * button in the bar at the bottom («Schritt 2 von 4 · Zurück zu Touren · Weiter zu …»).
    * v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Tour-Kopf): the trip's state pill (ui/TripState.svelte)
    * first on the kicker line: «Geplant · morgen», «Abgeschlossen · Rückblick fehlt», «Bewertet · 6. Sept.».
+   * TZ-2 «Fest nach der Fahrt» (mockup TZ2 Tour-Kopf): `note` shows the state's band under the step bar
+   * (StateNote.svelte: what the state means, «Rückblick ausfüllen», «Wieder öffnen», «Bist du gefahren?»);
+   * `ontemplate` opens «Save as template» from it. «Wieder öffnen?» (ReopenSheet) opens here for this trip.
    */
   import { liveQuery } from 'dexie';
   import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3, ChevronLeft, ChevronRight } from '@lucide/svelte';
@@ -37,10 +40,15 @@
   import { tripStateInfo, stateExtra } from '../tripstate.js';
   import { stateExtraText } from '../tripstatetext.js';
   import TripState from '../ui/TripState.svelte';
+  import StateNote from './StateNote.svelte';
+  import ReopenSheet from './ReopenSheet.svelte';
+  import { tz2 } from './reopen.svelte.js';
+  import KomootSign from '../komoot/KomootSign.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null } = $props();
+  // SN1: stateMore adds to the pill's extra («unterwegs, Tag 2 von 3»); stepText replaces «Schritt 3 von 4» in the bar.
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '', note = false, ontemplate = null } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -119,7 +127,7 @@
   <div class="who">
     <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
     <div class="kline">
-      {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra} />{/if}
+      {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra && stateMore ? `${stExtra}, ${stateMore}` : stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
       <InProgress current={trip.id} light />
       {@render extra?.()}
@@ -144,17 +152,21 @@
       {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.packMissing && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.packMissing })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
       {/if}
+      <!-- SN1d (Noah 13.10.2026): «In komoot öffnen», quiet, when the route came with a komoot link -->
+      {#if trip.route?.komoot}<span class="kmw"><KomootSign {trip} /></span>{/if}
       <span class="saved" class:on={saved} role="status">{#if shown}<Check size={14} aria-hidden="true" />{t('Saved')}{/if}</span>
     </p>
   </div>
   <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone.
        v0.67.0 (kit): the one main button sits in the MainBar of the kit (bottom of a phone). -->
   {#if action || aside || hint}
-    <MainBar place="band" {aside} {hint} step={stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
+    <MainBar place="band" {aside} {hint} step={stepText || stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
   <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
+  {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
 </section>
+{#if tz2.ask === trip.id}<ReopenSheet {trip} rated={stInfo?.state === 'rated'} onclose={() => (tz2.ask = null)} />{/if}
 {#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
 
 <style>
@@ -448,6 +460,12 @@
   @media (max-height: 500px) {
     .steps {
       margin: 6px 0 0;
+    }
+  }
+  /* TZ-2: the state's band spans the band under the step bar */
+  @media (min-width: 720px) {
+    .stnote {
+      grid-column: 1 / -1;
     }
   }
   @media print {

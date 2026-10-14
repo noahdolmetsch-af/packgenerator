@@ -76,12 +76,16 @@ export const logYears = (entries) => [...new Set(entries.map((e) => e.year).filt
 /** The areas with entries, bikepacking first. */
 export const logAreas = (entries) => [...new Set(entries.map((e) => e.domain))].sort((a, b) => (a === BIKEPACKING ? -1 : b === BIKEPACKING ? 1 : a.localeCompare(b)));
 
-/** year: 'all' or '2026'; area: 'all' or an area key; q: words in the title or the notes. */
-export function logFilter(entries, { year = 'all', area = 'all', q = '' } = {}) {
+/**
+ * year: 'all' or '2026'; area: 'all' or an area key; q: words in the title or the notes.
+ * SN2+ SN2g: bike: 'all' or a bike's name (the trip's bike; events have none).
+ */
+export function logFilter(entries, { year = 'all', area = 'all', bike = 'all', q = '' } = {}) {
   const words = String(q).toLowerCase().trim().split(/\s+/).filter(Boolean);
   return entries.filter((e) => {
     if (year !== 'all' && e.year !== year) return false;
     if (area !== 'all' && e.domain !== area) return false;
+    if (bike !== 'all' && (e.fact?.bike ?? null) !== bike) return false;
     if (!words.length) return true;
     const ev = e.ev ?? {};
     const hay = [e.title, ...e.notes, ev.type, ev.result, ev.learnings, ev.bike, ev.dateText, e.fact?.bike, ...(e.fact?.learnings ?? []).map((l) => l.rule)].filter(Boolean).join(' ').toLowerCase();

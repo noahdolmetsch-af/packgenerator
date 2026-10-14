@@ -40,18 +40,19 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   await expect(page.locator('h1').first()).toHaveCount(1);
-  // v0.125.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
+  // v0.126.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
   await expect(page.getByText(new RegExp(esc(T('{n} planned', { n: 'X' })).replace('X', '\\d+'))).first()).toBeVisible();
-  // the band names the next trip and goes on with one main button
-  await expect(page.getByText(T('Continue|go'), { exact: false }).first()).toBeVisible();
-  // the tiles of the planned trips (v0.125.0 TZ-1: the group «Geplant»), with a packing bar, and the dashed tile for a new trip
-  const planning = page.locator('section.grp').filter({ has: page.locator('#trips-plan') });
-  await expect(planning.locator('li.tile:not(.add)').first()).toBeVisible();
-  await expect(planning.getByRole('button', { name: new RegExp(esc(T('New trip'))) })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Weather window') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Best values') })).toBeVisible();
+  // SN4g «Touren-Seite, Runde 2»: the band «Packmodus» names the trip being packed and goes on with one main button
+  const band = page.locator('[data-pack-band]');
+  await expect(band.getByRole('link', { name: new RegExp(esc(T('Open pack mode'))) })).toBeVisible();
+  // «Geplant» as cards with «Neue Tour»; Bestwerte now in «In Zahlen», the weather in the tile «Gute Tage für eine Tour»
+  const planning = page.locator('section[data-planned]').filter({ has: page.locator('#trips-plan') });
+  await expect(planning.locator('li.pc').first()).toBeVisible();
+  await expect(planning.getByRole('button', { name: new RegExp(esc(T('New trip'))) }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Good days for a trip') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Best values'), exact: true })).toBeVisible();
   // only the band has the main colour
-  await expect(page.locator('main .btn.hi')).toHaveCount(0);
+  await expect(page.locator('main .btn.hi')).toHaveCount(await band.locator('.btn.hi').count());
   expect(await wide(page)).toBeLessThanOrEqual(0);
   if (info.project.name === 'phone') {
     // a small phone: nothing may make the page wider than the screen (a phone would zoom out, found
@@ -68,7 +69,7 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
 test('Rahmenbedingungen: sport as chips, «Vorlage wählen» with the starts as buttons', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/trips');
-  await page.locator('#trips-plan').locator('..').getByRole('button', { name: new RegExp(esc(T('New trip'))) }).click();
+  await page.locator('section[data-planned] [data-plan-new]').click(); // SN4g: «Neue Tour» in the head of «Geplant»
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByText(T('Name, date, bike and packing list. Everything can be changed later.'))).toHaveCount(0);
@@ -94,7 +95,7 @@ test('Vorlagen: «Neue Vorlage», area chips, every template with «Neue Tour»,
   const rows = page.locator('li.row[data-tpl]:not(.arch)');
   expect(await rows.count()).toBeGreaterThan(0);
   await expect(rows.first().getByRole('button', { name: new RegExp(esc(T('New trip'))) }).or(rows.first().getByRole('link', { name: new RegExp(esc(T('New trip'))) }))).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('From the current trip') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('From your trips') })).toBeVisible(); // SN3 «Seiten neu»: was «From the current trip»
   expect(await wide(page)).toBeLessThanOrEqual(0);
 });
 

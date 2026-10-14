@@ -112,7 +112,9 @@ test('computer: the bubble on hover and keyboard focus; actions right-aligned; t
 
   // keyboard: Tab onto «Erledigt» shows it too, Escape hides it
   const n = await rows.evaluateAll((els, done) => els.findIndex((el) => [...el.querySelectorAll('button')].some((b) => b.textContent.trim() === done)), DONE);
-  if (n > 0) await rows.nth(n - 1).locator('.btn.dots').focus();
+  // SK (13.10.2026, changed on purpose): a due row has its «Woanders» links under it, so the control
+  // right before «Erledigt» is the last one of the row above (or its links), not always its «…»
+  if (n > 0) await done.evaluate((b) => { const all = [...document.querySelectorAll('a[href], button:not([disabled])')].filter((x) => x.getClientRects().length); all[all.indexOf(b) - 1].focus(); });
   else await page.locator('#due-h').evaluate((h) => (h.tabIndex = -1, h.focus()));
   await page.keyboard.press('Tab');
   await expect(done).toBeFocused();

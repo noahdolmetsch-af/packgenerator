@@ -17,6 +17,31 @@ export default {
   'Open Bikes › Care: under the title a line says what due means.': 'Öffne Velos › Pflege: Unter dem Titel steht eine Zeile, was fällig heisst.',
   'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».': 'Melde bei einem Velo ein Problem mit «Vor der nächsten Fahrt»: Es steht in der Velopflege als fällig, mit «Erledigt».',
   'Compare the number in the menu with Bike care and Today: all three are the same.': 'Vergleiche die Zahl im Menü mit Velopflege und Heute: Alle drei sind gleich.',
+  // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
+  'A greeting and your questions': 'Ein Gruss und deine Fragen',
+  'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',
+  'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to': 'Heute begrüsst dich auf Mundart je nach Tageszeit; ein Tipp, und du sagst, wie es dir geht und was du vorhast',
+  '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30': '«Wi gaht\'s?»: 50 verspielte Fragen, 31 davon an, jede mit eigenem Rhythmus, gefragt um 07:00 und 20:30',
+  'History and analysis: all your values in one place, with your normal range': 'Verlauf und Auswertung: alle deine Werte an einem Ort, mit deinem Normalbereich',
+  'Tour from komoot: suggestions near you, a shared tour becomes a planned trip': 'Tour aus komoot: Vorschläge in deiner Nähe, eine geteilte Tour wird eine geplante Tour',
+  'Functions, Trips, Favourites and the import check in a calmer look': 'Funktionen, Touren, Favoriten und Import prüfen in ruhigerem Look',
+  'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.': 'Öffne Heute: Der Gruss steht oben; tippe auf «Wie gaht\'s? / Was häsch vor?», wähle und speichere.',
+  'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».': 'Öffne Ich › «Wi gaht\'s?»: Schalte eine Frage ein, ändere ihren Rhythmus, lege eine eigene Frage an, schau «Feste Runden» an.',
+  'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.': 'Ab 07:00 stellt die Karte auf Heute die Morgen-Fragen; die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.',
+  'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.': 'Öffne Ich › Daten › Verlauf und Auswertung: Die Antworten stehen dort, alte Tageschecks auch.',
+  'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.': 'Tippe in «Neue Tour» auf «Tour aus komoot»: komoot öffnet sich mit Vorschlägen in deiner Nähe.',
+  'On the phone open Trips and Material: the main button sits at the bottom.': 'Öffne am Handy Touren und Material: Der wichtigste Knopf sitzt unten.',
+  'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
+  'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
+
+  // 0.132.1 Langer Name passt (Fehler behoben)
+  'Long names fit': 'Lange Namen passen',
+  'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',
+  'On «Trip ended» a long trip name wraps inside the grey box': 'Bei «Tour beendet» bricht ein langer Tourname in der grauen Box um',
+  'Also on «All packed»: a name without spaces breaks inside the box': 'Auch bei «Alles gepackt»: Ein Name ohne Leerschläge bricht in der Box um',
+  'On a phone the name wraps over several lines, the page does not scroll sideways.': 'Am Handy bricht der Name über mehrere Zeilen um, die Seite scrollt nicht seitwärts.',
+  'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.': 'Gib einer Tour einen sehr langen Namen ohne Leerschläge und beende sie: Bei «Tour beendet» bleibt der Name in der grauen Box.',
+
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',

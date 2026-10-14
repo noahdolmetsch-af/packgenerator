@@ -214,7 +214,9 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   await shot(page, info, 'care-dialog-who');
   await who.getByRole('button', { name: 'Velomech' }).click();
   await expect(who.getByRole('button', { name: 'Velomech' })).toHaveAttribute('aria-pressed', 'true');
-  await dlg.getByRole('button', { name: 'Gewachst' }).click();
+  // SN7 «Seiten neu»: choose what you did, then «Eintragen».
+  await dlg.locator('[data-did="service"]').click();
+  await dlg.getByRole('button', { name: 'Eintragen', exact: true }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await stored(page, SPARK)).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), km: 5000, action: 'service', result: 'done', by: 'shop' });
   // The row of the part table says it at once: waxed today.
@@ -228,7 +230,8 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'Velomech' })).toHaveAttribute('aria-pressed', 'true');
   await pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'ich' }).click();
-  await pads.getByRole('button', { name: 'OK', exact: true }).click();
+  await pads.locator('[data-did="ok"]').click();
+  await pads.getByRole('button', { name: 'Eintragen', exact: true }).click();
   await expect(pads).toBeHidden();
   await expect.poll(async () => (await stored(page, SPARK)).parts.find((p) => p.key === 'padsF').history.at(-1)).toMatchObject({ action: 'check', result: 'ok', by: 'self' });
   expect(await page.evaluate(() => localStorage.getItem('care.by'))).toBe('self');

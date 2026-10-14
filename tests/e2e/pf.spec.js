@@ -1230,7 +1230,11 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('More for {title}', { title: T('Chain') }) }));
   await rec.click(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Record …|care'))}`) }));
   const part = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: T('Waxed') }) });
+  // SN7 «Seiten neu» (answer 5a, changed on purpose): «What did you do?» as option buttons, the due one
+  // («Gewachst») chosen already; «Eintragen» stores it.
   await rec.click(part.getByRole('button', { name: T('Waxed') }));
+  await expect(part.getByRole('button', { name: T('Waxed') })).toHaveAttribute('aria-pressed', 'true');
+  await rec.click(part.getByRole('button', { name: T('Enter|part'), exact: true }));
   await expect(part).toBeHidden();
   rec.stop();
   await rec.check('Bike care: the Spark is still listed', () => expect(care).toBeVisible({ timeout: 3000 }));
