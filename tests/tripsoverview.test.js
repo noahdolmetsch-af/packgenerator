@@ -1,5 +1,5 @@
 // v0.46.1 (Noah: «Touren» opened the last trip at Packen): the trips overview behind «Touren».
-// v0.126.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the groups are the three trip states (tripstate.js).
+// v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the groups are the three trip states (tripstate.js).
 import { describe, it, expect } from 'vitest';
 import { tripsOverview, RIDDEN_SHOWN, GROUPS } from '../src/lib/tripsoverview.js';
 import { STATES } from '../src/lib/tripstate.js';
@@ -9,7 +9,7 @@ const TODAY = '2026-10-09';
 const item = (packed) => ({ itemId: 'x', slot: 'seat', qty: 1, packed });
 const trip = (id, startDate, extra = {}) => ({ id, title: `test_data_gtp_ ${id}`, startDate, days: 1, bikeId: 'b', bike: 'test_data_gtp_ Bike', entries: [item(false)], ready: [], ...extra });
 
-describe('trips overview by state (v0.46.1, v0.126.0)', () => {
+describe('trips overview by state (v0.46.1, v0.125.0)', () => {
   const trips = [
     trip('packed', '2026-10-20', { entries: [item(true)] }),
     trip('riding', TODAY),

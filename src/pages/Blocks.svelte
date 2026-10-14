@@ -29,7 +29,7 @@
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
-  import { NIGHT_BLOCKS, RIDE_BLOCKS } from '../lib/context.js';
+  import { NIGHT_BLOCKS, RIDE_BLOCKS, OUTDOOR_BLOCKS } from '../lib/context.js';
   import { REVIEW_KEY, reviewOpen } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
@@ -94,7 +94,7 @@
   });
   const NAMES_SHOWN = 5;
   // v0.40.0: the blocks an Outdoor night brings get the quiet word "outdoor" (the head says "with the night").
-  const OUTDOOR = ['bivy', 'tent', 'cook'];
+  const OUTDOOR = OUTDOOR_BLOCKS;
 
   let error = $state('');
   let undo = $state.raw(null); // { text, snap }

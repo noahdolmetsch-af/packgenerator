@@ -6,7 +6,7 @@
  * - why a wishlist item is there and how much it would help.
  * Pure functions, easy to test.
  */
-import { isInventory } from './gear.js';
+import { isInventory, isConsumable } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 
 const g = (item, qty = 1) => (item?.weightG == null ? 0 : item.weightG * (qty || item.qty || 1));
@@ -51,7 +51,7 @@ export function itemUsage(trips, debriefs) {
 export function tripRows(trips, debriefs, items) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   return debriefedTrips(trips, debriefs).map(({ d, t }) => {
-    const entries = (t.entries ?? []).filter((e) => byId[e.itemId] && isInventory(byId[e.itemId]) && !CONSUMABLE.includes(byId[e.itemId].category));
+    const entries = (t.entries ?? []).filter((e) => byId[e.itemId] && isInventory(byId[e.itemId]) && !isConsumable(byId[e.itemId]));
     const unused = entries.filter((e) => d.items?.[e.itemId] === 'unused');
     return {
       id: t.id,
@@ -70,8 +70,6 @@ export function tripRows(trips, debriefs, items) {
     };
   });
 }
-const CONSUMABLE = ['food'];
-
 /**
  * The trend in one sentence (Noah 5a): the last trip against the one before, and against the
  * average of all earlier ones. null with fewer than 2 trips.

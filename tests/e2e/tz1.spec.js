@@ -1,4 +1,4 @@
-// v0.126.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»):
+// v0.125.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»):
 // every trip shows its state Geplant / Abgeschlossen / Bewertet: on Touren (groups, filter chips, the pill
 // on every tile, the legend), in the trip header and on Heute. Fictional fixture (test_data_gtp_) plus one
 // trip made from an uploaded ride, German, phone + desktop, no horizontal scroll. The expected numbers come

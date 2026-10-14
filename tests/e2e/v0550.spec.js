@@ -95,13 +95,14 @@ async function goToStep(page, info, name) {
 test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves and adds, each with Undo', async ({ page, context }, info) => {
   const { errors, count } = await start(page, context, info);
 
-  // 1. The update: nothing lost, the new blocks, Warm as a temperature rule, the old keys stay.
+  // 1. The update: nothing lost, the new blocks, Warm as a temperature rule. v0.131.0 (data cleanup):
+  // the old keys go right after the update, their content is in the new blocks.
   const items = await table(page, 'items');
   expect(items).toHaveLength(count);
-  expect(await setsOf(page, 'SL03')).toEqual(['sleep', 'bivy']); // sleeping bag → Biwak
-  expect(await setsOf(page, 'SL01')).toEqual(['sleep', 'tent']); // tent → Zelt
-  expect(await setsOf(page, 'LI03')).toEqual(['light', 'lights']); // head torch → Licht
-  expect(await setsOf(page, 'OF01')).toEqual(['lodging', 'hotel']); // flip-flops → Hotel/Hütte
+  expect(await setsOf(page, 'SL03')).toEqual(['bivy']); // sleeping bag → Biwak
+  expect(await setsOf(page, 'SL01')).toEqual(['tent']); // tent → Zelt
+  expect(await setsOf(page, 'LI03')).toEqual(['lights']); // head torch → Licht
+  expect(await setsOf(page, 'OF01')).toEqual(['hotel']); // flip-flops → Hotel/Hütte
   expect(await setsOf(page, 'WZ04')).toEqual(['repair']); // tools → Reparatur (suggested)
   expect(await setsOf(page, 'EL02')).toEqual(['charge']); // power bank → Laden (suggested)
   expect((await itemOf(page, 'SL04')).coldBelow).toBe(10); // the down jacket: Warm → below 10 °C
@@ -145,7 +146,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   const gel = page.getByRole('group', { name: /Duschgel|Shower gel/ });
   await tap(gel.getByRole('button', { name: /nehmen$/ }), info);
   await expect.poll(() => setsOf(page, 'HY04')).not.toContain('hotel');
-  expect(await setsOf(page, 'HY04')).toContain('lodging'); // the old key stays (older versions)
+  expect(await setsOf(page, 'HY04')).not.toContain('lodging'); // v0.131.0: the old key went in the data cleanup
   await tap(page.getByRole('button', { name: T('Undo') }), info);
   await expect.poll(() => setsOf(page, 'HY04')).toContain('hotel');
 

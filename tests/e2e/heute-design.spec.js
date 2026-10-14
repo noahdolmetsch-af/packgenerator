@@ -34,7 +34,9 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   const card = page.locator('section.trip');
   await expect(card.locator('[data-boxes] dd').first()).toBeVisible();
   await expect(card.locator('[data-packed] [role="progressbar"]')).toHaveAttribute('aria-valuemax', /\d+/);
-  await expect(card.locator('[data-packed]')).toContainText(T('{n} of {m} packed', { n: 2, m: 7 }));
+  // v0.131.0: the trip keeps its 6 entries (entries(6, 2)); Noah's one-time update readyClean2026 that
+  // added a 7th to future trips is gone from the code (data cleanup).
+  await expect(card.locator('[data-packed]')).toContainText(T('{n} of {m} packed', { n: 2, m: 6 }));
   await expect(card.locator('.btn.hi')).toHaveCount(1);
   await expect(card.locator('img')).toHaveCount(0);
 

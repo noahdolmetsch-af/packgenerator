@@ -14,7 +14,7 @@
    * v0.100.0 Design-Refresh P1 (G7 «Zurück und wo du bist», approved 11.10.2026): the band is light,
    * without a dark box: «‹ Touren» above the name, the four steps as numbered cards, and the main
    * button in the bar at the bottom («Schritt 2 von 4 · Zurück zu Touren · Weiter zu …»).
-   * v0.126.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Tour-Kopf): the trip's state pill (ui/TripState.svelte)
+   * v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Tour-Kopf): the trip's state pill (ui/TripState.svelte)
    * first on the kicker line: «Geplant · morgen», «Abgeschlossen · Rückblick fehlt», «Bewertet · 6. Sept.».
    * TZ-2 «Fest nach der Fahrt» (mockup TZ2 Tour-Kopf): `note` shows the state's band under the step bar
    * (StateNote.svelte: what the state means, «Rückblick ausfüllen», «Wieder öffnen», «Bist du gefahren?»);
@@ -60,7 +60,7 @@
   const stats = $derived($itemsQ && $bagsQ ? tripStats(trip, items, $bagsQ, bike, 0) : null);
   const debrief = $derived(($debriefQ ?? []).find((d) => d.tripId === trip.id) ?? null);
   const ridesQ = liveQuery(() => db.rides.toArray());
-  // v0.126.0 TZ-1: the state of the trip (tripstate.js) once the debriefs are read
+  // v0.125.0 TZ-1: the state of the trip (tripstate.js) once the debriefs are read
   const stInfo = $derived($debriefQ ? tripStateInfo(trip, { debrief, rides: $ridesQ ?? [], today: localDay() }) : null);
   const stExtra = $derived(stInfo ? stateExtraText(stateExtra(stInfo, { trip, debrief, today: localDay(), head: true })) : '');
   const open = $derived(byBike && $itemsQ ? openRows(layerSuggest(trip, items), trip).length : 0);

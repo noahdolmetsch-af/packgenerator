@@ -27,7 +27,7 @@
  * Pure functions only; src/lib/gear/importdb.js writes the result (with a backup and undo).
  */
 import { CATEGORIES, CATEGORY, nextId, PREFIX } from './gear.js';
-import { itemDomains } from './domains.js';
+import { itemDomains, DOMAINS } from './domains.js';
 import { validateStep2 } from './importstep2.js';
 import { suggestBag } from './gear/importplus.js';
 import DE from './i18n/de/index.js';
@@ -57,22 +57,11 @@ export function validateGearImport(data) {
 
 /* ---------- the areas ---------- */
 
-/** The areas of the file → the app's areas (domains.js). Unknown words stay as they are (lowercase). */
-export const AREA_MAP = {
-  velo: 'velo',
-  bike: 'velo',
-  bikepacking: 'bikepacking',
-  wandern: 'hiking',
-  hiking: 'hiking',
-  reisen: 'travel',
-  travel: 'travel',
-  alltag: 'everyday',
-  everyday: 'everyday',
-  ski: 'ski',
-  skitour: 'ski',
-  weekend: 'weekend',
-  wochenende: 'weekend',
-};
+/**
+ * The areas of the file → the app's areas. Unknown words stay as they are (lowercase).
+ * Data cleanup 14.10.2026: the words are on each area in domains.js (DOMAINS[].words).
+ */
+export const AREA_MAP = Object.fromEntries(DOMAINS.flatMap((d) => (d.words ?? []).map((w) => [w, d.key])));
 export function mapAreas(areas) {
   const out = [];
   for (const a of Array.isArray(areas) ? areas : []) {
@@ -328,7 +317,7 @@ const empty = (v) => v == null || v === '' || (Array.isArray(v) && !v.length);
 const str = (v) => (v == null ? '' : String(v).trim());
 const numOrNull = (v) => (v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v));
 const ZONES = ['head', 'eyes', 'neck', 'torso', 'arms', 'hands', 'legs', 'feet'];
-const LAYERS = ['base', 'mid', 'outer', 'accessory'];
+const LAYERS = ['base', 'mid', 'outer', 'accessory']; // = wardrobe.js LAYER_KEYS (wardrobe.js reads this file, so a copy)
 const TEMP = ['warm', 'mittel', 'kalt'];
 const pick = (v, list) => (list.includes(str(v).toLowerCase()) ? str(v).toLowerCase() : str(v) || null);
 
@@ -412,7 +401,7 @@ export function newItem(imp, all, now = new Date().toISOString(), place = null) 
     ownership: imp.owned === false ? 'wishlist' : 'owned',
     role: null,
     sets: [],
-    kits: [],
+   
     domains: areas.length ? areas : ['bikepacking'],
     note: str(imp.notes),
     ...Object.fromEntries(Object.entries(importFields(imp)).filter(([, v]) => v != null)),

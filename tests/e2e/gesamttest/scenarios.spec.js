@@ -11,6 +11,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways, brokenWords } from './lib.js';
 import { fitRide } from '../../fixtures/fit.js';
 import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
+// The old block keys, read from the app source (gear.js loads Svelte runes, so it is not imported here).
+const OLD_SETS_SRC = Function(`return ${readFileSync(new URL('../../../src/lib/gear.js', import.meta.url), 'utf8').match(/export const OLD_SETS = (\{[^}]*\})/)[1]}`)();
 import { newButton } from '../newbutton.js';
 import { openRow } from '../debrief-rows.js';
 
@@ -141,7 +143,8 @@ test('S2 3-day bikepacking with tent, GPX debrief', async ({ page, context }, in
   const items = await table(page, 'items');
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   const sets = new Set(trip.entries.flatMap((e) => byId[e.itemId]?.sets ?? []));
-  for (const s of ['sleep', 'cook']) expect(sets.has(s), `the ${s} block on a tent trip`).toBe(true);
+  // v0.131.0 (data cleanup): the old key «sleep» is gone from the items, its content is in «bivy».
+  for (const s of ['bivy', 'tent', 'cook']) expect(sets.has(s), `the ${s} block on a tent trip`).toBe(true);
   expect(new Set(trip.entries.map((e) => `${e.itemId}|${e.slot}`)).size, 'no item twice in a bag').toBe(trip.entries.length);
 
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), trip.id);
@@ -462,13 +465,27 @@ test('S6a import keeps the records as they are in the file', async ({ page, cont
   // v0.66.0: the one-time update «Bausteine neu» (blocksplit.js) runs on an old file. It only adds:
   // the old block keys stay and the new ones come after them, a Warm item gets coldBelow, and the
   // marker split2026. Check that, then compare the rest as it is in the file.
+  // v0.131.0 (data cleanup, cleanup.js) runs after it: the old block keys, split2026, role standard /
+  // optional, always, kits and lightSetDone go; Standard and «stays at home» keep their meaning.
   const fixItems = new Map(fix.items.map((i) => [i.id, i]));
+  const oldKeys = Object.keys(OLD_SETS_SRC);
+  const std = (x) => !!x.sets?.includes('standard') || x.role === 'standard' || !!x.always;
+  const home = (x) => x.leaveHome === true || (x.leaveHome == null && x.role === 'optional');
+  const moved = ['always', 'kits', 'lightSetDone', 'split2026', 'role', 'leaveHome', 'sets'];
   db1.items = db1.items.map((i) => {
     const f = fixItems.get(i.id);
-    if (!f || f.split2026 || !i.split2026) return i;
-    expect.soft(i.sets?.slice(0, f.sets?.length ?? 0), `${i.id}: the old blocks stay`).toEqual(f.sets ?? []);
-    const { split2026, coldBelow, ...rest } = i;
-    return { ...rest, sets: f.sets, ...(f.coldBelow !== undefined ? { coldBelow } : {}) };
+    if (!f) return i;
+    for (const k of ['always', 'kits', 'lightSetDone', 'split2026']) expect.soft(k in i, `${i.id}.${k} is gone`).toBe(false);
+    expect.soft(i.role == null || i.role === 'worn', `${i.id}: role only worn`).toBe(true);
+    expect.soft(std(i), `${i.id}: Standard stays`).toBe(std(f));
+    expect.soft(home(i), `${i.id}: stays at home stays`).toBe(home(f));
+    const lost = (f.sets ?? []).filter((k) => !(i.sets ?? []).includes(k));
+    expect.soft(lost.filter((k) => !oldKeys.includes(k)), `${i.id}: only old block keys go`).toEqual([]);
+    const out = { ...i };
+    for (const k of moved) if (k in f) out[k] = f[k]; else delete out[k];
+    // blocksplit.js gives a Warm item coldBelow (on a file from before it)
+    if (!('coldBelow' in f)) delete out.coldBelow;
+    return out;
   });
   // the import keeps the user's records as they are (only the app's own markers are added)
   for (const name of ['items', 'debriefs', 'learnings', 'notes', 'rides', 'visits', 'maintenance', 'events', 'containers', 'trips', 'bikes'])

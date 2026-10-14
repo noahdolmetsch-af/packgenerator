@@ -66,7 +66,7 @@ describe('the stored wall', () => {
     expect(wallOf(wallRecord(v3.filter((x) => x.id !== 'balance'))).map((x) => x.id)).not.toContain('balance');
     expect(wallOf({ v: 3, tiles: [{ id: 'balance', size: 'long' }] })).toEqual([{ id: 'balance', size: 'long' }, { id: 'morningcheck', size: 'l' }]);
     for (const id of ADDED_0127) {
-      expect(isNew(TILE[id], '2026-10-13')).toBe(true);
+      expect(isNew(TILE[id], '2026-10-14')).toBe(true); // new since 0.132.0 (14.10.2026; 0.125.0 never went live)
       expect(TILE[id].area).toBe('flow');
     }
   });

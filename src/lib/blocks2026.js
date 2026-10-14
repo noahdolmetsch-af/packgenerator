@@ -50,6 +50,21 @@ export const leaveHome = (item) => !!item && (item.leaveHome === true || (item.l
 
 /* ---------- the one-time update ---------- */
 
+/**
+ * Data cleanup 14.10.2026 (Noah 3a): the old fields role 'standard' / 'optional' and always written
+ * in the new form (the block Standard in sets, the mark leaveHome), so they can go and the lists stay
+ * the same (inStandard, leaveHome). Returns the fields to write ({} when there is nothing old); the
+ * caller drops always.
+ */
+export function oldFieldsPatch(item) {
+  const patch = {};
+  const sets = item.sets ?? [];
+  if ((item.role === 'standard' || item.always === true) && !sets.includes(STANDARD)) patch.sets = [...sets, STANDARD];
+  if (item.role === 'optional' && item.leaveHome == null) patch.leaveHome = true;
+  if (item.role === 'standard' || item.role === 'optional') patch.role = null;
+  return patch;
+}
+
 /** Does the old data say Standard? (role standard, or "On every trip"; not worn) */
 const oldStandard = (item) => item.role === 'standard' || !!item.always;
 

@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockups TZ1–TZ2): the pill of a trip's
+   * v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockups TZ1–TZ2): the pill of a trip's
    * state, the same everywhere: icon + word (+ a small extra), never colour alone.
    *   plan  Geplant       pencil, blue
    *   done  Abgeschlossen flag, grey

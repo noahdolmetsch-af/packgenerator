@@ -873,7 +873,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Alte Adressen `#/check/morning`, `#/check/evening`, `#/check/questions` leiten still auf «Wi gaht's?» um; Kacheln «Tagescheck» und «Deine 15 Fragen» verschwinden auch aus gespeicherten Wänden.
   - Bestehende Nutzer: Runden sind sofort an (Fragen um 08:00 und 20:00 wandern auf 07:00 und 20:30).
   - Ein Tag mit Antworten aus «Wi gaht's?» zählt die alte Regel «Morgen ohne Ziel = Ziele 0» nicht.
-  - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.126.0.
+  - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.132.0.
   - Die Regeln des alten Checks in `flowcheck.js` bleiben (alte Zeilen lesbar); Aufräumen später in einem kleinen Release.
 
 ## 13.10.2026: 0.125.0 «Tagespaket 13.10.», ein Release aus vier Paketen
@@ -1242,7 +1242,7 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
 
-## 14.10.2026: Velo-Setup neu (0.126.0)
+## 14.10.2026: Velo-Setup neu (0.132.0)
 
 - **UC3 «1-5a» (Noah 14.10.2026 00:34 UTC):** Mein Setup oben, eine Seite pro Velo, Rennrig-Links als grosse Galerie, «Dein Velo im Vergleich» bleibt, «Deine Rennen» bleibt auf dieser Seite. Ausbau «1 ja 2 ja 3ja» (00:35 UTC): Taschen-Plan, Setup-Logbuch, Gesamtgewicht. Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC.
 - **Selbst entschieden:** Reiter heisst «Setup» (5. Reiter unter Velos). Daten ohne neue Datenbank-Version: Links in `settings.rigLinks`, Logbuch und Vergleich am Velo (`setupLog`, `rigCompare`, `logSkipped`). «In Packen öffnen» statt «Für Packen übernehmen», weil «Verschieben» sofort speichert. «Verpflegung und Wasser» statt «Essen und Wasser». Kein «Standard»-Schild an den Velo-Chips, bis VS1–VS4 freigegeben sind. Zeitraum für Werkstatt-Angebote 180 Tage; «Zurück?» nach 3 schlechten Touren.
@@ -1260,10 +1260,20 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Gleiche Nachricht:** ein kurzes Benutzerhandbuch für jede Funktion (aufschalten, nutzen, Beispiel), im Repo und später in der App. Eine Quelle `src/lib/handbook.js` (ein Eintrag pro Funktion aus `features.js`, ein Test hält sie vollständig), daraus `docs/handbuch.md` (`node tools/handbuch.mjs`). Die Anzeige in der App («Was die App kann») kommt erst nach Mockup und Noahs Freigabe.
 - **Selbst entschieden:** Bezahlfunktion bleibt getrennt (Thread «Bezahlfunktion», `docs/bezahlen.md`); kleine Apps kosten nichts. Weitere kleine Apps nur mit eigener Freigabe.
 
-## 14.10.2026: Tagespaket 0.126.0 (ein Release mit 0.125.0 in PR #151)
+## 14.10.2026: Tagespaket 0.132.0 (ein Release mit 0.125.0 in PR #151)
 
-- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.126.0 auf PR #151 (0.125.0 bleibt als eigener Eintrag in «Was ist neu»).
+- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.132.0 auf PR #151 (zuerst 0.126.0; nach dem Merge von 0.131.0 «Daten einmal bereinigen» neu nummeriert) (0.125.0 ging nie live und steckt im Eintrag 0.132.0).
 - **Selbst entschieden (Bedienung):** FE11/FE18 «App öffnen bei» hat **Heute** als Standard (★); «Wo ich zuletzt war» öffnet nie ein Fenster wieder, ein Link auf eine Seite gewinnt immer. FE2 «Hoher Kontrast (draussen)» ist aus als Standard und ein eigener Block am Ende von `app.css` (eigener Commit, kann einzeln zurückgehalten werden). Alle Hilfen sind Schalter in Ich › Darstellung › Bedienung, nur auf diesem Gerät.
 - **Selbst entschieden (App-Wartung):** Kopie vor jedem Update in einer eigenen IndexedDB (`pack-generator-snapshots`), nie im Export oder Backup, die letzten 3 bleiben; Zurückgehen behält zuerst den Stand jetzt. Monats-Check alle 30 Tage (Strava, Schlüssel mit Enddatum, Links über `api/linkcheck.js` mit fester Liste); offline heisst es «nicht geprüft», nie Fehler. Auf Heute höchstens eine ruhige Zeile ab 80 % Strava-Grenze oder bei einem Befund; sie wartet hinter «Strava verbinden», der Lang-drücken-Tipp wartet hinter ihr und in der Nachtruhe.
 - **Selbst entschieden (Suche):** Die Aktionen der Suche (FE17) bleiben zuoberst und Enter macht die erste; der Hinweis der Kluge Suche und «Claude fragen» stehen darunter, vor den Treffern. Die Treffer kommen aus `smartSearch` (ähnliche Wörter, Tippfehler, Filter), `searchAll` bleibt unverändert darunter.
 - **Selbst entschieden (Zusammenführen):** Der Setup-Reiter zeigt «Noch keine Velos» mit dem Leer-Baustein wie die übrigen Velo-Reiter (A-U2). Das Benutzerhandbuch hat Einträge für Setup, Taschen-Plan, Setup-Logbuch, Tour-Zustände und Jahresziele. Keine neue Datenbank-Version.
+- **Selbst entschieden (0.125.0 im Release 0.132.0, 14.10.2026):** 0.125.0 ging nie live; sein Inhalt kommt mit 0.132.0. «Was ist neu» hat einen Eintrag 0.132.0 «Viel Neues auf einmal» (3 Punkte: Tagescheck, Aktiv-Woche, Velo-Setup; Kluge Suche, kleine Apps, Tour-Zustand, Jahresziele, Werkstattbesuch, Backup und Bedienung als kleine Dinge, weil der Test höchstens 3 Punkte und 3 kleine Dinge erlaubt). Tour-Zustand, Jahresziele und die drei Kacheln Balance, Morgen-Check und 15 Fragen haben «seit 0.132.0», damit sie für alle auf 0.131.0 als neu erscheinen.
+
+## 14.10.2026: Daten einmal bereinigen (0.131.0)
+
+- **Persönliches raus aus dem Code (Noah 1a):** Echte Velos, km, Gewichte, Taschen und Gegenstände von Noah stehen nicht mehr im öffentlichen Code. Die einmaligen Umzüge dafür waren auf seinen Daten schon gelaufen und sind entfernt; eine Sicherung liegt privat. Der Import aus Noahs Excel bleibt als Werkzeug für genau diese Datei.
+- **Nur unsichtbar aufräumen (2a):** Das neutrale Standard-Paket baut der Thread «Persönlich und Standard-Profil».
+- **Alte Felder umziehen und löschen, mit Sicherung (3a):** `cleanup.js` macht vor der ersten Änderung eine Kopie aller Daten in `meta`; Kits und Gewichts-Prüfungen sind danach leer (die Tabellen bleiben im Schema, damit alte Backups aufgehen), `role` kennt nur noch «worn», `always` gibt es nicht mehr.
+- **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
+- **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
+- **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).

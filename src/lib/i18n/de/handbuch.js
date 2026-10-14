@@ -316,7 +316,7 @@ export default {
   'Bike care': 'Velopflege',
   'In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/velopflege/.': 'Öffne in Chrome auf dem Handy noahdolmetsch-af.github.io/packgenerator/apps/velopflege/.',
   'Example: tap the icon → see what is due on the bike and tick the oiled chain.': 'Beispiel: Symbol antippen → sehen, was am Velo fällig ist, und die geölte Kette abhaken.',
-  // 0.126.0 Tagespaket: the functions of Velo-Setup and 0.125.0 (trip states, year goals)
+  // 0.132.0 Tagespaket: the functions of Velo-Setup and 0.125.0 (trip states, year goals)
   'Open Trips: under the title «n planned · n completed · n rated».': 'Öffne Touren: Unter dem Titel steht «n geplant · n abgeschlossen · n bewertet».',
   'Tap a chip like «Completed»: only those trips show.': 'Tippe einen Chip wie «Abgeschlossen»: Nur diese Touren bleiben.',
   'Example: a trip after its last day shows «Completed» until you rate it.': 'Beispiel: Eine Tour nach ihrem letzten Tag zeigt «Abgeschlossen», bis du sie bewertest.',
