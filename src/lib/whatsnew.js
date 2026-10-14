@@ -34,8 +34,6 @@ export const WHATS_NEW = [
     ],
   },
   {
-    // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
-    version: '0.132.2',
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',
