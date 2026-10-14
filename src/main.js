@@ -42,12 +42,15 @@ import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
+import { initOps } from './lib/bedienung.svelte.js';
 import { installExplain } from './lib/ui/explain.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
 initTheme();
+// Bedienung (Noah 13.10.2026): the small helps of Ich › Darstellung, high contrast before the first paint.
+initOps();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();

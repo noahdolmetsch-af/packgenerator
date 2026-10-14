@@ -115,6 +115,7 @@
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
+  import { quietHome } from '../lib/bedienung.svelte.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
 
@@ -162,6 +163,8 @@
     return () => clearInterval(id);
   });
   const today = $derived(localDay(now));
+  // FE8 «Nachtruhe» (Noah 13.10.2026): 22–06 Today keeps its tips back (switch in Ich › Darstellung)
+  const hush = $derived(quietHome(now));
   const evening = $derived(dayPart(now.getHours()) === 'evening' && now.getHours() >= 18);
 
   /* ---------- v0.35.0: "New in the app" once after an update ---------- */
@@ -484,7 +487,7 @@
   const tryList = $derived.by(() => {
     if (!ready) return [];
     const fns = untried(used).map((f) => ({ id: f.id, text: t(f.pitch), button: t('Try it'), run: () => runFn(f) }));
-    const tips = TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
+    const tips = hush ? [] : TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
     return [...fns, ...tips];
   });
 
@@ -1016,7 +1019,7 @@
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
   {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
-  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard}
+  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard && !hush}
     <p class="lphint" role="note" data-hint="longpress">
       <Hand size={18} aria-hidden="true" />
       <span><b>{t('Tip:')}</b> {t('Press a tile long to change its size. Or «{customise}».', { customise: t('Customise the start page') })}</span>

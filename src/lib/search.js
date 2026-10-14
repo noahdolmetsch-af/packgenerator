@@ -106,8 +106,14 @@ export const COMMANDS = [
   { kind: 'km', say: ['km nachtragen', 'log km', 'kilometer'], bike: 'none' },
   { kind: 'note', say: ['notiz', 'note', 'zettel'], text: true },
   { kind: 'wear', say: ['was ziehe ich an', 'what do i wear', 'anziehen', 'outfit'], bike: 'none' },
-  { kind: 'trip', say: ['tour planen', 'neue tour', 'plan a trip', 'new trip'], bike: 'none' },
+  { kind: 'trip', say: ['tour planen', 'neue tour', 'plan a trip', 'new trip', 'new tour', 'tour'], bike: 'none' },
+  // FE17 «Suche kann handeln» (Noah 13.10.2026 23:56): go somewhere from the search (more: true)
+  { kind: 'backup', say: ['daten und backup', 'datensicherung', 'sicherung', 'backup'], bike: 'none', more: true },
+  { kind: 'settings', say: ['einstellungen', 'settings', 'darstellung', 'bedienung', 'appearance'], bike: 'none', more: true },
+  { kind: 'quicknote', say: ['schnelle notiz', 'quick note', 'schnellnotiz'], bike: 'none', more: true },
 ];
+/** FE17: where the go-to commands lead (Search.svelte opens the address). */
+export const COMMAND_HREF = { backup: '#/me/data', settings: '#/me/look' };
 
 /** Do the words say the phrase? Each word in full; a one-word phrase may be said by its start (3+ letters). */
 function says(words, phrase) {
@@ -136,20 +142,26 @@ const CMD_TITLE = {
   note: (b, text) => (text ? t('Note: "{text}"', { text }) : t('Write a note')),
   wear: () => t('What do I wear today?'),
   trip: () => t('Plan a trip'),
+  backup: () => t('Data and backup'),
+  settings: () => t('Settings: appearance and handling'),
+  quicknote: () => t('Write a note'),
+  bike: (b) => t('Open the {bike}', { bike: b.name }),
 };
 const SAVED = 'Saved with today’s date, with Undo';
-const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', dayride: 'One tap, with Undo' };
+const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', quicknote: 'Into the Inbox', dayride: 'One tap, with Undo', backup: 'Me|place', settings: 'Me|place', bike: 'Bikes|place' };
 
 /**
  * The commands a search says: [{ id, kind, title, sub, cmd: { kind, bikeId?, text? } }], at most 4.
- * bikes: the bikes as shown (sorted). Nothing for fewer than 3 letters.
+ * bikes: the bikes as shown (sorted). Nothing for fewer than 3 letters. more: false leaves out the
+ * go-to commands of FE17 (backup, settings, quick note, a bike by its name; Ich › Darstellung › Bedienung).
  */
-export function commandActions(q, { bikes = [] } = {}) {
+export function commandActions(q, { bikes = [], more = true } = {}) {
   const raw = String(q ?? '').trim();
   const words = fold(raw).split(/\s+/).filter(Boolean);
   if (raw.length < 3 || !words.length) return [];
   const out = [];
   for (const c of COMMANDS) {
+    if (c.more && !more) continue;
     // the longest phrase first ("kette geoelt" before "geoelt")
     const phrase = [...c.say].sort((a, b) => b.split(' ').length - a.split(' ').length).find((p) => says(words, p));
     if (!phrase) continue;
@@ -171,5 +183,7 @@ export function commandActions(q, { bikes = [] } = {}) {
     const list = named.length ? named : c.bike === 'required' ? bikes : [null];
     for (const b of list.slice(0, 4)) out.push({ id: `cmd-${c.kind}-${b?.id ?? 'any'}`, kind: c.kind, title: CMD_TITLE[c.kind](b), sub, cmd: { kind: c.kind, ...(b ? { bikeId: b.id } : {}) } });
   }
+  // FE17: a bike's name alone («spark») opens that bike's page
+  if (more && !out.length) for (const b of bikesNamed(words, bikes).slice(0, 2)) out.push({ id: `cmd-bike-${b.id}`, kind: 'bike', title: CMD_TITLE.bike(b), sub: t(CMD_SUB.bike), cmd: { kind: 'bike', bikeId: b.id } });
   return out.slice(0, 4);
 }

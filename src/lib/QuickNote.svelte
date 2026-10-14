@@ -15,6 +15,8 @@
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
   import { t } from './i18n.svelte.js';
+  import SpeakButton from './ui/SpeakButton.svelte';
+  import { appendSpoken } from './speak.js';
 
   // v0.25.1 (Noah 3a): prefillBike = "Note on a bike" from Today, the bike already chosen.
   let { page = 'home', open = $bindable(false), prefill = '', prefillBike = null } = $props();
@@ -180,6 +182,8 @@
     <div class="row">
       <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
       {#if photo}<img class="th" src={photo} alt={t('Photo of the note')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
+      <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
+      <SpeakButton onsaid={(w) => (text = appendSpoken(text, w))} />
     </div>
     <p class="ctx">
       <span>{PAGE_NAMES[page] ? t(PAGE_NAMES[page]) : page}</span>
