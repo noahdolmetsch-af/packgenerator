@@ -60,6 +60,7 @@
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
+  import { saveActFilter } from '../lib/touren/actfilter.js';
   import TourTiles from '../lib/touren/TourTiles.svelte';
   // AT1: the Strava activities
   import Activities from '../lib/touren/Activities.svelte';
@@ -299,7 +300,7 @@
       </section>
 
       <!-- AT1: «Abgeschlossene Touren», every Strava activity (answers 1a 2a 3b 4b) -->
-      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} />{/if}
+      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} />{/if}
 
       <!-- AT1: «Packmodus» (was «App-Touren»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a) -->
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
