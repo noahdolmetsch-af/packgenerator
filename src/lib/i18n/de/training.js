@@ -130,4 +130,8 @@ export default {
   'Z1–Z2 {n} % (goal {g} %)': 'Z1–Z2 {n} % (Ziel {g} %)',
   'Resting heart rate': 'Ruhepuls',
   'with Fitbit': 'mit Fitbit',
+  // How it works (f.training, SN6+ K4)
+  'Open Aktiv › Training.': 'Öffne Aktiv › Training.',
+  'Tap an activity: minutes per zone and the heart rate.': 'Tippe eine Aktivität an: Minuten pro Zone und der Puls.',
+  'Under «Week» plan sessions with duration and zone.': 'Unter «Woche» planst du Einheiten mit Dauer und Zone.',
 };

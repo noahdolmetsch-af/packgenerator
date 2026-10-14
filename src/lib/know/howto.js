@@ -105,6 +105,8 @@ export const HOWTO = {
   // v0.133.0
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
+  // v0.138.0 «Training»
+  'f.training': ['Open Aktiv › Training.', 'Tap an activity: minutes per zone and the heart rate.', 'Under «Week» plan sessions with duration and zone.'],
 };
 
 /** The steps of a function, or [] when it has none. */
