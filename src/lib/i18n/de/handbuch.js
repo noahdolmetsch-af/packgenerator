@@ -341,4 +341,9 @@ export default {
   'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
   'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
   'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
+  // 0.157.0 Fitbit-Verbindung
+  'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
+  'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
+  'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
 };

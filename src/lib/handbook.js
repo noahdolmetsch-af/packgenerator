@@ -457,6 +457,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.fitbit': {
+    on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
+    steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],
+    example: 'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.',
+  },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],

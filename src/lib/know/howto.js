@@ -104,6 +104,8 @@ export const HOWTO = {
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
+  // 0.157.0
+  'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
 };
 

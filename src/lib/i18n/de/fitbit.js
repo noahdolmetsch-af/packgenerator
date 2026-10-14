@@ -1,6 +1,11 @@
 // Fitbit über Google Health (mockups G1–G2): the page «Fitbit», the card «Gesundheitsdaten», the light on «Daten und Backup»
 export default {
   'Sleep|fitbit': 'Schlaf',
+  // «Was die App alles kann», Handbuch, «So geht's»
+  'Fitbit connection': 'Fitbit-Verbindung',
+  'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.': 'Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten von deiner Uhr, von selbst geholt; nur zur Beobachtung.',
+  'Open Me › Data and backup › Fitbit.': 'Öffne Ich › Daten und Backup › Fitbit.',
+  'The app fetches new values when it opens.': 'Die App holt neue Werte beim Öffnen.',
   HRV: 'HRV',
   'Resting heart rate': 'Ruhepuls',
   'Resting heart rate and HRV': 'Ruhepuls und HRV',

@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 95 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 98 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -345,6 +345,17 @@ Eine importierte Liste prüfen: sichere Zeilen übernehmen, die anderen mit je e
 2. Nimm die sicheren Zeilen auf einmal, die anderen mit je einem Tipp.
 
 **Beispiel:** 120 Zeilen → 110 sichere auf einmal, 10 von Hand geprüft.
+
+### Tour aus komoot
+
+komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.
+2. Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.
+
+**Beispiel:** Eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.
 
 ## Packen und unterwegs
 
@@ -883,6 +894,17 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
+### Wi gaht's?
+
+Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Wi gaht's?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.
+2. Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.
+
+**Beispiel:** «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.
+
 ### Meilensteine
 
 Nur der nächste Stern, und eine Belohnung von der Wunschliste.
@@ -1005,6 +1027,17 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Fitbit-Verbindung
+
+Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten von deiner Uhr, von selbst geholt; nur zur Beobachtung.
+
+**Aufschalten:** Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).
+
+1. Tippe «Mit Google verbinden» und erlaube die Werte.
+2. Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.
+
+**Beispiel:** Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.
 
 ### Auto-Backup in einen Ordner
 
