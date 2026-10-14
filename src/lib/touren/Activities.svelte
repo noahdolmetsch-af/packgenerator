@@ -315,8 +315,9 @@
   .av {
     grid-column: 2 / 5;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-    gap: 6px 12px;
+    /* a ride's eleven values in one line at 1440 */
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px 8px;
     margin: 0;
   }
   .vc {
