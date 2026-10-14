@@ -9,12 +9,17 @@
  *   environment PAY_SELLERS (JSON {"key":"acct_…"}); the payment then goes to that account and
  *   the platform keeps PAY_PLATFORM_FEE_PCT percent (default 0). One seller per order.
  * - Bookings need storage (Redis): pay:slot:<slot> counts the booked places.
+ * - kind 'download' (Noah 14.10.2026 01:27 «2a»: sell packing lists or tour plans as templates):
+ *   after the payment the buyer gets a signed grant per template (grantFor/readGrant); the
+ *   template content itself is delivered by a later step.
  */
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { pick } from './core.js';
 
 export const CATALOG = [
   { id: 'test_product', kind: 'product', name: 'Testprodukt', amount: 1000, seller: 'own' },
   { id: 'test_booking', kind: 'booking', name: 'Testtermin', amount: 2000, seller: 'own', slots: [{ id: 'test_slot_1', label: '2027-01-15 10:00', places: 2 }] },
+  { id: 'test_template', kind: 'download', name: 'Testvorlage Packliste', amount: 500, seller: 'own' },
   { id: 'test_partner_product', kind: 'product', name: 'Testprodukt Partner', amount: 1500, seller: 'test_partner' },
 ];
 export const MAX_QTY = 10;
@@ -88,4 +93,19 @@ export function orderForm(order, { successUrl, cancelUrl, account = null, feePct
     if (fee > 0) f.set('payment_intent_data[application_fee_amount]', String(fee));
   }
   return f;
+}
+
+/* ---------- templates (kind 'download') ---------- */
+const grantSig = (secret, id, ref) => createHmac('sha256', secret).update(`dl:${id}:${ref}`).digest('base64url');
+
+/** A grant for one bought template: «<id>.<ref>.<signature>» (ref = the payment). */
+export const grantFor = (secret, id, ref) => `${id}.${ref}.${grantSig(secret, id, ref)}`;
+
+/** { id, ref } for a genuine grant of a template in the catalog, else null. */
+export function readGrant(secret, grant, catalog = CATALOG) {
+  const m = /^([a-z0-9_]{1,60})\.([A-Za-z0-9_]{1,200})\.([A-Za-z0-9_-]{43})$/.exec(String(grant ?? ''));
+  if (!secret || !m || catalog.find((i) => i.id === m[1])?.kind !== 'download') return null;
+  const a = Buffer.from(m[3]);
+  const b = Buffer.from(grantSig(secret, m[1], m[2]));
+  return a.length === b.length && timingSafeEqual(a, b) ? { id: m[1], ref: m[2] } : null;
 }

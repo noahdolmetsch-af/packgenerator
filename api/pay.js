@@ -10,7 +10,8 @@
  * Shop and bookings (Grundgerüst, see _lib/shop.js):
  *   GET  ?step=catalog                       → { items } (fictional test items for now)
  *   POST ?step=order { lines: [{ id, qty, slot? }], returnTo } → { url }
- *   GET  ?step=confirm&session_id=…          → { order: { lines, seller } } for an order (places are booked once)
+ *   GET  ?step=confirm&session_id=…          → { order: { lines, seller }, downloads: [{ id, grant }] } for an order (places are booked once)
+ *   POST ?step=download { grant }            → { id } when the grant for a bought template is genuine
  *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
  *   PAY_MODE=test (anything else = off), STRIPE_SECRET_KEY (sk_test_… only; a live key is refused),
@@ -21,7 +22,7 @@
 import { route, json, redis, redisEnv, ApiError } from './_lib/core.js';
 import { jsonBody, safeReturn, hash } from './_lib/oauth.js';
 import { PLANS, CURRENCY, payEnv, isTestKey, makeLicence, readLicence, readCode, codeExpiry, checkoutForm } from './_lib/pay.js';
-import { CATALOG, shopEnv, publicCatalog, checkOrder, orderForm, readNote } from './_lib/shop.js';
+import { CATALOG, shopEnv, publicCatalog, checkOrder, orderForm, readNote, grantFor, readGrant } from './_lib/shop.js';
 
 export const STRIPE = 'https://api.stripe.com/v1';
 const LIVE_SUB = ['active', 'trialing', 'past_due'];
@@ -95,7 +96,8 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...shopEnv(), ...redis
             if (store && (await store.cmd('SET', `pay:order:${id}`, String(nowS()), 'NX')) === 'OK') {
               for (const l of lines.filter((x) => x.slot)) await store.cmd('INCRBY', slotKey(l.slot), l.qty);
             }
-            return json(request, 200, { order: { lines, seller: s.metadata.seller ?? 'own' } });
+            const downloads = lines.filter((l) => catalog.find((i) => i.id === l.id)?.kind === 'download').map((l) => ({ id: l.id, grant: grantFor(cfg.secret, l.id, id) }));
+            return json(request, 200, { order: { lines, seller: s.metadata.seller ?? 'own' }, downloads });
           }
           const plan = s.metadata?.plan;
           if (!PLANS[plan]) throw new ApiError(400, 'bad_request', 'Unknown plan.');
@@ -138,6 +140,13 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...shopEnv(), ...redis
           const s = await stripe(cfg, '/checkout/sessions', orderForm(order, { ...back(body.returnTo), account, feePct: cfg.feePct ?? 0, currency: CURRENCY }));
           if (typeof s.url !== 'string' || !s.url.startsWith('https://checkout.stripe.com/')) throw new ApiError(502, 'stripe_error', 'Stripe answered with an error.');
           return json(request, 200, { url: s.url });
+        }
+
+        if (step === 'download') {
+          on(cfg);
+          const g = readGrant(cfg.secret, body.grant, catalog);
+          if (!g) throw new ApiError(403, 'bad_grant', 'This template was not bought here.');
+          return json(request, 200, { id: g.id });
         }
 
         if (step === 'redeem') {

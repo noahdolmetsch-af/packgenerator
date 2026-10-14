@@ -11,6 +11,8 @@ Stand: 14.10.2026. Noahs Wunsch «ich möchte eine bezahlfunktion einführen» (
 | 5 Kosten | 0, Testmodus |
 | 6 Was jetzt? | a und b: App-Zahlung und Grundgerüst für Shop und Buchung |
 | 7 Wer verkauft? | beides: Noah und andere (Marktplatz) |
+| Pro (01:27) | 1a: Strava, Fitbit und Garmin-Seiten wären «Pro» (`PRO_FEATURES`) |
+| Vorlagen (01:27) | 2a: Verkauf von Packlisten und Tourenplänen jetzt vorbereiten |
 
 ## Was gebaut ist
 
@@ -26,6 +28,8 @@ Stand: 14.10.2026. Noahs Wunsch «ich möchte eine bezahlfunktion einführen» (
 - **Code (4b):** `PG1-<plan>-<id>-<signatur>`. Mit Speicher (Upstash) gilt jeder Code nur einmal, ohne Speicher beliebig oft.
 - **Abo:** Die Lizenz gilt bis zum Ende der bezahlten Zeit; danach fragt die App den Server, der bei Stripe nachschaut und eine neue Lizenz gibt.
 - **Shop und Buchung:** `CATALOG` enthält nur erfundene Testartikel. Preise kennt nur der Server. Termine haben Plätze; gebucht wird einmal pro Zahlung (braucht Speicher).
+- **Pro:** Nur die Teile in `PRO_FEATURES` (Strava, Fitbit, Garmin) bräuchten später einen Kauf; alles andere bleibt gratis. Solange `LOCKED` aus ist, gilt nichts davon.
+- **Vorlagen verkaufen:** Artikelart `download`. Nach dem Kauf bekommt das Gerät pro Vorlage eine signierte Berechtigung (`pg.pay.downloads` im localStorage); `?step=download` prüft sie. Den Inhalt der Vorlage liefert ein späterer Schritt.
 - **Andere Verkäufer (Marktplatz):** Stripe Connect. Ein Verkäufer braucht ein eigenes Stripe-Konto (`acct_…` in `PAY_SELLERS`); das Geld geht direkt an ihn, die Plattform behält `PAY_PLATFORM_FEE_PCT` Prozent (Standard 0). Ein Verkäufer pro Bestellung.
 - **Noah bezahlt in der App (1b):** Noah kauft im Shop eines anderen Verkäufers über dieselbe Kasse.
 

@@ -13,6 +13,8 @@
 export const PAY_URL = 'https://packgen-three.vercel.app/api/pay';
 export const LICENCE_LS = 'pg.pay.licence';
 export const LOCKED = false;
+/** «Pro» (Noah 14.10.2026 01:27 «1a»): these parts would need a paid plan once LOCKED is on. */
+export const PRO_FEATURES = ['strava', 'fitbit', 'garmin'];
 
 const nowS = () => Math.floor(Date.now() / 1000);
 
@@ -51,9 +53,9 @@ export function isPaid(token = readLicence(), at = nowS()) {
   return !!d && (d.exp == null || d.exp > at);
 }
 
-/** May the app use this part? Always yes while LOCKED is false. */
-export function hasAccess(_feature, { locked = LOCKED, token } = {}) {
-  return !locked || isPaid(token ?? readLicence());
+/** May the app use this part? Always yes while LOCKED is false; only Pro parts ever need a plan. */
+export function hasAccess(feature, { locked = LOCKED, token } = {}) {
+  return !locked || !PRO_FEATURES.includes(feature) || isPaid(token ?? readLicence());
 }
 
 async function call(doFetch, path, init) {

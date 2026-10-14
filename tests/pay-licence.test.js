@@ -1,6 +1,6 @@
 // Bezahlfunktion step 1: the invisible app side (src/lib/pay/licence.js). Fictional values only.
 import { describe, it, expect, vi } from 'vitest';
-import { LOCKED, LICENCE_LS, peek, isPaid, hasAccess, readLicence, writeLicence, redeem, confirmFromUrl, checkLicence } from '../src/lib/pay/licence.js';
+import { LOCKED, PRO_FEATURES, LICENCE_LS, peek, isPaid, hasAccess, readLicence, writeLicence, redeem, confirmFromUrl, checkLicence } from '../src/lib/pay/licence.js';
 
 const tok = (d) => `${Buffer.from(JSON.stringify({ v: 1, ...d })).toString('base64url')}.sig`;
 const memLs = () => {
@@ -18,8 +18,10 @@ describe('the licence on this device', () => {
     expect(peek('nonsense')).toBeNull();
     expect(isPaid(tok({ plan: 'app_once', exp: null }))).toBe(true);
     expect(isPaid(tok({ plan: 'app_month', exp: 100 }), 200)).toBe(false);
-    expect(hasAccess('x', { locked: true, token: tok({ plan: 'app_year', exp: 300 }) })).toBe(isPaid(tok({ plan: 'app_year', exp: 300 })));
-    expect(hasAccess('x', { locked: true, token: null })).toBe(false);
+    expect(hasAccess('fitbit', { locked: true, token: tok({ plan: 'app_once', exp: null }) })).toBe(true);
+    expect(hasAccess('strava', { locked: true, token: null })).toBe(false);
+    expect(hasAccess('packing', { locked: true, token: null })).toBe(true);
+    expect(PRO_FEATURES).toEqual(['strava', 'fitbit', 'garmin']);
   });
   it('keeps the licence in localStorage only, and survives a refusing storage', () => {
     const ls = memLs();

@@ -90,3 +90,28 @@ describe('/api/pay orders', () => {
     expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ lines: [{ id: 'test_product', qty: 1 }], returnTo: 'http://localhost/#/' });
   });
 });
+
+describe('templates (kind download)', () => {
+  it('gives a grant per bought template and checks it', async () => {
+    const { grantFor, readGrant } = await import('../api/_lib/shop.js');
+    const g = grantFor('s', 'test_template', 'cs_test_o');
+    expect(readGrant('s', g)).toEqual({ id: 'test_template', ref: 'cs_test_o' });
+    expect(readGrant('other', g)).toBeNull();
+    expect(readGrant('s', grantFor('s', 'test_product', 'cs_test_o'))).toBeNull();
+    const w = world({ '/checkout/sessions/cs_test_t': { status: 'complete', payment_status: 'paid', metadata: { kind: 'order', seller: 'own', order: 'test_template:1' } } });
+    const h = makeHandler({ env: env(), doFetch: w.doFetch });
+    const r = await (await h(get('step=confirm&session_id=cs_test_t'))).json();
+    expect(r.downloads).toEqual([{ id: 'test_template', grant: grantFor('s', 'test_template', 'cs_test_t') }]);
+    const dl = (grant) => new Request('https://packgen-three.vercel.app/api/pay?step=download', { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify({ grant }) });
+    expect(await (await h(dl(r.downloads[0].grant))).json()).toEqual({ id: 'test_template' });
+    expect((await h(dl('test_template.x.' + 'A'.repeat(43)))).status).toBe(403);
+  });
+  it('keeps grants on this device only', async () => {
+    const { keepDownloads, readDownloads, DOWNLOADS_LS } = await import('../src/lib/pay/shop.js');
+    const m = new Map();
+    const ls = { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v) };
+    expect(keepDownloads([{ id: 'a', grant: 'g1' }, { id: '' }], ls)).toBe(true);
+    expect(readDownloads(ls)).toEqual({ a: 'g1' });
+    expect([...m.keys()]).toEqual([DOWNLOADS_LS]);
+  });
+});
