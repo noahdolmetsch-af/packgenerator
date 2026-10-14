@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.132.2',
+    date: '2026-10-14',
+    title: 'Only ticked when ridden',
+    lead: 'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.',
+    points: [
+      { text: '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Hiking and other trips with their own bags no longer count as a bike trip' },
+    ],
+    test: [
+      'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.',
+      'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),

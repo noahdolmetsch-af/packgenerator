@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
+  'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',
+  'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.': 'Eine Tour für heute hakt «Velo draussen» nicht mehr ab, bevor du gefahren bist.',
+  '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again': 'Eine Velotour hakt «Velo draussen» erst ab, wenn die Tour beendet ist; ein Tipp hakt wieder ab und wählt wieder ab',
+  'Hiking and other trips with their own bags no longer count as a bike trip': 'Wandern und andere Touren mit eigenen Taschen zählen nicht mehr als Velotour',
+  'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.': 'Plane eine Velotour für heute und öffne Aktiv: «Velo draussen» ist nicht abgehakt.',
+  'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.': 'Tippe auf «Velo draussen»: Es ist abgehakt. Tippe nochmals: Es ist abgewählt.',
+
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',
