@@ -91,13 +91,12 @@ export function startContainers(items) {
 }
 
 /** Fill in what a bike record from the Excel does not have yet (weight, slots, setup). */
-export function completeBike(bike, containers, settings = {}) {
+export function completeBike(bike, containers) {
   const ids = new Set(containers.map((c) => c.id));
   const setup = Object.fromEntries(Object.entries(DEFAULT_SETUP).filter(([, id]) => ids.has(id)));
-  const fromLogbook = bike.id === 'scott-hardtail' && settings.bikeWeightG ? settings.bikeWeightG : null;
   return {
     ...bike,
-    weightG: bike.weightG !== undefined ? bike.weightG : fromLogbook,
+    weightG: bike.weightG !== undefined ? bike.weightG : null,
     slots: bike.slots ?? SLOTS.map((s) => s.key),
     setup: bike.setup ?? setup,
   };
@@ -121,15 +120,14 @@ export function newBikeRecord(name, bikes = [], containers = []) {
  * and gear exists) and completes bikes that have no setup yet. Changes nothing otherwise.
  */
 export async function ensureBikeSetup(db) {
-  return db.transaction('rw', db.items, db.containers, db.bikes, db.settings, async () => {
+  return db.transaction('rw', db.items, db.containers, db.bikes, async () => {
     let containers = await db.containers.toArray();
     if (!containers.length) {
       containers = startContainers(await db.items.toArray());
       if (containers.length) await db.containers.bulkPut(containers);
     }
-    const settings = Object.fromEntries((await db.settings.toArray()).map((s) => [s.key, s.value]));
     const todo = (await db.bikes.toArray()).filter((b) => !b.slots || !b.setup || b.weightG === undefined);
-    if (todo.length) await db.bikes.bulkPut(todo.map((b) => completeBike(b, containers, settings)));
+    if (todo.length) await db.bikes.bulkPut(todo.map((b) => completeBike(b, containers)));
     return todo.length;
   });
 }
@@ -218,9 +216,8 @@ export async function renameBike(db, id, name) {
 
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
 
-/** Bikes in Excel order (the favourite first), new bikes after them by name. */
-const BIKE_ORDER = ['scott-hardtail', 'fully', 'factor-ls', 'canyon-world-cup', 'gravel'];
-const bikeRank = (b) => (BIKE_ORDER.includes(b.id) ? BIKE_ORDER.indexOf(b.id) : 99);
+/** Bikes by their order (bike.order; data cleanup 14.10.2026, before a list in the code), the others after them by name. */
+const bikeRank = (b) => (typeof b.order === 'number' ? b.order : 99);
 export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bikeRank(b) || a.name.localeCompare(b.name));
 
 /* ---------- one page "Bikes" with the tabs Setup and Care (v0.21.0, Noah's answers 6a, 5) ---------- */

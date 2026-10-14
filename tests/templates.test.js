@@ -1,7 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { applyUpdates } from '../src/lib/updates.js';
 import { templateFrom, tripFromTemplate, upsert, loadTemplates, saveTripAsTemplate, templateDefaults } from '../src/lib/templates.js';
 
 const trip = {
@@ -49,19 +48,6 @@ describe('templates', () => {
   it('upsert replaces by id or adds', () => {
     expect(upsert([{ id: 'a', name: 'x' }], { id: 'a', name: 'y' })).toEqual([{ id: 'a', name: 'y' }]);
     expect(upsert([{ id: 'a' }], { id: 'b' }).length).toBe(2);
-  });
-
-  it('makes the first template "Daily commute" from that trip, once', async () => {
-    const db = createDb('tpl-test');
-    await db.items.bulkPut(items);
-    await db.trips.put(trip);
-    await applyUpdates(db);
-    const list = await loadTemplates(db);
-    expect(list.map((t) => t.name)).toEqual(['Daily commute']);
-    expect((await db.trips.get('trip-1')).templateId).toBe('tpl-daily-commute');
-    await db.settings.put({ key: 'templates', value: [] });
-    await applyUpdates(db);
-    expect(await loadTemplates(db)).toEqual([]); // deleted by Noah: stays deleted
   });
 });
 

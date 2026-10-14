@@ -104,7 +104,7 @@ export function problemWish(repair, bike, items, id, now = new Date().toISOStrin
   if (items.some((i) => i.name === name && i.ownership === 'wishlist')) return null;
   return {
     id, name, brand: '', model: '', category: 'bike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'bike',
-    defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'], priceChf: null,
+    defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], domains: ['bikepacking'], priceChf: null,
     note: `From a problem on the ${bike.name} (${repair.logDate}): ${repair.task}`, updatedAt: now,
   };
 }

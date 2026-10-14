@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.126.0 Tagespaket 14.10. (Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps)
+  // 0.132.0 Tagespaket 14.10. (Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps)
   'Setup, search and small apps': 'Setup, Suche und kleine Apps',
   'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.': 'Dein Velo-Setup Tasche für Tasche, eine Suche, die mehr versteht, kleine Apps fürs Handy und ein Backup vor jedem Update.',
   'Setup per bike: photos, total weight, a bag plan and a log of what you changed': 'Setup pro Velo: Fotos, Gesamtgewicht, ein Taschen-Plan und ein Logbuch, was du geändert hast',
@@ -19,6 +19,17 @@ export default {
   'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.': 'Öffne auf dem Handy …/apps/meditation/ und füge es zum Startbildschirm hinzu: Es startet bei Meditation, «Ganze App» führt zurück.',
   'Open Me › Data and backup › «Before updates», and Me › «App maintenance».': 'Öffne Ich › Daten und Backup › «Vor Updates» und Ich › «App-Wartung».',
   'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
+
+  // 0.131.0 Daten einmal bereinigen
+  'Tidied up once': 'Mehr Ordnung',
+  'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
+  'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».': 'Die Gewichts-Prüfungen aus der Excel sind jetzt eine Notiz: Notizen › «Gewichts-Prüfungen aus der Excel».',
+  'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.': 'Alte Kits, alte Baustein-Marken und «Auf jeder Tour» stecken in deinen Bausteinen; die alten Kopien sind weg.',
+  'Before tidying up, the app keeps a full copy of your data on this device': 'Vor dem Aufräumen behält die App eine ganze Kopie deiner Daten auf diesem Gerät',
+  'The order of your bikes and their extra names are part of your data now': 'Die Reihenfolge deiner Velos und ihre Zusatznamen gehören jetzt zu deinen Daten',
+  'Download a backup first: Ich › Daten › Backup.': 'Lade zuerst ein Backup herunter: Ich › Daten › Backup.',
+  'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.': 'Öffne Notizen: Die Notiz «Gewichts-Prüfungen aus der Excel» zeigt die Gewichte aus der Excel.',
+  'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.': 'Öffne Material und Bausteine: Alles ist in denselben Bausteinen wie vorher; eine neue Tour packt dieselbe Liste.',
 
   // 0.125.0 Tagespaket 13.10. (Tages-Check, Aktiv ausweiten, Feinschliff A-J1/TZ-1/A-U, Werte überall + Strava verbinden)
   'Lots of new things at once': 'Viel Neues auf einmal',
@@ -58,9 +69,6 @@ export default {
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
-
-
-
 
   // 0.124.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',

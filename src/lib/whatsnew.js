@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.126.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151): Velo-Setup UC3 (#155), Kluge Suche (#154),
+    // v0.132.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151; first numbered 0.126.0): Velo-Setup UC3 (#155), Kluge Suche (#154),
     // App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen vorbereiten BZ1/BZ2b (#156), Kleine Apps + Handbuch (#157)
-    version: '0.126.0',
+    version: '0.132.0',
     date: '2026-10-14',
     title: 'Setup, search and small apps',
     lead: 'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.',
@@ -39,9 +39,29 @@ export const WHATS_NEW = [
       'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
       'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
       'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
-      ],
-    },
-    {
+    ],
+  },
+  {
+    // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
+    version: '0.131.0',
+    date: '2026-10-14',
+    title: 'Tidied up once',
+    lead: 'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.',
+    points: [
+      { text: 'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».', href: '#/notes' },
+      { text: 'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Before tidying up, the app keeps a full copy of your data on this device' },
+      { box: 'nicer', text: 'The order of your bikes and their extra names are part of your data now', href: '#/bikes' },
+    ],
+    test: [
+      'Download a backup first: Ich › Daten › Backup.',
+      'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.',
+      'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.',
+    ],
+  },
+  {
     // v0.125.0 «Tagespaket 13.10.»: Tages-Check 1+2 (#151), Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152),
     // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
     version: '0.125.0',

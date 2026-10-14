@@ -86,8 +86,13 @@ export function dropNightOnly(entries, trip, items) {
     return !i?.sets?.includes(AID_KEY) || aidFits(i, level);
   });
 }
+/**
+ * The blocks a night outdoors brings: bivouac, tent, cooking (data cleanup 14.10.2026: one list for
+ * the night switches here, the word «outdoor» on the Blocks page and the place suggestions).
+ */
+export const OUTDOOR_BLOCKS = ['bivy', 'tent', 'cook'];
 /** Night switches that follow the overnight stay (trip.sets, read by older versions). */
-const SWITCHED = ['bivy', 'tent', 'cook'];
+const SWITCHED = OUTDOOR_BLOCKS;
 
 /** Does the trip say where it sleeps? Older trips do not: their entries are never changed here. */
 export const hasContext = (trip) => OVERNIGHT.includes(trip?.overnight);
