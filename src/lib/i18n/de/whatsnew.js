@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.137.0 Velo-Reihenfolge
+  // 0.131.2 Velo-Reihenfolge
   'Bikes back in line': 'Velos wieder in Reih und Glied',
   'The bike tabs follow the order you chose again.': 'Die Velo-Reiter folgen wieder deiner Reihenfolge.',
   'Bike tabs in your order, your main bike first.': 'Velo-Reiter in deiner Reihenfolge, dein Haupt-Velo zuerst.',

@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.137.0 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
-    version: '0.137.0',
+    // v0.131.2 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.131.2',
     date: '2026-10-14',
     title: 'Bikes back in line',
     lead: 'The bike tabs follow the order you chose again.',
