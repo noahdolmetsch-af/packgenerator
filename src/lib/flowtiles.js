@@ -16,13 +16,25 @@ export const TILE_LINE_NAMES = { star: 'Milestone', spark: 'History', week: 'Wee
 
 /** The six favourites of the seed with their playful names (suggestions) and the line that fits best. */
 export const FAV_SEED = [
-  { id: 'meditation', nick: 'Cushion time', nickDe: 'Kissenzeit', line: 'star' },
+  // «Meditation» (Noah 13.10.2026 «3a»): the name is «Meditation» everywhere, no playful name («Kissenzeit» before)
+  { id: 'meditation', nick: null, nickDe: null, line: 'star' },
   { id: 'bike', nick: 'Pedal joy', nickDe: 'Pedal-Glück', line: 'spark' },
   { id: 'yoga', nick: 'Mat moment', nickDe: 'Matten-Moment', line: 'week' },
   { id: 'gym', nick: 'Iron hour', nickDe: 'Eisen-Stunde', line: 'nudge' },
   { id: 'tennis', nick: 'Felt ball', nickDe: 'Filzball', line: 'streak' },
   { id: 'pushups', nick: 'Floor kisses', nickDe: 'Boden-Küsse', line: 'best' },
 ];
+/**
+ * «Meditation» (Noah 3a): the old playful name of the seed goes; a name you gave yourself stays (a name
+ * typed in Aktivität is kept in nick, never «Cushion time», and never in nickDe). → the patch, or null.
+ */
+export function oldMedNick(act) {
+  if (act?.id !== 'meditation') return null;
+  const patch = {};
+  if (act.nick === 'Cushion time') patch.nick = null;
+  if (act.nickDe === 'Kissenzeit') patch.nickDe = null;
+  return Object.keys(patch).length ? patch : null;
+}
 /** More playful names for activities that are not favourites. */
 export const MORE_NICKS = { sauna: { nick: 'Sweat break', nickDe: 'Schwitz-Pause' } };
 /** The walk (H19a: Sauna and Spaziergang always there). */

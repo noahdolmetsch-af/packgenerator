@@ -17,6 +17,7 @@
    *   …/log              hobby pages 3: the log, list · calendar · chart (MedLog.svelte, B4 + B6)
    *   …/s/<sid>          hobby pages 3: one session in full (MedSession.svelte, B5)
    *   …/muster           v0.105.0 Design-Refresh P8 (A14c): the patterns of the log (MedPatterns.svelte)
+   *   …/rueckblick     «Meditation» (mockup ME3): the Rückblick by week, month or year (MedReview.svelte)
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
@@ -62,6 +63,7 @@
   import MedSession from './flow/MedSession.svelte';
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
+  import MedReview from './flow/MedReview.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, locale, lang, num } from '../lib/i18n.svelte.js';
@@ -212,6 +214,9 @@
   {#key sub}<MedPatterns actId={decodeURIComponent(route[1] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'mehr'}
   {#key sub}<MedMore actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
+{:else if route[0] === 'act' && route[2] === 'rueckblick'}
+  <!-- «Meditation» (mockup ME3): the Rückblick by week, month or year -->
+  {#key sub}<MedReview actId={decodeURIComponent(route[1] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'timer'}
   {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act'}

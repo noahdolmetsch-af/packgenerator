@@ -41,6 +41,10 @@
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
   import Pay from './pages/Pay.svelte';
+  import Timer from './pages/Timer.svelte';
+  import TimerFaces from './pages/TimerFaces.svelte';
+  import TimerLog from './pages/TimerLog.svelte';
+  import TimerFloat from './lib/timer/TimerFloat.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -277,7 +281,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'check'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'check' || page === 'timer'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key switchN}
@@ -329,6 +333,9 @@
     <!-- v0.127.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
     {#key hash}{#if checkPart(hash) === 'questions'}<CheckQuestions />{:else}<Check part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'timer'}
+    <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
+    {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
@@ -376,6 +383,8 @@
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
+<!-- «Timer» (Z1): a running timer stays in sight on every other page -->
+{#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
 <Keys bind:open={keysOpen} />
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

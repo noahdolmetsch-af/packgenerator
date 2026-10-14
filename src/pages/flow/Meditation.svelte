@@ -1,26 +1,30 @@
 <script>
   /**
-   * Hobby pages 2 «Kissenzeit»: the meditation page, short since v0.86.0 «Meditation einfach» (mockup B,
-   * Noah «1-5 a» 11.10.2026). #/flow/act/meditation
-   *   the head (name, «Kissenzeit», the goal ring), the start card («Wie letztes Mal · {n} Min», or before
-   *   the first session «Jetzt starten · {n} Min» with the first template; «Andere Vorlage» chips and
-   *   «+ neue»), three rows (Diese Woche → log, Protokoll → log, Nächster Stern → the milestones of
-   *   meditation) and one row «Mehr» → #/flow/act/meditation/mehr (MedMore.svelte: sounds, kinds, places
-   *   and things, quotes, links, all stars, templates; nothing lost, only folded away).
+   * «Meditation» (mockup ME2, Noah 13.10.2026 «1a 2a 3a 4b 5b», approved «ME1-ME3 und Z1-Z5 freigeben»):
+   * the first tab of Aktiv, #/flow/act/meditation. One page, timer and Rückblick side by side:
+   *   Timer: the clock as it will look (the face chosen for meditation, Z3), the start («Wie letztes Mal ·
+   *   {n} Min», before the first session «Jetzt starten · {n} Min»), the durations 10–60 and «eigene», the
+   *   templates and «+ neue», and three rows (Klänge, Art, Uhr).
+   *   Rückblick: days in a row, the last 7 days, the minutes and the average depth, the week as dots and the
+   *   last sessions («Alles ansehen» → …/rueckblick, ME3), the next star, and «Mehr» (MedMore.svelte).
+   * Before (hobby pages 2, v0.86.0 «Meditation einfach»): the page was reached from Aktivität and called
+   * «Kissenzeit»; the name is «Meditation» everywhere now (Noah 3a).
    * Everything is a suggestion. A session runs in the full view (B7, FlowLayer); the start is shared with
    * the start sheet of «Heute abhaken» (lib/flow/hobby/medstart.js).
    */
-  import { ChevronLeft, ChevronRight, Play, Plus, CalendarDays, List, Star, Ellipsis } from '@lucide/svelte';
+  import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
+  import Face from '../../lib/timer/Face.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { actState, addDays } from '../../lib/flow.js';
   import { msContext, actMilestones, evaluate, isOff, newStars } from '../../lib/flowms.js';
-  import { daysGrid, streaks, recentSessions, noteOf } from '../../lib/flowmed.js';
+  import { daysGrid, streaks, recentSessions, noteOf, MED_DURATIONS, CLOCK_KEY, clockPrefOf, bowlWords } from '../../lib/flowmed.js';
   import { saveStars } from '../../lib/flowdb.js';
   import { clockState, actName } from '../../lib/flow/ui.svelte.js';
-  import { beginMed, tplStart, medTemplates, lastStart, artOfData } from '../../lib/flow/hobby/medstart.js';
-  import { actGoalText, dayShort } from '../../lib/flow/words.js';
-  import { tileName, tplName, artName, msName, val, timeShort } from '../../lib/flow/hobby/words.js';
+  import { beginMed, tplStart, medTemplates, lastStart, artOfData, startLine } from '../../lib/flow/hobby/medstart.js';
+  import { actGoalText, dayShort, wd } from '../../lib/flow/words.js';
+  import { tplName, artName, msName, val, timeShort } from '../../lib/flow/hobby/words.js';
+  import { prefsOf, PREFS_KEY } from '../../lib/timer.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
 
@@ -49,6 +53,18 @@
       .sort((a, b) => b.progress - a.progress)[0] ?? null,
   );
 
+  /* the clock as it will look: the face for meditation (Z3 «nur Meditation»), else the session's clock */
+  let face = $state('ring');
+  $effect(() => {
+    Promise.all([db.settings.get(PREFS_KEY), db.settings.get(CLOCK_KEY)])
+      .then(([p, c]) => {
+        const v = clockPrefOf(c?.value).view;
+        const own = prefsOf(p?.value).faces.meditation;
+        face = own ?? (v === 'digits' ? 'digital' : v);
+      })
+      .catch(() => {});
+  });
+
   /* the start */
   const running = $derived(!!clockState.tm);
   const tpls = $derived(medTemplates(data));
@@ -57,6 +73,8 @@
   const main = $derived(ls ? ls.start : first ? tplStart(first) : null);
   const mainTplId = $derived(ls ? ls.last.tplId : first?.id);
   const others = $derived(tpls.filter((x) => x.id !== mainTplId).slice(0, 4));
+  let mins = $state(null);
+  const minutes = $derived(mins ?? main?.minutes ?? 20);
   const kindName = (id) => {
     const a = artOfData(data, id);
     return a ? artName(a) : '';
@@ -70,22 +88,35 @@
     if (ls?.last.at) parts.push(`${ago(ls.last.day ?? today)} ${timeShort(Date.parse(ls.last.at))}`);
     return parts.join(' · ');
   });
-  const startMain = () => main && beginMed(actId, data, main);
+  const gong = $derived.by(() => {
+    if (!main) return '';
+    const w = bowlWords(main.bowl);
+    return t('Gong {when}', { when: t(w.key, w.vars) });
+  });
+  const startMain = () => main && beginMed(actId, data, { ...main, minutes });
   const startTpl = (x) => beginMed(actId, data, tplStart(x));
 
-  /* the three rows */
+  /* the Rückblick */
   const week = $derived(data ? daysGrid(data.log, actId, today, 7) : []);
   const weekDays = $derived(week.filter((g) => g.on).length);
   const weekMin = $derived(week.reduce((a, g) => a + (Number(g.min) || 0), 0));
   const str = $derived(data ? streaks(data.log, actId, today) : { now: 0, longest: 0 });
-  const recent = $derived(data ? (recentSessions(data.log, data.sessions, actId, 1)[0] ?? null) : null);
-  const recentNote = $derived(recent ? noteOf(recent.s).note : '');
+  const doneToday = $derived(!!week.at(-1)?.on);
+  const recent = $derived(data ? recentSessions(data.log, data.sessions, actId, 3) : []);
+  const depth = $derived.by(() => {
+    const from = addDays(today, -6);
+    const d = recent.length ? recentSessions(data.log, data.sessions, actId, 50).filter((r) => r.e.day >= from).map((r) => noteOf(r.s).depth).filter(Boolean) : [];
+    return d.length ? Math.round((d.reduce((a, x) => a + x, 0) / d.length) * 10) / 10 : null;
+  });
+  const hm = (min) => {
+    const m = Math.round(min);
+    return m >= 60 ? t('{h} h {m}', { h: Math.floor(m / 60), m: String(m % 60).padStart(2, '0') }) : t('{n} min', { n: m });
+  };
+  const tplOf = (id) => (id ? tpls.find((x) => x.id === id) : null);
   const pct = (r) => Math.round((r?.progress ?? 0) * 100);
 </script>
 
 <div class="med">
-  <p class="back"><a href="#/flow/activity"><ChevronLeft size={16} aria-hidden="true" />{t('Activity|tab')}</a></p>
-
   {#if data && !act}
     <section class="surf pad">
       <h1 class="h1" tabindex="-1" data-page-title>{t('Activity|tab')}</h1>
@@ -93,69 +124,88 @@
     </section>
   {:else if data && act}
     <header class="head">
-      <div class="ht">
-        <h1 class="h1" tabindex="-1" data-page-title>{actName(act)}</h1>
-        <p class="sub">{#if tileName(act) !== actName(act)}«{tileName(act)}»{' · '}{/if}{t('Goal|flow')} {actGoalText(act, today)}</p>
-      </div>
-      {#if st && !st.resting}
-        {@const f = st.stand.of ? Math.min(1, st.stand.n / st.stand.of) : 0}
-        <span class="gring" role="img" aria-label={t('Goal: {n} of {m}', { n: st.stand.n, m: st.stand.of })}>
-          <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="rb" cx="24" cy="24" r="20" />{#if f > 0}<circle class="rf" cx="24" cy="24" r="20" pathLength="100" stroke-dasharray="{Math.round(f * 100)} 100" />{/if}</svg>
-          <b class="num">{st.stand.n}/{st.stand.of}</b>
-        </span>
-      {/if}
+      <h1 class="h1" tabindex="-1" data-page-title>{actName(act)}</h1>
+      <p class="sub">
+        {t('Goal|flow')} {actGoalText(act, today)}{#if str.now}{' · '}{tn(str.now, 'streak {n} day', 'streak {n} days')}{/if}{' · '}{doneToday ? t('done today') : t('still open today')}{#if st?.resting}{' · '}{t('resting')}{/if}
+      </p>
     </header>
 
     <div class="cols">
-      <section class="surf pad startc" aria-label={t('Start|session')}>
+      <section class="surf pad tcard" aria-labelledby="m-timer">
+        <div class="hl"><h2 id="m-timer" class="h2">{t('Timer')}</h2>{#if main?.name}<p>{t('Template «{name}»', { name: main.name })}</p>{/if}</div>
         {#if main}
+          <div class="dial"><Face {face} sec={minutes * 60} frac={0} fmt="auto" size="m" sub={gong} label={t('{n} min', { n: minutes })} /></div>
           <button type="button" class="btn hi go" onclick={startMain} data-start={ls ? 'last' : 'first'}>
             <Play size={22} aria-hidden="true" />
-            {#if running}{t('Open the running session')}{:else if ls}{t('Like last time · {n} min', { n: main.minutes })}{:else}{t('Start now · {n} min', { n: main.minutes })}{/if}
+            {#if running}{t('Open the running session')}{:else if mins != null && mins !== main.minutes}{t('Start · {n} min', { n: minutes })}{:else if ls}{t('Like last time · {n} min', { n: main.minutes })}{:else}{t('Start now · {n} min', { n: main.minutes })}{/if}
           </button>
           {#if mainLine}<p class="ml">{mainLine}</p>{/if}
         {:else}
           <a class="btn hi go" href="{base}/timer?new=1">{t('Set the clock')}</a>
         {/if}
-        <p class="cap">{t('Other template')}</p>
-          <div class="tchips">
-            {#each others as x (x.id)}
-              <button type="button" class="tchip" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => startTpl(x)} data-tpl={x.id}><Play size={16} aria-hidden="true" />{tplName(x)}</button>
-            {/each}
-            <a class="tchip new" href="{base}/timer?new=1" data-to="new-tpl"><Plus size={16} aria-hidden="true" />{t('new|template')}</a>
-          </div>
+        <p class="cap" id="m-dur">{t('Duration')}</p>
+        <div class="tchips" role="group" aria-labelledby="m-dur">
+          {#each MED_DURATIONS as n (n)}
+            <button type="button" class="tchip d" class:on={minutes === n} aria-pressed={minutes === n} onclick={() => (mins = n)} data-dur={n}>{n}</button>
+          {/each}
+          <a class="tchip new" href="{base}/timer?new=1">{t('own|duration')}</a>
+        </div>
+        <p class="cap">{t('Templates')}</p>
+        <div class="tchips">
+          {#each others as x (x.id)}
+            <button type="button" class="tchip" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => startTpl(x)} data-tpl={x.id}><Play size={16} aria-hidden="true" />{tplName(x)}</button>
+          {/each}
+          <a class="tchip new" href="{base}/timer?new=1" data-to="new-tpl"><Plus size={16} aria-hidden="true" />{t('new|template')}</a>
+        </div>
+        <ul class="opts">
+          <li><a class="row" href="{base}/timer?new=1" data-opt="sounds"><span class="ri" aria-hidden="true"><Bell size={18} /></span><span class="rt"><b>{t('Sounds')}</b><small>{main ? startLine({ ...main, name: null }) : ''}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+          <li><a class="row" href="{base}/mehr" data-opt="kind"><span class="ri" aria-hidden="true"><Flower2 size={18} /></span><span class="rt"><b>{t('Kind|meditation')}</b><small>{(main && kindName(main.art)) || t('none chosen')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+          <li><a class="row" href="#/timer/faces?scope=meditation" data-opt="clock"><span class="ri" aria-hidden="true"><Clock size={18} /></span><span class="rt"><b>{t('Clock')}</b><small>{t('Ring · hourglass · moon · digits')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+        </ul>
       </section>
 
       <div class="side">
-        <ul class="surf rows">
-          <li>
-            <a class="row" href="{base}/log" data-row="week">
-              <span class="ri ok" aria-hidden="true"><CalendarDays size={20} /></span>
-              <span class="rt"><b>{t('This week')}</b><small class="num">{t('{n} of 7 days', { n: weekDays })} · {t('{n} min', { n: weekMin })} · {tn(str.now, 'streak {n} day', 'streak {n} days')}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <a class="row" href="{base}/log" data-row="log">
-              <span class="ri ok" aria-hidden="true"><List size={20} /></span>
-              <span class="rt"><b>{t('Log')}</b><small>{#if recent}{t('last: {when}, {n} min', { when: ago(recent.e.day), n: Math.round(Number(recent.e.min) || 0) })}{#if recentNote}{' · '}«{recentNote}»{/if}{:else}{t('no session yet')}{/if}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
-            </a>
-          </li>
-          {#if nextStar}
-            <li>
-              <a class="row" href="#/flow/milestones?act={encodeURIComponent(actId)}" data-row="star">
-                <span class="ri warn" aria-hidden="true"><Star size={20} /></span>
-                <span class="rt">
-                  <b>{t('Next star: {name}', { name: msName(nextStar.m) })}</b>
-                  <small>{t('{n} to go', { n: val(Math.max(0, Math.round((nextStar.target - nextStar.value) * 10) / 10), nextStar.m.unit) })}</small>
-                  <span class="bar" role="progressbar" aria-label={msName(nextStar.m)} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct(nextStar)}><i style:width="{pct(nextStar)}%"></i></span>
-                </span>
-                <ChevronRight size={18} aria-hidden="true" />
-              </a>
-            </li>
-          {/if}
-        </ul>
+        <section class="surf pad" aria-labelledby="m-review">
+          <div class="hl"><h2 id="m-review" class="h2">{t('Look back|page')}</h2><a href="{base}/rueckblick" data-to="review">{t('See everything')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+          <div class="stats">
+            <div><b class="num">{str.now}</b><small>{t('days in a row')}</small></div>
+            <div><b class="num">{weekDays}/7</b><small>{t('last 7 days')}</small></div>
+            <div><b class="num">{hm(weekMin)}</b><small>{t('last 7 days')}</small></div>
+            <div><b class="num">{depth ?? '–'}</b><small>{t('avg. depth')}</small></div>
+          </div>
+          <a class="wk" href="{base}/log" data-row="week" aria-label={t('{n} of 7 days', { n: weekDays })}>
+            {#each week as g (g.day)}<span class="wd" class:on={g.on} class:today={g.day === today}><i aria-hidden="true"></i><small>{wd(g.day)}</small></span>{/each}
+            <span class="sr">{t('{n} of 7 days', { n: weekDays })} · {t('{n} min', { n: weekMin })}</span>
+          </a>
+          <div class="sh2"><p class="cap">{t('Last sessions')}</p><a href="{base}/log" data-to="log">{t('Logbook')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+          <ul class="ses" data-row="log">
+            {#each recent as r (r.e.id)}
+              {@const n = noteOf(r.s)}
+              {@const x = tplOf(r.s?.tplId)}
+              <li>
+                <a href="{base}/s/{encodeURIComponent(r.e.id)}" class="srow">
+                  <span class="d"><b>{wd(r.e.day)}</b>{dayShort(r.e.day)}</span>
+                  <span class="rt"><b>{x ? tplName(x) : actName(act)}</b><small>{[kindName(r.s?.art), r.e.at ? timeShort(Date.parse(r.e.at)) : ''].filter(Boolean).join(' · ')}{#if n.depth}{' · '}{t('depth {n} of 5', { n: n.depth })}{/if}</small>{#if n.note}<em>«{n.note}»</em>{/if}</span>
+                  <b class="m num">{Math.round(Number(r.e.min) || 0)}′</b>
+                </a>
+              </li>
+            {:else}
+              <li class="hint">{t('no session yet')}</li>
+            {/each}
+          </ul>
+        </section>
+
+        {#if nextStar}
+          <a class="surf pad row star" href="#/flow/milestones?act={encodeURIComponent(actId)}" data-row="star">
+            <span class="ri warn" aria-hidden="true"><Star size={20} /></span>
+            <span class="rt">
+              <b>{t('Next star: {name}', { name: msName(nextStar.m) })}</b>
+              <small>{t('{n} to go', { n: val(Math.max(0, Math.round((nextStar.target - nextStar.value) * 10) / 10), nextStar.m.unit) })}</small>
+              <span class="bar" role="progressbar" aria-label={msName(nextStar.m)} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct(nextStar)}><i style:width="{pct(nextStar)}%"></i></span>
+            </span>
+            <ChevronRight size={18} aria-hidden="true" />
+          </a>
+        {/if}
 
         <a class="surf row more" href="{base}/mehr" data-to="more">
           <span class="ri" aria-hidden="true"><Ellipsis size={20} /></span>
@@ -176,29 +226,8 @@
     margin: 0 auto;
     min-width: 0;
   }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
-  }
   .pad {
     padding: 16px 18px;
-    min-width: 0;
-  }
-  .head {
-    display: flex;
-    align-items: center;
-    gap: 12px 16px;
-  }
-  .ht {
-    flex: 1 1 auto;
     min-width: 0;
   }
   .h1 {
@@ -210,34 +239,159 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .gring {
-    position: relative;
+  .h2 {
+    margin: 0;
+    font: 700 var(--fs-sub)/1.2 var(--font-brand);
+  }
+  .hl,
+  .sh2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .hl p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .hl a,
+  .sh2 a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
+  .sh2 .cap {
+    margin: 16px 0 4px;
+  }
+  .dial {
+    display: flex;
+    justify-content: center;
+    margin: 6px 0 12px;
+  }
+  .tchip.d {
+    min-width: 52px;
+    justify-content: center;
+  }
+  .tchip.on {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .opts {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .opts li + li {
+    border-top: 1px solid var(--line);
+  }
+  .opts .row {
+    min-height: 56px;
+    padding: 6px 0;
+  }
+  .v {
+    display: inline-flex;
+    align-items: center;
     flex: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .stats {
     display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 0 4px;
   }
-  .gring svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
+  @media (max-width: 480px) {
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
-  .gring circle {
-    fill: none;
-    stroke-width: 5;
+  .stats b {
+    display: block;
+    font: 800 var(--fs-section)/1.1 var(--font-brand);
   }
-  .gring .rb {
-    stroke: var(--ok-soft);
+  .stats small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
-  .gring .rf {
-    stroke: var(--accent);
-    stroke-linecap: round;
+  .wk {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 12px;
+    padding: 6px 0;
+    color: var(--ink-2);
+    text-decoration: none;
   }
-  .gring b {
-    font: 800 var(--fs-small) var(--font-brand);
+  .wd {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--fs-small);
+  }
+  .wd i {
+    width: 26px;
+    height: 26px;
+    border: 2px solid var(--line-strong);
+    border-radius: 50%;
+  }
+  .wd.on i {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .wd.today small {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .ses {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ses li + li {
+    border-top: 1px solid var(--line);
+  }
+  .srow {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .srow .d {
+    flex: none;
+    width: 58px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.3;
+  }
+  .srow .d b {
+    display: block;
+    color: var(--ink);
+  }
+  .srow em {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .srow .m {
+    flex: none;
+    font: 700 var(--fs-body) var(--font-brand);
+  }
+  .row.star {
+    padding: 12px 18px;
   }
   .cols {
     display: grid;
@@ -302,14 +456,6 @@
     color: var(--ink-2);
     font-weight: 500;
   }
-  .rows {
-    margin: 0;
-    padding: 4px 18px;
-    list-style: none;
-  }
-  .rows li + li {
-    border-top: 1px solid var(--line);
-  }
   .row {
     display: flex;
     align-items: center;
@@ -335,10 +481,6 @@
     border-radius: 10px;
     background: var(--paper-2);
     color: var(--ink-2);
-  }
-  .ri.ok {
-    background: var(--ok-soft);
-    color: var(--accent);
   }
   .ri.warn {
     background: var(--warn-soft);
