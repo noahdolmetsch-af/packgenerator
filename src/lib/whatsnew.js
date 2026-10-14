@@ -16,24 +16,29 @@
 
 export const WHATS_NEW = [
   {
-    // v0.126.0 «Velo-Setup» (mockups UC3-1 to UC3-3, Noah 14.10.2026 «UC3-1-UC3-3 freigeben»)
+    // v0.126.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151): Velo-Setup UC3 (#155), Kluge Suche (#154),
+    // App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen vorbereiten BZ1/BZ2b (#156), Kleine Apps + Handbuch (#157)
     version: '0.126.0',
     date: '2026-10-14',
-    title: 'Your setup, bag by bag',
-    lead: 'Velos has a new tab «Setup»: photos, weight, a bag plan, a log and your race-rig links.',
+    title: 'Setup, search and small apps',
+    lead: 'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.',
     points: [
-      { text: 'Setup per bike: your photos, the total weight and your own race-rig links with a drawn picture.', href: '#/bikes?tab=rig' },
-      { text: 'Bag plan: which bag sits where, weight front, middle and rear, and hints to move an item.', href: '#/bikes?tab=rig&view=bags' },
-      { text: 'Setup log: what you changed, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+      { text: 'Smart search: similar words, small typos and filters; it can also act, «backup» opens Data and backup' },
+      { text: 'Small apps: Meditation, packing list and bike care with their own icon on the phone, same data.' },
     ],
     small: [
-      { box: 'new', text: 'A workshop job that replaced a part asks «Into the log?»', href: '#/bikes?tab=rig&view=log' },
-      { box: 'new', text: '«Your bike compared»: your own rows, one tap sends a row to the inbox', href: '#/bikes?tab=rig' },
+      { box: 'new', text: 'Before every update the app keeps a backup; a monthly check watches keys, links and Strava limits', href: '#/me/data' },
+      { box: 'nicer', text: 'Speak instead of typing, high contrast outdoors, quiet at night and your own start place', href: '#/me/look' },
+      { box: 'new', text: 'Me › Payments explains what is prepared; nothing is locked and no money moves', href: '#/me/pay' },
     ],
     test: [
       'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
-      'Tap «Add link», paste a race-rig address and save: a card with a drawn picture appears.',
       'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
+      'On the phone open …/packgenerator/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
+      'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
       ],
     },
     {

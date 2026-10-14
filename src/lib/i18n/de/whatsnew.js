@@ -4,6 +4,22 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.126.0 Tagespaket 14.10. (Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps)
+  'Setup, search and small apps': 'Setup, Suche und kleine Apps',
+  'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.': 'Dein Velo-Setup Tasche für Tasche, eine Suche, die mehr versteht, kleine Apps fürs Handy und ein Backup vor jedem Update.',
+  'Setup per bike: photos, total weight, a bag plan and a log of what you changed': 'Setup pro Velo: Fotos, Gesamtgewicht, ein Taschen-Plan und ein Logbuch, was du geändert hast',
+  'Smart search: similar words, small typos and filters; it can also act, «backup» opens Data and backup': 'Kluge Suche: ähnliche Wörter, kleine Tippfehler und Filter; sie kann auch handeln, «Backup» öffnet Daten und Backup',
+  'Small apps: Meditation, packing list and bike care with their own icon on the phone, same data.': 'Kleine Apps: Meditation, Packliste und Velopflege mit eigenem Symbol auf dem Handy, gleiche Daten.',
+  'Before every update the app keeps a backup; a monthly check watches keys, links and Strava limits': 'Vor jedem Update behält die App ein Backup; ein Monats-Check prüft Schlüssel, Links und Strava-Grenzen',
+  'Speak instead of typing, high contrast outdoors, quiet at night and your own start place': 'Sprechen statt tippen, hoher Kontrast draussen, Ruhe in der Nacht und dein eigener Startort',
+  'Me › Payments explains what is prepared; nothing is locked and no money moves': 'Ich › Bezahlen erklärt, was vorbereitet ist; nichts ist gesperrt und es fliesst kein Geld',
+  'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.': 'Öffne Velos › Setup: Fotos, Gesamtgewicht, Taschen-Plan, Logbuch, Vergleich, Rennen und Ideen von anderen.',
+  'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.': 'Tippe auf «Ganzer Taschen-Plan» und bei einem Hinweis auf «Verschieben»: Die Sache liegt in der anderen Tasche dieser Packliste.',
+  'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.': 'Suche «regenjacke» oder «materal»: ähnliche Wörter und das korrigierte Wort werden gefunden; «backup» bietet oben Daten und Backup an, Enter öffnet es.',
+  'On the phone open …/packgenerator/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.': 'Öffne auf dem Handy …/packgenerator/apps/meditation/ und füge es zum Startbildschirm hinzu: Es startet bei Meditation, «Ganze App» führt zurück.',
+  'Open Me › Data and backup › «Before updates», and Me › «App maintenance».': 'Öffne Ich › Daten und Backup › «Vor Updates» und Ich › «App-Wartung».',
+  'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
+
   // 0.125.0 Tagespaket 13.10. (Tages-Check, Aktiv ausweiten, Feinschliff A-J1/TZ-1/A-U, Werte überall + Strava verbinden)
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, Werte überall, Tour-Zustände und weniger Tippen.',
@@ -22,17 +38,6 @@ export default {
   'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».': '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
   'After the next update: Today shows a banner on top; tap × and it stays away.': 'Nach dem nächsten Update: Heute zeigt oben ein Banner; × tippen und es bleibt weg.',
 
-  // 0.126.0 Velo-Setup (mockups UC3-1 to UC3-3)
-  'Your setup, bag by bag': 'Dein Setup, Tasche für Tasche',
-  'Velos has a new tab «Setup»: photos, weight, a bag plan, a log and your race-rig links.': 'Velos hat einen neuen Reiter «Setup»: Fotos, Gewicht, ein Taschen-Plan, ein Logbuch und deine Rennrig-Links.',
-  'Setup per bike: your photos, the total weight and your own race-rig links with a drawn picture.': 'Setup pro Velo: deine Fotos, das Gesamtgewicht und deine eigenen Race-Rig-Links mit gezeichnetem Bild.',
-  'Bag plan: which bag sits where, weight front, middle and rear, and hints to move an item.': 'Taschen-Plan: welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, und Hinweise zum Umpacken.',
-  'Setup log: what you changed, the km since and how the first trip after it felt.': 'Setup-Logbuch: was du geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.',
-  'A workshop job that replaced a part asks «Into the log?»': 'Ein Werkstatt-Eintrag mit Teil-Wechsel fragt «Ins Logbuch?»',
-  '«Your bike compared»: your own rows, one tap sends a row to the inbox': '«Dein Velo im Vergleich»: deine eigenen Zeilen, ein Tipp schickt eine Zeile in den Eingang',
-  'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.': 'Öffne Velos › Setup: Fotos, Gesamtgewicht, Taschen-Plan, Logbuch, Vergleich, Rennen und Ideen von anderen.',
-  'Tap «Add link», paste a race-rig address and save: a card with a drawn picture appears.': 'Tippe auf «Link hinzufügen», füge eine Race-Rig-Adresse ein und speichere: Eine Karte mit gezeichnetem Bild erscheint.',
-  'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.': 'Tippe auf «Ganzer Taschen-Plan» und bei einem Hinweis auf «Verschieben»: Die Sache liegt in der anderen Tasche dieser Packliste.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

@@ -38,11 +38,10 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (13.10.2026, 0.125.0)
+## Stand heute (14.10.2026, 0.126.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
-| (Tagespaket) | Kleine Apps: Meditation, Packliste, Velopflege mit eigenem Symbol, gleiche Daten; Benutzerhandbuch im Repo | in Arbeit (14.10.2026) |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
 | 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | live seit 10.10.2026, Noah testet am Handy |
@@ -62,7 +61,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
-| 0.126.0 | Velo-Setup UC3-1–UC3-3 (Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC, Antworten «1-5a» 00:34 UTC, Ausbau «1 ja 2 ja 3ja» 00:35 UTC): Velos › Setup mit Mein Setup, Gesamtgewicht, Taschen-Plan pro Tour, Setup-Logbuch mit Werkstatt-Angeboten, Vergleich, Rennen und Rennrig-Galerie (Ziel «Velo im Griff») | Branch fertig, PR folgt |
+| 0.126.0 | **Tagespaket 14.10.** (ein Release zusammen mit 0.125.0 in PR #151: Velo-Setup UC3-1–UC3-3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/FE6/FE7/FE8/FE9/FE10/FE11/FE17/FE18, Bezahlen vorbereiten mit Erklär-Seite Ich › Bezahlen BZ1/BZ2b (#156), Kleine Apps Meditation/Packliste/Velopflege + Benutzerhandbuch (#157), Doku «Links nach aussen» DG-X1–X16 (nur Spezifikation)) | PR #151 offen, Noah merged |
+| 0.126.0 (Teil) | Kleine Apps: Meditation, Packliste, Velopflege mit eigenem Symbol, gleiche Daten; Benutzerhandbuch im Repo (#157) | im Tagespaket |
+| 0.126.0 (Teil) | Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156, unsichtbar ausser Erklär-Seite) | im Tagespaket |
+| 0.126.0 (Teil) | Velo-Setup UC3-1–UC3-3 (Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC, Antworten «1-5a» 00:34 UTC, Ausbau «1 ja 2 ja 3ja» 00:35 UTC): Velos › Setup mit Mein Setup, Gesamtgewicht, Taschen-Plan pro Tour, Setup-Logbuch mit Werkstatt-Angeboten, Vergleich, Rennen und Rennrig-Galerie (Ziel «Velo im Griff») | Branch fertig, PR folgt |
 | 0.125.0 | **Tagespaket 13.10.** (ein Release, PR #151 mit #150, #152, #153): Tages-Check Schritt 1+2 (#151), Aktiv ausweiten AK1–AK3 Woche/Sporttasche/Erholung (#150), Feinschliff A-J1 Werkstattbesuch, TZ-1 drei Tour-Zustände, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + Strava verbinden SV1 (#153) | PR, Tagespaket |
 | 0.125.0 (Teil) | Tages-Check Schritt 1 und 2 (Mockup-Freigabe: T1–T4 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC; Schritt 1 T1–T2, Schritt 2 T3–T4): Morgen-Check und Abend-Rückblick als Seiten unter Heute, Fragen 1–14 ohne Sonntagsfrage, alles überspringbar, Meditation und Fahrten zählen von selbst; Fitbit-Nacht als Platzhalter; Schritt 2: Balance-Ring der 9 Kategorien auf Heute, Kacheln «Morgen-Check» und «Deine 15 Fragen», Fragen-Katalog mit Schaltern, Frage 15 am Sonntag, langes Drücken für Kachelgrössen | im Tagespaket 0.125.0 |
 | 0.125.0 (Teil) | Woche AK1 (Mockup-Freigabe: AK1 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten): Wochenseite mit festen Terminen, Vorschlägen nach Zielen und Wetter, .ics; Karten «Mehr in Aktiv» auf Aktiv › Heute; dazu Erholung AK2 (Ring, Pausen-Tipp, Abhaken) und Sporttasche AK3 (Packliste pro Sport, Erinnerung am Vorabend auf Heute) | im Tagespaket 0.125.0 |
