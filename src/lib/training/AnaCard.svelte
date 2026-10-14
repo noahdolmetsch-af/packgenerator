@@ -39,27 +39,40 @@
     flex-direction: column;
     gap: 12px;
   }
+  /* phone: title and «…» on one line, the quiet line under them; wide: all three on one line */
   .ah {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px 12px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 't m' 's s';
+    align-items: start;
+    gap: 2px 12px;
   }
   h3 {
-    flex: 1 1 auto;
+    grid-area: t;
     margin: 0;
+    padding-top: 4px;
     font: 600 var(--fs-sub) / 1.3 var(--font-body);
     overflow-wrap: break-word;
   }
   .as {
-    margin: 3px 0 0;
+    grid-area: s;
+    margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
-    text-align: right;
-    flex: 0 1 auto;
   }
   .ah :global(.ma) {
-    margin: -6px -8px 0 0;
+    grid-area: m;
+    margin: -4px -8px 0 0;
+  }
+  @media (min-width: 700px) {
+    .ah {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: 't s m';
+    }
+    .as {
+      padding-top: 7px;
+      text-align: right;
+    }
   }
   .ana :global(.cap) {
     margin: 0;

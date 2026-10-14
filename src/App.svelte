@@ -40,6 +40,7 @@
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Weight from './pages/Weight.svelte';
   import Pay from './pages/Pay.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -347,6 +348,9 @@
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
+  {:else if page === 'weight'}
+    <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
+    <Weight />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
