@@ -341,7 +341,7 @@
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
-    const w = stats.packG ? knownWeight(stats.packG, stats.packMissing) : null; // v0.137.0 DK3: the one trip weight
+    const w = stats.gearG ? knownWeight(stats.gearG, stats.gearMissing) : null;
     const km = shown.route?.km ? `${num(Math.round(shown.route.km))} km` : null;
     // once packing has started, how far it is (the same words as Pack)
     const es = shown.entries ?? [];
