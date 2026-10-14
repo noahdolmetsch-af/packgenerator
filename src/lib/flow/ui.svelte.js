@@ -6,8 +6,8 @@
 import { db } from '../db.js';
 import { lang, t } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
-import { tick, removeEntry, putEntry } from '../flowdb.js';
-import { lastEntryOn, tapSub } from '../flow.js';
+import { tick, removeEntry, dayEntries, removeEntries, putEntries } from '../flowdb.js';
+import { tapSub } from '../flow.js';
 import { TIMER_KEY, timerOf, startTimer, pauseTimer, resumeTimer, dueBowls, isDone, loggedMinutes, elapsedSec } from '../flowtimer.js';
 import { strike, wakeAudio } from '../flowbowl.js';
 import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playedByPlan, setVolume, wakeSounds } from '../flowsounds.js';
@@ -39,20 +39,34 @@ export async function runUndo() {
 /* ---------- one tap ---------- */
 /**
  * A tap on an activity button: ticks it (the amount of the goal, the sub-goal still open); a second
- * tap on the same day takes the last tick of today back. Both with «Rückgängig».
+ * tap on the same day takes today's ticks back. Both with «Rückgängig».
+ * Fix 14.10.: the shown state lags a moment behind the database, so a quick second tap ticked a second
+ * time; the next tap took only one back and the tile stayed ticked (and «Rückgängig» seemed to do
+ * nothing). Now a tap waits for the one before, decides from the saved ticks and takes all of today's back.
  */
+const tapping = new Set();
 export async function tapAct(state, today = localDay()) {
   const a = state.act;
-  if (state.todayDone) {
-    const log = await db.flowLog.where('actId').equals(a.id).toArray();
-    const last = lastEntryOn(log, a.id, today);
-    if (last) {
-      await removeEntry(db, last.id);
-      toast(t('{name} · taken back', { name: actName(a) }), () => putEntry(db, last));
+  if (tapping.has(a.id)) return;
+  tapping.add(a.id);
+  try {
+    const mine = await dayEntries(db, a.id, today);
+    if (mine.length) {
+      await removeEntries(db, mine);
+      toast(t('{name} · taken back', { name: actName(a) }), () => putEntries(db, mine));
       return;
     }
+    await tickWith(a, { day: today, sub: tapSub(state) });
+  } finally {
+    tapping.delete(a.id);
   }
-  await tickWith(a, { day: today, sub: tapSub(state) });
+}
+/** Fix 14.10.: the commute on Today can be taken back too (never only one way), with «Rückgängig». */
+export async function untickCommute(a, today = localDay()) {
+  const mine = await dayEntries(db, a.id, today, (e) => e.via === 'commute');
+  if (!mine.length) return;
+  await removeEntries(db, mine);
+  toast(t('{name} · taken back', { name: actName(a) }), () => putEntries(db, mine));
 }
 /** Tick with choices (the sheet): amount, place, minutes, a commute. */
 export async function tickWith(a, opts) {

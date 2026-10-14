@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
+
+- (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)
+- **Ursache:** `tapAct` entschied aus `state.todayDone` (liveQuery, hinkt nach); ein zweiter Tipp vor dem Nachladen hakte nochmals ab, Abwählen nahm nur den letzten Eintrag zurück.
+- **Selbst entschieden:** Abwählen nimmt alle eigenen Häkchen des Tages zurück (räumt alte Doppel-Häkchen auf); Pendeln bleibt über die Pendel-Zeile zurücknehmbar; der gleiche Doppeltipp-Schutz bei Challenges auf den Aktiv-Seiten (MedMore, Activity) folgt mit 0.133.0 oder später.
+
 ## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
