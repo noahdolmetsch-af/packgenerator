@@ -1130,3 +1130,8 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
+
+## 14.10.2026: Velo-Setup neu (0.126.0)
+
+- **UC3 «1-5a» (Noah 14.10.2026 00:34 UTC):** Mein Setup oben, eine Seite pro Velo, Rennrig-Links als grosse Galerie, «Dein Velo im Vergleich» bleibt, «Deine Rennen» bleibt auf dieser Seite. Ausbau «1 ja 2 ja 3ja» (00:35 UTC): Taschen-Plan, Setup-Logbuch, Gesamtgewicht. Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC.
+- **Selbst entschieden:** Reiter heisst «Setup» (5. Reiter unter Velos). Daten ohne neue Datenbank-Version: Links in `settings.rigLinks`, Logbuch und Vergleich am Velo (`setupLog`, `rigCompare`, `logSkipped`). «In Packen öffnen» statt «Für Packen übernehmen», weil «Verschieben» sofort speichert. «Verpflegung und Wasser» statt «Essen und Wasser». Kein «Standard»-Schild an den Velo-Chips, bis VS1–VS4 freigegeben sind. Zeitraum für Werkstatt-Angebote 180 Tage; «Zurück?» nach 3 schlechten Touren.

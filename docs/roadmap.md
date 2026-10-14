@@ -510,6 +510,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 14.10.2026 (v0.126.0, Branch):** «Velo-Setup» nach UC3-1–UC3-3 (Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC, Antworten «1-5a» 00:34 UTC, Ausbau «1 ja 2 ja 3ja» 00:35 UTC): neuer Reiter Velos › Setup mit Mein Setup, Gesamtgewicht, Taschen-Plan pro Tour (`view=bags`), Setup-Logbuch (`view=log`), «Dein Velo im Vergleich», «Deine Rennen» und Galerie «Ideen von anderen». Ersetzt den Entwurf UC2-3.
+
 **Nachtrag 13.10.2026 (v0.124.0, Branch):** «Neue Tour Teil 2» nach den Mockups B4/B5 (Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★): Bausteine als grosse Knöpfe in Packen, «Reparatur unterwegs» mit höchstens 8 Teilen, schlanke Reparatur wieder Standard bei neuen Touren. Offen: «Neues Teil direkt beim Packen» (NP1, Mockup wartet auf Freigabe). Ziel 1 «Schneller packen».
 
 **Nachtrag 13.10.2026 (v0.123.0):** «Trophäen-Vitrine» (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC): alle Sterne an einem Ort nach Bereich und Jahr, Link «Alle Trophäen ansehen» im Regal. Strava-, Fitbit- und Tages-Check-Sterne folgen mit Bündel B und D. Ziel «Eine App, die mich im Alltag unterstützt».
@@ -702,6 +704,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.61.0 R2 «Tempo + Logbuch» erledigt (Regel in einem Satz, eigene Regel ab 5 Fahrten mit Rückweg, Logbuch als Tagebuch aller Touren, Gelernt flach); Strava und Fotos bleiben geparkt |
 | 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
+| 2.8 | 14.10.2026 | 0.126.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.
