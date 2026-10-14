@@ -12,13 +12,15 @@
    * the bikes to compare are chosen on top, on a phone two side by side to start with.
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { compareRows, setSpec, specValue, areaWeight, readValue } from '../bikespecs.js';
   import { AREAS } from '../care.js';
   import { formatWeight } from '../gear.js';
   import { t, num } from '../i18n.svelte.js';
-  import { ChevronDown, ChevronRight } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight, Bike as BikeIcon } from '@lucide/svelte';
+  import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
 
   // Bugfix Dateneingabe: bikeId (the bike it was opened for) is always one of the columns; target
@@ -112,7 +114,8 @@
   />
 
   {#if !bikes.length && $bikesQ}
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bikes.length}
     {#if bikes.length > 2}
       <div class="bpicks" role="group" aria-label={t('Bikes to compare')}>

@@ -266,17 +266,18 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // v0.110.0 Design-Refresh P10 (I11b, changed on purpose): «New in 0.110: name», «Try it ›», «Later» and
   // «All news» to Ich › Was ist neu; «Later» closes it for this start (the quiet row stays for a first visit).
   // v0.118.0 «Was ist neu 2» (W1, changed on purpose): «New since your last visit», every version open, «Looos ›»
-  const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: T('New since your last visit') })).toBeVisible();
-  await expect(sheet.getByRole('heading', { name: T(WHATS_NEW[0].title) })).toBeVisible();
-  await expect(sheet.getByRole('button', { name: T("Let's go|news") })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/me/news');
+  // v0.127.0 A-U1 (changed on purpose, Noah 3a): no window any more, a calm banner on top of Today with «View»
+  // and ×; × closes it until the next update
+  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: short(WHATS_NEW[0].version) }) })).toBeVisible();
+  await expect(banner.getByRole('link', { name: T('View|news') })).toHaveAttribute('href', '#/me/news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
-  await sheet.getByRole('button', { name: T('Later') }).click();
-  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  await banner.getByRole('button', { name: T('Close the hint') }).click();
+  await expect(banner).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.home')).toBeVisible();
-  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await expect(page.locator('[data-row=news]')).toHaveCount(0);
 });

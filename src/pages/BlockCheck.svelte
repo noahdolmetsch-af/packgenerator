@@ -9,6 +9,8 @@
    * Reached from the Blocks page and from Gear (••• menu) and in More.
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../lib/ui/Empty.svelte';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, knownWeight } from '../lib/gear.js';
   import { SETS_KEY, allSets, qtyOf, setUse, blockLabel } from '../lib/sets.js';
@@ -173,7 +175,7 @@
   <p class="page-sub">{t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')}</p>
 
   {#if !steps}
-    <p class="page-sub">{t('Loading…')}</p>
+    <Skeleton rows={4} />
   {:else if step}
     <div class="progress">
       <span class="num">{t('Step {n} of {total}', { n: at + 1, total: steps.length })} · {stepName(step)}</span>
@@ -243,7 +245,7 @@
             {#each members as i (i.id)}{@render itemRow(i)}{/each}
           </ul>
         {:else}
-          <p class="empty">{t('No items in this building block yet.')}</p>
+          <Empty text={t('No items in this building block yet.')} />
         {/if}
         {#if missing.length}
           <h3 class="mh">{t('Probably missing here')}</h3>
@@ -321,9 +323,6 @@
   .note {
     margin: 8px 0;
     font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .empty {
     color: var(--ink-3);
   }
   .mh {

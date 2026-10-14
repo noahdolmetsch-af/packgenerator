@@ -237,7 +237,8 @@ export function parseBikesHash(hash = '') {
   const q = new URLSearchParams(query);
   // v0.48.0: tab=compare is «Compare bikes» (reached from Setup); tab=shop is «Workshop & receipts»
   // (&visit=<id> opens one visit).
-  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : ['compare', 'shop'].includes(q.get('tab')) ? q.get('tab') : 'setup';
+  // UC3 (14.10.2026): tab=rig is «Setup» (photos, weight, bag plan, log, ideas); &view=bags|log its two pages.
+  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : ['compare', 'shop', 'rig'].includes(q.get('tab')) ? q.get('tab') : 'setup';
   const out = { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
   if (tab === 'shop' && q.get('visit')) out.visit = q.get('visit');
   // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
@@ -248,6 +249,7 @@ export function parseBikesHash(hash = '') {
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   // «Bugfix Dateneingabe» D2: &view=enter is «Enter values», every value of one bike on one page.
   if (tab === 'compare' && ['all', 'enter'].includes(q.get('view'))) out.view = q.get('view');
+  if (tab === 'rig' && ['bags', 'log'].includes(q.get('view'))) out.view = q.get('view');
   // Bugfix Dateneingabe: &edit=<part>:<field> on «Compare bikes» opens that one value of the bike for
   // typing at once; &back=<sheet> (and &from) goes back to that sheet of the folder when it is closed.
   if (tab === 'compare' && out.view === 'all' && out.bike && /^[\w-]+:[\w.-]+$/.test(q.get('edit') ?? '')) {
@@ -281,7 +283,8 @@ export function withBack(href, back, from = null) {
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
 export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null } = {}) {
   const q = new URLSearchParams();
-  if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
+  if (tab === 'care' || tab === 'compare' || tab === 'shop' || tab === 'rig') q.set('tab', tab);
+  if ((view === 'bags' || view === 'log') && tab === 'rig') q.set('view', view);
   if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);

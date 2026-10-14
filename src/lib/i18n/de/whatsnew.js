@@ -4,6 +4,60 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
+  'Lots of new things at once': 'Viel Neues auf einmal',
+  'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',
+  'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today': 'Tagescheck: ein Morgen-Check und ab 20:30 ein kurzer Abend-Rückblick; deine Balance aus neun Bereichen in einem Ring auf Heute',
+  'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport': 'Aktiv: eine Woche mit festen Terminen und Vorschlägen, eine Seite für die Erholung und eine kurze Packliste für jeden Sport',
+  'Setup per bike: photos, total weight, a bag plan and a log of what you changed': 'Setup pro Velo: Fotos, Gesamtgewicht, ein Taschen-Plan und ein Logbuch, was du geändert hast',
+  'A search that finds similar words and small typos, and small apps for meditation, packing list and bike care with their own icon': 'Eine Suche, die ähnliche Wörter und kleine Tippfehler findet, und kleine Apps für Meditation, Packliste und Velopflege mit eigenem Symbol',
+  'Every trip shows its state, a year goal for km, metres climbed and minutes, a workshop visit saved on the bike': 'Jede Tour zeigt ihren Zustand, ein Jahresziel für km, Höhenmeter und Minuten, ein Werkstattbesuch beim Velo gespeichert',
+  'A backup before every update, high contrast outdoors, speaking instead of typing and an error never shows a white page': 'Ein Backup vor jedem Update, hoher Kontrast draussen, Sprechen statt Tippen und ein Fehler zeigt nie eine weisse Seite',
+  'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».': 'Auf Heute in der Check-Zeile «Starten» tippen: Der Morgen-Check öffnet sich. Ein paar Fragen beantworten, «Fertig» tippen.',
+  'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.': 'Auf Heute: «Deine Balance» zeigt den Ring; tippe «Deine 15 Fragen» und schalte eine Frage aus: Der Check fragt sie nicht mehr.',
+  'Open Aktiv › Heute and tap the card «Week».': 'Öffne Aktiv › Heute und tippe auf die Karte «Woche».',
+  'Open «Sport bag», tick a thing, then «All in».': 'Öffne «Sporttasche», hake ein Teil ab, dann «Alles drin».',
+  'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.': 'Öffne Aktiv › Ziele: rechts «Jahresziele» mit drei Zeilen; schalte eine aus und tippe eine Zielzahl an, um sie zu ändern.',
+  'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.': 'Öffne Touren: Unter dem Titel steht «n geplant · n abgeschlossen · n bewertet», darunter die Chips. Tippe «Abgeschlossen»: Nur diese Touren bleiben.',
+  'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».': '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
+  'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.': 'Öffne Velos › Setup: Fotos, Gesamtgewicht, Taschen-Plan, Logbuch, Vergleich, Rennen und Ideen von anderen.',
+  'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.': 'Tippe auf «Ganzer Taschen-Plan» und bei einem Hinweis auf «Verschieben»: Die Sache liegt in der anderen Tasche dieser Packliste.',
+  'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.': 'Suche «regenjacke» oder «materal»: ähnliche Wörter und das korrigierte Wort werden gefunden; «backup» bietet oben Daten und Backup an, Enter öffnet es.',
+  'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.': 'Öffne auf dem Handy …/apps/meditation/ und füge es zum Startbildschirm hinzu: Es startet bei Meditation, «Ganze App» führt zurück.',
+  'Open Me › Data and backup › «Before updates», and Me › «App maintenance».': 'Öffne Ich › Daten und Backup › «Vor Updates» und Ich › «App-Wartung».',
+  'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
+  'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.': 'Öffne Ich › Bezahlen: Es erklärt, was vorbereitet ist; nichts ist gesperrt und es fliesst kein Geld.',
+
+  // 0.131.3 Kamera-Knopf
+  'Receipt photo in one tap': 'Belegfoto mit einem Tipp',
+  'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.': 'Auf dem Handy geht die Kamera für einen Beleg mit einem Tipp auf, überall wo ein Beleg dazukommt.',
+  'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera': 'Velos › Werkstatt › Werkstattbesuch erfassen: «Beleg fotografieren» öffnet die Kamera',
+  'Inbox › File as … Receipt: a note without a photo gets its receipt photo here': 'Eingang › Ablegen als … Rechnungsbeleg: Eine Notiz ohne Foto bekommt hier ihr Belegfoto',
+  'New › Workshop visit: the note shows «Photograph the receipt» too': 'Neu › Werkstattbesuch: Die Notiz zeigt auch «Beleg fotografieren»',
+  '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»': '«Galerie» daneben holt weiter ein Bild vom Telefon; am Computer bleibt «Foto wählen»',
+  'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.': 'Öffne auf dem Handy Velos › Werkstatt › «Werkstattbesuch erfassen» und tippe auf «Beleg fotografieren»: Die Kamera geht auf.',
+  'Take the photo: it shows small in the window; save the visit.': 'Mach das Foto: Es erscheint klein im Fenster; speichere den Besuch.',
+  'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.': 'Schreib eine Notiz «Werkstatt-Quittung: …» ohne Foto, dann Eingang › Ablegen › Rechnungsbeleg: «Beleg fotografieren» ist da.',
+
+  // 0.131.2 Velo-Reihenfolge
+  'Bikes back in line': 'Velos wieder in Reih und Glied',
+  'The bike tabs follow the order you chose again.': 'Die Velo-Reiter folgen wieder deiner Reihenfolge.',
+  'Bike tabs in your order, your main bike first.': 'Velo-Reiter in deiner Reihenfolge, dein Haupt-Velo zuerst.',
+  'The tidy-up of the last update had brought back the old order': 'Das Aufräumen im letzten Update hatte die alte Reihenfolge zurückgebracht',
+  'Open Velos: the tabs start with your main bike, in the order you chose.': 'Öffne Velos: Die Reiter beginnen mit deinem Haupt-Velo, in deiner Reihenfolge.',
+  'Open Velos › Pflege: the bikes come in the same order.': 'Öffne Velos › Pflege: Die Velos kommen in derselben Reihenfolge.',
+
+  // 0.131.1 Abhaken wieder abwählbar (Fehler behoben)
+  'Ticked is ticked once': 'Abgehakt ist einmal abgehakt',
+  'A quick double tap no longer ticks an activity twice, so a tap takes it back again.': 'Ein schneller Doppeltipp hakt eine Aktivität nicht mehr doppelt ab, darum nimmt ein Tipp sie wieder zurück.',
+  'A ticked activity can be unticked again with one tap; «Undo» brings it back': 'Eine abgehakte Aktivität lässt sich mit einem Tipp wieder abwählen; «Rückgängig» bringt sie zurück',
+  'A quick double tap ticks only once; double ticks from before go away with the next untick': 'Ein schneller Doppeltipp hakt nur einmal ab; doppelte Häkchen von früher gehen beim nächsten Abwählen weg',
+  'A ticked commute on «In the flow» can be tapped to take it back': 'Ein abgehaktes Pendeln in «Im Flow» lässt sich antippen und zurücknehmen',
+  'On Today tap an activity in «In the flow»: it is ticked. Tap it again: it is unticked.': 'Tippe auf Heute in «Im Flow» auf eine Aktivität: Sie ist abgehakt. Tippe nochmals: Sie ist abgewählt.',
+  'Tick it, then tap «Undo» in the message below: the tick is gone again.': 'Hake sie ab und tippe unten in der Meldung auf «Rückgängig»: Das Häkchen ist wieder weg.',
+  'Tap an activity twice quickly: it is ticked once, one more tap unticks it.': 'Tippe zweimal schnell auf eine Aktivität: Sie ist einmal abgehakt, ein weiterer Tipp wählt sie ab.',
+  'Tap «Commute», then tap the line «… today: commute»: the commute is taken back.': 'Tippe auf «Pendeln», dann auf die Zeile «… heute: Pendeln»: Das Pendeln ist zurückgenommen.',
+
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
@@ -14,6 +68,7 @@ export default {
   'Download a backup first: Ich › Daten › Backup.': 'Lade zuerst ein Backup herunter: Ich › Daten › Backup.',
   'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.': 'Öffne Notizen: Die Notiz «Gewichts-Prüfungen aus der Excel» zeigt die Gewichte aus der Excel.',
   'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.': 'Öffne Material und Bausteine: Alles ist in denselben Bausteinen wie vorher; eine neue Tour packt dieselbe Liste.',
+
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

@@ -164,3 +164,20 @@ describe('Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b»)', () => {
     expect(heartOfRide(both, { date: '2026-10-06', km: 20 })).toBeNull();
   });
 });
+
+describe('«Werte überall» (Noah 13.10.2026 «1-5a»): the metres climbed of a ride', () => {
+  it('keeps them on a new ride and adds them to a ride already in the ledger', async () => {
+    const { planSync } = await import('../src/lib/stravasync.js');
+    const { makeEntry } = await import('../src/lib/kmbook.js');
+    const bikes = [{ id: 'gf', name: 'Gravel Factor LS' }];
+    const gear = [{ id: 'b1', name: 'Gravel Factor LS', km: 100, primary: true, retired: false }];
+    const old = makeEntry({ id: 'k1', bikeId: 'gf', date: '2026-10-05', km: 30, source: 'strava', stravaId: '5', gear: 'Gravel Factor LS' });
+    const acts = [
+      { id: 5, name: 'Alt', type: 'GravelRide', start: '2026-10-05T08:00:00Z', km: 30, gearId: 'b1', hm: 410 },
+      { id: 6, name: 'Neu', type: 'GravelRide', start: '2026-10-06T08:00:00Z', km: 50, gearId: 'b1', hm: 720 },
+    ];
+    const p = planSync({ activities: acts, gear, bikes, entries: [old], rules: [] }, new Date('2026-10-07T10:00:00Z'));
+    expect(p.updates).toContainEqual({ id: 'k1', changes: { hm: 410 } });
+    expect(p.entries.find((e) => e.stravaId === '6').hm).toBe(720);
+  });
+});

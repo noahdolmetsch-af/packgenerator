@@ -9,6 +9,7 @@
    * ändern». Same rows, same choices, same saving as before.
    */
   import { CloudSun, Tent, Package, Check, ChevronRight, CircleAlert, TriangleAlert } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { reviewRows } from '../preparation.js';
   import { amountChecks } from '../reasons.js';
   import { formatWeight } from '../gear.js';
@@ -46,7 +47,7 @@
         <h2 id="review-h" class="sh">{t('Still to decide')}</h2>
         <p class="ssub">{t('Suggestions based on your trip, weather and material rules. You decide what goes on the list.')}</p>
         {#if !rows.length && !checks.length}
-          <div class="card empty"><span class="ok" aria-hidden="true"><Check size={18} /></span><div><h3>{t('No open material suggestions')}</h3><p>{t('Check your trip conditions or continue to your packing list.')}</p></div></div>
+          <Empty icon={Check} level={3} title={t('No open material suggestions')} text={t('Check your trip conditions or continue to your packing list.')} />
         {:else}
           <div class="card list">
             {#each rows as row (row.slot)}
@@ -152,9 +153,6 @@
   .quantity-review .tp-link { font-size: var(--fs-small); }
   .quantity-note { width: 100%; }
   .quantity-note p { margin: 4px 0 8px; }
-  .empty { display: flex; gap: 12px; }
-  .empty h3 { margin: 0; font: 600 var(--fs-body) / 1.3 var(--font-body); }
-  .empty p { margin: 4px 0 0; color: var(--ink-2); font-size: var(--fs-small); }
   .review-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 10px; }
   .cnt { flex: 1 1 16em; margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
   .acts { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; }

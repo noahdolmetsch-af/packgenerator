@@ -6,13 +6,24 @@
    *   in "All notes" as sorted, the repair lands in db.maintenance.
    * - 'idea': "Was geil wäre", the bike's own idea list (bike.ideas, hubs.js).
    * - 'visit': a workshop visit typed in by hand (date, shop, km, cost, receipt photo) → db.visits.
+   *   v0.125.0 A-J1 (mockup, Noah «aj-aj5 ok», 1a): also the window of «New › Workshop visit». The km
+   *   (km book) and the last workshop are filled in, on a green field with where they come from; one
+   *   tap on a known shop or a job chip («What was done?», optional) fills the rest. All can be changed.
    */
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
+  import '../bikes/velo-dlg.css';
   import { newNote, sortNote, nextNumber } from '../notes.js';
   import { addIdea, newVisit, parseChf } from '../hubs.js';
   import { shrinkImage } from '../photo.js';
-  import { t } from '../i18n.svelte.js';
+  import { liveQuery } from 'dexie';
+  import { localDay } from '../localday.js';
+  import { visitPrefill } from '../visitprefill.js';
+  import { VISIT_JOBS } from '../inbox.js';
+  import Btn from '../ui/Btn.svelte';
+  import { explain } from '../ui/explain.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
+  import { t, dateOf } from '../i18n.svelte.js';
 
   let { kind, bikes = [], bikeId = null, tripId = null, onclose, onsaved } = $props();
 
@@ -24,11 +35,29 @@
   let reading = $state(false);
   let msg = $state('');
   let busy = $state(false);
-  const today = new Date().toLocaleDateString('sv-SE');
+  const today = localDay();
   let date = $state(today);
   let shop = $state('');
   let km = $state('');
   let chf = $state('');
+  let jobs = $state([]);
+  // A-J1: what the window suggests (km book, last visit); a field typed in by hand keeps its value.
+  // svelte-ignore state_referenced_locally
+  const kmQ = kind === 'visit' ? liveQuery(() => db.kmBook.toArray()) : null;
+  // svelte-ignore state_referenced_locally
+  const visitsQ = kind === 'visit' ? liveQuery(() => db.visits.toArray()) : null;
+  const pre = $derived(kind === 'visit' ? visitPrefill({ bike: bikes.find((b) => b.id === bike) ?? null, date, today, entries: $kmQ ?? [], visits: $visitsQ ?? [] }) : null);
+  let kmOwn = $state(false);
+  let shopOwn = $state(false);
+  $effect(() => {
+    if (pre && !kmOwn) km = pre.km != null ? String(pre.km) : '';
+  });
+  $effect(() => {
+    if (pre && !shopOwn) shop = pre.shop;
+  });
+  const kmPre = $derived(!!pre && !kmOwn && pre.km != null && km === String(pre.km));
+  const shopPre = $derived(!!pre && !shopOwn && !!pre.shop && shop === pre.shop);
+  const toggleJob = (j) => (jobs = jobs.some((x) => x.part === j.part) ? jobs.filter((x) => x.part !== j.part) : [...jobs, j]);
 
   const TITLE = { problem: 'Log a problem', idea: 'Idea for a bike', visit: 'Log a workshop visit' };
   const bikeName = (id) => bikes.find((b) => b.id === id)?.name ?? '';
@@ -37,10 +66,7 @@
     dialog.showModal();
   });
 
-  async function addPhoto(event) {
-    const file = event.currentTarget.files[0];
-    event.currentTarget.value = '';
-    if (!file) return;
+  async function addPhoto(file) {
     reading = true;
     msg = '';
     try {
@@ -82,10 +108,14 @@
     if (kmN !== null && !(kmN >= 0 && kmN <= 500000)) return t('Type the km as a whole number, e.g. 8200.');
     const cost = parseChf(chf);
     if (Number.isNaN(cost)) return t('Type the cost in CHF, e.g. 120.50.');
-    await db.visits.put(newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photo }, { id: `visit-${Date.now().toString(36)}` }));
+    const id = `visit-${Date.now().toString(36)}`;
+    const parts = jobs.map((j) => ({ part: j.part, action: j.action, what: '' }));
+    await db.visits.put({ ...newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photo }, { id }), parts });
+    savedId = id;
     return null;
   }
 
+  let savedId = null;
   async function save(event) {
     event.preventDefault();
     if (!bike) return (msg = t('Choose a bike.'));
@@ -93,7 +123,7 @@
     try {
       const err = await (kind === 'problem' ? saveProblem() : kind === 'idea' ? saveIdea() : saveVisit());
       if (err) return (msg = err);
-      onsaved?.({ kind, bikeId: bike });
+      onsaved?.({ kind, bikeId: bike, id: savedId });
       dialog.close();
     } catch (err) {
       msg = err.message || t('This could not be saved.');
@@ -117,10 +147,25 @@
     {#if kind === 'visit'}
       <div class="grid">
         <label class="field"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} max={today} /></label>
-        <label class="field"><span class="lbl">{t('Bike shop')}</span><input class="inp" type="text" bind:value={shop} autocomplete="off" /></label>
-        <label class="field"><span class="lbl">{t('km at the visit')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={t('not known')} /></label>
-        <label class="field"><span class="lbl">{t('Cost CHF (optional)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
+        <div class="field">
+          <label class="field in"><span class="lbl">{t('km at the visit')}</span><input class="inp num" class:pre={kmPre} type="text" inputmode="numeric" bind:value={km} oninput={() => (kmOwn = true)} placeholder={t('not known')} aria-describedby={kmPre ? 'bq-kmfrom' : undefined} /></label>
+          {#if kmPre}<small class="prefrom" id="bq-kmfrom">{pre.kmFrom === 'book' ? t('from the km book · you can change it') : t("from the bike's counter · you can change it")}</small>{/if}
+        </div>
       </div>
+      <div class="field">
+        <label class="field in"><span class="lbl">{t('Bike shop')}</span><input class="inp" class:pre={shopPre} type="text" bind:value={shop} oninput={() => (shopOwn = true)} autocomplete="off" placeholder={t('Name of the shop')} aria-describedby={shopPre ? 'bq-shopfrom' : undefined} /></label>
+        {#if shopPre}<small class="prefrom" id="bq-shopfrom">{t('from your last visit on {date} · you can change it', { date: dateOf(pre.shopDate) })}</small>{/if}
+        {#if pre?.shops.length > 1}
+          <div class="vd-chips chips" role="group" aria-label={t('Known bike shops')}>
+            {#each pre.shops as s (s.shop)}<button type="button" class="vd-chip" aria-pressed={shop === s.shop} onclick={() => ((shop = s.shop), (shopOwn = true))}>{s.shop}{#if s.last}<small class="n">{t('(last)')}</small>{/if}</button>{/each}
+          </div>
+        {/if}
+      </div>
+      <p class="lbl">{t('What was done?')} <span class="q">{t('optional')}</span></p>
+      <div class="vd-chips chips" role="group" aria-label={t('What was done?')}>
+        {#each VISIT_JOBS as j (j.part)}<button type="button" class="vd-chip" aria-pressed={jobs.some((x) => x.part === j.part)} onclick={() => toggleJob(j)}>{t(j.name)}</button>{/each}
+      </div>
+      <label class="field"><span class="lbl">{t('Cost CHF (optional)')}</span><input class="inp num cost" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
     {:else}
       <label class="field">
         <span class="lbl">{kind === 'problem' ? t('What is wrong?') : t('What would be great?')}</span>
@@ -131,20 +176,42 @@
 
     {#if kind !== 'idea'}
       <div class="row">
-        <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : kind === 'visit' ? `+ ${t('Photo of the receipt')}` : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+        <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={kind === 'visit' ? 'Photograph the receipt' : 'Take photo'} />
         {#if photo}<img class="th" src={photo} alt={kind === 'visit' ? t('Photo of the receipt') : t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
       </div>
     {/if}
     {#if kind === 'problem'}<p class="hint">{t('Lands in Bike care as an open repair.')}</p>{/if}
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot">
-      <button type="submit" class="btn hi" disabled={busy || reading}>{t('Save')}</button>
-      <button type="button" class="link" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <Btn type="submit" kind="hi" label={t('Save')} explain={explain('Save')} disabled={busy || reading} />
+      <Btn kind="quiet" label={t('Cancel')} explain={explain('Cancel')} onclick={() => dialog.close()} />
     </div>
   </form>
 </dialog>
 
 <style>
+  /* A-J1: the green field with its origin (.inp.pre, .prefrom) is the shared rule in app.css since v0.127.0 A-U5 */
+  .field.in {
+    margin: 0;
+  }
+  .cost {
+    max-width: 220px;
+  }
+  .q {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  p.lbl {
+    margin: 10px 0 4px;
+  }
+  .vd-chips {
+    margin-top: 4px;
+  }
+  .n {
+    margin-left: 6px;
+    opacity: 0.75;
+    font-size: var(--fs-tiny);
+  }
   h2 {
     font-size: var(--fs-section);
     margin: 0 0 8px;

@@ -12,6 +12,7 @@
    * leads with the same trip (cardId); it stays for another trip and for the evening rows.
    * v0.102.0 Design-Refresh P4 (T1, approved 12.10.2026): banner on Touren: «Weitermachen» as a soft band
    * with the step's icon, the trip, how far it is packed and «Weiter ›» on the right (the page's one main action).
+   * v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the trip's state pill (ui/TripState.svelte) before the step.
    */
   import { ChevronRight, Moon, Flag, Backpack, Map as MapIcon, Bike, NotebookPen } from '@lucide/svelte';
   import { t, tn } from '../i18n.svelte.js';
@@ -20,14 +21,17 @@
   import { openTrip } from '../nav.js';
   import { stepOf, eveningBefore, lastEvening, betweenHref } from '../phase.js';
   import { sameAsCard } from './ruhig.js';
+  import { tripStateInfo } from '../tripstate.js';
+  import TripState from '../ui/TripState.svelte';
 
-  let { trips, debriefs, today, hour, cardId = null, banner = false } = $props();
+  let { trips, debriefs, today, hour, cardId = null, banner = false, rides = [] } = $props();
   const STEP_ICON = { plan: MapIcon, pack: Backpack, ride: Bike, debrief: NotebookPen };
 
   const done = (x) => debriefs.some((d) => d.tripId === x.id && d.status === 'done');
   const lead = $derived(nextTrip(trips, today) ?? toDebrief(trips, debriefs, today)[0] ?? null);
   const step = $derived(lead && !sameAsCard(lead.id, cardId) ? stepOf(lead, today, { debriefDone: done(lead) }) : null);
   const eve = $derived(trips.find((x) => eveningBefore(x, today, hour)) ?? null);
+  const leadState = $derived(lead ? tripStateInfo(lead, { debrief: debriefs.find((d) => d.tripId === lead.id) ?? null, rides, today }).state : null);
   const last = $derived(trips.find((x) => lastEvening(x, today, hour, { debriefDone: done(x) })) ?? null);
 </script>
 
@@ -53,12 +57,12 @@
       {@const p = (lead.entries ?? []).filter((e) => e.packed).length}
       <a class="row go band" href={step.href} onclick={() => openTrip(lead.id)} data-row="continue" data-step={step.key}>
         <span class="ic" aria-hidden="true"><Icon size={20} /></span>
-        <span class="tx"><small>{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}{#if step.key === 'pack' && n}<span class="pk num">{` · ${tn(n, '{done} of {n} packed', '{done} of {n} packed', { done: p })}`}</span>{/if}</b></span>
+        <span class="tx"><small class="sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}{#if step.key === 'pack' && n}<span class="pk num">{` · ${tn(n, '{done} of {n} packed', '{done} of {n} packed', { done: p })}`}</span>{/if}</b></span>
         <span class="gob">{t('Continue|go')}<ChevronRight size={18} aria-hidden="true" /></span>
       </a>
     {:else if lead && step}
       <a class="row go" href={step.href} onclick={() => openTrip(lead.id)} data-row="continue" data-step={step.key}>
-        <span class="tx"><small class="k">{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}</b></span>
+        <span class="tx"><small class="k sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}</b></span>
         <ChevronRight size={18} aria-hidden="true" />
       </a>
     {/if}
@@ -111,6 +115,13 @@
   .k {
     color: var(--hi);
     font-weight: 600;
+  }
+  /* v0.125.0 TZ-1: the state pill and the step on one line (wrapping on a narrow phone) */
+  .sl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px var(--sp-2);
   }
   /* v0.102.0 P4 (T1): the soft band on Touren */
   .row.band {

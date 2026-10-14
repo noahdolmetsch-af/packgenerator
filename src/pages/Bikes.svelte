@@ -16,6 +16,7 @@
   import StravaPage from '../lib/strava/StravaPage.svelte';
   import StravaCheck from '../lib/strava/StravaCheck.svelte';
   import SheetView from '../lib/bikes/SheetView.svelte';
+  import RigTab from '../lib/bikes/RigTab.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -42,7 +43,7 @@
 <div class="bikes">
   <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
        equipment, compare) has its own path back and title (VeloHead). -->
-  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare'].includes(route.tab)}
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
     </header>
@@ -59,6 +60,9 @@
   {:else if route.tab === 'compare'}
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
     <Equipment bikeId={route.bike} onbike={pickBike} />
+  {:else if route.tab === 'rig'}
+    <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log -->
+    <RigTab bikeId={route.bike} view={route.view ?? null} onbike={pickBike} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'strava'}

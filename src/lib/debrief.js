@@ -16,6 +16,7 @@ import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
+import { tripEnd } from './tripstate.js';
 import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
 import { inStandard, isWorn } from './blocks2026.js';
 import { leaveHomeFields } from './gear/comes.js';
@@ -53,15 +54,8 @@ export function unusedTimes(debriefs, tripId = null) {
   return out;
 }
 
-const iso = (d) => d.toISOString().slice(0, 10);
-const addDays = (isoDate, n) => {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + n);
-  return iso(d);
-};
-
-/** Last day of a trip (YYYY-MM-DD), or null without a start date. */
-export const tripEnd = (trip) => (trip?.startDate ? addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1) : null);
+/** Last day of a trip (YYYY-MM-DD), or null without a start date. Since v0.125.0 in tripstate.js. */
+export { tripEnd };
 
 /** Is the trip over (its last day is before today, or it was ended on the ride day)? Answer 4a: the debrief shows up the day after. */
 export const isOver = (trip, today = localDay()) => {

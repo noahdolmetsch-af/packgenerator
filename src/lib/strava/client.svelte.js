@@ -20,6 +20,7 @@ import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
+import { saveRate } from '../maintenance/rate.js';
 
 export const STRAVA_URL = 'https://packgen-three.vercel.app/api/strava';
 /** localStorage (this device only): the device key the server gave after the Strava login. */
@@ -103,6 +104,8 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
     throw new StravaError('network');
   }
   const data = await res.json().catch(() => null);
+  // BF8 «Gratis-Grenzen»: the server passes Strava's request numbers along; the latest stay on this device
+  if (data?.rate && typeof indexedDB !== 'undefined') saveRate(appDb, data.rate);
   if (!res.ok || !data || data.ok === false) throw new StravaError(data?.code ?? data?.error ?? (res.status === 429 ? 'strava_busy' : 'server_error'));
   return data;
 }
@@ -120,7 +123,10 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
   const gear = (await c('gear')).bikes ?? [];
-  const after = first ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
+  const entries = await db.kmBook.toArray();
+  // «Werte überall»: rides fetched before the app kept their climbing (no «hm» field) are fetched once more, all of them
+  const noHm = entries.some((e) => e.source === 'strava' && e.stravaId && !('hm' in e));
+  const after = first || noHm ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
   const activities = [];
   for (let page = 1; page <= 100; page++) {
     const res = await c('activities', { params: { page: String(page), ...(after != null ? { after: String(Math.max(0, after)) } : {}) } });
@@ -129,7 +135,6 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   }
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
-  const entries = await db.kmBook.toArray();
   const importId = `strava-${now.getTime().toString(36)}`;
   const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
   if (plan.entries.length) {

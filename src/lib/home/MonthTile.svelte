@@ -3,7 +3,7 @@
    * v0.101.0 Design-Refresh P2 (H1): «Bike in October» on Today: the km of this month from the rides,
    * and the change against the same days of last month. A tap opens the rides.
    */
-  import { Bike } from '@lucide/svelte';
+  import { Bike, Mountain } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -21,6 +21,8 @@
 <a class="mo surf" href="#/debrief/ride" aria-labelledby="mo-h" data-section="month">
   <TileHead icon={Bike} id="mo-h" title={t('Bike in {month}', { month })} {isnew} />
   <p class="big num"><b>{num(m.km)}</b> km{#if m.pct != null}<span class="ch" class:down={m.pct < 0}>{m.pct >= 0 ? '▲' : '▼'} {num(Math.abs(m.pct))} %</span>{/if}</p>
+  <!-- «Werte überall» WU1: the metres climbed this month -->
+  {#if m.hm}<p class="hm num" data-month-hm><Mountain size={14} aria-hidden="true" /><b>{t('{n} m climbed', { n: num(m.hm) })}</b></p>{/if}
 </a>
 
 <style>
@@ -47,6 +49,14 @@
   }
   .big b {
     font: 700 var(--fs-title)/1.1 var(--font-body);
+  }
+  .hm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .ch {
     padding: 1px 8px;
