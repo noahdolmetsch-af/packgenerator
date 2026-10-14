@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.145.0 «Standard-Velo» (Noah 14.10.2026: mockups VS1–VS4 «freigegeben» 05:58 UTC, «1a 2b 3a» 20:41;
+    // Home keeps the bike ridden last, «1b» 21:25)
+    version: '0.145.0',
+    date: '2026-10-15',
+    title: 'Your standard bike ★',
+    lead: 'The first bike is your standard bike: a new trip brings it, and you set the order of your bikes.',
+    points: [
+      { text: '«Standard bike and order» under Bikes: arrows, «Make standard» and what a new trip brings', href: '#/bikes?tab=setup' },
+      { text: 'A new trip brings your standard bike; a tap on another bike counts for that trip only' },
+    ],
+    small: [
+      { box: 'new', text: 'A new bike asks once whether it becomes the standard bike' },
+      { box: 'new', text: 'At your very first trip the app asks once: the standard bike or the one ridden last' },
+    ],
+    test: [
+      'Open Bikes › Setup › «Standard bike and order» › «Change», tap «Make standard» on another bike, save: it stands first with ★.',
+      'Tap «New» › «Plan a trip»: that bike is chosen with «Standard»; tap another bike, it counts for this trip only.',
+    ],
+  },
+  {
     // v0.140.1 «Start-Karten» (Noah 14.10.2026, App-Start 2b/3b, ST1–ST2 «1a 2a 3b» 21:18 UTC; HN4: with the trip card)
     version: '0.140.1',
     date: '2026-10-15',

@@ -99,6 +99,7 @@ export const HOWTO = {
   'f.news': ['Open Me › What is new.', 'The newest version stands on top.', 'Below every function and all versions by month.'],
   // Tagespaket #151 functions (Velos › Setup, Jahresziele)
   'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
+  'f.standardbike': ['Open Bikes › Setup › «Standard bike and order».', 'Move a bike with the arrows or tap «Make standard».', 'Choose what a new trip brings and save.'],
   'f.bagplan': ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear.', 'Tap «Move» on a hint.'],
   'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],

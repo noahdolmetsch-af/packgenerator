@@ -24,4 +24,9 @@ export default {
   'Standard bike': 'Standard-Velo',
   'is chosen. A tap on another bike counts only for this trip.': 'ist vorgewählt. Ein Tipp auf ein anderes Velo gilt nur für diese Tour.',
   'Change standard': 'Standard ändern',
+  // «What the app can do» (features.js, know/howto.js)
+  'Open Bikes › Setup › «Standard bike and order».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge».',
+  'Move a bike with the arrows or tap «Make standard».': 'Verschiebe ein Velo mit den Pfeilen oder tippe «Als Standard».',
+  'Choose what a new trip brings and save.': 'Wähle, was eine neue Tour bringt, und speichere.',
+  'The first bike is your standard bike (★); arrows set the order, and you choose what a new trip brings.': 'Das erste Velo ist dein Standard-Velo (★); Pfeile setzen die Reihenfolge, und du wählst, was eine neue Tour bringt.',
 };
