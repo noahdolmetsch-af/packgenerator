@@ -34,3 +34,13 @@ Das Repository ist öffentlich. Darum stehen hier **keine** privaten Daten: kein
 ## Pflege
 
 Diese Mappe ist ein **datierter Schnappschuss**. Sie wird nicht bei jedem Release nachgeführt. Wer einen neuen Zwischenstand braucht, legt eine neue Mappe mit Datum an oder ergänzt am Ende jedes Dokuments einen Abschnitt «Nachtrag <Datum>».
+
+## Nachtrag 14.10.2026, abends
+
+Seit dem Schnappschuss am Mittag hat sich Folgendes geändert:
+
+- **Live ist jetzt 0.132.2.** Noah hat das Tagespaket **0.132.0 (#151)** gemerged, mit allen darin gebündelten Teilen (#150, #152, #153, #155, #156, #157; die Kluge Suche #154 kam darin mit). Dazu zwei Fehlerbehebungen: **0.132.1** (langer Tourname passt in die Box bei «Tour beendet», #172) und **0.132.2** (Velo draussen ohne falschen Haken, #171).
+- **Das Tagespaket gibt es nicht mehr** (Noah, 14.10. 19:39 UTC, Thread «Build-Strategie»): Jeder grüne, freigegebene PR bekommt sofort einen eigenen Link, auch mehrmals pro Tag. Jeder PR behält seine eigene Version. Höchstens 4 Threads bauen gleichzeitig. Grosse Umbauten werden in Teile unter etwa 2000 Zeilen aufgeteilt. Fehlerbehebungen bekommen sofort einen eigenen Link.
+- Unverändert: Bilder vor sichtbaren Änderungen, Noah merged selbst, Abschnitt «Was fällt weg oder rutscht tiefer», Null Kosten.
+
+Wo Dokument 1, 3, 4 oder 5 noch «Tagespaket» oder «#151 offen» sagen, gilt dieser Nachtrag.
