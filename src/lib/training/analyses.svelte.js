@@ -1,8 +1,8 @@
 /**
-import './charts.css';
  * TR7c/TR7g: the analyses shown, live for every page; hide (with Rückgängig), move, switch, reset.
  * The rules are analyses.js.
  */
+import './charts.css';
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { offerDone } from '../ui/rename.svelte.js';
