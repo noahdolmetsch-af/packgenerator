@@ -33,7 +33,9 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.tripstate']).toBe('0.132.0'); // TZ-1 «Zustand sichtbar»
     expect(SINCE['f.yeargoals']).toBe('0.132.0'); // «Werte überall»
     expect(SINCE['f.velosetup']).toBe('0.132.0'); // v0.132.0 «Velo-Setup»
-    expect(SINCE['f.abfragen']).toBe(WHATS_NEW[0].version); // v0.133.0 «Wi gaht's?»
+    expect(SINCE['f.abfragen']).toBe('0.133.0'); // v0.133.0 «Wi gaht's?»
+    expect(SINCE['f.timer']).toBe(WHATS_NEW[0].version); // v0.135.0 «Meditation und Timer»
+    expect(SINCE['f.medreview']).toBe('0.135.0');
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -85,7 +87,9 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.packblocks').state).toBe('never'); // 0.124.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.velosetup').state).toBe('never'); // 0.132.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.abfragen').state).toBe('new'); // new in this version
+    expect(rowsOf().find((r) => r.id === 'f.abfragen').state).toBe('never'); // 0.133.0, older than this version
+    expect(rowsOf().find((r) => r.id === 'f.timer').state).toBe('new'); // new in this version
+    expect(rowsOf(undefined, undefined, '0.133.0').find((r) => r.id === 'f.abfragen').state).toBe('new'); // new in its version
     expect(rowsOf(undefined, undefined, '0.124.0').find((r) => r.id === 'f.packblocks').state).toBe('new'); // new in its version (0.131.0 brought no new function)
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
     expect(by['f.tripstate'].state).toBe('never');
@@ -100,7 +104,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 9))).toEqual(['f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart']);
+    expect(ids(newest.slice(0, 11))).toEqual(['f.medreview', 'f.timer', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -127,11 +131,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.medreview', 'f.timer', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.medreview', 'f.timer', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.medreview', 'f.timer', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.medreview', 'f.timer', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();

@@ -402,6 +402,17 @@ export const HANDBOOK = {
     steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
     example: 'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.',
   },
+  // v0.135.0
+  'f.medreview': {
+    on: null,
+    steps: ['Open Aktiv › Meditation › «Look back».', 'Switch between week, month and year; filter by kind or template.'],
+    example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
+  },
+  'f.timer': {
+    on: null,
+    steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],
+    example: 'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».',
+  },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',
     steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
@@ -409,7 +420,7 @@ export const HANDBOOK = {
   },
   'f.meditation': {
     on: null,
-    steps: ['Open Active › Activity › Meditation.', 'Start like last time or from a template; choose the sounds.'],
+    steps: ['Open Aktiv › Meditation.', 'Start like last time or from a template; choose the sounds.'],
     example: 'Example: 10 min, gong at start and end, calm clock on the screen.',
   },
   'f.medlog': {

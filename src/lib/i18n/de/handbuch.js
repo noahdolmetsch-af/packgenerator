@@ -341,4 +341,12 @@ export default {
   'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
   'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
   'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
+  // v0.135.0 «Meditation und Timer»
+  'Open Aktiv › Meditation › «Look back».': 'Öffne Aktiv › Meditation › «Rückblick».',
+  'Switch between week, month and year; filter by kind or template.': 'Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.',
+  'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.': 'Beispiel: Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.',
+  'Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.': 'Öffne die Timer-Seite, wähle eine Art und tippe «Start»; «Gross» zeigt nur noch die Uhr.',
+  'At the end a singing bowl; the log keeps every timer with an optional note.': 'Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.',
+  'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».': 'Beispiel: Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».',
+  'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
 };

@@ -28,4 +28,14 @@ export default {
   'avg. {a} min with, {b} min without': 'Ø {a} Min mit, {b} Min ohne',
   'Favourite kind': 'Liebste Art',
   '{name} · {n} times': '{name} · {n} Mal',
+  // «Was die App kann» and the handbook (0.135.0)
+  'Meditation look back': 'Meditation Rückblick',
+  'Week, month or year: days, minutes, the calendar and what helps you.': 'Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.',
+  'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.': 'Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.',
+  'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
+  'Tap «Look back».': 'Tippe «Rückblick».',
+  'Switch between week, month and year.': 'Wechsle zwischen Woche, Monat und Jahr.',
+  'Open «What the app can do» › Timer, or search «Timer».': 'Öffne «Was die App kann» › Timer, oder suche «Timer».',
+  'Choose a kind and a time, tap «Start».': 'Wähle eine Art und eine Zeit, tippe «Start».',
+  'Open «Log» to add a note.': 'Öffne «Log», um eine Notiz dazuzuschreiben.',
 };

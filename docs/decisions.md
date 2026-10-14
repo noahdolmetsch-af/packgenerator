@@ -862,6 +862,18 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: 0.135.0 «Meditation und Timer»
+
+(Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC)
+
+- Heute bleibt wie HN0 (Noah 14.10.2026 21:00 UTC «HN0 so freigeben», «gilt ab sofort als gesichert»): ME1 (Meditationskarte zuoberst) und Z1 (Timer-Kachel) sind gebaut, kommen aber erst nach Noahs Prüfung gegen HN0.
+- Meditation ist der erste Reiter in Aktiv; der Ort Aktiv öffnet bei Meditation (ME2).
+- Name «Meditation» überall; der Spitzname «Kissenzeit» geht mit einer einmaligen Datenänderung, ein eigener Name bleibt.
+- Timer: «Timer» zählt hoch, Ziffernblatt Digital zuerst, Klangschale am Ende, das Log füllt sich selbst, Notiz freiwillig (Z «1-5a»).
+- «Was dir hilft» im Rückblick ist nur Beobachtung, nie ein Rat.
+- ME4 Yoga ist nicht dabei; es wartet auf «ME4 freigegeben».
+- **Selbst entschieden:** die Zeile «Uhr» auf der Meditationsseite führt zu den Ziffernblättern; die Timer-Arten sind ein Tabstopp, die Pfeiltasten wählen.
+
 ## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)
 
 - (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC)
