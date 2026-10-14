@@ -17,6 +17,7 @@
   import { formatAmount, parseAmount, formatIban, formatReference } from '../lib/pay/qrbill.js';
   import PayDetect from '../lib/pay/PayDetect.svelte';
   import StatementResult from '../lib/pay/StatementResult.svelte';
+  import PayTabs from '../lib/pay/PayTabs.svelte';
   import '../lib/ich/ich.css';
 
   let list = $state([]);
@@ -96,6 +97,8 @@
       <button class="btn" type="button" aria-expanded={receiving} onclick={() => (receiving = !receiving)}><HandCoins size={18} aria-hidden="true" />{t('Money received')}</button>
     {/if}
   </VeloHead>
+
+  {#if !check}<PayTabs value="invoices" refresh={list} />{/if}
 
   {#if check}
     <StatementResult payments={check.payments} invoices={check.invoices} onchange={load} ondone={() => (check = null)} />

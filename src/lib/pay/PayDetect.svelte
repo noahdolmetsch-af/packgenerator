@@ -6,7 +6,8 @@
    */
   import { t } from '../i18n.svelte.js';
   import { QrCode, Landmark, Bell } from '@lucide/svelte';
-  import { isCamt, readCamt, readQrPayload } from './camt.js';
+  import { isCamt, readCamt } from './camt.js';
+  import { readQrImage } from './qrread.js';
   import { readReminder, writeReminder } from './invoices.js';
 
   /** onstatement({ payments, file }) · onqr(parsed QR bill) */
@@ -36,16 +37,10 @@
     const file = e.currentTarget.files?.[0];
     e.currentTarget.value = '';
     if (!file) return;
-    if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) return (problem = t('The app reads the QR code from a picture. Please upload a screenshot or photo of the bill.'));
-    if (!('BarcodeDetector' in window)) return (problem = t('This browser cannot read QR codes. On the phone (Chrome) it works.'));
     try {
-      const bmp = await createImageBitmap(file);
-      const codes = await new window.BarcodeDetector({ formats: ['qr_code'] }).detect(bmp);
-      const bill = codes.map((c) => readQrPayload(c.rawValue)).find(Boolean);
-      if (!bill) return (problem = t('No Swiss QR code found in this picture.'));
-      onqr?.(bill);
-    } catch {
-      problem = t('The picture could not be read.');
+      onqr?.(await readQrImage(file));
+    } catch (err) {
+      problem = err.message;
     }
   }
 </script>

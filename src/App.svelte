@@ -42,6 +42,7 @@
   import Checks from './pages/Checks.svelte';
   import Pay from './pages/Pay.svelte';
   import Invoices from './pages/Invoices.svelte';
+  import Bills from './pages/Bills.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -355,6 +356,9 @@
   {:else if page === 'invoices'}
     <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
     <Invoices />
+  {:else if page === 'bills'}
+    <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
+    <Bills />
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
     <InvoiceNew />
