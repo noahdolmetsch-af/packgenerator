@@ -695,6 +695,8 @@
   }
   .brows {
     display: grid;
+    /* v0.137.0 (Durchklick DK7a): a long trip name without spaces wraps instead of widening the page */
+    grid-template-columns: minmax(0, 1fr);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -722,6 +724,7 @@
   }
   .bt {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     flex: 1;
     min-width: 0;
   }

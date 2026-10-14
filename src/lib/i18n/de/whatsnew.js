@@ -6,14 +6,16 @@
 export default {
   // 0.137.0 Eine Zahl pro Sache (DK1 fällig, DK2 Material, DK3 Tour-Gewicht)
   'One number for each thing': 'Eine Zahl pro Sache',
-  'Due, weighed and the weight of a trip now show the same number everywhere.': 'Fällig, gewogen und das Gewicht einer Tour zeigen jetzt überall dieselbe Zahl.',
+  'Due, weighed and the weight of a trip now show the same number everywhere, and the words are plainer.': 'Fällig, gewogen und das Gewicht einer Tour zeigen jetzt überall dieselbe Zahl, und die Wörter sind einfacher.',
+  'Plain words for findings, incoming notes, plans and base weight': 'Einfache deutsche Wörter: Erkenntnisse, Eingang, Vorhaben und Grundgewicht',
+  'Long names without spaces wrap, the km chart has a 0 line, an import on an empty device gives no warning': 'Lange Namen ohne Leerzeichen brechen um, das km-Diagramm hat eine 0-Linie, ein Import auf einem leeren Gerät warnt nicht mehr',
+  'Open Trips › Look back: it says «Findings», and the km chart has a 0 at the bottom.': 'Öffne Touren › Rückblick: Dort steht «Erkenntnisse», und das km-Diagramm hat unten eine 0.',
   'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count': 'Material: Kopf, Kachel und Ansicht «Ungewogen» zeigen dasselbe Gewicht und dieselbe Zahl',
   'A trip has one weight, all together with food and water: in its head and on the weight card': 'Eine Tour hat ein Gewicht, alles zusammen mit Essen und Wasser: im Kopf und auf der Gewichtskarte',
   'Open Gear: the line under the title and the view «Unweighed» show the same number.': 'Öffne Material: Die Zeile unter dem Titel und die Ansicht «Ungewogen» zeigen dieselbe Zahl.',
   'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.': 'Öffne eine Tour: Das Gewicht im Kopf ist die grosse Zahl der Gewichtskarte; Essen und Wasser ist eine eigene Zeile.',
   'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both': 'Fällig heisst: ein Service ist fällig oder ein Problem muss vor der nächsten Fahrt behoben sein; die Velopflege zeigt beides',
   'Bike care no longer says «nothing due» while a problem waits for the next ride': 'Die Velopflege sagt nicht mehr «nichts fällig», wenn ein Problem auf die nächste Fahrt wartet',
-  'The number in the menu counts the points due, the same as on Bikes and Today': 'Die Zahl im Menü zählt die fälligen Punkte, gleich wie bei Velos und Heute',
   'Open Bikes › Care: under the title a line says what due means.': 'Öffne Velos › Pflege: Unter dem Titel steht eine Zeile, was fällig heisst.',
   'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».': 'Melde bei einem Velo ein Problem mit «Vor der nächsten Fahrt»: Es steht in der Velopflege als fällig, mit «Erledigt».',
   'Compare the number in the menu with Bike care and Today: all three are the same.': 'Vergleiche die Zahl im Menü mit Velopflege und Heute: Alle drei sind gleich.',
@@ -224,7 +226,7 @@ export default {
   // 0.114.0
   'A new trip, nicely framed': 'Neue Tour, gut eingerahmt',
   'Sport, weather from your postcode and the event: the new trip asks the right things and sorts the list into groups.': 'Sportart, Wetter aus deiner PLZ und der Event: Die neue Tour fragt das Richtige und ordnet die Liste in Gruppen.',
-  '«Conditions»: sport, weather from the start postcode, the event': '«Rahmenbedingungen»: Sportart, Wetter aus der Start-PLZ, der Event',
+  '«Conditions»: sport, weather from the start postcode, the event': '«Neue Tour»: Sportart, Wetter aus der Start-PLZ, der Event',
   'Templates as buttons: Standard, yours and two examples': 'Vorlagen als Knöpfe: Standard, deine und zwei Beispiele',
   'The packing list in four groups, with a picture per item': 'Die Packliste in vier Gruppen, mit einem Bild pro Teil',
   'Repair and Charging only come when you switch them on': 'Reparatur und Laden kommen nur, wenn du sie einschaltest',
@@ -256,9 +258,9 @@ export default {
   'Inbox, notes, helper, home place, shortcuts and playground in the light look': 'Eingang, Notizen, Helfer, Wohnort, Tastenkürzel und Spielwiese im hellen Look',
   // 0.107.0
   'Active turns the lights on': 'Aktiv macht das Licht an',
-  'Today on top, goals with a path, milestones on a shelf. Plus a suggestion you can take as a challenge. Or not.': 'Heute oben, Ziele mit Weg, Meilensteine im Regal. Dazu ein Vorschlag, den du als Challenge annehmen kannst. Oder eben nicht.',
+  'Today on top, goals with a path, milestones on a shelf. Plus a suggestion you can take as a challenge. Or not.': 'Heute oben, Ziele mit Weg, Meilensteine im Regal. Dazu ein Vorschlag, den du als Vorhaben annehmen kannst. Oder eben nicht.',
   'Active in light: today on top, goals with a path, milestones on a shelf': 'Aktiv hell: heute oben, Ziele mit Weg, Meilensteine im Regal',
-  'A suggestion for today, as a challenge if you like': 'Vorschlag für heute, auf Wunsch als Challenge',
+  'A suggestion for today, as a challenge if you like': 'Vorschlag für heute, auf Wunsch als Vorhaben',
   'Page «Patterns»: records and what helped': 'Seite «Muster»: Rekorde und was geholfen hat',
   'Meditation log with a 13-week calendar': 'Meditations-Log mit 13-Wochen-Kalender',
   // 0.106.0
@@ -287,10 +289,10 @@ export default {
   'Sort, filter, assign, merge and weigh as light cards': 'Sortieren, Filtern, Zuordnen, Zusammenlegen und Wiegen als helle Karten',
   // 0.102.0
   'Swim or sauna?': 'Baden oder Sauna?',
-  'A new tile asks the important questions of life. And any suggestion can become a challenge.': 'Eine neue Kachel stellt die wichtigen Fragen des Lebens. Und jeder Vorschlag kann eine Challenge werden.',
+  'A new tile asks the important questions of life. And any suggestion can become a challenge.': 'Eine neue Kachel stellt die wichtigen Fragen des Lebens. Und jeder Vorschlag kann ein Vorhaben werden.',
   'Tile «Swim or sauna today?» with your own alternatives': 'Kachel «Heute baden oder Sauna?» mit eigenen Alternativen',
-  'Any suggestion becomes a challenge that counts by itself': 'Jeder Vorschlag wird eine Challenge, die von selbst zählt',
-  'A challenge reached is celebrated as a milestone': 'Eine geschaffte Challenge wird als Meilenstein gefeiert',
+  'Any suggestion becomes a challenge that counts by itself': 'Jeder Vorschlag wird ein Vorhaben, das von selbst zählt',
+  'A challenge reached is celebrated as a milestone': 'Ein geschafftes Vorhaben wird als Meilenstein gefeiert',
   // 0.101.0
   'Today, calm and bright': 'Heute, hell und ruhig',
   'The trip card counts the hours to go, and four new tiles keep you posted.': 'Die Tour-Karte zählt die Stunden bis zum Start, und vier neue Kacheln halten dich auf dem Laufenden.',
@@ -408,7 +410,7 @@ export default {
   'After an update a calm sheet says what is new': 'Nach einem Update sagt ein ruhiges Blatt, was neu ist',
   // 0.77.0
   'A helper, only when you ask': 'Ein Helfer, nur wenn du fragst',
-  'Claude suggests packing lists, learnings and bike care. Without the code everything stays as before.': 'Claude schlägt Packlisten, Learnings und Velopflege vor. Ohne Code bleibt alles wie bisher.',
+  'Claude suggests packing lists, learnings and bike care. Without the code everything stays as before.': 'Claude schlägt Packlisten, Erkenntnisse und Velopflege vor. Ohne Code bleibt alles wie bisher.',
   'A few words become a packing list suggestion': 'Aus ein paar Wörtern wird ein Packlisten-Vorschlag',
   '«Check the list» and a debrief draft from your notes': '«Liste prüfen» und ein Rückblick-Entwurf aus deinen Notizen',
   'Suggestions in «Due now», all just suggestions': 'Vorschläge in «Jetzt fällig», alles nur Vorschläge',
@@ -417,7 +419,7 @@ export default {
   'Five places': 'Fünf Orte',
   'Today, Trips, Gear, Bikes and Active: at the bottom on the phone, in a sidebar on the computer.': 'Heute, Touren, Material, Velos und Aktiv: am Handy unten, am Computer in einer Seitenleiste.',
   'Five places with their own pages': 'Fünf Orte mit ihren eigenen Seiten',
-  '«More» is gone, «Me» has language, theme, inbox and your data': '«Mehr» ist weg, «Ich» hat Sprache, Farbwelt, Inbox und deine Daten',
+  '«More» is gone, «Me» has language, theme, inbox and your data': '«Mehr» ist weg, «Ich» hat Sprache, Farbwelt, Eingang und deine Daten',
   '«New» as a round + on the phone, each place with its colour': '«Neu» als rundes + am Handy, jeder Ort mit eigener Farbe',
   'Keyboard shortcuts: g plus a letter, n, / and ?': 'Tastenkürzel: g plus Buchstabe, n, / und ?',
   // 0.75.0
@@ -541,7 +543,7 @@ export default {
   'Tap the date, the duration, the weather or the bike on the trip card, and it changes on the spot.': 'Datum, Dauer, Wetter oder Velo auf der Tour-Karte antippen, und es ändert sich an Ort und Stelle.',
   'Trip card: change date, duration, weather or bike in place': 'Tour-Karte: Datum, Dauer, Wetter oder Velo an Ort und Stelle ändern',
   '«Adapted to the weather» switches with one tap': '«Ans Wetter angepasst» wechselt mit einem Tipp',
-  'Inbox: the newest note on top': 'Inbox: die neueste Notiz zuoberst',
+  'Inbox: the newest note on top': 'Eingang: die neueste Notiz zuoberst',
   'All problems of all bikes in one list, newest first': 'Alle Probleme aller Velos in einer Liste, neueste zuerst',
   // 0.47.0
   'A wardrobe in a new dress': 'Kleiderschrank im neuen Kleid',
@@ -596,7 +598,7 @@ export default {
   'Fingers and keys': 'Finger und Tasten',
   'Bigger tap targets, Escape where you expect it, and the app keeps its font offline.': 'Grössere Tippflächen, Escape, wo du es erwartest, und offline behält die App ihre Schrift.',
   'Escape closes an open row in the packing list': 'Escape schliesst eine offene Zeile in der Packliste',
-  'Backup import speaks plainly: «1 trip», «1 learning»': 'Backup-Import spricht klar: «1 Tour», «1 Learning»',
+  'Backup import speaks plainly: «1 trip», «1 learning»': 'Backup-Import spricht klar: «1 Tour», «1 Erkenntnis»',
   'Offline the app keeps its own font': 'Offline behält die App ihre eigene Schrift',
   // 0.44.0
   'Your last 12 months': 'Deine letzten 12 Monate',
@@ -623,7 +625,7 @@ export default {
   'Upload a ride and see how it compares with the plan. Faster than planned? The app notices.': 'Lade eine Fahrt hoch und sieh, wie sie zum Plan passt. Schneller als geplant? Die App merkt es.',
   'Upload a GPX ride: distance, climbing, time, breaks': 'GPX-Fahrt hochladen: Distanz, Höhenmeter, Zeit, Pausen',
   'Planned versus real for the trip of that day': 'Geplant gegen echt für die Tour dieses Tages',
-  'Up to 3 learnings per ride, only kept with a tap': 'Bis zu 3 Learnings pro Fahrt, nur mit einem Tipp gemerkt',
+  'Up to 3 learnings per ride, only kept with a tap': 'Bis zu 3 Erkenntnisse pro Fahrt, nur mit einem Tipp gemerkt',
   'Share a GPX file from Android straight to the app': 'GPX-Datei von Android direkt an die App teilen',
   // 0.40.0
   'Calmer side pages': 'Ruhigere Nebenseiten',
@@ -707,7 +709,7 @@ export default {
   'Rows stay in place while packing': 'Die Zeilen bleiben beim Packen am Platz',
   'Plan a trip without a bike too': 'Eine Tour auch ohne Velo planen',
   'A search hit opens the item directly': 'Ein Suchtreffer öffnet das Teil direkt',
-  'New learnings first on Today': 'Neue Learnings zuerst auf Heute',
+  'New learnings first on Today': 'Neue Erkenntnisse zuerst auf Heute',
   // 0.30.1
   'Double tap, single count': 'Doppeltipp, einfach gezählt',
   'A quick double tap counts once, and «Undo» after a whole bag opens it again.': 'Ein schneller Doppeltipp zählt einmal, und «Rückgängig» nach einer ganzen Tasche öffnet sie wieder.',
@@ -844,7 +846,7 @@ export default {
   'The next trip as a dark band with a countdown, below it Trips, Gear and Bikes.': 'Die nächste Tour als dunkles Band mit Countdown, darunter Touren, Material und Velos.',
   'The next trip with a countdown on the start page': 'Die nächste Tour mit Countdown auf der Startseite',
   'Search over everything, «New» on every page': 'Suche über alles, «Neu» auf jeder Seite',
-  '«Good to know»: weather, sun times, a learning, your pace': '«Gut zu wissen»: Wetter, Sonnenzeiten, ein Learning, dein Tempo',
+  '«Good to know»: weather, sun times, a learning, your pace': '«Gut zu wissen»: Wetter, Sonnenzeiten, eine Erkenntnis, dein Tempo',
   // 0.19.5
   'Ballast, begone': 'Ballast, ade',
   'What came along but was not needed the last few times gets a gentle «Leave at home?».': 'Was dabei war, aber die letzten Male nicht gebraucht wurde, bekommt ein sanftes «Zu Hause lassen?».',
@@ -862,7 +864,7 @@ export default {
   'Workshop order with everything due before the trip': 'Werkstattauftrag mit allem, was bis zur Tour fällig ist',
   'A profile per bike: km, costs, what is due next': 'Ein Steckbrief pro Velo: km, Kosten, was als Nächstes fällig ist',
   'Compare your bikes for a trip and switch in one tap': 'Deine Velos für eine Tour vergleichen und mit einem Tipp wechseln',
-  'A note from any page, sort it later in the inbox': 'Eine Notiz von jeder Seite, später in der Inbox einordnen',
+  'A note from any page, sort it later in the inbox': 'Eine Notiz von jeder Seite, später im Eingang einordnen',
   // 0.19.2
   'Never needed?': 'Nie gebraucht?',
   'Gear shows what you took along but never used. Honest, but kind.': 'Material zeigt, was du mitgenommen, aber nie gebraucht hast. Ehrlich, aber freundlich.',
@@ -923,14 +925,14 @@ export default {
   'Packing day, full screen': 'Packtag im Vollbild',
   'Bag by bag in big letters, and the screen stays on while your hands are busy.': 'Tasche für Tasche in grosser Schrift, und der Bildschirm bleibt an, während die Hände beschäftigt sind.',
   'Packing day full screen, the screen stays on': 'Packtag im Vollbild, der Bildschirm bleibt an',
-  'Learnings as a small hint at the right item': 'Learnings als kleiner Hinweis beim passenden Teil',
+  'Learnings as a small hint at the right item': 'Erkenntnisse als kleiner Hinweis beim passenden Teil',
   'The debrief adds the km to the bike': 'Der Rückblick zählt die km zum Velo',
   'A reminder when the last backup is older than 14 days': 'Eine Erinnerung, wenn das letzte Backup älter als 14 Tage ist',
   // 0.13.0
   'The first debrief': 'Der erste Rückblick',
   'How was it, go through the items, a summary with suggestions: three steps to learn from every trip.': 'Wie war es, Teile durchgehen, Zusammenfassung mit Vorschlägen: drei Schritte, um aus jeder Tour zu lernen.',
   'The debrief in three steps': 'Der Rückblick in drei Schritten',
-  'All learnings in one place, with a search': 'Alle Learnings an einem Ort, mit Suche',
+  'All learnings in one place, with a search': 'Alle Erkenntnisse an einem Ort, mit Suche',
   'The start page shows the next trip with a countdown': 'Die Startseite zeigt die nächste Tour mit Countdown',
   // 0.12.0
   'Bags on the bike': 'Taschen am Velo',

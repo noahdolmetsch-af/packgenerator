@@ -65,6 +65,8 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
+14.10.2026 (v0.137.0, Durchklick DK6/DK7): Muster gegen überlaufende lange Namen: Grid-Spalten mit `grid-template-columns: minmax(0, 1fr)` plus `overflow-wrap: break-word` (Continue-Band, Bestwerte auf Touren, Vorlagen-Spalten, Galerie-Karten, Archiv-Zeilen). km-Diagramm: Achse 0/Mitte/oben, 0-Linie mit `--ink-3`. Hinweis «alte Adresse» in `PlaceTabs` entfernt.
+
 14.10.2026 (v0.137.0, Durchklick DK2/DK3): Gewichtskarte: Untertitel «alles zusammen, mit Essen und Wasser», Essen und Wasser als letzte Zeile mit eigenem Balkenstück statt Fusszeile; Material-Kachel «gewogen» ohne «bekannt:», auch in den Kategorie-Köpfen. Keine neuen Tokens.
 
 14.10.2026 (v0.137.0 «Fällig überall gleich», Durchklick DK1/DK1b): Velopflege bekommt unter dem Kopf eine ruhige Erklärzeile `.why-due` (`--ink-2`, `--fs-small`, max. 68ch). Problem-Zeilen in der Pflege-Übersicht nutzen dieselbe Zeilen-Form wie Service-Zeilen, Hauptknopf «Erledigt». Keine neuen Tokens.

@@ -82,7 +82,7 @@ export default {
   'Bike care tells you when the chain, pads and tyres are due.': 'Die Velopflege sagt dir, wann Kette, Beläge und Reifen fällig sind.',
   'A workshop order lists what the shop should do, ready to print.': 'Ein Werkstattauftrag listet, was die Werkstatt machen soll, bereit zum Drucken.',
   'Photograph a receipt': 'Quittung fotografieren',
-  'Take a photo of the workshop receipt; it waits in the Inbox.': 'Fotografiere die Werkstatt-Quittung; sie wartet in der Inbox.',
+  'Take a photo of the workshop receipt; it waits in the Inbox.': 'Fotografiere die Werkstatt-Quittung; sie wartet im Eingang.',
   'Photo of a receipt': 'Quittung fotografieren',
   'Type the km on the counter, and Bike care knows what is due.': 'Tipp die km vom Zähler ein, dann weiss die Velopflege, was fällig ist.',
 

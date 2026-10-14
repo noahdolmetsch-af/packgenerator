@@ -99,6 +99,8 @@
   }
   .tx {
     display: grid;
+    /* v0.137.0 (Durchklick DK7a): a long name without spaces breaks instead of pushing «Continue» out */
+    grid-template-columns: minmax(0, 1fr);
     flex: 1;
     min-width: 0;
     gap: 2px;

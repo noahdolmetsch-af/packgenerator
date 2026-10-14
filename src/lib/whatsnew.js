@@ -16,12 +16,12 @@
 
 export const WHATS_NEW = [
   {
-    // v0.137.0 «Eine Zahl pro Sache» (Durchklick DK1/DK1b «fällig», DK2 Material, DK3 Tour-Gewicht;
-    // Noah 14.10.2026 «1-5 freigeben», answers 1a and 2a)
+    // v0.137.0 «Eine Zahl pro Sache» (Durchklick DK1/DK1b «fällig», DK2 Material, DK3 Tour-Gewicht,
+    // DK6 Wörter, DK7 kleine Fehler; Noah 14.10.2026 «1-5 freigeben», answers 1a, 2a and 5a)
     version: '0.137.0',
     date: '2026-10-14',
     title: 'One number for each thing',
-    lead: 'Due, weighed and the weight of a trip now show the same number everywhere.',
+    lead: 'Due, weighed and the weight of a trip now show the same number everywhere, and the words are plainer.',
     points: [
       { text: 'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both', href: '#/bikes?tab=care' },
       { text: 'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count', href: '#/gear' },
@@ -29,7 +29,8 @@ export const WHATS_NEW = [
     ],
     small: [
       { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
-      { box: 'nicer', text: 'The number in the menu counts the points due, the same as on Bikes and Today' },
+      { box: 'nicer', text: 'Plain words for findings, incoming notes, plans and base weight' },
+      { box: 'fixed', text: 'Long names without spaces wrap, the km chart has a 0 line, an import on an empty device gives no warning' },
     ],
     test: [
       'Open Bikes › Care: under the title a line says what due means.',
@@ -37,6 +38,7 @@ export const WHATS_NEW = [
       'Compare the number in the menu with Bike care and Today: all three are the same.',
       'Open Gear: the line under the title and the view «Unweighed» show the same number.',
       'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.',
+      'Open Trips › Look back: it says «Findings», and the km chart has a 0 at the bottom.',
     ],
   },
   {

@@ -247,7 +247,7 @@
             {#if lastHeart}
               <p class="heart"><HeartLine heart={lastHeart} size={16} label={t('Heart rate')} /> <span class="pill">{t('from Strava · observation')}</span></p>
             {:else}
-              <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
+              <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later|soon')}</span></p>
             {/if}
             <div class="acts">
               {#if last.debrief === 'open' || last.debrief === 'draft'}
@@ -266,7 +266,7 @@
             {#if stats.bars.length > 1}
               <p class="bcap">{mode === 'all' ? t('km per year') : t('km per month')}</p>
               <div class="bars">
-                <span class="ax num" aria-hidden="true"><span>{num(axisTop)}</span><span>{num(axisTop / 2)}</span></span>
+                <span class="ax num" aria-hidden="true"><span>{num(axisTop)}</span><span>{num(axisTop / 2)}</span><span>0</span></span>
                 <div class="cols" role="img" aria-label={mode === 'all' ? t('km per year') : t('km per month')}>
                   {#each stats.bars as b, i (b.key)}
                     <span class="col" title="{mode === 'all' ? b.key : monthLong(b.key)}: {num(b.km)} km"><i class:now={i === stats.bars.length - 1} style:height="{b.km ? Math.max(3, (b.km / axisTop) * 100) : 0}%"></i><small>{barLabel(b)}</small></span>
@@ -568,6 +568,7 @@
     height: 96px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+    line-height: 1;
     text-align: right;
   }
   .cols {
@@ -576,6 +577,17 @@
     gap: 4px;
     height: 118px;
     border-top: 1px dashed var(--line);
+    position: relative;
+  }
+  /* v0.137.0 (Durchklick DK7b): a 0 line under the bars, level with the «0» of the axis */
+  .cols::after {
+    content: '';
+    position: absolute;
+    top: 96px;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--ink-3);
+    pointer-events: none;
   }
   .col {
     flex: 1 1 0;
