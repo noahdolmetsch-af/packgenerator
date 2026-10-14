@@ -74,6 +74,18 @@ export function dayRide(bikeId = null) {
 }
 
 /**
+ * WS2 «Wieder sichtbar» (Noah 14.10.2026 «1a 2b 3a ws1-ws7 freigeben», tip «2a»): «Quick start» in
+ * «New», the search and the tips makes the trip by the same rules as the Quick start on Today
+ * (quickstart.js: today, 2.5 h, the bike ridden last, the standard items, the home forecast).
+ * Pack makes it and opens it with «Change» and «Undo», as the day ride. bikeId: a bike named in the search.
+ */
+export function quickRide(bikeId = null) {
+  keep('pack.dayRide', typeof bikeId === 'string' && bikeId ? `quick:${bikeId}` : 'quick');
+  location.hash = '#/pack';
+  window.dispatchEvent(new Event('pg:dayride'));
+}
+
+/**
  * New gear item: Gear opens with the "Add item" dialog.
  * v0.24.0 (Noah): name = what was searched for, so "Add "Spork" as a new item" starts filled in.
  */

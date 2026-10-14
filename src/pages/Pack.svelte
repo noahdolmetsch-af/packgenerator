@@ -66,6 +66,8 @@
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
+  import { quickStart } from '../lib/quickstart.js';
+  import { homeForecast } from '../lib/home-weather.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { targetPressure, pressureText } from '../lib/bikespecs.js';
@@ -335,6 +337,19 @@
   async function makeDayRide(wish = '1') {
     if (dayBusy) return;
     dayBusy = true;
+    // WS2 (Noah 14.10.2026): «Quick start» from New, the search and the tips, by the rules of Today
+    if (wish === 'quick' || wish?.startsWith('quick:')) {
+      try {
+        const forecast = navigator.onLine ? await homeForecast(db).catch(() => null) : null;
+        const nt = await quickStart(db, { trips: $state.snapshot(trips), bikes: $state.snapshot(bikes), items: $state.snapshot(items), forecast, bikeId: wish.slice(6) || null });
+        if (!nt) return (dialog = { trip: null }); // no bike yet: the dialog says why
+        dayMade = { id: nt.id, before: chosen, day: true, quick: true, hours: nt.hours, wx: nt.wx, wxFrom: nt.wxFrom };
+        choose(nt.id);
+      } finally {
+        dayBusy = false;
+      }
+      return;
+    }
     // v0.46.0 (Noah 14a, 19a): a bike chosen on Today or in the search ("tagestour factor")
     const bikeId = wish && wish !== '1' ? wish : null;
     try {
@@ -963,7 +978,7 @@
     <!-- v0.47.1 (Noah b): bike, date, hours and weather are in the top card; the card only says what was made. -->
     {@const what = tn(trip.entries.length, '{n} item', '{n} items')}
     <div class="made-card" role="status">
-      <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
+      <p class="made-t"><b>{dayMade.quick ? t('Quick start created') : dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
       <p class="made-s">{t('You find it under Trips and at the top of Today.')}</p>
       <div class="dayride-acts">
         <button type="button" class="btn sm" onclick={() => (dialog = { trip })}>{t('Change')}</button>

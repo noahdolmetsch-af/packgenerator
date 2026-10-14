@@ -13,7 +13,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
-  import { newTrip, addItem, dayRide } from '../nav.js';
+  import { newTrip, addItem, quickRide } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
   import { setReading } from '../kmbookdb.js';
@@ -100,7 +100,7 @@
     <h3 class="ngrp">{t('Trips|place')}</h3>
     <ul class="opts">
       <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(dayRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(quickRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Quick start')}</b><span>{t('today, 2.5 h, the bike ridden last')}</span></span></button></li>
       <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
       <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
     </ul>

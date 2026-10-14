@@ -82,7 +82,7 @@ export const PAGE_ROWS = PAGE_GROUPS.flatMap((g) => g.rows.map((r) => ({ ...r, g
  */
 export const ACTIONS = [
   { id: 'trip', title: 'Plan a trip', action: 'trip', words: 'plan a trip new trip tour planen neue tour packing list packliste' },
-  { id: 'dayride', title: 'Day ride now', action: 'dayride', words: 'day ride now tagestour jetzt ausfahrt' },
+  { id: 'dayride', title: 'Quick start', action: 'dayride', words: 'quick start schnellstart day ride now tagestour jetzt ausfahrt' },
   { id: 'note', title: 'Note + photo', action: 'note', words: 'note photo notiz foto quick note zettel kaputt fehlte' },
   { id: 'item', title: 'Gear item', action: 'item', words: 'new gear item add item neues teil ausrüstungsteil hinzufügen' },
   { id: 'km', title: 'km for a bike', action: 'km', words: 'km kilometer counter zähler nachtragen' },

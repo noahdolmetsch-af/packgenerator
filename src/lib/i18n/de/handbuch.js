@@ -1,7 +1,7 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
-  'Tap «New» › «Day ride now», or the day ride tile on Today.': 'Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.',
+  'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
   'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.': 'Beispiel: Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.',
   'Needs a few items under Gear first.': 'Braucht zuerst ein paar Teile unter Material.',
