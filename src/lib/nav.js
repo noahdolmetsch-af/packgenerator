@@ -136,6 +136,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
+  if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
@@ -148,7 +149,6 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
-  if (h.startsWith('#/check')) return 'check'; // v0.127.0 «Tages-Check» 1: morning check, evening review
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
   if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
@@ -156,6 +156,9 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/phone')) return 'phone'; // Design-Refresh P9 (B35): Ich › Daten › Aufs Handy
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
   if (h.startsWith('#/me/checks')) return 'checks'; // v0.111.0 (mockup V4): Ich › Checks pro Reiseart
+  if (h.startsWith('#/me/abfragen') || /^#\/check(\/|\?|$)/.test(h)) return 'abfragen'; // AB1/AB5: Ich › Deine Abfragen; WG: the old check pages lead there (redirectOf)
+  if (h.startsWith('#/me/history')) return 'history'; // AB4: Ich › Daten › Verlauf
+  if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
   return 'home';
@@ -166,6 +169,8 @@ export function pageOf(hash = '', careTab = false) {
  * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
  */
+/** WG: the addresses of the old daily check (v0.127.0), now «Wi gaht's?» (#/me/abfragen). */
+export const OLD_CHECK = ['#/check/morning', '#/check/evening', '#/check/questions'];
 export function redirectOf(hash = '') {
   const [h, query = ''] = (hash || '').split('?');
   if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period', old: '#/review' };
@@ -177,6 +182,8 @@ export function redirectOf(hash = '') {
     const rest = q.toString();
     return { hash: `#/bikes?tab=care${rest ? `&${rest}` : ''}`, spot: '', old: '#/care' };
   }
+  // WG «Wi gaht's?» takes over the daily check: the old pages lead there (quietly)
+  if (OLD_CHECK.includes(h) || /^#\/check(\/|$)/.test(h)) return { hash: '#/me/abfragen', spot: '', old: null };
   return null;
 }
 
@@ -250,13 +257,13 @@ export function tabOf(place, hash = '') {
  * data and what the app can do.
  */
 export function placeOf(page) {
-  if (page === 'home' || page === 'check') return 'today';
+  if (page === 'home') return 'today';
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis') return 'me';
   return null;
 }
 

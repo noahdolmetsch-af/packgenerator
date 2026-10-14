@@ -10,6 +10,13 @@ import { newButton } from './newbutton.js';
 import { P, SPARK, v038Start } from './v038-fixture.js';
 import { openRow } from './debrief-rows.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -75,7 +82,7 @@ test('Past trips: one table with the debrief state and the km; Debrief links to 
   await expect(herbst).toContainText('140');
   await expect(sommer).toContainText('210');
   // done rows have no badge; a row opens the debrief
-  await expect(sommer.locator('.nbadge')).toHaveCount(0);
+  await expect(sommer.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
   await expect(sommer.getByRole('link').first()).toHaveAttribute('href', `#/debrief/${P}sommer`);
   await noSideways(page);
   await shot(page, info, 'vergangen');
@@ -122,12 +129,13 @@ test('Debrief of a trip: weather, amount and bags as segments', async ({ page, c
 test('Building blocks and What the app can do are rows; explanations behind "?"', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/blocks');
+  await openGroups(page);
   const help = page.getByRole('button', { name: new RegExp(`^${esc(T('Explain: {what}', { what: '' }))}`) }).first();
   await expect(help).toHaveAttribute('aria-expanded', 'false');
   await help.click();
   await expect(page.getByRole('note')).toBeVisible();
   // a row per block, the whole row opens it; no "Edit · Built-in" footer
-  const rows = page.locator('details.edit > summary.lrow');
+  const rows = page.locator('details.edit > summary.srow') // SN3 «Seiten neu»: the rows of the new sections;
   expect(await rows.count()).toBeGreaterThanOrEqual(5);
   await expect(page.getByText(T('Comes with an Outdoor overnight stay'), { exact: true })).toBeHidden();
   await noSideways(page);
@@ -183,8 +191,11 @@ test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo i
   // v0.48.0: a row of the part table opens the part.
   await spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(T('Chain'), { exact: true }) }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
+  // SN7 «Seiten neu»: measuring sits in the fold «Messen und Modell»; choose what you did, then «Eintragen».
+  await dlg.locator('details[data-fold="measure"] > summary').click();
   await dlg.getByLabel(new RegExp(`^${esc(T('Measured'))}`)).fill('0.6');
-  await dlg.getByRole('button', { name: T('OK'), exact: true }).click();
+  await dlg.locator('[data-did="ok"]').click();
+  await dlg.getByRole('button', { name: T('Enter|part'), exact: true }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await chainLast(page))?.result).toBe('needed');
   await expect.poll(async () => (await chainWishes(page)).length).toBe(1);

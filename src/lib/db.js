@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 11; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 11: timer log (9, 10: other packages)
+export const SCHEMA_VERSION = 11; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 11: timer log (10: Strava Training)
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -39,6 +39,7 @@ export const DATA_TABLES = [
   'flowSessions', // hobby pages: the details of a timed session (id = its flowLog entry)
   'flowTemplates', // hobby pages: timer templates
   'flowStars', // hobby pages: milestone stars reached (id = `${msId}:${star}`), kept forever (flowms.js)
+  'abAnswers', // AB «Deine Abfragen»: one row per answer, the history under Ich › Daten › Verlauf (abfragen.js)
   'timerLog', // «Timer» (Z5): every timer that ran, with its kind, length and an optional note (timer.js)
 ];
 
@@ -154,6 +155,11 @@ export function createDb(name = 'pack-generator') {
     flowSessions: 'id, actId, day, tplId',
     flowTemplates: 'id, actId, usedAt',
     flowStars: 'id, msId, day',
+  });
+  // Version 9 (AB «Deine Abfragen») only adds the answers, so existing data stays as it is: the daily
+  // checks stay in flowChecks and the history reads both (abfragen.js mergeHistory).
+  db.version(9).stores({
+    abAnswers: 'id, qid, day, at',
   });
   // Version 11 («Timer», mockups Z1–Z5) only adds the timer log, so existing data stays as it is.
   // (9 and 10 belong to Design-Refresh 0.133.0 and Strava Training; Dexie allows the gap.)

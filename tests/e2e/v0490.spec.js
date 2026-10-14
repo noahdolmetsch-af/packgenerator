@@ -3,8 +3,8 @@
 //    Vorjahr, Durchschnitt and Bestwert, «Touren im Vergleich» (7 small charts + a table, base
 //    switchable), Tempo, Gelernt and Logbuch one level below; «Fahrt hochladen» is a quiet link.
 // b) The old addresses #/review and #/debrief/compare lead there (no dead links).
-// c) Past trips is one table, also on a phone: the trip name stays fixed, the other columns scroll
-//    inside the table, the page never sideways; period, «Art» and a search that finds learnings.
+// c) Past trips is one table (SN4: cards on a phone, a column Zustand), the page never sideways;
+//    period, «Art» and a search that finds learnings.
 // d) A trip's saved Rückblick tells km, Hm, time, weather, plan against real, what was not used,
 //    learnings and what it means for the next trip; «Antworten ändern» still opens the answers.
 // Fictional data (r1-fixture.js); every outside request is blocked. SHOTS=<folder> saves screenshots.
@@ -48,9 +48,14 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await page.goto('./#/debrief');
   const main = page.locator('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Rückblick' })).toBeVisible();
-  // 1. the last ride, its debrief still open: the page's one main button
-  const last = main.locator('section.lastride');
-  await expect(last.getByRole('heading', { level: 2, name: 'Abendrunde Hügel' })).toBeVisible();
+  // 1. SN2 «Seiten neu»: the trip whose debrief is missing on top, «Bewerten» the page's one main button
+  const hero = main.locator('[data-open-debrief]');
+  await expect(hero.getByText('Abendrunde Hügel', { exact: true })).toBeVisible();
+  await expect(main.locator('.btn.hi')).toHaveCount(1);
+  await expect(hero.getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
+  // the last ride's numbers are folded at the end
+  await main.getByRole('button', { name: 'Zahlen der letzten Fahrt' }).click();
+  const last = main.locator('.lastride');
   await expect(last).toContainText('42');
   await expect(last).toContainText('780');
   await expect(last).toContainText('2:58');
@@ -58,10 +63,10 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(last).toContainText('9–14°');
   await expect(last).toContainText(/Geplant .* min schneller/);
   await expect(main.locator('.btn.hi')).toHaveCount(1);
-  await expect(last.getByRole('link', { name: 'Rückblick schreiben' })).toBeVisible();
-  // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert; switch to Alle
+  // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (open under «Alle Kennzahlen», answer 2b); switch to Alle
   const per = main.locator('section.period');
   await expect(per.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
+  await expect(per.getByRole('button', { name: 'Alle Kennzahlen' })).toHaveAttribute('aria-expanded', 'true');
   const km = per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Distanz' }) });
   await expect(km).toContainText('1’541');
   await expect(km).toContainText('Ø 171 km');
@@ -69,12 +74,14 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await main.getByRole('group', { name: 'Zeitraum' }).getByRole('button', { name: 'Alle' }).click();
   await expect(per.getByRole('heading', { level: 2, name: 'Alle Jahre' })).toBeVisible();
   await expect(per.getByRole('columnheader', { name: 'Vorjahr' })).toHaveCount(0);
-  // 3. trips compared: 7 small charts, a table of the last 10; «Gleiche Art» keeps the day rides
+  // 3. trips compared: a table of the last 10 with their state; 7 small charts folded; «Gleiche Art» keeps the day rides
   const cmp = main.locator('#compare');
+  await expect(cmp.locator('table.st tbody tr')).toHaveCount(10);
+  await expect(cmp.locator('table.st tbody tr [data-state]').first()).toBeAttached();
+  await cmp.getByRole('button', { name: 'Diagramme und alle Spalten' }).click();
   await expect(cmp.locator('.mini')).toHaveCount(7);
-  await expect(cmp.locator('tbody tr')).toHaveCount(10);
   await cmp.getByRole('button', { name: 'Gleiche Art' }).click();
-  await expect(cmp.locator('tbody tr')).toHaveCount(5);
+  await expect(cmp.locator('table.st tbody tr')).toHaveCount(5);
   await expect(cmp).toContainText('Tagestour');
   // 4. one level below
   for (const [name, url] of [['Dein Tempo', /#\/debrief\/pace$/], ['Alle Learnings', /#\/debrief\/learnings$/], ['Logbuch', /#\/debrief\/logbook$/]]) {
@@ -114,26 +121,20 @@ test('c) Past trips: one table, the name fixed, filters and a search that finds 
   await expect(main.getByRole('heading', { level: 1, name: 'Vergangene Touren' })).toBeVisible();
   const table = main.locator('table.tt');
   const row = (name) => table.locator('tbody tr').filter({ has: page.getByRole('rowheader', { name: new RegExp(name) }) });
-  await expect(table.getByRole('columnheader')).toHaveText(['Tour', 'km', 'Hm', 'Zeit', 'Wetter', 'Temp.', 'Velo', 'Learning · Besonderes', 'Öffnen']);
-  await expect(row('Herbsttour Hochland')).toContainText('2’210');
+  // SN4 «Seiten neu»: a column Zustand; the learning stands under the name.
+  // SN4+ «SN4 plus» (answer 2, 3b): Hm, Fahrzeit, Verstrichen, Ø km/h, Ø Puls, Max. Puls, Velo (its type), Wetter, Temp., Strava-Kommentar
+  if (info.project.name === 'desktop') await expect(table.getByRole('columnheader')).toHaveText(['Tour', 'Zustand', 'km', 'Hm', 'Fahrzeit', 'Verstrichen', 'Ø km/h', 'Ø Puls', 'Max. Puls', 'Velo', 'Wetter', 'Temp.', 'Strava-Kommentar', 'Öffnen']);
+  await expect(row('Herbsttour Hochland')).toContainText('148');
   await expect(row('Herbsttour Hochland')).toContainText('Regen Tag 2');
   await expect(row('Herbsttour Hochland')).toContainText('4–15°');
   await expect(row('Herbsttour Hochland')).toContainText('Überschuhe ab 8 °C mitnehmen');
-  await expect(row('Abendrunde Hügel')).toContainText('Rückblick offen');
+  await expect(row('Herbsttour Hochland')).toContainText('Bewertet');
+  await expect(row('Abendrunde Hügel')).toContainText('Abgeschlossen');
+  await expect(row('Abendrunde Hügel').getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
   await expect(main.getByText('Alte Seerunde')).toHaveCount(0); // older than 12 months
-  // the page never scrolls sideways; on a phone the table does, the name column stays
+  // the page never scrolls sideways; on a phone every trip is a card
   await noSideways(page);
-  if (info.project.name === 'phone') {
-    const box = main.locator('.tbox');
-    expect(await box.evaluate((b) => b.scrollWidth > b.clientWidth)).toBe(true);
-    const before = await table.locator('tbody th.first').first().boundingBox();
-    await box.evaluate((b) => (b.scrollLeft = 250));
-    const after = await table.locator('tbody th.first').first().boundingBox();
-    expect(Math.round(after.x)).toBe(Math.round(before.x));
-    await noSideways(page);
-    await shot(page, info, 'vergangene-gescrollt');
-    await box.evaluate((b) => (b.scrollLeft = 0));
-  }
+  if (info.project.name === 'phone') await expect(table.locator('thead')).toBeHidden();
   await shot(page, info, 'vergangene');
   // the search finds a learning
   await main.getByRole('searchbox', { name: 'Touren und Learnings suchen' }).fill('riegel');
@@ -170,18 +171,21 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   // v0.109.0 Design-Refresh P6: the card says «Fertig. Gute Tour!»; the trip's name is the line under it
   await expect(ride.getByRole('heading', { level: 2, name: 'Fertig. Gute Tour!' })).toBeVisible();
   await expect(ride.locator('.kick')).toContainText('Herbsttour Hochland');
-  for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau', 'Tag 1', 'Tag 2']) await expect(ride).toContainText(v);
-  const pvr = main.locator('section', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
+  for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau']) await expect(ride).toContainText(v);
+  // SN2x: the days of a multi-day trip are a table under «Strecke»; the other groups fold open
+  for (const v of ['Tag 1', 'Tag 2']) await expect(main.locator('[data-day-table]')).toContainText(v);
+  for (const key of ['pack', 'next']) await main.locator(`section[data-group="${key}"] button.gb`).click();
+  const pvr = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
   await expect(pvr).toContainText('142 km');
   await expect(pvr).toContainText('zu deinen Gunsten');
-  const unused = main.locator('section', { has: page.getByRole('heading', { name: /Nicht gebraucht/ }) });
+  const unused = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Nicht gebraucht/ }) });
   await expect(unused).toContainText('kannst du sparen');
   await expect(unused).toContainText('Hoodie');
   const next = main.locator('section.nextc');
   await expect(next).toContainText('Wirkt auf die nächste Tour');
   await expect(next).toContainText('Wochenende Hochland');
   await expect(next).toContainText('Buff');
-  const learned = main.locator('section', { has: page.getByRole('heading', { name: /Gelernt/ }) });
+  const learned = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Gelernt/ }) });
   await expect(learned).toContainText('Licht-Akku reicht bei Kälte nur 2 h');
   await noSideways(page);
   await shot(page, info, 'tour-rueckblick');

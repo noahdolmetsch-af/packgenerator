@@ -162,11 +162,11 @@ test('a ride without a trip: saved on its own, then made a past trip', async ({ 
   await expect(page.getByText(T('Past trip made from this ride'))).toBeVisible();
   const trips = await stored(page, 'trips');
   expect(trips.find((x) => x.fromRide)).toMatchObject({ title: 'test_data_gtp_ solo', startDate: day(-3), days: 1, entries: [] });
-  // v0.49.0 R1: one table; km in its own column.
+  // v0.49.0 R1: one table; km in its own column (SN4: after the column Zustand).
   await page.goto('./#/pack/past');
   const row = page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ solo' });
   await expect(row).toHaveCount(1);
-  await expect(row.locator('td').first()).toHaveText('25');
+  await expect(row.locator('td.km')).toHaveText('25');
 });
 
 test.describe('Android share target (service worker)', () => {

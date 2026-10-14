@@ -86,7 +86,7 @@
     {#each groups as g (g.key)}
       {#if g.rows.length}
         <div class="kh-sec">
-          <h3 class="kh-gh"><span class="udot warn"></span>{t(g.name)} <span class="kh-n num">{g.rows.length}</span></h3>
+          <h3 class="kh-gh"><span class="udot warn" aria-hidden="true"></span>{t(g.name)} <span class="kh-n num">{g.rows.length}</span></h3>
           <ul class="kh-list">
             {#each g.rows as x (x.id)}
               <li><span class="kh-m"><b>{x.title}</b>{#if x.reason}<small>{x.reason}</small>{/if}</span>

@@ -16,29 +16,123 @@
 
 export const WHATS_NEW = [
   {
-    // v0.132.0 «Tagespaket 14.10.» (one release with 0.125.0 in PR #151; first numbered 0.126.0): Velo-Setup UC3 (#155), Kluge Suche (#154),
-    // App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen vorbereiten BZ1/BZ2b (#156), Kleine Apps + Handbuch (#157)
-    version: '0.132.0',
+    // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
+    version: '0.133.0',
     date: '2026-10-14',
-    title: 'Setup, search and small apps',
-    lead: 'Your bike setup bag by bag, a search that understands more, small apps for the phone and a backup before every update.',
+    title: 'A greeting and your questions',
+    lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',
     points: [
-      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
-      { text: 'Smart search: similar words, small typos and filters; it can also act, «backup» opens Data and backup' },
-      { text: 'Small apps: Meditation, packing list and bike care with their own icon on the phone, same data.' },
+      { text: '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30', href: '#/me/abfragen' },
+      { text: 'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to', href: '#/me/look' },
+      { text: 'History and analysis: all your values in one place, with your normal range', href: '#/me/history' },
     ],
     small: [
-      { box: 'new', text: 'Before every update the app keeps a backup; a monthly check watches keys, links and Strava limits', href: '#/me/data' },
-      { box: 'nicer', text: 'Speak instead of typing, high contrast outdoors, quiet at night and your own start place', href: '#/me/look' },
-      { box: 'new', text: 'Me › Payments explains what is prepared; nothing is locked and no money moves', href: '#/me/pay' },
+      { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
+      { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom' },
     ],
     test: [
+      'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
+      'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».',
+      'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.',
+      'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
+      'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
+      'On the phone open Trips and Material: the main button sits at the bottom.',
+      'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.',
+    ],
+  },
+  {
+    // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
+    // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
+    // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),
+    // Kleine Apps + Handbuch (#157)
+    version: '0.132.0',
+    date: '2026-10-14',
+    title: 'Lots of new things at once',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
+    points: [
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/me/abfragen' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+    ],
+    small: [
+      { box: 'new', text: 'A search that finds similar words and small typos, and small apps for meditation, packing list and bike care with their own icon' },
+      { box: 'new', text: 'Every trip shows its state, a year goal for km, metres climbed and minutes, a workshop visit saved on the bike', href: '#/trips' },
+      { box: 'nicer', text: 'A backup before every update, high contrast outdoors, speaking instead of typing and an error never shows a white page', href: '#/me/data' },
+    ],
+    test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
       'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
       'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
       'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
       'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
       'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
       'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
+      'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.',
+    ],
+  },
+  {
+    // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
+    version: '0.131.3',
+    date: '2026-10-14',
+    title: 'Receipt photo in one tap',
+    lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',
+    points: [
+      { text: 'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera', href: '#/bikes?tab=shop' },
+      { text: 'Inbox › File as … Receipt: a note without a photo gets its receipt photo here', href: '#/inbox' },
+    ],
+    small: [
+      { box: 'new', text: 'New › Workshop visit: the note shows «Photograph the receipt» too' },
+      { box: 'nicer', text: '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»' },
+    ],
+    test: [
+      'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.',
+      'Take the photo: it shows small in the window; save the visit.',
+      'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.',
+    ],
+  },
+  {
+    // v0.131.2 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.131.2',
+    date: '2026-10-14',
+    title: 'Bikes back in line',
+    lead: 'The bike tabs follow the order you chose again.',
+    points: [
+      { text: 'Bike tabs in your order, your main bike first.', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The tidy-up of the last update had brought back the old order' },
+    ],
+    test: [
+      'Open Velos: the tabs start with your main bike, in the order you chose.',
+      'Open Velos › Pflege: the bikes come in the same order.',
+    ],
+  },
+  {
+    // v0.131.1 «Abhaken wieder abwählbar» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.131.1',
+    date: '2026-10-14',
+    title: 'Ticked is ticked once',
+    lead: 'A quick double tap no longer ticks an activity twice, so a tap takes it back again.',
+    points: [
+      { text: 'A ticked activity can be unticked again with one tap; «Undo» brings it back', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A quick double tap ticks only once; double ticks from before go away with the next untick' },
+      { box: 'fixed', text: 'A ticked commute on «In the flow» can be tapped to take it back' },
+    ],
+    test: [
+      'On Today tap an activity in «In the flow»: it is ticked. Tap it again: it is unticked.',
+      'Tick it, then tap «Undo» in the message below: the tick is gone again.',
+      'Tap an activity twice quickly: it is ticked once, one more tap unticks it.',
+      'Tap «Commute», then tap the line «… today: commute»: the commute is taken back.',
     ],
   },
   {
@@ -59,34 +153,6 @@ export const WHATS_NEW = [
       'Download a backup first: Ich › Daten › Backup.',
       'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.',
       'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.',
-    ],
-  },
-  {
-    // v0.125.0 «Tagespaket 13.10.»: Tages-Check 1+2 (#151), Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152),
-    // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
-    version: '0.125.0',
-    date: '2026-10-13',
-    title: 'Lots of new things at once',
-    lead: 'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.',
-    points: [
-      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
-      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
-      { text: 'Metres climbed and heart rate next to your km, a year goal for each value, and «Connect Strava» on Today', href: '#/flow/goals' },
-    ],
-    small: [
-      { box: 'new', text: 'Every trip shows its state: planned, completed or rated', href: '#/trips' },
-      { box: 'new', text: 'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.', href: '#/bikes?tab=shop' },
-      { box: 'nicer', text: 'A new trip fills in what the app knows, news wait in a calm banner, an error never shows a white page', href: '#/trips' },
-    ],
-    test: [
-      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
-      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
-      'Open Aktiv › Heute and tap the card «Week».',
-      'Open «Sport bag», tick a thing, then «All in».',
-      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
-      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
-      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
-      'After the next update: Today shows a banner on top; tap × and it stays away.',
     ],
   },
   {

@@ -8,7 +8,7 @@ import { startTimer, elapsedSec, remainingSec, pauseTimer, resumeTimer, isDone, 
 import { bowlTimes, bowlOf, nextBowl, parseMarks, rand } from '../src/lib/flowbowl.js';
 import { createDb, DATA_TABLES, SCHEMA_VERSION } from '../src/lib/db.js';
 import { buildBackup, restoreBackup } from '../src/lib/backup.js';
-import { ensureSeed, tick, deleteAct } from '../src/lib/flowdb.js';
+import { ensureSeed, tick, deleteAct, dayEntries, removeEntries, putEntries } from '../src/lib/flowdb.js';
 
 const T = '2026-10-09'; // Friday
 const acts = seedActs();
@@ -237,7 +237,7 @@ describe('the singing bowl schedule', () => {
 
 describe('the database', () => {
   it('a schema bump with three tables that go into the backup', async () => {
-    expect(SCHEMA_VERSION).toBe(11); // «Timer»: version 11 adds the timer log; v0.68.0: version 7 adds the ride ledger (kmBook); hobby pages 1: version 8 adds flowSessions, flowTemplates, flowStars; the Im Flow tables of version 6 stay
+    expect(SCHEMA_VERSION).toBe(11); // «Timer»: version 11 adds the timer log; AB «Deine Abfragen»: version 9 adds abAnswers. v0.68.0: version 7 adds the ride ledger (kmBook); hobby pages 1: version 8 adds flowSessions, flowTemplates, flowStars; the Im Flow tables of version 6 stay
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowActs', 'flowLog', 'flowChecks']));
     const db = createDb('flow-1');
     await ensureSeed(db);
@@ -262,5 +262,21 @@ describe('the database', () => {
     await db.flowActs.clear();
     await ensureSeed(db);
     expect(await db.flowActs.count()).toBe(0);
+  });
+  it('Fix 14.10.: today\'s own ticks are found, taken back all at once and put back by «Rückgängig»', async () => {
+    const db = createDb('flow-4');
+    const a = await tick(db, A.pushups, { day: T });
+    const b = await tick(db, A.pushups, { day: T }); // a quick double tap before the fix
+    const c = await tick(db, A.bike, { day: T, via: 'commute', n: 1 });
+    await tick(db, A.pushups, { day: addDays(T, -1) }); // yesterday stays
+    const mine = await dayEntries(db, 'pushups', T);
+    expect(mine.map((e) => e.id).sort()).toEqual([a.id, b.id].sort());
+    expect((await dayEntries(db, 'bike', T, (e) => e.via === 'commute')).map((e) => e.id)).toEqual([c.id]);
+    expect(await dayEntries(db, 'bike', T, (e) => e.via !== 'commute')).toEqual([]);
+    await removeEntries(db, mine);
+    expect(await dayEntries(db, 'pushups', T)).toEqual([]);
+    expect(await db.flowLog.count()).toBe(2);
+    await putEntries(db, mine);
+    expect((await dayEntries(db, 'pushups', T)).length).toBe(2);
   });
 });

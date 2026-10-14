@@ -26,9 +26,9 @@
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
-  import { averages, checkOf, complete, rotating, FIXED, checkHref, isEvening } from '../lib/flowcheck.js';
+  import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
-  import { openTimer, actName, goalName, qText } from '../lib/flow/ui.svelte.js';
+  import { openTimer, actName, goalName } from '../lib/flow/ui.svelte.js';
   import { actGoalText, goalsText, dayShort } from '../lib/flow/words.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
@@ -65,6 +65,7 @@
   import MedPatterns from './flow/MedPatterns.svelte';
   import MedReview from './flow/MedReview.svelte';
   import { localDay } from '../lib/localday.js';
+  import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
   import { t, locale, lang, num } from '../lib/i18n.svelte.js';
 
@@ -97,9 +98,9 @@
   const params = $derived(new URLSearchParams(sub.split('?')[1] ?? ''));
   const editId = $derived(route[0] === 'edit' ? decodeURIComponent(route[1] ?? '') : route[0] === 'new' ? 'new' : null);
 
-  /* the daily check */
+  /* the daily check; WG: answered in «Wi gaht's?» (sleep, energy and mood are mirrored into the day's check) */
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
-  const rot = $derived(data ? rotating(data.pool, today) : null);
+  const known = $derived(FIXED.some((f) => check[f.key] != null));
   const avg = $derived(averages(data?.checks ?? [], today, 7));
   const n1 = (v) => (v == null ? '–' : v.toLocaleString(lang.v === 'de' ? 'de-DE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 
@@ -320,7 +321,8 @@
           </Sec>
         </div>
         <aside class="col">
-          <Sec id="chk-h" title={t('Daily check')} sub={t('4 questions · one tap per question')}>
+          <!-- WG: the daily check is «Wi gaht's?» now; the section keeps today's values and the 7 days -->
+          <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
             <div class="card">{@render checkRow()}</div>
           </Sec>
           {#if sumLine}
@@ -333,6 +335,8 @@
           </Sec>
         </aside>
       </div>
+      <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PageTiles page="flow" />
     {/if}
   </div>
 {/if}
@@ -340,15 +344,15 @@
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 
 {#snippet checkRow()}
-  {#if complete(check)}
-    <div class="crow done">
-      <span class="ct"><b>{t('Daily check done')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key]}`).join(' · ')} · {qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')} {check.extra}</small></span>
-      <a class="btn" href={checkHref()}>{isEvening() ? t('Evening review') : t('Change')}</a>
+  {#if known}
+    <div class="crow done" data-check-row="done">
+      <span class="ct"><b>{t('Today|values')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key] ?? '–'}`).join(' · ')}</small></span>
+      <a class="btn" href="#/me/abfragen">{t('Change')}</a>
     </div>
   {:else}
-    <div class="crow">
-      <span class="ct"><b>{t('Still open today')}</b>{#if rot}<small>{t('today also: «{q}»', { q: qText(rot.q) })}</small>{/if}</span>
-      <a class="btn hi" href={checkHref()}>{t('Start|check')}</a>
+    <div class="crow" data-check-row="open">
+      <span class="ct"><b>{t('Still open today')}</b></span>
+      <a class="btn hi" href="#/me/abfragen">{t('Start|check')}</a>
     </div>
   {/if}
   {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}

@@ -2,89 +2,183 @@
   /**
    * v0.46.1 (Noah: «Touren» opened the last trip at Packen): #/trips, the calm overview of all trips
    * behind «Touren». #/pack and #/pack?… still open a trip directly.
-   * v0.78.0 «Fünf Orte» 2 / «Übergänge 2» (Noah T1–T20 a, U1–U5 a, mockup uebergaenge2/touren): the
-   * Touren page proper: «Weitermachen», the trips as tiles grouped by state (tripsoverview.js), each with
-   * the drawing of its route and one button named by its next step; a dashed tile starts a new trip.
-   * v0.88.0 (Noah 0.88 5a): a trip ended before its start date gets «Wieder planen» (trip/ending.js).
-   * v0.102.0 Design-Refresh P4 «Touren» (T1, approved 12.10.2026 «Touren T1–T6 freigegeben»): the new look.
-   * Under the title one line with the counts; «Weitermachen» as a soft band (the page's one main action);
-   * the tiles with a tinted route, a small sign («in 5 Tagen», «Rückblick offen») and the packing bar;
-   * on the side the «Wetter-Fenster» (the next 7 days at home, the best days framed) and the best values
-   * as a list with «Alle» for the period and the averages. The four steps and the template tiles are gone
-   * from here (the steps are on every trip, the templates have their own tab).
-   * v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three trip
-   * states (tripstate.js): Geplant, Abgeschlossen, Bewertet. Filter chips «Alle · Geplant · Abgeschlossen ·
-   * Bewertet» with their numbers, the state pill on every tile (ui/TripState.svelte, icon + word + extra),
-   * the tile's map in the state's colour, and the legend «Drei Zustände» (on the side; on a phone folded
-   * under the chips). Rules of TZ-2 (the list fixed, «Wieder öffnen», «Bist du gefahren?») come later.
+   * v0.78.0 «Fünf Orte» 2 / «Übergänge 2»: the Touren page proper (tiles grouped by state).
+   * v0.102.0 Design-Refresh P4 «Touren» (T1): the count line, «Weitermachen», the Wetter-Fenster, the best values.
+   * v0.126.0 TZ-1 «Zustand sichtbar»: the three trip states (tripstate.js) with their pills and chips.
+   * SN4g–SN4i «Touren-Seite, Runde 2» (mockups seiten-neu-touren-2, Noah 13.10.2026 22:24 «SN4g–SN4i
+   * freigegeben»; answers 1b 2 3b 4a 5a 6 7 8 and 1a / 2b of the second round). The page from top to bottom:
+   *   - the narrow band «Packmodus» above everything (two states: a pack draft exists / nothing open);
+   *   - «Geplant»: a short list of the planned trips, the next first, with the packing bar;
+   *   - «Abgeschlossene Touren»: all trips of the period by month (12 Monate / year / Alle), the state chips,
+   *     «Filter» (FL1–FL8, touren/FilterSheet.svelte) with the active filters as chips to tap away and the
+   *     saved ones as «Meine Filter» right above the list. Every row carries its values: Fahrzeit,
+   *     Verstrichen, Ø Tempo, Ø and max. Puls, Wetter, Temp.; with a power meter also Ø and max. Leistung
+   *     and NP, without one a quiet «ohne Wattwerte». A row with a Rückblick is highlighted, one without is
+   *     grey and keeps «Bewerten» / «Kurz bewerten». On a phone every trip is a card.
+   *   - «In Zahlen» (review/InZahlen.svelte, tours): five groups, all open, a jump bar; they follow the
+   *     period, chips and filters, except «Zum Vorjahr».
+   *   - «Weiter»: the tiles DG-O1 Gute Tage (never filtered), DG-O2 Offene Rückblicke and DG-O5 Karte aller
+   *     Touren (both follow the filters), touren/TourTiles.svelte.
+   * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
+   * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
-  import { tripsOverview, GROUPS } from '../lib/tripsoverview.js';
-  import { STATE_NAMES, STATE_HELP, stateExtra } from '../lib/tripstate.js';
+  import { tripsOverview } from '../lib/tripsoverview.js';
+  import { stateExtra } from '../lib/tripstate.js';
   import { stateExtraText } from '../lib/tripstatetext.js';
   import TripState from '../lib/ui/TripState.svelte';
-  import { routeOf, routePath, bestValues, PERIODS, hmm } from '../lib/tripsboard.js';
-  import { overviewCounts, weatherWindow } from '../lib/touren.js';
+  import StateChips from '../lib/ui/StateChips.svelte';
+  import Btn from '../lib/ui/Btn.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
+  import { overviewCounts, weatherWindow, packBand, tileRows } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { switchTrip, openNew } from '../lib/nav.js';
+  import { switchTrip, openNew, openTrip } from '../lib/nav.js';
+  import KomootSign from '../lib/komoot/KomootSign.svelte'; // SN1d (answer 3b)
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import Continue from '../lib/home/Continue.svelte';
-  import Empty from '../lib/ui/Empty.svelte';
-  import Seg from '../lib/ui/Seg.svelte';
-  import PlaceIcon from '../lib/nav/PlaceIcon.svelte';
-  import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Plus, ChevronRight, Route, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin, Pencil, Flag, Star } from '@lucide/svelte';
+  import Help from '../lib/ui/Help.svelte';
+  import { FIELD_HELP } from '../lib/daumen.js'; // FE14
+  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search } from '@lucide/svelte';
+  // SN4g: the rows, their values and the filters
+  import { loadReview } from '../lib/review/load.js';
+  import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
+  import { factStates, factCounts, matchesState } from '../lib/review/state.js';
+  import { isArchived } from '../lib/home/heute.js';
+  import { loadPastActs, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
+  import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
+  import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
+  import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
+  import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
+  import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
+  import InZahlen from '../lib/review/InZahlen.svelte';
+  import PackBand from '../lib/touren/PackBand.svelte';
+  import FilterSheet from '../lib/touren/FilterSheet.svelte';
+  import TourTiles from '../lib/touren/TourTiles.svelte';
+  import '../lib/review/review.css';
+  import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const kmQ = liveQuery(() => db.kmBook.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
   const rides = $derived($ridesQ ?? []);
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
   const counts = $derived(overviewCounts(view));
-  // v0.125.0 TZ-1: the filter chips (all, or one state); kept while the page is open
-  let filter = $state('all');
-  const GICON = { plan: Pencil, done: Flag, rated: Star };
+  const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
   const extraOf = (r) => stateExtraText(stateExtra(r.tstate, { trip: byId[r.tripId], debrief: debriefOf[r.tripId] ?? null, today }));
-  const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
-  const routes = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, routeOf(x, rides)])));
 
-  // The best values: this season by default; the choice is kept on this device.
-  const PERIOD_KEY = 'trips.period';
-  let period = $state(readPeriod());
-  function readPeriod() {
-    try {
-      return localStorage.getItem(PERIOD_KEY) || 'season';
-    } catch {
-      return 'season';
-    }
-  }
-  function pickPeriod(k) {
-    period = k;
-    try {
-      localStorage.setItem(PERIOD_KEY, k);
-    } catch {
-      /* private mode */
-    }
-  }
-  const best = $derived(loaded ? bestValues({ trips: $tripsQ, rides, kmBook: $kmQ ?? [], today, period }) : null);
-  const hasHeart = $derived(!!best?.avg.some((a) => a.n && a.hrAvg));
-  const periodName = $derived(t(PERIODS.find((p) => p.key === period)?.name ?? 'This season'));
-  let allOpen = $state(false);
+  /* ---- SN4g: the page record (saved filters, the band) ---- */
+  const toursQ = liveQuery(() => db.settings.get(TOURS_KEY));
+  const tours = $derived(toursOf($toursQ?.value));
+  const saveTours = (patch) => db.settings.put({ key: TOURS_KEY, value: { ...$state.snapshot(tours), ...patch, at: new Date().toISOString() } });
 
-  // The weather window: the saved home forecast (fetched at most every 3 hours, home-weather.js).
+  /* ---- SN4g: the Packmodus band and «Geplant» ---- */
+  const current = (() => {
+    try {
+      return localStorage.getItem('pack.currentTrip');
+    } catch {
+      return null;
+    }
+  })();
+  const plan = $derived(view?.plan ?? []);
+  const band = $derived(packBand(plan, $tripsQ ?? [], current));
+  const bandRow = $derived(band.state === 'draft' ? band.row : null);
+  const PLAN_SHORT = 3;
+  let planAll = $state(false);
+  const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
+  const go = (r) => switchTrip(r.tripId, r.go.href);
+  const tripDays = (id) => Math.max(1, Number(byId[id]?.days) || 1);
+  const thisYear = String(new Date().getFullYear());
+  const day = (iso) => {
+    if (!iso) return t('No date set');
+    const y = iso.slice(0, 4) !== thisYear ? { year: 'numeric' } : {};
+    return new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', ...y });
+  };
+  const planLine = (r) => [day(r.date), tn(tripDays(r.tripId), '{n} day', '{n} days'), r.bike].filter(Boolean).join(' · ');
+
+  /* ---- SN4g: the finished trips (the same rows as Vergangene Touren, review/rueckblick.js) ---- */
+  const dataQ = liveQuery(() => loadReview(db));
+  // like the rest of Touren the test trips stay until «Testdaten aufräumen» archives them; archived trips go
+  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: $dataQ.trips.filter((x) => !isArchived(x)), today }) : []);
+  const states = $derived($dataQ ? factStates(facts, { debriefs: $dataQ.debriefs, rides: $dataQ.rides, today }) : {});
+  const bikes = $derived($dataQ?.bikes ?? []);
+  const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
+  // SN4g: wire to training.js when the Training PR lands (the activities: power, NP, moving and elapsed time)
+  const moreQ = liveQuery(async () => {
+    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY)]);
+    return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
+  });
+  const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
+
+  let mode = $state('12m');
+  const year = today.slice(0, 4);
+  const PERIODS = $derived([
+    { key: '12m', name: t('12 months') },
+    { key: 'year', name: year },
+    { key: 'all', name: t('All|period') },
+  ]);
+  const period = $derived(periodOf(mode, today));
+  const inPeriod = $derived(facts.filter((r) => (!period.from || r.start >= period.from) && r.start <= period.to));
+  let st = $state('all');
+  let filter = $state(emptyFilter());
+  const ctx = $derived({ bikeOf: (r) => bikeOfRow(r, vals), wattsOf: (r) => !!vals[r.id]?.watts });
+  const stCounts = $derived(factCounts(inPeriod, states));
+  const rows = $derived(filterRows(inPeriod, filter, ctx).filter((r) => matchesState(states, r.id, st)));
+  const chips = $derived(activeChips(filter, bikeName));
+  const filtered = $derived(chips.length > 0 || st !== 'all');
+  const filterWords = $derived([...(st !== 'all' ? [t(st === 'rated' ? 'Rated|state' : 'Completed|state')] : []), ...chips.map((c) => t(c.label, c.vars))].join(', '));
+  let sheet = $state(false);
+  const clearAll = () => {
+    filter = emptyFilter();
+    st = 'all';
+  };
+  const setSaved = (s) => (filter = sameFilter(filter, s.f) ? emptyFilter() : normFilter(s.f));
+
+  /** Month groups, newest first: [{ month, rows }]. */
+  const groups = $derived.by(() => {
+    const out = [];
+    for (const r of rows) {
+      const m = r.start.slice(0, 7);
+      if (out.at(-1)?.month !== m) out.push({ month: m, rows: [] });
+      out.at(-1).rows.push(r);
+    }
+    return out;
+  });
+  const KIND_NAME = Object.fromEntries(KINDS.map((k) => [k.key, k.name]));
+  const what = (r) => (r.kind === 'ride' ? t(KIND_NAME.ride) : r.days > 1 ? tn(r.days, '{n} day', '{n} days') : t(KIND_NAME[kindOf(r)] ?? 'Day ride|art'));
+  const rowBike = (r) => r.bike ?? bikeName[vals[r.id]?.bikeId] ?? null;
+  const openRow = (r) => r.trip && openTrip(r.trip.id);
+  // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
+  const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
+  const secs = (s) => hours(s ? s / 3600 : null);
+  const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
+
+  /* ---- SN4h: «In Zahlen» (all groups open at first; Blöcke and closed blocks remembered) ---- */
+  const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
+  let openNow = $state(null);
+  let tvNow = $state(null);
+  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [...TOUR_GROUP_KEYS] });
+  function saveIz(next) {
+    const plain = $state.snapshot(next);
+    openNow = [...plain.open];
+    const keep = { off: plain.off, shut: plain.shut };
+    tvNow = keep;
+    db.settings.put({ key: TOUR_VIEW_KEY, value: { ...keep, at: new Date().toISOString() } });
+  }
+  const periodName = $derived(PERIODS.find((p) => p.key === mode)?.name ?? '');
+  const scope = $derived([periodName, filtered ? t('{n} of {all} trips', { n: num(rows.length), all: num(inPeriod.length) }) : tn(inPeriod.length, 'the {n} trip', 'all {n} trips')].join(', '));
+
+  /* ---- SN4i: the tiles (O1 the forecast, O2 and O5 the rows shown) ---- */
   let forecast = $state(null);
   let wxTried = $state(false);
-  let placeOpen = $state(false);
   async function loadWx() {
     try {
       forecast = await homeForecast(db);
@@ -95,92 +189,68 @@
     }
   }
   $effect(() => {
-    // again when the home place is set or changed
     void $placeQ;
     loadWx();
   });
-  const wxw = $derived(weatherWindow(forecast, today));
-  const wd = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
-  const bestText = $derived(wxw?.best.length ? wxw.best.map(wd).join(` ${t('and')} `) : '');
-
-  const thisYear = String(new Date().getFullYear());
-  const day = (iso) => {
-    if (!iso) return t('No date set');
-    const y = iso.slice(0, 4) !== thisYear ? { year: 'numeric' } : {};
-    return new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', ...y });
-  };
-  const tripDays = (id) => Math.max(1, Number(byId[id]?.days) || 1);
-  const line = (r, km = false) => [day(r.date), tn(tripDays(r.tripId), '{n} day', '{n} days'), r.bike, km && typeof r.km === 'number' ? `${num(r.km)} km` : ''].filter(Boolean).join(' · ');
-  const go = (r) => switchTrip(r.tripId, r.go.href);
-  const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
-  const total = (k) => (k === 'plan' ? view.plan.length : k === 'done' ? view.doneTotal : view.ratedTotal);
-  const ALL = { done: ['All {n} completed trips', 'All {n} completed trips'], rated: ['All {n} rated trips', 'All {n} rated trips'] };
+  const wx = $derived({ window: weatherWindow(forecast, today), tried: wxTried, place: !!$placeQ?.value });
+  const tileData = $derived(tileRows(rows, states));
+  const map = $derived(routeMap(tileData.map));
+  const tileExtra = (r) => stateExtraText(states[r.id]?.extra);
 </script>
 
-{#snippet map(r)}
-  {@const rt = routes[r.tripId]}
-  {@const p = rt ? routePath(rt.line, 260, 96) : null}
-  <div class="map st-{r.tstate.state}" class:none={!p}>
-    {#if p}
-      <svg viewBox="0 0 260 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="rt" d={p.d} /><circle class="end" cx={p.end[0]} cy={p.end[1]} r="4.5" /></svg>
-    {:else}
-      <span class="nomap" aria-hidden="true"><PlaceIcon place="trips" size={24} /></span>
-    {/if}
-    <span class="sign"><TripState state={r.tstate.state} extra={extraOf(r)} /></span>
-  </div>
+{#snippet activeRow()}
+  {#if chips.length}
+    <div class="active" data-active-filters>
+      <span class="al">{t('Active|filter')}</span>
+      {#each chips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => (filter = withoutChip(filter, c))}>{t(c.label, c.vars)}<X size={15} aria-hidden="true" /></button>{/each}
+      <button type="button" class="btn btn-link clear" onclick={() => (filter = emptyFilter())} data-clear-filters>{t('Clear filters')}</button>
+    </div>
+  {/if}
 {/snippet}
 
-{#snippet legend()}
-  <ul class="lg">
-    {#each GROUPS as g (g.key)}
-      <li><TripState state={g.key} /><span>{t(STATE_HELP[g.key])}</span></li>
-    {/each}
-  </ul>
+{#snippet cell(label, value, unit = '', help = '')}
+  <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
+  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
 {/snippet}
 
-{#snippet group(g)}
-  {@const Icon = GICON[g.key]}
-  <section class="grp" aria-labelledby="trips-{g.key}" data-group={g.key}>
-    <h2 class="gh st-{g.key}" id="trips-{g.key}"><Icon size={15} fill={g.key === 'rated' ? 'currentColor' : 'none'} aria-hidden="true" /><span>{t(STATE_NAMES[g.key])}</span><span class="n num">{total(g.key)}</span></h2>
-    <ul class="tiles">
-      {#each view[g.key] as r (r.id)}
-        {#if r.kind === 'past'}
-          <li class="tile" data-trip={r.tripId}>
-            <a class="whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">
-              {@render map(r)}
-              <span class="body"><span class="tt">{r.title}</span><span class="s">{line(r, true)}</span></span>
-            </a>
-          </li>
-        {:else}
-          {@const p = r.kind === 'trip' || r.kind === 'ride' ? pct(r.state) : null}
-          <li class="tile" data-trip={r.tripId}>
-            {@render map(r)}
-            <div class="body">
-              <h3 class="tt">{r.title}</h3>
-              <p class="s">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
-              {#if p != null}<span class="bar" role="img" aria-label={t('{done} of {n} packed', { done: r.state.done ?? 0, n: r.state.total })}><i style:width="{p}%"></i></span>
-              {:else if r.kind === 'trip' || r.kind === 'ride'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
-              {#if r.kind === 'replan'}
-                <button type="button" class="btn go" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</button>
-              {:else}
-                <a class="btn go" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</a>
-              {/if}
-            </div>
-          </li>
-        {/if}
-      {/each}
-      {#if g.key === 'plan'}
-        <li class="tile add"><button type="button" class="addb" onclick={() => openNew('list')}><Plus size={22} aria-hidden="true" /><b>{t('New trip')}</b><small>{t('or from a template')}</small></button></li>
+{#snippet values(r)}
+  {@const v = vals[r.id]}
+  {@const ride = hasRide(v)}
+  {@const tempText = r.tmin != null || r.tmax != null ? temps(r.tmin, r.tmax) : v?.tempAvg != null ? `${v.tempAvg}°` : DASH}
+  <div class="vals" data-values>
+    <dl class="vg">
+      {#if ride}
+        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
+        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
+        {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
+        {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
+        {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
       {/if}
-    </ul>
-    {#if ALL[g.key] && total(g.key) > view[g.key].length}<a class="all" href="#/pack/past">{tn(total(g.key), ...ALL[g.key])}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
-  </section>
+      {@render cell(t('Weather'), rainText(r.rain, r.days))}
+      {@render cell(t('Temp.'), tempText)}
+    </dl>
+    {#if v?.watts}
+      <div class="pw" data-power>
+        <span class="pwh"><Zap size={15} aria-hidden="true" />{t('Power')}</span>
+        <dl class="vg">
+          {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
+          {@render cell(t('Max. power'), n0(v.wMax), 'W')}
+          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
+        </dl>
+      </div>
+    {:else}
+      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+    {/if}
+  </div>
 {/snippet}
 
 <div class="trips">
   <header class="ph">
-    <h1 class="title">{t('Trips|place')}</h1>
-    {#if counts}<p class="cnt num">{[tn(counts.plan, '{n} planned', '{n} planned'), tn(counts.done, '{n} completed', '{n} completed'), tn(counts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
+    <div>
+      <h1 class="title">{t('Trips|place')}</h1>
+      {#if counts}<p class="cnt num">{[tn(counts.plan, '{n} planned', '{n} planned'), tn(counts.done, '{n} completed', '{n} completed'), tn(counts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
+    </div>
+    <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
   {#if view}
     {#if view.empty}
@@ -189,100 +259,122 @@
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
       </Empty>
     {:else}
-      <div class="fchips" role="group" aria-label={t('Show trips')}>
-        <button type="button" class="fc all-c" aria-pressed={filter === 'all'} onclick={() => (filter = 'all')}>{t('All|trips')}<span class="num">{counts.all}</span></button>
-        {#each GROUPS as g (g.key)}
-          {@const Icon = GICON[g.key]}
-          <button type="button" class="fc st-{g.key}" aria-pressed={filter === g.key} onclick={() => (filter = filter === g.key ? 'all' : g.key)}><Icon size={14} fill={g.key === 'rated' ? 'currentColor' : 'none'} aria-hidden="true" />{t(STATE_NAMES[g.key])}<span class="num">{counts[g.key]}</span></button>
-        {/each}
-      </div>
-      <details class="lgfold">
-        <summary>{t('What do the three states mean?')}</summary>
-        {@render legend()}
-      </details>
-      <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {rides} {today} hour={new Date().getHours()} banner />
-      <div class="cols">
-        <div class="groups">
-          {#each GROUPS.filter((g) => filter === 'all' || filter === g.key) as g (g.key)}
-            {#if view[g.key].length || g.key === 'plan'}
-              {@render group(g)}
-            {/if}
-          {/each}
+      <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
+      {#if tours.band !== 'hidden'}
+        <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
+      {/if}
+
+      <!-- SN4g: «Geplant», a short list (answer 3b) -->
+      <section class="plan" aria-labelledby="trips-plan" data-planned>
+        <div class="sh">
+          <div>
+            <h2 id="trips-plan">{t('Planned|group')}</h2>
+            {#if plan.length}<p class="ss">{tn(plan.length, '{n} trip', '{n} trips')} · {t('the next first')}</p>{/if}
+          </div>
+          <div class="sha">
+            {#if tours.band === 'hidden'}<button type="button" class="btn btn-link" onclick={() => saveTours({ band: null })} data-band-show><Backpack size={16} aria-hidden="true" />{t('Show the pack mode band')}</button>{/if}
+            <!-- FE1: on a phone «New trip» sits at the bottom, in reach of the thumb -->
+            <span class="daumen"><button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button></span>
+          </div>
         </div>
-        <aside class="side-col">
-          <section class="sbox lgbox" aria-labelledby="lg-h">
-            <div class="card">
-              <h2 class="bh" id="lg-h">{t('Three states')}</h2>
-              {@render legend()}
-            </div>
-          </section>
-          <section class="sbox" aria-labelledby="wx-h">
-            <h2 class="bh" id="wx-h">{t('Weather window')}</h2>
-            <p class="bs">{t('best days for a trip · Open-Meteo')}</p>
-            <div class="card wxc">
-              {#if wxw}
-                <ol class="wdays">
-                  {#each wxw.days as d (d.date)}
-                    {@const Icon = d.rain === 'rain' ? CloudRain : d.rain === 'showers' ? CloudSun : Sun}
-                    <li class:wet={d.rain !== 'none'} class:best={d.best}><b>{wd(d.date)}</b><Icon size={16} aria-hidden="true" /><span class="num">{d.max}°</span></li>
-                  {/each}
-                </ol>
-                <p class="wl">{#if bestText}<b>{t('Best days: {days}', { days: bestText })}</b> · {t('dry')}{:else}{t('No dry day in sight.')}{/if}</p>
-              {:else if !wxTried}
-                <p class="quiet">{t('Loading…')}</p>
-              {:else if !$placeQ?.value}
-                <p class="quiet">{t('Set your home place, then the best days for a ride show here.')}</p>
-                {#if placeOpen}<HomePlaceForm onchosen={() => (placeOpen = false)} />{:else}<button type="button" class="btn" onclick={() => (placeOpen = true)}><MapPin size={16} aria-hidden="true" />{t('Set home place')}</button>{/if}
-              {:else}
-                <p class="quiet">{t('No forecast right now. It needs the internet once.')}</p>
-              {/if}
-            </div>
-          </section>
-          <section class="sbox" aria-labelledby="best-h">
-            <div class="bhr">
-              <div>
-                <h2 class="bh" id="best-h">{t('Best values')}</h2>
-                <p class="bs">{periodName}</p>
-              </div>
-              <button type="button" class="btn btn-link more" aria-expanded={allOpen} onclick={() => (allOpen = !allOpen)}>{t('All|best')}<ChevronRight size={16} aria-hidden="true" /></button>
-            </div>
-            <div class="card bestc">
-              {#if best?.any}
-                <ul class="brows">
-                  {#if best.longest}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Longest trip')}</b><small>{best.longest.title}{best.longest.days > 1 ? ` · ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</small></span><span class="bv num">{num(best.longest.km)} km</span></li>{/if}
-                  {#if best.climb}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Most climbing')}</b><small>{best.climb.title}</small></span><span class="bv num">{num(best.climb.m)} Hm</span></li>{/if}
-                  {#if best.time}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Longest riding time')}</b><small>{best.time.totalH ? t('in one day · {h} h in all', { h: hmm(best.time.totalH) }) : best.time.title}</small></span><span class="bv num">{hmm(best.time.h)} h</span></li>{/if}
-                  {#if best.furthest}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Furthest day')}</b><small>{best.furthest.title}</small></span><span class="bv num">{num(best.furthest.km)} km</span></li>{/if}
-                </ul>
-              {:else}
-                <p class="quiet">{t('Best values come after your first ride with a GPX file.')}</p>
-              {/if}
-              {#if allOpen}
-                <div class="allp">
-                  <Seg small full={false} label={t('Period')} value={period} options={PERIODS.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={pickPeriod} />
-                  {#if best?.avg.some((a) => a.n)}
-                    <h3 class="th">{t('Average per trip, from GPX')}</h3>
-                    <table class="avg">
-                      <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th>{#if hasHeart}<th scope="col">{t('Ø heart rate')}</th>{/if}</tr></thead>
-                      <tbody>
-                        {#each best.avg.filter((a) => a.n) as a (a.key)}
-                          <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td>{#if hasHeart}<td class="num">{a.hrAvg ?? '–'}</td>{/if}</tr>
-                        {/each}
-                      </tbody>
-                    </table>
-                  {/if}
-                  {#if hasHeart}
-                    <p class="quiet">{t('Heart rate in bpm from Strava. Only observation, no rating.')}</p>
-                  {:else}
-                    <p class="quiet">{t('Heart rate, zones and power come later with Strava. Only observation, no rating.')}</p>
-                  {/if}
+        {#if plan.length}
+          <ul class="pcards">
+            {#each planAll ? plan : plan.slice(0, PLAN_SHORT) as r (r.id)}
+              {@const ents = byId[r.tripId]?.entries ?? []}
+              {@const packed = ents.filter((e) => e.packed).length}
+              {@const p = r.kind === 'trip' && ents.length ? Math.round((100 * packed) / ents.length) : r.kind === 'ride' ? pct(r.state) : null}
+              <li class="pc" data-trip={r.tripId}>
+                <div class="pt">
+                  {#if r.kind === 'replan'}<b class="pn">{r.title}</b>{:else}<a class="pn whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{r.title}</a>{/if}
+                  <TripState state="plan" extra={extraOf(r)} />
                 </div>
-              {/if}
-              <a class="lk" href="#/debrief/ride"><Upload size={16} aria-hidden="true" />{t('Upload a ride')}</a>
-            </div>
-          </section>
-        </aside>
-      </div>
+                <p class="ps">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : planLine(r)}</p>
+                <KomootSign trip={byId[r.tripId]} small />
+                {#if r.kind === 'replan'}
+                  <button type="button" class="btn k rp" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}"><span class="kl">{t(r.go.label)}</span></button>
+                {:else if r.kind === 'trip' && ents.length}
+                  <!-- the same count as the band: the things ticked as packed -->
+                  <span class="pr"><span class="bar" aria-hidden="true"><i style:width="{p}%"></i></span><span class="num">{packed ? tn(ents.length, '{done} of {n} packed', '{done} of {n} packed', { done: packed }) : t('not packed yet')}</span></span>
+                {:else if p != null}
+                  <span class="pr"><span class="bar" aria-hidden="true"><i style:width="{p}%"></i></span><span class="num">{tn(r.state.total, '{done} of {n} packed', '{done} of {n} packed', { done: r.state.done ?? 0 })}</span></span>
+                {:else}
+                  <span class="pr"><span class="num">{t(r.state.label, r.state)}</span></span>
+                {/if}
+                {#if bandRow?.tripId === r.tripId}<span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>{/if}
+              </li>
+            {/each}
+          </ul>
+          {#if plan.length > PLAN_SHORT}<button type="button" class="btn btn-link more" aria-expanded={planAll} onclick={() => (planAll = !planAll)}>{planAll ? t('Fewer|list') : tn(plan.length, 'All {n} planned trip', 'All {n} planned trips')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
+        {:else}
+          <p class="noplan" data-no-plan><Calendar size={16} aria-hidden="true" />{t('No trip planned.')} <button type="button" class="btn btn-link" onclick={() => openNew('list')}>{t('New trip')}<ChevronRight size={14} aria-hidden="true" /></button></p>
+        {/if}
+      </section>
+
+      <!-- SN4g: «Abgeschlossene Touren» (answers 4a, 5a, 6) -->
+      <section class="done" aria-labelledby="trips-done" data-finished>
+        <div class="sh">
+          <div>
+            <h2 id="trips-done">{t('Completed trips')}</h2>
+            <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
+          </div>
+          <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
+        </div>
+        <div class="tools">
+          <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
+          <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
+          <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
+        </div>
+        {#if tours.saved.length}
+          <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
+            <span class="al"><Bookmark size={14} aria-hidden="true" />{t('My filters')}</span>
+            {#each tours.saved as s (s.id)}<button type="button" class="mf" aria-pressed={sameFilter(filter, s.f)} onclick={() => setSaved(s)} data-saved={s.name}>{s.name}</button>{/each}
+          </div>
+        {/if}
+        {@render activeRow()}
+
+        {#if !$dataQ}
+          <Skeleton rows={3} />
+        {:else if !rows.length}
+          <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
+        {:else}
+          <div class="list" data-trip-list>
+            {#each groups as g (g.month)}
+              <h3 class="mh">{monthLong(g.month)}</h3>
+              <ul class="rows">
+                {#each g.rows as r (r.id)}
+                  {@const s = states[r.id]}
+                  {@const bike = rowBike(r)}
+                  <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
+                    <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
+                    <div class="rm">
+                      <div class="rt"><a class="rn" href={r.href} onclick={() => openRow(r)}>{r.title}</a><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
+                      <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
+                      {#if !linesOf(r).length}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
+                    </div>
+                    <div class="rk num"><span><b>{n0(r.km)}</b><small>km</small></span><span><b>{n0(r.gainM)}</b><small>{t('Hm|col')}</small></span></div>
+                    {#if s?.state === 'done'}
+                      <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
+                    {/if}
+                    <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
+                    {@render values(r)}
+                  </li>
+                {/each}
+              </ul>
+            {/each}
+          </div>
+          <ul class="legend" aria-label={t('What the colours mean')}>
+            <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
+            <li><i class="lg done"></i>{t('grey: no Rückblick yet (Completed), a tap opens it anyway')}</li>
+          </ul>
+          <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. Without a value it says «–». Only to look at, no rating.')}</span></p>
+        {/if}
+      </section>
+
+      {#if $dataQ && facts.length}
+        <InZahlen tours {rows} {facts} {vals} {mode} {today} {scope} {states} {bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} view={izView} onview={saveIz} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => openRow(facts.find((x) => x.id === id) ?? {})} />
+      {/if}
+
+      <TourTiles {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
     {/if}
   {:else}
     <!-- v0.127.0 A-U2: a calm placeholder while the trips load -->
@@ -290,12 +382,21 @@
   {/if}
 </div>
 
+{#if sheet}
+  <FilterSheet {filter} {st} rows={inPeriod} {ctx} {states} {bikes} saved={tours.saved} onapply={(f, s) => ((filter = f), (st = s))} onsave={(name, f) => saveTours({ saved: saveFilter(tours.saved, name, f) })} ondrop={(id) => saveTours({ saved: dropFilter(tours.saved, id) })} onclose={() => (sheet = false)} />
+{/if}
+
 <style>
   .trips {
     max-width: 1240px;
     margin: 0 auto;
   }
   .ph {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px 16px;
     margin: 0 0 var(--sp-4);
   }
   .ph .title {
@@ -306,256 +407,108 @@
     color: var(--ink-2);
     font: 400 var(--fs-body) / 1.45 var(--font-body);
   }
-  .cols {
-    display: grid;
-    gap: var(--sp-5);
-    margin-top: var(--sp-4);
-  }
-  @media (min-width: 1100px) {
-    .cols {
-      grid-template-columns: minmax(0, 1fr) 400px;
-      align-items: start;
-    }
-  }
-  .groups {
-    display: grid;
-    gap: var(--sp-5);
-    min-width: 0;
-  }
-  .grp {
-    min-width: 0;
-  }
-  .gh {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    margin: 0 0 var(--sp-2);
-    color: var(--ink-2);
-    font: 600 var(--fs-small) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .gh .n {
-    padding: 0 var(--sp-2);
-    border-radius: 999px;
-    background: var(--paper-2);
-    font: 600 var(--fs-tiny) / 1.6 var(--font-body);
-    letter-spacing: 0;
-  }
-  .gh :global(svg) {
-    flex: none;
-  }
-  .gh.st-plan {
-    color: var(--st-plan);
-  }
-  .gh.st-done {
-    color: var(--st-done);
-  }
-  .gh.st-rated {
-    color: var(--st-rated);
-  }
-  /* v0.125.0 TZ-1: the filter chips «Alle · Geplant · Abgeschlossen · Bewertet» */
-  .fchips {
+  .sh {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--sp-2);
-    margin: 0 0 var(--sp-3);
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px 16px;
+    margin: 0 0 var(--sp-2);
   }
-  .fc {
+  .sh h2 {
+    margin: 0;
+    font: 600 var(--fs-section) / 1.25 var(--font-body);
+  }
+  .ss {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .sha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+  .sh .btn-link,
+  .more {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     min-height: 44px;
-    padding: 0 var(--sp-3);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) / 1.2 var(--font-body);
-    cursor: pointer;
+    text-decoration: none;
   }
-  .fc .num {
-    color: var(--ink-2);
-    font-weight: 400;
+  /* «Geplant» */
+  .plan {
+    margin: 0 0 var(--sp-5);
   }
-  .fc.st-plan {
-    border-color: color-mix(in srgb, var(--st-plan-line) 45%, transparent);
-    background: var(--st-plan-soft);
-    color: var(--st-plan);
-  }
-  .fc.st-done {
-    border-color: color-mix(in srgb, var(--st-done-line) 45%, transparent);
-    background: var(--st-done-soft);
-    color: var(--st-done);
-  }
-  .fc.st-rated {
-    border-color: color-mix(in srgb, var(--st-rated-line) 45%, transparent);
-    background: var(--st-rated-soft);
-    color: var(--st-rated);
-  }
-  .fc[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .fc[aria-pressed='true'] .num {
-    color: var(--paper);
-  }
-  .fc:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: 2px;
-  }
-  /* the legend: on the side of a computer, folded under the chips on a phone */
-  .lg {
+  .pcards {
     display: grid;
-    margin: var(--sp-2) 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .lg li {
-    display: grid;
-    justify-items: start;
-    gap: var(--sp-1);
-    padding: var(--sp-2) 0;
-    border-top: 1px solid var(--line);
-    color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.4 var(--font-body);
-  }
-  .lg li:first-child {
-    border-top: 0;
-  }
-  .lgfold {
-    margin: 0 0 var(--sp-3);
-    padding: 0 var(--sp-3);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-  }
-  .lgfold summary {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--ink);
-    font: 500 var(--fs-small) / 1.3 var(--font-body);
-    cursor: pointer;
-  }
-  .lgfold[open] {
-    padding-bottom: var(--sp-2);
-  }
-  @media (min-width: 1100px) {
-    .lgfold {
-      display: none;
-    }
-  }
-  @media (max-width: 1099px) {
-    .lgbox {
-      display: none;
-    }
-  }
-  .tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
     gap: var(--sp-3);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  @media (max-width: 719px) {
-    .tiles {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  /* v0.104.0 Design-Refresh P4 (T1): on a 320 px phone a tile is only 112 px wide and a long trip name
-     breaks mid-word: there the tiles stand one under the other */
-  @media (max-width: 359px) {
-    .tiles {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-  .tile {
-    display: flex;
-    flex-direction: column;
+  .pc {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 6px;
     min-width: 0;
-    overflow: hidden;
+    padding: 12px 14px;
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
   }
-  .map {
-    position: relative;
-    display: grid;
-    place-items: center;
-    height: 74px;
-    /* the state pill sits at the top: the route or the icon below it */
-    padding-top: 22px;
-    box-sizing: border-box;
-    background: var(--paper-2);
-  }
-  /* v0.125.0 TZ-1: the map in the colour of the trip's state, the route in its line colour */
-  .map.st-plan {
-    --st-l: var(--st-plan-line);
-    background: var(--st-plan-soft);
-  }
-  .map.st-done {
-    --st-l: var(--st-done-line);
-    background: var(--st-done-soft);
-  }
-  .map.st-rated {
-    --st-l: var(--st-rated-line);
-    background: var(--st-rated-soft);
-  }
-  .map svg {
-    width: 100%;
-    height: 100%;
-  }
-  .rt {
-    fill: none;
-    stroke: var(--st-l, var(--hi));
-    stroke-width: 3;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-  }
-  .end {
-    fill: var(--ink);
-    stroke: var(--paper);
-    stroke-width: 1.5;
-  }
-  .nomap {
-    color: var(--ink-3);
-  }
-  .sign {
-    position: absolute;
-    top: var(--sp-2);
-    left: var(--sp-2);
-    right: var(--sp-2);
+  .pt {
     display: flex;
-    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
   }
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    padding: var(--sp-3) var(--sp-3) var(--sp-3);
-    min-width: 0;
-  }
-  .body .tt {
-    margin: 0;
+  .pn {
+    color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-decoration: none;
     overflow-wrap: break-word;
   }
-  .body .s,
-  .body .st {
+  .whole::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .whole:focus-visible {
+    outline: none;
+  }
+  /* SN1d: the komoot sign stays tappable above the whole-row link */
+  .pc :global(.kms) {
+    position: relative;
+    z-index: 1;
+    align-self: flex-start;
+  }
+  .whole:focus-visible::after {
+    outline: var(--focus-ring);
+    outline-offset: -3px;
+  }
+  .ps {
     margin: 0;
     color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.4 var(--font-body);
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
+  .pr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .bar {
-    display: block;
+    flex: 1;
+    min-width: 40px;
     height: 6px;
-    margin: var(--sp-2) 0 0;
     border-radius: 3px;
     background: var(--paper-2);
     overflow: hidden;
@@ -564,224 +517,358 @@
     display: block;
     height: 100%;
     border-radius: 3px;
-    background: var(--hi);
+    background: var(--st-plan);
   }
-  .go {
-    align-self: flex-start;
-    margin-top: auto;
-    max-width: 100%;
+  .rp {
+    position: relative;
+    z-index: 1;
+    justify-self: start;
   }
-  .body .s + .go,
-  .bar + .go,
-  .st + .go {
-    margin-top: var(--sp-3);
+  .inpm {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--st-plan-soft);
+    color: var(--st-plan);
+    font: 500 var(--fs-tiny) / 1.4 var(--font-body);
   }
-  .whole {
+  .noplan {
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    color: var(--ink);
-    text-decoration: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
-  .whole:focus-visible {
+  /* «Abgeschlossene Touren» */
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    margin: 0 0 var(--sp-2);
+  }
+  .fbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-left: auto;
+  }
+  .fn {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 600 var(--fs-tiny) / 1 var(--font-body);
+  }
+  .mine,
+  .active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: 0 0 var(--sp-2);
+  }
+  .al {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+  }
+  .mf,
+  .ac {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.2 var(--font-body);
+    cursor: pointer;
+  }
+  .mf[aria-pressed='true'],
+  .ac {
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .clear {
+    min-height: 44px;
+  }
+  .mh {
+    margin: var(--sp-4) 0 var(--sp-2);
+    color: var(--ink-2);
+    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .mh:first-child {
+    margin-top: var(--sp-2);
+  }
+  .rows {
+    display: grid;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto auto 20px;
+    grid-template-areas: 'ic main km rate chev' '. vals vals vals vals';
+    align-items: start;
+    gap: 6px 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper-2);
+  }
+  /* highlighted: with a Rückblick (green, a stripe, the star); grey: none yet */
+  .tr.st-rated {
+    border-color: color-mix(in srgb, var(--st-rated-line) 35%, transparent);
+    border-left: 4px solid var(--st-rated);
+    background: var(--st-rated-soft);
+  }
+  .ric {
+    grid-area: ic;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--st-done);
+  }
+  .st-rated .ric {
+    color: var(--st-rated);
+  }
+  .rm {
+    grid-area: main;
+    min-width: 0;
+  }
+  .rt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+  .rn {
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-decoration: none;
+    overflow-wrap: break-word;
+  }
+  /* the whole row opens the trip */
+  .rn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .rn:focus-visible {
+    outline: none;
+  }
+  .rn:focus-visible::after {
     outline: var(--focus-ring);
     outline-offset: -3px;
   }
-  .tile.add {
-    border: 0;
-    background: none;
-    box-shadow: none;
-  }
-  .addb {
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: var(--sp-1);
-    min-height: 200px;
-    height: 100%;
-    padding: var(--sp-3);
-    border: 2px dashed var(--line-strong);
-    border-radius: var(--radius-card);
-    background: none;
+  .rs,
+  .nr {
+    margin: 2px 0 0;
     color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.3 var(--font-body);
-    cursor: pointer;
-  }
-  .addb b {
-    color: var(--ink);
-    font: 500 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .all {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    margin-top: var(--sp-1);
-    color: var(--ink);
-    font: 500 var(--fs-small) / 1.3 var(--font-body);
-    text-decoration: none;
-  }
-  .side-col {
-    display: grid;
-    gap: var(--sp-5);
-    min-width: 0;
-  }
-  .sbox {
-    min-width: 0;
-  }
-  .bhr {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--sp-2);
-  }
-  .bh {
-    margin: 0;
-    font: 600 var(--fs-sub) / 1.3 var(--font-body);
-  }
-  .bs {
-    margin: 2px 0 var(--sp-2);
-    color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.3 var(--font-body);
-  }
-  .more {
-    margin-bottom: var(--sp-1);
-    text-decoration: none;
-  }
-  .wxc,
-  .bestc {
-    display: grid;
-    gap: var(--sp-3);
-  }
-  .wdays {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--sp-1);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .wdays li {
-    display: grid;
-    justify-items: center;
-    gap: 2px;
-    min-width: 0;
-    padding: var(--sp-2) 0;
-    border: 2px solid transparent;
-    border-radius: var(--r-ctl);
-    background: var(--warn-soft);
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.3 var(--font-body);
-  }
-  .wdays li.wet {
-    background: var(--info-soft);
-  }
-  .wdays li.best {
-    border-color: var(--hi);
-    background: var(--hi-soft);
-  }
-  .wdays b {
-    color: var(--ink);
-    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-  }
-  .wl {
-    margin: 0;
-    color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.4 var(--font-body);
-  }
-  .wl b {
-    color: var(--ink);
-    font-weight: 600;
-  }
-  .brows {
-    display: grid;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .brows li {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    min-height: 52px;
-    padding: var(--sp-2) 0;
-    border-top: 1px solid var(--line);
-  }
-  .brows li:first-child {
-    border-top: 0;
-  }
-  .ti {
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: var(--hi-soft);
-    color: var(--hi);
-  }
-  .bt {
-    display: grid;
-    flex: 1;
-    min-width: 0;
-  }
-  .bt b {
-    font: 500 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .bt small {
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.35 var(--font-body);
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
-  .bv {
-    flex: none;
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .allp {
-    display: grid;
-    gap: var(--sp-3);
-    padding-top: var(--sp-3);
-    border-top: 1px solid var(--line);
-  }
-  .th {
-    margin: 0;
-    color: var(--ink-2);
-    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .avg {
-    width: 100%;
-    border-collapse: collapse;
-    font: 400 var(--fs-small) / 1.3 var(--font-body);
-  }
-  .avg th,
-  .avg td {
-    padding: var(--sp-2) 2px;
-    border-bottom: 1px solid var(--line);
-    text-align: right;
-  }
-  .avg thead th {
-    color: var(--ink-2);
-    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-  }
-  .avg th[scope='row'],
-  .avg thead th:first-child {
-    text-align: left;
-    font-weight: 400;
-  }
-  .lk {
+  .nr {
     display: inline-flex;
     align-items: center;
-    gap: var(--sp-1);
-    justify-self: start;
-    min-height: 44px;
-    color: var(--ink);
-    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    gap: 4px;
+    color: var(--ink-3);
   }
-  .quiet {
+  .rk {
+    grid-area: km;
+    display: flex;
+    gap: 20px;
+    text-align: center;
+  }
+  .rk span {
+    display: grid;
+  }
+  .rk b {
+    font: 600 var(--fs-body) / 1.2 var(--font-body);
+  }
+  .rk small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .rr {
+    grid-area: rate;
+    position: relative;
+    z-index: 1;
+  }
+  .chev {
+    grid-area: chev;
+    align-self: center;
+    color: var(--ink-3);
+  }
+  .vals {
+    grid-area: vals;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 20px;
+    min-width: 0;
+  }
+  .vg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 0;
+  }
+  .vc {
+    display: grid;
+    min-width: 64px;
+  }
+  .vc dt {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  /* FE14: the «?» of a value stays small; its sentence opens over the row, the full width of the values */
+  .vg {
+    position: relative;
+  }
+  .vc dt :global(.q) {
+    z-index: 1; /* above the link of the whole row */
+    width: 20px;
+    height: 20px;
+    font-size: var(--fs-tiny);
+  }
+  .vc dt :global(.help) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    box-shadow: 0 6px 18px var(--shadow);
+  }
+  .vc dd {
+    margin: 0;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .vc dd small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    font-weight: 400;
+  }
+  .pw {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 20px;
+    padding-left: 16px;
+    border-left: 1px solid var(--line-strong);
+  }
+  .pwh,
+  .nw {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin: 0;
     color: var(--ink-2);
-    font: 400 var(--fs-small) / 1.4 var(--font-body);
+    font-size: var(--fs-small);
+  }
+  .nw {
+    color: var(--ink-3);
+  }
+  .nw :global(svg) {
+    flex: none;
+  }
+  .legend {
+    display: grid;
+    gap: 4px;
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lg {
+    flex: none;
+    width: 22px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--paper-2);
+    border: 1px solid var(--card-line);
+  }
+  .lg.rated {
+    background: var(--st-rated-soft);
+    border-left: 3px solid var(--st-rated);
+  }
+  .hint {
+    margin-top: var(--sp-3);
+  }
+  @media (max-width: 719px) {
+    .fbtn {
+      margin-left: 0;
+    }
+    /* on a phone every trip is a card: the values in a box of 4 columns, the power below with its own head */
+    .tr {
+      grid-template-columns: 36px minmax(0, 1fr) 20px;
+      grid-template-areas: 'ic main chev' 'km km km' 'vals vals vals' 'rate rate rate';
+    }
+    .rk {
+      gap: 16px;
+      text-align: left;
+    }
+    .rk span {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .vals {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--r-ctl);
+      background: var(--paper);
+    }
+    .vg {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .vc {
+      min-width: 0;
+    }
+    .pw {
+      display: grid;
+      gap: 6px;
+      padding: 8px 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .rr :global(.btn) {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
   }
 </style>

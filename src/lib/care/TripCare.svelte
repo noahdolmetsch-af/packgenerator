@@ -12,6 +12,8 @@
   import { prepSummary, isEvent } from '../care.js';
   import { t, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
   // two named scopes with their own count. focus: opened from a link to this trip's preparation.
@@ -42,7 +44,7 @@
     <div class="shop">
       <span class="lbl">{bikeCareLine(care)}</span>
       {#if bikeRows.length}
-        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn">{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
+        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn" data-sign={r.late ? signFor('warn') : null}>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
       {:else if care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}
@@ -67,7 +69,7 @@
         <ul class="rows">
           {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
-              <span class="when num">{dueLabel(r.due)}</span>
+              <span class="when num" data-sign={r.overdue ? signFor('warn') : null}>{dueLabel(r.due)}</span>
               <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? t('Work needed') : r.state.result === 'ok' ? t('OK') : t('Done|task')} · {dateOf(r.state.date)}{r.state.by === 'shop' ? ` · ${t('bike shop')}` : ''}</small>{/if}</span>
               <span class="acts rowacts">
                 {#if r.finished}

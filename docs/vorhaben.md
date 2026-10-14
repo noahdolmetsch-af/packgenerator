@@ -38,10 +38,13 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (14.10.2026, 0.132.0)
+## Stand heute (14.10.2026, 0.133.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |
+| 0.131.2 | Velo-Reihenfolge: Velo-Reiter in Noahs Reihenfolge, Korrektur nach 0.131.0 | live (#162) |
+| 0.131.1 | Abhaken wieder abwählbar (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Doppeltipp hakt nur einmal ab, Abwählen und «Rückgängig» wirken, Pendeln zurücknehmbar; Ziel 1 | live (#163) |
 | 0.131.0 | Daten einmal bereinigen: Persönliches aus dem Code, alte Felder umgezogen, Listen an einem Ort ([Daten](daten.md)) | live (#158) |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
@@ -62,6 +65,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
+| 0.133.0 | **Design-Refresh** (Bündel A) (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC): Begrüssung HG1, «Wi gaht's?» AB1–AB6 mit festen Runden 07:00/20:30 und Balance-Ring (die alte Tagescheck-Karte geht), Tour aus komoot, Touren SN4g, SN5 plus, SN6 plus, Bedienung FE1/FE13/FE14/FE16; Ziel 1 und 4; KT «Kacheln antippbar»: «Öffnen ›», •••, Einführung | PR offen |
 | 0.132.0 | **Tagespaket 14.10.** (ein Release zusammen mit 0.125.0 in PR #151: Velo-Setup UC3-1–UC3-3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/FE6/FE7/FE8/FE9/FE10/FE11/FE17/FE18, Bezahlen vorbereiten mit Erklär-Seite Ich › Bezahlen BZ1/BZ2b (#156), Kleine Apps Meditation/Packliste/Velopflege + Benutzerhandbuch (#157), Doku «Links nach aussen» DG-X1–X16 (nur Spezifikation)) | PR #151 offen, Noah merged |
 | 0.132.0 (Teil) | Kleine Apps: Meditation, Packliste, Velopflege mit eigenem Symbol, gleiche Daten; Benutzerhandbuch im Repo (#157) | im Tagespaket |
 | 0.132.0 (Teil) | Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156, unsichtbar ausser Erklär-Seite) | im Tagespaket |

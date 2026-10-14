@@ -205,8 +205,9 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // v0.125.0 TZ-1 «Zustand sichtbar»: the count line and the groups are the three trip states
     await expect(page.getByText(/\d+ geplant/).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^Neue Tour/ }).first()).toBeVisible();
-    await expect(page.locator('.groups').getByRole('heading', { level: 2 })).toHaveText([/Geplant/, /Abgeschlossen/]);
-    await expect(page.getByRole('heading', { level: 2, name: 'Bestwerte', exact: true })).toBeVisible();
+    // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»
+    await expect(page.locator('section[data-planned], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Abgeschlossen/]);
+    await expect(page.getByRole('heading', { name: 'Bestwerte', exact: true })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     for (const b of await page.locator('.trips .go, .trips .btn.hi').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
     if (width !== 320) await shot(page, info, 'touren-after', true);

@@ -3,6 +3,7 @@
 // Unterwegs with the base check, «Der Tag in Blöcken», «Heute Abend laden» and «Mehr»; «Tour jetzt
 // beenden?». Fictional fixture (test_data_gtp_), German, phone + desktop, no horizontal scroll.
 import { test, expect } from '@playwright/test';
+import { endMenu } from './ending.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
@@ -116,17 +117,17 @@ test('Unterwegs (T12, T13): base check, «Der Tag in Blöcken», «Heute Abend l
   const chip = check.locator('button.chip').first();
   await chip.click();
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
-  // the block of now under its heading, the other blocks folded
+  // the block of now, the other blocks folded
+  // SN1 (changed on purpose): one «Jetzt» card, its heading the time and the stage, four tiles
   const now = page.locator('section.now');
-  await expect(now.getByRole('heading', { name: T('The day in blocks') })).toBeVisible();
-  await expect(now.locator('.tt')).toContainText(T('Now'));
+  await expect(now.locator('h2')).toContainText(T('Now'));
   for (const lab of ['Wear', 'Eat', 'Drink', 'Light']) await expect(now.getByText(T(lab), { exact: true })).toBeVisible();
   await page.getByRole('button', { name: T('How this is worked out') }).click();
   await expect(now.locator('.howp')).toBeVisible();
   await expect(page.locator('details.allb > summary')).toContainText(T('All blocks of the day'));
-  await expect(page.getByRole('heading', { name: T('Weather hour by hour') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Weather on the way') })).toBeVisible(); // SN1: was «Wetter Stunde für Stunde»
   // right: the note, tonight's charging as its own list, «Mehr» with the evening
-  await expect(page.getByRole('region', { name: T('Note for the debrief') })).toContainText(T('lands in the debrief and in the Inbox'));
+  await expect(page.getByRole('region', { name: T('Note for the debrief') })).toContainText(T('lands in the debrief, nothing to fill in')); // SN1
   const charge = page.getByRole('region', { name: T('Charge tonight') });
   await expect(charge.locator('.prog')).toHaveText(counted('{done} of {n} charged'));
   const more = page.getByRole('region', { name: T('More') });
@@ -135,7 +136,7 @@ test('Unterwegs (T12, T13): base check, «Der Tag in Blöcken», «Heute Abend l
   await fits(page, info);
   // «Tour beenden …» asks first: «Weiterfahren» before «Tour beenden», «×» closes
   await page.setViewportSize(info.project.name === 'phone' ? { width: 390, height: 844 } : { width: 1440, height: 900 });
-  await page.getByRole('button', { name: T('End the trip …') }).click();
+  await endMenu(page, T); // SN1 (changed on purpose): «Tour beenden …» is in the band's «…»
   const sheet = page.locator('dialog.endsheet');
   await expect(sheet.getByRole('heading', { name: T('End the trip now?') })).toBeVisible();
   const btns = sheet.locator('.acts .btn');

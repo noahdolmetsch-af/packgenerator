@@ -862,6 +862,29 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)
+
+- (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC)
+- **«Wi gaht's?» ersetzt den Tages-Check:** ein Satz Fragen statt Tagescheck und Wochengewicht. Antworten in `abAnswers` (Dexie v9); Schlaf, Energie, Stimmung zusätzlich in die Tageszeile `flowChecks` (Ringe, Rückblick, 7-Tage-Werte lesen weiter dort), Gewicht auch als Körpergewicht. Alte Tageschecks bleiben und stehen im Verlauf.
+- **Feste Runden (WG):** Einstellung `abfragen.rounds` (an, 07:00, 20:30). Eine Fragezeit vor 12:00 fragt zur Morgenzeit, ab 18:00 zur Abendzeit, dazwischen bleibt die eigene Zeit. Abschaltbar unter Ich › «Wi gaht's?» › Feste Runden.
+- **Balance-Ring:** liest zusätzlich die Antworten der 7 Tage (Bereich → Kategorie; Körper und Werte nicht im Ring); Schlaf, Energie, Stimmung zählen nur einmal.
+- **Begrüssung:** immer Mundart (feste Texte in `home/hallo.js`, nicht über t()), ab 22 Uhr «Guät Nacht, Nachtülä»; die Antworten beim Antippen landen im Verlauf von «Wi gaht's?».
+- **Selbst entschieden:**
+  - Alte Adressen `#/check/morning`, `#/check/evening`, `#/check/questions` leiten still auf «Wi gaht's?» um; Kacheln «Tagescheck» und «Deine 15 Fragen» verschwinden auch aus gespeicherten Wänden.
+  - Bestehende Nutzer: Runden sind sofort an (Fragen um 08:00 und 20:00 wandern auf 07:00 und 20:30).
+  - Ein Tag mit Antworten aus «Wi gaht's?» zählt die alte Regel «Morgen ohne Ziel = Ziele 0» nicht.
+  - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.132.0.
+  - Die Regeln des alten Checks in `flowcheck.js` bleiben (alte Zeilen lesbar); Aufräumen später in einem kleinen Release.
+- **KT «Kacheln antippbar»** (Mockup-Freigabe: KT1–KT4, Antworten «1 a und b 2a 3a 4a» und «KT freigegeben» Noah 14.10.2026 10:31 UTC; Bilder `design/kachel-tipp/`): «Öffnen ›» auf jeder kleinen Kachel, › im Kopf von «Im Flow», ••• auf jeder Aktivität (wie langes Drücken) mit Hilfezeile auf Heute, kurze Einführung in drei Schritten (`homeIntroKT`), Anheben am Computer.
+  - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
+- **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
+
+## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
+
+- (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)
+- **Ursache:** `tapAct` entschied aus `state.todayDone` (liveQuery, hinkt nach); ein zweiter Tipp vor dem Nachladen hakte nochmals ab, Abwählen nahm nur den letzten Eintrag zurück.
+- **Selbst entschieden:** Abwählen nimmt alle eigenen Häkchen des Tages zurück (räumt alte Doppel-Häkchen auf); Pendeln bleibt über die Pendel-Zeile zurücknehmbar; der gleiche Doppeltipp-Schutz bei Challenges auf den Aktiv-Seiten (MedMore, Activity) folgt mit 0.133.0 oder später.
+
 ## 13.10.2026: 0.125.0 «Tagespaket 13.10.», ein Release aus vier Paketen
 
 - **Entscheid:** Tages-Check Schritt 1+2 (#151), Aktiv ausweiten AK1–AK3 Woche/Sporttasche/Erholung (#150), Feinschliff A-J1 Werkstattbesuch, TZ-1 drei Tour-Zustände, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + Strava verbinden SV1 (#153) gehen als ein Release 0.125.0. Die Versionen 0.126.0, 0.127.0 und 0.130.0 der Einzel-Branches entfallen; «Was ist neu» hat einen Eintrag 0.125.0, die Funktionen «Tour-Zustand» und «Jahresziele» und die drei neuen Kacheln haben «seit 0.125.0».
@@ -1248,11 +1271,12 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 ## 14.10.2026: Tagespaket 0.132.0 (ein Release mit 0.125.0 in PR #151)
 
-- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.132.0 auf PR #151 (zuerst 0.126.0; nach dem Merge von 0.131.0 «Daten einmal bereinigen» neu nummeriert) (0.125.0 bleibt als eigener Eintrag in «Was ist neu»).
+- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.132.0 auf PR #151 (zuerst 0.126.0; nach dem Merge von 0.131.0 «Daten einmal bereinigen» neu nummeriert) (0.125.0 ging nie live und steckt im Eintrag 0.132.0).
 - **Selbst entschieden (Bedienung):** FE11/FE18 «App öffnen bei» hat **Heute** als Standard (★); «Wo ich zuletzt war» öffnet nie ein Fenster wieder, ein Link auf eine Seite gewinnt immer. FE2 «Hoher Kontrast (draussen)» ist aus als Standard und ein eigener Block am Ende von `app.css` (eigener Commit, kann einzeln zurückgehalten werden). Alle Hilfen sind Schalter in Ich › Darstellung › Bedienung, nur auf diesem Gerät.
 - **Selbst entschieden (App-Wartung):** Kopie vor jedem Update in einer eigenen IndexedDB (`pack-generator-snapshots`), nie im Export oder Backup, die letzten 3 bleiben; Zurückgehen behält zuerst den Stand jetzt. Monats-Check alle 30 Tage (Strava, Schlüssel mit Enddatum, Links über `api/linkcheck.js` mit fester Liste); offline heisst es «nicht geprüft», nie Fehler. Auf Heute höchstens eine ruhige Zeile ab 80 % Strava-Grenze oder bei einem Befund; sie wartet hinter «Strava verbinden», der Lang-drücken-Tipp wartet hinter ihr und in der Nachtruhe.
 - **Selbst entschieden (Suche):** Die Aktionen der Suche (FE17) bleiben zuoberst und Enter macht die erste; der Hinweis der Kluge Suche und «Claude fragen» stehen darunter, vor den Treffern. Die Treffer kommen aus `smartSearch` (ähnliche Wörter, Tippfehler, Filter), `searchAll` bleibt unverändert darunter.
 - **Selbst entschieden (Zusammenführen):** Der Setup-Reiter zeigt «Noch keine Velos» mit dem Leer-Baustein wie die übrigen Velo-Reiter (A-U2). Das Benutzerhandbuch hat Einträge für Setup, Taschen-Plan, Setup-Logbuch, Tour-Zustände und Jahresziele. Keine neue Datenbank-Version.
+- **Selbst entschieden (0.125.0 im Release 0.132.0, 14.10.2026):** 0.125.0 ging nie live; sein Inhalt kommt mit 0.132.0. «Was ist neu» hat einen Eintrag 0.132.0 «Viel Neues auf einmal» (3 Punkte: Tagescheck, Aktiv-Woche, Velo-Setup; Kluge Suche, kleine Apps, Tour-Zustand, Jahresziele, Werkstattbesuch, Backup und Bedienung als kleine Dinge, weil der Test höchstens 3 Punkte und 3 kleine Dinge erlaubt). Tour-Zustand, Jahresziele und die drei Kacheln Balance, Morgen-Check und 15 Fragen haben «seit 0.132.0», damit sie für alle auf 0.131.0 als neu erscheinen.
 
 ## 14.10.2026: Daten einmal bereinigen (0.131.0)
 
@@ -1262,3 +1286,14 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
+
+## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
+
+- **Bei Belegen immer die Kamera** (Noah 14.10.2026 «bei belegen immer», Mockups K1–K4 «freigegeben»): Überall, wo ein Beleg dazukommt, steht auf dem Handy «Beleg fotografieren» (öffnet die Kamera direkt) und «Galerie». Am Computer (keine grobe Zeigereingabe) bleibt ein Knopf «Foto wählen», weil der Browser dort ohnehin den Dateidialog zeigt.
+- **Gebaut wie im Mockup:** Die vier Zusatzfragen (Knopf-Look, auch andere Fotostellen, Kamera von selbst, «Weitere Seite») hat Noah offen gelassen; gebaut ist genau, was K1–K4 zeigen. Die Fragen bleiben für später offen.
+- **Selbst entschieden:** Eine Notiz ohne Foto bekommt beim Ablegen als Rechnungsbeleg die Zeile «Foto der Quittung», damit der Beleg nie ohne Foto bleibt. Die Liste «Zu zahlen» (Bezahlfunktion) übernimmt die Komponente `PhotoPick` selbst.
+
+## 14.10.2026: Velo-Reihenfolge (0.131.2)
+
+- **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
+- **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.

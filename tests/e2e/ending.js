@@ -5,16 +5,18 @@
 // without a fixed clock run at any hour, so the question may or may not come), then the interstitial
 // «Tour beendet» (#/trip/<id>/ended) leads to the debrief: «Weiter zum Rückblick», or for a day trip
 // «Rückblick ausführlich» (its main button «Alles gut» is the short debrief, Ü5a).
+// SN1 (Seiten neu, changed on purpose): before the last day «Tour beenden …» is an entry of the band's «…»
+// («Notiz» is the main button there); endMenu opens it.
 import { expect } from '@playwright/test';
 
 export async function endToDebrief(page, T) {
   const band = page.locator('.trip-band');
   await expect(band.locator('h1')).toBeVisible();
   const main = band.locator('.mainbar .go');
-  const link = page.locator('.endlink');
-  await expect(main.or(link)).toBeVisible();
+  const more = band.getByRole('button', { name: T('More for this trip') });
+  await expect(main.or(more).first()).toBeVisible();
   if (await main.isVisible()) await main.click();
-  else await link.click();
+  else await endMenu(page, T);
   await endedPage(page, T);
   const detail = page.getByRole('link', { name: T('Debrief in detail') });
   if (await detail.count()) await detail.click();
@@ -33,4 +35,10 @@ export async function endedPage(page, T) {
   if (await sheet.isVisible()) await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
   await expect(ended).toBeVisible();
   await expect(page).toHaveURL(/#\/trip\/[^/]+\/ended$/);
+}
+
+/** SN1: «Tour beenden …» from the «…» of the trip band (before the last day on On the way). */
+export async function endMenu(page, T) {
+  await page.locator('.trip-band').getByRole('button', { name: T('More for this trip') }).click();
+  await page.getByRole('menuitem', { name: new RegExp(T('End the trip …').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) }).click();
 }
