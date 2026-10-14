@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 9; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen»
+export const SCHEMA_VERSION = 12; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 12: Fitbit daily values
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -40,6 +40,7 @@ export const DATA_TABLES = [
   'flowTemplates', // hobby pages: timer templates
   'flowStars', // hobby pages: milestone stars reached (id = `${msId}:${star}`), kept forever (flowms.js)
   'abAnswers', // AB «Deine Abfragen»: one row per answer, the history under Ich › Daten › Verlauf (abfragen.js)
+  'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
 ];
 
 /**
@@ -159,6 +160,11 @@ export function createDb(name = 'pack-generator') {
   // checks stay in flowChecks and the history reads both (abfragen.js mergeHistory).
   db.version(9).stores({
     abAnswers: 'id, qid, day, at',
+  });
+  // Version 12 (Fitbit über Google Health) only adds the daily values, so existing data stays as it is.
+  // 9–11 are taken by packages that are still open (Design-Refresh, Meditation); Dexie allows the gap.
+  db.version(12).stores({
+    healthDays: 'date',
   });
   return db;
 }

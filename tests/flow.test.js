@@ -237,7 +237,7 @@ describe('the singing bowl schedule', () => {
 
 describe('the database', () => {
   it('a schema bump with three tables that go into the backup', async () => {
-    expect(SCHEMA_VERSION).toBe(9); // AB «Deine Abfragen»: version 9 adds abAnswers. v0.68.0: version 7 adds the ride ledger (kmBook); hobby pages 1: version 8 adds flowSessions, flowTemplates, flowStars; the Im Flow tables of version 6 stay
+    expect(SCHEMA_VERSION).toBe(12); // AB «Deine Abfragen» adds abAnswers (version 9); v0.68.0: version 7 adds the ride ledger (kmBook); hobby pages 1: version 8 adds flowSessions, flowTemplates, flowStars; Fitbit: version 12 adds healthDays; the Im Flow tables of version 6 stay
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowActs', 'flowLog', 'flowChecks']));
     const db = createDb('flow-1');
     await ensureSeed(db);

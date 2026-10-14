@@ -251,4 +251,30 @@ describe('Google Health', () => {
     expect(res.status).toBe(401);
     expect((await res.json()).code).toBe('google_login_needed');
   });
+  it('gives one row per day from the roll-ups and the daily summaries (fictional values)', async () => {
+    const d = (day) => ({ year: 2026, month: 10, day });
+    const roll = { steps: [{ civilStartTime: { date: d(13) }, steps: { countSum: '8123' } }], azm: [{ civilStartTime: { date: d(13) }, activeZoneMinutes: { sumInFatBurnHeartZone: '10', sumInCardioHeartZone: '12', sumInPeakHeartZone: '2' } }] };
+    const t = await setup({
+      [`${G_API}/dataTypes/steps/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: roll.steps }),
+      [`${G_API}/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: roll.azm }),
+      [`${G_API}/dataTypes/sleep/dataPoints`]: () => Response.json({ dataPoints: [{ sleep: { metadata: { mainSleep: true }, interval: { civilStartTime: { date: d(12), time: { hours: 22, minutes: 40 } }, civilEndTime: { date: d(13), time: { hours: 6, minutes: 5 } } }, summary: { minutesAsleep: '400', minutesAwake: '45', minutesInSleepPeriod: '445', stagesSummary: [{ type: 'DEEP', minutes: '60' }] } } }] }),
+      [`${G_API}/dataTypes/daily-resting-heart-rate/dataPoints`]: () => Response.json({ dataPoints: [{ dailyRestingHeartRate: { date: d(13), beatsPerMinute: '50' } }] }),
+      [`${G_API}/dataTypes/daily-heart-rate-variability/dataPoints`]: () => Response.json({ dataPoints: [{ dailyHeartRateVariability: { date: d(13), averageHeartRateVariabilityMilliseconds: 61.24 } }] }),
+    });
+    await connectGoogle(t);
+    const body = await (await t.main(get('/api/google?step=days&from=2026-10-12&to=2026-10-13', { key: t.key }))).json();
+    expect(body.days).toEqual([{ date: '2026-10-13', steps: 8123, azm: 24, restingHr: 50, hrvMs: 61.2, sleep: { asleepMin: 400, awakeMin: 45, start: '22:40', end: '06:05', deepMin: 60, remMin: null, lightMin: null, efficiency: 90 } }]);
+    const rollCall = t.w.calls.find((c) => c.url.endsWith('steps/dataPoints:dailyRollUp'));
+    expect(JSON.parse(rollCall.init.body)).toMatchObject({ windowSizeDays: 1, range: { start: { date: d(12) }, end: { date: d(14) } }, dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables' });
+    const rhrCall = t.w.calls.find((c) => c.url.includes('daily-resting-heart-rate'));
+    expect(new URL(rhrCall.url).searchParams.get('filter')).toBe('daily_resting_heart_rate.date >= "2026-10-12" AND daily_resting_heart_rate.date < "2026-10-14"');
+  });
+
+  it('refuses a days range that is wrong or longer than 90 days', async () => {
+    const t = await setup();
+    await connectGoogle(t);
+    for (const q of ['from=2026-10-13&to=2026-10-12', 'from=2026-01-01&to=2026-10-12', 'from=x&to=2026-10-12']) {
+      expect((await t.main(get(`/api/google?step=days&${q}`, { key: t.key }))).status).toBe(400);
+    }
+  });
 });
