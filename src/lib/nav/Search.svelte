@@ -6,7 +6,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
-  import { searchAll, commandActions, COMMAND_HREF } from '../search.js';
+  import { commandActions, COMMAND_HREF } from '../search.js';
   import { ops } from '../bedienung.svelte.js';
   import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
@@ -15,6 +15,8 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
   import SearchAnswer from '../helper/SearchAnswer.svelte';
+  import SearchFree from '../kisuche/SearchFree.svelte';
+  import { smartSearch } from '../kisuche/smart.js';
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
 
@@ -29,7 +31,9 @@
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
-  const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
+  // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
+  const smart = $derived(q.trim().length >= 2 && $all ? smartSearch(q, $all) : { groups: [], also: [], fixed: null });
+  const groups = $derived(smart.groups);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
@@ -265,6 +269,8 @@
           {/each}
         </ul>
       {/if}
+      <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} />
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
