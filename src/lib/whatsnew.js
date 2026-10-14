@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.134.0 «Standard-Paket» (Noah 14.10.2026, thread «Persönlich und Standard», 1a 2 3a 4a 5; nothing new on screen, so no mockups)
+    version: '0.134.0',
+    date: '2026-10-14',
+    title: 'The base for your own lists',
+    lead: 'Behind the scenes all base lists of the app now sit in one neutral package, ready for you to change them later.',
+    points: [{ text: 'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.' }],
+    small: [{ box: 'nicer', text: 'Your own changes to a list will be kept apart from the Standard, so you can always go back' }],
+    test: ['Nothing new on screen: the app looks and works as before.', 'Open Material and a trip: categories, places and checklists are the same as before.'],
+  },
+  {
     // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
     version: '0.131.0',
     date: '2026-10-14',

@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.134.0 | Standard-Paket: alle Grundlisten in einem neutralen Verzeichnis, Grundlage für «Listen und Typen» und das Standard-Profil (`src/lib/standard.js`) | PR folgt |
 | 0.131.0 | Daten einmal bereinigen: Persönliches aus dem Code, alte Felder umgezogen, Listen an einem Ort ([Daten](daten.md)) | PR folgt |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |

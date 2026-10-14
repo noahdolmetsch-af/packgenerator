@@ -55,3 +55,8 @@ Stand: 14. Oktober 2026 (v0.131.0, «Daten einmal bereinigen»). Gilt für jede 
 - Doppelte Listen zusammengelegt: Bereiche (7 Stellen → `domains.js`), Checklisten (3 Dateien → `checks.js`), Kategorie-Gruppen (5 → `gear.js`), Outdoor-Bausteine (3 → `context.js`), Abhol-Werte, Schicht-Reihenfolge.
 - Bleibt bewusst: der Import aus Noahs Excel (`bikes.js` Start-Taschen nach Excel-Nummern, `tools/import-excel/`) ist ein Werkzeug für genau diese Datei. Neutrale Start-Inhalte (Start-Aktivitäten, Beispiel-Texte, Platzhalter wie Orte) baut der Thread «Persönlich und Standard-Profil» ins Standard-Paket um.
 - Offen für Noah: Wandern bekommt beim Start einen «Rucksack 30 L», die Taschen-Vorschläge suchen aber 12–15 L (seine Antwort 3a). Welche Grösse gilt, entscheidet Noah.
+
+## Standard-Paket (0.134.0)
+
+- Alle Grundlisten stehen im Verzeichnis `src/lib/standard.js` (`STANDARD_LISTS`). Das Verzeichnis liest jede Liste von ihrem Ort oben, es kopiert nichts. **Eine neue Grundliste bekommt dort einen Eintrag** (der Test `tests/standard.test.js` prüft eindeutige Schlüssel und Einträge).
+- Eigene Änderungen einer Person (umbenennen, ausblenden, Reihenfolge, eigene Einträge) liegen getrennt in der Einstellung `listOverrides`; der Standard selbst ändert sich in den Daten nie. Änderungen am Standard werden als Vorschlag angeboten (`standardChanges`), nie automatisch übernommen.

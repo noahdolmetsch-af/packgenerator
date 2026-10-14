@@ -1138,3 +1138,12 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
+
+## 14.10.2026: Persönlich und Standard, Standard-Paket (0.134.0)
+
+- **Änderungen im Standard kommen als Vorschlag (Noah 1a):** Ändert sich der Standard, sieht die Person «Neu im Standard: übernehmen?»; nie automatisch. Grundlage: `standardChanges` in `src/lib/standard.js`.
+- **Standard enthält beides (2):** die Grundlisten und erfundenes Beispiel-Material, Beispiel-Touren und Vorlagen.
+- **Reihenfolge (3a):** zuerst Listen in der App änderbar («Listen und Typen», Mockups LI1–LI3), dann der Profil-Wechsel.
+- **Umschalten (4a):** ein Schalter unter Ich › Die App.
+- **Neuer Nutzer (5, «passt»):** Die Grundlisten sind immer da; beim ersten Start fragt die App einmal «Mit Beispielen starten» oder «Leer starten»; Beispiele lassen sich später entfernen.
+- **Selbst entschieden:** Das Verzeichnis kopiert keine Liste, es liest jede von ihrem Ort (`docs/daten.md` Regel 2). Eigene Änderungen liegen getrennt als Einstellung `listOverrides` (reist im Backup mit); ausgeblendete Einträge bleiben in der Liste markiert, damit nichts, was sie nutzt, bricht. Die Start-Aktivitäten «Im Flow» und die Ideen bleiben vorerst, wie sie sind; neutrale Beispiele kommen mit «Mit Beispielen starten» (eigene Mockups).

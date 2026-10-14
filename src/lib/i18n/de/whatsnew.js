@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.134.0 Standard-Paket
+  'The base for your own lists': 'Bereit für deine eigenen Listen',
+  'Behind the scenes all base lists of the app now sit in one neutral package, ready for you to change them later.': 'Im Hintergrund stecken jetzt alle Grundlisten der App in einem neutralen Paket, bereit, damit du sie später selber ändern kannst.',
+  'Sports, categories, places on the bike, checklists and questions are read from one register; nothing changes on screen yet.': 'Sportarten, Kategorien, Plätze am Velo, Checklisten und Fragen kommen aus einem Verzeichnis; am Bildschirm ändert sich noch nichts.',
+  'Your own changes to a list will be kept apart from the Standard, so you can always go back': 'Deine eigenen Änderungen an einer Liste bleiben getrennt vom Standard, so kannst du immer zurück',
+  'Nothing new on screen: the app looks and works as before.': 'Am Bildschirm nichts Neues: Die App sieht aus und funktioniert wie vorher.',
+  'Open Material and a trip: categories, places and checklists are the same as before.': 'Öffne Material und eine Tour: Kategorien, Plätze und Checklisten sind wie vorher.',
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
