@@ -1292,3 +1292,9 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 14.10.2026: Vercel-Tageslimit (Server-Projekt nur noch bei api-Änderungen)
+
+- **Entscheid (Noah 14.10.2026 «1a», Thread «Vercel-Problem»):** Das Vercel-Projekt «packgen» (Server, `api/`) hängt nicht mehr an GitHub. Der Workflow `.github/workflows/api-deploy.yml` baut es nur, wenn auf main etwas in `api/` ändert, oder von Hand («Run workflow»). Grund: Vercel Hobby erlaubt 100 Deployments pro Tag, und auch übersprungene Builds (Ignored Build Step) zählen. Mit zwei verknüpften Projekten zählte jeder Push doppelt.
+- **Selbst entschieden:** Der Vercel-Schlüssel und die zwei IDs liegen als verschlüsselte GitHub-Secrets (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PACKGEN_PROJECT_ID`), nie im Code. Die Server-Secrets (Strava, Google, KI-Helfer) bleiben in Vercel. Keine Versionsnummer, weil sich in der App nichts ändert.
+- **Was wegfällt:** PRs mit Änderungen in `api/` bekommen keine eigene Server-Vorschau mehr; der Server wird erst nach dem Merge gebaut.
