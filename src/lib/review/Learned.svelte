@@ -5,6 +5,7 @@
    * (R1 left this page as it was: topics folded shut.)
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { learnedOn } from '../yearreview.js';
   import { dayLong } from './fmt.js';
@@ -52,7 +53,7 @@
       </ul>
     </section>
   {:else}
-    <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
+    <Empty icon={Lightbulb} text={learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')} />
   {/each}
 </section>
 
@@ -84,9 +85,6 @@
     gap: 4px 8px;
     max-width: 40%;
     white-space: nowrap;
-  }
-  .muted {
-    color: var(--ink-3);
   }
   @media (max-width: 559px) {
     .rv-row {

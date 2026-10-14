@@ -6,6 +6,7 @@
    * never forced). One tap swaps and closes; the message has Undo. «Take off» leaves the piece out.
    */
   import { X, Shirt, ArrowLeftRight } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
   import { formatWeight, itemWeight } from '../gear.js';
   import { ZONES, LAYERS, tempRange } from '../wardrobe.js';
@@ -69,7 +70,7 @@
   <h3 class="zh">{t('From your wardrobe')}</h3>
   <p class="zsub">{t('same zone and layer · sorted by fit')}</p>
   {#if !choices.fits.length && !choices.less.length}
-    <p class="card empty">{t('No other piece of this zone and layer in your wardrobe yet.')}</p>
+    <Empty text={t('No other piece of this zone and layer in your wardrobe yet.')} />
   {:else}
     <div class="card list">
       {#if choices.fits.length}
@@ -141,7 +142,6 @@
   @media (hover: hover) { .alt:hover .go:not(.first) { background: var(--paper-2); } }
   .lessh { margin: 0; padding: 8px 0 4px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
   .alts:first-child + .lessh, .lessh:first-child { border-top: 0; }
-  .empty { margin: 0; color: var(--ink-2); }
   .hint { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink-2); font-size: var(--fs-small); }
   .hint :global(svg) { flex: none; margin-top: 2px; }
   .mv { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; color: var(--ink-2); font-size: var(--fs-small); }

@@ -17,7 +17,7 @@
   import { isUsed } from '../lib/tips.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
   import { goFeature } from '../lib/know/featureRun.js';
-  import { SORTS, sortKey, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth, messageOn, PLANNED, LIST_ROWS, NEWS_HREF } from '../lib/know/wasneu.js';
+  import { SORTS, sortKey, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth, messageOn, BANNER_DAYS, PLANNED, LIST_ROWS, NEWS_HREF } from '../lib/know/wasneu.js';
   import { readUses, readUpdate, writeUpdate, readMute, writeMute, readTested, writeTested } from '../lib/know/wasneuStore.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
@@ -79,11 +79,12 @@
   // the side column
   let update = $state(readUpdate());
   let mute = $state(readMute());
-  const msgOn = $derived(messageOn({ update, mute, current }));
+  // v0.127.0 A-U1: the banner on Today, for BANNER_DAYS days; switched on again it starts its days anew
+  const msgOn = $derived(messageOn({ update, mute, current, today: localDay() }));
   function setMsg(on) {
     if (on) {
       writeMute(null);
-      if (update?.v !== current) writeUpdate({ v: current, from: update?.from ?? null, at: update?.at ?? localDay() });
+      if (update?.v !== current || !messageOn({ update, current, today: localDay() })) writeUpdate({ v: current, from: update?.from ?? null, at: localDay() });
     } else writeMute(current);
     update = readUpdate();
     mute = readMute();
@@ -259,12 +260,12 @@
           <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each row leads with «Go» straight to its place in the app.')}</span></p>
         {/if}
       {:else}
-        <!-- I11b: the message after an update, switched here -->
+        <!-- I11b: the message after an update, switched here (v0.127.0 A-U1: the banner on Today) -->
         <section class="ich-sec" aria-labelledby="wn-msg-h">
           <div class="ich-h"><div><h2 id="wn-msg-h">{t('Message after updates')}</h2><p class="ich-hs">{t('you can change this at any time')}</p></div></div>
           <div class="card ich-list">
             <label class="ich-row wn-sw">
-              <span class="ich-m"><b>{t('Show the message after updates')}</b><small>{msgOn ? t('it comes at each start until you tick «Do not show again»') : t('switched off with «Do not show again» · with the next update it comes again')}</small></span>
+              <span class="ich-m"><b>{t('Show the message after updates')}</b><small>{msgOn ? t('a calm banner on Today for {n} days, until you close it with ×', { n: BANNER_DAYS }) : t('closed with × · with the next update it comes again')}</small></span>
               <input type="checkbox" role="switch" class="wn-switch" checked={msgOn} onchange={(e) => setMsg(e.currentTarget.checked)} />
             </label>
           </div>

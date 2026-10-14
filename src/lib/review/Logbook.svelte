@@ -6,6 +6,8 @@
    * and a search. A tap on a trip opens it. Entries: review/logbook.js.
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
+  import Skeleton from '../ui/Skeleton.svelte';
   import { db } from '../db.js';
   import { loadReview } from './load.js';
   import { tripFacts } from './rueckblick.js';
@@ -71,7 +73,7 @@
       <p class="count num" role="status">{tn(shown.length, '{n} entry', '{n} entries')}{year !== 'all' || area !== 'all' || q.trim() ? ` · ${t('of {n}', { n: entries.length })}` : ''}</p>
 
       {#if !data}
-        <p class="muted">{t('Loading…')}</p>
+        <Skeleton rows={4} />
       {:else}
         <ul class="log rv-box">
           {#each shown as e (e.id)}
@@ -110,7 +112,7 @@
               {/if}
             </li>
           {:else}
-            <li class="none"><p class="muted">{entries.length ? t('Nothing matches.') : t('No entries yet.')}</p></li>
+            <li class="none"><Empty text={entries.length ? t('Nothing matches.') : t('No entries yet.')} /></li>
           {/each}
         </ul>
       {/if}

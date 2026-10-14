@@ -40,11 +40,12 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   await expect(page.locator('h1').first()).toHaveCount(1);
-  await expect(page.getByText(new RegExp(esc(T('{n} in planning', { n: 'X' })).replace('X', '\\d+'))).first()).toBeVisible();
+  // v0.125.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
+  await expect(page.getByText(new RegExp(esc(T('{n} planned', { n: 'X' })).replace('X', '\\d+'))).first()).toBeVisible();
   // the band names the next trip and goes on with one main button
   await expect(page.getByText(T('Continue|go'), { exact: false }).first()).toBeVisible();
-  // the tiles of the trips in planning, with a packing bar, and the dashed tile for a new trip
-  const planning = page.locator('section.grp').filter({ has: page.locator('#trips-planning') });
+  // the tiles of the planned trips (v0.125.0 TZ-1: the group «Geplant»), with a packing bar, and the dashed tile for a new trip
+  const planning = page.locator('section.grp').filter({ has: page.locator('#trips-plan') });
   await expect(planning.locator('li.tile:not(.add)').first()).toBeVisible();
   await expect(planning.getByRole('button', { name: new RegExp(esc(T('New trip'))) })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Weather window') })).toBeVisible();
@@ -67,7 +68,7 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
 test('Rahmenbedingungen: sport as chips, «Vorlage wählen» with the starts as buttons', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/trips');
-  await page.locator('#trips-planning').locator('..').getByRole('button', { name: new RegExp(esc(T('New trip'))) }).click();
+  await page.locator('#trips-plan').locator('..').getByRole('button', { name: new RegExp(esc(T('New trip'))) }).click();
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByText(T('Name, date, bike and packing list. Everything can be changed later.'))).toHaveCount(0);

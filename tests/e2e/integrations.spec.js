@@ -211,7 +211,8 @@ test('photos: non-image, broken image and huge image give a message or a small p
   // Note photo (quick note): a non-image says so, a big photo is shrunk and saved with the note.
   await page.goto('./#/inbox/new');
   const note = page.locator('dialog[open]');
-  const noteInput = note.locator('input[type=file]');
+  // v0.131.3 Kamera-Knopf: the phone has a camera input and a gallery input; the gallery one picks files
+  const noteInput = note.locator('input[type=file]:not([capture])');
   await noteInput.setInputFiles({ name: 'doc.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4') });
   await expect(note.getByRole('alert')).toHaveText(T('Please choose a photo (JPG, PNG or HEIC as JPG).'));
   await noteInput.setInputFiles({ name: 'big.jpg', mimeType: 'image/jpeg', buffer: big });

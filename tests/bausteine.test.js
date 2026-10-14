@@ -16,8 +16,14 @@ describe('this week', () => {
 describe('bike this month', () => {
   it('sums this month and compares with the same days of last month', () => {
     const rides = [{ date: '2026-10-02', km: 100 }, { date: '2026-10-09', km: 112 }, { date: '2026-09-05', km: 200 }, { date: '2026-09-20', km: 50 }];
-    expect(monthKm(rides, '2026-10-10')).toEqual({ km: 212, pct: 6 });
-    expect(monthKm([], '2026-10-10')).toEqual({ km: 0, pct: null });
+    expect(monthKm(rides, '2026-10-10')).toEqual({ km: 212, pct: 6, hm: 0 });
+    expect(monthKm([], '2026-10-10')).toEqual({ km: 0, pct: null, hm: 0 });
+  });
+  it('«Werte überall» WU1: adds the metres climbed of the rides that know them', () => {
+    const rides = [{ date: '2026-10-02', km: 100, gainM: 1200 }, { date: '2026-10-09', km: 50, gainM: null }, { date: '2026-09-05', km: 20, gainM: 800 }];
+    expect(monthKm(rides, '2026-10-10').hm).toBe(1200);
+    const days = weekDays({ today: '2026-10-08', rides: [{ date: '2026-10-07', km: 38, gainM: 610 }, { date: '2026-10-06', km: 10 }] });
+    expect(days.find((d) => d.day === '2026-10-07').hm).toBe(610);
   });
 });
 

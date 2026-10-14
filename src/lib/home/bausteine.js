@@ -22,9 +22,11 @@ export function weekDays({ today, log = [], rides = [] }) {
     const day = addDays(monday, i);
     const rs = rides.filter((r) => dayOf(r?.date) === day);
     const acts = [...new Set(log.filter((e) => dayOf(e?.day) === day && e.actId).map((e) => e.actId))];
-    return { day, ride: rs.length > 0, km: Math.round(rs.reduce((s, r) => s + (Number(r.km) || 0), 0)), acts, future: day > today };
+    return { day, ride: rs.length > 0, km: Math.round(rs.reduce((s, r) => s + (Number(r.km) || 0), 0)), hm: Math.round(rs.reduce((s, r) => s + (Number.isFinite(r?.gainM) ? r.gainM : 0), 0)), acts, future: day > today };
   });
 }
+/** «Werte überall» WU1: km and metres climbed of the week so far. */
+export const weekTotals = (days = []) => ({ km: days.reduce((s, x) => s + (x.km || 0), 0), hm: days.reduce((s, x) => s + (x.hm || 0), 0) });
 /** How many of those days had anything. */
 export const activeCount = (days = []) => days.filter((x) => !x.future && (x.ride || x.acts.length)).length;
 
@@ -42,7 +44,9 @@ export function monthKm(rides = [], today) {
   const sum = (a, b) => rides.filter((r) => dayOf(r?.date) && dayOf(r.date) >= a && dayOf(r.date) <= b).reduce((s, r) => s + (Number(r.km) || 0), 0);
   const km = Math.round(sum(from, today));
   const before = sum(pFrom, pTo);
-  return { km, pct: before > 0 ? Math.round(((km - before) / before) * 100) : null };
+  // «Werte überall» WU1/WU2: the metres climbed this month (rides that know them)
+  const hm = Math.round(rides.filter((r) => dayOf(r?.date) && dayOf(r.date) >= from && dayOf(r.date) <= today && Number.isFinite(r.gainM)).reduce((s, r) => s + r.gainM, 0));
+  return { km, pct: before > 0 ? Math.round(((km - before) / before) * 100) : null, hm };
 }
 
 /**

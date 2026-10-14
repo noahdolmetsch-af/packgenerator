@@ -38,6 +38,18 @@ export function offerRename(name, undo = null) {
   timer = setTimeout(() => ((renamed.v = null), (held = null)), UNDO_MS);
 }
 
+/**
+ * v0.125.0 A-J1: the same calm toast for any saved thing, «<text> · Undo» for 10 s
+ * (e.g. «Workshop visit saved.»). text: already translated; undo: async function or null.
+ */
+export function offerDone(text, undo = null) {
+  if (typeof document !== 'undefined') place();
+  clearTimeout(timer);
+  held = undo;
+  renamed.v = { text, undo: !!undo };
+  timer = setTimeout(() => ((renamed.v = null), (held = null)), UNDO_MS);
+}
+
 export async function undoRename() {
   const fn = held;
   clearTimeout(timer);

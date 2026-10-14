@@ -11,7 +11,9 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { FIELDS_KEY, VALUE_GROUPS, valueGroups, valueOf, setValue, toggleField, showAll, addOwnField, renameOwnField, removeOwnField, fieldsOf } from '../valuefields.js';
   import { t, num } from '../i18n.svelte.js';
-  import { Plus, Trash2 } from '@lucide/svelte';
+  import { Plus, Trash2, Bike as BikeIcon } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
+  import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
 
   let { bikeId = null, onbike } = $props();
@@ -77,7 +79,8 @@
 <div class="vp">
   {#if !bikes.length && $bikesQ}
     <h1 class="title">{t('Enter values')}</h1>
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
+    <!-- v0.127.0 A-U2: the shared empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <VeloHead
       crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }, { label: t('Equipment|tab'), href: bikesHash({ tab: 'compare', bike: bike.id }) }]}

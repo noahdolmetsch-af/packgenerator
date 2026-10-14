@@ -12,6 +12,7 @@
    * carries the map point, never a name. Offline or too early: one quiet line. Read-only.
    */
   import DayTiles from '../ui/DayTiles.svelte';
+  import Skeleton from '../ui/Skeleton.svelte';
   import { forecastForTrip, fetchForecast, FORECAST_DAYS } from '../weather.js';
   import { stagePlan } from '../stages.js';
   import { daysTo } from '../touren.js';
@@ -59,6 +60,8 @@
   <section class="tw" aria-labelledby="tw-{kind}-h">
     <h2 id="tw-{kind}-h">{kind === 'event' ? t('Weather at the event') : t('Weather at the campsites')}</h2>
     <p class="sub">{sub}</p>
+    <!-- FE9 «Ruhiges Laden» (Noah 13.10.2026): while the forecast loads, calm bars in its height, nothing jumps -->
+    {#if kind === 'camps' && reach && !failed && camps === null}<Skeleton rows={3} />{:else}
     <div class="card body">
       {#if days.length}
         <DayTiles {days} />
@@ -66,6 +69,7 @@
         <p class="quiet">{!reach ? t('The forecast comes about two weeks before the trip, online.') : failed ? t('No forecast right now. It needs the internet once.') : t('Loading…')}</p>
       {/if}
     </div>
+    {/if}
   </section>
 {/if}
 
