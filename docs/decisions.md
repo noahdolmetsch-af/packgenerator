@@ -1400,3 +1400,14 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - «Was ist neu» 0.134.0: drei Hauptpunkte (Inspiration, Kategorien selber ändern, Handbuch + Kleine Apps), drei kleine Dinge (Neu: «Liste bearbeiten» im Material; Schöner: Wandern mit 15 L; Repariert: leere App ohne Taschen). Die deutschen Texte der Teile sind wiederverwendet, wo sie passen; die alten Schlüssel bleiben in `de/whatsnew.js`.
   - `f.inspiration` und `f.lists` sind «seit 0.134.0»; `f.abfragen` bleibt bei 0.133.0 (Test fest auf 0.133.0 statt auf die neueste Version). Die Liste «neueste zuerst» beginnt mit Inspiration und Listen und Typen.
   - `docs/handbuch.md`: Eintrag «Deine eigenen Kategorien» nachgetragen (99 Funktionen).
+
+## 15.10.2026: Paket 2 «Ruhe, Training und Rechnungen» als ein Release 0.135.0
+
+- **Ein Release statt fünf (Thread «Mein Überblick» bündelt, Reihenfolge von Noah):** Meditation und Timer (ME2, ME3, Z2–Z5), #173 Inhalte Flow + Wusstest du, #170 Eine Zahl pro Sache (DK1–DK3, dazu Heute H1/H2 aus dem lokalen Zweig), #167 Training (TR1–TR4) und #169 Rechnungen ohne Gebühren (QR1–QR9). Je ein echter Merge-Commit pro Teil; die Arbeitsnummern 0.136.0–0.139.0 fallen weg. Die Entscheide der Teile stehen in ihren Abschnitten oben.
+- **Selbst entschieden:**
+  - Aktiv hat fünf Reiter: Heute, Meditation (der zweite, Noah 15.10.2026 «1a»), Training, Ziele, Aktivität. Der Test «höchstens 4 Reiter pro Ort» erlaubt bei Aktiv wie bei Velos 5.
+  - Datenbank: Version 9 `abAnswers`, 10 `activities` (Training), 11 `timerLog` (Timer), aufsteigend; `SCHEMA_VERSION` 11. `actdata.js` liest die Tabelle `activities` jetzt (vorher «noch keine Tabelle»).
+  - Am Ende von Aktiv › Heute stehen beide: «Das kann die App hier» mit den Kacheln «Weiter» (#173) und darunter die Kachelreihe der Seite (SK, 0.133.0). Zusammenlegen ist eine offene Frage an Noah.
+  - «So geht's» bekommt drei Schritte für `f.pagetips`, `f.training`, `f.invoices` und `f.bills` (die PRs kamen vor «So geht's»).
+  - «Was ist neu» 0.135.0: drei Hauptpunkte (Meditation + Timer, Training, QR-Rechnung), drei kleine Dinge (Tipp des Tages, Zu zahlen, eine Zahl pro Sache); die Texte der Teile sind wiederverwendet, wo sie passen.
+  - Service Worker: `maximumFileSizeToCacheInBytes` von 4 auf 6 MiB, weil das App-Bündel 4,4 MB hat; sonst startet die App offline nicht.

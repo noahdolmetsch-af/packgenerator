@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.135.0 «Paket 2» (Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training, Rechnungen ohne Gebühren)
+  'Calm, training and bills': 'Ruhe, Training und Rechnungen',
+  'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.': 'Meditation und ein Timer, dein Strava-Training Zone für Zone, Rechnungen ohne Gebühren und eine Zahl für jede Sache.',
+  'Aktiv › Meditation with a look back, and a timer for anything else that keeps running on every page': 'Aktiv › Meditation mit Rückblick, und ein Timer für alles andere, der auf jeder Seite weiterläuft',
+  'One number for each thing: due, weighed and the weight of a trip are the same everywhere': 'Eine Zahl für jede Sache: fällig, gewogen und das Gewicht einer Tour sind überall gleich',
+
+  // Working numbers before Paket 2 (texts reused above where they fit): 0.135.0 Meditation und Timer, 0.136.0 Inhalte Flow, 0.137.0 Eine Zahl pro Sache, 0.138.0 Training, 0.139.0 Rechnungen
   // 0.139.0 Rechnungen: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link, TWINT-Screenshot, Zu zahlen
   'Money in, money out': 'Geld rein, Geld raus',
   'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.': 'Schreib eine QR-Rechnung mit TWINT, sieh, wer bezahlt hat, und behalte die Rechnungen, die du zahlen musst, in einer Liste.',

@@ -16,117 +16,32 @@
 
 export const WHATS_NEW = [
   {
-    // v0.139.0 Rechnungen (mockups QR1–QR9, Noah 14.10.2026 04:00 «a», QR9 05:10 «a»): QR bill with TWINT, the invoice list,
-    // «Geld erhalten», bank statement (camt), bill from the e-banking, «Ich habe bezahlt» link, TWINT screenshot, «Zu zahlen»
-    version: '0.139.0',
-    date: '2026-10-15',
-    title: 'Money in, money out',
-    lead: 'Write a QR bill with TWINT, see who has paid, and keep the bills you have to pay in one list.',
-    points: [
-      { text: 'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link', href: '#/me/pay/invoices/new' },
-      { text: 'See who paid: «Paid» by hand, by amount, from your bank statement or when the person taps «I have paid»', href: '#/me/pay/invoices' },
-      { text: '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due', href: '#/me/pay/bills' },
-    ],
-    small: [
-      { box: 'new', text: 'Share a TWINT screenshot with the app: it reads amount and message on your phone and suggests the invoice' },
-      { box: 'new', text: 'Your account and TWINT number stay only on this device; no fees, nobody in between' },
-    ],
-    test: [
-      'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.',
-      'Tap «Copy pay link» and open the link in another browser window: you see how to pay and «I have paid».',
-      'Back in «Invoices» tap «Money received», type the amount: the open invoice appears, tap «This one».',
-      'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».',
-    ],
-  },
-  {
-    // «Training» TR1–TR4 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»)
-    version: '0.138.0',
-    date: '2026-10-15',
-    title: 'Your heart rate, zone by zone',
-    lead: 'Every activity from Strava now has its own page, with the time in each heart rate zone.',
-    points: [
-      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
-      { text: 'Today: the tile «Last activity» with time, km, Hm, heart rate and zones', href: '#/' },
-      { text: 'Plan your week with duration and zone; what you did comes from Strava', href: '#/flow/training' },
-    ],
-    small: [
-      { box: 'new', text: 'One activity: minutes per zone, the heart rate over time and the same route', href: '#/flow/training?view=list' },
-      { box: 'new', text: 'Heart rate zones from Strava, changeable', href: '#/flow/training?zones=1' },
-      { box: 'new', text: 'A training goal and the look back over six weeks, all optional', href: '#/flow/training' },
-    ],
-    test: [
-      'On Today the tile «Last activity» shows your newest activity from Strava; tap it.',
-      'On its page: the minutes in each zone and the heart rate over time.',
-      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
-      'Tap «Activities»: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.',
-    ],
-  },
-  {
-    // v0.137.0 «Eine Zahl pro Sache» (Durchklick DK1/DK1b «fällig», DK2 Material, DK3 Tour-Gewicht;
-    // Noah 14.10.2026 «1-5 freigeben», answers 1a and 2a)
-    version: '0.137.0',
-    date: '2026-10-15',
-    title: 'One number for each thing',
-    lead: 'Due, weighed and the weight of a trip now show the same number everywhere.',
-    points: [
-      { text: 'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both', href: '#/bikes?tab=care' },
-      { text: 'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count', href: '#/gear' },
-      { text: 'A trip has one weight, all together with food and water: in its head and on the weight card', href: '#/trips' },
-    ],
-    small: [
-      { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
-      { box: 'nicer', text: 'The number in the menu counts the points due, the same as on Bikes and Today' },
-      { box: 'nicer', text: 'Today: under the next trip a small line gives its whole weight with food, water and worn items', href: '#/' },
-    ],
-    test: [
-      'Open Bikes › Care: under the title a line says what due means.',
-      'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».',
-      'Compare the number in the menu with Bike care and Today: all three are the same.',
-      'Open Gear: the line under the title and the view «Unweighed» show the same number.',
-      'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.',
-      'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.',
-    ],
-  },
-  {
-    // v0.136.0 «Inhalte Flow» IF1–IF3 (approved 14.10.2026 04:32) + «Wusstest du» WD1–WD3 (approved 18:34, answers «1a 2a»)
-    version: '0.136.0',
-    date: '2026-10-15',
-    title: 'Good to know',
-    lead: 'Aktiv now tells you a little more: one tip a day, what the app can do there and where to go next.',
-    points: [
-      { text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
-      { text: '«What the app can do here» and tiles to the next places, with your own links', href: '#/flow' },
-      { text: 'Past trips: how far around the Earth and how often up the Everest you rode', href: '#/pack/past' },
-    ],
-    small: [{ box: 'new', text: '«All tips»: switch single tips off, only useful tips, or no tips at all' }],
-    test: [
-      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
-      'In «All tips» tap «Only useful tips»: the «Did you know» sentences no longer come.',
-      'At the end of the page open «What the app can do here» and tap a row: the place opens.',
-      'Tap «+ Own link», enter a name and an address: the tile shows; × removes it.',
-      'Open Touren › Rückblick › Vergangene Touren: under the sums, Earth and Everest.',
-    ],
-  },
-  {
-    // v0.135.0 «Meditation und Timer» (ME2, ME3, Z2–Z5; ME1/Z1 on Heute wait for Noah's check against HN0; approved 13.10.2026 «ME1-ME3 und Z1-Z5 freigeben»)
+    // v0.135.0 «Paket 2»: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (IF1–IF3, WD1–WD3, #173),
+    // Eine Zahl pro Sache (DK1–DK3 + Heute H1/H2, #170), Training (TR1–TR4, #167), Rechnungen ohne Gebühren (QR1–QR9, #169).
+    // One release instead of the working numbers 0.135.0, 0.136.0, 0.137.0, 0.138.0 and 0.139.0.
     version: '0.135.0',
     date: '2026-10-15',
-    title: 'Sit down, start, done 🧘',
-    lead: 'Meditation has its own tab in Aktiv with a look back, and a timer counts for anything else.',
+    title: 'Calm, training and bills',
+    lead: 'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.',
     points: [
-      { text: 'Timer: count up, count down, interval, Pomodoro or until a time, with five faces and a log', href: '#/timer' },
-      { text: 'Meditation in Aktiv: start like last time, durations, templates and your last sessions', href: '#/flow/act/meditation' },
-      { text: 'Look back on your meditation by week, month or year, with what helps you', href: '#/flow/act/meditation/rueckblick' },
+      { text: 'Aktiv › Meditation with a look back, and a timer for anything else that keeps running on every page', href: '#/flow/act/meditation' },
+      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
+      { text: 'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link', href: '#/me/pay/invoices/new' },
     ],
     small: [
-      { box: 'nicer', text: 'Meditation is called «Meditation» everywhere, «Kissenzeit» goes', href: '#/flow/act/meditation' },
-      { box: 'new', text: 'The timer keeps running small at the bottom right on every page; at the end a singing bowl and a note', href: '#/timer/log' },
+      { box: 'new', text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
+      { box: 'new', text: '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due', href: '#/me/pay/bills' },
+      { box: 'nicer', text: 'One number for each thing: due, weighed and the weight of a trip are the same everywhere', href: '#/bikes?tab=care' },
     ],
     test: [
       'Open Aktiv › Meditation; tap «Like last time» and stop the session.',
       'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.',
-      'Open the timer page, tap the clock and choose another face; open «Log» and add a note.',
-      'Tap «Look back» on the Meditation page and switch between week, month and year.',
+      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
+      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
+      'Compare the number in the menu with Bike care and Today: all three are the same.',
+      'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.',
+      'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.',
+      'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».',
     ],
   },
   {
