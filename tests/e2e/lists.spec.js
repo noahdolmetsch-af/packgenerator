@@ -146,3 +146,35 @@ test('LI4: «Liste bearbeiten» in Material › Sortieren und filtern opens the 
   await expect(page).toHaveURL(/#\/me\/lists\?categories$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Categories') })).toBeVisible();
 });
+
+// LI3 «Gilt für» (Noah «2b» 15.10.2026): a category for some trip areas only, read from domains.js
+const DOMAINS_SRC = readFileSync(fileURLToPath(new URL('../../src/lib/domains.js', import.meta.url)), 'utf8');
+const AREA_NAMES = [...DOMAINS_SRC.matchAll(/^ {4}key: (?:BIKEPACKING|'(\w+)'),\n {4}name: '([^']+)'/gm)].map(([, , name]) => name);
+
+test('LI3 Gilt fuer: a category for some trip areas only, all again stores nothing', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/me/lists?categories');
+  await settle(page);
+  await row(page, A.key).getByRole('button', { name: T('Edit: {name}', { name: T(A.name) }) }).click();
+  const sheet = page.getByRole('dialog', { name: T('Edit category') });
+  const group = sheet.getByRole('group', { name: T('Applies to|areas') });
+  // every trip area is chosen at first
+  expect(AREA_NAMES.length).toBeGreaterThan(2);
+  for (const n of AREA_NAMES) await expect(group.getByRole('button', { name: T(n) })).toHaveAttribute('aria-pressed', 'true');
+  // keep only the first one
+  for (const n of AREA_NAMES.slice(1)) await group.getByRole('button', { name: T(n) }).click();
+  // the last one cannot be taken away
+  await group.getByRole('button', { name: T(AREA_NAMES[0]) }).click();
+  await expect(group.getByRole('button', { name: T(AREA_NAMES[0]) })).toHaveAttribute('aria-pressed', 'true');
+  await sheet.getByRole('button', { name: T('Save') }).click();
+  await expect(row(page, A.key)).toContainText(T('Only {areas}', { areas: T(AREA_NAMES[0]) }));
+  await expect(row(page, A.key)).toContainText(T('Adapted'));
+  await expect.poll(async () => Object.values((await overrides(page)).categories?.areas ?? {})).toEqual([[expect.any(String)]]);
+
+  // all areas again: nothing stored, the list is the Standard
+  await row(page, A.key).getByRole('button', { name: T('Edit: {name}', { name: T(A.name) }) }).click();
+  for (const n of AREA_NAMES.slice(1)) await page.getByRole('dialog', { name: T('Edit category') }).getByRole('group', { name: T('Applies to|areas') }).getByRole('button', { name: T(n) }).click();
+  await page.getByRole('dialog', { name: T('Edit category') }).getByRole('button', { name: T('Save') }).click();
+  await expect(row(page, A.key)).not.toContainText(T('Only {areas}', { areas: T(AREA_NAMES[0]) }));
+  await expect.poll(async () => (await overrides(page)).categories).toBeUndefined();
+});

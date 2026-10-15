@@ -13,6 +13,7 @@
   import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf } from '../lib/standard.js';
   import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove } from '../lib/lists.js';
   import { catIcon, stdIconName } from '../lib/gear/caticon.js';
+  import { domainName } from '../lib/domains.js';
   import ListEntrySheet from '../lib/ich/ListEntrySheet.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -42,6 +43,8 @@
   let sheet = $state(null);
 
   const save = (next) => saveList(db, KEY, next);
+  // LI3 «Gilt für»: a category for some trip areas only says which, on a line of its own
+  const only = (e) => (e.areas?.length ? t('Only {areas}', { areas: e.areas.map((k) => t(domainName(k))).join(', ') }) : '');
   const sub = (e) => {
     const n = tn(count[e.id] ?? 0, '{n} item', '{n} items');
     if (e.hidden) return `${t('Hidden')} · ${n}`;
@@ -49,7 +52,7 @@
     if (e.renamed) return `${t('Standard name: {name}', { name: t(e.std) })} · ${n}`;
     return `${t('Standard')} · ${n}`;
   };
-  const adapted = (e) => !e.own && (e.renamed || overrideOf(value).icons[e.id]);
+  const adapted = (e) => !e.own && (e.renamed || overrideOf(value).icons[e.id] || e.areas);
   function reset() {
     if (!confirm(t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.'))) return;
     resetToStandard(db, KEY);
@@ -105,7 +108,7 @@
             <span class="ich-ib" aria-hidden="true"><I size={18} /></span>
             <!-- v0.163.x: name, mark and pen are one button (the window of the entry); on the phone the name keeps its room next to the handle and the arrows -->
             <button type="button" class="edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: t(e.name) })} onclick={() => (sheet = { entry: e })}>
-              <span class="ich-m"><b>{t(e.name)}</b><small>{sub(e)}</small></span>
+              <span class="ich-m"><b>{t(e.name)}</b><small>{sub(e)}</small>{#if only(e)}<small>{only(e)}</small>{/if}</span>
               {#if e.own}<span class="badge own">{t('Own|entry')}</span>{:else if adapted(e)}<span class="badge mine">{t('Adapted')}</span>{/if}
               <span class="pen" aria-hidden="true"><Pencil size={18} /></span>
             </button>

@@ -63,4 +63,8 @@ export default {
   'Music|symbol': 'Musik',
   'Dumbbell|symbol': 'Hantel',
   'Book|symbol': 'Buch',
+  // LI3 «Gilt für» (Noah «2b» 15.10.2026)
+  'Applies to|areas': 'Gilt für',
+  'When packing, the app suggests these items only on trips of the chosen kinds. The search always finds them.': 'Beim Packen schlägt die App diese Teile nur bei den gewählten Tourarten vor. Die Suche findet sie immer.',
+  'Only {areas}': 'Nur {areas}',
 };
