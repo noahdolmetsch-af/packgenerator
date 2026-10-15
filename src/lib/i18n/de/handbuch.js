@@ -345,5 +345,10 @@ export default {
   'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
   'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
   'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  // Dokumente-PDF
+  'Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).',
+  'Photograph page by page or choose photos; check the corners, then «Save as PDF».': 'Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».',
+  'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» (braucht Strava auf diesem Gerät).',
+  'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.': 'Beispiel: eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.',
   'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
 };

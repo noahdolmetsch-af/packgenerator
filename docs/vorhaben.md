@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.166.0 | Papier wird PDF (Noahs Idee 15.10.2026, Antworten 12:00 und 12:16, «vorerst ohne mockup»): Dokument fotografieren oder Galeriefotos → PDF mit Text, in Gruppen, auch in Google Drive; Ziel 1 | lokal gebaut |
 | 0.157.0 | Fitbit verbinden (G1–G2, freigegeben 13.10.2026 17:03 UTC): Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten kommen täglich von selbst in die App, die Vergangenheit einmal aus der Datei; Ziel 1 | PR offen |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |

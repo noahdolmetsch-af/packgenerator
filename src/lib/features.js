@@ -144,6 +144,7 @@ const OWN = [
   { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes by day; «File as …» with 7 targets; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
   // 0.157.0 «Fitbit verbinden» (G1–G2)
+  { id: 'f.docs', group: 'data', title: 'Documents as PDF', text: 'Photograph a document or choose photos from the gallery: the app straightens the pages, reads the text and keeps a PDF, also in your Google Drive.', href: '#/me/docs', words: 'dokument pdf scan scannen foto fotografieren quittung brief garantie ablage drive google galerie text' },
   { id: 'f.fitbit', group: 'data', title: 'Fitbit connection', text: 'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.', href: '#/me/fitbit', words: 'fitbit google gesundheit schlaf ruhepuls hrv schritte aktivzonen uhr' },
   { id: 'f.autobackup', group: 'data', title: 'Auto backup into a folder', text: 'Writes after every change into a folder you choose (computer only).', run: 'data', seen: 'folder', words: 'auto backup ordner' },
   { id: 'f.tidy', group: 'data', title: 'Tidy up test data', text: 'Everything with «test» in its name: archive it, with Undo.', href: '#/me', words: 'testdaten aufräumen archiv' },

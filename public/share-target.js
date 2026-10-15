@@ -16,6 +16,12 @@
  * with it (header X-Share-Text), so the komoot link comes along. The rule is the same as
  * src/lib/komoot.js sharedKind (tests/komoot.test.js runs this worker against it).
  */
+/*
+ * Dokumente-PDF (Noah 15.10.2026 «normale Fotos aus dem Galerie-Ordner senden»): photos and PDFs shared to
+ * the app (field "doc") are kept in the Cache "pg-shared-docs", one entry per file, then the app opens
+ * #/me/docs/scan?shared=1 (src/lib/docs/share.js uses the same names).
+ */
+const SHARE_DOCS_CACHE = 'pg-shared-docs';
 const SHARE_CACHE = 'pg-shared-ride';
 const SHARE_KEY = 'shared-ride';
 // SN1b: the same limit as the ride upload (gpx.js RIDE_MAX_MB): a bigger file goes to the upload, which says why
@@ -46,6 +52,15 @@ self.addEventListener('fetch', (event) => {
         form = await req.formData();
       } catch {
         return go(`${base}#/inbox`);
+      }
+      const docs = form.getAll('doc').filter((f) => f && typeof f === 'object' && f.size > 0);
+      if (docs.length) {
+        const cache = await caches.open(SHARE_DOCS_CACHE);
+        for (const old of await cache.keys()) await cache.delete(old);
+        for (const [i, f] of docs.slice(0, 30).entries()) {
+          await cache.put(`${base}shared-doc-${i}`, new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(f.name || `shared-${i}`) } }));
+        }
+        return go(`${base}#/me/docs/scan?shared=1`);
       }
       const file = form.getAll('ride').find((f) => f && typeof f === 'object' && f.size > 0);
       if (file) {

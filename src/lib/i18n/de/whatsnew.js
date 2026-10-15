@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.166.0 Dokumente-PDF
+  'Paper becomes PDF 📄': 'Aus Papier wird PDF 📄',
+  'Photograph a document page by page: the app straightens it, reads the text and keeps a PDF under Me › Documents, also in your Google Drive.': 'Fotografiere ein Dokument Seite für Seite: Die App richtet es gerade, erkennt den Text und legt ein PDF unter Ich › Dokumente ab, auch in deinem Google Drive.',
+  'Photograph document: the edge is found by itself, corners by hand, black and white or colour': 'Dokument fotografieren: Der Rand wird selbst gefunden, Ecken von Hand, schwarzweiss oder farbig',
+  'Documents: «Imported PDFs» and own groups, four ways to sort, search also in the text': 'Dokumente: «Importierte PDF» und eigene Gruppen, vier Arten zu sortieren, Suche auch im Text',
+  'Google Drive: the same login as Fitbit, a folder «Imported PDFs» with a subfolder per group': 'Google Drive: dieselbe Anmeldung wie bei Fitbit, ein Ordner «Importierte PDF» mit einem Unterordner pro Gruppe',
+  'Photos from the gallery: Share › Pack Generator, one PDF of all, each its own PDF or kept as photos': 'Fotos aus der Galerie: Teilen › Pack Generator, ein PDF aus allen, jedes als eigenes PDF oder als Fotos behalten',
+  'New › «Photograph document»': 'Neu › «Dokument fotografieren»',
+  'Open Me › Documents and tap «Photograph document»; photograph two pages, check the corners and tap «Save as PDF».': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren»; fotografiere zwei Seiten, prüfe die Ecken und tippe «Als PDF speichern».',
+  'The PDF stands in «Imported PDFs» with a name from its text; open it, rename it and move it to a new group.': 'Das PDF steht in «Importierte PDF» mit einem Namen aus seinem Text; öffne es, benenne es um und verschiebe es in eine neue Gruppe.',
+  'Tap «Connect Google Drive», allow Drive: the PDF appears in Drive in «Importierte PDF».': 'Tippe «Google Drive verbinden» und erlaube Drive: Das PDF erscheint in Drive im Ordner «Importierte PDF».',
   // 0.157.0 Fitbit verbinden
   'Your watch talks to the app ⌚': 'Deine Uhr spricht mit der App ⌚',
   'Sleep, resting heart rate, HRV, steps and active zone minutes come from Fitbit into the app every day by themselves.': 'Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten kommen jeden Tag von selbst von Fitbit in die App.',

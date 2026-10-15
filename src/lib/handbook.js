@@ -457,6 +457,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.docs': {
+    on: null,
+    steps: ['Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).', 'Photograph page by page or choose photos; check the corners, then «Save as PDF».', 'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).'],
+    example: 'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.',
+  },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
     steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],

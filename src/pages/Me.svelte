@@ -27,7 +27,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, FileText } from '@lucide/svelte';
+  import { docs as docList } from '../lib/docs/client.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -111,6 +112,14 @@
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
               {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Dokumente-PDF (Noah 15.10.2026): photographed documents as PDF, also in Google Drive -->
+            <a class="ich-row" href="#/me/docs">
+              <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Documents')}</b><small>{docList.list.length ? `${tn(docList.list.length, '{n} document', '{n} documents')} · ${t('photograph, keep as PDF')}` : t('Photograph a document, it becomes a PDF')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

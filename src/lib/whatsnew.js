@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // v0.166.0 «Dokumente-PDF» (Noah 15.10.2026 «idee: ich fotografiere ein Dokument …», answers «1b 2a … 3 beides
+    // möglich 4a … b möglich 5a» and «1a 2a», built without mockups «vorerst ohne mockup»)
+    version: '0.166.0',
+    date: '2026-10-15',
+    title: 'Paper becomes PDF 📄',
+    lead: 'Photograph a document page by page: the app straightens it, reads the text and keeps a PDF under Me › Documents, also in your Google Drive.',
+    points: [
+      { text: 'Photograph document: the edge is found by itself, corners by hand, black and white or colour', href: '#/me/docs/scan' },
+      { text: 'Documents: «Imported PDFs» and own groups, four ways to sort, search also in the text', href: '#/me/docs' },
+      { text: 'Google Drive: the same login as Fitbit, a folder «Imported PDFs» with a subfolder per group', href: '#/me/docs' },
+    ],
+    small: [
+      { box: 'new', text: 'Photos from the gallery: Share › Pack Generator, one PDF of all, each its own PDF or kept as photos' },
+      { box: 'new', text: 'New › «Photograph document»' },
+    ],
+    test: [
+      'Open Me › Documents and tap «Photograph document»; photograph two pages, check the corners and tap «Save as PDF».',
+      'The PDF stands in «Imported PDFs» with a name from its text; open it, rename it and move it to a new group.',
+      'Tap «Connect Google Drive», allow Drive: the PDF appears in Drive in «Importierte PDF».',
+    ],
+  },
+  {
     // v0.157.0 «Fitbit verbinden» (mockups G1–G2, Noah 13.10.2026 17:03 «g1-g2 freigeben»; his wish 14.10.2026 «ich möchte fitbit anbindung sofort»)
     version: '0.157.0',
     date: '2026-10-14',

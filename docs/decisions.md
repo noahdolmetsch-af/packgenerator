@@ -879,6 +879,15 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
 - **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
+## 15.10.2026: 0.166.0 «Papier wird PDF» (vorläufige Nummer)
+
+- Noahs Idee 15.10.2026 08:42 UTC; Antworten «1b 2a 3 beides 4a 5a» 12:00 und «1a 2a 3 beides 4a 5 alle» 12:16, «vorerst ohne mockup» 12:17; Bau «1a» 12:52; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19.
+- **Antworten:** 1b auch in Google Drive · 2a Gruppe «Dokumente» mit Sortieren · 3 Rand automatisch und Ecken von Hand · 4a schwarzweiss normal, Farbe möglich · 5a Text erkennen · Galeriefotos (1a ein PDF aus allen) · Drive pro Gruppe ein Unterordner (2a).
+- **Server:** `api/google` bekommt `drive-upload`, `drive-move`, `drive-rename`; Scope nur `drive.file` (die App sieht nur ihre eigenen Ordner und Dateien), zusätzlich angefragt (`include_granted_scopes`), höchstens 4 MB pro Datei. Ordner-IDs in Redis (`google:drive:folders`), beim Trennen gelöscht.
+- **App:** Tabelle `docs` (Dexie 13, vorläufig; die Koordination setzt die Nummer in Release-Reihenfolge), in Backups. Bildrechnung auf dem Gerät (Otsu, grösste helle Fläche, Entzerrung, adaptives Schwarzweiss), PDF mit pdf-lib, Text mit tesseract.js (beides nur bei Bedarf geladen, kostenlos).
+- **Selbst entschieden:** «Dokumente» unter Ich statt als eigener Ort (die Ort-Frage ist offen, nav.js heiss). Eintrag «Dokument fotografieren» im Neu-Menü in der Gruppe Notiz. Text lesen beim Speichern; ein leerer Name kommt aus dem Text. Löschen in der App lässt die Kopie in Drive. Ohne erreichbaren Text-Leser wird ohne Text gespeichert.
+- **Nicht in diesem Teil:** Google Aufgaben und Kalender (GA), Mail (GM), weitere Dateiarten inkl. .pkpass (DF), Auswertungen (GX).
+
 ## 14.10.2026: 0.157.0 «Fitbit verbinden»
 
 - **Mockup-Freigabe: G1–G2 «g1-g2 freigeben» Noah 13.10.2026 17:03 UTC (Offene Mockups 2 #fitbit-verbinden), Antworten «1-5a» 13.10.2026; gebaut auf Noahs Wunsch 14.10.2026 21:59 UTC «ich möchte fitbit anbindung sofort».**

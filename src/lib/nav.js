@@ -151,6 +151,8 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
+  if (h.startsWith('#/me/docs/scan')) return 'docscan'; // Dokumente-PDF: «Dokument fotografieren»
+  if (h.startsWith('#/me/docs')) return 'docs'; // Dokumente-PDF: Ich › Dokumente
   if (h.startsWith('#/me/fitbit')) return 'fitbit'; // Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit
   if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
   if (h.startsWith('#/me/news')) return 'news'; // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu
@@ -254,7 +256,7 @@ export function placeOf(page) {
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'fitbit' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'fitbit' || page === 'docs' || page === 'docscan' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis') return 'me';
   return null;
 }
 

@@ -62,7 +62,11 @@ export default defineConfig({
             title: 'title',
             text: 'text',
             url: 'url',
-            files: [{ name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] }],
+            // Dokumente-PDF: photos and PDFs from the gallery or other apps go to «Dokumente» (field "doc")
+            files: [
+              { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
+              { name: 'doc', accept: ['image/jpeg', 'image/png', 'image/webp', 'image/*', 'application/pdf', '.pdf', '.jpg', '.jpeg', '.png'] },
+            ],
           },
         },
       },

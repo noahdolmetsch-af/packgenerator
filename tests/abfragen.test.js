@@ -334,7 +334,7 @@ describe('the database (schema 9): answers next to the daily checks', () => {
   });
 
   it('a new table abAnswers in the backup; flowChecks stay untouched', async () => {
-    expect(SCHEMA_VERSION).toBe(12); // Fitbit: version 12 adds healthDays
+    expect(SCHEMA_VERSION).toBe(13); // Fitbit: version 12 adds healthDays; Dokumente-PDF: version 13 adds docs
     expect(DATA_TABLES).toContain('abAnswers');
     await db.flowChecks.put({ day: d(-1), sleep: 6, energy: 5, mood: 7, q: null, extra: null });
     await db.abAnswers.put(answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` }));

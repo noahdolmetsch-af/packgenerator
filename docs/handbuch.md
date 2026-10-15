@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 98 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 99 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1027,6 +1027,18 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Dokumente als PDF
+
+Dokument fotografieren oder Fotos aus der Galerie wählen: die App richtet die Seiten gerade, liest den Text und legt ein PDF ab, auch in deinem Google Drive.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).
+2. Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».
+3. Für Google Drive: einmal «Google Drive verbinden» (braucht Strava auf diesem Gerät).
+
+**Beispiel:** Eine Quittung vom Veloladen → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.
 
 ### Fitbit-Verbindung
 

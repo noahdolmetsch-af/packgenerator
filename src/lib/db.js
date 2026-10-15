@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 12; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 12: Fitbit daily values
+export const SCHEMA_VERSION = 13; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 12: Fitbit daily values. 13: documents (Dokumente-PDF)
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -41,6 +41,7 @@ export const DATA_TABLES = [
   'flowStars', // hobby pages: milestone stars reached (id = `${msId}:${star}`), kept forever (flowms.js)
   'abAnswers', // AB «Deine Abfragen»: one row per answer, the history under Ich › Daten › Verlauf (abfragen.js)
   'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
+  'docs', // Dokumente-PDF: photographed or chosen PDFs and kept photos, as data URLs (docs.js)
 ];
 
 /**
@@ -165,6 +166,10 @@ export function createDb(name = 'pack-generator') {
   // 9–11 are taken by packages that are still open (Design-Refresh, Meditation); Dexie allows the gap.
   db.version(12).stores({
     healthDays: 'date',
+  });
+  // Version 13 (Dokumente-PDF) only adds the documents, so existing data stays as it is.
+  db.version(13).stores({
+    docs: 'id, kind, group, createdAt',
   });
   return db;
 }

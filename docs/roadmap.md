@@ -12,6 +12,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 15.10.2026 (v0.166.0, vorläufig):** «Papier wird PDF» (Noahs Idee 15.10.2026 08:42 UTC; Antworten «1b 2a 3 beides 4a 5a» 12:00 und «1a 2a 3 beides 4a 5 alle» 12:16, «vorerst ohne mockup» 12:17; Bau «1a» 12:52; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19): Google Teil 1 (DP). Danach folgen GA (Aufgaben + Kalender), GM (Mail), DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
+
 **Nachtrag 14.10.2026 (v0.157.0):** «Fitbit verbinden» (Mockup-Freigabe: G1–G2 «g1-g2 freigeben» Noah 13.10.2026 17:03 UTC (Offene Mockups 2 #fitbit-verbinden), Antworten «1-5a» 13.10.2026; gebaut auf Noahs Wunsch 14.10.2026 21:59 UTC «ich möchte fitbit anbindung sofort»): Bündel B, Teil Google. Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten kommen täglich über Google Health v4 in die App; die Vergangenheit kommt einmal aus einer privaten Datei. Puls alter Velofahrten aus der Fitbit-Datei (Antwort 4a) folgt als eigener Teil.
 
 **Nachtrag 14.10.2026 (v0.132.1):** «Langer Name passt» (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bleibt bei «Tour beendet» in der grauen Box.

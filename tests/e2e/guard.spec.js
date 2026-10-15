@@ -46,6 +46,8 @@ const ROUTES = [
   ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
   ['#/helper', 'Helfer'], // v0.77.0 KI-Helfer (K1a): Ich › Helfer, before the setup
+  ['#/me/docs', 'Dokumente'], // Dokumente-PDF: Ich › Dokumente
+  ['#/me/docs/scan', 'Dokument fotografieren'],
   // v0.67.0 «Übergänge 1»: the Pack tab, a saved debrief and the three interstitials (strict, see below)
   ['#/pack?day', 'Packen (Tab)'],
   ['#/debrief/test_data_gtp_Napf', 'Rückblick einer Tour'],

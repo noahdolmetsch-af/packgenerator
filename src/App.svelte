@@ -37,6 +37,8 @@
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
   import Fitbit from './pages/Fitbit.svelte';
+  import Docs from './pages/Docs.svelte';
+  import DocScan from './pages/DocScan.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
@@ -349,6 +351,12 @@
   {:else if page === 'fitbit'}
     <!-- Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit -->
     <Fitbit />
+  {:else if page === 'docs'}
+    <!-- Dokumente-PDF (Noah 15.10.2026): Ich › Dokumente -->
+    {#key hash.split('?')[0]}<Docs />{/key}
+  {:else if page === 'docscan'}
+    <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
+    <DocScan />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}
