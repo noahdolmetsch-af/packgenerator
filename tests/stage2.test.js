@@ -4,7 +4,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { applyUpdates, blocks2026, blocksAfterImport, UPDATES, toolsAlways2026, templatesLinked2026 } from '../src/lib/updates.js';
+import { applyUpdates, blocks2026, blocksAfterImport, UPDATES, toolsAlways2026, templatesLinked2026, testTrips2026 } from '../src/lib/updates.js';
 import { BLOCKS_MARKER, STANDARD, inStandard, leaveHome, blockKeys } from '../src/lib/blocks2026.js';
 import { TEMPLATES_KEY } from '../src/lib/templates.js';
 import { matches, weighPriority } from '../src/lib/gear.js';
@@ -28,9 +28,11 @@ async function freshDb(items, settings = []) {
 
 describe('the one-time update blocks2026 in updates.js', () => {
   it('runs after toolsAlways2026, only the linked templates of v0.39.0 come after it', () => {
-    // v0.66.0: «Bausteine neu» (blockSplit2026) runs last, after the linked templates.
-    expect(UPDATES.at(-3)).toBe(blocks2026);
-    expect(UPDATES.at(-2)).toBe(templatesLinked2026);
+    // v0.66.0: «Bausteine neu» (blockSplit2026) runs after the linked templates; 0.161.0: the trips'
+    // «Test trip» switch (testTrips2026) runs last, it touches no item or template.
+    expect(UPDATES.at(-4)).toBe(blocks2026);
+    expect(UPDATES.at(-3)).toBe(templatesLinked2026);
+    expect(UPDATES.at(-1)).toBe(testTrips2026);
     expect(UPDATES.indexOf(toolsAlways2026)).toBeLessThan(UPDATES.indexOf(blocks2026));
   });
 

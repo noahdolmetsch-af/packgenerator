@@ -83,7 +83,7 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
-      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
+      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id, testTrip: trip.testTrip === true }
       : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
         { title: '', startDate: rideDate(), days: 1, bikeId: bikes.some((b) => b.id === defaultBikeId) ? defaultBikeId : lastBikeId(trips, bikes) ?? bikes[0]?.id },
@@ -483,6 +483,7 @@
       oncreated?.(nt.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
+      if (draft.testTrip !== (trip.testTrip === true)) changes.testTrip = draft.testTrip; // 0.161.0 (Noah H3a)
       if (byBike) {
         // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
         const f = ctxFields();
@@ -825,6 +826,10 @@
         {@render overnight()}
         {@render weather()}
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
+      {/if}
+      {#if !isNew}
+        <!-- 0.161.0 (Noah H3a): only this switch hides a trip as a test; its name never does. -->
+        <label class="ck"><input type="checkbox" bind:checked={draft.testTrip} data-test-trip /> {t('Test trip (counts nowhere)')}</label>
       {/if}
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->

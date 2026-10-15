@@ -3,7 +3,7 @@
  * database, no screen), tested in tests/home0460.test.js; Home.svelte and lib/home/*.svelte read the
  * records and write the result.
  *
- * - test trips (Noah 10a): a trip with "test" in its name never becomes the next trip on Today; a quiet
+ * - test trips (Noah 10a; 0.161.0 H3a: the «Test trip» switch, not the name) never become the next trip on Today; a quiet
  *   line offers to archive them (with Undo). The marker of the fictional test fixtures
  *   ("test_data_gtp_") does not count: it is not part of a name Noah types.
  * - the greeting by time of day and the weather in one sentence (home forecast, hourly when known);

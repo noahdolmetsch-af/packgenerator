@@ -10,9 +10,9 @@ import { planAgainChanges } from '../src/lib/trip/ending.js';
 
 // v0.88.0 «Aufräumen und Ausprobieren»: fictional data only.
 const trips = [
-  { id: 't1', title: 'Testtour Regen', startDate: '2026-09-01', days: 1, entries: [{ itemId: 'i1' }] },
+  { id: 't1', title: 'Testtour Regen', startDate: '2026-09-01', days: 1, entries: [{ itemId: 'i1' }], testTrip: true },
   { id: 't2', title: 'Jura loop', startDate: '2026-09-05', days: 1, entries: [{ itemId: 'i1' }] },
-  { id: 't3', title: 'test3', startDate: '2026-09-08', days: 1, entries: [] },
+  { id: 't3', title: 'test3', startDate: '2026-09-08', days: 1, entries: [], testTrip: true },
 ];
 const debriefs = [
   { tripId: 't1', status: 'done', items: {} },

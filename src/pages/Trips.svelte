@@ -70,7 +70,7 @@
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
   const rides = $derived($ridesQ ?? []);
-  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 1b): trips with «test» in the name count nowhere, as on Today
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 1b + H3a): trips with the «Test trip» switch count nowhere, as on Today
   const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
   const hiddenTests = $derived(testTrips($tripsQ ?? []).length);
   let tidyOpen = $state(false);

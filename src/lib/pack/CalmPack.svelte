@@ -283,6 +283,8 @@
                 <button onclick={menu(actions.newTrip)}>{t('New trip')}</button>
                 <!-- TZ-2: a fixed trip: «Wieder öffnen» first; what changes the list or the facts waits for it -->
                 {#if fixed}<button class="tz2-reopen" onclick={menu(actions.reopen)}>{t('Reopen')}</button>{/if}
+                <!-- 0.161.0 (Noah H3a): the «Test trip» switch, for every trip (a finished one too) -->
+                <button onclick={menu(actions.testTrip)} data-test-trip-toggle>{trip.testTrip === true ? t('Not a test trip') : t('Mark as test trip')}</button>
                 {#if !fixed}<button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
                 <button onclick={menu(() => show('conditions'))}>{t('Edit trip conditions')}</button>
                 <button onclick={menu(() => show('bags'))}>{t('Bags for this trip')}</button>{/if}{#if bikeTrip}{#if !fixed}<button onclick={menu(actions.compare)}>{t('Compare bikes')}</button>{/if}{#if tplHere}<button onclick={menu(actions.template)}>{t('Save as template')}</button>{/if}{/if}

@@ -7,13 +7,13 @@ export default {
   // 0.161.0 Bugfixes 0.132.2 (eine Zahl für eine Sache)
   'One number for one thing': 'Eine Zahl für eine Sache',
   'Trips, favourites and «On me» count the same on every page, and old test notes stay away.': 'Touren, Favoriten und «Am Körper» zählen auf jeder Seite gleich, und alte Test-Notizen bleiben weg.',
-  'Trips: trips with «test» in the name count nowhere; completed and rated say their period': 'Touren: Touren mit «Test» im Namen zählen nirgends mit; abgeschlossen und bewertet sagen ihren Zeitraum',
+  'Trips: a trip with the «Test trip» switch counts nowhere; completed and rated say their period': 'Touren: eine Tour mit dem Schalter «Testtour» zählt nirgends mit; abgeschlossen und bewertet sagen ihren Zeitraum',
   'On me: everything you wear, also the watch and the hip bag; a new trip shows «in the bags · on me»': 'Am Körper: alles, was du trägst, auch Uhr und Hüfttasche; eine neue Tour zeigt «im Gepäck · am Körper»',
   'Favourites: your own things; the wishlist ones only when you switch them on': 'Favoriten: deine eigenen Sachen; die von der Wunschliste nur, wenn du sie einschaltest',
   '«Clean up test data» also archives the learnings of a test trip, so they no longer turn up in a new trip': '«Testdaten aufräumen» archiviert auch die Learnings einer Test-Tour, sie tauchen nicht mehr in einer neuen Tour auf',
   'The logbook says what it holds: trips and older entries': 'Das Logbuch sagt, was drin ist: Touren und ältere Einträge',
   'Open Trips: next to the counts stands «in 12 months»; switch to «All», the counts follow.': 'Öffne Touren: Bei den Zahlen steht «in 12 Monaten»; wechsle auf «Alle», die Zahlen ziehen mit.',
-  'A trip with «Test» in its name: Trips says «1 test trip hidden», Today shows the next real trip.': 'Eine Tour mit «Test» im Namen: Touren sagt «1 Test-Tour ausgeblendet», Heute zeigt die nächste echte Tour.',
+  'Edit a trip and switch on «Test trip»: Trips says «1 test trip hidden», Today shows the next real trip.': 'Bearbeite eine Tour und schalte «Testtour» ein: Touren sagt «1 Test-Tour ausgeblendet», Heute zeigt die nächste echte Tour.',
   'Open a trip in Pack: the card «On me» lists the clothing and then the rest you wear.': 'Öffne eine Tour in Packen: Die Karte «Am Körper» zeigt die Kleidung und danach den Rest, den du trägst.',
   'Me › Clean up test data: a test trip takes its learnings along; «Undo» brings them back.': 'Ich › Testdaten aufräumen: Eine Test-Tour nimmt ihre Learnings mit; «Rückgängig» holt sie zurück.',
 

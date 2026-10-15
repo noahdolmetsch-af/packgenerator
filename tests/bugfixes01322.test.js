@@ -1,6 +1,9 @@
 // 0.161.0 «Bugfixes 0.132.2» (Durchklick 2, Noah «1b 2a 3a und wunschliste möglich 4a 5b"): the same
 // number on every page. Fictional data only.
+import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
+import { createDb } from '../src/lib/db.js';
+import { testTrips2026, testTripsRerunAfterImport, blocksAfterImport, TEST_TRIPS_MARKER } from '../src/lib/updates.js';
 import { nextTrip } from '../src/lib/debrief.js';
 import { homeTrips, testTrips } from '../src/lib/home/heute.js';
 import { wornClothes, isOnMe } from '../src/lib/swap.js';
@@ -13,7 +16,8 @@ const today = '2026-10-15';
 
 describe('B1/B2 (1b): a test trip counts nowhere', () => {
   const trips = [
-    { id: 'a', title: 'In8daysTestRunde', startDate: '2026-10-23', days: 1 },
+    { id: 'a', title: 'In8daysTestRunde', startDate: '2026-10-23', days: 1, testTrip: true },
+    { id: 'd', title: 'Contest Jura', startDate: '2026-10-31', days: 1 },
     { id: 'b', title: 'Jura loop', startDate: '2026-10-30', days: 1 },
     { id: 'c', title: 'Contest Ride', startDate: '2026-10-20', days: 1, archivedAt: '2026-10-14T10:00:00Z' },
   ];
@@ -22,7 +26,7 @@ describe('B1/B2 (1b): a test trip counts nowhere', () => {
     expect(nextTrip(trips.slice(0, 1), today)).toBeNull();
   });
   it('Today and the clean-up use the same rule', () => {
-    expect(homeTrips(trips).map((x) => x.id)).toEqual(['b']);
+    expect(homeTrips(trips).map((x) => x.id)).toEqual(['d', 'b']); // H3a: "Contest" stays
     expect(testTrips(trips).map((x) => x.id)).toEqual(['a']);
   });
   it('the tile hints of Material and Velos see no next trip but the real one', () => {
@@ -86,5 +90,36 @@ describe('B1: the logbook says what it holds', () => {
   it('trips and older entries, the same line on the tile and in the Rückblick', () => {
     expect(logbookLine(18, 30)).toBe('18 trips · 30 older entries');
     expect(logbookLine(1, 0)).toBe('1 trip');
+  });
+});
+
+describe('H3a: only the «Test trip» switch hides a trip', () => {
+  const trip = (id, title, extra = {}) => ({ id, title, startDate: '2026-10-20', days: 1, ...extra });
+  it('switches it on once for the trips the old name rule hid; "Contest", archived and set ones stay', async () => {
+    const db = createDb('h3a-1');
+    await db.trips.bulkPut([trip('t1', 'TEST-Runde'), trip('t2', 'Contest Jura'), trip('t3', 'Testtour', { testTrip: false }), trip('t4', 'test 4', { archivedAt: '2026-10-01T00:00:00Z' })]);
+    expect(await testTrips2026(db)).toEqual(['t1']);
+    expect((await db.trips.get('t1')).testTrip).toBe(true);
+    expect((await db.trips.get('t2')).testTrip).toBeUndefined();
+    expect((await db.trips.get('t3')).testTrip).toBe(false);
+    expect((await db.trips.get('t4')).testTrip).toBeUndefined();
+    // Noah turns it off: a second run leaves it off, and a trip named "test" later is not hidden
+    await db.trips.update('t1', { testTrip: false });
+    await db.trips.put(trip('t5', 'Test ride new'));
+    expect(await testTrips2026(db)).toEqual([]);
+    expect((await db.trips.get('t1')).testTrip).toBe(false);
+    expect((await db.trips.get('t5')).testTrip).toBeUndefined();
+  });
+  it('a backup from before the switch is marked again after the import', async () => {
+    const old = { tables: { trips: [trip('t1', 'TEST-Runde')], settings: [] } };
+    const now = { tables: { trips: [trip('t1', 'TEST-Runde')], settings: [{ key: TEST_TRIPS_MARKER, value: '2026-10-15' }] } };
+    expect(testTripsRerunAfterImport(old)).toBe(true);
+    expect(testTripsRerunAfterImport(now)).toBe(false);
+    expect(testTripsRerunAfterImport({ tables: { settings: [] } })).toBe(false);
+    const db = createDb('h3a-2');
+    await testTrips2026(db);
+    await db.trips.put(trip('t1', 'TEST-Runde'));
+    await blocksAfterImport(db, old, 'merge');
+    expect(await testTrips2026(db)).toEqual(['t1']);
   });
 });

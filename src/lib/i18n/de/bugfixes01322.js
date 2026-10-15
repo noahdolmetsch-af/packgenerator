@@ -13,4 +13,8 @@ export default {
   'More on me': 'Weiteres am Körper',
   '{n} in the bags': '{n} im Gepäck',
   '{n} on me': '{n} am Körper',
+  // H3a (Noah 15.10.2026 21:03): only this switch hides a trip as a test
+  'Test trip (counts nowhere)': 'Testtour (zählt nirgends mit)',
+  'Mark as test trip': 'Als Testtour markieren',
+  'Not a test trip': 'Keine Testtour',
 };

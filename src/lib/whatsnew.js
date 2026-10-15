@@ -23,7 +23,7 @@ export const WHATS_NEW = [
     title: 'One number for one thing',
     lead: 'Trips, favourites and «On me» count the same on every page, and old test notes stay away.',
     points: [
-      { text: 'Trips: trips with «test» in the name count nowhere; completed and rated say their period', href: '#/trips' },
+      { text: 'Trips: a trip with the «Test trip» switch counts nowhere; completed and rated say their period', href: '#/trips' },
       { text: 'On me: everything you wear, also the watch and the hip bag; a new trip shows «in the bags · on me»', href: '#/pack' },
       { text: 'Favourites: your own things; the wishlist ones only when you switch them on', href: '#/favorites' },
     ],
@@ -33,7 +33,7 @@ export const WHATS_NEW = [
     ],
     test: [
       'Open Trips: next to the counts stands «in 12 months»; switch to «All», the counts follow.',
-      'A trip with «Test» in its name: Trips says «1 test trip hidden», Today shows the next real trip.',
+      'Edit a trip and switch on «Test trip»: Trips says «1 test trip hidden», Today shows the next real trip.',
       'Open a trip in Pack: the card «On me» lists the clothing and then the rest you wear.',
       'Me › Clean up test data: a test trip takes its learnings along; «Undo» brings them back.',
     ],

@@ -864,12 +864,14 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 
 ## 15.10.2026: 0.161.0 «Bugfixes 0.132.2» (eine Zahl für eine Sache)
 
-- Noah 1b: Touren mit «Test» im Namen zählen nirgends, auch nicht auf Touren und nicht als nächste Tour; «Testdaten aufräumen» findet sie. Regel: «test» am Wortanfang oder angehängt mit Grossbuchstabe («…Test…»), nicht in «Contest» (src/lib/testname.js).
+- Noah 1b: Testtouren zählen nirgends, auch nicht auf Touren und nicht als nächste Tour; «Testdaten aufräumen» findet sie.
+- Noah H3a (15.10.2026 21:03 UTC, Runde 3 «Offene Fragen»): nur der Schalter «Testtour» versteckt eine Tour, nie der Name («Contest» bleibt sichtbar). Schalter im Fenster «Tour bearbeiten» und im •••-Menü der Tour («Als Testtour markieren» / «Keine Testtour», auch für eine abgeschlossene Tour, mit Rückgängig) (`trip.testTrip`, src/lib/testname.js).
 - Noah 2a: Zahlen über einen Zeitraum sagen ihn («in 12 Monaten», «im 2026», «seit Beginn»).
 - Noah 3a «und wunschliste möglich»: Favoriten zählen nur eigene Sachen (eigen oder unklar); die Wunschliste per Schalter.
 - Noah 4a: «Am Körper» = alles auf dem Körper, Rücken und Hüfte (swap.js isOnMe); Nicht-Kleidung steht in der Karte unter «Weiteres am Körper» ohne Tauschen.
 - Noah 5b: Knopf bei neuer Tour «x im Gepäck · y am Körper», gezählt aus denselben Einträgen, die gespeichert werden.
 - B3: «Testdaten aufräumen» archiviert auch die Learnings einer gewählten Tour (Tour-Id oder Titel) und bietet selbst geschriebene Learnings mit «test» an; neue Learnings speichern die Tour-Id.
+- **Selbst entschieden (H3a):** Einmal beim Update (`testTrips2026` in updates.js) bekommen die Touren den Schalter, die die alte Namensregel versteckt hat («test» am Wortanfang oder «…Test…»), damit nichts plötzlich wieder auftaucht; ausschalten geht pro Tour. Eine Sicherung von vor dem Schalter wird nach dem Einlesen gleich behandelt. «Testdaten aufräumen» schlägt Touren mit «test» im Namen weiter zum Archivieren vor (abwählbar); versteckt wird nur mit dem Schalter.
 - **Selbst entschieden:** Ich › Daten zeigt weiter den Inhalt der Sicherung (alle Einträge, beschriftet «Ausrüstung + Wunschliste»); Learnings ohne eigenes Datum zählen mit ihrer Tour im Zeitraum; Logbuch-Zeile und -Kachel zeigen «Touren · ältere Einträge».
 
 ## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)

@@ -2,7 +2,8 @@
  * v0.88.0 «Aufräumen und Ausprobieren» (Noah 11.10.2026, App einfach 1a, 0.88 «alle a», mockup F):
  * test data out of the way in one go. Ich › «Testdaten aufräumen» finds what has «test» in its name,
  * shows it grouped (each group and each entry can be unticked) and archives it:
- * - a trip: archived as on Today (home/heute.js archiveChanges: archivedAt, skipped), so no page shows
+ * - a trip (0.161.0, Noah H3a: with the «Test trip» switch, or «test» in its name as a suggestion
+ *   to untick; only the switch hides a trip elsewhere): archived as on Today (home/heute.js archiveChanges: archivedAt, skipped), so no page shows
  *   it any more, and its debrief gets the status 'archived', so nothing learns from it (every page
  *   that learns reads only debriefs with status 'done');
  * - an item: ownership 'gone' (the same archive as one row on the Gear page; past trips keep it);
@@ -35,7 +36,7 @@ const ofTrip = (l, tr) => l.tripId === tr.id || (!l.tripId && written(l) && !!tr
 export function findTestData({ trips = [], debriefs = [], items = [], templates = [], learnings = [] } = {}) {
   const withDebrief = new Set(debriefs.filter((d) => d.status !== 'archived').map((d) => d.tripId));
   const out = {
-    trips: trips.filter((x) => !x.archivedAt && isTestTrip(x)).map((x) => ({ id: x.id, name: x.title ?? '', debrief: withDebrief.has(x.id) })),
+    trips: trips.filter((x) => !x.archivedAt && (isTestTrip(x) || isTestName(x.title))).map((x) => ({ id: x.id, name: x.title ?? '', debrief: withDebrief.has(x.id) })),
     items: items.filter((i) => i.ownership !== 'gone' && isTestName(i.name)).map((i) => ({ id: i.id, name: i.name ?? '' })),
     templates: templates.filter((x) => !x.archivedAt && isTestName(x.name)).map((x) => ({ id: x.id, name: x.name ?? '' })),
     learnings: learnings.filter((l) => !l.archivedAt && written(l) && (isTestName(l.rule) || isTestName(l.source))).map((l) => ({ id: learningKey(l), name: l.rule ?? '' })),
