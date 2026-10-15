@@ -1309,3 +1309,13 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 14.10.2026: Release-Analyse «Was wurde verdrängt?»
+
+Noah 14.10.2026 00:41 UTC: zu jedem Release die neuen Features, was wichtig war, und ob spätere Releases Früheres verdrängt, überschrieben oder unsichtbar gemacht haben. Geprüft wurden alle 137 Versionen (0.1.0 bis 0.124.0) am gebauten main mit erfundenen Daten. Ergebnis: rund 160 von 180 Funktionen sind wie vorher da; 16 Funde (F1–F16), meist «tiefer gerutscht». Häufigste Ursache: Nebenwirkungen unter «Selbst entschieden» im Design-Refresh 0.103–0.109; dazu Ersetzen ohne Frage (0.114 «wie letzte Tour», 0.119 Schnellstart) und neue Kacheln, die Altes nach unten schieben.
+
+Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
+- **(1a)** Alle wichtigen und mittleren Funde bekommen Mockups als ein Paket «Wieder sichtbar» (WS1–WS7). Meditation (F1) und Stoppuhr am Computer (F8) laufen über das schon freigegebene Meditations-Paket.
+- **(2a)** Nur noch Schnellstart: die alte «Tagestour jetzt» verschwindet aus dem Neu-Menü, der Suche und den Tipps.
+- **(3a)** Jeder Release-PR hat ab jetzt einen Abschnitt **«Was fällt weg oder rutscht tiefer»**: was nicht mehr da ist, was hinter «Mehr», in eine Falte oder weiter nach unten wandert, oder «nichts». Noah sieht es vor dem Merge.
+- **(4a)** Das Meditations-Paket (ME1–ME3, Z1–Z5) kommt vor Bündel B.
