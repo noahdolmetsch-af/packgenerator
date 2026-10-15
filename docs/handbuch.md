@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 107 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -951,6 +951,18 @@ Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rück
 
 **Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
 
+### Leistung und Analysen
+
+Mit Leistungsmesser: Leistung, Belastung und Leistungskurve auf jeder Fahrt; Analysen auf der Aktivität und über die Wochen, jede ausblendbar.
+
+**Aufschalten:** Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.
+
+1. Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.
+2. Öffne Training › Woche: die Analysen über die Wochen unter dem Rückblick.
+3. Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben; «Analysen anpassen» zeigt alle.
+
+**Beispiel:** «Erste gegen zweite Hälfte» zeigt 4 % mehr Puls in der zweiten Hälfte bei gleicher Leistung.
+
 ### Meilensteine
 
 Nur der nächste Stern, und eine Belohnung von der Wunschliste.
@@ -1062,6 +1074,17 @@ Probier eine Demo-Datei aus: deine eigenen Daten warten beiseite, bis du sie bee
 2. Schau dich um; «Demo beenden» bringt deine eigenen Daten zurück.
 
 **Beispiel:** Eine Demo mit 3 erfundenen Touren; danach ist alles wie vorher.
+
+### Gewicht
+
+Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.
+
+**Aufschalten:** Nichts einzuschalten; es ist freiwillig.
+
+1. Öffne Ich › Gewicht und tippe «Gewicht eintragen».
+2. Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.
+
+**Beispiel:** 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.
 
 ### Such-Befehle
 

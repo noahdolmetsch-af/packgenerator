@@ -301,6 +301,16 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
     example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
   },
+  'f.analyses': {
+    on: 'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.',
+    steps: ['Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.', 'Open Training › Week: the analyses over the weeks under the look back.', 'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.'],
+    example: 'Example: «First against second half» shows 4 % more heart rate in the second half at the same power.',
+  },
+  'f.weight': {
+    on: 'Nothing to switch on; it is voluntary.',
+    steps: ['Open Me › Weight and tap «Enter weight».', 'Type your weight and save; the curve shows from the second entry.'],
+    example: 'Example: 72 kg entered → the ride shows 2.6 W/kg.',
+  },
   'f.velosetup': {
     on: 'Needs a bike under Bikes first.',
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],

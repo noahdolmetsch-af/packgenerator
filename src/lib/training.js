@@ -73,7 +73,11 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv'];
+/** The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f). Older ones are fetched once more. */
+export const DETAIL_V = 2;
+/** Has this activity the details of the current kind? */
+export const hasDetail = (a) => !!a?.detail && (a.dv ?? 1) >= DETAIL_V;
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
@@ -81,7 +85,7 @@ export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} $
 /** The activities whose details (heart rate, kcal, best 20 min) are worth fetching now: newest first, with heart rate or a power meter, recent. */
 export function needDetail(acts, today, { max = DETAIL_MAX, days = DETAIL_DAYS } = {}) {
   const from = shiftDay(today, -days);
-  return acts.filter((a) => !a.detail && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
+  return acts.filter((a) => !hasDetail(a) && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
 }
 
 /** A calendar day ± n days (no clock involved). */

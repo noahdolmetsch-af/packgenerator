@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.148.0 Leistung und Analysen (TR5–TR7)
+  'Watts, weight and a closer look': 'Watt, Gewicht und ein genauerer Blick',
+  'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.': 'Jede Fahrt mit Wattmesser zeigt jetzt ihre Leistung, und Training hat Analysen auf jeder Aktivität und über die Wochen; jede lässt sich ausblenden.',
+  'One activity: power, load, power curve, power zones and analyses like sections, course and climbs': 'Eine Aktivität: Leistung, Belastung, Leistungskurve, Leistungsbereiche und Analysen wie Abschnitte, Verlauf und Anstiege',
+  'Training › Week: fitness, fatigue and form, load per week, power curve, efficiency, month and year compared': 'Training › Woche: Fitness, Ermüdung und Form, Belastung pro Woche, Leistungskurve, Effizienz, Monat und Jahr im Vergleich',
+  'Me › Weight: voluntary, only on this device, with a curve and watts per kg': 'Ich › Gewicht: freiwillig, nur auf diesem Gerät, mit Verlauf und Watt pro kg',
+  '«…» on every analysis: hide, move up or down; «Adjust analyses» brings everything back': '«…» auf jeder Analyse: ausblenden, nach oben oder unten; «Analysen anpassen» holt alles zurück',
+  'All values from Strava on one activity: moving and elapsed time, Ø and max speed, cadence, temperature, breaks': 'Alle Werte aus Strava auf einer Aktivität: Dauer in Bewegung und verstrichen, Ø und max km/h, Kadenz, Temperatur, Pausen',
+  'Open Me › Weight, tap «Enter weight», type 72 and save.': 'Öffne Ich › Gewicht, tippe «Gewicht eintragen», gib 72 ein und speichere.',
+  'Open Aktiv › Training › Activities and tap a ride with a power meter: power, load and the analyses show.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt mit Leistungsmesser an: Leistung, Belastung und die Analysen erscheinen.',
+  'On an analysis tap «…» › «Hide»; tap «Undo» in the message.': 'Auf einer Analyse «…» › «Ausblenden» tippen; in der Meldung «Rückgängig» tippen.',
+  'Open Training › Week and scroll under the look back: the analyses over the weeks.': 'Öffne Training › Woche und scrolle unter den Rückblick: die Analysen über die Wochen.',
   // 0.135.0 «Paket 2» (Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training, Rechnungen ohne Gebühren)
   'Calm, training and bills': 'Ruhe, Training und Rechnungen',
   'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.': 'Meditation und ein Timer, dein Strava-Training Zone für Zone, Rechnungen ohne Gebühren und eine Zahl für jede Sache.',

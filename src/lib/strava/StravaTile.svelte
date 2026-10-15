@@ -6,6 +6,8 @@
    * «Training» TR1 (Noah 13.10.2026 «1-5a» 5a: this tile becomes «Letzte Aktivität»): the newest
    * activity from Strava with time, km, Hm, Ø heart rate and the time in the zones; a tap opens it
    * (TR3), «Alle Aktivitäten» the list (TR2). «Zum Prüfen» stays below when rides wait.
+   * Release analysis P2: the last fetch's km per bike («+118 km · Velo A +80») stays under the activity,
+   * and «Strava ›» still leads to the Strava page (connect, «Jetzt holen»).
    */
   import { liveQuery } from 'dexie';
   import { RefreshCw, Check, ChevronRight } from '@lucide/svelte';
@@ -55,9 +57,11 @@
       </span>
     </a>
     {#if secs}<div class="zn"><ZoneBar {secs} legend /></div>{/if}
+    {#if last?.n && last.km}<p class="per num" data-fetch-km>{[`+${num(Math.round(last.km))} km`, ...per.map(([id, p]) => `${nameOf(id)} +${num(Math.round(p.km))}`)].join(' · ')}</p>{/if}
     <div class="ft">
       <a class="go" href="#/flow/training?view=list">{t('All activities')}<ChevronRight size={16} aria-hidden="true" /></a>
       {#if waiting}<a class="go" href={CHECK_HASH}>{tn(waiting, '{n} to check', '{n} to check')} ›</a>{/if}
+      <a class="go" href={STRAVA_HASH} data-strava-page>Strava ›</a>
     </div>
   {:else}
   <a class="hd" href={STRAVA_HASH}><TileHead icon={RefreshCw} id="st-h" title="Strava" side={strava.key ? when : ''} {isnew} /></a>

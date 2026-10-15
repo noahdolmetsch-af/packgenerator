@@ -10,6 +10,7 @@ import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from '
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
 import { loadPastActs } from './review/actdata.js';
+import { WEIGHT_KEY as ENTRIES_KEY, entriesOf, withEntry, cleanKg } from './weight.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
@@ -60,6 +61,9 @@ export async function saveAnswers(rows = []) {
       }
       if (r.qid === 'koerper.waage' && typeof r.value === 'number' && r.value > 0) {
         await db.settings.put({ key: WEIGHT_KEY, value: Math.round(r.value * 1000) });
+        // TR6: the same weight as that day's entry under Ich › Gewicht (the curve and W/kg)
+        const kg = cleanKg(r.value);
+        if (kg != null) await db.settings.put({ key: ENTRIES_KEY, value: { entries: withEntry(entriesOf((await db.settings.get(ENTRIES_KEY))?.value), r.day, kg) } });
       }
     }
   });

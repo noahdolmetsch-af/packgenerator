@@ -862,6 +862,14 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: Leistung und Analysen TR5–TR7 (0.148.0)
+
+- **Mockup-Freigabe: TR5–TR7 «TR5–TR7 freigegeben» Noah 14.10.2026 21:08 UTC im Thread «Design-Refresh alle Seiten»; Runde 1 TR5/TR6/TR7a–c auf Offene Mockups 2 #training-leistung, Runde 2 TR5b/TR6b/TR7d–g auf eigener Seite https://claude.ai/artifact/RJ6mbASqajNLXzccfEz9d8; Wunsch Noah 20:51 «TR5 -TR7 alle mit weiteren sinnvollen diagrammen und werten und analysen wo möglich», 20:53 «a a».**
+- **Noah 13.10.2026 19:43 UTC «a und b»:** Belastung als Relative Effort (Strava) und aus Leistung (NP ÷ FTP); mit Watt NP, Ø, max, Leistungsbereiche, Leistungskurve, FTP geschätzt; Gewicht unter Ich › Meine Daten, nur auf dem Gerät. 21:24 UTC: alle 6 Analysen, im Frontend ausblendbar.
+- **Coordinator 14.10.2026 21:08 UTC:** TR6 umfasst nur den Gewichtseintrag unter Ich › Meine Daten, nicht die Wochenfrage auf Heute (die kommt über «Deine Abfragen»).
+- **Selbst entschieden:** Die Zeile «Gewicht» öffnet eine eigene Seite (TR6b) mit «Gewicht eintragen» (Tag und kg, Entfernen) statt nur des Fensters aus TR6; dazu eine Liste der letzten 12 Einträge zum Ändern. In «Analysen anpassen» jede Analyse einzeln (TR7c) statt «Abschnitte … Bestwerte» als eine Zeile (TR7g), gruppiert nach «Auf der Aktivität» und «In der Woche». Die Leistungs-, Belastungs- und Kurvenkarten aus TR5 bleiben fest (nicht ausblendbar), wie im Mockup ohne «…». Zahlen im Schweizer Format mit Punkt (de-CH). FTP-Schätzung bleibt 95 % der besten 20 Minuten aus 90 Tagen; Belastung ohne Leistungsmesser = Relative Effort. Fitness 42 Tage, Ermüdung 7 Tage (übliche Mittel).
+- **Selbst entschieden (mit 0.133.0 «Wi gaht's?»):** Ein Gewicht für die ganze App. Der neuste Eintrag unter Ich › Gewicht ist auch das Körpergewicht, das Packen und Velos › Setup lesen (`riderWeightG`); ein Gewicht aus «Wi gaht's?» wird der Eintrag dieses Tages. Test `tests/gewicht-sync.test.js`.
+
 ## 13.10.2026: Training TR1–TR4 (0.138.0)
 
 - **Noah 13.10.2026 18:06 UTC «1-5a»:** 1 Training als eigener Reiter in Aktiv; 2 alle Strava-Aktivitäten, nur Velofahrten zählen für die Velos; 3 Pulszonen aus Strava, änderbar; 4 Woche planen mit Dauer und Zone pro Tag, gefahrene kommen aus Strava; 5 die bestehende Strava-Kachel wird «Letzte Aktivität».
@@ -869,6 +877,8 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training.**
 - **Noah 13.10.2026 21:15 UTC «1a 2a 3a 4a»:** 1 Rückblick auf der Ansicht «Woche» neben dem Plan, kein eigener Reiter; 2 Training öffnet mit «Woche»; 3 alles in einem Paket; 4 Wetter bei einer Aktivität später nachbauen.
 - **Selbst entschieden:** Feste Termine und Erholung aus Aktiv › Woche (AK1/AK2) kommen mit «Aktiv ausweiten». Plan und Ziel in den Einstellungen (`training.plan`, `training.goal`, im Backup), geplante Einheiten älter als 120 Tage fallen weg. Eine geplante Einheit gilt als gemacht, wenn am Tag eine Aktivität derselben Art kommt. Der Server schickt den Puls als Sekunden pro Schlag, so braucht eine geänderte Zone keinen neuen Abruf; nie Strecke oder Karte. Von selbst nur die neusten 8 Aktivitäten mit Puls der letzten 90 Tage (Strava erlaubt 100 Abrufe pro 15 Minuten, die App teilt sich den Zugang), ältere beim Öffnen. Ohne Strava-Zonen: Standard aus Maximalpuls 190 (60/70/80/90 %). «Gleiche Strecke» = gleicher Name und gleiche Art, Distanz ±10 %. Die Notiz bleibt in der App, nicht in Strava. Wetter und Kalorien: Kalorien aus Strava, Wetter noch nicht. Eigene Farben für die Zonen als Tokens `--z1` bis `--z5`. Trennen mit «Fahrten löschen» löscht auch die Aktivitäten.
+- **Release-Analyse P2 (14.10.2026):** Die Kachel «Letzte Aktivität» behält die Bilanz des letzten Holens («+118 km · Velo A +80») unter der Aktivität und den Link «Strava ›» zur Strava-Seite (Verbinden, «Jetzt holen»).
+
 ## 14.10.2026: 0.136.0 «Inhalte Flow» + «Wusstest du»
 
 - Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW.

@@ -119,6 +119,9 @@ export const HOWTO = {
   'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
   'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
+  // v0.148.0 «Leistung und Analysen»
+  'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
+  'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
 };
 
 /** The steps of a function, or [] when it has none. */

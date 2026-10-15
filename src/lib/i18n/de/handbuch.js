@@ -342,6 +342,16 @@ export default {
   'Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.': 'Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.',
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.': 'Beispiel: Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.',
+  // TR5–TR7 «Leistung und Analysen» and TR6 «Gewicht» (0.148.0)
+  'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.': 'Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.',
+  'Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.',
+  'Open Training › Week: the analyses over the weeks under the look back.': 'Öffne Training › Woche: die Analysen über die Wochen unter dem Rückblick.',
+  'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben; «Analysen anpassen» zeigt alle.',
+  'Example: «First against second half» shows 4 % more heart rate in the second half at the same power.': 'Beispiel: «Erste gegen zweite Hälfte» zeigt 4 % mehr Puls in der zweiten Hälfte bei gleicher Leistung.',
+  'Nothing to switch on; it is voluntary.': 'Nichts einzuschalten; es ist freiwillig.',
+  'Open Me › Weight and tap «Enter weight».': 'Öffne Ich › Gewicht und tippe «Gewicht eintragen».',
+  'Type your weight and save; the curve shows from the second entry.': 'Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.',
+  'Example: 72 kg entered → the ride shows 2.6 W/kg.': 'Beispiel: 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.',
   // v0.133.0 «Wi gaht's?» and «Tour aus komoot»
   'Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.': 'Öffne Ich › «Wi gaht\'s?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.',
   'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.',
