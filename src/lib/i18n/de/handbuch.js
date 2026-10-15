@@ -377,4 +377,9 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // «Woche planen» (f.weekplan)
+  'Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.': 'Öffne Woche: Montag bis Sonntag mit Sport, Terminen, To-dos, Ferien und Velo-Service.',
+  'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',
+  'Enter holidays once under Woche › Holidays; the training plan pauses if you want.': 'Trag Ferien einmal unter Woche › Ferien ein; der Trainingsplan pausiert, wenn du willst.',
+  'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.': 'Beispiel: Freitag bis Sonntag Jura-Wochenende → die lange Ausfahrt fällt weg, «Kette messen» kommt als Vorschlag auf Mittwoch.',
 };

@@ -115,6 +115,7 @@ export const HOWTO = {
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
+  'f.weekplan': ['Open Woche: the whole week in one place.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
   'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],

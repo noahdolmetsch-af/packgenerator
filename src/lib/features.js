@@ -142,6 +142,8 @@ const OWN = [
   { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day and what the app can do on the page; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
   // «Training» TR2 (Noah 13.10.2026 «1-5a»): every Strava activity with its heart rate zones
   { id: 'f.training', group: 'active', title: 'Training with heart rate zones', text: 'Every activity from Strava with the minutes in each zone; plan the week and look back.', href: '#/flow/training', words: 'training puls pulszonen zonen strava aktivität lauf wandern herzfrequenz' },
+  // «Woche planen» WP1–WP3 (Noah 15.10.2026 «1a 2a 4a»): the place «Woche»
+  { id: 'f.weekplan', group: 'active', title: 'Plan the week', text: 'Sport, dates, to-dos, holidays and bike service in one week; on Sunday the app suggests, you decide.', href: '#/week', words: 'woche planen wochenplan termine to-do todo ferien velo-service trainingsplan sonntag kalender' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },
   { id: 'f.medlog', group: 'active', title: 'Meditation log', text: 'Every session, a streak heat map, the best time of day.', href: '#/flow/act/meditation/log', words: 'protokoll wärmebild serie' },

@@ -60,6 +60,9 @@ const ROUTES = [
   ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
   ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
   ['#/flow', 'Im Flow'],
+  ['#/week', 'Woche'], // «Woche planen» WP1
+  ['#/week/plan', 'Woche planen'], // WP2
+  ['#/week/away', 'Ferien'], // WP3
   // WG «Wi gaht's?» takes over the daily check: #/check/morning, …/evening and …/questions lead to #/me/abfragen (below)
   // hobby pages 1: Aktiv › Aktivität and Meilensteine, strict like their files
   ['#/flow/activity', 'Aktivität'],

@@ -68,7 +68,8 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await expect(page.locator('dialog.more')).toHaveCount(0);
-  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText([/Heute/, /Touren/, /Material/, /Velos/, /Aktiv/]);
+  // «Woche planen» (Noah 15.10.2026 «1a»): Woche next to Heute; on a phone it takes Material's place in the bar
+  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText(info.project.name === 'phone' ? [/Heute/, /Woche/, /Touren/, /Velos/, /Aktiv/] : [/Heute/, /Woche/, /Touren/, /Material/, /Velos/, /Aktiv/]);
   await me.click();
   await expect(page).toHaveURL(/#\/me$/);
   const main = page.locator('main');
