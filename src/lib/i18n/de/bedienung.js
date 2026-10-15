@@ -1,0 +1,21 @@
+// Bedienung (Noah 13.10.2026 23:52 and 23:56): FE2, FE6, FE7, FE8, FE9, FE10, FE11, FE17, FE18
+export default {
+  Handling: 'Bedienung',
+  'Small helps, each one can be switched off': 'Kleine Hilfen, jede lässt sich ausschalten',
+  'Open the app at': 'App öffnen bei',
+  'Packing|start': 'Packen',
+  'Last place': 'Wo ich zuletzt war',
+  'Speak instead of type': 'Sprechen statt tippen',
+  'A microphone in note fields, where the browser can turn speech into text.': 'Ein Mikrofon in Notizfeldern, wo der Browser Sprache in Text umwandeln kann.',
+  'On a computer: N new, / search, ? the list.': 'Am Computer: N neu, / suchen, ? die Liste.',
+  'Short vibration when ticking': 'Kurzes Vibrieren beim Abhaken',
+  'A short buzz when you tick off an item while packing, where the phone can.': 'Ein kurzes Summen, wenn du beim Packen etwas abhakst, wo das Handy es kann.',
+  'Night quiet': 'Nachtruhe',
+  'From 22:00 to 06:00 Today shows no tips.': 'Von 22 bis 6 Uhr zeigt Heute keine Tipps.',
+  'Search can act': 'Suche kann handeln',
+  'The search also offers backup, settings, a quick note or a bike.': 'Die Suche bietet auch Backup, Einstellungen, eine schnelle Notiz oder ein Velo an.',
+  'High contrast (outdoors)': 'Hoher Kontrast (draussen)',
+  'Darker text and stronger lines, easier to read in the sun.': 'Dunklere Schrift und kräftigere Linien, besser lesbar in der Sonne.',
+  'Settings: appearance and handling': 'Einstellungen: Darstellung und Bedienung',
+  'Open the {bike}': '{bike} öffnen',
+};

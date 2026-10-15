@@ -36,3 +36,14 @@ describe('withStravaRides', () => {
     expect(withStravaRides(null, null)).toEqual([]);
   });
 });
+
+describe('«Werte überall»: climbing from Strava', () => {
+  it('keeps the metres climbed of a ride and passes them on as gainM', async () => {
+    const { makeEntry, withStravaRides, hmSince } = await import('../src/lib/kmbook.js');
+    const e = makeEntry({ date: '2026-10-07', km: 40, source: 'strava', kind: 'ride', bikeId: 'b1', hm: 620 });
+    expect(e.hm).toBe(620);
+    expect(withStravaRides([], [e])[0].gainM).toBe(620);
+    expect(hmSince([e, makeEntry({ date: '2026-10-01', km: 5, source: 'strava', bikeId: 'b1', hm: 80 })], 'b1', '2026-10-02')).toBe(620);
+    expect(hmSince([e], 'b2', '2026-10-02')).toBeNull();
+  });
+});

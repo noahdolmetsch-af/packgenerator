@@ -10,13 +10,14 @@
    * the trip's other bags, photos, ideas, the rider settings and the bag list.
    */
   import { localDay } from '../localday.js';
+  import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, renameBike } from '../bikes.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -37,7 +38,11 @@
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
   import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
+  import Woanders from '../sk/Woanders.svelte'; // SK X9
+  import { slotOf } from '../sk/links.js';
   import { take } from '../nav.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -298,11 +303,12 @@
 
 <div class="setup">
   {#if !bikes.length && $bikesQ}
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}
-      <!-- v0.23.0 (AP07): or add one right here -->
-      <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
+    <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
+    <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
@@ -438,7 +444,7 @@
                   <div><dt>km</dt><dd class="num">{profile.km == null ? t('not set') : num(profile.km)}{#if profile.kmDate}<small>{t('set {date}', { date: dateOf(profile.kmDate) })}</small>{/if}</dd></div>
                   <div><dt>{t('Workshop {year}', { year: today.slice(0, 4) })}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? t('cost unknown') : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{tn(profile.year.visits, '{n} visit', '{n} visits')}</small>{/if}</dd></div>
                   <div><dt>{t('Per 1000 km')}</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? t('over {km} km', { km: num(profile.per.km) }) : profile.per?.wait ? t('after {km} more km', { km: num(profile.per.wait) }) : t('needs km at a visit')}</small></dd></div>
-                  <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? t('Due now') : t('Next')}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>{t('nothing recorded')}</span>{/each}</dd></div>
+                  <div class:late={profile.next[0]?.late}><dt data-sign={profile.next[0]?.late ? signFor('warn') : null}>{profile.next[0]?.late ? t('Due now') : t('Next')}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>{t('nothing recorded')}</span>{/each}</dd></div>
                   <div><dt>{t('Last workshop')}</dt><dd>{#if profile.last}<span>{dateOf(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>{t('none yet')}</span>{/if}</dd></div>
                 </dl>
                 <p class="to-care"><a class="link" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Bike care for the {bike}', { bike: bike.name })}</a></p>
@@ -532,7 +538,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="card">{t('No bags yet. Import your data, or add a bag.')}</p>
+      <Empty icon={Briefcase} text={t('No bags yet. Import your data, or add a bag.')} />
     {/each}
   </SetupFold>
 {/snippet}
@@ -996,10 +1002,6 @@
     margin-top: 10px;
     min-height: 44px;
     color: var(--accent);
-  }
-  .addfirst {
-    display: flex;
-    margin-top: 12px;
   }
   .details-in {
     display: flex;

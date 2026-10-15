@@ -11,6 +11,7 @@ import { openHome, homeFixture } from './home0460-fixture.js';
 import { WHATS_NEW, BOXES, shortVersion } from '../../src/lib/whatsnew.js';
 import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';
 import { readFileSync } from 'node:fs';
+import { closeDialog } from './settle.js';
 
 const PLACES = [...readFileSync(new URL('../../src/lib/helper/places.js', import.meta.url), 'utf8').matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
 const CODE = 'test_data_gtp_code';
@@ -30,7 +31,9 @@ const table = (page, name) =>
     };
   }), name);
 
-test('W1: after an update every version since the last visit is open, each line leads to its place, Looos to the first', async ({ page, context }, info) => {
+// v0.127.0 A-U1 (changed on purpose, mockup A-U1, Noah 13.10.2026 answer 3a): the window of W1 became a calm banner
+// on Today; every version since the last visit stays fully open under Ich › Was ist neu (W2)
+test('W1: after an update a banner names the versions since the last visit, View opens Was ist neu', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
@@ -40,53 +43,16 @@ test('W1: after an update every version since the last visit is open, each line 
   await page.goto('./#/me');
   await page.evaluate((v) => localStorage.setItem('whatsnew.seen', v), from.version);
   await page.goto('./#/');
-  const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: T('New since your last visit') })).toBeVisible();
-  const points = since.reduce((n, e) => n + e.points.length, 0);
-  const small = since.reduce((n, e) => n + (e.small?.length ?? 0), 0);
-  await expect(sheet.locator('.vd-sub')).toHaveText(
-    [T('{n} updates', { n: 3 }), T('{from} to {to}|versions', { from: shortVersion(since[2].version), to: shortVersion(since[0].version) }), T('{n} news items', { n: points }) + (small ? ` ${T('and a few small things')}` : '')].join(' · '),
-  );
-  // every version open, newest first, each with its own title and sentence
-  await expect(sheet.locator('article[data-version]')).toHaveCount(3);
-  expect(await sheet.locator('article[data-version]').evaluateAll((els) => els.map((x) => x.dataset.version))).toEqual(since.map((e) => e.version));
-  for (const e of since) {
-    const v = sheet.locator(`article[data-version="${e.version}"]`);
-    await expect(v.getByRole('heading', { name: T(e.title) })).toBeAttached();
-    await expect(v.getByText(T(e.lead))).toBeAttached();
-    // the main points: each a row with › to its place (or plain when it has none)
-    await expect(v.locator('.vn-pts li')).toHaveCount(e.points.length);
-    await expect(v.locator('.vn-pts a')).toHaveCount(e.points.filter((p) => p.href).length);
-    // the small things in their boxes
-    const boxes = (e.small ?? []).map((s) => T(BOXES.find((b) => b.key === s.box).label));
-    expect(await v.locator('.vn-small .vn-kt').allTextContents()).toEqual(boxes);
-  }
-  // no «n more», nothing folded
-  await expect(sheet.locator('details')).toHaveCount(0);
-  // the buttons: «Looos» only here; on a phone over the whole width above the other two
-  const go = sheet.getByRole('button', { name: T("Let's go|news") });
-  const all = sheet.getByRole('link', { name: T('All news') });
-  await expect(all).toHaveAttribute('href', '#/me/news');
-  await expect(sheet.getByRole('button', { name: T('Later') })).toBeVisible();
-  const [g, a] = [await go.boundingBox(), await all.boundingBox()];
-  if (info.project.name === 'phone') {
-    expect(g.y).toBeLessThan(a.y);
-    expect(g.width).toBeGreaterThan(a.width * 1.8);
-  } else expect(g.x).toBeGreaterThan(a.x);
-  await noSideways(page);
-  await shot(page, info, 'W1-neu-fenster');
-
-  // a line of an older version: the window closes, its place opens
-  const line = since[1].points.find((p) => p.href);
-  await sheet.locator(`article[data-version="${since[1].version}"] .vn-pts a`).first().click();
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
-  await expect.poll(() => new URL(page.url()).hash).toBe(line.href);
-
-  // the next start: «Looos» opens the first place of the newest version
-  const next = await context.newPage();
-  await next.goto('./#/');
-  await next.locator('dialog.news[open]').getByRole('button', { name: T("Let's go|news") }).click();
-  await expect.poll(() => new URL(next.url()).hash).toBe(WHATS_NEW[0].points.find((p) => p.href).href);
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(since[0].version) }) })).toBeVisible();
+  await expect(banner.locator('p')).toHaveText(since.map((e) => T(e.title)).join(' · '));
+  await noSideways(page);
+  await shot(page, info, 'W1-neu-banner');
+  await banner.getByRole('link', { name: T('View|news') }).click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
+  // the page holds every version open, newest first
+  for (const e of since) await expect(page.locator(`article[data-version="${e.version}"]`).first()).toBeAttached();
   expect(errors).toEqual([]);
 });
 
@@ -184,7 +150,8 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   const cat = page.getByRole('dialog', { name: T('Add a tile') });
   await expect(cat.locator('[data-add]').first()).toBeVisible();
   await expect(cat.locator(`[data-add="${HELPER_TILES[0]}"]`)).toHaveCount(0);
-  await page.keyboard.press('Escape');
+  // wait until the dialog took its history entry away, else its step back undoes the next address
+  await closeDialog(page);
 
   // one switch: every place is back at once
   await page.goto('./#/helper');

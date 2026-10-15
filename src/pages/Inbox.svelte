@@ -29,7 +29,8 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
-  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb, Trash2 } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import { explain } from '../lib/ui/explain.js';
@@ -120,7 +121,8 @@
         <section class="ich-sec" aria-labelledby="tofile-h">
           <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('A suggestion is with each · tap «File»')}</p></div></div>
           {#if $notesQ && !notes.length}
-            <p class="card empty">{t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
+            <!-- v0.127.0 A-U2: the one empty building block -->
+            <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + at the bottom right on any page when something comes up.')} action={{ label: t('Quick note'), onclick: onnew }} />
           {:else if $notesQ && !openN}
             <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
           {/if}
@@ -194,7 +196,7 @@
       {#each FILED_FILTERS as f (f.key)}<button type="button" class="vchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)}</button>{/each}
     </div>
     {#if !filed.length}
-      <p class="card empty">{query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet.')}</p>
+      <Empty text={query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet.')} />
     {:else}
       <ul class="card ich-list" aria-label={t('Filed')}>
         {#each filed as n (n.id)}
@@ -272,10 +274,6 @@
   }
   .err {
     color: var(--bad);
-  }
-  .empty {
-    margin: 0;
-    color: var(--ink-3);
   }
   .alldone {
     display: flex;

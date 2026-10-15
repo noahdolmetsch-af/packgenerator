@@ -1,0 +1,12 @@
+/*
+ * FE13 «Farbe nie allein» (Noah 13.10.2026 «a»): a coloured status outside the pills of app.css shows
+ * its sign too. The element says which with data-sign={signFor(tone)} (lib/daumen.js); the sign comes
+ * first, in the element's own colour, with an empty alternative text (the words stay the name).
+ */
+[data-sign]:not([data-sign=''])::before {
+  content: attr(data-sign);
+  content: attr(data-sign) / '';
+  display: inline-block;
+  margin-right: 0.3em;
+  font-weight: 800;
+}

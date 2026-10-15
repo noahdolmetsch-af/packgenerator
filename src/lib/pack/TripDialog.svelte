@@ -12,7 +12,9 @@
   import { ridesIntoDark } from '../blockplan.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
-  import { t, tn, num, nameOf } from '../i18n.svelte.js';
+  import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
+  import Help from '../ui/Help.svelte'; // FE14
+  import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, rememberDomain, newPackTrip, readyKey, inDomain, hasBike } from '../domains.js';
   import { groupEntries, examplesFor, EXAMPLES_HIDDEN } from '../packgroups.js';
   import { coldLayer } from '../layers.js';
@@ -23,14 +25,18 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { selectAll } from '../ui/selectall.js';
-  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
+  import { rideName, rideDate, freeTitle, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
   import OptionButton from '../ui/OptionButton.svelte';
+  import KomootRow from '../komoot/KomootRow.svelte'; // SN1b (answer 4a): «Tour aus komoot» next to the templates
+  import { komootSport } from '../komoot.js';
   import { newTripOff } from '../repairslim.js';
+  import { similarHours, nameClash } from '../formprefill.js';
+  import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -194,8 +200,39 @@
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
   $effect(() => {
-    if (autoName) draft.title = rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days });
+    // v0.127.0 A-U5: the made name is one no other trip has («… (2)»), like the day ride's
+    if (autoName) draft.title = freeTitle(rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days }), trips);
   });
+
+  /* ---------- v0.127.0 A-U5 «Formulare nutzen vorhandene Daten» (formprefill.js) ---------- */
+  // The riding hours of the last similar trips (same days), on a green field with where they come from;
+  // typing replaces them, a template or an example sets its own. Nothing is locked.
+  const simHours = $derived(isNew && byBike ? similarHours(trips, days) : null);
+  let hoursOwn = $state(false);
+  let hoursSet = ''; // the value the suggestion put in last
+  $effect(() => {
+    if (!isNew || hoursOwn) return;
+    const v = simHours ? String(simHours.hours) : '';
+    if (ctx.hours === '' || ctx.hours === hoursSet) {
+      ctx.hours = v;
+      hoursSet = v;
+    }
+  });
+  const hoursPre = $derived(isNew && !hoursOwn && !!simHours && ctx.hours === String(simHours.hours));
+  const hoursFrom = $derived(
+    !simHours ? '' : days === 1 ? tn(simHours.n, 'like your last day ride · you can change it', 'like your last {n} day rides · you can change it') : days === 2 ? tn(simHours.n, 'like your last two-day trip · you can change it', 'like your last {n} two-day trips · you can change it') : tn(simHours.n, 'like your last trip of {d} days · you can change it', 'like your last {n} trips of {d} days · you can change it', { d: days }),
+  );
+  // the bike of the last trip (chosen above), said once below the chips until another one is tapped
+  // svelte-ignore state_referenced_locally
+  const bikeAtStart = isNew && trips.some((x) => hasBike(x) && !x.skipped && x.bikeId === draft.bikeId) ? draft.bikeId : null;
+  // svelte-ignore state_referenced_locally
+  const bikeFromOpen = bikes.some((b) => b.id === defaultBikeId);
+  let bikeOwn = $state(false);
+  const bikePre = $derived(!!bikeAtStart && !bikeOwn && draft.bikeId === bikeAtStart && bikes.length > 1);
+  // the check at the name field: another trip has this name → a free one to take with one tap
+  const clash = $derived(nameClash(draft.title, trips, trip?.id ?? null));
+  const clashWhen = $derived(clash?.trip.startDate ? new Date(`${clash.trip.startDate}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '');
+  const takeFree = () => ((draft.title = clash.suggestion), (autoName = false));
 
   // v0.25.1 (Noah 3a): with a home place and the internet, the weather preset comes from the
   // forecast for the start date (short timeout; offline or failed: nothing happens). Once Noah
@@ -215,6 +252,8 @@
     const home = homeOf($homeQ?.value);
     if (isNew && !placeTyped && !wxPlace && home) placeText = home.name ?? '';
   });
+  // v0.127.0 A-U5: the home place as the start, green with where it comes from, until changed
+  const placePre = $derived(isNew && !placeTyped && !wxPlace && !!homeOf($homeQ?.value)?.name && placeText === homeOf($homeQ?.value)?.name);
   async function findPlace() {
     const q = placeText.trim();
     if (!q || placeBusy) return;
@@ -549,8 +588,9 @@
     {#if isNew}
       <!-- v0.114.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
       <div class="plz">
-        <label class="plzin"><MapPin size={18} aria-hidden="true" /><input class="inp" bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
-        <p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>
+        <label class="plzin" class:pre={placePre}><MapPin size={18} aria-hidden="true" /><input class="inp" class:pre={placePre} aria-describedby={placePre ? 'tn-placefrom' : undefined} bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
+        {#if placePre && !placeBusy && !placeErr}<small class="prefrom" id="tn-placefrom">{t('from your home place · you can change it')}</small>
+        {:else}<p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>{/if}
       </div>
       {#if fcWx}
         <div class="fcard" aria-live="polite">
@@ -578,6 +618,11 @@
     {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
     {:else if !isNew}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
   </fieldset>
+{/snippet}
+
+{#snippet clashMsg()}
+  <!-- v0.127.0 A-U5: the check at the field, before saving; a free name to take with one tap (never forced) -->
+  {#if clash}<p class="fieldmsg" id="tn-clash">{clashWhen ? t('This name already exists ({when}).', { when: clashWhen }) : t('This name already exists.')} <button type="button" class="tp-link" onclick={takeFree}>{t('Suggestion: «{name}»', { name: clash.suggestion })}</button></p>{/if}
 {/snippet}
 
 {#snippet helperItems()}
@@ -625,6 +670,11 @@
   </section>
 {/snippet}
 
+{#snippet komootRow()}
+  <!-- SN1b (answer 4a): «Tour aus komoot», a quiet row next to the templates; it only opens komoot -->
+  {#if komootSport(area, bike?.type)}<div class="kmbox"><KomootRow framed sport={komootSport(area, bike?.type)} /></div>{/if}
+{/snippet}
+
 {#snippet eventBox()}
   <!-- v0.114.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
   <section class="evbox" class:on={ctx.event}>
@@ -662,7 +712,7 @@
 {/snippet}
 
 <dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
-  <form onsubmit={save} novalidate>
+  <form onsubmit={save} novalidate use:weiter>
     <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
@@ -686,14 +736,16 @@
       </fieldset>
     {/if}
     {#if isNew && byBike}
-      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+      {@render clashMsg()}
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
       {#if bikes.length}
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => (draft.bikeId = b.id)}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
           </div>
+          {#if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
         </fieldset>
       {:else}
         <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
@@ -725,20 +777,22 @@
         </div>
         <div class="grid two">
           <!-- v0.40.0 (design check): the field for the days only with "More"; 1 and 2 days are the chips. -->
-          {#if moreDays}<label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
-          <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
+          {#if moreDays}<label><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
+          <label><input id="tn-hours" class="inp num" class:pre={hoursPre} type="text" inputmode="decimal" bind:value={ctx.hours} oninput={() => (hoursOwn = true)} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} aria-describedby={hoursPre ? 'tn-hoursfrom' : undefined} /><span class="sub">{t('Riding hours per day')} <Help field="tn-hours" text={t(FIELD_HELP.hours)} /></span></label>
         </div>
+        {#if hoursPre}<small class="prefrom" id="tn-hoursfrom">{hoursFrom}</small>{/if}
         {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
       {@render eventBox()}
-      {@render templatesFold()}
+      {@render templatesFold()}{@render komootRow()}
       {@render helperItems()}
       {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+        {#if clash}<div class="wide">{@render clashMsg()}</div>{/if}
         <label><span class="lbl">{t('Start date')}</span><DateInput bind:value={draft.startDate} /></label>
         {#if byBike}
           <label>
@@ -748,7 +802,7 @@
             </select>
           </label>
         {:else}
-          <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
+          <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} /></label>
         {/if}
       </div>
       {#if byBike}
@@ -756,8 +810,8 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('How long?')}</legend>
           <div class="grid">
-            <label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
-            <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
+            <label><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
+            <label><input id="te-hours" class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')} <Help field="te-hours" text={t(FIELD_HELP.hours)} /></span></label>
           </div>
           {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
         </fieldset>
@@ -767,7 +821,7 @@
       {/if}
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
-        {@render templatesFold()}
+        {@render templatesFold()}{@render komootRow()}
         {@render helperItems()}
         <p class="note">
           {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
@@ -779,7 +833,7 @@
       {/if}
     {/if}
     <p class="err" role="alert">{error}</p>
-    <div class="foot" class:fnew={isNew}>
+    <div class="foot daumen-foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
@@ -1006,6 +1060,14 @@
     border-radius: var(--r-ctl);
     background: var(--paper);
   }
+  /* v0.127.0 A-U5: the home place as the start, the whole field green */
+  .plzin.pre {
+    background: var(--ok-soft);
+    border-color: var(--ok);
+  }
+  .plzin .inp.pre {
+    background: transparent;
+  }
   .plzin .inp {
     flex: 1;
     min-width: 0;
@@ -1055,6 +1117,10 @@
   }
   .evbox .grp {
     margin: 10px 0 0 28px;
+  }
+  /* SN1b: «Tour aus komoot» under the templates */
+  .kmbox {
+    margin: 12px 0 0;
   }
   /* «Vorlage wählen», folded; the starts as option buttons (the Knöpfe pattern N1–N4: 44 px, chosen green with a tick) */
   .tplbox {

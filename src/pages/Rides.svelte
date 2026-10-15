@@ -7,11 +7,13 @@
    * worker left it in the Cache). Rules in src/lib/gpx.js; nothing leaves the device.
    */
   import { liveQuery } from 'dexie';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
+  import { sharedKind } from '../lib/komoot.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
@@ -88,7 +90,10 @@
       try {
         const res = await (await caches.open(SHARE_CACHE)).match(sharedUrl());
         if (!res) return (msg = t('The shared file is not here any more. Choose it again.'));
-        await read(await res.text(), decodeURIComponent(res.headers.get('X-File-Name') ?? 'ride.gpx'));
+        const text = await res.text();
+        // SN1b: a GPX without times is a planned route (from komoot): the sheet «Tour aus komoot übernehmen»
+        if (sharedKind(text) === 'route') return location.replace('#/komoot/shared');
+        await read(text, decodeURIComponent(res.headers.get('X-File-Name') ?? 'ride.gpx'));
       } catch {
         msg = t('The shared file could not be opened. Choose it again.');
       }
@@ -233,7 +238,7 @@
   {#if rideId}
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief/ride">{t('Upload ride')}</a>{#if ride}<ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
     {#if !$ridesQ}
-      <p class="foot">{t('Loading…')}</p>
+      <Skeleton rows={3} />
     {:else if !ride}
       <p class="rv-box pad">{t('This ride does not exist any more.')}</p>
     {:else}

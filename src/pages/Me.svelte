@@ -13,6 +13,9 @@
    * Home place, Language), The app (what it can do, help, Helper, what it has learned) and More (try it
    * out, clean up test data, report a problem). «Data and backup» is its own page now (#/me/data, I2),
    * the home place a window (I10). Everything that was here stays.
+   * Bezahlen (mockup BZ1, Noah 14.10.2026 «1a», «bz freigeben»): last row of «The app», #/me/pay.
+   * KT «Kacheln antippbar» (Noah 14.10.2026, 3a): under «Help and keyboard shortcuts» a row shows the
+   * short intro of the start page again (lib/home/IntroKT.svelte).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -24,15 +27,37 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH } from '../lib/play.js';
-  import { take, openNew } from '../lib/nav.js';
+  import { take } from '../lib/nav.js';
+  import { movedHint } from '../lib/visitprefill.js';
+  import { localDay } from '../lib/localday.js';
+  import { INTRO_KEY } from '../lib/home/introkt.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+  import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
   import '../lib/ich/ich.css';
+
+  // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
+  const MOVED_KEY = 'aj1.problemMoved';
+  const moved = (() => {
+    let since = null;
+    try {
+      since = localStorage.getItem(MOVED_KEY);
+    } catch {
+      /* private mode: the hint just shows */
+    }
+    const m = movedHint(since, localDay());
+    try {
+      if (m.since !== since) localStorage.setItem(MOVED_KEY, m.since);
+    } catch {
+      /* ignore */
+    }
+    return m;
+  })();
 
   const waitQ = liveQuery(async () => {
     const [notes, file, folder, n, demo, place, bikes] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count()]);
@@ -50,6 +75,11 @@
   });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
+  // KT: false asks Today for the intro again (true = seen); then off to Today
+  async function introAgain() {
+    await db.settings.put({ key: INTRO_KEY, value: false });
+    location.hash = '#/';
+  }
   // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
   const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
@@ -81,6 +111,22 @@
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
               {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB1/AB5 «Deine Abfragen»: what the app asks you and how often -->
+            <a class="ich-row" href="#/me/abfragen">
+              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Your questions')}</b><small>{t('What the app asks you and how often')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- AB4: all values in one history -->
+            <a class="ich-row" href="#/me/history">
+              <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('History')}</b><small>{t('All values in one place: answers, Fitbit, Strava')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -164,6 +210,14 @@
             </button>
           </li>
           <li>
+            <!-- KT (3a): the short intro of the start page once more -->
+            <button type="button" class="ich-row" onclick={introAgain} data-intro-again>
+              <span class="ich-ib"><Hand size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Show the start page intro again')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          <li>
             <a class="ich-row" href="#/helper">
               <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
@@ -177,8 +231,18 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <a class="ich-row" href="#/me/pay">
+              <span class="ich-ib"><CreditCard size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Payments')} <span class="pill warn">{t('prepared|pay')}</span></b><small>{t('What is already there and what you could use it for')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
       </section>
+
+      <!-- «App-Wartung» (Noah 13.10.2026, BF7 BF8): Strava's free limits and the monthly check -->
+      <MaintenanceCard />
 
       <section class="ich-sec" aria-labelledby="me-more-h">
         <div class="ich-h"><div><h2 id="me-more-h">{t('More')}</h2></div></div>
@@ -198,17 +262,11 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
           </li>
-          {#if $waitQ?.bikes}
-            <li>
-              <!-- the same window as Velo › Pflege › «Report a problem» and «Neu» › «Problem with a bike» -->
-              <button type="button" class="ich-row" onclick={() => openNew('problem')} aria-haspopup="dialog">
-                <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
-                <span class="ich-m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-              </button>
-            </li>
-          {/if}
         </ul>
+        <!-- v0.125.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now -->
+        {#if $waitQ?.bikes && moved.show}
+          <p class="moved" role="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Looking for «Report a problem»? It is now under + New and at the bike:')} <a href="#/bikes?tab=care">{t('Bike care')}</a></span></p>
+        {/if}
       </section>
     </div>
   </div>
@@ -219,6 +277,18 @@
 </div>
 
 <style>
+  .moved {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 8px 4px 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .moved :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
   .mepage {
     max-width: 1100px;
   }

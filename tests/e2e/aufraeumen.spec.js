@@ -39,10 +39,16 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await page.goto('./');
   await importAndSettle(page, file);
 
-  // H: Touren shows the trip ended before it began in its own group, not as ridden.
+  // H: Touren shows the trip ended before it began as still planned, not as ridden
+  // (TZ-1 «Zustand sichtbar»: no own group any more; it stands under Geplant with its line;
+  // SN4g: «Geplant» is a list of cards, the finished trips are rows of «Abgeschlossene Touren»)
   await page.goto('./#/trips');
-  await expect(page.getByRole('heading', { name: new RegExp(T('Ended before it began')) })).toBeVisible();
-  await expect(page.getByText(TEST)).toBeVisible();
+  const planned = page.locator('section[data-planned]');
+  await expect(planned.getByText(T('Marked as ended, the date is still ahead'))).toBeVisible();
+  await expect(page.locator('section[data-finished]').getByText(EARLY)).toHaveCount(0);
+  // SN4g: a finished trip is a row of the list (its title can also stand in a block of «In Zahlen» below)
+  const listed = (title) => page.locator('[data-trip-list]').getByRole('link', { name: title, exact: true });
+  await expect(listed(TEST)).toBeVisible();
 
   // F: Ich › Testdaten aufräumen: the test trip and the fixture's «Test …» bags, archived.
   await page.goto('./#/me');
@@ -54,7 +60,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByText(T('Nothing with «test» in its name left.'))).toBeVisible();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await page.goto('./#/trips');
-  await expect(page.getByText(REAL)).toBeVisible();
+  await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(TEST)).toHaveCount(0);
 
   // Undo brings it back.
@@ -64,7 +70,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByRole('status')).toContainText(/zurück/);
   await sheet.getByRole('button', { name: T('Close') }).click();
   await page.goto('./#/trips');
-  await expect(page.getByText(TEST)).toBeVisible();
+  await expect(listed(TEST)).toBeVisible();
 
   // H: the debrief of that trip asks first; «Trotzdem» opens it.
   await page.goto('./#/debrief/test_data_gtp_t3');
@@ -98,7 +104,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await settle(page, { sameTrips: false });
   await expect(page.getByRole('region', { name: 'Demo' })).toHaveCount(0);
   await page.goto('./#/trips');
-  await expect(page.getByText(REAL)).toBeVisible();
+  await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(T('Jura loop'), { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

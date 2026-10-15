@@ -31,11 +31,21 @@
   let sheet = $state(false);
 
   const saveS = (next) => putSetting(db, KEY, next);
+  // Fix 14.10.: a quick second tap read the old record (the tile shows the saved one a moment later) and
+  // ticked again; now a tap waits for the one before and toggles what is saved
+  let ticking = false;
   async function tick() {
-    const next = toggleTick(s, s.pick, today);
-    await saveS(next);
-    const r = stepChallenges(list, { today: next }, today);
-    if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+    if (ticking) return;
+    ticking = true;
+    try {
+      const cur = suggestOf((await db.settings.get(KEY))?.value);
+      const next = toggleTick(cur, s.pick, today);
+      await saveS(next);
+      const r = stepChallenges(list, { today: next }, today);
+      if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+    } finally {
+      ticking = false;
+    }
   }
   async function saveChallenge({ times, until }) {
     const next = running ? list.map((c) => (c.id === running.id ? { ...c, times, until } : c)) : [...list, newChallenge({ what: s.pick, times, until, today })];

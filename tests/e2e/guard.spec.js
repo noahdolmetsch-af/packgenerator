@@ -60,6 +60,7 @@ const ROUTES = [
   ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
   ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
   ['#/flow', 'Im Flow'],
+  // WG «Wi gaht's?» takes over the daily check: #/check/morning, …/evening and …/questions lead to #/me/abfragen (below)
   // hobby pages 1: Aktiv › Aktivität and Meilensteine, strict like their files
   ['#/flow/activity', 'Aktivität'],
   ['#/flow/milestones', 'Meilensteine'],
@@ -82,6 +83,10 @@ const ROUTES = [
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
+  // AB «Deine Abfragen»: Ich › Deine Abfragen and Ich › Daten › Verlauf, strict like their files
+  ['#/me/abfragen', "Wi gaht's?"], // Noah 14.10.2026 01:34:32: the page is called «Wi gaht's?»
+  ['#/me/history', 'Verlauf'],
+  ['#/me/analysis', 'Auswertung'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

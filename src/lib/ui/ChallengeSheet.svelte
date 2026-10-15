@@ -35,7 +35,7 @@
     <p class="muted">{t('Voluntary, changeable any time.')}</p>
     <label><span class="lbl">{t('What')}</span><input class="inp" type="text" value={what} readonly /></label>
     <div class="two">
-      <label><span class="lbl">{t('How often')}</span><input class="inp num" type="number" min="1" max="365" bind:value={n} /></label>
+      <label><span class="lbl">{t('How often')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="365" bind:value={n} /></label>
       <label><span class="lbl">{t('Until when')}</span><input class="inp" type="date" {min} bind:value={date} /></label>
     </div>
     <p class="cnt">{t('Counts by itself when you tick «{what}» on the tile.', { what })}</p>

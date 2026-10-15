@@ -6,6 +6,7 @@
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
   import { liveQuery } from 'dexie';
+  import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { visitTotal } from '../workshop.js';
@@ -14,6 +15,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks, Plus, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
+  import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, visitId = null, onbike } = $props();
 
@@ -91,7 +93,7 @@
       <section class="ssec" aria-labelledby="visits-h">
         <h2 id="visits-h" class="sh">{t('Visits and receipts')}</h2>
         {#if !visits.length}
-          <p class="quiet">{t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')}</p>
+          <Empty icon={ReceiptText} text={t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')} />
         {:else}
           <ul class="card srows">
             {#each months as m (m.key)}
@@ -113,7 +115,8 @@
     </div>
 
     <aside class="sside">
-      <button type="button" class="btn hi addv" onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Log a workshop visit')}</button>
+      <!-- FE1: on a phone «Log a workshop visit» sits at the bottom, in reach of the thumb -->
+      <span class="daumen"><button type="button" class="btn hi addv" onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Log a workshop visit')}</button></span>
       {#if visits.length}
         <section class="ssec" aria-labelledby="rc-h">
           <h2 id="rc-h" class="sh">{t('Receipts')}</h2>

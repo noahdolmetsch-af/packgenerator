@@ -746,6 +746,32 @@
   --pc-me: #c9d6dd;
   --pc-ink: #0e171d;
 }
+/* v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
+   the same in every colour world so «blue = planned» holds everywhere. Text on its soft ground 5.4–6.2:1
+   (light), 7.8–8.0:1 (dark); text on paper at least 6.3:1. Never colour alone: always icon and word
+   (ui/TripState.svelte). Orange stays for «due» and warnings. */
+:root {
+  --st-plan: #245f9e;
+  --st-plan-soft: #e4eef8;
+  --st-plan-line: #3f7fbf;
+  --st-done: #4d5964;
+  --st-done-soft: #eceff1;
+  --st-done-line: #7b8794;
+  --st-rated: #2f6b4a;
+  --st-rated-soft: #e1f0e6;
+  --st-rated-line: #3f8a5f;
+}
+:root[data-theme='dark'] {
+  --st-plan: #9cc4ee;
+  --st-plan-soft: #1a2c3f;
+  --st-plan-line: #6a9fd6;
+  --st-done: #c3ccd4;
+  --st-done-soft: #2a3238;
+  --st-done-line: #8e9aa6;
+  --st-rated: #93d6ad;
+  --st-rated-soft: #183526;
+  --st-rated-line: #5fb185;
+}
 :root {
   --pc: var(--pc-today);
 }
@@ -1028,6 +1054,30 @@ h1.title {
   outline: var(--focus-ring);
   outline-offset: 1px;
 }
+/* v0.127.0 A-U5 (Noah 2a, rule since A-J1): a value the app filled in sits on a green field with its
+   origin below («from …»); it stays changeable. A problem shows at the field, before saving. */
+.inp.pre,
+.sel.pre {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+}
+.prefrom {
+  display: block;
+  margin-top: 4px;
+  color: var(--ok);
+  font-size: var(--fs-small);
+}
+.fieldmsg {
+  margin: 4px 0 0;
+  color: var(--bad);
+  font-size: var(--fs-small);
+}
+.fieldmsg .tp-link,
+.fieldmsg button {
+  min-height: 0;
+  color: inherit;
+  font-size: inherit;
+}
 /* v0.22.0 (AP03): labels in sentence case, 14 px, no letter-spacing. */
 .lbl {
   display: block;
@@ -1139,6 +1189,23 @@ dialog.sheet::backdrop {
 }
 .udot.ok {
   background: var(--ok);
+}
+/* FE13: the dot carries its sign too (! urgent, ✓ ok), white on its colour */
+.udot {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  color: var(--paper);
+  font: 800 var(--fs-tiny)/1 var(--font-body);
+}
+.udot::before {
+  content: '!';
+  content: '!' / '';
+}
+.udot.ok::before {
+  content: '✓';
+  content: '✓' / '';
 }
 /* A light section head over a list: the name left, a count or rule right (tabular). */
 .sec-head {
@@ -1376,6 +1443,21 @@ details[open] > summary.lrow .chev {
   background: var(--bad-soft);
   color: var(--bad);
 }
+/* FE13 «Farbe nie allein» (Noah 13.10.2026 «a»): a status in colour also carries a sign, ✓ for ok and
+   ! for warn or bad, so it reads in sunlight and for weak colour vision. The sign has an empty
+   alternative text (the word stays the name); [data-nosign] for a pill that already shows one (↑ ↓). */
+.pill.ok:not([data-nosign])::before,
+.pill.warn:not([data-nosign])::before,
+.pill.bad:not([data-nosign])::before {
+  content: '✓';
+  content: '✓' / '';
+  font-weight: 700;
+}
+.pill.warn:not([data-nosign])::before,
+.pill.bad:not([data-nosign])::before {
+  content: '!';
+  content: '!' / '';
+}
 
 /* v0.51.0 «Im Flow»: a sheet that comes from below on a phone (tick, countdown, daily check). */
 @media (max-width: 719px) {
@@ -1388,4 +1470,29 @@ details[open] > summary.lrow .chev {
     border-bottom: 0;
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
   }
+}
+
+/* FE2 «Sonnen-Kontrast» (Noah 13.10.2026 23:52): Ich › Darstellung › Bedienung › «High contrast (outdoors)»
+   sets data-contrast="high" on <html> (bedienung.svelte.js). Text nearly black (white in the dark), the
+   second and third ink darker, lines and card edges clearly visible, the paper pure. It comes after the
+   colour worlds and is one step more specific (html:root), so it wins in every world, light and dark. */
+html:root[data-contrast='high'][data-theme='light'] {
+  --ink: #000000;
+  --ink-2: #1d1f1e;
+  --ink-3: #2e3331;
+  --line: #6f7672;
+  --line-strong: #1d1f1e;
+  --card-line: #5a615d;
+  --paper: #ffffff;
+  --input: #ffffff;
+  --bar: #6f7672;
+}
+html:root[data-contrast='high'][data-theme='dark'] {
+  --ink: #ffffff;
+  --ink-2: #f0f2f1;
+  --ink-3: #dadfdc;
+  --line: #9aa29e;
+  --line-strong: #f0f2f1;
+  --card-line: #aeb5b1;
+  --bar: #9aa29e;
 }

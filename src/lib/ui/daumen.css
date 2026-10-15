@@ -1,0 +1,64 @@
+/*
+ * FE1 «Daumen-Zone» (Noah 13.10.2026 «b»): on a phone the main action of a page or a window sits at
+ * the bottom, in reach of the thumb. One shared pattern, imported by every component that uses it:
+ *
+ *   <span class="daumen">…the page's one main button…</span>
+ *     Below 600 px the wrapper becomes a bar fixed above the bottom bar (and the safe area), like the
+ *     MainBar of the trip pages; the page gets room at its end, so the bar never covers content.
+ *     On a computer the wrapper is display: contents: nothing moves. `.daumen.off` keeps the button
+ *     in place (e.g. while the selection bar of Gear sits at the same spot).
+ *
+ *   <div class="foot daumen-foot">…Cancel, Save…</div>
+ *     Below 600 px the footer of a window (dialog.sheet) stays at its bottom edge while the fields
+ *     scroll; on a computer it stays where it is.
+ */
+.daumen {
+  display: contents;
+}
+@media (max-width: 599px) {
+  .daumen:not(.off) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(62px + env(safe-area-inset-bottom));
+    z-index: 5;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 0;
+    padding: 10px var(--gut);
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+  }
+  .daumen:not(.off) > .btn,
+  .daumen:not(.off) > a.btn {
+    flex: 1;
+    min-width: 0;
+    min-height: 52px;
+    margin: 0;
+    font-size: var(--fs-sub);
+    white-space: normal;
+    line-height: 1.2;
+  }
+  /* a quiet link («+ Neue Tour») gets the frame of a normal button down there */
+  .daumen:not(.off) > .btn-link {
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  /* room at the end of the page for the bar (the bottom bar's own room plus the bar) */
+  :root body main:has(.daumen:not(.off)) {
+    padding-bottom: calc(172px + env(safe-area-inset-bottom));
+  }
+  /* sticky to the window's content edge; the paper shadow below covers the window's own padding */
+  dialog.sheet .daumen-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding-top: 12px;
+    padding-bottom: 2px;
+    background: var(--paper);
+    box-shadow: 0 -1px 0 var(--line), 0 24px 0 var(--paper);
+  }
+}
