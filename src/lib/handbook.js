@@ -306,6 +306,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],
     example: 'Example: link to a race rig with key words «frame bag, 2 bottles» → a card with a drawn picture.',
   },
+  'f.standardbike': {
+    on: 'Needs at least two bikes.',
+    steps: ['Open Bikes › Setup › «Standard bike and order» › «Change».', 'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.'],
+    example: 'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.',
+  },
   'f.bagplan': {
     on: 'Needs a packing list with bags (Pack).',
     steps: ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear; tap «Move» on a hint.'],

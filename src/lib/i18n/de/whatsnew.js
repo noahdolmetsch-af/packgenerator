@@ -128,6 +128,15 @@ export default {
   'Open the timer page, tap the clock and choose another face; open «Log» and add a note.': 'Öffne die Timer-Seite, tippe auf die Uhr und wähle ein anderes Ziffernblatt; öffne «Log» und schreib eine Notiz dazu.',
   'Tap «Look back» on the Meditation page and switch between week, month and year.': 'Tippe auf der Meditationsseite «Rückblick» und wechsle zwischen Woche, Monat und Jahr.',
 
+  // 0.145.0 Standard-Velo (Stern, Reihenfolge, was eine neue Tour bringt)
+  'Your standard bike ★': 'Dein Standard-Velo ★',
+  'The first bike is your standard bike: a new trip brings it, and you set the order of your bikes.': 'Das erste Velo ist dein Standard-Velo: Eine neue Tour bringt es, und du legst die Reihenfolge deiner Velos fest.',
+  'A new trip brings your standard bike; a tap on another bike counts for that trip only': 'Eine neue Tour bringt dein Standard-Velo; ein Tipp auf ein anderes Velo gilt nur für diese Tour',
+  '«Standard bike and order» under Bikes: arrows, «Make standard» and what a new trip brings': '«Standard-Velo und Reihenfolge» unter Velos: Pfeile, «Als Standard» und was eine neue Tour bringt',
+  'A new bike asks once whether it becomes the standard bike': 'Ein neues Velo fragt einmal, ob es das Standard-Velo wird',
+  'At your very first trip the app asks once: the standard bike or the one ridden last': 'Bei deiner allerersten Tour fragt die App einmal: das Standard-Velo oder das zuletzt gefahrene',
+  'Open Bikes › Setup › «Standard bike and order» › «Change», tap «Make standard» on another bike, save: it stands first with ★.': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern», tippe bei einem anderen Velo «Als Standard», speichere: Es steht zuerst mit ★.',
+  'Tap «New» › «Plan a trip»: that bike is chosen with «Standard»; tap another bike, it counts for this trip only.': 'Tippe «Neu» › «Tour planen»: Dieses Velo ist mit «Standard» gewählt; tippe ein anderes Velo, es gilt nur für diese Tour.',
   // 0.140.1 Start-Karten (eine Karte statt eines Sprungs)
   'A card instead of a jump': 'Eine Karte statt eines Sprungs',
   'On a trip day and on the last evening Today stays where it is; a card with your trip leads on.': 'Am Tourtag und am letzten Abend bleibt Heute, wo es ist; eine Karte bei deiner Tour führt weiter.',

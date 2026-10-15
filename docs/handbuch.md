@@ -717,6 +717,17 @@ Deine Setup-Fotos, das Gesamtgewicht, deine Race-Rig-Links und Rennen, und dein 
 
 **Beispiel:** Link zu einem Race-Rig mit Stichworten «Rahmentasche, 2 Flaschen» → eine Karte mit gezeichnetem Bild.
 
+### Standard-Velo und Reihenfolge
+
+Das erste Velo ist dein Standard-Velo (★); Pfeile setzen die Reihenfolge, und du wählst, was eine neue Tour bringt.
+
+**Aufschalten:** Braucht mindestens zwei Velos.
+
+1. Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».
+2. Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.
+
+**Beispiel:** Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.
+
 ### Taschen-Plan
 
 Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.
