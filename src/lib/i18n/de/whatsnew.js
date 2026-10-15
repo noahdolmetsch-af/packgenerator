@@ -21,6 +21,13 @@ export default {
   'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
   'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
 
+  // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
+  'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',
+  'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.': 'Eine Tour für heute hakt «Velo draussen» nicht mehr ab, bevor du gefahren bist.',
+  '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again': 'Eine Velotour hakt «Velo draussen» erst ab, wenn die Tour beendet ist; ein Tipp hakt wieder ab und wählt wieder ab',
+  'Hiking, ski tours and other trips without a bike no longer count as a bike trip': 'Wandern, Skitouren und andere Touren ohne Velo zählen nicht mehr als Velotour',
+  'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.': 'Plane eine Velotour für heute und öffne Aktiv: «Velo draussen» ist nicht abgehakt.',
+  'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.': 'Tippe auf «Velo draussen»: Es ist abgehakt. Tippe nochmals: Es ist abgewählt.',
   // 0.132.1 Langer Name passt (Fehler behoben)
   'Long names fit': 'Lange Namen passen',
   'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',
