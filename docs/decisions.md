@@ -1461,6 +1461,7 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - Fehler 1: die Kachel «Fahrten-Buch» zählt den Monat wie «Velo in diesem Monat» (hochgeladene Fahrten, gezählte Strava-Fahrten, Strava-Fahrten aus «Training» ohne Eintrag); eine Fahrt «Zum Prüfen» zählt erst nach «Passt».
   - Fehler 5 (kein Augen-Knopf auf den Handy-Kategorien) bleibt: das ist seit «Pfeile und Ziehen» (0.136.0) so gewollt, Ausblenden steht im Fenster des Eintrags, und die Seite sagt das.
   - `f.standardbike` ist «seit 0.137.0»; docs/handbuch.md zählt 106 Funktionen.
+  - Material: ein neu erfasster Artikel klappt seine Kategorie auf und bleibt im Blick (U8, wie im Patch von Paket aktiv), weil die Kategorien seit SL zugeklappt starten.
 - **Was fällt weg oder rutscht tiefer:**
   - Das Fenster «Velo umbenennen» (mit Rückgängig) fällt weg. Neu: der Stift neben dem Namen öffnet «Velodetails» (Name, Typ, Einsatz, Foto in einem Fenster).
   - Kein Sprung mehr nach «Fertig gepackt» und keine automatischen Sprünge zu Unterwegs oder «Tour beendet». Neu: eine Meldung mit Link bzw. die Karten «Heute unterwegs» und «Letzter Abend» auf Heute.
