@@ -82,5 +82,13 @@ describe('withStravaRides with the Training activities (0.136.0)', () => {
       act('f', '2026-10-05', 40.5),
     ];
     expect(withStravaRides(files, [], acts).map((r) => r.id)).toEqual(['f1']);
+  });  it('a ride on a Strava bike set to «Ignorieren» does not count (Noah 15.10.2026 «2b»)', async () => {
+    const { notIgnored, bikeActs } = await import('../src/lib/kmbook.js');
+    const acts = [act('1', '2026-10-06', 80, { gearId: 'g1' }), act('2', '2026-10-07', 50, { gearId: 'g2' }), act('3', '2026-10-08', 20, { gearId: null })];
+    expect(withStravaRides([], [], notIgnored(acts, ['g2'])).map((r) => r.id)).toEqual(['act:1', 'act:3']);
+    expect(notIgnored(acts, undefined)).toHaveLength(3);
+    const db = { activities: { where: () => ({ equals: () => ({ toArray: async () => acts }) }) }, settings: { get: async () => ({ value: { ignore: ['g1'] } }) } };
+    expect((await bikeActs(db)).map((a) => a.id)).toEqual(['2', '3']);
+    expect(await bikeActs({})).toEqual([]);
   });
 });

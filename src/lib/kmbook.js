@@ -864,8 +864,22 @@ export function withStravaRides(rides = [], entries = [], acts = []) {
     .filter((a) => !files.some((r) => sameFileRide(a, r)));
   return [...files, ...extra, ...more];
 }
-/** 0.136.0: the Strava rides of «Training» for withStravaRides (an empty list where the table is missing). */
-export const bikeActs = (db) => (db.activities ? db.activities.where('kind').equals('bike').toArray() : []);
+/**
+ * 0.136.0: the Strava rides of «Training» for withStravaRides (an empty list where the table is missing).
+ * A ride on a Strava bike set to «Ignorieren» does not count (Noah 15.10.2026 «2b»).
+ */
+export async function bikeActs(db) {
+  if (!db.activities) return [];
+  const [acts, prefs] = await Promise.all([db.activities.where('kind').equals('bike').toArray(), db.settings.get(STRAVA_PREFS)]);
+  return notIgnored(acts, prefs?.value?.ignore);
+}
+/** The Strava prefs (strava/client.svelte.js PREFS_KEY); kept here so kmbook.js needs no Svelte module. */
+const STRAVA_PREFS = 'strava';
+/** 0.136.0 «2b»: the Strava activities without the ones on an ignored Strava bike (ignore: Strava gear ids). */
+export function notIgnored(acts = [], ignore = []) {
+  const skip = new Set((Array.isArray(ignore) ? ignore : []).map(String));
+  return (acts ?? []).filter((a) => !(a?.gearId && skip.has(String(a.gearId))));
+}
 
 /**
  * 0.136.0: Strava rides of this month (up to today) that still wait in «Zum Prüfen» (no bike yet). They

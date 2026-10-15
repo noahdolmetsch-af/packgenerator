@@ -17,7 +17,7 @@ import { HIDDEN_KEY } from '../flowsugg.js';
 import { SEED2_KEY } from '../flowtiles.js';
 import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { toWx } from '../weather.js';
-import { withStravaRides } from '../kmbook.js';
+import { withStravaRides, notIgnored } from '../kmbook.js';
 
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
@@ -174,7 +174,7 @@ export async function seedMed(data, actId) {
 export function balanceQuery(today) {
   const from = addDays(today, -6);
   return liveQuery(async () => {
-    const [acts, log, checks, rides, book, pool, off, answers, bikeActs] = await Promise.all([
+    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(from).toArray(),
       db.flowChecks.where('day').aboveOrEqual(from).toArray(),
@@ -184,7 +184,9 @@ export function balanceQuery(today) {
       db.settings.get(OFF_KEY),
       db.abAnswers.where('day').aboveOrEqual(from).toArray(), // WG: the «Wi gaht's?» answers count in the ring
       db.activities ? db.activities.where('day').aboveOrEqual(from).toArray() : [], // 0.136.0: Strava rides before a bike's start point
+      db.settings.get('strava'), // «2b»: rides on an ignored Strava bike do not count
     ]);
+    const bikeActs = notIgnored(stravaActs, stravaPrefs?.value?.ignore);
     return {
       answers: answers.filter((a) => a.day <= today),
       acts: acts.map(normAct),

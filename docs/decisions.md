@@ -1420,3 +1420,6 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - Svelte schneidet das Leerzeichen am Anfang eines `{#if}`-Blocks ab («29 % gepackt· Sa.»): an 41 Stellen steht der Trenner jetzt als `{' · '}`.
   - Deutsch heisst die Minute überall «Min» (20 Übersetzungen und 4 feste Texte angepasst).
   - «Diese Woche»: pro Tag eine Zeile pro Sache mit «…» statt Trennung im Wort (Silbentrennung kennt nicht jeder Browser).
+- **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
+  - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
+  - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).
