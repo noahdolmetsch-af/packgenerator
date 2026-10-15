@@ -18,7 +18,7 @@ export const WHATS_NEW = [
   {
     // «Leistung und Analysen» TR5–TR7 (mockups TR5–TR7 rounds 1 and 2, Noah 14.10.2026 «TR5–TR7 freigegeben»)
     version: '0.148.0',
-    date: '2026-10-14',
+    date: '2026-10-15',
     title: 'Watts, weight and a closer look',
     lead: 'With a power meter every ride shows its power, and Training has analyses on each activity and over the weeks; each one can be hidden.',
     points: [

@@ -36,7 +36,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.abfragen']).toBe('0.133.0'); // v0.133.0 «Wi gaht's?»
     expect(SINCE['f.inspiration']).toBe('0.134.0'); // v0.134.0 «Inspiration»
     expect(SINCE['f.lists']).toBe('0.134.0'); // v0.134.0 «Listen und Typen»
-    expect(SINCE['f.timer']).toBe(WHATS_NEW[0].version); // v0.135.0 «Paket 2»: Meditation und Timer
+    expect(SINCE['f.timer']).toBe('0.135.0'); // v0.135.0 «Paket 2»: Meditation und Timer
     expect(SINCE['f.medreview']).toBe('0.135.0');
     expect(SINCE['f.pagetips']).toBe('0.135.0'); // v0.135.0 «Paket 2»: Inhalte Flow + Wusstest du (working number 0.136.0)
     expect(SINCE['f.training']).toBe('0.135.0'); // v0.135.0 «Paket 2»: Training TR1–TR4 (working number 0.138.0)
