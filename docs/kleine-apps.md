@@ -47,3 +47,8 @@ Am Computer (Chrome oder Edge) geht es gleich: Adresse öffnen, in der Adresszei
 2. `apps/<key>/index.html` (Kopie einer bestehenden, Manifest-Pfad anpassen), `public/apps/<key>/manifest.webmanifest`, Symbol in `tools/miniapp-icons.mjs`.
 3. Eintrag in `vite.config.js` (`build.rollupOptions.input`).
 4. Deutsche Texte in `src/lib/i18n/de/kleineapps.js`. Die Tests prüfen den Rest.
+
+## In der App (Mockup HB2, Noah 14.10.2026 18:27 UTC «1b 2b», «hb freigeben»)
+
+- **Ich › Die App › Handbuch** (`#/me/handbook`, `src/pages/Handbook.svelte`): alle Funktionen nach Situation, jede aufklappbar mit Aufschalten, Schritten, Beispiel und «Hinbringen». `#/me/handbook?f=<id>` öffnet eine Funktion.
+- **Ich › Die App › Kleine Apps** (`#/me/apps`, `src/pages/MiniApps.svelte`): die kleinen Apps mit Symbol, Schritten zum Installieren und «Öffnen».
