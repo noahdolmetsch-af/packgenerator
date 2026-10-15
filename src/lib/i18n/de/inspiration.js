@@ -85,4 +85,9 @@ export default {
   'Open Inspiration: on a computer in the sidebar, on the phone under Me.': 'Öffne Inspiration: am Computer in der Seitenleiste, am Handy unter Ich.',
   'Paste a link: the app recognises the kind from the address.': 'Füge einen Link ein: Die App erkennt die Art an der Adresse.',
   'Tap «What I take from it»: packing rule, wishlist or note.': 'Tippe auf «Das übernehme ich»: Packregel, Wunschliste oder Notiz.',
+  // Noah 15.10.2026 «1-4a»: explain the field, ask for the name, a start page asks for the kind.
+  'Write what you take from it, then choose where it goes.': 'Schreib, was du mitnimmst, und wähle, wohin es soll.',
+  'Title: what do you call it?': 'Titel: Wie heisst das für dich?',
+  'e.g. Pass ride in the Jura': 'z. B. Passfahrt im Jura',
+  'Give the link a name.': 'Gib dem Link einen Namen.',
 };

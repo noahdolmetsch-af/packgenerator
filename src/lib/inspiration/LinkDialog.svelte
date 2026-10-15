@@ -38,8 +38,11 @@
   let chosen = $state(!!link); // a kind you picked yourself stays, also when the address changes
   let error = $state('');
   let dialog;
+  let titleEl = $state();
   $effect(() => {
     dialog.showModal();
+    // A pasted new link: ask for its name right away (Noah 15.10.2026 «2a»).
+    if (!link && fullUrl(draft.url)) titleEl?.focus();
   });
   const found = $derived(detectType(draft.url));
   $effect(() => {
@@ -55,6 +58,7 @@
     event.preventDefault();
     if (!has) return (error = t('Paste the address of the page.'));
     if (!draft.type) return (error = t('Choose the kind of link.'));
+    if (!draft.title.trim() && !found.title) return (error = t('Give the link a name.'), titleEl?.focus());
     const d = $state.snapshot(draft);
     const made = makeLink(
       { url: d.url, title: d.title, type: d.type, notes: d.notesText.split('\n'), facts: { km: d.km, up: d.up, days: d.days, price: d.price, grams: d.grams, place: d.place }, raceDate: d.raceDate, raceEnd: d.raceEnd },
@@ -85,6 +89,7 @@
           {/if}
         </p>
       {/if}
+      <label class="ld-wide"><span class="lbl">{t('Title: what do you call it?')}</span><input class="inp" bind:this={titleEl} bind:value={draft.title} placeholder={found.title || t('e.g. Pass ride in the Jura')} /></label>
       <fieldset class="ld-wide">
         <legend class="lbl ld-caps">{t('Kind|link')}</legend>
         <div class="vd-chips">
@@ -93,7 +98,6 @@
           {/each}
         </div>
       </fieldset>
-      <label class="ld-wide"><span class="lbl">{t('Title')}</span><input class="inp" bind:value={draft.title} placeholder={found.title || t('From the address, or your own')} /></label>
       {#if draft.type === 'route'}
         <div class="ld-wide ld-three">
           <label><span class="lbl">{t('km')}</span><input class="inp num" inputmode="decimal" bind:value={draft.km} placeholder={t('optional')} /></label>
