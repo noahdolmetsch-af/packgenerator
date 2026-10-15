@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4; mockups 13.10.2026, Noah «3b» + «a», 4a, 5a): your own links,
+    // the kind from the address, «Aus der Notiz wird …» (packing rule, wishlist, note), race → .ics, route → trip draft
+    version: '0.133.3',
+    date: '2026-10-15',
+    title: 'Collect inspiration',
+    lead: 'Your own links to rigs, routes, videos and races in one place, and what you take from them goes into the app.',
+    points: [
+      { text: 'Your own links: the app recognises the kind from the address, it loads nothing', href: '#/inspiration' },
+      { text: 'A note becomes a packing rule: a quiet hint while packing', href: '#/inspiration' },
+      { text: 'A race becomes a calendar file (.ics), a route a trip draft, a product a wishlist item', href: '#/inspiration' },
+    ],
+    small: [{ box: 'new', text: 'On a computer Inspiration sits in the sidebar, on the phone under Me' }],
+    test: [
+      'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.',
+      'On a card tap «What I take from it», write a short rule and choose «Packing rule».',
+      'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.',
+      ],
+    },
+    {
     // v0.133.1 «Handbuch und Kleine Apps» (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben»)
     version: '0.133.1',
     date: '2026-10-14',

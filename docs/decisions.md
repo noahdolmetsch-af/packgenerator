@@ -1325,3 +1325,20 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 
 - **Leere App ohne Mini Bag und Cargo Bag (Noah 14.10.2026):** die Start-Taschen aus `bikes.js` entstehen nur, wenn eine Tasche der ersten Excel in den Daten ist.
 - **Wander-Rucksack 15 L (Noah 14.10.2026 «b»):** eine neue Wandertour startet mit «Rucksack 15 L» statt 30 L, passend zu den Vorschlägen von 12–15 L. Skitour bleibt bei 30 L; alte Touren behalten ihren gespeicherten Rucksack.
+
+## 14.10.2026: Inspiration sammeln (UC2-1, UC2-2, UC2-4), 0.133.3 (Arbeitsnummer)
+
+- **Freigabe:** Mockups UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» (13.10.2026), Noah «3b» + «a» (nur eigene Links, keine Liste der App), 4a (Packregel, Wunschliste oder Notiz), 5a (Hinweis beim Packen). Lokal gebaut, noch kein PR (GitHub pausiert); Version, «Was ist neu» und Funktionskatalog sind ergänzt (0.133.3).
+- **Seite `#/inspiration`:** am Computer ein Eintrag unter den fünf Orten (mit «neu», bis er einmal offen war), am Handy Ich › Inspiration (Daten, unter Notizen), nicht in der unteren Leiste; Suche findet sie (`menu.js`).
+- **Art aus der Adresse (`inspiration.js` detectType):** Video, Hör-Tipp, Route, Rig, Packliste, Rennen, Produkt, Anleitung; erkennt die App nichts, wählst du die Art. Nichts wird geladen, kein fremder Text, kein Foto; Titel nur als Vorschlag aus der Adresse, Zahlen und Stichworte sind deine eigenen.
+- **Speicher ohne neue Tabelle und ohne Datenbank-Version:** Rigs und Rennen bleiben in `settings.rigLinks` (gleiche Liste wie Velos › Setup, nie doppelt), alle anderen Arten in `settings.inspoLinks`. Wechselt die Art, zieht der Link um. Beide sind im Backup (Test in `tests/inspiration.test.js`).
+- **Aus der Notiz wird …:** Packregel = ein Eintrag in `learnings` mit `inspo` (Quelle, Link) und `packHint`; er erscheint beim Packen als ruhiger Hinweis unter «Aus früheren Touren» (höchstens 2, neueste zuerst, «✕» blendet aus, die Regel bleibt unter «Was die App gelernt hat») und zählt nicht bei «Aus früheren Touren». Wunschliste = Gegenstand mit `ownership: 'wishlist'` (Produkt mit Gewicht und Preis in der Notiz). Notiz = gemerkte Notiz mit Link. Jede Übernahme steht am Link (`taken`) für «Zuletzt übernommen».
+- **Selbst entschieden:**
+  - Route → «Tourentwurf» legt eine Tour-Idee an wie «Aus Notiz wird …» auf der Notizen-Seite (Titel der Route, Tage aus deinen Zahlen, erstes Velo); ohne Velo ein Hinweis. Rennen → «Kalender» speichert eine Kalenderdatei (.ics, ganztägig über die Renntage); einen Kalender in der App gibt es nicht. «Rigs dieses Rennens: n» führt zu Velos › Setup.
+  - Geteilter Link (Android «Teilen» › Pack Generator): ein Link öffnet «Link hinzufügen» auf Inspiration, mit «Lieber in den Eingang» als Ausweg; Text ohne Link geht wie bisher in den Eingang. Der bestehende Share-Target reicht, keine Änderung am Manifest.
+  - Vorschau «So sieht es beim Packen aus» zeigt den echten Hinweis über angedeuteten Zeilen statt einer erfundenen Packliste.
+  - Hör-Tipp: der Schalter «Im Bereit-Check vor der Fahrt zeigen» aus dem Mockup ist nicht gebaut (braucht den Bereit-Check, eigenes Paket); ein Hör-Tipp hat «Das übernehme ich» mit → Packregel und → Notiz. Typ «Anleitung» hat einen eigenen Filter-Chip «Anleitungen».
+  - Velos › Setup behält beim Ändern eines Rig-Links, was Inspiration ergänzt hat (Notiz, Zahlen, Übernahmen).
+  - Funktionskatalog: `f.inspiration` in der Gruppe «Vor der Tour», seit 0.133.3, drei Schritte (`howto.js`) und Handbuch-Eintrag; `docs/handbuch.md` neu erzeugt (bringt auch die fehlenden Einträge «Tour aus komoot» und «Wi gaht's?» mit).
+  - Kachel «Neu» auf Heute: in einer schmalen Kachel (halbe Breite am Handy) rutscht der Text unter das Symbol statt daneben, damit ein langes Wort im Titel («Inspiration») nicht mitten im Wort bricht (Wächter, Heute @390).
+  - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.

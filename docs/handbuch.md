@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 97 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 98 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -345,6 +345,18 @@ Eine importierte Liste prüfen: sichere Zeilen übernehmen, die anderen mit je e
 2. Nimm die sicheren Zeilen auf einmal, die anderen mit je einem Tipp.
 
 **Beispiel:** 120 Zeilen → 110 sichere auf einmal, 10 von Hand geprüft.
+
+### Inspiration
+
+Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Adresse, aus einer Notiz wird eine Packregel.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Inspiration (Computer: Seitenleiste; Handy: Ich › Inspiration) und füge deinen Link ein.
+2. Tippe auf «Das übernehme ich»: eine Packregel, ein Teil auf der Wunschliste oder eine Notiz.
+3. Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.
+
+**Beispiel:** Ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.
 
 ### Tour aus komoot
 

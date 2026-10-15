@@ -316,6 +316,12 @@ export const HANDBOOK = {
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
   },
+  // v0.133.3 «Inspiration»
+  'f.inspiration': {
+    on: null,
+    steps: ['Open Inspiration (computer: sidebar; phone: Me › Inspiration) and paste your link.', 'Tap «What I take from it»: a packing rule, a wishlist item or a note.', 'A race gives a calendar file (.ics), a route a trip draft.'],
+    example: 'Example: a rig video with the note «spare brake pads» → a quiet hint while packing your next trip.',
+  },
   'f.problem': {
     on: 'Needs a bike first: Bikes › «Add bike».',
     steps: ['Tap «New» › «Problem with a bike».', 'One problem per row, with priority and deadline.'],

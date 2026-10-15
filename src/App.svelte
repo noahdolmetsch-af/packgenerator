@@ -45,6 +45,9 @@
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
+  import Inspiration from './pages/Inspiration.svelte';
+  import { linkFrom } from './lib/notebook.js';
+  import { INSPO_WISH } from './lib/inspiration.js';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -169,6 +172,25 @@
     const q = new URLSearchParams(location.search);
     if (['title', 'text', 'url'].some((k) => q.get(k))) {
       notePrefill = ['title', 'text', 'url'].map((k) => q.get(k)?.trim()).filter(Boolean).join('\n');
+      // «Inspiration» UC2-4: a shared link (browser «Teilen» › Pack Generator) opens «Link hinzufügen» on
+      // the Inspiration page; its window offers «Into the Inbox instead». Text without a link: Inbox as before.
+      const shared = linkFrom(notePrefill);
+      if (shared) {
+        const title = (q.get('title')?.trim() || notePrefill.replace(shared.url, '').trim().split('\n')[0] || '').slice(0, 120);
+        let kept = false;
+        try {
+          localStorage.setItem(INSPO_WISH, JSON.stringify({ url: shared.url, title: title === shared.url ? '' : title }));
+          kept = true;
+        } catch {
+          /* private mode: the link goes to the Inbox below */
+        }
+        if (kept) {
+          history.replaceState(null, '', `${location.pathname}#/inspiration`);
+          hash = '#/inspiration';
+          window.dispatchEvent(new Event('pg:inspo'));
+          return;
+        }
+      }
       history.replaceState(null, '', `${location.pathname}#/inbox`);
       hash = '#/inbox';
       noteOpen = true;
@@ -374,6 +396,9 @@
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
+  {:else if page === 'inspiration'}
+    <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
+    <Inspiration />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

@@ -57,6 +57,16 @@ const CASES = [
   { id: 'me-checks', hash: '#/me/checks?ski' },
   { id: 'me-checks-edit', hash: '#/me/checks?ski', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Adjust: {name}', { name: T('The evening before') }) })) },
   { id: 'features', hash: '#/features' },
+  // «Inspiration» UC2-1: your own links (empty in the big data set) and «Link hinzufügen» with a recognised link (UC2-4)
+  { id: 'inspiration', hash: '#/inspiration' },
+  {
+    id: 'inspiration-add',
+    hash: '#/inspiration',
+    act: async (page, T) => {
+      await page.locator('form.if-add input').fill('https://bikepacking.com/plog/complete-guide-to-bikepacking-bags/');
+      await tap(page.locator('form.if-add').getByRole('button', { name: T('Add link|insp') }));
+    },
+  },
   // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.
   { id: 'helper', hash: '#/helper' },

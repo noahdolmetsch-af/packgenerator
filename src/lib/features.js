@@ -98,6 +98,8 @@ const OWN = [
   { id: 'f.ridenote', group: 'onway', title: 'Note on the way', text: 'A note for the trip and the day; it lands in the debrief.', href: '#/ride', play: 'ride', words: 'notiz unterwegs' },
   { id: 'f.finish', group: 'onway', title: 'End the trip', text: 'Ends the trip, earlier too, with Undo; then the next step.', href: '#/ride', play: 'ride', words: 'tour beenden fertig' },
   // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
+  // v0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4): your own links, the kind from the address, a note becomes a packing rule
+  { id: 'f.inspiration', group: 'before', title: 'Inspiration', text: 'Your own links to rigs, routes, videos and races; the kind comes from the address, a note becomes a packing rule.', href: '#/inspiration', words: 'inspiration links link rig route video packliste packregel wunschliste rennen kalender ics ideen' },
   { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip
   { id: 'f.unneeded', group: 'after', title: 'What did you not need?', text: 'Tap what stayed in the bag; the app counts how much lighter it could be.', href: '#/debrief', play: 'after', words: 'nicht gebraucht rückblick' },
