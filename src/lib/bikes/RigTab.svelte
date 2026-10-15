@@ -101,7 +101,8 @@
   const shown = $derived(filterLinks(links, filter));
   let dialog = $state.raw(null); // { link } or { kind }
   const saveLinks = (list) => db.settings.put({ key: 'rigLinks', value: list });
-  const saveLink = (l) => saveLinks(links.some((x) => x.id === l.id) ? links.map((x) => (x.id === l.id ? l : x)) : [...links, l]);
+  // «Inspiration» shares these links: a change here keeps what Inspiration added (note, facts, taken)
+  const saveLink = (l) => saveLinks(links.some((x) => x.id === l.id) ? links.map((x) => (x.id === l.id ? { ...x, ...l } : x)) : [...links, l]);
   const deleteLink = (l) => saveLinks(links.filter((x) => x.id !== l.id).map((x) => (x.raceId === l.id ? { ...x, raceId: null } : x)));
   const toggleStar = (l) => saveLinks(links.map((x) => (x.id === l.id ? { ...x, star: !x.star } : x)));
   const raceDays = (r) => [r.raceDate ? dateOf(r.raceDate) : '', r.raceEnd && r.raceEnd !== r.raceDate ? dateOf(r.raceEnd) : ''].filter(Boolean).join(' – ');

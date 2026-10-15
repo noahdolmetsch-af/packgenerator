@@ -83,7 +83,7 @@ export const DOMAINS = [
   {
     key: 'hiking',
     name: 'Hiking',
-    packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30, want: { min: 12, max: 15 } }],
+    packs: [{ key: 'pack', name: 'Backpack 15 L', volumeL: 15, want: { min: 12, max: 15 } }],
     icon: 'walk',
     sport: true,
     words: ['hiking', 'wandern'],

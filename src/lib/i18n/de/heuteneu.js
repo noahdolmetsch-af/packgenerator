@@ -65,7 +65,6 @@ export default {
   "comes with Fitbit; the pulse you can type in «Wi gaht's?»": "kommt mit Fitbit; den Puls kannst du in «Wi gaht's?» eintragen",
   // the trip card (HN0 check H1) and «Important today» (H2, HN4 2a)
   'Base weight|box': 'Basisgewicht',
-  'with food, water and what you wear: {w}': 'mit Essen, Wasser, Getragenem: {w}',
   '{bike}: {n} due': '{bike}: {n} fällig',
   // the new tiles («Customise», catalog)
   'Morning, day, evening, night: what fits the time of day, in one card.': 'Morgen, Tag, Abend, Nacht: was zur Tageszeit passt, in einer Karte.',

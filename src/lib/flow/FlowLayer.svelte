@@ -6,12 +6,12 @@
    * Hobby pages 2: a meditation session runs in its own full view (B7, SessionView); the mini clock
    * opens that view again.
    */
-  import { Timer, Pause, Play, Check, Bell } from '@lucide/svelte';
+  import { Timer, Pause, Play, Check, Bell, X, ChevronRight } from '@lucide/svelte';
   import TickSheet from './TickSheet.svelte';
   import TimerSheet from './TimerSheet.svelte';
   import SessionView from './hobby/SessionView.svelte';
   import { flowQuery } from './data.svelte.js';
-  import { ui, clockState, togglePause, openTimer, runUndo, actName } from './ui.svelte.js';
+  import { ui, clockState, togglePause, openTimer, runUndo, closeToast, actName } from './ui.svelte.js';
   import { flowStates } from '../flow.js';
   import { remainingSec, isDone, clock } from '../flowtimer.js';
   import { localDay } from '../localday.js';
@@ -65,6 +65,10 @@
       <Check size={18} aria-hidden="true" />
       <span>{ui.toast.text}</span>
       {#if ui.toast.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}
+      {#if ui.toast.link}
+        <a class="undo lk" href={ui.toast.link.href} onclick={closeToast} data-toast-link>{ui.toast.link.text}<ChevronRight size={16} aria-hidden="true" /></a>
+        <button type="button" class="undo x" onclick={closeToast} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+      {/if}
     </div>
   {/key}
 {/if}
@@ -187,6 +191,20 @@
     font: inherit;
     font-weight: 600;
     cursor: pointer;
+  }
+  .ftoast .undo :global(svg) {
+    color: inherit;
+  }
+  .lk {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+  }
+  .x {
+    display: grid;
+    place-items: center;
+    min-width: 44px;
   }
   .undo:focus-visible {
     outline-color: var(--focus-on-dark);

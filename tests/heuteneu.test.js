@@ -153,7 +153,7 @@ describe('the day card, Aktiv and the compact balance', () => {
   });
   it('every inspiration (the tip of each balance area) and every new text has a German entry', () => {
     for (const c of CATS) expect(DE[c.tip], c.tip).toBeTruthy();
-    for (const k of ['Day card · {part}', 'Morning|part', 'Day|part', 'Evening|part', 'Night|part', 'Set out for today', 'Idea for today|card', 'Base weight|box', 'with food, water and what you wear: {w}', '{bike}: {n} due', 'Inspiration', 'Challenge', 'Sleep last night', 'Last activity', 'Open Aktiv']) expect(DE[k], k).toBeTruthy();
+    for (const k of ['Day card · {part}', 'Morning|part', 'Day|part', 'Evening|part', 'Night|part', 'Set out for today', 'Idea for today|card', 'Base weight|box', '{bike}: {n} due', 'Inspiration', 'Challenge', 'Sleep last night', 'Last activity', 'Open Aktiv']) expect(DE[k], k).toBeTruthy();
     for (const id of ADDED_0155) {
       expect(DE[TILE[id].label], id).toBeTruthy();
       expect(DE[TILE[id].pitch], id).toBeTruthy();

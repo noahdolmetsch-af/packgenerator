@@ -15,6 +15,9 @@ describe('weather from Open-Meteo (answers 4a, 5a)', () => {
       daily: { time: ['2026-10-14', '2026-10-15', '2026-10-16'], temperature_2m_min: [3.2, 4.6, 2.1], temperature_2m_max: [12, 14.2, 11.5], precipitation_sum: [0, 0.4, 2], precipitation_probability_max: [10, 30, 60] },
     }), new Date('2026-10-04T10:00:00Z'));
     expect(f.days[1]).toEqual({ date: '2026-10-15', min: 4.6, max: 14.2, rainMm: 0.4, rainPct: 30 });
+    // «Passt zu heute» WD3: the wind is kept when Open-Meteo sends it (for the föhn)
+    const w = await fetchForecast({ name: 'Bern', lat: 46.9, lon: 7.4 }, fake({ daily: { time: ['2026-10-14'], temperature_2m_min: [9], temperature_2m_max: [21], precipitation_sum: [0], precipitation_probability_max: [0], wind_direction_10m_dominant: [182], wind_gusts_10m_max: [61.4] } }));
+    expect(w.days[0]).toMatchObject({ windDir: 182, gust: 61.4 });
     const trip = { startDate: '2026-10-15', days: 3, forecast: f };
     const days = forecastForTrip(trip);
     expect(days.map((d) => d.date)).toEqual(['2026-10-15', '2026-10-16']);

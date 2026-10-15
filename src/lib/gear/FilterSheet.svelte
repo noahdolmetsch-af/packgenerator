@@ -6,7 +6,7 @@
    */
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
-  import { X } from '@lucide/svelte';
+  import { X, Pencil } from '@lucide/svelte';
 
   /**
    * value: { sort, category, bag, domain, role }; onchange(patch); count: items shown;
@@ -50,7 +50,8 @@
     {#each SORTS as o (o.key)}<button type="button" class="fchip" aria-pressed={value.sort === o.key} onclick={() => onchange({ sort: o.key })}>{o.name}</button>{/each}
   </div>
 
-  <h3 class="lbl" id="fs-cat">{t('Category')}</h3>
+  <!-- v0.134.0 «Listen und Typen» (LI4, answer 3b): the list right where it is used -->
+  <div class="lblrow"><h3 class="lbl" id="fs-cat">{t('Category')}</h3><a class="editlist" href="#/me/lists?categories"><Pencil size={14} aria-hidden="true" />{t('Edit list')}</a></div>
   <div class="fchips" role="group" aria-labelledby="fs-cat">
     <button type="button" class="fchip" aria-pressed={!value.category} onclick={() => onchange({ category: '' })}>{t('All')}</button>
     {#each cats as c (c.key)}<button type="button" class="fchip" aria-pressed={value.category === c.key} onclick={() => onchange({ category: value.category === c.key ? '' : c.key })}>{c.name} <small class="num">{c.n}</small></button>{/each}
@@ -127,6 +128,22 @@
     margin: 16px 0 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .lblrow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .editlist {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .fchips {
     display: flex;

@@ -13,14 +13,14 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck', 'helper', 'look'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck', 'helper', 'look', 'inspiration'];
 // v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
 describe('the pages under the places and «Ich» (v0.76.0)', () => {
   it('groups the pages by their place, «Ich» last', () => {
     expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
     expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['templates', 'debriefs', 'past', 'learnings', 'pace']);
-    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'data', 'helper', 'look', 'features', 'me']); // v0.77.0: + Ich › Helfer (K1a); v0.97.0: + Darstellung
+    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'inspiration', 'data', 'helper', 'look', 'features', 'me']); // v0.77.0: + Ich › Helfer (K1a); v0.97.0: + Darstellung; UC2-1: + Inspiration
   });
 
   it('every page is reached by a place or a page row (the places\' own pages once)', () => {

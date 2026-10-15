@@ -378,15 +378,17 @@
     const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
     return [who, tn(stats.count, '{n} item', '{n} items'), km, pct].filter(Boolean).join(' · ');
   });
+  // v0.137.0 (Durchklick DK3, Noah 2a): the whole trip with food, water and worn items is the number of the trip head.
+  const kgTrip = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`; // as the trip head
   // v0.101.0 Design-Refresh P2 (H1): number boxes (days, hours, open steps), the packing bar and,
   // with a route, its distance, climbing and profile on the right.
   const left = $derived(shown && !ask ? timeLeft(shown, now) : null);
-  // HN0 check H1 (Noah 14.10.2026 «3a»): the base weight big (gear and bags without food, water and what you
-  // wear), and in a small line all of it «with food, water and what you wear»
+  // HN0 check H1 (Noah 14.10.2026 «3a») with Durchklick 0.137.0 («3a», DK3 «2a»): the base weight big (gear without
+  // food, water and what you wear, as the line of 0.137.0), and in a small line the whole trip, the same as the trip head
   const weight = $derived.by(() => {
-    if (!stats || !(stats.baseG + stats.bagsG + stats.consumablesG + stats.wornG)) return null;
-    const base = knownWeight(stats.baseG + stats.bagsG, stats.baseMissing);
-    const all = knownWeight(stats.baseG + stats.bagsG + stats.consumablesG + stats.wornG, stats.unweighed);
+    if (!stats || !stats.packG) return null;
+    const base = knownWeight(stats.baseG, stats.baseMissing);
+    const all = knownWeight(stats.packG, stats.packMissing, kgTrip); // HN4b: always, also when nothing is added
     return { base, all };
   });
   const openSteps = $derived(bars.filter((s) => s.state !== 'done' && s.state !== 'skip').length);
@@ -923,7 +925,7 @@
               <div><dt>{left.hours === 1 ? t('hour|left') : t('hours|left')}</dt><dd>{left.hours}</dd></div>
             {/if}
             <div><dt>{t('open|steps')}</dt><dd>{openSteps}</dd></div>
-            {#if weight}<div class="wt" data-weight><dt>{t('Base weight|box')}<span class="ws">{t('with food, water and what you wear: {w}', { w: weight.all })}</span></dt><dd>{weight.base}</dd></div>{/if}
+            {#if weight}<div class="wt" data-weight><dt>{t('Base weight|box')}<span class="ws" data-pack-weight>{t('with food, water and worn items {w}', { w: weight.all })}</span></dt><dd>{weight.base}</dd></div>{/if}
           </dl>
         {/if}
         {#if !ask && packed}

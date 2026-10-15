@@ -74,6 +74,11 @@ const ROUTES = [
   ['#/flow/act/meditation/log', 'Protokoll'],
   ['#/flow/act/meditation/log?view=cal', 'Protokoll Kalender'],
   ['#/flow/act/meditation/log?view=chart', 'Protokoll Grafik'],
+  // «Meditation» (ME3) and «Timer» (Z2, Z3, Z5): all new, strict like their files
+  ['#/flow/act/meditation/rueckblick', 'Meditation Rückblick'],
+  ['#/timer', 'Timer'],
+  ['#/timer/faces', 'Zifferblatt'],
+  ['#/timer/log', 'Timer-Log'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],
@@ -87,6 +92,11 @@ const ROUTES = [
   ['#/me/abfragen', "Wi gaht's?"], // Noah 14.10.2026 01:34:32: the page is called «Wi gaht's?»
   ['#/me/history', 'Verlauf'],
   ['#/me/analysis', 'Auswertung'],
+  // «Inspiration» UC2-1: your own links (empty in this fixture), strict like its files
+  ['#/inspiration', 'Inspiration'],
+  // v0.134.0 «Listen und Typen» (LI1, LI2): the overview and the list Kategorien, strict like their files
+  ['#/me/lists', 'Listen und Typen'],
+  ['#/me/lists?categories', 'Kategorien'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

@@ -233,6 +233,10 @@ export function tripStats(trip, items, containers, bike, riderG) {
     bikeG,
     riderG: riderG ?? 0,
     systemG: gearG + onMeG + bagsG + bikeG + (riderG ?? 0),
+    // v0.137.0 (Durchklick DK3, Noah 2a): the one weight of a trip, the same in the trip head, the
+    // weight card and on Today: everything packed and worn, food and water included, worn bags too.
+    packG: gearG + onMeG,
+    packMissing: unweighed + wornBagsMissing,
     unweighed,
     gearMissing: zones.filter((z) => !onMe(z)).reduce((t, z) => t + z.unweighed, 0),
     onMeMissing: zones.filter(onMe).reduce((t, z) => t + z.unweighed, 0) + wornBagsMissing,

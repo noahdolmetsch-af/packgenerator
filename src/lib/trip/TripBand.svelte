@@ -70,7 +70,7 @@
   const status = $derived(tabStatus(trip, { open, debrief, today: localDay(), km }));
   const tabs = $derived(tabsOf(trip));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
-  const weight = $derived(stats ? stats.gearG + stats.onMeG : null);
+  const weight = $derived(stats ? stats.packG : null); // v0.137.0 DK3: the one trip weight
   // v0.30.1 (Noah N8): rename any trip at any time (also a past one): tap the name, type, Enter or
   // leave the field saves; Escape keeps the old name. An empty name is not saved.
   let naming = $state(false);
@@ -149,12 +149,12 @@
         <button type="button" class="fact" data-fact="duration" aria-label={t('Duration: {value}. Change', { value: duration })} onclick={() => (factOpen = 'duration')}><Clock3 size={16} aria-hidden="true" />{duration}</button>
         {#if byBike}<button type="button" class="fact" aria-label={t('Bike: {value}. Change', { value: bike?.name ?? trip.bike ?? t('No bike') })} onclick={() => (factOpen = 'bike')}><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</button>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
         {#if byBike}<button type="button" class="fact" aria-label={t('Weather: {value}. Change', { value: wx || t('No weather set') })} onclick={() => (factOpen = 'weather')}><CloudSun size={16} aria-hidden="true" />{wx || t('No weather set')}</button>{:else if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
-        {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
+        {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.packMissing && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.packMissing })}</i>{/if}</span>{/if}
       {:else}
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>
       {#if duration}<span data-fact="duration"><Clock3 size={16} aria-hidden="true" />{duration}</span>{/if}
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
-      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
+      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.packMissing && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.packMissing })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
       {/if}
       <!-- SN1d (Noah 13.10.2026): «In komoot öffnen», quiet, when the route came with a komoot link -->
