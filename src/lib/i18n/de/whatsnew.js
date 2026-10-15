@@ -4,6 +4,46 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.134.0 «Paket 1 – Doku und Ich» (Inspiration, Listen und Typen, Handbuch + Kleine Apps, leere App, Wandern 15 L)
+  'Your app, your way': 'Deine App, deine Ordnung',
+  'Collect your own inspiration, order your categories yourself and look up how every function works.': 'Sammle deine eigene Inspiration, ordne deine Kategorien selbst und schlag nach, wie jede Funktion geht.',
+  'Inspiration: your own links, the kind comes from the address; a note becomes a packing rule': 'Inspiration: deine eigenen Links, die Art kommt aus der Adresse; aus einer Notiz wird eine Packregel',
+  'Change categories yourself: rename, add, hide and order them under Me › Lists and types': 'Kategorien selber ändern: umbenennen, dazunehmen, ausblenden und ordnen unter Ich › Listen und Typen',
+  'Me › Handbook shows how to switch on every function; Small apps open Meditation, Packing list or Bike care on their own': 'Ich › Handbuch zeigt, wie du jede Funktion aufschaltest; Kleine Apps öffnen Meditation, Packliste oder Velopflege für sich',
+  'Hiking starts with a 15 L backpack instead of 30 L': 'Wandern startet mit einem 15-L-Rucksack statt 30 L',
+  'An empty app starts without bags; the mini bag and the cargo cage only come with the matching gear': 'Eine leere App startet ohne Taschen; Mini Bag und Cargo Cage kommen nur mit dem passenden Material',
+  'Plan a hiking trip: the start backpack is 15 L.': 'Plane eine Wanderung: Der Start-Rucksack hat 15 L.',
+
+  // Working numbers before Paket 1 (texts reused above where they fit): 0.133.3 «Inspiration», 0.133.1 «Handbuch und Kleine Apps», 0.134.0 «Listen und Typen»
+  // 0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4)
+  'Collect inspiration': 'Inspiration sammeln',
+  'Your own links to rigs, routes, videos and races in one place, and what you take from them goes into the app.': 'Deine eigenen Links zu Rigs, Routen, Videos und Rennen an einem Ort, und was du daraus übernimmst, kommt in die App.',
+  'Your own links: the app recognises the kind from the address, it loads nothing': 'Eigene Links: Die App erkennt die Art an der Adresse und lädt nichts',
+  'A note becomes a packing rule: a quiet hint while packing': 'Aus einer Notiz wird eine Packregel: ein ruhiger Hinweis beim Packen',
+  'A race becomes a calendar file (.ics), a route a trip draft, a product a wishlist item': 'Ein Rennen wird eine Kalenderdatei (.ics), eine Route ein Tourentwurf, ein Produkt ein Teil auf der Wunschliste',
+  'On a computer Inspiration sits in the sidebar, on the phone under Me': 'Am Computer steht Inspiration in der Seitenleiste, am Handy unter Ich',
+  'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.': 'Öffne Inspiration (Handy: Ich › Inspiration) und füge einen Link ein, z. B. ein Rig von bikepacking.com: «Erkannt: Rig» erscheint.',
+  'On a card tap «What I take from it», write a short rule and choose «Packing rule».': 'Tippe auf einer Karte auf «Das übernehme ich», schreib eine kurze Regel und wähle «Packregel».',
+  'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.': 'Öffne Packen für eine geplante Tour: Unter «Aus früheren Touren» steht deine Regel als ruhiger Hinweis.',
+
+  // 0.133.1 Handbuch und Kleine Apps
+  'A handbook and small apps': 'Ein Handbuch und kleine Apps',
+  'Under Me you now find how every function is switched on, and the small apps with their own icon.': 'Unter Ich steht jetzt, wie du jede Funktion aufschaltest, und die kleinen Apps mit eigenem Symbol.',
+  'Handbook: every function with how to switch it on, the steps and an example': 'Handbuch: jede Funktion mit Aufschalten, den Schritten und einem Beispiel',
+  'Small apps: open Meditation, Packing list or Bike care as their own app, same data': 'Kleine Apps: Meditation, Packliste oder Velopflege als eigene App öffnen, gleiche Daten',
+  '«Take me there» in the handbook opens the function right away': '«Hinbringen» im Handbuch öffnet die Funktion gleich',
+  'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».': 'Öffne Ich › Handbuch: Alle Funktionen stehen zugeklappt; tippe auf eine: Schritte, ein Beispiel und «Hinbringen».',
+  'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».': 'Öffne Ich › Kleine Apps, tippe bei Meditation auf «Öffnen»: Die kleine App zeigt nur ihre Reiter und «Ganze App».',
+  // 0.134.0 (working number) Listen und Typen
+  'Lists your way': 'Listen nach deinem Mass',
+  'The categories of your gear are yours now: rename, add your own, hide, delete and change the order.': 'Die Kategorien deines Materials gehören jetzt dir: umbenennen, eigene dazunehmen, ausblenden, löschen und die Reihenfolge ändern.',
+  'Me › Lists and types › Categories: arrows change the order, the pen opens a category (name, symbol, hide, delete).': 'Ich › Listen und Typen › Kategorien: die Pfeile ändern die Reihenfolge, der Stift öffnet eine Kategorie (Name, Symbol, ausblenden, löschen).',
+  'In Gear › Sort and filter, «Edit list» opens the categories right away.': 'In Material › Sortieren und filtern öffnet «Liste bearbeiten» direkt die Kategorien.',
+  'Your changes stay apart from the Standard: «Back to Standard» brings everything back': 'Deine Änderungen bleiben getrennt vom Standard: «Auf Standard zurücksetzen» holt alles zurück',
+  'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.': 'Ich › Listen und Typen › Kategorien: eine Kategorie mit dem Stift umbenennen und speichern; im Material steht der neue Name.',
+  'Add an own category, then open «+ Item» in Gear: it is in the category choice.': 'Eine eigene Kategorie dazunehmen, dann im Material «+ Teil» öffnen: sie steht in der Auswahl.',
+  'Back in Categories, tap «Back to Standard»: everything is as before.': 'Zurück in Kategorien «Auf Standard zurücksetzen» antippen: alles ist wie vorher.',
+
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

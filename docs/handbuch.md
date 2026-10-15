@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 95 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 99 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -302,6 +302,17 @@ Ein Teil öffnen, dann das Gewicht: Leichteres aus deinem eigenen Material.
 
 **Beispiel:** Die 450-g-Jacke → deine 210-g-Windjacke würde reichen.
 
+### Deine eigenen Kategorien
+
+Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, löschen, Reihenfolge ändern.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.
+2. Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.
+
+**Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
+
 ### Viele Teile auswählen
 
 Kategorie, Tasche, Archiv oder Baustein für viele Teile auf einmal.
@@ -345,6 +356,29 @@ Eine importierte Liste prüfen: sichere Zeilen übernehmen, die anderen mit je e
 2. Nimm die sicheren Zeilen auf einmal, die anderen mit je einem Tipp.
 
 **Beispiel:** 120 Zeilen → 110 sichere auf einmal, 10 von Hand geprüft.
+
+### Inspiration
+
+Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Adresse, aus einer Notiz wird eine Packregel.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Inspiration (Computer: Seitenleiste; Handy: Ich › Inspiration) und füge deinen Link ein.
+2. Tippe auf «Das übernehme ich»: eine Packregel, ein Teil auf der Wunschliste oder eine Notiz.
+3. Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.
+
+**Beispiel:** Ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.
+
+### Tour aus komoot
+
+komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.
+2. Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.
+
+**Beispiel:** Eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.
 
 ## Packen und unterwegs
 
@@ -882,6 +916,17 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 2. Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
+
+### Wi gaht's?
+
+Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Wi gaht's?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.
+2. Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.
+
+**Beispiel:** «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.
 
 ### Meilensteine
 

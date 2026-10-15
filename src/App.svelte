@@ -43,6 +43,13 @@
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
   import Pay from './pages/Pay.svelte';
+  import Handbook from './pages/Handbook.svelte';
+  import MiniApps from './pages/MiniApps.svelte';
+  import Inspiration from './pages/Inspiration.svelte';
+  import { linkFrom } from './lib/notebook.js';
+  import { INSPO_WISH } from './lib/inspiration.js';
+  import Lists from './pages/Lists.svelte';
+  import { listsReady } from './lib/listsready.svelte.js';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -167,6 +174,25 @@
     const q = new URLSearchParams(location.search);
     if (['title', 'text', 'url'].some((k) => q.get(k))) {
       notePrefill = ['title', 'text', 'url'].map((k) => q.get(k)?.trim()).filter(Boolean).join('\n');
+      // «Inspiration» UC2-4: a shared link (browser «Teilen» › Pack Generator) opens «Link hinzufügen» on
+      // the Inspiration page; its window offers «Into the Inbox instead». Text without a link: Inbox as before.
+      const shared = linkFrom(notePrefill);
+      if (shared) {
+        const title = (q.get('title')?.trim() || notePrefill.replace(shared.url, '').trim().split('\n')[0] || '').slice(0, 120);
+        let kept = false;
+        try {
+          localStorage.setItem(INSPO_WISH, JSON.stringify({ url: shared.url, title: title === shared.url ? '' : title }));
+          kept = true;
+        } catch {
+          /* private mode: the link goes to the Inbox below */
+        }
+        if (kept) {
+          history.replaceState(null, '', `${location.pathname}#/inspiration`);
+          hash = '#/inspiration';
+          window.dispatchEvent(new Event('pg:inspo'));
+          return;
+        }
+      }
       history.replaceState(null, '', `${location.pathname}#/inbox`);
       hash = '#/inbox';
       noteOpen = true;
@@ -291,7 +317,7 @@
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
-  {#key switchN}
+  {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'gearimport'}
@@ -354,6 +380,12 @@
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
+  {:else if page === 'handbook'}
+    <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
+    <Handbook />
+  {:else if page === 'miniapps'}
+    <!-- Ich › Kleine Apps (mockup HB2) -->
+    <MiniApps />
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
     <Abfragen />
@@ -366,6 +398,12 @@
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
+  {:else if page === 'inspiration'}
+    <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
+    <Inspiration />
+  {:else if page === 'lists'}
+    <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
+    {#key hash}<Lists />{/key}
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

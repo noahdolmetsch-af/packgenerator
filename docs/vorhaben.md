@@ -22,7 +22,7 @@ Prüffragen:
 - **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
 - **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen mit dem KI-Helfer direkt nach E1.
 - **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
-- **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben.
+- **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben (Inspiration kommt mit 0.134.0, 15.10.2026).
 - **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
 
 ## Kurz gesagt
@@ -38,10 +38,14 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (14.10.2026, 0.133.0)
+## Stand heute (15.10.2026, 0.134.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.134.0 | **Paket 1 – Doku und Ich**, ein Release aus sechs Teilen: (1) Doku «Zwischenstand» (#165), (2) Doku «Release-Analyse / Was fällt weg» (#160), (3) Ich › Handbuch + Ich › Kleine Apps (#166), (4) leere App ohne Start-Taschen + Wandern 15 L (#161), (5) Inspiration sammeln, (6) Listen und Typen: Kategorien selber ändern, mit Standard-Paket (#159); Ziele 1 und 4 | Bündel bereit, PR folgt |
+| 0.134.0 | Standard-Paket (alle Grundlisten in einem neutralen Verzeichnis) und «Listen und Typen»: Kategorien selber ändern (Ich › Listen und Typen) | Teil von 0.134.0 (#159) |
+| 0.133.3 | **Inspiration sammeln** (UC2-1, UC2-2, UC2-4; Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a): eigene Links mit Art aus der Adresse, aus der Notiz wird eine Packregel (Hinweis beim Packen), Wunschliste oder Notiz; Rennen → .ics, Route → Tourentwurf; Ziel 4 «Aus jeder Tour lernen» | Teil von 0.134.0 |
+| 0.133.1 | Handbuch und Kleine Apps unter Ich › Die App: jede Funktion mit Aufschalten und Beispiel, kleine Apps öffnen; Ziel 1 | Teil von 0.134.0 (#166) |
 | 0.132.2 | Velo draussen ohne falschen Haken (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab, Antippen wirkt wieder; Touren ohne Velo (Wandern, Skitour, Reisen) zählen nicht als Velotour; Ziel 1 | live (#171) |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | live (#172) |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |

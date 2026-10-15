@@ -1299,6 +1299,17 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
+## 14.10.2026: Persönlich und Standard, Standard-Paket und «Listen und Typen» (0.134.0)
+
+- **Änderungen im Standard kommen als Vorschlag (Noah 1a):** Ändert sich der Standard, sieht die Person «Neu im Standard: übernehmen?»; nie automatisch. Grundlage: `standardChanges` in `src/lib/standard.js`.
+- **Standard enthält beides (2):** die Grundlisten und erfundenes Beispiel-Material, Beispiel-Touren und Vorlagen.
+- **Reihenfolge (3a):** zuerst Listen in der App änderbar («Listen und Typen», Mockups LI1–LI3), dann der Profil-Wechsel.
+- **Umschalten (4a):** ein Schalter unter Ich › Die App.
+- **Neuer Nutzer (5, «passt»):** Die Grundlisten sind immer da; beim ersten Start fragt die App einmal «Mit Beispielen starten» oder «Leer starten»; Beispiele lassen sich später entfernen.
+- **Selbst entschieden:** Das Verzeichnis kopiert keine Liste, es liest jede von ihrem Ort (`docs/daten.md` Regel 2). Eigene Änderungen liegen getrennt als Einstellung `listOverrides` (reist im Backup mit); ausgeblendete Einträge bleiben in der Liste markiert, damit nichts, was sie nutzt, bricht. Die Start-Aktivitäten «Im Flow» und die Ideen bleiben vorerst, wie sie sind; neutrale Beispiele kommen mit «Mit Beispielen starten» (eigene Mockups).
+- **«Listen und Typen» (Mockups LI1–LI4, Noah «LI1–LI4 freigegeben»):** Standard-Einträge dürfen auch gelöscht werden (1b); Reihenfolge mit Pfeilen hoch und runter (2b); zusätzlich «Liste bearbeiten» dort, wo die Liste vorkommt (3b). **Kategorien zuerst (Noah «a»):** jede weitere Liste kommt später als eigenes kleines Release.
+- **Selbst entschieden («Listen und Typen»):** Auf dem Handy ist das Auge nicht in der Zeile (Platz für den Namen bei 320 px); Ausblenden geht dort im Fenster des Eintrags. «Gilt für» (Sportarten-Chips in LI3) ist noch nicht gebaut: Kategorien haben heute keinen Bezug zu Sportarten; Frage an Noah. Die Übersicht zeigt nur Listen, die schon änderbar sind (Kategorien, Checks pro Reiseart). «Liste bearbeiten» steht in Material › Sortieren und filtern, wo die Kategorien gewählt werden.
+
 ## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
 
 - **Bei Belegen immer die Kamera** (Noah 14.10.2026 «bei belegen immer», Mockups K1–K4 «freigegeben»): Überall, wo ein Beleg dazukommt, steht auf dem Handy «Beleg fotografieren» (öffnet die Kamera direkt) und «Galerie». Am Computer (keine grobe Zeigereingabe) bleibt ein Knopf «Foto wählen», weil der Browser dort ohnehin den Dateidialog zeigt.
@@ -1309,3 +1320,45 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 14.10.2026: Release-Analyse «Was wurde verdrängt?»
+
+Noah 14.10.2026 00:41 UTC: zu jedem Release die neuen Features, was wichtig war, und ob spätere Releases Früheres verdrängt, überschrieben oder unsichtbar gemacht haben. Geprüft wurden alle 137 Versionen (0.1.0 bis 0.124.0) am gebauten main mit erfundenen Daten. Ergebnis: rund 160 von 180 Funktionen sind wie vorher da; 16 Funde (F1–F16), meist «tiefer gerutscht». Häufigste Ursache: Nebenwirkungen unter «Selbst entschieden» im Design-Refresh 0.103–0.109; dazu Ersetzen ohne Frage (0.114 «wie letzte Tour», 0.119 Schnellstart) und neue Kacheln, die Altes nach unten schieben.
+
+Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
+- **(1a)** Alle wichtigen und mittleren Funde bekommen Mockups als ein Paket «Wieder sichtbar» (WS1–WS7). Meditation (F1) und Stoppuhr am Computer (F8) laufen über das schon freigegebene Meditations-Paket.
+- **(2a)** Nur noch Schnellstart: die alte «Tagestour jetzt» verschwindet aus dem Neu-Menü, der Suche und den Tipps.
+- **(3a)** Jeder Release-PR hat ab jetzt einen Abschnitt **«Was fällt weg oder rutscht tiefer»**: was nicht mehr da ist, was hinter «Mehr», in eine Falte oder weiter nach unten wandert, oder «nichts». Noah sieht es vor dem Merge.
+- **(4a)** Das Meditations-Paket (ME1–ME3, Z1–Z5) kommt vor Bündel B.
+- **Noah 14.10.2026 18:27 UTC «1b 2b», «hb freigeben» (Mockup HB2):** Handbuch als eigene Seite Ich › Handbuch; «Kleine Apps» als Zeile und Seite unter Ich › Die App. «Was die App alles kann» bleibt wie es ist. Kommt als eigene Version 0.133.1 (PR #166; Noah 14.10.2026 19:39 UTC «2b»: jeder PR einzeln).
+
+## 14.10.2026: Start-Taschen in der leeren App, Wander-Rucksack 15 L
+
+- **Leere App ohne Mini Bag und Cargo Bag (Noah 14.10.2026):** die Start-Taschen aus `bikes.js` entstehen nur, wenn eine Tasche der ersten Excel in den Daten ist.
+- **Wander-Rucksack 15 L (Noah 14.10.2026 «b»):** eine neue Wandertour startet mit «Rucksack 15 L» statt 30 L, passend zu den Vorschlägen von 12–15 L. Skitour bleibt bei 30 L; alte Touren behalten ihren gespeicherten Rucksack.
+
+## 14.10.2026: Inspiration sammeln (UC2-1, UC2-2, UC2-4), 0.133.3 (Arbeitsnummer)
+
+- **Freigabe:** Mockups UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» (13.10.2026), Noah «3b» + «a» (nur eigene Links, keine Liste der App), 4a (Packregel, Wunschliste oder Notiz), 5a (Hinweis beim Packen). Lokal gebaut, noch kein PR (GitHub pausiert); Version, «Was ist neu» und Funktionskatalog sind ergänzt (0.133.3).
+- **Seite `#/inspiration`:** am Computer ein Eintrag unter den fünf Orten (mit «neu», bis er einmal offen war), am Handy Ich › Inspiration (Daten, unter Notizen), nicht in der unteren Leiste; Suche findet sie (`menu.js`).
+- **Art aus der Adresse (`inspiration.js` detectType):** Video, Hör-Tipp, Route, Rig, Packliste, Rennen, Produkt, Anleitung; erkennt die App nichts, wählst du die Art. Nichts wird geladen, kein fremder Text, kein Foto; Titel nur als Vorschlag aus der Adresse, Zahlen und Stichworte sind deine eigenen.
+- **Speicher ohne neue Tabelle und ohne Datenbank-Version:** Rigs und Rennen bleiben in `settings.rigLinks` (gleiche Liste wie Velos › Setup, nie doppelt), alle anderen Arten in `settings.inspoLinks`. Wechselt die Art, zieht der Link um. Beide sind im Backup (Test in `tests/inspiration.test.js`).
+- **Aus der Notiz wird …:** Packregel = ein Eintrag in `learnings` mit `inspo` (Quelle, Link) und `packHint`; er erscheint beim Packen als ruhiger Hinweis unter «Aus früheren Touren» (höchstens 2, neueste zuerst, «✕» blendet aus, die Regel bleibt unter «Was die App gelernt hat») und zählt nicht bei «Aus früheren Touren». Wunschliste = Gegenstand mit `ownership: 'wishlist'` (Produkt mit Gewicht und Preis in der Notiz). Notiz = gemerkte Notiz mit Link. Jede Übernahme steht am Link (`taken`) für «Zuletzt übernommen».
+- **Selbst entschieden:**
+  - Route → «Tourentwurf» legt eine Tour-Idee an wie «Aus Notiz wird …» auf der Notizen-Seite (Titel der Route, Tage aus deinen Zahlen, erstes Velo); ohne Velo ein Hinweis. Rennen → «Kalender» speichert eine Kalenderdatei (.ics, ganztägig über die Renntage); einen Kalender in der App gibt es nicht. «Rigs dieses Rennens: n» führt zu Velos › Setup.
+  - Geteilter Link (Android «Teilen» › Pack Generator): ein Link öffnet «Link hinzufügen» auf Inspiration, mit «Lieber in den Eingang» als Ausweg; Text ohne Link geht wie bisher in den Eingang. Der bestehende Share-Target reicht, keine Änderung am Manifest.
+  - Vorschau «So sieht es beim Packen aus» zeigt den echten Hinweis über angedeuteten Zeilen statt einer erfundenen Packliste.
+  - Hör-Tipp: der Schalter «Im Bereit-Check vor der Fahrt zeigen» aus dem Mockup ist nicht gebaut (braucht den Bereit-Check, eigenes Paket); ein Hör-Tipp hat «Das übernehme ich» mit → Packregel und → Notiz. Typ «Anleitung» hat einen eigenen Filter-Chip «Anleitungen».
+  - Velos › Setup behält beim Ändern eines Rig-Links, was Inspiration ergänzt hat (Notiz, Zahlen, Übernahmen).
+  - Funktionskatalog: `f.inspiration` in der Gruppe «Vor der Tour», seit 0.133.3, drei Schritte (`howto.js`) und Handbuch-Eintrag; `docs/handbuch.md` neu erzeugt (bringt auch die fehlenden Einträge «Tour aus komoot» und «Wi gaht's?» mit).
+  - Kachel «Neu» auf Heute: in einer schmalen Kachel (halbe Breite am Handy) rutscht der Text unter das Symbol statt daneben, damit ein langes Wort im Titel («Inspiration») nicht mitten im Wort bricht (Wächter, Heute @390).
+  - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.
+
+## 15.10.2026: Paket 1 «Doku und Ich» als ein Release 0.134.0
+
+- **Ein Release statt sechs (Thread «Mein Überblick» bündelt):** #165 Doku «Zwischenstand», #160 Doku «Release-Analyse / Was fällt weg», #166 Ich › Handbuch + Ich › Kleine Apps, #161 leere App ohne Start-Taschen + Wandern 15 L, «Inspiration sammeln» und #159 «Listen und Typen» (mit Standard-Paket) kommen zusammen als 0.134.0, je per echtem Merge-Commit. Die Arbeitsnummern 0.133.1, 0.133.2 und 0.133.3 fallen weg; «Was ist neu» hat einen einzigen Eintrag 0.134.0 «Deine App, deine Ordnung» (Datum 15.10.2026).
+- **Selbst entschieden:**
+  - Reihenfolge unter Ich › Die App: Was die App alles kann, Handbuch, Kleine Apps, Listen und Typen, Was ist neu (die zwei HB2-Zeilen wie im Mockup direkt nach «Was die App alles kann», «Listen und Typen» danach).
+  - «Was ist neu» 0.134.0: drei Hauptpunkte (Inspiration, Kategorien selber ändern, Handbuch + Kleine Apps), drei kleine Dinge (Neu: «Liste bearbeiten» im Material; Schöner: Wandern mit 15 L; Repariert: leere App ohne Taschen). Die deutschen Texte der Teile sind wiederverwendet, wo sie passen; die alten Schlüssel bleiben in `de/whatsnew.js`.
+  - `f.inspiration` und `f.lists` sind «seit 0.134.0»; `f.abfragen` bleibt bei 0.133.0 (Test fest auf 0.133.0 statt auf die neueste Version). Die Liste «neueste zuerst» beginnt mit Inspiration und Listen und Typen.
+  - `docs/handbuch.md`: Eintrag «Deine eigenen Kategorien» nachgetragen (99 Funktionen).

@@ -16,6 +16,34 @@
 
 export const WHATS_NEW = [
   {
+    // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
+    // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
+    // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).
+    version: '0.134.0',
+    date: '2026-10-15',
+    title: 'Your app, your way',
+    lead: 'Collect your own inspiration, order your categories yourself and look up how every function works.',
+    points: [
+      { text: 'Inspiration: your own links, the kind comes from the address; a note becomes a packing rule', href: '#/inspiration' },
+      { text: 'Change categories yourself: rename, add, hide and order them under Me › Lists and types', href: '#/me/lists?categories' },
+      { text: 'Me › Handbook shows how to switch on every function; Small apps open Meditation, Packing list or Bike care on their own', href: '#/me/handbook' },
+    ],
+    small: [
+      { box: 'new', text: 'In Gear › Sort and filter, «Edit list» opens the categories right away.', href: '#/gear' },
+      { box: 'nicer', text: 'Hiking starts with a 15 L backpack instead of 30 L' },
+      { box: 'fixed', text: 'An empty app starts without bags; the mini bag and the cargo cage only come with the matching gear', href: '#/bikes' },
+    ],
+    test: [
+      'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.',
+      'On a card tap «What I take from it», write a short rule and choose «Packing rule».',
+      'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.',
+      'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.',
+      'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».',
+      'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».',
+      'Plan a hiking trip: the start backpack is 15 L.',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',

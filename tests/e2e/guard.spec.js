@@ -87,6 +87,11 @@ const ROUTES = [
   ['#/me/abfragen', "Wi gaht's?"], // Noah 14.10.2026 01:34:32: the page is called «Wi gaht's?»
   ['#/me/history', 'Verlauf'],
   ['#/me/analysis', 'Auswertung'],
+  // «Inspiration» UC2-1: your own links (empty in this fixture), strict like its files
+  ['#/inspiration', 'Inspiration'],
+  // v0.134.0 «Listen und Typen» (LI1, LI2): the overview and the list Kategorien, strict like their files
+  ['#/me/lists', 'Listen und Typen'],
+  ['#/me/lists?categories', 'Kategorien'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
