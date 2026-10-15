@@ -260,10 +260,18 @@
   }
   // v0.67.0 (U001, U003): «Packen abschliessen»: the step is done (packedAt), then the interstitial
   // «Gepackt» (a day ride goes straight on, Ü5a). The Pack tab asks first when something is missing.
+  // Regeln der App A a (mockup A1): nothing jumps on its own; a day trip without a bike stays here and
+  // a note says so, with a link to Today (8 s).
+  let packedNote = $state(null); // the trip id while «All packed» shows
+  let packedTimer = null;
   async function finishPacking() {
     const cur = $state.snapshot(trip);
     await change(() => ({ packedAt: localDay() }));
-    location.hash = afterPacking(cur, localDay());
+    const to = afterPacking(cur, localDay());
+    if (to) return void (location.hash = to);
+    packedNote = cur.id;
+    clearTimeout(packedTimer);
+    packedTimer = setTimeout(() => (packedNote = null), 8000);
   }
   const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
   const phaseOpts = $derived({ debriefDone });
@@ -1057,6 +1065,9 @@
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
   {/if}
+  {#if packedNote && packedNote === trip?.id}
+    <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a></div>
+  {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
@@ -1089,7 +1100,7 @@
   .print { display: none; }
   /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
   .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px var(--shadow); font-weight: 600; overflow-wrap: break-word; }
-  .onion-toast .btn { flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
+  .onion-toast .btn { display: inline-flex; align-items: center; flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
   @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
   .prep-rows { list-style: none; padding: 0; }

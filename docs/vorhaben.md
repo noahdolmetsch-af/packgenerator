@@ -55,6 +55,13 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.133.1 | Handbuch und Kleine Apps unter Ich › Die App: jede Funktion mit Aufschalten und Beispiel, kleine Apps öffnen; Ziel 1 | Teil von 0.134.0 (#166) |
 | 0.132.2 | Velo draussen ohne falschen Haken (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab, Antippen wirkt wieder; Touren ohne Velo (Wandern, Skitour, Reisen) zählen nicht als Velotour; Ziel 1 | live (#171) |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | live (#172) |
+## Stand heute (15.10.2026, 0.140.1)
+
+| Version | Inhalt | Stand |
+| --- | --- | --- |
+| 0.140.1 | Start-Karten (Mockups ST1–ST2 freigegeben: «1a 2a 3b ST1–ST2 freigegeben» 14.10.2026 21:18 UTC; Platz bei der Tourkarte nach HN4 «1a 2a 3a 4b HN4 freigegeben» 21:51 UTC): Karte «Heute unterwegs» und «Letzter Abend» bei der Tourkarte statt der Sprünge; Ziel 1 | gebaut, wartet auf Push |
+| 0.140.0 | Regeln der App (Regeln freigegeben: «a a, b a, c b, freigabe» 14.10.2026; Mockups C1 C2 A1 «C1 C2 A1 freigegeben» 14.10.2026 20:29 UTC; App-Start 1b aus «1b 2b 3b 4a 5a» 19:59 UTC): nichts springt von selbst, ein Tipp öffnet zum Ändern, Start nach Pause auf der Startseite, Zurück schliesst überall zuerst das Fenster; Ziel 1 | gebaut, wartet auf Push |
+| 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |
 | 0.131.2 | Velo-Reihenfolge: Velo-Reiter in Noahs Reihenfolge, Korrektur nach 0.131.0 | live (#162) |
 | 0.131.1 | Abhaken wieder abwählbar (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Doppeltipp hakt nur einmal ab, Abwählen und «Rückgängig» wirken, Pendeln zurücknehmbar; Ziel 1 | live (#163) |

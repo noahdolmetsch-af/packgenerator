@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * One workshop visit (Noah, 4.10.2026, answers 7a, 8a): what was done, what it cost, and the
    * receipt pages to open big. The km at the visit can be added later (the receipts have none);
@@ -40,7 +41,7 @@
 
 <!-- Design-Refresh P7 (V10, Noah 12.10.2026 «v5-v10 freigabe»): the workshop visit as a window of the bike
      pages: «shop, date», «bike · workshop» below, ✕; the jobs in a soft panel; «Remove visit» left, «Close» right. -->
-<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="visit-h">
+<dialog use:backClose class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="visit-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="visit-h" class="title">{visit.shop}, {visit.date}</h2>

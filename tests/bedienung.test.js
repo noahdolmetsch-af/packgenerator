@@ -5,7 +5,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { quietNow, QUIET_FROM, QUIET_TO } from '../src/lib/quiet.js';
 import { speechApi, speechLang, heard, appendSpoken } from '../src/lib/speak.js';
-import { OPS, opOf, buzzNow, START_PLACES, DEFAULT_START, startOf, lastOf, startHash } from '../src/lib/bedienung.js';
+import { OPS, opOf, buzzNow, START_PLACES, DEFAULT_START, startOf, lastOf, startHash, AWAY_MS } from '../src/lib/bedienung.js';
 import { commandActions, COMMAND_HREF } from '../src/lib/search.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -153,5 +153,27 @@ describe('German texts', () => {
     const css = readFileSync(new URL('../src/app.css', import.meta.url), 'utf8');
     expect(css).toMatch(/html:root\[data-contrast='high'\]\[data-theme='light'\] \{[^}]*--ink: #000000;/);
     expect(css.lastIndexOf("data-contrast='high'")).toBeGreaterThan(css.lastIndexOf("data-palette="));
+  });
+});
+
+// Regeln App-Start 1b (Noah 14.10.2026): a tab that comes back after a pause starts at the start place
+describe('1b: a restored tab after a pause', () => {
+  const now = 1_000_000_000_000;
+  const long = now - AWAY_MS - 1;
+  const short = now - 60_000;
+  it('goes to the start place, only a reload or a short break stays', () => {
+    expect(startHash({ hash: '#/gear', nav: 'navigate', seen: long, now })).toBe('#/');
+    expect(startHash({ hash: '#/gear', nav: 'back_forward', seen: long, now })).toBe('#/');
+    expect(startHash({ start: 'pack', hash: '#/gear', nav: 'navigate', seen: long, now })).toBe('#/pack');
+    expect(startHash({ hash: '#/gear', nav: 'reload', seen: long, now })).toBe(null);
+    expect(startHash({ hash: '#/gear', nav: 'navigate', seen: short, now })).toBe(null);
+    expect(startHash({ hash: '#/gear', nav: 'navigate', seen: null, now })).toBe(null);
+    expect(startHash({ hash: '#/gear', nav: '', seen: long, now })).toBe(null); // the browser cannot tell
+  });
+  it('a shared list, a shared text or the start place itself stays', () => {
+    expect(startHash({ hash: '#/share/abc', nav: 'navigate', seen: long, now })).toBe(null);
+    expect(startHash({ hash: '#/inbox', search: '?text=Hallo', nav: 'navigate', seen: long, now })).toBe(null);
+    expect(startHash({ start: 'pack', hash: '#/pack', nav: 'navigate', seen: long, now })).toBe(null);
+    expect(startHash({ start: 'last', last: '#/bikes', hash: '#/gear', nav: 'navigate', seen: long, now })).toBe('#/bikes');
   });
 });

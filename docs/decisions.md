@@ -1423,3 +1423,19 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
   - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
   - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).
+## 15.10.2026: 0.140.0 «Regeln der App»
+
+- (Regeln freigegeben: «a a, b a, c b, freigabe» 14.10.2026; Mockups C1 C2 A1 «C1 C2 A1 freigegeben» 14.10.2026 20:29 UTC; App-Start 1b aus «1b 2b 3b 4a 5a» 19:59 UTC). Grundlage: `notes/navigation-analyse/regeln-der-app.md` im Projektordner (alle Regeln pro Seite mit Datei:Zeile).
+- **A a, nichts springt von selbst:** Nach einer Aktion bleibt die Seite; wo es weitergeht, steht eine Meldung mit Link. Hier: Tagestour ohne Velo nach dem Packen. Die Sprünge auf Heute am Tourtag und am letzten Abend folgen mit 0.140.1 (Karten ST1/ST2).
+- **C b, ein Tipp öffnet zum Ändern:** Teil am Handy direkt bearbeitbar; der Velo-Stift öffnet die Velodetails. Das eigene Blatt «Velo umbenennen» mit Rückgängig fällt dafür weg (der Name steht in den Velodetails).
+- **App-Start 1b:** Ein Tab mit einer alten Seite startet nach einer Pause (30 Min ohne die App) auf der Startseite; nur Neuladen (F5) und ein Link kurz nach der Benutzung bleiben. Geteilte Listen, geteilte Texte und die Strava-Rückkehr gewinnen immer.
+- **B a (ein Wort pro Sache)** baut der Thread «Durchklick».
+- **Selbst entschieden:** Pause = 30 Minuten; die Meldung «Alles gepackt» bleibt 8 s; «n weitere fällig» öffnet das Velo der nächsten fälligen Zeile; kleine Apps merken sich nicht als «letzter Ort» der ganzen App.
+
+## 15.10.2026: 0.140.1 «Start-Karten»
+
+- (Mockups ST1–ST2 freigegeben: «1a 2a 3b ST1–ST2 freigegeben» 14.10.2026 21:18 UTC; Platz bei der Tourkarte nach HN4 «1a 2a 3a 4b HN4 freigegeben» 21:51 UTC).
+- **1a:** eigene Karte am Tourtag statt des Sprungs zu Unterwegs. **2a:** Karte am letzten Abend mit «Tour abschliessen». **3b:** die Tourtag-Karte bleibt, bis Unterwegs an diesem Tag einmal offen war.
+- **Platz:** die Karte gehört zur Tourkarte und wandert mit ihr (HN4); Reihenfolge oben auf Heute: Meditation, Tageskarte, dann Tourkarte mit Start-Karte.
+- **Selbst entschieden:** am letzten Abend gewinnt die Abend-Karte; die Karte fehlt für eine heute erstellte Tour (wie bisher der Sprung, Noah 6a).
+

@@ -1,4 +1,5 @@
 <script module>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   // L2: the trips whose open suggestions were already asked about on "Next: Pack" (once per visit of the app).
   const asked = new Set();
 </script>
@@ -385,7 +386,7 @@
 {/if}
 
 {#if openAsk}
-  <dialog class="calm-sheet ask-sheet" bind:this={askEl} onclose={() => (openAsk = false)} aria-labelledby="calm-ask-h">
+  <dialog use:backClose class="calm-sheet ask-sheet" bind:this={askEl} onclose={() => (openAsk = false)} aria-labelledby="calm-ask-h">
     <header><h2 id="calm-ask-h">{tn(openLayers.length, '{n} suggestion still open', '{n} suggestions still open')}</h2></header>
     <p>{tn(openLayers.length, '{names} is not on the list yet.', '{names} are not on the list yet.', { names: openNames })}</p>
     <footer><button class="primary" onclick={decideNow}>{t('Decide now')}</button><button class="text-button" onclick={packWithout}>{tn(openLayers.length, 'Pack without it', 'Pack without them')}</button></footer>
@@ -393,7 +394,7 @@
 {/if}
 
 {#if sheet}
-  <dialog class="calm-sheet" bind:this={sheetEl} onclose={() => { sheet = null; note = ''; }} aria-labelledby="calm-sheet-h">
+  <dialog use:backClose class="calm-sheet" bind:this={sheetEl} onclose={() => { sheet = null; note = ''; }} aria-labelledby="calm-sheet-h">
     <header><h2 id="calm-sheet-h">{sheet === 'add' ? t('Add material') : sheet === 'conditions' ? t('Edit trip conditions') : sheet === 'bags' ? t('Bags for this trip') : sheet === 'purposes' ? t('Name your bags') : t('Ready check')}</h2><button class="text-button" onclick={() => sheetEl.close()}>{t('Close')}</button></header>
     {#if sheet === 'add'}
       <label class="add-target">{t('Adding to')}<select class="sel" aria-label={t('Adding to')} bind:value={zoneKey}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || (tg.bag ? bagName(tg.bag.name) : t(tg.zone.name))}</option>{/each}</select></label>
