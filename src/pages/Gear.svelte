@@ -281,6 +281,21 @@
       /* private window: it just starts closed */
     }
   }
+  // A new item is never hidden in a closed category (U8 «nothing gets lost»): when the new-item sheet closes,
+  // the category of the item it made opens and stays the last opened one. (Same fix as «Paket Aktiv», a67379c5.)
+  let before = $state(null); // the item ids when the new-item sheet opened
+  $effect(() => {
+    if (dialog && !dialog.item && !before && $itemsQuery) before = new Set($itemsQuery.map((i) => i.id));
+  });
+  $effect(() => {
+    if (dialog || !before) return;
+    const made = items.find((i) => !before.has(i.id));
+    before = null;
+    if (!made) return;
+    const key = CATEGORY[made.category] ? made.category : UNKNOWN_CATEGORY.key;
+    folded[key] = false;
+    keepOpen(key);
+  });
 
   // v0.26.0 (Noah 2a): "+ Add items" on a building block opens Gear with ?fill=<key>: "Select" is on
   // and the list shows only the items not in that block yet; one button puts the ticked ones in.

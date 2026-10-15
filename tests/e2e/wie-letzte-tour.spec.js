@@ -36,9 +36,10 @@ test('Like the last trip: quick start on Touren and the copy in the new trip win
 
   const dlg = page.locator('dialog.trip-dlg[open]');
   await expect(dlg).toBeVisible();
-  const chips = dlg.getByRole('group', { name: T('Bike') });
+  const chips = dlg.getByRole('group', { name: T('Bike'), exact: true }); // Paket 3: other groups contain «Velo» too
   const chosen = (await chips.locator('[aria-pressed="true"]').first().textContent()).trim();
-  const bike = bikes.find((b) => b.name === chosen);
+  // Paket 3: the chip of the standard bike also carries the pill «Standard» (Standard-Velo VS1)
+  const bike = bikes.filter((b) => chosen.startsWith(b.name)).sort((a, b) => b.name.length - a.name.length)[0];
   const want = lastTripOn(bike.id, ridden);
   expect(want, 'the fixture has a ridden trip on the preselected bike').toBeTruthy();
   await expect(dlg.locator('.tplhead')).toContainText(T('Like the last trip'));
