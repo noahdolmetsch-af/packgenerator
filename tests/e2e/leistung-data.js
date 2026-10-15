@@ -114,7 +114,7 @@ export async function seedActivities(page, { acts = activities(), weight = null,
   const recs = acts.map((a) => {
     const d = a.startLocal.slice(0, 10);
     const det = a.wDevice || a.hrAvg != null ? detail(a.id) : {};
-    if (!a.wDevice) Object.assign(det, { w20: null, pHist: null, pCurve: null, hw: null });
+    if (!a.wDevice) Object.assign(det, { w20: null, pHist: null, pCurve: null, hw: null, halves: [{ s: 2880, w: 190, hr: 134 }, { s: 2880, w: 186, hr: 140 }] }); // rides without a power meter keep the steady halves (T3 drifts only power rides)
     return { id: a.id, day: d, time: a.startLocal.slice(11, 16), start: a.start, name: a.name, type: a.type, kind: a.type === 'Run' ? 'run' : 'bike', km: a.km, hm: a.hm, movingS: a.movingS, elapsedS: a.elapsedS, gearId: a.gearId, hrAvg: a.hrAvg, hrMax: a.hrMax, commute: false, trainer: false, wAvg: a.wAvg ?? null, wMax: a.wMax ?? null, wDevice: !!a.wDevice, spdAvg: a.spdAvg ?? null, spdMax: a.spdMax ?? null, cad: a.cad ?? null, tempAvg: a.tempAvg ?? null, wNorm: a.wNorm ?? null, kj: a.kj ?? null, effort: a.effort ?? null, ...det, detail: new Date().toISOString(), dv: 2 };
   });
   await page.evaluate(

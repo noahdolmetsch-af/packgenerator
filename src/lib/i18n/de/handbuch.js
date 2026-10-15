@@ -387,4 +387,9 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // Wochenrückblick (W1–W6)
+  'Open Aktiv › Week and tap «Week in review», or Training › Look back.': 'Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.',
+  'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.': 'Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.',
+  'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.': 'Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.',
+  'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».': 'Beispiel: 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».',
 };
