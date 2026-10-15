@@ -29,7 +29,7 @@ export default {
   'In Plan tap «Lake or river» on a warm trip: Pack suggests «Quick swim» and «Keep wet things dry».': 'Tippe in Planen bei einer warmen Tour «See oder Fluss» an: Packen schlägt «Kurz ins Wasser» und «Nasses trocken halten» vor.',
 
   // 0.144.0 Regeln einheitlich (eine Regen-Grenze, nie gebraucht ab 3, Rückblick ohne Häkchen, eine Tagesuhr, Pflege pro Velo)
-  'Same rules everywhere': 'Überall die gleichen Regeln',
+  'One set of rules for all': 'Überall die gleichen Regeln',
   'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.': 'Regen, «nie gebraucht» und die Tageszeit heissen jetzt auf jeder Seite dasselbe, und die Velopflege stellst du selbst ein.',
   'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out': 'Eine Regen-Grenze für die ganze App, eingestellt im Baustein Regen (30 %); darüber kommt die Regenjacke von selbst mit, und du kannst sie herausnehmen',
   'Debrief: nothing is ticked to start with; «Done · 2 of 6 take over» says what happens': 'Rückblick: nichts ist vorangekreuzt; «Fertig · 2 von 6 übernehmen» sagt, was passiert',
