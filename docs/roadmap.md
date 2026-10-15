@@ -12,6 +12,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 15.10.2026 (v0.171.0 Arbeitsnummer «GPX-Weg»):** der Weg nach dem ersten GPX-Upload: ein Upload-Weg, Erklärung vor und nach dem Speichern, Einstieg auf «Dein Tempo», Doppel zählen einmal, Route statt Fahrt führt zur Tour. Teil von AP27 (GPX → Learning). Kommt voraussichtlich gebündelt mit dem Paket Touren.
+
 **Nachtrag 15.10.2026 (v0.134.0 «Paket 1 – Doku und Ich»):** ein Release aus sechs Teilen: Doku «Zwischenstand» (#165), Doku «Release-Analyse» (#160), Ich › Handbuch + Kleine Apps (#166), leere App ohne Start-Taschen + Wandern 15 L (#161), Inspiration sammeln, Listen und Typen mit Standard-Paket (#159). Die Nachträge unten zu 0.133.1, 0.133.3 und 0.134.0 beschreiben die Teile; ihre eigenen Versionsnummern fallen weg.
 
 **Nachtrag 14.10.2026 (v0.133.3 «Inspiration sammeln», jetzt Teil von 0.134.0) (Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a):** Inspiration-Seite mit eigenen Links, Art aus der Adresse, «Aus der Notiz wird …» (Packregel, Wunschliste, Notiz), Rennen → .ics, Route → Tourentwurf. Offen: Hör-Tipp im Bereit-Check (braucht den Bereit-Check, eigenes Paket).

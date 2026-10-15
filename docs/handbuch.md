@@ -533,8 +533,8 @@ Lade ein paar GPX-Fahrten, dann rechnen die Fahrzeiten mit deinem eigenen Tempo.
 
 **Aufschalten:** Braucht eine Fahrt mit GPX-Datei: Touren › Rückblick › «Fahrt hochladen».
 
-1. Lade ein paar GPX-Fahrten hoch.
-2. Öffne «Dein Tempo zeigen»: Fahrzeiten nutzen jetzt dein eigenes Tempo.
+1. Touren › Rückblick › Dein Tempo › «Fahrt hochladen»: GPX-Datei wählen, prüfen und speichern.
+2. Ab 5 Fahrten mit 20 km oder mehr rechnet jede Tour die Fahrzeit mit deinem eigenen Tempo.
 
 **Beispiel:** Dein Tempo ist 19 km/h auf Gravel → eine 76-km-Route zeigt etwa 4 h.
 
@@ -577,9 +577,9 @@ Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
 
 **Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App.
 
-1. Tippe «Neu» › «Fahrt hochladen» oder Touren › Rückblick.
-2. Datei wählen; Distanz, Höhenmeter und Pausen erscheinen.
-3. Notiere bis zu 3 Learnings.
+1. Tippe «Neu» › «Fahrt hochladen», oder Touren › Rückblick. Mehrere Dateien auf einmal gehen auch.
+2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.
+3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Learnings merken.
 
 **Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
 

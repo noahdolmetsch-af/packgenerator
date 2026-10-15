@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // GPX-Weg (Noah 15.10.2026 «1-5 a»): the way after the first GPX upload. Working number, the bundle renumbers.
+    version: '0.171.0',
+    date: '2026-10-15',
+    title: 'Your first ride, explained',
+    lead: 'Uploading a ride now says what happens before and after, and the same ride counts only once.',
+    points: [
+      { text: 'Every «Upload ride» is the same way: check the file, see what saving does, land on the ride with «Ride saved»', href: '#/debrief/ride' },
+      { text: 'Your pace explains itself on top and says the standard rule plainly until your own rule counts', href: '#/debrief/pace' },
+    ],
+    small: [
+      { box: 'new', text: 'Several ride files at once; a planned route offers «Use as route for a trip»', href: '#/debrief/ride' },
+      { box: 'fixed', text: 'The same ride uploaded twice counts once for your pace', href: '#/debrief/pace' },
+    ],
+    test: [
+      'Trips › Look back › Your pace: the box «How «Your pace» works» shows on top; tap «Upload ride».',
+      'Choose a GPX file of a ride: under «What happens when you save» it says «ride 1 of 5». Tap «Save ride».',
+      'The ride opens with the card «Ride saved»: Look back, your pace and the waiting learnings.',
+      'Upload the same file again: «It counts only once». Choose a planned route (no times): «Use as route for a trip».',
+    ],
+  },
+  {
     // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
     // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
     // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).

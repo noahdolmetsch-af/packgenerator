@@ -144,8 +144,9 @@ test('Dein Tempo (T19, SN2): the rule as a card and the charts left, where the r
   await page.goto('./#/debrief/pace');
   await expect(page.locator('section.rule .rv-box h2')).toBeVisible();
   await expect(page.locator('section.rule [role="status"]')).toBeVisible();
-  await expect(page.locator('section.rule label.btn input[type=file]')).toHaveCount(1);
-  await expect(page.locator('.rides-c label.rv-row input[type=file]')).toHaveCount(1);
+  // GPX-Weg 2a (Noah 15.10.2026): both lead to the one upload of the app
+  await expect(page.locator('section.rule a.btn')).toHaveAttribute('href', '#/debrief/ride');
+  await expect(page.locator('.rides-c a.rv-row')).toHaveAttribute('href', '#/debrief/ride');
   await twoColumns(page, info, 'section.rule', '.rides-c');
   await targets(page);
   await fits(page, info);

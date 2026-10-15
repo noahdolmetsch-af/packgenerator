@@ -1354,6 +1354,11 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - Kachel «Neu» auf Heute: in einer schmalen Kachel (halbe Breite am Handy) rutscht der Text unter das Symbol statt daneben, damit ein langes Wort im Titel («Inspiration») nicht mitten im Wort bricht (Wächter, Heute @390).
   - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.
 
+## 15.10.2026: GPX-Weg, der Weg nach dem ersten GPX-Upload
+
+- **Antworten Noah «1-5 FREIGABE A» (15.10.2026 15:31 UTC):** 1a nach dem Speichern landet man auf der Fahrt-Seite mit der Karte «Fahrt gespeichert»; 2a ein Weg für alle «Fahrt hochladen» (auch auf «Dein Tempo»); 3a ganzer Einstieg oben auf «Dein Tempo»; 4a Datei ohne Zeiten bekommt «Als Route für eine Tour nutzen»; 5a erklärender Inhalt überall, wo eine GPX-Datei hineinkommt.
+- **Selbst entschieden:** Eine Fahrt wird an ihrer Startminute erkannt (nicht an der Id), damit alte Doppel aus beiden Wegen nur einmal zählen. Mehrere Dateien auf einmal speichern ohne Vorschau mit den Vorgaben (Tour des Tages, sonst «Nur Fahrt», zählt fürs Tempo). Aktiv hat keinen GPX-Eingang, darum dort nichts Neues. Die Karte «Fahrt gespeichert» kommt einmal pro Speichern (sessionStorage), die «Neu»-Marke bleibt für den Besuch. Der Einstieg ist noch ohne Rundgang (der Rundgang-Baustein ist noch nicht gebaut) und ohne ✕ (Einklappen genügt).
+
 ## 15.10.2026: Paket 1 «Doku und Ich» als ein Release 0.134.0
 
 - **Ein Release statt sechs (Thread «Mein Überblick» bündelt):** #165 Doku «Zwischenstand», #160 Doku «Release-Analyse / Was fällt weg», #166 Ich › Handbuch + Ich › Kleine Apps, #161 leere App ohne Start-Taschen + Wandern 15 L, «Inspiration sammeln» und #159 «Listen und Typen» (mit Standard-Paket) kommen zusammen als 0.134.0, je per echtem Merge-Commit. Die Arbeitsnummern 0.133.1, 0.133.2 und 0.133.3 fallen weg; «Was ist neu» hat einen einzigen Eintrag 0.134.0 «Deine App, deine Ordnung» (Datum 15.10.2026).
