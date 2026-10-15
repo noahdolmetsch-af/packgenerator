@@ -377,4 +377,9 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // f.garmin (0.146.0 «Garmin-Seiten»)
+  'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
+  'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.',
+  'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
+  'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.',
 };

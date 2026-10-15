@@ -22,6 +22,7 @@
 
 **Nachtrag 14.10.2026 (v0.133.1 «Handbuch und Kleine Apps», jetzt Teil von 0.134.0) (Mockup-Freigabe: HB2, Antworten «1b 2b» und «hb freigeben» Noah 14.10.2026 18:27 UTC):** Handbuch und Kleine Apps als eigene Seiten unter Ich › Die App.
 
+**Nachtrag 14.10.2026 (v0.146.0):** «Garmin-Seiten» (GA-1–GA-10, App-Bild GA-A1–A3, freigegeben 14.10.2026 20:57 und 21:04 UTC): Muster-Seiten für Edge 1040 und 540 pro Velo, Velo im Griff.
 **Nachtrag 14.10.2026 (v0.132.1):** «Langer Name passt» (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bleibt bei «Tour beendet» in der grauen Box.
 **Nachtrag 08.10.2026 (Version 1.2):** Live ist v0.35.0. M1 bis M4 und AP25 sind als Software ausgeliefert, M5 teilweise; AP29 ist erledigt. Was pro Meilenstein mit welchem Release kam und die Reihenfolge nach 0.36 steht unten in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Die Abschnitte bis zum Fortschrittsregister beschreiben weiterhin den Plan und seine Kriterien.
 

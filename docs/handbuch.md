@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 106 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -738,6 +738,18 @@ Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach
 2. Notiere nach der nächsten Tour, wie es sich angefühlt hat.
 
 **Beispiel:** «Neue Reifen 45 mm» am 3. Mai → 420 km seither, «ruhiger auf Schotter».
+
+### Garmin-Seiten
+
+Muster-Datenseiten für den Edge 1040 und 540 pro Velo, mit dem Grund für jeden Wert.
+
+**Aufschalten:** Braucht zuerst ein Velo unter Velos.
+
+1. Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.
+2. Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.
+3. Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.
+
+**Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.
 
 ### Problem am Velo
 

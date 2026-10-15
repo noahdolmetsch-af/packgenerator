@@ -321,6 +321,11 @@ export const HANDBOOK = {
     steps: ['Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.', 'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.'],
     example: 'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.',
   },
+  'f.garmin': {
+    on: 'Needs a bike under Bikes first.',
+    steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
+    example: 'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],

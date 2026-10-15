@@ -1340,6 +1340,14 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Das Verzeichnis kopiert keine Liste, es liest jede von ihrem Ort (`docs/daten.md` Regel 2). Eigene Änderungen liegen getrennt als Einstellung `listOverrides` (reist im Backup mit); ausgeblendete Einträge bleiben in der Liste markiert, damit nichts, was sie nutzt, bricht. Die Start-Aktivitäten «Im Flow» und die Ideen bleiben vorerst, wie sie sind; neutrale Beispiele kommen mit «Mit Beispielen starten» (eigene Mockups).
 - **«Listen und Typen» (Mockups LI1–LI4, Noah «LI1–LI4 freigegeben»):** Standard-Einträge dürfen auch gelöscht werden (1b); Reihenfolge mit Pfeilen hoch und runter (2b); zusätzlich «Liste bearbeiten» dort, wo die Liste vorkommt (3b). **Kategorien zuerst (Noah «a»):** jede weitere Liste kommt später als eigenes kleines Release.
 - **Selbst entschieden («Listen und Typen»):** Auf dem Handy ist das Auge nicht in der Zeile (Platz für den Namen bei 320 px); Ausblenden geht dort im Fenster des Eintrags. «Gilt für» (Sportarten-Chips in LI3) ist noch nicht gebaut: Kategorien haben heute keinen Bezug zu Sportarten; Frage an Noah. Die Übersicht zeigt nur Listen, die schon änderbar sind (Kategorien, Checks pro Reiseart). «Liste bearbeiten» steht in Material › Sortieren und filtern, wo die Kategorien gewählt werden.
+## 14.10.2026: Garmin-Seiten (0.146.0)
+
+- **Muster-Seiten pro Velo** (Idee Noah 13.10.2026, Ort «b»: auf der Velo-Seite, ein Satz pro Velo): zehn Garmin-Datenseiten GA-1–GA-10 mit 2–8 Feldern und dem Grund für jeden Wert; einige übersichtlich, einige ausführlich mit selten beachteten Werten.
+- **1a:** Ein Gravelbike bekommt zusätzlich ein eigenes Profil «Bikepacking»; weitere Profile frei benennbar (wie das Aktivitätsprofil am Edge).
+- **2b:** Der Edge 540 zeigt höchstens 6 Felder pro Seite; längere Seiten werden für den 540 gekürzt und so markiert, ein 7. Feld wird abgelehnt.
+- **3b:** «Zeit in Zonen» als Balken über eine kostenlose Connect-IQ-App, mit eigenem Haken «installiert».
+- **4a / App-Bild:** GA-A1–A3 wie gezeichnet (Mockup-Freigabe: GA-1–GA-10 «1a 2b 3b 4a ga freigeben» (Noah 14.10.2026 20:57 UTC) und App-Bild GA-A1–A3 «GA-A1–A3 freigegeben» (21:04 UTC)).
+- **Selbst entschieden:** Sensoren des Velos als Chips auf der Seiten-Übersicht; ohne Leistungspedale weicht ein Leistungsfeld einem Ersatz (z. B. Tempo) oder fällt weg; auf dem 540 fallen IF (GA-6), Phase (GA-7) und Temperatur (GA-10) weg; Seite «Climbs» heisst deutsch «Klettern», weil «Höhenmeter» schon vergeben ist; die Karte steht in der Seitenspalte nach «Pflege und Ausstattung». Die App schickt nichts an den Edge, die Haken dienen nur zum Abhaken. Echte Profilnamen bleiben auf dem Gerät, nie im Repo.
 
 ## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
 

@@ -18,6 +18,8 @@
   import SheetView from '../lib/bikes/SheetView.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import RigTab from '../lib/bikes/RigTab.svelte';
+  import GarminPages from '../lib/bikes/GarminPages.svelte';
+  import GarminPage from '../lib/bikes/GarminPage.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -30,7 +32,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back, page: route.page });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -39,12 +41,14 @@
     route = { ...route, bike: id, open: false };
   }
   const opened = () => (route = { ...route, open: false });
+  // «Garmin-Seiten»: the Edge chosen on the pages list stays while you open a page and come back
+  let garminDevice = $state('1040');
 </script>
 
 <div class="bikes">
   <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
        equipment, compare) has its own path back and title (VeloHead). -->
-  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
     </header>
@@ -64,6 +68,12 @@
   {:else if route.tab === 'rig'}
     <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log -->
     <RigTab bikeId={route.bike} view={route.view ?? null} onbike={pickBike} />
+  {:else if route.tab === 'garmin' && route.page}
+    <!-- «Garmin-Seiten» GA-A3 (Noah 14.10.2026): one model page in detail -->
+    {#key route.page}<GarminPage bikeId={route.bike} profileId={route.view ?? null} pageId={route.page} />{/key}
+  {:else if route.tab === 'garmin'}
+    <!-- «Garmin-Seiten» GA-A2 (Noah 14.10.2026): the model pages of one Garmin profile of a bike -->
+    <GarminPages bikeId={route.bike} profileId={route.view ?? null} bind:device={garminDevice} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'strava'}

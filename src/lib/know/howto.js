@@ -101,6 +101,7 @@ export const HOWTO = {
   'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
   'f.bagplan': ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear.', 'Tap «Move» on a hint.'],
   'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],
+  'f.garmin': ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 540.', 'Open a page to see why each value is there.'],
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
