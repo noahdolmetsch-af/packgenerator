@@ -1353,3 +1353,12 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - Funktionskatalog: `f.inspiration` in der Gruppe «Vor der Tour», seit 0.133.3, drei Schritte (`howto.js`) und Handbuch-Eintrag; `docs/handbuch.md` neu erzeugt (bringt auch die fehlenden Einträge «Tour aus komoot» und «Wi gaht's?» mit).
   - Kachel «Neu» auf Heute: in einer schmalen Kachel (halbe Breite am Handy) rutscht der Text unter das Symbol statt daneben, damit ein langes Wort im Titel («Inspiration») nicht mitten im Wort bricht (Wächter, Heute @390).
   - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.
+
+## 15.10.2026: Paket 1 «Doku und Ich» als ein Release 0.134.0
+
+- **Ein Release statt sechs (Thread «Mein Überblick» bündelt):** #165 Doku «Zwischenstand», #160 Doku «Release-Analyse / Was fällt weg», #166 Ich › Handbuch + Ich › Kleine Apps, #161 leere App ohne Start-Taschen + Wandern 15 L, «Inspiration sammeln» und #159 «Listen und Typen» (mit Standard-Paket) kommen zusammen als 0.134.0, je per echtem Merge-Commit. Die Arbeitsnummern 0.133.1, 0.133.2 und 0.133.3 fallen weg; «Was ist neu» hat einen einzigen Eintrag 0.134.0 «Deine App, deine Ordnung» (Datum 15.10.2026).
+- **Selbst entschieden:**
+  - Reihenfolge unter Ich › Die App: Was die App alles kann, Handbuch, Kleine Apps, Listen und Typen, Was ist neu (die zwei HB2-Zeilen wie im Mockup direkt nach «Was die App alles kann», «Listen und Typen» danach).
+  - «Was ist neu» 0.134.0: drei Hauptpunkte (Inspiration, Kategorien selber ändern, Handbuch + Kleine Apps), drei kleine Dinge (Neu: «Liste bearbeiten» im Material; Schöner: Wandern mit 15 L; Repariert: leere App ohne Taschen). Die deutschen Texte der Teile sind wiederverwendet, wo sie passen; die alten Schlüssel bleiben in `de/whatsnew.js`.
+  - `f.inspiration` und `f.lists` sind «seit 0.134.0»; `f.abfragen` bleibt bei 0.133.0 (Test fest auf 0.133.0 statt auf die neueste Version). Die Liste «neueste zuerst» beginnt mit Inspiration und Listen und Typen.
+  - `docs/handbuch.md`: Eintrag «Deine eigenen Kategorien» nachgetragen (99 Funktionen).

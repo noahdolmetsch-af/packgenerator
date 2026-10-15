@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 98 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 99 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -301,6 +301,17 @@ Ein Teil öffnen, dann das Gewicht: Leichteres aus deinem eigenen Material.
 2. Sieh leichtere Teile aus deinem eigenen Material.
 
 **Beispiel:** Die 450-g-Jacke → deine 210-g-Windjacke würde reichen.
+
+### Deine eigenen Kategorien
+
+Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, löschen, Reihenfolge ändern.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.
+2. Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.
+
+**Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
 
 ### Viele Teile auswählen
 

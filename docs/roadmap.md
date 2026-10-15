@@ -12,9 +12,11 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
-**Nachtrag 14.10.2026 (v0.133.3 «Inspiration sammeln», lokal vorbereitet, Arbeitsnummer) (Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a):** Inspiration-Seite mit eigenen Links, Art aus der Adresse, «Aus der Notiz wird …» (Packregel, Wunschliste, Notiz), Rennen → .ics, Route → Tourentwurf. Offen: Hör-Tipp im Bereit-Check (braucht den Bereit-Check, eigenes Paket).
+**Nachtrag 15.10.2026 (v0.134.0 «Paket 1 – Doku und Ich»):** ein Release aus sechs Teilen: Doku «Zwischenstand» (#165), Doku «Release-Analyse» (#160), Ich › Handbuch + Kleine Apps (#166), leere App ohne Start-Taschen + Wandern 15 L (#161), Inspiration sammeln, Listen und Typen mit Standard-Paket (#159). Die Nachträge unten zu 0.133.1, 0.133.3 und 0.134.0 beschreiben die Teile; ihre eigenen Versionsnummern fallen weg.
 
-**Nachtrag 14.10.2026 (v0.133.1 «Handbuch und Kleine Apps») (Mockup-Freigabe: HB2, Antworten «1b 2b» und «hb freigeben» Noah 14.10.2026 18:27 UTC):** Handbuch und Kleine Apps als eigene Seiten unter Ich › Die App.
+**Nachtrag 14.10.2026 (v0.133.3 «Inspiration sammeln», jetzt Teil von 0.134.0) (Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a):** Inspiration-Seite mit eigenen Links, Art aus der Adresse, «Aus der Notiz wird …» (Packregel, Wunschliste, Notiz), Rennen → .ics, Route → Tourentwurf. Offen: Hör-Tipp im Bereit-Check (braucht den Bereit-Check, eigenes Paket).
+
+**Nachtrag 14.10.2026 (v0.133.1 «Handbuch und Kleine Apps», jetzt Teil von 0.134.0) (Mockup-Freigabe: HB2, Antworten «1b 2b» und «hb freigeben» Noah 14.10.2026 18:27 UTC):** Handbuch und Kleine Apps als eigene Seiten unter Ich › Die App.
 
 **Nachtrag 14.10.2026 (v0.132.1):** «Langer Name passt» (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bleibt bei «Tour beendet» in der grauen Box.
 **Nachtrag 08.10.2026 (Version 1.2):** Live ist v0.35.0. M1 bis M4 und AP25 sind als Software ausgeliefert, M5 teilweise; AP29 ist erledigt. Was pro Meilenstein mit welchem Release kam und die Reihenfolge nach 0.36 steht unten in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Die Abschnitte bis zum Fortschrittsregister beschreiben weiterhin den Plan und seine Kriterien.
