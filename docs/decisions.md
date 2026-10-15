@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 14.10.2026: 0.136.0 «Inhalte Flow» + «Wusstest du»
+
+- Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW.
+- **Entscheide Noah:** 1b «Das kann die App hier» als Zeile zum Aufklappen (bewusste Ausnahme zu «Weniger Meta»), 2a Tipp-Zeile, 3a Kacheln «Weiter», 4a englische Seiten mit «EN» über Google Übersetzer (kommt mit den Sportarten), Flow zuerst; WD 1a Wissen zuerst an, 2a Erde/Everest immer für den gewählten Zeitraum.
+- **Selbst entschieden:** Untertitel der Kacheln fest statt mit Live-Zahlen; × blendet den Tipp für heute aus; eigene Links pro Seite (höchstens 8) neben höchstens 7 eigenen Kacheln; die ausgeblendete Zeile kommt über «Alle Tipps» zurück; «Tipps für diese Seite ›» unter den Kacheln, wenn keine Tipp-Zeile da ist; Föhn = trocken (unter 1 mm), Wind vor allem aus Süden (140–230°) und Böen ab 45 km/h aus Open-Meteo (keine Föhnmeldung von MeteoSchweiz frei verfügbar); Erde/Everest gehören zu «Wissen und Witziges» und verschwinden mit «Nur nützliche Tipps»; ohne Zeitschätzung «bei deinem Tempo» (der Zeitraum ist wählbar); IF2 Meditation wartet auf die neue Meditationsseite (anderer Thread).
+
 ## 14.10.2026: 0.135.0 «Meditation und Timer»
 
 (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC)

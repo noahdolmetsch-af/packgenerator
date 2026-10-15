@@ -423,6 +423,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],
     example: 'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».',
+    },
+  'f.pagetips': {
+    on: null,
+    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here» and the tiles «Next», with «+ Own link».'],
+    example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',

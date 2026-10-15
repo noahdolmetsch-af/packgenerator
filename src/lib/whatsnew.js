@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.136.0 «Inhalte Flow» IF1–IF3 (approved 14.10.2026 04:32) + «Wusstest du» WD1–WD3 (approved 18:34, answers «1a 2a»)
+    version: '0.136.0',
+    date: '2026-10-15',
+    title: 'Good to know',
+    lead: 'Aktiv now tells you a little more: one tip a day, what the app can do there and where to go next.',
+    points: [
+      { text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
+      { text: '«What the app can do here» and tiles to the next places, with your own links', href: '#/flow' },
+      { text: 'Past trips: how far around the Earth and how often up the Everest you rode', href: '#/pack/past' },
+    ],
+    small: [{ box: 'new', text: '«All tips»: switch single tips off, only useful tips, or no tips at all' }],
+    test: [
+      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
+      'In «All tips» tap «Only useful tips»: the «Did you know» sentences no longer come.',
+      'At the end of the page open «What the app can do here» and tap a row: the place opens.',
+      'Tap «+ Own link», enter a name and an address: the tile shows; × removes it.',
+      'Open Touren › Rückblick › Vergangene Touren: under the sums, Earth and Everest.',
+    ],
+  },
+  {
     // v0.135.0 «Meditation und Timer» (ME2, ME3, Z2–Z5; ME1/Z1 on Heute wait for Noah's check against HN0; approved 13.10.2026 «ME1-ME3 und Z1-Z5 freigeben»)
     version: '0.135.0',
     date: '2026-10-15',
