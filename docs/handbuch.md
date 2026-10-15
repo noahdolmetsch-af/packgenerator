@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 103 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1106,6 +1106,30 @@ Schreibt nach jeder Änderung in einen Ordner deiner Wahl (nur Computer).
 2. Nach jeder Änderung landet dort das neuste Backup, dazu eines pro Tag.
 
 **Beispiel:** Ein Ordner, der in die Cloud synchronisiert → immer ein frisches Backup.
+
+### Rechnungen mit QR-Rechnung und TWINT
+
+Eine Schweizer QR-Rechnung aus deinem Konto mit TWINT; sieh, wer bezahlt hat: von Hand, über den Betrag, aus dem Kontoauszug oder über den Zahl-Link.
+
+**Aufschalten:** Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.
+
+1. Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».
+2. Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.
+3. Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.
+
+**Beispiel:** Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».
+
+### Rechnungen zu zahlen
+
+Fotografiere eine Rechnung, die du bekommen hast: Die App liest sie, erinnert dich vor der Fälligkeit und behält das Foto.
+
+**Aufschalten:** Nichts einzuschalten.
+
+1. Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».
+2. Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.
+3. Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».
+
+**Beispiel:** Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.
 
 ### Testdaten aufräumen
 

@@ -54,6 +54,10 @@
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
+  import Invoices from './pages/Invoices.svelte';
+  import Bills from './pages/Bills.svelte';
+  import PayLink from './pages/PayLink.svelte';
+  import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -412,6 +416,18 @@
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
     {#key hash}<Lists />{/key}
+  {:else if page === 'invoices'}
+    <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
+    <Invoices />
+  {:else if page === 'paylink'}
+    <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
+    <PayLink part={param} />
+  {:else if page === 'bills'}
+    <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
+    <Bills />
+  {:else if page === 'invoice'}
+    <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
+    <InvoiceNew />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

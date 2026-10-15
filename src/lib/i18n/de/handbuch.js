@@ -366,4 +366,15 @@ export default {
   'At the end a singing bowl; the log keeps every timer with an optional note.': 'Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.',
   'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».': 'Beispiel: Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».',
   'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
+  // 0.139.0 Rechnungen und Zu zahlen
+  'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.': 'Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.',
+  'Open Me › Payments › Invoices and tap «New QR invoice».': 'Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».',
+  'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.': 'Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.',
+  'When money arrives: «Paid», «Money received» or upload the bank statement.': 'Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.',
+  'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».': 'Beispiel: Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».',
+  'Nothing to switch on.': 'Nichts einzuschalten.',
+  'Open Me › Payments › Invoices › tab «To pay».': 'Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».',
+  'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
+  'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
+  'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
 };

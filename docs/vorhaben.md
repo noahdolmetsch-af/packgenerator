@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.139.0 | Rechnungen ohne Gebühren: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot, «Zu zahlen» mit Erinnerung (Mockups QR1–QR9) | PR folgt |
 | 0.136.0 | Inhalte Flow + Wusstest du: Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest; Ziel «Eine App, die mich im Alltag unterstützt» | PR offen |
 | 0.134.0 | **Paket 1 – Doku und Ich**, ein Release aus sechs Teilen: (1) Doku «Zwischenstand» (#165), (2) Doku «Release-Analyse / Was fällt weg» (#160), (3) Ich › Handbuch + Ich › Kleine Apps (#166), (4) leere App ohne Start-Taschen + Wandern 15 L (#161), (5) Inspiration sammeln, (6) Listen und Typen: Kategorien selber ändern, mit Standard-Paket (#159); Ziele 1 und 4 | Bündel bereit, PR folgt |
 | 0.134.0 | Standard-Paket (alle Grundlisten in einem neutralen Verzeichnis) und «Listen und Typen»: Kategorien selber ändern (Ich › Listen und Typen) | Teil von 0.134.0 (#159) |
