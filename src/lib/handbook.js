@@ -237,7 +237,7 @@ export const HANDBOOK = {
     example: 'Example: «warm socks were missing» → your wool socks are suggested.',
   },
   'f.upload': {
-    on: 'Needs a GPX or TCX file from your bike computer or app.',
+    on: 'Needs a GPX or TCX file from your bike computer or app, or the CSV list from Strava or Garmin.',
     steps: ['Tap «New» › «Upload ride», or Trips › Look back. Several files at once work too.', 'Choose the file; distance, climbing, pauses and what saving does show.', 'Save: the card «Ride saved» says what happened; note up to 3 learnings.'],
     example: 'Example: planned 5 h, real 5 h 40 with 50 min of pauses.',
   },

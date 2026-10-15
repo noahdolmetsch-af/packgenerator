@@ -15,6 +15,8 @@
   import { PACE_KEY, PACE_MIN, paceOf, startKey } from '../lib/pace.js';
   import { markSaved, savedNote, seenCard } from '../lib/ridejourney.js';
   import { sharedKind } from '../lib/komoot.js';
+  import { parseActivitiesCsv } from '../lib/activities.js';
+  import { isList, kmIntoDebrief, listToTrips, handToKmImport } from '../lib/ridelist.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
@@ -27,6 +29,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const debriefsQ = liveQuery(() => db.debriefs.toArray());
   // heart rate of the same ride in Strava (observation only, Noah 12.10.2026 «1a»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
 
@@ -68,6 +71,9 @@
   // GPX-Weg 4a: a GPX without times is a planned route, not a ride: say so and offer the trip
   let route = $state(null);
   let batch = $state(null);
+  // GPX-Weg R3 (Noah 15.10.2026 «5a»): a CSV list comes in here too; what it did, in one card
+  let list = $state(null);
+  let listFiles = [];
   async function read(text, name) {
     msg = '';
     route = null;
@@ -83,8 +89,13 @@
   }
 
   async function pick(event) {
-    const files = [...(event.currentTarget.files ?? [])];
+    let files = [...(event.currentTarget.files ?? [])];
     event.currentTarget.value = '';
+    if (!files.length) return;
+    list = null;
+    const lists = files.filter(isList);
+    if (lists.length) await readLists(lists);
+    files = files.filter((f) => !isList(f));
     if (!files.length) return;
     if (files.length > 1) return saveMany(files);
     const file = files[0];
@@ -92,6 +103,46 @@
     busy = true;
     await read(await file.text(), file.name);
     busy = false;
+  }
+
+  /**
+   * The km of rides on a bike trip's days into that trip's look back (what «Import from Strava or Garmin»
+   * did there). A finished look back keeps its km (they went to the bike already): false then.
+   */
+  async function kmToTrip(trip, rides) {
+    const stored = await db.debriefs.get(trip.id);
+    if (stored?.status === 'done') return false;
+    const d = kmIntoDebrief(stored, trip, rides);
+    if (d) await db.debriefs.put(d);
+    return true;
+  }
+
+  /** CSV lists: the km of the rides on each bike trip's days go into its look back; one card says what. */
+  async function readLists(files) {
+    busy = true;
+    msg = '';
+    draft = null;
+    route = null;
+    batch = null;
+    try {
+      const acts = [];
+      for (const f of files) acts.push(...parseActivitiesCsv(await f.text()));
+      // from the database: the trips may not have loaded on this page yet
+      const res = listToTrips(acts, await db.trips.toArray());
+      await db.transaction('rw', [db.debriefs], async () => {
+        for (const h of res.hits) h.done = !(await kmToTrip(h.trip, h.rides));
+      });
+      listFiles = files;
+      list = { ...res, name: files.map((f) => f.name).join(', ') };
+    } catch (e) {
+      msg = e.message || t('This file could not be read.');
+    } finally {
+      busy = false;
+    }
+  }
+  function toBikeKm() {
+    handToKmImport(listFiles);
+    location.hash = '#/bikes?tab=care&view=import';
   }
 
   // the route file goes the way a file shared from komoot goes: the sheet «Tour aus komoot übernehmen» over Touren
@@ -115,6 +166,7 @@
     draft = null;
     route = null;
     const first = rides.length === 0;
+    const allTrips = await db.trips.toArray();
     const saved = [];
     const skipped = [];
     let setting = $state.snapshot(paceSetting);
@@ -136,7 +188,7 @@
         skipped.push({ name: r.name, why: t('saved already') });
         continue;
       }
-      const trip = tripsOn(trips, r.date)[0] ?? null;
+      const trip = tripsOn(allTrips, r.date)[0] ?? null;
       const record = { ...r, tripId: trip?.id ?? null, plan: trip ? plannedFor(trip, r.date, pace) : null, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, answers: {}, pace: true, createdAt: now };
       setting = addToPace(setting, record, now);
       saved.push(record);
@@ -147,6 +199,10 @@
           await db.rides.bulkPut(saved);
           await db.settings.put({ key: PACE_KEY, value: setting });
         });
+      for (const r of saved) {
+        const trip = r.tripId ? allTrips.find((x) => x.id === r.tripId) : null;
+        if (trip?.bikeId) await kmToTrip(trip, [r]);
+      }
       markSaved(saved.map((r) => r.id), { first });
       batch = { saved, skipped, first };
     } catch {
@@ -211,6 +267,7 @@
         if (made) await db.trips.add(made);
         if (usePace) await db.settings.put({ key: PACE_KEY, value: addToPace(paceSetting, record, now) });
       });
+      if (trip?.bikeId) await kmToTrip(trip, [record]);
       await dropShared();
       markSaved([record.id], { first: rides.length === 0 });
       location.hash = `#/debrief/ride/${encodeURIComponent(record.id)}`;
@@ -281,6 +338,7 @@
       if (made) await db.trips.add(made);
       await db.rides.update(ride.id, { tripId: trip?.id ?? made.id, plan: trip ? plannedFor(trip, ride.date, ride.basis ?? pace) : null });
     });
+    if (trip?.bikeId) await kmToTrip(trip, [ride]);
   }
   async function remove() {
     if (!confirm(t('Delete this ride? Learnings you kept stay.'))) return;
@@ -451,25 +509,45 @@
   {:else}
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Upload ride')}</span></nav>
     <h1 class="title">{t('Upload ride')}</h1>
-    <p class="page-sub">{t('A recorded ride as GPX: pauses, planned vs real, learnings. Read on this device.')}</p>
+    <p class="page-sub">{t('A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
 
     <div class="rv-lay">
       <div class="rv-col">
         <section class="up" aria-label={t('Upload ride')}>
           <div class="drop">
             <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
-            <span class="rv-m"><span class="rv-t">{t('Choose a GPX file')}</span>{#if !draft}<span class="rv-s">{t('Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" onchange={pick} disabled={busy} /></label>
+            <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
           </div>
-          {#if !draft && !route && !batch && !rides.length}
+          {#if !draft && !route && !batch && !list && !rides.length}
             <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
             <ol class="rv-box pad how" aria-label={t('How it works')}>
-              <li><b>{t('Choose a file')}</b> · {t('a recorded ride from your bike computer or phone. Several at once work too.')}</li>
+              <li><b>{t('Choose a file')}</b> · {t('a recorded ride from your bike computer or phone (GPX or TCX), or the CSV list from Strava or Garmin. Several at once work too.')}</li>
               <li><b>{t('Check and save')}</b> · {t('you see km, climbing, riding time and pauses, and where it is saved.')}</li>
               <li><b>{t('The app learns')}</b> · {t('the ride shows up in Look back, counts for your pace and suggests learnings.')}</li>
             </ol>
           {/if}
+          <!-- GPX-Weg R3: where the files come from (was in the trip's look back) -->
+          <details class="rv-box pad howto" data-where-from>
+            <summary>{t('Where do I get the file?')}</summary>
+            <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
+            <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+            <p>{t('One ride (GPX or TCX): pauses, planned vs real, your pace. The list (CSV): only date and km, for the km of your trips and bikes.')}</p>
+          </details>
           {#if msg}<p class="warnmsg" role="status">{msg}</p>{/if}
+          {#if list}
+            <!-- GPX-Weg R3: a CSV list: the km of the trips, then on to the km per bike -->
+            <div class="rv-box pad saved" role="status" data-list-card>
+              <p class="sk"><CircleCheck size={16} aria-hidden="true" />{tn(list.all, 'List read: {n} ride', 'List read: {n} rides')}</p>
+              <ul class="sl">
+                {#each list.hits as h (h.trip.id)}<li class="ok"><Check size={16} aria-hidden="true" /><span><b>{h.trip.title}</b> · {h.done ? tn(h.rides.length, '{n} ride, {km} km. Its look back is finished, so its km stay as they are.', '{n} rides, {km} km. Its look back is finished, so its km stay as they are.', { km: num(h.km) }) : tn(h.rides.length, '{n} ride, {km} km: in the look back of this trip.', '{n} rides, {km} km: in the look back of this trip.', { km: num(h.km) })}</span></li>{/each}
+                {#if !list.hits.length}<li><TriangleAlert size={16} aria-hidden="true" /><span>{t('No ride is on the days of one of your bike trips.')}</span></li>{/if}
+                {#if list.outside && list.hits.length}<li><Route size={16} aria-hidden="true" /><span>{tn(list.outside, '{n} ride on a day without a trip: not counted here.', '{n} rides on days without a trip: not counted here.')}</span></li>{/if}
+                <li><Gauge size={16} aria-hidden="true" /><span><b>{t('Your pace')}</b> · {t('a list has no track and no times, so it does not count. For your pace upload the ride as GPX.')}</span></li>
+              </ul>
+              <p class="sacts"><button type="button" class="btn hi" onclick={toBikeKm}>{t('Also for the km of my bikes')}</button>{#if list.hits.length === 1}<a class="link" href={`#/debrief/${encodeURIComponent(list.hits[0].trip.id)}`}>{t('To the look back of this trip')}</a>{:else}<a class="link" href="#/debrief">{t('To Look back')}</a>{/if}<button type="button" class="link" onclick={() => (list = null)}>{t('Close')}</button></p>
+            </div>
+          {/if}
           {#if route}
             <!-- GPX-Weg 4a: a planned route instead of a ride -->
             <div class="rv-box pad warncard" role="status" data-route-card>
@@ -811,6 +889,23 @@
     background: none;
     color: var(--ink-3);
     cursor: pointer;
+  }
+  .howto {
+    margin: 12px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .howto summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .howto p {
+    margin: 6px 0;
   }
   .how {
     display: grid;

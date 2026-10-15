@@ -156,7 +156,7 @@ export default {
   'Tap «New» › «Upload ride», or Trips › Look back. Several files at once work too.': 'Tippe «Neu» › «Fahrt hochladen», oder Touren › Rückblick. Mehrere Dateien auf einmal gehen auch.',
   'Choose the file; distance, climbing, pauses and what saving does show.': 'Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.',
   'Save: the card «Ride saved» says what happened; note up to 3 learnings.': 'Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Learnings merken.',
-  'Needs a GPX or TCX file from your bike computer or app.': 'Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App.',
+  'Needs a GPX or TCX file from your bike computer or app, or the CSV list from Strava or Garmin.': 'Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App oder die CSV-Liste von Strava oder Garmin.',
   'Example: planned 5 h, real 5 h 40 with 50 min of pauses.': 'Beispiel: geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.',
   'Open Trips › Look back › Past trips.': 'Öffne Touren › Rückblick › Vergangene Touren.',
   'Read km, climbing, time, rain and the learning per trip.': 'Lies km, Höhenmeter, Zeit, Regen und das Learning pro Tour.',

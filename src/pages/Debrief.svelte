@@ -29,7 +29,6 @@
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
-  import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
@@ -112,32 +111,6 @@
   const toggleSkip = () => db.trips.update(trip.id, touched({ skipped: !trip.skipped }));
   // Answer 8b: how often each item was not used before (other trips), shown in step 2.
   const before = $derived(trip ? unusedTimes(debriefs, trip.id) : {});
-  // Answer 6: rides from a Strava or Garmin export fill in the km (file import, no login).
-  let rideMsg = $state('');
-  async function importRides(event) {
-    const files = [...event.currentTarget.files];
-    event.currentTarget.value = '';
-    if (!files.length) return;
-    try {
-      let rides = [];
-      for (const f of files) {
-        const text = await f.text();
-        if (/\.csv$/i.test(f.name)) rides.push(...ridesOnTrip(parseActivitiesCsv(text), trip).rides);
-        else {
-          const r = parseRideFile(text, f.name);
-          if (!r.date || ridesOnTrip([r], trip).rides.length) rides.push(r);
-        }
-      }
-      if (!rides.length) return (rideMsg = files.length === 1 ? t('No rides from {dates} in this file.', { dates: dateText(trip) }) : t('No rides from {dates} in these files.', { dates: dateText(trip) }));
-      const km = Math.round(rides.reduce((t, r) => t + r.km, 0));
-      d.rides = rides.map(({ date, km: k, name }) => ({ date, km: k, name }));
-      d.km = km;
-      rideMsg = tn(rides.length, '{n} ride imported: {km} km.', '{n} rides imported: {km} km.', { km: num(km) });
-      persist();
-    } catch (err) {
-      rideMsg = err.message || t('This file could not be read.');
-    }
-  }
   function setKm(value) {
     // v0.30.1 (D1): "45,3" is 45 km, not 453; "1'204" and "1.204" are 1204.
     const n = parseKm(value);
@@ -423,10 +396,6 @@
     await persist();
   }
 
-  const dateText = (t) => {
-    const f = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
-    return t.days > 1 ? `${f(t.startDate)} – ${f(tripEnd(t))}` : f(t.startDate);
-  };
 
 </script>
 
@@ -570,23 +539,11 @@
           <section class="rv-sec" aria-labelledby="upload-h">
             <div class="rv-h"><div><h2 id="upload-h">{t('Upload ride')}</h2><p class="rv-sub">{t('optional: pauses, plan and reality')}</p></div></div>
             <ul class="rv-box ridelink">
-              {#if bike}
-                <li>
-                  <label class="rv-row imp"><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('Import from Strava or Garmin')}</span><span class="rv-s">{t('one file per day')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /><input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></label>
-                  {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
-                  <details class="howto">
-                    <summary>{t('How it works')}</summary>
-                    <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
-                    <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
-                    <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
-                  </details>
-                </li>
-              {/if}
+              <!-- GPX-Weg R3 (Noah 15.10.2026 «5a»): one way for every ride file (GPX, TCX, CSV): «Upload ride» -->
+              <li><a class="rv-row" href="#/debrief/ride" data-upload-row><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{bike ? t('GPX, TCX or CSV from Strava or Garmin: the km of this trip, pauses, planned vs real') : t('GPX: pauses, planned vs real, learnings')}</span></span>{#if bike && d.rides?.length}<span class="rv-v">{tn(d.rides.length, '{n} ride', '{n} rides')}</span>{/if}<ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
               <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
               {#each tripRides as r (r.id)}
                 <li><a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('Planned vs real')}</span><span class="rv-s">{r.name}</span></span><span class="rv-v">{num(r.km)} km</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-              {:else}
-                <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Choose a GPX file')}</span><span class="rv-s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
               {/each}
             </ul>
           </section>
@@ -842,40 +799,6 @@
   button.rv-row:disabled {
     cursor: default;
     opacity: 0.6;
-  }
-  .imp {
-    position: relative;
-  }
-  .imp input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .imp:focus-within {
-    outline: var(--focus-ring);
-    outline-offset: 2px;
-  }
-  .ride {
-    margin: 0 0 6px;
-  }
-  .howto {
-    margin: 0 0 8px;
-    padding-left: 46px;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-  }
-  .howto summary {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .howto p {
-    margin: 6px 0;
   }
   .exc {
     list-style: none;
