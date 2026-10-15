@@ -422,7 +422,8 @@
     const visits = $visitsQ ?? [];
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
-  const useBike = (b) => change((t) => switchBike(t, b));
+  // Taschen-Setups TS5: the new bike's last used setup comes along.
+  const useBike = (b) => change((t) => switchBike(t, b, $tripsQ ?? []));
   // v0.25.1 (Noah 3a): Today's "Choose a bike for the trip" opens the comparison (#/pack?choose).
   $effect(() => {
     if (trip && location.hash.includes('choose')) {
@@ -762,7 +763,7 @@
     hours: (n) => changeContext(() => ({ hours: n })),
     days: (n) => changeContext(() => ({ days: Math.max(1, n) })),
     wx: setWx,
-    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b))),
+    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b), $tripsQ ?? [])),
     more: () => (dialog = { trip }),
     compare: () => (choosing = true),
     undo: undoLast,

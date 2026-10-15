@@ -8,7 +8,7 @@
  *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
  *   domain, packs     v0.21.0: the area; a trip without a bike has its own bags in `packs` (see domains.js)
  */
-import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind, isWornSlot } from './bikes.js';
+import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind, isWornSlot, ON_BIKE_SLOTS } from './bikes.js';
 import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
@@ -17,6 +17,7 @@ import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
 import { isOver } from './debrief.js';
 import { localDay } from './localday.js';
 import { READY_DEFAULT } from './checks.js';
+import { lastUsedId, setupOf, placeBySetup } from './setups.js';
 
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
 export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standard?.length ? standard : fallback).map((r) => ({ id: r.id, label: r.label, done: false }));
@@ -70,7 +71,10 @@ export function lastTripOn(bikeId, trips) {
  */
 export function newTrip({ title, startDate, days, bike, readyStandard = null, overnight = null }, trips, items, now = Date.now()) {
   const from = lastTripOn(bike.id, trips);
-  const setup = { ...(bike.setup ?? {}) };
+  // Taschen-Setups TS5 (Noah 14.10.2026 «4a»): the setup of the last trip on this bike is the suggestion;
+  // it gives the bags and where the items go (1a: the list says what, the setup says where).
+  const chosen = setupOf(bike, lastUsedId(bike, trips), trips);
+  const setup = { ...(chosen?.bags ?? bike.setup ?? {}) };
   // v0.37.1: an archived item (ownership 'gone') stays on the old trip but never comes into the copy.
   const known = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
   const entries = from
@@ -87,8 +91,9 @@ export function newTrip({ title, startDate, days, bike, readyStandard = null, ov
     days: Math.max(1, Number(days) || 1),
     bikeId: bike.id,
     bike: bike.name,
+    setupId: chosen?.id ?? 'std',
     setup,
-    entries,
+    entries: chosen ? placeBySetup(entries, chosen, setup) : entries,
     ready: freshReady(readyStandard),
     status: 'planned',
     copiedFrom: from?.id ?? null,
@@ -100,15 +105,19 @@ export function newTrip({ title, startDate, days, bike, readyStandard = null, ov
  * The trip on another bike: it takes that bike's bags; items in a place it has no bag for
  * go to the seat pack. Returns the changes to store.
  */
-export function switchBike(trip, bike) {
+export function switchBike(trip, bike, trips = []) {
   // v0.37.0: the worn bags (Back, Hip) are on the rider; they stay when the bike changes.
   const worn = Object.fromEntries(Object.entries(trip.setup ?? {}).filter(([k, v]) => isWornSlot(k) && v));
-  const setup = { ...(bike.setup ?? {}), ...worn };
+  // Taschen-Setups TS5: the other bike's suggested setup (its last one, else «Standard»).
+  const chosen = setupOf(bike, lastUsedId(bike, trips), trips);
+  const setup = { ...(chosen?.bags ?? bike.setup ?? {}), ...worn };
+  const entries = trip.entries.map((e) => (e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e : { ...e, slot: slotFor(e.slot, setup) }));
   return {
     bikeId: bike.id,
     bike: bike.name,
+    setupId: chosen?.id ?? 'std',
     setup,
-    entries: trip.entries.map((e) => (e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e : { ...e, slot: slotFor(e.slot, setup) })),
+    entries: chosen ? placeBySetup(entries, chosen, setup) : entries,
   };
 }
 
@@ -394,14 +403,16 @@ export const RAIN = { none: 'dry', showers: 'showers', rain: 'rain' };
 
 /** Answer 4 (round C): keep 20 % of every bag free. Over 80 % is a hint, never a blocker. */
 export const FILL_LIMIT = 0.8;
-export const tooFull = (zone) => !!zone.bag?.volumeL && zone.vol > zone.bag.volumeL * FILL_LIMIT;
+/** Taschen-Setups (14.10.2026): a bottle cage holds exactly its bottle, so it is only too full above its litres. */
+export const fillLimit = (zone) => (ON_BIKE_SLOTS.includes(zone.key ?? zone.bag?.slot) ? 1 : FILL_LIMIT);
+export const tooFull = (zone) => !!zone.bag?.volumeL && zone.vol > zone.bag.volumeL * fillLimit(zone) + 1e-9;
 
 /** A bigger bag for the same place that keeps 20 % free with what is packed, or null. */
 export function biggerBag(zone, containers) {
   if (!tooFull(zone)) return null;
   return (
     containers
-      .filter((c) => c.slot === zone.key && c.id !== zone.bag.id && (c.volumeL ?? 0) * FILL_LIMIT >= zone.vol)
+      .filter((c) => c.slot === zone.key && c.id !== zone.bag.id && (c.volumeL ?? 0) * fillLimit(zone) >= zone.vol)
       .sort((a, b) => a.volumeL - b.volumeL)[0] ?? null
   );
 }

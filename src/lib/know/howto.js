@@ -98,6 +98,7 @@ export const HOWTO = {
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
   'f.news': ['Open Me › What is new.', 'The newest version stands on top.', 'Below every function and all versions by month.'],
   // Tagespaket #151 functions (Velos › Setup, Jahresziele)
+  'f.bagsetups': ['Open Bikes › My setup and tap «New setup».', 'Choose the bags and put your things into them.', 'When planning a trip, tap «Setup: …» to switch.'],
   'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
   'f.bagplan': ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear.', 'Tap «Move» on a hint.'],
   'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],

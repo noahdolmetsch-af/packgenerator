@@ -117,6 +117,8 @@ const OWN = [
   // v0.132.0 «Velo-Setup» (UC3-1 to UC3-3)
   { id: 'f.velosetup', group: 'bike', title: 'Bike setup and race rigs', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'setup race rig bikepacking fotos gewicht rennen vergleich links' },
   { id: 'f.bagplan', group: 'bike', title: 'Bag plan', text: 'Which bag sits where, weight front, middle and rear, hints to move an item.', href: '#/bikes?tab=rig&view=bags', words: 'taschen plan gewicht verteilung vorne hinten umpacken' },
+  // v0.147.0 «Taschen-Setups» (TS0–TS5)
+  { id: 'f.bagsetups', group: 'bike', title: 'Bag setups per bike', text: 'Several bag setups per bike: which bags and what goes where, weights, compare two or all, choose one when planning.', href: '#/bikes?tab=rig', words: 'taschen setup setups vergleichen basisgewicht flasche bikepacking' },
   { id: 'f.setuplog', group: 'bike', title: 'Setup log', text: 'What you changed on the bike, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log', words: 'logbuch änderung kettenblatt reifen werkstatt' },
   // v0.146.0 «Garmin-Seiten» (GA-1 to GA-10, GA-A1 to GA-A3)
   { id: 'f.garmin', group: 'bike', title: 'Garmin pages', text: 'Model data pages for the Edge 1040 and 540 per bike, with the reason for every value.', href: '#/bikes', words: 'garmin edge 1040 540 datenseiten datenfelder profil aktivitätsprofil connect iq zonen' },

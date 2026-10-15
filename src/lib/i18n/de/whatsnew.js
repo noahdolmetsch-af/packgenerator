@@ -139,6 +139,18 @@ export default {
   'Open Bike: below «Care and equipment» is «Garmin pages» with your bike as a profile and small pictures of its pages.': 'Öffne Velo: Unter «Pflege und Ausstattung» steht «Garmin-Seiten» mit deinem Velo als Profil und kleinen Bildern seiner Seiten.',
   'Tap the profile, tick «Power pedals» under the sensors: the page «Power in detail» appears. Choose Edge 540: it says «540: shortened».': 'Tippe auf das Profil und wähle bei den Sensoren «Leistungspedale»: Die Seite «Leistung im Detail» erscheint. Wähle Edge 540: Dort steht «540: gekürzt».',
   'Open a page, tap «Change fields», tick «Edge 1040» under «Set up on the device?»: it stays after a reload.': 'Öffne eine Seite, tippe auf «Felder ändern» und hake unter «Am Gerät eingerichtet?» «Edge 1040» ab: Das bleibt nach dem Neuladen.',
+  // 0.147.0 Taschen-Setups
+  'Bag setups 🎒': 'Taschen-Setups 🎒',
+  'Several bag setups per bike: which bags are on, what goes where, and what it weighs.': 'Mehrere Taschen-Setups pro Velo: welche Taschen dran sind, was wohin kommt und was es wiegt.',
+  'Mein Setup: save several bag setups per bike, copy, rename and delete them': 'Mein Setup: mehrere Taschen-Setups pro Velo speichern, kopieren, umbenennen und löschen',
+  'Compare two setups bag by bag, or all of them in one table': 'Zwei Setups Tasche für Tasche vergleichen, oder alle in einer Tabelle',
+  'Planning a trip: the last used setup comes along and can be changed with one tap': 'Tour planen: das zuletzt genutzte Setup kommt mit und lässt sich mit einem Tipp wechseln',
+  'The base weight (bike, bags, gear) is the big number; food and water only in the total': 'Das Basisgewicht (Velo, Taschen, Ausrüstung) ist die grosse Zahl; Essen und Wasser nur im Total',
+  'A bottle cage with its 0.75 L bottle no longer says «over 0.75 L»': 'Ein Flaschenhalter mit seiner 0.75-L-Flasche zeigt nicht mehr «über 0.75 L»',
+  'Open Velos › Mein Setup: on top «Bag setups». Tap «New setup», give it a name, tap «Create».': 'Öffne Velos › Mein Setup: oben «Taschen-Setups». Tippe «Neues Setup», gib einen Namen ein, tippe «Erstellen».',
+  'In the setup tap «move» in a bag and put a thing into another bag; tap «Add gear» and tick a thing.': 'Im Setup bei einer Tasche «verschieben» tippen und ein Teil in eine andere Tasche legen; «Material dazu» tippen und ein Teil anhaken.',
+  'Back on Mein Setup tap «Compare», then «All as a table».': 'Zurück auf Mein Setup «Vergleichen» tippen, dann «Alle als Tabelle».',
+  'Plan a trip with this bike: under «Bike and bags» tap «Setup: …» and choose another setup; «Undo» puts it back.': 'Plane eine Tour mit diesem Velo: unter «Velo und Taschen» «Setup: …» tippen und ein anderes Setup wählen; «Rückgängig» stellt es zurück.',
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

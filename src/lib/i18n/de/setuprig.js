@@ -5,7 +5,7 @@ export default {
   'Your setup photos, the total weight, your race-rig links and races, and your bike compared.': 'Deine Setup-Fotos, das Gesamtgewicht, deine Race-Rig-Links und Rennen, und dein Velo im Vergleich.',
   'Which bag sits where, weight front, middle and rear, hints to move an item.': 'Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.',
   'What you changed on the bike, the km since and how the first trip after it felt.': 'Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.',
-  'Setup|tab': 'Setup',
+  'My setup|tab': 'Mein Setup',
   'Your setup for this bike: photos, weight, bags, changes and ideas from others.': 'Dein Setup für dieses Velo: Fotos, Gewicht, Taschen, Änderungen und Ideen von anderen.',
   // Mein Setup
   'My setup': 'Mein Setup',

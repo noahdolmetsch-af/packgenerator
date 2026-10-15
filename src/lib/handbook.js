@@ -326,6 +326,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
     example: 'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.',
   },
+  'f.bagsetups': {
+    on: 'Needs a bike with bags first: Gear › Bags.',
+    steps: ['Open Bikes › My setup and tap «New setup».', 'In the setup choose the bags and put your things into them.', 'When planning a trip, tap «Setup: …» to take another one.'],
+    example: 'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
