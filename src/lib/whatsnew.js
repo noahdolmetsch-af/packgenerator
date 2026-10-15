@@ -20,7 +20,7 @@ export const WHATS_NEW = [
     // the debrief with nothing ticked, one day clock, care per bike («Pflege für …»)
     version: '0.144.0',
     date: '2026-10-14',
-    title: 'Same rules everywhere',
+    title: 'One set of rules for all',
     lead: 'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.',
     points: [
       { text: 'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out', href: '#/blocks' },
