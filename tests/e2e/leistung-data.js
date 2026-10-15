@@ -27,6 +27,10 @@ export function activities() {
     const w = Math.round(165 + r() * 35 + (400 - back) / 40);
     list.push(base(String(3001 + n), day(-back), { name: `${P}Runde ${n % 6}`, km, hm, movingS: mov, elapsedS: mov + 300, hrAvg: Math.round(128 + r() * 14), wAvg: pm ? w : null, wMax: pm ? w * 3 : null, wDevice: pm, wNorm: pm ? Math.round(w * 1.1) : null, kj: pm ? Math.round((w * mov) / 1000) : null, cad: 80 + Math.round(r() * 10), effort: Math.round(40 + r() * 80) }));
   }
+  // «Mehr Inhalt» T5: three earlier rides on the same route as 3001 (same name, km within 10 %), a little slower at a higher heart rate
+  for (const [id, back, km, mov, hr, w] of [['3801', 15, 42.1, 5840, 142, 182], ['3802', 36, 42.6, 5900, 141, 179], ['3803', 64, 41.9, 5780, 143, 185]]) {
+    list.push(base(id, day(-back), { name: `${P}Abendrunde Hügel`, startLocal: `${day(-back)}T17:10:00Z`, km, hm: 675, movingS: mov, elapsedS: mov + 300, hrAvg: hr, wAvg: w, wMax: 590, wDevice: true, wNorm: Math.round(w * 1.1), kj: Math.round((w * mov) / 1000), cad: 85, effort: 80 }));
+  }
   list.push(base('3900', day(-2), { name: `${P}Lauf am See`, type: 'Run', km: 9.1, hm: 85, movingS: 2880, elapsedS: 2900, gearId: null, hrAvg: 149, effort: 45 }));
   return list;
 }
@@ -43,7 +47,11 @@ export function detail(id) {
   const pts = [];
   for (let m = 0; m <= 96; m += 1) {
     const alt = Math.round(520 + 170 * Math.sin((m / 96) * Math.PI) + (m > 20 && m < 40 ? (m - 20) * 6 : 0));
-    pts.push([m, alt, Math.round(126 + 22 * Math.sin(m / 9) + (m > 20 && m < 40 ? 14 : 0)), m >= 60 && m <= 64 ? 0 : Math.round(180 + 50 * Math.sin(m / 7))]);
+    // «Mehr Inhalt» T2: the main ride has 4 hard pieces of 5 minutes (minutes 66, 74, 82, 90) with 3 easier minutes between
+    const piece = main && [66, 74, 82, 90].some((s) => m >= s && m < s + 5);
+    const hr = Math.round(126 + 22 * Math.sin(m / 9) + (m > 20 && m < 40 ? 14 : 0) + (piece ? 14 : 0));
+    const w = m >= 60 && m <= 64 ? 0 : piece ? 236 + (m % 3) * 2 : main ? Math.round(165 + 25 * Math.sin(m / 7) + (m > 20 && m < 40 ? 12 : 0)) : Math.round(180 + 50 * Math.sin(m / 7));
+    pts.push([m, alt, hr, w]);
   }
   const hw = { '125|180': 1320, '130|180': 540, '130|200': 1080, '135|200': 900, '140|220': 600, '145|240': 540, '150|240': 300, '155|260': 240, '160|300': 120, '165|320': 60, '170|360': 60 };
   return {
