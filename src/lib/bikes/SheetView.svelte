@@ -100,7 +100,12 @@
   const toggleJob = (key, on) => store({ orderOff: on ? s.orderOff.filter((k) => k !== key) : [...new Set([...s.orderOff, key])] });
   let wishes = $state(null); // the text while typing; null: as stored
   const saveWishes = () => wishes != null && store({ wishes: wishes.trim() });
-  const tick = (id, on) => store({ pickup: tickPickup($state.snapshot(data.pickup.pickup), id, on) });
+  // the stored check, read fresh: two quick ticks must not overwrite each other
+  const tick = async (id, on) => {
+    const stored = await db.bikes.get(bikeId);
+    const base = sheetsOf(stored).pickup ?? $state.snapshot(data.pickup.pickup);
+    await store({ pickup: tickPickup(base, id, on) });
+  };
 
   /* ---------- «Bugfix Dateneingabe» D1a: the values of the Pick-up check typed right on the sheet ---------- */
   let openVal = $state(null); // the id of the open value card ('val:<fit key>')
