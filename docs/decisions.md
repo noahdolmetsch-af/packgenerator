@@ -1320,3 +1320,8 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **(3a)** Jeder Release-PR hat ab jetzt einen Abschnitt **«Was fällt weg oder rutscht tiefer»**: was nicht mehr da ist, was hinter «Mehr», in eine Falte oder weiter nach unten wandert, oder «nichts». Noah sieht es vor dem Merge.
 - **(4a)** Das Meditations-Paket (ME1–ME3, Z1–Z5) kommt vor Bündel B.
 - **Noah 14.10.2026 18:27 UTC «1b 2b», «hb freigeben» (Mockup HB2):** Handbuch als eigene Seite Ich › Handbuch; «Kleine Apps» als Zeile und Seite unter Ich › Die App. «Was die App alles kann» bleibt wie es ist. Kommt als eigene Version 0.133.1 (PR #166; Noah 14.10.2026 19:39 UTC «2b»: jeder PR einzeln).
+
+## 14.10.2026: Start-Taschen in der leeren App, Wander-Rucksack 15 L
+
+- **Leere App ohne Mini Bag und Cargo Bag (Noah 14.10.2026):** die Start-Taschen aus `bikes.js` entstehen nur, wenn eine Tasche der ersten Excel in den Daten ist.
+- **Wander-Rucksack 15 L (Noah 14.10.2026 «b»):** eine neue Wandertour startet mit «Rucksack 15 L» statt 30 L, passend zu den Vorschlägen von 12–15 L. Skitour bleibt bei 30 L; alte Touren behalten ihren gespeicherten Rucksack.
