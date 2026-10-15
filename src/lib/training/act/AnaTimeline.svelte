@@ -2,7 +2,7 @@
   /**
    * TR7a «Verlauf» (Noah 14.10.2026 «TR5–TR7 freigegeben»): elevation (grey area), heart rate and power
    * over the minutes of the ride, breaks as light bands. Pointing at or tapping the chart shows the
-   * nearest minute; a section tapped in «Abschnitte» is shaded here (focus.svelte.js). The SVG is drawn
+   * nearest minute; a section tapped in «Abschnitte» (or a hard piece in «Harte Stücke») is shaded here (focus.svelte.js). The SVG is drawn
    * in real pixels of its box, so its text is never stretched.
    */
   import AnaCard from '../AnaCard.svelte';
@@ -18,8 +18,10 @@
   const power = $derived(!!act?.wDevice && pts.some((p) => p[3] > 0));
   const ch = $derived(cw > 0 ? courseChart(act?.prof, cw, H) : null);
   const has = $derived(pts.length >= 2);
-  const fr = $derived(focus.id === act?.id && focus.i != null ? focusRange(act?.secs5, focus.i, act?.prof?.breaks) : null);
-  const frRow = $derived(fr ? sectionRows(act?.secs5)[focus.i] : null);
+  // a section of «Abschnitte» (index into secs5) or a hard piece of «Harte Stücke» (its own minutes r)
+  const mine = $derived(focus.id === act?.id && focus.i != null);
+  const fr = $derived(mine ? (focus.r ?? focusRange(act?.secs5, focus.i, act?.prof?.breaks)) : null);
+  const frRow = $derived(fr && !focus.r ? sectionRows(act?.secs5)[focus.i] : null);
   const hit = $derived(at == null ? null : nearest(pts, at));
 
   const range = (r) => (r ? `${num(r[0])}–${num(r[1])}` : '');
@@ -90,6 +92,7 @@
       {#if power}<li><i class="lsw w"></i>{t('Power|an')}</li>{/if}
       {#if ch?.breaks.length}<li><i class="lsw brk"></i>{t('Break|an')}</li>{/if}
     </ul>
+    {#if fr && focus.r}<p class="cap">{t('Shaded: the hard piece from minute {m}. Tap it again to clear it.', { m: num(Math.round(fr[0])) })}</p>{/if}
     {#if frRow}<p class="cap">{t('Shaded: km {from}–{to}. Tap the section again to clear it.', { from: num(frRow.from), to: num(frRow.to) })}</p>{/if}
   </AnaCard>
 {/if}
