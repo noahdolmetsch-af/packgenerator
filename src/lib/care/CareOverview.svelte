@@ -8,7 +8,8 @@
    *   breakdown»), km since the last check as bars;
    * - beside: for the bike shop (the order), the costs of the year, the bike diary.
    */
-  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, RefreshCw, Image as ImageIcon } from '@lucide/svelte';
+  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, RefreshCw, Gauge, Image as ImageIcon } from '@lucide/svelte';
+  import MessenDialog from '../bikes/MessenDialog.svelte'; // «Werte messen» W5 + W6
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { whoYear } from '../bikes/who.js';
   import ProblemList from './ProblemList.svelte';
@@ -23,6 +24,7 @@
   import { slotOf, PARKTOOL_URL } from '../sk/links.js';
 
   let { checks = [], problems = [], tasks = [], visits = [], today, bikeIdOf, onopen, ondone, onflow, onorder, onrepair, onwork } = $props();
+  let messen = $state(null); // «Werte messen»: 'chain' | 'pressure'
 
   const bikes = $derived(checks.map((c) => c.bike));
   const rings = $derived(checks.map((c) => ({ c, ring: ringScore(c.bike, c.time, today), km: kmSinceService(c.bike) })));
@@ -200,12 +202,17 @@
           <a class="orow" href={bikesHash({ tab: 'care', view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{t('Rides with their bike, fetched by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
           <button type="button" class="orow" onclick={() => openNew('problem')}><span class="ib"><TriangleAlert size={18} aria-hidden="true" /></span><span class="m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <button type="button" class="orow" onclick={onwork}><span class="ib"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record work')}</b><small>{t('Pick the bike and the part')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+          <!-- «Werte messen» 2b: measure the chain, record the pressure -->
+          <button type="button" class="orow" onclick={() => (messen = 'chain')}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Measure the chain')}</b><small>{t('With the chain checker, with a forecast')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+          <button type="button" class="orow" onclick={() => (messen = 'pressure')}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record the pressure')}</b><small>{t('Front and rear, with a hint when a tyre loses air')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
         </div>
       </section>
     </aside>
   </div>
 </section>
+
+{#if messen}<MessenDialog kind={messen} onclose={() => (messen = null)} />{/if}
 
 <style>
   .ov {

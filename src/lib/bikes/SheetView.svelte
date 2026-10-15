@@ -29,6 +29,9 @@
   import ValueCard from './ValueCard.svelte';
   import { FIT_KEY, fitValue, setFit, readValue } from '../bikespecs.js';
   import { pickupChecked, againValues, lastReplacement } from '../abholwerte.js';
+  import { pressures, chainState } from '../messen.js'; // «Werte messen» W4–W6
+  import MessenDialog from './MessenDialog.svelte';
+  import PressureHint from './PressureHint.svelte';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
@@ -131,11 +134,22 @@
   function passNote(r) {
     const [part, field] = r.id.split(':');
     if (part === 'fit' && checked.date && checked.keys.includes(field) && r.value != null) return t('checked at the pick-up {date}', { date: dateOf(checked.date) });
+    // W5: the pressure as last measured, under the target
+    if (part === 'fit' && (field === 'pressureF' || field === 'pressureR') && data) {
+      const p = [...pressures(data.view)].reverse().find((x) => x[field === 'pressureF' ? 'f' : 'r'] != null);
+      return p ? t('last measured {value} bar, {date}', { value: num(p[field === 'pressureF' ? 'f' : 'r']), date: dateOf(p.date) }) : '';
+    }
     if (part === 'fit' || !data) return '';
     const rep = lastReplacement(data.view, part);
-    if (!rep) return '';
-    return rep.before != null ? t('new since {date} · the one before rode {km} km', { date: dateOf(rep.date), km: num(rep.before) }) : t('new since {date}', { date: dateOf(rep.date) });
+    // W6: the chain's last wear
+    const wear = part === 'chain' ? chainState(data.view) : null;
+    const w = wear ? t('wear {value} %', { value: num(wear.value) }) : '';
+    if (!rep) return w;
+    return [rep.before != null ? t('new since {date} · the one before rode {km} km', { date: dateOf(rep.date), km: num(rep.before) }) : t('new since {date}', { date: dateOf(rep.date) }), w].filter(Boolean).join(' · ');
   }
+  let messen = $state(null); // W5 / W6: 'pressure' | 'chain'
+  const lastPress = $derived(data ? (pressures(data.view).at(-1) ?? null) : null);
+  const chainNow = $derived(data ? chainState(data.view) : null);
   /** The Bike pass with the small lines; a part with several rows (model, size …) says «new since» once. */
   const passSections = $derived.by(() => {
     if (!data) return [];
@@ -147,7 +161,7 @@
         if (part !== 'fit' && said.has(part)) return { ...r, note: '' };
         const note = passNote(r);
         if (note && part !== 'fit') said.add(part);
-        return { ...r, note };
+        return { ...r, note, chk: part === 'fit' && !!checked.date && checked.keys.includes(r.id.slice(4)) && r.value != null };
       }),
     }));
   });
@@ -257,7 +271,7 @@
         <h3>{sec.name}</h3>
         <dl class="vals">
           {#each sec.rows as r (r.id)}
-            <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}{#if r.note}<small class="vnote" class:chk={r.id.startsWith('fit:')}>{#if r.id.startsWith('fit:')}<Check size={12} aria-hidden="true" />{/if}{r.note}</small>{/if}</dd></div>
+            <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}{#if r.note}<small class="vnote" class:chk={r.chk}>{#if r.chk}<Check size={12} aria-hidden="true" />{/if}{r.note}</small>{/if}{#if r.id === 'fit:pressureR'}<span class="noprint"><PressureHint bikeId={bike.id} /></span>{/if}</dd></div>
           {/each}
         </dl>
       </section>
@@ -344,6 +358,12 @@
             <ValueCard row={r} before={beforeOf(r)} done={!!data.pickup.pickup.ticks?.[r.id]} open={openVal === r.id} disabled={!!applied} onopen={() => (openVal = r.id)} onsave={(v) => saveVal(r, v)} onskip={() => skipVal(r)} />
           {/each}
         </ul>
+        <!-- «Werte messen» 2b: measure the pressure and the chain right here, with the suggestion (W4a) -->
+        <div class="meas noprint" data-testid="pickup-measure">
+          <button type="button" class="mcard" onclick={() => (messen = 'pressure')}><b>{t('Record the pressure')}</b><small>{lastPress ? t('last {pair}, {date}', { pair: `${lastPress.f == null ? '–' : num(lastPress.f)} / ${lastPress.r == null ? '–' : num(lastPress.r)} bar`, date: dateOf(lastPress.date) }) : t('front and rear, as measured')}</small></button>
+          <button type="button" class="mcard" onclick={() => (messen = 'chain')}><b>{t('Measure the chain')}</b><small>{chainNow ? t('last {value} %', { value: num(chainNow.value) }) : t('with the chain checker')}</small></button>
+        </div>
+        <PressureHint bikeId={bike.id} />
       {:else}
       <ul class="checks">
         {#each sec.rows as r (r.id)}
@@ -410,6 +430,8 @@
 {#if notice}
   <p class="notice noprint" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undo}>{t('Undo')}</button>{/if}</p>
 {/if}
+
+{#if messen && bike}<MessenDialog kind={messen} bikeId={bike.id} onclose={() => (messen = null)} />{/if}
 
 <style>
   .sheetview {
@@ -882,5 +904,28 @@
       padding: 0;
       resize: none;
     }
+  }
+  .meas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin: 12px 0 6px;
+  }
+  .mcard {
+    display: grid;
+    gap: 2px;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mcard small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
 </style>
