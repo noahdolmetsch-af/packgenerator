@@ -13,6 +13,7 @@ import { strike, wakeAudio } from '../flowbowl.js';
 import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playedByPlan, setVolume, wakeSounds } from '../flowsounds.js';
 import { sessionRecords } from '../flowmed.js';
 import { saveSession } from '../flowdb.js';
+import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
 export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false });
@@ -79,6 +80,8 @@ export async function tickWith(a, opts) {
   const e = await tick(db, a, { day: localDay(), ...opts });
   const what = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
   toast(what, () => removeEntry(db, e.id));
+  // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
+  if (opts.via !== 'commute') offerActivity(a, actName(a));
   return e;
 }
 
@@ -237,6 +240,7 @@ async function saveDone() {
   try {
     const rec = sessionRecords(tm, tm.targetSec, Date.now(), (ms) => localDay(new Date(ms)));
     if (rec) await saveSession(db, rec);
+    if (rec) offerActivityById(tm.actId, lang.v); // ER1: after a meditation
     if (typeof document !== 'undefined' && document.visibilityState !== 'visible') notifyEnd(rec?.entry.min ?? 0);
     if (clockState.tm && clockState.tm.startedAt === tm.startedAt) {
       if (rec) {
@@ -265,6 +269,7 @@ export async function endSession() {
   if (!tm.saved) {
     const rec = sessionRecords(tm, elapsedSec(tm, Date.now()), Date.now(), (ms) => localDay(new Date(ms)));
     if (rec) await saveSession(db, rec);
+    if (rec) offerActivityById(tm.actId, lang.v); // ER1: after a meditation
     min = rec?.entry.min ?? 0;
     id = rec?.entry.id ?? null;
   }
