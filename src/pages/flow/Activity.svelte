@@ -27,7 +27,7 @@
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
   import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
-  import { favActs, moveFav, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
+  import { favActs, moveFav, moveFavTo, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
   import { suggestions, openIdeas, actFromTemplate, connections, ALWAYS, HIDDEN_KEY } from '../../lib/flowsugg.js';
   import { saveStars, putSetting, putActs, deleteAct } from '../../lib/flowdb.js';
   import { tickWith, toast, actName } from '../../lib/flow/ui.svelte.js';
@@ -35,6 +35,8 @@
   import { localDay } from '../../lib/localday.js';
   import { withStravaRides } from '../../lib/kmbook.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
+  import SortGrip from '../../lib/ui/SortGrip.svelte';
+  import { sortable } from '../../lib/ui/sortable.js';
 
   const today = localDay();
   const q = hobbyQuery(today);
@@ -70,6 +72,10 @@
   const others = $derived((data?.acts ?? []).filter((a) => !a.fav && !a.paused));
   async function moveTile(a, dir) {
     const out = moveFav(favs, a.id, dir);
+    if (out.length) await putActs(db, out);
+  }
+  async function dropTile(from, to) {
+    const out = moveFavTo(favs, favs[from].id, to);
     if (out.length) await putActs(db, out);
   }
   const setLine = (a, v) => putActs(db, [{ ...a, tileLine: v }]);
@@ -211,9 +217,10 @@
           {#if editing}
             <section class="card ted" aria-labelledby="tiles-ed-h">
               <h3 id="tiles-ed-h" class="sh">{t('Tiles: order, line, favourites')}</h3>
-              <ul class="ed">
+              <ul class="ed" use:sortable={{ onmove: dropTile }}>
                 {#each favs as a, i (a.id)}
-                  <li>
+                  <li data-sort-id={a.id}>
+                    <SortGrip name={tileName(a)} onstep={(dir) => moveTile(a, dir)} />
                     <span class="en"><b>{tileName(a)}</b><small>{actName(a)} · <button type="button" class="lnk" onclick={() => (renaming = a)} aria-label={t('Rename {name}', { name: tileName(a) })}>{t('rename')}</button></small></span>
                     <label class="el"><span class="sr">{t('Line on {name}', { name: tileName(a) })}</span>
                       <select class="sel" value={lineOf(a)} onchange={(e) => setLine(a, e.currentTarget.value)}>
