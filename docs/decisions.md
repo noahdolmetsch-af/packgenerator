@@ -1442,3 +1442,15 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - «So geht's» bekommt drei Schritte für `f.pagetips`, `f.training`, `f.invoices` und `f.bills` (die PRs kamen vor «So geht's»).
   - «Was ist neu» 0.135.0: drei Hauptpunkte (Meditation + Timer, Training, QR-Rechnung), drei kleine Dinge (Tipp des Tages, Zu zahlen, eine Zahl pro Sache); die Texte der Teile sind wiederverwendet, wo sie passen.
   - Service Worker: `maximumFileSizeToCacheInBytes` von 4 auf 6 MiB, weil das App-Bündel 4,4 MB hat; sonst startet die App offline nicht.
+
+## 15.10.2026: Paket 2b «Sortieren, wie du willst» als Release 0.136.0
+
+- **Inhalt:** Pfeile und Ziehen in allen sortierbaren Listen (Noah «2a und b»), LI3 «Gilt für» (Noah «2b»), Inspiration-Korrekturen (Noah «1-3a»), eine Kachelreihe am Ende von Aktiv › Heute (beantwortet die offene Frage aus 0.135.0: die Kacheln «Weiter» gehen, die SK-Kacheln bleiben) und neun Anzeigefehler aus den Bildern von 0.135.0.
+- **Selbst entschieden:**
+  - «Velo in diesem Monat» / «Velo im Oktober» (auch «Diese Woche», Jahresziele, Balance): eine Strava-Fahrt ohne Eintrag im Kilometerbuch zählt aus `db.activities` (Training). Das sind Fahrten, die im Start-Kilometerstand eines Velos stecken; das Velo zählt sie nicht doppelt, gefahren sind sie trotzdem. Eine Fahrt mit Eintrag folgt dem Eintrag: offen erst nach «Passt» (Regel 0.121.0 bleibt), entfernt nie; Indoor ohne Velo zählt nicht (wie `toRides`); eine hochgeladene Datei-Fahrt zählt einmal. Wartende Fahrten des Monats stehen als Zeile mit Link zu «Zum Prüfen». Der Untertitel «aus deinen Fahrten und Strava» stimmt damit wieder.
+  - Svelte schneidet das Leerzeichen am Anfang eines `{#if}`-Blocks ab («29 % gepackt· Sa.»): an 41 Stellen steht der Trenner jetzt als `{' · '}`.
+  - Deutsch heisst die Minute überall «Min» (20 Übersetzungen und 4 feste Texte angepasst).
+  - «Diese Woche»: pro Tag eine Zeile pro Sache mit «…» statt Trennung im Wort (Silbentrennung kennt nicht jeder Browser).
+- **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
+  - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
+  - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).

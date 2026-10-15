@@ -218,7 +218,7 @@
           </span>
           <button type="button" class="btn hi" disabled={strava.busy} onclick={now}><RefreshCw size={16} aria-hidden="true" />{strava.busy ? t('Fetching …') : t('Fetch now')}</button>
           {#if fetched}
-            <p class="got" role="status">{fetched.n ? tn(fetched.n, '{n} new ride fetched', '{n} new rides fetched') : t('No new rides')}{#if fetched.km} · +{num(Math.round(fetched.km))} km{/if}{#if fetched.check} · {tn(fetched.check, '{n} to check', '{n} to check')}{/if}</p>
+            <p class="got" role="status">{fetched.n ? tn(fetched.n, '{n} new ride fetched', '{n} new rides fetched') : t('No new rides')}{#if fetched.km}{' · '}+{num(Math.round(fetched.km))} km{/if}{#if fetched.check}{' · '}{tn(fetched.check, '{n} to check', '{n} to check')}{/if}</p>
           {/if}
           {@render err()}
         </div>

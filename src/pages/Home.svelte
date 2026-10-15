@@ -916,7 +916,7 @@
         </div>
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
-          <p class="meta num">{meta}{#if startLine && !phone.matches} · {startLine}{/if}</p>
+          <p class="meta num">{meta}{#if startLine && !phone.matches}{' · '}{startLine}{/if}</p>
         </div>
         {#if !ask && (left || openSteps || weight)}
           <dl class="boxes num" data-boxes>

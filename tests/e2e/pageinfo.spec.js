@@ -1,6 +1,6 @@
 // «Inhalte Flow» IF1 + IF3 (Noah 14.10.2026 «1b 2a 3a», mockups approved 04:32 «IF1–IF3 freigegeben»):
 // on Aktiv › Heute the tip line «Gut zu wissen» (× hides it for today), «Alle Tipps» with switches and an
-// own tip, the fold «Das kann die App hier», the tiles «Weiter» with links outside and an own link. On a
+// own tip, the fold «Das kann die App hier», and right after it the SK tile row (the tiles «Weiter»). On a
 // phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -28,7 +28,7 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Aktiv › Heute: tip of the day, all tips, the fold and the tiles', async ({ page, context }) => {
+test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   const tip = tipOfDay(undefined, 'aktiv', TODAY);
@@ -48,31 +48,15 @@ test('Aktiv › Heute: tip of the day, all tips, the fold and the tiles', async 
   await expect(can.locator('[data-can]')).toHaveCount(PAGES.aktiv.can.length);
   await expect(can.locator('[data-can="strava"]')).toHaveAttribute('href', '#/debrief/ride');
 
-  // the tiles: outside links open in a new tab and carry the site name
-  const next = main.locator('[data-section="next"]');
-  await expect(next.getByRole('heading', { name: T('Next|more') })).toBeVisible();
-  const hepa = next.locator('[data-tile="hepa"]');
-  await expect(hepa).toHaveAttribute('target', '_blank');
-  await expect(hepa).toContainText('hepa.ch');
-  await expect(next.locator('[data-tile="goals"]')).toHaveAttribute('href', '#/flow/goals');
+  // the tiles «Weiter» are the one SK tile row right after the fold (not a second row)
+  await expect(main.locator('[data-section="next"]')).toHaveCount(0);
+  const sk = main.locator('[data-sk="flow"]');
+  await expect(sk).toHaveCount(1);
+  const after = await can.evaluate((c, s) => !!(c.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING), await sk.elementHandle());
+  expect(after, 'the tile row comes after the fold').toBe(true);
 
   await fits(page, 'Aktiv mit Tipps');
   await page.screenshot({ path: `qa/pageinfo-${test.info().project.name}.png`, fullPage: true });
-
-  // an own link: a wrong address is refused, a right one becomes a tile
-  await next.locator('[data-tile="add"]').click();
-  const add = page.locator('[data-sheet="own-link"]');
-  await add.getByLabel(T('Name')).fill('Testseite');
-  await add.getByLabel(T('Address')).fill('javascript:alert(1)');
-  await add.getByRole('button', { name: T('Save') }).click();
-  await expect(add.getByRole('alert')).toHaveText(T('Enter a web address, for example strava.com'));
-  await add.getByLabel(T('Address')).fill('example.org/test');
-  await add.getByRole('button', { name: T('Save') }).click();
-  await expect(add).toHaveCount(0);
-  const mine = next.locator('a[href="https://example.org/test"]');
-  await expect(mine).toContainText('Testseite');
-  await next.getByRole('button', { name: T('Remove the link {name}', { name: 'Testseite' }) }).click();
-  await expect(mine).toHaveCount(0);
 
   // «Alle Tipps»: switch the tip of today off, add an own tip, hide the fold
   await line.getByRole('button', { name: T('All tips ›') }).click();
@@ -93,7 +77,7 @@ test('Aktiv › Heute: tip of the day, all tips, the fold and the tiles', async 
   await sheet.locator('[data-tips-all]').uncheck();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await expect(line).toHaveCount(0);
-  await next.getByRole('button', { name: T('Tips for this page ›') }).click();
+  await main.getByRole('button', { name: T('Tips for this page ›') }).click();
   await sheet.locator('[data-tips-all]').check();
   await sheet.locator('[data-can-show]').check();
   await sheet.getByRole('button', { name: T('Close') }).click();

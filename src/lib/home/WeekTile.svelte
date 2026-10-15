@@ -11,7 +11,7 @@
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { heartBetween, withStravaRides } from '../kmbook.js';
+  import { heartBetween, withStravaRides, bikeActs } from '../kmbook.js';
   import HeartLine from '../strava/HeartLine.svelte';
 
   let { today, rides = [], isnew = false } = $props();
@@ -21,7 +21,8 @@
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a»)
   const kmQ = liveQuery(() => db.kmBook.toArray());
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
-  const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? []) }));
+  const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point
+  const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? [], $actQ ?? []) }));
   const n = $derived(activeCount(days));
   // «Werte überall» WU1 (Noah 13.10.2026 «1-5a»): km · Hm · minutes in one line, the heart rate next to it
   const tot = $derived(weekTotals(days.filter((d) => !d.future)));
@@ -34,13 +35,15 @@
   <p class="sub">{tn(n, '{n} day active', '{n} days active')}</p>
   <ol class="days">
     {#each days as d (d.day)}
+      {@const parts = [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.slice(0, 2).map((a) => actName(acts[a]))].filter(Boolean)}
       <li class:now={d.day === today} class:future={d.future} data-day={d.day}>
         <b>{wd(d.day)}</b>
         <span class="dots" aria-hidden="true">
           {#if d.ride}<i class="ride"></i>{/if}
           {#each d.acts.slice(0, 3) as a (a)}<i class={acts[a]?.ring ?? 'move'}></i>{/each}
         </span>
-        <small>{[d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.slice(0, 2).map((a) => actName(acts[a]))].filter(Boolean).join(', ')}</small>
+        <!-- 0.136.0: one line per thing, a long word ends in «…» instead of breaking inside («Liegestütz/e») -->
+        <small title={parts.join(', ')}>{#each parts as p, i (i)}<span class="it">{p}</span>{' '}{/each}</small>
       </li>
     {/each}
   </ol>
@@ -137,7 +140,12 @@
     color: var(--ink-3);
     font-size: var(--fs-tiny);
     line-height: 1.2;
-    overflow-wrap: break-word;
+  }
+  small .it {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   @media (max-width: 719px) {
     .days {

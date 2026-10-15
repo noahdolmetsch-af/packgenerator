@@ -239,7 +239,7 @@
       {:else}
         <h2 class="sec-head" id="step-h">
           <span>{step.kind === 'unassigned' ? step.name : nameOfBlock(key)}</span>
-          {#if total}<span class="n">{tn(total.n, '{n} item', '{n} items')}{#if total.n} · {knownWeight(total.g, total.missing)}{/if}{#if total.food.g || total.food.missing} · {t('food {w}', { w: knownWeight(total.food.g, total.food.missing) })}{/if}</span>{/if}
+          {#if total}<span class="n">{tn(total.n, '{n} item', '{n} items')}{#if total.n}{' · '}{knownWeight(total.g, total.missing)}{/if}{#if total.food.g || total.food.missing}{' · '}{t('food {w}', { w: knownWeight(total.food.g, total.food.missing) })}{/if}</span>{/if}
         </h2>
         <p class="note">{#if step.kind === 'unassigned'}{t('These items were in "Lodging". They are in Hotel/hut for now: keep them there, take them out or move them to another block.')}{:else if key === STANDARD}{t('Comes into every new trip')}{:else}{setUse(setOf(key)?.builtIn ? key : null)}{/if}</p>
         {#if members.length}

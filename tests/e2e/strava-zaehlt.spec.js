@@ -74,5 +74,9 @@ test('Strava rides count in This week and Bike this month, a file ride once', as
   await expect(km).toContainText('280 km');
   await expect(km).toContainText('40 %');
   await expect(page.getByText(T('from your rides and Strava'))).toBeVisible();
+  // 0.136.0: the open ride (5) does not count yet, the card names it with the way to «Zum Prüfen»
+  const wait = page.locator('[data-km-waiting]');
+  await expect(wait).toContainText(T('{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', { n: 1 }));
+  await expect(wait).toHaveAttribute('href', '#/bikes?tab=care&view=strava-check');
   await shot(page, info, 'SZ2-aktiv-monat', '[data-section="km"]');
 });

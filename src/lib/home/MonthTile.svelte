@@ -8,13 +8,16 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { monthKm } from './bausteine.js';
-  import { withStravaRides } from '../kmbook.js';
-  import { t, num, locale } from '../i18n.svelte.js';
+  import { withStravaRides, waitingThisMonth, bikeActs } from '../kmbook.js';
+  import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { today, rides = [], isnew = false } = $props();
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const kmQ = liveQuery(() => db.kmBook.toArray());
-  const m = $derived(monthKm(withStravaRides(rides, $kmQ ?? []), today));
+  const actQ = liveQuery(() => bikeActs(db));
+  const m = $derived(monthKm(withStravaRides(rides, $kmQ ?? [], $actQ ?? []), today));
+  // 0.136.0: Strava rides without a bike count after «Passt»; the tile says how many still wait
+  const waiting = $derived(waitingThisMonth($kmQ ?? [], today));
   const month = $derived(new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));
 </script>
 
@@ -23,6 +26,7 @@
   <p class="big num"><b>{num(m.km)}</b> km{#if m.pct != null}<span class="ch" class:down={m.pct < 0}>{m.pct >= 0 ? '▲' : '▼'} {num(Math.abs(m.pct))} %</span>{/if}</p>
   <!-- «Werte überall» WU1: the metres climbed this month -->
   {#if m.hm}<p class="hm num" data-month-hm><Mountain size={14} aria-hidden="true" /><b>{t('{n} m climbed', { n: num(m.hm) })}</b></p>{/if}
+  {#if waiting}<p class="wait" data-km-waiting>{tn(waiting, '+ {n} Strava ride to check', '+ {n} Strava rides to check')}</p>{/if}
 </a>
 
 <style>
@@ -68,5 +72,10 @@
   .ch.down {
     background: var(--paper-2);
     color: var(--ink-2);
+  }
+  .wait {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>

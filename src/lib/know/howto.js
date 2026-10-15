@@ -112,7 +112,7 @@ export const HOWTO = {
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
   'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
-  'f.pagetips': ['Open Aktiv › Heute: the tip of the day stands under the title.', 'Tap «All tips ›»: every tip with its own switch.', 'At the page end: «What the app can do here» and the tiles.'],
+  'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)

@@ -51,16 +51,21 @@ const T = {
   ms: { id: 'ms', label: 'Milestones', icon: 'star', href: '#/flow/milestones' },
   lookback: { id: 'lookback', label: 'Look back|page', icon: 'chart', href: '#/debrief' },
   daycheck: { id: 'daycheck', label: 'Your questions', icon: 'check', spot: 'chk-h' }, // WG: the daily check is «Wi gaht's?» now
+  // 0.136.0 (Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren»): the places of the old «Weiter» row
+  rest: { id: 'rest', label: 'Recovery|page', icon: 'moon', href: '#/flow/rest' },
+  week: { id: 'week', label: 'Week', icon: 'calendar', href: '#/flow/week' },
+  trophies: { id: 'trophies', label: 'Trophy showcase', icon: 'trophy', href: '#/flow/trophies' },
+  hepa: { id: 'hepa', label: 'Exercise recommended', icon: 'heart', url: 'https://www.hepa.ch/' },
 };
 const ex = (d) => ({ ...d, extra: true });
 
 /** The pages with a tile row and their tiles, in the order of the mockups (SK1–SK5, SKX4). */
 export const SK_PAGES = {
   past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
-  debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp)],
+  debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
   bikes: [T.pack, T.stravacheck, T.workshop, T.bikecompare, T.kmbook, T.tomorrow, ex(T.velocare), ex(T.bp), ex(T.x12)],
   gear: [T.blocks, T.templates, T.weight, T.wardrobe, T.favs, T.wish, T.pack, ex(T.unweighed), ex(T.lighter)],
-  flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck],
+  flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck, ex(T.rest), ex(T.week), ex(T.trophies), ex(T.hepa)],
 };
 /** The page names in the sheet's subtitle. */
 export const SK_PAGE_NAME = { past: 'Past trips', debrief: 'Look back|page', bikes: 'Bikes', gear: 'Gear|place', flow: 'Active|place', trips: 'Trips|place' };
@@ -175,6 +180,10 @@ export function hintsFor(page, data = {}, today) {
   h.x4s = { text: t('Your latest activity') };
   h.x4g = { text: t('Book a tennis court') };
   h.ms = { text: t('Your stars and the next one') };
+  h.rest = { text: t('Sauna, walk, early to bed') };
+  h.week = { text: t('Fixed dates and suggestions') };
+  h.trophies = { text: t('All your stars') };
+  h.hepa = { text: t('How much exercise per week?') };
   h.lookback = { text: open.length ? t('{n} without a debrief', { n: open.length }) : tn(done.length, '{n} trip', '{n} trips') };
   return h;
 }

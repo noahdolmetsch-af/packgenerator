@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { categoriesFrom, applyLists, move, toggleHidden, edit, addOwn, remove, OWN_COLORS } from '../src/lib/lists.js';
 import { listFor } from '../src/lib/standard.js';
-import { STD_CATEGORIES, CATEGORIES, CATEGORY, choosable, groupByCategory } from '../src/lib/gear.js';
+import { STD_CATEGORIES, CATEGORIES, CATEGORY, choosable, groupByCategory, catApplies } from '../src/lib/gear.js';
 import { catIcon, stdIconName, ICON_CHOICES } from '../src/lib/gear/caticon.js';
 
 const STD = STD_CATEGORIES.map((c) => c.key);
@@ -74,5 +74,42 @@ describe('editing one list', () => {
     const e = shown({})[0];
     const v = remove({ names: { [first]: 'X' }, icons: { [first]: 'Sun' }, hidden: [first], order: [second, first] }, e);
     expect(v).toMatchObject({ names: {}, icons: {}, hidden: [], order: [second], deleted: [first] });
+  });
+});
+
+// LI3 «Gilt für» (Noah «2b» 15.10.2026): a category for some trip areas only.
+describe('«Gilt für»: the trip areas of a category', () => {
+  const shown = (v) => listFor('categories', { categories: v });
+  it('without a choice a category applies to every area', () => {
+    expect(catApplies(first, 'ski')).toBe(true);
+    expect(catApplies(first, 'bikepacking')).toBe(true);
+    expect(catApplies('no-such-category', 'ski')).toBe(true);
+  });
+  it('chosen areas reach CATEGORY and decide where the items are suggested', () => {
+    const v = edit({}, shown({})[0], { name: '', areas: ['bikepacking', 'hiking'] });
+    expect(v.areas).toEqual({ [first]: ['bikepacking', 'hiking'] });
+    applyLists({ categories: v });
+    expect(CATEGORY[first].areas).toEqual(['bikepacking', 'hiking']);
+    expect(catApplies(first, 'hiking')).toBe(true);
+    expect(catApplies(first, 'ski')).toBe(false);
+    expect(catApplies(first, null)).toBe(true);
+    expect(catApplies(second, 'ski')).toBe(true);
+  });
+  it('all areas again (null) or none stores nothing; leaving areas out keeps them', () => {
+    const v = edit({}, shown({})[0], { name: '', areas: ['ski'] });
+    expect(edit(v, shown(v)[0], { name: '' }).areas).toEqual({ [first]: ['ski'] });
+    expect(edit(v, shown(v)[0], { name: '', areas: null }).areas).toEqual({});
+    expect(edit(v, shown(v)[0], { name: '', areas: [] }).areas).toEqual({});
+  });
+  it('an own category can have areas from the start, deleting forgets them', () => {
+    const { value, id } = addOwn({}, { name: 'Tennis', areas: ['weekend'] }, 'own-t');
+    expect(shown(value).find((e) => e.id === id).areas).toEqual(['weekend']);
+    const v = remove(edit({}, shown({})[0], { name: '', areas: ['ski'] }), shown({})[0]);
+    expect(v.areas).toEqual({});
+  });
+  it('areas count as a change, «Auf Standard zurücksetzen» drops them', () => {
+    const v = edit({}, shown({})[0], { name: '', areas: ['ski'] });
+    expect(shown(v)[0].areas).toEqual(['ski']);
+    expect(shown({})[0].areas).toBe(null);
   });
 });

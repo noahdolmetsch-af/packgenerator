@@ -114,7 +114,7 @@ export default {
   fewer: 'weniger',
   '+ all': '+ alle',
   'Time is up ✓': 'Zeit um ✓',
-  'Goal {n} min': 'Ziel {n} min',
+  'Goal {n} min': 'Ziel {n} Min',
   'bowl in {t}': 'Klang in {t}',
   'No singing bowl': 'Ohne Klangschale',
   'Singing bowl at {times}': 'Klangschale bei {times}',
