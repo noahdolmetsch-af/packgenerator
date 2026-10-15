@@ -231,7 +231,7 @@ export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bike
  * Read the address of the Bikes page: #/bikes?tab=care&bike=<id>&open=1.
  * The old address #/care still lands on the Care tab. open: open that bike's care section.
  */
-const SHEET_KEYS = /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all)$/;
+const SHEET_KEYS = /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all|blocks)$/;
 export function parseBikesHash(hash = '') {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
   const q = new URLSearchParams(query);
