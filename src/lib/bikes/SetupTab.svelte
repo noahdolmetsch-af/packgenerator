@@ -17,7 +17,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -43,6 +43,7 @@
   import Woanders from '../sk/Woanders.svelte'; // SK X9
   import { slotOf } from '../sk/links.js';
   import { take } from '../nav.js';
+  import { strava } from '../strava/client.svelte.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
@@ -294,6 +295,14 @@
     sheet = null;
   }
 
+  // WS5 «Wieder sichtbar» (Noah 14.10.2026 «ws1-ws7 freigeben»): what the bike costs, back in its head
+  // line (since 0.107 only in «Ausstattung»): the workshop this year and per 1000 km, when known.
+  const costLine = $derived.by(() => {
+    if (!profile) return '';
+    const y = profile.year && profile.year.unknown < profile.year.visits && profile.year.chf > 0 ? t('{chf} this year', { chf: chf(profile.year.chf) }) : '';
+    const per = profile.per?.chf != null ? t('{chf} per 1000 km', { chf: chf(profile.per.chf) }) : '';
+    return [y, per].filter(Boolean).join(' · ');
+  });
   const weightWords = $derived(bike ? (bikeKind === 'missing' ? t('not weighed') : `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)} ${bikeKind === 'estimate' ? t('estimate') : t('measured')}`) : '');
 </script>
 
@@ -302,7 +311,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} />
+    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} />
     <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
     <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
 
@@ -408,6 +417,8 @@
         <div class="card vk-imp">
           <a class="btn hi vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={18} aria-hidden="true" />{t('Import rides')}</a>
           <p class="vk-imp-s">{t('Strava file or GPX · counts the km for every part')}</p>
+          <!-- WS5: Strava right here, one tap to connect (or to see it, when connected) -->
+          <a class="vk-row vk-strava" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{strava.key ? t('connected: new rides come by themselves') : t('connect: new rides come by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
         </div>
 
         <section class="vsec" aria-labelledby="vm-h">
@@ -746,6 +757,10 @@
     margin: 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .vk-strava {
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
   }
   .draw {
     padding: 12px;
