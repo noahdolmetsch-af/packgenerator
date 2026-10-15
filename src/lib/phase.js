@@ -12,9 +12,10 @@
 import { isOver, tripEnd } from './debrief.js';
 import { hasBike } from './domains.js';
 import { tabsOf, tabHref } from './tabs.js';
+import { DAY_CLOCK } from './dayclock.js';
 
 /** The evening starts at 18:00 (Ü6a, U22b). */
-export const EVENING_HOUR = 18;
+export const EVENING_HOUR = DAY_CLOCK.evening; // v0.144.0 RE: the one day clock
 /** Two days before the start a trip with a list is «Packen» on Today (as today.js). */
 export const PACK_DAYS = 2;
 

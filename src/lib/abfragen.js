@@ -17,6 +17,10 @@
  */
 import { addDays } from './flow.js';
 import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
+import { clockOf } from './dayclock.js';
+/** v0.144.0 RE: the day starts at 11:00, the evening at 18:00 (the one day clock). */
+const DAY_FROM = clockOf('day');
+const EVENING_FROM = clockOf('evening');
 
 /** The settings record of «Deine Abfragen»: { since, q: { [id]: { on, every, since } }, own: [question], rounds }. */
 export const AB_KEY = 'abfragen';
@@ -243,8 +247,8 @@ export function configOf(value) {
 
 /**
  * WG «Wi gaht's?» takes over the daily check (Noah 14.10.2026 «a) ja, alle drei übernehmen»): two fixed
- * rounds, 07:00 and 20:30. While they are on, a question whose own time is before 12:00 asks at the
- * morning time, one from 18:00 at the evening time; 12:00–17:59 keeps its own time. A suggestion only:
+ * rounds, 07:00 and 20:30. While they are on, a question whose own time is before 11:00 asks at the
+ * morning time, one from 18:00 at the evening time; 11:00–17:59 keeps its own time (v0.144.0 RE: the day clock). A suggestion only:
  * the rounds can be switched off and both times changed (Ich › «Wi gaht's?» › «Feste Runden»).
  */
 export const ROUNDS = { on: true, morning: '07:00', evening: '20:30' };
@@ -258,12 +262,15 @@ export const setRounds = (cfg, patch = {}) => {
   const c = configOf(cfg);
   return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
 };
-/** WG: the time a question asks at with the rounds: before 12:00 the morning, from 18:00 the evening time. */
+/**
+ * WG: the time a question asks at with the rounds: before 11:00 the morning, from 18:00 the evening time.
+ * v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (dayclock.js; the morning ended at 12:00 before).
+ */
 export function roundTime(time, rounds) {
   const r = roundsOf(rounds);
   const hm = timeOf(time);
   if (!r.on || !hm) return hm;
-  return hm < '12:00' ? r.morning : hm >= '18:00' ? r.evening : hm;
+  return hm < DAY_FROM ? r.morning : hm >= EVENING_FROM ? r.evening : hm;
 }
 /** WG: an interval with the rounds applied (several times a day, daily, weekly and monthly alike). */
 export function roundEvery(every, rounds) {
@@ -282,7 +289,7 @@ export function partOf(row, rounds) {
   const r = roundsOf(rounds);
   if (r.on && hm === r.evening) return 'evening';
   if (r.on && hm === r.morning) return 'morning';
-  return hm < '12:00' ? 'morning' : hm >= '18:00' ? 'evening' : 'day';
+  return hm < DAY_FROM ? 'morning' : hm >= EVENING_FROM ? 'evening' : 'day';
 }
 /** WG: is it the evening round yet (from the evening time on; also with the rounds off, the time stays the border)? */
 export const isEveningRound = (now, rounds) => hmOf(now) >= roundsOf(rounds).evening;

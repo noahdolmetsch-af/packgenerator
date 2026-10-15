@@ -14,6 +14,7 @@
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf, lang } from '../lib/i18n.svelte.js';
+  import { wetHour } from '../lib/rainlimit.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
@@ -396,7 +397,8 @@
     ...(main.kind === null ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
-  const wetH = (x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50;
+  // v0.144.0 RE: the one rain limit of the app (was 50 %)
+  const wetH = (x) => wetHour(x);
   const nowWx = $derived.by(() => {
     if (!nowB?.temp) return null;
     const hrs = saved?.places?.[0]?.hours ?? [];
@@ -554,7 +556,7 @@
                   <p class="wsum">{wxSummary(hrs)}</p>
                   <ul class="hours">
                     {#each hrs as x (x.t)}
-                      <li class:wet={(x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50} class:newday={x.h === 0}><span class="hh num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</span><b class="num">{x.temp != null ? `${Math.round(x.temp)}°` : '–'}</b><small class="num">{x.rainMm ? `${x.rainMm} mm` : dir(x.rainPct) || '–'}</small><small class="num">{x.wind != null ? `${Math.round(x.wind)} km/h` : '–'}</small>{#if x.gust != null && x.gust >= 30}<small class="num">({Math.round(x.gust)})</small>{/if}</li>
+                      <li class:wet={wetH(x)} class:newday={x.h === 0}><span class="hh num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</span><b class="num">{x.temp != null ? `${Math.round(x.temp)}°` : '–'}</b><small class="num">{x.rainMm ? `${x.rainMm} mm` : dir(x.rainPct) || '–'}</small><small class="num">{x.wind != null ? `${Math.round(x.wind)} km/h` : '–'}</small>{#if x.gust != null && x.gust >= 30}<small class="num">({Math.round(x.gust)})</small>{/if}</li>
                     {/each}
                   </ul>
                 </div>

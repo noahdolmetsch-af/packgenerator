@@ -7,7 +7,7 @@
  *   weeks without a breakdown).
  * bikes: from withVisits (workshop.js). Pure functions, easy to test.
  */
-import { AREAS, PART, CHECK_KM, checkState, bikeLog, isPrep, taskBike, partName } from '../care.js';
+import { AREAS, PART, checkState, bikeLog, isPrep, taskBike, partName } from '../care.js';
 import { visitTotal } from '../workshop.js';
 import { partStatus, isDueState } from './last.js';
 import { localDay } from '../localday.js';
@@ -58,7 +58,8 @@ export function dueCards(checks, max = 3) {
 
 /** km since the last 1000 km check: { since, every, date } (the oldest check point), or null. */
 export function kmSinceService(bike) {
-  const rows = checkState(bike).rows.filter((r) => r.since != null);
+  const cs = checkState(bike);
+  const rows = cs.rows.filter((r) => r.since != null);
   if (!rows.length) return null;
   const since = Math.max(...rows.map((r) => r.since));
   // The date of the oldest check point's last look.
@@ -67,7 +68,7 @@ export function kmSinceService(bike) {
     const last = [...(p.history ?? [])].reverse().find((h) => h.result !== 'needed' && typeof h.km === 'number' && bike.km - h.km === since);
     if (last) date = last.date;
   }
-  return { since, every: CHECK_KM, date };
+  return { since, every: cs.every, date };
 }
 
 /** Bike problems (repairs on a bike), all states: for «weeks without a breakdown». */

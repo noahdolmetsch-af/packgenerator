@@ -10,6 +10,7 @@
 import { addHours, stage, stageCount, isNonstop } from './ride.js';
 import { rainOf, coldLayer, isNightEyewear } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
+import { wetHour } from './rainlimit.svelte.js';
 
 /** Assumption, not measured: half a litre per riding hour, a quarter more from 25 °C. */
 export const DRINK_L_PER_H = 0.5;
@@ -107,7 +108,8 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
     const temps = hrs.map((x) => x.temp).filter((v) => v != null);
     const fromTrip = !temps.length && typeof tripWx?.min === 'number';
     const temp = temps.length ? { lo: Math.round(Math.min(...temps)), hi: Math.round(Math.max(...temps)) } : fromTrip ? { lo: tripWx.min, hi: tripWx.max ?? tripWx.min } : null;
-    const wet = hrs.length ? hrs.some((x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50) : tripWx?.rain === 'rain' || tripWx?.rain === 'showers';
+    // v0.144.0 RE: wet from 0.5 mm or the one rain limit (was 50 %).
+    const wet = hrs.length ? hrs.some((x) => wetHour(x)) : tripWx?.rain === 'rain' || tripWx?.rain === 'showers';
     const plan = { ...b, temp, wet, wxFrom: temps.length ? 'hours' : fromTrip ? 'trip' : null, wear: [], on: [], off: [], food: [], drinkL: 0, refillKm: [], refillAt: [], light: null };
 
     // Clothing: a layer is worn when the block gets colder than its limit, a rain layer when it is wet.
