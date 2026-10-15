@@ -118,19 +118,29 @@ export function swapEntries(entries = [], from, to) {
 }
 
 /**
+ * 0.161.0 (Bugfixes 0.132.2 B1, Noah 4a «alles, was du trägst»): what is on me is every entry on the
+ * body or in a worn place (Back, Hip; bikes.js SLOTS worn), the same set as «On me» on the bike page
+ * (TripBike) and the weight stats.onMeG. Before, three places counted three sets (15, 10, 5).
+ */
+export const WORN_SLOTS = new Set(['body', 'carry', 'hip']);
+export const isOnMe = (entry) => WORN_SLOTS.has(entry?.slot);
+
+/**
  * The worn clothing of a trip for the card «On me»: [{ zone (key or 'other'), rows: [{ entry, item, layer }] }],
  * head to feet, inside a zone base, mid, outer, accessories, then warm to cold.
  * ids: the item ids it shows (the bag group «On me» leaves them out).
  */
 export function wornClothes(trip, itemsById = {}) {
+  // 0.161.0 B1 (4a): everything on me; what is not clothing (a watch, the hip bag) comes last as 'gear'
   const rows = (trip?.entries ?? [])
-    .filter((e) => e.slot === 'body' && isClothing(itemsById[e.itemId]))
+    .filter((e) => isOnMe(e) && itemsById[e.itemId])
     .map((entry) => {
       const item = itemsById[entry.itemId];
-      return { entry, item, zone: zoneOf(item) ?? 'other', layer: layerOf(item) };
+      const cloth = isClothing(item);
+      return { entry, item, zone: cloth ? zoneOf(item) ?? 'other' : 'gear', layer: cloth ? layerOf(item) : null, cloth };
     });
   const lrank = (l) => (l == null ? 9 : LAYER_ORDER.indexOf(l));
-  const zones = [...ZONE_ORDER, 'other']
+  const zones = [...ZONE_ORDER, 'other', 'gear']
     .map((zone) => ({ zone, rows: rows.filter((r) => r.zone === zone).sort((a, b) => lrank(a.layer) - lrank(b.layer) || warmToCold(a.item, b.item)) }))
     .filter((z) => z.rows.length);
   return { zones, ids: new Set(rows.map((r) => r.entry.itemId)), n: rows.length };

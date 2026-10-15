@@ -197,6 +197,17 @@ const inside = (iso, from, to) => !!iso && (!from || iso >= from) && iso <= to;
 /** The 7 numbers of «Letzte 12 Monate» in their order. */
 export const STAT_KEYS = ['trips', 'km', 'gainM', 'movingH', 'kmh', 'rain', 'learnings'];
 
+/**
+ * 0.161.0 (Bugfixes 0.132.2 B1): the learnings of a period. A learning with its own date counts by it;
+ * one without a date (most older and imported ones) counts with its trip in the period. Before, only
+ * dated ones counted: «85 Learnings» above, «7» in the period.
+ */
+function learningsIn(rows, learnings, from, to) {
+  const n = new Set(learnings.filter((l) => inside(learnedOn(l), from, to)));
+  for (const r of rows) for (const l of r.learnings ?? []) if (!learnedOn(l)) n.add(l);
+  return n.size;
+}
+
 function numbers(rows, learnings, from, to) {
   const known = (f) => rows.filter((r) => f(r) != null);
   const kmRows = known((r) => r.km);
@@ -216,7 +227,7 @@ function numbers(rows, learnings, from, to) {
     kmhN: speedRows.length,
     rain: weather.length ? weather.filter((r) => r.rain.wet).length : null,
     rainKnown: weather.length,
-    learnings: learnings.filter((l) => inside(learnedOn(l), from, to)).length,
+    learnings: learningsIn(rows, learnings, from, to),
   };
 }
 

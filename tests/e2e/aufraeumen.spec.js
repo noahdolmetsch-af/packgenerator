@@ -48,7 +48,12 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(page.locator('section[data-finished]').getByText(EARLY)).toHaveCount(0);
   // SN4g: a finished trip is a row of the list (its title can also stand in a block of «In Zahlen» below)
   const listed = (title) => page.locator('[data-trip-list]').getByRole('link', { name: title, exact: true });
-  await expect(listed(TEST)).toBeVisible();
+  // 0.161.0 (Bugfixes 0.132.2, Noah 1b): a test trip counts nowhere; Touren names it hidden, with the way to tidy it
+  const hidden = page.locator('[data-hidden-tests]');
+  await expect(listed(TEST)).toHaveCount(0);
+  await expect(hidden).toContainText(T('{n} test trip hidden', { n: 1 }));
+  await hidden.getByRole('button', { name: T('Clean up test data') }).click();
+  await expect(page.getByRole('dialog', { name: T('Clean up test data') })).toBeVisible();
 
   // F: Ich › Testdaten aufräumen: the test trip and the fixture's «Test …» bags, archived.
   await page.goto('./#/me');
@@ -62,6 +67,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await page.goto('./#/trips');
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(TEST)).toHaveCount(0);
+  await expect(hidden).toHaveCount(0);
 
   // Undo brings it back.
   await page.goto('./#/me');
@@ -70,7 +76,8 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByRole('status')).toContainText(/zurück/);
   await sheet.getByRole('button', { name: T('Close') }).click();
   await page.goto('./#/trips');
-  await expect(listed(TEST)).toBeVisible();
+  await expect(listed(TEST)).toHaveCount(0);
+  await expect(hidden).toBeVisible();
 
   // H: the debrief of that trip asks first; «Trotzdem» opens it.
   await page.goto('./#/debrief/test_data_gtp_t3');

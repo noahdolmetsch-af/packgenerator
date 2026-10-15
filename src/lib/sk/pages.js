@@ -8,6 +8,7 @@ import { t, tn, num } from '../i18n.svelte.js';
 import { BIKEPACKING_URL, STRAVA_URL, GOTCOURTS_URL, meteoUrl, schweizMobilUrl } from './links.js';
 import { toDebrief, nextTrip } from '../debrief.js';
 import { homeTrips } from '../home/heute.js';
+import { favouriteCounts } from '../gear.js';
 import { bikeCare } from '../readiness.js';
 import { withVisits } from '../workshop.js';
 import { sortBikes } from '../bikes.js';
@@ -70,8 +71,8 @@ export { SK_BIG } from './tiles.js';
 
 /** The tables a page's hints read (only those are loaded). */
 export const SK_NEEDS = {
-  past: ['trips', 'debriefs', 'bikes', 'maintenance', 'visits', 'flowLog', 'learnings'],
-  debrief: ['trips', 'debriefs', 'learnings', 'settings', 'bikes', 'maintenance', 'visits'],
+  past: ['trips', 'debriefs', 'bikes', 'maintenance', 'visits', 'flowLog', 'learnings', 'events'],
+  debrief: ['trips', 'debriefs', 'learnings', 'settings', 'bikes', 'maintenance', 'visits', 'events'],
   bikes: ['trips', 'bikes', 'visits', 'kmBook', 'maintenance'],
   gear: ['items', 'trips', 'settings'],
   flow: ['flowActs', 'flowLog', 'flowChecks', 'kmBook', 'trips', 'debriefs'],
@@ -86,6 +87,9 @@ const monthOf = (d) => d.slice(0, 7);
  * The live hint of every tile on a page: { id: { text } } or { id: { quiet } } when the tile has
  * nothing to say now (it steps aside with a quiet line, SK7). data: the tables of SK_NEEDS.
  */
+/** 0.161.0 (Bugfixes 0.132.2 B1): «18 trips · 30 older entries», the same words on the tile and in the Rückblick. */
+export const logbookLine = (trips, older) => [tn(trips, '{n} trip', '{n} trips'), older ? tn(older, '{n} older entry', '{n} older entries') : ''].filter(Boolean).join(' · ');
+
 export function hintsFor(page, data = {}, today) {
   const h = {};
   const trips = homeTrips(data.trips ?? []);
@@ -121,7 +125,8 @@ export function hintsFor(page, data = {}, today) {
   h.lighter = { text: t('Never used and unweighed') };
   h.weight = { text: t('Never used and unweighed') };
   h.learnings = { text: tn(learnings.length, '{n} learning', '{n} learnings') };
-  h.logbook = { text: tn(done.length, '{n} trip', '{n} trips') };
+  // 0.161.0 B1: the logbook holds the trips that happened and the older entries (db.events), as its row in the Rückblick
+  h.logbook = { text: logbookLine(done.filter((x) => !x.skipped).length, (data.events ?? []).length) };
   h.compare = { text: done.length >= 2 ? t('{n} trips side by side', { n: done.length }) : t('From two trips on') };
   h.x12 = { text: t('Official cycling routes of Switzerland') };
   const tpls = settings.templates ?? [];
@@ -147,7 +152,8 @@ export function hintsFor(page, data = {}, today) {
   h.bikecompare = { text: bikes.length >= 2 ? t('{n} bikes side by side', { n: bikes.length }) : t('From two bikes on') };
   if (data.items) {
     const own = data.items.filter((i) => i.ownership === 'owned' && !i.gone);
-    const favs = own.filter((i) => i.favorite).length;
+    // 0.161.0 B1 (Noah 3a): your own favourites (owned or unclear), as the Favoriten page
+    const favs = favouriteCounts(data.items).inventory;
     const wishes = data.items.filter((i) => i.ownership === 'wishlist' || i.ownership === 'to-buy').length;
     const unweighed = own.filter((i) => i.weightG == null).length;
     h.favs = { text: favs ? tn(favs, '{n} favourite', '{n} favourites') : t('Mark your best things with ☆') };

@@ -203,11 +203,13 @@ export function newPackTrip({ title, startDate, days, domain, readyStandard = nu
 /**
  * Every favourite (item.favorite, not gone) by area, in the order of DOMAINS, sorted by category
  * and name. An item in two areas shows in both. Areas without favourites are left out.
+ * 0.161.0 (Bugfixes 0.132.2 B1, Noah 3a «und wunschliste möglich»): only your own things (owned or
+ * unclear, as Gear and the tile count them); { wishlist: true } adds the wishlist and to-buy ones.
  * Returns [{ key, name, items, grams }].
  */
-export function favoritesByDomain(items) {
+export function favoritesByDomain(items, { wishlist = false } = {}) {
   const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
-  const favs = items.filter((i) => i.favorite && i.ownership !== 'gone');
+  const favs = items.filter((i) => i.favorite && i.ownership !== 'gone' && (isInventory(i) || (wishlist && (i.ownership === 'wishlist' || i.ownership === 'to-buy'))));
   const keys = [...DOMAINS.map((d) => d.key), ...new Set(favs.flatMap(itemDomains).filter((k) => !DOMAIN[k]))];
   return keys
     .map((key) => {

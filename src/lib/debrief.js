@@ -12,6 +12,7 @@
  *     km, kmApplied }   km of this trip (answer 7a); kmApplied: what was already added to the bike
  * Pure functions only, so the rules are easy to test.
  */
+import { isTestTrip, isArchived } from './testname.js';
 import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
@@ -72,7 +73,8 @@ export function toDebrief(trips, debriefs, today = localDay()) {
 
 /** The next trip: the first one that has not ended yet. A trip marked "Not riding" (skipped) does not count. */
 export function nextTrip(trips, today = localDay()) {
-  return [...trips].filter((t) => !t.skipped && !t.finished && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
+  // 0.161.0 (Bugfixes 0.132.2, Noah 1b): a test or archived trip is never «the next trip», on any page
+  return [...trips].filter((t) => !t.skipped && !isArchived(t) && !isTestTrip(t) && !t.finished && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
 }
 
 /** An empty debrief for a trip. */

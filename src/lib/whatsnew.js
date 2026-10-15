@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.161.0 «Bugfixes 0.132.2» (Durchklick 2, Noah 15.10.2026 «1b 2a 3a und wunschliste möglich 4a 5b»):
+    // the same number on every page, test notes go with the clean-up
+    version: '0.161.0',
+    date: '2026-10-15',
+    title: 'One number for one thing',
+    lead: 'Trips, favourites and «On me» count the same on every page, and old test notes stay away.',
+    points: [
+      { text: 'Trips: trips with «test» in the name count nowhere; completed and rated say their period', href: '#/trips' },
+      { text: 'On me: everything you wear, also the watch and the hip bag; a new trip shows «in the bags · on me»', href: '#/pack' },
+      { text: 'Favourites: your own things; the wishlist ones only when you switch them on', href: '#/favorites' },
+    ],
+    small: [
+      { box: 'fixed', text: '«Clean up test data» also archives the learnings of a test trip, so they no longer turn up in a new trip' },
+      { box: 'fixed', text: 'The logbook says what it holds: trips and older entries' },
+    ],
+    test: [
+      'Open Trips: next to the counts stands «in 12 months»; switch to «All», the counts follow.',
+      'A trip with «Test» in its name: Trips says «1 test trip hidden», Today shows the next real trip.',
+      'Open a trip in Pack: the card «On me» lists the clothing and then the rest you wear.',
+      'Me › Clean up test data: a test trip takes its learnings along; «Undo» brings them back.',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',
