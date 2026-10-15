@@ -127,15 +127,21 @@ export function halfSince(act, day) {
 }
 
 /* ---------- entries that count for an activity ---------- */
-/** Trip days (YYYY-MM-DD) of trips that are not skipped, up to today. */
+/**
+ * Trip days (YYYY-MM-DD) of bike trips that are not skipped, up to today. Fix 14.10. (0.132.2): today
+ * counts only once the trip is ended (in the app or from a ride); a trip merely planned for today
+ * ticked «Velo draussen» before it was ridden, and a tap could not take that tick back. Trips without
+ * a bike (hiking, ski, weekend, travel: their backpacks are trip.packs, domains.js hasBike) count nothing.
+ */
 export function tripDays(trips = [], today) {
   const out = [];
   for (const tr of trips) {
-    if (!tr?.startDate || tr.skipped) continue;
+    if (!tr?.startDate || tr.skipped || Array.isArray(tr.packs)) continue;
+    const ended = !!tr.finished || tr.status === 'done' || !!tr.fromRide;
     const n = Math.max(1, Number(tr.days) || 1);
     for (let i = 0; i < n; i++) {
       const d = addDays(tr.startDate.slice(0, 10), i);
-      if (d <= today) out.push(d);
+      if (d < today || (d === today && ended)) out.push(d);
     }
   }
   return out;

@@ -217,7 +217,7 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
-  expect(await ids(page)).toEqual(READY.map((x) => x.id));
+  await expect.poll(() => ids(page)).toEqual(READY.map((x) => x.id));
   await updated(page);
   await expect(page.locator('[data-news-banner]')).toBeVisible(); // v0.127.0 A-U1: the banner, no window
   const tile = page.locator('.wall [data-tile="news"]');
