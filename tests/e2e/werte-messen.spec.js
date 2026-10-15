@@ -30,7 +30,7 @@ test('W1 W2: a value of the Pick-up check is checked on the Bike pass and comes 
 
   // W1: the Bike pass says when it was checked
   await page.goto(`./#/bikes?bike=${id}&sheet=pass`);
-  const row = page.locator('.paper .vr').filter({ hasText: T('Saddle height') });
+  const row = page.locator('.paper .vr').filter({ has: page.getByRole('term').getByText(T('Saddle height'), { exact: true }) });
   await expect(row.locator('.vnote')).toContainText(fill(T('checked at the pick-up {date}'), { date: '' }).trim());
   // W3: the new chain, with the km of the one before
   const chain = page.locator('.paper .vr').filter({ has: page.getByRole('term').getByText(T('Chain'), { exact: true }) });
