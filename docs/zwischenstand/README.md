@@ -41,6 +41,8 @@ Seit dem Schnappschuss am Mittag hat sich Folgendes geändert:
 
 - **Live ist jetzt 0.132.2.** Noah hat das Tagespaket **0.132.0 (#151)** gemerged, mit allen darin gebündelten Teilen (#150, #152, #153, #155, #156, #157; die Kluge Suche #154 kam darin mit). Dazu zwei Fehlerbehebungen: **0.132.1** (langer Tourname passt in die Box bei «Tour beendet», #172) und **0.132.2** (Velo draussen ohne falschen Haken, #171).
 - **Das Tagespaket gibt es nicht mehr** (Noah, 14.10. 19:39 UTC, Thread «Build-Strategie»): Jeder grüne, freigegebene PR bekommt sofort einen eigenen Link, auch mehrmals pro Tag. Jeder PR behält seine eigene Version. Höchstens 4 Threads bauen gleichzeitig. Grosse Umbauten werden in Teile unter etwa 2000 Zeilen aufgeteilt. Fehlerbehebungen bekommen sofort einen eigenen Link.
-- Unverändert: Bilder vor sichtbaren Änderungen, Noah merged selbst, Abschnitt «Was fällt weg oder rutscht tiefer», Null Kosten.
+- **Bilder neu nach dem Bau** (Noah, 14.10. 22:19 UTC): Es gibt keine Mockups mehr vor dem Bauen. Claude baut zuerst und zeigt am Ende jedes sinnvollen Schritts Bilder der fertigen App (Handy 390 px und Computer 1440 px, hell) zusammen mit dem Link. Noah gibt frei, indem er merged. a/b-Fragen kommen nur noch dort, wo ein Entscheid wirklich etwas ändert.
+- **0.133.0 ist live** (15.10.2026, #168, Design-Refresh).
+- Unverändert: Noah merged selbst, Abschnitt «Was fällt weg oder rutscht tiefer», Null Kosten.
 
 Wo Dokument 1, 3, 4 oder 5 noch «Tagespaket» oder «#151 offen» sagen, gilt dieser Nachtrag.
