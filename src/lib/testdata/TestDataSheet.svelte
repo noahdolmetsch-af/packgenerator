@@ -28,7 +28,7 @@
   }
   load();
 
-  const NAMES = { trips: ['{n} trip', '{n} trips'], items: ['{n} gear item', '{n} gear items'], templates: ['{n} template', '{n} templates'] };
+  const NAMES = { trips: ['{n} trip', '{n} trips'], items: ['{n} gear item', '{n} gear items'], templates: ['{n} template', '{n} templates'], learnings: ['{n} learning', '{n} learnings'] };
   const groups = $derived(st ? GROUPS.filter((g) => st.found[g].length) : []);
   const chosen = $derived(new Set(st ? GROUPS.flatMap((g) => st.found[g].map((x) => x.id)).filter((id) => !off.has(id)) : []));
   const nChosen = $derived(chosen.size);

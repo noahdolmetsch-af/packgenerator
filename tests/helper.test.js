@@ -152,9 +152,9 @@ describe('1 Neue Tour: chips and extra items', () => {
 });
 
 describe('3 Rückblick: a learning like the app saves its own', () => {
-  it('number id after the highest, topic Debrief, the trip as source', () => {
+  it('number id after the highest, topic Debrief, the trip as source and tripId (0.161.0 B3)', () => {
     const l = helperLearning({ rule: 'Bei 5 °C waren die Handschuhe zu dünn', action: 'unter 8 °C die Winterhandschuhe' }, trips[0], [{ id: 4 }, { id: 'x' }], '2026-10-10T10:00:00.000Z');
-    expect(l).toEqual({ id: 5, topic: 'Debrief', rule: 'Bei 5 °C waren die Handschuhe zu dünn', action: 'unter 8 °C die Winterhandschuhe', itemIds: [], source: 'Jura-Biwak', appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: '2026-10-10T10:00:00.000Z', from: 'helper' });
+    expect(l).toEqual({ id: 5, topic: 'Debrief', rule: 'Bei 5 °C waren die Handschuhe zu dünn', action: 'unter 8 °C die Winterhandschuhe', itemIds: [], source: 'Jura-Biwak', tripId: 'trip-a', appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: '2026-10-10T10:00:00.000Z', from: 'helper' });
   });
 });
 
