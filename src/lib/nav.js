@@ -134,6 +134,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.66.0 (Noah 4a): «Bausteine prüfen»
   if (h.startsWith('#/blocks')) return 'blocks'; // v0.26.0 (Noah 2b): building blocks, own page
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
+  if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
@@ -213,6 +214,18 @@ export const PLACES = [
 ];
 
 /**
+ * «Ausrüstung» (mockup AU1, Noah 15.10.2026 «5b» own place, «1-5a» with «1b»): the main equipment of
+ * each sport has its own place. On a computer it stands in the sidebar under Velos (SIDE_PLACES); on a
+ * phone the bottom bar keeps five places: Velos and Ausrüstung share one, a switch on top of both pages
+ * changes between them (nav/PlaceSwitch). PLACES stays the five of the bar.
+ */
+export const EQUIPMENT = { key: 'equipment', href: '#/equipment', label: 'Equipment|place', shares: 'bikes' };
+/** The places of the sidebar: the five, with Ausrüstung under Velos. */
+export const SIDE_PLACES = PLACES.flatMap((p) => (p.key === 'bikes' ? [p, EQUIPMENT] : [p]));
+/** The place whose slot in the bottom bar a place uses (Ausrüstung → Velos). */
+export const barPlace = (place) => (place === EQUIPMENT.key ? EQUIPMENT.shares : place);
+
+/**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
  * on top of each place too (nav/PlaceTabs), at most four. match: the addresses that count as this entry.
@@ -273,6 +286,7 @@ export function placeOf(page) {
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
+  if (page === 'equipment') return 'equipment';
   if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills') return 'me';
   return null;
 }

@@ -5,8 +5,9 @@
    * v0.98.0 Design-Refresh R2 (G4/G5 A★, Noah 11.10 23:10): the sidebar is light: the logo with its
    * mark, «+ Neu», the search, the five places with plain icons (the chosen one on a soft row, its pages
    * under it with a line), and «Ich» as a card at the bottom.
+   * AU1 (Noah 15.10.2026 «5b»): «Ausrüstung» is its own row under Velos (nav.js SIDE_PLACES).
    */
-  import { PLACES, PLACE_TABS, tabOf, placeHref } from '../nav.js';
+  import { SIDE_PLACES, PLACE_TABS, tabOf, placeHref } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
@@ -47,7 +48,7 @@
     </div>
     <nav class="places" aria-label={t('Sections')}>
       <ul>
-        {#each PLACES as p (p.key)}
+        {#each SIDE_PLACES as p (p.key)}
           {@const tabs = PLACE_TABS[p.key] ?? []}
           {@const on = place === p.key}
           {@const tab = on ? tabOf(p.key, hash) : null}
