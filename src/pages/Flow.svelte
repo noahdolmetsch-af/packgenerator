@@ -13,6 +13,7 @@
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
+   *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
    *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
@@ -55,6 +56,7 @@
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
+  import Gipfelbuch from './flow/Gipfelbuch.svelte';
   import Week from './flow/Week.svelte';
   import Bags from './flow/Bags.svelte';
   import Rest from './flow/Rest.svelte';
@@ -214,6 +216,8 @@
   <Milestones {params} />
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'gipfelbuch'}
+  <Gipfelbuch />
 {:else if route[0] === 'week'}
   <Week />
 {:else if route[0] === 'bags'}

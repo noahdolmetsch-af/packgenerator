@@ -424,6 +424,12 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Meditation › «Look back».', 'Switch between week, month and year; filter by kind or template.'],
     example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
   },
+  // v0.165.0
+  'f.gipfelbuch': {
+    on: null,
+    steps: ['Open Aktiv › Aktivität › «Summit book».', 'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.'],
+    example: 'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.',
+  },
   'f.timer': {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],

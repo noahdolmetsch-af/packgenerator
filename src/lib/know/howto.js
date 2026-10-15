@@ -110,6 +110,7 @@ export const HOWTO = {
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
   // v0.135.0
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
   'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],

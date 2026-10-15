@@ -377,4 +377,8 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // v0.165.0 f.gipfelbuch
+  'Open Aktiv › Aktivität › «Summit book».': 'Öffne Aktiv › Aktivität › «Gipfelbuch».',
+  'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.': 'Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.',
+  'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.': 'Beispiel: eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.',
 };
