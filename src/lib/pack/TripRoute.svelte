@@ -149,6 +149,8 @@
     {:else}
       <label class="btn sm">{t('Add GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
       <p class="hint">{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</p>
+      <!-- GPX-Weg 5a: a route is planned; a ride you rode has its own place -->
+      <p class="hint">{t('This is for a planned route. A ride you rode goes to')} <a href="#/debrief/ride">{t('Look back › Upload ride')}</a>.</p>
     {/if}
     {#if routeMsg}<p class="warn" role="alert">{routeMsg}</p>{/if}
     <!-- SK X10 (the route on the national map), X12 (an idea from SchweizMobil, bike trips), X6 (ski tours only) -->

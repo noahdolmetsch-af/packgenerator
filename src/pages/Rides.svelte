@@ -12,12 +12,13 @@
   import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
-  import { PACE_KEY, paceOf } from '../lib/pace.js';
+  import { PACE_KEY, PACE_MIN, paceOf, startKey } from '../lib/pace.js';
+  import { markSaved, savedNote, seenCard } from '../lib/ridejourney.js';
   import { sharedKind } from '../lib/komoot.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
-  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert } from '@lucide/svelte';
+  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map } from '@lucide/svelte';
 
   let { sub = '' } = $props();
 
@@ -52,32 +53,107 @@
   let usePace = $state(true);
   const matches = $derived(draft ? tripsOn(trips, draft.date).slice(0, 2) : []);
   const to = $derived(picked ?? (matches[0] ? `trip:${matches[0].id}` : 'ride'));
-  const dup = $derived(draft ? rides.find((r) => r.id === draft.id) ?? null : null);
+  // GPX-Weg: the same ride is known by its start minute, whichever way it came in
+  const dup = $derived(draft ? rides.find((r) => startKey(r.id) === startKey(draft.id)) ?? null : null);
+  const inPace = (r) => (paceSetting?.rides ?? []).some((x) => startKey(x.id) === startKey(r.id));
+  // GPX-Weg (Noah 15.10.2026 «1-5 a»): what saving does, in three lines, before the tap
+  const willCount = $derived(!!draft && usePace && draft.km >= 20 && draft.movingH > 0.5 && !inPace(draft));
+  const paceAfter = $derived(Math.min(PACE_MIN, pace.n + (willCount ? 1 : 0)));
   const options = $derived([
     ...matches.map((x) => ({ key: `trip:${x.id}`, name: x.title })),
     { key: 'ride', name: t('Ride only') },
     { key: 'new', name: t('New past trip') },
   ]);
 
+  // GPX-Weg 4a: a GPX without times is a planned route, not a ride: say so and offer the trip
+  let route = $state(null);
+  let batch = $state(null);
   async function read(text, name) {
     msg = '';
+    route = null;
+    batch = null;
     try {
       draft = analyseRide(text, name);
       picked = null;
     } catch (e) {
       draft = null;
-      msg = e.message || t('This file could not be read.');
+      if (sharedKind(text) === 'route') route = { text, name };
+      else msg = e.message || t('This file could not be read.');
     }
   }
 
   async function pick(event) {
-    const file = event.currentTarget.files?.[0];
+    const files = [...(event.currentTarget.files ?? [])];
     event.currentTarget.value = '';
-    if (!file) return;
+    if (!files.length) return;
+    if (files.length > 1) return saveMany(files);
+    const file = files[0];
     if (file.size > RIDE_MAX_MB * 1024 * 1024) return (msg = t('This file is too big (more than {mb} MB).', { mb: RIDE_MAX_MB }));
     busy = true;
     await read(await file.text(), file.name);
     busy = false;
+  }
+
+  // the route file goes the way a file shared from komoot goes: the sheet «Tour aus komoot übernehmen» over Touren
+  async function useRoute() {
+    try {
+      await (await caches.open(SHARE_CACHE)).put(sharedUrl(), new Response(route.text, { headers: { 'Content-Type': 'application/gpx+xml', 'X-File-Name': encodeURIComponent(route.name) } }));
+      location.hash = '#/komoot/shared';
+    } catch {
+      location.hash = '#/trips';
+    }
+  }
+
+  /**
+   * GPX-Weg 2a: several files at once (as «Dein Tempo» could): each saved like one file with the defaults,
+   * to the trip of that day or on its own, counting for your pace. Files without times or already saved
+   * are named, not saved twice.
+   */
+  async function saveMany(files) {
+    busy = true;
+    msg = '';
+    draft = null;
+    route = null;
+    const first = rides.length === 0;
+    const saved = [];
+    const skipped = [];
+    let setting = $state.snapshot(paceSetting);
+    const now = new Date().toISOString();
+    for (const f of files) {
+      if (f.size > RIDE_MAX_MB * 1024 * 1024) {
+        skipped.push({ name: f.name, why: t('too big') });
+        continue;
+      }
+      const text = await f.text();
+      let r;
+      try {
+        r = analyseRide(text, f.name);
+      } catch {
+        skipped.push({ name: f.name, why: sharedKind(text) === 'route' ? t('a planned route, no times') : t('could not be read') });
+        continue;
+      }
+      if (rides.some((x) => startKey(x.id) === startKey(r.id)) || saved.some((x) => startKey(x.id) === startKey(r.id))) {
+        skipped.push({ name: r.name, why: t('saved already') });
+        continue;
+      }
+      const trip = tripsOn(trips, r.date)[0] ?? null;
+      const record = { ...r, tripId: trip?.id ?? null, plan: trip ? plannedFor(trip, r.date, pace) : null, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, answers: {}, pace: true, createdAt: now };
+      setting = addToPace(setting, record, now);
+      saved.push(record);
+    }
+    try {
+      if (saved.length)
+        await db.transaction('rw', [db.rides, db.settings], async () => {
+          await db.rides.bulkPut(saved);
+          await db.settings.put({ key: PACE_KEY, value: setting });
+        });
+      markSaved(saved.map((r) => r.id), { first });
+      batch = { saved, skipped, first };
+    } catch {
+      msg = t('Could not save. Please try again.');
+    } finally {
+      busy = false;
+    }
   }
 
   // A file shared from another app waits in the Cache until it is saved or dropped (never lost on the way).
@@ -136,6 +212,7 @@
         if (usePace) await db.settings.put({ key: PACE_KEY, value: addToPace(paceSetting, record, now) });
       });
       await dropShared();
+      markSaved([record.id], { first: rides.length === 0 });
       location.hash = `#/debrief/ride/${encodeURIComponent(record.id)}`;
     } catch (e) {
       msg = t('Could not save. Please try again.');
@@ -155,6 +232,15 @@
   };
   let saving = $state(false);
   let rideMsg = $state('');
+  // GPX-Weg 1a: right after saving you land here, with one calm card: what happened, one next step
+  let note = $state(savedNote());
+  const justSaved = $derived(!!ride && !!note && !note.seen && (note.last ?? note.ids).includes(ride.id));
+  const openLearn = $derived(ride ? suggs.filter((s) => !ride.answers?.[s.id]).length : 0);
+  const closeCard = () => {
+    seenCard();
+    note = savedNote();
+  };
+  const toLearnings = () => document.getElementById('lr-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   async function answer(s, yes) {
     if (saving || ride.answers?.[s.id]) return;
     saving = true;
@@ -200,7 +286,7 @@
     if (!confirm(t('Delete this ride? Learnings you kept stay.'))) return;
     const now = new Date().toISOString();
     await db.transaction('rw', [db.rides, db.settings], async () => {
-      if (paceSetting?.rides?.some((r) => r.id === ride.id)) await db.settings.put({ key: PACE_KEY, value: dropFromPace(paceSetting, ride.id, now) });
+      if (inPace(ride)) await db.settings.put({ key: PACE_KEY, value: dropFromPace(paceSetting, ride.id, now) });
       await db.rides.delete(ride.id);
     });
     location.hash = '#/debrief/ride';
@@ -248,6 +334,32 @@
       <h1 class="title">{ride.name}</h1>
       <p class="page-sub">{[day(ride.date), t('Start {time}', { time: clock(ride.startAt) }), trip?.title].filter(Boolean).join(' · ')}</p>
       {#if rideMsg}<p class="okmsg" role="status">{rideMsg}</p>{/if}
+      {#if justSaved}
+        <!-- GPX-Weg 1a: what just happened, and one next step -->
+        <section class="rv-box pad saved" aria-labelledby="saved-card-h" data-saved-card>
+          <button type="button" class="x" onclick={closeCard} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+          <p class="sk"><CircleCheck size={16} aria-hidden="true" />{t('Ride saved')}</p>
+          <h2 id="saved-card-h" class="sh">{note.first ? t('Your first ride is here.') : t('The ride is saved.')}</h2>
+          <ul class="sl">
+            <li class="ok"><Check size={16} aria-hidden="true" /><span><b>{tripOf(ride) ? tripOf(ride).title : t('In Look back')}</b> · {tripOf(ride) ? t('saved with this trip, planned vs real below.') : t('Trips › Look back shows it now.')}</span></li>
+            {#if ride.pace === false}
+              <li><Gauge size={16} aria-hidden="true" /><span><b>{t('Your pace')}</b> · {t('this ride does not count, as you chose on the right.')}</span></li>
+            {:else if ride.km < 20}
+              <li><Gauge size={16} aria-hidden="true" /><span><b>{t('Your pace')}</b> · {t('under 20 km, so it does not count. It stays saved.')}</span></li>
+            {:else if pace.mine}
+              <li class="ok"><Check size={16} aria-hidden="true" /><span><b>{t('Your pace')}</b> · {t('it counts. Every new trip now guesses with {kmh} km/h.', { kmh: num(pace.kmh) })}</span></li>
+            {:else}
+              <li class="ok"><Check size={16} aria-hidden="true" /><span><b>{t('Your pace: {n} of {min}', { n: pace.n, min: PACE_MIN })}</b> · {tn(pace.need, '{n} more ride from 20 km, then every trip guesses with your pace.', '{n} more rides from 20 km, then every trip guesses with your pace.')}</span></li>
+            {/if}
+            {#if openLearn}<li><Lightbulb size={16} aria-hidden="true" /><span><b>{tn(openLearn, '{n} learning is waiting', '{n} learnings are waiting')}</b> · {t('below. Remember or No, both are fine.')}</span></li>{/if}
+          </ul>
+          <p class="sacts">
+            {#if openLearn}<button type="button" class="btn hi" onclick={toLearnings}>{t('See learnings')}</button>{/if}
+            <a class="btn" class:hi={!openLearn} href="#/debrief/ride" onclick={closeCard}>{t('Upload next ride')}</a>
+            <a class="link" href="#/debrief/pace" onclick={closeCard}>{t('To your pace')}</a>
+          </p>
+        </section>
+      {/if}
 
       <div class="rv-lay">
         <div class="rv-col">
@@ -347,9 +459,39 @@
           <div class="drop">
             <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
             <span class="rv-m"><span class="rv-t">{t('Choose a GPX file')}</span>{#if !draft}<span class="rv-s">{t('Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" onchange={pick} disabled={busy} /></label>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" onchange={pick} disabled={busy} /></label>
           </div>
+          {#if !draft && !route && !batch && !rides.length}
+            <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
+            <ol class="rv-box pad how" aria-label={t('How it works')}>
+              <li><b>{t('Choose a file')}</b> · {t('a recorded ride from your bike computer or phone. Several at once work too.')}</li>
+              <li><b>{t('Check and save')}</b> · {t('you see km, climbing, riding time and pauses, and where it is saved.')}</li>
+              <li><b>{t('The app learns')}</b> · {t('the ride shows up in Look back, counts for your pace and suggests learnings.')}</li>
+            </ol>
+          {/if}
           {#if msg}<p class="warnmsg" role="status">{msg}</p>{/if}
+          {#if route}
+            <!-- GPX-Weg 4a: a planned route instead of a ride -->
+            <div class="rv-box pad warncard" role="status" data-route-card>
+              <p class="sk warn"><Map size={16} aria-hidden="true" />{t('Planned route, not a ride')}</p>
+              <p>{t('«{file}» has no times. It is a route you want to ride, not a ride you rode. For your pace the app needs the recording of your bike computer.', { file: route.name })}</p>
+              <p class="sacts"><button type="button" class="btn hi" onclick={useRoute}>{t('Use as route for a trip')}</button><button type="button" class="link" onclick={() => (route = null)}>{t('Choose another file')}</button></p>
+            </div>
+          {/if}
+          {#if batch}
+            <!-- GPX-Weg 1a/2a: several files: one card, what happened -->
+            <div class="rv-box pad saved" role="status" data-saved-card>
+              <p class="sk"><CircleCheck size={16} aria-hidden="true" />{tn(batch.saved.length, '{n} ride saved', '{n} rides saved')}</p>
+              <ul class="sl">
+                {#if batch.saved.length}
+                  <li class="ok"><Check size={16} aria-hidden="true" /><span><b>{t('In Look back')}</b> · {t('Trips › Look back shows them now; a ride on a trip day went to that trip.')}</span></li>
+                  <li class="ok"><Check size={16} aria-hidden="true" /><span><b>{pace.mine ? t('Your pace') : t('Your pace: {n} of {min}', { n: pace.n, min: PACE_MIN })}</b> · {pace.mine ? t('they count. Every new trip now guesses with {kmh} km/h.', { kmh: num(pace.kmh) }) : tn(pace.need, '{n} more ride from 20 km, then every trip guesses with your pace.', '{n} more rides from 20 km, then every trip guesses with your pace.')}</span></li>
+                {/if}
+                {#each batch.skipped as k, i (i)}<li><TriangleAlert size={16} aria-hidden="true" /><span><b>{k.name}</b> · {t('not saved: {why}.', { why: k.why })}</span></li>{/each}
+              </ul>
+              <p class="sacts"><a class="btn hi" href="#/debrief/pace">{t('To your pace')}</a><a class="link" href="#/debrief">{t('To Look back')}</a></p>
+            </div>
+          {/if}
         </section>
 
         {#if draft}
@@ -359,13 +501,23 @@
               {@render stats(draft)}
             </div>
             {#if dup}
-              <p class="rv-box pad dupmsg">{t('This ride is saved already.')} <a href={`#/debrief/ride/${encodeURIComponent(dup.id)}`}>{t('Open it')}</a></p>
+              <p class="rv-box pad dupmsg" role="status">{t('You uploaded «{name}» of {day} already. It counts only once.', { name: dup.name, day: day(dup.date) })} <a href={`#/debrief/ride/${encodeURIComponent(dup.id)}`}>{t('Open it')}</a></p>
             {:else}
               <div class="rv-box pad savebox">
                 <span class="rv-lbl" id="to-h">{t('Save to')}</span>
                 <Seg labelledby="to-h" value={to} {options} onchange={(v) => (picked = v)} />
                 <p class="foot">{to.startsWith('trip:') ? t('Planned vs real with this trip.') : to === 'new' ? t('A past trip of one day with this ride as its route.') : t('Saved on its own; you can attach it later.')}</p>
                 <label class="chk2"><input type="checkbox" bind:checked={usePace} /><span>{t('Counts for your pace')}<small>{t('The riding-time guess learns your speed.')}</small></span></label>
+                <!-- GPX-Weg 2a: what saving does, before the tap -->
+                <div class="what" data-what-happens>
+                  <p class="rv-lbl">{t('What happens when you save')}</p>
+                  <ul class="sl">
+                    <li><Route size={16} aria-hidden="true" /><span><b>{t('Look back')}</b> · {to.startsWith('trip:') ? t('with this trip, planned vs real.') : t('it shows up at once in Trips › Look back.')}</span></li>
+                    <li><Gauge size={16} aria-hidden="true" /><span><b>{t('Your pace')}</b> · {!usePace ? t('it does not count (switched off above).') : draft.km < 20 ? t('under 20 km, so it does not count.') : inPace(draft) ? t('it counts already.') : pace.mine ? t('your pace learns from it.') : t('ride {n} of {min}. From {min} rides every trip guesses with your pace.', { n: paceAfter, min: PACE_MIN })}</span></li>
+                    <li><Lightbulb size={16} aria-hidden="true" /><span><b>{t('Learnings')}</b> · {t('the app suggests a few. Nothing is kept without a tap.')}</span></li>
+                  </ul>
+                  <p class="foot">{t('Nothing is uploaded; everything stays on this device.')}</p>
+                </div>
                 <p class="acts2"><button type="button" class="btn hi" disabled={busy} onclick={save}>{t('Save ride')}</button><button type="button" class="link" onclick={discard}>{t('Discard')}</button></p>
               </div>
             {/if}
@@ -381,7 +533,7 @@
                 <li>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
                     <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
-                    <span class="rv-m"><span class="rv-t">{r.name}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>
+                    <span class="rv-m"><span class="rv-t">{r.name}{#if note?.ids.includes(r.id)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>
                     <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
                   </a>
                 </li>
@@ -572,6 +724,110 @@
   }
   .savebox p {
     margin: 0;
+  }
+  /* GPX-Weg: the card after saving, the route card, what saving does */
+  .saved,
+  .warncard {
+    position: relative;
+    display: grid;
+    gap: 8px;
+    margin: 14px 0;
+    border: 1px solid var(--ok);
+  }
+  .warncard {
+    border-color: var(--warn);
+  }
+  .warncard p,
+  .how li {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .sk {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ok);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .sk.warn {
+    color: var(--warn);
+  }
+  .sh {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
+    padding-right: 36px;
+  }
+  .sl {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sl li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 8px;
+    align-items: start;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .sl li :global(svg) {
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .sl li.ok :global(svg) {
+    color: var(--ok);
+  }
+  .sl b {
+    color: var(--ink);
+  }
+  .sacts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 0;
+  }
+  .sacts .btn {
+    min-height: 44px;
+  }
+  .x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .how {
+    display: grid;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding-left: 34px;
+  }
+  .what {
+    display: grid;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .rv-tag.nw {
+    margin-left: 8px;
+    vertical-align: 1px;
   }
   .dupmsg {
     margin: 12px 0 0;
