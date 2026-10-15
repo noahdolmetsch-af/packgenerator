@@ -28,9 +28,10 @@ async function freshDb(items, settings = []) {
 
 describe('the one-time update blocks2026 in updates.js', () => {
   it('runs after toolsAlways2026, only the linked templates of v0.39.0 come after it', () => {
-    // v0.66.0: «Bausteine neu» (blockSplit2026) runs last, after the linked templates.
-    expect(UPDATES.at(-3)).toBe(blocks2026);
-    expect(UPDATES.at(-2)).toBe(templatesLinked2026);
+    // v0.66.0: «Bausteine neu» (blockSplit2026) runs after the linked templates; v0.154.0: only the example
+    // parts of «Bausteine mehr» (blocksmore.js) come after it.
+    expect(UPDATES.at(-4)).toBe(blocks2026);
+    expect(UPDATES.at(-3)).toBe(templatesLinked2026);
     expect(UPDATES.indexOf(toolsAlways2026)).toBeLessThan(UPDATES.indexOf(blocks2026));
   });
 

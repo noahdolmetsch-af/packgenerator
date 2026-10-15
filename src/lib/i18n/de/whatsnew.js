@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.154.0 Bausteine mehr (neun neue Bausteine mit Beispiel-Teilen, «+N neu» mit Rückgängig, fünf Gruppen, Baden in Planen)
+  'More building blocks': 'Mehr Bausteine',
+  'Nine new building blocks for sleep, winter and bathing, each with example parts, and the page in five clear groups.': 'Neun neue Bausteine für Schlaf, Winter und Baden, jeder mit Beispiel-Teilen, und die Seite in fünf klaren Gruppen.',
+  'New blocks such as Sleep well, Two nights, Warm descent and Quick swim; each starts with example parts you can take out': 'Neue Bausteine wie Gut schlafen, Zwei Nächte, Abfahrt warm und Kurz ins Wasser; jeder startet mit Beispiel-Teilen, die du herausnehmen kannst',
+  'Existing blocks got new parts, marked «+3 new» with Undo; Cold comes in stages, each its own suggestion': 'Bestehende Bausteine haben neue Teile, markiert mit «+3 neu» und Rückgängig; Kälte kommt in Stufen, jede ein eigener Vorschlag',
+  'Plan: tap «Bathing» (lake or river, sauna or bath, cold water); Pack suggests what fits': 'Planen: tippe «Baden» an (See oder Fluss, Sauna oder Bad, Wasser kalt); Packen schlägt vor, was passt',
+  'Building blocks in five groups: Overnight, On every ride, Depending on the situation, Bathing, To add': 'Bausteine in fünf Gruppen: Übernachtung, Auf jeder Fahrt, Je nach Lage, Baden, Zum Dazunehmen',
+  'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.': 'Öffne Material › Bausteine: fünf Gruppen; «Je nach Lage» und «Baden» sind offen.',
+  'Open «Overnight»: Hotel/hut shows «+3 new» with its new parts; tap Undo, then the Undo below brings them back.': 'Öffne «Übernachtung»: Hotel/Hütte zeigt «+3 neu» mit den neuen Teilen; tippe Rückgängig, dann holt das Rückgängig unten sie zurück.',
+  'Plan a trip Fr–Su with two hotel nights and a pass: in Pack «Two nights» and «Warm descent» are dashed suggestions.': 'Plane eine Tour Fr.–So. mit zwei Hotelnächten und einem Pass: In Packen sind «Zwei Nächte» und «Abfahrt warm» gestrichelte Vorschläge.',
+  'In Plan tap «Lake or river» on a warm trip: Pack suggests «Quick swim» and «Keep wet things dry».': 'Tippe in Planen bei einer warmen Tour «See oder Fluss» an: Packen schlägt «Kurz ins Wasser» und «Nasses trocken halten» vor.',
+
   // 0.144.0 Regeln einheitlich (eine Regen-Grenze, nie gebraucht ab 3, Rückblick ohne Häkchen, eine Tagesuhr, Pflege pro Velo)
   'One set of rules for all': 'Überall die gleichen Regeln',
   'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.': 'Regen, «nie gebraucht» und die Tageszeit heissen jetzt auf jeder Seite dasselbe, und die Velopflege stellst du selbst ein.',

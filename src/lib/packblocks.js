@@ -15,11 +15,16 @@ import { NIGHT_SETS } from './trips.js';
 import { activeBlocks, OFFER_ONLY } from './context.js';
 import { tempKits, rainChance } from './wardrobe.js';
 import { needsSlim, repairItems, REPAIR } from './repairslim.js';
-import { SITUATION_BLOCKS, situationHits } from './situation.js';
+import { SITUATION_BLOCKS, MORE_BLOCKS, STAGE_BLOCKS, situationHits } from './situation.js';
 import { RAIN_LIMIT, rainLimit } from './rainlimit.svelte.js';
 
 /** The built-in blocks shown in Packen, in this order: the ride's (first aid, light, repair, charging, race, cook), food, hygiene. */
 export const PACK_BLOCKS = [...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene', ...SITUATION_BLOCKS];
+/**
+ * v0.154.0 «Bausteine mehr» (mockup SN3j): the nine new blocks and the stages (4b: one suggestion per stage)
+ * show in Packen only when they fit the trip (dashed) or are on it; the others stay in «Material dazunehmen».
+ */
+export const FIT_ONLY = [...MORE_BLOCKS, ...STAGE_BLOCKS];
 /** An own block for rain, by its name. */
 export const RAIN_WORDS = /rain|regen|nass|wet/i;
 /** From this rain chance (%) an own rain block is suggested (SN3+: the standard of the rule Regen; v0.144.0 RE: the one rain limit). */
@@ -42,7 +47,7 @@ export function blockRows(trip, items, setsValue) {
   const active = new Set(activeBlocks(trip));
   const sets = allSets(setsValue);
   const kits = new Set(tempKits(setsValue).map((k) => k.key));
-  const builtIn = PACK_BLOCKS.map((k) => sets.find((s) => s.key === k)).filter(Boolean);
+  const builtIn = [...PACK_BLOCKS, ...FIT_ONLY].map((k) => sets.find((s) => s.key === k)).filter(Boolean);
   const own = sets.filter((s) => !s.builtIn && !kits.has(s.key) && !OFFER_ONLY.includes(s.key));
   // SN3+: the blocks «je nach Lage» that fit this trip ({ cold: { kind, c }, rain: { kind, pct }, … })
   const hits = situationHits(trip, setsValue);
@@ -57,7 +62,7 @@ export function blockRows(trip, items, setsValue) {
       else if (!on && !s.builtIn && hits.rain && RAIN_WORDS.test(s.name)) suggest = { kind: 'rain', pct: hits.rain.pct };
       return { key: s.key, name: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, builtIn: s.builtIn, n: v.inventory.length, g: v.g, missing: v.missing, ids: v.inventory.map((i) => i.id), on, suggest };
     })
-    .filter((r) => r.n > 0);
+    .filter((r) => r.n > 0 && (!FIT_ONLY.includes(r.key) || r.on || r.suggest));
   const add = rows.filter((r) => !r.on);
   return { on: rows.filter((r) => r.on), add: [...add.filter((r) => r.suggest), ...add.filter((r) => !r.suggest)] };
 }
