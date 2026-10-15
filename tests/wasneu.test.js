@@ -44,6 +44,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.bills']).toBe('0.135.0');
     expect(SINCE['f.analyses']).toBe(WHATS_NEW[0].version); // «Leistung und Analysen» TR5–TR7
     expect(SINCE['f.weight']).toBe(WHATS_NEW[0].version); // TR6 «Gewicht»
+    expect(SINCE['f.weekreview']).toBe(WHATS_NEW[0].version); // «Wochenrückblick» W1–W6, rides with «Mehr Inhalt» on 0.148.0
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -121,7 +122,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 18))).toEqual(['f.analyses', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks']);
+    expect(ids(newest.slice(0, 19))).toEqual(['f.analyses', 'f.weekreview', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -148,11 +149,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.analyses', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.analyses', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.analyses', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.analyses', 'f.weekreview', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.analyses', 'f.weekreview', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.analyses', 'f.weekreview', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.analyses', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.analyses', 'f.weekreview', 'f.weight', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();
