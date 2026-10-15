@@ -533,6 +533,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 14.10.2026 (v0.144.0 «Regeln einheitlich», RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC):** eine Regen-Grenze für die ganze App (Baustein Regen, 30 %), «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo («Pflege für …»); Fix Kopie der letzten Tour.
 **Nachtrag 13.10.2026 (v0.138.0):** «Training» TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen mit Ziel und Rückblick. Feste Termine aus AK1 Woche kommen mit «Aktiv ausweiten». Ziel «Eine App, die mich im Alltag unterstützt».
 
 **Nachtrag 14.10.2026 (v0.135.0 «Meditation und Timer») (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC):** Meditation als eigener Reiter in Aktiv, zweiter nach Heute (ME2, Noah 15.10.2026 «1a»), Rückblick nach Woche/Monat/Jahr (ME3); Timer mit Seite, Ziffernblättern, schwebendem Timer und Log (Z2–Z5). Als Nächstes: ME4 Yoga (freigegeben 14.10.2026 «ME4 freigabe»); ME1/Z1 auf Heute nach Noahs Prüfung gegen HN0.

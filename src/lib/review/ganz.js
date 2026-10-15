@@ -16,7 +16,7 @@
 import { hasBike, domainOf, BIKEPACKING } from '../domains.js';
 import { ZONE } from '../trips.js';
 import { stagePlan } from '../stages.js';
-import { kmSince, lastReplace, PART } from '../care.js';
+import { kmSince, lastReplace, partInfo } from '../care.js';
 import { situationHits, SITUATION_BLOCKS } from '../situation.js';
 import { ridesIntoDark } from '../blockplan.js';
 import { heartOf } from '../kmbook.js';
@@ -268,7 +268,9 @@ export function chainLeft(bike) {
   const c = part(bike, 'chain');
   if (!c) return null;
   const since = kmSince(bike, [...(c.history ?? [])].reverse().find(isWork));
-  return since == null ? null : Math.round(PART.chain.everyKm - since);
+  // v0.144.0 RE: the bike's own interval (Pflege für …); switched off: nothing to count down.
+  const every = partInfo(c).everyKm;
+  return since == null || !every ? null : Math.round(every - since);
 }
 
 /**

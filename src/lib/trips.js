@@ -59,9 +59,24 @@ export function standardEntries(items, setup, { overnight = true } = {}) {
     .map((i) => ({ itemId: i.id, slot: isWorn(i) ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
-/** Last trip on this bike (by start date), or null. */
-export function lastTripOn(bikeId, trips) {
-  return [...trips].filter((t) => t.bikeId === bikeId).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0] ?? null;
+/**
+ * When a trip was last used: the later of when it was made and the end of its start day once that day
+ * has come. A trip planned for later counts from when it was made, not from its start date.
+ * (v0.30.1 Noah E5, the bike preselection; v0.144.0 RE: shared with the copy of the last trip.)
+ */
+export const tripUsedAt = (trip, today = localDay()) => {
+  const made = trip.createdAt ?? '';
+  const ridden = trip.startDate && trip.startDate <= today ? `${trip.startDate}T23:59:59` : '';
+  return made > ridden ? made : ridden;
+};
+
+/**
+ * Last trip on this bike, or null. v0.144.0 RE (bug found in the rule inventory, R20/R22): «last» is the
+ * trip used last (tripUsedAt), as for the bike that is preselected; it was the latest start date, so a
+ * trip planned weeks ahead gave its list to the copy.
+ */
+export function lastTripOn(bikeId, trips, today = localDay()) {
+  return [...trips].filter((t) => t.bikeId === bikeId).sort((a, b) => tripUsedAt(b, today).localeCompare(tripUsedAt(a, today)) || (b.createdAt ?? '').localeCompare(a.createdAt ?? '') || (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0] ?? null;
 }
 
 /**

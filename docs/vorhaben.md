@@ -38,10 +38,11 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (15.10.2026, 0.136.0)
+## Stand heute (15.10.2026, 0.144.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.144.0 | **Regeln einheitlich** (RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC): eine Regen-Grenze für die ganze App, «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo «Pflege für …»; Ziel 1, 2 und 4 | lokal gebaut, PR folgt |
 | 0.136.0 | **Paket 2b – Sortieren, wie du willst**: Pfeile + Ziehen in allen sortierbaren Listen, Kategorie «Gilt für» (LI3), Inspiration-Korrekturen, eine Kachelreihe auf Aktiv › Heute, neun Anzeigefehler; Ziele 1 (schneller packen) und 4 (Aktivitätsmosaik) | PR offen, Noah merged |
 | 0.135.0 | **Paket 2 – Ruhe, Training und Rechnungen**, ein Release aus fünf Teilen: (1) Meditation und Timer, (2) Inhalte Flow + Wusstest du (#173), (3) Eine Zahl pro Sache mit Heute H1/H2 (#170), (4) Training (#167), (5) Rechnungen ohne Gebühren (#169); Ziele 1 (Alltag) und 4 (aus jeder Tour lernen) | live (#179) |
 | 0.135.0 (Teil) | **Meditation und Timer** (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC): Meditation erster Reiter in Aktiv, Rückblick; Timer mit Seite, Ziffernblättern, Log; ME1/Z1 auf Heute warten auf die Prüfung gegen HN0; Ziel 1 (Alltag) | Teil von 0.135.0 |
@@ -54,7 +55,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.133.3 | **Inspiration sammeln** (UC2-1, UC2-2, UC2-4; Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a): eigene Links mit Art aus der Adresse, aus der Notiz wird eine Packregel (Hinweis beim Packen), Wunschliste oder Notiz; Rennen → .ics, Route → Tourentwurf; Ziel 4 «Aus jeder Tour lernen» | Teil von 0.134.0 |
 | 0.133.1 | Handbuch und Kleine Apps unter Ich › Die App: jede Funktion mit Aufschalten und Beispiel, kleine Apps öffnen; Ziel 1 | Teil von 0.134.0 (#166) |
 | 0.132.2 | Velo draussen ohne falschen Haken (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab, Antippen wirkt wieder; Touren ohne Velo (Wandern, Skitour, Reisen) zählen nicht als Velotour; Ziel 1 | live (#171) |
-| 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | live (#172) |
+| 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |
 | 0.131.3 | Kamera-Knopf: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt | live (#164) |
 | 0.131.2 | Velo-Reihenfolge: Velo-Reiter in Noahs Reihenfolge, Korrektur nach 0.131.0 | live (#162) |
 | 0.131.1 | Abhaken wieder abwählbar (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC): Doppeltipp hakt nur einmal ab, Abwählen und «Rückgängig» wirken, Pendeln zurücknehmbar; Ziel 1 | live (#163) |

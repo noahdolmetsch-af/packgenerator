@@ -24,6 +24,7 @@ import { isInventory, itemWeight, nextId, CLOTHING_CATEGORIES } from './gear.js'
 import { addSet } from './sets.js';
 import { itemDomains, inDomain, BIKEPACKING } from './domains.js';
 import { rainOf } from './layers.js';
+import { RAIN_LIMIT, wetPct } from './rainlimit.svelte.js';
 import { fold } from './gearimport.js';
 
 /** The layers, inside out. name / sub: English keys for t(). */
@@ -275,9 +276,9 @@ export function pctOf(trip) {
   const pct = rainChance({ ...trip, wx: null });
   return pct == null ? {} : { rainPct: pct };
 }
-/** From this rain chance on, rain protection belongs in the onion (answer 12). */
-export const RAIN_PCT = 30;
-export const isWet = (trip) => trip?.wx?.rain === 'rain' || trip?.wx?.rain === 'showers' || (rainChance(trip) ?? 0) >= RAIN_PCT;
+/** From this rain chance on, rain protection belongs in the onion (answer 12; v0.144.0 RE: the one rain limit, standard 30 %). */
+export const RAIN_PCT = RAIN_LIMIT;
+export const isWet = (trip, limit) => trip?.wx?.rain === 'rain' || trip?.wx?.rain === 'showers' || wetPct(rainChance(trip), limit);
 
 /* ---------- the border offset (debrief clothing row) ---------- */
 

@@ -12,7 +12,8 @@
    * reason («Vorschlag: tiefste 3 °C»); the bubble names its rule. rules: situation.js rulesOf(). A line
    * under the buttons names what fits, with «Regeln ändern» to Bausteine.
    */
-  import { Wrench, Info } from '@lucide/svelte';
+  import { Wrench, Info, CloudRain } from '@lucide/svelte';
+  import { rainLimit } from '../rainlimit.svelte.js';
   import OptionButton from '../ui/OptionButton.svelte';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { knownWeight } from '../gear.js';
@@ -38,6 +39,9 @@
   const ruleOfRow = (r) => (isSituation(r.key) && rules[r.key] ? ruleLine(r.key, rules[r.key]) : r.suggest?.kind === 'rain' && rules.rain ? ruleLine('rain', rules.rain) : '');
   const explainOf = (r) => (r.suggest?.kind === 'slim' ? t('Choose at most {n} parts for the ride', { n: SLIM_MAX }) : r.suggest ? t('{block} · comes along {rule}', { block: r.name, rule: ruleOfRow(r) }) : r.on ? t('Takes {block} off this trip', { block: r.name }) : t('Adds {block} to this trip', { block: r.name }));
   const tap = (r) => (r.suggest?.kind === 'slim' ? onslim() : ontoggle(r));
+  // v0.144.0 RE «Regen überall gleich» (mockup RE1-packen): the one rain limit says why rain is suggested
+  // and that the rain gear comes along by itself (removable on the list).
+  const rainHit = $derived(rows.add.find((r) => r.suggest?.kind === 'rain' && r.suggest.pct != null) ?? null);
 </script>
 
 <section class="card pblocks" aria-labelledby="pbl-h">
@@ -59,6 +63,7 @@
     </div>
   {/if}
   {#if fits.length}<p class="fits"><Info size={16} aria-hidden="true" /><span>{t('Fits this trip: {names}. Never a must: without a tap they stay out.', { names: fits.map((r) => r.name).join(', ') })} <a class="tp-link" href="#/blocks">{t('Change rules')}</a></span></p>{/if}
+  {#if rainHit}<p class="fits rainl" data-rain-limit><CloudRain size={16} aria-hidden="true" /><span>{t('{pct} % rain: {block} is suggested, your rain gear comes onto the list by itself.', { pct: rainHit.suggest.pct, block: rainHit.name })}<small>{t('Rain from {limit} %', { limit: rainLimit() })} · <a class="tp-link" href="#/blocks">{t('Change rule')}</a></small></span></p>{/if}
   {#if slimN}<p class="slim"><button type="button" class="tp-link" onclick={onslim}><Wrench size={16} aria-hidden="true" />{t('Repair has {n} parts: choose {max} for the ride', { n: slimN, max: SLIM_MAX })}</button></p>{/if}
   {#if note}<p class="pnote" role="status"><span>{note}</span>{#if onundo}<button type="button" class="tp-link" onclick={onundo}>{t('Undo')}</button>{/if}</p>{/if}
   <p class="foot">{t('Long press or hover shows what is in a block. Own blocks: Gear › Building blocks.')}</p>
@@ -78,6 +83,8 @@
   .fits :global(svg) { flex: none; }
   .fits > span { flex: 1 1 auto; min-width: 0; }
   .fits .tp-link { font-size: var(--fs-small); }
+  .rainl { align-items: flex-start; margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); }
+  .rainl small { display: block; margin-top: 2px; font-size: var(--fs-small); }
   .slim .tp-link { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-small); text-align: left; }
   .pnote { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: var(--ink-2); }
   .pnote .tp-link { font-size: var(--fs-small); }

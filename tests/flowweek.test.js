@@ -90,7 +90,8 @@ describe('the week (AK1)', () => {
     ]);
     expect(wxOf(f, TODAY)).toMatchObject({ dry: true, wet: false });
     expect(wxOf(f, '2026-10-14')).toMatchObject({ dry: false, wet: true });
-    expect(wxOf(f, '2026-10-15')).toMatchObject({ dry: false, wet: false });
+    // v0.144.0 RE: 40 % is over the one rain limit (30 %), so the showers day counts as wet now
+    expect(wxOf(f, '2026-10-15')).toMatchObject({ dry: false, wet: true });
     expect(wxOf(null, TODAY)).toBeNull();
   });
 
