@@ -48,7 +48,9 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
     const panel = page.getByRole('complementary', { name: 'Bike computer' });
     await expect(panel.getByRole('button', { name: 'Öffnen' })).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Zuordnen …' })).toBeVisible();
-    // a row of the list opens the item as before and becomes the chosen one
+    // a row of the list opens the item as before and becomes the chosen one (SL2, changed on purpose: the
+    // categories start closed on a computer too, «Expand all» opens them)
+    await page.getByRole('button', { name: 'Alle aufklappen' }).click();
     await page.locator('li.gr[data-item="RA01"] button.main').click();
     await expect(page.locator('dialog[open]').getByRole('heading', { name: 'Rain jacket' })).toBeVisible();
     await page.keyboard.press('Escape');

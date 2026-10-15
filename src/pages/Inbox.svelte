@@ -14,6 +14,8 @@
    * and «Filed» as two chips, «+ Quick note» right. Left the open notes (by day, the suggestion in the
    * line, «File» in the row); right «Recently filed» (the ones filed today, with the chip where they
    * went and «Undo» until midnight) and the tip about «+». The same functions as before.
+   * SL «Scrollen und Listen» (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): «Filed» by month, the
+   * newest open, five rows and «Show n more»; the search and the chips stay on top; «Back to top».
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -31,6 +33,10 @@
   import { flip } from '../lib/ui/flip.js';
   import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import ListBar from '../lib/list/ListBar.svelte';
+  import ListGroup from '../lib/list/ListGroup.svelte';
+  import TopButton from '../lib/list/TopButton.svelte';
+  import { byMonthOf } from '../lib/list/listen.js';
   import Btn from '../lib/ui/Btn.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import { explain } from '../lib/ui/explain.js';
@@ -60,6 +66,13 @@
   let filter = $state('all');
   const filed = $derived(filedRows(notes, { query, filter, names }));
   const filedAll = $derived(filedRows(notes).length);
+  // SL: the filed ones by month (the day they came in); a search or a chip opens every month it found
+  const filedMonths = $derived(byMonthOf(filed, (n) => String(n.at ?? '').slice(0, 10)));
+  let activeMonth = $state(null);
+  let openMonths = $state({});
+  const monthOpen = (m, i) => openMonths[m.key] ?? (!!query.trim() || filter !== 'all' || i === 0);
+  const monthName = (key) => (key ? new Date(`${key}-15T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : t('Without a date'));
+  const curMonth = $derived(filedMonths.find((m) => m.key === activeMonth));
 
   let filing = $state(null); // the entry whose «Ablegen als …» sheet is open
   let shown = $state(null); // photo src
@@ -187,33 +200,40 @@
       </div>
     </div>
   {:else}
-    <label class="search">
-      <Search size={18} aria-hidden="true" />
-      <span class="sr">{t('Search the filed entries')}</span>
-      <input class="inp" type="search" bind:value={query} placeholder={t('Search: text, shop, bike, amount')} />
-    </label>
-    <div class="fchips" role="group" aria-label={t('Filter')}>
-      {#each FILED_FILTERS as f (f.key)}<button type="button" class="vchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)}</button>{/each}
-    </div>
+    <div class="filedwrap">
+    <ListBar bind:active={activeMonth} current={curMonth ? monthName(curMonth.key) : ''} count={curMonth ? tn(curMonth.entries.length, '{n} entry', '{n} entries') : ''}>
+      <label class="search">
+        <Search size={18} aria-hidden="true" />
+        <span class="sr">{t('Search the filed entries')}</span>
+        <input class="inp" type="search" bind:value={query} placeholder={t('Search: text, shop, bike, amount')} />
+      </label>
+      <div class="fchips" role="group" aria-label={t('Filter')}>
+        {#each FILED_FILTERS as f (f.key)}<button type="button" class="vchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)}</button>{/each}
+      </div>
+    </ListBar>
     {#if !filed.length}
       <Empty text={query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet.')} />
     {:else}
-      <ul class="card ich-list" aria-label={t('Filed')}>
-        {#each filed as n (n.id)}
-          {@const Icon = ICONS[n.to.kind] ?? ICONS.keep}
-          {@const href = targetHref(n.to, ctx)}
-          <li>
-            <svelte:element this={href ? 'a' : 'div'} class="ich-row frow" {href}>
-              <span class="d num">{dayShort(n.at)}</span>
-              <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{n.text}</b><small>{chipText(n)}</small></span>
-              {#if n.to.chf != null}<span class="v num">{chf(n.to.chf)}</span>{/if}
-              {#if href}<ChevronRight class="ich-chev" size={18} aria-hidden="true" />{/if}
-            </svelte:element>
-          </li>
+      <div class="months" aria-label={t('Filed')}>
+        {#each filedMonths as m, i (m.key)}
+          <ListGroup id={m.key || 'none'} title={monthName(m.key)} count={tn(m.entries.length, '{n} entry', '{n} entries')} bind:open={() => monthOpen(m, i), (v) => (openMonths = { ...openMonths, [m.key]: v })} rows={m.entries} more={(k) => t('Show {n} more|list', { n: k })}>
+            {#snippet row(n)}
+              {@const Icon = ICONS[n.to.kind] ?? ICONS.keep}
+              {@const href = targetHref(n.to, ctx)}
+              <svelte:element this={href ? 'a' : 'div'} class="ich-row frow" {href}>
+                <span class="d num">{dayShort(n.at)}</span>
+                <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
+                <span class="ich-m"><b>{n.text}</b><small>{chipText(n)}</small></span>
+                {#if n.to.chf != null}<span class="v num">{chf(n.to.chf)}</span>{/if}
+                {#if href}<ChevronRight class="ich-chev" size={18} aria-hidden="true" />{/if}
+              </svelte:element>
+            {/snippet}
+          </ListGroup>
         {/each}
-      </ul>
+      </div>
+      <TopButton />
     {/if}
+    </div>
   {/if}
 </div>
 
@@ -233,6 +253,19 @@
 {/if}
 
 <style>
+  /* SL: the filed ones by month */
+  .months {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .filedwrap .search,
+  .filedwrap .fchips {
+    margin: 0;
+  }
+  .months :global(.ls-r .frow) {
+    padding-inline: 0;
+  }
   .inbox {
     max-width: 1100px;
   }

@@ -117,15 +117,16 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await page.goBack();
   await expect(page).toHaveURL(/#\/me\/news$/);
 
-  // all versions open, grouped by month (v0.118.0 W2, answer 4a): every version after the newest as a card
+  // SL1 (changed on purpose, Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): the versions by day,
+  // only the newest day open with its rows, a row opens to its points
   const vers = page.locator('.wn-vers');
   await expect(vers.getByRole('heading', { name: T('All versions') })).toBeVisible();
-  await expect(vers.locator('article[data-version]')).toHaveCount(WHATS_NEW.length - 1);
-  await expect(vers.locator(`[data-version="${NEWEST.version}"]`)).toHaveCount(0);
-  const first = vers.locator(`article[data-version="${WHATS_NEW[1].version}"]`);
-  await expect(first.getByRole('heading', { name: T(WHATS_NEW[1].title) })).toBeVisible();
-  await expect(first.locator('.vn-pts li')).toHaveCount(WHATS_NEW[1].points.length);
-  await expect(vers.locator('article[data-version="0.1.0"]')).toBeAttached();
+  await expect(vers.locator('[data-group]').first()).toHaveClass(/open/);
+  await expect(vers.locator(`[data-row="${NEWEST.version}"]`)).toHaveCount(0);
+  const first = vers.locator(`[data-row="${WHATS_NEW[1].version}"]`);
+  await expect(first).toContainText(T(WHATS_NEW[1].title));
+  await first.click();
+  await expect(vers.locator(`article[data-version="${WHATS_NEW[1].version}"] .vn-pts li`)).toHaveCount(WHATS_NEW[1].points.length);
 
   // the side column: the message switch, since your last visit, how to test, planned next
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
