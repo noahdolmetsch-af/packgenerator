@@ -57,6 +57,9 @@
   import Invoices from './pages/Invoices.svelte';
   import Bills from './pages/Bills.svelte';
   import PayLink from './pages/PayLink.svelte';
+  import Shop from './pages/Shop.svelte';
+  import ShopOrders from './pages/ShopOrders.svelte';
+  import ShopBuy from './pages/ShopBuy.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -422,6 +425,15 @@
   {:else if page === 'paylink'}
     <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
     <PayLink part={param} />
+  {:else if page === 'shop'}
+    <!-- Ich › Bezahlen › Shop (mockup SHOP1, Noah 14.10.2026 04:00 «a») -->
+    <Shop />
+  {:else if page === 'shoporders'}
+    <!-- Ich › Bezahlen › Shop › Bestellungen (mockup SHOP3a) -->
+    <ShopOrders />
+  {:else if page === 'shopbuy'}
+    <!-- the shop link: buy without app or account (mockups SHOP2a + SHOP2b) -->
+    {#key param}<ShopBuy part={param} />{/key}
   {:else if page === 'bills'}
     <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
     <Bills />
