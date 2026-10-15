@@ -879,6 +879,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
 - **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
+## 14.10.2026: 0.132.2 «Velo draussen ohne falschen Haken»
+
+- (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup)
+- **Ursache:** «Velo draussen» zählt auch «Velotour» (`counts: ['trip']`); `tripDays` nahm jeden Tour-Tag bis und mit heute, auch von nur geplanten Touren. Der Tour-Tag liess sich nicht antippen (ein Tipp setzt oder nimmt nur das eigene Häkchen), darum blieb der Haken stehen.
+- **Selbst entschieden:** Der heutige Tour-Tag zählt erst, wenn die Tour beendet ist (`finished`, `status: 'done'` oder aus einer Fahrt); vergangene Tage zählen wie bisher. Touren ohne Velo zählen nicht als Velotour: Wandern, Skitour, Wochenende und Reisen tragen ihre Rucksäcke als `packs` an der Tour, Velotouren (Bikepacking, Tagestour) nie, ihre Taschen hängen am Velo, wie im Editor «Velotour» heisst.
+
 ## 14.10.2026: 0.132.1 «Langer Name passt»
 
 - Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup
