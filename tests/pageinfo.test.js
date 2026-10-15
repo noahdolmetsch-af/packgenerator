@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown } from '../src/lib/pageinfo.js';
+import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -100,5 +100,23 @@ describe('«Wusstest du» WD1–WD3', () => {
     });
     expect(farOf(50000, 0).earth).toMatchObject({ x: 1.2, next: 2, left: 30150 });
     expect(farOf(null, null)).toEqual({ earth: null, everest: null });
+  });
+});
+
+describe('links at a tip (5a)', () => {
+  const tip = (id) => Object.values(PAGES).flatMap((p) => p.tips).find((x) => x.id === id);
+  it('a tip with a link opens a free site; the address follows the language', () => {
+    expect(tipLink(tip('today-heat'), 'de')).toEqual({ href: 'https://www.meteoschweiz.admin.ch/', domain: 'meteoschweiz.admin.ch' });
+    expect(tipLink(tip('today-heat'), 'en').domain).toBe('meteoswiss.admin.ch');
+    expect(tipLink(tip('know-baspo')).domain).toBe('hepa.ch');
+  });
+  it('no link for a tip without one, an own tip or an unsafe address', () => {
+    expect(tipLink(tip('aktiv-rolling'))).toBeNull();
+    expect(tipLink({ own: true, link: 'meteo' })).toBeNull();
+    expect(tipLink({ link: 'javascript:alert(1)' })).toBeNull();
+    expect(tipLink({ link: 'http://example.org' })).toBeNull();
+  });
+  it('every built-in link is https', () => {
+    for (const p of Object.values(PAGES)) for (const x of p.tips) if (x.link) expect(tipLink(x)?.href, x.id).toMatch(/^https:\/\//);
   });
 });

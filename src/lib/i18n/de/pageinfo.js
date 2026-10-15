@@ -55,6 +55,7 @@ export default {
   'Only useful tips': 'Nur nützliche Tipps',
   'Also knowledge and fun': 'Auch Wissen und Witziges',
   'Good to know|tag': 'Gut zu wissen',
+  'More at {site}': 'Mehr auf {site}',
   'Did you know|tag': 'Wusstest du',
   'Fits today|tag': 'Passt zu heute',
   '{n} % around the Earth': '{n} % um die Erde',
