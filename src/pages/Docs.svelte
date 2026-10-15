@@ -242,7 +242,7 @@
     <div class="ich-cols">
       <div class="ich-main">
         {#if docs.loaded && !docs.list.length}
-          <Empty icon={FileText} title={t('No documents yet')} text={t('Add your passport, insurance or emergency sheet as a PDF or a photo. The app reminds you before it expires and puts «ID and cash with you?» in your packing list.')} action={{ label: t('Add PDF'), onclick: () => fileEl?.click() }} />
+          <Empty icon={FileText} title={t('No documents yet')} text={t('Add your passport, insurance or emergency sheet as a PDF or a photo. The app reminds you before it expires and puts «ID and cash with you?» in your packing list.')} /><!-- one main button on the page: «Add PDF» below -->
         {:else}
           {#each groups as g (g.key)}
             <section class="ich-sec" aria-labelledby={`g-${g.key}`}>
