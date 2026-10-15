@@ -55,8 +55,9 @@
       <button type="button" class="pp" onclick={togglePause} aria-label={tm.pausedAt ? t('Continue') : t('Pause')}>{#if tm.pausedAt}<Play size={18} aria-hidden="true" />{:else}<Pause size={18} aria-hidden="true" />{/if}</button>
     {/if}
   </div>
-{:else if launcher && !ui.timerOpen}
-  <button type="button" class="fmini launch" class:lift={!!ui.toast} onclick={() => openTimer()}><Timer size={18} aria-hidden="true" />{t('Stopwatch')}</button>
+{:else if launcher && !ui.timerOpen && !ui.toast}
+  <!-- 0.136.0: while a message shows (e.g. «Fertig · 1 Min gespeichert») the button steps aside, so it never covers it -->
+  <button type="button" class="fmini launch" onclick={() => openTimer()}><Timer size={18} aria-hidden="true" />{t('Stopwatch')}</button>
 {/if}
 
 {#if ui.toast}

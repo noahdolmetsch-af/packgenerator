@@ -38,6 +38,15 @@ export const CATEGORY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 /** The categories to choose from: not hidden, plus the one an item already has. */
 export const choosable = (current = null) => CATEGORIES.filter((c) => !c.hidden || c.key === current);
 /** Puts the person's categories in place (lists.js). */
+/**
+ * LI3 «Gilt für» (Noah «2b» 15.10.2026): does a category apply to a trip area? A category without
+ * chosen areas applies everywhere, and so does an unknown one.
+ */
+export const catApplies = (key, domain) => {
+  const areas = CATEGORY[key]?.areas;
+  return !domain || !areas?.length || areas.includes(domain);
+};
+
 export function setCategories(list) {
   CATEGORIES.splice(0, CATEGORIES.length, ...list);
   for (const k of Object.keys(CATEGORY)) delete CATEGORY[k];

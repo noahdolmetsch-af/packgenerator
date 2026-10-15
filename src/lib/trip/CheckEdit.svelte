@@ -17,6 +17,7 @@
   import { backClose } from '../ui/backclose.js';
   import Seg from '../ui/Seg.svelte';
   import { t } from '../i18n.svelte.js';
+  import SortArrows from '../ui/SortArrows.svelte';
   import { X, Plus, GripVertical, Undo2 } from '@lucide/svelte';
   import './trip.css';
 
@@ -119,6 +120,7 @@
         {@const hint = trip ? checkHint(r, kind, { trip, charged }) : ''}
         <li data-row={r.id} class:drag={dragId === r.id}>
           <button type="button" class="grip" aria-label={t('Move {name}: arrow keys up and down', { name: t(r.label) })} onpointerdown={(e) => down(e, r.id)} onkeydown={(e) => key(e, n)}><GripVertical size={16} aria-hidden="true" /></button>
+          <SortArrows name={t(r.label)} i={n} n={draft.length} onstep={(dir) => (draft = moveCheck(plain(), n, n + dir))} />
           <span class="ib" aria-hidden="true"><I size={18} /></span>
           <span class="tx"><span class="nm">{t(r.label)}</span>{#if hint}<small>{hint}</small>{/if}</span>
           <button type="button" class="xb" aria-label={t('Remove {name} from this list', { name: t(r.label) })} onclick={() => remove(r.id)}><X size={16} aria-hidden="true" /></button>

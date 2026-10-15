@@ -6,7 +6,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash, placesOf, isWornBag, formatVolume, containerWeight } from '../lib/bikes.js';
   import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
-  import { CATEGORIES, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
+  import { CATEGORIES, catApplies, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
   import { weighQueue } from '../lib/weigh.js';
   import { tripStats, packSteps, togglePacked, packAll, tickReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched, isDayTrip } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
@@ -391,7 +391,8 @@
     const asBag = bagItemIds(bags); // bags go on the bike (Bags for this trip), not into a bag
     const fixed = new Set(bike?.fixtures ?? []); // always mounted, part of the bike
     // v0.21.0: the items of the trip's area; a search finds every item you own.
-    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && (inDomain(i, domain) || q.trim()) && matches(i, { q }));
+    // LI3 «Gilt für»: a category set to other areas stays out too (a search still finds its items).
+    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && ((inDomain(i, domain) && catApplies(i.category, domain)) || q.trim()) && matches(i, { q }));
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
     const rank = (i) => (isWorn(i) || inStandard(i) ? 0 : blockKeys(i).length ? 1 : leaveHome(i) ? 2 : 3);
     return list.sort((a, b) => rank(a) - rank(b) || Number(!!b.favorite) - Number(!!a.favorite) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
@@ -1012,9 +1013,9 @@
     </NotPacked>{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
-        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
+        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip}{' · '}{t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
         {#if water}<p>{t('Water')}: {num(water)} L</p>{/if}
-        {#if bikeTrip && split}<p>{t('Front / rear')}: {split.estimate ? '~' : ''}{split.front} / {split.rear} % {#if split.estimate}· {t('estimate, {n} not weighed', { n: axle.missing })}{/if}{#if split.rear > rearLimit} · {split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}{/if}</p>{/if}
+        {#if bikeTrip && split}<p>{t('Front / rear')}: {split.estimate ? '~' : ''}{split.front} / {split.rear} % {#if split.estimate}· {t('estimate, {n} not weighed', { n: axle.missing })}{/if}{#if split.rear > rearLimit}{' · '}{split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}{/if}</p>{/if}
         {#if toWeigh}<button class="text-button" onclick={() => weighing = true}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
       </div>
     {/snippet}

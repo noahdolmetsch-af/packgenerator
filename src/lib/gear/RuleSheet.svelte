@@ -89,7 +89,7 @@
     <div class="head">
       <div>
         <h2 id="rs-h">{block.name}</h2>
-        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length} · {knownWeight(block.g, block.missing)}{/if}</p>
+        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
       </div>
       <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -118,7 +118,7 @@
           <label class="rrow alt"><span>{t('or the highest point from')}</span><span class="lim"><input class="inp num" type="text" inputmode="numeric" aria-label={t('Highest point from')} bind:value={alt} oninput={() => (error = '')} /><span class="unit">{t('m above sea level')}</span></span></label>
         {/if}
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric} · {t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'} · {t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
       {#if error}<p class="err" role="alert">{error}</p>{/if}
     </fieldset>
 

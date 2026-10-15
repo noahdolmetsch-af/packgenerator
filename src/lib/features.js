@@ -139,7 +139,7 @@ const OWN = [
   // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
   { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   // v0.136.0 «Inhalte Flow» IF1–IF3 + «Wusstest du» WD1–WD3
-  { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day, what the app can do on the page, tiles to the next places and your own links; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
+  { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day and what the app can do on the page; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
   // «Training» TR2 (Noah 13.10.2026 «1-5a»): every Strava activity with its heart rate zones
   { id: 'f.training', group: 'active', title: 'Training with heart rate zones', text: 'Every activity from Strava with the minutes in each zone; plan the week and look back.', href: '#/flow/training', words: 'training puls pulszonen zonen strava aktivität lauf wandern herzfrequenz' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },

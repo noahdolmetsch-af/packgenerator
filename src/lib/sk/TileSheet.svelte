@@ -15,6 +15,8 @@
   import { skIcon } from './icons.js';
   import OwnLinkSheet from './OwnLinkSheet.svelte';
   import { t } from '../i18n.svelte.js';
+  import SortGrip from '../ui/SortGrip.svelte';
+  import { sortable } from '../ui/sortable.js';
 
   let { name = '', arr, state: cur, hints = {}, mode = 'edit', onchange, onclose } = $props();
 
@@ -101,9 +103,10 @@
     {/snippet}
 
     {#snippet shownSec()}
-      <ul class="sk-list">
+      <ul class="sk-list" use:sortable={{ onmove: (from, to) => onchange((s) => moveTile(s, shownIds, arr.sorted[from].id, to)) }}>
         {#each arr.sorted as d, i (d.id)}
-          <li data-sk-row={d.id} class:sk-over={i >= MAX_TILES}>
+          <li data-sk-row={d.id} data-sort-id={d.id} class:sk-over={i >= MAX_TILES}>
+            <SortGrip name={label(d)} onstep={(dir) => move(d.id, dir)} />
             <span class="sk-mv">
               <button type="button" class="sk-ib" aria-label={t('Move {name} up', { name: label(d) })} disabled={i === 0} onclick={() => move(d.id, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
               <button type="button" class="sk-ib" aria-label={t('Move {name} down', { name: label(d) })} disabled={i === arr.sorted.length - 1} onclick={() => move(d.id, 1)}><ChevronDown size={18} aria-hidden="true" /></button>

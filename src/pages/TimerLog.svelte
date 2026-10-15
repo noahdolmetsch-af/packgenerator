@@ -10,7 +10,7 @@
   import { timerLogQuery } from '../lib/timer/data.js';
   import { setNote, removeRow } from '../lib/timer/run.svelte.js';
   import { MODES, filterLog, byDay, weekStats, modeOf, rowName, hmOf, dur, short } from '../lib/timer.js';
-  import { dayWord } from '../lib/flow/hobby/words.js';
+  import { dayWord, artName } from '../lib/flow/hobby/words.js';
   import { wd } from '../lib/flow/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -26,6 +26,8 @@
   const week = $derived(weekStats(rows, today));
   const w = (x) => (x?.key ? t(x.key, x.vars) : '');
   const nameOf = (r) => (r.med ? t('Meditation') : rowName(r) === r.label ? r.label : t(rowName(r)));
+  // 0.136.0: a meditation shows its kind (Om Ah Hung …), not the timer mode «Countdown»
+  const subOf = (r) => [r.med ? artName(r.art) : t(modeOf(r.mode).label), r.note ? `«${r.note}»` : ''].filter(Boolean).join(' · ');
 
   function edit(r) {
     if (r.med) {
@@ -75,7 +77,7 @@
                   {:else}
                     <button type="button" class="row" onclick={() => edit(r)} aria-label={t('Change {name}', { name: nameOf(r) })}>
                       <span class="tm">{r.at ? hmOf(Date.parse(r.at)) : ''}</span>
-                      <span class="rt"><b>{#if r.med}<Flower2 size={14} aria-hidden="true" />{/if}{nameOf(r)}</b><small>{t(modeOf(r.mode).label)}{#if r.note} · «{r.note}»{/if}</small></span>
+                      <span class="rt"><b>{#if r.med}<Flower2 size={14} aria-hidden="true" />{/if}{nameOf(r)}</b>{#if subOf(r)}<small>{subOf(r)}</small>{/if}</span>
                       <b class="num">{dur(r.sec)}</b>
                       <Pencil size={16} aria-hidden="true" />
                     </button>

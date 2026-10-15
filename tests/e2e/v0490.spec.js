@@ -12,6 +12,7 @@ import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { r1Data, P, D0 } from './r1-fixture.js';
 import { openData, settle } from './settle.js';
+import DE from '../../src/lib/i18n/de/index.js';
 
 const SHOTS = process.env.SHOTS;
 const shot = async (page, info, name) => {
@@ -61,7 +62,9 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(last).toContainText('2:58');
   await expect(last).toContainText('trocken');
   await expect(last).toContainText('9–14°');
-  await expect(last).toContainText(/Geplant .* min schneller/);
+  // the German words come from the app source (0.136.0 writes «Min», not «min»)
+  const faster = DE['{n} min faster'].replace('{n}', '\\d+');
+  await expect(last).toContainText(new RegExp(`Geplant .* ${faster}`));
   await expect(main.locator('.btn.hi')).toHaveCount(1);
   // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (open under «Alle Kennzahlen», answer 2b); switch to Alle
   const per = main.locator('section.period');

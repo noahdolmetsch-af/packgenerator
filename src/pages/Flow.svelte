@@ -42,7 +42,8 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
   import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
-  import { heartBetween, withStravaRides } from '../lib/kmbook.js';
+  import { heartBetween, withStravaRides, waitingThisMonth, bikeActs } from '../lib/kmbook.js';
+  import { CHECK_HASH } from '../lib/strava/client.svelte.js';
   import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -73,7 +74,8 @@
   import { localDay } from '../lib/localday.js';
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
-  import { t, locale, lang, num } from '../lib/i18n.svelte.js';
+  import { t, tn, locale, lang, num } from '../lib/i18n.svelte.js';
+  import SortArrows from '../lib/ui/SortArrows.svelte';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -117,8 +119,11 @@
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
-  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? []), today));
+  const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point count too
+  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? [], $actQ ?? []), today));
   const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
+  // 0.136.0: Strava rides of this month without a bike wait in «Zum Prüfen» and count after «Passt»
+  const kmWaiting = $derived(waitingThisMonth($kmBookQ ?? [], today));
   const prevMonth = $derived.by(() => {
     const [y, m] = today.split('-').map(Number);
     return new Date(Date.UTC(y, m - 2, 15)).toISOString().slice(0, 10);
@@ -269,6 +274,7 @@
                     {/if}
                   </a>
                   <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
                 </li>
               {/if}
             {/each}
@@ -283,7 +289,7 @@
         {/if}
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
-        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
+        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>
       </aside>
     </div>
   </div>
@@ -326,6 +332,7 @@
               {/if}
               {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
+            {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
           </Sec>
           <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
           <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
@@ -394,6 +401,18 @@
     max-width: 1240px;
     margin: 0 auto;
     min-width: 0;
+  }
+  .kmwait {
+    display: block;
+    margin-top: 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* 0.136.0: on a phone the floating «Stoppuhr» button sits over the page end; room below the last tiles */
+  @media (max-width: 719px) {
+    .flow {
+      padding-bottom: 72px;
+    }
   }
   .ph .sub {
     margin: var(--sp-1) 0 0;
