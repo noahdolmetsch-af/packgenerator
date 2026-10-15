@@ -6,13 +6,13 @@
 export default {
   // 0.135.0 Meditation und Timer (ME2, ME3, Z2–Z5)
   'Sit down, start, done 🧘': 'Hinsitzen, starten, fertig 🧘',
-  'Meditation is the first tab in Aktiv with a look back, and a timer counts for anything else.': 'Meditation ist der erste Reiter in Aktiv, mit Rückblick, und ein Timer zählt für alles andere.',
-  'Meditation first in Aktiv: start like last time, durations, templates and your last sessions': 'Meditation zuerst in Aktiv: starten wie letztes Mal, Dauer, Vorlagen und deine letzten Sitzungen',
+  'Meditation has its own tab in Aktiv with a look back, and a timer counts for anything else.': 'Meditation hat in Aktiv einen eigenen Reiter, mit Rückblick, und ein Timer zählt für alles andere.',
+  'Meditation in Aktiv: start like last time, durations, templates and your last sessions': 'Meditation in Aktiv: starten wie letztes Mal, Dauer, Vorlagen und deine letzten Sitzungen',
   'Timer: count up, count down, interval, Pomodoro or until a time, with five faces and a log': 'Timer: hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit, mit fünf Ziffernblättern und einem Log',
   'Look back on your meditation by week, month or year, with what helps you': 'Rückblick auf deine Meditation nach Woche, Monat oder Jahr, mit dem, was dir hilft',
   'Meditation is called «Meditation» everywhere, «Kissenzeit» goes': 'Meditation heisst überall «Meditation», «Kissenzeit» geht',
   'The timer keeps running small at the bottom right on every page; at the end a singing bowl and a note': 'Der Timer läuft klein unten rechts auf jeder Seite weiter; am Ende eine Klangschale und eine Notiz',
-  'Open Aktiv: Meditation is the first tab; tap «Like last time» and stop the session.': 'Öffne Aktiv: Meditation ist der erste Reiter; tippe «Wie letztes Mal» und beende die Sitzung.',
+  'Open Aktiv › Meditation; tap «Like last time» and stop the session.': 'Öffne Aktiv › Meditation; tippe «Wie letztes Mal» und beende die Sitzung.',
   'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.': 'Öffne «Was die App kann» › Timer: Wähle «Countdown», 5 Min, tippe «Start»; öffne eine andere Seite, der Timer läuft klein unten rechts.',
   'Open the timer page, tap the clock and choose another face; open «Log» and add a note.': 'Öffne die Timer-Seite, tippe auf die Uhr und wähle ein anderes Ziffernblatt; öffne «Log» und schreib eine Notiz dazu.',
   'Tap «Look back» on the Meditation page and switch between week, month and year.': 'Tippe auf der Meditationsseite «Rückblick» und wechsle zwischen Woche, Monat und Jahr.',

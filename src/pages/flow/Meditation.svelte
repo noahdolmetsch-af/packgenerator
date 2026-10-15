@@ -1,7 +1,7 @@
 <script>
   /**
    * «Meditation» (mockup ME2, Noah 13.10.2026 «1a 2a 3a 4b 5b», approved «ME1-ME3 und Z1-Z5 freigeben»):
-   * the first tab of Aktiv, #/flow/act/meditation. One page, timer and Rückblick side by side:
+   * a tab of Aktiv (the second, Noah 15.10.2026 «1a»), #/flow/act/meditation. One page, timer and Rückblick side by side:
    *   Timer: the clock as it will look (the face chosen for meditation, Z3), the start («Wie letztes Mal ·
    *   {n} Min», before the first session «Jetzt starten · {n} Min»), the durations 10–60 and «eigene», the
    *   templates and «+ neue», and three rows (Klänge, Art, Uhr).

@@ -57,7 +57,7 @@ describe('hobby pages 1: the tab «Aktivität» in Aktiv', () => {
   it('lights «Aktivität» on the tiles, milestones and an editor opened from a tile; «Ziele» elsewhere', async () => {
     const { tabOf } = await import('../src/lib/nav.js');
     for (const h of ['#/flow/activity', '#/flow/milestones?act=meditation', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity']) expect(tabOf('active', h), h).toBe('activity');
-    // «Meditation» (mockup ME2, Noah 13.10.2026 «2a»): the meditation page and its pages are the first tab
+    // «Meditation» (mockup ME2, Noah 13.10.2026 «2a»): the meditation page and its pages are the tab «Meditation» (second since Noah 15.10.2026 «1a»)
     for (const h of ['#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list']) expect(tabOf('active', h), h).toBe('meditation');
     for (const h of ['#/flow/goals', '#/flow/edit/yoga', '#/flow/new']) expect(tabOf('active', h), h).toBe('goals');
     expect(tabOf('active', '#/flow')).toBe('today');

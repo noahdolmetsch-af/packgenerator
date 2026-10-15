@@ -867,7 +867,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC)
 
 - Heute bleibt wie HN0 (Noah 14.10.2026 21:00 UTC «HN0 so freigeben», «gilt ab sofort als gesichert»): ME1 (Meditationskarte zuoberst) und Z1 (Timer-Kachel) sind gebaut, kommen aber erst nach Noahs Prüfung gegen HN0.
-- Meditation ist der erste Reiter in Aktiv; der Ort Aktiv öffnet bei Meditation (ME2).
+- Meditation ist ein eigener Reiter in Aktiv (ME2). Noah 15.10.2026 «1a» (Paket Aktiv): Aktiv öffnet wieder mit Heute, Meditation ist der zweite Reiter.
 - Name «Meditation» überall; der Spitzname «Kissenzeit» geht mit einer einmaligen Datenänderung, ein eigener Name bleibt.
 - Timer: «Timer» zählt hoch, Ziffernblatt Digital zuerst, Klangschale am Ende, das Log füllt sich selbst, Notiz freiwillig (Z «1-5a»).
 - «Was dir hilft» im Rückblick ist nur Beobachtung, nie ein Rat.

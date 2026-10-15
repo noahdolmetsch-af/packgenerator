@@ -20,10 +20,10 @@ export const WHATS_NEW = [
     version: '0.135.0',
     date: '2026-10-14',
     title: 'Sit down, start, done 🧘',
-    lead: 'Meditation is the first tab in Aktiv with a look back, and a timer counts for anything else.',
+    lead: 'Meditation has its own tab in Aktiv with a look back, and a timer counts for anything else.',
     points: [
       { text: 'Timer: count up, count down, interval, Pomodoro or until a time, with five faces and a log', href: '#/timer' },
-      { text: 'Meditation first in Aktiv: start like last time, durations, templates and your last sessions', href: '#/flow/act/meditation' },
+      { text: 'Meditation in Aktiv: start like last time, durations, templates and your last sessions', href: '#/flow/act/meditation' },
       { text: 'Look back on your meditation by week, month or year, with what helps you', href: '#/flow/act/meditation/rueckblick' },
     ],
     small: [
@@ -31,7 +31,7 @@ export const WHATS_NEW = [
       { box: 'new', text: 'The timer keeps running small at the bottom right on every page; at the end a singing bowl and a note', href: '#/timer/log' },
     ],
     test: [
-      'Open Aktiv: Meditation is the first tab; tap «Like last time» and stop the session.',
+      'Open Aktiv › Meditation; tap «Like last time» and stop the session.',
       'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.',
       'Open the timer page, tap the clock and choose another face; open «Log» and add a note.',
       'Tap «Look back» on the Meditation page and switch between week, month and year.',

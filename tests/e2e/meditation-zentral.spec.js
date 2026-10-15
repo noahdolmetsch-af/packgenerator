@@ -1,6 +1,6 @@
 // «Meditation» (mockups ME2 and ME3, Noah 13.10.2026 «1a 2a 3a 4b 5b», approved «ME1-ME3 und Z1-Z5
 // freigeben»), on a phone and a computer, in German, with a fixed clock (page.clock):
-// 1. Aktiv: «Meditation» is the first tab and the place opens there; the page shows the timer (the
+// 1. Aktiv: «Meditation» is the second tab, after Heute (Noah 15.10.2026 «1a»); the page shows the timer (the
 //    durations change the start) and the Rückblick (days in a row, the last 7 days, the last sessions with
 //    their notes); «Uhr» opens the faces for the meditation; the name «Kissenzeit» is gone.
 // 2. Rückblick (ME3): week, month and year, earlier periods, the calendar, minutes per week with the goal
@@ -73,16 +73,16 @@ function history() {
   return { flowLog, flowSessions };
 }
 
-test('Aktiv opens at Meditation: timer and Rückblick on one page, «Uhr» opens the faces', async ({ page, context }) => {
+test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens the faces', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  // the first tab of Aktiv (ME2, Noah 2a)
+  // Aktiv opens at Heute; Meditation is the second tab (ME2; Noah 15.10.2026 «1a»)
   const tabs = page.locator('.ptabs a');
-  await expect(tabs.first()).toHaveText('Meditation');
-  expect(PLACE_TABS.active[0].href).toBe('#/flow/act/meditation');
+  await expect(tabs.nth(1)).toHaveText('Meditation');
+  expect(PLACE_TABS.active.map((x) => x.key).slice(0, 2)).toEqual(['today', 'meditation']);
   await put(page, history());
   await page.reload(); // the app reads the rows written straight into IndexedDB
-  await tabs.first().click();
+  await tabs.nth(1).click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
   await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');

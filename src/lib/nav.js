@@ -200,8 +200,8 @@ export const PLACES = [
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
   // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
-  // «Meditation» (mockup ME2, Noah 13.10.2026 «2a»): Aktiv opens at Meditation, its first tab.
-  { key: 'active', href: '#/flow/act/meditation', label: 'Active|place', letter: 'a' },
+  // Noah 15.10.2026 (Paket Aktiv «1a»): Aktiv opens at Heute again; Meditation is its second tab.
+  { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
 ];
 
 /**
@@ -232,9 +232,9 @@ export const PLACE_TABS = {
     { key: 'rig', label: 'Setup|tab', href: '#/bikes?tab=rig', match: (h) => h.startsWith('#/bikes') && /[?&]tab=rig/.test(h) },
   ],
   active: [
-    // «Meditation» (mockup ME2, Noah 13.10.2026 «2a»): the first tab of Aktiv, with its Rückblick (ME3) and timer pages
-    { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/rest|\/bags)?\/?$/.test(h.split('?')[0]) }, // v0.130.0 the week, recovery and the sport bag belong to Heute (mockups AK1–AK3)
+    // «Meditation» (ME2) with its Rückblick (ME3) and timer pages; the second tab (Noah 15.10.2026 «1a»)
+    { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
     { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
     { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
