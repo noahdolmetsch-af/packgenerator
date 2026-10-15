@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 13; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 12: Fitbit daily values. 13: documents (Dokumente-PDF)
+export const SCHEMA_VERSION = 14; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 12: Fitbit daily values. 13: documents (Dokumente-PDF). 14: Google calendar and tasks (a copy, not in backups)
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -170,6 +170,12 @@ export function createDb(name = 'pack-generator') {
   // Version 13 (Dokumente-PDF) only adds the documents, so existing data stays as it is.
   db.version(13).stores({
     docs: 'id, kind, group, createdAt',
+  });
+  // Version 14 (Google Kalender und Aufgaben, GA): a copy of Google's events and tasks on this device.
+  // Not in DATA_TABLES: Google keeps the truth, a backup would only carry an old copy.
+  db.version(14).stores({
+    gEvents: 'id, day, cal',
+    gTasks: 'id, list, due, done',
   });
   return db;
 }

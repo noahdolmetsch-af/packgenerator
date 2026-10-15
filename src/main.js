@@ -48,6 +48,7 @@ import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 import { noteAppOpen } from './lib/know/wasneuStore.js';
 import { takeReturn as takeGoogleReturn, watchAutoFetch as watchHealthFetch } from './lib/health/client.svelte.js';
 import { takeReturn as takeDriveReturn } from './lib/docs/client.svelte.js';
+import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
@@ -89,6 +90,7 @@ window.addEventListener('hashchange', () => takeReturn());
 takeGoogleReturn();
 // Dokumente-PDF: back from the Drive login (#/me/docs?google=connected)
 takeDriveReturn();
+takeAgendaReturn(); // Google Kalender und Aufgaben: back from the Google login (#/me/agenda?google=connected)
 
 // SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
 noteAppOpen();
@@ -122,5 +124,6 @@ settling(async () => {
   .finally(() => {
     watchAutoFetch();
     watchHealthFetch(); // Fitbit: the new daily values when the app opens or comes back (answer 2a)
+    watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
     autoCheck(db);
   });

@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 99 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 100 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1027,6 +1027,18 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Google Kalender und Aufgaben
+
+Dein Google Kalender und Google Aufgaben in der App: die nächsten 14 Tage sehen, Termine eintragen, Aufgaben abhaken und neu eintragen.
+
+**Aufschalten:** Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).
+
+1. Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».
+2. Die nächsten 14 Tage und deine offenen Aufgaben erscheinen; hake eine Aufgabe ab oder trag eine neue ein, das ändert sich auch in Google.
+3. «Termin eintragen» trägt ihn in deinen Google Kalender ein.
+
+**Beispiel:** «Kette messen» fällig am Donnerstag → steht unter «Nächste 7 Tage»; in der App abgehakt, ist sie auch in Google Aufgaben erledigt.
 
 ### Dokumente als PDF
 

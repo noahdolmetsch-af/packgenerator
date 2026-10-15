@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.167.0 Google Kalender und Aufgaben
+  'Calendar and tasks from Google 📅': 'Kalender und Aufgaben von Google 📅',
+  'Your Google calendar and Google Tasks in the app under Me › Appointments and tasks: the next 14 days, tasks to tick and new entries that go to Google too.': 'Dein Google Kalender und Google Aufgaben in der App unter Ich › Termine und Aufgaben: die nächsten 14 Tage, Aufgaben zum Abhaken und neue Einträge, die auch in Google landen.',
+  'Appointments: the next 14 days from the calendars you choose; enter a new one, change or delete it': 'Termine: die nächsten 14 Tage aus den Kalendern, die du wählst; neue eintragen, ändern oder löschen',
+  'Tasks: overdue, today, next 7 days, later, without date; tick, add, change, with a due day': 'Aufgaben: überfällig, heute, nächste 7 Tage, später, ohne Datum; abhaken, neu, ändern, mit Fälligkeitstag',
+  'The same Google login as Fitbit and Drive; fetched by itself when the app opens': 'Dasselbe Google-Login wie Fitbit und Drive; von selbst geholt, wenn die App aufgeht',
+  'Me › «Appointments and tasks»': 'Ich › «Termine und Aufgaben»',
+  'Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».': 'Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».',
+  'Your appointments of the next 14 days appear; tap «New appointment», enter one and check it in Google Calendar.': 'Deine Termine der nächsten 14 Tage erscheinen; tippe «Termin eintragen», trag einen ein und schau ihn in Google Kalender an.',
+  'Add a task with a due day, tick it: it is done in Google Tasks too.': 'Trag eine Aufgabe mit Fälligkeitstag ein und hake sie ab: Sie ist auch in Google Aufgaben erledigt.',
   // 0.166.0 Dokumente-PDF
   'Paper becomes PDF 📄': 'Aus Papier wird PDF 📄',
   'Photograph a document page by page: the app straightens it, reads the text and keeps a PDF under Me › Documents, also in your Google Drive.': 'Fotografiere ein Dokument Seite für Seite: Die App richtet es gerade, erkennt den Text und legt ein PDF unter Ich › Dokumente ab, auch in deinem Google Drive.',

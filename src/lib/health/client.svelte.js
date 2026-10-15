@@ -110,7 +110,7 @@ export function watchAutoFetch() {
 export function takeReturn(loc = globalThis.location, hist = globalThis.history, db = appDb) {
   const h = loc?.hash ?? '';
   // Dokumente-PDF: back from the Drive login is read by src/lib/docs/client.svelte.js
-  if (h.startsWith('#/me/docs')) return null;
+  if (h.startsWith('#/me/docs') || h.startsWith('#/me/agenda')) return null; // and Kalender/Aufgaben: lib/agenda
   const i = h.indexOf('?');
   if (i < 0) return null;
   const q = new URLSearchParams(h.slice(i + 1));

@@ -879,6 +879,15 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
 - **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
+## 15.10.2026: 0.167.0 «Kalender und Aufgaben von Google» (vorläufige Nummer)
+
+- Noah 15.10.2026 12:16 «3 beides»: Aufgaben und Kalender in einem Paket; 12:17 «vorerst ohne mockup»; 21:11 «3b» im Thread «Woche planen»: der Google Kalender kommt gleich mit «Woche planen»; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19.
+- **Server:** `api/google` bekommt `cal-list`, `cal-events` (höchstens 92 Tage, Kalender wählbar), `cal-save`, `cal-delete`, `task-lists`, `tasks` (offene und die der letzten 30 Tage erledigten), `task-save`, `task-delete`; Hilfen in `api/_lib/googleplan.js`. Scopes `calendar.events` + `calendar.calendarlist.readonly` und `tasks`, zusätzlich angefragt (`services: ['calendar','tasks']`). Der Server speichert keinen Termin und keine Aufgabe.
+- **App:** Kopie in `gEvents` und `gTasks` (Dexie 14, vorläufig), nicht in Backups (Google ist die Wahrheit). Zeitraum eine Woche zurück bis 60 Tage voraus. Tage in Europe/Zurich; ganztägige Termine über mehrere Tage stehen an jedem Tag.
+- **Für «Woche planen»:** `weekItems({ events, tasks, from, to })` liefert pro Tag `{ day, kind: 'termin'|'todo', title, time, allDay, done, where, src: 'google' }`; `undatedTasks()` für «Noch einplanen».
+- **Selbst entschieden:** Seite unter Ich (Woche und Kalender-Ort kommen mit «Woche planen»), nicht auf Heute (Regel 13). Änderungen gehen zuerst an Google, dann in die Kopie; ohne Netz bleibt alles, wie es war, mit Hinweis. Ausblenden ändert nur die App. Zuerst nur der Hauptkalender, weitere Kalender abhakbar. Unteraufgaben stehen eingerückt unter ihrer Aufgabe.
+- **Nebenbei:** Das Datum in «Dokument fotografieren» nutzt jetzt das App-Datumsfeld (DateInput) statt des Browserformats.
+
 ## 15.10.2026: 0.166.0 «Papier wird PDF» (vorläufige Nummer)
 
 - Noahs Idee 15.10.2026 08:42 UTC; Antworten «1b 2a 3 beides 4a 5a» 12:00 und «1a 2a 3 beides 4a 5 alle» 12:16, «vorerst ohne mockup» 12:17; Bau «1a» 12:52; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19.

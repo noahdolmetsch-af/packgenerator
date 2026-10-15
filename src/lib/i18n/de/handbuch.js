@@ -345,6 +345,12 @@ export default {
   'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
   'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
   'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  // Google Kalender und Aufgaben (GA)
+  'Connect once under Me › Appointments and tasks (needs Strava connected on this device).': 'Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).',
+  'Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».': 'Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».',
+  'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.': 'Die nächsten 14 Tage und deine offenen Aufgaben erscheinen; hake eine Aufgabe ab oder trag eine neue ein, das ändert sich auch in Google.',
+  '«New appointment» enters it in your Google calendar.': '«Termin eintragen» trägt ihn in deinen Google Kalender ein.',
+  'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.': 'Beispiel: «Kette messen» fällig am Donnerstag → steht unter «Nächste 7 Tage»; in der App abgehakt, ist sie auch in Google Aufgaben erledigt.',
   // Dokumente-PDF
   'Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).',
   'Photograph page by page or choose photos; check the corners, then «Save as PDF».': 'Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».',

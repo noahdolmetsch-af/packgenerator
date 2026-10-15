@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.167.0 «Google Kalender und Aufgaben» (GA, Noah 15.10.2026 12:16 «3 beides» and 21:11 «3b»: the
+    // calendar comes with «Woche planen»; built without mockups «vorerst ohne mockup»)
+    version: '0.167.0',
+    date: '2026-10-15',
+    title: 'Calendar and tasks from Google 📅',
+    lead: 'Your Google calendar and Google Tasks in the app under Me › Appointments and tasks: the next 14 days, tasks to tick and new entries that go to Google too.',
+    points: [
+      { text: 'Appointments: the next 14 days from the calendars you choose; enter a new one, change or delete it', href: '#/me/agenda' },
+      { text: 'Tasks: overdue, today, next 7 days, later, without date; tick, add, change, with a due day', href: '#/me/agenda' },
+      { text: 'The same Google login as Fitbit and Drive; fetched by itself when the app opens', href: '#/me/agenda' },
+    ],
+    small: [{ box: 'new', text: 'Me › «Appointments and tasks»' }],
+    test: [
+      'Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».',
+      'Your appointments of the next 14 days appear; tap «New appointment», enter one and check it in Google Calendar.',
+      'Add a task with a due day, tick it: it is done in Google Tasks too.',
+    ],
+  },
+  {
     // v0.166.0 «Dokumente-PDF» (Noah 15.10.2026 «idee: ich fotografiere ein Dokument …», answers «1b 2a … 3 beides
     // möglich 4a … b möglich 5a» and «1a 2a», built without mockups «vorerst ohne mockup»)
     version: '0.166.0',

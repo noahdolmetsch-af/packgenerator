@@ -254,7 +254,7 @@ describe('suggestions, ideas, connections', () => {
 
 describe('the database: version 8', () => {
   it('only adds the three tables, which go into the backup', () => {
-    expect(SCHEMA_VERSION).toBe(13); // Dokumente-PDF: version 13 adds docs; AB «Deine Abfragen» adds abAnswers (version 9); Fitbit: version 12 adds healthDays
+    expect(SCHEMA_VERSION).toBe(14); // GA: version 14 adds gEvents, gTasks; Dokumente-PDF: version 13 adds docs; AB «Deine Abfragen» adds abAnswers (version 9); Fitbit: version 12 adds healthDays
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowSessions', 'flowTemplates', 'flowStars']));
   });
   it('the upgrade from version 7 keeps the old data', async () => {
@@ -271,7 +271,7 @@ describe('the database: version 8', () => {
 
     const db = createDb(name);
     await db.open();
-    expect(db.verno).toBe(13);
+    expect(db.verno).toBe(14);
     expect(await db.flowActs.count()).toBe(12);
     expect(await db.flowLog.toArray()).toMatchObject([{ actId: 'meditation', min: 20 }]);
     expect(await db.items.get('test_item')).toMatchObject({ name: 'Fictional tent' });
