@@ -10,6 +10,9 @@
  * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
  * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold
  * or long; such a tip comes first on its day).
+ * «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a», lib/intro.js): a tip may carry `months` (a «Passt zu heute» that
+ * fits in those months, e.g. the ski season), `button` + `href` (one step that starts it) and `source` (a
+ * «Good to know» with its source; factOfDay picks one). Pages «touren» and «material» are new.
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
@@ -40,7 +43,10 @@ export const PAGES = {
       { id: 'aktiv-one-ring', text: 'Move, Mindful, Recovery: if you only fill one ring, you see it here first.' },
       { id: 'aktiv-amount', text: 'A long press enters another amount, for example 25 push-ups instead of 10.' },
       { id: 'aktiv-strava', text: 'Rides from Strava and trip days count on «Cycling outdoors» by themselves.' },
-      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.' },
+      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.', source: 'Federal Office of Sport (BASPO)' },
+      { id: 'know-who-strength', kind: 'know', text: 'Adults should also strengthen their muscles on two or more days a week.', source: 'World Health Organization (WHO), 2020' },
+      { id: 'aktiv-ski', kind: 'today', when: 'month', months: [10, 11], note: 'only in October and November', text: 'The ski season is coming. Set a goal «ski tour once a week» now, then it counts from the first snow.', button: 'Set a goal', href: '#/flow/goals' },
+      { id: 'aktiv-spring', kind: 'today', when: 'month', months: [3, 4], note: 'only in March and April', text: 'The cycling season starts. A goal «cycling twice a week» brings you into it gently.', button: 'Set a goal', href: '#/flow/goals' },
       { id: 'know-strava', kind: 'know', text: 'The name Strava comes from the Swedish «sträva», which means «to strive».' },
       { id: 'know-star', kind: 'know', text: 'Every star was once a «just quickly».' },
       ...TODAY_TIPS,
@@ -51,6 +57,28 @@ export const PAGES = {
       { id: 'strava', title: 'Strava counts along', sub: 'Your rides tick off «Cycling outdoors»', href: '#/debrief/ride' },
       { id: 'counts', title: '«Counts too»', sub: 'Commuting and trip days count by themselves', href: '#/flow/goals' },
     ],
+  },
+  touren: {
+    tips: [
+      { id: 'touren-template', text: 'A good trip becomes a template: the next weekend starts with the right list.', button: 'Templates', href: '#/pack/templates' },
+      { id: 'touren-weather', text: 'Fetch the weather about three days before: then the clothes on the list fit the forecast.' },
+      { id: 'touren-debrief', text: 'Look back the day after: what you did not use gets quieter on the next list.', button: 'Look back|page', href: '#/debrief' },
+      { id: 'touren-blocks', text: 'Building blocks like «Rain» add a whole package to a trip with one tap.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'know-veloland', kind: 'know', text: 'Switzerland has nine national cycle routes, signposted in red and white.', source: 'SwitzerlandMobility' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long' || x.when === 'cold' || x.when === 'heat'),
+    ],
+    can: [],
+  },
+  material: {
+    tips: [
+      { id: 'material-weigh', text: 'Weigh the heavy things first: three items often make half of the base weight.' },
+      { id: 'material-bag', text: 'Give each item its usual bag. Packing then shows the weight per bag.' },
+      { id: 'material-block', text: 'Three items you always take together make a good building block.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'material-wish', text: 'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.', button: 'Shopping|tab', href: '#/gear?view=wish' },
+      { id: 'know-ultralight', kind: 'know', text: 'In bikepacking and hiking a base weight under 4.5 kg (10 lb) is usually called «ultralight».', source: 'common definition of the ultralight community' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold'),
+    ],
+    can: [],
   },
   meditation: {
     tips: [
@@ -103,7 +131,9 @@ const pick = (xs, day) => xs[((dayNo(day) % xs.length) + xs.length) % xs.length]
 /** The tips that can come today: switched on, «Wusstest du» only while knowOn, «Passt zu heute» only when ctx fits. */
 function dayTips(i, page, ctx = {}) {
   const on = allTips(i, page).filter((x) => x.on && (x.kind !== 'know' || i.knowOn));
-  const fit = on.filter((x) => x.kind === 'today' && ctx[x.when]);
+  // the day's weather (heat, föhn …) fits better than the month: a month tip only on a day without one
+  const day = on.filter((x) => x.kind === 'today' && x.when !== 'month' && ctx[x.when]);
+  const fit = day.length ? day : on.filter((x) => x.kind === 'today' && x.when === 'month' && (x.months ?? []).includes(ctx.month));
   return { fit, rest: on.filter((x) => x.kind !== 'today') };
 }
 /**
@@ -127,6 +157,18 @@ export function tipPlace(info, page, today, ctx = {}) {
 }
 
 /**
+ * «Einstieg» 3a: one «Good to know» with its source (a built-in tip with `source`), the same all day; null
+ * when tips or «Wusstest du» are off or the page has none. `skip`: the id of the tip of the day (never twice).
+ */
+export function factOfDay(info, page, today, skip = null) {
+  const i = infoOf(info);
+  if (!i.tipsOn || !i.knowOn) return null;
+  const off = new Set(i.off);
+  const xs = list(PAGES[page]?.tips).filter((x) => x.source && !off.has(x.id) && x.id !== skip);
+  return xs.length ? { kind: 'know', ...pick(xs, today) } : null;
+}
+
+/**
  * What kind of day it is (WD3), from today's home forecast day ({ min, max, rainMm, windDir, gust }), the
  * activity log of today ([{ actId }]) and the trips ([{ startDate, route: { km } }]). Föhn: dry (under
  * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more.
@@ -140,6 +182,7 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
   const soon = [today, tomorrow.toISOString().slice(0, 10)];
   return {
     max,
+    month: Number(String(today ?? '').slice(5, 7)) || null,
     heat: max != null && max >= HEAT_C,
     cold: min != null && min < COLD_C,
     foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,

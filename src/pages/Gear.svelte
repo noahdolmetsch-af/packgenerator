@@ -42,6 +42,7 @@
   import { longUnused } from '../lib/know.js';
   import { leaveHome } from '../lib/blocks2026.js';
   import { leaveHomeFields } from '../lib/gear/comes.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
 
   // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
@@ -534,6 +535,8 @@
       </p>
     </div>
   </header>
+  <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): what you do here, the tip of the day, the small tour -->
+  {#if !mode}<AreaIntro place="material" />{/if}
 
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->

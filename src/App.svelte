@@ -24,6 +24,8 @@
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
+  import TourHost from './lib/tour/TourHost.svelte';
+  import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
   import KomootSheet from './lib/komoot/KomootSheet.svelte';
@@ -457,6 +459,8 @@
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
 <Keys bind:open={keysOpen} />
+<!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
+{#if page !== 'share'}<TourStart /><TourHost />{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

@@ -60,6 +60,7 @@
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
   import { weekGoals } from '../lib/flowweek.js';
@@ -304,7 +305,8 @@
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
-      <TipLine page="aktiv" name={t('Active|place')} />
+      <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): it carries the tip of the day; the tip line only when it is taken away -->
+      <AreaIntro place="aktiv">{#snippet hidden()}<TipLine page="aktiv" name={t('Active|place')} />{/snippet}</AreaIntro>
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
