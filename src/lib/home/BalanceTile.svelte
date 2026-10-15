@@ -5,6 +5,7 @@
    * segment as deep as its value 0–100, a light one where nothing is known yet. The mean in the middle,
    * the legend with the values, and the category with the lowest value with a gentle suggestion
    * (never a task). Nothing is invented: an empty category shows «–».
+   * WG: the answers of «Wi gaht's?» count too (balance.js answerSignals).
    */
   import { balanceQuery } from '../flow/data.svelte.js';
   import { balance, ringPaths, CATS, CAT } from '../balance.js';
@@ -59,7 +60,7 @@
       {#if b.least}
         <p class="least" data-least={b.least}>{t('Least:')} <b>{t(CAT[b.least].label)}</b> · {t('Suggestion: {tip}', { tip: t(CAT[b.least].tip) })}</p>
       {:else if b.mean == null}
-        <p class="least">{t('Answer the morning check or tick something in Aktiv: the ring fills by itself.')}</p>
+        <p class="least">{t('Answer your questions or tick something in Aktiv: the ring fills by itself.')}</p>
       {/if}
     </div>
   {/if}

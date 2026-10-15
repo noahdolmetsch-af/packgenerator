@@ -28,6 +28,8 @@
   import SheetFolder from './SheetFolder.svelte';
   import ValueCard from './ValueCard.svelte';
   import { FIT_KEY, fitValue, setFit, readValue } from '../bikespecs.js';
+  import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import '../ui/fe-seiten.css';
 
   let { bikeId, sheet = 'pass', from = null } = $props();
 
@@ -246,7 +248,7 @@
           <td data-l={t('Interval')}>{r.interval}</td>
           <td data-l={t('Last work')}>{#if r.last}{r.last}{:else}{@render enter(bikesHash({ tab: 'care', bike: bikeId, open: true }))}{/if}</td>
           <td data-l={t('Since then')}><span class="since"><b>{r.since || '–'}</b>{@render bar(r)}</span></td>
-          <td data-l={t('Next time')} class:late={r.state === 'due' || r.state === 'overdue' || r.state === 'work'}>{r.next || '–'}</td>
+          <td data-l={t('Next time')} class:late={r.state === 'due' || r.state === 'overdue' || r.state === 'work'} data-sign={r.state === 'due' || r.state === 'overdue' || r.state === 'work' ? signFor('warn') : null}>{r.next || '–'}</td>
         </tr>
       {/each}
     </tbody>

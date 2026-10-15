@@ -22,6 +22,7 @@
   import DateInput from '../ui/DateInput.svelte';
   import { t, tn, num, dateOf, isDe } from '../i18n.svelte.js';
   import { Camera, ReceiptText, Download } from '@lucide/svelte';
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { kind, bike, data, more, items = [], today, kmNow = null, visits = [], editing = $bindable(false), back = null, from = null } = $props();
 
@@ -287,12 +288,12 @@
 {#snippet warrantyS()}
   {@render head(t('Warranty & receipts'), [data.view.name, w.bought ? t('bought on {date}', { date: dateOf(w.bought) }) : '', w.shop ? t('at {shop}', { shop: w.shop }) : ''].filter(Boolean).join(' · '), [STAND(), w.price != null ? t('Purchase price {chf}', { chf: chf(w.price) }) : ''].filter(Boolean))}
   {#if editing && draft}
-    <form class="edit noprint" onsubmit={saveDraft}>
+    <form class="edit noprint" onsubmit={saveDraft} use:weiter>
       <label class="fld"><span class="lbl">{t('Purchase date')}</span><DateInput id="sf-bought" bind:value={draft.bought} max={today} /></label>
       <label class="fld"><span class="lbl">{t('Bought at')}</span><input id="sf-shop" class="inp" bind:value={draft.shop} /></label>
       <label class="fld"><span class="lbl">{t('Purchase price in CHF')}</span><input id="sf-price" class="inp" inputmode="decimal" bind:value={draft.price} /></label>
       {#each WARRANTY_PARTS as p (p.key)}
-        <label class="fld"><span class="lbl">{t('Warranty {part} in years', { part: t(p.name) })}</span><input id="sf-y-{p.key}" class="inp" type="number" min="0" max="30" bind:value={draft.years[p.key]} /></label>
+        <label class="fld"><span class="lbl">{t('Warranty {part} in years', { part: t(p.name) })}</span><input id="sf-y-{p.key}" class="inp" type="number" inputmode="numeric" min="0" max="30" bind:value={draft.years[p.key]} /></label>
       {/each}
       <div class="row2"><button type="submit" class="btn ink">{t('Save')}</button><button type="button" class="btn" onclick={() => (editing = false)}>{t('Cancel')}</button></div>
     </form>
@@ -356,7 +357,7 @@
 {#snippet theftS()}
   {@render head(t('Theft sheet'), `${data.view.name} · ${t('for the police and the insurance')}`, [STAND(), t('Frame number only on this device')])}
   {#if editing && draft}
-    <form class="edit noprint" onsubmit={saveDraft}>
+    <form class="edit noprint" onsubmit={saveDraft} use:weiter>
       {#each THEFT_FIELDS as f (f.key)}
         <label class="fld"><span class="lbl">{t(f.label)}{f.chf ? ' (CHF)' : ''}</span><input id="sf-{f.key}" class="inp" inputmode={f.chf ? 'decimal' : undefined} bind:value={draft[f.key]} /></label>
       {/each}

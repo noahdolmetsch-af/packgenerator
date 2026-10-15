@@ -16,6 +16,7 @@
   import { X } from '@lucide/svelte';
   import { backClose } from './backclose.js';
   import { t } from '../i18n.svelte.js';
+  import './daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
 
   let { kicker = '', title, value = '', hint = '', empty = '', max = 80, onsave, onclose, extra = null } = $props();
 
@@ -89,7 +90,7 @@
     </div>
     {#if error}<p class="err" role="alert">{error}</p>{:else if hint}<p class="hint">{hint}</p>{/if}
     {#if extra}{@render extra()}{/if}
-    <div class="foot">
+    <div class="foot daumen-foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
       <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
     </div>

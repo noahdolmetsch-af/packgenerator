@@ -18,6 +18,9 @@
 .tp-badge.ok, .tp-badge.warn, .tp-badge.hi { background: var(--paper-2); color: var(--ink-2); }
 .tp-badge.warn::before, .tp-badge.hi::before { content: ''; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--hi); }
 .tp-badge.warn::before { background: var(--warn); }
+/* FE13 «Farbe nie allein»: a «!» in the dot's colour in place of the dot (no wider), so «urgent» does not hang on the colour alone */
+.tp-badge.warn::before, .tp-badge.hi::before { content: '!'; content: '!' / ''; width: auto; height: auto; border-radius: 0; background: none; color: var(--hi); font-weight: 800; }
+.tp-badge.warn::before { color: var(--warn); }
 
 .tp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .tp-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; text-align: left; overflow-wrap: break-word; }

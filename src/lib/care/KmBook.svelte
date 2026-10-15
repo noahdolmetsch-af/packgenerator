@@ -20,6 +20,7 @@
   import KmChips from './KmChips.svelte';
   import DateInput from '../ui/DateInput.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { bike, bikes = [] } = $props();
 
@@ -162,7 +163,7 @@
   </div>
 
   {#if form}
-    <form class="fm surf" onsubmit={saveForm}>
+    <form class="fm surf" onsubmit={saveForm} use:weiter>
       <p class="fh">{form === 'corr' ? t('Correction with a reason') : t('A ride by hand')}</p>
       <label><span class="lbl">{t('Date')}</span><DateInput bind:value={fDate} /></label>
       <label><span class="lbl">{form === 'corr' ? t('km (minus takes km off)') : 'km'}</span><input class="inp num" type="text" inputmode="decimal" autocomplete="off" bind:value={fKm} placeholder={form === 'corr' ? '-6' : '22'} /></label>

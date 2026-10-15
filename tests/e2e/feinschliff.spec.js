@@ -122,6 +122,7 @@ test('a bag: the pencil in its window opens the same sheet; the window keeps cha
   await expect(rn).toHaveCount(0);
   await expect(bag.getByRole('heading')).toContainText(`${P} Satteltasche neu`);
   // the bag window itself: a changed note is kept on Escape (Android back), like «Save»
+  await bag.locator('details[data-fold="note"] > summary').click(); // SN7 «Seiten neu»: the note is folded
   await bag.getByLabel(T('Note')).fill(`${P} wasserdicht`);
   await page.keyboard.press('Escape');
   await expect(bag).toBeHidden();

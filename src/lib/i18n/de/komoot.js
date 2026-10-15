@@ -1,0 +1,40 @@
+// SN1b–SN1d «Tour aus komoot» (Noah 13.10.2026 «freigabe», answers 1a 2b 3b 4a): the quiet row on
+// Unterwegs and in «Neue Tour», the sheet «Tour aus komoot übernehmen», «In komoot öffnen». Swiss spelling.
+export default {
+  // the row (komoot/KomootRow.svelte)
+  'Tour from komoot': 'Tour aus komoot',
+  'Suggestions near you, {sport} · opens komoot': 'Vorschläge in deiner Nähe, {sport} · öffnet komoot',
+  'Suggestions near you · opens komoot': 'Vorschläge in deiner Nähe · öffnet komoot',
+  'Offline, komoot does not open. A tour shared as GPX is taken over offline too.': 'Ohne Netz öffnet komoot nicht. Eine als GPX geteilte Tour übernimmt die App auch offline.',
+  'The app asks for your location only when you tap. It goes only in the link to komoot and is not stored.': 'Deinen Standort fragt die App erst beim Antippen. Er geht nur im Link an komoot, gespeichert wird er nicht.',
+  Gravel: 'Gravel',
+  // the sign (komoot/KomootSign.svelte)
+  'Open in komoot: {name}': 'In komoot öffnen: {name}',
+  // the sheet (komoot/KomootSheet.svelte)
+  'Take over a tour from komoot': 'Tour aus komoot übernehmen',
+  'Shared from komoot · everything is a suggestion': 'Aus komoot geteilt · alles ist ein Vorschlag',
+  'Reading the file …': 'Die Datei wird gelesen …',
+  'The shared file is not here any more. Share it again from komoot.': 'Die geteilte Datei ist nicht mehr da. Teile sie nochmals aus komoot.',
+  'about {time}': 'etwa {time}',
+  '{h} h {m}': '{h} h {m}',
+  '{h} h|duration': '{h} h',
+  '{m} min': '{m} min',
+  'When|komoot': 'Wann',
+  'Tomorrow, {date}': 'Morgen, {date}',
+  'Other day': 'Anderer Tag',
+  'On {day} you are still on {name} (day {n}). Both may stand.': 'Am {day} bist du noch auf {name} (Tag {n}). Beides darf stehen.',
+  'On {day} {name} starts. Both may stand.': 'Am {day} beginnt schon {name}. Beides darf stehen.',
+  'Suggestion: the bike of your last trip.': 'Vorschlag: das Velo deiner letzten Tour.',
+  'komoot link': 'komoot-Link',
+  'stays in the trip': 'bleibt in der Tour',
+  'none yet|link': 'noch keiner',
+  'The link stays in the trip: «Open in komoot» opens the tour there.': 'Der Link bleibt in der Tour: «In komoot öffnen» öffnet die Tour dort.',
+  'This is not a komoot link. Leave the field empty, or paste the link from komoot.': 'Das ist kein komoot-Link. Lass das Feld leer oder füge den Link aus komoot ein.',
+  'Days, start time, packing list': 'Tage, Startzeit, Packliste',
+  'Start time': 'Startzeit',
+  'Like {name}, {n} items': 'Wie {name}, {n} Teile',
+  'Standard, {n} items': 'Standard, {n} Teile',
+  'Start empty': 'Leer beginnen',
+  'The file stays on your device. Nothing goes back to komoot.': 'Die Datei bleibt auf deinem Gerät. Nichts geht an komoot zurück.',
+  'Create as planned trip': 'Als geplante Tour anlegen',
+};

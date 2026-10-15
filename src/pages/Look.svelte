@@ -9,8 +9,10 @@
   import { t } from '../lib/i18n.svelte.js';
   import { theme, FONTS, PALETTES, SIZES, MODES, setFont, setPalette, setSize, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
   import { ChevronLeft, ChevronRight, Check } from '@lucide/svelte';
+  import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
 
@@ -27,6 +29,8 @@
 
   <div class="cols">
     <div class="sets">
+      <!-- HG1c «Name ändern»: the name for the greeting on Today, first -->
+      <NameSection />
       <section aria-labelledby="look-font">
         <h2 id="look-font">{t('Font')}</h2>
         <p class="note">{t('Applies to the whole app')}</p>
@@ -66,6 +70,7 @@
         </div>
       </section>
 
+      <LinksOff />
       <!-- Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockup): small helps, each one can be switched off -->
       <section aria-labelledby="look-ops" data-ops>
         <h2 id="look-ops">{t('Handling')}</h2>

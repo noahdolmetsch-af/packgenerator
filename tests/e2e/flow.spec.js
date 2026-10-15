@@ -156,7 +156,7 @@ for (const lang of ['en', 'de']) {
     // v0.49.0 R1: one table; a done trip has no «Debrief open» badge.
     const pastRow = page.locator('table.tt tbody tr').filter({ hasText: title });
     await expect(pastRow).toBeVisible();
-    await expect(pastRow.locator('.nbadge')).toHaveCount(0);
+    await expect(pastRow.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
     await fits('Past trips');
 
     expect(errors, 'no page errors').toEqual([]);
