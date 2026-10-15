@@ -67,8 +67,22 @@ export function newTrip(startFrom, domain = null) {
  * opens it with "Change" and "Undo". The App takes the wish to Pack when another page is open.
  */
 export function dayRide(bikeId = null) {
+  // WS2 tip (Noah 14.10.2026 «2a»): the tip «Schnellstart» (tips.js, run 'dayRide') makes the Quick start
+  if (!(typeof bikeId === 'string' && bikeId)) return quickRide();
   // v0.46.0 (Noah 14a, 19a): "tagestour factor" and "Other bike" on Today: the ride on that bike.
   keep('pack.dayRide', typeof bikeId === 'string' && bikeId ? bikeId : '1');
+  location.hash = '#/pack';
+  window.dispatchEvent(new Event('pg:dayride'));
+}
+
+/**
+ * WS2 «Wieder sichtbar» (Noah 14.10.2026 «1a 2b 3a ws1-ws7 freigeben», tip «2a»): «Quick start» in
+ * «New», the search and the tips makes the trip by the same rules as the Quick start on Today
+ * (quickstart.js: today, 2.5 h, the bike ridden last, the standard items, the home forecast).
+ * Pack makes it and opens it with «Change» and «Undo», as the day ride. bikeId: a bike named in the search.
+ */
+export function quickRide(bikeId = null) {
+  keep('pack.dayRide', typeof bikeId === 'string' && bikeId ? `quick:${bikeId}` : 'quick');
   location.hash = '#/pack';
   window.dispatchEvent(new Event('pg:dayride'));
 }

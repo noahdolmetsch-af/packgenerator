@@ -5,7 +5,7 @@ export default {
   'At the end of the page: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
   'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
-  'Tap «New» › «Day ride now», or the day ride tile on Today.': 'Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.',
+  'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
   'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.': 'Beispiel: Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.',
   'Needs a few items under Gear first.': 'Braucht zuerst ein paar Teile unter Material.',

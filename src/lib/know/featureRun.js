@@ -9,7 +9,7 @@ import { downloadBackup } from '../backup.js';
 import { TIP, tapTip, updateTips } from '../tips.js';
 import { featureHref } from '../features.js';
 import { PLAY_WISH } from '../play.js';
-import { dayRide, openNew, openNote, openData, openWear } from '../nav.js';
+import { quickRide, openNew, openNote, openData, openWear } from '../nav.js';
 import { localDay } from '../localday.js';
 import { t, lang, setLang } from '../i18n.svelte.js';
 import { countFeature } from './wasneuStore.js';
@@ -26,7 +26,7 @@ export const openSearch = (text = '') => window.dispatchEvent(new CustomEvent('p
 const RUN = {
   trip: () => openNew('list'),
   newTrip: () => openNew('list'),
-  dayRide: () => dayRide(),
+  dayRide: () => quickRide(),
   // v0.119.0 «Schnellstart»: the button lives on Today
   quick: () => (location.hash = '#/'),
   wear: () => openWear(),

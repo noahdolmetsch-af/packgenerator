@@ -13,7 +13,7 @@
 export const HANDBOOK = {
   dayride: {
     on: 'Needs a trip that has started or ended.',
-    steps: ['Tap «New» › «Day ride now», or the day ride tile on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
+    steps: ['Tap «New» › «Quick start», or «Quick start» on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
     example: 'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.',
   },
   blocks: {
