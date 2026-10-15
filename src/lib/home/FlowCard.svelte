@@ -8,6 +8,8 @@
    * WG «Wi gaht's?» takes over the daily check: the row shows today's sleep, energy and mood (answered in
    * «Wi gaht's?», mirrored into the day's check) and leads to «Wi gaht's?» (#/me/abfragen); from the
    * evening round time the evening round with the satisfaction of «Wi gaht's?».
+   * 0.155.0 HN4 (release analysis D3, «Morgen-Runde» three times on Heute): with the day card on the wall the
+   * round lives there only; round={false} leaves the row out here. Without the day card it is here as before.
    */
   import { ChevronRight, Sun, Moon, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
@@ -22,7 +24,7 @@
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  let { today, round = true } = $props();
   const q = $derived(flowQuery(today));
   const data = $derived($q);
   $effect(() => {
@@ -65,7 +67,9 @@
           <p class="kick">{t('Still today')}</p>
           <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} help />
         {/if}
-        {#if evening}
+        {#if !round}
+          <!-- HN4: the round is in the day card -->
+        {:else if evening}
           <!-- WG: from the evening round time the entry offers the evening round of «Wi gaht's?» -->
           <div class="crow" class:done={sat != null} data-check-entry="evening">
             <Moon size={20} aria-hidden="true" />

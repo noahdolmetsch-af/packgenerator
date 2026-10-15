@@ -38,10 +38,11 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (14.10.2026, 0.154.0)
+## Stand heute (15.10.2026, 0.155.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.155.0 | **Heute neu geordnet** (HN4 + HN4b) (Mockup-Freigabe: HN4 «1a 2a 3a 4b HN4 freigegeben» Noah 14.10.2026 21:51, Thread cmsg_018WAR7H251KvEyztXFE5y9Q6xUXvUCqyKZov5xuzzXKZP; HN4b «3a» 22:12 und «HN4b freigegeben» 22:13, Thread cmsg_018WAR7H251KvEyztXFE5y9Q9VEbuzJpjHgYuQkNdpEk6E): Heute in neuer Reihenfolge, Tageskarte nach Tagesteil, «Heute wichtig» als Zeile, Balance kompakt neben Im Flow, Tourkarte am Vortag oben, Aktiv als ganze Zeile, «Strava verbinden» unten, zehn Kacheln weg von Heute; Ziel 3 | lokal gebaut |
 | 0.154.0 | **Bausteine mehr** (SN3h–SN3j) (Mockup-Freigabe: SN3h–SN3j «SN3h–SN3j freigegeben» Noah 14.10.2026 21:31:37 UTC, Antworten «1a 2a 3a 4b 5a»): neun neue Bausteine mit Beispiel-Teilen, neue Teile mit «+N neu» und Rückgängig, Kälte-Stufen je ein Vorschlag, fünf Gruppen mit Baden, Baden von Hand in Planen; baut auf 0.144.0 auf; Ziel 1 | lokal gebaut, PR folgt |
 | 0.144.0 | **Regeln einheitlich** (RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC): eine Regen-Grenze für die ganze App, «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo «Pflege für …»; Ziel 1, 2 und 4 | lokal gebaut, PR folgt |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | PR offen |

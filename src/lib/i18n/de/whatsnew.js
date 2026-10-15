@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.155.0 Heute neu geordnet (Meditations-Karte, Tageskarte, Heute wichtig in einer Zeile, Balance kompakt, Aktiv-Kachel)
+  'Today, newly ordered': 'Heute neu geordnet',
+  'On top the meditation and a day card that follows the time of day; below it everything else in a calm order.': 'Oben die Meditation und eine Tageskarte, die mit der Tageszeit geht; darunter alles andere in ruhiger Reihenfolge.',
+  'Aktiv on Today: the sleep of last night, your last activity, the next fixed date and the ways into Aktiv': 'Aktiv auf Heute: der Schlaf der letzten Nacht, deine letzte Aktivität, der nächste feste Termin und die Wege in Aktiv',
+  "The day card: in the morning «Wi gaht's?», the weather and what to wear; by day Quick start and your bikes; in the evening debrief, km and bike care": "Die Tageskarte: am Morgen «Wi gaht's?», das Wetter und was du anziehst; am Tag Schnellstart und deine Velos; am Abend Rückblick, km und Velopflege",
+  'Your balance sits small beside Im Flow, with your challenge, an idea for the weakest area, the next milestone and your body': 'Deine Balance steht klein neben Im Flow, mit deiner Challenge, einer Idee für den schwächsten Bereich, dem nächsten Meilenstein und deinem Körper',
+  '«Important today» is one line; the day before a trip the trip card moves up; the base weight is big, all of it with food and water in a small line': '«Heute wichtig» ist eine Zeile; am Tag vor einer Tour rutscht die Tourkarte nach oben; das Basisgewicht steht gross, alles mit Essen und Wasser in einer kleinen Zeile',
+  "Open Today in the morning: the meditation card, then the day card «Morning» with «Wi gaht's?», the weather and what to wear; «Morgen-Runde» is nowhere else.": "Öffne Heute am Morgen: die Meditations-Karte, dann die Tageskarte «Morgen» mit «Wi gaht's?», dem Wetter und was du anziehst; die «Morgen-Runde» steht sonst nirgends.",
+  'Tap «Day» in the small day clock of the card: Quick start, Plan a trip and «Bikes ready?».': 'Tippe in der kleinen Tagesuhr der Karte auf «Tag»: Schnellstart, Tour planen und «Velos bereit?».',
+  'Under the day card «Important today» is one line; tap «Show all»: the whole list opens.': 'Unter der Tageskarte ist «Heute wichtig» eine Zeile; tippe «Alle … zeigen»: die ganze Liste geht auf.',
+  'Plan a trip for tomorrow: its card stands right under the day card; the day after tomorrow it is back after the milestones.': 'Plane eine Tour für morgen: Ihre Karte steht direkt unter der Tageskarte; übermorgen steht sie wieder nach den Meilensteinen.',
+
   // 0.154.0 Bausteine mehr (neun neue Bausteine mit Beispiel-Teilen, «+N neu» mit Rückgängig, fünf Gruppen, Baden in Planen)
   'More building blocks': 'Mehr Bausteine',
   'Nine new building blocks for sleep, winter and bathing, each with example parts, and the page in five clear groups.': 'Neun neue Bausteine für Schlaf, Winter und Baden, jeder mit Beispiel-Teilen, und die Seite in fünf klaren Gruppen.',

@@ -3,6 +3,7 @@
 // command "wiegen", no sideways scroll at 320 and 390 px. Fictional fixture plus test_data_gtp_ records;
 // the clock stands on Friday 9 October 2026, 09:00; Open-Meteo is mocked, nothing leaves the preview.
 import { test, expect } from '@playwright/test';
+import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { greetFor } from '../../src/lib/home/hallo.js';
 
@@ -46,13 +47,14 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('.steps li.cur')).toHaveCount(1);
   await expect(page.locator('section.trip .btn.hi')).toHaveCount(1);
 
-  // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the 16 functions are small tiles on the ready wall
+  // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the functions are small tiles on the ready wall;
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): nine of the 16 left it (back through «+»)
   const buttons = page.locator('.wall [data-fn]');
-  await expect(buttons).toHaveCount(16);
-  await expect(buttons.first()).toHaveAttribute('data-fn', 'dayride');
-  // a number only where something waits: the notes and the bike care, not on Day ride
-  await expect(page.locator('.wall [data-fn="dayride"] .bd')).toHaveCount(0);
-  await expect(page.locator('.wall [data-fn="care"] .bd')).toHaveText('1');
+  await expect(buttons).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
+  await expect(buttons.first()).toHaveAttribute('data-fn', 'weigh');
+  // a number only where something waits: the open notes (the bike care is a line of Important today now)
+  await expect(page.locator('.wall [data-fn="ride"] .bd')).toHaveCount(0);
+  await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
 
   // Noah 2b: greeting and trip card without scrolling
   // HG1b (mockup HG1b): a first visit without a name asks for it once, one row under the greeting;
@@ -60,17 +62,23 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await page.locator('[data-name-ask] [data-name-later]').click();
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
-  expect(await inFirstScreen(page, page.locator('section.trip')), 'trip card in the first screen').toBe(true);
-  // mockup A: the trip, then what is important today and Im Flow; on a computer Im Flow starts in the first screen
-  const order = await page.locator('[data-section="trip"], [data-section="today"], [data-section="flow"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'today', 'flow']);
-  if (!phone) expect(await inFirstScreen(page, page.locator('#fc-h')), 'Im Flow starts in the first screen').toBe(true);
+  // v0.155.0 HN4 (changed on purpose): the meditation card and the day card come first; the day before a trip
+  // its card stands right under the day card (4b), then Important today and Im Flow
+  const dayTop = await page.locator('[data-daycard]').evaluate((el) => el.getBoundingClientRect().top);
+  expect(dayTop, 'the day card starts in the first screen').toBeLessThan(page.viewportSize().height);
+  const order = await page.locator('[data-daycard], [data-section="trip"], [data-section="today"], [data-section="flow"]').evaluateAll((els) => els.map((e) => (e.dataset.section ?? 'daycard')));
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['daycard', 'trip', 'today', 'flow']);
 
   // Important today, Tried it yet?, bikes, 12 months, customise
+  // v0.155.0 (2a, changed on purpose): one line with two rows, «Show all» opens the rest; «Tried it yet?» left Today
   const imp = page.getByRole('region', { name: T('Important today') });
-  await expect(imp.locator('li')).toHaveCount(3);
+  await expect(imp.locator('li')).toHaveCount(2);
+  await expect(imp.locator('button.more')).toHaveText(new RegExp(T('Show all {n}', { n: '(\\d+)' })));
+  const all = Number((await imp.locator('button.more').textContent()).match(/\d+/)[0]);
+  await imp.locator('button.more').click();
+  await expect(imp.locator('li')).toHaveCount(all);
   await expect(imp).toContainText(T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }));
-  await expect(page.getByRole('region', { name: T('Tried it yet?') })).toContainText(/\d+ von 16 Funktionen · Stufe \d|\d+ of 16 functions · Level \d/);
+  await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
   await expect(page.locator('[data-section="bikes"] a.bk')).toHaveCount(4);
   await expect(page.locator('[data-section="bikes"] [data-bike="test_data_gtp_lux"]')).toContainText(T('+ log km'));
   await expect(page.locator('[data-year-row] .bars span')).toHaveCount(12);
@@ -87,6 +95,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
 test('lubed right on Today, with Undo; a function tile opens its page', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   const imp = page.getByRole('region', { name: T('Important today') });
+  await imp.locator('button.more').click(); // v0.155.0: one line, the lube row may wait behind «Show all»
   const row = imp.locator('li').filter({ hasText: T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }) });
   const lubed = row.getByRole('button', { name: T('Lubed ✓') });
   if (info.project.name === 'phone') expect((await lubed.boundingBox()).height).toBeGreaterThanOrEqual(44);
@@ -99,8 +108,9 @@ test('lubed right on Today, with Undo; a function tile opens its page', async ({
   expect((await stored(page, 'bikes', 'bike-test')).parts[0].history).toHaveLength(1);
 
   // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
-  await page.locator('.wall [data-fn="review"]').click();
-  await expect(page).toHaveURL(/#\/debrief$/);
+  // v0.155.0: «Review» left the ready wall (HN4 3a); «Log a ride» is one of the functions still there
+  await page.locator('.wall [data-fn="ride"]').click();
+  await expect(page).toHaveURL(/#\/debrief\/ride$/);
 });
 
 test('test trips: hidden as next trip, cleaned up after a question on the page, Undo', async ({ page, context }, info) => {

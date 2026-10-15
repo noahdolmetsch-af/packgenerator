@@ -6,7 +6,7 @@
 
 /** { featureId: [step 1, step 2, step 3] } */
 export const HOWTO = {
-  dayride: ['Open Today.', 'Tap «Plan a day ride».', 'The ride comes like your last one, with the weather; change what you like.'],
+  dayride: ['Open Today.', 'Tap «Quick start».', 'The ride comes like your last one, with the weather; change what you like.'],
   blocks: ['Open Gear › Building blocks.', 'Look at a block such as sleep, cook or rain.', 'In a new trip, tick the blocks: their items come along.'],
   templates: ['Open a good trip in Packen.', 'Under «…» choose «Save as template».', 'For the next trip start from this template.'],
   gpx: ['Open a trip, e.g. your next one.', 'At «Route» tap «Load GPX».', 'Choose the file: km, climbing and riding time come along.'],

@@ -7,7 +7,11 @@
 // mocked; SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
 import { D0, openHome } from './home0460-fixture.js';
-import { READY, TILE, TILES, HELPER_TILES, isNew } from '../../src/lib/home/tiles.js';
+import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
+
+// v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
+// right under the day card; the helper's tile rests while the AI helper is off (v0.118.0)
+const SHOWN = tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true);
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -35,10 +39,11 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await expect(page.locator('#next-h')).toBeVisible();
   await shot(page, info, 'A-Kachel-Wand');
 
-  expect(await ids(page)).toEqual(READY.map((x) => x.id));
-  for (const x of READY) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', x.size);
-  // the 16 functions are small buttons, the numbers where something waits
-  await expect(page.locator('.wall [data-fn="care"] .bd')).toHaveText('1');
+  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
+  for (const x of SHOWN) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', x.size);
+  // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
+  // Important today now, the two open notes stay a number)
+  await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
   // the columns: a small tile is an eighth (computer) or a quarter (phone) of the wall
   const wall = await page.locator('.wall').boundingBox();
   const small = await page.locator('.wall [data-tile="fn:weigh"]').boundingBox();
@@ -48,7 +53,7 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await expect(page.locator('.wall .plusw')).toBeVisible();
   await expect(page.locator('.wall > div').last()).toHaveClass(/plusw/);
   // «New» on the new tiles (idea 1), Important today and Im Flow on Today, no «Your data» at the bottom
-  for (const x of READY.filter((y) => TILE[y.id].since)) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
+  for (const x of SHOWN.filter((y) => TILE[y.id].since)) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
   await expect(page.locator('[data-section="today"] li[data-row]').first()).toBeVisible();
   await expect(page.locator('details.data')).toHaveCount(0);
   // no sideways scroll
@@ -91,7 +96,10 @@ test('customise: take away, resize, move, kept after a reload; Reset brings the 
   // Reset: the ready wall again
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   await page.getByRole('button', { name: T('Reset') }).click();
-  await expect.poll(() => ids(page)).toEqual(READY.map((x) => x.id));
+  // while customising the stored order shows (the trip card moves up again after «Done», 4b)
+  await expect.poll(() => ids(page)).toEqual(READY.filter((x) => !HELPER_TILES.includes(x.id)).map((x) => x.id));
+  await page.getByRole('button', { name: T('Done|customise') }).click();
+  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   expect(errors).toEqual([]);
 });
 
@@ -99,7 +107,8 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
   test.skip(info.project.name === 'phone', 'the handle is dragged with the mouse here; the phone uses the same pointer events');
   const T = await openHome(page, context, info);
   await page.getByRole('button', { name: T('Customise the start page') }).click();
-  const grip = page.getByRole('button', { name: T('Drag {name}', { name: T('Meditation') }) });
+  // v0.155.0: meditation stands first now (HN4); «Milestones», two places after the series, is dragged up instead
+  const grip = page.getByRole('button', { name: T('Drag {name}', { name: T(TILE.milestones.label) }), exact: true });
   // v0.101.0: «Customise» sits at the top now; bring the two tiles into the screen before dragging
   await page.locator('.wall [data-tile="series"]').scrollIntoViewIfNeeded();
   await grip.scrollIntoViewIfNeeded();
@@ -109,21 +118,23 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
   await page.mouse.down();
   await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 8 });
   await page.mouse.up();
-  await expect.poll(async () => (await ids(page)).indexOf('meditation')).toBeLessThan(READY.findIndex((x) => x.id === 'series') + 1);
-  await expect.poll(async () => (await wallStored(page))?.tiles.findIndex((x) => x.id === 'meditation')).toBe((await ids(page)).indexOf('meditation'));
+  // while customising the wall shows the stored order (the trip card moves up only outside of it, 4b)
+  await expect.poll(async () => (await ids(page)).indexOf('milestones')).toBeLessThan(READY.findIndex((x) => x.id === 'series') + 1);
+  await expect.poll(async () => (await wallStored(page))?.tiles.findIndex((x) => x.id === 'milestones')).toBe((await ids(page)).indexOf('milestones'));
 });
 
 test('a long press on a tile opens customising on a phone', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a long press is a finger thing');
   const T = await openHome(page, context, info);
-  const tile = page.locator('.wall [data-tile="fn:wardrobe"] .st');
+  // v0.155.0: «Wardrobe» left the ready wall (HN4 3a); «Weigh» is still a small tile
+  const tile = page.locator('.wall [data-tile="fn:weigh"] .st');
   await tile.scrollIntoViewIfNeeded();
   const b = await tile.boundingBox();
   await tile.dispatchEvent('pointerdown', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });
   await page.waitForTimeout(800);
   await tile.dispatchEvent('pointerup', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });
   await expect(page.getByRole('region', { name: T('Customise the start page') })).toBeVisible();
-  expect(new URL(page.url()).hash).not.toBe('#/wardrobe');
+  expect(new URL(page.url()).hash).not.toBe('#/gear?tab=weigh');
 });
 
 test('plus adds any tile from the catalog by area, with a search; the tick takes it away again', async ({ page, context }, info) => {
@@ -137,22 +148,23 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
   // v0.118.0 «KI-Helfer ausblenden» (changed on purpose): the helper's tile only while the AI helper is shown
   await expect(sheet.locator('[data-add]')).toHaveCount(TILES.length - HELPER_TILES.length);
   await shot(page, info, 'C-Kachel-hinzufuegen');
-  await sheet.getByRole('searchbox', { name: T('Search tiles') }).fill(T(TILE.milestones.label).slice(0, 6));
-  const add = sheet.locator('[data-add="milestones"]');
+  // v0.155.0 (changed on purpose): «Milestones» is on the ready wall now; «Next milestone» left it (HN4) and comes back here
+  await sheet.getByRole('searchbox', { name: T('Search tiles') }).fill(T(TILE.nextms.label).slice(0, 6));
+  const add = sheet.locator('[data-add="nextms"]');
   await expect(add).toHaveAttribute('aria-pressed', 'false');
   await add.click();
   await expect(add).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   await expect(sheet).toHaveCount(0);
-  expect((await ids(page)).at(-1)).toBe('milestones');
-  await page.locator('.wall [data-tile="milestones"] a').click();
+  expect((await ids(page)).at(-1)).toBe('nextms');
+  await page.locator('.wall [data-tile="nextms"] a').click();
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
   await page.goBack();
   // ✓ again takes it away
   await page.getByRole('button', { name: T('Add a tile') }).click();
-  await page.locator('[data-add="milestones"]').click();
+  await page.locator('[data-add="nextms"]').click();
   await page.keyboard.press('Escape');
-  await expect(page.locator('.wall [data-tile="milestones"]')).toHaveCount(0);
+  await expect(page.locator('.wall [data-tile="nextms"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

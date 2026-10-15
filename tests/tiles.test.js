@@ -1,6 +1,6 @@
 // v0.94.0 «Kachel-Wand» (Noah 11.10.2026, Trello nLi5yNmS «1-5 a»): the wall of tiles (tiles.js).
 import { describe, it, expect } from 'vitest';
-import { TILES, TILE, READY, SIZES, AREAS, wallOf, wallRecord, ADDED_0101, ADDED_0127, GONE, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
+import { TILES, TILE, READY, SIZES, AREAS, wallOf, wallBefore5, wallRecord, ADDED_0101, ADDED_0127, GONE, REMOVED_0155, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
 import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 
 describe('the tiles', () => {
@@ -13,10 +13,12 @@ describe('the tiles', () => {
     }
     expect(new Set(TILES.map((x) => x.id)).size).toBe(TILES.length);
   });
-  it('all 16 functions are tiles, and on the ready wall', () => {
+  // 0.155.0 HN4: the functions the day card shows left the ready wall (REMOVED_0155); all stay in the catalog
+  it('all 16 functions are tiles; on the ready wall unless the day card took them over', () => {
     for (const f of FUNCTIONS) {
       expect(TILE[`fn:${f.id}`]?.fn).toBe(f.id);
-      expect(READY.some((x) => x.id === `fn:${f.id}`)).toBe(true);
+      expect(catalog().flatMap((a) => a.tiles).some((x) => x.id === `fn:${f.id}`)).toBe(true);
+      expect(READY.some((x) => x.id === `fn:${f.id}`)).toBe(!REMOVED_0155.includes(`fn:${f.id}`));
     }
   });
   it('the ready wall uses sizes its tiles can take', () => {
@@ -34,11 +36,12 @@ describe('the stored wall', () => {
   it('drops unknown tiles and doubles, fixes sizes', () => {
     // v0.110.0 (I11e): «New in the app» may be a whole row now; the playground still may not
     // v0.127.0: a wall is stored as v 4 now (v 3 walls get the three daily-check tiles once, below)
-    const w = wallOf({ v: 4, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
+    // 0.155.0: a wall is stored as v 5 now (walls of before get the order of HN4 once, tests/heuteneu.test.js)
+    const w = wallOf({ v: 5, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
-    expect(wallOf({ v: 4, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 4, tiles: w });
-    expect(wallOf({ v: 4, tiles: [] })).toEqual([]);
+    expect(wallOf({ v: 5, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
+    expect(wallRecord(w)).toEqual({ v: 5, tiles: w });
+    expect(wallOf({ v: 5, tiles: [] })).toEqual([]);
   });
   it('v0.101.0: the new tiles are marked «neu» for two weeks from the release', () => {
     for (const id of ADDED_0101) {
@@ -47,24 +50,24 @@ describe('the stored wall', () => {
     }
   });
   it('v0.101.0: a wall stored before gets the new tiles once, after Im Flow', () => {
-    const old = wallOf({ v: 1, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'month', size: 'l' }, { id: 'year', size: 'long' }] });
+    const old = wallBefore5({ v: 1, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'month', size: 'l' }, { id: 'year', size: 'long' }] });
     // v0.102.0: and the suggestion tile right after Im Flow (at the end without it)
     // v0.127.0: and the daily-check tiles right after Im Flow (WG: the balance and the round tile)
     expect(old.map((x) => x.id)).toEqual(['trip', 'flow', ...ADDED_0127, 'suggest', 'week', 'nextms', 'yearago', 'month', 'year']);
-    expect(wallOf({ tiles: [{ id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['year', ...ADDED_0101, 'suggest', ...ADDED_0127]);
+    expect(wallBefore5({ tiles: [{ id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['year', ...ADDED_0101, 'suggest', ...ADDED_0127]);
     // a wall of 0.101 (v 2) gets only the suggestion (and the daily-check tiles)
-    expect(wallOf({ v: 2, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['trip', 'flow', ...ADDED_0127, 'suggest']);
+    expect(wallBefore5({ v: 2, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['trip', 'flow', ...ADDED_0127, 'suggest']);
     // taken away after that, they stay away
-    expect(wallOf(wallRecord(old.filter((x) => x.id !== 'week'))).map((x) => x.id)).not.toContain('week');
+    expect(wallBefore5(wallRecord(old.filter((x) => x.id !== 'week'))).map((x) => x.id)).not.toContain('week');
   });
   // WG «Wi gaht's?» takes over the daily check: «Deine 15 Fragen» is gone, so a wall of before gets two tiles
   it('v0.127.0: a wall of before (v 3) gets the balance and the round tile once, after Im Flow (WG: no more «Deine 15 Fragen»)', () => {
-    const v3 = wallOf({ v: 3, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'year', size: 'long' }] });
+    const v3 = wallBefore5({ v: 3, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'year', size: 'long' }] });
     expect(v3.map((x) => x.id)).toEqual(['trip', 'flow', 'balance', 'morningcheck', 'year']);
     expect(v3.find((x) => x.id === 'morningcheck').size).toBe('l');
     // one taken away stays away; a tile already there is not added twice
-    expect(wallOf(wallRecord(v3.filter((x) => x.id !== 'balance'))).map((x) => x.id)).not.toContain('balance');
-    expect(wallOf({ v: 3, tiles: [{ id: 'balance', size: 'long' }] })).toEqual([{ id: 'balance', size: 'long' }, { id: 'morningcheck', size: 'l' }]);
+    expect(wallBefore5(wallRecord(v3.filter((x) => x.id !== 'balance'))).map((x) => x.id)).not.toContain('balance');
+    expect(wallBefore5({ v: 3, tiles: [{ id: 'balance', size: 'long' }] })).toEqual([{ id: 'balance', size: 'long' }, { id: 'morningcheck', size: 'l' }]);
     for (const id of ADDED_0127) {
       expect(isNew(TILE[id], '2026-10-14')).toBe(true); // new since 0.132.0 (14.10.2026; 0.125.0 never went live)
       expect(TILE[id].area).toBe('flow');
@@ -77,12 +80,12 @@ describe('the stored wall', () => {
       expect(catalog().flatMap((a) => a.tiles).some((x) => x.id === id)).toBe(false);
     }
     const stored = { v: 4, tiles: [{ id: 'trip', size: 'long' }, { id: 'check', size: 's' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'questions', size: 'long' }, { id: 'year', size: 'long' }] };
-    expect(wallOf(stored)).toEqual([{ id: 'trip', size: 'long' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'year', size: 'long' }]);
+    expect(wallBefore5(stored)).toEqual([{ id: 'trip', size: 'long' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'year', size: 'long' }]);
     // a wall of before (v 3) with the 15 questions: they go, the round tile comes once
-    expect(wallOf({ v: 3, tiles: [{ id: 'flow', size: 'l' }, { id: 'questions', size: 'long' }] }).map((x) => x.id)).toEqual(['flow', 'balance', 'morningcheck']);
+    expect(wallBefore5({ v: 3, tiles: [{ id: 'flow', size: 'l' }, { id: 'questions', size: 'long' }] }).map((x) => x.id)).toEqual(['flow', 'balance', 'morningcheck']);
     // saved again, the record has no trace of them
-    expect(wallRecord(wallOf(stored)).tiles.map((x) => x.id)).not.toContain('check');
-    expect(wallRecord(wallOf(stored)).tiles.map((x) => x.id)).not.toContain('questions');
+    expect(wallRecord(wallBefore5(stored)).tiles.map((x) => x.id)).not.toContain('check');
+    expect(wallRecord(wallBefore5(stored)).tiles.map((x) => x.id)).not.toContain('questions');
   });
   it('moves, steps, resizes, removes and adds', () => {
     const w = [{ id: 'trip', size: 'long' }, { id: 'news', size: 'w' }, { id: 'play', size: 's' }];

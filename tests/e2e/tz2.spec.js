@@ -154,7 +154,9 @@ test('Heute: «Rückblick ausfüllen» and «Bist du gefahren?» with Ja · Nich
   await settle(page);
   const imp = page.locator('section.imp');
   const more = imp.getByRole('button', { name: new RegExp(esc(T('Show all {n}', { n: 'X' })).replace('X', '\\d+')) });
-  if (await more.count()) await more.click();
+  // v0.155.0 «Heute neu geordnet» (2a, changed on purpose): one line with two rows; «Show all» opens the rest
+  await expect(more).toBeVisible();
+  await more.click();
   // the open debrief: «… (date): Rückblick ausfüllen · 2 Min.» with «Rückblick»; «Alles gut» stays beside it
   const deb = imp.locator('li[data-row="debrief"]');
   await expect(deb).toHaveCount(1);

@@ -58,6 +58,8 @@
     box-shadow: var(--card-shadow);
     color: var(--ink);
     overflow: hidden;
+    /* 0.155.0 HN4 (release analysis: «Ausprobieren» cut off at 390 px): the tile knows its own width */
+    container-type: inline-size;
   }
   .news.s {
     flex-direction: column;
@@ -108,6 +110,18 @@
   }
   .acts .btn:not(.hi) {
     background: var(--paper);
+  }
+  .acts .btn {
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  /* a narrow tile (wide on a phone): no icon, so «Ausprobieren» has the whole width */
+  @container (max-width: 300px) {
+    .ic {
+      display: none;
+    }
   }
   .tag {
     display: inline-flex;
