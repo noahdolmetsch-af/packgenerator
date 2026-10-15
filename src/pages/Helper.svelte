@@ -6,10 +6,14 @@
    * every place comes back at once. Below the six places with «on»/«off». Beside it «Setup», which stays
    * when it is off: the key (code, check), the monthly limit with this month's spend, «What goes to Claude?».
    * The code is only on this device, never in a backup or an export.
+   * 15.10.2026 (Noah «1b 2a, wobei nutzer dies ändern kann im frontend»): limit CHF 2 by default, and a
+   * «Model» fold: Sonnet 5.5 (default) or Haiku 5.5; saved on this device, sent with every request.
+   * Noah «3b» then «erstelle selber einen vorschlag»: the fold «Usage and costs» explains when it costs,
+   * what a request costs (estimate), how the limit, the switch and the model keep the costs low.
    */
-  import { Sparkles, Check, ChevronRight, Route, Backpack, BookOpen, Bike, Search, Sun, Scale, TriangleAlert, KeyRound } from '@lucide/svelte';
+  import { Sparkles, Check, ChevronRight, Route, Backpack, BookOpen, Bike, Search, Sun, Scale, TriangleAlert, KeyRound, Cpu, Coins } from '@lucide/svelte';
   import { t } from '../lib/i18n.svelte.js';
-  import { helper, saveSettings, ask, errorText, isPaused, thisMonth, DEFAULT_CAP } from '../lib/helper/client.svelte.js';
+  import { helper, saveSettings, ask, errorText, isPaused, thisMonth, DEFAULT_CAP, MODELS } from '../lib/helper/client.svelte.js';
   import { HELPER_PLACES } from '../lib/helper/places.js';
   import HelperNotice from '../lib/helper/HelperNotice.svelte';
   import '../lib/helper/helper.css';
@@ -51,6 +55,11 @@
     const n = Number(String(cap).replace(',', '.'));
     if (!(n > 0 && n <= 500)) return (msg = t('Monthly limit: a number of francs from 0.50 to 500.'));
     await saveSettings({ capChf: Math.round(n * 100) / 100 });
+    msg = t('Saved on this device.');
+  }
+  const modelName = $derived(MODELS.find((m) => m.id === helper.model)?.name ?? MODELS[0].name);
+  async function saveModel(id) {
+    await saveSettings({ model: id });
     msg = t('Saved on this device.');
   }
   async function test() {
@@ -142,6 +151,40 @@
               {#if isPaused()}<p class="kh-msg" role="status">{errorText('paused', { capChf: helper.capChf })}</p>{/if}
             </div>
           </details>
+          <details class="hp-fold" data-hp="costs">
+            <summary class="ich-row">
+              <span class="ich-ib"><Coins size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Usage and costs')}</b><small>{t('a few centimes per request, estimate')}</small></span>
+              <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
+            </summary>
+            <div class="hp-in">
+              <p class="hp-help"><b>{t('When it costs|helper')}</b> · {t('Only when the helper asks Claude: when you tap a helper button, ask a question in the search that ends with «?», or open bike care (at most once a day per bike, and only when something changed).')}</p>
+              <p class="hp-help"><b>{t('How much|helper')}</b> · {t('A request usually costs 1 to 5 centimes, at most about 11. About 100 requests a month: CHF 1.50 to 4 with Sonnet 5.5, CHF 0.10 to 0.20 with Haiku 5.5.')}</p>
+              <p class="hp-help"><b>{t('Who pays|helper')}</b> · {t('Your credit at Anthropic. When it is used up, the helper stops answering and nothing more is charged.')}</p>
+              <p class="hp-help"><b>{t('Your limit|helper')}</b> · {t('At {cap} a month the helper pauses until next month. This month: about {chf}.', { cap: chf(helper.capChf ?? DEFAULT_CAP), chf: chf(spentChf) })}</p>
+              <p class="hp-help"><b>{t('Free|helper')}</b> · {t('Switched off, offline or paused, the app never asks Claude. Everything else in the app stays free.')}</p>
+              <p class="hp-help"><b>{t('Tip|helper')}</b> · {t('Haiku 5.5 is enough for short questions and is about 20 times cheaper. You can switch under «Model».')}</p>
+              <p class="hp-help">{t('All amounts are estimates. The exact bill is in the Anthropic console.')}</p>
+            </div>
+          </details>
+          <details class="hp-fold" data-hp="model">
+            <summary class="ich-row">
+              <span class="ich-ib"><Cpu size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Model')}</b><small>{modelName}</small></span>
+              <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
+            </summary>
+            <div class="hp-in">
+              <fieldset class="hp-models">
+                <legend class="hp-help">{t('Which Claude answers. You can switch any time.')}</legend>
+                {#each MODELS as m (m.id)}
+                  <label class="hp-model">
+                    <input type="radio" name="hp-model" value={m.id} checked={helper.model === m.id} disabled={!helper.loaded} onchange={() => saveModel(m.id)} />
+                    <span class="ich-m"><b>{m.name}</b><small>{t(m.what)}</small></span>
+                  </label>
+                {/each}
+              </fieldset>
+            </div>
+          </details>
           <details class="hp-fold">
             <summary class="ich-row">
               <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
@@ -172,6 +215,23 @@
   }
   .hp-show {
     cursor: pointer;
+  }
+  .hp-models {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .hp-model {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .hp-model input {
+    margin-top: 3px;
+    accent-color: var(--hi);
   }
   .hp-spark {
     background: var(--hi-soft);

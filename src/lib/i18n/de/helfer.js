@@ -91,4 +91,25 @@ export default {
   'Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.': 'Pro Anfrage nur, was diese Aufgabe braucht: Namen, Kategorien und Gewichte deiner Teile, Bausteine, Temperaturbereiche, die Bedingungen der Tour, deine Learnings und Notizen, und für die Velopflege die Teile mit km, Intervallen und letztem Service. Keine Beträge, keine Werkstattnamen, keine Dokumente, nie der Helfer-Code.',
   // v0.77.0 (K1a): the row on «Ich»
   'Suggestions from Claude, only on request': 'Vorschläge von Claude, nur auf Wunsch',
+  // 15.10.2026 (Noah «1b 2a»): the model choice
+  Model: 'Modell',
+  'Which Claude answers. You can switch any time.': 'Welches Claude antwortet. Du kannst jederzeit wechseln.',
+  'Default. Better answers, a few centimes per request.': 'Standard. Bessere Antworten, ein paar Rappen pro Anfrage.',
+  'Cheaper, about 20 times less. Simpler answers.': 'Günstiger, etwa 20-mal weniger. Einfachere Antworten.',
+  // 15.10.2026 (Noah «3b», «erstelle selber einen vorschlag»): the info text «Usage and costs»
+  'Usage and costs': 'Nutzung und Kosten',
+  'a few centimes per request, estimate': 'ein paar Rappen pro Anfrage, geschätzt',
+  'When it costs|helper': 'Wann es kostet',
+  'Only when the helper asks Claude: when you tap a helper button, ask a question in the search that ends with «?», or open bike care (at most once a day per bike, and only when something changed).': 'Nur wenn der Helfer Claude fragt: wenn du einen Helfer-Knopf antippst, in der Suche eine Frage mit «?» stellst oder die Velopflege öffnest (höchstens einmal am Tag pro Velo, und nur wenn sich etwas geändert hat).',
+  'How much|helper': 'Wie viel',
+  'A request usually costs 1 to 5 centimes, at most about 11. About 100 requests a month: CHF 1.50 to 4 with Sonnet 5.5, CHF 0.10 to 0.20 with Haiku 5.5.': 'Eine Anfrage kostet meist 1 bis 5 Rappen, höchstens etwa 11. Etwa 100 Anfragen im Monat: CHF 1.50 bis 4 mit Sonnet 5.5, CHF 0.10 bis 0.20 mit Haiku 5.5.',
+  'Who pays|helper': 'Wer bezahlt',
+  'Your credit at Anthropic. When it is used up, the helper stops answering and nothing more is charged.': 'Dein Guthaben bei Anthropic. Ist es leer, antwortet der Helfer nicht mehr, und es kostet nichts weiter.',
+  'Your limit|helper': 'Dein Limit',
+  'At {cap} a month the helper pauses until next month. This month: about {chf}.': 'Bei {cap} im Monat macht der Helfer Pause bis nächsten Monat. Diesen Monat: etwa {chf}.',
+  'Free|helper': 'Gratis',
+  'Switched off, offline or paused, the app never asks Claude. Everything else in the app stays free.': 'Ausgeschaltet, offline oder in der Pause fragt die App nie bei Claude. Alles andere in der App bleibt gratis.',
+  'Tip|helper': 'Tipp',
+  'Haiku 5.5 is enough for short questions and is about 20 times cheaper. You can switch under «Model».': 'Haiku 5.5 reicht für kurze Fragen und ist etwa 20-mal günstiger. Umstellen kannst du unter «Modell».',
+  'All amounts are estimates. The exact bill is in the Anthropic console.': 'Alle Beträge sind Schätzungen. Die genaue Rechnung zeigt die Anthropic-Konsole.',
 };

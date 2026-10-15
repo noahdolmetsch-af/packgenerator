@@ -1,7 +1,7 @@
 /**
  * v0.77.0 «KI-Helfer»: the helper's settings on this device and the one way to ask it.
  *
- * Settings record "helper" (db.settings): { code, on, capChf }. It is device-only (backup.js
+ * Settings record "helper" (db.settings): { code, on, capChf, model }. It is device-only (backup.js
  * DEVICE_SETTINGS): the Helfer-Code never goes into an export, a backup file or the folder backup.
  * The month's spend comes back with every answer and is kept in db.meta (never exported).
  *
@@ -12,7 +12,9 @@
  * false), brings every place back at once: Packen «Check the list», the debrief draft, bike care, the
  * search answer, the tile on Today and «Ask the helper» in New trip. The code, the limit and the old
  * `on` stay stored as they are; switched off, nothing is asked and nothing goes to Claude.
- * The monthly limit (answer 7a, default CHF 5) pauses it until next month; the server has its own.
+ * The monthly limit (answer 7a) pauses it until next month; the server has its own. Noah 15.10.2026 «1b»:
+ * the default is CHF 2. «2a, wobei nutzer dies ändern kann im frontend»: Sonnet 5.5 stays the default
+ * model, Ich › KI-Helfer can switch to Haiku 5.5 (cheaper); the choice goes with every request.
  */
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
@@ -22,13 +24,20 @@ import { localDay } from '../localday.js';
 export const HELPER_URL = 'https://packgen-three.vercel.app/api/helper';
 export const HELPER_KEY = 'helper';
 export const SPEND_KEY = 'helper.spend';
-export const DEFAULT_CAP = 5;
+export const DEFAULT_CAP = 2;
+/** The models the person can pick (the server checks the same list). The first is the default. */
+export const MODELS = [
+  { id: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5', what: 'Default. Better answers, a few centimes per request.' },
+  { id: 'claude-haiku-5-5', name: 'Claude Haiku 5.5', what: 'Cheaper, about 20 times less. Simpler answers.' },
+];
+export const DEFAULT_MODEL = MODELS[0].id;
+const modelOf = (v) => (MODELS.some((m) => m.id === v) ? v : DEFAULT_MODEL);
 const TIMEOUT = 90_000;
 
 export const thisMonth = (day = localDay()) => day.slice(0, 7);
 
 /** The settings as stored, with the defaults filled in. */
-export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', show: value?.show === true, capChf: Number(value?.capChf) > 0 ? Number(value.capChf) : DEFAULT_CAP });
+export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', show: value?.show === true, capChf: Number(value?.capChf) > 0 ? Number(value.capChf) : DEFAULT_CAP, model: modelOf(value?.model) });
 
 /** Paused by the limit: this month's spend reached the device's cap or the server's. */
 export function pausedBy(settings, spend, month = thisMonth()) {
@@ -38,7 +47,7 @@ export function pausedBy(settings, spend, month = thisMonth()) {
 }
 
 /** The live state for the components. */
-export const helper = $state({ loaded: false, code: '', show: false, capChf: DEFAULT_CAP, spend: null });
+export const helper = $state({ loaded: false, code: '', show: false, capChf: DEFAULT_CAP, model: DEFAULT_MODEL, spend: null });
 export const isSetUp = () => !!helper.code;
 export const isPaused = () => pausedBy(helper, helper.spend);
 /** v0.118.0: the one switch «Show the AI helper in the app» (default off). */
@@ -57,7 +66,7 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   });
 }
 
-/** Save part of the settings ({ code } / { show } / { capChf }); the other fields stay as stored. */
+/** Save part of the settings ({ code } / { show } / { capChf } / { model }); the other fields stay as stored. */
 export async function saveSettings(patch) {
   const cur = settingsOf((await db.settings.get(HELPER_KEY))?.value);
   await db.settings.put({ key: HELPER_KEY, value: { ...cur, ...patch } });
@@ -92,7 +101,7 @@ export async function ask(task, input, { fetchFn = (...a) => fetch(...a) } = {})
     res = await fetchFn(HELPER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${s.code}` },
-      body: JSON.stringify({ task, input }),
+      body: JSON.stringify({ task, input, model: s.model }),
       signal: ctl.signal,
     });
   } catch {

@@ -88,7 +88,7 @@ async function fakeHelper(page, { reply = null } = {}) {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204 });
     const body = JSON.parse(req.postData() ?? '{}');
-    seen.push({ task: body.task, input: body.input, raw: req.postData(), auth: req.headers().authorization });
+    seen.push({ task: body.task, input: body.input, model: body.model, raw: req.postData(), auth: req.headers().authorization });
     const custom = reply?.(body);
     if (custom) return route.fulfill({ status: custom.status, contentType: 'application/json', body: JSON.stringify(custom.body) });
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(answers(body.input ?? {}, body.task)) });
@@ -389,10 +389,49 @@ test('5a + 6a: bike care: suggestions inside «Jetzt fällig», a concrete check
   expect(errors).toEqual([]);
 });
 
+// 15.10.2026 (Noah «1b 2a, wobei nutzer dies ändern kann im frontend»): CHF 2 by default; Sonnet 5.5 is the
+// default model, Ich › KI-Helfer «Modell» switches to Haiku 5.5, and the choice goes with every request.
+test('1b + 2a: limit CHF 2 by default; the model is Sonnet 5.5 until Haiku 5.5 is picked, and it is sent along', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  const seen = await fakeHelper(page);
+  await setUp(page);
+  await expect(page.getByText(T('of {chf}', { chf: 'CHF 2.00' }), { exact: false })).toBeAttached();
+  await page.getByRole('button', { name: T('Check the connection') }).click();
+  await expect(page.getByText(T('Connected. This month: {chf}.', { chf: 'CHF 0.12' }))).toBeVisible();
+  expect(seen.at(-1).model).toBe('claude-sonnet-5-5');
+
+  // the info text «Usage and costs» (Noah «3b»): the limit and this month's spend in it
+  const costs = page.locator('[data-hp="costs"]');
+  await costs.locator('summary').click();
+  await expect(costs.getByText(T('At {cap} a month the helper pauses until next month. This month: about {chf}.', { cap: 'CHF 2.00', chf: 'CHF 0.12' }))).toBeVisible();
+  await expect(costs.getByText(T('All amounts are estimates. The exact bill is in the Anthropic console.'))).toBeVisible();
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('kh-costs.png'), fullPage: true });
+  await costs.locator('summary').click();
+
+  const fold = page.locator('[data-hp="model"]');
+  await expect(fold.locator('summary')).toContainText('Claude Sonnet 5.5');
+  await fold.locator('summary').click();
+  await expect(fold.getByRole('radio', { name: /Claude Sonnet 5\.5/ })).toBeChecked();
+  await expect(fold.getByText(T('Cheaper, about 20 times less. Simpler answers.'))).toBeVisible();
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('kh-model.png'), fullPage: true });
+  await fold.getByRole('radio', { name: /Claude Haiku 5\.5/ }).check();
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, show: true, model: 'claude-haiku-5-5' });
+  await expect(fold.locator('summary')).toContainText('Claude Haiku 5.5');
+
+  await page.getByRole('button', { name: T('Check the connection') }).click();
+  await expect.poll(() => seen.at(-1)?.model).toBe('claude-haiku-5-5');
+  await page.reload();
+  await expect(page.locator('[data-hp="model"] summary')).toContainText('Claude Haiku 5.5');
+  private_(seen);
+  expect(errors).toEqual([]);
+});
+
 test('7a: the monthly cap (429) pauses the helper calmly until next month; offline says one calm line', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   let capped = false;
-  const seen = await fakeHelper(page, { reply: (b) => (capped && b.task !== 'status' ? { status: 429, body: { error: 'monthly_cap', code: 'monthly_cap', message: 'cap', spend: { month: month(), chf: 5.03, cap: 5 } } } : null) });
+  const seen = await fakeHelper(page, { reply: (b) => (capped && b.task !== 'status' ? { status: 429, body: { error: 'monthly_cap', code: 'monthly_cap', message: 'cap', spend: { month: month(), chf: 2.03, cap: 2 } } } : null) });
   await setUp(page);
   // offline first: one calm line, nothing sent (v0.114.0: the helper comes into New trip with a question from the search)
   await context.setOffline(true);
@@ -405,19 +444,19 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
 
   capped = true;
   await dlg.getByRole('button', { name: T('Get a suggestion') }).click();
-  const pause = dlg.getByText(new RegExp(esc(T('The helper pauses until {date}: the monthly limit of CHF {cap} is reached. Everything else works as usual.', { date: 'XX', cap: '5.00' })).replace('XX', '.+')));
+  const pause = dlg.getByText(new RegExp(esc(T('The helper pauses until {date}: the monthly limit of CHF {cap} is reached. Everything else works as usual.', { date: 'XX', cap: '2.00' })).replace('XX', '.+')));
   await expect(pause).toBeVisible();
-  await expect.poll(async () => (await table(page, 'meta')).find((m) => m.key === 'helper.spend')?.value).toMatchObject({ month: month(), chf: 5.03 });
+  await expect.poll(async () => (await table(page, 'meta')).find((m) => m.key === 'helper.spend')?.value).toMatchObject({ month: month(), chf: 2.03 });
   // From now on nothing is asked: the field says it pauses, the settings too.
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();
   await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
   dlg = await openNewTrip(page);
-  await expect(dlg.locator('.kh-ask .kh-msg')).toContainText('CHF 5.00');
+  await expect(dlg.locator('.kh-ask .kh-msg')).toContainText('CHF 2.00');
   await expect(dlg.getByRole('button', { name: T('Get a suggestion') })).toHaveCount(0);
   await page.goto('./#/helper');
   await expect(page.getByText(T('paused until next month'), { exact: true })).toBeVisible();
-  await expect(page.getByText(T('this month: {chf}', { chf: 'CHF 5.03' }), { exact: true })).toBeVisible();
+  await expect(page.getByText(T('this month: {chf}', { chf: 'CHF 2.03' }), { exact: true })).toBeVisible();
   expect(seen.filter((r) => r.task !== 'status')).toHaveLength(1);
   expect(errors).toEqual([]);
 });

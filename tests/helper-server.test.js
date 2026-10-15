@@ -2,7 +2,7 @@
 // fake Claude. Fictional values only (no real key or code anywhere).
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { makeHandler, sameToken, helperEnv, MESSAGES_URL } from '../api/helper.js';
-import { validate, costChf, monthKey, spendKey, buildRequest, forbiddenKey, TASK_NAMES } from '../api/_lib/helper.js';
+import { validate, costChf, monthKey, spendKey, buildRequest, forbiddenKey, TASK_NAMES, pickModel, MODEL_CHOICES } from '../api/_lib/helper.js';
 import { allowedOrigin } from '../api/_lib/core.js';
 
 const TOKEN = 'test-code-not-real-0000';
@@ -40,10 +40,11 @@ describe('the helper code', () => {
     expect(sameToken('', '')).toBe(false);
     expect(sameToken(null, TOKEN)).toBe(false);
   });
-  it('reads the environment with the defaults (model, CHF 5)', () => {
-    expect(helperEnv({ HELPER_TOKEN: ' t ', ANTHROPIC_API_KEY: 'k' })).toMatchObject({ token: 't', apiKey: 'k', model: 'claude-sonnet-5-5', cap: 5 });
+  // 15.10.2026 (changed on purpose, Noah «1b»): the server's default cap is CHF 2
+  it('reads the environment with the defaults (model, CHF 2)', () => {
+    expect(helperEnv({ HELPER_TOKEN: ' t ', ANTHROPIC_API_KEY: 'k' })).toMatchObject({ token: 't', apiKey: 'k', model: 'claude-sonnet-5-5', cap: 2 });
     expect(helperEnv({ HELPER_MONTHLY_CHF: '12.5', HELPER_MODEL: 'claude-opus-5-5' })).toMatchObject({ cap: 12.5, model: 'claude-opus-5-5' });
-    expect(helperEnv({ HELPER_MONTHLY_CHF: 'abc' }).cap).toBe(5);
+    expect(helperEnv({ HELPER_MONTHLY_CHF: 'abc' }).cap).toBe(2);
   });
 });
 
@@ -108,6 +109,21 @@ describe('POST /api/helper', () => {
     // never a request body, key or code in the logs
     expect(log).not.toHaveBeenCalled();
     expect(err).not.toHaveBeenCalled();
+  });
+  it('takes the model the app picked when it is on the list (Noah «2a»), else the server model', async () => {
+    const sentModel = async (model) => {
+      const w = fakeWorld({ claude: claudeAnswer({ conditions: { area: 'bikepacking', bikeId: '', days: 1, overnight: 'none', cook: false, tempMin: 5, tempMax: 12, rain: 'none' }, blocks: [], items: [], note: '' }) });
+      const r = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'trip', input: tripInput, model }));
+      expect(r.status).toBe(200);
+      return JSON.parse(w.calls.find((c) => c.claude).init.body).model;
+    };
+    expect(await sentModel('claude-haiku-5-5')).toBe('claude-haiku-5-5');
+    expect(await sentModel('claude-opus-5-5')).toBe('claude-sonnet-5-5');
+    expect(await sentModel(undefined)).toBe('claude-sonnet-5-5');
+    expect(pickModel('claude-haiku-5-5')).toBe('claude-haiku-5-5');
+    expect(MODEL_CHOICES).toEqual(['claude-sonnet-5-5', 'claude-haiku-5-5']);
+    const st = await makeHandler({ env: env(), doFetch: fakeWorld().doFetch, now })(req({ task: 'status', model: 'claude-haiku-5-5' }));
+    expect(await st.json()).toMatchObject({ ok: true, model: 'claude-haiku-5-5' });
   });
   it('Claude busy → 503 busy; no tool answer → 502; both count what was billed', async () => {
     const busy = fakeWorld({ claude: { type: 'error' }, claudeStatus: 529 });

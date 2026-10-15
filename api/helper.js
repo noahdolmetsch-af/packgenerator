@@ -2,13 +2,14 @@
  * POST /api/helper (v0.77.0 «KI-Helfer», Noah's answers 1–8 ★a, 10.10.2026)
  *
  * Authorization: Bearer <HELPER_TOKEN> (the «Helfer-Code» Noah types into the app's settings).
- * Body: { task: 'trip'|'search'|'debrief'|'checklist'|'maintenance'|'status', input: {...} }.
+ * Body: { task: 'trip'|'search'|'debrief'|'checklist'|'maintenance'|'status', input: {...}, model? }.
+ * model (optional, 15.10.2026): one of MODEL_CHOICES; anything else uses HELPER_MODEL.
  * Answer: { ok: true, task, result, spend: { month, chf, cap } } — `status` only checks the code
  * and returns the month's spend (no call to Claude, no cost).
  *
  * Environment (names only; Noah sets the values in Vercel, see docs/ki-helfer-einrichten.md):
  *   ANTHROPIC_API_KEY, HELPER_TOKEN, HELPER_MODEL (default claude-sonnet-5-5),
- *   HELPER_MONTHLY_CHF (default 5), KV_REST_API_URL / KV_REST_API_TOKEN (Upstash Redis).
+ *   HELPER_MONTHLY_CHF (default 2), KV_REST_API_URL / KV_REST_API_TOKEN (Upstash Redis).
  *
  * Monthly cap (Noah 7a): the estimated cost of every answer is added to helper:spend:YYYY-MM;
  * from the cap on every task answers 429 { code: 'monthly_cap' } until the next month.
@@ -20,7 +21,7 @@
  */
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { route, json, needStore, redisEnv, pick, ApiError } from './_lib/core.js';
-import { TASKS, TASK_NAMES, DEFAULT_MODEL, DEFAULT_CAP_CHF, buildRequest, validate, costChf, monthKey, spendKey, forbiddenKey } from './_lib/helper.js';
+import { TASKS, TASK_NAMES, DEFAULT_MODEL, DEFAULT_CAP_CHF, pickModel, buildRequest, validate, costChf, monthKey, spendKey, forbiddenKey } from './_lib/helper.js';
 
 export const MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY = 400_000; // characters: 700 items with names fit easily
@@ -74,11 +75,12 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         if (task !== 'status' && (!TASK_NAMES.includes(task) || !input)) throw new ApiError(400, 'bad_request', `task must be one of ${TASK_NAMES.join(', ')}, with an input object.`);
         if (input && forbiddenKey(input)) throw new ApiError(400, 'forbidden_field', 'The request holds a field the helper never takes (photos, receipts, money, codes, health).');
 
+        const model = pickModel(body?.model, cfg.model);
         const store = needStore(cfg, doFetch);
         const month = monthKey(now());
         const spent = Number(await store.get(spendKey(month))) || 0;
         const spend = (chf) => ({ month, chf: round2(chf), cap: cfg.cap });
-        if (task === 'status') return json(request, 200, { ok: true, task, model: cfg.model, spend: spend(spent) });
+        if (task === 'status') return json(request, 200, { ok: true, task, model, spend: spend(spent) });
         if (spent >= cfg.cap) throw new ApiError(429, 'monthly_cap', 'The monthly limit is reached; the helper pauses until next month.', { spend: spend(spent) });
         if (!cfg.apiKey) throw new ApiError(503, 'not_set_up', 'The helper is not set up on the server (ANTHROPIC_API_KEY is missing).');
 
@@ -87,14 +89,14 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
           res = await doFetch(MESSAGES_URL, {
             method: 'POST',
             headers: { 'content-type': 'application/json', 'x-api-key': cfg.apiKey, 'anthropic-version': '2023-06-01' },
-            body: JSON.stringify(buildRequest(task, input, cfg.model)),
+            body: JSON.stringify(buildRequest(task, input, model)),
           });
         } catch {
           throw new ApiError(502, 'upstream_unreachable', 'Claude could not be reached.', { spend: spend(spent) });
         }
         const msg = await res.json().catch(() => null);
         // Whatever came back was billed: count it before anything else can fail.
-        const cost = msg?.usage ? costChf(msg.model || cfg.model, msg.usage) : 0;
+        const cost = msg?.usage ? costChf(msg.model || model, msg.usage) : 0;
         let total = spent;
         if (cost > 0) {
           total = Number(await store.incrbyfloat(spendKey(month), cost)) || spent + cost;
