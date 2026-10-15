@@ -18,6 +18,7 @@
   import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
+  import DocChecks from './DocChecks.svelte';
   import { tick as settle, untrack } from 'svelte';
   import { buzz } from '../bedienung.svelte.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -396,6 +397,8 @@
       <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
            under its item is not repeated here. -->
       <LessonsCard lessons={newLessons} {reminders} />
+      <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+      <DocChecks {trip} />
       {#if oncharge}
         <section class="psec" aria-labelledby="more-h">
           <h2 id="more-h" class="sh">{t('More')}</h2>

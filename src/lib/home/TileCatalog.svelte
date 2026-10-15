@@ -22,7 +22,7 @@
   const groups = $derived(catalog(query, t, hidden).filter((g) => area === 'all' || g.key === area));
 </script>
 
-<dialog class="sheet cat" class:phone={phone.matches} bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="cat-h">
+<dialog data-backdrop="own" class="sheet cat" class:phone={phone.matches} bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="cat-h">
   <div class="sh">
     <h2 id="cat-h" class="title">{t('Add a tile')}</h2>
     <button type="button" class="btn sm ic" onclick={() => dlg.close()} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>

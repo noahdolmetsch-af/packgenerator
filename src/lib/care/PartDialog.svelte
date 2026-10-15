@@ -1,4 +1,5 @@
 <script>
+  import { keepTyped } from '../ui/keeptyped.js';
   import { localDay } from '../localday.js';
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA, partName, attrsOf, PART } from '../care.js';
   import { readValue, targetPressure } from '../bikespecs.js';
@@ -123,7 +124,7 @@
 
 <!-- Design-Refresh P7 (V8, Noah 12.10.2026 «v5-v10 freigabe»): the part as a window of the bike pages:
      the name, «bike · model» below, ✕ top right; «Done by» as chips; the history folded. -->
-<dialog class="sheet vdlg partdlg from-below" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'} use:weiter>
+<dialog use:keepTyped={'part:' + (bike?.id ?? '') + ':' + (part?.key ?? '')} class="sheet vdlg partdlg from-below" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'} use:weiter>
   {#if flow}
     <PartFlow {part} {bike} mode={flow} {shops} {by} onsave={flowSave} oncancel={() => (start ? dialog?.close() : (flow = null))} />
   {:else}

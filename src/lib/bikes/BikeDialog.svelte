@@ -1,4 +1,5 @@
 <script>
+  import { closeKeep } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { SLOTS, renameBike } from '../bikes.js';
@@ -105,7 +106,7 @@
         <h2 id="bike-dlg-h">{isNew ? t('Add bike') : t('Bike details')}</h2>
         <p class="vd-sub num">{isNew ? t('Only the name is needed, everything else later.') : [bike.name, bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={18} aria-hidden="true" /></button>
     </div>
     <label class="vd-field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" placeholder={t('e.g. Gravel Grinder')} /></label>
     <!-- SN7: the kind as option buttons; a suggestion only: tap again and it is empty -->
@@ -138,7 +139,7 @@
     <p class="err" role="alert">{error}</p>
     <div class="vd-foot sn7 daumen-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
-      <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog.close()} />
+      <Btn kind="quiet" label={t('Discard')} onclick={() => dialog.close()} />
       <Btn kind="hi" type="submit" label={isNew ? t('Add|bike') : t('Save')} />
     </div>
   </form>

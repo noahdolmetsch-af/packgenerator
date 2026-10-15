@@ -4,7 +4,7 @@
    * everywhere (bike, bag, gear item, building block, Im Flow activity). On a phone it comes from
    * below and sits right above the keyboard (visualViewport), on a computer it is a small window.
    * Only the name: the field has the cursor, ✕ empties it, the keyboard's key says «Done» and saves
-   * (enterkeyhint), Android back and Escape save too (like notes), ✕ and «Cancel» leave it as it was.
+   * (enterkeyhint), Android back, Escape and ✕ save too (like notes, rule 3a), only «Discard» leaves it as it was.
    * After a save the caller offers «Renamed to … · Undo» for 10 s (rename.svelte.js).
    *
    * kicker: what it is («Bike»); title: «Rename bike»; value: the name now; hint: one sentence where
@@ -12,6 +12,7 @@
    * or '' when a name is needed; onsave(name): saves, may return false to stay open or a text to show as the error; extra: an
    * optional snippet under the hint (e.g. a link to the other details).
    */
+  import { closeKeep } from './keeptyped.js';
   import { tick } from 'svelte';
   import { X } from '@lucide/svelte';
   import { backClose } from './backclose.js';
@@ -79,7 +80,7 @@
         {#if kicker}<p class="kick">{kicker}</p>{/if}
         <h2 id="rn-h">{title}</h2>
       </div>
-      <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+      <button type="button" class="ib" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={20} aria-hidden="true" /></button>
     </div>
     <div class="fld">
       <label class="lbl" for="rn-in">{t('Name')}</label>
@@ -92,7 +93,7 @@
     {#if extra}{@render extra()}{/if}
     <div class="foot daumen-foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Discard')}</button>
     </div>
   </form>
 </dialog>

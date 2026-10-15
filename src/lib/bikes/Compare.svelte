@@ -11,6 +11,7 @@
    * v0.83.0 «Ausstattung» (A5a): only rows with at least one value («show all» brings the rest back);
    * the bikes to compare are chosen on top, on a phone two side by side to start with.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
@@ -197,7 +198,7 @@
 </div>
 
 {#if edit}
-  <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="cmp-h">
+  <dialog use:keepTyped={'compare:' + (edit.bike?.id ?? '') + ':' + edit.row.label} class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="cmp-h">
     <p class="meta">{edit.bikeName}</p>
     <h2 id="cmp-h" class="title">{cellLabel(edit.row)}</h2>
     <form method="dialog" onsubmit={(e) => (e.preventDefault(), save())}>

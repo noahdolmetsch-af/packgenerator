@@ -5,6 +5,7 @@
    * v0.26.1 (AP18, Noah 16a): the dialog then asks "Update template «X»" or "Save as new template"
    * and says in one line what an update changes and that older trips stay as they are.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { db } from '../db.js';
   import { saveTripAsTemplate } from '../templates.js';
   import { t } from '../i18n.svelte.js';
@@ -33,7 +34,7 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="tpl-h">
+<dialog use:keepTyped={'template:' + (trip?.id ?? '')} class="sheet" bind:this={dialog} {onclose} aria-labelledby="tpl-h">
   <form onsubmit={(e) => (e.preventDefault(), store(!source))} novalidate>
     <h2 id="tpl-h" class="title">{source ? t('Template') : t('Save as template')}</h2>
     <label class="field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={name} placeholder={t('e.g. Daily commute')} /></label>

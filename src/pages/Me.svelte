@@ -28,7 +28,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -41,6 +41,10 @@
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
   import '../lib/ich/ich.css';
+  import { docs as docList } from '../lib/docs/client.svelte.js';
+  import { dueCount } from '../lib/docs.js';
+  // P3b (D3): how many documents expire soon (the yellow pill on «Documents»)
+  const docDue = $derived(dueCount(docList.list, localDay()));
 
   // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
   const MOVED_KEY = 'aj1.problemMoved';
@@ -112,6 +116,14 @@
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
               {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- P3b «Daten sicher» (D3): passport, insurance, emergency; reminders before they expire -->
+            <a class="ich-row" href="#/me/docs">
+              <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Documents')}</b><small>{docList.list.length ? tn(docList.list.length, '{n} document', '{n} documents') : t('Passport, insurance, emergency sheet')}{docDue ? ` · ${tn(docDue, '{n} expires soon', '{n} expire soon')}` : ''}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

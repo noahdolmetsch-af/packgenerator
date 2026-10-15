@@ -881,7 +881,7 @@ test('PF15: core screens at 320 and 390 px, keyboard, labels and status texts', 
       await expect(dlg.getByRole('button', { name: T('Create trip') })).toBeInViewport({ timeout: 2000 });
     });
     if (width === 320) await rec.shot('320-newtrip');
-    await dlg.getByRole('button', { name: T('Cancel') }).click();
+    await dlg.getByRole('button', { name: T('Discard') }).click();
     await page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first().click();
     await rec.check(`${width} px Add material: no sideways scroll`, async () => expect(await wide(page)).toBe(0));
     await page.getByRole('dialog', { name: T('Add material') }).getByRole('button', { name: T('Done') }).click();

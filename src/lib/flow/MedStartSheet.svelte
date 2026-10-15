@@ -10,6 +10,7 @@
    * «oder frei: [ ] Minuten» (1–600); no «andere» any more.
    * st: the activity's flow state (flow.js actState); today; onclose. Heute can use it the same way.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { Play, Check, ChevronRight, X } from '@lucide/svelte';
   import ActIcon from './ActIcon.svelte';
   import { medQuery, seedMed } from './data.svelte.js';
@@ -58,7 +59,7 @@
   };
 </script>
 
-<dialog class="sheet from-below mss" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && close()} aria-labelledby="mss-h" data-med-sheet>
+<dialog use:keepTyped={'medstart'} data-backdrop="own" class="sheet from-below mss" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && close()} aria-labelledby="mss-h" data-med-sheet>
   {#if act}
     <div class="hd">
       <ActIcon icon={act.icon} ring={act.ring} size={20} />

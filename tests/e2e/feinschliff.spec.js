@@ -61,14 +61,14 @@ test('rename a bike: one sheet, the keyboard key saves, the same bike stays chos
   await expect(field).toBeFocused();
   await rn.getByRole('button', { name: T('Save') }).click();
   await expect(rn.getByRole('alert')).toHaveText(T('Give it a name.'));
-  await rn.getByRole('button', { name: T('Cancel') }).click();
+  await rn.getByRole('button', { name: T('Discard') }).click();
   await expect(rn).toHaveCount(0);
   expect((await bikesTable(page)).find((b) => b[0] === FACTOR)[1]).toBe(`${P} Factor`);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
 
-test('back keeps the typed name: Escape (Android back) and history back save, Close and Cancel leave it', async ({ page, context }, info) => {
+test('back keeps the typed name: Escape (Android back) and history back save, Close keeps it (3a), only Discard leaves it', async ({ page, context }, info) => {
   const { T, errors } = await setup(page, context, info);
   await page.goto(`./#/bikes?bike=${FACTOR}`);
   const band = page.locator('section.setup-band');
@@ -87,14 +87,19 @@ test('back keeps the typed name: Escape (Android back) and history back save, Cl
   await expect(rn).toHaveCount(0);
   await expect(page).toHaveURL(/#\/bikes/);
   await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
-  // ✕ and «Cancel» leave the name as it was
+  // P3b rule 3a: ✕ keeps what was typed too; only «Verwerfen» leaves the name as it was
   await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor Back` }) }).click();
-  await field.fill(`${P} nie gespeichert`);
+  await field.fill(`${P} Factor X`);
   await rn.getByRole('button', { name: T('Close') }).click();
   await expect(rn).toHaveCount(0);
-  await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
+  await expect(band.getByRole('heading', { name: `${P} Factor X` })).toBeVisible();
+  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor X` }) }).click();
+  await field.fill(`${P} nie gespeichert`);
+  await rn.getByRole('button', { name: T('Discard') }).click();
+  await expect(rn).toHaveCount(0);
+  await expect(band.getByRole('heading', { name: `${P} Factor X` })).toBeVisible();
   // the other details are one link further; there too Escape keeps what was typed
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor Back` }) }).click();
+  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor X` }) }).click();
   await rn.getByRole('button', { name: new RegExp(T('Type, use and photo: Bike details')) }).click();
   const det = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
   await expect(det).toBeVisible();

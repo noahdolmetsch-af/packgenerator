@@ -6,6 +6,7 @@
    * choice «Only useful tips / Also knowledge and fun» for all pages (knowledge on at first); each tip
    * carries its tag, a «Passt zu heute» tip says when it comes.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { X, Plus, Trash2 } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import KindTag from './KindTag.svelte';
@@ -36,7 +37,7 @@
   }
 </script>
 
-<dialog class="sheet from-below tips" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="tips-h" data-sheet="tips">
+<dialog use:keepTyped={'tips:' + page} class="sheet from-below tips" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="tips-h" data-sheet="tips">
   <div class="head">
     <div>
       <h2 id="tips-h">{t('Tips for {page}', { page: name })}</h2>

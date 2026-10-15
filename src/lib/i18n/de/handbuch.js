@@ -377,4 +377,13 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // P3b «Daten sicher»: Dokumente, Handy und Computer
+  'Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).': 'Öffne Ich › Dokumente und tippe «PDF hinzufügen» (ein PDF oder ein Foto vom Papier).',
+  'Choose the group and «valid until»; the reminder comes 6 months before by itself.': 'Wähle die Gruppe und «gültig bis»; die Erinnerung kommt von selbst 6 Monate vorher.',
+  'Switch on «In the packing list»: every trip asks «ID and cash with you?».': 'Schalte «In die Packliste» ein: Jede Tour fragt «ID und Cash dabei?».',
+  'Example: identity card valid until 03.2027 → from 09.2026 «Renew identity card» under Reminders.': 'Beispiel: Identitätskarte gültig bis 03.2027 → ab 09.2026 «Identitätskarte erneuern» unter Erinnerungen.',
+  'On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).': 'Auf dem Gerät mit dem neueren Stand: Ich › Daten und Backup › «An Handy senden» (oder «An Computer senden»).',
+  'On the other device: tap the file › Share › Pack Generator, or «Open backup».': 'Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder «Backup öffnen».',
+  'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».': 'Die App sagt, was neuer ist, und schlägt vor: ersetzen, zusammenführen oder nichts; eine Kopie von vorher bleibt unter «Vor Updates».',
+  'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.': 'Beispiel: Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.',
 };

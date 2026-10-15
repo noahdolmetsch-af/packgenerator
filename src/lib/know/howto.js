@@ -89,6 +89,8 @@ export const HOWTO = {
   'f.search': ['Press / or tap the search.', 'Type a command, e.g. «kette geölt gravel».', 'It is entered right away; «notiz …» writes a note.'],
   'f.inbox': ['Open the Inbox.', 'Your notes stand by day.', 'Tap «File as …» and choose a target.'],
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
+  'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],
+  'f.sync': ['Send the backup from the newer device.', 'On the other device open it with Share › Pack Generator or «Open backup».', 'Follow the suggestion; a copy of before stays.'],
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file is written there.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],
   'f.playground': ['Open the playground.', 'Pack, ride and debrief a made-up trip.', 'Afterwards everything is as before.'],

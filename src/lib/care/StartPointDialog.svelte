@@ -6,6 +6,7 @@
    * that bike's same part. Saving adds a mounting entry to the part's history; nothing is overwritten.
    * missing: the keys of the bike's parts still without a start point («Next» walks through them).
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   import DateInput from '../ui/DateInput.svelte';
@@ -60,7 +61,7 @@
 </script>
 
 <!-- Design-Refresh P7 (V9): a window of the bike pages, ✕ top right, the buttons right (the main one last). -->
-<dialog class="sheet spd vdlg" bind:this={dialog} use:backClose onclose={onclose} aria-labelledby="sp-h">
+<dialog use:keepTyped={'startpoint:' + (bike?.id ?? '') + ':' + (part?.key ?? '')} class="sheet spd vdlg" bind:this={dialog} use:backClose onclose={onclose} aria-labelledby="sp-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="sp-h" class="title">{t('Start point: {part}', { part: partName(part) })}</h2>

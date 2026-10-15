@@ -10,6 +10,7 @@
    *   (km book) and the last workshop are filled in, on a green field with where they come from; one
    *   tap on a known shop or a job chip («What was done?», optional) fills the rest. All can be changed.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
@@ -135,7 +136,7 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
+<dialog use:keepTyped={'bikequick:' + kind + ':' + (bikeId ?? '') + ':' + (tripId ?? '')} class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
   <form onsubmit={save} use:weiter>
     <h2 id="bq-h" class="title">{t(TITLE[kind])}</h2>
     {#if kind === 'idea'}<p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>{/if}

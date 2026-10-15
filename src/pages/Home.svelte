@@ -1132,7 +1132,7 @@
   </div>
 {/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
-<dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
     <WearToday {items} {trips} />

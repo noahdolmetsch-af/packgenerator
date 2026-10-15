@@ -6,6 +6,7 @@
    * chips. «Speichern» puts the answer into the ONE history of «Deine Abfragen» (hallo-save.js).
    * The Swiss German words are constants in hallo.js (HG1 1a), the rest goes through t().
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { ChevronRight, X, Plus, Clock3, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
@@ -46,7 +47,7 @@
 {#if saved}<p class="done" role="status" data-hello-saved>{t('Saved in the history of «Your questions».')}</p>{/if}
 
 {#if open}
-  <dialog class="sheet vdlg from-below hs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="hs-h" data-hello-sheet>
+  <dialog use:keepTyped={'hello'} class="sheet vdlg from-below hs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="hs-h" data-hello-sheet>
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="hs-h">{helloTitle(name)}</h2>
