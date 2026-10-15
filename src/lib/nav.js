@@ -155,6 +155,10 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
   if (h.startsWith('#/me/news')) return 'news'; // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu
   if (h.startsWith('#/me/phone')) return 'phone'; // Design-Refresh P9 (B35): Ich › Daten › Aufs Handy
+  if (h.startsWith('#/zahlen/')) return 'paylink'; // the payer page of an invoice link (mockup QR5, Noah 14.10.2026 04:00)
+  if (h.startsWith('#/me/pay/bills')) return 'bills'; // Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10)
+  if (h.startsWith('#/me/pay/invoices/')) return 'invoice'; // Ich › Bezahlen › Rechnungen › eine Rechnung (mockups QR1 + QR4)
+  if (h.startsWith('#/me/pay/invoices')) return 'invoices'; // Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00)
   if (h.startsWith('#/me/handbook')) return 'handbook'; // Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben»)
   if (h.startsWith('#/me/apps')) return 'miniapps'; // Ich › Kleine Apps (mockup HB2)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
@@ -164,6 +168,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
   if (h.startsWith('#/me/lists')) return 'lists'; // v0.134.0 «Listen und Typen» (LI1–LI4)
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
+  if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
   return 'home';
 }
 
@@ -203,6 +208,7 @@ export const PLACES = [
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
   // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
+  // Noah 15.10.2026 (Paket Aktiv «1a»): Aktiv opens at Heute again; Meditation is its second tab.
   { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
 ];
 
@@ -235,11 +241,20 @@ export const PLACE_TABS = {
   ],
   active: [
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/rest|\/bags)?\/?$/.test(h.split('?')[0]) }, // v0.130.0 the week, recovery and the sport bag belong to Heute (mockups AK1–AK3)
+    // «Meditation» (ME2) with its Rückblick (ME3) and timer pages; the second tab (Noah 15.10.2026 «1a»)
+    { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
+    // «Training» TR2 (Noah 13.10.2026 «1-5a» 1a: its own tab in Aktiv): every Strava activity, one activity under it
+    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/training(\/|\?|$)/.test(h) },
     { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
-    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => /^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h)) },
+    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
   ],
 };
+
+/** «Meditation» (ME2): the meditation page and its pages (timer, log, Rückblick). */
+function isMedHash(h) {
+  return /^#\/flow\/act\/meditation(\/|\?|$)/.test(h);
+}
 
 /** The entry of PLACE_TABS an address belongs to (its key), or null. */
 export function tabOf(place, hash = '') {
@@ -253,11 +268,12 @@ export function tabOf(place, hash = '') {
  */
 export function placeOf(page) {
   if (page === 'home') return 'today';
+  if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills') return 'me';
   return null;
 }
 

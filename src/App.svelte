@@ -50,6 +50,14 @@
   import { INSPO_WISH } from './lib/inspiration.js';
   import Lists from './pages/Lists.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
+  import Timer from './pages/Timer.svelte';
+  import TimerFaces from './pages/TimerFaces.svelte';
+  import TimerLog from './pages/TimerLog.svelte';
+  import TimerFloat from './lib/timer/TimerFloat.svelte';
+  import Invoices from './pages/Invoices.svelte';
+  import Bills from './pages/Bills.svelte';
+  import PayLink from './pages/PayLink.svelte';
+  import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -266,11 +274,12 @@
     return () => document.removeEventListener('keydown', trap);
   });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
-  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
+  // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
     const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
     const today = localDay();
-    return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
+    // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
+    return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
   });
   // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
   // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
@@ -314,7 +323,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
@@ -362,6 +371,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'timer'}
+    <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
+    {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
@@ -404,6 +416,18 @@
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
     {#key hash}<Lists />{/key}
+  {:else if page === 'invoices'}
+    <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
+    <Invoices />
+  {:else if page === 'paylink'}
+    <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
+    <PayLink part={param} />
+  {:else if page === 'bills'}
+    <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
+    <Bills />
+  {:else if page === 'invoice'}
+    <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
+    <InvoiceNew />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -430,6 +454,8 @@
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
+<!-- «Timer» (Z1): a running timer stays in sight on every other page -->
+{#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
 <Keys bind:open={keysOpen} />
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}

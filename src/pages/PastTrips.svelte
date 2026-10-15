@@ -45,6 +45,7 @@
   import InZahlen from '../lib/review/InZahlen.svelte';
   import { Columns3, Bike, MessageSquareText, Download, ChevronUp } from '@lucide/svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
+  import EarthEverest from '../lib/pageinfo/EarthEverest.svelte';
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -227,6 +228,8 @@
         <li class="rv-tile"><b class="num">{num(sums.wet)}</b><small>{t('with rain')}</small></li>
       </ul>
     </section>
+    <!-- «Wusstest du» WD2 (approved 18:34, «2a»): around the Earth and up the Everest, for the period chosen -->
+    <EarthEverest km={sums.km} gainM={sums.gainM} />
 
     {#if !rows.length}
       <div class="nopast"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Try another word or kind.') : t('No trip in this period.')} action={filtered ? { label: t('Show all|filter'), onclick: reset, explain: t('Show all kinds') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>

@@ -81,7 +81,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   const tiles = main.locator('[data-tile]');
   await expect(tiles).toHaveCount(6);
   // Design-Refresh P8 (A7): light tiles, the name in .tn; the kind of the line is in the tile's label
-  await expect(tiles.locator('.tn')).toHaveText(FAV_SEED.map((f) => f.nickDe));
+  await expect(tiles.locator('.tn')).toHaveText(FAV_SEED.map((f) => f.nickDe ?? 'Meditation')); // «Meditation» (Noah 3a): no playful name
   await expect(main.getByText(T('Suggestion|tag')).first()).toBeVisible();
   await expect(main.locator('[data-tile="pushups"]')).toHaveAttribute('aria-label', new RegExp(esc(T('Personal best')), 'i'));
   await fits(page, 'Aktivität');
@@ -166,10 +166,10 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await expect(main.locator('.grid').getByText(T('Tried something new'))).toBeVisible();
   await expect.poll(() => count(page, 'flowStars')).toBeGreaterThan(2);
 
-  // A2, filtered to Kissenzeit: Täglich 12 days in a row, next star 3 at 14 (86 %) is «soon»
+  // A2, filtered to Meditation (Noah 3a: «Meditation» everywhere, «Kissenzeit» before): Täglich 12 days in a row, next star 3 at 14 (86 %) is «soon»
   await expect(main.getByRole('heading', { level: 1, name: T('Milestones') })).toBeVisible();
   await expect(main.locator('.chips a[aria-current="page"]')).toHaveText(T('All'));
-  await main.locator('.chips').getByRole('link', { name: 'Kissenzeit' }).click();
+  await main.locator('.chips').getByRole('link', { name: 'Meditation' }).click();
   await expect(page).toHaveURL(/act=meditation/);
   const daily = main.locator('.grid [data-ms="meditation.daily"]').first();
   await expect(daily).toContainText(T('Star {k} · {stage}', { k: 3, stage: T('Devotion|stage') }));

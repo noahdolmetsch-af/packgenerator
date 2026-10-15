@@ -38,10 +38,16 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (15.10.2026, 0.134.0)
+## Stand heute (15.10.2026, 0.135.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.135.0 | **Paket 2 – Ruhe, Training und Rechnungen**, ein Release aus fünf Teilen: (1) Meditation und Timer, (2) Inhalte Flow + Wusstest du (#173), (3) Eine Zahl pro Sache mit Heute H1/H2 (#170), (4) Training (#167), (5) Rechnungen ohne Gebühren (#169); Ziele 1 (Alltag) und 4 (aus jeder Tour lernen) | PR offen, Noah merged |
+| 0.135.0 (Teil) | **Meditation und Timer** (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC): Meditation erster Reiter in Aktiv, Rückblick; Timer mit Seite, Ziffernblättern, Log; ME1/Z1 auf Heute warten auf die Prüfung gegen HN0; Ziel 1 (Alltag) | Teil von 0.135.0 |
+| 0.136.0 | Inhalte Flow + Wusstest du: Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest; Ziel «Eine App, die mich im Alltag unterstützt» | Teil von 0.135.0 (#173) |
+| 0.137.0 | Eine Zahl pro Sache (Durchklick DK1–DK3, Noah «1-5 freigeben» 14.10.2026, 1a 2a): Velopflege, Velos, Heute und Menü zählen dieselben fälligen Punkte, Probleme «vor der nächsten Fahrt» zählen mit; Material und Tour zeigen je ein Gewicht, Tour mit Essen und Wasser (Ziele «Velo im Griff», «ruhig vorbereiten») | Teil von 0.135.0 (#170) |
+| 0.138.0 | Training TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen und Rückblick | Teil von 0.135.0 (#167) |
+| 0.139.0 | Rechnungen ohne Gebühren: QR-Rechnung mit TWINT, Liste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot, «Zu zahlen» mit Erinnerung (Mockups QR1–QR9) | Teil von 0.135.0 (#169) |
 | 0.134.0 | **Paket 1 – Doku und Ich**, ein Release aus sechs Teilen: (1) Doku «Zwischenstand» (#165), (2) Doku «Release-Analyse / Was fällt weg» (#160), (3) Ich › Handbuch + Ich › Kleine Apps (#166), (4) leere App ohne Start-Taschen + Wandern 15 L (#161), (5) Inspiration sammeln, (6) Listen und Typen: Kategorien selber ändern, mit Standard-Paket (#159); Ziele 1 und 4 | Bündel bereit, PR folgt |
 | 0.134.0 | Standard-Paket (alle Grundlisten in einem neutralen Verzeichnis) und «Listen und Typen»: Kategorien selber ändern (Ich › Listen und Typen) | Teil von 0.134.0 (#159) |
 | 0.133.3 | **Inspiration sammeln** (UC2-1, UC2-2, UC2-4; Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a): eigene Links mit Art aus der Adresse, aus der Notiz wird eine Packregel (Hinweis beim Packen), Wunschliste oder Notiz; Rennen → .ics, Route → Tourentwurf; Ziel 4 «Aus jeder Tour lernen» | Teil von 0.134.0 |

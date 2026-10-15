@@ -24,10 +24,16 @@ export const qText = (q, f = 'text') => (q ? (lang.v === 'de' && q[`${f}De`] ? q
 
 /* ---------- the toast with «Rückgängig» (8 s) ---------- */
 let toastTimer = null;
-export function toast(text, undo = null) {
+// link { href, text }: a message with a link (rule A, Noah 14.10.2026 «a a»: nothing jumps by itself);
+// it stays until it is tapped or closed
+export function toast(text, undo = null, link = null) {
   clearTimeout(toastTimer);
-  ui.toast = { text, undo, id: Date.now() };
-  toastTimer = setTimeout(() => (ui.toast = null), 8000);
+  ui.toast = { text, undo, link, id: Date.now() };
+  if (!link) toastTimer = setTimeout(() => (ui.toast = null), 8000);
+}
+export function closeToast() {
+  clearTimeout(toastTimer);
+  ui.toast = null;
 }
 export async function runUndo() {
   const u = ui.toast?.undo;
@@ -234,9 +240,10 @@ async function saveDone() {
     if (typeof document !== 'undefined' && document.visibilityState !== 'visible') notifyEnd(rec?.entry.min ?? 0);
     if (clockState.tm && clockState.tm.startedAt === tm.startedAt) {
       if (rec) {
-        // hobby pages 3 (H11a): after the gong the evaluation opens (B3); the end gong rings out
+        // hobby pages 3 (H11a): after the gong the evaluation is offered (B3); the end gong rings out.
+        // Rule A (Noah 14.10.2026 «a a»): no jump by itself, a message with a link instead
         leaveSession();
-        openDone(tm.actId, rec.entry.id);
+        toast(t('Done · {n} min saved', { n: rec.entry.min }), null, { href: doneHref(tm.actId, rec.entry.id), text: t('How was it?|med') });
       } else {
         clockState.tm = { ...clockState.tm, saved: 'none', savedMin: 0 };
         keep();

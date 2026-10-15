@@ -5,6 +5,8 @@
    *                      (7 days on a phone, 14 on a computer), the daily check, recovery and seasons
    *   #/flow/goals       all activities, in their order (drag the grip or use the arrow keys)
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
+   *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
+   *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
@@ -17,6 +19,7 @@
    *   …/log              hobby pages 3: the log, list · calendar · chart (MedLog.svelte, B4 + B6)
    *   …/s/<sid>          hobby pages 3: one session in full (MedSession.svelte, B5)
    *   …/muster           v0.105.0 Design-Refresh P8 (A14c): the patterns of the log (MedPatterns.svelte)
+   *   …/rueckblick     «Meditation» (mockup ME3): the Rückblick by week, month or year (MedReview.svelte)
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
@@ -47,12 +50,16 @@
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
+  import Training from './flow/Training.svelte';
+  import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
   import Week from './flow/Week.svelte';
   import Bags from './flow/Bags.svelte';
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
   import { weekGoals } from '../lib/flowweek.js';
   import Meditation from './flow/Meditation.svelte';
@@ -62,6 +69,7 @@
   import MedSession from './flow/MedSession.svelte';
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
+  import MedReview from './flow/MedReview.svelte';
   import { localDay } from '../lib/localday.js';
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
@@ -191,7 +199,11 @@
   const hasMed = $derived(live.some((s) => isMedAct(s.act)));
 </script>
 
-{#if route[0] === 'activity'}
+{#if route[0] === 'training' && route[1] === 'a'}
+  {#key sub}<TrainingAct id={decodeURIComponent(route[2] ?? '')} />{/key}
+{:else if route[0] === 'training'}
+  <Training {params} />
+{:else if route[0] === 'activity'}
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
@@ -213,6 +225,9 @@
   {#key sub}<MedPatterns actId={decodeURIComponent(route[1] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'mehr'}
   {#key sub}<MedMore actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
+{:else if route[0] === 'act' && route[2] === 'rueckblick'}
+  <!-- «Meditation» (mockup ME3): the Rückblick by week, month or year -->
+  {#key sub}<MedReview actId={decodeURIComponent(route[1] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'timer'}
   {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act'}
@@ -282,6 +297,8 @@
     {#if data && !states.length}
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
+      <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
+      <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
@@ -330,6 +347,7 @@
           </Sec>
         </aside>
       </div>
+      <PageMore page="aktiv" name={t('Active|place')} />
       <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
       <PageTiles page="flow" />
     {/if}

@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 99 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -928,6 +928,29 @@ Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein V
 
 **Beispiel:** «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.
 
+### Tipps und «Wusstest du»
+
+Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
+2. Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».
+
+**Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
+
+### Training mit Pulszonen
+
+Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rückblick.
+
+**Aufschalten:** Strava verbinden unter Velos › Pflege › Strava.
+
+1. Öffne Aktiv › Training: die Woche mit deinem Plan und dem Rückblick.
+2. Tippe bei einem Tag auf +, um eine Einheit mit Dauer und Zone zu planen.
+3. Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.
+
+**Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
+
 ### Meilensteine
 
 Nur der nächste Stern, und eine Belohnung von der Wunschliste.
@@ -945,7 +968,7 @@ Starten wie letztes Mal oder aus einer Vorlage; Klänge und eine ruhige Uhr.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Aktivität › Meditation.
+1. Öffne Aktiv › Meditation.
 2. Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.
 
 **Beispiel:** 10 min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
@@ -960,6 +983,28 @@ Jede Sitzung, ein Wärmebild der Serie, die beste Tageszeit.
 2. Sieh jede Sitzung, das Wärmebild der Serie und deine beste Tageszeit.
 
 **Beispiel:** 12 Tage in Folge, am häufigsten um 7 Uhr.
+
+### Meditation Rückblick
+
+Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Meditation › «Rückblick».
+2. Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.
+
+**Beispiel:** Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.
+
+### Timer
+
+Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Timer-Seite, wähle eine Art und tippe «Start»; «Gross» zeigt nur noch die Uhr.
+2. Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.
+
+**Beispiel:** Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».
 
 ### Meditation · Mehr
 
@@ -1061,6 +1106,30 @@ Schreibt nach jeder Änderung in einen Ordner deiner Wahl (nur Computer).
 2. Nach jeder Änderung landet dort das neuste Backup, dazu eines pro Tag.
 
 **Beispiel:** Ein Ordner, der in die Cloud synchronisiert → immer ein frisches Backup.
+
+### Rechnungen mit QR-Rechnung und TWINT
+
+Eine Schweizer QR-Rechnung aus deinem Konto mit TWINT; sieh, wer bezahlt hat: von Hand, über den Betrag, aus dem Kontoauszug oder über den Zahl-Link.
+
+**Aufschalten:** Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.
+
+1. Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».
+2. Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.
+3. Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.
+
+**Beispiel:** Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».
+
+### Rechnungen zu zahlen
+
+Fotografiere eine Rechnung, die du bekommen hast: Die App liest sie, erinnert dich vor der Fälligkeit und behält das Foto.
+
+**Aufschalten:** Nichts einzuschalten.
+
+1. Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».
+2. Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.
+3. Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».
+
+**Beispiel:** Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.
 
 ### Testdaten aufräumen
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { overdueFor } from '../src/lib/workshop.js';
-import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../src/lib/readiness.js';
+import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide, repairDue } from '../src/lib/readiness.js';
 import { bikeChoice } from '../src/lib/choice.js';
 import { withVisits } from '../src/lib/workshop.js';
 import { ensureParts, logPart, CHECK_PARTS } from '../src/lib/care.js';
@@ -31,7 +31,8 @@ const prepTasks = [
   { id: 2, area: 'Preparation', task: 'Top up sealant', leadWeeks: 1 },
   { id: 3, area: 'Preparation', task: 'Pack spare tube', leadWeeks: 0 },
 ];
-const repair = { id: 9, area: 'Repair', subject: 'Hardtail', bikeId: 'hard', task: 'Fix creaking bottom bracket', status: 'open' };
+// v0.137.0 (DK1 1a): a problem counts as due when it must be fixed before the next ride (or its date has come).
+const repair = { id: 9, area: 'Repair', subject: 'Hardtail', bikeId: 'hard', task: 'Fix creaking bottom bracket', status: 'open', beforeRide: true };
 const soonTrip = { id: 'event', title: 'Event', startDate: '2026-10-15', event: true, days: 3, bikeId: 'hard', entries: [{ itemId: 'a', packed: true }, { itemId: 'b', packed: false }], ready: [{ id: 'r1', done: true }, { id: 'r2', done: false }] };
 const laterTrip = { id: 'later', title: 'Later', startDate: '2026-11-20', days: 1, bikeId: 'full', entries: [], ready: [] };
 
@@ -78,6 +79,17 @@ describe('bike care: one statement per bike', () => {
     expect(c.rows.map((r) => r.kind)).toEqual(['repair']);
     expect(c.rows[0].name).toBe('Fix creaking bottom bracket');
     expect(c.rows.some((r) => /chain wear|spare tube/i.test(r.name))).toBe(false);
+  });
+
+  it('v0.137.0 (DK1 1a): only problems due count, the rest stay in the problem list', () => {
+    const later = { ...repair, id: 10, task: 'New grips some day', beforeRide: false };
+    const dated = { ...repair, id: 11, task: 'Bleed the brake', beforeRide: false, dueDate: TODAY };
+    const future = { ...repair, id: 12, task: 'Wash the bags', beforeRide: false, dueDate: '2999-01-01' };
+    const needed = { ...repair, id: 13, task: 'Brake pads', beforeRide: false, status: 'needed' };
+    const c = bikeCare(view(hard), { tasks: [repair, later, dated, future, needed], visits, today: TODAY });
+    expect(c.rows.map((r) => r.name)).toEqual(['Fix creaking bottom bracket', 'Bleed the brake', 'Brake pads']);
+    expect(c.rows[0].detail).toBe('Before the next ride');
+    expect(repairDue(later, TODAY)).toBe(false);
   });
 
   it('several bikes: each gets its own state', () => {

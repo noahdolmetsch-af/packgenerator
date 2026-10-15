@@ -212,9 +212,9 @@ describe('Logbuch: Velo and Reiseart (SN2g)', () => {
 });
 
 describe('the database side', () => {
-  it('no activities table yet: [] and no error', async () => {
+  it('the activities table (since «Training», Dexie version 10): empty gives [] and no error', async () => {
     const db = createDb('sn2plus-a');
-    expect(hasActivities(db)).toBe(false);
+    expect(hasActivities(db)).toBe(true);
     expect(await loadActs(db)).toEqual([]);
   });
   it('the bike’s surface, a ride’s surface and your zones survive a backup', async () => {
