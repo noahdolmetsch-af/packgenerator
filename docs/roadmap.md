@@ -12,6 +12,16 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 15.10.2026 (v0.135.0 «Paket 2 – Ruhe, Training und Rechnungen»):** ein Release aus fünf Teilen: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (#173), Eine Zahl pro Sache mit Heute H1/H2 (#170), Training TR1–TR4 (#167), Rechnungen ohne Gebühren QR1–QR9 (#169). Die Nachträge unten zu 0.136.0 bis 0.139.0 beschreiben die Teile; ihre eigenen Nummern fallen weg. Als Nächstes: Paket 2b (Pfeile + Ziehen, LI3 «Gilt für», Inspiration-Korrekturen).
+
+**Nachtrag 14.10.2026 (v0.136.0, jetzt Teil von 0.135.0):** «Inhalte Flow» + «Wusstest du» (Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW): Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest. Als Nächstes: IF2 Meditation, Hinweistexte HT (wartet auf Freigabe), Texte der Sportarten.
+
+**Nachtrag 15.10.2026 (v0.134.0 «Paket 1 – Doku und Ich»):** ein Release aus sechs Teilen: Doku «Zwischenstand» (#165), Doku «Release-Analyse» (#160), Ich › Handbuch + Kleine Apps (#166), leere App ohne Start-Taschen + Wandern 15 L (#161), Inspiration sammeln, Listen und Typen mit Standard-Paket (#159). Die Nachträge unten zu 0.133.1, 0.133.3 und 0.134.0 beschreiben die Teile; ihre eigenen Versionsnummern fallen weg.
+
+**Nachtrag 14.10.2026 (v0.133.3 «Inspiration sammeln», jetzt Teil von 0.134.0) (Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a):** Inspiration-Seite mit eigenen Links, Art aus der Adresse, «Aus der Notiz wird …» (Packregel, Wunschliste, Notiz), Rennen → .ics, Route → Tourentwurf. Offen: Hör-Tipp im Bereit-Check (braucht den Bereit-Check, eigenes Paket).
+
+**Nachtrag 14.10.2026 (v0.133.1 «Handbuch und Kleine Apps», jetzt Teil von 0.134.0) (Mockup-Freigabe: HB2, Antworten «1b 2b» und «hb freigeben» Noah 14.10.2026 18:27 UTC):** Handbuch und Kleine Apps als eigene Seiten unter Ich › Die App.
+
 **Nachtrag 14.10.2026 (v0.132.1):** «Langer Name passt» (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bleibt bei «Tour beendet» in der grauen Box.
 **Nachtrag 08.10.2026 (Version 1.2):** Live ist v0.35.0. M1 bis M4 und AP25 sind als Software ausgeliefert, M5 teilweise; AP29 ist erledigt. Was pro Meilenstein mit welchem Release kam und die Reihenfolge nach 0.36 steht unten in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Die Abschnitte bis zum Fortschrittsregister beschreiben weiterhin den Plan und seine Kriterien.
 
@@ -74,6 +84,10 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**15.10.2026, v0.135.0 «Paket 2»:** Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training und Rechnungen als ein Release; die Einträge zu 0.136.0–0.139.0 darunter sind Teile davon.
+**14.10.2026, v0.139.0 «Rechnungen ohne Gebühren»:** QR-Rechnung mit TWINT, Rechnungsliste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot lesen und «Zu zahlen» (Mockups QR1–QR9). Danach: Heute-Karten und Teilen-Weg, dann Shop (SHOP1–SHOP4b).
+**14.10.2026, v0.137.0 «Eine Zahl pro Sache»:** erstes Paket aus dem Durchklick (DK1–DK3): Velopflege, Velos, Heute und Menü zählen dasselbe als fällig; Material und Tour zeigen je ein Gewicht. Danach Wörter und kleine Fehler (DK6/DK7), dann Testdaten-Hinweis (DK4) und Heute kürzer (DK5) nach 0.133.0.
+**14.10.2026, v0.134.0 «Standard-Paket» und «Listen und Typen»:** Schritt S4 aus «Daten einmal bereinigen» und die Kategorien änderbar (LI1–LI4 freigegeben). Danach (Noah «a»): jede weitere Liste als eigenes kleines Release (Sportarten, Taschenplätze, Fragen …), dann der Profil-Schalter unter Ich › Die App (4a), dann Menü und Seiten selber gestalten (M1–M3, noch ohne Fragen).
 **14.10.2026, v0.131.3 «Kamera-Knopf»:** Belegfoto mit einem Tipp: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt (Mockups K1–K4).
 **14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
 
@@ -517,6 +531,10 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 ## Stand und nächste Pakete (8.10.2026)
 
 **Nachtrag 14.10.2026 (v0.144.0 «Regeln einheitlich», RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC):** eine Regen-Grenze für die ganze App (Baustein Regen, 30 %), «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo («Pflege für …»); Fix Kopie der letzten Tour.
+**Nachtrag 13.10.2026 (v0.138.0):** «Training» TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen mit Ziel und Rückblick. Feste Termine aus AK1 Woche kommen mit «Aktiv ausweiten». Ziel «Eine App, die mich im Alltag unterstützt».
+
+**Nachtrag 14.10.2026 (v0.135.0 «Meditation und Timer») (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC):** Meditation als eigener Reiter in Aktiv, zweiter nach Heute (ME2, Noah 15.10.2026 «1a»), Rückblick nach Woche/Monat/Jahr (ME3); Timer mit Seite, Ziffernblättern, schwebendem Timer und Log (Z2–Z5). Als Nächstes: ME4 Yoga (freigegeben 14.10.2026 «ME4 freigabe»); ME1/Z1 auf Heute nach Noahs Prüfung gegen HN0.
+
 **Nachtrag 14.10.2026 (v0.133.0 «Design-Refresh», Bündel A) (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC):** Begrüssung HG1, «Wi gaht's?» AB1–AB6 mit Übernahme der alten Tagescheck-Karte (Balance-Ring, Runden 07:00/20:30, 7-Tage-Werte), Tour aus komoot, Touren-Seite SN4g, SN5 plus, SN6 plus, Bedienung FE1/FE13/FE14/FE16. Dazu KT «Kacheln antippbar» (Mockup-Freigabe: KT1–KT4, Antworten «1 a und b 2a 3a 4a» und «KT freigegeben» Noah 14.10.2026 10:31 UTC): «Öffnen ›» auf jeder Kachel, ••• auf jeder Aktivität mit Hilfezeile, kurze Einführung einmal nach dem Update (wieder abspielbar unter Ich), Anheben am Computer.
 **Nachtrag 14.10.2026 (v0.132.2):** «Velo draussen ohne falschen Haken» (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab.
 **Nachtrag 14.10.2026 (v0.132.0 «Tagespaket 14.10.»):** ein Release zusammen mit 0.125.0 in PR #151: Velo-Setup UC3-1–UC3-3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/FE6/FE7/FE8/FE9/FE10/FE11/FE17/FE18, Bezahlen vorbereiten mit Erklär-Seite Ich › Bezahlen BZ1/BZ2b (#156), Kleine Apps Meditation/Packliste/Velopflege + Benutzerhandbuch (#157), Doku «Links nach aussen» DG-X1–X16 (nur Spezifikation). Velo-Setup steht als Teil darunter. Als Nächstes: Noah merged #151 (0.125.0 + 0.132.0), dann Links nach aussen (DG-X) über Design-Refresh.
@@ -724,7 +742,9 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
+| 3.0 | 14.10.2026 | 0.139.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
+| 3.0 | 14.10.2026 | 0.137.0 «Eine Zahl pro Sache» (Durchklick DK1–DK3) |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

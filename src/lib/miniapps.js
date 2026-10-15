@@ -21,7 +21,7 @@ export const MINI_APPS = [
     tabs: [
       { key: 'start', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => /^#\/flow\/act\/meditation\/?$/.test(path(h)) || /^#\/flow\/act\/meditation\/(done|s)\//.test(path(h)) },
       { key: 'timer', label: 'Timer', href: '#/flow/act/meditation/timer', match: (h) => path(h).startsWith('#/flow/act/meditation/timer') },
-      { key: 'log', label: 'Logbook', href: '#/flow/act/meditation/log', match: (h) => path(h).startsWith('#/flow/act/meditation/log') },
+      { key: 'log', label: 'Logbook', href: '#/flow/act/meditation/log', match: (h) => path(h).startsWith('#/flow/act/meditation/log') || path(h).startsWith('#/flow/act/meditation/rueckblick') }, // «Meditation» ME3: the Rückblick sits with the log
       { key: 'more', label: 'More', href: '#/flow/act/meditation/mehr', match: (h) => /^#\/flow\/act\/meditation\/(mehr|muster)/.test(path(h)) },
     ],
   },

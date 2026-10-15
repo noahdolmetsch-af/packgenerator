@@ -15,6 +15,7 @@ import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.
 import { splitAll, needsSplitUpdate, splitRerunAfterImport, SPLIT_MARKER, REVIEW_KEY } from './blocksplit.js';
 import { ensureSeed } from './flowdb.js';
 import { moveSeatHeight } from './bikespecs.js';
+import { oldMedNick } from './flowtiles.js';
 
 const now = () => new Date().toISOString();
 
@@ -276,7 +277,20 @@ export async function fitMove2026(db) {
   return n > 0;
 }
 
-export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, blocks2026, templatesLinked2026, blockSplit2026];
+/**
+ * «Meditation» (Noah 13.10.2026 «3a»): the name is «Meditation» everywhere; the seed's playful name
+ * «Kissenzeit» goes from the activity (flowtiles.js oldMedNick; a name of your own stays).
+ * Idempotent: it checks the data itself, so it runs on every start and after an import.
+ */
+export async function medName2026(db) {
+  const act = await db.flowActs.get('meditation');
+  const patch = oldMedNick(act);
+  if (!patch) return false;
+  await db.flowActs.update('meditation', patch);
+  return true;
+}
+
+export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, medName2026, blocks2026, templatesLinked2026, blockSplit2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

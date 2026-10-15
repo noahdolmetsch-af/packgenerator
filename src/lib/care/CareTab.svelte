@@ -350,7 +350,8 @@
   });
   // V6: the overview page; V7: one bike's care page (the other bikes stay one row each below).
   const openC = $derived(openId ? checks.find((c) => c.bike.id === openId) ?? null : null);
-  const dueAll = $derived(checks.reduce((n, c) => n + c.care.rows.filter((r) => r.kind !== 'repair').length, 0));
+  // v0.137.0 (DK1): the same count as Today and the menu: services, worn parts and the problems due (readiness.repairDue).
+  const dueAll = $derived(checks.reduce((n, c) => n + c.care.rows.length, 0));
   const toggled = (id, isOpen) => {
     if (isOpen) openBike(id);
     else openId = null;
@@ -387,6 +388,8 @@
       title={t('Bike care')}
       sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : t('nothing due')].join(' · ')}
     />
+    <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
+    {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
   {/if}
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
@@ -801,5 +804,11 @@
   }
   .rev-cta {
     color: var(--ink-2);
+  }
+  .why-due {
+    margin: -6px 0 14px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    max-width: 68ch;
   }
 </style>

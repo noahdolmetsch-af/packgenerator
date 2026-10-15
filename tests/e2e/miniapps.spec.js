@@ -64,3 +64,39 @@ test('one database: what the big app saved is there in a small app', async ({ pa
   expect(await idb('get')).toBe('gleiche Daten');
   expect(errors).toEqual([]);
 });
+
+// Ich › Handbuch and Ich › Kleine Apps (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben»).
+test('Ich › Handbuch: every function folded, with how to switch it on and an example', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/me');
+  await ready(page);
+  await page.locator('a.ich-row[href="#/me/handbook"]').click();
+  await expect(page.getByRole('heading', { level: 1, name: T('Handbook') })).toBeVisible();
+  const { FEATURES } = await import('../../src/lib/features.js').catch(() => ({ FEATURES: null }));
+  const rows = page.locator('[data-hb]');
+  if (FEATURES) await expect(rows).toHaveCount(FEATURES.length);
+  const first = rows.first();
+  await first.locator('summary').click();
+  await expect(first.locator('.hb-body')).toBeVisible();
+  await expect(first.locator('.hb-body')).toContainText(T('Switch on:'));
+  await expect(first.locator('.hb-ex')).not.toBeEmpty();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('Ich › Kleine Apps: each small app with icon, steps and «Öffnen» to its own address', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/me');
+  await ready(page);
+  await page.locator('a.ich-row[href="#/me/apps"]').click();
+  for (const app of MINI_APPS) {
+    const card = page.locator(`.ma-app[data-app="${app.key}"]`);
+    await expect(card).toBeVisible();
+    await expect(card.locator('img')).toHaveJSProperty('complete', true);
+    expect(await card.locator('img').evaluate((i) => i.naturalWidth)).toBeGreaterThan(0);
+    await expect(card.locator('a.btn')).toHaveAttribute('href', `/packgenerator/apps/${app.key}/`);
+  }
+  await page.locator('.ma-app[data-app="meditation"] a.btn').click();
+  await expect(page.locator('nav.mini[data-mini="meditation"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
