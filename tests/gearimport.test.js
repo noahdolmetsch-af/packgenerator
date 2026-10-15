@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import {
   isGearImportFile, validateGearImport, normalizeName, nameSimilarity, resolveCategory, mapAreas, match, enrich, newItem,
-  planGearImport, buildWrites, planLearnings, isoDate, remaining,
+  planGearImport, buildWrites, planLearnings, isoDate, remaining, SKIP,
 } from '../src/lib/gearimport.js';
 import { stageImport, getStaged, applyImport, undoImport, lastApplied, archiveItems, decide, STAGED } from '../src/lib/gear/importdb.js';
 import { undoBulk } from '../src/lib/gear/bulk.js';
@@ -137,6 +137,14 @@ describe('v0.45.1 (G001): the same item twice in one file', () => {
     expect(w2.items.find((i) => i.name === N('Lampe vorne')).mergedIds).toContain('M102');
     expect(w2.items.map((i) => i.name)).toContain(N('multitool.'));
     expect(w2.counts.merged).toBe(1);
+  });
+  it('SN5: a new line left out (SKIP) is not made, counted as left and stays in the import', () => {
+    const w = buildWrites(FILE2, [], [], { M15: SKIP }, NOW);
+    expect(w.items.map((i) => i.name)).toEqual([N('Multitool'), N('Lampe hinten')]);
+    expect(w.counts).toMatchObject({ added: 2, left: 1 });
+    expect(w.done).not.toContain('M15');
+    const rest = remaining(FILE2, w.done, w.took);
+    expect(rest.items.some((x) => x.name === N('Lampe vorne'))).toBe(true);
   });
   it('after the safe ones are applied the rest still points at the item the first line made', () => {
     const w = buildWrites(FILE2, [], [], {}, NOW);

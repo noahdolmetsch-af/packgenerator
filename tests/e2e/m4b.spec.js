@@ -118,7 +118,8 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await page.goto('./#/pack');
   await expect(page.getByRole('heading', { name: 'test_data_gtp_ Bivvy weekend' })).toBeVisible();
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
-  await page.getByRole('button', { name: T('Save as template') }).click();
+  // TZ-2: the state band of a planned trip offers «Save as template» too; this is the one in the menu «…»
+  await page.locator('.list-menu-content').getByRole('button', { name: T('Save as template') }).click();
   const dlg = page.getByRole('dialog', { name: T('Template') });
   await expect(dlg.getByRole('button', { name: T('Update|template') })).toBeVisible();
   await expect(dlg.getByRole('button', { name: T('New template|save') })).toBeVisible();
@@ -135,7 +136,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
 
   // Save as new: a second template; the first stays.
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
-  await page.getByRole('button', { name: T('Save as template') }).click();
+  await page.locator('.list-menu-content').getByRole('button', { name: T('Save as template') }).click();
   await dlg.getByLabel(T('Name')).fill('test_data_gtp_ Bivvy 2');
   await dlg.getByRole('button', { name: T('New template|save') }).click();
   await expect(dlg).toBeHidden();

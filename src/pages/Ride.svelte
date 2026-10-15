@@ -13,13 +13,15 @@
    * and notes that go into the debrief. Works offline with what was saved last.
    */
   import { liveQuery } from 'dexie';
-  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale, nameOf, lang } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
+  import { loadWerte } from '../lib/review/actdata.js';
+  import { paceFor, usualSurface } from '../lib/review/werte.js';
   import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
@@ -37,7 +39,15 @@
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
-  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble } from '@lucide/svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
+  import { tick } from 'svelte';
+  import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
+  import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
+  import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
+  import { komootSport } from '../lib/komoot.js';
+  import { domainOf } from '../lib/domains.js';
+  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -47,7 +57,8 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   // v0.19.0: your pace from your rides (Debrief → Your pace), else the standard guess.
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
-  const pace = $derived(paceOf($paceQ?.value));
+  // SN2+ SN2h (answer 4b): the bike's own pace on its surface from 5 rides, else the rule
+  const werteQ = liveQuery(() => loadWerte(db));
 
   const today = localDay();
   const trips = $derived($tripsQ ?? []);
@@ -63,6 +74,7 @@
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
+  const pace = $derived(paceFor(paceOf($paceQ?.value), $werteQ?.grid ?? [], trip?.bikeId ?? null, bike ? usualSurface(bike, $werteQ?.rides ?? []) : null));
   const stats = $derived(trip ? tripStats(trip, items, $bagsQ ?? [], bike, 0) : null);
   const days = $derived(stageCount(trip));
   const nonstop = $derived(isNonstop(trip));
@@ -78,6 +90,13 @@
   const dayLabel = (n) => {
     if (!trip?.startDate) return t('Day {n}', { n: n + 1 });
     return t('Day {n} · {date}', { n: n + 1, date: dateOf(n) });
+  };
+  // SN1: the day chips stay short: «Tag 2 · Fr»
+  const dayShort = (n) => {
+    if (!trip?.startDate) return t('Day {n}', { n: n + 1 });
+    const d = new Date(`${trip.startDate}T12:00:00`);
+    d.setDate(d.getDate() + n);
+    return t('Day {n} · {date}', { n: n + 1, date: d.toLocaleDateString(locale(), { weekday: 'short' }).replace(/\.$/, '') });
   };
   const dateOf = (n) => {
     const d = new Date(`${trip.startDate}T00:00:00`);
@@ -345,7 +364,40 @@
   // L7: before the start there is nothing to end yet: the next step leads back to Pack (the debrief opens from the last day on).
   const ahead = $derived(!!trip?.startDate && !tripStarted && !trip.finished);
   const main = $derived(trip ? mainStep(trip, today, 'ride', { debriefDone: debrief?.status === 'done' }) : { kind: null });
-  const kicker = $derived(!trip ? '' : tripStarted ? (days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
+  const kicker = $derived(!trip ? '' : tripStarted ? (running ? '' : days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
+  // SN1 (mockup «Seiten neu», Noah 13.10.2026): while the trip runs, the day goes into the state pill
+  // («Geplant · unterwegs, Tag 2 von 3») instead of a kicker line of its own.
+  const running = $derived(!!trip && tripStarted && !trip.finished);
+  const todayIdx = $derived(trip ? Math.max(0, Math.min(days - 1, dayIndex(trip, today))) : 0);
+  const dayOf = $derived(days > 1 ? t('Day {n} of {total}', { n: todayIdx + 1, total: days }) : '');
+  // SN1 (question 1a): before the last day the main button is «Notiz»; «Tour beenden» moves into «…»
+  // and becomes the main button on the last day (mainStep 'last').
+  const noteMain = $derived(running && main.kind === null);
+  const nextLine = $derived(running && days > 1 && !nonstop && todayIdx < days - 1 ? t('Tomorrow: stage {n}', { n: todayIdx + 2 }) : '');
+  async function startNote() {
+    quick = 'text';
+    await tick();
+    const box = document.querySelector('.notesec textarea');
+    box?.scrollIntoView({ block: 'center' });
+    box?.focus({ preventScroll: true });
+  }
+  const moreActions = $derived([
+    ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
+    ...(main.kind === null ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
+  ]);
+  /* ---------- SN1: the weather of now in one sentence ---------- */
+  const wetH = (x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50;
+  const nowWx = $derived.by(() => {
+    if (!nowB?.temp) return null;
+    const hrs = saved?.places?.[0]?.hours ?? [];
+    const at = clock.slice(0, 13);
+    const ahead = hrs.filter((x) => x.t && x.t.slice(0, 13) >= at && x.t.slice(0, 13) <= (st.endAt ?? `${st.date}T21`).slice(0, 13));
+    const wetNow = ahead.length ? wetH(ahead[0]) : nowB.wet;
+    const later = !wetNow ? ahead.find(wetH) : null;
+    const word = wetNow ? t('rain likely') : later ? t('dry until {h} h', { h: later.h }) : t('dry');
+    const then = later ? t('then {n} % rain', { n: Math.round(later.rainPct ?? 0) }) : '';
+    return { head: `${tempText(nowB)}, ${word}`, then };
+  });
   // Opened once when shown; afterwards it stays as you leave it.
   const openOnce = (node, open) => { node.open = open; };
   // v0.105.0 P5 (T12): «So wird gerechnet» opens under the heading
@@ -377,15 +429,19 @@
      on the last day «Letzten Tag abschliessen», after the trip «Weiter zum Rückblick». Earlier days have
      no orange button: ending early is the quiet «Tour beenden …» in the band (it asks first). -->
 {#snippet go()}{#if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
-{#snippet endLink()}{#if main.kind === null}<button type="button" class="endlink" onclick={() => (endAsk = true)}>{t('End the trip …')}</button>{/if}{/snippet}
+<!-- SN1 (question 1a): «…» holds «Tour beenden …» before the last day (it asks first), and «Notiz» when
+     the main button is another one. -->
+{#snippet endLink()}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
+{#snippet noteBtn()}<button type="button" class="btn hi notego" onclick={startNote}><Mic size={20} aria-hidden="true" />{t('Note|ride')}</button>{/snippet}
+{#snippet dayAside()}{#if dayOf}<span class="dayside"><b>{dayOf}</b>{#if nextLine}<small>{nextLine}</small>{/if}</span>{/if}{/snippet}
 
 {#if !trip}
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
 {:else}
 <div class="ride trip-page">
-  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : null} aside={main.kind ? pen : null} extra={endLink} hint={main.kind === 'last' ? t('End the trip when you are back home.') : ''} />
+  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
@@ -407,78 +463,76 @@
   <div class="tp-grid2 r">
     <div class="col">
       {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
-      <!-- Noah 7a: the days, then the block of now, on top. -->
+      <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}
-          <nav class="tp-chips" aria-label={t('Days')}>
-            {#each Array.from({ length: days }, (_, n) => n) as n (n)}
-              <button type="button" class="tp-chip" aria-pressed={n === cur} aria-current={n === cur ? 'true' : undefined} onclick={() => (day = n)}>{dayLabel(n)}</button>
-            {/each}
-          </nav>
+          <Seg full={false} label={t('Days')} options={Array.from({ length: days }, (_, n) => ({ key: n, name: dayShort(n) }))} value={cur} onchange={(n) => (day = n)} />
         {:else if trip.startDate}<span class="tp-chip" aria-current="true">{dayLabel(0)}</span>{/if}
         {#if st.km}<span class="tp-muted tp-small num sum">{num(st.km)} km · {st.gainM ?? '–'} {t('m up|short')} · {t('Arrive about')} {st.arrive}</span>{/if}
       </div>
 
       {#if nowB}
-        <section class="now" aria-labelledby="now-h">
-          <div class="shead">
-            <div class="sht">
-              <h2 id="now-h" class="sh">{t('The day in blocks')}</h2>
-              <p class="tt num">{isNow ? t('Now') : nowIdx === 0 ? t('First block') : t('Last block')} · {t('Block {n} of {total}', { n: nowIdx + 1, total: rows.length })} · {t('{span} h', { span: span(nowB) })} · {nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : where(nowB)}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</p>
+        <!-- SN1 (mockup «Seiten neu»): one «Jetzt» card: the time and the stage on top, the weather in one
+             sentence, then wear, eat, drink and light as four tiles; all blocks and how it is worked out below. -->
+        <section class="now card" aria-labelledby="now-h">
+          <h2 id="now-h" class="nowh num"><Clock size={16} aria-hidden="true" /><span>{isNow ? t('Now') : nowIdx === 0 ? t('First block') : t('Last block')} · {t('{span} h', { span: span(nowB) })} · {nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : days > 1 && !nonstop ? t('Stage {n}, start {time}', { n: cur + 1, time: st.start }) : `${t('Start')} ${st.start} · ${where(nowB)}`}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</span></h2>
+          {#if nowWx}<p class="wxhead num">{nowWx.head}</p>{/if}
+          {#if nowWx?.then || sunset || nowB.wxFrom === 'trip'}<p class="wxsub num">{[nowWx?.then, sunset ? t('Sunset {time}', { time: sunset }) : '', nowB.wxFrom === 'trip' ? t('trip weather') : ''].filter(Boolean).join(' · ')}</p>{/if}
+          {#if nowB.note}<p class="bn tp-small">{nowB.note}</p>{/if}
+          {#if !nowB.rest}
+            <ul class="tiles">
+              <li><Shirt size={20} aria-hidden="true" /><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
+              <li><Utensils size={20} aria-hidden="true" /><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
+              <li><Droplet size={20} aria-hidden="true" /><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L', { n: num(nowB.drinkL) })}</span>{#if refillText(nowB)}<small>{refillText(nowB)}</small>{/if}</div></li>
+              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<small>{names(bp.lights)}</small>{/if}</div></li>
+            </ul>
+          {/if}
+          {#if nextB}
+            <p class="after"><span class="tt num">{t('Then {span}', { span: span(nextB) })}</span><span class="tp-small">{nextB.rest ? t('stop at km {km}', { km: nextB.kmTo }) : [wearText(nextB, nowIdx + 1), foodText(nextB), t('about {n} L to drink', { n: num(nextB.drinkL) }), nextB.light ? lightText(nextB) : ''].filter(Boolean).join(' · ')}</span></p>
+          {/if}
+          <!-- v0.19.5 (answer 4b): every block with clothing, food and drink, light; the current one marked. -->
+          <details class="allb">
+            <summary><span id="blocks-h">{t('All blocks of the day')}</span><span class="r tp-muted tp-small">{nonstop && trip.plan?.schedule?.length ? t('your time plan') : t('3 h each')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+            <div class="in">
+              <ol class="timeline blocks">
+                <!-- v0.40.0 (design check R2): one short line per block (time · °C · one word); the whole
+                     block (clothes, food, drink, light) opens with a tap, so the Now card is not repeated. -->
+                {#each bp.rows as b, n (b.startAt)}
+                  {@const key = keyword(b, n)}
+                  <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
+                    <details>
+                      <summary><span class="num tm">{dayName(b.startAt)} {span(b)}</span><span class="one"><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{/if}{#if key}{' · '}{key}{/if}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+                      {#if !b.rest}<p class="full">{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}</p>{/if}
+                      {#if b.note}<small>{b.note}</small>{/if}
+                    </details>
+                  </li>
+                {/each}
+              </ol>
+              {#if nonstop && planHours(trip) > st.hours + 1}<p class="tp-small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
             </div>
-            <button type="button" class="tp-link howb" aria-expanded={how} onclick={() => (how = !how)}>{t('How this is worked out')}<ChevronRight size={16} aria-hidden="true" /></button>
-          </div>
+          </details>
+          <!-- v0.105.0 P5 (T12): «So wird gerechnet» opens under the card's last row -->
+          <button type="button" class="tp-link howb" aria-expanded={how} onclick={() => (how = !how)}>{t('How this is worked out')}<ChevronRight size={16} aria-hidden="true" /></button>
           {#if how}
             <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
           {/if}
-          <div class="card nowc">
-            {#if nowB.temp}<p class="wxp"><b class="num">{tempText(nowB)}</b> · {nowB.wet ? t('rain likely') : t('dry')}{#if nowB.wxFrom === 'trip'}<small>{' · '}{t('trip weather')}</small>{/if}</p>{/if}
-            {#if nowB.note}<p class="bn tp-small">{nowB.note}</p>{/if}
-            {#if !nowB.rest}
-              <ul class="do">
-                <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
-                <li><span class="k"><Utensils size={18} aria-hidden="true" /></span><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
-                <li><span class="k"><Droplet size={18} aria-hidden="true" /></span><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L to drink', { n: num(nowB.drinkL) })}{#if refillText(nowB)}{' '}<small>· {refillText(nowB)}</small>{/if}</span></div></li>
-                <li><span class="k"><Lightbulb size={18} aria-hidden="true" /></span><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}{#if !nowB.light && sunset}{' '}<small>· {t('Sunset {time}', { time: sunset })}</small>{:else if nowB.light && !bp.lights.length}{' '}<small>· {t('no light on this trip')}</small>{:else if nowB.light}{' '}<small>· {names(bp.lights)}</small>{/if}</span></div></li>
-              </ul>
-            {/if}
-          </div>
         </section>
-        {#if nextB}
-          <p class="after"><span class="tt num">{t('Then {span}', { span: span(nextB) })}</span><span class="tp-small">{nextB.rest ? t('stop at km {km}', { km: nextB.kmTo }) : [wearText(nextB, nowIdx + 1), foodText(nextB), t('about {n} L to drink', { n: num(nextB.drinkL) }), nextB.light ? lightText(nextB) : ''].filter(Boolean).join(' · ')}</span></p>
-        {/if}
-        <!-- v0.19.5 (answer 4b): every block with clothing, food and drink, light; the current one marked. -->
-        <details class="tp-fold allb">
-          <summary><Clock size={20} aria-hidden="true" /><span id="blocks-h">{t('All blocks of the day')}</span><span class="r">{nonstop && trip.plan?.schedule?.length ? t('your time plan') : t('3 h each')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-          <div class="in">
-            <ol class="timeline blocks">
-              <!-- v0.40.0 (design check R2): one short line per block (time · °C · one word); the whole
-                   block (clothes, food, drink, light) opens with a tap, so the Now card is not repeated. -->
-              {#each bp.rows as b, n (b.startAt)}
-                {@const key = keyword(b, n)}
-                <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
-                  <details>
-                    <summary><span class="num tm">{dayName(b.startAt)} {span(b)}</span><span class="one"><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{/if}{#if key}{' · '}{key}{/if}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
-                    {#if !b.rest}<p class="full">{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}</p>{/if}
-                    {#if b.note}<small>{b.note}</small>{/if}
-                  </details>
-                </li>
-              {/each}
-            </ol>
-            {#if nonstop && planHours(trip) > st.hours + 1}<p class="tp-small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
-          </div>
-        </details>
       {:else if !st.km}
         <p class="card tp-muted noroute">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
       {/if}
 
       <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
       <section class="wxs" aria-labelledby="wx-h">
-        <h2 id="wx-h" class="sh">{t('Weather hour by hour')}</h2>
-        <p class="ssub">{saved ? t('Loaded {ago}', { ago: ageText(saved.fetchedAt) }) : t('Start and finish of the day')}{online ? '' : ` · ${t('offline')}`}</p>
+        <!-- SN1: «Wetter unterwegs»; without a place a row with «Ort wählen» (to Plan) -->
+        <h2 id="wx-h" class="sh">{t('Weather on the way')}</h2>
+        <p class="ssub">{saved ? t('Loaded {ago}', { ago: ageText(saved.fetchedAt) }) : t('Hour by hour, at start and finish')}{online ? '' : ` · ${t('offline')}`}</p>
         <div class="card wxc">
           {#if !wxPlaces.length}
-            <p class="tp-muted">{t('No place yet. Add the start place or the GPX in')} <a href="#/pack">{t('Plan|stage')}</a>.</p>
+            <div class="noplace">
+              <span class="ib" aria-hidden="true"><MapPin size={18} /></span>
+              <div class="tw"><b>{t('Start place missing')}</b><small>{t('With a start place or the GPX the weather comes hour by hour')}</small></div>
+              <a class="btn" href="#/pack" onclick={() => openTrip(trip.id)}>{t('Choose place')}</a>
+            </div>
           {:else if tooEarly && !saved}
             <p class="tp-muted">{t('The hourly forecast comes {n} days before the day.', { n: FORECAST_DAYS })}</p>
           {:else}
@@ -503,13 +557,15 @@
           {/if}
         </div>
       </section>
+      <!-- SK X11 + X16 (SKX4): bike shops around you (the location only when tapped) and the wind map -->
+      <Woanders stack context={trip.title ?? ''} links={[{ kind: 'x11', href: bikeShopsUrl(null, lang.v), icon: 'pin', sub: '', locate: true }, { kind: 'x16', href: windyUrl(st.from ?? trip.place), icon: 'wind', sub: t('Wind map for the route') }]} />
     </div>
 
     <div class="col">
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
       <section class="notesec" aria-labelledby="note-h">
         <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>
-        <p class="ssub">{t('lands in the debrief and in the Inbox')}</p>
+        <p class="ssub">{t('lands in the debrief, nothing to fill in')}</p>
         <div class="card">
           <div class="tp-chips qn" role="group" aria-label={t('Quick note')}>
             {#each DEBRIEF_KINDS as k (k.key)}
@@ -553,15 +609,17 @@
         <section class="chg" aria-labelledby="chg-h">
           <h2 id="chg-h" class="sh">{t('Charge tonight')}</h2>
           <p class="ssub">{eve.overnight ? t(nightName({ overnight: eve.overnight, tent: trip?.tent })) : t('Every evening on the way')}</p>
-          <ChargeList {trip} {items} night={eve.date} head />
+          <ChargeList {trip} {items} night={eve.date} head all />
         </section>
       {/if}
 
       <section class="more" aria-labelledby="more-h">
         <h2 id="more-h" class="sh">{t('More')}</h2>
+        <!-- SN1: the three rows in one card, each with its icon and one line -->
+        <div class="card mlist">
         <!-- Answer 2b: every bag with what is in it. -->
         <details class="tp-fold">
-          <summary><Search size={20} aria-hidden="true" /><span id="where-h">{t('What is where')}</span><span class="r num">{tn(bags.length, '{n} bag', '{n} bags')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><span class="ib" aria-hidden="true"><Search size={18} /></span><span class="tw"><b id="where-h">{t('What is where')}</b><small>{t('every item and its bag')}</small></span><span class="r num">{tn(bags.length, '{n} bag', '{n} bags')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
           <div class="in bags">
             {#each bags as z (z.key)}
               <div class="bag">
@@ -572,28 +630,11 @@
           </div>
         </details>
 
-        {#if eve}
-          <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
-          <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
-            <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <ul class="do">
-              <li><span class="k"><BedDouble size={18} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
-              <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
-              <li><span class="k"><CloudSun size={18} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
-                {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
-                {:else}<span class="val tp-muted">{t('Not known yet')}</span>{/if}
-                {#if nextSt?.date && !nextSaved && !nextTooEarly && (nextSt.from ?? trip.place)}<button type="button" class="tp-link" disabled={nextBusy || !online} onclick={loadNextWx}>{nextBusy ? t('Loading …') : t("Load tomorrow's forecast")}</button>{/if}
-                {#if nextMsg}<small class="warn" role="status">{nextMsg}</small>{/if}
-              </div></li>
-            </ul>
-          </details>
-        {/if}
-
         <!-- Answer 4a: the day's stage: start time, nonstop, profile. -->
         <!-- v0.30.1 (Noah C1): also without a route, for the start time of the day. -->
         {#if st.km || st.hours}
         <details class="tp-fold" use:openOnce={!bp}>
-          <summary><RouteIcon size={20} aria-hidden="true" /><span>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</span><span class="r num">{st.hours ? `${t('Start')} ${st.start}` : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><span class="ib" aria-hidden="true"><RouteIcon size={18} /></span><span class="tw"><b>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</b><small class="num">{[st.hours ? `${t('Start')} ${st.start}` : '', st.km ? `${num(st.km)} km` : t('no route')].filter(Boolean).join(' · ')}</small></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
           <div class="in">
             {#if st.km}
               <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> {t('Nonstop: one stage through the night')}</label>
@@ -620,6 +661,27 @@
           </div>
         </details>
         {/if}
+        {#if eve}
+          <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
+          <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
+            <summary><span class="ib" aria-hidden="true"><Moon size={18} /></span><span class="tw"><b id="eve-h">{t('Evening')}</b><small>{t('charging, clothes for tomorrow')}</small></span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <ul class="do">
+              <li><span class="k"><BedDouble size={18} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
+              <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
+              <li><span class="k"><CloudSun size={18} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
+                {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
+                {:else}<span class="val tp-muted">{t('Not known yet')}</span>{/if}
+                {#if nextSt?.date && !nextSaved && !nextTooEarly && (nextSt.from ?? trip.place)}<button type="button" class="tp-link" disabled={nextBusy || !online} onclick={loadNextWx}>{nextBusy ? t('Loading …') : t("Load tomorrow's forecast")}</button>{/if}
+                {#if nextMsg}<small class="warn" role="status">{nextMsg}</small>{/if}
+              </div></li>
+            </ul>
+          </details>
+        {/if}
+        <!-- SN1b (answer 1a): «Tour aus komoot», a quiet last row; the location only when tapped -->
+        <div class="kmrow"><KomootRow sport={komootSport(domainOf(trip), bike?.type)} hint={false} /></div>
+
+        </div>
+        <p class="kmhint"><MapPin size={16} aria-hidden="true" /><span>{t('The app asks for your location only when you tap. It goes only in the link to komoot and is not stored.')}</span></p>
       </section>
     </div>
   </div>
@@ -642,34 +704,43 @@
   .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
-  /* «Tour beenden …» in the band: quiet, never orange (U25a), a full tap target */
-  .endlink { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--ink); font: 500 var(--fs-small) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-  .endlink:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  /* SN1: «…» of the trip at the end of the pill line */
+  .rmore { margin-left: auto; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
   .days .sum { flex-basis: 100%; }
   @media (min-width: 900px) { .days .sum { flex-basis: auto; } }
-  /* the day in blocks: the block of now */
-  .now { margin: 0 0 8px; }
-  .shead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0 12px; margin: 0 0 8px; }
-  .sht { flex: 1 1 220px; min-width: 0; }
+  /* SN1: the «Jetzt» card: time and stage, the weather in one sentence, four tiles */
+  .now { margin: 0 0 24px; }
+  .nowh { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--ink-2); font: 400 var(--fs-small) / 1.4 var(--font-body); overflow-wrap: break-word; }
+  .nowh :global(svg) { flex: none; }
+  .wxhead { margin: 8px 0 0; font: 700 var(--fs-section) / 1.2 var(--font-body); overflow-wrap: break-word; }
+  .wxsub { margin: 4px 0 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   .tt { margin: 2px 0 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   .howb { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: var(--fs-small); }
   .howp { margin: 0 0 8px; }
-  .nowc { padding-top: 4px; padding-bottom: 4px; }
-  .wxp { margin: 8px 0 4px; color: var(--ink-2); font-size: var(--fs-small); }
-  .wxp b { color: var(--ink); }
-  .bn { margin: 4px 0; color: var(--ink-3); }
+  .bn { margin: 8px 0 0; color: var(--ink-3); }
+  .tiles { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 14px 0 0; padding: 0; }
+  .tiles li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px; border-radius: var(--r-ctl); background: var(--paper-2); }
+  .tiles li > :global(svg) { margin-top: 2px; color: var(--ink-2); }
+  .tiles small { display: block; font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word; }
+  .tiles .val { font-weight: 600; }
+  /* a very small phone: one tile per row, so no word breaks */
+  @media (max-width: 379px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
   .do { list-style: none; margin: 0; padding: 0; }
   .do li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 12px 0; align-items: start; }
-  .do li + li, .wxp + .do li:first-child, .bn + .do li:first-child { border-top: 1px solid var(--line); }
+  .do li + li { border-top: 1px solid var(--line); }
   .k { width: 34px; height: 34px; border-radius: 8px; background: var(--paper-2); display: grid; place-items: center; color: var(--ink-2); }
   .lab { display: block; font-size: var(--fs-tiny); color: var(--ink-2); }
   .val { display: block; font-size: var(--fs-body); line-height: 1.35; overflow-wrap: break-word; }
   .val small, .do small { font-size: var(--fs-small); color: var(--ink-2); }
-  .do small.warn { display: block; }
-  .after { display: flex; gap: 12px; align-items: baseline; margin: 0 0 12px; padding: 0 2px; overflow-wrap: break-word; }
+  .after { display: flex; gap: 12px; align-items: baseline; margin: 12px 0 0; padding: 0 2px; overflow-wrap: break-word; }
   .after .tt { margin: 0; color: var(--ink-3); white-space: nowrap; }
-  .allb { margin: 0 0 24px; }
+  .allb { margin: 8px 0 0; }
+  .allb > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; list-style: none; cursor: pointer; font-weight: 500; font-size: var(--fs-small); }
+  .allb > summary::-webkit-details-marker { display: none; }
+  .allb > summary :global(.chev) { flex: none; transition: transform 0.15s; color: var(--ink-3); }
+  .allb[open] > summary :global(.chev) { transform: rotate(90deg); }
+  .allb .r { margin-left: auto; }
   .noroute { margin: 0 0 24px; }
   /* the quick notes */
   .qn { margin: 0; }
@@ -730,8 +801,26 @@
   .hours small { color: var(--ink-3); font-size: var(--fs-tiny); }
   .wxbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: flex-end; margin: 0; }
   .wxc > p { margin: 0; }
-  /* «Mehr» */
+  /* «Mehr» (SN1): one card, a row per fold with its icon and one line */
   .more .sh { margin-bottom: 8px; }
+  .mlist { padding: 0; }
+  .mlist .tp-fold { margin: 0; border: 0; border-radius: 0; box-shadow: none; background: none; }
+  .mlist .tp-fold + .tp-fold { border-top: 1px solid var(--line); }
+  /* SN1b: «Tour aus komoot», the last row of «Mehr», and the line about the location under the card */
+  .kmrow { border-top: 1px solid var(--line); }
+  .kmhint { display: flex; gap: 8px; margin: 8px 0 0; color: var(--ink-3); font-size: var(--fs-small); line-height: 1.4; }
+  .kmhint :global(svg) { flex: none; margin-top: 2px; }
+  .ib { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: var(--paper-2); color: var(--ink-2); }
+  .tw { display: flex; flex-direction: column; min-width: 0; overflow-wrap: break-word; }
+  .tw small { color: var(--ink-2); font-size: var(--fs-small); font-weight: 400; }
+  /* SN1: the weather without a place: one row with «Ort wählen» */
+  .noplace { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .noplace .tw { flex: 1 1 200px; }
+  .noplace .btn { min-height: 44px; }
+  @media (max-width: 639px) { .noplace .btn { flex: 1 1 100%; } }
+  /* SN1: the day next to «Notiz» in the phone's bar */
+  .dayside { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; line-height: 1.25; }
+  .dayside small { color: var(--ink-2); font-size: var(--fs-small); }
   .bags { display: grid; gap: 10px; }
   @media (min-width: 640px) { .bags { grid-template-columns: 1fr 1fr; } }
   .bag { min-width: 0; }

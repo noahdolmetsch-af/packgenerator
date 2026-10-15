@@ -18,47 +18,46 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
   await expect(groups).toHaveCount(6);
   await expect(groups.first().locator('h2')).toHaveText(T('Before the trip'));
   // Design-Refresh P9 (I7): the head with the path back (VeloHead), its line under the title is .vsub
-  await expect(page.locator('.vhead .vsub')).toHaveText(new RegExp(`^${T('{total} functions · you use {n}', { total: '\\d+', n: '\\d+' })}$`));
+  // SN6 (changed on purpose): «… · antippen bringt dich hin»
+  await expect(page.locator('.vhead .vsub')).toHaveText(new RegExp(`^${T('{total} functions · you use {n}', { total: '\\d+', n: '\\d+' })} · ${T('tap to go there')}$`));
   await page.screenshot({ path: info.outputPath('f1-was-die-app-kann.png'), fullPage: true });
 
   // phone: every button is a 44 px target, nothing scrolls sideways
   if (info.project.name === 'phone') {
-    for (const b of await page.locator('main .fbyb, main .fchip, main .fgo, main .fall').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    // SN6 (changed on purpose): the switch, the rows, their «…» and «Alle n» (no chips, no row buttons any more)
+    for (const b of await page.locator('main .ftop .seg button, main .fmain, main .ma .dots, main .fall').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
   }
   await noSideScroll(page);
-  // 4 rows per group, then «Alle N»
-  await expect(groups.first().locator('[data-feature]')).toHaveCount(4);
+  // SN6 (changed on purpose, mockup «Seiten neu»): 3 rows per group, then «Alle N»
+  await expect(groups.first().locator('[data-feature]')).toHaveCount(3);
 
-  // switched to «Nach Seite»: the places of the app, the chips follow
+  // switched to «Nach Seite»: the places of the app
   await page.getByRole('button', { name: T('By page'), exact: true }).click();
   await expect(groups).toHaveCount(5);
   await expect(groups.first().locator('h2')).toHaveText(T('Trips|place'));
-  await page.getByRole('button', { name: T('Bikes|place'), exact: true }).click();
-  await expect(groups).toHaveCount(1);
-  await expect(groups.first()).toHaveAttribute('data-group', 'bikes');
   await page.getByRole('button', { name: T('By situation'), exact: true }).click();
   await expect(groups).toHaveCount(6);
 
-  // a chip shows one situation, with all its rows
-  await page.getByRole('button', { name: T('Bike|features'), exact: true }).click();
-  await expect(groups).toHaveCount(1);
-  await expect(groups.first()).toHaveAttribute('data-group', 'bike');
-  await expect(groups.first().locator('.fall')).toHaveCount(0);
-  await page.getByRole('button', { name: T('All|features'), exact: true }).click();
-  await expect(groups).toHaveCount(6);
+  // SN6 (changed on purpose): no situation chips; «Alle n» of a card shows all its rows
+  const bike = page.locator('section[data-group="bike"]');
+  await bike.locator('.fall').click();
+  await expect(bike.locator('.fall')).toHaveCount(0);
+  expect(await bike.locator('[data-feature]').count()).toBeGreaterThan(3);
 
   // the field finds a function by its German word; «Hinbringen» opens the bike's sheet
   await page.getByLabel(T('Find a function')).fill('garantie');
   const row = page.locator('[data-feature="f.warranty"]');
   await expect(row).toBeVisible();
   await expect(page.locator('[data-feature]')).toHaveCount(1);
-  await row.getByRole('button', { name: T('Take me there') }).click();
+  await row.locator('.fmain').click(); // SN6: the row itself takes you there
   await expect(page).toHaveURL(/#\/bikes\?bike=test_data_gtp_[^&]+&sheet=warranty/);
 
   // «Ausprobieren» opens the playground on the day it plays (here: on the way), without starting it
   await page.goto('./#/features');
   await page.getByLabel(T('Find a function')).fill('basischeck');
-  await page.locator('[data-feature="f.basecheck"]').getByRole('button', { name: T('Try it') }).click();
+  // SN6 (changed on purpose): «Ausprobieren» is in the row's «…»
+  await page.locator('[data-feature="f.basecheck"] .ma .dots').click();
+  await page.getByRole('menuitem', { name: new RegExp(T('Try it')) }).click();
   const sheet = page.locator('dialog.playsheet');
   await expect(sheet).toBeVisible();
   await expect(sheet.getByRole('heading', { name: T('Try it out') })).toBeVisible();

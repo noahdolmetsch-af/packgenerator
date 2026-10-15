@@ -5,32 +5,71 @@
    * plan against real, what was not used (with the grams to save), what broke or was missing, the
    * learnings of the trip and what it means for the next trip. «Antworten ändern» stays, quiet.
    * Every number may be unknown: then a calm «–».
+   *
+   * SN2x «SN2 extra» (Noah 13.10.2026 19:48 «SN2j–SN2k freigegeben»; mockups SN2j-a oben/Mitte/unten, SN2k
+   * oben/unten): the whole Rückblick of one trip in five groups that fold open (answer 1a), only «Die Tour»
+   * open at the start; each closed group shows one line with the most important, and the page remembers
+   * which groups were open (on this device). A trip of several days has one day switch on top for the whole
+   * page (answer 5a). New: map and profile with the same numbers as the timeline, «Notizen» (U4), the whole
+   * «Puls und Leistung» with Relative Effort and load (answer 2), W/kg (answer 3a), «Stimmung und Energie»,
+   * «Erholung danach» (U3, with Fitbit), the weather planned and as it was, «Packliste, wie gepackt» (U5),
+   * «Abnutzung» (U2), «Für nächstes Mal» (U6, answer 7) and «Vergleich» inside one of five groups (answer 4).
+   * A part without data shows nothing or one quiet line, never an empty table. The end of the page stays
+   * free for the tile row of the SK round.
    */
-  import { t, tn, num, nameOf } from '../i18n.svelte.js';
+  import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
-  import { tripFacts, planVsReal, dayRows, nextTripAfter, nextHints } from './rueckblick.js';
+  import { tripFacts, planVsReal, nextTripAfter, nextHints } from './rueckblick.js';
   import { n0, n1, hours, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
+  import { WEATHER, AMOUNT } from '../debrief.js';
+  import { CLOTHING } from '../wardrobe.js';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
+  // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { updateTemplate } from '../templates.js';
+  import { loadGanz } from './actdata.js';
+  import { tripValues, tripEntries, tripActs } from './werte.js';
+  import { tripTemplate, inTemplate, dropItem, putBack, unusedBefore } from './fromtemplate.js';
+  import HeartPower from './HeartPower.svelte';
+  import UndoToast from './UndoToast.svelte';
+  // SN2x: the whole Rückblick
+  import Group from './Group.svelte';
+  import TourMap from './TourMap.svelte';
+  import NextTime from './NextTime.svelte';
+  import Profile from '../ui/Profile.svelte';
+  import { stageCuts } from '../stages.js';
+  import { distKm } from '../route.js';
+  import { situationHits } from '../situation.js';
+  import { tripPower, effortOf, loadOf } from './power.js';
+  import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
+  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
-  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null } = $props();
+  import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
+  import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
+  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null, notes = [], onpatch = null } = $props();
+  // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
+  const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
+  const stravaId = $derived(($stravaQ ?? []).find((e) => e.stravaId && e.state !== 'removed')?.stravaId ?? null);
 
   const today = localDay();
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   // The trip as a row of tripFacts (the same numbers as the Rückblick page and Past trips).
-  const row = $derived(tripFacts({ trips: [{ ...trip, status: 'done' }], debriefs: debriefs.map((x) => (x.tripId === trip.id ? { ...d, status: 'done' } : x)), rides: rides.filter((r) => r.tripId === trip.id), learnings, items, containers, bikes, today: tripEnd(trip) > today ? tripEnd(trip) : today }).find((r) => r.id === trip.id) ?? null);
+  // SN2x: all trips at once, for «Vergleich» and the bars of the last trips.
+  const allRows = $derived(tripFacts({ trips: trips.some((x) => x.id === trip.id) ? trips.map((x) => (x.id === trip.id ? { ...trip, status: 'done' } : x)) : [...trips, { ...trip, status: 'done' }], debriefs: debriefs.some((x) => x.tripId === trip.id) ? debriefs.map((x) => (x.tripId === trip.id ? { ...d, status: 'done' } : x)) : [...debriefs, { ...d, status: 'done' }], rides, learnings, items, containers, bikes, today: tripEnd(trip) > today ? tripEnd(trip) : today }));
+  const row = $derived(allRows.find((r) => r.id === trip.id) ?? null);
   const pvr = $derived(row ? planVsReal(row) : []);
-  const days = $derived(row ? dayRows(row) : []);
   const next = $derived(nextTripAfter(trip, trips, today));
   const hints = $derived(nextHints({ debrief: d, next, learnings: row?.learnings ?? [], byId }));
   const unused = $derived(trip.entries.filter((e) => d.items?.[e.itemId] === 'unused' && byId[e.itemId]));
   const broken = $derived(trip.entries.filter((e) => d.items?.[e.itemId] === 'broken' && byId[e.itemId]));
   const usedN = $derived(trip.entries.filter((e) => byId[e.itemId] && !d.items?.[e.itemId]).length);
   const totalN = $derived(trip.entries.filter((e) => byId[e.itemId]).length);
-  const w = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
+  const wOf = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
   const savedOn = $derived(d.doneAt ? dayLong(d.doneAt.slice(0, 10)) : null);
 
   /* plan against real: two thin bars per row, drawn to the larger of both */
@@ -40,145 +79,581 @@
   // better: more km/Hm is neutral; less time or more speed is better
   const good = (x) => (x.key === 'movingH' ? x.diff < 0 : x.key === 'kmh' ? x.diff > 0 : null);
   const timeRow = $derived(pvr.find((x) => x.key === 'movingH') ?? null);
+  /* SN2+ SN2e / SN2x: heart rate from the ledger (kmBook), zones, power and Relative Effort from the activities when they are there */
+  const wQ = liveQuery(() => loadGanz(db));
+  const w = $derived($wQ ?? null);
+  const end = $derived(tripEnd(trip));
+
+  /* ---------- SN2x: the groups and the day switch ---------- */
+  const OPEN_KEY = 'rueckblick.groups';
+  let open = $state(openOf((() => { try { return localStorage.getItem(OPEN_KEY); } catch { return null; } })()));
+  function toggle(key, v) {
+    open = { ...open, [key]: v };
+    try {
+      localStorage.setItem(OPEN_KEY, JSON.stringify(open));
+    } catch {
+      /* private mode: the groups open as at the start next time */
+    }
+  }
+  const tabs = $derived(dayTabs(trip));
+  let day = $state(null);
+  const dayF = $derived(day != null && row ? dayFacts(row, day) : null);
+  const dateOf = (i) => {
+    const x = new Date(`${trip.startDate}T00:00:00Z`);
+    x.setUTCDate(x.getUTCDate() + i);
+    return x.toISOString().slice(0, 10);
+  };
+  const shortDay = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
+  const longDay = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
+  const clock = (iso) => (iso ? new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
+
+  // the activities and ledger rides of the trip (or of the chosen day)
+  const acts = $derived(w ? tripActs(w.acts, trip, end) : []);
+  const entries = $derived(w ? tripEntries(w.entries, trip, end) : []);
+  const dActs = $derived(dayF ? actsOn(acts, dayF.date) : acts);
+  const dEntries = $derived(dayF ? entries.filter((e) => e.date === dayF.date) : entries);
+  const values = $derived(w ? tripValues({ acts: dActs, entries: dEntries, bounds: w.zones?.bounds ?? null }) : null);
+  const power = $derived(w ? tripPower({ acts: dActs, history: w.acts, kg: w.kg, end }) : null);
+  const effort = $derived(effortOf(dActs));
+  const load = $derived(w ? loadOf(dActs, w.acts, end) : null);
+  const actsOf = (r) => (w ? tripActs(w.acts, r.trip, r.end) : []);
+  const efforts = $derived(row && effort != null ? lastSeries(allRows, row, (r) => effortOf(actsOf(r))) : []);
+  const loads = $derived(row && load != null ? lastSeries(allRows.filter((r) => r.id === row.id || actsOf(r).some((a) => a.wDevice === true)), row, (r) => loadOf(actsOf(r), w.acts, r.end)) : []);
+  const avgOf = (list, f) => {
+    const xs = list.filter((a) => typeof f(a) === 'number' && f(a) > 0);
+    return xs.length ? Math.round(xs.reduce((s, a) => s + f(a), 0) / xs.length) : null;
+  };
+  const tempo = $derived.by(() => {
+    const kmh = dayF ? dayF.kmh : row?.kmh ?? null;
+    const sp = dActs.map((a) => Number(a.spdMax) || 0).filter((v) => v > 0);
+    const ps = dActs.filter((a) => a.pauses?.n != null);
+    const tAvg = avgOf(dActs, (a) => a.tempAvg);
+    const kcal = dActs.reduce((s, a) => s + (Number(a.kcal) || 0), 0);
+    return {
+      kmh: kmh ?? avgOf(dActs, (a) => a.spdAvg),
+      maxKmh: sp.length ? Math.max(...sp) : null,
+      pauses: ps.length ? { n: ps.reduce((s, a) => s + a.pauses.n, 0), min: Math.round(ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) / 60) } : dayF ? dayF.pauses : row?.pauses ?? null,
+      cad: avgOf(dActs, (a) => a.cad),
+      temp: tAvg != null ? { avg: tAvg, min: null, max: null } : null,
+      kcal: kcal > 0 ? Math.round(kcal) : null,
+      strava: dActs.length > 0,
+    };
+  });
+  // SN2x: wire to training.js when the Training PR lands (the segments after loadDetail: only your own times)
+  const best = $derived(
+    dActs
+      .flatMap((a) => (Array.isArray(a.best) ? a.best : []))
+      .map((x) => ({ name: x.name ?? '', km: x.km ?? (x.distance ? x.distance / 1000 : null), grade: x.grade ?? x.avgGrade ?? null, s: x.s ?? x.elapsedS ?? null, rank: Number(x.rank ?? x.prRank) || null }))
+      .filter((x) => x.name && x.rank >= 1 && x.rank <= 3),
+  );
+
+  /* ---------- SN2x: route, timeline and notes ---------- */
+  const line = $derived(trip.route?.line?.length > 1 ? trip.route.line : row?.rides?.length === 1 && row.rides[0].line?.length > 1 ? row.rides[0].line : []);
+  const routeKm = $derived(trip.route?.km ?? row?.km ?? null);
+  const profile = $derived(trip.route?.profile?.length > 1 ? trip.route.profile : row?.profile ?? null);
+  const loop = $derived(!!(trip.route?.start && trip.route?.end && distKm(trip.route.start, trip.route.end) < 0.5));
+  const cuts = $derived(trip.days > 1 ? stageCuts(trip).slice(0, -1).filter((v) => v != null) : []);
+  const wayNotes = $derived([...(d.rideNotes ?? []).map((n) => ({ ...n, day: n.day ?? 0 })), ...notes.filter((n) => n.tripId === trip.id && n.day != null)]);
+  const tlAll = $derived(timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, loop }));
+  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, day, loop }));
+  const tlShown = $derived(tl.filter((e) => !e.short));
+  const shortN = $derived(tl.filter((e) => e.short).length);
+  const marks = $derived.by(() => {
+    const seen = new Set();
+    return tlAll.filter((e) => e.n && e.tkm != null && !seen.has(e.n) && seen.add(e.n)).map((e) => ({ km: e.tkm, n: e.n }));
+  });
+  const dayMarks = $derived.by(() => {
+    if (day == null) return marks;
+    const seen = new Set();
+    return tl.filter((e) => e.n && e.tkm != null && !seen.has(e.n) && seen.add(e.n)).map((e) => ({ km: e.tkm, n: e.n }));
+  });
+  const noteList = $derived(tripNoteList({ trip, debrief: d, notes, line: tlAll }));
+  const dayNotes = $derived(day == null ? noteList : noteList.filter((n) => n.day === day));
+  let copied = $state(false);
+  async function copyNotes() {
+    const text = noteList.map((n) => `«${n.text}» ${[n.at ? clock(n.at) : '', n.km != null ? `km ${num(n.km)}` : '', n.after ? t('after the trip') : ''].filter(Boolean).join(' · ')}`).join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+      setTimeout(() => (copied = false), 2500);
+    } catch {
+      copied = false;
+    }
+  }
+
+  /* ---------- SN2x: Stimmung und Energie (the daily check of the trip days) ---------- */
+  const moods = $derived(w ? Array.from({ length: Math.max(1, trip.days || 1) }, (_, i) => ({ i, date: dateOf(i), c: w.checks.find((c) => c.day === dateOf(i)) ?? null })).filter((x) => x.c && (x.c.mood != null || x.c.energy != null)) : []);
+  const dayMoods = $derived(day == null ? moods : moods.filter((m) => m.i === day));
+
+  /* ---------- SN2x: Gepäck und Velo ---------- */
+  const packed = $derived(packedList(trip, items, containers, d.packed ?? null));
+  const ptot = $derived(packedTotals(packed));
+  const wear = $derived(wearRows(bike, { km: row?.km ?? null, gainM: row?.gainM ?? null }));
+  const left = $derived(chainLeft(bike));
+
+  /* ---------- SN2x: Weiter ---------- */
+  const points = $derived(pointsOf(d));
+  const hits = $derived(situationHits(trip, w?.sets ?? null));
+  async function savePoints(list) {
+    if (onpatch) await onpatch({ nextTime: list });
+    else await db.debriefs.update(trip.id, { nextTime: list });
+  }
+  const group = $derived(compareGroup(trip, bikes));
+  const similar = $derived(row ? similarRows(allRows, row, bikes) : []);
+  let otherId = $state(null);
+  const other = $derived(similar.find((r) => r.id === otherId) ?? similar[0] ?? null);
+  const numbersOf = (r) => tripNumbers(r, { acts: actsOf(r), entries: w ? tripEntries(w.entries, r.trip, r.end) : [], history: w?.acts ?? [] });
+  const cmp = $derived(row && other ? compareRows(numbersOf(row), numbersOf(other)) : []);
+  const CMP_LABEL = { kmh: 'average while moving', movingH: 'Moving|time', pauseMin: 'Pauses', hrAvg: 'Ø heart rate', wAvg: 'Ø power', effort: 'Relative Effort', load: 'Load|power' };
+  const cmpV = (k, v) => (k === 'kmh' ? `${n1(v)} km/h` : k === 'movingH' ? `${hours(v)} h` : k === 'pauseMin' ? `${num(v)} min` : k === 'wAvg' ? `${num(v)} W` : num(v));
+  const cmpD = (k, v) => (k === 'kmh' ? signedNum(v, n1) : k === 'movingH' ? signedHours(v) : k === 'pauseMin' ? `${signedNum(v)} min` : k === 'wAvg' ? `${signedNum(v)} W` : signedNum(v));
+
+  /* ---------- SN2x: the one line of each group ---------- */
+  const firstDot = (list) => list.filter(Boolean).join(' · ');
+  const lineOf = $derived({
+    tour: dayF
+      ? firstDot([dayF.date ? longDay(dayF.date) : '', [dayF.from, dayF.to].filter(Boolean).join(' – '), dayF.km != null ? `${n0(dayF.km)} km` : '', dayF.gainM != null ? `${n0(dayF.gainM)} Hm` : ''])
+      : firstDot([row?.km != null ? `${n0(row.km)} km` : '', row?.gainM != null ? `${n0(row.gainM)} Hm` : '', row?.movingH ? `${hours(row.movingH)} h` : '', trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : '', [line.length ? t('map') : '', tl.length ? t('timeline') : '', noteList.length ? tn(noteList.length, '{n} note', '{n} notes') : ''].filter(Boolean).join(', ')]),
+    body: firstDot([values?.hrAvg != null ? t('Ø heart rate {n}', { n: num(values.hrAvg) }) : '', power ? (power.measured && power.np ? `NP ${num(power.np)} W` : t('Ø {w} W estimated', { w: num(power.avg) })) : '', effort != null ? `${t('Relative Effort')} ${num(effort)}` : '', load != null ? `${t('Load|power')} ${num(load)}` : '', dayMoods[0]?.c?.mood != null ? t('Mood {n} of 10', { n: dayMoods[0].c.mood }) : '']) || t('Heart rate and power · with Strava'),
+    way: firstDot([d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', rainText(row?.rain, trip.days) !== DASH ? rainText(row?.rain, trip.days) : '', d.amount ? `${t('Food and drink')}: ${t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}` : '']),
+    pack: day != null ? t('for the whole trip · «Whole trip» on top shows it') : firstDot([ptot.g ? t('{w} in {n} bags', { w: kg(ptot.g), n: ptot.bags }) : '', unused.length ? tn(unused.length, '{n} item not used', '{n} items not used') : '', d.missing?.length ? tn(d.missing.length, '{n} was missing', '{n} were missing') : '', left != null ? (left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')) : '']),
+    next: day != null ? t('for the whole trip') : firstDot([points.length ? tn(points.length, 'For next time {n} point', 'For next time {n} points') : '', row?.learnings.length ? tn(row.learnings.length, '{n} learning', '{n} learnings') : '', group ? (other ? t('Comparison in {group}: {trip}', { group: groupName(group), trip: other.title }) : t('Comparison in {group}', { group: groupName(group) })) : '']),
+  });
+  function groupName(g) {
+    return g?.key === 'bikepacking' ? t('Bikepacking') : g?.name ?? '';
+  }
+  const ICON = { tour: RouteIc, body: HeartPulse, way: MapIc, pack: BagIc, next: ArrowRight };
+  const titleOf = (g) => (day != null && (g.key === 'tour' || g.key === 'body' || g.key === 'way') ? `${t(g.name)} · ${t('Day {n}', { n: day + 1 })}` : t(g.name));
+
+  /* SN2+ SN2f: «Aus Vorlage» per item, one at a time, with Undo; the item stays in Material and on this trip */
+  const tpl = $derived(w ? tripTemplate(trip, w.templates) : null);
+  const before = $derived(unusedBefore(debriefs, trips, trip));
+  let taken = $state({});
+  let note = $state(null);
+  let noteTimer;
+  async function fromTemplate(e) {
+    if (!tpl) return;
+    const id = tpl.id;
+    const out = dropItem($state.snapshot(tpl), e.itemId, items, w.sets);
+    if (!out) return;
+    await updateTemplate(db, id, () => out.tpl);
+    taken = { ...taken, [e.itemId]: { tplId: id, undo: out.undo } };
+    clearTimeout(noteTimer);
+    note = { itemId: e.itemId, text: t('{item} taken out of «{tpl}»', { item: nameOf(byId[e.itemId]), tpl: tpl.name }) };
+    noteTimer = setTimeout(() => (note = null), 8000);
+  }
+  async function undoTaken(itemId) {
+    const x = $state.snapshot(taken[itemId]);
+    if (!x) return;
+    // a plain copy: IndexedDB cannot store a reactive proxy
+    await updateTemplate(db, x.tplId, (cur) => putBack(cur, x.undo));
+    const { [itemId]: _gone, ...rest } = taken;
+    taken = rest;
+    if (note?.itemId === itemId) (clearTimeout(noteTimer), (note = null));
+  }
   const DAYKIND = { unused: 'Packed again for {trip}, not used this time', missing: 'Was missing', broken: 'Broke: check it before the next trip', note: 'Your sentence for next time' };
+  const WEAR = { chain: 'Chain', tyres: 'Tyres', pads: 'Brake pads' };
 </script>
 
 {#snippet rainIcon(rain)}
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
 {/snippet}
+{#snippet dots(v, label)}<span class="dots" role="img" aria-label={t('{what} {n} of 10', { what: label, n: v })}>{#each Array(10) as _, i (i)}<i class:on={i < v}></i>{/each}</span>{/snippet}
+<!-- SK X2 + X14 (SKX2): «Woanders» right under the number tiles, inside «Die Tour» (whole trip and each day) -->
+{#snippet woanders()}
+  <Woanders context={trip.title ?? ''} links={[
+    { kind: 'x2s', href: stravaRideUrl(stravaId), icon: 'flow', sub: stravaId ? t('the ride with its comments') : t('your training log') },
+    { kind: 'x2k', href: komootUrl(trip.place ?? trip.route?.start), icon: 'map', sub: t('plan or find the route') },
+    { kind: 'x14', slot: slotOf('x14', trip.id), icon: 'image', sub: t('the photos stay there') },
+  ]} />
+{/snippet}
 
-<!-- v0.109.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026): two columns as in the
-     mockup. Left: «Fertig. Gute Tour!» with the four number tiles, plan and reality, not used. Right: what it
-     means for the next trip, Gelernt, broken, missing and the bike. «Antworten ändern» is the button of the band. -->
+<!-- v0.109.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026); SN2x: five groups -->
 <div class="saved">
   <section class="status saved-card" aria-labelledby="saved-h"><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span><h2 id="saved-h">{t('Saved')}</h2><small role="status">{[savedOn ? t('Debrief saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change made', '{n} changes made') : ''].filter(Boolean).join(' · ')}</small></span></section>
+  <!-- SN2x: the template question right after saving stays on top, outside the folding groups -->
+  {#if offer}<TemplateOffer {trip} name={offer} />{/if}
 
-  <div class="rv-lay">
-    <div class="rv-col">
-      <!-- the trip in numbers -->
-      <section class="rv-box pad ride" aria-labelledby="sv-h">
-        <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
-        <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
-        <dl class="rv-tiles big">
-          <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
-          <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
-          <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
-          <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
-        </dl>
-        <ul class="facts">
-          <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
-          <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
-          <li><Bike size={16} aria-hidden="true" />{trip.bike ?? bike?.name ?? DASH}</li>
-          {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
-        </ul>
-        {#if days.length}
-          <ul class="days">
-            {#each days as x (x.n)}
-              <li>
-                <span class="dn">{t('Day {n}', { n: x.n })}</span>
-                <span class="dk num"><b>{n0(x.km)}</b> km</span>
-                <span class="dm num">{n0(x.gainM)} Hm · {hours(x.movingH)} h</span>
-                <span class="dw">{#if x.rain != null}{#if x.rain >= 1}<CloudRain size={14} aria-hidden="true" />{t('rain')}{:else}<Sun size={14} aria-hidden="true" />{t('dry|weather')}{/if}{/if} {temps(x.tmin, x.tmax)}</span>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-        {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
-        {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
-      </section>
+  {#if tabs.length}
+    <!-- SN2x (answer 5a): one day switch for the whole page -->
+    <div class="dayswitch" role="group" aria-label={t('Days of the trip')} data-days>
+      {#each tabs as x (x ?? 'all')}
+        <button type="button" class="dsb" aria-pressed={day === x} onclick={() => (day = x)}>{x == null ? t('Whole trip') : `${t('Day {n}', { n: x + 1 })} · ${shortDay(dateOf(x))}`}</button>
+      {/each}
+      <span class="dsn">{t('for the whole page')}</span>
+    </div>
+  {/if}
 
-      <!-- plan against real -->
-      {#if pvr.length}
-        <section class="rv-sec" aria-labelledby="pvr-h">
-          <div class="rv-h"><div><h2 id="pvr-h">{t('Plan and reality')}</h2>
-            {#if timeRow}
-              {@const mins = Math.round(timeRow.diff * 60)}
-              <p class="rv-sub">{mins < 0 ? t('Your plan was {n} min off, in your favour.', { n: -mins }) : mins > 0 ? t('You needed {n} min more than planned.', { n: mins }) : t('Right on time, as planned.')}</p>
-            {/if}</div></div>
-          <div class="rv-box pad">
-            <p class="legend"><i class="k pl"></i>{t('planned')} <i class="k re"></i>{t('ridden')}</p>
-            <ul class="pvr">
-              {#each pvr as x (x.key)}
-                {@const top = Math.max(x.plan, x.real) || 1}
-                <li>
-                  <span class="pl-l">{t(LABEL[x.key])}</span>
-                  <span class="pl-b"><i class="pl" style:width="{(x.plan / top) * 100}%"></i><i class="re" style:width="{(x.real / top) * 100}%"></i></span>
-                  <span class="pl-v num">{fmtV(x.key, x.plan)}<br />{fmtV(x.key, x.real)}</span>
-                  <span class="pl-d num" class:good={good(x) === true} class:bad={good(x) === false}>{fmtD(x.key, x.diff)}</span>
-                </li>
-              {/each}
-            </ul>
-          </div>
-        </section>
-      {/if}
+  <div class="groups">
+    <!-- 1 Die Tour -->
+    <Group key="tour" title={titleOf(GROUPS[0])} line={lineOf.tour} icon={ICON.tour} open={!!open.tour} ontoggle={(v) => toggle('tour', v)}>
+      <div class="rv-lay">
+        <div class="rv-col">
+          <!-- the trip in numbers -->
+          <section class="rv-box pad ride" aria-labelledby="sv-h">
+            {#if dayF}
+              <p class="kick top"><Calendar size={16} aria-hidden="true" />{[t('Day {n} of {all}', { n: dayF.n, all: trip.days }), longDay(dayF.date), [dayF.from, dayF.to].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')}</p>
+              <h2 id="sv-h" class="sr">{t('Day {n}', { n: dayF.n })}</h2>
+              <dl class="rv-tiles big">
+                <div class="rv-tile"><dd><b>{n0(dayF.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{n0(dayF.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{hours(dayF.movingH)} h</b></dd><dt><small>{dayF.totalH && dayF.movingH && dayF.totalH > dayF.movingH ? t('moving · {h} total', { h: hours(dayF.totalH) }) : t('moving')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{n1(dayF.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
+              </dl>
+              {@render woanders()}
+              <ul class="facts">
+                <li>{#if dayF.wet}<CloudRain size={16} aria-hidden="true" />{t('rain')}{:else if dayF.wet === false}<Sun size={16} aria-hidden="true" />{t('dry|weather')}{:else}<Cloud size={16} aria-hidden="true" />{DASH}{/if}</li>
+                <li><Thermometer size={16} aria-hidden="true" />{temps(dayF.tmin, dayF.tmax)}</li>
+                {#if dayF.n < trip.days && dayF.to}<li><MoonStar size={16} aria-hidden="true" />{t('Night in {place}', { place: dayF.to })}</li>{/if}
+              </ul>
+            {:else}
+              <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
+              <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
+              <dl class="rv-tiles big">
+                <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
+              </dl>
+              {@render woanders()}
+              <ul class="facts">
+                <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
+                <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
+                <li><Bike size={16} aria-hidden="true" />{trip.bike ?? bike?.name ?? DASH}</li>
+                {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
+              </ul>
+              {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
+              {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
+            {/if}
+          </section>
 
-      <!-- used and not used -->
-      <section class="rv-sec" aria-labelledby="un-h">
-        <div class="rv-h"><div><h2 id="un-h">{t('Not used')}</h2><p class="rv-sub num">{t('{used} of {total} items used', { used: usedN, total: totalN })}</p></div></div>
-        <div class="rv-box">
-          {#if unused.length}
-            {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
-            <ul class="il">
-              {#each unused as e (e.itemId)}
-                <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Minus size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span><span class="rv-v">{w(e) == null ? DASH : formatWeight(w(e))}</span></li>
-              {/each}
-            </ul>
-            <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
-            <a class="rv-row" href="#/gear?view=never"><span class="rv-ic" aria-hidden="true"><Package size={18} /></span><span class="rv-m"><span class="rv-t">{t('All never used items in Gear')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
-          {:else}
-            <p class="rv-row empty">{t('Everything on the list was used.')}</p>
+          <!-- SN2x: Strecke, map and profile with the numbers of the timeline -->
+          {#if line.length || profile}
+            <section class="rv-sec" aria-labelledby="rt-h" data-route>
+              <div class="rv-h"><div><h2 id="rt-h">{t('Route|review')}</h2><p class="rv-sub">{day != null ? t('Day {n} dark, the other days pale', { n: day + 1 }) : [trip.route?.name ?? '', routeKm ? `${n0(routeKm)} km` : '', trip.route?.gainM ? `${n0(trip.route.gainM)} Hm` : '', cuts.length ? t('one stroke per day') : ''].filter(Boolean).join(' · ')}</p></div></div>
+              <div class="rv-box pad">
+                {#if line.length}<TourMap {line} km={routeKm} marks={dayMarks} {cuts} {day} />{/if}
+                {#if profile}<div class="prof"><Profile points={profile} marks={dayMarks} cuts={cuts.map((k, i) => ({ km: k, label: t('Day {n}', { n: i + 2 }) }))} from={day != null ? (day === 0 ? 0 : cuts[day - 1] ?? null) : null} to={day != null ? (cuts[day] ?? profile.at(-1)[0]) : null} /></div>{/if}
+                <p class="rv-note pm"><MapIc size={16} aria-hidden="true" /><span>{t('Background only hinted · numbers as in the timeline')}</span></p>
+              </div>
+            </section>
+          {/if}
+
+          {#if trip.days > 1 && day == null && row}
+            <!-- SN2k: the days one by one; a tap opens the day as above -->
+            <section class="rv-sec" aria-labelledby="dd-h" data-day-table>
+              <div class="rv-h"><div><h2 id="dd-h">{tn(trip.days, 'The day', 'The {n} days')}</h2><p class="rv-sub">{t('a tap opens the day, as with the switch above')}</p></div></div>
+              <div class="rv-box ddw">
+                <table class="dd">
+                  <thead><tr><th scope="col">{t('Day|column')}</th><th scope="col" class="r">km</th><th scope="col" class="r">Hm</th><th scope="col" class="r">{t('Moving|time')}</th><th scope="col">{t('Weather')}</th>{#if entries.length || acts.length}<th scope="col" class="r">{t('Ø heart rate')}</th>{/if}{#if acts.some((a) => a.effort)}<th scope="col" class="r">{t('Relative Effort')}</th>{/if}</tr></thead>
+                  <tbody>
+                    {#each tabs.filter((x) => x != null) as i (i)}
+                      {@const f = dayFacts(row, i)}
+                      {@const h = tripValues({ acts: actsOn(acts, f.date), entries: entries.filter((e) => e.date === f.date) })}
+                      <tr>
+                        <th scope="row"><button type="button" class="dlink" onclick={() => (day = i)}>{t('Day {n}', { n: i + 1 })} · {longDay(f.date)}</button>{#if f.from || f.to}<small>{[f.from, f.to].filter(Boolean).join(' – ')}</small>{/if}</th>
+                        <td class="r num">{n0(f.km)}</td><td class="r num">{n0(f.gainM)}</td><td class="r num">{hours(f.movingH)}</td>
+                        <td>{f.wet ? t('rain') : f.wet === false ? t('dry|weather') : DASH} · {temps(f.tmin, f.tmax)}</td>
+                        {#if entries.length || acts.length}<td class="r num">{h?.hrAvg != null ? num(h.hrAvg) : DASH}</td>{/if}
+                        {#if acts.some((a) => a.effort)}<td class="r num">{effortOf(actsOn(acts, f.date)) ?? DASH}</td>{/if}
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          {/if}
+
+          <!-- plan against real -->
+          {#if pvr.length && day == null}
+            <section class="rv-sec" aria-labelledby="pvr-h">
+              <div class="rv-h"><div><h2 id="pvr-h">{t('Plan and reality')}</h2>
+                {#if timeRow}
+                  {@const mins = Math.round(timeRow.diff * 60)}
+                  <p class="rv-sub">{mins < 0 ? t('Your plan was {n} min off, in your favour.', { n: -mins }) : mins > 0 ? t('You needed {n} min more than planned.', { n: mins }) : t('Right on time, as planned.')}</p>
+                {/if}</div></div>
+              <div class="rv-box pad">
+                <p class="legend"><i class="k pl"></i>{t('planned')} <i class="k re"></i>{t('ridden')}</p>
+                <ul class="pvr">
+                  {#each pvr as x (x.key)}
+                    {@const top = Math.max(x.plan, x.real) || 1}
+                    <li>
+                      <span class="pl-l">{t(LABEL[x.key])}</span>
+                      <span class="pl-b"><i class="pl" style:width="{(x.plan / top) * 100}%"></i><i class="re" style:width="{(x.real / top) * 100}%"></i></span>
+                      <span class="pl-v num">{fmtV(x.key, x.plan)}<br />{fmtV(x.key, x.real)}</span>
+                      <span class="pl-d num" class:good={good(x) === true} class:bad={good(x) === false}>{fmtD(x.key, x.diff)}</span>
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            </section>
           {/if}
         </div>
-      </section>
-    </div>
 
-    <div class="rv-col">
-      <!-- what it means for the next trip -->
-      <section class="rv-sec nextc" aria-labelledby="nx-h">
-        <div class="rv-h"><div><h2 id="nx-h">{next ? t('Works on the next trip') : t('For next time')}</h2>{#if next}<p class="rv-sub">{[next.title, dates(next.startDate, tripEnd(next)), next.bike].filter(Boolean).join(' · ')}</p>{/if}</div></div>
-        <ul class="rv-box">
-          {#each hints as h, i (i)}
-            <li class="rv-row">
-              <span class="rv-ic {h.kind}" aria-hidden="true">{#if h.kind === 'unused'}<Minus size={18} />{:else if h.kind === 'broken'}<Wrench size={18} />{:else if h.kind === 'missing'}<Plus size={18} />{:else}<Lightbulb size={18} />{/if}</span>
-              <span class="rv-m"><span class="rv-t">{h.item ? nameOf(h.item) : h.text}</span><span class="rv-s">{h.kind === 'unused' ? t('Packed again for {trip}, not used this time', { trip: next.title }) : h.kind === 'missing' ? (h.packed ? t('Was missing; it is on the next list') : t('Was missing')) : t(DAYKIND[h.kind])}</span></span>
-            </li>
+        <div class="rv-col">
+          <!-- SN2x: Zeitleiste (folded on a trip of several days until a day is chosen) -->
+          {#snippet tlBody()}
+            {#if tlShown.length}
+              <ol class="tl">
+                {#each tlShown as e, i (i)}
+                  <li class="tle {e.kind}">
+                    <span class="tw num">{clock(e.at)}{#if e.km != null}<small>km {num(Math.round(e.km))}</small>{/if}</span>
+                    <span class="tnum" class:solid={e.kind === 'start' || e.kind === 'end'}>{e.n ?? ''}</span>
+                    <span class="tbx">
+                      {#if e.kind === 'start'}<b><Flag size={15} aria-hidden="true" />{t('Start')}</b>
+                      {:else if e.kind === 'end'}<b><Flag size={15} aria-hidden="true" />{t('Arrival')}</b>
+                      {:else if e.kind === 'pause'}<b><Coffee size={15} aria-hidden="true" />{t('Pause · {n} min', { n: num(e.min ?? 0) })}</b>
+                      {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b><span>«{e.text}»</span>{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{/if}
+                    </span>
+                  </li>
+                {/each}
+              </ol>
+              {#if shortN}<p class="rv-note pm">{tn(shortN, '{n} short pause under 5 min left out', '{n} short pauses under 5 min left out')}</p>{/if}
+            {:else}
+              <p class="quiet" data-quiet="timeline">{t('No timeline yet: it comes with a recorded ride or notes on the way.')}</p>
+            {/if}
+          {/snippet}
+          {#snippet notesBody()}
+            {#if dayNotes.length}
+              <ul class="nl">
+                {#each dayNotes as n, i (i)}
+                  <li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">«{n.text}»</span><span class="rv-s num">{[n.at ? clock(n.at) : '', trip.days > 1 && n.day != null ? t('Day {n}', { n: n.day + 1 }) : '', n.km != null ? `km ${num(Math.round(n.km))}` : '', n.after ? t('after the trip') : ''].filter(Boolean).join(' · ')}</span></span></li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="quiet" data-quiet="notes">{t('No notes on this trip.')}</p>
+            {/if}
+          {/snippet}
+          {#if trip.days > 1 && day == null}
+            <details class="fold" data-fold="timeline"><summary><span><b>{t('Timeline')}</b><small>{tlAll.length ? tn(tlAll.length, '{n} entry over the days · choose a day on top for its entries', '{n} entries over the days · choose a day on top for its entries') : t('nothing recorded')}</small></span><ChevronDown size={18} aria-hidden="true" /></summary><div class="fb">{@render tlBody()}</div></details>
+            <details class="fold" data-fold="notes"><summary><span><b>{t('Notes')}</b><small>{tn(noteList.length, '{n} note with time and place', '{n} notes with time and place')}</small></span><ChevronDown size={18} aria-hidden="true" /></summary><div class="fb">{@render notesBody()}</div></details>
           {:else}
-            <li class="rv-row empty">{t('Nothing to change: the trip went as planned.')}</li>
-          {/each}
-          {#if next}<li><a class="rv-row" href="#/pack" onclick={() => openTrip(next.id)}><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t('Packing list {trip}', { trip: next.title })}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
-        </ul>
-      </section>
+            <section class="rv-sec" aria-labelledby="tl-h" data-timeline>
+              <div class="rv-h"><div><h2 id="tl-h">{t('Timeline')}</h2><p class="rv-sub">{day != null ? tn(tl.length, 'Day {day} · {n} entry', 'Day {day} · {n} entries', { day: day + 1 }) : t('Notes and pauses where they happened')}</p></div></div>
+              <div class="rv-box pad">{@render tlBody()}</div>
+            </section>
+            <section class="rv-sec" aria-labelledby="nl-h" data-notes>
+              <div class="rv-h"><div><h2 id="nl-h">{t('Notes')}</h2><p class="rv-sub">{tn(dayNotes.length, '{n} note with time and place', '{n} notes with time and place')}</p></div>{#if noteList.length}<button type="button" class="rv-more cp" onclick={copyNotes}><Copy size={16} aria-hidden="true" />{copied ? t('Copied') : t('Copy')}</button>{/if}</div>
+              <div class="rv-box">{@render notesBody()}</div>
+            </section>
+          {/if}
+        </div>
+      </div>
+    </Group>
 
-      <section class="rv-sec" aria-labelledby="ln-h">
-        <div class="rv-h"><div><h2 id="ln-h">{t('Learned|review')}</h2><p class="rv-sub num">{tn(row?.learnings.length ?? 0, '{n} learning', '{n} learnings')}</p></div><a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a></div>
-        <ul class="rv-box">
-          {#each row?.learnings ?? [] as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.topic}<span class="rv-s">{t(l.topic)}</span>{/if}</span></li>
-          {:else}<li class="rv-row empty">{t('No learning from this trip.')}</li>{/each}
-        </ul>
-      </section>
+    <!-- 2 Körper und Leistung -->
+    <Group key="body" title={titleOf(GROUPS[1])} line={lineOf.body} icon={ICON.body} open={!!open.body} ontoggle={(v) => toggle('body', v)}>
+      <div class="rv-lay">
+        <div class="rv-col">
+          {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={trip.bike ?? bike?.name ?? ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
+        </div>
+        <div class="rv-col">
+          <section class="rv-sec" aria-labelledby="mo-h" data-mood>
+            <div class="rv-h"><div><h2 id="mo-h">{t('Mood and energy')}</h2><p class="rv-sub">{t('from your daily check · only to look at')}</p></div></div>
+            {#if dayMoods.length}
+              <ul class="rv-box">
+                {#each dayMoods as m (m.date)}
+                  <li class="rv-row mood"><span class="rv-m"><span class="rv-t">{trip.days > 1 ? `${t('Day {n}', { n: m.i + 1 })} · ${shortDay(m.date)}` : longDay(m.date)}</span></span>
+                    {#if m.c.mood != null}<span class="mv"><small>{t('Mood')}</small>{@render dots(m.c.mood, t('Mood'))}</span>{/if}
+                    {#if m.c.energy != null}<span class="mv"><small>{t('Energy')}</small>{@render dots(m.c.energy, t('Energy'))}</span>{/if}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="quiet" data-quiet="mood"><Smile size={16} aria-hidden="true" />{t('No daily check on the days of this trip.')}</p>
+            {/if}
+          </section>
+          <!-- SN2x U3: sleep and resting heart rate, and the recovery after the trip, come with Fitbit -->
+          <div class="fitbit" data-quiet="fitbit">
+            <p><MoonStar size={16} aria-hidden="true" /><span>{t('Sleep and resting heart rate the night before · with Fitbit')}</span></p>
+            <p><HeartPulse size={16} aria-hidden="true" /><span>{t('Recovery after: resting heart rate and sleep of the 2 days after · with Fitbit')}</span></p>
+          </div>
+        </div>
+      </div>
+    </Group>
 
-      {#if broken.length}
-        <section class="rv-sec" aria-labelledby="br-h">
-          <div class="rv-h"><div><h2 id="br-h">{t('Broken|debrief')}</h2><p class="rv-sub num">{num(broken.length)}</p></div></div>
-          <ul class="rv-box">{#each broken as e (e.itemId)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><X size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span></li>{/each}</ul>
-        </section>
-      {/if}
-      {#if d.missing?.length}
-        <section class="rv-sec" aria-labelledby="ms-h">
-          <div class="rv-h"><div><h2 id="ms-h">{t('Was missing')}</h2><p class="rv-sub num">{num(d.missing.length)}</p></div></div>
-          <ul class="rv-box">{#each d.missing as m (m.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Plus size={18} /></span><span class="rv-m"><span class="rv-t">{m.name}</span><span class="rv-s">{m.itemId ? t('in your gear') : t('on the wishlist')}</span></span></li>{/each}</ul>
-        </section>
-      {/if}
-      {#if d.kmApplied}
-        <section class="rv-sec" aria-labelledby="bk-h">
-          <div class="rv-h"><div><h2 id="bk-h">{t('Bike')}</h2></div></div>
-          <div class="rv-box"><p class="rv-row"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}</span>{#if bike?.km != null}<span class="rv-s">{t('now {km} km', { km: num(bike.km) })}</span>{/if}</span></p></div>
-        </section>
-      {/if}
-      {#if offer}<TemplateOffer {trip} name={offer} />{/if}
-    </div>
+    <!-- 3 Unterwegs -->
+    <Group key="way" title={titleOf(GROUPS[2])} line={lineOf.way} icon={ICON.way} open={!!open.way} ontoggle={(v) => toggle('way', v)}>
+      <div class="rv-lay">
+        <div class="rv-col">
+          <section class="rv-sec" aria-labelledby="wx-h" data-weather>
+            <div class="rv-h"><div><h2 id="wx-h">{t('Weather')}</h2><p class="rv-sub">{t('forecast and how it was')}</p></div></div>
+            {#if (dayF ? dayF.tmin != null || dayF.wet != null : row?.tmin != null || row?.rain?.wet != null) || d.weather || d.clothing || tempo.temp}
+              <div class="rv-box wxw">
+                <table class="wx">
+                  <thead><tr><th scope="col"></th><th scope="col">{t('forecast')}</th><th scope="col">{t('how it was')}</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row"><Thermometer size={16} aria-hidden="true" />{t('Temperature')}</th><td>{dayF ? temps(dayF.tmin, dayF.tmax) : temps(row?.tmin, row?.tmax)}</td><td>{[d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', tempo.temp ? `Ø ${num(tempo.temp.avg)}°` : ''].filter(Boolean).join(' · ') || DASH}</td></tr>
+                    <tr><th scope="row"><CloudSun size={16} aria-hidden="true" />{t('Rain|weather')}</th><td>{dayF ? (dayF.wet ? t('rain') : dayF.wet === false ? t('dry|weather') : DASH) : rainText(row?.rain, trip.days)}</td><td>{DASH}</td></tr>
+                    {#if d.clothing}<tr><th scope="row"><Gauge size={16} aria-hidden="true" />{t('Clothing')}</th><td>{DASH}</td><td>{t(CLOTHING.find((x) => x.key === d.clothing)?.name ?? '')}</td></tr>{/if}
+                  </tbody>
+                </table>
+                <p class="rv-note pm"><Info size={16} aria-hidden="true" /><span>{t('Forecast saved with the trip · how it was: your answer in the debrief')}</span></p>
+              </div>
+            {:else}
+              <p class="quiet" data-quiet="weather">{t('No weather saved with this trip.')}</p>
+            {/if}
+          </section>
+        </div>
+        <div class="rv-col">
+          <section class="rv-sec" aria-labelledby="fd-h" data-food>
+            <div class="rv-h"><div><h2 id="fd-h">{t('Food and drink')}</h2><p class="rv-sub">{t('your answer in the debrief')}</p></div></div>
+            {#if d.amount}
+              <p class="rv-box rv-row one"><span class="rv-ic" aria-hidden="true"><Utensils size={18} /></span><span class="rv-m"><span class="rv-t">{t('Amount of food and drink')}</span></span><span class="rv-v">{t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}</span></p>
+            {:else}
+              <p class="quiet">{t('No answer on food and drink.')}</p>
+            {/if}
+          </section>
+        </div>
+      </div>
+    </Group>
+
+    <!-- 4 Gepäck und Velo -->
+    <Group key="pack" title={t(GROUPS[3].name)} line={lineOf.pack} icon={ICON.pack} open={!!open.pack} ontoggle={(v) => toggle('pack', v)}>
+      <div class="rv-lay">
+        <div class="rv-col">
+          <!-- used and not used -->
+          <section class="rv-sec" aria-labelledby="un-h">
+            <div class="rv-h"><div><h2 id="un-h">{t('Not used')}</h2><p class="rv-sub num">{t('{used} of {total} items used', { used: usedN, total: totalN })}</p></div></div>
+            <div class="rv-box">
+              {#if unused.length}
+                {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
+                <ul class="il">
+                  {#each unused as e (e.itemId)}
+                    {@const out = taken[e.itemId]}
+                    {@const inTpl = !!tpl && inTemplate(tpl, e.itemId, items, w?.sets ?? [])}
+                    {@const n = before[e.itemId] ?? 0}
+                    <!-- SN2+ SN2f: «Aus Vorlage» per item; how often it was not used before -->
+                    <li class="rv-row" class:out={!!out} data-unused={e.itemId}>
+                      <span class="rv-ic" class:done={!!out} aria-hidden="true">{#if out}<Check size={18} />{:else}<Minus size={18} />{/if}</span>
+                      <span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span>
+                        {#if out}<span class="rv-s">{t('Taken out of «{tpl}» · stays in Material and on this trip', { tpl: tpl?.name ?? '' })}</span>
+                        {:else if n}<span class="rv-s">{tn(n, 'also not used on {n} trip before', 'also not used on {n} trips before')}</span>
+                        {:else if tpl && !inTpl}<span class="rv-s">{t('only on this trip, not in the template')}</span>
+                        {:else if tpl}<span class="rv-s">{t('not used for the first time')}</span>{/if}
+                      </span>
+                      <span class="rv-v">{wOf(e) == null ? DASH : formatWeight(wOf(e))}</span>
+                      {#if out}<button type="button" class="tq" onclick={() => undoTaken(e.itemId)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
+                      {:else if inTpl}<button type="button" class="btn tb" onclick={() => fromTemplate(e)} aria-label={t('Out of template: {item}', { item: nameOf(byId[e.itemId]) })}><Minus size={16} aria-hidden="true" />{t('Out of template')}</button>{/if}
+                    </li>
+                  {/each}
+                </ul>
+                {#if tpl}<p class="rv-note tn"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each item on its own, nothing happens by itself. Only the template «{tpl}» changes; the next trip from it starts without the item.', { tpl: tpl.name })}</span></p>{/if}
+                <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
+                <a class="rv-row" href="#/gear?view=never"><span class="rv-ic" aria-hidden="true"><Package size={18} /></span><span class="rv-m"><span class="rv-t">{t('All never used items in Gear')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+              {:else}
+                <p class="rv-row empty">{t('Everything on the list was used.')}</p>
+              {/if}
+            </div>
+          </section>
+          {#if broken.length}
+            <section class="rv-sec" aria-labelledby="br-h">
+              <div class="rv-h"><div><h2 id="br-h">{t('Broken|debrief')}</h2><p class="rv-sub num">{num(broken.length)}</p></div></div>
+              <ul class="rv-box">{#each broken as e (e.itemId)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><X size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span></li>{/each}</ul>
+            </section>
+          {/if}
+          {#if d.missing?.length}
+            <section class="rv-sec" aria-labelledby="ms-h">
+              <div class="rv-h"><div><h2 id="ms-h">{t('Was missing')}</h2><p class="rv-sub num">{num(d.missing.length)}</p></div></div>
+              <ul class="rv-box">{#each d.missing as m (m.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Plus size={18} /></span><span class="rv-m"><span class="rv-t">{m.name}</span><span class="rv-s">{m.itemId ? t('in your gear') : t('on the wishlist')}</span></span></li>{/each}</ul>
+            </section>
+          {/if}
+          <!-- SN2x U5: the list as it was packed -->
+          {#if packed.length}
+            <section class="rv-sec" aria-labelledby="pk-h" data-packed>
+              <div class="rv-h"><div><h2 id="pk-h">{t('Packing list, as packed')}</h2><p class="rv-sub">{[tn(ptot.bags, '{n} bag', '{n} bags'), tn(ptot.n, '{n} item', '{n} items'), ptot.g ? kg(ptot.g) : ''].filter(Boolean).join(' · ')}</p></div></div>
+              <ul class="rv-box">
+                {#each packed as b (b.slot)}
+                  <li><details class="pkb"><summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t(b.name)}</span><span class="rv-s">{b.items.map((x) => nameOf(x) + (x.qty > 1 ? ` × ${x.qty}` : '')).join(', ')}</span></span><span class="rv-v">{b.g != null ? kg(b.g) : DASH}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                    <ul class="pki">{#each b.items as x (x.id)}<li><span>{nameOf(x)}{x.qty > 1 ? ` × ${x.qty}` : ''}</span><span class="num">{x.g != null ? formatWeight(x.g) : DASH}</span></li>{/each}</ul></details></li>
+                {/each}
+              </ul>
+              <p class="rv-note"><Lightbulb size={16} aria-hidden="true" /><span>{d.packed ? t('As it was packed. The list stays fixed, also when you change gear or the template later.') : t('From the trip and your gear today.')}</span></p>
+            </section>
+          {/if}
+        </div>
+        <div class="rv-col">
+          <!-- SN2x: the bike after the trip (the same words as the bike care tile) -->
+          {#if d.kmApplied || left != null}
+            <section class="rv-sec" aria-labelledby="bk-h" data-bike-after>
+              <div class="rv-h"><div><h2 id="bk-h">{t('Bike after the trip')}</h2></div></div>
+              <div class="rv-box">
+                {#if left != null}<a class="rv-row" href="#/bikes"><span class="rv-ic" aria-hidden="true"><Wrench size={18} /></span><span class="rv-m"><span class="rv-t">{left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')}</span><span class="rv-s">{[bike?.name ?? '', d.kmApplied ? t('{km} km added', { km: num(d.kmApplied) }) : '', bike?.km != null ? t('now {km} km', { km: num(bike.km) }) : '', t('Bike care')].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+                {:else}<p class="rv-row"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}</span>{#if bike?.km != null}<span class="rv-s">{t('now {km} km', { km: num(bike.km) })}</span>{/if}</span></p>{/if}
+              </div>
+            </section>
+          {/if}
+          <!-- SN2x U2: what the trip added to the parts -->
+          {#if wear.length}
+            <section class="rv-sec" aria-labelledby="wr-h" data-wear>
+              <div class="rv-h"><div><h2 id="wr-h">{t('Wear|parts')}</h2><p class="rv-sub">{t('{bike} · added with this trip', { bike: bike?.name ?? '' })}</p></div><a class="rv-more" href="#/bikes">{t('Bike care')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+              <ul class="rv-box">
+                {#each wear as x (x.key)}
+                  <li class="rv-row" data-wear-part={x.key}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t(WEAR[x.key])}</span>{#if x.nowKm != null}<span class="rv-s">{t('now {km} km', { km: num(x.nowKm) })}</span>{/if}</span><span class="rv-v num">{x.addKm != null ? `+${num(x.addKm)} km` : `+${num(x.addHm)} Hm`}</span></li>
+                {/each}
+              </ul>
+              <p class="rv-note"><Info size={16} aria-hidden="true" /><span>{t('Counts the km and climbing of this trip to the parts of the bike. You record a change in bike care.')}</span></p>
+            </section>
+          {/if}
+        </div>
+      </div>
+    </Group>
+
+    <!-- 5 Weiter -->
+    <Group key="next" title={t(GROUPS[4].name)} line={lineOf.next} icon={ICON.next} open={!!open.next} ontoggle={(v) => toggle('next', v)}>
+      <div class="rv-lay">
+        <div class="rv-col">
+          <NextTime {points} debrief={d} {hits} onchange={savePoints} />
+          <section class="rv-sec" aria-labelledby="ln-h">
+            <div class="rv-h"><div><h2 id="ln-h">{t('Learned|review')}</h2><p class="rv-sub num">{tn(row?.learnings.length ?? 0, '{n} learning', '{n} learnings')}</p></div><a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+            <ul class="rv-box">
+              {#each row?.learnings ?? [] as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.topic}<span class="rv-s">{t(l.topic)}</span>{/if}</span></li>
+              {:else}<li class="rv-row empty">{t('No learning from this trip.')}</li>{/each}
+            </ul>
+          </section>
+          <!-- what it means for the next trip -->
+          <section class="rv-sec nextc" aria-labelledby="nx-h">
+            <div class="rv-h"><div><h2 id="nx-h">{next ? t('Works on the next trip') : t('What it means for the next trip')}</h2>{#if next}<p class="rv-sub">{[next.title, dates(next.startDate, tripEnd(next)), next.bike].filter(Boolean).join(' · ')}</p>{/if}</div></div>
+            <ul class="rv-box">
+              {#each hints as h, i (i)}
+                <li class="rv-row">
+                  <span class="rv-ic {h.kind}" aria-hidden="true">{#if h.kind === 'unused'}<Minus size={18} />{:else if h.kind === 'broken'}<Wrench size={18} />{:else if h.kind === 'missing'}<Plus size={18} />{:else}<Lightbulb size={18} />{/if}</span>
+                  <span class="rv-m"><span class="rv-t">{h.item ? nameOf(h.item) : h.text}</span><span class="rv-s">{h.kind === 'unused' ? t('Packed again for {trip}, not used this time', { trip: next.title }) : h.kind === 'missing' ? (h.packed ? t('Was missing; it is on the next list') : t('Was missing')) : t(DAYKIND[h.kind])}</span></span>
+                </li>
+              {:else}
+                <li class="rv-row empty">{t('Nothing to change: the trip went as planned.')}</li>
+              {/each}
+              {#if next}<li><a class="rv-row" href="#/pack" onclick={() => openTrip(next.id)}><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t('Packing list {trip}', { trip: next.title })}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
+            </ul>
+          </section>
+        </div>
+        <div class="rv-col">
+          <!-- SN2x (answer 4): the comparison only inside one of five groups, km and Hm each ±20 % -->
+          {#if group}
+            <section class="rv-sec" aria-labelledby="cp-h" data-compare>
+              <div class="rv-h"><div><h2 id="cp-h">{t('Comparison')}</h2>{#if other}<p class="rv-sub">{[other.title, dates(other.start, other.end), other.bike, `${n0(other.km)} km`, `${n0(other.gainM)} Hm`].filter(Boolean).join(' · ')}</p>{/if}</div>
+                {#if similar.length > 1}<label class="pick"><span class="sr">{t('Choose another trip')}</span><select class="sel" value={other?.id} onchange={(e) => (otherId = e.currentTarget.value)}>{#each similar as r (r.id)}<option value={r.id}>{r.title} · {dates(r.start, r.end)}</option>{/each}</select></label>{/if}</div>
+              <div class="rv-box pad">
+                <p class="grp-in" data-compare-group><ArrowLeftRight size={16} aria-hidden="true" /><span>{t('compared in:')} <b>{groupName(group)}</b></span></p>
+                {#if other && cmp.length}
+                  <table class="cmp">
+                    <thead><tr><th scope="col"></th><th scope="col" class="r">{t('this trip')}</th><th scope="col" class="r">{other.title}</th><th scope="col" class="r">{t('Difference')}</th></tr></thead>
+                    <tbody>{#each cmp as c (c.key)}<tr><th scope="row">{t(CMP_LABEL[c.key])}</th><td class="r num"><b>{cmpV(c.key, c.a)}</b></td><td class="r num">{cmpV(c.key, c.b)}</td><td class="r num"><span class="df">{cmpD(c.key, c.diff)}</span></td></tr>{/each}</tbody>
+                  </table>
+                {:else if other}
+                  <p class="quiet">{t('Not enough numbers on both trips to compare.')}</p>
+                {:else}
+                  <p class="quiet" data-quiet="compare">{t('No similar trip in {group} yet (km and climbing each within 20 %).', { group: groupName(group) })}</p>
+                {/if}
+                <p class="rv-note pm"><Info size={16} aria-hidden="true" /><span>{t('Compared only within the same group, with distance and climbing each at most 20 % apart. 5 groups: Bikepacking (with any bike) and each of your bikes.')}</span></p>
+              </div>
+            </section>
+          {/if}
+        </div>
+      </div>
+    </Group>
   </div>
 </div>
+{#if note}<UndoToast text={note.text} onundo={() => undoTaken(note.itemId)} />{/if}
 
 <style>
   .saved {
@@ -203,6 +678,320 @@
     display: block;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* SN2x: the day switch and the groups */
+  .dayswitch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 4px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    width: fit-content;
+    max-width: 100%;
+  }
+  .dsb {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: calc(var(--r-ctl) - 2px);
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .dsb[aria-pressed='true'] {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .dsn {
+    padding: 0 8px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .groups {
+    display: grid;
+    gap: 14px;
+  }
+  .kick.top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 4px;
+  }
+  .prof {
+    margin-top: 12px;
+  }
+  .pm {
+    margin-top: 10px;
+    padding: 0;
+  }
+  .quiet {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ddw,
+  .wxw {
+    padding: 4px 16px 12px;
+    overflow-x: auto;
+  }
+  table.dd,
+  table.wx,
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+  }
+  .dd th,
+  .dd td,
+  .wx th,
+  .wx td,
+  .cmp th,
+  .cmp td {
+    padding: 8px 6px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+    vertical-align: middle;
+  }
+  .dd thead th,
+  .wx thead th,
+  .cmp thead th {
+    border-top: 0;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .dd .r,
+  .cmp .r {
+    text-align: right;
+  }
+  .dd tbody th {
+    min-width: 9.5em;
+  }
+  .dd tbody th small {
+    display: block;
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  .dlink {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 600 var(--fs-small) var(--font-body);
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .wx tbody th {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .wx :global(svg) {
+    color: var(--ink-3);
+  }
+  .df {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--paper-2);
+  }
+  .grp-in {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    font-size: var(--fs-small);
+  }
+  .pick .sel {
+    min-height: 44px;
+    max-width: 16em;
+  }
+  .tl {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tle {
+    display: grid;
+    grid-template-columns: 3.6em 26px minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .tw {
+    text-align: right;
+    font-weight: 600;
+  }
+  .tw small {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    font-weight: 400;
+  }
+  .tnum {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+  }
+  .tnum:empty {
+    border-color: var(--line);
+  }
+  .tnum.solid {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .tbx {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .tbx b {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .tbx > span {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ph {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-top: 4px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-3);
+  }
+  .nl {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cp {
+    min-height: 44px;
+    gap: 6px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .fold {
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .fold summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 8px 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .fold summary > span {
+    flex: 1;
+    display: grid;
+  }
+  .fold summary small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fold .fb {
+    padding: 0 16px 12px;
+  }
+  .mood {
+    flex-wrap: wrap;
+  }
+  .mv {
+    display: grid;
+    gap: 2px;
+  }
+  .mv small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .dots {
+    display: inline-flex;
+    gap: 3px;
+  }
+  .dots i {
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--ink-3);
+    border-radius: 50%;
+  }
+  .dots i.on {
+    background: var(--ink-2);
+    border-color: var(--ink-2);
+  }
+  .fitbit {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-card);
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fitbit p {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+  }
+  .fitbit :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .one {
+    margin: 0;
+  }
+  .pkb summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .pkb summary::-webkit-details-marker {
+    display: none;
+  }
+  .pkb[open] :global(.rv-chev) {
+    transform: rotate(90deg);
+  }
+  .pki {
+    margin: 0 0 8px 48px;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-small);
+  }
+  .pki li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    color: var(--ink-2);
   }
   .hero {
     display: flex;
@@ -248,42 +1037,6 @@
   }
   .facts :global(svg) {
     color: var(--ink-3);
-  }
-  .days {
-    list-style: none;
-    margin: 12px 0 0;
-    padding: 4px 12px;
-    border-radius: var(--r-ctl);
-    background: var(--paper-2);
-  }
-  .days li {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
-    align-items: baseline;
-    gap: 2px 12px;
-    padding: 8px 0;
-  }
-  .days li + li {
-    border-top: 1px solid var(--line);
-  }
-  .dn {
-    font-weight: 600;
-  }
-  .dk b {
-    font-size: var(--fs-body);
-  }
-  .dm {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    text-align: right;
-  }
-  .dw {
-    grid-column: 1 / -1;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .special {
     display: flex;
@@ -409,6 +1162,57 @@
   }
   p.rv-row {
     margin: 0;
+  }
+  /* SN2+ SN2f: «Aus Vorlage» and the row after it */
+  .il .rv-row {
+    flex-wrap: wrap;
+  }
+  .il .rv-m {
+    flex: 1 1 140px;
+  }
+  .tb {
+    flex: none;
+    min-height: 44px;
+    gap: 6px;
+  }
+  .tq {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .rv-ic.done {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .tn {
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 559px) {
+    table.dd {
+      min-width: 36em;
+    }
+    .il .tb,
+    .il .tq {
+      margin-left: 48px;
+    }
+    .dayswitch {
+      width: auto;
+    }
+    .tle {
+      grid-template-columns: 3.2em 26px minmax(0, 1fr);
+      gap: 8px;
+    }
   }
   .rv-ic.broken,
   .rv-ic.unused {

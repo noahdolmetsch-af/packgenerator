@@ -4,6 +4,7 @@
 // the clock stands on Friday 9 October 2026, 09:00; Open-Meteo is mocked, nothing leaves the preview.
 import { test, expect } from '@playwright/test';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
+import { greetFor } from '../../src/lib/home/hallo.js';
 
 const stored = (page, table, id) =>
   page.evaluate(([table, id]) => new Promise((ok) => {
@@ -36,7 +37,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   const T = await openHome(page, context, info);
   const phone = info.project.name === 'phone';
 
-  await expect(page.locator('#hello-h')).toContainText(T('Good morning.'));
+  await expect(page.locator('#hello-h')).toHaveText(greetFor(9, '')); // HG1: Swiss, by time of day (home/hallo.js)
   await expect(page.locator('[data-weather]')).toHaveText(T('{t}° and dry until {h}:00.', { t: 14, h: 19 }));
   // the next trip is tomorrow's, not the test trip of today
   await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Herbstrunde');
@@ -54,6 +55,10 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('.wall [data-fn="care"] .bd')).toHaveText('1');
 
   // Noah 2b: greeting and trip card without scrolling
+  // HG1b (mockup HG1b): a first visit without a name asks for it once, one row under the greeting;
+  // once answered («Nicht jetzt») the first screen holds the greeting and the trip card again
+  await page.locator('[data-name-ask] [data-name-later]').click();
+  await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
   expect(await inFirstScreen(page, page.locator('section.trip')), 'trip card in the first screen').toBe(true);
   // mockup A: the trip, then what is important today and Im Flow; on a computer Im Flow starts in the first screen
@@ -190,7 +195,7 @@ test('the evening: review of the day and charging first; a phone swipes to the n
   data.tables.items.push({ id: 'test_data_gtp_lamp', name: 'test_data_gtp_ Front light', category: 'light', weightG: 90, qty: 1, weightStatus: 'measured', carry: 'bike', defaultBag: null, ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'] });
   data.tables.trips.push(trip('Abendrunde', D0, { entries: entries(3, 3), createdAt: `${D0}T06:00:00.000Z` }));
   const T = await openHome(page, context, info, { data, hour: 19 });
-  await expect(page.locator('#hello-h')).toContainText(T('Good evening.'));
+  await expect(page.locator('#hello-h')).toHaveText(greetFor(19, '')); // HG1
   const rows = page.getByRole('region', { name: T('Important today') }).locator('li');
   await expect(rows.nth(0)).toContainText(T('Review today: {trip}', { trip: 'test_data_gtp_ Abendrunde' }));
   // the fixture packs a few devices already (lamp, GPS …): the count is whatever needs charging

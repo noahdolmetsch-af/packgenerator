@@ -29,6 +29,10 @@
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
+  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY } from '../lib/situation.js';
+  import { remindersFor } from '../lib/review/ganz.js';
+  import { countryName } from '../lib/situationtext.js';
+  import OptionButton from '../lib/ui/OptionButton.svelte';
   import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
@@ -46,13 +50,16 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
-  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2 } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
   import { mainStep, afterPacking, endNeedsAsk } from '../lib/phase.js';
   import { endTrip as endTripNow } from '../lib/trip/ending.js';
+  import { tripStateInfo } from '../lib/tripstate.js';
+  import { isFixed } from '../lib/trip/fixed.js';
+  import { askReopen } from '../lib/trip/reopen.svelte.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
@@ -189,6 +196,13 @@
   }
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
+  // TZ-2 «Fest nach der Fahrt» (spec tour-zustaende §4, Noah 5a): a completed or rated trip keeps its
+  // packing list as ridden (fixed); «Wieder öffnen» makes it planned again, then everything is open,
+  // the facts too (date, bike), also when its date has passed.
+  const ridesQ = liveQuery(() => db.rides.toArray());
+  const stInfo = $derived(trip && $debriefsQ ? tripStateInfo(trip, { debrief: $debriefsQ.find((d) => d.tripId === trip.id) ?? null, rides: $ridesQ ?? [], today }) : null);
+  const fixed = $derived(isFixed(stInfo));
+  const locked = $derived(fixed || (over && !stInfo?.reopened));
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
   let printed = false;
   $effect(() => {
@@ -253,9 +267,10 @@
   }
   const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
   const phaseOpts = $derived({ debriefDone });
-  const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
+  // TZ-2: a fixed list does not change (the page shows no way to, this is the safety net)
+  const toggleIn = (itemId) => !fixed && change((t) => ({ entries: togglePacked(t.entries, itemId) }));
   // v0.24.0: a whole bag (or, with null, the whole trip) in one tap.
-  const packIn = (ids) => change((t) => ({ entries: packAll(t.entries, ids) }));
+  const packIn = (ids) => !fixed && change((t) => ({ entries: packAll(t.entries, ids) }));
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
   async function shareList() {
@@ -452,7 +467,7 @@
     if (last.ctx) wxChange = null;
     await db.trips.put(touched(last.before));
   }
-  const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
+  const setEntries = (fn) => (fixed ? Promise.resolve() : change((t) => ({ entries: fn(t.entries) })));
   // v0.26.1 (AP17, Noah 14a): better places for sleep and cook items on an outdoor trip; one change() each (Undo).
   const placeRows = $derived(trip && bikeTrip && !over ? suggestPlaces(trip, items, bags, bike) : []);
   const applyRows = (rows) => change((t) => applyPlaces(t, rows));
@@ -728,6 +743,8 @@
   // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
   // v0.66.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
+  // SN2x U6 «Für nächstes Mal» (answer 7 «immer nur wenn relevant»): the points of earlier debriefs that fit this trip
+  const reminders = $derived(trip && !over && trip.status !== 'done' ? remindersFor(trip, { debriefs: $debriefsQ ?? [], trips: $tripsQ ?? [], sets: $setsQ?.value ?? null, place: trip.place ?? homeOf($homeQ?.value) ?? null }) : []);
   const changeContext = (fn) => change((cur) => {
     const patch0 = fn(cur);
     const dark = ridesIntoDark({ ...cur, ...patch0 }, cur.place ?? homeOf($homeQ?.value) ?? null);
@@ -808,6 +825,7 @@
       <TripRoute {trip} onchange={changeContext} />
       <label class="hours"><span class="lbl">{stageCount(trip) > 1 ? t('Riding hours a day') : t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
       <p class="hint hrs">{t('Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).')}</p>
+      {@render lage()}
       <!-- Design answer 6a: the weather folds away once it is set. v0.27.0 (Noah 1a): decided once when
            the sheet opens (an action without update), so it does not fold shut while Min °C, Max °C and rain are typed. -->
       <details class="wxbox" use:openOnce={!wxSet}>
@@ -827,6 +845,27 @@
           </label>
         </div>
       </details>
+    {/snippet}
+
+    {#snippet lage()}
+      <!-- SN3+ «Bausteine je nach Lage» (answers 3b, 4b): a pass by hand, the country and how you get there.
+           Only facts of the trip; the blocks Pass, Ausland and Zug come as a suggestion in Packen, never by themselves. -->
+      <div class="lage" role="group" aria-labelledby="lage-h">
+        <span class="lbl" id="lage-h">{t('Pass, country and getting there')}</span>
+        <div class="lgrow">
+          <OptionButton pressed={trip.pass === true} icon={Mountain} label={t('Pass|trip')} explain={t('A pass on the route')} onclick={() => change((cur) => ({ pass: cur.pass !== true }))} />
+          <label class="lcountry"><span class="sub">{t('Country')}</span>
+            <select class="sel" value={COUNTRIES.includes(trip.country) ? trip.country : HOME_COUNTRY} onchange={(e) => { const v = e.currentTarget.value; change(() => ({ country: v === HOME_COUNTRY ? null : v })); }}>
+              {#each COUNTRIES as c (c)}<option value={c}>{countryName(c)}</option>{/each}
+            </select>
+          </label>
+        </div>
+        <div class="lgrow" role="group" aria-label={t('Getting there')}>
+          <span class="sub">{t('Getting there')}</span>
+          {#each ARRIVALS as a (a)}<OptionButton pressed={trip.arrival === a} icon={a === 'bike' ? BikeIc : a === 'train' ? TrainFront : Car} label={a === 'bike' ? t('Bike|arrival') : a === 'train' ? t('Train|arrival') : t('Car|arrival')} onclick={() => change((cur) => ({ arrival: cur.arrival === a ? null : a }))} />{/each}
+        </div>
+        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train. Tap again to take it off.')}</p>
+      </div>
     {/snippet}
 
     {#snippet night()}
@@ -934,11 +973,11 @@
       </div>
     </div>
   {/if}{/snippet}
-  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   {#if packTab}
-    <PackDay top={blocksCard} {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -949,6 +988,7 @@
       pack: goPack, ride: goRide, packAndGo, end: endTrip,
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
+      reopen: () => askReopen(trip),
     }}>
     {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
@@ -1084,6 +1124,12 @@
   .wxin { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; margin-top: 16px; }
   .hours { display: block; margin-top: 20px; }
   .hours input { max-width: 120px; }
+  /* SN3+: pass, country and getting there in the trip conditions */
+  .lage { display: grid; gap: 10px; margin-top: 20px; }
+  .lgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .lgrow .sub { font-size: var(--fs-small); color: var(--ink-2); }
+  .lcountry { display: flex; align-items: center; gap: 8px; }
+  .lcountry .sel { max-width: 220px; }
   .hint { font-size: 14px; color: var(--ink-3); }
   .slots { list-style: none; padding: 0; }
   .slots li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding: 8px 0; }
