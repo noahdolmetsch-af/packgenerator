@@ -15,6 +15,7 @@ import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.
 import { splitAll, needsSplitUpdate, splitRerunAfterImport, SPLIT_MARKER, REVIEW_KEY } from './blocksplit.js';
 import { ensureSeed } from './flowdb.js';
 import { moveSeatHeight } from './bikespecs.js';
+import { blocksMore2026 } from './blocksmore.js';
 
 const now = () => new Date().toISOString();
 
@@ -276,7 +277,8 @@ export async function fitMove2026(db) {
   return n > 0;
 }
 
-export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, blocks2026, templatesLinked2026, blockSplit2026];
+// v0.154.0 «Bausteine mehr» (1a, 2a): the example parts of the new blocks and the new parts of existing ones, once
+export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, blocks2026, templatesLinked2026, blockSplit2026, (db) => blocksMore2026(db)];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

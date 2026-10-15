@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
+import { ALL_PARTS } from '../src/lib/blocksmore.js';
 import { applyUpdates } from '../src/lib/updates.js';
 
 describe('v0.26.0 kits become templates (Noah 1a)', () => {
@@ -62,7 +63,11 @@ describe('v0.27.0 updates on a fresh or foreign data set', () => {
     const ready = [{ id: 'own-1', label: 'test_data_gtp_ check tyres', done: true }];
     await db.trips.put({ id: 'test_data_gtp_trip', title: 'test_data_gtp_ trip', bikeId: 'test_data_gtp_bike', startDate: '2999-01-01', entries: [{ itemId: 'test_data_gtp_A1', slot: 'seat', qty: 1, packed: true }], ready });
     await applyUpdates(db);
-    expect((await db.items.toArray()).map((i) => i.id).sort()).toEqual(['test_data_gtp_A1', 'test_data_gtp_A2']);
+    // v0.154.0 «Bausteine mehr» (Noah 1a, 2a): only the generic example parts of the new blocks come, never Noah's own things
+    const generic = new Set(ALL_PARTS.map((p) => p.name));
+    const all = await db.items.toArray();
+    expect(all.filter((i) => !String(i.sources ?? '').startsWith('example parts')).map((i) => i.id).sort()).toEqual(['test_data_gtp_A1', 'test_data_gtp_A2']);
+    expect(all.filter((i) => String(i.sources ?? '').startsWith('example parts')).every((i) => generic.has(i.name) && i.ownership === 'unclear' && i.weightG == null)).toBe(true);
     expect(await db.items.get('test_data_gtp_A2')).toEqual(items[1]);
     expect(await db.containers.get('bag-TA14')).toBeUndefined();
     expect((await db.bikes.toArray()).map((b) => b.id)).toEqual(['test_data_gtp_bike']);

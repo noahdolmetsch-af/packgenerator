@@ -190,6 +190,23 @@ export function setUse(key) {
     case 'abroad':
     case 'train':
     case 'rain':
+    // v0.154.0 «Bausteine mehr»: the nine new blocks and the stages work the same way
+    case 'sleepwell':
+    case 'twonights':
+    case 'descent':
+    case 'recovery':
+    case 'icy':
+    case 'swim':
+    case 'sauna':
+    case 'coldwater':
+    case 'drybag':
+    case 'coldHands':
+    case 'coldLayers':
+    case 'coldEvening':
+    case 'cookWarm':
+    case 'chargeLong':
+    case 'aidWinter':
+    case 'hygieneCare':
       return t('Suggested in Pack when the trip fits its rule; never added by itself');
     default:
       return t('Add it in Pack: Add material → Building blocks');

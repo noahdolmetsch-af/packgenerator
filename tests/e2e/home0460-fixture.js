@@ -41,7 +41,8 @@ export function homeFixture() {
   ];
   T.debriefs = past.map((p) => p[1]);
   T.notes = [{ id: 'test_data_gtp_n1', text: 'test_data_gtp_ Sattel knarzt', status: 'open', at: `${day(-1)}T07:00:00.000Z` }, { id: 'test_data_gtp_n2', text: 'test_data_gtp_ Licht', status: 'open', at: `${day(-1)}T08:00:00.000Z` }];
-  T.settings = [{ key: 'homePlace', value: { name: 'test_data_gtp_ Heimort, Aargau, Switzerland', lat: 47.39, lon: 8.04 } }];
+  // v0.154.0: this data already had the update «Bausteine mehr» (no example parts; tests/e2e/bausteinemehr.spec.js has them)
+  T.settings = [{ key: 'homePlace', value: { name: 'test_data_gtp_ Heimort, Aargau, Switzerland', lat: 47.39, lon: 8.04 } }, { key: 'update.blocksMore2026', value: '2026-10-14T00:00:00.000Z' }];
   return data;
 }
 

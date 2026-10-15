@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // v0.154.0 «Bausteine mehr» (SN3h–SN3j, Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a): nine new
+    // blocks with example parts, new parts in existing blocks with Undo, the groups of the Gesamtliste, Baden in Planen
+    version: '0.154.0',
+    date: '2026-10-14',
+    title: 'More building blocks',
+    lead: 'Nine new building blocks for sleep, winter and bathing, each with example parts, and the page in five clear groups.',
+    points: [
+      { text: 'New blocks such as Sleep well, Two nights, Warm descent and Quick swim; each starts with example parts you can take out', href: '#/blocks' },
+      { text: 'Existing blocks got new parts, marked «+3 new» with Undo; Cold comes in stages, each its own suggestion', href: '#/blocks' },
+      { text: 'Plan: tap «Bathing» (lake or river, sauna or bath, cold water); Pack suggests what fits', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Building blocks in five groups: Overnight, On every ride, Depending on the situation, Bathing, To add' },
+    ],
+    test: [
+      'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.',
+      'Open «Overnight»: Hotel/hut shows «+3 new» with its new parts; tap Undo, then the Undo below brings them back.',
+      'Plan a trip Fr–Su with two hotel nights and a pass: in Pack «Two nights» and «Warm descent» are dashed suggestions.',
+      'In Plan tap «Lake or river» on a warm trip: Pack suggests «Quick swim» and «Keep wet things dry».',
+    ],
+  },
+  {
     // v0.144.0 RE «Regeln einheitlich» (Noah 14.10.2026 «1a 2a 3a 4a 5a»): one rain limit, «never used» from 3 trips,
     // the debrief with nothing ticked, one day clock, care per bike («Pflege für …»)
     version: '0.144.0',

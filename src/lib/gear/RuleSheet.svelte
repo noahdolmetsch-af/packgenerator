@@ -9,15 +9,19 @@
    *
    * block: a card of Bausteine (sets.js allSets + setView: key, name, items, inventory, g, missing);
    * rule: situation.js ruleOf(); onsave({ rule, out }): out = the item IDs to take out; onrename(); onclose().
+   * v0.154.0 «Bausteine mehr» (mockup SN3i): a fixed second condition «und …» (NEED, e.g. «am See oder Fluss»,
+   * with «noch von Hand»), a fixed «oder …» (OR: a pass, snow), the second limit of Erholung danach (ALT), and
+   * for a bathing block the line that «Nasses trocken halten» comes with it.
    */
-  import { X, Pencil, Plus, ChevronRight, Info } from '@lucide/svelte';
+  import { X, Pencil, Plus, ChevronRight, Info, Hand } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
   import { formatWeight, itemWeight, isInventory, knownWeight } from '../gear.js';
   import { blockIcon, blockTone } from '../blockicons.js';
   import { qtyOf } from '../sets.js';
-  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf } from '../situation.js';
-  import { cmpWord, unitOf, sourceLine } from '../situationtext.js';
+  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf, NEED, OR, ALT, BATHING_BLOCKS } from '../situation.js';
+  import { cmpWord, unitOf, sourceLine, needLine, byHand } from '../situationtext.js';
+  import { SETS } from '../gear.js';
 
   let { block, rule, onsave, onrename, onclose } = $props();
 
@@ -70,10 +74,10 @@
       }
       next.cmp = cmp;
       next.limit = n;
-      if (block.key === 'climb') {
+      if (ALT[block.key]) {
         const a = toNum(alt);
-        if (!Number.isFinite(a) || a < 0 || a > 9000) {
-          error = t('The highest point: a number from 0 to 9000.');
+        if (!Number.isFinite(a) || a < ALT[block.key].min || a > ALT[block.key].max) {
+          error = block.key === 'climb' ? t('The highest point: a number from 0 to 9000.') : t('The climbing a day: a number from 0 to 9000.');
           return;
         }
         next.alt = a;
@@ -116,9 +120,17 @@
         </div>
         {#if block.key === 'climb'}
           <label class="rrow alt"><span>{t('or the highest point from')}</span><span class="lim"><input class="inp num" type="text" inputmode="numeric" aria-label={t('Highest point from')} bind:value={alt} oninput={() => (error = '')} /><span class="unit">{t('m above sea level')}</span></span></label>
+        {:else if block.key === 'recovery'}
+          <label class="rrow alt"><span>{t('or climbing a day from')}</span><span class="lim"><input class="inp num" type="text" inputmode="numeric" aria-label={t('Climbing a day from')} bind:value={alt} oninput={() => (error = '')} /><span class="unit">m</span></span></label>
         {/if}
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric} · {t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'} · {t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      {#if OR[block.key]}<p class="extra">{OR[block.key] === 'pass' ? t('or a pass') : t('or snow')}</p>{/if}
+      {#if NEED[block.key]}
+        <!-- v0.154.0 (mockup SN3i): a fixed second condition, by hand where the app does not know it yet -->
+        <p class="extra need">{needLine(block.key)}{#if byHand(block.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}</p>
+      {/if}
+      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric} · {t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]} · {t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      {#if NEED[block.key] === 'lake'}<p class="src">{t('Lake or river is not known to the app yet: you tap it in Plan («Lake or river»). Later from the route.')}</p>{/if}
       {#if block.key === 'rain' && metric === 'rainPct'}
         <!-- v0.144.0 RE «Regen überall gleich» (Noah 1a): this limit is the one rain limit of the app -->
         <p class="everywhere" data-rain-everywhere><Info size={16} aria-hidden="true" /><span><b>{t('Counts everywhere in the app:')}</b> {t('Packing, rain gear, What to wear, the weather on Today, the suggestion of the day, the plan on the way.')} {t('One limit for everything: from {n} % a trip counts as wet.', { n: Number.isFinite(toNum(limit)) ? num(toNum(limit)) : num(std.limit) })}</span></p>
@@ -126,6 +138,9 @@
       {#if error}<p class="err" role="alert">{error}</p>{/if}
     </fieldset>
 
+    {#if BATHING_BLOCKS.includes(block.key) && block.key !== 'drybag'}
+      <p class="everywhere"><Info size={16} aria-hidden="true" /><span>{t('When {block} comes along, the app also suggests {dry}.', { block: `«${block.name}»`, dry: `«${t(SETS.drybag)}»` })}</span></p>
+    {/if}
     <h3 class="lbl ih">{t('Items')}</h3>
     {#if kept.length}
       <ul class="its">
@@ -314,6 +329,23 @@
   }
   .err {
     color: var(--bad);
+  }
+  /* v0.154.0: the fixed «oder …» / «und …» of a block, «noch von Hand» */
+  .extra {
+    margin: 8px 0 0;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .hchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 8px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 400;
   }
   .everywhere {
     display: flex;
