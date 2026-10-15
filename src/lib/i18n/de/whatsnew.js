@@ -43,6 +43,18 @@ export default {
   'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.': 'Ich › Listen und Typen › Kategorien: eine Kategorie mit dem Stift umbenennen und speichern; im Material steht der neue Name.',
   'Add an own category, then open «+ Item» in Gear: it is in the category choice.': 'Eine eigene Kategorie dazunehmen, dann im Material «+ Teil» öffnen: sie steht in der Auswahl.',
   'Back in Categories, tap «Back to Standard»: everything is as before.': 'Zurück in Kategorien «Auf Standard zurücksetzen» antippen: alles ist wie vorher.',
+  // 0.135.0 Meditation und Timer (ME2, ME3, Z2–Z5)
+  'Sit down, start, done 🧘': 'Hinsitzen, starten, fertig 🧘',
+  'Meditation has its own tab in Aktiv with a look back, and a timer counts for anything else.': 'Meditation hat in Aktiv einen eigenen Reiter, mit Rückblick, und ein Timer zählt für alles andere.',
+  'Meditation in Aktiv: start like last time, durations, templates and your last sessions': 'Meditation in Aktiv: starten wie letztes Mal, Dauer, Vorlagen und deine letzten Sitzungen',
+  'Timer: count up, count down, interval, Pomodoro or until a time, with five faces and a log': 'Timer: hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit, mit fünf Ziffernblättern und einem Log',
+  'Look back on your meditation by week, month or year, with what helps you': 'Rückblick auf deine Meditation nach Woche, Monat oder Jahr, mit dem, was dir hilft',
+  'Meditation is called «Meditation» everywhere, «Kissenzeit» goes': 'Meditation heisst überall «Meditation», «Kissenzeit» geht',
+  'The timer keeps running small at the bottom right on every page; at the end a singing bowl and a note': 'Der Timer läuft klein unten rechts auf jeder Seite weiter; am Ende eine Klangschale und eine Notiz',
+  'Open Aktiv › Meditation; tap «Like last time» and stop the session.': 'Öffne Aktiv › Meditation; tippe «Wie letztes Mal» und beende die Sitzung.',
+  'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.': 'Öffne «Was die App kann» › Timer: Wähle «Countdown», 5 Min, tippe «Start»; öffne eine andere Seite, der Timer läuft klein unten rechts.',
+  'Open the timer page, tap the clock and choose another face; open «Log» and add a note.': 'Öffne die Timer-Seite, tippe auf die Uhr und wähle ein anderes Ziffernblatt; öffne «Log» und schreib eine Notiz dazu.',
+  'Tap «Look back» on the Meditation page and switch between week, month and year.': 'Tippe auf der Meditationsseite «Rückblick» und wechsle zwischen Woche, Monat und Jahr.',
 
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',

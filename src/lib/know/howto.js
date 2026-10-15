@@ -108,6 +108,9 @@ export const HOWTO = {
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
   // v0.134.0 «Listen und Typen»
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
+  // v0.135.0
+  'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
 };
 

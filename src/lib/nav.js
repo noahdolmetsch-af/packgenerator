@@ -164,6 +164,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
   if (h.startsWith('#/me/lists')) return 'lists'; // v0.134.0 «Listen und Typen» (LI1–LI4)
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
+  if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
   return 'home';
 }
 
@@ -203,6 +204,7 @@ export const PLACES = [
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
   // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
+  // Noah 15.10.2026 (Paket Aktiv «1a»): Aktiv opens at Heute again; Meditation is its second tab.
   { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
 ];
 
@@ -235,11 +237,18 @@ export const PLACE_TABS = {
   ],
   active: [
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/rest|\/bags)?\/?$/.test(h.split('?')[0]) }, // v0.130.0 the week, recovery and the sport bag belong to Heute (mockups AK1–AK3)
+    // «Meditation» (ME2) with its Rückblick (ME3) and timer pages; the second tab (Noah 15.10.2026 «1a»)
+    { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
     { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
-    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => /^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h)) },
+    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
   ],
 };
+
+/** «Meditation» (ME2): the meditation page and its pages (timer, log, Rückblick). */
+function isMedHash(h) {
+  return /^#\/flow\/act\/meditation(\/|\?|$)/.test(h);
+}
 
 /** The entry of PLACE_TABS an address belongs to (its key), or null. */
 export function tabOf(place, hash = '') {
@@ -253,6 +262,7 @@ export function tabOf(place, hash = '') {
  */
 export function placeOf(page) {
   if (page === 'home') return 'today';
+  if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';

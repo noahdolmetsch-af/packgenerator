@@ -136,6 +136,11 @@ const CASES = [
   { id: 'flow-med-log', hash: '#/flow/act/meditation/log' },
   { id: 'flow-med-cal', hash: '#/flow/act/meditation/log?view=cal' },
   { id: 'flow-med-chart', hash: '#/flow/act/meditation/log?view=chart' },
+  // «Meditation» (mockup ME3) and «Timer» (mockups Z2, Z3, Z5)
+  { id: 'flow-med-review', hash: '#/flow/act/meditation/rueckblick' },
+  { id: 'timer', hash: '#/timer' },
+  { id: 'timer-faces', hash: '#/timer/faces' },
+  { id: 'timer-log', hash: '#/timer/log' },
   { id: 'notes', hash: '#/notes' },
 ];
 

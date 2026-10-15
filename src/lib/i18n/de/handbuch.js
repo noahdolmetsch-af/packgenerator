@@ -350,4 +350,12 @@ export default {
   'Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.': 'Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.',
   'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.': 'Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.',
   'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.': 'Beispiel: «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.',
+  // v0.135.0 «Meditation und Timer»
+  'Open Aktiv › Meditation › «Look back».': 'Öffne Aktiv › Meditation › «Rückblick».',
+  'Switch between week, month and year; filter by kind or template.': 'Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.',
+  'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.': 'Beispiel: Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.',
+  'Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.': 'Öffne die Timer-Seite, wähle eine Art und tippe «Start»; «Gross» zeigt nur noch die Uhr.',
+  'At the end a singing bowl; the log keeps every timer with an optional note.': 'Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.',
+  'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».': 'Beispiel: Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».',
+  'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
 };

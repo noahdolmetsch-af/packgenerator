@@ -74,6 +74,11 @@ const ROUTES = [
   ['#/flow/act/meditation/log', 'Protokoll'],
   ['#/flow/act/meditation/log?view=cal', 'Protokoll Kalender'],
   ['#/flow/act/meditation/log?view=chart', 'Protokoll Grafik'],
+  // «Meditation» (ME3) and «Timer» (Z2, Z3, Z5): all new, strict like their files
+  ['#/flow/act/meditation/rueckblick', 'Meditation Rückblick'],
+  ['#/timer', 'Timer'],
+  ['#/timer/faces', 'Zifferblatt'],
+  ['#/timer/log', 'Timer-Log'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],

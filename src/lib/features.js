@@ -141,6 +141,9 @@ const OWN = [
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },
   { id: 'f.medlog', group: 'active', title: 'Meditation log', text: 'Every session, a streak heat map, the best time of day.', href: '#/flow/act/meditation/log', words: 'protokoll wärmebild serie' },
+  // v0.135.0 «Meditation und Timer» (ME3, Z1–Z5)
+  { id: 'f.medreview', group: 'active', title: 'Meditation look back', text: 'Week, month or year: days, minutes, the calendar and what helps you.', href: '#/flow/act/meditation/rueckblick', words: 'rückblick woche monat jahr kalender' },
+  { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log' },
   { id: 'f.medmore', group: 'active', title: 'Meditation · more', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'klänge zitate links' },
   // Data and app
   { id: 'f.search', group: 'data', title: 'Search commands', text: '«kette geölt gravel» enters it right away; «notiz …» writes a note.', run: 'search', words: 'suche befehl befehle' },

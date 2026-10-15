@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // v0.135.0 «Meditation und Timer» (ME2, ME3, Z2–Z5; ME1/Z1 on Heute wait for Noah's check against HN0; approved 13.10.2026 «ME1-ME3 und Z1-Z5 freigeben»)
+    version: '0.135.0',
+    date: '2026-10-15',
+    title: 'Sit down, start, done 🧘',
+    lead: 'Meditation has its own tab in Aktiv with a look back, and a timer counts for anything else.',
+    points: [
+      { text: 'Timer: count up, count down, interval, Pomodoro or until a time, with five faces and a log', href: '#/timer' },
+      { text: 'Meditation in Aktiv: start like last time, durations, templates and your last sessions', href: '#/flow/act/meditation' },
+      { text: 'Look back on your meditation by week, month or year, with what helps you', href: '#/flow/act/meditation/rueckblick' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Meditation is called «Meditation» everywhere, «Kissenzeit» goes', href: '#/flow/act/meditation' },
+      { box: 'new', text: 'The timer keeps running small at the bottom right on every page; at the end a singing bowl and a note', href: '#/timer/log' },
+    ],
+    test: [
+      'Open Aktiv › Meditation; tap «Like last time» and stop the session.',
+      'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.',
+      'Open the timer page, tap the clock and choose another face; open «Log» and add a note.',
+      'Tap «Look back» on the Meditation page and switch between week, month and year.',
+    ],
+  },
+  {
     // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
     // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
     // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).
