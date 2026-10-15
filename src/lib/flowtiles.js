@@ -77,6 +77,15 @@ export function moveFav(favs = [], id, dir) {
   return list.map((a, favOrder) => ({ ...a, favOrder }));
 }
 
+/** Drag (v0.163.x «Pfeile und Ziehen»): the favourite goes to place `to`; the activities to put. */
+export function moveFavTo(favs = [], id, to) {
+  const list = [...favs];
+  const i = list.findIndex((a) => a.id === id);
+  if (i < 0 || to < 0 || to >= list.length || to === i) return [];
+  list.splice(to, 0, ...list.splice(i, 1));
+  return list.map((a, favOrder) => ({ ...a, favOrder }));
+}
+
 /** The kind of line of a tile: its own choice, else a fitting default. */
 export const lineOf = (a) => (TILE_LINES.includes(a?.tileLine) ? a.tileLine : FAV_SEED.find((f) => f.id === a?.id)?.line ?? 'week');
 

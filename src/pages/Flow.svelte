@@ -66,6 +66,7 @@
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
   import { t, locale, lang, num } from '../lib/i18n.svelte.js';
+  import SortArrows from '../lib/ui/SortArrows.svelte';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -254,6 +255,7 @@
                     {/if}
                   </a>
                   <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
                 </li>
               {/if}
             {/each}
@@ -268,7 +270,7 @@
         {/if}
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
-        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
+        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>
       </aside>
     </div>
   </div>

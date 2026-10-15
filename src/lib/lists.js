@@ -80,6 +80,15 @@ export function move(value, shown, id, dir) {
   return { ...overrideOf(value), order: ids };
 }
 
+/** Drag (v0.163.x «Pfeile und Ziehen»): the entry goes to place `to` of the list as shown; the whole order is kept from then on. */
+export function moveTo(value, shown, id, to) {
+  const ids = shown.map((e) => e.id);
+  const i = ids.indexOf(id);
+  if (i < 0 || to < 0 || to >= ids.length || to === i) return overrideOf(value);
+  ids.splice(to, 0, ...ids.splice(i, 1));
+  return { ...overrideOf(value), order: ids };
+}
+
 /** Hide or show again (the items keep their category). */
 export function toggleHidden(value, id) {
   const o = overrideOf(value);
