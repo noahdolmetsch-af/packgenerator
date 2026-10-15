@@ -30,7 +30,7 @@
   <section class="card brm" aria-labelledby="brm-h" data-testid="bill-reminder">
     <div class="brm-top">
       <span class="brm-ib"><Bell size={20} aria-hidden="true" /></span>
-      <span><b id="brm-h">{title}</b><small>{b.to} · {formatAmount(b.amount)} CHF · {dateOf(b.due)}{#if due.length > 1} · {t('{n} more', { n: due.length - 1 })}{/if}</small></span>
+      <span><b id="brm-h">{title}</b><small>{b.to} · {formatAmount(b.amount)} CHF · {dateOf(b.due)}{#if due.length > 1}{' · '}{t('{n} more', { n: due.length - 1 })}{/if}</small></span>
     </div>
     <div class="brm-btns">
       <button class="btn hi" type="button" onclick={paid}><Check size={18} aria-hidden="true" />{t('Paid')}</button>

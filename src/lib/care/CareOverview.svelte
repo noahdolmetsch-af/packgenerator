@@ -88,7 +88,7 @@
     <div class="ovmain">
       <section class="vsec" aria-labelledby="due-h">
         <div class="vh">
-          <div class="vh-t"><h2 id="due-h">{t('Due now')}</h2><p class="vh-s">{t('over all bikes')}{#if calm != null && calm >= 2} · <Trophy size={14} aria-hidden="true" /> {tn(calm, '{n} week without a breakdown', '{n} weeks without a breakdown')}{/if}</p></div>
+          <div class="vh-t"><h2 id="due-h">{t('Due now')}</h2><p class="vh-s">{t('over all bikes')}{#if calm != null && calm >= 2}{' · '}<Trophy size={14} aria-hidden="true" /> {tn(calm, '{n} week without a breakdown', '{n} weeks without a breakdown')}{/if}</p></div>
         </div>
         {#if due.cards.length}
           <ul class="card vlist">

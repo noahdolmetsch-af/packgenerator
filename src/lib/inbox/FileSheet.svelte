@@ -136,7 +136,7 @@
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="file-h" class="title">{t('File as …')}</h2>
-      <p class="vd-sub">{short(note.text ?? '')}{#if note.at} · {when(note.at)}{/if}</p>
+      <p class="vd-sub">{short(note.text ?? '')}{#if note.at}{' · '}{when(note.at)}{/if}</p>
     </div>
     {#if note.photo}<img class="ph" src={note.photo} alt={t('Photo of the entry')} />{/if}
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>

@@ -377,11 +377,13 @@ export const rowName = (r) => r.label || modeOf(r.mode).label;
 
 /**
  * The rows of the timer log and the meditation sessions together (Z5 shows both), newest first.
- * med: [{ id, day, at, min, note }] (from the meditation log); they open the meditation session.
+ * med: [{ id, day, at, min, note, art }] (from the meditation log); they open the meditation session.
+ * art: the session's kind ({ id, name, own } from flowmed artsOf, or null): the log shows it instead
+ * of the timer mode, a meditation is no «Countdown» (0.136.0).
  */
 export function mergeLog(rows = [], med = []) {
   const a = rows.map(logRowOk).filter(Boolean);
-  const b = med.map((m) => ({ id: `med:${m.id}`, medId: m.id, day: m.day, at: m.at ?? null, sec: Math.round((Number(m.min) || 0) * 60), mode: 'down', label: 'Meditation', med: true, note: m.note ?? '' }));
+  const b = med.map((m) => ({ id: `med:${m.id}`, medId: m.id, day: m.day, at: m.at ?? null, sec: Math.round((Number(m.min) || 0) * 60), mode: 'down', label: 'Meditation', med: true, art: m.art ?? null, note: m.note ?? '' }));
   return [...a, ...b].sort((x, y) => (y.day + (y.at ?? '')).localeCompare(x.day + (x.at ?? '')));
 }
 /** Rows of a kind ('all' or a mode). */

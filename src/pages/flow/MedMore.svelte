@@ -245,7 +245,7 @@
                 <button type="button" class="play" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => start(tplStart(x))}><Zap size={18} aria-hidden="true" /></button>
                 <a class="tn" href="{base}/timer?tpl={encodeURIComponent(x.id)}">
                   <b>{tplName(x)}</b>
-                  <small class="num">{x.minutes} min · {modeLine(x.bowl)}{#if x.art && artOf(x.art)}{' · '}{artName(artOf(x.art))}{/if}</small>
+                  <small class="num">{t('{n} min', { n: x.minutes })} · {modeLine(x.bowl)}{#if x.art && artOf(x.art)}{' · '}{artName(artOf(x.art))}{/if}</small>
                   <small>{x.usedAt ? t('last {when}', { when: whenShort(x.usedAt) }) : t('not used yet')}</small>
                 </a>
               </li>

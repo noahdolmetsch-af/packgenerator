@@ -83,6 +83,8 @@ export function detectType(url) {
   const host = u.hostname.toLowerCase().replace(/^www\.|^m\./, '');
   const path = decodeURIComponent(u.pathname).toLowerCase();
   const out = (type) => ({ type, domain: domainOf(href), title: guessTitle(href) });
+  // A start page (only the site, no path) says nothing about the kind: you choose (Noah 15.10.2026 «3a»).
+  if (!path.replace(/\/+$/, '')) return out(null);
   if (VIDEO_HOSTS.test(host) || /\/(video|videos|watch)(\/|$)/.test(path)) return out('video');
   if (PODCAST_HOSTS.test(host) || (/(^|\.)spotify\.com$/.test(host) && /^\/(episode|show)\//.test(path)) || /podcast/.test(host) || /(^|[/-])podcasts?([/-]|$)/.test(path)) return out('podcast');
   if (ROUTE_HOSTS.test(host) || (/(^|\.)strava\.com$/.test(host) && /^\/routes\//.test(path)) || /\.gpx$/.test(path) || /^\/(routes?|route-guides?|touren?|tour)\//.test(path)) return out('route');

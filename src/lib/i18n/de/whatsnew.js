@@ -17,6 +17,20 @@ export default {
   'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».': 'Öffne einen Rückblick mit Vorschlägen: Nichts ist angehakt; hake zwei an, der Knopf sagt «Fertig · 2 von 6 übernehmen».',
   'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.': 'Öffne Velos › Pflege › ein Velo: Die Karte «Pflege für …» steht über den Teilen; schalte eine Pflege aus, stelle die Dichtmilch auf 60 Tage, schreib eine Notiz.',
 
+
+  // 0.136.0 «Paket 2b» (Pfeile und Ziehen, Gilt für, Inspiration, Anzeigefehler)
+  'Sort your way': 'Sortieren, wie du willst',
+  'Drag a row or use the arrows in every list you can order, and a category can stay with some kinds of trips only.': 'Zieh eine Zeile oder nimm die Pfeile, in jeder Liste, die du ordnen kannst, und eine Kategorie gilt auf Wunsch nur für bestimmte Tourenarten.',
+  'Drag lists or sort them with the arrows: categories, tiles, goals and the checks of a trip': 'Listen ziehen oder mit Pfeilen sortieren: Kategorien, Kacheln, Ziele und die Checks einer Tour',
+  'Category «Applies to»: a category only for some kinds of trips; packing for others leaves it out': 'Kategorie «Gilt für»: eine Kategorie nur für bestimmte Tourenarten; beim Packen für andere bleibt sie weg',
+  'Inspiration explains «What I take from it» and asks for the name of a new link first': 'Inspiration erklärt «Das übernehme ich» und fragt bei einem neuen Link zuerst nach dem Namen',
+  "Bike this month also counts Strava rides that lie in a bike's start km; rides still to check are named": 'Velo in diesem Monat zählt auch Strava-Fahrten, die im Start-Kilometerstand eines Velos stecken; Fahrten zum Prüfen stehen dabei',
+  'The timer log shows the kind of a meditation instead of «Countdown»': 'Das Timer-Protokoll zeigt die Art der Meditation statt «Countdown»',
+  "Neater display: even rows in What's new, no broken words or numbers, all five heart rate zones in one row, one tile row on Aktiv": 'Sauberere Anzeige: bündige Zeilen in «Was ist neu», keine gebrochenen Wörter und Nummern, alle fünf Pulszonen in einer Reihe, eine Kachelreihe auf Aktiv',
+  'Open Me › Lists and types › Categories: drag a category by its handle, or move it with the arrows; Gear shows the new order.': 'Öffne Ich › Listen und Typen › Kategorien: zieh eine Kategorie am Griff oder verschieb sie mit den Pfeilen; Material zeigt die neue Reihenfolge.',
+  'Open a category, under «Applies to» leave only one kind of trip: the row says «Only …», and packing for another kind no longer suggests its items.': 'Öffne eine Kategorie und lass unter «Gilt für» nur eine Tourenart: die Zeile sagt «Nur …», und beim Packen für eine andere Art schlägt die App ihre Teile nicht mehr vor.',
+  'Open Inspiration and paste a link to a start page (only the site): the cursor is in «Title», and you choose the kind yourself.': 'Öffne Inspiration und füge einen Link auf eine Startseite ein (nur die Seite): der Cursor steht im «Titel», und die Art wählst du selbst.',
+  'Open Aktiv › Heute: «Bike this month» counts your Strava rides; the timer log shows a meditation with its kind.': 'Öffne Aktiv › Heute: «Velo in diesem Monat» zählt deine Strava-Fahrten; das Timer-Protokoll zeigt eine Meditation mit ihrer Art.',
   // 0.135.0 «Paket 2» (Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training, Rechnungen ohne Gebühren)
   'Calm, training and bills': 'Ruhe, Training und Rechnungen',
   'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.': 'Meditation und ein Timer, dein Strava-Training Zone für Zone, Rechnungen ohne Gebühren und eine Zahl für jede Sache.',

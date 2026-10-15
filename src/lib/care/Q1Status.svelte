@@ -36,7 +36,7 @@
         <small>
           {#if km.strava == null}{t('No Strava value yet: import activities.csv.')}
           {:else if km.ok}{t('{km} km, 0 km difference, as of {date}', { km: num(Math.round(km.app)), date: dateOf(km.date) })}
-          {:else}{t('Strava {s} km, app {a} km: {d} km difference', { s: num(Math.round(km.strava)), a: num(Math.round(km.app ?? 0)), d: num(Math.round(km.diff ?? 0)) })}{#if km.open} · {tn(km.open, '{n} ride waits', '{n} rides wait')}{/if}{/if}
+          {:else}{t('Strava {s} km, app {a} km: {d} km difference', { s: num(Math.round(km.strava)), a: num(Math.round(km.app ?? 0)), d: num(Math.round(km.diff ?? 0)) })}{#if km.open}{' · '}{tn(km.open, '{n} ride waits', '{n} rides wait')}{/if}{/if}
         </small>
       </span>
     </li>
@@ -57,7 +57,7 @@
   </ul>
   <p class="rep">
     {t('Report {month}:', { month: monthName })}
-    {report.rides ? tn(report.rides, '{n} ride', '{n} rides') + ` · ${num(Math.round(report.km))} km · ` : ''}{report.diff == null ? t('no Strava value') : t('{km} km difference to Strava', { km: num(Math.round(report.diff)) })} · {tn(report.missing, '{n} part without a start point', '{n} parts without a start point')}{#if report.last} · {t('last source {source}, {date}', { source: t(SOURCE_NAME[report.last.source] ?? report.last.source), date: dateOf(report.last.date) })}{/if}
+    {report.rides ? tn(report.rides, '{n} ride', '{n} rides') + ` · ${num(Math.round(report.km))} km · ` : ''}{report.diff == null ? t('no Strava value') : t('{km} km difference to Strava', { km: num(Math.round(report.diff)) })} · {tn(report.missing, '{n} part without a start point', '{n} parts without a start point')}{#if report.last}{' · '}{t('last source {source}, {date}', { source: t(SOURCE_NAME[report.last.source] ?? report.last.source), date: dateOf(report.last.date) })}{/if}
     <button type="button" class="lnk" onclick={onhide}>{t('Hide for this bike')}</button>
   </p>
 </section>

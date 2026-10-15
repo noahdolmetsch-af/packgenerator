@@ -20,6 +20,7 @@
   import { MODES, MODE_IDS, DEFAULTS, CHIPS, BLOCKS, FACES, parseTime, setupOk, setupSec, position, setupWords, short, faceFor, dayStats, recentSetups, rowName, modeOf, hmOf, dur } from '../lib/timer.js';
   import { medQuery, seedMed } from '../lib/flow/data.svelte.js';
   import { beginMed, lastStart, medTemplates, tplStart } from '../lib/flow/hobby/medstart.js';
+  import { artName } from '../lib/flow/hobby/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
 
@@ -284,7 +285,7 @@
           {#if todayRows.length}
             <ul class="rows">
               {#each todayRows as r (r.id)}
-                <li><span class="tm">{r.at ? hmOf(Date.parse(r.at)) : ''}</span><span class="rt"><b>{r.med ? t('Meditation') : rowName(r) === r.label ? r.label : t(rowName(r))}</b><small>{t(modeOf(r.mode).label)}{#if r.note} · {r.note}{/if}</small></span><b class="num">{dur(r.sec)}</b></li>
+                <li><span class="tm">{r.at ? hmOf(Date.parse(r.at)) : ''}</span><span class="rt"><b>{r.med ? t('Meditation') : rowName(r) === r.label ? r.label : t(rowName(r))}</b><small>{[r.med ? artName(r.art) : t(modeOf(r.mode).label), r.note].filter(Boolean).join(' · ')}</small></span><b class="num">{dur(r.sec)}</b></li>
               {/each}
             </ul>
           {:else}

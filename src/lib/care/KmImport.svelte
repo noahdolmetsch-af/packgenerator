@@ -250,7 +250,7 @@
             <div class="ch">
               <h3 id="pb-{x.bike.id}">{x.bike.name}</h3>
               {#if x.rows.length}
-                <span class="num">{t('{n} new', { n: x.fresh.length })} · {num(x.km)} km{#if x.dups} · {tn(x.dups, '{n} duplicate', '{n} duplicates')}{/if}
+                <span class="num">{t('{n} new', { n: x.fresh.length })} · {num(x.km)} km{#if x.dups}{' · '}{tn(x.dups, '{n} duplicate', '{n} duplicates')}{/if}
                   <button type="button" class="lnk" aria-expanded={isOpen(x.bike.id)} onclick={() => (openBikes = { ...openBikes, [x.bike.id]: !isOpen(x.bike.id) })}>{isOpen(x.bike.id) ? t('hide') : t('show')}</button>
                 </span>
               {:else}<span>{t('no rides')}</span>{/if}
@@ -268,7 +268,7 @@
           <ul class="files">
             {#each files as f (f.id)}
               <li>
-                <span class="fn"><b>{f.name}</b>{#if f.kind === 'csv'} · Strava{:else if f.kind === 'fit' && f.device} · {f.device}{/if}{#if f.error}<small class="err">{f.error}</small>{/if}</span>
+                <span class="fn"><b>{f.name}</b>{#if f.kind === 'csv'}{' · '}Strava{:else if f.kind === 'fit' && f.device}{' · '}{f.device}{/if}{#if f.error}<small class="err">{f.error}</small>{/if}</span>
                 <span class="num">{tn(f.records.filter((r) => r.cycling !== false).length, '{n} ride', '{n} rides')}</span>
                 <button type="button" class="ix" aria-label={t('Remove {file}', { file: f.name })} onclick={() => removeFile(f.id)}><X size={16} aria-hidden="true" /></button>
               </li>

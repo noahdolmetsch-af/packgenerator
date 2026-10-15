@@ -167,7 +167,7 @@
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="vh-e-h">{t('Change the answer')}</h2>
-        <p class="vd-sub">{dayLong(edit.day)}{#if edit.at} · {timeText(edit.at)}{/if}</p>
+        <p class="vd-sub">{dayLong(edit.day)}{#if edit.at}{' · '}{timeText(edit.at)}{/if}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>

@@ -13,7 +13,7 @@ import { listsReady } from './listsready.svelte.js';
 /** Colours for own categories, in turn (quiet tones next to the Trail Journal ones). */
 export const OWN_COLORS = ['#6B8F3A', '#A0522D', '#4F7C8A', '#9C6B98', '#7A7F3A', '#B0625A', '#3F6E5A', '#8A6F3E'];
 
-/** The categories as the person has them: [{ key, name, color, icon?, own?, hidden? }]. */
+/** The categories as the person has them: [{ key, name, color, icon?, own?, hidden?, areas? }]. */
 export function categoriesFrom(all) {
   const color = Object.fromEntries(STD_CATEGORIES.map((c) => [c.key, c.color]));
   return listFor('categories', all).map((e) => ({
@@ -23,6 +23,7 @@ export function categoriesFrom(all) {
     ...(e.icon ? { icon: e.icon } : {}),
     ...(e.own ? { own: true } : {}),
     ...(e.hidden ? { hidden: true } : {}),
+    ...(e.areas ? { areas: e.areas } : {}),
   }));
 }
 
@@ -80,18 +81,34 @@ export function move(value, shown, id, dir) {
   return { ...overrideOf(value), order: ids };
 }
 
+/** Drag (v0.163.x «Pfeile und Ziehen»): the entry goes to place `to` of the list as shown; the whole order is kept from then on. */
+export function moveTo(value, shown, id, to) {
+  const ids = shown.map((e) => e.id);
+  const i = ids.indexOf(id);
+  if (i < 0 || to < 0 || to >= ids.length || to === i) return overrideOf(value);
+  ids.splice(to, 0, ...ids.splice(i, 1));
+  return { ...overrideOf(value), order: ids };
+}
+
 /** Hide or show again (the items keep their category). */
 export function toggleHidden(value, id) {
   const o = overrideOf(value);
   return { ...o, hidden: o.hidden.includes(id) ? o.hidden.filter((x) => x !== id) : [...o.hidden, id] };
 }
 
+/** LI3 «Gilt für»: the trip areas of an entry; null (or none chosen) means all, nothing stored. */
+function withAreas(o, id, areas) {
+  if (areas === undefined) return o;
+  const { [id]: _a, ...rest } = o.areas;
+  return { ...o, areas: Array.isArray(areas) && areas.length ? { ...rest, [id]: [...areas] } : rest };
+}
+
 /**
- * Name and symbol of an entry. A Standard entry: a name equal to the Standard one is no change; an
- * own entry keeps them on itself.
+ * Name, symbol and «Gilt für» of an entry. A Standard entry: a name equal to the Standard one is no
+ * change; an own entry keeps name and symbol on itself.
  */
-export function edit(value, entry, { name, icon, stdIcon = null }) {
-  const o = overrideOf(value);
+export function edit(value, entry, { name, icon, stdIcon = null, areas }) {
+  const o = withAreas(overrideOf(value), entry.id, areas);
   const n = String(name ?? '').trim();
   if (entry.own) return { ...o, own: o.own.map((e) => (e.id === entry.id ? { ...e, name: n || e.name, ...(icon ? { icon } : {}) } : e)) };
   const names = { ...o.names };
@@ -104,8 +121,8 @@ export function edit(value, entry, { name, icon, stdIcon = null }) {
 }
 
 /** A new own entry with the next free colour; returns { value, id }. */
-export function addOwn(value, { name, icon = null }, id = `own-${Date.now().toString(36)}`) {
-  const o = overrideOf(value);
+export function addOwn(value, { name, icon = null, areas }, id = `own-${Date.now().toString(36)}`) {
+  const o = withAreas(overrideOf(value), id, areas);
   const color = OWN_COLORS[o.own.length % OWN_COLORS.length];
   return { value: { ...o, own: [...o.own, { id, name: String(name).trim(), color, ...(icon ? { icon } : {}) }] }, id };
 }
@@ -116,6 +133,7 @@ export function remove(value, entry) {
   const rest = (list) => list.filter((x) => x !== entry.id);
   const { [entry.id]: _n, ...names } = o.names;
   const { [entry.id]: _i, ...icons } = o.icons;
-  const base = { ...o, names, icons, hidden: rest(o.hidden), order: rest(o.order) };
+  const { [entry.id]: _a, ...areas } = o.areas;
+  const base = { ...o, names, icons, areas, hidden: rest(o.hidden), order: rest(o.order) };
   return entry.own ? { ...base, own: o.own.filter((e) => e.id !== entry.id) } : { ...base, deleted: [...o.deleted, entry.id] };
 }
