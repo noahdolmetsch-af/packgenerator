@@ -9,7 +9,11 @@ import { test, expect } from '@playwright/test';
 import { D0, openHome, tr } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
-import { READY } from '../../src/lib/home/tiles.js';
+import { READY, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
+
+// v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
+// right under the day card; the helper's tile rests while the AI helper is off
+const SHOWN = tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true);
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
@@ -227,7 +231,7 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
-  await expect.poll(() => ids(page)).toEqual(READY.map((x) => x.id));
+  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   await updated(page);
   await expect(page.locator('[data-news-banner]')).toBeVisible(); // v0.127.0 A-U1: the banner, no window
   const tile = page.locator('.wall [data-tile="news"]');
@@ -235,7 +239,8 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   await expect(tile).toHaveCount(0);
   await page.locator('[data-news-banner]').getByRole('button', { name: T('Close the hint') }).click();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
-  await expect.poll(async () => (await ids(page))[0]).toBe('news');
+  // v0.155.0 (changed on purpose): on top right under the head tiles (meditation, day card, Important today)
+  await expect.poll(async () => (await ids(page)).filter((id) => id !== 'trip').indexOf('news')).toBe(HEAD_0155.length);
   await expect(tile).toHaveAttribute('data-size', 'long');
   await expect(tile.getByText(T('New in {v} · {n} days left', { v: V, n: TILE_DAYS }))).toBeVisible();
   await expect(tile.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();
@@ -250,11 +255,13 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
     localStorage.setItem('wasneu.update', JSON.stringify({ ...u, at }));
   }, dayFrom(-TILE_DAYS));
   await page.reload();
-  await expect.poll(() => ids(page)).toEqual(READY.map((x) => x.id));
+  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   await expect(tile).toHaveAttribute('data-size', READY.find((x) => x.id === 'news').size);
 
-  // «Take away» takes it off the wall, like × in «Customise»
-  await tile.getByRole('button', { name: T('Take away|tile') }).click();
+  // «Take away» takes it off the wall; v0.155.0 (changed on purpose): back in its place it is a small tile
+  // without the button, so × in «Customise» does it
+  await page.getByRole('button', { name: T('Customise the start page') }).click();
+  await page.getByRole('button', { name: T('Take {name} off the start page', { name: T('New in the app') }) }).click();
   await expect(page.locator('.wall [data-tile="news"]')).toHaveCount(0);
   expect(D0).toBe('2026-10-09');
   expect(errors).toEqual([]);

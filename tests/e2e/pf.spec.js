@@ -1071,7 +1071,10 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
   // v0.46.0: the first button of "What do you want to do?".
   // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip on Today (green card), «Öffnen» goes to it.
-  await rec.click(page.locator('.wall [data-fn="dayride"]'));
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «Quick start» is in the
+  // day card (its part «Tag», one tap on the clock at another time of day)
+  await rec.click(page.locator('[data-daycard] [data-clock="day"]'));
+  await rec.click(page.locator('[data-daycard] [data-daycard-quick]'));
   const bar = page.locator('[data-quick-made]');
   await expect(bar).toBeVisible();
   await rec.click(bar.getByRole('link', { name: T('Open'), exact: true }));
@@ -1195,7 +1198,9 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): the km are a quick button of the bike on Today.
   // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
-  await rec.click(page.locator('.wall [data-fn="km"]'));
+  // v0.155.0 (HN4 3a, changed on purpose): «Log km» lives in the day card's evening (one tap on the clock by day)
+  await rec.click(page.locator('[data-daycard] [data-clock="evening"]'));
+  await rec.click(page.locator('[data-daycard] [data-cell="km"]').getByRole('button', { name: T('Log km') }));
   const km = page.getByRole('dialog', { name: T('km for a bike') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');

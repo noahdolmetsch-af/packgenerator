@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.155.0 «Heute neu geordnet» (HN4 + HN4b, Noah 14.10.2026 «1a 2a 3a 4b HN4 freigegeben», «HN4b freigegeben»):
+    // meditation card, day card, «Important today» in one line, compact balance, Aktiv tile, trip card up before a trip
+    version: '0.155.0',
+    date: '2026-10-15',
+    title: 'Today, newly ordered',
+    lead: 'On top the meditation and a day card that follows the time of day; below it everything else in a calm order.',
+    points: [
+      { text: 'Aktiv on Today: the sleep of last night, your last activity, the next fixed date and the ways into Aktiv', href: '#/flow' },
+      { text: 'The day card: in the morning «Wi gaht\'s?», the weather and what to wear; by day Quick start and your bikes; in the evening debrief, km and bike care', href: '#/' },
+      { text: 'Im Flow and your balance in one card: your challenge, an idea for the weakest area (a tap makes it your goal for today), the next milestone and your body', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Important today» is one line; the day before a trip the trip card moves up; the base weight is big, all of it with food and water in a small line' },
+    ],
+    test: [
+      'Open Today in the morning: the meditation card, then the day card «Morning» with «Wi gaht\'s?», the weather and what to wear; «Morgen-Runde» is nowhere else.',
+      'Tap «Day» in the small day clock of the card: Quick start, Plan a trip and «Bikes ready?».',
+      'Under the day card «Important today» is one line; tap «Show all»: the whole list opens.',
+      'Plan a trip for tomorrow: its card stands right under the day card; the day after tomorrow it is back after the milestones.',
+      'In «Im Flow + Balance» tap the idea under «Inspiration»: it is your goal for today; tap again and it is gone.',
+    ],
+  },
+  {
     // v0.154.0 «Bausteine mehr» (SN3h–SN3j, Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a): nine new
     // blocks with example parts, new parts in existing blocks with Undo, the groups of the Gesamtliste, Baden in Planen
     version: '0.154.0',

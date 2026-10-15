@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { PLACES } from '../../src/lib/nav.js';
+import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
 import { openData, settle } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
@@ -155,7 +156,8 @@ test('Today folds nothing; First steps and the 16 functions on the wall', async 
   const T = tr('de');
   await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
   await expect(page.locator('main details.folded')).toHaveCount(0);
-  await expect(page.locator('.wall [data-fn]')).toHaveCount(16);
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): nine functions left the wall (back through «+»)
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });

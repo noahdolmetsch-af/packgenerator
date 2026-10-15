@@ -37,9 +37,15 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   }
   // … and "Important today" names each bike with something due (the same number, or one job
   // "lube the chain" / "top up the sealant" with its own button)
+  // v0.155.0 «Heute neu geordnet» (2a, changed on purpose): one line with two rows; the rows arrive one source
+  // after the other, so open «Show all» whenever it is there and closed, until a row per due bike shows
   const more = page.locator('[data-section="today"] button.more');
-  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   const careRows = page.locator('[data-section="today"] li[data-row="care"]');
+  const dueBikes = Object.values(today).filter((n) => n > 0).length;
+  await expect(async () => {
+    if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+    await expect(careRows).toHaveCount(dueBikes, { timeout: 1000 });
+  }).toPass({ timeout: 15000 });
   const fromRows = {};
   for (const row of await careRows.all()) {
     const text = (await row.locator('.tx').textContent()).trim();
