@@ -4,9 +4,9 @@
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake } from '@lucide/svelte';
+  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
+  import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
   import { ridesIntoDark } from '../blockplan.js';
@@ -145,9 +145,11 @@
   // a suggestion that Packen takes off with one tap; a Repair that is not slim yet stays off (repairslim.js).
   // svelte-ignore state_referenced_locally
   let off = $state(isNew ? newTripOff(items) : []);
-  // v0.114.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
+  // v0.114.0 (bug «Letzte Tour»): a new trip never started from a past trip here, only Standard or a template.
+  // v0.143.0 WS3 (Release-Analyse F5, Noah 14.10.2026 «1a»): «Like the last trip» is back, but only from a
+  // trip really ridden with the chosen bike (riddenTrips: never a trip planned for later, never skipped).
   // svelte-ignore state_referenced_locally
-  let start = $state(startFrom === 'last' ? 'standard' : startFrom);
+  let start = $state(startFrom);
   // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
   // bike as the dialog's defaults; everything stays changeable here.
   function useTemplate(id) {
@@ -196,12 +198,24 @@
   const areaTemplates = $derived(templates.filter((x) => !x.archivedAt && tplDomain(x) === area));
   const chosenTpl = $derived(templates.find((x) => x.id === start) ?? null);
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
+  // v0.143.0 WS3: the trips a copy may come from, and the last one ridden with the bike chosen above
+  // (the bike chips decide the bike; «Like the last trip» follows them).
+  const ridden = $derived(riddenTrips(trips));
+  const lastRidden = $derived(isNew && byBike && draft.bikeId ? lastTripOn(draft.bikeId, ridden) : null);
+  const lastWhen = $derived(lastRidden?.startDate ? new Date(`${lastRidden.startDate}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  const lastLine = $derived(lastRidden ? [lastWhen, lastRidden.bike ?? bikes.find((b) => b.id === lastRidden.bikeId)?.name ?? ''].filter(Boolean).join(' · ') : '');
+  function pickLast() {
+    start = 'last';
+    example = null;
+  }
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
   // A template of another area does not fit: back to the standard (the area's items).
   // v0.28.0 (Noah 8.10.2026): a new trip starts with the standard set; templates are optional.
   $effect(() => {
     const tp = templates.find((x) => x.id === start);
     if (tp && tplDomain(tp) !== area) start = 'standard';
+    // v0.143.0 WS3: no ridden trip with this bike (or not a bike trip): back to the standard
+    if (start === 'last' && !lastRidden) start = 'standard';
     if (example && !examplesFor(area).some((x) => x.id === example)) example = null;
   });
   let error = $state('');
@@ -328,7 +342,7 @@
   /** The start of a new bike trip (template, last trip or standard set), before its context. */
   function startTrip() {
     const tpl = templates.find((x) => x.id === start);
-    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : trips, items);
+    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : ridden, items);
     return { base, tpl, fromCopy: !tpl && !!base.copiedFrom };
   }
   // v0.25.0 (M3): "Your packing list", live from the same pure functions as "Create trip".
@@ -346,7 +360,7 @@
   const byId = $derived(new Map(items.map((i) => [i.id, i])));
 
   // v0.30.0 (Noah, finding 2): the new trip as "Create trip" will make it, live (count on the button).
-  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips, items, fields: ctxFields(), sets: setsValue }, 0) : null);
+  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips: ridden, items, fields: ctxFields(), sets: setsValue }, 0) : null);
   // Building blocks that do not come by themselves (contextSets), with what each would add. The
   // same function as Pack's "Add material → Building blocks" (addSetEntries), same bags skipped.
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -499,7 +513,7 @@
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
       const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
       ended = true;
       clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
@@ -543,7 +557,7 @@
     if (!bike || !hoursOk) return null;
     const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
     const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
+    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
   }
   let autoTimer;
   let autoBusy = Promise.resolve();
@@ -671,15 +685,23 @@
 
 {#snippet templatesFold()}
   <!-- v0.114.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
-       two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»). -->
+       two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»).
+       v0.143.0 WS3: «Like the last trip» on top again, only a trip really ridden with the chosen bike. -->
   <section class="tplbox" class:open={tplOpen}>
     <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
       <span class="tplic" aria-hidden="true"><Star size={18} /></span>
-      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it. Only templates, no past trips.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
+      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it: the last trip ridden with this bike or a template.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : start === 'last' && lastRidden ? t('Like the last trip') : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
       {#if tplOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
     </button>
     {#if tplOpen}
       <div id="tpl-body" class="tplbody">
+        <!-- v0.143.0 WS3 (F5, Noah «1a»): first the last trip really ridden with this bike, with its date and bike -->
+        {#if lastRidden}
+          <p class="grp-l">{t('Like the last trip')}</p>
+          <div class="obtns" role="group" aria-label={t('Like the last trip')}>
+            <OptionButton pressed={start === 'last'} icon={History} label={lastRidden.title || t('Last trip')} title={lastLine} data-start="last" onclick={pickLast} />
+          </div>
+        {/if}
         <p class="grp-l">{t('Your templates')}</p>
         <div class="obtns" role="group" aria-label={t('Your templates')}>
           <OptionButton pressed={start === 'standard' && !example} label={t('Standard')} onclick={() => ((start = 'standard'), (example = null))} />
@@ -693,6 +715,7 @@
         {/if}
         <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
           {#if chosenTpl}<b>{chosenTpl.name}</b> · {tplLine(chosenTpl)}
+          {:else if start === 'last' && lastRidden}<b>{lastRidden.title || t('Last trip')}</b> · {lastLine}{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')}{/if}{' · '}{t('copied, nothing ticked off')}
           {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null}{' · '}{t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
           {:else}<b>{t('Standard')}</b>{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
         </span></p>

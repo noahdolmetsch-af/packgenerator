@@ -251,7 +251,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte Tour»); templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.114.0, v0.143.0: New trip offers the last ridden trip apart from the templates; templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -286,8 +286,12 @@ test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte 
   const starts = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');
   await expect(starts.first()).toContainText(T('Standard'));
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(dlg.getByText(T('Last trip'), { exact: true })).toHaveCount(0);
-  await expect(dlg.getByText('test_data_gtp_ Letzte')).toHaveCount(0);
+  // v0.143.0 WS3 (Noah 14.10.2026 «ws1-ws7 freigeben», 1a): the trip ridden two days ago is offered again above
+  // the templates as «Wie letzte Tour», not chosen by itself (Standard stays the start).
+  const like = dlg.getByRole('group', { name: T('Like the last trip') }).getByRole('button');
+  await expect(like).toHaveCount(1);
+  await expect(like).toContainText('test_data_gtp_ Letzte');
+  await expect(like).toHaveAttribute('aria-pressed', 'false');
   const card = starts.filter({ hasText: 'test_data_gtp_ Regenrunde' });
   await card.click();
   await expect(card).toHaveAttribute('aria-pressed', 'true');

@@ -187,6 +187,15 @@ export default {
   'On the phone open Trips and Material: the main button sits at the bottom.': 'Öffne am Handy Touren und Material: Der wichtigste Knopf sitzt unten.',
   'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
   'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
+  // 0.143.0 Wie letzte Tour
+  'Like last time, please': 'Wie letztes Mal, bitte',
+  'A new trip can start as a copy of the last trip you really rode with that bike again.': 'Eine neue Tour kann wieder als Kopie der letzten Tour starten, die du mit diesem Velo wirklich gefahren bist.',
+  'Trips: «Start quickly» with «Like the last trip», your two templates used last and «All templates»': 'Touren: «Schnell starten» mit «Wie letzte Tour», deinen zwei zuletzt benutzten Vorlagen und «Alle Vorlagen»',
+  'New trip › Choose a template: «Like the last trip» on top, with name, date and bike': 'Neue Tour › Vorlage wählen: «Wie letzte Tour» zuoberst, mit Name, Datum und Velo',
+  'Only trips really ridden count, never one planned for later (that was why it went away in 0.114)': 'Es zählen nur wirklich gefahrene Touren, nie eine geplante (deshalb war es seit 0.114 weg)',
+  'Trips: under «Continue» tap «Like the last trip»: the new trip window opens, «Choose a template» says «Like the last trip chosen».': 'Touren: Unter «Weitermachen» auf «Wie letzte Tour» tippen: Das Fenster «Neue Tour» öffnet sich, bei «Vorlage wählen» steht «Wie letzte Tour gewählt».',
+  'Open «Choose a template»: on top the last trip ridden with the chosen bike, with date and bike; a trip planned for later never shows.': 'Öffne «Vorlage wählen»: Zuoberst steht die letzte gefahrene Tour mit dem gewählten Velo, mit Datum und Velo; eine geplante Tour erscheint nie.',
+  "Tap another bike: «Like the last trip» switches to that bike's last ridden trip.": 'Tippe ein anderes Velo an: «Wie letzte Tour» wechselt zur letzten gefahrenen Tour dieses Velos.',
 
   // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
   'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',
