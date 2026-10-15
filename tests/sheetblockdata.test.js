@@ -33,7 +33,7 @@ describe('the blocks of the Workshop order', () => {
   it('the measured values have the chain forecast on the order too (BS3 b)', () => {
     const v = blockView('measured', c());
     const chain = v.rows.find((r) => r.id === 'chain');
-    expect(chain.value).toBe('0.3 %');
+    expect(chain.value).toBe('wear 0.3 %');
     expect(chain.note).toMatch(/km left to 0.5 %/);
     expect(shopLines('measured', c())[0]).toMatch(/^Zuletzt gemessen: Kettenverschleiss 0,3 % \(10\.10\.2026\), noch ca\. [\d’']+ km bis 0,5 %/);
   });

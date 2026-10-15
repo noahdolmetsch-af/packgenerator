@@ -212,6 +212,11 @@
   const orderBlocks = $derived(shown('order', orderViews));
   const nameOf = (def) => (def.own ? def.title : t(def.name));
   let arranging = $state(false); // «Bausteine ordnen» right in the sheet (B3 b)
+  // another sheet or bike: arranging ends
+  $effect(() => {
+    void sheet, bikeId;
+    arranging = false;
+  });
   let bnotice = $state(null); // { text, undo }
   let bTimer;
   function blockNotice(text, undo) {
@@ -500,7 +505,7 @@
     {:else if b.id === 'budget'}
       <section class="psec" class:noprint={b.v.empty} aria-labelledby="ord-budget" data-block="budget">
         <h3 id="ord-budget">{t('Cost limit')}</h3>
-        {#each b.v.rows as r (r.id)}<p class="bline"><span>{r.label}</span><b>{r.value}</b></p>{/each}
+        {#each b.v.rows as r (r.id)}<p class="bline" class:printonly={r.id === 'limit'}><span>{r.label}</span><b>{r.value}</b></p>{/each}
         <label class="inl noprint"><span>{t('Please call above CHF')}</span><input class="inp num" type="number" min="0" step="10" inputmode="numeric" value={bdata.budget?.limit ?? ''} onchange={(e) => setLimit(e.currentTarget.value)} /></label>
       </section>
     {:else if b.id === 'pickupWish'}
@@ -1137,7 +1142,8 @@
   .badv {
     color: var(--bad);
   }
-  .printonly {
+  .printonly,
+  .bline.printonly {
     display: none;
     margin: 0;
     white-space: pre-line;
@@ -1223,6 +1229,9 @@
   @media print {
     .printonly {
       display: block;
+    }
+    .bline.printonly {
+      display: flex;
     }
     .vin {
       display: none;

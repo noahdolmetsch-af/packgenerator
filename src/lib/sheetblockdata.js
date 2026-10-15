@@ -102,7 +102,7 @@ function measured(c) {
     const last = c.view.parts?.find((x) => x.key === 'chain')?.history?.filter((h) => h.action === 'check' && typeof h.value === 'number').map((h) => h.date).sort().at(-1);
     // BS3 b: the forecast is on the Workshop order too
     const fore = ch.tone === 'worn' ? t('replace') : ch.left != null ? t('about {km} km left to {limit} %', { km: num(ch.left), limit: num(ch.limit) }) : '';
-    out.push({ ...row('chain', t('Chain wear'), `${num(ch.value)} %`, [last ? dateOf(last) : '', fore].filter(Boolean).join(' · ')), tone: ch.tone === 'worn' ? 'bad' : ch.tone === 'warn' ? 'warn' : '' });
+    out.push({ ...row('chain', t('Chain'), t('wear {value} %', { value: num(ch.value) }), [last ? dateOf(last) : '', fore].filter(Boolean).join(' · ')), tone: ch.tone === 'worn' ? 'bad' : ch.tone === 'warn' ? 'warn' : '' });
   }
   if (c.sheet === 'pass') {
     const chk = pickupChecked(c.bike);
