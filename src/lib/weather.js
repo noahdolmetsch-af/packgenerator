@@ -37,7 +37,7 @@ const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Fetch the daily forecast for a place. Returns the object to store as trip.forecast. */
 export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
-  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max&hourly=temperature_2m,precipitation_probability&timezone=auto&forecast_days=${FORECAST_DAYS}`;
+  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_direction_10m_dominant,wind_gusts_10m_max&hourly=temperature_2m,precipitation_probability&timezone=auto&forecast_days=${FORECAST_DAYS}`;
   const res = await fetcher(url);
   if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
   const { daily = {}, hourly = null } = await res.json();
@@ -48,6 +48,8 @@ export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
     max: num(daily.temperature_2m_max?.[n]),
     rainMm: num(daily.precipitation_sum?.[n]),
     rainPct: num(daily.precipitation_probability_max?.[n]),
+    // «Passt zu heute» WD3: the föhn needs the wind (mostly from where, strongest gust in km/h)
+    ...(num(daily.wind_direction_10m_dominant?.[n]) != null ? { windDir: num(daily.wind_direction_10m_dominant[n]), gust: num(daily.wind_gusts_10m_max?.[n]) } : {}),
     ...(hours.has(date) ? { hourly: hours.get(date) } : {}),
   }));
   return { fetchedAt: now.toISOString(), place: { name: place.name, lat: place.lat, lon: place.lon }, days };

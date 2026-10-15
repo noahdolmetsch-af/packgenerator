@@ -499,6 +499,7 @@ export default {
   Weekend: 'Wochenende',
   'World trip': 'Weltreise',
   'Backpack 30 L': 'Rucksack 30 L',
+  'Backpack 15 L': 'Rucksack 15 L',
   'Backpack 60 L': 'Rucksack 60 L',
   'Travel bag': 'Reisetasche',
   Daypack: 'Tagesrucksack',

@@ -43,6 +43,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 - Update `docs/status.md`, `docs/decisions.md`, `docs/roadmap.md`, `docs/design-audit.md` and `docs/vorhaben.md` (rules in `docs/README.md`).
 - Every new UI text goes through `t('English')` and needs a German entry in `src/lib/i18n/de/*.js`, imported in `de/index.js`. The Gesamttest fails on English words in the German UI.
 - Use the repo's PR template if there is one; otherwise start the body with «Before:» and «After:».
+- **Was fällt weg oder rutscht tiefer** (Noah, 14.10.2026 «3a»): every release PR has this section. List what is no longer there and what moves behind «Mehr», into a fold or further down, with the old and the new way; write «nichts» if nothing does. A loss that Noah did not approve needs his answer before the merge.
 
 ## Tests
 

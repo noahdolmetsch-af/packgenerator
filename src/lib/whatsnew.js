@@ -19,7 +19,7 @@ export const WHATS_NEW = [
     // v0.154.0 «Bausteine mehr» (SN3h–SN3j, Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a): nine new
     // blocks with example parts, new parts in existing blocks with Undo, the groups of the Gesamtliste, Baden in Planen
     version: '0.154.0',
-    date: '2026-10-14',
+    date: '2026-10-15',
     title: 'More building blocks',
     lead: 'Nine new building blocks for sleep, winter and bathing, each with example parts, and the page in five clear groups.',
     points: [
@@ -41,7 +41,7 @@ export const WHATS_NEW = [
     // v0.144.0 RE «Regeln einheitlich» (Noah 14.10.2026 «1a 2a 3a 4a 5a»): one rain limit, «never used» from 3 trips,
     // the debrief with nothing ticked, one day clock, care per bike («Pflege für …»)
     version: '0.144.0',
-    date: '2026-10-14',
+    date: '2026-10-15',
     title: 'One set of rules for all',
     lead: 'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.',
     points: [
@@ -58,6 +58,63 @@ export const WHATS_NEW = [
       'Open a trip with 40 % rain in Pack: the block Rain is suggested, the rain jacket is on the list with «40 % rain · rain from 30 %».',
       'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».',
       'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.',
+    ],
+  },
+  {
+    // v0.135.0 «Paket 2»: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (IF1–IF3, WD1–WD3, #173),
+    // Eine Zahl pro Sache (DK1–DK3 + Heute H1/H2, #170), Training (TR1–TR4, #167), Rechnungen ohne Gebühren (QR1–QR9, #169).
+    // One release instead of the working numbers 0.135.0, 0.136.0, 0.137.0, 0.138.0 and 0.139.0.
+    version: '0.135.0',
+    date: '2026-10-15',
+    title: 'Calm, training and bills',
+    lead: 'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.',
+    points: [
+      { text: 'Aktiv › Meditation with a look back, and a timer for anything else that keeps running on every page', href: '#/flow/act/meditation' },
+      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
+      { text: 'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link', href: '#/me/pay/invoices/new' },
+    ],
+    small: [
+      { box: 'new', text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
+      { box: 'new', text: '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due', href: '#/me/pay/bills' },
+      { box: 'nicer', text: 'One number for each thing: due, weighed and the weight of a trip are the same everywhere', href: '#/bikes?tab=care' },
+    ],
+    test: [
+      'Open Aktiv › Meditation; tap «Like last time» and stop the session.',
+      'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.',
+      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
+      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
+      'Compare the number in the menu with Bike care and Today: all three are the same.',
+      'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.',
+      'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.',
+      'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».',
+    ],
+  },
+  {
+    // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
+    // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
+    // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).
+    version: '0.134.0',
+    date: '2026-10-15',
+    title: 'Your app, your way',
+    lead: 'Collect your own inspiration, order your categories yourself and look up how every function works.',
+    points: [
+      { text: 'Inspiration: your own links, the kind comes from the address; a note becomes a packing rule', href: '#/inspiration' },
+      { text: 'Change categories yourself: rename, add, hide and order them under Me › Lists and types', href: '#/me/lists?categories' },
+      { text: 'Me › Handbook shows how to switch on every function; Small apps open Meditation, Packing list or Bike care on their own', href: '#/me/handbook' },
+    ],
+    small: [
+      { box: 'new', text: 'In Gear › Sort and filter, «Edit list» opens the categories right away.', href: '#/gear' },
+      { box: 'nicer', text: 'Hiking starts with a 15 L backpack instead of 30 L' },
+      { box: 'fixed', text: 'An empty app starts without bags; the mini bag and the cargo cage only come with the matching gear', href: '#/bikes' },
+    ],
+    test: [
+      'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.',
+      'On a card tap «What I take from it», write a short rule and choose «Packing rule».',
+      'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.',
+      'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.',
+      'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».',
+      'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».',
+      'Plan a hiking trip: the start backpack is 15 L.',
     ],
   },
   {

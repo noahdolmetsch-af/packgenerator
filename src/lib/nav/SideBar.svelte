@@ -11,9 +11,27 @@
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
-  import { Plus } from '@lucide/svelte';
+  import { Plus, Compass } from '@lucide/svelte';
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
+  // «Inspiration» UC2-1 (mockup): an entry under the five places, with «neu» until it was opened once
+  const INSP_SEEN = 'insp.seen';
+  const insp = $derived((hash || '').startsWith('#/inspiration'));
+  let seen = $state(false);
+  try {
+    seen = !!localStorage.getItem(INSP_SEEN);
+  } catch {
+    /* private mode: the «neu» stays */
+  }
+  $effect(() => {
+    if (!insp || seen) return;
+    seen = true;
+    try {
+      localStorage.setItem(INSP_SEEN, '1');
+    } catch {
+      /* private mode */
+    }
+  });
 </script>
 
 <aside class="side" aria-label={t('Places')}>
@@ -50,8 +68,17 @@
           </li>
         {/each}
       </ul>
+      <ul class="extra">
+        <li class:on={insp}>
+          <a class="pa" href="#/inspiration" aria-current={insp ? 'page' : undefined}>
+            <span class="pi"><Compass size={20} aria-hidden="true" /></span>
+            <span class="pn">{t('Inspiration')}</span>
+            {#if !seen}<span class="newp">{t('new|badge')}</span>{/if}
+          </a>
+        </li>
+      </ul>
     </nav>
-    <MeButton {inbox} current={place === 'me'} card />
+    <MeButton {inbox} current={place === 'me' && !insp} card />
   </div>
 </aside>
 
@@ -178,6 +205,19 @@
     color: var(--ink);
     font: 600 var(--fs-tiny) / 1.67 var(--font-body);
     text-align: center;
+  }
+  /* «Inspiration»: below the places, after a quiet line */
+  .extra {
+    margin-top: var(--sp-2);
+    padding-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .newp {
+    padding: 0 6px;
+    border-radius: 6px;
+    background: var(--warn-soft);
+    color: var(--ink);
+    font: 600 var(--fs-tiny) / 1.6 var(--font-body);
   }
   .tabs {
     margin: 2px 0 6px 44px;

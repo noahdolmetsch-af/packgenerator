@@ -1,5 +1,9 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
+  // v0.136.0 «Inhalte Flow» + «Wusstest du»
+  'Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.': 'Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
+  'At the end of the page: «What the app can do here» and the tiles «Next», with «+ Own link».': 'Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».',
+  'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
   'Tap «New» › «Day ride now», or the day ride tile on Today.': 'Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
@@ -189,6 +193,10 @@ export default {
   'Choose the files; check which bike each ride goes to.': 'Dateien wählen; prüfen, zu welchem Velo jede Fahrt kommt.',
   'Example: 40 rides from the export → 1850 km to the gravel bike.': 'Beispiel: 40 Fahrten aus dem Export → 1850 km zum Gravelbike.',
   'Connect Strava under Bikes › Care › Strava.': 'Strava verbinden unter Velos › Pflege › Strava.',
+  'Open Aktiv › Training: the week with your plan and the look back.': 'Öffne Aktiv › Training: die Woche mit deinem Plan und dem Rückblick.',
+  'Tap + on a day to plan a session with duration and zone.': 'Tippe bei einem Tag auf +, um eine Einheit mit Dauer und Zone zu planen.',
+  'Tap «Activities» and one activity: the minutes in each heart rate zone.': 'Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.',
+  'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.': 'Beispiel: Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.',
   'Tap «Connect Strava» and allow access.': 'Tippe «Strava verbinden» und erlaube den Zugriff.',
   'Match each Strava bike to a bike in the app.': 'Ordne jedes Strava-Velo einem Velo in der App zu.',
   'Example: Saturday’s ride on Strava → its 64 km land on the right bike by themselves.': 'Beispiel: die Samstagsfahrt auf Strava → ihre 64 km landen von selbst beim richtigen Velo.',
@@ -341,4 +349,32 @@ export default {
   'In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.': 'Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.',
   'Share a tour from komoot to the app and create it as a planned trip.': 'Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.',
   'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.': 'Beispiel: eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.',
+  // v0.134.0 «Inspiration»
+  'Open Inspiration (computer: sidebar; phone: Me › Inspiration) and paste your link.': 'Öffne Inspiration (Computer: Seitenleiste; Handy: Ich › Inspiration) und füge deinen Link ein.',
+  'Tap «What I take from it»: a packing rule, a wishlist item or a note.': 'Tippe auf «Das übernehme ich»: eine Packregel, ein Teil auf der Wunschliste oder eine Notiz.',
+  'A race gives a calendar file (.ics), a route a trip draft.': 'Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.',
+  'Example: a rig video with the note «spare brake pads» → a quiet hint while packing your next trip.': 'Beispiel: ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.',
+  // v0.134.0 «Listen und Typen»
+  'Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.': 'Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.',
+  'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.': 'Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.',
+  'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.': 'Beispiel: «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.',
+  // v0.135.0 «Meditation und Timer»
+  'Open Aktiv › Meditation › «Look back».': 'Öffne Aktiv › Meditation › «Rückblick».',
+  'Switch between week, month and year; filter by kind or template.': 'Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.',
+  'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.': 'Beispiel: Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.',
+  'Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.': 'Öffne die Timer-Seite, wähle eine Art und tippe «Start»; «Gross» zeigt nur noch die Uhr.',
+  'At the end a singing bowl; the log keeps every timer with an optional note.': 'Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.',
+  'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».': 'Beispiel: Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».',
+  'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
+  // 0.139.0 Rechnungen und Zu zahlen
+  'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.': 'Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.',
+  'Open Me › Payments › Invoices and tap «New QR invoice».': 'Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».',
+  'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.': 'Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.',
+  'When money arrives: «Paid», «Money received» or upload the bank statement.': 'Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.',
+  'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».': 'Beispiel: Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».',
+  'Nothing to switch on.': 'Nichts einzuschalten.',
+  'Open Me › Payments › Invoices › tab «To pay».': 'Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».',
+  'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
+  'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
+  'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
 };

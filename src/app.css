@@ -89,6 +89,11 @@
   --l2-soft: #f7ead2;
   --l3-soft: #dde9f5;
   --l4-soft: #ebe3f4;
+  --z1: #a9bccb; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #2f6b4f;
+  --z3: #d9a93a;
+  --z4: #d9792a;
+  --z5: #b8392b;
   --temp-scale: linear-gradient(90deg, #3f7fbf 0%, #2f9e8f 35%, #e3a43c 70%, #c7471d 100%);
   --fs-display: clamp(38px, 2.6vw + 26px, 64px);
 }
@@ -142,6 +147,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='gletscher'] {
@@ -191,6 +201,11 @@
   --l2-soft: #fbefd9;
   --l3-soft: #dfeaf5;
   --l4-soft: #ece5f5;
+  --z1: #a9bccb; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #2f6b4f;
+  --z3: #d9a93a;
+  --z4: #d9792a;
+  --z5: #b8392b;
 }
 :root[data-palette='gletscher'][data-theme='dark'] {
   color-scheme: dark;
@@ -239,6 +254,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='sandstein'] {
@@ -321,6 +341,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 
@@ -413,6 +438,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='fels'] {
@@ -501,6 +531,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='sand'] {
@@ -589,6 +624,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='gletscher-sanft'] {
@@ -677,6 +717,11 @@
   --l2-soft: #3a2c12;
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
+  --z1: #9fb6c9; /* «Training»: heart rate zones Z1–Z5 */
+  --z2: #5fae86;
+  --z3: #e0b84a;
+  --z4: #e88a3a;
+  --z5: #e0604f;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 

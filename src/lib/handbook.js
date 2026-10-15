@@ -296,6 +296,11 @@ export const HANDBOOK = {
     steps: ['Tap «Connect Strava» and allow access.', 'Match each Strava bike to a bike in the app.'],
     example: 'Example: Saturday’s ride on Strava → its 64 km land on the right bike by themselves.',
   },
+  'f.training': {
+    on: 'Connect Strava under Bikes › Care › Strava.',
+    steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
+    example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
+  },
   'f.velosetup': {
     on: 'Needs a bike under Bikes first.',
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],
@@ -311,10 +316,21 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
     example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
   },
+  'f.lists': {
+    on: null,
+    steps: ['Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.', 'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.'],
+    example: 'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
+  },
+  // v0.134.0 «Inspiration»
+  'f.inspiration': {
+    on: null,
+    steps: ['Open Inspiration (computer: sidebar; phone: Me › Inspiration) and paste your link.', 'Tap «What I take from it»: a packing rule, a wishlist item or a note.', 'A race gives a calendar file (.ics), a route a trip draft.'],
+    example: 'Example: a rig video with the note «spare brake pads» → a quiet hint while packing your next trip.',
   },
   'f.problem': {
     on: 'Needs a bike first: Bikes › «Add bike».',
@@ -402,6 +418,22 @@ export const HANDBOOK = {
     steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
     example: 'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.',
   },
+  // v0.135.0
+  'f.medreview': {
+    on: null,
+    steps: ['Open Aktiv › Meditation › «Look back».', 'Switch between week, month and year; filter by kind or template.'],
+    example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
+  },
+  'f.timer': {
+    on: null,
+    steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],
+    example: 'Example: Pomodoro 25/5 four times → the log shows «Today 4× · 1 h 40 min».',
+    },
+  'f.pagetips': {
+    on: null,
+    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here» and the tiles «Next», with «+ Own link».'],
+    example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
+  },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',
     steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
@@ -409,7 +441,7 @@ export const HANDBOOK = {
   },
   'f.meditation': {
     on: null,
-    steps: ['Open Active › Activity › Meditation.', 'Start like last time or from a template; choose the sounds.'],
+    steps: ['Open Aktiv › Meditation.', 'Start like last time or from a template; choose the sounds.'],
     example: 'Example: 10 min, gong at start and end, calm clock on the screen.',
   },
   'f.medlog': {
@@ -461,6 +493,16 @@ export const HANDBOOK = {
     on: 'Computer only: choose a folder under Me › Data and backup.',
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
+  },
+  'f.invoices': {
+    on: 'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.',
+    steps: ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.', 'When money arrives: «Paid», «Money received» or upload the bank statement.'],
+    example: 'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».',
+  },
+  'f.bills': {
+    on: 'Nothing to switch on.',
+    steps: ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
+    example: 'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.',
   },
   'f.tidy': {
     on: 'Only shows when something has «test» in its name.',
