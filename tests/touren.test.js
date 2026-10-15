@@ -1,6 +1,7 @@
 // v0.102.0 Design-Refresh P4 «Touren» (T1, T3): the pure helpers of the Touren pages, fictional data.
 import { describe, it, expect } from 'vitest';
 import { overviewCounts, weatherWindow, daysTo, weightByPlace } from '../src/lib/touren.js';
+import { tripStats } from '../src/lib/trips.js';
 
 describe('touren', () => {
   it('counts by the three trip states (v0.125.0 TZ-1)', () => {
@@ -24,14 +25,34 @@ describe('touren', () => {
     expect(weatherWindow({ days: [] }, '2026-10-12')).toBeNull();
   });
 
-  it('weight by place without food, heaviest first, with the heaviest item', () => {
+  it('weight by place: the places heaviest first, then food and water as their own row (v0.137.0 DK3), with the heaviest item', () => {
     const itemsById = { a: { id: 'a', weightG: 900 }, b: { id: 'b', weightG: 300 }, c: { id: 'c', weightG: 500, food: true }, d: { id: 'd', weightG: null } };
     const stats = { consumablesG: 500, zones: [{ key: 'seat', entries: [{ itemId: 'b', qty: 2 }, { itemId: 'c' }] }, { key: 'bar', entries: [{ itemId: 'a' }, { itemId: 'd' }] }, { key: 'frame', entries: [] }] };
     const w = weightByPlace(stats, itemsById, (i) => !!i.food);
-    expect(w.rows).toEqual([{ key: 'bar', g: 900, missing: 1 }, { key: 'seat', g: 600, missing: 0 }]);
-    expect(w.total).toBe(1500);
+    expect(w.rows).toEqual([{ key: 'bar', g: 900, missing: 1 }, { key: 'seat', g: 600, missing: 0 }, { key: 'food', g: 500, missing: 0 }]);
+    expect(w.total).toBe(2000);
     expect(w.missing).toBe(1);
     expect(w.heaviest.item.id).toBe('a');
     expect(w.food).toBe(500);
+  });
+
+  it('v0.137.0 (DK3, Noah 2a): the rows add up to the one trip weight: worn bags on me, food included', () => {
+    const items = [
+      { id: 'a', name: 'Tent', weightG: 900, category: 'shelter', ownership: 'owned' },
+      { id: 'c', name: 'Bar', weightG: 200, category: 'food', ownership: 'owned' },
+      { id: 'j', name: 'Jacket', weightG: 300, category: 'clothing', ownership: 'owned' },
+      { id: 'x', name: 'Lamp', weightG: null, category: 'electronics', ownership: 'owned' },
+    ];
+    const trip = { setup: {}, entries: [{ itemId: 'a', slot: 'mounted' }, { itemId: 'c', slot: 'mounted', qty: 2 }, { itemId: 'j', slot: 'body' }, { itemId: 'x', slot: 'body' }] };
+    const stats = tripStats(trip, items, [], null, 0);
+    expect(stats.packG).toBe(900 + 400 + 300);
+    expect(stats.packG).toBe(stats.gearG + stats.onMeG);
+    expect(stats.packG).toBe(stats.baseG + stats.wornG + stats.consumablesG);
+    expect(stats.packMissing).toBe(1);
+    const w = weightByPlace(stats, Object.fromEntries(items.map((i) => [i.id, i])), (i) => i.category === 'food');
+    expect(w.total).toBe(stats.packG);
+    expect(w.missing).toBe(stats.packMissing);
+    expect(w.rows.at(-1)).toEqual({ key: 'food', g: 400, missing: 0 });
+    expect(weightByPlace({ zones: [], wornBagsG: 250, wornBagsMissing: 0 }, {}).rows).toEqual([{ key: 'body', g: 250, missing: 0 }]);
   });
 });

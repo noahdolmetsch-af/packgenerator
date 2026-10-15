@@ -4,6 +4,21 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.137.0 Eine Zahl pro Sache (DK1 fällig, DK2 Material, DK3 Tour-Gewicht)
+  'One number for each thing': 'Eine Zahl pro Sache',
+  'Due, weighed and the weight of a trip now show the same number everywhere.': 'Fällig, gewogen und das Gewicht einer Tour zeigen jetzt überall dieselbe Zahl.',
+  'Gear: the head, the tile and the view «Unweighed» show the same weight and the same count': 'Material: Kopf, Kachel und Ansicht «Ungewogen» zeigen dasselbe Gewicht und dieselbe Zahl',
+  'A trip has one weight, all together with food and water: in its head and on the weight card': 'Eine Tour hat ein Gewicht, alles zusammen mit Essen und Wasser: im Kopf und auf der Gewichtskarte',
+  'Open Gear: the line under the title and the view «Unweighed» show the same number.': 'Öffne Material: Die Zeile unter dem Titel und die Ansicht «Ungewogen» zeigen dieselbe Zahl.',
+  'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.': 'Öffne eine Tour: Das Gewicht im Kopf ist die grosse Zahl der Gewichtskarte; Essen und Wasser ist eine eigene Zeile.',
+  'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both': 'Fällig heisst: ein Service ist fällig oder ein Problem muss vor der nächsten Fahrt behoben sein; die Velopflege zeigt beides',
+  'Bike care no longer says «nothing due» while a problem waits for the next ride': 'Die Velopflege sagt nicht mehr «nichts fällig», wenn ein Problem auf die nächste Fahrt wartet',
+  'The number in the menu counts the points due, the same as on Bikes and Today': 'Die Zahl im Menü zählt die fälligen Punkte, gleich wie bei Velos und Heute',
+  'Open Bikes › Care: under the title a line says what due means.': 'Öffne Velos › Pflege: Unter dem Titel steht eine Zeile, was fällig heisst.',
+  'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».': 'Melde bei einem Velo ein Problem mit «Vor der nächsten Fahrt»: Es steht in der Velopflege als fällig, mit «Erledigt».',
+  'Compare the number in the menu with Bike care and Today: all three are the same.': 'Vergleiche die Zahl im Menü mit Velopflege und Heute: Alle drei sind gleich.',
+  'Today: under the next trip a small line gives its whole weight with food, water and worn items': 'Heute: Unter der nächsten Tour gibt eine kleine Zeile ihr ganzes Gewicht mit Essen, Wasser und Getragenem',
+  'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.': 'Öffne Heute: Unter der nächsten Tour zeigt eine kleine Zeile «mit Essen, Wasser, Getragenem» dasselbe Gewicht wie der Tour-Kopf.',
   // 0.136.0 Inhalte Flow + Wusstest du
   'Good to know': 'Gut zu wissen',
   'Aktiv now tells you a little more: one tip a day, what the app can do there and where to go next.': 'Aktiv erzählt jetzt ein bisschen mehr: einen Tipp pro Tag, was die App dort kann und wohin es weitergeht.',

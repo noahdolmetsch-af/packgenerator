@@ -107,7 +107,7 @@ test('Tour planen: Strecke, Velo und Taschen, Gewicht, Etappen; «Einteilen» na
   for (const h of ['Route|map', 'Bike and bags', 'Weight', 'Stages|trip']) await expect(page.getByRole('heading', { level: 2, name: T(h), exact: true })).toBeVisible();
   // no route yet: the card says how to get one, the file stays on the device
   await expect(page.getByText(T('No route yet'))).toBeVisible();
-  await expect(page.getByText(T('without food and water'))).toBeVisible();
+  await expect(page.getByText(T('all together, with food and water'))).toBeVisible(); // v0.137.0 DK3: one weight, food included
   const stages = page.locator('section.sc');
   await expect(stages.locator('li')).toHaveCount(3);
 
