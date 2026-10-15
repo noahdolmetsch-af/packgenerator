@@ -48,6 +48,8 @@
   import Inspiration from './pages/Inspiration.svelte';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
+  import Lists from './pages/Lists.svelte';
+  import { listsReady } from './lib/listsready.svelte.js';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -315,7 +317,7 @@
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
-  {#key switchN}
+  {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'gearimport'}
@@ -399,6 +401,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <Inspiration />
+  {:else if page === 'lists'}
+    <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
+    {#key hash}<Lists />{/key}
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

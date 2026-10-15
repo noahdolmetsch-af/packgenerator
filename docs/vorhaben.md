@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.134.0 | Standard-Paket (alle Grundlisten in einem neutralen Verzeichnis) und «Listen und Typen»: Kategorien selber ändern (Ich › Listen und Typen) | PR offen (#159) |
 | 0.133.3 | **Inspiration sammeln** (UC2-1, UC2-2, UC2-4; Mockup-Freigabe: UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» vom 13.10.2026, Noah «3b» + «a», 4a, 5a): eigene Links mit Art aus der Adresse, aus der Notiz wird eine Packregel (Hinweis beim Packen), Wunschliste oder Notiz; Rennen → .ics, Route → Tourentwurf; Ziel 4 «Aus jeder Tour lernen» | lokal vorbereitet, PR folgt (Arbeitsnummer) |
 | 0.132.2 | Velo draussen ohne falschen Haken (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup): eine Tour für heute hakt «Velo draussen» erst nach dem Beenden ab, Antippen wirkt wieder; Touren ohne Velo (Wandern, Skitour, Reisen) zählen nicht als Velotour; Ziel 1 | live (#171) |
 | 0.132.1 | Langer Name passt (Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup): ein langer Tourname bricht bei «Tour beendet» in der Box um; Ziel 1 | live (#172) |

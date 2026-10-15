@@ -6,7 +6,7 @@
    * tinted, with the icon, «New in 0.110 · 13 days left», the name, one sentence and «Try it», «What is
    * new» and «Take away». After an update it sits on top of the wall for 14 days (Home.svelte,
    * wasneu.js pinNews); like every tile it can be moved, resized or taken away. Small: only the version.
-   * 0.133.3: in a narrow tile (half width on a phone) the text goes under the icon instead of beside it,
+   * 0.134.0: in a narrow tile (half width on a phone) the text goes under the icon instead of beside it,
    * so a long word in the title («Inspiration») is never broken mid-letter.
    */
   import { Sparkles, ChevronRight } from '@lucide/svelte';

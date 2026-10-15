@@ -86,6 +86,7 @@ const OWN = [
   { id: 'f.wardrobe', group: 'before', title: 'Wardrobe', text: 'Clothing by layer and zone; gaps go to the wishlist.', href: '#/wardrobe', words: 'kleiderschrank kleider schicht zone' },
   { id: 'f.kit', group: 'before', title: 'Save as a kit', text: 'Save an outfit as a kit; planning then suggests it.', href: '#/wardrobe', words: 'kit outfit speichern' },
   { id: 'f.lighter', group: 'before', title: 'Lighter alternatives', text: 'Open an item, then its weight: lighter things from your own gear.', href: '#/gear', words: 'leichter alternative gewicht' },
+  { id: 'f.lists', group: 'before', title: 'Your own categories', text: 'Me › Lists and types: rename categories, add your own, hide, delete, change the order.', href: '#/me/lists?categories', words: 'kategorie kategorien liste listen eigene umbenennen standard' },
   { id: 'f.select', group: 'before', title: 'Select many items', text: 'Category, bag, archive or a building block for many items at once.', href: '#/gear', words: 'auswählen mehrere viele' },
   { id: 'f.merge', group: 'before', title: 'Merge duplicates', text: '«Merge with …» at the bottom of an item joins two items into one.', href: '#/gear', words: 'doppelt zusammenlegen zusammenführen' },
   { id: 'f.blockcheck', group: 'before', title: 'Check building blocks', text: 'One block after the other: keep, out or elsewhere.', href: '#/blocks/check', words: 'bausteine prüfen aufräumen' },
@@ -98,7 +99,7 @@ const OWN = [
   { id: 'f.ridenote', group: 'onway', title: 'Note on the way', text: 'A note for the trip and the day; it lands in the debrief.', href: '#/ride', play: 'ride', words: 'notiz unterwegs' },
   { id: 'f.finish', group: 'onway', title: 'End the trip', text: 'Ends the trip, earlier too, with Undo; then the next step.', href: '#/ride', play: 'ride', words: 'tour beenden fertig' },
   // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
-  // v0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4): your own links, the kind from the address, a note becomes a packing rule
+  // v0.134.0 «Inspiration» (UC2-1, UC2-2, UC2-4): your own links, the kind from the address, a note becomes a packing rule
   { id: 'f.inspiration', group: 'before', title: 'Inspiration', text: 'Your own links to rigs, routes, videos and races; the kind comes from the address, a note becomes a packing rule.', href: '#/inspiration', words: 'inspiration links link rig route video packliste packregel wunschliste rennen kalender ics ideen' },
   { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip

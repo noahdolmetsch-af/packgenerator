@@ -89,6 +89,9 @@ const ROUTES = [
   ['#/me/analysis', 'Auswertung'],
   // «Inspiration» UC2-1: your own links (empty in this fixture), strict like its files
   ['#/inspiration', 'Inspiration'],
+  // v0.134.0 «Listen und Typen» (LI1, LI2): the overview and the list Kategorien, strict like their files
+  ['#/me/lists', 'Listen und Typen'],
+  ['#/me/lists?categories', 'Kategorien'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

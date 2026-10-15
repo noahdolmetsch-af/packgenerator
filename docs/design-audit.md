@@ -65,6 +65,7 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
+14.10.2026 (v0.134.0 «Listen und Typen»): neue Seiten Ich › Listen und Typen und Kategorien im Ich-Stil (ich.css), das Fenster «Kategorie bearbeiten» im Velo-Fensterstil (velo-dlg.css), kleiner Link «Liste bearbeiten» in Sortieren und filtern. Wächter streng für beide Seiten (0 Befunde, 320 bis 1440 px); auf dem Handy volle 44-px-Pfeile nebeneinander, das Auge im Fenster.
 14.10.2026 (v0.131.3 «Kamera-Knopf», Mockups K1–K4): neuer Baustein `src/lib/ui/PhotoPick.svelte` für Fotos (Handy: grüner Kameraknopf plus «Galerie», Computer: «Foto wählen»); er nutzt die bestehenden Knopfklassen `btn sm` und `btn sm hi`. Eingesetzt bei Werkstattbesuch, Notiz und «Ablegen als … Rechnungsbeleg»; die übrigen Fotostellen behalten ihren Knopf bis Noah entscheidet.
 14.10.2026 (v0.131.2 «Velo-Reihenfolge»): nur die Reihenfolge der bestehenden Velo-Reiter ändert, darum kein Audit.
 

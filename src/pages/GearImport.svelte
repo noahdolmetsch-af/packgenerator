@@ -33,7 +33,7 @@
   import { undoBulk } from '../lib/gear/bulk.js';
   import MergeSheet from '../lib/gear/MergeSheet.svelte';
   import { demoState } from '../lib/demo.js';
-  import { formatWeight, itemWeight, CATEGORIES, BAG } from '../lib/gear.js';
+  import { formatWeight, itemWeight, choosable, BAG } from '../lib/gear.js';
   import { domainName } from '../lib/domains.js';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -447,7 +447,7 @@
                   <li class="placebox" id="place-{r.key}">
                     <p class="plbl">{t('Category')}</p>
                     <div class="pick" role="group" aria-label={t('Category of {name}', { name: r.item.name })}>
-                      {#each CATEGORIES as c (c.key)}<button type="button" class="opt" aria-pressed={r.item.category === c.key} onclick={() => pickCat(r, c.key)}>{t(c.name)}</button>{/each}
+                      {#each choosable(r.item.category) as c (c.key)}<button type="button" class="opt" aria-pressed={r.item.category === c.key} onclick={() => pickCat(r, c.key)}>{t(c.name)}</button>{/each}
                     </div>
                     <p class="plbl">{t('Bag')}</p>
                     <div class="pick" role="group" aria-label={t('Bag of {name}', { name: r.item.name })}>

@@ -162,6 +162,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/abfragen') || /^#\/check(\/|\?|$)/.test(h)) return 'abfragen'; // AB1/AB5: Ich › Deine Abfragen; WG: the old check pages lead there (redirectOf)
   if (h.startsWith('#/me/history')) return 'history'; // AB4: Ich › Daten › Verlauf
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
+  if (h.startsWith('#/me/lists')) return 'lists'; // v0.134.0 «Listen und Typen» (LI1–LI4)
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   return 'home';
 }
@@ -256,7 +257,7 @@ export function placeOf(page) {
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists') return 'me';
   return null;
 }
 

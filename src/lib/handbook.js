@@ -311,12 +311,17 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.'],
     example: 'Example: «New tyres 45 mm» on 3 May → 420 km since, «calmer on gravel».',
   },
+  'f.lists': {
+    on: null,
+    steps: ['Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.', 'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.'],
+    example: 'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
   },
-  // v0.133.3 «Inspiration»
+  // v0.134.0 «Inspiration»
   'f.inspiration': {
     on: null,
     steps: ['Open Inspiration (computer: sidebar; phone: Me › Inspiration) and paste your link.', 'Tap «What I take from it»: a packing rule, a wishlist item or a note.', 'A race gives a calendar file (.ics), a route a trip draft.'],

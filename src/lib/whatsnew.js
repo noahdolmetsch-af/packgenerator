@@ -16,38 +16,31 @@
 
 export const WHATS_NEW = [
   {
-    // v0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4; mockups 13.10.2026, Noah «3b» + «a», 4a, 5a): your own links,
-    // the kind from the address, «Aus der Notiz wird …» (packing rule, wishlist, note), race → .ics, route → trip draft
-    version: '0.133.3',
+    // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
+    // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
+    // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).
+    version: '0.134.0',
     date: '2026-10-15',
-    title: 'Collect inspiration',
-    lead: 'Your own links to rigs, routes, videos and races in one place, and what you take from them goes into the app.',
+    title: 'Your app, your way',
+    lead: 'Collect your own inspiration, order your categories yourself and look up how every function works.',
     points: [
-      { text: 'Your own links: the app recognises the kind from the address, it loads nothing', href: '#/inspiration' },
-      { text: 'A note becomes a packing rule: a quiet hint while packing', href: '#/inspiration' },
-      { text: 'A race becomes a calendar file (.ics), a route a trip draft, a product a wishlist item', href: '#/inspiration' },
+      { text: 'Inspiration: your own links, the kind comes from the address; a note becomes a packing rule', href: '#/inspiration' },
+      { text: 'Change categories yourself: rename, add, hide and order them under Me › Lists and types', href: '#/me/lists?categories' },
+      { text: 'Me › Handbook shows how to switch on every function; Small apps open Meditation, Packing list or Bike care on their own', href: '#/me/handbook' },
     ],
-    small: [{ box: 'new', text: 'On a computer Inspiration sits in the sidebar, on the phone under Me' }],
+    small: [
+      { box: 'new', text: 'In Gear › Sort and filter, «Edit list» opens the categories right away.', href: '#/gear' },
+      { box: 'nicer', text: 'Hiking starts with a 15 L backpack instead of 30 L' },
+      { box: 'fixed', text: 'An empty app starts without bags; the mini bag and the cargo cage only come with the matching gear', href: '#/bikes' },
+    ],
     test: [
       'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.',
       'On a card tap «What I take from it», write a short rule and choose «Packing rule».',
       'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.',
-      ],
-    },
-    {
-    // v0.133.1 «Handbuch und Kleine Apps» (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben»)
-    version: '0.133.1',
-    date: '2026-10-14',
-    title: 'A handbook and small apps',
-    lead: 'Under Me you now find how every function is switched on, and the small apps with their own icon.',
-    points: [
-      { text: 'Handbook: every function with how to switch it on, the steps and an example', href: '#/me/handbook' },
-      { text: 'Small apps: open Meditation, Packing list or Bike care as their own app, same data', href: '#/me/apps' },
-    ],
-    small: [{ box: 'new', text: '«Take me there» in the handbook opens the function right away', href: '#/me/handbook' }],
-    test: [
+      'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.',
       'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».',
       'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».',
+      'Plan a hiking trip: the start backpack is 15 L.',
     ],
   },
   {

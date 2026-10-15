@@ -78,6 +78,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**14.10.2026, v0.134.0 «Standard-Paket» und «Listen und Typen»:** Schritt S4 aus «Daten einmal bereinigen» und die Kategorien änderbar (LI1–LI4 freigegeben). Danach (Noah «a»): jede weitere Liste als eigenes kleines Release (Sportarten, Taschenplätze, Fragen …), dann der Profil-Schalter unter Ich › Die App (4a), dann Menü und Seiten selber gestalten (M1–M3, noch ohne Fragen).
 **14.10.2026, v0.131.3 «Kamera-Knopf»:** Belegfoto mit einem Tipp: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt (Mockups K1–K4).
 **14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
 

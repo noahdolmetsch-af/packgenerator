@@ -28,7 +28,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -215,6 +215,14 @@
             <a class="ich-row" href="#/me/apps">
               <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- v0.134.0 «Listen und Typen» (LI1): the app's lists, changeable -->
+            <a class="ich-row" href="#/me/lists">
+              <span class="ich-ib"><ListTree size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Lists and types')}</b><small>{t('Rename, add, hide, order')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

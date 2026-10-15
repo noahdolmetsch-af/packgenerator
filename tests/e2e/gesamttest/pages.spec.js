@@ -56,6 +56,10 @@ const CASES = [
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, and its editor open
   { id: 'me-checks', hash: '#/me/checks?ski' },
   { id: 'me-checks-edit', hash: '#/me/checks?ski', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Adjust: {name}', { name: T('The evening before') }) })) },
+  // v0.134.0 «Listen und Typen» (LI1–LI3): the overview, the list Kategorien and the window of one entry
+  { id: 'me-lists', hash: '#/me/lists' },
+  { id: 'me-lists-categories', hash: '#/me/lists?categories' },
+  { id: 'me-lists-entry', hash: '#/me/lists?categories', act: async (page, T) => tap(page.locator('main li[data-id]').first().getByRole('button', { name: new RegExp(`^${T('Edit: {name}', { name: '' })}`) })) },
   { id: 'features', hash: '#/features' },
   // «Inspiration» UC2-1: your own links (empty in the big data set) and «Link hinzufügen» with a recognised link (UC2-4)
   { id: 'inspiration', hash: '#/inspiration' },

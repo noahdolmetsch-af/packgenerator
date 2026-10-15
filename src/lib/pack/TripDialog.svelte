@@ -20,7 +20,7 @@
   import { coldLayer } from '../layers.js';
   import { searchPlace } from '../weather.js';
   import { catIcon } from '../gear/caticon.js';
-  import { isInventory, knownWeight, formatWeight, CATEGORY } from '../gear.js';
+  import { isInventory, knownWeight, formatWeight, STD_CATEGORIES } from '../gear.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
@@ -349,7 +349,7 @@
   const total = $derived(packList ? packList.bag : 0);
   // v0.114.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
   const raceItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('race') && !skip.has(i.id)));
-  const RACE_COLOR = CATEGORY.cook.color;
+  const RACE_COLOR = STD_CATEGORIES.find((c) => c.key === 'cook').color;
   const raceW = $derived(entriesWeight(raceItems.map((i) => ({ itemId: i.id, qty: 1 })), items));
 
   /* ---------- v0.77.0 (answer 1a): «Frag den Helfer» ---------- */
