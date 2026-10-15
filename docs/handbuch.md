@@ -575,7 +575,7 @@ Fehlendes schlägt ähnliche Teile vor oder kommt auf die Wunschliste.
 
 Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
 
-**Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App.
+**Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App oder die CSV-Liste von Strava oder Garmin.
 
 1. Tippe «Neu» › «Fahrt hochladen», oder Touren › Rückblick. Mehrere Dateien auf einmal gehen auch.
 2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.

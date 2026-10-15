@@ -6,7 +6,8 @@ import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';
-import { ready } from './settle.js';
+import { ready, importAndSettle } from './settle.js';
+import { v038Data, P } from './v038-fixture.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -111,5 +112,83 @@ test('first GPX upload: one way, what happens, saved card, counted once, route o
   await page.goto('./#/debrief');
   await expect(main.getByText(T('Nothing to look back on yet.'))).toHaveCount(0);
   await shot(page, info, 'G8-rueckblick', false);
+  expect(errors).toEqual([]);
+});
+
+// R3 (Noah 15.10.2026 «5a»): one way «Fahrt hochladen» for GPX, TCX and CSV. The trip's look back has no own
+// import any more; a CSV list puts the km into the trip's look back and goes on to the km per bike.
+test('one way for GPX, TCX and CSV: the list fills the trip km and goes on to the bikes', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('dialog', (d) => d.accept());
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => {
+    localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  // the summer trip's look back is still open (a draft without km); the autumn one is finished
+  const data = v038Data();
+  const open = data.tables.debriefs.find((x) => x.tripId === `${P}sommer`);
+  Object.assign(open, { status: 'draft', km: null });
+  const fixture = info.outputPath('gpxweg-csv.json');
+  writeFileSync(fixture, JSON.stringify(data));
+  await page.goto('./');
+  await importAndSettle(page, fixture);
+  const main = page.locator('main');
+  const sommer = `${P}sommer`;
+  const csv = info.outputPath('test_data_gtp_activities.csv');
+  writeFileSync(
+    csv,
+    [
+      'Activity ID,Activity Date,Activity Name,Activity Type,Distance',
+      `1,${day(-90)} 07:00:00,test_data_gtp_ Tag eins,Ride,50.4`,
+      `2,${day(-89)} 07:30:00,test_data_gtp_ Tag zwei,Gravel Ride,44.6`,
+      `3,${day(-89)} 18:00:00,test_data_gtp_ Lauf,Run,6.0`,
+      `4,${day(-10)} 08:00:00,test_data_gtp_ Feierabend,Ride,30.0`,
+      `5,${day(-365)} 09:00:00,test_data_gtp_ Herbst,Ride,70.0`,
+    ].join('\n'),
+  );
+
+  // the trip's look back: one row «Fahrt hochladen», no file input of its own
+  await page.goto(`./#/debrief/${encodeURIComponent(sommer)}`);
+  await ready(page);
+  const row = main.locator('[data-upload-row]');
+  await expect(row).toContainText(T('Upload ride'));
+  await expect(row).toContainText(T('GPX, TCX or CSV from Strava or Garmin: the km of this trip, pauses, planned vs real'));
+  await expect(main.locator('#upload-h').locator('xpath=../../..').locator('input[type=file]')).toHaveCount(0);
+  await noSideways(page);
+  await shot(page, info, 'G9-rueckblick-tour-ein-weg');
+  await row.click();
+  await expect(page).toHaveURL(/#\/debrief\/ride$/);
+
+  // the upload takes the CSV: one card, the km of the trip, why it does not count for the pace
+  await expect(main.locator('.pickbtn input[type=file]')).toHaveAttribute('accept', /\.csv/);
+  await main.locator('[data-where-from] summary').click();
+  await expect(main.locator('[data-where-from]')).toContainText('activities.csv');
+  await main.locator('.pickbtn input[type=file]').setInputFiles(csv);
+  const card = main.locator('[data-list-card]');
+  await expect(card).toContainText(T('List read: {n} rides', { n: 4 }));
+  await expect(card).toContainText(T('{n} ride, {km} km. Its look back is finished, so its km stay as they are.', { n: 1, km: 70 }));
+  await expect(card).toContainText(`${P} Sommertour`);
+  await expect(card).toContainText(T('{n} rides, {km} km: in the look back of this trip.', { n: 2, km: 95 }));
+  await expect(card).toContainText(T('{n} ride on a day without a trip: not counted here.', { n: 1 }));
+  await expect(card).toContainText(T('a list has no track and no times, so it does not count. For your pace upload the ride as GPX.'));
+  await noSideways(page);
+  await shot(page, info, 'G10-liste-gelesen');
+
+  // the trip's look back has the km now
+  await card.getByRole('link', { name: T('To Look back') }).click();
+  await page.goto(`./#/debrief/${encodeURIComponent(sommer)}`);
+  await expect(page).toHaveURL(new RegExp(`#/debrief/${sommer}$`));
+  await expect(main.getByLabel(T('km of this trip'))).toHaveValue('95');
+  await expect(main.locator('[data-upload-row]')).toContainText(T('{n} rides', { n: 2 }));
+
+  // and on to the km per bike, without choosing the file again
+  await page.goto('./#/debrief/ride');
+  await main.locator('.pickbtn input[type=file]').setInputFiles(csv);
+  await main.locator('[data-list-card]').getByRole('button', { name: T('Also for the km of my bikes') }).click();
+  await expect(page).toHaveURL(/#\/bikes\?tab=care&view=import/);
+  await expect(main).toContainText('test_data_gtp_activities.csv');
+  await shot(page, info, 'G11-weiter-zu-velo-km');
   expect(errors).toEqual([]);
 });

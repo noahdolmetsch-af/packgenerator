@@ -28,6 +28,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'new', text: 'Several ride files at once; a planned route offers «Use as route for a trip»', href: '#/debrief/ride' },
       { box: 'fixed', text: 'The same ride uploaded twice counts once for your pace', href: '#/debrief/pace' },
+      { box: 'nicer', text: 'GPX, TCX and the CSV list of Strava or Garmin all go through «Upload ride»; a list fills the km of your trips', href: '#/debrief/ride' },
     ],
     test: [
       'Trips › Look back › Your pace: the box «How «Your pace» works» shows on top; tap «Upload ride».',

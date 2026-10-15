@@ -9,6 +9,8 @@ export default {
   'Uploading a ride now says what happens before and after, and the same ride counts only once.': 'Beim Hochladen einer Fahrt steht jetzt, was vorher und nachher passiert, und dieselbe Fahrt zählt nur einmal.',
   'Every «Upload ride» is the same way: check the file, see what saving does, land on the ride with «Ride saved»': 'Jedes «Fahrt hochladen» geht gleich: Datei prüfen, sehen was Speichern macht, auf der Fahrt landen mit «Fahrt gespeichert»',
   'Your pace explains itself on top and says the standard rule plainly until your own rule counts': 'Dein Tempo erklärt sich oben selbst und sagt die Standardregel klar, bis deine eigene Regel zählt',
+  'GPX, TCX and the CSV list of Strava or Garmin all go through «Upload ride»; a list fills the km of your trips':
+    'GPX, TCX und die CSV-Liste von Strava oder Garmin gehen alle über «Fahrt hochladen»; eine Liste füllt die km deiner Touren',
   'Several ride files at once; a planned route offers «Use as route for a trip»': 'Mehrere Fahrt-Dateien auf einmal; eine geplante Route bietet «Als Route für eine Tour nutzen» an',
   'The same ride uploaded twice counts once for your pace': 'Dieselbe Fahrt zweimal hochgeladen zählt nur einmal für dein Tempo',
   'Trips › Look back › Your pace: the box «How «Your pace» works» shows on top; tap «Upload ride».': 'Touren › Rückblick › Dein Tempo: oben steht «So funktioniert «Dein Tempo»»; tippe «Fahrt hochladen».',
