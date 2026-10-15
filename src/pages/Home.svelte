@@ -751,7 +751,13 @@
     const p = packedOf(near, itemsById, nameOf);
     return { title: near.title, href: stepHere(near).href, packed: p ? { packed: p.packed, of: p.of } : null };
   });
-  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : tripUp(hideTiles(wall, hiddenTiles), !!near));
+  // 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 «4a»): Im Flow with the balance right after it is one card over the
+  // whole row; while customising they are two tiles again (each moves, resizes and goes on its own)
+  const joinFlow = (list) => {
+    const i = list.findIndex((x) => x.id === 'flow');
+    return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
+  };
+  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, hiddenTiles), !!near)));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1036,7 +1042,12 @@
   {#if x.id === 'trip'}
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
-  {:else if x.id === 'flow'}<FlowCard {today} round={!onWall.has('daycard')} />
+  {:else if x.id === 'flow'}
+    {#if x.join}
+      <!-- 4a: the balance inside; its own data-tile so a long press on it customises the balance -->
+      {#snippet balAside()}<div class="joined" data-tile="balance" data-size={x.join}><BalanceTile {today} size="l" isnew={newTile('balance')} {bikes} {tripsDone} bare /></div>{/snippet}
+      <FlowCard {today} round={!onWall.has('daycard')} aside={balAside} />
+    {:else}<FlowCard {today} round={!onWall.has('daycard')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />

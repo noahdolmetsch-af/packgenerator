@@ -40,7 +40,10 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await shot(page, info, 'A-Kachel-Wand');
 
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
-  for (const x of SHOWN) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', x.size);
+  // 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 «4a», changed on purpose): Im Flow with the balance after it is
+  // one card over the whole row; the balance inside keeps its size for customising
+  const joined = (x, i) => x.id === 'flow' && SHOWN[i + 1]?.id === 'balance';
+  for (const [i, x] of SHOWN.entries()) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
   // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
   // Important today now, the two open notes stay a number)
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');

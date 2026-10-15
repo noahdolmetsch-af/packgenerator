@@ -11,12 +11,18 @@
    * inspiration (the gentle tip of the weakest area, CATS[].tip; the link «Mehr Ideen» waits for the own
    * ideas of 0.158.0 and stays hidden), the next milestone and the body (resting pulse from «Wi gaht's?»,
    * active zone minutes with Fitbit). Without any value (release analysis D8): no empty ring, one quiet line.
+   * 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 21:46 «1-5a»): 1a on a phone the 9 names in full, in two
+   * columns; 2a a piece without content stays away (no challenge, no pulse, no tip, no milestone; the zone
+   * minutes come back with Fitbit); 4a `bare`: inside the one card with Im Flow (FlowBalance.svelte), without
+   * its own frame and head; 5a a tap on the tip takes it as today's goal («Wi gaht's?» ziele.ziel), a second
+   * tap takes it back.
    */
   import { liveQuery } from 'dexie';
-  import { Activity, ChevronRight, Trophy, Lightbulb, Star, HeartPulse } from '@lucide/svelte';
+  import { Activity, ChevronRight, Trophy, Lightbulb, Star, HeartPulse, Check, Target } from '@lucide/svelte';
   import { db } from '../db.js';
   import { balanceQuery } from '../flow/data.svelte.js';
-  import { abQuery } from '../abdb.js';
+  import { abQuery, putAnswer, deleteAnswer } from '../abdb.js';
+  import { QUESTION, answerRow, lastAnswer, stampOf } from '../abfragen.js';
   import { balance, ringPaths, CATS, CAT } from '../balance.js';
   import { CHALLENGES_KEY, suggestKey } from '../challenge.js';
   import { nextMilestone } from './bausteine.js';
@@ -24,7 +30,7 @@
   import { phone } from '../media.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
-  let { today, size = 'l', isnew = false, bikes = [], tripsDone = 0 } = $props();
+  let { today, size = 'l', isnew = false, bikes = [], tripsDone = 0, bare = false } = $props();
   const q = $derived(balanceQuery(today));
   const data = $derived($q);
   const b = $derived(data ? balance({ ...data, today }) : null);
@@ -60,6 +66,20 @@
   const abq = $derived(abQuery(today));
   const body = $derived(bodyNow($abq?.answers ?? [], today));
   const tip = $derived(b?.least ? CAT[b.least] : null);
+  // 5a: the tip as today's goal (the goal of «Wi gaht's?»), and back
+  const goal = $derived(lastAnswer(($abq?.answers ?? []).filter((a) => a.day === today), 'ziele.ziel'));
+  const taken = $derived(!!tip && goal?.value === t(tip.tip));
+  let busy = $state(false);
+  async function takeTip() {
+    if (!tip || busy) return;
+    busy = true;
+    try {
+      if (taken) await deleteAnswer(goal.id);
+      else await putAnswer(answerRow(QUESTION['ziele.ziel'], t(tip.tip), { at: stampOf(), day: today }));
+    } finally {
+      busy = false;
+    }
+  }
   /** 7 values as a quiet line without axes (the resting pulse). */
   function spark(vals, w = 64, h = 20) {
     if (vals.length < 2) return '';
@@ -70,13 +90,13 @@
   const line = $derived(spark(body.days));
 </script>
 
-<section class="bl surf {size}" aria-labelledby="bl-h" data-section="balance" data-empty={empty || undefined}>
-  <div class="hd">
+<section class="bl {size}" class:surf={!bare} class:bare aria-labelledby="bl-h" data-section="balance" data-empty={empty || undefined}>
+  <div class="hd" class:sr={bare}>
     <span class="ico" aria-hidden="true"><Activity size={16} /></span>
     <h2 id="bl-h">{t('Your balance')}</h2>
     <span class="sd">{t('last 7 days')}</span>
     {#if isnew}<span class="nw">{t('new|tile')}</span>{/if}
-    <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.4} /></a>
+    {#if !bare}<a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.4} /></a>{/if}
   </div>
   {#if b && !empty}
     <div class="top">
@@ -101,45 +121,46 @@
     <!-- release analysis D8: no big empty ring with «–»; one quiet line instead -->
     <p class="calm" data-balance-empty>{t('Your balance fills by itself as soon as you answer «Wi gaht\'s?» or tick something in Aktiv.')}</p>
   {/if}
+  <!-- 2a: only the pieces with something to say -->
+  {#if ch || tip || ms || body.pulse != null}
   <ul class="pcs">
+    {#if ch}
     <li class="pc" data-pc="challenge">
       <span class="k"><Trophy size={14} aria-hidden="true" />{t('Challenge')}</span>
-      {#if ch}
-        <b class="v">{t(ch.what)} <span class="n num">{ch.n}/{ch.times}</span></b>
-        <span class="br" aria-hidden="true"><i style:width="{Math.round((ch.n / ch.times) * 100)}%"></i></span>
-        <span class="su">{t('until {day}', { day: untilWord(ch.until) })}</span>
-      {:else}
-        <span class="su q">{t('None running. Set one on «Swim or sauna?».')}</span>
-      {/if}
+      <b class="v">{t(ch.what)} <span class="n num">{ch.n}/{ch.times}</span></b>
+      <span class="br" aria-hidden="true"><i style:width="{Math.round((ch.n / ch.times) * 100)}%"></i></span>
+      <span class="su">{t('until {day}', { day: untilWord(ch.until) })}</span>
     </li>
-    <li class="pc" data-pc="inspiration">
-      <span class="k"><Lightbulb size={14} aria-hidden="true" />{t('Inspiration')}</span>
-      {#if tip}
+    {/if}
+    {#if tip}
+    <li class="pc tipc" data-pc="inspiration">
+      <button type="button" class="tipb" aria-pressed={taken} disabled={busy} onclick={takeTip} data-tip-goal>
+        <span class="k"><Lightbulb size={14} aria-hidden="true" />{t('Inspiration')}</span>
         <b class="v t">{t(tip.tip)}</b>
         <span class="su">{t('{area} has the least', { area: t(tip.label) })}</span>
-      {:else}
-        <span class="su q">{t('An idea comes once three areas have a value.')}</span>
-      {/if}
+        <span class="gl">{#if taken}<Check size={14} aria-hidden="true" />{t('Your goal for today · tap to take it back')}{:else}<Target size={14} aria-hidden="true" />{t('Take as goal for today')}{/if}</span>
+      </button>
       <!-- «Mehr Ideen ›» (HN4b 2b) waits for the own ideas list of 0.158.0 -->
     </li>
+    {/if}
+    {#if ms}
     <li class="pc" data-pc="milestone">
       <span class="k"><Star size={14} aria-hidden="true" />{t('Milestone')}</span>
-      {#if ms}
-        <b class="v num">{#if ms.kind === 'bike'}{num(ms.left)} km <span class="n">{t('to {at}', { at: num(ms.at) })}</span>{:else}{tn(ms.left, 'One more trip', '{n} more trips')}{/if}</b>
-        <span class="br" aria-hidden="true"><i style:width="{Math.round(ms.share * 100)}%"></i></span>
-        <span class="su">{ms.kind === 'bike' ? ms.bike : t('to your {at}th trip', { at: num(ms.at) })}</span>
-      {:else}
-        <span class="su q">{t('Your first ride or trip starts the count.')}</span>
-      {/if}
+      <b class="v num">{#if ms.kind === 'bike'}{num(ms.left)} km <span class="n">{t('to {at}', { at: num(ms.at) })}</span>{:else}{tn(ms.left, 'One more trip', '{n} more trips')}{/if}</b>
+      <span class="br" aria-hidden="true"><i style:width="{Math.round(ms.share * 100)}%"></i></span>
+      <span class="su">{ms.kind === 'bike' ? ms.bike : t('to your {at}th trip', { at: num(ms.at) })}</span>
     </li>
+    {/if}
+    {#if body.pulse != null}
     <li class="pc" data-pc="body">
       <span class="k"><HeartPulse size={14} aria-hidden="true" />{t('Body')}</span>
-      <span class="kr"><span class="kl">{t('Resting pulse')}</span><b class="v num">{body.pulse ?? '–'}{#if body.pulse}<span class="n"> /min</span>{/if}</b>{#if line}<svg class="sp" width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><polyline points={line} /></svg>{/if}</span>
+      <span class="kr"><span class="kl">{t('Resting pulse')}</span><b class="v num">{body.pulse}<span class="n"> /min</span></b>{#if line}<svg class="sp" width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><polyline points={line} /></svg>{/if}</span>
       {#if body.lo != null && body.hi !== body.lo}<span class="su num">{t('7 days: {lo}–{hi}', { lo: body.lo, hi: body.hi })}</span>{/if}
-      <span class="kr"><span class="kl">{t('Active zone min.')}</span><b class="v num">–<span class="n"> / 150</span></b></span>
-      <span class="su q">{t('comes with Fitbit; the pulse you can type in «Wi gaht\'s?»')}</span>
+      <!-- the active zone minutes come back here with Fitbit (2a: no empty «–» until then) -->
     </li>
+    {/if}
   </ul>
+  {/if}
 </section>
 
 <style>
@@ -151,6 +172,17 @@
     padding: 14px 18px 16px;
     box-sizing: border-box;
     color: var(--ink);
+  }
+  .bl.bare {
+    padding: 0;
+  }
+  .hd.sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .hd {
     display: flex;
@@ -267,6 +299,10 @@
     padding: 0;
     list-style: none;
   }
+  /* an odd last piece takes the whole row, nothing sits alone beside a gap */
+  .pc:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .pc {
     display: flex;
     flex-direction: column;
@@ -275,6 +311,44 @@
     padding: 10px 12px;
     border-radius: var(--r-ctl);
     background: var(--paper-2);
+  }
+  .tipc {
+    padding: 0;
+  }
+  .tipb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tipb:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .tipb[aria-pressed='true'] {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  .gl {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+    color: var(--accent);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .gl :global(svg) {
+    flex: none;
   }
   .k {
     display: flex;
@@ -357,6 +431,15 @@
     }
     .least {
       display: none;
+    }
+    /* 1a: the 9 names in full, in two columns */
+    .lg {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px 10px;
+    }
+    .lg span {
+      overflow: visible;
+      white-space: normal;
     }
     .pcs {
       grid-template-columns: minmax(0, 1fr);

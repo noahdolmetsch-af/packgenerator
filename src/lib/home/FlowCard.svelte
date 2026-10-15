@@ -10,6 +10,9 @@
    * evening round time the evening round with the satisfaction of «Wi gaht's?».
    * 0.155.0 HN4 (release analysis D3, «Morgen-Runde» three times on Heute): with the day card on the wall the
    * round lives there only; round={false} leaves the row out here. Without the day card it is here as before.
+   * 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 21:46 «1-5a»): 4a with `aside` (the balance) one card with
+   * one head «Im Flow + Balance»: on a computer Im Flow left and the balance right, on a phone one under the
+   * other. 3a the help line under the grid only the first 5 times Heute shows it (localStorage, per device).
    */
   import { ChevronRight, Sun, Moon, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
@@ -23,8 +26,22 @@
   import { phone } from '../media.svelte.js';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
+  import { onMount } from 'svelte';
 
-  let { today, round = true } = $props();
+  let { today, round = true, aside = null } = $props();
+  // 3a: the help line «Tippen hakt ab …» the first 5 times, then it has done its job
+  const HELP_KEY = 'flowTickHelpSeen';
+  const HELP_TIMES = 5;
+  let help = $state(true);
+  onMount(() => {
+    try {
+      const n = Number(localStorage.getItem(HELP_KEY)) || 0;
+      help = n < HELP_TIMES;
+      if (help) localStorage.setItem(HELP_KEY, String(n + 1));
+    } catch {
+      /* no storage: the line stays */
+    }
+  });
   const q = $derived(flowQuery(today));
   const data = $derived($q);
   $effect(() => {
@@ -52,20 +69,21 @@
 </script>
 
 {#if data && states.length}
-  <section class="fc surf" data-section="flow" aria-labelledby="fc-h">
+  <section class="fc surf" class:join={!!aside} data-section="flow" aria-labelledby="fc-h">
     <div class="hd">
-      <h2 id="fc-h" class="sh">{t('In the flow')}</h2>
+      <h2 id="fc-h" class="sh">{aside ? t('In the flow + balance') : t('In the flow')}</h2>
       <span class="quiet hq">{t('last 7 days')}</span>
       <!-- KT (1b): the head is a way in too; for screen readers and the keyboard the same link «Im Flow ›»
            waits below, so this one is a tap shortcut only (no second link of the same name) -->
       <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')} data-head-go><ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" /></a>
     </div>
+    <div class="jn"><div class="main">
     <div class="body">
       <div class="rg"><Rings {rings} size={phone.matches ? 104 : 120} compact /></div>
       <div class="now">
         {#if openToday.length}
           <p class="kick">{t('Still today')}</p>
-          <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} help />
+          <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} {help} />
         {/if}
         {#if !round}
           <!-- HN4: the round is in the day card -->
@@ -105,6 +123,7 @@
         {/if}
       {/if}
     </div>
+    </div>{#if aside}<div class="aside">{@render aside()}</div>{/if}</div>
   </section>
 {/if}
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
@@ -118,6 +137,51 @@
   @media (max-width: 719px) {
     .fc {
       padding: 14px 14px;
+    }
+  }
+  /* 4a on a phone: the longer title on its own, «letzte 7 Tage» in a small line under it */
+  @media (max-width: 719px) {
+    .join .hd {
+      flex-wrap: wrap;
+      row-gap: 0;
+    }
+    .join .sh {
+      flex: 1;
+      min-width: 0;
+    }
+    .join .hq {
+      order: 3;
+      flex-basis: 100%;
+      margin-left: 0;
+    }
+  }
+  .main {
+    min-width: 0;
+    container-type: inline-size;
+  }
+  .jn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .aside {
+    min-width: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  /* 4a: side by side once the card is wide (a whole row on a computer) */
+  @container (min-width: 900px) {
+    .jn {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0;
+    }
+    .main {
+      padding-right: 22px;
+    }
+    .aside {
+      padding: 0 0 0 22px;
+      border-top: 0;
+      border-left: 1px solid var(--line);
     }
   }
   .hd {

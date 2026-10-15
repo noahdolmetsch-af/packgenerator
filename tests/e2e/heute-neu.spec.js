@@ -30,7 +30,7 @@ const share = (loc) => loc.evaluate((el) => (el.getBoundingClientRect().top + wi
 test('morning: meditation, day card Morgen, Important today in one line, the HN4 order; the round once; Quick start high', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await openHome(page, context, info, { data: noTripTomorrow(), hour: 8 });
+  const T = await openHome(page, context, info, { data: noTripTomorrow(), hour: 8 });
   await expect(page.locator('[data-daycard]')).toHaveAttribute('data-part', 'morning');
 
   // the wall in the order of HN4 (the helper is hidden while the AI helper is off)
@@ -59,18 +59,27 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
   await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/me/abfragen');
   await expect(page.locator('main').getByText(/Morgen-Runde|Morning round/)).toHaveCount(1);
 
-  // release analysis D8: no answers yet: no ring with «–», one quiet line; the four pieces are there
+  // release analysis D8: no answers yet: no ring with «–», one quiet line
   const bal = page.locator('[data-section="balance"]');
   await expect(bal.locator('[data-balance-empty]')).toBeVisible();
   await expect(bal.locator('svg.ring')).toHaveCount(0);
-  for (const pc of ['challenge', 'inspiration', 'milestone', 'body']) await expect(bal.locator(`[data-pc="${pc}"]`)).toBeVisible();
+  // «Im Flow + Balance» 2a (Noah 15.10.2026 «1-5a», changed on purpose): a piece without content stays away;
+  // the milestone of the fixture's bikes is there
+  await expect(bal.locator('[data-pc="milestone"]')).toBeVisible();
+  for (const pc of ['challenge', 'inspiration', 'body']) await expect(bal.locator(`[data-pc="${pc}"]`), pc).toHaveCount(0);
   await expect(bal.getByText(/Mehr Ideen/)).toHaveCount(0); // waits for 0.158.0
 
-  // Im Flow and the balance side by side on a computer
+  // 4a: Im Flow and the balance one card with one head, over the whole row; on a computer side by side
+  const fb = page.locator('.wall > [data-tile="flow"]');
+  await expect(fb).toHaveAttribute('data-size', 'long');
+  await expect(fb.getByRole('heading', { name: T('In the flow + balance') })).toBeVisible();
+  await expect(fb.locator('[data-tile="balance"] [data-section="balance"]')).toBeVisible();
+  await expect(page.locator('.wall > [data-tile="balance"]')).toHaveCount(0);
   if (info.project.name === 'desktop') {
-    const f = await page.locator('[data-tile="flow"]').boundingBox();
-    const b = await page.locator('[data-tile="balance"]').boundingBox();
+    const f = await fb.locator('.main').boundingBox();
+    const b = await fb.locator('.aside').boundingBox();
     expect(Math.abs(f.y - b.y)).toBeLessThan(2);
+    expect(b.x).toBeGreaterThan(f.x + f.width - 2);
   }
 
   // Aktiv over the whole row, without resting pulse and zone minutes (HN4b 3a); the shortcuts lead into Aktiv
@@ -162,4 +171,55 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   expect(bb.x + bb.width).toBeLessThanOrEqual(tb.x + tb.width + 0.5);
   expect(await btn.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
   expect(D0).toBe('2026-10-09');
+});
+
+test('Im Flow + Balance (1-5a): full names, the tip as today\'s goal and back, the tap help 5 times', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = noTripTomorrow();
+  const vals = { erholung: 7, spass: 6, sport: 8, achtsamkeit: 3, freunde: 5, natur: 7, visionen: 4, ziele: 6, erreicht: 7 };
+  data.tables.abAnswers = Object.entries(vals).map(([area, value]) => ({ id: `test_data_gtp_ab_${area}`, qid: `${area}.demo`, area, day: D0, at: `${D0}T08:00`, slot: null, kind: 'scale', value, note: null, unit: null, src: 'hand' }));
+  const T = await openHome(page, context, info, { data, hour: 13 });
+  const bal = page.locator('[data-section="balance"]');
+  await expect(bal.locator('svg.ring')).toBeVisible();
+
+  // 1a: every name of the 9 areas in full (also on a phone)
+  const names = bal.locator('.lg li span');
+  await expect(names).toHaveCount(9);
+  for (const el of await names.all()) expect(await el.evaluate((x) => x.scrollWidth <= x.clientWidth + 1)).toBe(true);
+
+  // 5a: a tap on the tip takes it as today's goal («Wi gaht's?»), a second tap takes it back
+  const tip = bal.locator('[data-tip-goal]');
+  await expect(tip).toContainText(T('Ten minutes of meditation?'));
+  await expect(tip).toHaveAttribute('aria-pressed', 'false');
+  await tip.click();
+  await expect(tip).toHaveAttribute('aria-pressed', 'true');
+  await expect(tip).toContainText(T('Your goal for today · tap to take it back'));
+  const goals = () =>
+    page.evaluate(async () => {
+      const req = indexedDB.open('pack-generator');
+      const db = await new Promise((r) => (req.onsuccess = () => r(req.result)));
+      const rows = await new Promise((r) => {
+        const q = db.transaction('abAnswers').objectStore('abAnswers').getAll();
+        q.onsuccess = () => r(q.result);
+      });
+      db.close();
+      return rows.filter((x) => x.qid === 'ziele.ziel').map((x) => x.value);
+    });
+  await expect.poll(goals).toEqual([T('Ten minutes of meditation?')]);
+  await tip.click();
+  await expect(tip).toHaveAttribute('aria-pressed', 'false');
+  await expect.poll(goals).toEqual([]);
+
+  // 3a: the help line under «Heute noch» the first 5 times, then not any more
+  const help = page.locator('[data-section="flow"] [data-tick-help]');
+  await expect(help).toBeVisible();
+  await page.evaluate(() => localStorage.setItem('flowTickHelpSeen', '4'));
+  await page.reload();
+  await expect(page.locator('[data-section="flow"]')).toBeVisible();
+  await expect(help).toBeVisible();
+  await page.reload();
+  await expect(page.locator('[data-section="flow"]')).toBeVisible();
+  await expect(help).toHaveCount(0);
+  expect(errors).toEqual([]);
 });

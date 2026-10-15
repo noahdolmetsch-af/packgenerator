@@ -52,17 +52,13 @@ export default {
   "Your balance fills by itself as soon as you answer «Wi gaht's?» or tick something in Aktiv.": "Deine Balance füllt sich von selbst, sobald du «Wi gaht's?» beantwortest oder in Aktiv etwas abhakst.",
   Challenge: 'Challenge',
   'until {day}': 'bis {day}',
-  'None running. Set one on «Swim or sauna?».': 'Keine läuft. Setzen bei «Heute baden oder Sauna?».',
   Inspiration: 'Inspiration',
   '{area} has the least': '{area} hat am wenigsten',
-  'An idea comes once three areas have a value.': 'Eine Idee kommt, sobald drei Bereiche einen Wert haben.',
   'to {at}': 'bis {at}',
   'to your {at}th trip': 'bis zu deiner {at}. Tour',
   'One more trip': 'Noch eine Tour',
   '{n} more trips': 'Noch {n} Touren',
   '7 days: {lo}–{hi}': '7 Tage: {lo}–{hi}',
-  'Active zone min.': 'Aktivzonenmin.',
-  "comes with Fitbit; the pulse you can type in «Wi gaht's?»": "kommt mit Fitbit; den Puls kannst du in «Wi gaht's?» eintragen",
   // the trip card (HN0 check H1) and «Important today» (H2, HN4 2a)
   'Base weight|box': 'Basisgewicht',
   '{bike}: {n} due': '{bike}: {n} fällig',
@@ -75,4 +71,8 @@ export default {
   // WS2: the tip «Day ride in 1 tap» is called «Schnellstart» now, like the button on Heute
   'Quick start: a day ride in 1 tap': 'Schnellstart: Tagestour in 1 Tipp',
   'Tap «Quick start».': 'Tippe auf «Schnellstart».',
+  // «Im Flow + Balance» (Noah 15.10.2026 «1-5a»): one card; the tip as today's goal
+  'In the flow + balance': 'Im Flow + Balance',
+  'Take as goal for today': 'Als Ziel für heute nehmen',
+  'Your goal for today · tap to take it back': 'Dein Ziel für heute · nochmals tippen nimmt es zurück',
 };

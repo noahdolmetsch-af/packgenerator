@@ -25,7 +25,7 @@ export const WHATS_NEW = [
     points: [
       { text: 'Aktiv on Today: the sleep of last night, your last activity, the next fixed date and the ways into Aktiv', href: '#/flow' },
       { text: 'The day card: in the morning «Wi gaht\'s?», the weather and what to wear; by day Quick start and your bikes; in the evening debrief, km and bike care', href: '#/' },
-      { text: 'Your balance sits small beside Im Flow, with your challenge, an idea for the weakest area, the next milestone and your body', href: '#/' },
+      { text: 'Im Flow and your balance in one card: your challenge, an idea for the weakest area (a tap makes it your goal for today), the next milestone and your body', href: '#/' },
     ],
     small: [
       { box: 'nicer', text: '«Important today» is one line; the day before a trip the trip card moves up; the base weight is big, all of it with food and water in a small line' },
@@ -35,6 +35,7 @@ export const WHATS_NEW = [
       'Tap «Day» in the small day clock of the card: Quick start, Plan a trip and «Bikes ready?».',
       'Under the day card «Important today» is one line; tap «Show all»: the whole list opens.',
       'Plan a trip for tomorrow: its card stands right under the day card; the day after tomorrow it is back after the milestones.',
+      'In «Im Flow + Balance» tap the idea under «Inspiration»: it is your goal for today; tap again and it is gone.',
     ],
   },
   {
