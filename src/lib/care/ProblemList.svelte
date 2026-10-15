@@ -67,7 +67,7 @@
             </span>
             {#if stepFor(task) || task.note}<span class="sub">{[stepFor(task) ? t(stepFor(task)) : '', task.note].filter(Boolean).join(' · ')}</span>{/if}
             <span class="sub">
-              <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate} · {t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide} · {t('Before the next ride')}{/if}
+              <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate}{' · '}{t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide}{' · '}{t('Before the next ride')}{/if}
             </span>
           </div>
           {#if isOpen(task)}<span class="acts rowacts">

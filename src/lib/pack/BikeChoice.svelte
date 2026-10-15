@@ -42,7 +42,7 @@
           </dd>
           <!-- v0.22.0 (AP06): Bike care in the same words as Home, Pack and Care. -->
           <dt>{t('Bike care')}</dt>
-          <dd class:warn={r.late} data-sign={r.late ? signFor('warn') : null}>{bikeCareWords(r.care).tag}{#if r.care.soon.length} · {tn(r.care.soon.length, '{n} more before or on the trip', '{n} more before or on the trip')}{/if}{#if r.care.status === 'due'}<small>{bikeCareWords(r.care).text}</small>{/if}</dd>
+          <dd class:warn={r.late} data-sign={r.late ? signFor('warn') : null}>{bikeCareWords(r.care).tag}{#if r.care.soon.length}{' · '}{tn(r.care.soon.length, '{n} more before or on the trip', '{n} more before or on the trip')}{/if}{#if r.care.status === 'due'}<small>{bikeCareWords(r.care).text}</small>{/if}</dd>
           <dt>{t('Per 1000 km')}</dt>
           <dd class="num">{r.per?.chf != null ? chf(r.per.chf) : '–'}</dd>
           <dt>{t('Trips before')}</dt>

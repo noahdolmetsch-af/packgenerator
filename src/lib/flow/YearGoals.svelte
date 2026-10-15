@@ -9,7 +9,7 @@
   import { Bike, Mountain, Timer, Leaf } from '@lucide/svelte';
   import Sec from './kit/Sec.svelte';
   import { db } from '../db.js';
-  import { withStravaRides } from '../kmbook.js';
+  import { withStravaRides, bikeActs } from '../kmbook.js';
   import { GOALS, YEAR_GOALS_KEY, CO2_PER_KM, goalsOf, yearSums, goalRow, co2Saved } from './yeargoals.js';
   import { t, num } from '../i18n.svelte.js';
 
@@ -19,7 +19,8 @@
   const kmQ = liveQuery(() => db.kmBook.toArray());
   const goalsQ = liveQuery(() => db.settings.get(YEAR_GOALS_KEY));
   const goals = $derived(goalsOf($goalsQ?.value));
-  const sums = $derived(yearSums(withStravaRides($ridesQ ?? [], $kmQ ?? []), today));
+  const actQ = liveQuery(() => bikeActs(db));
+  const sums = $derived(yearSums(withStravaRides($ridesQ ?? [], $kmQ ?? [], $actQ ?? []), today));
   const year = $derived(today.slice(0, 4));
   const save = (key, change) => db.settings.put({ key: YEAR_GOALS_KEY, value: { ...goals, [key]: { ...goals[key], ...change } } });
   let editing = $state(null);

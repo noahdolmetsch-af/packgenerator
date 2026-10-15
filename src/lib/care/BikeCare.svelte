@@ -267,7 +267,7 @@
       <small class="sub num">
         {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
         {#if open}
-          {#if bike.kmDate} · {kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
+          {#if bike.kmDate}{' · '}{kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
           · <button type="button" class="lnk" aria-expanded={kmOpen || bike.km == null} onclick={() => (kmOpen = !kmOpen)}>{bike.km == null ? t('enter km') : t('change km')}</button>
         {:else if lastVisit}
           · {t('bike shop {date}', { date: dateOf(lastVisit.date) })}
@@ -430,7 +430,7 @@
             <section class="sub-sec" aria-labelledby="shop-h-{bike.id}">
               <h3 id="shop-h-{bike.id}" class="ch">{t('For the bike shop')}</h3>
               {#if c.order?.rows.length}
-                <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
+                <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total}{' · '}{t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
                 <Btn label={t('Send|order')} explain={explain('Send|order')} onclick={onorder} />
               {:else}
                 <p class="quiet">{t('Nothing for the bike shop right now.')}</p>
@@ -448,7 +448,7 @@
               {/if}
               <p class="legend">
                 <span><i class="dot me" aria-hidden="true"></i>{tn(year.self, 'me: {n} job', 'me: {n} jobs')}</span>
-                <span><i class="dot mech" aria-hidden="true"></i>{tn(year.shop, 'bike shop: {n} visit', 'bike shop: {n} visits')}{#if year.shop} · <span class="num">{year.unknown === year.shop ? t('cost unknown') : `${chf(year.chf)}${year.unknown ? ` + ${t('unknown')}` : ''}`}</span>{/if}</span>
+                <span><i class="dot mech" aria-hidden="true"></i>{tn(year.shop, 'bike shop: {n} visit', 'bike shop: {n} visits')}{#if year.shop}{' · '}<span class="num">{year.unknown === year.shop ? t('cost unknown') : `${chf(year.chf)}${year.unknown ? ` + ${t('unknown')}` : ''}`}</span>{/if}</span>
               </p>
               <p class="quiet num">{year.per?.chf != null ? t('CHF {chf} per 1000 km', { chf: num(year.per.chf) }) : year.per?.wait ? t('Cost per 1000 km after {km} more km', { km: num(year.per.wait) }) : t('Cost per 1000 km: add the km at a visit')}</p>
               {#if lastVisit}

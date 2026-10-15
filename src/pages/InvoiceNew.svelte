@@ -190,7 +190,7 @@
         </div>
         {#if saved}
           <dl class="inv-dl">
-            <dt>{t('For whom?')}</dt><dd>{saved.name}{#if saved.email} · {saved.email}{/if}</dd>
+            <dt>{t('For whom?')}</dt><dd>{saved.name}{#if saved.email}{' · '}{saved.email}{/if}</dd>
             <dt>{t('Amount|money')}</dt><dd class="num">{(saved.amount / 100).toFixed(2)} CHF</dd>
             <dt>{t('What for?')}</dt><dd>{saved.purpose}</dd>
             <dt>{t('Message for TWINT')}</dt><dd>{saved.no}</dd>

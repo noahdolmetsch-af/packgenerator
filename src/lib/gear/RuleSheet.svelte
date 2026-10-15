@@ -93,7 +93,7 @@
     <div class="head">
       <div>
         <h2 id="rs-h">{block.name}</h2>
-        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length} · {knownWeight(block.g, block.missing)}{/if}</p>
+        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
       </div>
       <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -129,7 +129,7 @@
         <!-- v0.154.0 (mockup SN3i): a fixed second condition, by hand where the app does not know it yet -->
         <p class="extra need">{needLine(block.key)}{#if byHand(block.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}</p>
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric} · {t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]} · {t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
       {#if NEED[block.key] === 'lake'}<p class="src">{t('Lake or river is not known to the app yet: you tap it in Plan («Lake or river»). Later from the route.')}</p>{/if}
       {#if block.key === 'rain' && metric === 'rainPct'}
         <!-- v0.144.0 RE «Regen überall gleich» (Noah 1a): this limit is the one rain limit of the app -->

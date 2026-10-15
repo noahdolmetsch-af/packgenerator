@@ -45,7 +45,7 @@
   {#if act}
     <a class="hd" href="#/flow/training"><TileHead icon={RefreshCw} id="st-h" title={t('Last activity')} side={t('from Strava')} {isnew} /></a>
     <a class="act" href="#/flow/training/a/{encodeURIComponent(act.id)}" data-last-activity>
-      <span class="nm"><KindIcon kind={act.kind} size={16} /><b>{act.name || t(typeKey(act.type))}</b></span>
+      <span class="nm"><KindIcon kind={act.kind} size={16} /><b title={act.name || t(typeKey(act.type))}>{act.name || t(typeKey(act.type))}</b></span>
       <span class="sub">{subLine}</span>
       <span class="vals num">
         <span><b>{hmm(act.movingS)}</b><small>{t('Time|duration')}</small></span>
@@ -67,7 +67,7 @@
   {:else if strava.busy}
     <p class="big" role="status">{t('Fetching rides …')}</p>
   {:else if last}
-    <p class="big">{#if last.n}{tn(last.n, '{n} new ride fetched', '{n} new rides fetched')}{#if last.km} · +{num(Math.round(last.km))} km{/if}{:else}{t('No new rides')}{/if}</p>
+    <p class="big">{#if last.n}{tn(last.n, '{n} new ride fetched', '{n} new rides fetched')}{#if last.km}{' · '}+{num(Math.round(last.km))} km{/if}{:else}{t('No new rides')}{/if}</p>
     {#if per.length}<p class="per num">{per.map(([id, p]) => `${nameOf(id)} +${num(Math.round(p.km))}`).join(' · ')}</p>{/if}
     {#if waiting}
       <a class="go" href={CHECK_HASH}>{tn(waiting, '{n} to check', '{n} to check')} ›</a>
@@ -135,8 +135,12 @@
     min-width: 0;
   }
   .nm b {
+    /* 0.136.0: a long name ends in «…» (the whole name is on the activity's page and in the tooltip) */
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font: 700 var(--fs-sub) / 1.3 var(--font-body);
-    overflow-wrap: break-word;
   }
   .sub {
     color: var(--ink-2);

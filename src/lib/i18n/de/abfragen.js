@@ -135,7 +135,7 @@ export default {
   'with family': 'mit Familie',
   'with a group': 'mit einer Gruppe',
   '30–90': '30–90',
-  'over 90 min': 'über 90 min',
+  'over 90 min': 'über 90 Min',
   Sun: 'Sonne',
   Fog: 'Nebel',
   Snow: 'Schnee',

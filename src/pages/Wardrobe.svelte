@@ -400,7 +400,7 @@
                     {:else}
                       <p class="srow">
                         <span class="zi" style="--lc: var(--l{LN[u.guessLayer] ?? 4}); --ls: var(--l{LN[u.guessLayer] ?? 4}-soft)" aria-hidden="true">{@render zoneIcon(u.guessZone)}</span>
-                        <span class="sname"><span class="snm">{nameOf(u.item)}</span><small class="num">{weight(u.item)}{#if chip} · {t('Suggested from the name')}{/if}</small></span>
+                        <span class="sname"><span class="snm">{nameOf(u.item)}</span><small class="num">{weight(u.item)}{#if chip}{' · '}{t('Suggested from the name')}{/if}</small></span>
                         {#if chip}<button type="button" class="chip" aria-label={t('Sort {name} as {where}', { name: nameOf(u.item), where: chip })} onclick={() => takeGuess(u)}><Check size={16} aria-hidden="true" />{chip}</button>{/if}
                         <button type="button" class="other" aria-expanded={otherOpen === u.item.id} aria-label={t('Other layer or zone: {name}', { name: nameOf(u.item) })} onclick={() => (otherOpen = otherOpen === u.item.id ? null : u.item.id)}>{chip ? t('Other …|sort') : t('Sort …')}</button>
                       </p>

@@ -162,12 +162,15 @@
     margin: 8px 0 2px;
     padding: 0;
     display: grid;
-    gap: 6px;
+    /* 0.136.0: one column for the labels (Neu, Schöner, Repariert), so every text starts at the same place */
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 6px 10px;
   }
   .vn-small li {
-    display: flex;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     align-items: baseline;
-    gap: 10px;
     color: var(--ink-3);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
@@ -184,10 +187,7 @@
   /* a phone: each small line is a whole 44 px row to tap */
   @media (pointer: coarse) {
     .vn-small {
-      gap: 0;
-    }
-    .vn-small li {
-      align-items: center;
+      row-gap: 0;
     }
     .vn-small a {
       display: flex;
@@ -200,7 +200,7 @@
     text-decoration: underline;
   }
   .vn-kt {
-    flex: none;
+    justify-self: start;
     padding: 2px 9px;
     border-radius: 999px;
     background: var(--paper-2);

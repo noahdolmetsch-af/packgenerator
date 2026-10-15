@@ -891,7 +891,7 @@
         </div>
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
-          <p class="meta num">{meta}{#if startLine && !phone.matches} · {startLine}{/if}</p>
+          <p class="meta num">{meta}{#if startLine && !phone.matches}{' · '}{startLine}{/if}</p>
           {#if packLine && !ask}<p class="meta pack num" data-pack-weight>{packLine}</p>{/if}
         </div>
         {#if !ask && (left || openSteps)}

@@ -148,7 +148,7 @@
           <div class="card fixed">
             <ul class="rows">
               {#each sets.fixed as f (f.id)}
-                <li><button type="button" class="fr" data-fixed={f.id} onclick={() => (edit = { ...f })}><Clock size={18} aria-hidden="true" /><span><b>{name(f.actId)}</b><small>{t('every {day} {time}', { day: WD[f.wd - 1].long, time: f.time })} · {f.minutes} min</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
+                <li><button type="button" class="fr" data-fixed={f.id} onclick={() => (edit = { ...f })}><Clock size={18} aria-hidden="true" /><span><b>{name(f.actId)}</b><small>{t('every {day} {time}', { day: WD[f.wd - 1].long, time: f.time })} · {t('{n} min', { n: f.minutes })}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
               {:else}
                 <li class="none">{t('No fixed dates yet. Yoga on Thursday 07:00? Add it once, it comes back every week.')}</li>
               {/each}

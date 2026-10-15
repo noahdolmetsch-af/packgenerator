@@ -176,8 +176,12 @@ describe('the log (Z5)', () => {
   });
   const rows = mergeLog(
     [e, { id: 'a', day: '2026-10-13', at: '2026-10-13T12:00:00Z', sec: 4140, mode: 'pomodoro', label: 'Fokus 52/17', setup: { mode: 'pomodoro', work: 3120, rest: 1020, rounds: 1 } }, { id: 'b', day: '2026-10-05', at: '2026-10-05T12:00:00Z', sec: 180, mode: 'interval', label: '' }],
-    [{ id: 'm1', day: '2026-10-13', at: '2026-10-13T04:50:00Z', min: 20, note: 'ruhig' }],
+    [{ id: 'm1', day: '2026-10-13', at: '2026-10-13T04:50:00Z', min: 20, note: 'ruhig', art: { id: 'sit', name: 'Just sitting' } }],
   );
+  it('a meditation keeps its kind, not only the timer mode (0.136.0)', () => {
+    expect(rows.find((r) => r.id === 'med:m1')).toMatchObject({ med: true, art: { id: 'sit' }, note: 'ruhig' });
+    expect(mergeLog([], [{ id: 'm2', day: '2026-10-13', min: 5 }])[0].art).toBeNull();
+  });
   it('shows the meditation sessions with the timers, newest first', () => {
     expect(rows.map((r) => r.id)).toEqual([e.id, 'a', 'med:m1', 'b']);
     expect(filterLog(rows, 'pomodoro').map((r) => r.id)).toEqual(['a']);

@@ -18,7 +18,7 @@ export default {
   'about {time}': 'etwa {time}',
   '{h} h {m}': '{h} h {m}',
   '{h} h|duration': '{h} h',
-  '{m} min': '{m} min',
+  '{m} min': '{m} Min',
   'When|komoot': 'Wann',
   'Tomorrow, {date}': 'Morgen, {date}',
   'Other day': 'Anderer Tag',

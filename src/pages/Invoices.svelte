@@ -125,7 +125,7 @@
           <ul class="ich-list card invs-in">
             {#each matches as m (m.id)}
               <li class="ich-row">
-                <span class="ich-m"><b>{m.name}</b><small>{m.purpose} · {m.no} · {dateOf(m.createdAt)}</small></span>
+                <span class="ich-m"><b>{m.name}</b><small>{m.purpose} · <span class="nw">{m.no}</span> · <span class="nw">{dateOf(m.createdAt)}</span></small></span>
                 <button class="btn sm" type="button" onclick={() => pick(m)}><Check size={16} aria-hidden="true" />{t('This one')}</button>
               </li>
             {/each}
@@ -140,7 +140,7 @@
   {#if qrBill}
     <section class="card invs-got" aria-labelledby="qr-h">
       <h2 id="qr-h" class="invs-h">{t('Bill from the e-banking')}</h2>
-      <p class="ich-fine">{t('Payable to')}: <b>{qrBill.name}</b> · {formatIban(qrBill.iban)}{#if qrBill.ref} · {t('Reference')}: {formatReference(qrBill.ref)}{/if}</p>
+      <p class="ich-fine">{t('Payable to')}: <b>{qrBill.name}</b> · {formatIban(qrBill.iban)}{#if qrBill.ref}{' · '}{t('Reference')}: {formatReference(qrBill.ref)}{/if}</p>
       <label class="field"><span class="lbl">{t('For whom?')}</span><input class="inp" bind:value={qrForm.name} /></label>
       <label class="field"><span class="lbl">{t('Amount|money')}</span><input class="inp num" bind:value={qrForm.amount} inputmode="decimal" /></label>
       <label class="field"><span class="lbl">{t('What for?')}</span><input class="inp" bind:value={qrForm.purpose} /></label>
@@ -166,7 +166,7 @@
           {#each shown as inv (inv.id)}
             <li class="invs-row" data-testid="invoice-row">
               <a class="invs-who" href="#/me/pay/invoices/{encodeURIComponent(inv.id)}">
-                <b>{inv.name}</b><small>{inv.purpose} · {inv.no} · {dateOf(inv.createdAt)}</small>
+                <b>{inv.name}</b><small>{inv.purpose} · <span class="nw">{inv.no}</span> · <span class="nw">{dateOf(inv.createdAt)}</span></small>
               </a>
               <span class="num invs-amt">{formatAmount(inv.amount)} CHF</span>
               {#if inv.status === 'open'}
@@ -300,5 +300,9 @@
   }
   .invs-empty {
     max-width: 620px;
+  }
+  /* 0.136.0: the invoice number and the date never break inside («R-0003») */
+  .nw {
+    white-space: nowrap;
   }
 </style>

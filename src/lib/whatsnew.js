@@ -61,6 +61,30 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.136.0 «Paket 2b»: Pfeile und Ziehen überall (Noah «2a und b»), LI3 «Gilt für» (Noah «2b»),
+    // Inspiration (Noah «1-3a»), one tile row on Aktiv › Heute, nine display fixes from the 0.135.0 screenshots.
+    version: '0.136.0',
+    date: '2026-10-15',
+    title: 'Sort your way',
+    lead: 'Drag a row or use the arrows in every list you can order, and a category can stay with some kinds of trips only.',
+    points: [
+      { text: 'Drag lists or sort them with the arrows: categories, tiles, goals and the checks of a trip', href: '#/me/lists?categories' },
+      { text: 'Category «Applies to»: a category only for some kinds of trips; packing for others leaves it out', href: '#/me/lists?categories' },
+      { text: 'Inspiration explains «What I take from it» and asks for the name of a new link first', href: '#/inspiration' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Bike this month also counts Strava rides that lie in a bike\'s start km; rides still to check are named', href: '#/flow' },
+      { box: 'fixed', text: 'The timer log shows the kind of a meditation instead of «Countdown»', href: '#/timer/log' },
+      { box: 'fixed', text: 'Neater display: even rows in What\'s new, no broken words or numbers, all five heart rate zones in one row, one tile row on Aktiv' },
+    ],
+    test: [
+      'Open Me › Lists and types › Categories: drag a category by its handle, or move it with the arrows; Gear shows the new order.',
+      'Open a category, under «Applies to» leave only one kind of trip: the row says «Only …», and packing for another kind no longer suggests its items.',
+      'Open Inspiration and paste a link to a start page (only the site): the cursor is in «Title», and you choose the kind yourself.',
+      'Open Aktiv › Heute: «Bike this month» counts your Strava rides; the timer log shows a meditation with its kind.',
+    ],
+  },
+  {
     // v0.135.0 «Paket 2»: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (IF1–IF3, WD1–WD3, #173),
     // Eine Zahl pro Sache (DK1–DK3 + Heute H1/H2, #170), Training (TR1–TR4, #167), Rechnungen ohne Gebühren (QR1–QR9, #169).
     // One release instead of the working numbers 0.135.0, 0.136.0, 0.137.0, 0.138.0 and 0.139.0.
