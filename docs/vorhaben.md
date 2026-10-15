@@ -38,11 +38,12 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (15.10.2026, 0.135.0)
+## Stand heute (15.10.2026, 0.136.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
-| 0.135.0 | **Paket 2 – Ruhe, Training und Rechnungen**, ein Release aus fünf Teilen: (1) Meditation und Timer, (2) Inhalte Flow + Wusstest du (#173), (3) Eine Zahl pro Sache mit Heute H1/H2 (#170), (4) Training (#167), (5) Rechnungen ohne Gebühren (#169); Ziele 1 (Alltag) und 4 (aus jeder Tour lernen) | PR offen, Noah merged |
+| 0.136.0 | **Paket 2b – Sortieren, wie du willst**: Pfeile + Ziehen in allen sortierbaren Listen, Kategorie «Gilt für» (LI3), Inspiration-Korrekturen, eine Kachelreihe auf Aktiv › Heute, neun Anzeigefehler; Ziele 1 (schneller packen) und 4 (Aktivitätsmosaik) | PR offen, Noah merged |
+| 0.135.0 | **Paket 2 – Ruhe, Training und Rechnungen**, ein Release aus fünf Teilen: (1) Meditation und Timer, (2) Inhalte Flow + Wusstest du (#173), (3) Eine Zahl pro Sache mit Heute H1/H2 (#170), (4) Training (#167), (5) Rechnungen ohne Gebühren (#169); Ziele 1 (Alltag) und 4 (aus jeder Tour lernen) | live (#179) |
 | 0.135.0 (Teil) | **Meditation und Timer** (Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC): Meditation erster Reiter in Aktiv, Rückblick; Timer mit Seite, Ziffernblättern, Log; ME1/Z1 auf Heute warten auf die Prüfung gegen HN0; Ziel 1 (Alltag) | Teil von 0.135.0 |
 | 0.136.0 | Inhalte Flow + Wusstest du: Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest; Ziel «Eine App, die mich im Alltag unterstützt» | Teil von 0.135.0 (#173) |
 | 0.137.0 | Eine Zahl pro Sache (Durchklick DK1–DK3, Noah «1-5 freigeben» 14.10.2026, 1a 2a): Velopflege, Velos, Heute und Menü zählen dieselben fälligen Punkte, Probleme «vor der nächsten Fahrt» zählen mit; Material und Tour zeigen je ein Gewicht, Tour mit Essen und Wasser (Ziele «Velo im Griff», «ruhig vorbereiten») | Teil von 0.135.0 (#170) |
