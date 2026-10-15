@@ -16,6 +16,31 @@
 
 export const WHATS_NEW = [
   {
+    // v0.137.0 «Paket 3»: Navigation «Regeln der App» + Start-Karten (ST1–ST2), Standard-Velo (VS1–VS4), Scrollen und
+    // Listen (SL1–SL4), Wieder sichtbar (WS2, WS3, WS5, WS6), Regeln einheitlich (RE, #175)
+    // and four fixes from the 0.136.0 pictures. One release instead of the working numbers 0.140.0–0.145.0.
+    version: '0.137.0',
+    date: '2026-10-15',
+    title: 'Clear rules, your standard bike',
+    lead: 'Nothing jumps on its own, a rule means the same on every page, and a new trip brings your standard bike.',
+    points: [
+      { text: 'Nothing jumps on its own: a tap opens to change, and on a trip day a card on Today leads on', href: '#/gear' },
+      { text: '«Standard bike and order» under Bikes: arrows, «Make standard» and what a new trip brings', href: '#/bikes?tab=setup' },
+      { text: 'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'new', text: 'Back again: «Start quickly» and «Like the last trip» on Trips, the bike costs in the head, what counts for recovery', href: '#/trips' },
+      { box: 'nicer', text: 'Long lists fold by month and category with a jump bar; «What is new» by day', href: '#/gear' },
+      { box: 'fixed', text: 'The tile «Ride log» counts Strava rides like «Bike this month»; «23 h · 2 days» with a separator', href: '#/flow' },
+    ],
+    test: [
+      'Open Bikes › Setup › «Standard bike and order» › «Change», tap «Make standard» on another bike, save: it stands first with ★.',
+      'On the phone open Material, tap an item: the fields can be changed, «Save» at the bottom.',
+      'Open Gear › Building blocks › Rain: the box says the limit counts everywhere; change 30 to 40 and save.',
+      'Open Trips: under «Planned» tap «Like the last trip»: the new trip starts as a copy of the trip you last rode with that bike.',
+    ],
+  },
+  {
     // v0.136.0 «Paket 2b»: Pfeile und Ziehen überall (Noah «2a und b»), LI3 «Gilt für» (Noah «2b»),
     // Inspiration (Noah «1-3a»), one tile row on Aktiv › Heute, nine display fixes from the 0.135.0 screenshots.
     version: '0.136.0',

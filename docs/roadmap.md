@@ -82,10 +82,13 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
+**Nachtrag 15.10.2026 (v0.137.0 «Paket 3 – Klare Regeln, dein Standard-Velo»):** Navigation + Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar (WS2, WS3, WS5, WS6), Regeln einheitlich (#175) und vier Anzeigefehler als ein Release. Offen danach: Hinweistexte HT1–HT2 (eigener Thread, späteres Paket), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
+
 **Nachtrag 15.10.2026 (v0.136.0 «Paket 2b – Sortieren, wie du willst»):** Pfeile + Ziehen überall, LI3 «Gilt für», Inspiration-Korrekturen, eine Kachelreihe auf Aktiv › Heute und neun Anzeigefehler aus 0.135.0. Als Nächstes: nach Noahs Reihenfolge in [vorhaben.md](vorhaben.md).
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**15.10.2026, v0.137.0 «Paket 3»:** Regeln der App, Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar, Regeln einheitlich als ein Release; die Einträge zu 0.140.0–0.145.0 sind Teile davon.
 **15.10.2026, v0.136.0 «Paket 2b»:** Sortieren mit Pfeilen und Ziehen, «Gilt für», Inspiration, Anzeigefehler.
 **15.10.2026, v0.135.0 «Paket 2»:** Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training und Rechnungen als ein Release; die Einträge zu 0.136.0–0.139.0 darunter sind Teile davon.
 **14.10.2026, v0.139.0 «Rechnungen ohne Gebühren»:** QR-Rechnung mit TWINT, Rechnungsliste, Geld erhalten, Kontoauszug, Zahl-Link «Ich habe bezahlt», TWINT-Screenshot lesen und «Zu zahlen» (Mockups QR1–QR9). Danach: Heute-Karten und Teilen-Weg, dann Shop (SHOP1–SHOP4b).
