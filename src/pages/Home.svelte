@@ -863,7 +863,8 @@
           {:else if cd}
             <span class="sub">{isLead ? t('Next trip') : t('Later trip')}</span>
             <span class="cdn" class:near={cd.near} data-countdown>{cd.text}</span>
-            {#if Number(shown.days) > 1 && !cd.under}<span class="sub">{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
+            <!-- Paket 3 (bug from the 0.136.0 pictures): «noch 23 h · 2 Tage», with a separator -->
+            {#if Number(shown.days) > 1 && !cd.under}<span class="sub" data-trip-days>{'· '}{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
           {/if}
           <span class="kr">
             {#if cardTrips.length > 1}
