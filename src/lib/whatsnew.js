@@ -19,7 +19,7 @@ export const WHATS_NEW = [
     // v0.133.3 «Inspiration» (UC2-1, UC2-2, UC2-4; mockups 13.10.2026, Noah «3b» + «a», 4a, 5a): your own links,
     // the kind from the address, «Aus der Notiz wird …» (packing rule, wishlist, note), race → .ics, route → trip draft
     version: '0.133.3',
-    date: '2026-10-14',
+    date: '2026-10-15',
     title: 'Collect inspiration',
     lead: 'Your own links to rigs, routes, videos and races in one place, and what you take from them goes into the app.',
     points: [
