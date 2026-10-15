@@ -255,7 +255,7 @@ describe('suggestions, ideas, connections', () => {
 
 describe('the database: version 8', () => {
   it('only adds the three tables, which go into the backup', () => {
-    expect(SCHEMA_VERSION).toBe(11); // AB adds abAnswers (version 9), «Timer»: version 11 adds the timer log
+    expect(SCHEMA_VERSION).toBe(11); // AB adds abAnswers (version 9), «Training» the activities (10), «Timer»: version 11 adds the timer log
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowSessions', 'flowTemplates', 'flowStars']));
   });
   it('the upgrade from version 7 keeps the old data', async () => {
@@ -272,7 +272,7 @@ describe('the database: version 8', () => {
 
     const db = createDb(name);
     await db.open();
-    expect(db.verno).toBe(11); // AB adds abAnswers (version 9), «Timer» (Z5) added the timer log as version 11
+    expect(db.verno).toBe(SCHEMA_VERSION); // AB 9, «Training» 10, «Timer» 11: the upgrade goes through version 8 to the newest
     expect(await db.flowActs.count()).toBe(12);
     expect(await db.flowLog.toArray()).toMatchObject([{ actId: 'meditation', min: 20 }]);
     expect(await db.items.get('test_item')).toMatchObject({ name: 'Fictional tent' });

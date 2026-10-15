@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // «Training» TR1–TR4 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»)
+    version: '0.138.0',
+    date: '2026-10-15',
+    title: 'Your heart rate, zone by zone',
+    lead: 'Every activity from Strava now has its own page, with the time in each heart rate zone.',
+    points: [
+      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
+      { text: 'Today: the tile «Last activity» with time, km, Hm, heart rate and zones', href: '#/' },
+      { text: 'Plan your week with duration and zone; what you did comes from Strava', href: '#/flow/training' },
+    ],
+    small: [
+      { box: 'new', text: 'One activity: minutes per zone, the heart rate over time and the same route', href: '#/flow/training?view=list' },
+      { box: 'new', text: 'Heart rate zones from Strava, changeable', href: '#/flow/training?zones=1' },
+      { box: 'new', text: 'A training goal and the look back over six weeks, all optional', href: '#/flow/training' },
+    ],
+    test: [
+      'On Today the tile «Last activity» shows your newest activity from Strava; tap it.',
+      'On its page: the minutes in each zone and the heart rate over time.',
+      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
+      'Tap «Activities»: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.',
+    ],
+  },
+  {
     // v0.137.0 «Eine Zahl pro Sache» (Durchklick DK1/DK1b «fällig», DK2 Material, DK3 Tour-Gewicht;
     // Noah 14.10.2026 «1-5 freigeben», answers 1a and 2a)
     version: '0.137.0',

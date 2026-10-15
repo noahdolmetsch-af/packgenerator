@@ -5,6 +5,8 @@
    *                      (7 days on a phone, 14 on a computer), the daily check, recovery and seasons
    *   #/flow/goals       all activities, in their order (drag the grip or use the arrow keys)
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
+   *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
+   *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
@@ -48,6 +50,8 @@
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
+  import Training from './flow/Training.svelte';
+  import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
   import Week from './flow/Week.svelte';
@@ -195,7 +199,11 @@
   const hasMed = $derived(live.some((s) => isMedAct(s.act)));
 </script>
 
-{#if route[0] === 'activity'}
+{#if route[0] === 'training' && route[1] === 'a'}
+  {#key sub}<TrainingAct id={decodeURIComponent(route[2] ?? '')} />{/key}
+{:else if route[0] === 'training'}
+  <Training {params} />
+{:else if route[0] === 'activity'}
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
