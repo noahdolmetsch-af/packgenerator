@@ -18,6 +18,8 @@ const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
 const NEW_V = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[1];
 // v0.125.0 Tagespaket: one version can bring several functions (f.tripstate, f.yeargoals); among them the page sorts by name
 const NEW_FNS = SINCE_ALL.filter(([, v]) => v === NEW_V).map(([id]) => id);
+// how many rows «Since your last visit» shows, from the page source
+const SINCE_ROWS = Number(readFileSync(new URL('../../src/pages/WasNeu.svelte', import.meta.url), 'utf8').match(/since\.slice\(0, (\d+)\)/)[1]);
 const NEW_IN_NEWEST = SINCE_ALL.some(([, v]) => v === NEWEST.version);
 const V = shortVersion(NEWEST.version);
 const BEFORE = WHATS_NEW[1].version;
@@ -134,7 +136,15 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const sinceIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => newer(m[2], BEFORE)).map((m) => m[1]);
   const sinceSec = page.locator('section[aria-labelledby="wn-since-h"]');
   await expect(sinceSec.getByText(sinceIds.length === 1 ? T('{n} new function since {v}', { n: 1, v: shortVersion(BEFORE) }) : T('{n} new functions since {v}', { n: sinceIds.length, v: shortVersion(BEFORE) }))).toBeVisible();
-  if (sinceIds.includes(NEW_FNS[0])) for (const id of NEW_FNS) await expect(sinceSec.locator(`[data-feature="${id}"]`)).toBeVisible();
+  // Paket 2 (0.135.0 brings six functions): the column shows at most SINCE_ROWS of them (read from the page source)
+  if (sinceIds.includes(NEW_FNS[0])) {
+    const rowsShown = sinceSec.locator('[data-feature]');
+    await expect(rowsShown).toHaveCount(Math.min(SINCE_ROWS, sinceIds.length));
+    const shownIds = await rowsShown.evaluateAll((els) => els.map((e) => e.dataset.feature));
+    // newest first: with more new functions than rows, every row is one of the newest version's functions
+    for (const id of shownIds) expect(NEW_FNS.length >= SINCE_ROWS ? NEW_FNS : sinceIds).toContain(id);
+    if (NEW_FNS.length <= SINCE_ROWS) for (const id of NEW_FNS) await expect(sinceSec.locator(`[data-feature="${id}"]`)).toBeVisible();
+  }
   else await expect(sinceSec.locator('[data-feature]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: T('How to test {v}', { v: V }) })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Planned next') })).toBeVisible();

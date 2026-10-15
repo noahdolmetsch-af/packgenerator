@@ -358,7 +358,9 @@
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
-    const w = stats.gearG ? knownWeight(stats.gearG, stats.gearMissing) : null;
+    // v0.137.0 (Noah «3a», release check «1-5a»): the big line shows the base weight, without food,
+    // water and worn items (as the bag setups); the small line under it gives the whole trip.
+    const w = stats.baseG ? knownWeight(stats.baseG, stats.baseMissing) : null;
     const km = shown.route?.km ? `${num(Math.round(shown.route.km))} km` : null;
     // once packing has started, how far it is (the same words as Pack)
     const es = shown.entries ?? [];
@@ -366,6 +368,10 @@
     const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
     return [who, tn(stats.count, '{n} item', '{n} items'), w, km, pct].filter(Boolean).join(' · ');
   });
+  // v0.137.0 (Durchklick H1, Noah 14.10.2026 «3a»): the big line keeps the weight as before; a small
+  // line under it gives the whole trip with food, water and worn items, the same as the trip head.
+  const kg1 = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`; // as the trip head
+  const packLine = $derived(shown && stats?.packG && stats.packG > stats.baseG ? t('with food, water and worn items {w}', { w: knownWeight(stats.packG, stats.packMissing, kg1) }) : '');
   // v0.101.0 Design-Refresh P2 (H1): number boxes (days, hours, open steps), the packing bar and,
   // with a route, its distance, climbing and profile on the right.
   const left = $derived(shown && !ask ? timeLeft(shown, now) : null);
@@ -885,6 +891,7 @@
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
           <p class="meta num">{meta}{#if startLine && !phone.matches} · {startLine}{/if}</p>
+          {#if packLine && !ask}<p class="meta pack num" data-pack-weight>{packLine}</p>{/if}
         </div>
         {#if !ask && (left || openSteps)}
           <dl class="boxes num" data-boxes>
@@ -1543,6 +1550,11 @@
     margin: 4px 0 0;
     color: var(--ink-2);
     overflow-wrap: break-word;
+  }
+  .meta.pack {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
   @media (max-width: 719px) {
     .meta {

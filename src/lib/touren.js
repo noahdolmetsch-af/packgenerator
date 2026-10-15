@@ -53,8 +53,8 @@ export function daysTo(iso, today) {
 }
 
 /**
- * T3 «Gewicht»: the gear of a trip by place (each bag, the bike, on me), without food and water, the
- * heaviest place first; plus the heaviest single item. stats: trips.js tripStats; itemsById: id → item.
+ * T3 «Gewicht»: the gear of a trip by place (each bag, the bike, on me), the heaviest place first,
+ * then food and water as one row (v0.137.0 DK3); plus the heaviest single item. stats: trips.js tripStats; itemsById: id → item.
  * → { rows: [{ key, g, missing }], total, missing, heaviest: { item, g } | null, food }
  */
 export function weightByPlace(stats, itemsById, eats = () => false) {
@@ -77,7 +77,20 @@ export function weightByPlace(stats, itemsById, eats = () => false) {
     if (g > 0 || missing) rows.push({ key: z.key, g, missing });
   }
   rows.sort((a, b) => b.g - a.g);
-  return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food: stats?.consumablesG ?? 0 };
+  // v0.137.0 (Durchklick DK3, Noah 2a): worn bags count on me, food and water get their own row at
+  // the end, so the rows add up to the one weight of the trip (stats.packG).
+  const wornBags = stats?.wornBagsG ?? 0;
+  if (wornBags || stats?.wornBagsMissing) {
+    const me = rows.find((r) => r.key === 'body');
+    if (me) {
+      me.g += wornBags;
+      me.missing += stats.wornBagsMissing ?? 0;
+    } else rows.push({ key: 'body', g: wornBags, missing: stats.wornBagsMissing ?? 0 });
+  }
+  const food = stats?.consumablesG ?? 0;
+  const foodMissing = stats?.consumablesMissing ?? 0;
+  if (food || foodMissing) rows.push({ key: 'food', g: food, missing: foodMissing });
+  return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food };
 }
 
 /** SN4g: where «Packmodus öffnen» goes (the packing day of the trip, today.js STEP.pack). */

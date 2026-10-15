@@ -20,6 +20,14 @@ describe('bikes and bags', () => {
     expect(containerWeight(c.find((b) => b.id === 'bag-TA03'), Object.fromEntries(items.map((i) => [i.id, i])))).toBe(900);
   });
 
+  it('an empty app or other gear gets no start bags (no cargo cage, no mini bag)', async () => {
+    expect(startContainers([])).toEqual([]);
+    expect(startContainers([bag('X1', { name: 'Some bag' })])).toEqual([]);
+    const db = createDb('bikes-empty');
+    await ensureBikeSetup(db);
+    expect(await db.containers.count()).toBe(0);
+  });
+
   it('completes a bike once and keeps what is already set', () => {
     const c = startContainers(items);
     // Data cleanup 14.10.2026: no weight from the logbook for one bike ID any more; the weight stays open.

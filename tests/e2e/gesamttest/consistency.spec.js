@@ -47,6 +47,8 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
     expect(name, `Important today row "${text}" names a bike`).toBeTruthy();
     const m = text.slice(name.length).match(/(\d+)/);
     fromRows[name] = m ? Number(m[1]) : 1;
+    // v0.137.0 (Durchklick H2, Noah «4a»): a count says «{n} due», the same short word as the bike cards
+    if (m) expect.soft(text, 'Important today says «{n} due»').toMatch(new RegExp(`^${esc(name)}: \\d+ ${dueWord}$`));
   }
   expect(fromRows, 'Important today = the bike cards (bikes with something due)').toEqual(Object.fromEntries(Object.entries(today).filter(([, n]) => n > 0)));
 
@@ -62,8 +64,8 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   }
   expect(care, 'Bike care per bike = Today per bike').toEqual(today);
 
-  // the bar: bikes with something due
-  const due = Object.values(care).filter((n) => n > 0).length;
+  // the bar: v0.137.0 (DK1) the points due over all bikes, the same number as Bike care
+  const due = Object.values(care).reduce((a, n) => a + n, 0);
   const bar = page.locator('a[href="#/bikes"] .due').first();
   if (due) await expect(bar).toContainText(String(due));
 
@@ -169,5 +171,28 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await page.reload();
   const inboxRows = await page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).count();
   expect(inboxRows, 'Inbox shows every open note').toBeGreaterThanOrEqual(open);
+  expect(errors).toEqual([]);
+});
+
+// v0.137.0 (Durchklick H1, Noah «3a»): the next trip on Today keeps its weight line and adds a small
+// line with the whole weight (food, water and worn items), the same number as the trip head.
+test('trip weight: the small line on Today = the trip head', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/');
+  await page.reload();
+  const card = page.locator('section[data-section="trip"]');
+  await expect(card).toBeVisible();
+  const line = card.locator('[data-pack-weight]');
+  await expect(line).toBeVisible();
+  const text = (await line.textContent()).trim();
+  expect(text.startsWith(T('with food, water and worn items {w}', { w: '' }).trim())).toBe(true);
+  const weight = (s) => s.match(/\d+(?:[.,]\d+)?\s*k?g/)?.[0].replace(/\s+/g, '');
+  const id = await card.getAttribute('data-trip');
+  await page.evaluate((v) => localStorage.setItem('pack.currentTrip', v), id);
+  await page.goto('./#/pack');
+  await page.reload();
+  const head = page.locator('section.trip-band span.num b').first();
+  await expect(head).toBeVisible();
+  expect(weight(text), `Today «${text}» vs trip head`).toBe(weight(await head.textContent()));
   expect(errors).toEqual([]);
 });

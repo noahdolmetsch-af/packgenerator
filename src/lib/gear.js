@@ -5,8 +5,11 @@
 import { t } from './i18n.svelte.js';
 import { inStandard, isWorn, leaveHome, blockKeys, oldFieldsPatch } from './blocks2026.js';
 
-/** Categories in display order, with the Trail Journal colour of each. */
-export const CATEGORIES = [
+/**
+ * The Standard categories in display order, with the Trail Journal colour of each. They never change
+ * at runtime; standard.js reads them from here.
+ */
+export const STD_CATEGORIES = Object.freeze([
   { key: 'elec', name: 'Electronics', color: '#C99A06' },
   { key: 'light', name: 'Lights', color: '#4C55B0' },
   { key: 'onbike', name: 'On-bike clothing', color: '#2E6DB4' },
@@ -22,8 +25,24 @@ export const CATEGORIES = [
   { key: 'bags', name: 'Bags', color: '#1E7A6E' },
   { key: 'bike', name: 'Bike parts & mounts', color: '#9B3D8F' },
   { key: 'lux', name: 'Comfort & luxury', color: '#B8935A' },
-];
+].map((c) => Object.freeze(c)));
+/**
+ * The categories as the person has them (v0.134.0 «Listen und Typen», mockups LI1–LI4): the Standard
+ * with their changes (renamed, own, hidden, deleted, order; lists.js). Changed in place by
+ * setCategories, so every page reads the same array. A hidden category stays in the list (its items
+ * keep it), only the choices leave it out (choosable); a deleted one is gone, its items show under
+ * «Ohne Kategorie». Entries: { key, name, color, icon?, own?, hidden? }.
+ */
+export const CATEGORIES = STD_CATEGORIES.map((c) => ({ ...c }));
 export const CATEGORY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
+/** The categories to choose from: not hidden, plus the one an item already has. */
+export const choosable = (current = null) => CATEGORIES.filter((c) => !c.hidden || c.key === current);
+/** Puts the person's categories in place (lists.js). */
+export function setCategories(list) {
+  CATEGORIES.splice(0, CATEGORIES.length, ...list);
+  for (const k of Object.keys(CATEGORY)) delete CATEGORY[k];
+  for (const c of CATEGORIES) CATEGORY[c.key] = c;
+}
 /** Groups of categories several pages use (data cleanup 14.10.2026: one place instead of five copies). */
 export const CLOTHING_CATEGORIES = ['onbike', 'rain', 'offbike', 'shoes'];
 /** Things that need charging: electronics and lights (charge.js, packgroups.js). */

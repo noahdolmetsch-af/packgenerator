@@ -5,10 +5,12 @@
    * the same ones the packing day shows. Read-only; they are kept and changed in the debrief.
    * SN2x U6 «Für nächstes Mal» (Noah 13.10.2026 «immer nur wenn relevant»): reminders: the points of earlier
    * debriefs that fit this trip (ganz.js remindersFor), each with the situation it is for and its trip.
+   * «Inspiration» UC2-2 (5a): under them the packing rules taken over from your inspiration links.
    */
   import { t, tn } from '../i18n.svelte.js';
   import { Lightbulb, BellRing } from '@lucide/svelte';
   import { WHEN_WORD } from '../review/ganz.js';
+  import PackHints from '../inspiration/PackHints.svelte';
 
   let { lessons = [], reminders = [] } = $props();
 </script>
@@ -36,6 +38,7 @@
     </ul>
   </section>
 {/if}
+<PackHints />
 
 <style>
   .lc {

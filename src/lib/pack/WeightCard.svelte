@@ -4,6 +4,8 @@
    * the weight of a trip as a light card: the gear without food and water in big, one bar split by place
    * (each bag, the bike, on me), the places with their weight, and the heaviest single item. Food and
    * water and the items without a weight stay honest in one quiet line below. Read-only.
+   * v0.137.0 (Durchklick DK3, Noah 2a): the big number is the one weight of the trip, the same as in the
+   * trip head and on Today: everything together, food and water as their own row.
    */
   import { weightByPlace } from '../touren.js';
   import { isConsumable } from '../gear.js';
@@ -18,13 +20,13 @@
   const eats = (i) => isConsumable(i) || i.waterL > 0;
   const w = $derived(weightByPlace(stats, itemsById, eats));
   const zones = $derived(Object.fromEntries((stats?.zones ?? []).map((z) => [z.key, z])));
-  const name = (key) => trip.purpose?.[key] || (zones[key] ? (key === 'body' ? t('On me') : zoneName(zones[key])) : key);
+  const name = (key) => (key === 'food' ? t('Food and water') : trip.purpose?.[key] || (key === 'body' ? t('On me') : zones[key] ? zoneName(zones[key]) : key));
   const rows = $derived(w.rows.filter((r) => r.g > 0 || r.missing).map((r, n) => ({ ...r, c: COLORS[n % COLORS.length], name: name(r.key) })));
 </script>
 
 <section class="wc" aria-labelledby="wc-h">
   <h2 id="wc-h">{title || t('Weight')}</h2>
-  <p class="sub">{sub || t('without food and water')}</p>
+  <p class="sub">{sub || t('all together, with food and water')}</p>
   <div class="card body">
     <p class="big num"><b>{w.missing ? '~' : ''}{kgN(w.total)}</b> kg</p>
     {#if w.total > 0}
@@ -35,7 +37,6 @@
     {/if}
     <p class="foot">
       {#if w.heaviest}<span>{t('Heaviest item: {name} {kg} kg', { name: nameOf(w.heaviest.item), kg: kgN(w.heaviest.g) })}</span>{/if}
-      {#if w.food}<span>{t('Food and water: {kg} kg', { kg: kgN(w.food) })}</span>{/if}
       {#if w.missing}<span>{tn(w.missing, '{n} item not weighed', '{n} items not weighed')}</span>{/if}
     </p>
   </div>

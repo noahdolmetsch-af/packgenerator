@@ -862,6 +862,32 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Training TR1–TR4 (0.138.0)
+
+- **Noah 13.10.2026 18:06 UTC «1-5a»:** 1 Training als eigener Reiter in Aktiv; 2 alle Strava-Aktivitäten, nur Velofahrten zählen für die Velos; 3 Pulszonen aus Strava, änderbar; 4 Woche planen mit Dauer und Zone pro Tag, gefahrene kommen aus Strava; 5 die bestehende Strava-Kachel wird «Letzte Aktivität».
+- **Leistung (Noah 13.10.2026 18:41/18:42 UTC «a», Thread «Mockup-Durchgang»):** Zeit in Pulszonen, Höchstpuls, Ø Leistung, max Leistung und beste 20 Minuten überall: auf der Aktivität (TR3) jetzt; Tour-Rückblick und Tempo baut Design-Refresh mit denselben Feldern (`wAvg`, `wMax`, `wDevice`, `w20` in `activities`).
+- **Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training.**
+- **Noah 13.10.2026 21:15 UTC «1a 2a 3a 4a»:** 1 Rückblick auf der Ansicht «Woche» neben dem Plan, kein eigener Reiter; 2 Training öffnet mit «Woche»; 3 alles in einem Paket; 4 Wetter bei einer Aktivität später nachbauen.
+- **Selbst entschieden:** Feste Termine und Erholung aus Aktiv › Woche (AK1/AK2) kommen mit «Aktiv ausweiten». Plan und Ziel in den Einstellungen (`training.plan`, `training.goal`, im Backup), geplante Einheiten älter als 120 Tage fallen weg. Eine geplante Einheit gilt als gemacht, wenn am Tag eine Aktivität derselben Art kommt. Der Server schickt den Puls als Sekunden pro Schlag, so braucht eine geänderte Zone keinen neuen Abruf; nie Strecke oder Karte. Von selbst nur die neusten 8 Aktivitäten mit Puls der letzten 90 Tage (Strava erlaubt 100 Abrufe pro 15 Minuten, die App teilt sich den Zugang), ältere beim Öffnen. Ohne Strava-Zonen: Standard aus Maximalpuls 190 (60/70/80/90 %). «Gleiche Strecke» = gleicher Name und gleiche Art, Distanz ±10 %. Die Notiz bleibt in der App, nicht in Strava. Wetter und Kalorien: Kalorien aus Strava, Wetter noch nicht. Eigene Farben für die Zonen als Tokens `--z1` bis `--z5`. Trennen mit «Fahrten löschen» löscht auch die Aktivitäten.
+## 14.10.2026: 0.136.0 «Inhalte Flow» + «Wusstest du»
+
+- Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW.
+- **Entscheide Noah:** 1b «Das kann die App hier» als Zeile zum Aufklappen (bewusste Ausnahme zu «Weniger Meta»), 2a Tipp-Zeile, 3a Kacheln «Weiter», 4a englische Seiten mit «EN» über Google Übersetzer (kommt mit den Sportarten), Flow zuerst; WD 1a Wissen zuerst an, 2a Erde/Everest immer für den gewählten Zeitraum.
+- **Selbst entschieden:** Untertitel der Kacheln fest statt mit Live-Zahlen; × blendet den Tipp für heute aus; eigene Links pro Seite (höchstens 8) neben höchstens 7 eigenen Kacheln; die ausgeblendete Zeile kommt über «Alle Tipps» zurück; «Tipps für diese Seite ›» unter den Kacheln, wenn keine Tipp-Zeile da ist; Föhn = trocken (unter 1 mm), Wind vor allem aus Süden (140–230°) und Böen ab 45 km/h aus Open-Meteo (keine Föhnmeldung von MeteoSchweiz frei verfügbar); Erde/Everest gehören zu «Wissen und Witziges» und verschwinden mit «Nur nützliche Tipps»; ohne Zeitschätzung «bei deinem Tempo» (der Zeitraum ist wählbar); IF2 Meditation wartet auf die neue Meditationsseite (anderer Thread).
+
+## 14.10.2026: 0.135.0 «Meditation und Timer»
+
+(Mockup-Freigabe: ME1–ME3 und Z1–Z5 «ME1-ME3 und Z1-Z5 freigeben» Noah 13.10.2026 16:02 UTC; Antworten «1a 2a 3a 4b 5b» und Timer «1-5a» 13.10.2026; Reihenfolge «vor Bündel B» 14.10.2026 04:25 UTC)
+
+- Heute bleibt wie HN0 (Noah 14.10.2026 21:00 UTC «HN0 so freigeben», «gilt ab sofort als gesichert»): ME1 (Meditationskarte zuoberst) und Z1 (Timer-Kachel) sind gebaut, kommen aber erst nach Noahs Prüfung gegen HN0.
+- Meditation ist ein eigener Reiter in Aktiv (ME2). Noah 15.10.2026 «1a» (Paket Aktiv): Aktiv öffnet wieder mit Heute, Meditation ist der zweite Reiter.
+- Name «Meditation» überall; der Spitzname «Kissenzeit» geht mit einer einmaligen Datenänderung, ein eigener Name bleibt.
+- Timer: «Timer» zählt hoch, Ziffernblatt Digital zuerst, Klangschale am Ende, das Log füllt sich selbst, Notiz freiwillig (Z «1-5a»).
+- «Was dir hilft» im Rückblick ist nur Beobachtung, nie ein Rat.
+- ME4 Yoga ist nicht dabei; es kommt als eigener Teil (freigegeben 14.10.2026 «ME4 freigabe»).
+- Regel A (Noah 14.10.2026 20:15 UTC «a a»: nichts springt von selbst): Nach dem End-Gong öffnet sich die Auswertung nicht mehr von selbst; unten steht «Fertig · 20 Min gespeichert» mit dem Link «Wie war's? ›», bis man tippt oder schliesst. «Beenden» (ein Tipp) öffnet die Auswertung weiter direkt.
+- **Selbst entschieden:** die Zeile «Uhr» auf der Meditationsseite führt zu den Ziffernblättern; die Timer-Arten sind ein Tabstopp, die Pfeiltasten wählen.
+
 ## 14.10.2026: 0.133.0 «Design-Refresh» (Bündel A)
 
 - (Mockup-Freigabe: SN4g «freigabe» 13.10.2026 22:24 UTC; SN6 22:59/23:12 UTC mit Antworten; SN1–SN7 23:04 UTC; AB1–AB6 «freigabe» 14.10.2026 00:06 UTC, Antworten «1a 2a 3b 4a und b» 00:52 UTC; HG1 «HG1 freigegeben» 01:02 UTC, Antworten «1a 2b 3 …» 00:55 UTC und «1a 2a» 01:01 UTC; FE1 ohne Bilder «b» 13.10. 23:52 UTC, FE13/FE14/FE16 «a» 23:56 UTC; Name «Wi gaht's?» 01:34 UTC; Übernahme der alten Tagescheck-Karte «a) ja, alle drei übernehmen» 01:52 UTC und «ok. freigabe» 02:58 UTC)
@@ -1299,6 +1325,22 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
+## 14.10.2026: Rechnungen ohne Gebühren (0.139.0)
+
+- **Gratis-Weg statt Stripe** (Noah 14.10.2026 02:36 «1 a und b 2 a und b», 03:39 «1a 2a und b 3a oder b möglich», 03:43 «1a mit auswahlmöglichkeit für andere», 03:52 «alle A-D als mockup», 04:00 «a»): QR-Rechnung aus dem eigenen Konto und hochladbar aus dem E-Banking; bezahlt von Hand und über den Kontoauszug; Rechnungen unter Ich › Bezahlen › Rechnungen; zwei Knöpfe «Bezahlt» und «Bezahlt + Mail»; ohne Referenz schlägt die App vor und bietet «Selbst wählen»; TWINT standardmässig an, pro Rechnung abwählbar; Wege A–D (Kunde meldet, TWINT-Screenshot, Geld erhalten, Sonntags-Erinnerung).
+- **«Zu zahlen»** (Noah 05:02 «a», 05:10 «1-4a» und «a»): Tab neben Rechnungen, Erinnerung 3 Tage vorher (änderbar), Foto bleibt als Beleg, ohne Fälligkeit 30 Tage.
+- **Selbst entschieden:** PDF-Upload wird nicht gelesen (nur Bilder mit QR-Code); Mail am Computer öffnet ohne Anhang (PDF separat teilen); Bestätigungsmail ohne Freischalt-Code; Rechnungen und Erinnerung in der `settings`-Tabelle (keine Schema-Änderung, kommen mit dem Backup mit); Konto und TWINT-Nummer nur in `localStorage`; der Zahl-Link trägt die Rechnungsdaten im Teil nach `#`, der Server speichert nur Rechnungsnummer und Zahlweg (`api/_lib/report.js`, Redis, 60 Tage); der Text-Leser für TWINT-Screenshots (Tesseract.js) lädt erst beim ersten Gebrauch vom CDN (etwa 5 MB), das Bild bleibt auf dem Gerät; die Karten auf Heute (Sonntag, fällige Rechnung) und der Teilen-Weg für Bilder kommen in einem eigenen kleinen Release, sobald Design-Refresh und «Inspiration» auf main sind.
+## 14.10.2026: Persönlich und Standard, Standard-Paket und «Listen und Typen» (0.134.0)
+
+- **Änderungen im Standard kommen als Vorschlag (Noah 1a):** Ändert sich der Standard, sieht die Person «Neu im Standard: übernehmen?»; nie automatisch. Grundlage: `standardChanges` in `src/lib/standard.js`.
+- **Standard enthält beides (2):** die Grundlisten und erfundenes Beispiel-Material, Beispiel-Touren und Vorlagen.
+- **Reihenfolge (3a):** zuerst Listen in der App änderbar («Listen und Typen», Mockups LI1–LI3), dann der Profil-Wechsel.
+- **Umschalten (4a):** ein Schalter unter Ich › Die App.
+- **Neuer Nutzer (5, «passt»):** Die Grundlisten sind immer da; beim ersten Start fragt die App einmal «Mit Beispielen starten» oder «Leer starten»; Beispiele lassen sich später entfernen.
+- **Selbst entschieden:** Das Verzeichnis kopiert keine Liste, es liest jede von ihrem Ort (`docs/daten.md` Regel 2). Eigene Änderungen liegen getrennt als Einstellung `listOverrides` (reist im Backup mit); ausgeblendete Einträge bleiben in der Liste markiert, damit nichts, was sie nutzt, bricht. Die Start-Aktivitäten «Im Flow» und die Ideen bleiben vorerst, wie sie sind; neutrale Beispiele kommen mit «Mit Beispielen starten» (eigene Mockups).
+- **«Listen und Typen» (Mockups LI1–LI4, Noah «LI1–LI4 freigegeben»):** Standard-Einträge dürfen auch gelöscht werden (1b); Reihenfolge mit Pfeilen hoch und runter (2b); zusätzlich «Liste bearbeiten» dort, wo die Liste vorkommt (3b). **Kategorien zuerst (Noah «a»):** jede weitere Liste kommt später als eigenes kleines Release.
+- **Selbst entschieden («Listen und Typen»):** Auf dem Handy ist das Auge nicht in der Zeile (Platz für den Namen bei 320 px); Ausblenden geht dort im Fenster des Eintrags. «Gilt für» (Sportarten-Chips in LI3) ist noch nicht gebaut: Kategorien haben heute keinen Bezug zu Sportarten; Frage an Noah. Die Übersicht zeigt nur Listen, die schon änderbar sind (Kategorien, Checks pro Reiseart). «Liste bearbeiten» steht in Material › Sortieren und filtern, wo die Kategorien gewählt werden.
+
 ## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
 
 - **Bei Belegen immer die Kamera** (Noah 14.10.2026 «bei belegen immer», Mockups K1–K4 «freigegeben»): Überall, wo ein Beleg dazukommt, steht auf dem Handy «Beleg fotografieren» (öffnet die Kamera direkt) und «Galerie». Am Computer (keine grobe Zeigereingabe) bleibt ein Knopf «Foto wählen», weil der Browser dort ohnehin den Dateidialog zeigt.
@@ -1309,3 +1351,63 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 14.10.2026: Eine Zahl pro Sache (0.137.0, Durchklick DK1–DK3)
+
+- **Fällig (Noah 14.10.2026 «1-5 freigeben», Antwort 1a):** fällig ist ein Service, der fällig ist, oder ein Problem, das vor der nächsten Fahrt behoben sein muss (Status «braucht Arbeit», «Vor der nächsten Fahrt» oder Datum heute oder früher). Velopflege, Velos, Heute und die Zahl im Menü zählen dieselben Punkte.
+- **Selbst entschieden:** Die Zahl im Menü zählt jetzt Punkte statt Velos (wie im Mockup DK1). Probleme ohne «vor der nächsten Fahrt» und ohne Datum bleiben unter Probleme, zählen aber nicht als fällig. Der Text auf Heute «{n} Punkte fällig» wird «{n} fällig», sobald 0.133.0 auf main ist (Home.svelte wartet bis dann).
+- **Tour-Gewicht (Noah 14.10.2026, Antwort 2a):** eine Tour hat ein Gewicht: alles gepackt und getragen, mit Essen und Wasser und getragenen Taschen (`packG`). Kopf, Gewichtskarte und Heute zeigen es; nicht getragene Taschen, Velo und Fahrer bleiben im Systemgewicht.
+- **Selbst entschieden (DK2):** Material zählt Essen im Kopf mit, damit Kopf, Kachel und «Ungewogen» gleich sind. Die Zeile «… ohne Gewicht · wiegen» zählt nur Teile wie die Ansicht; Velos und Taschen ohne Gewicht bleiben in der Wiege-Reihe und im Menü-Zähler «Gewichte erfassen». Sind nur sie offen, heisst die Zeile «Velos und Taschen wiegen». Auf der Gewichtskarte heisst die Zeile «Verpflegung und Wasser» (bestehender Text) statt «Essen und Wasser» wie im Mockup.
+- **Wartet auf 0.133.0:** Heute zeigt das Tour-Gewicht erst nach dem Merge von 0.133.0 als `packG` (Home.svelte wird bis dann nicht angefasst); bis dahin zeigt Heute noch das Gewicht ohne Getragenes.
+## 14.10.2026: Release-Analyse «Was wurde verdrängt?»
+
+Noah 14.10.2026 00:41 UTC: zu jedem Release die neuen Features, was wichtig war, und ob spätere Releases Früheres verdrängt, überschrieben oder unsichtbar gemacht haben. Geprüft wurden alle 137 Versionen (0.1.0 bis 0.124.0) am gebauten main mit erfundenen Daten. Ergebnis: rund 160 von 180 Funktionen sind wie vorher da; 16 Funde (F1–F16), meist «tiefer gerutscht». Häufigste Ursache: Nebenwirkungen unter «Selbst entschieden» im Design-Refresh 0.103–0.109; dazu Ersetzen ohne Frage (0.114 «wie letzte Tour», 0.119 Schnellstart) und neue Kacheln, die Altes nach unten schieben.
+
+Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
+- **(1a)** Alle wichtigen und mittleren Funde bekommen Mockups als ein Paket «Wieder sichtbar» (WS1–WS7). Meditation (F1) und Stoppuhr am Computer (F8) laufen über das schon freigegebene Meditations-Paket.
+- **(2a)** Nur noch Schnellstart: die alte «Tagestour jetzt» verschwindet aus dem Neu-Menü, der Suche und den Tipps.
+- **(3a)** Jeder Release-PR hat ab jetzt einen Abschnitt **«Was fällt weg oder rutscht tiefer»**: was nicht mehr da ist, was hinter «Mehr», in eine Falte oder weiter nach unten wandert, oder «nichts». Noah sieht es vor dem Merge.
+- **(4a)** Das Meditations-Paket (ME1–ME3, Z1–Z5) kommt vor Bündel B.
+- **Noah 14.10.2026 18:27 UTC «1b 2b», «hb freigeben» (Mockup HB2):** Handbuch als eigene Seite Ich › Handbuch; «Kleine Apps» als Zeile und Seite unter Ich › Die App. «Was die App alles kann» bleibt wie es ist. Kommt als eigene Version 0.133.1 (PR #166; Noah 14.10.2026 19:39 UTC «2b»: jeder PR einzeln).
+
+## 14.10.2026: Start-Taschen in der leeren App, Wander-Rucksack 15 L
+
+- **Leere App ohne Mini Bag und Cargo Bag (Noah 14.10.2026):** die Start-Taschen aus `bikes.js` entstehen nur, wenn eine Tasche der ersten Excel in den Daten ist.
+- **Wander-Rucksack 15 L (Noah 14.10.2026 «b»):** eine neue Wandertour startet mit «Rucksack 15 L» statt 30 L, passend zu den Vorschlägen von 12–15 L. Skitour bleibt bei 30 L; alte Touren behalten ihren gespeicherten Rucksack.
+
+## 14.10.2026: Inspiration sammeln (UC2-1, UC2-2, UC2-4), 0.133.3 (Arbeitsnummer)
+
+- **Freigabe:** Mockups UC2-1 «Inspiration», UC2-2 «Aus der Notiz wird …», UC2-4 «Link erkannt» (13.10.2026), Noah «3b» + «a» (nur eigene Links, keine Liste der App), 4a (Packregel, Wunschliste oder Notiz), 5a (Hinweis beim Packen). Lokal gebaut, noch kein PR (GitHub pausiert); Version, «Was ist neu» und Funktionskatalog sind ergänzt (0.133.3).
+- **Seite `#/inspiration`:** am Computer ein Eintrag unter den fünf Orten (mit «neu», bis er einmal offen war), am Handy Ich › Inspiration (Daten, unter Notizen), nicht in der unteren Leiste; Suche findet sie (`menu.js`).
+- **Art aus der Adresse (`inspiration.js` detectType):** Video, Hör-Tipp, Route, Rig, Packliste, Rennen, Produkt, Anleitung; erkennt die App nichts, wählst du die Art. Nichts wird geladen, kein fremder Text, kein Foto; Titel nur als Vorschlag aus der Adresse, Zahlen und Stichworte sind deine eigenen.
+- **Speicher ohne neue Tabelle und ohne Datenbank-Version:** Rigs und Rennen bleiben in `settings.rigLinks` (gleiche Liste wie Velos › Setup, nie doppelt), alle anderen Arten in `settings.inspoLinks`. Wechselt die Art, zieht der Link um. Beide sind im Backup (Test in `tests/inspiration.test.js`).
+- **Aus der Notiz wird …:** Packregel = ein Eintrag in `learnings` mit `inspo` (Quelle, Link) und `packHint`; er erscheint beim Packen als ruhiger Hinweis unter «Aus früheren Touren» (höchstens 2, neueste zuerst, «✕» blendet aus, die Regel bleibt unter «Was die App gelernt hat») und zählt nicht bei «Aus früheren Touren». Wunschliste = Gegenstand mit `ownership: 'wishlist'` (Produkt mit Gewicht und Preis in der Notiz). Notiz = gemerkte Notiz mit Link. Jede Übernahme steht am Link (`taken`) für «Zuletzt übernommen».
+- **Selbst entschieden:**
+  - Route → «Tourentwurf» legt eine Tour-Idee an wie «Aus Notiz wird …» auf der Notizen-Seite (Titel der Route, Tage aus deinen Zahlen, erstes Velo); ohne Velo ein Hinweis. Rennen → «Kalender» speichert eine Kalenderdatei (.ics, ganztägig über die Renntage); einen Kalender in der App gibt es nicht. «Rigs dieses Rennens: n» führt zu Velos › Setup.
+  - Geteilter Link (Android «Teilen» › Pack Generator): ein Link öffnet «Link hinzufügen» auf Inspiration, mit «Lieber in den Eingang» als Ausweg; Text ohne Link geht wie bisher in den Eingang. Der bestehende Share-Target reicht, keine Änderung am Manifest.
+  - Vorschau «So sieht es beim Packen aus» zeigt den echten Hinweis über angedeuteten Zeilen statt einer erfundenen Packliste.
+  - Hör-Tipp: der Schalter «Im Bereit-Check vor der Fahrt zeigen» aus dem Mockup ist nicht gebaut (braucht den Bereit-Check, eigenes Paket); ein Hör-Tipp hat «Das übernehme ich» mit → Packregel und → Notiz. Typ «Anleitung» hat einen eigenen Filter-Chip «Anleitungen».
+  - Velos › Setup behält beim Ändern eines Rig-Links, was Inspiration ergänzt hat (Notiz, Zahlen, Übernahmen).
+  - Funktionskatalog: `f.inspiration` in der Gruppe «Vor der Tour», seit 0.133.3, drei Schritte (`howto.js`) und Handbuch-Eintrag; `docs/handbuch.md` neu erzeugt (bringt auch die fehlenden Einträge «Tour aus komoot» und «Wi gaht's?» mit).
+  - Kachel «Neu» auf Heute: in einer schmalen Kachel (halbe Breite am Handy) rutscht der Text unter das Symbol statt daneben, damit ein langes Wort im Titel («Inspiration») nicht mitten im Wort bricht (Wächter, Heute @390).
+  - Release auf 0.133.0 «Design-Refresh» (PR #168) aufgebaut, per Merge-Commit; Version 0.133.3 ist eine Arbeitsnummer und wird vor dem Link an Noah auf «höher als main» gesetzt.
+
+## 15.10.2026: Paket 1 «Doku und Ich» als ein Release 0.134.0
+
+- **Ein Release statt sechs (Thread «Mein Überblick» bündelt):** #165 Doku «Zwischenstand», #160 Doku «Release-Analyse / Was fällt weg», #166 Ich › Handbuch + Ich › Kleine Apps, #161 leere App ohne Start-Taschen + Wandern 15 L, «Inspiration sammeln» und #159 «Listen und Typen» (mit Standard-Paket) kommen zusammen als 0.134.0, je per echtem Merge-Commit. Die Arbeitsnummern 0.133.1, 0.133.2 und 0.133.3 fallen weg; «Was ist neu» hat einen einzigen Eintrag 0.134.0 «Deine App, deine Ordnung» (Datum 15.10.2026).
+- **Selbst entschieden:**
+  - Reihenfolge unter Ich › Die App: Was die App alles kann, Handbuch, Kleine Apps, Listen und Typen, Was ist neu (die zwei HB2-Zeilen wie im Mockup direkt nach «Was die App alles kann», «Listen und Typen» danach).
+  - «Was ist neu» 0.134.0: drei Hauptpunkte (Inspiration, Kategorien selber ändern, Handbuch + Kleine Apps), drei kleine Dinge (Neu: «Liste bearbeiten» im Material; Schöner: Wandern mit 15 L; Repariert: leere App ohne Taschen). Die deutschen Texte der Teile sind wiederverwendet, wo sie passen; die alten Schlüssel bleiben in `de/whatsnew.js`.
+  - `f.inspiration` und `f.lists` sind «seit 0.134.0»; `f.abfragen` bleibt bei 0.133.0 (Test fest auf 0.133.0 statt auf die neueste Version). Die Liste «neueste zuerst» beginnt mit Inspiration und Listen und Typen.
+  - `docs/handbuch.md`: Eintrag «Deine eigenen Kategorien» nachgetragen (99 Funktionen).
+
+## 15.10.2026: Paket 2 «Ruhe, Training und Rechnungen» als ein Release 0.135.0
+
+- **Ein Release statt fünf (Thread «Mein Überblick» bündelt, Reihenfolge von Noah):** Meditation und Timer (ME2, ME3, Z2–Z5), #173 Inhalte Flow + Wusstest du, #170 Eine Zahl pro Sache (DK1–DK3, dazu Heute H1/H2 aus dem lokalen Zweig), #167 Training (TR1–TR4) und #169 Rechnungen ohne Gebühren (QR1–QR9). Je ein echter Merge-Commit pro Teil; die Arbeitsnummern 0.136.0–0.139.0 fallen weg. Die Entscheide der Teile stehen in ihren Abschnitten oben.
+- **Selbst entschieden:**
+  - Aktiv hat fünf Reiter: Heute, Meditation (der zweite, Noah 15.10.2026 «1a»), Training, Ziele, Aktivität. Der Test «höchstens 4 Reiter pro Ort» erlaubt bei Aktiv wie bei Velos 5.
+  - Datenbank: Version 9 `abAnswers`, 10 `activities` (Training), 11 `timerLog` (Timer), aufsteigend; `SCHEMA_VERSION` 11. `actdata.js` liest die Tabelle `activities` jetzt (vorher «noch keine Tabelle»).
+  - Am Ende von Aktiv › Heute stehen beide: «Das kann die App hier» mit den Kacheln «Weiter» (#173) und darunter die Kachelreihe der Seite (SK, 0.133.0). Zusammenlegen ist eine offene Frage an Noah.
+  - «So geht's» bekommt drei Schritte für `f.pagetips`, `f.training`, `f.invoices` und `f.bills` (die PRs kamen vor «So geht's»).
+  - «Was ist neu» 0.135.0: drei Hauptpunkte (Meditation + Timer, Training, QR-Rechnung), drei kleine Dinge (Tipp des Tages, Zu zahlen, eine Zahl pro Sache); die Texte der Teile sind wiederverwendet, wo sie passen.
+  - Service Worker: `maximumFileSizeToCacheInBytes` von 4 auf 6 MiB, weil das App-Bündel 4,4 MB hat; sonst startet die App offline nicht.

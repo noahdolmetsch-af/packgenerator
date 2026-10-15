@@ -10,7 +10,7 @@ import { createDb } from '../src/lib/db.js';
 import { SLOT, WORN_SLOTS, isWornSlot, isWornBag, placesOf, bagsFor, bikeSetup, containerWeight } from '../src/lib/bikes.js';
 import { tripStats, axleLoad, switchBike, absorbBags, bagItemIds, ensureTrips, packSteps, slotFor } from '../src/lib/trips.js';
 import { bikeChoice } from '../src/lib/choice.js';
-import { newPackTrip } from '../src/lib/domains.js';
+import { newPackTrip, DOMAINS } from '../src/lib/domains.js';
 import { suggestPacks, suggestBack, rankBags, wantFor, fitScore, litreWarning, choosePack, genericPacks, alsoBagRecord, alsoBagOf, setAlsoBag, isUltra } from '../src/lib/backpacks.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -197,8 +197,10 @@ describe('real backpacks for a trip without a bike', () => {
 
   it('choosing a real pack: name, litres and weight from the bag; the generic one stays as fallback', () => {
     const t1 = newPackTrip({ title: 'Walk', startDate: '2026-11-01', days: 1, domain: 'hiking' }, [], [], 1);
+    // the hiking start pack comes from the app source (Noah 14.10.2026 «b»: 12–15 L)
+    const { key, name, volumeL } = DOMAINS.find((d) => d.key === 'hiking').packs[0];
     const withA = { ...t1, entries: [{ itemId: 'A', slot: 'pack', qty: 1 }], ...choosePack(t1, 'pack', 'bag-run15') };
-    expect(withA.packs[0]).toMatchObject({ key: 'pack', name: 'Backpack 30 L', bagId: 'bag-run15' });
+    expect(withA.packs[0]).toMatchObject({ key: 'pack', name, bagId: 'bag-run15' });
     expect(genericPacks(withA)).toEqual([]);
     const s = tripStats(withA, items, bags, null, null);
     const z = s.zones.find((x) => x.key === 'pack');
@@ -206,9 +208,9 @@ describe('real backpacks for a trip without a bike', () => {
     expect(s.bagsG).toBe(290);
     expect(s.baseG).toBe(400);
     // back to the generic pack, and a deleted bag falls back as well
-    expect(choosePack(withA, 'pack', null).packs[0]).toEqual({ key: 'pack', name: 'Backpack 30 L', volumeL: 30 });
+    expect(choosePack(withA, 'pack', null).packs[0]).toEqual({ key, name, volumeL });
     const gone = tripStats(withA, items, [], null, null).zones.find((x) => x.key === 'pack');
-    expect(gone.bag).toMatchObject({ id: 'pack-pack', volumeL: 30, pack: true });
+    expect(gone.bag).toMatchObject({ id: 'pack-pack', volumeL, pack: true });
     expect(gone.bag.real).toBeUndefined();
   });
 
