@@ -36,8 +36,17 @@ const TIMEOUT = 90_000;
 
 export const thisMonth = (day = localDay()) => day.slice(0, 7);
 
+/** Settings saved before 15.10.2026 hold the old default CHF 5; they count as the new CHF 2 once.
+ *  Every save from now on stores capV 2, so a limit of 5 the person sets later stays 5. */
+const CAP_V = 2;
+const capOf = (value) => {
+  const n = Number(value?.capChf);
+  if (!(n > 0)) return DEFAULT_CAP;
+  return n === 5 && value?.capV !== CAP_V ? DEFAULT_CAP : n;
+};
+
 /** The settings as stored, with the defaults filled in. */
-export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', show: value?.show === true, capChf: Number(value?.capChf) > 0 ? Number(value.capChf) : DEFAULT_CAP, model: modelOf(value?.model) });
+export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', show: value?.show === true, capChf: capOf(value), model: modelOf(value?.model) });
 
 /** Paused by the limit: this month's spend reached the device's cap or the server's. */
 export function pausedBy(settings, spend, month = thisMonth()) {
@@ -69,7 +78,7 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
 /** Save part of the settings ({ code } / { show } / { capChf } / { model }); the other fields stay as stored. */
 export async function saveSettings(patch) {
   const cur = settingsOf((await db.settings.get(HELPER_KEY))?.value);
-  await db.settings.put({ key: HELPER_KEY, value: { ...cur, ...patch } });
+  await db.settings.put({ key: HELPER_KEY, value: { ...cur, ...patch, capV: CAP_V } });
 }
 
 async function keepSpend(spend, capped = false) {

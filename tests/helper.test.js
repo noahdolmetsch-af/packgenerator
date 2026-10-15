@@ -110,6 +110,11 @@ describe('settings and the monthly limit (answer 7a)', () => {
     expect(settingsOf({ code: 'x', show: true })).toEqual({ code: 'x', show: true, capChf: 2, model: 'claude-sonnet-5-5' });
     expect(settingsOf({ code: 'x', show: 'yes' }).show).toBe(false);
   });
+  it('an old saved limit of CHF 5 (the old default) counts as CHF 2; a 5 saved from now on stays', () => {
+    expect(settingsOf({ code: 'x', capChf: 5 }).capChf).toBe(2);
+    expect(settingsOf({ code: 'x', capChf: 5, capV: 2 }).capChf).toBe(5);
+    expect(settingsOf({ code: 'x', capChf: 7 }).capChf).toBe(7);
+  });
   it('keeps Haiku 5.5 when picked, anything unknown is Sonnet 5.5', () => {
     expect(settingsOf({ model: 'claude-haiku-5-5' }).model).toBe('claude-haiku-5-5');
     expect(settingsOf({ model: 'claude-opus-5-5' }).model).toBe('claude-sonnet-5-5');
