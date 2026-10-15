@@ -846,13 +846,34 @@ export function heartOfRide(entries, ride) {
 /**
  * v0.121.0 (Noah 12.10.2026 «1a», mockups SZ1–SZ2): the uploaded rides plus the counted Strava rides, for «This week» and
  * «Bike this month». A Strava ride that was also uploaded as a file counts once (the file).
+ * 0.136.0: acts (db.activities, «Training») adds the Strava rides that have no ledger entry at all: a ride
+ * before a bike's start point (its km are in the start reading, so the bike's ledger leaves it out) was
+ * still ridden this month. A ride with a ledger entry follows that entry (open: after «Passt»; removed:
+ * never); an indoor ride without a bike is no ride (as stravasync toRides).
  */
-export function withStravaRides(rides = [], entries = []) {
+const INDOOR = /virtual|indoor|trainer/i;
+export function withStravaRides(rides = [], entries = [], acts = []) {
   const files = rides ?? [];
   const extra = (entries ?? [])
     .filter((e) => e.source === 'strava' && e.kind === 'ride' && counts(e) && !files.some((r) => sameFileRide(e, r)))
     .map((e) => ({ id: e.id, date: e.date, km: Number(e.km) || 0, gainM: Number.isFinite(e.hm) ? e.hm : null, bikeId: e.bikeId, source: 'strava' }));
-  return [...files, ...extra];
+  const known = new Set((entries ?? []).filter((e) => e.stravaId).map((e) => String(e.stravaId)));
+  const more = (acts ?? [])
+    .filter((a) => a?.kind === 'bike' && a.day && !known.has(String(a.id)) && !((INDOOR.test(a.type ?? '') || a.trainer) && !a.gearId))
+    .map((a) => ({ id: `act:${a.id}`, date: a.day, time: a.start ?? null, km: Number(a.km) || 0, gainM: Number.isFinite(a.hm) ? a.hm : null, bikeId: null, source: 'strava' }))
+    .filter((a) => !files.some((r) => sameFileRide(a, r)));
+  return [...files, ...extra, ...more];
+}
+/** 0.136.0: the Strava rides of «Training» for withStravaRides (an empty list where the table is missing). */
+export const bikeActs = (db) => (db.activities ? db.activities.where('kind').equals('bike').toArray() : []);
+
+/**
+ * 0.136.0: Strava rides of this month (up to today) that still wait in «Zum Prüfen» (no bike yet). They
+ * count only after «Passt» (0.121.0), so «Velo in diesem Monat» names them instead of quietly showing less.
+ */
+export function waitingThisMonth(entries = [], today) {
+  const from = `${String(today).slice(0, 7)}-01`;
+  return (entries ?? []).filter((e) => waitsInStrava(e) && e.kind === 'ride' && e.date >= from && e.date <= today).length;
 }
 
 /* ---------- «Werte überall» (Noah 13.10.2026 «1-5a», mockups WU1–WU4 approved «ich gebe alle bild mockups frei») ---------- */

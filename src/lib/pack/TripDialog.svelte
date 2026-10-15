@@ -661,8 +661,8 @@
         {/if}
         <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
           {#if chosenTpl}<b>{chosenTpl.name}</b> · {tplLine(chosenTpl)}
-          {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null} · {t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
-          {:else}<b>{t('Standard')}</b>{#if preview} · {tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
+          {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null}{' · '}{t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
+          {:else}<b>{t('Standard')}</b>{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
         </span></p>
         <p class="note small">{t('Save your own templates from a trip with «Save as template».')}{#if examples.length} <button type="button" class="tp-link" onclick={hideExamples}>{t('Hide examples')}</button>{/if}</p>
       </div>

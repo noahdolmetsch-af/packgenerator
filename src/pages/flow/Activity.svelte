@@ -33,7 +33,7 @@
   import { tickWith, toast, actName } from '../../lib/flow/ui.svelte.js';
   import { tileName } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
-  import { withStravaRides } from '../../lib/kmbook.js';
+  import { withStravaRides, bikeActs } from '../../lib/kmbook.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
   import SortGrip from '../../lib/ui/SortGrip.svelte';
   import { sortable } from '../../lib/ui/sortable.js';
@@ -137,7 +137,8 @@
      the rest folded under «Mehr» */
   // v0.121.0 (Noah «1a»): the counted Strava rides count too
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
-  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? []) }) : []);
+  const actQ = liveQuery(() => bikeActs(db));
+  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? [], $actQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');
   const sgQ = liveQuery(async () => {
     const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);
@@ -274,7 +275,7 @@
         {@const ring = s.act?.ring ?? s.tpl?.ring}
         <li data-sugg={s.id}>
           <span class="dot {ring}" aria-hidden="true"></span>
-          <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : `${s.min} min`}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
+          <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : t('{n} min', { n: s.min })}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
           <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={18} aria-hidden="true" /></button>
           <button type="button" class="ib plus" aria-label={t('Tick {name}', { name: suggName(s) })} onclick={() => doSugg(s)}><Plus size={20} aria-hidden="true" /></button>
         </li>

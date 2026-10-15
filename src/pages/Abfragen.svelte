@@ -80,7 +80,7 @@
             {:else}
               <button type="button" class="ah tap" aria-expanded={!!open[g.key]} onclick={() => (open = { ...open, [g.key]: !open[g.key] })}>
                 <span class="ich-ib"><AreaIcon area={g.key} /></span>
-                <span class="ich-m"><b id="ab-a-{g.key}">{areaName(g.key)}</b><small><span class="num">{t('{n} questions · {on} on', { n: c.all, on: c.on })}</span>{#if !open[g.key]} · {t('e.g. «{q}»', { q: qText(exOf(g.list)) })}{/if}</small></span>
+                <span class="ich-m"><b id="ab-a-{g.key}">{areaName(g.key)}</b><small><span class="num">{t('{n} questions · {on} on', { n: c.all, on: c.on })}</span>{#if !open[g.key]}{' · '}{t('e.g. «{q}»', { q: qText(exOf(g.list)) })}{/if}</small></span>
                 {#if open[g.key]}<span class="fold">{t('collapse')}<ChevronUp size={16} aria-hidden="true" /></span>{:else}<ChevronDown class="ich-chev" size={18} aria-hidden="true" />{/if}
               </button>
             {/if}

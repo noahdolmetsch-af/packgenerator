@@ -204,7 +204,7 @@
       {/if}
 
       <div class="sticky">
-        <p class="sum"><b>{sum.line}</b><span class="num">{tn(sum.n, '{n} item', '{n} items')} · {weight(sum.g, sum.missing, sum.n)}{#if byBike && bikeName} · {bikeName}{/if}</span></p>
+        <p class="sum"><b>{sum.line}</b><span class="num">{tn(sum.n, '{n} item', '{n} items')} · {weight(sum.g, sum.missing, sum.n)}{#if byBike && bikeName}{' · '}{bikeName}{/if}</span></p>
         {#if step < 3}<button type="button" class="btn hi" onclick={() => go(step + 1)}>{t('Next|step')}</button>
         {:else}<button type="button" class="btn hi" onclick={finish}>{t('Save template')}</button>{/if}
       </div>

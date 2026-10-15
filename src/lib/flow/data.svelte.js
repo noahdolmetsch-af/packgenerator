@@ -174,7 +174,7 @@ export async function seedMed(data, actId) {
 export function balanceQuery(today) {
   const from = addDays(today, -6);
   return liveQuery(async () => {
-    const [acts, log, checks, rides, book, pool, off, answers] = await Promise.all([
+    const [acts, log, checks, rides, book, pool, off, answers, bikeActs] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(from).toArray(),
       db.flowChecks.where('day').aboveOrEqual(from).toArray(),
@@ -183,13 +183,14 @@ export function balanceQuery(today) {
       db.settings.get(QUESTIONS_KEY),
       db.settings.get(OFF_KEY),
       db.abAnswers.where('day').aboveOrEqual(from).toArray(), // WG: the «Wi gaht's?» answers count in the ring
+      db.activities ? db.activities.where('day').aboveOrEqual(from).toArray() : [], // 0.136.0: Strava rides before a bike's start point
     ]);
     return {
       answers: answers.filter((a) => a.day <= today),
       acts: acts.map(normAct),
       log: log.filter((e) => e.day <= today),
       checks: checks.filter((c) => c.day <= today),
-      rides: withStravaRides(rides, book).filter((r) => r.date <= today).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null })),
+      rides: withStravaRides(rides, book, bikeActs).filter((r) => r.date <= today).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null })),
       pool: poolOf(pool?.value),
       off: offOf(off?.value),
     };

@@ -516,7 +516,7 @@
             <div class="rv-h"><div><h2 id="un-h">{t('Not used')}</h2><p class="rv-sub num">{t('{used} of {total} items used', { used: usedN, total: totalN })}</p></div></div>
             <div class="rv-box">
               {#if unused.length}
-                {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
+                {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed}{' · '}{t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
                 <ul class="il">
                   {#each unused as e (e.itemId)}
                     {@const out = taken[e.itemId]}
