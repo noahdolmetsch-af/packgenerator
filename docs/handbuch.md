@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 95 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -302,6 +302,17 @@ Ein Teil öffnen, dann das Gewicht: Leichteres aus deinem eigenen Material.
 
 **Beispiel:** Die 450-g-Jacke → deine 210-g-Windjacke würde reichen.
 
+### Deine eigenen Kategorien
+
+Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, löschen, Reihenfolge ändern.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.
+2. Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.
+
+**Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
+
 ### Viele Teile auswählen
 
 Kategorie, Tasche, Archiv oder Baustein für viele Teile auf einmal.
@@ -345,6 +356,29 @@ Eine importierte Liste prüfen: sichere Zeilen übernehmen, die anderen mit je e
 2. Nimm die sicheren Zeilen auf einmal, die anderen mit je einem Tipp.
 
 **Beispiel:** 120 Zeilen → 110 sichere auf einmal, 10 von Hand geprüft.
+
+### Inspiration
+
+Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Adresse, aus einer Notiz wird eine Packregel.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Inspiration (Computer: Seitenleiste; Handy: Ich › Inspiration) und füge deinen Link ein.
+2. Tippe auf «Das übernehme ich»: eine Packregel, ein Teil auf der Wunschliste oder eine Notiz.
+3. Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.
+
+**Beispiel:** Ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.
+
+### Tour aus komoot
+
+komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe in Neue Tour oder Unterwegs auf «Tour aus komoot»: komoot zeigt Vorschläge in deiner Nähe.
+2. Teile eine Tour aus komoot mit der App und lege sie als geplante Tour an.
+
+**Beispiel:** Eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.
 
 ## Packen und unterwegs
 
@@ -883,6 +917,40 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
+### Wi gaht's?
+
+Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › «Wi gaht's?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.
+2. Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.
+
+**Beispiel:** «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.
+
+### Tipps und «Wusstest du»
+
+Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
+2. Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».
+
+**Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
+
+### Training mit Pulszonen
+
+Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rückblick.
+
+**Aufschalten:** Strava verbinden unter Velos › Pflege › Strava.
+
+1. Öffne Aktiv › Training: die Woche mit deinem Plan und dem Rückblick.
+2. Tippe bei einem Tag auf +, um eine Einheit mit Dauer und Zone zu planen.
+3. Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.
+
+**Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
+
 ### Meilensteine
 
 Nur der nächste Stern, und eine Belohnung von der Wunschliste.
@@ -900,7 +968,7 @@ Starten wie letztes Mal oder aus einer Vorlage; Klänge und eine ruhige Uhr.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Aktivität › Meditation.
+1. Öffne Aktiv › Meditation.
 2. Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.
 
 **Beispiel:** 10 min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
@@ -915,6 +983,28 @@ Jede Sitzung, ein Wärmebild der Serie, die beste Tageszeit.
 2. Sieh jede Sitzung, das Wärmebild der Serie und deine beste Tageszeit.
 
 **Beispiel:** 12 Tage in Folge, am häufigsten um 7 Uhr.
+
+### Meditation Rückblick
+
+Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Meditation › «Rückblick».
+2. Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.
+
+**Beispiel:** Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.
+
+### Timer
+
+Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Timer-Seite, wähle eine Art und tippe «Start»; «Gross» zeigt nur noch die Uhr.
+2. Am Ende eine Klangschale; das Log behält jeden Timer mit einer freiwilligen Notiz.
+
+**Beispiel:** Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».
 
 ### Meditation · Mehr
 
@@ -1016,6 +1106,30 @@ Schreibt nach jeder Änderung in einen Ordner deiner Wahl (nur Computer).
 2. Nach jeder Änderung landet dort das neuste Backup, dazu eines pro Tag.
 
 **Beispiel:** Ein Ordner, der in die Cloud synchronisiert → immer ein frisches Backup.
+
+### Rechnungen mit QR-Rechnung und TWINT
+
+Eine Schweizer QR-Rechnung aus deinem Konto mit TWINT; sieh, wer bezahlt hat: von Hand, über den Betrag, aus dem Kontoauszug oder über den Zahl-Link.
+
+**Aufschalten:** Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.
+
+1. Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».
+2. Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.
+3. Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.
+
+**Beispiel:** Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».
+
+### Rechnungen zu zahlen
+
+Fotografiere eine Rechnung, die du bekommen hast: Die App liest sie, erinnert dich vor der Fälligkeit und behält das Foto.
+
+**Aufschalten:** Nichts einzuschalten.
+
+1. Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».
+2. Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.
+3. Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».
+
+**Beispiel:** Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.
 
 ### Testdaten aufräumen
 

@@ -60,7 +60,8 @@ export const TILES = [
   // v0.102.0 «Vorschlag und Challenge» (D1b, Noah «d1-d5 freigeben»)
   { id: 'suggest', area: 'today', label: 'Swim or sauna today?', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.102.0', pitch: 'A suggestion for today with alternatives; any of them can become a challenge.' },
   // v0.116.0 «Strava-Verbindung» (S4): the last fetch from Strava; it goes on top of the wall once, when this device connects
-  { id: 'strava', area: 'bikes', label: 'Strava', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.116.0', pitch: 'New rides from Strava with their km, fetched by themselves.' },
+  // «Training» TR1 (Noah 13.10.2026 5a): the tile becomes «Letzte Aktivität», the newest activity with its zones
+  { id: 'strava', area: 'bikes', label: 'Last activity', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.116.0', pitch: 'Your newest activity from Strava with time, km, Hm, heart rate and zones.' },
   // v0.127.0 «Tages-Check» 2 (mockup T3, Noah «T1–T4 freigegeben»): the balance ring, the morning check, the 15 questions
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)

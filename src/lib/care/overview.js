@@ -44,12 +44,13 @@ export const ringTone = (score) => (score == null ? 'none' : score >= 80 ? 'good
 
 /**
  * At most `max` due cards over all bikes, the most urgent first: a worn part or work needed, then
- * what is overdue, then the 1000 km check and the services by km. Open repairs stay in the problem list.
+ * what is overdue, then the 1000 km check and the services by km. v0.137.0 (DK1): a problem that is due
+ * (readiness.repairDue: before the next ride, its date, work needed) is a card too; the others stay in the problem list.
  * checks: [{ bike, care }] with care from readiness.bikeCare. Returns { cards: [{ bike, row, rank }], total }.
  */
 export function dueCards(checks, max = 3) {
-  const rank = (r) => (r.kind === 'part' ? 3 : r.kind === 'time' ? 2 : r.kind === 'check' ? 1 : 1);
-  const all = checks.flatMap((c) => (c.care?.rows ?? []).filter((r) => r.kind !== 'repair').map((row) => ({ bike: c.bike, row, rank: rank(row) })));
+  const rank = (r) => (r.kind === 'part' ? 3 : r.kind === 'time' || r.kind === 'repair' ? 2 : 1);
+  const all = checks.flatMap((c) => (c.care?.rows ?? []).map((row) => ({ bike: c.bike, row, rank: rank(row) })));
   all.sort((a, b) => b.rank - a.rank);
   return { cards: all.slice(0, max), total: all.length };
 }

@@ -12,6 +12,10 @@
  *   POST ?step=order { lines: [{ id, qty, slot? }], returnTo } → { url }
  *   GET  ?step=confirm&session_id=…          → { order: { lines, seller }, downloads: [{ id, grant }] } for an order (places are booked once)
  *   POST ?step=download { grant }            → { id } when the grant for a bought template is genuine
+ * «Ich habe bezahlt» (QR5, free way without Stripe; only the Redis store is needed, see _lib/report.js):
+ *   POST ?step=report  { box, no, way }      → { ok } a payer says «paid» for invoice no (no personal data)
+ *   POST ?step=reports { key }               → { reports: [{ id, no, way, at }] } for the key's box, newest last
+ *   POST ?step=forget  { key, ids }          → { ok } the app handled these reports
  *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
  *   PAY_MODE=test (anything else = off), STRIPE_SECRET_KEY (sk_test_… only; a live key is refused),
@@ -19,9 +23,10 @@
  *   (then a code works only once; bookings need it), optional PAY_SELLERS (JSON {"seller":"acct_…"},
  *   Stripe Connect accounts of other sellers) and PAY_PLATFORM_FEE_PCT (default 0).
  */
-import { route, json, redis, redisEnv, ApiError } from './_lib/core.js';
+import { route, json, redis, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody, safeReturn, hash } from './_lib/oauth.js';
 import { PLANS, CURRENCY, payEnv, isTestKey, makeLicence, readLicence, readCode, codeExpiry, checkoutForm } from './_lib/pay.js';
+import { readReport, isKey, boxOf, boxKey, newReport, parseReports, REPORT_TTL_S, REPORT_MAX } from './_lib/report.js';
 import { CATALOG, shopEnv, publicCatalog, checkOrder, orderForm, readNote, grantFor, readGrant } from './_lib/shop.js';
 
 export const STRIPE = 'https://api.stripe.com/v1';
@@ -140,6 +145,31 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...shopEnv(), ...redis
           const s = await stripe(cfg, '/checkout/sessions', orderForm(order, { ...back(body.returnTo), account, feePct: cfg.feePct ?? 0, currency: CURRENCY }));
           if (typeof s.url !== 'string' || !s.url.startsWith('https://checkout.stripe.com/')) throw new ApiError(502, 'stripe_error', 'Stripe answered with an error.');
           return json(request, 200, { url: s.url });
+        }
+
+        if (step === 'report') {
+          const r = readReport(body);
+          if (!r) throw new ApiError(400, 'bad_request', 'This report is not valid.');
+          const store = needStore(cfg, doFetch);
+          const k = boxKey(r.box);
+          await store.cmd('RPUSH', k, newReport(r, nowS()));
+          await store.cmd('LTRIM', k, -REPORT_MAX, -1);
+          await store.expire(k, REPORT_TTL_S);
+          return json(request, 200, { ok: true });
+        }
+
+        if (step === 'reports' || step === 'forget') {
+          if (!isKey(body.key)) throw new ApiError(400, 'bad_request', 'Unknown key.');
+          const store = needStore(cfg, doFetch);
+          const k = boxKey(boxOf(body.key));
+          const reports = parseReports(await store.cmd('LRANGE', k, 0, -1));
+          if (step === 'reports') return json(request, 200, { reports });
+          const ids = Array.isArray(body.ids) ? body.ids.map(String) : [];
+          const keep = reports.filter((x) => !ids.includes(x.id));
+          await store.del(k);
+          for (const x of keep) await store.cmd('RPUSH', k, JSON.stringify(x));
+          if (keep.length) await store.expire(k, REPORT_TTL_S);
+          return json(request, 200, { ok: true });
         }
 
         if (step === 'download') {

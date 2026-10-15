@@ -104,6 +104,20 @@ export const HOWTO = {
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
+  // v0.134.0 «Inspiration»
+  'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
+  // v0.134.0 «Listen und Typen»
+  'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
+  // v0.135.0
+  'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
+  // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
+  'f.pagetips': ['Open Aktiv › Heute: the tip of the day stands under the title.', 'Tap «All tips ›»: every tip with its own switch.', 'At the page end: «What the app can do here» and the tiles.'],
+  // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
+  'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
+  // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
+  'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
+  'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
 };
 
