@@ -195,7 +195,7 @@
     {#each rows as r (r.id)}
       <div class="vr">
         <dt>{r.label}</dt>
-        <dd>
+        <dd style:white-space={r.auto ? 'pre-line' : null}>
           {#if r.value != null}{r.value}{#if r.href}{' · '}<a class="inl" href={r.href.href}>{r.href.label}</a>{/if}
           {:else if r.field}{@render enterHere(r.field)}
           {:else}{@render enter(r.edit)}{/if}

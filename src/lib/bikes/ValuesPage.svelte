@@ -18,6 +18,7 @@
   import Empty from '../ui/Empty.svelte';
   import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
+  import PressureHint from './PressureHint.svelte'; // «Werte messen» W4a
   import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, onbike } = $props();
@@ -129,6 +130,8 @@
                   {#if r.num || r.unit}<span class="u">{r.unit}</span>{/if}
                 </span>
               </div>
+              <!-- «Werte messen» W4a: under the target pressure, a suggestion and «calculate» -->
+              {#if r.id === 'fit:pressureR' || (r.id === 'fit:pressureF' && !g.rows.some((x) => x.id === 'fit:pressureR'))}<div class="phrow"><PressureHint bikeId={bike.id} /></div>{/if}
             {/each}
             <button type="button" class="add" onclick={() => newOwn(g.key)}><Plus size={16} aria-hidden="true" />{t('Own field')}</button>
           </section>
@@ -448,5 +451,8 @@
   }
   .err {
     color: var(--bad);
+  }
+  .phrow {
+    margin: -4px 0 8px;
   }
 </style>

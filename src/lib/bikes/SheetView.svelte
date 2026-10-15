@@ -28,6 +28,10 @@
   import SheetFolder from './SheetFolder.svelte';
   import ValueCard from './ValueCard.svelte';
   import { FIT_KEY, fitValue, setFit, readValue } from '../bikespecs.js';
+  import { pickupChecked, againValues, lastReplacement } from '../abholwerte.js';
+  import { pressures, chainState } from '../messen.js'; // «Werte messen» W4–W6
+  import MessenDialog from './MessenDialog.svelte';
+  import PressureHint from './PressureHint.svelte';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
@@ -115,7 +119,7 @@
     const before = { ...(pickup.before ?? {}) };
     if (!(r.id in before)) before[r.id] = fitValue(stored, k);
     const changes = String(v ?? '') === String(fitValue(stored, k) ?? '') ? {} : setFit(stored, k, v);
-    await db.bikes.update(bikeId, { ...changes, sheets: { ...sheetsOf(stored), pickup: { ...tickPickup(pickup, r.id, true), before } } });
+    await db.bikes.update(bikeId, { ...changes, sheets: { ...sheetsOf(stored), pickup: { ...tickPickup(pickup, r.id, true), before, checked: today } } });
     nextVal(r.id);
   }
   const skipVal = async (r) => {
@@ -123,10 +127,49 @@
     nextVal(r.id);
   };
 
+  /* ---------- «Werte messen» W1–W3: what the Pick-up check and the replaced parts add ---------- */
+  const checked = $derived(bike ? pickupChecked(bike) : { date: null, keys: [] });
+  const again = $derived(bike ? againValues(bike) : []);
+  /** The small line under a value of the Bike pass: «checked at the pick-up 14.10.» or «new since 14.10.». */
+  function passNote(r) {
+    const [part, field] = r.id.split(':');
+    if (part === 'fit' && checked.date && checked.keys.includes(field) && r.value != null) return t('checked at the pick-up {date}', { date: dateOf(checked.date) });
+    // W5: the pressure as last measured, under the target
+    if (part === 'fit' && (field === 'pressureF' || field === 'pressureR') && data) {
+      const p = [...pressures(data.view)].reverse().find((x) => x[field === 'pressureF' ? 'f' : 'r'] != null);
+      return p ? t('last measured {value} bar, {date}', { value: num(p[field === 'pressureF' ? 'f' : 'r']), date: dateOf(p.date) }) : '';
+    }
+    if (part === 'fit' || !data) return '';
+    const rep = lastReplacement(data.view, part);
+    // W6: the chain's last wear
+    const wear = part === 'chain' ? chainState(data.view) : null;
+    const w = wear ? t('wear {value} %', { value: num(wear.value) }) : '';
+    if (!rep) return w;
+    return [rep.before != null ? t('new since {date} · the one before rode {km} km', { date: dateOf(rep.date), km: num(rep.before) }) : t('new since {date}', { date: dateOf(rep.date) }), w].filter(Boolean).join(' · ');
+  }
+  let messen = $state(null); // W5 / W6: 'pressure' | 'chain'
+  const lastPress = $derived(data ? (pressures(data.view).at(-1) ?? null) : null);
+  const chainNow = $derived(data ? chainState(data.view) : null);
+  /** The Bike pass with the small lines; a part with several rows (model, size …) says «new since» once. */
+  const passSections = $derived.by(() => {
+    if (!data) return [];
+    const said = new Set();
+    return data.pass.sections.map((sec) => ({
+      ...sec,
+      rows: sec.rows.map((r) => {
+        const part = r.id.split(':')[0];
+        if (part !== 'fit' && said.has(part)) return { ...r, note: '' };
+        const note = passNote(r);
+        if (note && part !== 'fit') said.add(part);
+        return { ...r, note, chk: part === 'fit' && !!checked.date && checked.keys.includes(r.id.slice(4)) && r.value != null };
+      }),
+    }));
+  });
+
   /* ---------- the text of a sheet (V3 a) ---------- */
   const STAND = () => t('As of {date}', { date: dateOf(today) });
   function textOf(kind) {
-    if (kind === 'pass') return sheetText({ title: t('Bike pass'), sub: bikeLine(data.view), facts: [STAND(), kmLine], sections: data.pass.sections, foot: t('Pack Generator · all values are suggestions and can be changed') });
+    if (kind === 'pass') return sheetText({ title: t('Bike pass'), sub: bikeLine(data.view), facts: [STAND(), kmLine], sections: passSections.map((sec) => ({ ...sec, rows: sec.rows.map((r) => ({ ...r, hint: r.note })) })), foot: t('Pack Generator · all values are suggestions and can be changed') });
     if (kind === 'plan')
       return sheetText({
         title: t('Service plan'),
@@ -139,7 +182,7 @@
     if (kind === 'kit') return kitText(data.view, more.kit);
     if (kind === 'warranty') return warrantyText(data.view, more.warranty, { today });
     if (kind === 'theft') return theftText(data.view, more.theft, { today });
-    if (kind === 'order') return orderSheetText(data.picked, { bike: data.view, trip: data.trip, wishes: s.wishes ?? '', keep: keepValues(data.view) });
+    if (kind === 'order') return orderSheetText(data.picked, { bike: data.view, trip: data.trip, wishes: s.wishes ?? '', keep: keepValues(data.view), again, againDate: checked.date });
     return sheetText({ title: t('Pick-up check'), sub: `${data.view.name} · ${t('at the bike shop')}`, facts: [kmLine, t('{n} of {all} done', { n: data.pickup.ticked, all: data.pickup.total })], sections: data.pickup.sections, ticks: data.pickup.pickup.ticks, foot: t('Pack Generator · the ticks stay saved in the app') });
   }
   let said = $state('');
@@ -223,12 +266,12 @@
 {#snippet pass()}
   {@render head(t('Bike pass'), bikeLine(data.view), [STAND(), kmLine])}
   <div class="cols2">
-    {#each data.pass.sections as sec (sec.key)}
+    {#each passSections as sec (sec.key)}
       <section class="psec" aria-label={sec.name}>
         <h3>{sec.name}</h3>
         <dl class="vals">
           {#each sec.rows as r (r.id)}
-            <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}</dd></div>
+            <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}{#if r.note}<small class="vnote" class:chk={r.chk}>{#if r.chk}<Check size={12} aria-hidden="true" />{/if}{r.note}</small>{/if}{#if r.id === 'fit:pressureR'}<span class="noprint"><PressureHint bikeId={bike.id} /></span>{/if}</dd></div>
           {/each}
         </dl>
       </section>
@@ -279,7 +322,14 @@
     <h3 id="ord-wish">{t('Wishes')}</h3>
     <textarea class="inp wish" aria-labelledby="ord-wish" rows="2" placeholder={t('e.g. call before replacing anything over CHF 100')} value={wishes ?? s.wishes ?? ''} oninput={(e) => (wishes = e.currentTarget.value)} onblur={saveWishes}></textarea>
   </section>
-  {#if keep.length}
+  {#if again.length}
+    <!-- «Werte messen» W2: the values of the last Pick-up check, to set again after the work -->
+    <section class="psec" aria-labelledby="ord-again">
+      <h3 id="ord-again">{t('As it should be again')}</h3>
+      <p class="quiet">{t('The values of the last pick-up on {date} · please set them like this again after the work', { date: dateOf(checked.date) })}</p>
+      <dl class="vals">{#each again as r (r.key)}<div class="vr"><dt>{r.label}</dt><dd>{r.value}</dd></div>{/each}</dl>
+    </section>
+  {:else if keep.length}
     <section class="psec" aria-labelledby="ord-keep">
       <h3 id="ord-keep">{t('Please leave as it is')}</h3>
       <dl class="vals">{#each keep as r (r.key)}<div class="vr"><dt>{r.label}</dt><dd>{r.value}</dd></div>{/each}</dl>
@@ -308,6 +358,12 @@
             <ValueCard row={r} before={beforeOf(r)} done={!!data.pickup.pickup.ticks?.[r.id]} open={openVal === r.id} disabled={!!applied} onopen={() => (openVal = r.id)} onsave={(v) => saveVal(r, v)} onskip={() => skipVal(r)} />
           {/each}
         </ul>
+        <!-- «Werte messen» 2b: measure the pressure and the chain right here, with the suggestion (W4a) -->
+        <div class="meas noprint" data-testid="pickup-measure">
+          <button type="button" class="mcard" onclick={() => (messen = 'pressure')}><b>{t('Record the pressure')}</b><small>{lastPress ? t('last {pair}, {date}', { pair: `${lastPress.f == null ? '–' : num(lastPress.f)} / ${lastPress.r == null ? '–' : num(lastPress.r)} bar`, date: dateOf(lastPress.date) }) : t('front and rear, as measured')}</small></button>
+          <button type="button" class="mcard" onclick={() => (messen = 'chain')}><b>{t('Measure the chain')}</b><small>{chainNow ? t('last {value} %', { value: num(chainNow.value) }) : t('with the chain checker')}</small></button>
+        </div>
+        <PressureHint bikeId={bike.id} />
       {:else}
       <ul class="checks">
         {#each sec.rows as r (r.id)}
@@ -374,6 +430,8 @@
 {#if notice}
   <p class="notice noprint" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undo}>{t('Undo')}</button>{/if}</p>
 {/if}
+
+{#if messen && bike}<MessenDialog kind={messen} bikeId={bike.id} onclose={() => (messen = null)} />{/if}
 
 <style>
   .sheetview {
@@ -534,6 +592,18 @@
     margin: 0;
     font-weight: 600;
     overflow-wrap: break-word;
+  }
+  .vnote {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    font-size: var(--fs-small);
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .vnote.chk {
+    color: var(--ok);
   }
   .enter {
     display: inline-flex;
@@ -834,5 +904,28 @@
       padding: 0;
       resize: none;
     }
+  }
+  .meas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin: 12px 0 6px;
+  }
+  .mcard {
+    display: grid;
+    gap: 2px;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mcard small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
 </style>

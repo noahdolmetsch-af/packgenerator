@@ -315,6 +315,14 @@ export function priceFor(visits, bikeId, key, action = 'service') {
  * Waxing the chain is left out: that is done at home. Option skip(key): true leaves that job out
  * (v0.31.0: what the owner usually does himself, see care/last.js shopSkip).
  */
+/** The chain's last measured wear in % when it is at its limit, else null. */
+function chainMeasured(bike) {
+  const chain = (bike.parts ?? []).find((p) => p.key === 'chain');
+  const last = [...(chain?.history ?? [])].reverse().find((h) => h.action === 'check' && typeof h.value === 'number');
+  const limit = chain?.limit ?? PART.chain.limit;
+  return last && last.value >= limit && last.result === 'needed' ? last.value : null;
+}
+
 export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = localDay(), { skip = null } = {}) {
   if (!bike) return null;
   const due = trip?.startDate && today <= addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1)
@@ -326,7 +334,9 @@ export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { fro
   const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn) && !skip?.(r.key)).map((r) => {
     const action = r.worn ? 'replace' : r.key === 'check' ? 'check' : 'service';
     const price = priceFor(visits, bike.id, r.key, action);
-    const de = r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
+    // «Werte messen» 3a: a chain measured at its limit is replaced, with the value for the bike shop
+    const measured = r.worn && r.key === 'chain' ? chainMeasured(bike) : null;
+    const de = measured ? `Kette ersetzen (gemessen ${String(measured).replace('.', ',')} %)` : r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
     // v0.69.0 «Velo-Blätter»: part and action too, so the pick-up check can record the work done.
     return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price, part: r.key, action };
   });
