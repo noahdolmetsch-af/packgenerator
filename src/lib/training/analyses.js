@@ -22,6 +22,9 @@ export const ANALYSES = {
     { key: 'halves', title: 'First against second half', sub: 'Bars and one sentence' },
     { key: 'similar', title: 'Similar rides', sub: 'Dots' },
     { key: 'best', title: 'Best values', sub: 'Table' },
+    // «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T2 hard pieces, T5 the same route over time
+    { key: 'intervals', head: 'Hard pieces of this ride', title: 'Intervals', sub: 'Found from the power' },
+    { key: 'homeloop', head: 'Your home loop over time', title: 'Home loop', sub: 'Same route, time, power and heart rate' },
   ],
   week: [
     { key: 'form', head: 'Fitness, fatigue and form', title: 'Fitness, fatigue, form', sub: 'Lines' },
@@ -30,6 +33,10 @@ export const ANALYSES = {
     { key: 'eff', head: 'Efficiency: watts per heartbeat', title: 'Efficiency', sub: 'Watts per heartbeat' },
     { key: 'month', title: 'Month against month', sub: 'Bars' },
     { key: 'year', title: 'Year against year', sub: 'Bars' },
+    // «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T1 plan kept, T3 endurance check, T4 FTP over the months
+    { key: 'plan', head: 'Plan kept?', title: 'Plan kept', sub: 'Planned zone against ridden zone' },
+    { key: 'decouple', head: 'Endurance check', title: 'Endurance check', sub: 'Heart rate drift at the same power' },
+    { key: 'ftp', head: 'FTP over the months', title: 'FTP over the months', sub: 'Estimated from your best 20 minutes' },
   ],
   weight: [
     { key: 'wtime', title: 'Weight over time', sub: 'Dots and 7-day mean' },

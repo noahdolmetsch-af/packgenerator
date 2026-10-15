@@ -13,9 +13,12 @@
   import AnaEff from './AnaEff.svelte';
   import AnaMonth from './AnaMonth.svelte';
   import AnaYear from './AnaYear.svelte';
+  import AnaPlan from '../inhalt/AnaPlan.svelte';
+  import AnaDecouple from '../inhalt/AnaDecouple.svelte';
+  import AnaFtp from '../inhalt/AnaFtp.svelte';
 
   let { acts = [], today = '' } = $props();
-  const CARDS = { form: AnaForm, wload: AnaWLoad, pcurve: AnaPCurve, eff: AnaEff, month: AnaMonth, year: AnaYear };
+  const CARDS = { form: AnaForm, wload: AnaWLoad, pcurve: AnaPCurve, eff: AnaEff, month: AnaMonth, year: AnaYear, plan: AnaPlan, decouple: AnaDecouple, ftp: AnaFtp };
   const keys = $derived(keysOf(ana, 'week'));
 </script>
 
