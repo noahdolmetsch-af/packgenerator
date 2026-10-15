@@ -54,7 +54,8 @@ export function detail(id) {
     secs5: [[0, 5, 661, 40, 131, 182], [5, 10, 641, 25, 134, 190], [10, 15, 948, 210, 152, 238], [15, 20, 895, 180, 149, 231], [20, 25, 552, 15, 128, 160], [25, 30, 620, 60, 137, 196], [30, 35, 718, 120, 143, 214], [35, 40, 605, 25, 136, 188], [40, 42.3, 279, 5, 129, 170]].map(([from, to, s, hm, hr, w]) => ({ from, to, s, hm, hr, w })),
     prof: { pts, breaks: [[60, 64]] },
     hw,
-    halves: [{ s: 2880, w: 190, hr: 134 }, { s: 2880, w: 186, hr: 140 }],
+    // the main ride keeps its halves; the others drift by −1 to +7 % in the second half (T3 «Ausdauer-Check»)
+    halves: main ? [{ s: 2880, w: 190, hr: 134 }, { s: 2880, w: 186, hr: 140 }] : ((hr) => [{ s: 2880, w: 190, hr }, { s: 2880, w: 188, hr: Math.round(hr * (0.99 + r() * 0.08)) }])(130 + Math.round(r() * 8)),
     climbs: main ? [{ name: `${P}Pass von Unterdorf`, km: 4.6, grade: 7.1, hm: 326, s: 1122, w: 251, hr: 158, vam: 1046 }, { name: `${P}Buchhügel`, km: 2.9, grade: 6.4, hm: 185, s: 670, w: 238, hr: 154, vam: 994 }, { name: `${P}Felsrampe`, km: 1.2, grade: 9.8, hm: 118, s: 391, w: 268, hr: 162, vam: 1086 }] : [],
   };
 }
@@ -82,10 +83,26 @@ export async function routeStrava(context, server, { acts = activities() } = {})
 }
 
 /**
+ * T1 «Plan erfüllt?»: planned sessions over the last five weeks and today, made from the fictional rides:
+ * four bike rides as planned (Z2), one planned in Z3 (nearly), one in Z4 (other zone), a bike session on the
+ * day of the run (not done) and one today (still open; no activity today).
+ */
+export function planSessions(acts = activities()) {
+  const rides = acts.filter((a) => a.type !== 'Run' && a.startLocal.slice(0, 10) >= day(-35) && a.startLocal.slice(0, 10) < day(0)).map((a) => a.startLocal.slice(0, 10));
+  const days = [...new Set(rides)].sort().reverse().slice(0, 6);
+  const zones = [2, 3, 2, 4, 2, 2];
+  return [
+    ...days.map((d, i) => ({ id: `p${i + 1}`, day: d, kind: 'bike', name: `${P}Grundlage ${i + 1}`, mins: 90, zone: zones[i] })),
+    { id: 'p8', day: day(-2), kind: 'bike', name: `${P}Kurz locker`, mins: 45, zone: 1 },
+    { id: 'p9', day: day(0), kind: 'bike', name: `${P}Grundlage heute`, mins: 60, zone: 2 },
+  ];
+}
+
+/**
  * Puts the fictional activities straight into the app's database, every one with its detail (no
  * server, no 8-per-fetch limit), so the analyses over weeks and the year have data at once.
  */
-export async function seedActivities(page, { acts = activities(), weight = null } = {}) {
+export async function seedActivities(page, { acts = activities(), weight = null, plan = null } = {}) {
   const recs = acts.map((a) => {
     const d = a.startLocal.slice(0, 10);
     const det = a.wDevice || a.hrAvg != null ? detail(a.id) : {};
@@ -93,18 +110,19 @@ export async function seedActivities(page, { acts = activities(), weight = null 
     return { id: a.id, day: d, time: a.startLocal.slice(11, 16), start: a.start, name: a.name, type: a.type, kind: a.type === 'Run' ? 'run' : 'bike', km: a.km, hm: a.hm, movingS: a.movingS, elapsedS: a.elapsedS, gearId: a.gearId, hrAvg: a.hrAvg, hrMax: a.hrMax, commute: false, trainer: false, wAvg: a.wAvg ?? null, wMax: a.wMax ?? null, wDevice: !!a.wDevice, spdAvg: a.spdAvg ?? null, spdMax: a.spdMax ?? null, cad: a.cad ?? null, tempAvg: a.tempAvg ?? null, wNorm: a.wNorm ?? null, kj: a.kj ?? null, effort: a.effort ?? null, ...det, detail: new Date().toISOString(), dv: 2 };
   });
   await page.evaluate(
-    ({ recs, weight }) =>
+    ({ recs, weight, plan }) =>
       new Promise((ok, bad) => {
         const r = indexedDB.open('pack-generator');
         r.onsuccess = () => {
-          const stores = weight ? ['activities', 'settings'] : ['activities'];
+          const stores = weight || plan ? ['activities', 'settings'] : ['activities'];
           const tx = r.result.transaction(stores, 'readwrite');
           for (const x of recs) tx.objectStore('activities').put(x);
           if (weight) tx.objectStore('settings').put({ key: 'me.weight', value: weight }); // weight: { entries: [{ day, kg }] }
+          if (plan) tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: plan } }); // plan: [{ id, day, kind, name, mins, zone }]
           tx.oncomplete = () => (r.result.close(), ok());
           tx.onerror = () => bad(tx.error);
         };
       }),
-    { recs, weight },
+    { recs, weight, plan },
   );
 }
