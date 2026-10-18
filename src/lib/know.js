@@ -20,7 +20,7 @@
  */
 import { isInventory, isConsumable } from './gear.js';
 import { inStandard, isWorn } from './blocks2026.js';
-import { CHECK_KM, CHECK_PARTS, kmSince, partInfo, PART } from './care.js';
+import { checkKmOf, CHECK_PARTS, kmSince, partInfo, PART } from './care.js';
 import { costByYear } from './workshop.js';
 import { isOver, tripEnd, templateHints } from './debrief.js';
 import { tripStats } from './trips.js';
@@ -100,8 +100,10 @@ export function wearForecast(bikes = [], trips = [], debriefs = [], today) {
       const since = kmSince(bike, lastService(p));
       if (since != null) cands.push({ kind: 'service', part: p.key, every: p.everyKm, left: p.everyKm - since });
     }
+    // v0.144.0 RE: the bike's own check interval (Pflege für …); switched off: no check reminder.
+    const checkKm = checkKmOf(bike);
     const looked = (bike.parts ?? []).filter((p) => CHECK_PARTS.includes(p.key)).map((p) => kmSince(bike, lastLook(p))).filter((s) => s != null);
-    if (looked.length) cands.push({ kind: 'check', part: 'check', every: CHECK_KM, left: CHECK_KM - Math.max(...looked) });
+    if (looked.length && checkKm) cands.push({ kind: 'check', part: 'check', every: checkKm, left: checkKm - Math.max(...looked) });
     if (!cands.length) continue;
     const next = cands.sort((a, b) => a.left - b.left)[0];
     const rides = bikeRides(bike.id, trips, debriefs);

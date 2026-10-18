@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.144.0 RE «Regeln einheitlich» (Noah 14.10.2026 «1a 2a 3a 4a 5a»): one rain limit, «never used» from 3 trips,
+    // the debrief with nothing ticked, one day clock, care per bike («Pflege für …»)
+    version: '0.144.0',
+    date: '2026-10-15',
+    title: 'One set of rules for all',
+    lead: 'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.',
+    points: [
+      { text: 'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out', href: '#/blocks' },
+      { text: 'Debrief: nothing is ticked to start with; «Done · 2 of 6 take over» says what happens', href: '#/debrief' },
+      { text: 'Care for your bike: choose what the app reminds you of, every … km and/or days, with a note', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Never used» counts from 3 trips everywhere; one day clock: morning until 11, day until 18, evening until 22' },
+      { box: 'fixed', text: 'A new trip copies the list of the trip you used last on this bike, like the bike that is picked' },
+    ],
+    test: [
+      'Open Gear › Building blocks › Rain: the box says the limit counts everywhere; change 30 to 40 and save.',
+      'Open a trip with 40 % rain in Pack: the block Rain is suggested, the rain jacket is on the list with «40 % rain · rain from 30 %».',
+      'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».',
+      'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.',
+    ],
+  },
+  {
     // v0.136.0 «Paket 2b»: Pfeile und Ziehen überall (Noah «2a und b»), LI3 «Gilt für» (Noah «2b»),
     // Inspiration (Noah «1-3a»), one tile row on Aktiv › Heute, nine display fixes from the 0.135.0 screenshots.
     version: '0.136.0',

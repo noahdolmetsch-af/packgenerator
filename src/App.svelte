@@ -30,6 +30,7 @@
   import Search from './lib/nav/Search.svelte';
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
+  import { rainLimitOf, setRainLimit } from './lib/rainlimit.svelte.js';
   import { db } from './lib/db.js';
   import { wide } from './lib/media.svelte.js';
   import { Plus } from '@lucide/svelte';
@@ -274,6 +275,9 @@
     return () => document.removeEventListener('keydown', trap);
   });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
+  // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
+  const rainQ = liveQuery(() => db.settings.get('sets'));
+  $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
   // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
     const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
