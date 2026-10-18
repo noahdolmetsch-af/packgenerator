@@ -32,7 +32,7 @@ export default {
   'counts {unit}': 'zählt {unit}',
   'in total': 'gesamt',
   'this season': 'diese Saison',
-  'last used': 'zuletzt',
+  'last used|date': 'zuletzt',
   'every {every}': 'alle {every}',
   'done {day}': 'erledigt {day}',
   'No care step. «Change» adds one.': 'Keine Pflege eingetragen. «Ändern» fügt eine hinzu.',

@@ -179,7 +179,7 @@
             <dl class="kv">
               <div><dt>{t('in total')}</dt><dd class="num">{unitText(picked.total, picked.main.unit)}</dd></div>
               <div><dt>{t('this season')}</dt><dd class="num">{unitText(picked.season, picked.main.unit)}</dd></div>
-              <div><dt>{t('last used')}</dt><dd>{dayLong(picked.last)}</dd></div>
+              <div><dt>{t('last used|date')}</dt><dd>{dayLong(picked.last)}</dd></div>
               {#if picked.main.unit !== 'uses'}<div><dt>{t('uses this season')}</dt><dd class="num">{num(picked.seasonUses)}</dd></div>{/if}
             </dl>
             <h3>{t('Care')}</h3>
