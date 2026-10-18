@@ -4,11 +4,11 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.137.0 «Paket 3»
+  // 0.145.0 «Paket 3»
   'Clear rules, your standard bike': 'Klare Regeln, dein Standard-Velo',
-  'Nothing jumps on its own, a rule means the same on every page, and a new trip brings your standard bike.': 'Nichts springt mehr von selbst, eine Regel gilt auf jeder Seite gleich, und eine neue Tour bringt dein Standard-Velo.',
+  'Nothing jumps on its own, long lists fold, and a new trip brings your standard bike.': 'Nichts springt mehr von selbst, lange Listen klappen sich zusammen, und eine neue Tour bringt dein Standard-Velo.',
   'Nothing jumps on its own: a tap opens to change, and on a trip day a card on Today leads on': 'Nichts springt von selbst: ein Tipp öffnet zum Ändern, und am Tourentag führt eine Karte auf Heute weiter',
-  'Back again: «Start quickly» and «Like the last trip» on Trips, the bike costs in the head, what counts for recovery': 'Wieder da: «Schnell starten» und «Wie letzte Tour» auf Touren, die Velo-Kosten im Kopf, was zur Erholung zählt',
+  'Back again: the bike costs in the head, what counts for recovery, and quick start in New': 'Wieder da: die Velo-Kosten im Kopf, was zur Erholung zählt, und Schnellstart in Neu',
   'Long lists fold by month and category with a jump bar; «What is new» by day': 'Lange Listen gruppiert nach Monat und Kategorie, mit Sprungleiste; «Was ist neu» nach Tagen',
   'The tile «Ride log» counts Strava rides like «Bike this month»; «23 h · 2 days» with a separator': 'Die Kachel «Fahrten-Buch» zählt Strava-Fahrten wie «Velo in diesem Monat»; «23 h · 2 Tage» mit Trenner',
   'Open Trips: under «Planned» tap «Like the last trip»: the new trip starts as a copy of the trip you last rode with that bike.': 'Öffne Touren: unter «Geplant» tippe «Wie letzte Tour»: die neue Tour startet als Kopie der Tour, die du zuletzt mit diesem Velo gefahren bist.',

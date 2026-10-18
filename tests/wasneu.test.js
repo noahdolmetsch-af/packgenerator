@@ -42,7 +42,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.training']).toBe('0.135.0'); // v0.135.0 «Paket 2»: Training TR1–TR4 (working number 0.138.0)
     expect(SINCE['f.invoices']).toBe('0.135.0'); // v0.135.0 «Paket 2»: Rechnungen ohne Gebühren (working number 0.139.0)
     expect(SINCE['f.bills']).toBe('0.135.0');
-    expect(SINCE['f.standardbike']).toBe('0.137.0'); // v0.137.0 «Paket 3»: Standard-Velo VS1–VS4 (working number 0.145.0)
+    expect(SINCE['f.standardbike']).toBe('0.145.0'); // v0.145.0 «Paket 3»: Standard-Velo VS1–VS4 (0.144.0 RE brought no new function)
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -105,7 +105,7 @@ describe('the list and its sorts', () => {
     expect(rowsOf(undefined, undefined, '0.135.0').find((r) => r.id === 'f.invoices').state).toBe('new'); // new in its version (pinned to 0.135.0)
     expect(rowsOf().find((r) => r.id === 'f.lists').state).toBe('never'); // 0.134.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.timer').state).toBe('never'); // 0.135.0, older than this version (0.136.0)
-    expect(rowsOf(undefined, undefined, '0.137.0').find((r) => r.id === 'f.standardbike').state).toBe('new'); // new in its version (pinned to 0.137.0)
+    expect(rowsOf(undefined, undefined, '0.145.0').find((r) => r.id === 'f.standardbike').state).toBe('new'); // new in its version (pinned to 0.145.0)
     expect(rowsOf(undefined, undefined, '0.124.0').find((r) => r.id === 'f.packblocks').state).toBe('new'); // new in its version (0.131.0 brought no new function)
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
     expect(by['f.tripstate'].state).toBe('never');
