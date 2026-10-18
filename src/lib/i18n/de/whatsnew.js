@@ -4,6 +4,20 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.144.0 Regeln einheitlich (eine Regen-Grenze, nie gebraucht ab 3, Rückblick ohne Häkchen, eine Tagesuhr, Pflege pro Velo)
+  'One set of rules for all': 'Überall die gleichen Regeln',
+  'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.': 'Regen, «nie gebraucht» und die Tageszeit heissen jetzt auf jeder Seite dasselbe, und die Velopflege stellst du selbst ein.',
+  'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out': 'Eine Regen-Grenze für die ganze App, eingestellt im Baustein Regen (30 %); darüber kommt die Regenjacke von selbst mit, und du kannst sie herausnehmen',
+  'Debrief: nothing is ticked to start with; «Done · 2 of 6 take over» says what happens': 'Rückblick: nichts ist vorangekreuzt; «Fertig · 2 von 6 übernehmen» sagt, was passiert',
+  'Care for your bike: choose what the app reminds you of, every … km and/or days, with a note': 'Pflege für dein Velo: wähle, woran die App dich erinnert, alle … km und/oder Tage, mit Notiz',
+  '«Never used» counts from 3 trips everywhere; one day clock: morning until 11, day until 18, evening until 22': '«Nie gebraucht» zählt überall ab 3 Touren; eine Tagesuhr: Morgen bis 11, Tag bis 18, Abend bis 22',
+  'A new trip copies the list of the trip you used last on this bike, like the bike that is picked': 'Eine neue Tour kopiert die Liste der Tour, die du auf diesem Velo zuletzt benutzt hast, wie beim vorgewählten Velo',
+  'Open Gear › Building blocks › Rain: the box says the limit counts everywhere; change 30 to 40 and save.': 'Öffne Material › Bausteine › Regen: Der Kasten sagt, dass die Grenze überall gilt; ändere 30 auf 40 und speichere.',
+  'Open a trip with 40 % rain in Pack: the block Rain is suggested, the rain jacket is on the list with «40 % rain · rain from 30 %».': 'Öffne eine Tour mit 40 % Regen in Packen: Der Baustein Regen ist vorgeschlagen, die Regenjacke steht auf der Liste mit «40 % Regen · Regen ab 30 %».',
+  'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».': 'Öffne einen Rückblick mit Vorschlägen: Nichts ist angehakt; hake zwei an, der Knopf sagt «Fertig · 2 von 6 übernehmen».',
+  'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.': 'Öffne Velos › Pflege › ein Velo: Die Karte «Pflege für …» steht über den Teilen; schalte eine Pflege aus, stelle die Dichtmilch auf 60 Tage, schreib eine Notiz.',
+
+
   // 0.136.0 «Paket 2b» (Pfeile und Ziehen, Gilt für, Inspiration, Anzeigefehler)
   'Sort your way': 'Sortieren, wie du willst',
   'Drag a row or use the arrows in every list you can order, and a category can stay with some kinds of trips only.': 'Zieh eine Zeile oder nimm die Pfeile, in jeder Liste, die du ordnen kannst, und eine Kategorie gilt auf Wunsch nur für bestimmte Tourenarten.',

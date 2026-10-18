@@ -16,16 +16,17 @@ import { activeBlocks, OFFER_ONLY } from './context.js';
 import { tempKits, rainChance } from './wardrobe.js';
 import { needsSlim, repairItems, REPAIR } from './repairslim.js';
 import { SITUATION_BLOCKS, situationHits } from './situation.js';
+import { RAIN_LIMIT, rainLimit } from './rainlimit.svelte.js';
 
 /** The built-in blocks shown in Packen, in this order: the ride's (first aid, light, repair, charging, race, cook), food, hygiene. */
 export const PACK_BLOCKS = [...NIGHT_SETS.map((s) => s.key), 'food', 'hygiene', ...SITUATION_BLOCKS];
 /** An own block for rain, by its name. */
 export const RAIN_WORDS = /rain|regen|nass|wet/i;
-/** From this rain chance (%) an own rain block is suggested (SN3+: the standard of the rule Regen). */
-export const RAIN_PCT = 30;
+/** From this rain chance (%) an own rain block is suggested (SN3+: the standard of the rule Regen; v0.144.0 RE: the one rain limit). */
+export const RAIN_PCT = RAIN_LIMIT;
 
 /** Is the trip's weather wet? → the rain chance in % (null when only «showers/rain» is known) or false. */
-export function wetTrip(trip, limit = RAIN_PCT) {
+export function wetTrip(trip, limit = rainLimit()) {
   const pct = rainChance(trip);
   if (pct != null && pct >= limit) return pct;
   return trip?.wx?.rain === 'rain' || trip?.wx?.rain === 'showers' ? null : false;

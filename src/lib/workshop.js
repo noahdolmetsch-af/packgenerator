@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
+import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, kmSince, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 
@@ -86,10 +86,12 @@ export function timeDue(bike, setup = { front: null, rear: null }, today = local
     .filter((p) => p.everyDays && fits(bike, p) && (!p.tubeless || anyTubeless || unknown))
     .map((p) => {
       const last = [...(p.history ?? [])].reverse().find((h) => h.action === 'service' || h.action === 'replace') ?? null;
-      if (!last?.date) return { key: p.key, name: tr(p.due), every: p.everyDays, last: null, next: null, days: null, overdue: false, never: true };
+      // v0.144.0 RE: a part with an own time interval but no time-service word (the chain) takes its service name.
+      const name = p.due ? tr(p.due) : serviceName(p);
+      if (!last?.date) return { key: p.key, name, every: p.everyDays, last: null, next: null, days: null, overdue: false, never: true };
       const next = addDays(last.date, p.everyDays);
       const days = daysBetween(today, next);
-      return { key: p.key, name: tr(p.due), every: p.everyDays, last: last.date, next, days, overdue: days <= 0, never: false };
+      return { key: p.key, name, every: p.everyDays, last: last.date, next, days, overdue: days <= 0, never: false };
     })
     .sort((a, b) => (a.days ?? Infinity) - (b.days ?? Infinity));
 }
@@ -212,10 +214,10 @@ export function bikeDue(bike, trip, setup, today, end) {
   }
   // The 1000 km check: due now, or reached on the way.
   const check = checkState(bike);
-  if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(CHECK_KM) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });
+  if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(check.every) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });
   else if (tripKm != null) {
-    const soon = check.rows.filter((r) => r.since != null && r.since + tripKm >= CHECK_KM);
-    if (soon.length) rows.push({ key: 'check', name: tr('{km} km check', { km: num(CHECK_KM) }), when: 'during', detail: tn(soon.length, '{n} point is reached on the route. Do it before.', '{n} points are reached on the route. Do it before.') });
+    const soon = check.rows.filter((r) => r.since != null && r.since + tripKm >= check.every);
+    if (soon.length) rows.push({ key: 'check', name: tr('{km} km check', { km: num(check.every) }), when: 'during', detail: tn(soon.length, '{n} point is reached on the route. Do it before.', '{n} points are reached on the route. Do it before.') });
   }
   // Worn parts and open work.
   for (const p of (bike.parts ?? []).filter((x) => needsWork(x) || wear(x) === 'worn')) {
@@ -376,10 +378,11 @@ export function bikeProfile(bike, visits = [], setup = { front: null, rear: null
   if (!next.length) {
     const t = timeDue(bike, setup, today).find((x) => !x.never);
     if (t) next.push({ name: t.name, detail: tr('due {date}', { date: short(t.next) }), late: false, days: t.days });
-    const check = checkState(bike).rows.filter((r) => r.since != null);
+    const cs = checkState(bike);
+    const check = cs.rows.filter((r) => r.since != null);
     if (check.length) {
-      const left = CHECK_KM - Math.max(...check.map((r) => r.since));
-      next.push({ name: tr('{km} km check', { km: num(CHECK_KM) }), detail: tr('in {km} km', { km: num(left) }), late: false });
+      const left = cs.every - Math.max(...check.map((r) => r.since));
+      next.push({ name: tr('{km} km check', { km: num(cs.every) }), detail: tr('in {km} km', { km: num(left) }), late: false });
     }
   }
   const lastVisit = mine[0] ?? null;

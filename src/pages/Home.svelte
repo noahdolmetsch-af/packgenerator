@@ -81,6 +81,7 @@
   import NameAsk from '../lib/home/NameAsk.svelte'; // HG1b
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
+  import { isEveningOn } from '../lib/dayclock.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
@@ -173,7 +174,7 @@
   const today = $derived(localDay(now));
   // FE8 «Nachtruhe» (Noah 13.10.2026): 22–06 Today keeps its tips back (switch in Ich › Darstellung)
   const hush = $derived(quietHome(now));
-  const evening = $derived(dayPart(now.getHours()) === 'evening' && now.getHours() >= 18);
+  const evening = $derived(dayPart(now.getHours()) === 'evening' && isEveningOn(now.getHours()));
 
   /* ---------- v0.35.0: "New in the app" once after an update ---------- */
   // v0.110.0 Design-Refresh P10 (I11b, I11e): after a real update the device keeps it (wasneuStore:

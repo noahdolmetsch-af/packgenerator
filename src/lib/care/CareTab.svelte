@@ -468,6 +468,8 @@
         {bikes}
         onstartpoint={(key, main) => (startPoint = { bikeId: c.bike.id, key, missing: main.filter((p) => !partStart(p)).map((p) => p.key) })}
         onq1={(on) => setQ1(c.bike.id, on)}
+        stored={bikeById[c.bike.id] ?? null}
+        oncare={(patch) => db.bikes.update(c.bike.id, patch)}
       />
     {/snippet}
     {#if openC}

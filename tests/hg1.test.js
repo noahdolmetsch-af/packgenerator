@@ -13,10 +13,12 @@ import { lang } from '../src/lib/i18n.svelte.js';
 
 const ASK = HELLO_ASK;
 
+// v0.144.0 RE «Eine Tagesuhr» (Noah 4a): the morning starts at 06:00 like everywhere (was 05:00)
 describe('the greeting by time of day (4b) and the night (3)', () => {
   const cases = [
     [4, 'night'],
-    [5, 'morning'],
+    [5, 'night'],
+    [6, 'morning'],
     [10, 'morning'],
     [11, 'day'],
     [17, 'day'],
@@ -25,12 +27,12 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     [22, 'night'],
     [0, 'night'],
   ];
-  it('the parts at every boundary (04:59, 05:00, 10:59, 11:00, 17:59, 18:00, 21:59, 22:00)', () => {
+  it('the parts at every boundary (05:59, 06:00, 10:59, 11:00, 17:59, 18:00, 21:59, 22:00)', () => {
     for (const [h, part] of cases) expect(helloPart(h), `${h}:00`).toBe(part);
   });
   it('with a name', () => {
-    expect(greetFor(4, 'Lena')).toBe(HELLO_NIGHT); // 04:59
-    expect(greetFor(5, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 05:00
+    expect(greetFor(5, 'Lena')).toBe(HELLO_NIGHT); // 05:59
+    expect(greetFor(6, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 06:00
     expect(greetFor(10, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 10:59
     expect(greetFor(11, 'Lena')).toBe(`Hoi Lena, ${ASK}`); // 11:00
     expect(greetFor(17, 'Lena')).toBe(`Hoi Lena, ${ASK}`); // 17:59
@@ -39,8 +41,8 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     expect(greetFor(22, 'Lena')).toBe(HELLO_NIGHT); // 22:00
   });
   it('without a name', () => {
-    expect(greetFor(4, '')).toBe(HELLO_NIGHT);
-    expect(greetFor(5, '')).toBe(`Guete Morge, ${ASK}`);
+    expect(greetFor(5, '')).toBe(HELLO_NIGHT);
+    expect(greetFor(6, '')).toBe(`Guete Morge, ${ASK}`);
     expect(greetFor(10, '  ')).toBe(`Guete Morge, ${ASK}`);
     expect(greetFor(11, null)).toBe(`Hoi, ${ASK}`);
     expect(greetFor(17)).toBe(`Hoi, ${ASK}`);

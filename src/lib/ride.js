@@ -14,6 +14,7 @@ import { zoneName } from './trips.js';
 import { newDebrief } from './debrief.js';
 import { t } from './i18n.svelte.js';
 import { ownStages, dayRange, gainBetween, pointAtKm } from './stages.js';
+import { wetHour } from './rainlimit.svelte.js';
 
 const addDays = (date, n) => {
   const d = new Date(`${date}T00:00:00Z`);
@@ -268,7 +269,7 @@ export function wxSummary(hours) {
   if (!temps.length) return '';
   const [lo, hi] = [Math.round(Math.min(...temps)), Math.round(Math.max(...temps))];
   const parts = [lo === hi ? `${lo} °C` : `${lo}–${hi} °C`];
-  const wet = hours.find((x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50);
+  const wet = hours.find((x) => wetHour(x)); // v0.144.0 RE: the one rain limit (was 50 %)
   parts.push(wet ? t('rain likely from {h} h', { h: wet.h }) : t('dry'));
   const gusts = hours.map((x) => x.gust ?? x.wind).filter((v) => v != null);
   if (gusts.length && Math.max(...gusts) >= 30) parts.push(t('gusts up to {n} km/h', { n: Math.round(Math.max(...gusts)) }));
