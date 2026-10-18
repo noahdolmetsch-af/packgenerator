@@ -112,6 +112,7 @@
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
+  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
@@ -1045,9 +1046,10 @@
   {:else if x.id === 'flow'}
     {#if x.join}
       <!-- 4a: the balance inside; its own data-tile so a long press on it customises the balance -->
-      {#snippet balAside()}<div class="joined" data-tile="balance" data-size={x.join}><BalanceTile {today} size="l" isnew={newTile('balance')} {bikes} {tripsDone} bare /></div>{/snippet}
-      <FlowCard {today} round={!onWall.has('daycard')} aside={balAside} />
-    {:else}<FlowCard {today} round={!onWall.has('daycard')} />{/if}
+      <!-- Tages-Check T3b (Noah 18.10.2026 «2b»): the big balance ring first, in place of the 3 small Im-Flow rings -->
+      {#snippet balAside()}<div class="joined" data-tile="balance" data-size={x.join}><BalanceTile {today} size="l" isnew={newTile('balance')} {bikes} {tripsDone} bare big /></div>{/snippet}
+      <FlowCard {today} round={!onWall.has('daycard')} aside={balAside} rings={false} asideFirst />
+    {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1067,7 +1069,8 @@
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
-  {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} />
+  {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
+  {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}

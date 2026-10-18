@@ -16,17 +16,18 @@ describe('HN4: the order of Heute', () => {
   it('the ready wall: meditation, day card, Important today, Im Flow + balance, week + swim, the row of four, trip, Aktiv, small tiles, bikes, year', () => {
     const r = ids(READY);
     expect(r.slice(0, 3)).toEqual(HEAD_0155);
-    expect(r.slice(3, 7)).toEqual(['flow', 'balance', 'week', 'suggest']);
-    expect(r.slice(7, 11)).toEqual(['month', 'series', 'yearago', 'milestones']);
-    expect(r.slice(11, 13)).toEqual(['trip', 'aktiv']);
+    // Tages-Check back (Noah 18.10.2026 «3 a und b», T3c): «Deine 15 Fragen» right after the balance
+    expect(r.slice(3, 8)).toEqual(['flow', 'balance', 'questions', 'week', 'suggest']);
+    expect(r.slice(8, 12)).toEqual(['month', 'series', 'yearago', 'milestones']);
+    expect(r.slice(12, 14)).toEqual(['trip', 'aktiv']);
     expect(r.slice(-2)).toEqual(['bikes', 'year']);
     // sizes: the top three and the trip card and Aktiv over the whole row, Im Flow and the balance side by side
     for (const id of [...HEAD_0155, 'trip', 'aktiv']) expect(READY.find((x) => x.id === id).size, id).toBe('long');
     expect(READY.find((x) => x.id === 'balance').size).toBe('l');
     // the row of four wide tiles fills the 8 columns of a computer
-    expect(READY.slice(7, 11).every((x) => x.size === 'w')).toBe(true);
+    expect(READY.slice(8, 12).every((x) => x.size === 'w')).toBe(true);
     // between Aktiv and the bikes only small tiles
-    expect(READY.slice(13, -2).every((x) => x.size === 's')).toBe(true);
+    expect(READY.slice(14, -2).every((x) => x.size === 's')).toBe(true);
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
   });
   it('what the day card shows, «Tried it yet?» and «Next milestone» left the wall, but stay in the catalog', () => {
@@ -59,7 +60,8 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
   };
   it('the removed tiles go, the new ones come, the order and sizes are those of HN4', () => {
     const w = wallOf(v4);
-    expect(ids(w)).toEqual(['meditation', 'daycard', 'important', 'flow', 'trip', 'aktiv', 'fn:weigh', 'helper', 'strava', 'year']);
+    // Tages-Check back: «Deine 15 Fragen» comes once, after the balance or else after Im Flow (v < 6)
+    expect(ids(w)).toEqual(['meditation', 'daycard', 'important', 'flow', 'questions', 'trip', 'aktiv', 'fn:weigh', 'helper', 'strava', 'year']);
     expect(w.find((x) => x.id === 'meditation').size).toBe('long');
     expect(w.find((x) => x.id === 'important').size).toBe('long');
     for (const id of REMOVED_0155) expect(ids(w)).not.toContain(id);
@@ -70,11 +72,11 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
     expect(w.find((x) => x.id === 'strava')).toEqual({ id: 'strava', size: 'l' });
     expect(ids(w).indexOf('strava')).toBeLessThan(ids(w).indexOf('bikes'));
   });
-  it('a tile taken away by hand before stays away; once stored as v 5 the wall is left as it is', () => {
+  it('a tile taken away by hand before stays away; once stored as v 6 the wall is left as it is', () => {
     const w = wallOf(v4);
     expect(ids(w)).not.toContain('balance'); // the old wall had no balance (taken away)
     const v5 = wallRecord(w.filter((x) => x.id !== 'aktiv'));
-    expect(v5.v).toBe(5);
+    expect(v5.v).toBe(6);
     expect(ids(wallOf(v5))).toEqual(ids(w).filter((id) => id !== 'aktiv'));
     // moved by hand after that: stays moved
     const moved = wallRecord([w[3], ...w.filter((_, i) => i !== 3)]);

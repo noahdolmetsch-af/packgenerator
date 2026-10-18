@@ -10,7 +10,7 @@ import {
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
   ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound,
 } from '../src/lib/abfragen.js';
-import { redirectOf, pageOf, OLD_CHECK } from '../src/lib/nav.js';
+import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
 import { addDays } from '../src/lib/flow.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -197,8 +197,12 @@ describe('WG: the two fixed rounds 07:00 and 20:30', () => {
     expect(isEveningRound(`${D0}T19:00`, { evening: '19:00' })).toBe(true);
   });
 
-  it('the old daily-check pages lead to «Wi gaht\'s?»', () => {
-    for (const h of [...OLD_CHECK, '#/check']) {
+  it('the daily-check pages are pages of Heute again (Noah 18.10.2026 «1 a und b»); any other #/check leads to «Wi gaht\'s?»', () => {
+    for (const h of CHECK_PAGES) {
+      expect(redirectOf(h)).toBe(null);
+      expect(pageOf(h)).toBe('check');
+    }
+    for (const h of ['#/check', '#/check/other']) {
       expect(redirectOf(h)).toEqual({ hash: '#/me/abfragen', spot: '', old: null });
       expect(pageOf(h)).toBe('abfragen');
     }

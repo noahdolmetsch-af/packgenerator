@@ -1,0 +1,31 @@
+// Tages-Check zurück (Noah 18.10.2026 «1 a und b», «2b», «3 a und b»; Mockups T1, T2, T3b, T3c, T4)
+export default {
+  // T3c «Deine 15 Fragen» auf Heute (home/QuestionsTile.svelte)
+  'Fold|questions': 'zuklappen',
+  'Morning · 7:00': 'Morgen · 7:00',
+  'Evening · from 20:30': 'Abend · ab 20:30',
+  Sunday: 'Sonntag',
+  'rotating: {list}': 'wechselnd: {list}',
+  'all can be switched off': 'alle abwählbar',
+  'Adjust questions': 'Fragen anpassen',
+  'Sleep|q': 'Schlaf',
+  'Energy|q': 'Energie',
+  'Mood|q': 'Stimmung',
+  'Body|q': 'Körper (heute)',
+  'Head|q': 'Kopf',
+  'Looking forward|q': 'Vorfreude',
+  'Goal of the day|q': 'Tagesziel',
+  'Satisfaction|q': 'Zufriedenheit',
+  'Best part|q': 'Am coolsten',
+  'Goal reached|q': 'Ziel erreicht',
+  'Outside|q': 'Draussen',
+  'Friends|q': 'Freunde (heute)',
+  'Fun|q': 'Spass',
+  'Mindfulness|q': 'Achtsamkeit',
+  'Vision|q': 'Vision',
+  // T3b der grosse Ring (home/BalanceTile.svelte big)
+  '7 days': '7 Tage',
+  'the strongest|balance': 'am stärksten',
+  'the weakest|balance': 'am wenigsten',
+  'Sport, mindfulness and recovery are part of the ring; it takes the place of the three small Im Flow rings.': 'Sport, Achtsamkeit und Erholung sind Teil des Rings; er ersetzt die 3 kleinen Im-Flow-Ringe.',
+};

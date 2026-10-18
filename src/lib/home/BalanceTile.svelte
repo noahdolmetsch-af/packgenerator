@@ -30,7 +30,9 @@
   import { phone } from '../media.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
-  let { today, size = 'l', isnew = false, bikes = [], tripsDone = 0, bare = false } = $props();
+  // Tages-Check T3b (Noah 18.10.2026 «2b»): big = the large ring with the 9 names around it; on Heute it takes the
+  // place of the 3 small Im-Flow rings (Sport, Achtsamkeit and Erholung are part of it)
+  let { today, size = 'l', isnew = false, bikes = [], tripsDone = 0, bare = false, big = false } = $props();
   const q = $derived(balanceQuery(today));
   const data = $derived($q);
   const b = $derived(data ? balance({ ...data, today }) : null);
@@ -49,6 +51,30 @@
     done: 'color-mix(in srgb, var(--l2) 40%, var(--ink-3))',
   };
   const val = (v) => (v == null ? '–' : String(v));
+  // T3b: the big ring, the names around it (S: the whole picture, P: room for the names)
+  const S = $derived(phone.matches ? 300 : 340);
+  const P = 54;
+  const X = 30; // room on both sides for the long names (Achtsamkeit, Erreichtes)
+  const W = $derived(S + 2 * X);
+  const bigPaths = $derived(b && big ? ringPaths(b.cats, S - 2 * P, { inner: 0.3 }) : []);
+  const labels = $derived.by(() => {
+    if (!b || !big) return [];
+    const r = (S - 2 * P) / 2 + 14;
+    const step = 360 / b.cats.length;
+    return b.cats.map((c, i) => {
+      const rad = ((i * step - 90) * Math.PI) / 180;
+      const x = W / 2 + r * Math.cos(rad);
+      const y = S / 2 + r * Math.sin(rad);
+      const anchor = Math.abs(x - W / 2) < 8 ? 'middle' : x > W / 2 ? 'start' : 'end';
+      return { key: c.key, x, y: y < S / 2 - 8 ? y - 8 : y > S / 2 + 8 ? y + 6 : y - 2, anchor, value: c.value };
+    });
+  });
+  // the strongest area (as the least: only with 3 values or more)
+  const most = $derived.by(() => {
+    const known = (b?.cats ?? []).filter((c) => c.value != null);
+    return known.length >= 3 ? [...known].sort((x, y) => y.value - x.value)[0] : null;
+  });
+  const leastCat = $derived(b?.least ? b.cats.find((c) => c.key === b.least) : null);
   const said = $derived(b ? b.cats.map((c) => `${t(CAT[c.key].label)} ${val(c.value)}`).join(', ') : '');
   const empty = $derived(!!b && b.mean == null);
 
@@ -98,7 +124,31 @@
     {#if isnew}<span class="nw">{t('new|tile')}</span>{/if}
     {#if !bare}<a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.4} /></a>{/if}
   </div>
-  {#if b && !empty}
+  {#if b && !empty && big}
+    <div class="bigw" data-balance-big>
+      <svg class="ring" viewBox="0 0 {W} {S}" width={W} height={S} role="img" aria-label={t('Balance of the last 7 days: {list}', { list: said })}>
+        <g transform="translate({P + X} {P})">
+          {#each bigPaths as p (p.key)}
+            <path d={p.bg} style:fill="color-mix(in srgb, {COLOR[p.key]} 16%, var(--paper))" />
+            {#if p.fg}<path d={p.fg} style:fill={COLOR[p.key]} data-seg={p.key} />{/if}
+          {/each}
+        </g>
+        {#each labels as l (l.key)}
+          <g data-cat={l.key}>
+            <text x={l.x} y={l.y} text-anchor={l.anchor} class="lb" class:lo={b.least === l.key}>{t(CAT[l.key].label)}</text>
+            <text x={l.x} y={l.y + 15} text-anchor={l.anchor} class="lv num">{val(l.value)}</text>
+          </g>
+        {/each}
+        <text x={W / 2} y={S / 2 - 4} class="cw" text-anchor="middle">{t('7 days')}</text>
+        <text x={W / 2} y={S / 2 + 18} class="mn num" text-anchor="middle">{val(b.mean)}</text>
+      </svg>
+      <div class="side">
+        {#if most}<p class="ext" data-most={most.key}><i style:background={COLOR[most.key]} aria-hidden="true"></i><span><b>{t(CAT[most.key].label)} <span class="num">{most.value}</span></b> {t('the strongest|balance')}</span></p>{/if}
+        {#if leastCat}<p class="ext" data-least={leastCat.key}><i style:background={COLOR[leastCat.key]} aria-hidden="true"></i><span><b>{t(CAT[leastCat.key].label)} <span class="num">{leastCat.value}</span></b> {t('the weakest|balance')}</span></p>{/if}
+        <small class="rep">{t('Sport, mindfulness and recovery are part of the ring; it takes the place of the three small Im Flow rings.')}</small>
+      </div>
+    </div>
+  {:else if b && !empty}
     <div class="top">
       <svg class="ring" viewBox="0 0 {R} {R}" width={R} height={R} role="img" aria-label={t('Balance of the last 7 days: {list}', { list: said })}>
         {#each paths as p (p.key)}
@@ -285,6 +335,59 @@
   .least b {
     color: var(--ink);
     font-weight: 600;
+  }
+  /* T3b: the big ring beside its two lines; on a narrow card one under the other */
+  .bigw {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 24px;
+    min-width: 0;
+  }
+  .bigw .ring {
+    max-width: 100%;
+    height: auto;
+  }
+  .lb {
+    fill: var(--ink-2);
+    font: 600 var(--fs-tiny) / 1 var(--font-body);
+  }
+  .lb.lo {
+    fill: var(--ink);
+  }
+  .lv,
+  .cw {
+    fill: var(--ink-3);
+    font: 400 var(--fs-tiny) / 1 var(--font-body);
+  }
+  .side {
+    display: flex;
+    flex: 1 1 200px;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .ext {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .ext i {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .ext b {
+    font-weight: 600;
+  }
+  .rep {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .calm {
     margin: 0;

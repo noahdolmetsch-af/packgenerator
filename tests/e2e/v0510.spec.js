@@ -146,7 +146,8 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   const card = dk.locator('[data-section="morningcheck"]');
   await expect(card).toContainText(T('Start|check'));
   await card.click();
-  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
+  await expect(page).toHaveURL(/#\/check\/morning$/);
   // «Wi gaht's?» started yesterday evening (fictional): the morning round is due on Today
   await page.evaluate(
     () =>
