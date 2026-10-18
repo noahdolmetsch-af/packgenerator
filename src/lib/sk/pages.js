@@ -65,7 +65,8 @@ const ex = (d) => ({ ...d, extra: true });
 export const SK_PAGES = {
   past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
   debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
-  bikes: [T.pack, T.stravacheck, T.workshop, T.bikecompare, T.kmbook, T.tomorrow, ex(T.velocare), ex(T.bp), ex(T.x12)],
+  // Impeccable (18.10.2026, Velos 1): Workshop and Compare bikes are a tab and a row of the page already; as tiles only after «Add a tile»
+  bikes: [T.pack, T.stravacheck, T.kmbook, T.tomorrow, ex(T.workshop), ex(T.bikecompare), ex(T.velocare), ex(T.bp), ex(T.x12)],
   gear: [T.blocks, T.templates, T.weight, T.wardrobe, T.favs, T.wish, T.pack, ex(T.unweighed), ex(T.lighter)],
   flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck, ex(T.rest), ex(T.week), ex(T.trophies), ex(T.hepa)],
 };

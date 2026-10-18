@@ -14,4 +14,6 @@ export default {
   '{what} · opens in a new tab': '{what} · öffnet in einem neuen Tab',
   'your link for all bikes': 'dein Link für alle Velos',
   'your link for all bikes · enter': 'dein Link für alle Velos · eintragen',
+  // Velos 1: Werkstatt and Velos vergleichen only after «Kachel hinzufügen»
+  'More tiles are under «Add a tile».': 'Weitere Kacheln findest du unter «Kachel hinzufügen».',
 };
