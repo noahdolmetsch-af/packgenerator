@@ -436,8 +436,8 @@ export const HANDBOOK = {
     },
   'f.pagetips': {
     on: null,
-    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here»; each row opens its place.'],
-    example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
+    steps: ['Open Packen, Unterwegs or another place: under the title is the tip of the day; «All tips ›» shows them all, each with a switch.', 'At the page end: «What the app can do here»; each row opens its place.', 'Some places show an example: «Save as note» keeps it under Me › Notes.'],
+    example: 'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',

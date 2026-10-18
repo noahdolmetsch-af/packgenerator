@@ -18,6 +18,7 @@
    * SL «Scrollen und Listen» (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): «Filed» by month, the
    * newest open, five rows and «Show n more»; the search and the chips stay on top; «Back to top».
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { PAGE_NAMES } from '../lib/notes.js';
@@ -120,6 +121,8 @@
 
 <div class="inbox ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
+  <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
+  <HintCard page="inbox" />
   <div class="bar">
     <div class="vchips" role="group" aria-label={t('Show')}>
       <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}><span>{t('To file')}{#if openN}{' · '}<span class="num">{openN}</span>{/if}</span></button>

@@ -1,9 +1,10 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
   // v0.136.0 «Inhalte Flow» + «Wusstest du»
-  'Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.': 'Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
-  'At the end of the page: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
-  'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
+  'Open Packen, Unterwegs or another place: under the title is the tip of the day; «All tips ›» shows them all, each with a switch.': 'Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
+  'At the page end: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
+  'Some places show an example: «Save as note» keeps it under Me › Notes.': 'Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Ich › Notizen ab.',
+  'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem Regentag sagt Packen zuerst, die Regenjacke nach oben zu legen; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
   'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
