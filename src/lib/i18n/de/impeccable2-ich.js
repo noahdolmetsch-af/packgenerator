@@ -18,4 +18,9 @@ export default {
   '{n} note is waiting in the Inbox.': 'Im Eingang wartet {n} Notiz.',
   '{n} notes are waiting in the Inbox.': 'Im Eingang warten {n} Notizen.',
   'To the Inbox ({n})': 'Zum Eingang ({n})',
+
+  // Checks: the button says where the row goes
+  '{area} · what you missed goes into the evening-before check with one tap': '{area} · was dir gefehlt hat, kommt mit einem Tipp in den Vorabend-Check',
+  'To the evening before': 'Zum Vorabend',
+  '{name}: to the evening-before check': '{name}: in den Vorabend-Check',
 };
