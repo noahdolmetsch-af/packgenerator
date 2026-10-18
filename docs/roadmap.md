@@ -96,7 +96,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
-**18.10.2026, v0.147.0 «Paket B»:** alle Server-Teile (Training, Fitbit, PDF, Google, KI, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push) als ein Release.
+**18.10.2026, v0.147.0 «Paket B»:** alle Server-Teile (Training, Fitbit, PDF, Google, KI, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push) als ein Release. Dazu Pulszonen eins (eine Zonenquelle für Tempo, Vergangene Touren und Training, «Kommentar laden»), Mail in der App und «Gruppen überall» (jede Gruppe umbenennen und löschen, auch Ich › Dokumente).
 **18.10.2026, v0.146.0 «Paket A»:** P3b Daten sicher, P3c Bedienregeln und Kamera, Mehr Inhalt und Hinweistexte HT1–HT2 als ein Release.
 **15.10.2026, v0.145.0 «Paket 3»:** Regeln der App, Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar als ein Release; die Einträge zu 0.140.0–0.143.0 und 0.145.0 (Standard-Velo) sind Teile davon; Regeln einheitlich ist 0.144.0 für sich (#175).
 **15.10.2026, v0.136.0 «Paket 2b»:** Sortieren mit Pfeilen und Ziehen, «Gilt für», Inspiration, Anzeigefehler.

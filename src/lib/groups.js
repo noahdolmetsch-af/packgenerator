@@ -13,7 +13,7 @@ import { noteTopic, isKept } from './notebook.js';
  * Every place where a person sees or chooses groups, with the file that renames and deletes them.
  * The guard test (tests/groups.test.js) checks each file uses the one delete window. A new kind of
  * group in the app is added here, with rename and delete (app rule «Gruppen überall»).
- * Dokumente (Ich › Dokumente) is built in package A by the bundler thread and joins this list there.
+ * Dokumente (Ich › Dokumente, Paket B): renames in the group head (GroupActions), deletes with the same window.
  */
 export const GROUP_PLACES = [
   { name: 'Gear categories', file: 'src/pages/Lists.svelte' },
@@ -21,6 +21,7 @@ export const GROUP_PLACES = [
   { name: 'Groups of the bike values', file: 'src/pages/Lists.svelte' },
   { name: 'Building blocks', file: 'src/pages/Blocks.svelte' },
   { name: 'Learnings by topic', file: 'src/lib/review/Learned.svelte' },
+  { name: 'Document groups', file: 'src/pages/Docs.svelte' },
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

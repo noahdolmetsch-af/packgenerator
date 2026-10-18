@@ -28,6 +28,10 @@ describe('group helpers', () => {
     expect(deletePatches(list, 'Versicherung')).toEqual([{ id: 'c', before: 'Versicherung', after: '' }]);
     expect(deletePatches(list, '')).toEqual([]);
   });
+  it('a delete can send the documents into another own group (the delete window, Paket B)', () => {
+    expect(deletePatches(list, 'Versicherung', 'Reisen')).toEqual([{ id: 'c', before: 'Versicherung', after: 'Reisen' }]);
+    expect(deletePatches(list, 'Versicherung', 'versicherung')).toEqual([{ id: 'c', before: 'Versicherung', after: '' }]);
+  });
   it('keeps the empty groups without doubles', () => {
     expect(groupsAfter(['Reisen', 'Leer'], 'Reisen', 'Leer')).toEqual(['Leer']);
     expect(groupsAfter(['Reisen', 'Leer'], 'Leer')).toEqual(['Reisen']);

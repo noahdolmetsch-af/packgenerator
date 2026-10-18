@@ -97,10 +97,14 @@ export function renamePatches(list, from, to) {
   return (list ?? []).filter((d) => groupOf(d) && sameGroup(groupOf(d), from) && groupOf(d) !== after).map((d) => ({ id: d.id, before: d.group, after }));
 }
 
-/** Deleting an own group: its documents go back to the default group ('' = «Importierte PDF/Fotos»), none is deleted. */
-export function deletePatches(list, name) {
+/**
+ * Deleting an own group: its documents go back to the default group ('' = «Importierte PDF/Fotos») or, with
+ * `to` (Paket B, «Gruppen überall»: the delete window asks where), into another own group; none is deleted.
+ */
+export function deletePatches(list, name, to = '') {
   if (!String(name ?? '').trim()) return [];
-  return (list ?? []).filter((d) => groupOf(d) && sameGroup(groupOf(d), name)).map((d) => ({ id: d.id, before: d.group, after: '' }));
+  const after = sameGroup(to, name) ? '' : String(to ?? '').trim().slice(0, 60);
+  return (list ?? []).filter((d) => groupOf(d) && sameGroup(groupOf(d), name)).map((d) => ({ id: d.id, before: d.group, after }));
 }
 
 /** The kept empty groups after a rename (from → to) or a delete (to null), without doubles. */

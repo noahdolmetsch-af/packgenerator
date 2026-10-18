@@ -16,7 +16,7 @@ describe('guard: every group place renames and deletes with the one window', () 
     for (const p of GROUP_PLACES) {
       const src = readFileSync(new URL(`../${p.file}`, import.meta.url), 'utf8');
       expect(src, p.name).toContain('GroupDeleteSheet');
-      expect(/RenameSheet|ListEntrySheet/.test(src), p.name).toBe(true);
+      expect(/RenameSheet|ListEntrySheet|GroupActions/.test(src), p.name).toBe(true); // GroupActions: the rename form in the group head (Dokumente)
     }
   });
   it('the note topics and the groups of the bike values are lists of «Listen und Typen»', () => {

@@ -246,11 +246,11 @@ export async function renameGroup(g, name, { db = appDb } = {}) {
   return applyGroup(renamePatches(await db.docs.toArray(), g.name, to), { groups: groupsAfter(p.groups, g.name, to) }, db);
 }
 
-/** Deletes an own group: its documents go to the default group; no document is deleted. */
-export async function deleteGroup(g, { db = appDb } = {}) {
+/** Deletes an own group: its documents go to the default group, or to the own group `to`; no document is deleted. */
+export async function deleteGroup(g, { db = appDb, to = '' } = {}) {
   if (g?.kind !== 'own' || !g?.name) return null;
   const p = prefsOf((await db.settings.get(DOCS_KEY))?.value);
-  return applyGroup(deletePatches(await db.docs.toArray(), g.name), { groups: groupsAfter(p.groups, g.name, null) }, db);
+  return applyGroup(deletePatches(await db.docs.toArray(), g.name, to ?? ''), { groups: groupsAfter(p.groups, g.name, null) }, db);
 }
 
 /** «Undo» after a rename or a delete of a group. */

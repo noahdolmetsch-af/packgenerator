@@ -82,10 +82,16 @@ test('Me - Documents: rename and delete a group, with Undo; no document is lost'
   await expect(main.getByRole('heading', { level: 2, name: 'Scans Muster' })).toBeVisible();
   await expect(main.getByRole('heading', { level: 2, name: imported })).toHaveCount(0);
 
-  // 3. delete the own group: asks once, the document goes to «Scans Muster»; Undo brings the group back
+  // 3. delete the own group: the one delete window of the app (Paket B «Gruppen überall», changed on purpose)
+  // asks where the document goes, «back to Scans Muster» chosen first; Undo brings the group back
   await deleteGroupVia(page, 'Ferien Muster');
-  await expect.poll(() => asked.length).toBe(1);
-  expect(asked[0]).toContain('kein Dokument wird gelöscht');
+  const sheet = page.locator('dialog.gds[open]');
+  await expect(sheet.getByRole('heading', { name: T('Delete group «{name}»?', { name: 'Ferien Muster' }) })).toBeVisible();
+  await expect(sheet.getByRole('radio').first()).toBeChecked();
+  await expect(sheet).toContainText(T('PDFs to «{pdf}», photos to «{photo}». No document is deleted.', { pdf: 'Scans Muster', photo: T('Imported photos') }));
+  await sheet.getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(sheet).toHaveCount(0);
+  expect(asked).toEqual([]);
   await expect(main.getByRole('heading', { level: 2, name: 'Ferien Muster' })).toHaveCount(0);
   const scans = main.locator('section', { has: page.getByRole('heading', { level: 2, name: 'Scans Muster' }) });
   await expect(scans).toContainText(T('{n} documents', { n: 2 }));

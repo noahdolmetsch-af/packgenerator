@@ -21,6 +21,7 @@
   import { db } from '../lib/db.js';
   import Seg from '../lib/ui/Seg.svelte';
   import GroupActions from '../lib/ui/GroupActions.svelte';
+  import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
   import { UNDO_MS } from '../lib/ui/undo.js';
   import { docs, DOCS_HASH, SCAN_HASH, MAX_MB, addDoc, updateDoc, renameDoc, moveDoc, deleteDoc, restoreDoc, addGroup, renameGroup, deleteGroup, undoGroup, readData, smallPhoto, pdfPages, blobOf, connectDrive, checkDrive, uploadMissing, savePrefs } from '../lib/docs/client.svelte.js';
   import { groupDocs, ownGroups, groupOf, dataBytes, fileName, reminderRows, packRows, expiry, untilOf, defaultName, searchDocs, sortDocs, SORTS, REMIND_MONTHS, DEFAULT_REMIND, DEFAULT_GROUP, GROUP_IDEAS } from '../lib/docs.js';
@@ -172,15 +173,14 @@
     const u = await renameGroup(g, back ? '' : value);
     if (u) offerGroupUndo(t('Renamed to «{name}».', { name: back ? own : value }), u);
   }
-  async function removeGroup(g) {
+  // Paket B «Gruppen überall»: «Löschen» opens the one delete window of the app (GroupDeleteSheet); the first
+  // choice sends the documents back to the default group, or the person picks another own group
+  let deleting = $state.raw(null); // the group row of groupDocs being deleted
+  async function removeGroup(g, to) {
     const name = groupName(g);
-    const u = await deleteGroup(g);
+    const u = await deleteGroup(g, { to: to ?? '' });
     if (u) offerGroupUndo(t('Group «{name}» deleted.', { name }), u);
   }
-  const deleteAsk = (g) =>
-    g.rows.length
-      ? tn(g.rows.length, 'Delete the group «{name}»? Its {n} document goes back to «{pdf}» or «{photo}»; no document is deleted.', 'Delete the group «{name}»? Its {n} documents go back to «{pdf}» or «{photo}»; no document is deleted.', { name: groupName(g), pdf: defName('pdf'), photo: defName('photo') })
-      : t('Delete the empty group «{name}»?', { name: groupName(g) });
   const renameHelp = (g) =>
     g.kind === 'own'
       ? tn(g.rows.length, 'The {n} document in it gets the new name.', 'The {n} documents in it get the new name.')
@@ -333,7 +333,7 @@
               <GroupActions name={groupName(g)} count={g.rows.length} canDelete={g.kind === 'own'} allowEmpty={g.kind !== 'own'}
                 renameExplain={g.kind === 'own' ? t('every document in it gets the new name') : t('only the name changes; new files still come here')}
                 deleteExplain={t('the documents stay, in «{pdf}» or «{photo}»', { pdf: defName('pdf'), photo: defName('photo') })}
-                renameHelp={renameHelp(g)} deleteAsk={deleteAsk(g)} onrename={(v) => saveRename(g, v)} ondelete={() => removeGroup(g)}>
+                renameHelp={renameHelp(g)} deleteAsk="" onrename={(v) => saveRename(g, v)} ondelete={() => (deleting = g)}>
                 <h2 id={gid(g)}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p>
               </GroupActions>
               {/if}
@@ -413,6 +413,21 @@
     </div>
   {/if}
 </div>
+
+{#if deleting}
+  {@const g = deleting}
+  <GroupDeleteSheet
+    title={t('Delete group «{name}»?', { name: groupName(g) })}
+    count={g.rows.length}
+    what={(n) => tn(n, '{n} document', '{n} documents')}
+    none={t('Back to «{pdf}» or «{photo}»', { pdf: defName('pdf'), photo: defName('photo') })}
+    noneHint={t('PDFs to «{pdf}», photos to «{photo}». No document is deleted.', { pdf: defName('pdf'), photo: defName('photo') })}
+    targets={groups.filter((x) => x.kind === 'own' && x.key !== g.key).map((x) => ({ id: x.name, name: groupName(x) }))}
+    onconfirm={(to) => removeGroup(g, to)}
+    onclose={() => (deleting = null)}
+  />
+{/if}
+
 
 <style>
   .msg {

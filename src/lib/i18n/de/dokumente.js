@@ -231,4 +231,7 @@ export default {
   'the documents stay, in «{pdf}» or «{photo}»': 'die Dokumente bleiben, in «{pdf}» oder «{photo}»',
   'Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.':
     'Gruppe ändern: «…» neben ihrem Namen › «Umbenennen» oder «Löschen». Beim Löschen bleiben die Dokumente.',
+  // Paket B «Gruppen überall»: the one delete window on Ich › Dokumente
+  'Back to «{pdf}» or «{photo}»': 'Zurück nach «{pdf}» oder «{photo}»',
+  'PDFs to «{pdf}», photos to «{photo}». No document is deleted.': 'PDFs nach «{pdf}», Fotos nach «{photo}». Kein Dokument wird gelöscht.',
 };
