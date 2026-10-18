@@ -8,4 +8,8 @@ export default {
   'Categories, evening-before and after-trip check': 'Kategorien, Vorabend- und Schluss-Check',
   'Appearance and handling': 'Darstellung und Bedienung',
   'Start: {place}': 'Start: {place}',
+
+  // Eingang: the older notes folded, a calm progress
+  'Filed today: {n} of {total}': 'Heute abgelegt: {n} von {total}',
+  'Older notes. Open them when you have time.': 'Ältere Notizen. Öffnen, wenn du Zeit hast.',
 };
