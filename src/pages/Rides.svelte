@@ -17,6 +17,7 @@
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
+  import Profile from '../lib/ui/Profile.svelte';
   import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert } from '@lucide/svelte';
 
   let { sub = '' } = $props();
@@ -145,6 +146,9 @@
 
   /* ---------- one saved ride ---------- */
   const rows = $derived(ride ? compareRide(ride, ride.plan) : []);
+  // v0.151.0 HP3: the planned route's profile, only when this ride is the trip's one ride (a stage of a
+  // longer trip would not match the whole route).
+  const planProfileOf = (r, trip) => (trip?.route?.profile?.length > 1 && rides.filter((x) => x.tripId === trip.id).length === 1 ? trip.route.profile : null);
   const suggs = $derived(ride ? rideLearnings(ride, ride.plan, ride.basis ?? pace) : []);
   const ROW = { km: 'Distance', gain: 'Climbing', moving: 'Moving time', speed: 'Average speed' };
   const fmt = (key, v) => (v == null ? '–' : key === 'km' ? `${num(v)} km` : key === 'gain' ? `${num(v)} m` : key === 'moving' ? hm(v) : `${num(v)} km/h`);
@@ -245,6 +249,7 @@
       {@const trip = tripOf(ride)}
       {@const parts = ['num', 'pz', rows.length ? 'cmp' : '', suggs.length ? 'lr' : ''].filter(Boolean)}
       {@const no = (k) => `${parts.indexOf(k) + 1} · `}
+      {@const planP = planProfileOf(ride, trip)}
       <h1 class="title">{ride.name}</h1>
       <p class="page-sub">{[day(ride.date), t('Start {time}', { time: clock(ride.startAt) }), trip?.title].filter(Boolean).join(' · ')}</p>
       {#if rideMsg}<p class="okmsg" role="status">{rideMsg}</p>{/if}
@@ -260,6 +265,8 @@
               <div class="rv-tile"><dd><b class="num">{speedOf(ride) != null ? `${num(speedOf(ride))} km/h` : '–'}</b></dd><dt><small>{t('Average speed')}</small></dt></div>
               {#if heart}<div class="rv-tile"><dd><b class="num">{heart.avg} / {heart.max ?? '–'}</b></dd><dt><small>{t('Heart rate Ø / max · bpm')}</small></dt></div>{/if}
             </dl>
+            <!-- v0.151.0 HP3: the profile of this ride -->
+            {#if ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile points={ride.profile} label="Elevation of the ride" /></div>{/if}
           </section>
 
           <section class="rv-sec" aria-labelledby="pz-h">
@@ -277,6 +284,8 @@
           {#if rows.length}
             <section class="rv-sec" aria-labelledby="cmp-h">
               <div class="rv-h"><div><h2 id="cmp-h">{no('cmp')}{t('Planned vs real')}</h2><p class="rv-sub">{ride.plan?.source === 'plan' ? t('from the time plan') : ride.plan?.source === 'hours' ? t('from your riding hours') : t('from the route')}</p></div></div>
+              <!-- v0.151.0 HP3 (Noah «1a»): planned and ridden in one picture -->
+              {#if planP && ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile points={ride.profile} plan={planP} label="Elevation, planned and ridden" /></div>{/if}
               <div class="rv-box">
                 <table class="cmp" aria-labelledby="cmp-h">
                   <thead><tr><th scope="col"><span class="sr">{t('What')}</span></th><th scope="col">{t('Planned')}</th><th scope="col">{t('Real')}</th><th scope="col"><span class="sr">{t('Difference')}</span></th></tr></thead>
@@ -708,5 +717,8 @@
   .del {
     margin: 0;
     padding: 0 12px;
+  }
+  .rprof {
+    margin-top: 12px;
   }
 </style>

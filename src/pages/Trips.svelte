@@ -34,6 +34,7 @@
   import { stateExtra } from '../lib/tripstate.js';
   import { stateExtraText } from '../lib/tripstatetext.js';
   import TripState from '../lib/ui/TripState.svelte';
+  import Profile from '../lib/ui/Profile.svelte'; // HP4
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -338,12 +339,17 @@
               {@const ents = byId[r.tripId]?.entries ?? []}
               {@const packed = ents.filter((e) => e.packed).length}
               {@const p = r.kind === 'trip' && ents.length ? Math.round((100 * packed) / ents.length) : r.kind === 'ride' ? pct(r.state) : null}
+              {@const rt = r.kind === 'trip' ? byId[r.tripId]?.route : null}
               <li class="pc" data-trip={r.tripId}>
                 <div class="pt">
                   {#if r.kind === 'replan'}<b class="pn">{r.title}</b>{:else}<a class="pn whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{r.title}</a>{/if}
                   <TripState state="plan" extra={extraOf(r)} />
                 </div>
                 <p class="ps">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : planLine(r)}</p>
+                <!-- v0.151.0 HP4 (Noah «2a»): a planned trip with a route shows its small profile -->
+                {#if rt?.profile?.length > 1}
+                  <div class="mprof" data-plan-profile><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+                {/if}
                 <KomootSign trip={byId[r.tripId]} small />
                 {#if r.kind === 'replan'}
                   <button type="button" class="btn k rp" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}"><span class="kl">{t(r.go.label)}</span></button>
@@ -970,5 +976,13 @@
     gap: 2px;
     min-height: 44px;
     margin-left: 4px;
+  }
+  .mprof {
+    margin: 2px 0 8px;
+  }
+  .mprof .ms {
+    margin: 4px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
 </style>
