@@ -13,7 +13,7 @@ Du brauchst etwa 10 Minuten. Schreib den Schlüssel und den Code nirgends sonst 
 
 ## 2. Ausgabenlimit auch bei Anthropic setzen
 
-Die App hat ein eigenes Monatslimit (Standard CHF 5). Als zweite Sicherung:
+Die App hat ein eigenes Monatslimit (Standard CHF 2, seit 15.10.2026). Als zweite Sicherung:
 
 1. In der Console **Settings** → **Limits** (bzw. **Spend limits**).
 2. **Monthly spend limit** auf z. B. **10 USD** setzen und speichern.
@@ -46,7 +46,7 @@ Den Code kopieren und im Passwort-Manager unter «Pack Generator Helfer-Code» a
    - **Value:** der Helfer-Code aus Schritt 3
    - gleiche Environments, **Sensitive** → **Save**.
 5. Freiwillig:
-   - `HELPER_MONTHLY_CHF` = Monatslimit des Servers in Franken (ohne Eintrag: 5).
+   - `HELPER_MONTHLY_CHF` = Monatslimit des Servers in Franken (ohne Eintrag: 2).
    - `HELPER_MODEL` = anderes Claude-Modell (ohne Eintrag: `claude-sonnet-5-5`).
 6. Speicher für den Monatszähler: Unter **Storage** muss eine **Upstash Redis**-Datenbank mit dem Projekt verbunden sein (dann gibt es die Variablen `KV_REST_API_URL` und `KV_REST_API_TOKEN` schon). Falls nicht: **Storage** → **Create Database** → **Upstash** → **Redis** → Region Frankfurt → **Connect Project** → packgen.
 
@@ -67,7 +67,7 @@ Auf jedem Gerät, auf dem du den Helfer willst:
 1. App öffnen → **Ich** (Symbol oben rechts) → **Helfer** (oder in «Neue Tour» bei «Der Helfer ist noch nicht eingerichtet» auf **Einrichten**).
 2. Bei **Helfer-Code** den Code aus Schritt 3 einfügen → **Speichern**.
 3. **Verbindung prüfen** tippen. Es soll «Verbunden. Diesen Monat: CHF 0.00.» erscheinen.
-4. Bei Bedarf das **Monatslimit** ändern (Standard CHF 5) → **Speichern**.
+4. Bei Bedarf das **Monatslimit** ändern (Standard CHF 2) → **Speichern**. Unter **Modell** Sonnet 5.5 (Standard) oder das günstigere Haiku 5.5 wählen; **Nutzung und Kosten** erklärt die Kosten.
 
 Der Code bleibt nur auf diesem Gerät. Er kommt nie in ein Backup, einen Export oder eine geteilte Liste. Auf einem neuen Gerät gibst du ihn neu ein.
 

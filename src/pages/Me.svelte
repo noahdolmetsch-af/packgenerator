@@ -33,7 +33,7 @@
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
-  import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
+  import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH } from '../lib/play.js';
   import { take } from '../lib/nav.js';
@@ -92,7 +92,7 @@
     location.hash = '#/';
   }
   // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
-  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
+  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : noCredit() ? t('credit used up · hidden|helper') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
   // TR6: the weight, voluntary, only for watts per kg

@@ -298,6 +298,7 @@ export default {
   'Me › AI helper: switch on «Show the AI helper in the app» and save the code.': 'Ich › KI-Helfer: «KI-Helfer in der App zeigen» einschalten und Code speichern.',
   'Paste the helper code; it stays on this device.': 'Füge den Helfer-Code ein; er bleibt auf diesem Gerät.',
   'Before each request you see what goes to Claude; a monthly limit applies.': 'Vor jeder Anfrage siehst du, was an Claude geht; es gilt ein Monatslimit.',
+  'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.': 'Wähle das Modell: Sonnet 5.5 (Standard) oder das günstigere Haiku 5.5. «Nutzung und Kosten» sagt, was es kostet.',
   'Example: switched off again → it shows nowhere, the code stays stored.': 'Beispiel: wieder ausgeschaltet → er zeigt sich nirgends, der Code bleibt gespeichert.',
   'Computer with a keyboard.': 'Computer mit Tastatur.',
   'Press ? to see the list.': 'Drück ?, um die Liste zu sehen.',
@@ -431,4 +432,9 @@ export default {
   // Paket B: Dokumente als PDF (f.docscan)
   'For Google Drive: «Connect Google Drive» once under Me › Documents (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» unter Ich › Dokumente (braucht Strava auf diesem Gerät).',
   'Open the new document: set the group, «valid until» and «In the packing list».': 'Das neue Dokument öffnet sich: Wähle Gruppe, «gültig bis» und «In die Packliste».',
+  // «Assistent» (15.10.2026)
+  'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.': 'Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.',
+  'Ask the app: type a question or tap an example; the answer comes from your data, with a link.': 'Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.',
+  'Help me plan: answer four short questions, check the plan, «Create the trip».': 'Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».',
+  'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».': 'Beispiel: «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».',
 };
