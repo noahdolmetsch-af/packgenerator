@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 106 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -581,7 +581,7 @@ Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
 2. Datei wählen; Distanz, Höhenmeter und Pausen erscheinen.
 3. Notiere bis zu 3 Learnings.
 
-**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
+**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 Min Pausen.
 
 ### Vergangene Touren
 
@@ -893,7 +893,7 @@ Lange auf eine Aktivität drücken; sie läuft auf jeder Seite weiter.
 1. Unter Aktiv eine Aktivität lange drücken (Rechtsklick am Computer).
 2. Wähle Stoppuhr; sie läuft auf jeder Seite weiter.
 
-**Beispiel:** 15 min Countdown für Yoga → am Ende klingt die Klangschale.
+**Beispiel:** 15 Min Countdown für Yoga → am Ende klingt die Klangschale.
 
 ### Ziele und Tage
 
@@ -917,6 +917,18 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
+### Angebote
+
+Gib freie Zeiten für Tennis, eine geführte Tour oder einen Velo-Service frei; die Leute buchen über einen Link, ohne App.
+
+**Aufschalten:** Braucht den Buchungs-Server; online bezahlen nur im Testmodus.
+
+1. Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.
+2. Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.
+3. Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.
+
+**Beispiel:** Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».
+
 ### Wi gaht's?
 
 Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
@@ -930,12 +942,12 @@ Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein V
 
 ### Tipps und «Wusstest du»
 
-Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.
+Ein Tipp pro Tag und was die App auf der Seite kann; Erde und Everest in Vergangene Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
-2. Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».
+2. Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.
 
 **Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
 
@@ -971,7 +983,7 @@ Starten wie letztes Mal oder aus einer Vorlage; Klänge und eine ruhige Uhr.
 1. Öffne Aktiv › Meditation.
 2. Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.
 
-**Beispiel:** 10 min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
+**Beispiel:** 10 Min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
 
 ### Meditations-Protokoll
 

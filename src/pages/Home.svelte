@@ -102,6 +102,7 @@
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
+  import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -658,6 +659,7 @@
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
     for (const r of sheetReminders(bikes, { visits, today })) rows.push({ key: `sheet:${r.bikeId}:${r.key}`, tone: r.tone, text: r.text, act: { label: t('Open the sheet'), href: r.href }, later: () => sheetLater(r) });
+    for (const n of $bookingNotes) rows.push(bookingRow(n));
     if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });
     if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
     // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest

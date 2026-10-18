@@ -377,4 +377,10 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // v0.153.0 Termine buchen
+  'Needs the booking server; online payment only in test mode.': 'Braucht den Buchungs-Server; online bezahlen nur im Testmodus.',
+  'Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.': 'Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.',
+  'Tap + on a day to open a free time, then send the link by WhatsApp.': 'Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.',
+  'New bookings show on Today; tap a time to see who comes or to cancel it.': 'Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.',
+  'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».': 'Beispiel: Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».',
 };

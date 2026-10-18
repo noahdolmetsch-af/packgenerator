@@ -26,6 +26,8 @@ export default defineConfig({
         meditation: 'apps/meditation/index.html',
         packliste: 'apps/packliste/index.html',
         velopflege: 'apps/velopflege/index.html',
+        // Termine buchen (BU2 + BU3): the page the people who book open, without the app
+        buchen: 'buchen/index.html',
       },
     },
   },
@@ -87,6 +89,16 @@ export default defineConfig({
         ],
       },
     }),
+    // Termine buchen (BU2 + BU3): the booking page is a plain web page for the people who book: no
+    // manifest and no service worker (they should not install the app or get its offline files).
+    {
+      name: 'booking-page-plain',
+      enforce: 'post',
+      transformIndexHtml: {
+        order: 'post',
+        handler: (html) => (html.includes('<title>Termin buchen</title>') ? html.replace(/<link rel="manifest"[^>]*>/g, '').replace(/<script id="vite-plugin-pwa:register-sw"[^>]*><\/script>/g, '') : html),
+      },
+    },
     // Kleine Apps: a small app's page keeps only its own manifest (the PWA plugin adds the big app's one too).
     {
       name: 'mini-app-manifest',

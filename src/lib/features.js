@@ -137,6 +137,8 @@ const OWN = [
   // v0.125.0 «Werte überall» (WU3): year goals for km, metres climbed and minutes, and the footprint
   { id: 'f.yeargoals', group: 'active', title: 'Year goals and footprint', text: 'One year goal each for km, metres climbed and minutes, each can be switched off; the CO₂ your rides saved.', href: '#/flow/goals', words: 'jahresziel höhenmeter hm fussabdruck co2 km ziel jahr' },
   // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
+  // v0.153.0 Termine buchen (BU1–BU5): people book your free times through a link
+  { id: 'f.offers', group: 'active', title: 'Offers', text: 'Open free times for tennis, a guided tour or a bike service; people book them through one link, without the app.', href: '#/me/offers', words: 'termine buchen angebote tennis lektion schüler tour service kalender link' },
   { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   // v0.136.0 «Inhalte Flow» IF1–IF3 + «Wusstest du» WD1–WD3
   { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day and what the app can do on the page; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
