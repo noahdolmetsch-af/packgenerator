@@ -1500,3 +1500,8 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Tages-Check (18.10.):** Morgen-Check und Abend-Rückblick werden wieder eigene Seiten (auch erreichbar aus «Wi gaht's?»); Kachel «Deine 15 Fragen» mit eigener Seite; ein grosser Balance-Ring mit 9 Bereichen ersetzt auf Heute die drei Im-Flow-Ringe.
 - **Neu bündeln in sechs Pakete (18.10., 19:37 UTC, «1a 2b 3b 4a»):** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. Neue Arbeit darf parallel weiterlaufen; Skitour bleibt in E. Versionen: P3 0.145.0, A 0.146.0, danach ein Schritt pro Paket. Ersetzt den Paketplan P3 bis P13.
 - **Doku (18.10.):** neuer Einstieg [projektstand.md](projektstand.md) und [geschichte.md](geschichte.md); der Projektstand wird bei jedem Paket nachgeführt.
+
+## 18.10.2026: Testlink statt Mockups, Anleitung für Claude
+
+- **Testlink statt Mockups (Noah, 21:52 UTC, «ab sofort … überall»):** gebaut wird ohne Mockups und ohne Bilder vor dem Merge. Zu jedem Paket bekommt Noah den Testlink (Vercel-Vorschau des Paket-PRs) mit «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Zusammengeführt wird erst nach seinem «ok» für dieses Paket. Updates von Abhängigkeiten werden sofort zusammengeführt. Ersetzt «zuerst bauen, dann Bilder» vom 14.10.2026.
+- **CLAUDE.md nachgeführt (Noah, 21:53 UTC, «bitte anweisung in claude ebenfalls integrieren und speichern»):** die Anleitung für Claude nennt jetzt die heutigen Regeln (Testlink, Pakete, Zusammenführen nach «ok», Fragen ohne ★, kein Trello). Ersetzt das «b» von 18.10.2026, 19:56 UTC.
