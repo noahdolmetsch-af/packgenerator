@@ -43,7 +43,7 @@ const T = {
   templates: { id: 'templates', label: 'Templates', icon: 'file', href: '#/pack/templates' },
   weight: { id: 'weight', label: 'Save weight', icon: 'scale', href: '#/gear?view=never' },
   wardrobe: { id: 'wardrobe', label: 'Wardrobe', icon: 'shirt', href: '#/wardrobe' },
-  favs: { id: 'favs', label: 'Favourite things', icon: 'star', href: '#/favorites' },
+  favs: { id: 'favs', label: 'Favourites', icon: 'star', href: '#/favorites' },
   wish: { id: 'wish', label: 'Wishlist', icon: 'heart', href: '#/gear?view=wish' },
   unweighed: { id: 'unweighed', label: 'Weigh|tile', icon: 'scale', href: '#/gear?view=unweighed' },
   med: { id: 'med', label: 'Meditation', icon: 'lotus', href: '#/flow' },
@@ -66,7 +66,8 @@ export const SK_PAGES = {
   past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
   debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
   bikes: [T.pack, T.stravacheck, T.workshop, T.bikecompare, T.kmbook, T.tomorrow, ex(T.velocare), ex(T.bp), ex(T.x12)],
-  gear: [T.blocks, T.templates, T.weight, T.wardrobe, T.favs, T.wish, T.pack, ex(T.unweighed), ex(T.lighter)],
+  // Impeccable (18.10.2026): Building blocks, Clothes and Shopping are the tabs above; their tiles only after «Dazunehmen»
+  gear: [T.templates, T.weight, T.favs, T.pack, ex(T.unweighed), ex(T.lighter), ex(T.blocks), ex(T.wardrobe), ex(T.wish)],
   flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck, ex(T.rest), ex(T.week), ex(T.trophies), ex(T.hepa)],
 };
 /** The page names in the sheet's subtitle. */

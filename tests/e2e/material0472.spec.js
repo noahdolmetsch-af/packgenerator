@@ -4,7 +4,8 @@ import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture, COUNTS } from './material0472-fixture.js';
 
-const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Lieblingssachen', never: 'Nie gebraucht', unweighed: 'Ungewogen', wish: 'Wunschliste' };
+// Impeccable (18.10.2026): «Favoriten» (one word), and the wishlist is the tab «Einkauf», no row in «Ansichten»
+const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Favoriten', never: 'Nie gebraucht', unweighed: 'Ungewogen' };
 
 async function openGear(page, context, info, hash = '#/gear') {
   await openHome(page, context, info, { data: materialFixture() });
@@ -16,7 +17,7 @@ async function openGear(page, context, info, hash = '#/gear') {
 const views = (page) => page.getByRole('group', { name: 'Ansichten' });
 const cards = (page) => page.locator('.cards .mcard');
 
-test('the seven views: counts on the buttons, each filters the cards and stays in the address', async ({ page, context }, info) => {
+test('the views: counts on the buttons, each filters the cards and stays in the address', async ({ page, context }, info) => {
   await openGear(page, context, info);
   for (const [key, name] of Object.entries(NAMES)) {
     const b = views(page).getByRole('button', { name: new RegExp(`^${name} ${COUNTS[key]}$`) });
@@ -28,6 +29,11 @@ test('the seven views: counts on the buttons, each filters the cards and stays i
     if (key === 'all') expect(page.url()).not.toContain('view=');
     else expect(page.url()).toContain(`view=${key}`);
   }
+  // the wishlist: no row here, the tab «Einkauf» (?view=wish) shows it
+  await expect(views(page).locator('[data-view="wish"]')).toHaveCount(0);
+  await page.goto('./#/gear?view=wish');
+  await expect(cards(page)).toHaveCount(COUNTS.wish);
+  await page.goto('./#/gear');
   // the right items in the views
   await views(page).getByRole('button', { name: /^Meist genutzt/ }).click();
   await expect(cards(page).locator('.nm')).toHaveText(['Bike computer', 'Power bank 10000 mAh', 'Rain jacket']);
@@ -39,7 +45,7 @@ test('the seven views: counts on the buttons, each filters the cards and stays i
   await page.goto('./#/gear?tab=dead');
   await expect(views(page).getByRole('button', { name: /^Nie gebraucht/ })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/gear?fav=1');
-  await expect(views(page).getByRole('button', { name: /^Lieblingssachen/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(views(page).getByRole('button', { name: /^Favoriten/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(cards(page)).toHaveCount(COUNTS.fav);
 });
 

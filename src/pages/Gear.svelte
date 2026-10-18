@@ -803,6 +803,8 @@
         {/if}
         <section class="vcard" aria-labelledby="views-h">
           <h2 id="views-h" class="title">{t('Views')}</h2>
+          <!-- Impeccable (18.10.2026): the views filter; the places (Clothes, Building blocks, Shopping) are the tabs above -->
+          <p class="vnote">{t('Filters the list above. To switch place, pick it at the top: Clothes, Building blocks, Shopping.')}</p>
           {@render viewButtons('vrows')}
         </section>
         <!-- SL2 (answer 2a): the jump bar beside the list on a computer, it stays in view -->
@@ -823,7 +825,8 @@
 
 {#snippet viewButtons(kind)}
   <div class="views {kind}" role="group" aria-label={t('Views')}>
-    {#each VIEWS as v (v)}
+    <!-- Impeccable (18.10.2026): no row «Wishlist» here, it is the tab «Shopping» above (?view=wish stays) -->
+    {#each VIEWS.filter((v) => v !== 'wish') as v (v)}
       {@const I = VIEW_ICON[v]}
       <button type="button" class="vbtn" data-view={v} aria-pressed={view === v} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
     {/each}
@@ -2265,7 +2268,13 @@
     gap: 8px;
   }
   .vcard > .title {
-    margin-bottom: 10px;
+    margin-bottom: 4px;
+  }
+  .vnote {
+    margin: 0 0 10px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.45;
   }
   .views.vrows {
     display: grid;
