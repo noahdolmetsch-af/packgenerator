@@ -63,7 +63,7 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   // one light each for the backup, the folder and the storage; each says its state in words too
   await expect(panel.locator('li.light')).toHaveCount(3);
   await expect(panel.locator('li.light .dot')).toHaveCount(3);
-  await expect(panel.getByRole('button', { name: T('Export backup') })).toBeVisible();
+  await expect(panel.getByRole('button', { name: T('Save backup') })).toBeVisible();
   await expect(panel.getByText(T('Import backup'), { exact: true })).toBeVisible();
   await expect(panel.getByRole('heading', { name: T('Other data') })).toBeVisible();
   await panel.getByRole('link', { name: new RegExp(T('To the phone')) }).click();
@@ -90,12 +90,15 @@ test('I3: Inbox with the view chips, To file and Recently filed', async ({ page,
   const chips = page.getByRole('group', { name: T('Show') });
   await expect(chips.getByRole('button', { name: new RegExp(T('To file')) })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('heading', { level: 2, name: T('To file') })).toBeVisible();
-  await expect(page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` }).getByRole('button', { name: T('File') })).toBeVisible();
+  // Impeccable (18.10.2026, changed on purpose): the button names the suggestion
+  await expect(page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` }).getByRole('button', { name: T('File as bike problem') })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Recently filed') })).toBeVisible();
   await expect(page.locator('li.filed').filter({ hasText: `${P} Bremse hinten schleift` })).toBeVisible();
-  // I4: «File as …» opens with the suggestion chosen
-  await page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` }).getByRole('button', { name: T('File') }).click();
+  // I4: «File as …» opens on the suggestion's form; the 7 targets with the suggestion chosen behind «Choose another target»
+  await page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` }).getByRole('button', { name: T('File as bike problem') }).click();
   const dlg = page.getByRole('dialog');
+  await expect(dlg.getByRole('button', { name: T('Into bike care') })).toBeVisible();
+  await dlg.getByRole('button', { name: T('Choose another target') }).click();
   await expect(dlg.locator('li.sug button.tile')).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
@@ -138,6 +141,8 @@ test('I10 and I12: the home place window and the shortcuts window', async ({ pag
   await expect(home.getByRole('button', { name: T('Save') })).toBeDisabled();
   await home.getByRole('button', { name: T('Close') }).click();
   await expect(home).toBeHidden();
+  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
   await page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }).click();
   const keys = page.getByRole('dialog', { name: T('Keyboard shortcuts') });
   await expect(keys.getByRole('heading', { name: T('Places') })).toBeVisible();

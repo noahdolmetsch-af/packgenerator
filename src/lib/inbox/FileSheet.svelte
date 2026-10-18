@@ -5,9 +5,11 @@
    * suggestion on top, marked), then one short form for the chosen target with ONE main button named
    * by where the entry lands. A receipt asks for bike, shop, date and amount (the work is optional)
    * and becomes a workshop visit with the photo. «Anderes Ziel wählen» goes back to the list.
+   * Impeccable (18.10.2026): `direct` opens straight on the suggested target's form (the row's button named
+   * it); the 7 tiles are folded behind «Anderes Ziel wählen». Without `direct` (••• › «Woanders ablegen …») as before.
    */
   import DateInput from '../ui/DateInput.svelte';
-  import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
+  import { TARGETS, TARGET, LANDS, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
   import { guessBike } from '../notes.js';
   import { parseChf } from '../hubs.js';
@@ -20,18 +22,8 @@
   import { ReceiptText, Check, X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { note, bikes = [], trips = [], visits = [], onclose, onfiled } = $props();
+  let { note, direct = false, bikes = [], trips = [], visits = [], onclose, onfiled } = $props();
 
-  /** Where each target lands, one line (German in de/pflege.js). */
-  const LANDS = {
-    receipt: 'Workshop visit with photo',
-    problem: 'Open work in the care of the bike',
-    material: 'New item in Gear',
-    wish: 'Gear › Wishlist',
-    idea: 'Bike › What would be great',
-    tour: 'Into the debrief of a trip',
-    keep: 'Becomes a note in «Notes», topic to choose',
-  };
   /** The main button of each form, named by where the entry lands (U1). */
   const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', keep: 'Keep as note' };
   /** Jobs a receipt often lists (optional); since v0.125.0 shared with the workshop visit window (inbox.js). */
@@ -42,6 +34,8 @@
   const suggest = guessTarget(note);
   // Design-Refresh P9 (I4): the suggestion is chosen from the start; one tap on another tile changes it.
   let kind = $state(suggest);
+  // svelte-ignore state_referenced_locally
+  let tiles = $state(!direct);
   // svelte-ignore state_referenced_locally
   let bike = $state(guessBike(note.text ?? '', bikes, note.bikeId ?? null) ?? bikes[0]?.id ?? null);
   const today = localDay();
@@ -143,6 +137,10 @@
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
+  {#if !tiles}
+    {@const Icon = ICONS[kind]}
+    <p class="chosen"><Icon size={18} aria-hidden="true" /><b>{t(TARGET[kind].name)}</b><span class="q">· {t('Suggestion')}</span><button type="button" class="btn btn-link other" onclick={() => (tiles = true)}>{t('Choose another target')}</button></p>
+  {:else}
   <ul class="targets" aria-label={t('Targets')}>
     {#each order as x (x.key)}
       {@const Icon = ICONS[x.key]}
@@ -155,6 +153,7 @@
       </li>
     {/each}
   </ul>
+  {/if}
 
   {#if kind}
     <p class="lands">{t(LANDS[kind])}</p>
@@ -226,6 +225,20 @@
     height: 56px;
     object-fit: cover;
     border-radius: 6px;
+  }
+  .chosen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 0 0 10px;
+  }
+  .chosen :global(svg) {
+    color: var(--ink-2);
+  }
+  .chosen .other {
+    margin-left: auto;
+    min-height: 44px;
   }
   .pick .link {
     border: 0;
