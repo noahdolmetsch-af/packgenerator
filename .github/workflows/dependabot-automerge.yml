@@ -1,0 +1,22 @@
+# Paket B «Server» (Noah 18.10.2026 «2 immer sofort ohne bilder und ohne mein ok»): a library update from
+# Dependabot merges by itself as soon as the required checks (build, e2e) are green. The one exception to
+# «Noah merges every PR himself», for Dependabot's pull requests only. Needs «Allow auto-merge» in the
+# repository settings (anleitung.md Teil 8). Only GITHUB_TOKEN.
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Turn on auto-merge
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}

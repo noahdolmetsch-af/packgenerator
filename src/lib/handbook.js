@@ -515,7 +515,7 @@ export const HANDBOOK = {
     example: 'Example: try the ride day of a made-up 2-day trip without touching your data.',
   },
   'f.push': {
-    on: 'Needs Chrome on the phone and the server set up once.',
+    on: 'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.',
     steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want, one by one.'],
     example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
   },

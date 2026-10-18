@@ -28,6 +28,9 @@ async function open(page, context) {
 }
 
 test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a kind switch is kept', async ({ page, context }) => {
+  // headless Chromium always answers «denied», even with grantPermissions (the page then rightly says
+  // «blocked»); here it plays a phone that was never asked
+  await context.addInitScript(() => Object.defineProperty(Notification, 'permission', { get: () => 'default' }));
   await open(page, context);
   await page.goto('./#/me');
   await settle(page);
@@ -57,4 +60,36 @@ test('the main switch says so when the server is not set up, and stays off', asy
   await expect(box.locator('[data-push-main]')).not.toBeChecked();
   await expect.poll(() => stored(page, 'push')).toMatchObject({ on: false });
   await expect(box.locator('[data-push-test]')).toHaveCount(0);
+});
+
+// Paket B «Server» (anleitung.md Teil 7): «Adresse für cron-job.org kopieren». The server is mocked; the
+// device key and the tick code are fictional.
+const CRON = 'https://packgen-three.vercel.app/api/push?a=tick&key=test_tick_code_not_real';
+
+test('the copy button puts the tick address on the clipboard, with this device’s key', async ({ page, context }) => {
+  await open(page, context);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  let auth = null;
+  await context.route(`${PUSH}?a=cron`, (route) => {
+    auth = route.request().headers().authorization ?? null;
+    return route.fulfill({ json: { ok: true, url: CRON } });
+  });
+  await page.evaluate(() => localStorage.setItem('pg.strava.key', 'test-device-key-not-real'));
+  await page.goto('./#/me/push');
+  await settle(page);
+  const box = page.locator('[data-push-cron]');
+  await expect(box.getByRole('heading', { name: T('Wake-up call for the server') })).toBeVisible();
+  await box.getByRole('button', { name: T('Copy the address for cron-job.org') }).click();
+  await expect(box.getByRole('status')).toHaveText(T('Address copied. In cron-job.org, paste it as the URL.'));
+  expect(auth).toBe('Bearer test-device-key-not-real');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(CRON);
+});
+
+test('without a device key or helper code the copy button says what to do first', async ({ page, context }) => {
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const box = page.locator('[data-push-cron]');
+  await box.getByRole('button', { name: T('Copy the address for cron-job.org') }).click();
+  await expect(box.getByRole('alert')).toHaveText(T('First connect Strava or enter the helper code on this device.'));
 });
