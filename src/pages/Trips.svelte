@@ -1083,14 +1083,10 @@
     gap: 8px;
     margin: 12px 0 16px;
   }
-  /* Paket D «1b»: on a phone the head of «Geplant» stays one line with «Schnell starten» on its right */
+  /* Paket D «1b»: on a phone «Schnell starten» sits on the right of the head of «Geplant» (it wraps below on a very narrow phone) */
   @media (max-width: 599px) {
     .sh {
-      flex-wrap: nowrap;
       align-items: center;
-    }
-    .sh > div:first-child {
-      min-width: 0;
     }
     .qopen {
       flex: none;
