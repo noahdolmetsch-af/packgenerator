@@ -19,8 +19,14 @@
   import { bikesHash } from '../bikes.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
-  import Woanders from '../sk/Woanders.svelte'; // SK X5 + X15 (SKX3)
-  import { slotOf, PARKTOOL_URL } from '../sk/links.js';
+  // SK X5 + X15 (SKX3); Impeccable (18.10.2026, Velopflege 2): the links of a due row live in its «…»,
+  // the workshop booking link is entered once under «More».
+  import { slotOf, PARKTOOL_URL, LINKS, linkOn } from '../sk/links.js';
+  import { skLinks, watchLinks } from '../sk/linkstore.svelte.js';
+  import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
+  import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
+  import SkToast from '../sk/SkToast.svelte';
+  import { ExternalLink, CalendarCheck, EyeOff } from '@lucide/svelte';
 
   let { checks = [], problems = [], tasks = [], visits = [], today, bikeIdOf, onopen, ondone, onflow, onorder, onrepair, onwork } = $props();
 
@@ -77,6 +83,33 @@
       ];
     return [{ name: t('Look|check'), explain: explain('Look|check'), sub: row.name, icon: Eye, run: () => onopen(bike.id, 'check') }, open];
   }
+  /* ---------- Impeccable (18.10.2026, Velopflege 2): the links elsewhere, in the row's «…» ---------- */
+  watchLinks();
+  const BOOK = slotOf('x15'); // one booking link for all bikes
+  const booking = $derived(skLinks.own[BOOK] ?? null);
+  const bookOn = $derived(linkOn(skLinks.off, 'x15'));
+  const guideOn = $derived(linkOn(skLinks.off, 'x5'));
+  let bookEdit = $state(false);
+  let linkNote = $state(null);
+  const away = (url) => window.open(url, '_blank', 'noopener,noreferrer');
+  function hideLink(kind) {
+    setLinkOff(kind, true);
+    linkNote = { text: t('«{name}» no longer shown', { name: t(LINKS[kind].label) }), undo: () => setLinkOff(kind, false) };
+  }
+  function linkActs(d) {
+    const book = bookOn && d.row.kind !== 'part'
+      ? [booking
+          ? { name: t('Book a workshop appointment ↗'), explain: t('Your link, one for all bikes · opens in a new tab'), icon: CalendarCheck, run: () => away(booking.url) }
+          : { name: t('Enter the link for workshop booking'), explain: t('Your link, one for all bikes'), icon: CalendarCheck, run: () => (bookEdit = true) }]
+      : [];
+    const guide = guideOn
+      ? [
+          { name: t('Guide at Park Tool ↗ (English)'), explain: t('{what} · opens in a new tab', { what: d.row.name }), icon: ExternalLink, run: () => away(PARKTOOL_URL) },
+          { name: t('Don’t show «{name}» any more', { name: t(LINKS.x5.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: () => hideLink('x5') },
+        ]
+      : [];
+    return [...book, ...guide];
+  }
   const when = (r) => (r.kind === 'part' ? t('now|due') : r.detail?.match(/overdue|überfällig/i) ? t('overdue|part') : t('due|part'));
 </script>
 
@@ -93,7 +126,7 @@
         {#if due.cards.length}
           <ul class="card vlist">
             {#each due.cards as d (`${d.bike.id}:${d.row.key}`)}
-              {@const acts = rowActs(d)}
+              {@const acts = [...rowActs(d), ...linkActs(d)]}
               <li class="dcard {d.row.kind === 'part' ? 'bad' : 'warn'}">
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
                 <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail].filter(Boolean).join(' · ')}</small></span>
@@ -104,8 +137,6 @@
                   <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
                 </span>
               </li>
-              <!-- SK (SKX3): the workshop's online booking (your link, one for all bikes) and Park Tool's guide -->
-              <li class="skw"><Woanders context={[d.row.name, short(d.bike.name)].join(' · ')} links={[...(d.row.kind !== 'part' ? [{ kind: 'x15', slot: slotOf('x15'), icon: 'calendarcheck', sub: t('Online booking') }] : []), { kind: 'x5', href: PARKTOOL_URL, icon: 'wrench', sub: t('{what} · in English', { what: d.row.name }) }]} /></li>
             {/each}
           </ul>
           <!-- Regeln der App (14.10.2026): the line says «open the bike», so a tap opens the bike of the next due card -->
@@ -205,11 +236,20 @@
           <button type="button" class="orow" onclick={() => openNew('problem')}><span class="ib"><TriangleAlert size={18} aria-hidden="true" /></span><span class="m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <button type="button" class="orow" onclick={onwork}><span class="ib"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record work')}</b><small>{t('Pick the bike and the part')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+          <!-- Impeccable (18.10.2026, Velopflege 2): the booking link, entered once for all bikes -->
+          {#if bookOn}
+            <button type="button" class="orow" data-sk-link="x15" onclick={() => (bookEdit = true)}><span class="ib"><CalendarCheck size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop booking')}</b><small>{booking ? [booking.name, t('your link for all bikes')].filter(Boolean).join(' · ') : t('your link for all bikes · enter')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+          {/if}
         </div>
       </section>
     </aside>
   </div>
 </section>
+
+{#if bookEdit}
+  <OwnLinkSheet title={t('Enter a link')} context={t('your link for all bikes')} value={booking} name={t(LINKS.x15.label)} onsave={(v) => setOwnLink(BOOK, v)} onremove={booking ? () => removeOwnLink(BOOK) : null} onoff={() => hideLink('x15')} onclose={() => (bookEdit = false)} />
+{/if}
+<SkToast bind:note={linkNote} />
 
 <style>
   .ov {
@@ -283,13 +323,6 @@
     gap: 8px 12px;
     min-height: 60px;
     padding: 14px 0;
-  }
-  .skw {
-    min-width: 0;
-    padding: 0 0 12px;
-  }
-  .skw :global(.sk-wo) {
-    margin-top: 0;
   }
   .dcard .udot {
     background: var(--bad);
