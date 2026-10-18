@@ -24,6 +24,7 @@
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
+  import PlanNotesCard from './PlanNotesCard.svelte';
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -209,8 +210,12 @@
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <LessonsCard {lessons} {reminders} />
+          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
+          <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
+    {:else}
+      <PlanNotesCard {trip} {bike} {fixed} />
     {/if}
     <div class="tp-grid2">
       <div class="left">
