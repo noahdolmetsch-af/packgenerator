@@ -24,7 +24,8 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { inSeason } from '../lib/ski.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -302,6 +303,8 @@
     <header class="ph">
       <h1 class="title">{t('Active|place')}</h1>
       <p class="sub">{t('Today, {date}', { date: fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }) })}{#if season?.since}{' · '}{season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}{/if}</p>
+      <!-- «Skitouren»: in season (November–May) one small row to Touren › Skitouren -->
+      {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
     </header>
 
     {#if data && !states.length}
@@ -690,5 +693,15 @@
   .note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .skl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
   }
 </style>

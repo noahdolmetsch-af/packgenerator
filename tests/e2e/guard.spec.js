@@ -97,7 +97,6 @@ const ROUTES = [
   // v0.134.0 «Listen und Typen» (LI1, LI2): the overview and the list Kategorien, strict like their files
   ['#/me/lists', 'Listen und Typen'],
   ['#/me/lists?categories', 'Kategorien'],
-  // v0.97.0 «Skitouren»: Touren › Skitouren and its pages, strict like their files (the fixture has no
   // v0.97.0 «Skitouren»: Touren › Skitouren and its four pages, strict like their files (the fixture has no
   // ski tour: the empty states; tests/e2e/ski.spec.js checks them filled)
   ['#/ski', 'Skitouren'],
