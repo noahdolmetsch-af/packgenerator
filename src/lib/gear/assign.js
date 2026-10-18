@@ -11,7 +11,7 @@ import { isInventory } from '../gear.js';
 import { isWorn } from '../blocks2026.js';
 import { slotFor, addEntries } from '../trips.js';
 import { TEMPLATES_KEY, templateSlot, saveTemplates, loadTemplates, dropBlock } from '../templates.js';
-import { SETS_KEY, addSet, deleteSetPlan, renameSet, setQty } from '../sets.js';
+import { SETS_KEY, addSet, deleteSetPlan, renameSet, setQty, restoreSet } from '../sets.js';
 
 const pickOf = (ids) => new Set(ids);
 
@@ -181,14 +181,20 @@ export async function editSets(db, fn) {
   });
 }
 export const renameSetIn = (db, key, name) => editSets(db, (v) => renameSet(v, key, name));
+/** «Gruppen überall»: a deleted built-in set back (empty). */
+export const restoreSetIn = (db, key) => editSets(db, (v) => ({ value: restoreSet(v, key) }));
 export const setQtyIn = (db, key, itemId, n) => editSets(db, (v) => ({ value: setQty(v, key, itemId, n) }));
 
-/** Delete an own set: its record goes and every item loses the key, in one transaction. Returns { snap, n }. */
-export async function deleteSet(db, key) {
+/**
+ * Delete a set: its record goes (a built-in one keeps a «deleted» mark) and every item loses the key,
+ * in one transaction. «Gruppen überall»: to = another set the items go into (null: in no block).
+ * Returns { snap, n }.
+ */
+export async function deleteSet(db, key, to = null) {
   return db.transaction('rw', db.items, db.settings, async () => {
     const rec = await db.settings.get(SETS_KEY);
     const items = await db.items.toArray();
-    const plan = deleteSetPlan(rec?.value ?? [], items, key);
+    const plan = deleteSetPlan(rec?.value ?? [], items, key, new Date().toISOString(), to);
     if (!plan) return { error: 'builtIn' };
     // v0.39.0 (AP28): templates holding the block keep its items as extras first, so nothing disappears.
     const tplRec = await db.settings.get(TEMPLATES_KEY);

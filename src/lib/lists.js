@@ -9,6 +9,8 @@ import { liveQuery } from 'dexie';
 import { OVERRIDES_KEY, overrideOf, listFor, resetList, isChanged } from './standard.js';
 import { STD_CATEGORIES, setCategories } from './gear.js';
 import { listsReady } from './listsready.svelte.js';
+import { setTopics } from './notebook.js';
+import { setValueGroups } from './valuefields.js';
 
 /** Colours for own categories, in turn (quiet tones next to the Trail Journal ones). */
 export const OWN_COLORS = ['#6B8F3A', '#A0522D', '#4F7C8A', '#9C6B98', '#7A7F3A', '#B0625A', '#3F6E5A', '#8A6F3E'];
@@ -27,9 +29,14 @@ export function categoriesFrom(all) {
   }));
 }
 
-/** Puts every changed list in place (so far: the categories). */
+/**
+ * Puts every changed list in place: the categories, the note topics, the groups of the bike values.
+ * raw: a name the person typed; it never goes through t() (it could hit another text, «Travel» → «Federweg»).
+ */
 export function applyLists(all) {
   setCategories(categoriesFrom(all ?? {}));
+  setTopics(listFor('noteTopics', all ?? {}).map((e) => ({ key: e.id, name: e.name, raw: e.own || e.renamed })));
+  setValueGroups(listFor('valueGroups', all ?? {}).map((e) => ({ key: e.id, name: e.name, raw: e.own || e.renamed })));
 }
 
 /**

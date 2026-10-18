@@ -24,6 +24,8 @@ import { FIXED, SEED_QUESTIONS } from './flowcheck.js';
 import { ARTS } from './flowmed.js';
 import { FUN_IDEAS } from './flowsugg.js';
 import { TODAY_OPTIONS } from './challenge.js';
+import { STD_TOPICS } from './inbox.js';
+import { VALUE_GROUPS } from './valuefields.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -57,6 +59,9 @@ export const STANDARD_LISTS = [
   { key: 'bikeSlots', area: 'bikes', name: 'Places on the bike', entries: () => keyed(SLOTS) },
   { key: 'careParts', area: 'bikes', name: 'Care parts', entries: () => keyed(PARTS) },
   { key: 'careAreas', area: 'bikes', name: 'Care areas', entries: () => keyed(AREAS) },
+  // «Gruppen überall» (Noah 18.10.2026): the groups the person files things in can be renamed and deleted
+  { key: 'valueGroups', area: 'bikes', name: 'Groups of the bike values', entries: () => keyed(VALUE_GROUPS) },
+  { key: 'noteTopics', area: 'notes', name: 'Note topics', entries: () => keyed(STD_TOPICS) },
   { key: 'debrief.weather', area: 'review', name: 'Weather', entries: () => keyed(WEATHER) },
   { key: 'debrief.amount', area: 'review', name: 'Amount', entries: () => keyed(AMOUNT) },
   { key: 'debrief.bags', area: 'review', name: 'Bags', entries: () => keyed(BAGS_OK) },
