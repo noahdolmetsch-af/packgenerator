@@ -93,7 +93,8 @@
   }
   .bt b {
     font: 600 var(--fs-body) / 1.3 var(--font-body);
-    overflow-wrap: anywhere;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .whole {
     color: var(--ink);
