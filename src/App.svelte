@@ -78,6 +78,8 @@
   import { useOwn } from './lib/ownlive.svelte.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
+  import Equipment from './pages/Equipment.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
@@ -342,6 +344,8 @@
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
+  {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -354,6 +358,9 @@
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <Bikes />
+  {:else if page === 'equipment'}
+    <!-- AU1 «Ausrüstung» (Noah 15.10.2026 «5b», «1-5a»): the main equipment of each sport -->
+    <Equipment />
   {:else if page === 'templates'}
     <Templates />
   {:else if page === 'between'}

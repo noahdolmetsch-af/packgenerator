@@ -646,6 +646,10 @@
       <Woanders context={nameOf(item)} links={[{ kind: 'x1', slot: slotOf('x1', item.id), icon: 'book', sub: t('Care and washing') }, { kind: 'x13', href: ifixitUrl(item), icon: 'hammer', sub: t('Guide at iFixit') }]} />
     {/if}
   {/if}
+  {#if !isNew && draft.ownership !== 'wishlist' && draft.ownership !== 'to-buy'}
+    <!-- AU1 «Ausrüstung» (Noah 15.10.2026 «3a»): an item of Material becomes main equipment of a sport -->
+    <a class="btn mainq" href="#/equipment?add={encodeURIComponent(item.id)}" onclick={() => dialog.close()} data-main-gear>{($liveQ ?? item)?.main ? t('Main equipment: counter and care') : t('Make it main equipment')}</a>
+  {/if}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
   {#if !isNew}{@render fold('more', Ellipsis, t('More|item'), [t('Rename'), canMerge ? t('Merge with …') : '', readOnly ? '' : t('Delete')].filter(Boolean).join(', '), moreBody)}{/if}
 {/snippet}
@@ -1361,5 +1365,8 @@
     margin-left: auto;
     border-color: var(--bad);
     color: var(--bad);
+  }
+  .mainq {
+    justify-self: start;
   }
 </style>

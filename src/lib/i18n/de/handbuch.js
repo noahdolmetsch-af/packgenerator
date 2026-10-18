@@ -397,4 +397,8 @@ export default {
   'Change a number with − and + or type it.': 'Ändere eine Zahl mit − und + oder tippe sie ein.',
   '«Back to Standard» brings the number of the app back.': '«Auf Standard zurück» holt die Zahl der App zurück.',
   'Example: packing starts 3 days before the trip, the backup reminder after 7 days.': 'Beispiel: Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.',
+  // v0.165.0 f.gipfelbuch
+  'Open Aktiv › Aktivität › «Summit book».': 'Öffne Aktiv › Aktivität › «Gipfelbuch».',
+  'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.': 'Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.',
+  'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.': 'Beispiel: eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.',
 };

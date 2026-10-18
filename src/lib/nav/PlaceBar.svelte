@@ -8,16 +8,18 @@
    * v0.98.0 Design-Refresh R2 (G4/G5 A★): the round + is gone, «Neu» sits in the top bar next to the
    * search; the chosen place is a soft pill behind the icon, the label in bold.
    */
-  import { PLACES, placeHref } from '../nav.js';
+  import { PLACES, placeHref, barPlace } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
 
   let { place = null, hash = '#/', due = 0 } = $props();
+  // AU1 «1b»: Velos and Ausrüstung share one slot; the switch on top of both pages changes between them
+  const slot = $derived(barPlace(place));
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>
   {#each PLACES as p (p.key)}
-    <a href={placeHref(p, place, hash)} data-place={p.key} aria-current={place === p.key ? 'page' : undefined}>
+    <a href={placeHref(p, slot, hash)} data-place={p.key} aria-current={slot === p.key ? 'page' : undefined}>
       <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
       <span class="pn">{t(p.label)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
     </a>

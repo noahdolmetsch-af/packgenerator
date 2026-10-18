@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 109 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 110 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1029,6 +1029,17 @@ Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.
 2. Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.
 
 **Beispiel:** Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.
+
+### Gipfelbuch
+
+Pässe, Gipfel, Trails und Hallen, die du erreicht hast, für jede Sportart; die App findet höchste Punkte in deinen Fahrten und du bestätigst; Sterne für neue Orte.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Aktivität › «Gipfelbuch».
+2. Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.
+
+**Beispiel:** Eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.
 
 ### Timer
 
