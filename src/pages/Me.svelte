@@ -20,6 +20,10 @@
    * Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): on top the card «Waiting for you» (backup, inbox, bills,
    * a key that runs out), each line with its button; nothing open: one calm line. «Help» folds the handbook,
    * the shortcuts and the intro; «App maintenance» and «More» are folded heads (one tap opens them as before).
+   * Impeccable Runde 2 (Noah 18.10.2026 21:46): the AI helper's line no longer sends you to Ich while you are on
+   * Ich; «Payments» carries a grey «not active yet» (yellow only means «something to do»); «Lists and checks» is
+   * one row under Settings (the checks are one tap deeper, on that page); «Appearance and handling» names the
+   * start place too.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -28,10 +32,12 @@
   import { HOME_PLACE } from '../lib/know.js';
   import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
   import { lookLine } from '../lib/theme.svelte.js';
+  import { ops } from '../lib/bedienung.svelte.js';
+  import { START_PLACES } from '../lib/bedienung.js';
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, KeyRound, CircleHelp, Check } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -93,7 +99,7 @@
     location.hash = '#/';
   }
   // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
-  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
+  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · suggestions from Claude, only if you want') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
   // Impeccable: «Waiting for you»: at most one line per kind, each with the button that does it
@@ -116,6 +122,9 @@
     return out;
   });
   const lastLine = $derived($waitQ?.days != null ? ($waitQ.days === 0 ? t('Last backup today.') : tn($waitQ.days, 'Last backup {n} day ago.', 'Last backup {n} days ago.')) : '');
+  // Impeccable Runde 2: «Inter · Sage · Normal · Start: Today»
+  const startName = $derived(t(START_PLACES.find((p) => p.key === ops.start)?.name ?? 'Today|place'));
+  const lookSub = $derived([lookLine(t), t('Start: {place}', { place: startName })].filter(Boolean).join(' · '));
   const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
 </script>
 
@@ -203,15 +212,16 @@
             <!-- v0.97.0 Design-Refresh R1: font, colour world, text size and light or dark on their own page -->
             <a class="ich-row" href="#/me/look">
               <span class="ich-ib"><Palette size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Appearance')}</b><small>{lookLine(t)}</small></span>
+              <span class="ich-m"><b>{t('Appearance and handling')}</b><small>{lookSub}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
           <li>
-            <!-- v0.111.0 (mockup V4): the evening-before and after-trip check of every trip type -->
-            <a class="ich-row" href="#/me/checks">
+            <!-- v0.134.0 «Listen und Typen» (LI1) and v0.111.0 the checks per trip type: Impeccable Runde 2, one row
+                 until more lists come (the page holds both: categories and the checks) -->
+            <a class="ich-row" href="#/me/lists">
               <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Checks per trip type')}</b><small>{t('The evening before and after the trip')}</small></span>
+              <span class="ich-m"><b>{t('Lists and checks')}</b><small>{t('Categories, evening-before and after-trip check')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -246,14 +256,6 @@
             <a class="ich-row" href="#/me/apps">
               <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- v0.134.0 «Listen und Typen» (LI1): the app's lists, changeable -->
-            <a class="ich-row" href="#/me/lists">
-              <span class="ich-ib"><ListTree size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Lists and types')}</b><small>{t('Rename, add, hide, order')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -317,7 +319,7 @@
           <li>
             <a class="ich-row" href="#/me/pay">
               <span class="ich-ib"><CreditCard size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Payments')} <span class="pill warn">{t('prepared|pay')}</span></b><small>{t('What is already there and what you could use it for')}</small></span>
+              <span class="ich-m"><b>{t('Payments')} <span class="pill">{t('not active yet')}</span></b><small>{t('What is already there and what you could use it for')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

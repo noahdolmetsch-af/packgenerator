@@ -122,7 +122,8 @@ async function setUp(page) {
   await page.goto('./#/helper');
   await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
   await page.getByLabel(T('Helper code')).fill(CODE);
-  await page.getByRole('button', { name: T('Save'), exact: true }).first().click();
+  // Impeccable Runde 2: the card «Set up in 2 steps» on top saves with «Save code»
+  await page.getByRole('button', { name: T('Save code'), exact: true }).click();
   await expect(page.getByText(T('Saved on this device.'), { exact: true })).toBeVisible();
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the AI helper in the app')) });
@@ -161,16 +162,19 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   await expect(dlg).toBeHidden();
   await page.goto('./#/helper');
   await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
-  await expect(page.getByText(T('The helper is not set up yet'))).toBeVisible();
-  await page.getByText(T('What goes to Claude?')).first().click();
+  // Impeccable Runde 2 (on purpose): first set up, then switch on: the card «Set up in 2 steps» on top with the
+  // code field; «What goes to Claude?» once, in the setup
+  const steps = page.locator('[data-setup-steps]');
+  await expect(steps.getByRole('heading', { name: T('Set up in 2 steps') })).toBeVisible();
+  await expect(steps.getByLabel(T('Helper code'))).toBeVisible();
+  await expect(page.getByText(T('What goes to Claude?'))).toHaveCount(1);
+  await page.getByText(T('What goes to Claude?')).click();
   await expect(page.getByText(T('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')).first()).toBeVisible();
-  await page.getByRole('button', { name: T('Set up') }).click();
-  await expect(page.getByLabel(T('Helper code'))).toBeFocused();
   // K1a: Ich › Helfer, its own row with the state
   await page.goto('./#/me');
   // v0.118.0 (K4): the row «AI helper» says it is off and where to switch it on
   const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('AI helper')}`) });
-  await expect(row).toContainText(T('off · switch on under Me › AI helper'));
+  await expect(row).toContainText(T('off · suggestions from Claude, only if you want'));
   await row.click();
   await expect(page).toHaveURL(/#\/helper/);
 

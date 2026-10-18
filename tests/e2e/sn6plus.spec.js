@@ -147,7 +147,7 @@ test('SN6+ «So geht\'s» opens with three steps in the «…» of a function', 
   expect(errors).toEqual([]);
 });
 
-test('SN6+ without data: one quiet line in Passt gerade, Top 5 and Neu seit deinem letzten Besuch', async ({ page, context }, info) => {
+test('SN6+ without data: one quiet line in Passt gerade; Top 5 and Neu seit deinem letzten Besuch stay away', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, { data: false });
@@ -171,12 +171,12 @@ test('SN6+ without data: one quiet line in Passt gerade, Top 5 and Neu seit dein
   const fit = page.getByRole('region', { name: T('Fits right now') });
   await expect(fit.locator('[data-fit]')).toHaveCount(0);
   await expect(fit.getByRole('status')).toHaveText(T('Nothing fits right now. A trip coming up, chain care or a debrief brings a tip here.'));
-  const top = page.getByRole('region', { name: T('Your top 5') });
-  await expect(top.locator('[data-top]')).toHaveCount(0);
-  await expect(top.getByRole('status')).toHaveText(T('After a few days your most used functions stand here.'));
-  const news = page.getByRole('region', { name: T('New since your last visit') });
-  await expect(news.locator('[data-new]')).toHaveCount(0);
-  await expect(news.getByRole('status')).toHaveText(T('Nothing new has come since your last visit.'));
+  // Impeccable Runde 2 (on purpose): Top 5 and «New since your last visit» stay away while they have nothing,
+  // so the search comes right after «Fits right now»
+  await expect(page.getByRole('region', { name: T('Your top 5') })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: T('New since your last visit') })).toHaveCount(0);
+  const order = await page.locator('[data-block]').evaluateAll((els) => els.map((e) => e.dataset.block));
+  expect(order.indexOf('search')).toBe(order.indexOf('fits') + 1);
   await expect(page.locator('[data-block="progress"] .more')).toHaveCount(0);
   await shot(page, info, 'SN6p-leer');
   await fits(page, info);

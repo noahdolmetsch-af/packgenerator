@@ -83,12 +83,15 @@ test.describe('AB Deine Abfragen', () => {
     await page.getByRole('link', { name: new RegExp(T('Your questions')) }).click();
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
-    await expect(page.getByText('50 Fragen in 10 Bereichen, 31 davon an.', { exact: false })).toBeVisible();
+    // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
+    await expect(page.locator('.vhead .vsub')).toHaveText(/^31 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
+    await expect(page.getByText('10 Bereiche · 50 Fragen · 31 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
     await expect(erholung.locator('[data-q]')).toHaveCount(5);
-    await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toBeVisible();
+    // Impeccable Runde 2 (on purpose): «bisher: …» only in the interval sheet of the question
+    await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toHaveCount(0);
     await expect(page.locator('[data-area="spass"]').getByText('5 Fragen · 4 an')).toBeVisible();
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /3× täglich · 8:00, 13:00, 20:00/ })).toBeVisible();
     await shot(page, info, 'AB5-fragen-bereiche');
@@ -101,6 +104,7 @@ test.describe('AB Deine Abfragen', () => {
     await erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /täglich/ }).click();
     const sheet = page.getByRole('dialog', { name: T('How often to ask?') });
     await expect(sheet).toBeVisible();
+    await expect(sheet.getByText('bisher: Wie viel Energie hast du?')).toBeVisible();
     await sheet.getByRole('button', { name: '13:00 entfernen' }).click();
     await sheet.locator('[data-iv-save]').click();
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /2× täglich · 8:00, 20:00/ })).toBeVisible();
