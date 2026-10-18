@@ -6,21 +6,31 @@
    * Read only: no buttons that pay or switch anything on.
    * Rechnungen (Noah 14.10.2026 03:39 «1a», mockups QR1–QR8 approved 04:00): the one row on top
    * leads to the invoices without a provider (QR bill + TWINT).
+   * Impeccable Runde 2: «Invoices» first, as a white card with what is open and due and «Open invoices»; everything
+   * prepared (ideas, already prepared, costs, still missing) folded below «Sell and book · prepared, not active yet».
+   * «ready» is a grey «prepared» (nothing is active yet); the note is no longer yellow (yellow = something to do).
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn } from '../lib/i18n.svelte.js';
   import { USE_CASES, PREPARED, COSTS, MISSING } from '../lib/pay/info.js';
-  import { Info, Star, Volleyball, Route, Wrench, FileText, Gift, CreditCard, KeyRound, ShoppingBag, CalendarDays, Users, Check } from '@lucide/svelte';
+  import { Info, Star, Volleyball, Route, Wrench, FileText, Gift, CreditCard, KeyRound, ShoppingBag, CalendarDays, Users } from '@lucide/svelte';
   import { listInvoices, openSummary } from '../lib/pay/invoices.js';
+  import { listBills, billsSummary } from '../lib/pay/bills.js';
   import { formatAmount } from '../lib/pay/qrbill.js';
-  import { ChevronRight, ReceiptText } from '@lucide/svelte';
+  import { ChevronRight, ChevronDown, ReceiptText } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
-  let invLine = $state('');
-  listInvoices().then((list) => {
-    const s = openSummary(list);
-    invLine = list.length ? `${tn(s.count, '{n} open', '{n} open')} · ${t('{amount} CHF outstanding', { amount: formatAmount(s.sum) })}` : t('QR bill and TWINT, free');
+  // Impeccable Runde 2: the bills to pay first (open, due), then your own invoices still open
+  let inv = $state(null);
+  Promise.all([listBills(), listInvoices()]).then(([bills, invoices]) => (inv = { bills: billsSummary(bills), invoices: openSummary(invoices) }));
+  const invLine = $derived.by(() => {
+    if (!inv) return '';
+    const parts = [];
+    if (inv.bills.count) parts.push(`${tn(inv.bills.count, '{n} open', '{n} open')} · ${t('{amount} CHF due', { amount: formatAmount(inv.bills.sum) })}`);
+    if (inv.invoices.count) parts.push(tn(inv.invoices.count, '{n} written invoice open', '{n} written invoices open'));
+    return parts.length ? parts.join(' · ') : t('No open bills · photograph a QR bill or TWINT');
   });
+  const invHref = $derived(inv?.bills.count ? '#/me/pay/bills' : '#/me/pay/invoices');
 
   const ICONS = { star: Star, tennis: Volleyball, route: Route, wrench: Wrench, file: FileText, gift: Gift, card: CreditCard, key: KeyRound, bag: ShoppingBag, cal: CalendarDays, users: Users };
 </script>
@@ -28,16 +38,20 @@
 <div class="ich-page pay">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Payments')} sub={t('What is prepared and what you could do with it.')} />
 
+  <!-- Impeccable Runde 2: what costs money and is due, on top -->
+  <section class="card pay-inv" aria-labelledby="pay-inv-h">
+    <span class="ich-ib"><ReceiptText size={18} aria-hidden="true" /></span>
+    <span class="ich-m"><b id="pay-inv-h">{t('Invoices')}</b><small>{invLine || t('QR bill and TWINT, free')}</small></span>
+    <a class="btn" href={invHref}>{t('Open invoices')}<ChevronRight size={16} aria-hidden="true" /></a>
+  </section>
+
+  <!-- Impeccable Runde 2: everything prepared, one tap deeper -->
+  <details class="pay-more">
+    <summary class="ich-h pay-sum"><div><h2 id="pay-more-h">{t('Sell and book')}</h2><p class="ich-hs">{t('prepared, not active yet')}</p></div><ChevronDown class="pay-chev" size={20} aria-hidden="true" /></summary>
   <p class="pay-band" role="note">
     <Info size={18} aria-hidden="true" />
     <span><b>{t('Prepared, not active yet.')}</b> {t('Nothing in the app is locked and no money moves. Testing happens only in test mode with test cards.')}</span>
   </p>
-
-  <a class="card ich-row pay-inv" href="#/me/pay/invoices">
-    <span class="ich-ib"><ReceiptText size={18} aria-hidden="true" /></span>
-    <span class="ich-m"><b>{t('Invoices')}</b><small>{invLine || t('QR bill and TWINT, free')}</small></span>
-    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-  </a>
 
   <section class="ich-sec" aria-labelledby="pay-uc-h">
     <div class="ich-h"><div><h2 id="pay-uc-h">{t('What you could use it for')}</h2></div></div>
@@ -64,7 +78,7 @@
             <li class="ich-row">
               <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(p.title)}</b><small>{t(p.text)}</small></span>
-              <span class="pay-ok"><Check size={14} strokeWidth={3} aria-hidden="true" />{t('ready|pay')}</span>
+              <span class="pill pay-ok">{t('prepared|pay')}</span>
             </li>
           {/each}
         </ul>
@@ -92,6 +106,7 @@
       </section>
     </div>
   </div>
+  </details>
 </div>
 
 <style>
@@ -102,14 +117,14 @@
     margin: 0 0 24px;
     padding: 12px 16px;
     border-radius: var(--radius-card);
-    background: var(--warn-soft);
+    background: var(--paper-2);
     color: var(--ink);
     overflow-wrap: break-word;
   }
   .pay-band :global(svg) {
     flex: none;
     margin-top: 2px;
-    color: var(--warn);
+    color: var(--ink-2);
   }
   .pay-band span {
     min-width: 0;
@@ -154,13 +169,7 @@
     color: var(--hi);
   }
   .pay-ok {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
     flex: none;
-    color: var(--ok);
-    font-size: var(--fs-small);
-    font-weight: 600;
   }
   .pay-cost dl {
     display: grid;
@@ -188,7 +197,45 @@
     margin-top: 14px;
   }
   .pay-inv {
-    margin: 0 0 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin: 0 0 24px;
+    padding: 14px 18px;
+  }
+  .pay-inv > :global(.btn) {
+    flex: none;
+  }
+  @media (max-width: 719px) {
+    .pay-inv > :global(.btn) {
+      flex: 1 1 100%;
+    }
+  }
+  .pay-sum {
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .pay-sum::-webkit-details-marker {
+    display: none;
+  }
+  .pay-sum :global(.pay-chev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.18s ease-out;
+  }
+  .pay-more[open] > .pay-sum :global(.pay-chev) {
+    transform: rotate(180deg);
+  }
+  .pay-more[open] > .pay-sum {
+    margin-bottom: 16px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pay-sum :global(.pay-chev) {
+      transition: none;
+    }
   }
   .pay-miss {
     margin: 0;

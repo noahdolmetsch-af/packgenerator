@@ -25,10 +25,11 @@ test.beforeEach(async ({ page, context }) => {
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
 test('write a QR invoice with TWINT, then mark it paid by amount and open it again', async ({ page }) => {
-  const row = page.locator('a.pay-inv');
+  // Impeccable Runde 2: «Invoices» is a card on top with «Open invoices»
+  const row = page.locator('.pay-inv');
   await expect(row).toContainText(T('Invoices'));
-  await expect(row).toContainText(T('QR bill and TWINT, free'));
-  await row.click();
+  await expect(row).toContainText(T('No open bills · photograph a QR bill or TWINT'));
+  await row.getByRole('link', { name: T('Open invoices') }).click();
   await expect(page).toHaveURL(/#\/me\/pay\/invoices$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Invoices'));
   await page.locator('a.invs-empty').click();

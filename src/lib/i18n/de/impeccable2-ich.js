@@ -51,4 +51,13 @@ export default {
   'A lot? Switch single questions off or set them to «weekly».': 'Viel? Schalte einzelne Fragen aus oder stell sie auf «wöchentlich».',
   'How it works|ab': 'So funktioniert es',
   'Where the values come from, answer kinds': 'Woher die Werte kommen, Antwort-Arten',
+
+  // Bezahlen: «Rechnungen» first, the prepared part folded
+  '{amount} CHF due': '{amount} CHF fällig',
+  '{n} written invoice open': '{n} geschriebene Rechnung offen',
+  '{n} written invoices open': '{n} geschriebene Rechnungen offen',
+  'No open bills · photograph a QR bill or TWINT': 'Keine offenen Rechnungen · QR-Rechnung oder TWINT fotografieren',
+  'Open invoices': 'Rechnungen öffnen',
+  'Sell and book': 'Verkaufen und buchen',
+  'prepared, not active yet': 'vorbereitet, noch nicht aktiv',
 };

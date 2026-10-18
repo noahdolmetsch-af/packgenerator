@@ -23,6 +23,10 @@ test('Ich › Die App › Bezahlen opens the explaining page', async ({ page }) 
   await row.click();
   await expect(page).toHaveURL(/#\/me\/pay$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Payments'));
+  // Impeccable Runde 2 (on purpose): «Invoices» on top, everything prepared folded under «Sell and book»
+  await expect(page.locator('.pay-inv')).toContainText(T('Invoices'));
+  await expect(page.getByRole('note')).toBeHidden();
+  await page.locator('details.pay-more > summary').click();
   await expect(page.getByRole('note')).toContainText(T('Prepared, not active yet.'));
 
   const cards = page.locator('.pay-card');
@@ -34,7 +38,10 @@ test('Ich › Die App › Bezahlen opens the explaining page', async ({ page }) 
   await expect(page.locator('.pay-cost')).toContainText(T('CHF 0'));
   await expect(page.locator('.pay-miss li')).toHaveCount(MISSING.length);
 
-  // read only: nothing on the page pays or switches anything on
-  await expect(page.locator('.pay button, .pay .btn')).toHaveCount(0);
+  // «prepared» is grey now, never a green «ready» (nothing is active yet)
+  await expect(have.locator('.pay-ok').first()).toHaveText(T('prepared|pay'));
+  // read only: nothing in the prepared part pays or switches anything on (the one button opens the invoices)
+  await expect(page.locator('.pay-more button, .pay-more .btn')).toHaveCount(0);
+  await expect(page.locator('.pay .btn')).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
