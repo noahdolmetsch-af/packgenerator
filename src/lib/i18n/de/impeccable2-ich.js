@@ -60,4 +60,11 @@ export default {
   'Open invoices': 'Rechnungen öffnen',
   'Sell and book': 'Verkaufen und buchen',
   'prepared, not active yet': 'vorbereitet, noch nicht aktiv',
+
+  // Darstellung: «App öffnen bei» visible, «Links nach aussen» only when one is off
+  'What you see first after opening': 'Was du nach dem Öffnen zuerst siehst',
+  'Start, keyboard shortcuts, night quiet, vibration': 'Start, Tastenkürzel, Nachtruhe, Vibrieren',
+  '{n} link switched off': '{n} Link ausgeschaltet',
+  '{n} links switched off': '{n} Links ausgeschaltet',
+  'Switch on again': 'Wieder einschalten',
 };
