@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 108 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 109 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1209,6 +1209,18 @@ g h, g t … wechselt den Ort, n = Neu, / = Suche, ? = die Liste.
 2. g und ein Buchstabe wechseln den Ort; n ist Neu, / ist Suche.
 
 **Beispiel:** G t → Touren, dann n → neue Tour planen.
+
+### Eigene Zahlen einstellen
+
+Ich › Eigene Werte: der Packen-Schritt, die Backup-Erinnerung, der Velo-Check, Kette wachsen, Dichtmilch, Gabel-Service, der Werkstatt-Vorlauf und «kalt».
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Eigene Werte.
+2. Ändere eine Zahl mit − und + oder tippe sie ein.
+3. «Auf Standard zurück» holt die Zahl der App zurück.
+
+**Beispiel:** Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.
 
 ### Hell, dunkel und Farben
 

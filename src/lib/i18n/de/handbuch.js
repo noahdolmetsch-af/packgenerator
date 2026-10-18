@@ -392,4 +392,9 @@ export default {
   'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.',
   'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
   'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.',
+  // «Mehr selbst einstellen»: Ich › Eigene Werte
+  'Open Me › Own values.': 'Öffne Ich › Eigene Werte.',
+  'Change a number with − and + or type it.': 'Ändere eine Zahl mit − und + oder tippe sie ein.',
+  '«Back to Standard» brings the number of the app back.': '«Auf Standard zurück» holt die Zahl der App zurück.',
+  'Example: packing starts 3 days before the trip, the backup reminder after 7 days.': 'Beispiel: Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.',
 };
