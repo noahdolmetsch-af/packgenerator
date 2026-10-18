@@ -19,4 +19,7 @@ export default {
   '{n} item still missing': '{n} Teil fehlt noch',
   '{n} items still missing': '{n} Teile fehlen noch',
   '{kg} with food|bag': '{kg} mit Essen',
+  // Vorlagen 3: ridden trips first
+  'Ridden trips first: they know what you really needed.': 'Gefahrene Touren zuerst: sie wissen, was du wirklich gebraucht hast.',
+  'Still planned': 'Noch geplant',
 };

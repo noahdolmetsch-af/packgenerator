@@ -108,3 +108,29 @@ test('Packen 2 + 3: the main button packs the next bag; one count and one name p
   expect(errors).toEqual([]);
   await ctx.close();
 });
+
+test('Vorlagen 1–3: «einzelne Teile» instead of «Extra»; «Neue Tour» small beside the name; ridden trips first', async ({ browser }, info) => {
+  const { ctx, page, errors } = await open(browser, info, null, '#/pack/templates');
+  const rows = page.locator('li.row[data-tpl]:not(.arch)');
+  await expect(rows.first()).toBeVisible();
+  for (const line of await rows.locator('.sm small').allTextContents()) expect(line).not.toMatch(/\bExtra\b/);
+  // Vorlagen 2: on a phone too, the button sits beside the name, the row stays low
+  const first = rows.first();
+  const name = await first.locator('.sm b').boundingBox();
+  const btn = await first.getByRole('button', { name: T('New trip') }).boundingBox();
+  expect(btn.x).toBeGreaterThan(name.x + 40);
+  expect(btn.y).toBeLessThan(name.y + name.height + 20);
+  // Vorlagen 3: the ridden trips first, the planned ones under «Noch geplant»
+  const src = page.getByRole('region', { name: T('From your trips') });
+  await expect(src).toContainText(T('Ridden trips first: they know what you really needed.'));
+  const states = await src.locator('li[data-src] .tst').evaluateAll((els) => els.map((el) => el.dataset.state ?? ''));
+  const firstPlan = states.indexOf('plan');
+  if (firstPlan > 0) {
+    expect(states.slice(firstPlan).every((s) => s === 'plan')).toBe(true);
+    await expect(src.locator('[data-src-planned]')).toHaveText(T('Still planned'));
+  }
+  const sw = await sideways(page);
+  expect(sw.sw).toBeLessThanOrEqual(sw.w);
+  expect(errors).toEqual([]);
+  await ctx.close();
+});
