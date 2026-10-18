@@ -84,3 +84,27 @@ test('Planen 3: the plan note is one line with the quiet link; the pill says «n
   expect(errors).toEqual([]);
   await ctx.close();
 });
+
+test('Packen 2 + 3: the main button packs the next bag; one count and one name per bag', async ({ browser }, info) => {
+  const { ctx, page, errors } = await open(browser, info, TRIP.tent, '#/pack?day');
+  const go = page.locator('main .mainbar .btn.hi');
+  await expect(go).toHaveAttribute('data-pack-next', '');
+  await expect(go).toHaveText(/ packen \(\d+ von \d+\)$/);
+  // «Packen abschliessen» stays reachable, quietly at the end of the bags
+  await expect(page.locator('[data-finish-quiet]')).toHaveText(T('Finish packing'));
+  // the bar names both counts (a computer shows the line beside the step)
+  if (!phone(info)) await expect(page.locator('main .mainbar .hint')).toHaveText(/^\d+ Teile? (und \d+ Checks? )?fehl(t|en) noch$/);
+  // «Gewicht nach Taschen» uses the names of «Taschen», the model small after it
+  const bags = (await page.locator('.blist .bt b').allTextContents()).map((s) => s.trim());
+  const rows = await page.locator('.wc .rows .nm').evaluateAll((els) => els.map((el) => el.childNodes[0]?.textContent?.trim() ?? ''));
+  const own = rows.filter((n) => n !== T('Food and water') && n !== T('On me'));
+  expect(own.length).toBeGreaterThan(0);
+  for (const n of own) expect(bags).toContain(n);
+  // a tap on the main button opens the next bag and brings it into view
+  await tap(go, info);
+  await expect(page.locator('section.pbag.cur')).toBeInViewport();
+  const sw = await sideways(page);
+  expect(sw.sw).toBeLessThanOrEqual(sw.w);
+  expect(errors).toEqual([]);
+  await ctx.close();
+});
