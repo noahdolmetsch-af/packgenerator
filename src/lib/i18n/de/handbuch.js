@@ -390,4 +390,10 @@ export default {
   'On the other device: tap the file › Share › Pack Generator, or «Open backup».': 'Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder «Backup öffnen».',
   'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».': 'Die App sagt, was neuer ist, und schlägt vor: ersetzen, zusammenführen oder nichts; eine Kopie von vorher bleibt unter «Vor Updates».',
   'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.': 'Beispiel: Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.',
+  // P3b Teil 3 «Kamera überall»
+  'On a phone or tablet; a computer shows the file dialog.': 'Am Handy oder Tablet; am Computer kommt die Dateiauswahl.',
+  'Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.': 'Tippe «Foto machen», wo ein Foto dazukommt (Notiz, Material, Velo, Setup, Problem); «Galerie» nimmt ein vorhandenes.',
+  'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
+  'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
+  'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
 };

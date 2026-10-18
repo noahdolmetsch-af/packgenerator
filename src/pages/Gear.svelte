@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -512,7 +513,7 @@
   function offerUndo(text, snap) {
     clearTimeout(undoTimer);
     undo = snap ? { text, snap } : { text };
-    undoTimer = setTimeout(() => (undo = null), 10_000);
+    undoTimer = setTimeout(() => (undo = null), UNDO_MS);
     picked.clear();
   }
   async function run(fn) {

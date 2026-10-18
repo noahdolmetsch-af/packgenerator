@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.116.0 «Strava-Verbindung» (decision 2a, mockup S5): «Zum Prüfen», Velo › Pflege › Strava › Zum Prüfen.
    * The rides from Strava that wait (no bike in Strava, an unknown Strava bike, a contradiction): each
@@ -51,7 +52,7 @@
     const prev = await checkRide(db, $state.snapshot(e), bikeId);
     clearTimeout(timer);
     notice = { text, put: prev ? [prev] : [] };
-    timer = setTimeout(() => (notice = null), 9000);
+    timer = setTimeout(() => (notice = null), UNDO_MS);
   }
   async function undo() {
     const put = $state.snapshot(notice?.put ?? []);
@@ -66,7 +67,7 @@
     }
     clearTimeout(timer);
     notice = { text: tn(put.length, '{n} suggestion taken over.', '{n} suggestions taken over.'), put };
-    timer = setTimeout(() => (notice = null), 9000);
+    timer = setTimeout(() => (notice = null), UNDO_MS);
   }
 </script>
 

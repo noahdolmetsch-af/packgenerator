@@ -16,7 +16,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
@@ -589,7 +589,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await (await wait).saveAs(file);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
   await data.getByLabel(T('Import backup')).setInputFiles(file);
-  await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await replaceAll(data); // P3b 5a: a device with data asks a second time
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf09-export.json' }))).toBeVisible();
   const items = await table(page, 'items');
@@ -1003,7 +1003,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
-  await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await replaceAll(data); // P3b 5a: a device with data asks a second time
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf16-export.json' }))).toBeVisible();
   // v0.30.0 (Noah 1a): Today keeps the tips it shows in the setting "tips" and adds to it as it

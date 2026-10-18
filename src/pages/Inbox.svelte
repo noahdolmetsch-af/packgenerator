@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * Eingang (v0.48.0, Noah «Eingang, Notizen, Ablage, Pflege pro Teil» 1a-8a), was the Inbox:
    * - newest on top, grouped by day (Today, Yesterday, This week, Earlier); the open entries and the
@@ -85,7 +86,7 @@
   function filedNow(stored) {
     clearTimeout(timer);
     last = { note: stored, text: t('Filed: {where}', { where: chipText(stored) }) };
-    timer = setTimeout(() => (last = null), 10000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
   }
   async function undo(n) {
     msg = '';

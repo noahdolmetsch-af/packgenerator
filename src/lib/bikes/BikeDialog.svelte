@@ -1,4 +1,5 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
@@ -125,6 +126,7 @@
           <div class="pside">
             <small>{t('shown in Pack behind the bags; side view works best')}</small>
             <div class="pacts">
+              <CameraButton onchange={pickPhoto} disabled={reading} />
               <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Choose photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
               {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
             </div>

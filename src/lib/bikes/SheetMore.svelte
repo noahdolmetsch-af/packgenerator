@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.70.0 «Velo-Blätter Teil 2» (Noah W1–W7 a; mockups einfahr-plan, repair-kit, garantie-belege,
    * diebstahl): the four more sheets of a bike's folder, as a page of paper inside SheetView (which
@@ -43,7 +44,7 @@
   function say(text, undo = null) {
     clearTimeout(noticeTimer);
     notice = { text, undo };
-    noticeTimer = setTimeout(() => (notice = null), 8000);
+    noticeTimer = setTimeout(() => (notice = null), undo ? UNDO_MS : 8000);
   }
   $effect(() => () => clearTimeout(noticeTimer));
   async function undo() {

@@ -1,4 +1,5 @@
 <script>
+  import { longPress } from '../lib/ui/longpress.js';
   import { localDay } from '../lib/localday.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   /**
@@ -482,7 +483,7 @@
       <div class="rv-lay dbf">
         <div class="rv-col">
           <section class="rv-sec unneeded" aria-labelledby="unneeded-h">
-            <div class="rv-h"><div><h2 id="unneeded-h">{t('What did you not need?')}</h2><p class="rv-sub">{t('Tap what stayed in the bag. The app learns it for next time.')}</p></div></div>
+            <div class="rv-h"><div><h2 id="unneeded-h">{t('What did you not need?')}</h2><p class="rv-sub">{t('Tap what stayed in the bag. The app learns it for next time.')} {t('Press long on an item: broken.')}</p></div></div>
             <div class="rv-box pad">
               <div class="bags" role="group" aria-labelledby="unneeded-h">
                 {#each chipGroups as g (g.slot)}
@@ -495,7 +496,7 @@
                     <div class="chips">
                       {#each g.rows as { e, item } (e.itemId)}
                         {@const st = d.items[e.itemId] ?? 'used'}
-                        <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} title={before[e.itemId] ? tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before') : undefined} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')}>{#if st === 'used'}<Check size={14} aria-hidden="true" />{:else if st === 'unused'}<Minus size={14} aria-hidden="true" />{:else}<X size={14} aria-hidden="true" />{/if}{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
+                        <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change, long press: broken.', { name: nameOf(item), state: t(STATE[st]) })} title={before[e.itemId] ? tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before') : undefined} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')} use:longPress={() => mark(e.itemId, st === 'broken' ? 'used' : 'broken')}>{#if st === 'used'}<Check size={14} aria-hidden="true" />{:else if st === 'unused'}<Minus size={14} aria-hidden="true" />{:else}<X size={14} aria-hidden="true" />{/if}{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
                       {/each}
                     </div>
                   </div>

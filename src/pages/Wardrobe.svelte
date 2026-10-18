@@ -1,4 +1,6 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.42.0 (Noah, picture draft A, answer 1): the wardrobe (#/wardrobe), reached by More → Gear →
    * Wardrobe and by "Wardrobe →" on the Gear page. Every piece of clothing by LAYER (base, mid, outer,
@@ -120,7 +122,7 @@
   function offer(text, snap, fn = null) {
     clearTimeout(timer);
     last = { text, snap, fn };
-    timer = setTimeout(() => (last = null), 10000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
   }
   // v0.47.0 (Noah: "a to-do list empties itself"): a piece that has its layer and zone leaves "To sort"
   // at once (a short calm exit), the next one moves up and gets the focus; the toast says where it
@@ -284,7 +286,7 @@
 <div class="ward">
   <header class="whead">
     <div class="ht">
-      <p class="back"><a href="#/gear"><ChevronLeft size={16} aria-hidden="true" />{t('Gear|place')}</a></p>
+      <Crumbs crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} here={t('Wardrobe')} />
       <h1 class="title">{t('Wardrobe')}</h1>
       <p class="page-sub">{tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->

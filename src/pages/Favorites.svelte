@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * All my favourite things (v0.21.0, package 5): every item with a star, grouped by area, with
    * its weight and why it is a favourite. Read only; a name opens the item in Gear. Printable.
@@ -60,7 +61,7 @@
     await db.items.update(i.id, { favorite: null, updatedAt: stamp() });
     clearTimeout(timer);
     undo = { text: t('{name}: no longer a favourite.', { name: nameOf(i) }), item: i };
-    timer = setTimeout(() => (undo = null), 10_000);
+    timer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function restar() {
     const u = undo;
@@ -72,7 +73,7 @@
   const offer = (text, back) => {
     clearTimeout(timer);
     undo = { text, back };
-    timer = setTimeout(() => (undo = null), 10_000);
+    timer = setTimeout(() => (undo = null), UNDO_MS);
   };
   /* SN5+ F2: «Favorit» sets the star (Undo takes it back exactly) */
   async function star(i) {

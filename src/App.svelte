@@ -151,7 +151,7 @@
       // FE6 (Noah 13.10.2026): the shortcuts can be switched off in Ich › Darstellung › Bedienung
       if (!ops.keys || typing(e)) return;
       const afterG = Date.now() - gAt < G_WAIT;
-      const s = shortcutOf(e.key, afterG);
+      const s = shortcutOf(e.key, afterG, place);
       gAt = s?.wait ? Date.now() : 0;
       if (!s || s.wait) return;
       e.preventDefault();

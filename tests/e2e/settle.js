@@ -78,13 +78,27 @@ export async function openData(page) {
 }
 
 /**
+ * «Replace all data». P3b rule 5a (Noah 15.10.2026 «5a»): on a device that has data the app asks a
+ * second time («Wirklich alle Daten ersetzen?»); this answers «Ja, alles ersetzen». An empty device
+ * imports at once.
+ */
+export async function replaceAll(panel) {
+  await panel.getByRole('button', { name: either('Replace all data'), exact: true }).press('Enter');
+  const sure = panel.getByRole('group', { name: either('Really replace all data?') });
+  const done = panel.getByText(/importiert|Imported|nicht gelesen|could not/i).first();
+  await expect(sure.or(done).first()).toBeVisible();
+  if (await sure.isVisible()) await sure.getByRole('button', { name: either('Yes, replace all') }).click();
+}
+
+/**
  * Imports a backup (a file path or { name, mimeType, buffer }) through «Your data», «Replace all data»
  * or «Merge», then waits until the app has settled (the tidy-up done, Today's auto-open decided).
  */
 export async function importAndSettle(page, file, { mode = 'replace' } = {}) {
   const panel = await openData(page);
   await panel.getByLabel(either('Import backup')).setInputFiles(file);
-  await panel.getByRole('button', { name: either(mode === 'replace' ? 'Replace all data' : 'Merge') }).press('Enter');
+  if (mode === 'replace') await replaceAll(panel);
+  else await panel.getByRole('button', { name: either('Merge') }).press('Enter');
   await settle(page);
   return panel;
 }
