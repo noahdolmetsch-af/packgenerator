@@ -1,4 +1,5 @@
 <script>
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -811,6 +812,7 @@
     </div>
     <TopButton />
     <!-- SK: the tile row at the page end (SK4) -->
+    {#if !selecting}<PinnedLists place="gear" />{/if}
     {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}
 </div>

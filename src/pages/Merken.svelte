@@ -8,9 +8,10 @@
    * Geburtstage and Pflanzen (Noah 15.10.2026 «plus geburtstag, pflanzen»): own groups under the to-dos,
    * next ones first («in 3 Tagen»); a plant has «Gegossen» (one tap, with Undo). Deleting offers Undo
    * for 4 s (Noah's rule for deleting).
+   * Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): every own list under «Listen», each opens its page.
    */
   import { liveQuery } from 'dexie';
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -25,13 +26,23 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import KindSheet from '../lib/merken/KindSheet.svelte';
+  import ListSheet from '../lib/merken/ListSheet.svelte';
+  import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/ownlists.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [m, s, trips, bikes, visits, tasks] = await Promise.all([db.settings.get(MERKEN_KEY), db.settings.get(SOURCES_KEY), db.trips.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray()]);
-    return { todos: m?.value ?? [], off: s?.value ?? [], trips, bikes, visits, tasks };
+    const [m, s, trips, bikes, visits, tasks, l] = await Promise.all([db.settings.get(MERKEN_KEY), db.settings.get(SOURCES_KEY), db.trips.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.settings.get(LISTS_KEY)]);
+    return { todos: m?.value ?? [], off: s?.value ?? [], trips, bikes, visits, tasks, lists: l?.value ?? [] };
   });
-  const d = $derived($q ?? { todos: [], off: [], trips: [], bikes: [], visits: [], tasks: [] });
+  const d = $derived($q ?? { todos: [], off: [], trips: [], bikes: [], visits: [], tasks: [], lists: [] });
+  let newList = $state(false);
+  function listMade(r) {
+    if (!r?.list) return;
+    location.hash = `#/calendar/list/${r.list.id}`;
+    offerDone(t('List «{name}» created.', { name: r.list.name }), r.undo);
+  }
+  const pinOf = (l) => (!l.pin ? '' : l.pin.place === 'trips' ? d.trips.find((x) => x.id === l.pin.tripId)?.title || t('Trip') : t(PIN_PLACES.find((p) => p.key === l.pin.place)?.label ?? ''));
   const kmOf = (id) => d.bikes.find((b) => b.id === id)?.km ?? null;
   // «after rain»: a trip on that bike with rain in its weather, ended after the last tick
   const rainSince = (bikeId, since) => d.trips.some((tr) => tr.bikeId === bikeId && tr.wx?.rain && tr.startDate && tr.startDate <= today && tr.startDate >= String(since).slice(0, 10));
@@ -196,6 +207,29 @@
     </div>
   </div>
 
+  <section class="lists" aria-labelledby="mk-lists-h">
+    <div class="lh">
+      <h2 id="mk-lists-h">{t('Lists')}</h2>
+      <button type="button" class="btn sm" onclick={() => (newList = true)}><Plus size={16} aria-hidden="true" />{t('New list')}</button>
+    </div>
+    {#if d.lists.length}
+      <ul class="card list lrows">
+        {#each d.lists as l (l.id)}
+          <li>
+            <a class="mlrow" href={`#/calendar/list/${l.id}`}>
+              <ListChecks size={18} aria-hidden="true" />
+              <span class="tx"><b>{l.name}</b>{#if l.pin}<small><Pin size={13} aria-hidden="true" />{pinOf(l)}</small>{/if}</span>
+              <span class="due">{l.check ? t('{n} open', { n: openCount(l) }) : t('{n} notes', { n: l.items.length })}</span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <p class="empty">{t('No list yet. A list can hold anything: shopping before a trip, ideas, a workshop list.')}</p>
+    {/if}
+  </section>
+
   {#if done.length}
     <button type="button" class="fold" aria-expanded={showDone} onclick={() => (showDone = !showDone)}>{#if showDone}<ChevronDown size={16} aria-hidden="true" />{:else}<ChevronRight size={16} aria-hidden="true" />{/if}{t('Done')} · {done.length}</button>
     {#if showDone}
@@ -209,6 +243,7 @@
 {#if notice}
   <div class="mk-toast" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}</div>
 {/if}
+{#if newList}<ListSheet onclose={() => (newList = false)} ondone={listMade} />{/if}
 {#if sheet}
   <TodoSheet todo={sheet.todo ?? null} onclose={() => (sheet = null)} ondone={done4} />
 {/if}
@@ -409,6 +444,44 @@
     background: var(--ink);
     border-color: var(--ink);
     color: var(--paper);
+  }
+  .lists {
+    margin-top: 22px;
+  }
+  .lh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .lh h2 {
+    margin: 0;
+    font-size: var(--fs-section);
+  }
+  .lh .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lrows {
+    list-style: none;
+    margin: 0;
+    padding: 4px 18px;
+  }
+  .lrows li + li {
+    border-top: 1px solid var(--line);
+  }
+  .mlrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .mlrow .due {
+    margin-top: 0;
   }
   .fold {
     display: inline-flex;

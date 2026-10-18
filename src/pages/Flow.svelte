@@ -11,6 +11,7 @@
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
+   *   #/flow/ideen       «Meine Ideen» (HN4c, Noah «4 ok»): tips for the balance and the own ideas list (pages/flow/Ideas.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
@@ -24,6 +25,8 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
+  import Ideas from './flow/Ideas.svelte';
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -228,6 +231,8 @@
   <Bags {params} />
 {:else if route[0] === 'rest'}
   <Rest />
+{:else if route[0] === 'ideen'}
+  <Ideas />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -377,6 +382,7 @@
       </div>
       <PageMore page="aktiv" name={t('Active|place')} />
       <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PinnedLists place="active" />
       <PageTiles page="flow" />
     {/if}
   </div>

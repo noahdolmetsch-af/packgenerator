@@ -63,6 +63,7 @@
   import InvoiceNew from './pages/InvoiceNew.svelte';
   import Reminders from './pages/Reminders.svelte';
   import Merken from './pages/Merken.svelte';
+  import ListPage from './pages/ListPage.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -346,6 +347,8 @@
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
+  <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
+  {#if page !== 'share' && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -461,6 +464,9 @@
   {:else if page === 'calendar'}
     <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
     <Merken />
+  {:else if page === 'list'}
+    <!-- Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list in Kalender › Merken -->
+    {#key hash}<ListPage id={hash.split('/')[3] ?? ''} />{/key}
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -487,7 +493,6 @@
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
-{#if page !== 'share'}<RemindCard />{/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
