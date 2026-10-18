@@ -9,6 +9,7 @@
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
@@ -340,6 +341,7 @@
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Upload ride')}</span></nav>
     <h1 class="title">{t('Upload ride')}</h1>
     <p class="page-sub">{t('A recorded ride as GPX: pauses, planned vs real, learnings. Read on this device.')}</p>
+    <HintCard page="rides" />
 
     <div class="rv-lay">
       <div class="rv-col">

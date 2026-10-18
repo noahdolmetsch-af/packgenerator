@@ -11,6 +11,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import Empty from '../ui/Empty.svelte';
+  import HintCard from '../pageinfo/HintCard.svelte';
   import { wantBike } from '../nav.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { bikePhotos, shrinkImage } from '../photo.js';
@@ -122,6 +123,7 @@
     </div>
   {/if}
   <p class="lead">{t('Your setup for this bike: photos, weight, bags, changes and ideas from others.')}</p>
+  <HintCard page="rig" />
 
   <section class="card blk" aria-labelledby="rg-photos">
     <header class="bh"><h2 id="rg-photos">{t('My setup')}</h2><p>{t('your photos, only on this device')}</p></header>
