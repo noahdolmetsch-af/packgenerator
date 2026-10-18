@@ -79,7 +79,7 @@ describe('the tip and the «Did you know» (2a, 3a)', () => {
     expect(tipOfDay(undefined, 'aktiv', '2026-06-15', jun).id).not.toBe('aktiv-ski');
   });
   it('a «Did you know» always has its source, never the tip of the day twice, off with the switch', () => {
-    for (const place of [...PLACES, 'meditation', 'training', 'goals', 'activity', 'rest', 'week', 'templates', 'debrief', 'wardrobe', 'past', 'pflege', 'werkstatt', 'ausstattung', 'einkauf']) {
+    for (const place of [...PLACES, 'meditation', 'training', 'goals', 'activity', 'rest', 'week', 'templates', 'debrief', 'wardrobe', 'past', 'pflege', 'werkstatt', 'ausstattung', 'einkauf', 'weekplan']) {
       const f = factOfDay(undefined, place, '2026-10-15');
       expect(f?.source, place).toBeTruthy();
     }
