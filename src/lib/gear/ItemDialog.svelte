@@ -40,6 +40,7 @@
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
   import Woanders from '../sk/Woanders.svelte'; // SK X1, X7, X13
   import { slotOf, ifixitUrl } from '../sk/links.js';
+  import { own } from '../ownlive.svelte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
@@ -501,7 +502,7 @@
           {#each RIDES.filter((r) => r.key !== 'every') as r (r.key)}<option value={r.key}>{t(r.name)}</option>{/each}
         </select>
       </label>
-      <label><span class="lbl">{t('Add when colder than (°C)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.coldBelow} placeholder={t('e.g. {x}', { x: '10' })} /></label>
+      <label><span class="lbl">{t('Add when colder than (°C)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.coldBelow} placeholder={t('e.g. {x}', { x: String(own.v.coldC) })} /></label>
       <label><span class="lbl">{t('When it rains')}</span>
         <select class="sel" bind:value={draft.rain}>
           <option value="">–</option>

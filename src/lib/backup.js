@@ -1,5 +1,6 @@
 import { DATA_TABLES, SCHEMA_VERSION } from './db.js';
 import { t } from './i18n.svelte.js';
+import { own } from './ownlive.svelte.js';
 
 /**
  * Backup files: the whole app as one JSON file.
@@ -133,7 +134,7 @@ export function backupFileName(date = new Date()) {
 
 /** Key in the "meta" table: when the last backup file was downloaded. Never exported. */
 export const LAST_BACKUP = 'lastBackup';
-/** Home reminds you when the last backup is older than this. */
+/** Home reminds you when the last backup is older than this (the standard; «Eigene Werte» backupDays changes it). */
 export const BACKUP_DAYS = 14;
 
 /** Download the whole app as one file and remember when. */
@@ -266,7 +267,7 @@ export function compareStates(fileAt, localAt, exportedAt = null) {
  * Is a backup due? lastIso: the newest of the downloaded file and the folder backup (or null).
  * Returns { due, days } (days since the last backup, null if never).
  */
-export function backupDue(lastIso, now = new Date(), limit = BACKUP_DAYS) {
+export function backupDue(lastIso, now = new Date(), limit = own.v.backupDays) {
   if (!lastIso) return { due: true, days: null };
   const days = Math.floor((now - new Date(lastIso)) / 864e5);
   return { due: days >= limit, days };

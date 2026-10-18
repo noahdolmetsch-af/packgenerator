@@ -12,11 +12,12 @@
 import { isOver, tripEnd } from './debrief.js';
 import { hasBike } from './domains.js';
 import { tabsOf, tabHref } from './tabs.js';
+import { own } from './ownlive.svelte.js';
 import { DAY_CLOCK } from './dayclock.js';
 
 /** The evening starts at 18:00 (Ü6a, U22b). */
 export const EVENING_HOUR = DAY_CLOCK.evening; // v0.144.0 RE: the one day clock
-/** Two days before the start a trip with a list is «Packen» on Today (as today.js). */
+/** Two days before the start a trip with a list is «Packen» on Today (as today.js); «Eigene Werte» packDays changes it. */
 export const PACK_DAYS = 2;
 
 /** Whole calendar days from a to b (both YYYY-MM-DD). */
@@ -68,7 +69,7 @@ export function currentStep(trip, today, opts = {}) {
   const es = trip.entries ?? [];
   if (!es.length) return 'plan';
   if (packedAll(trip)) return bike ? 'ride' : 'pack';
-  const soon = trip.startDate ? daysFrom(today, trip.startDate) <= PACK_DAYS : false;
+  const soon = trip.startDate ? daysFrom(today, trip.startDate) <= own.v.packDays : false;
   return soon || es.some((e) => e.packed) ? 'pack' : 'plan';
 }
 

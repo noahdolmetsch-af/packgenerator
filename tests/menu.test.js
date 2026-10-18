@@ -20,7 +20,7 @@ describe('the pages under the places and «Ich» (v0.76.0)', () => {
   it('groups the pages by their place, «Ich» last', () => {
     expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
     expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['templates', 'debriefs', 'past', 'learnings', 'pace']);
-    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'inspiration', 'data', 'helper', 'look', 'features', 'me']); // v0.77.0: + Ich › Helfer (K1a); v0.97.0: + Darstellung; UC2-1: + Inspiration
+    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'inspiration', 'data', 'helper', 'look', 'werte', 'features', 'me']); // «Mehr selbst einstellen»: + Eigene Werte; v0.77.0: + Ich › Helfer (K1a); v0.97.0: + Darstellung; UC2-1: + Inspiration
   });
 
   it('every page is reached by a place or a page row (the places\' own pages once)', () => {

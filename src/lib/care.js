@@ -21,6 +21,7 @@
  */
 import { t as tr } from './i18n.svelte.js';
 import { localDay } from './localday.js';
+import { own } from './ownlive.svelte.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -132,9 +133,10 @@ export const attrsOf = (key) => PART[key]?.attrs ?? [];
 export const CHECK_KM = 1000;
 /**
  * v0.144.0 RE «Pflege selbst einstellen» (Noah 14.10.2026, 4a 5a): the km of the check on this bike.
- * bike.checkKm: a number (own interval), null (switched off: no reminder) or missing (the standard).
+ * bike.checkKm: a number (own interval), null (switched off: no reminder) or missing (the standard:
+ * «Eigene Werte» checkKm, else CHECK_KM).
  */
-export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (typeof bike.checkKm === 'number' && bike.checkKm > 0 ? bike.checkKm : null) : CHECK_KM);
+export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (typeof bike.checkKm === 'number' && bike.checkKm > 0 ? bike.checkKm : null) : own.v.checkKm);
 
 /**
  * v0.144.0 RE (answer 5a «km und/oder Tage, was zuerst kommt, gilt»): one interval by km and/or by days.

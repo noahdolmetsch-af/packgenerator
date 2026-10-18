@@ -377,4 +377,9 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // «Mehr selbst einstellen»: Ich › Eigene Werte
+  'Open Me › Own values.': 'Öffne Ich › Eigene Werte.',
+  'Change a number with − and + or type it.': 'Ändere eine Zahl mit − und + oder tippe sie ein.',
+  '«Back to Standard» brings the number of the app back.': '«Auf Standard zurück» holt die Zahl der App zurück.',
+  'Example: packing starts 3 days before the trip, the backup reminder after 7 days.': 'Beispiel: Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.',
 };

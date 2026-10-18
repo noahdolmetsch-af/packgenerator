@@ -524,6 +524,11 @@ export const HANDBOOK = {
     steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.'],
     example: 'Example: g t → Trips, then n → plan a new trip.',
   },
+  'f.ownvalues': {
+    on: null,
+    steps: ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
+    example: 'Example: packing starts 3 days before the trip, the backup reminder after 7 days.',
+  },
   'f.theme': {
     on: null,
     steps: ['Open Me › Appearance.', 'Choose font, colour world, text size and light or dark.'],

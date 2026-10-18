@@ -50,6 +50,7 @@
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
   import Lists from './pages/Lists.svelte';
+  import OwnValues from './pages/OwnValues.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
@@ -69,6 +70,8 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
+  import { OWN_KEY } from './lib/ownvalues.js';
+  import { useOwn } from './lib/ownlive.svelte.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -278,9 +281,13 @@
   // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
   const rainQ = liveQuery(() => db.settings.get('sets'));
   $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
+  // «Mehr selbst einstellen» (IS 254–255): Ich › Eigene Werte, live for every page (ownlive.svelte.js).
+  const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
+  $effect(() => useOwn($ownQ?.value));
   // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
-    const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
+    const [bikes, tasks, visits, ownRec] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray(), db.settings.get(OWN_KEY)]);
+    useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
     return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
@@ -417,6 +424,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <Inspiration />
+  {:else if page === 'werte'}
+    <!-- «Mehr selbst einstellen» (IS 254–258): Ich › Einstellungen › Eigene Werte -->
+    <OwnValues />
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
     {#key hash}<Lists />{/key}

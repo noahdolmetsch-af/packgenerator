@@ -1,0 +1,38 @@
+/**
+ * «Mehr selbst einstellen» (Noah 15.10.2026, IS 254–258): Ich › Eigene Werte (#/me/werte), its rows in
+ * ownvalues.js and the page src/pages/OwnValues.svelte. Keys are the English texts. Swiss spelling (ss).
+ */
+export default {
+  'Own values': 'Eigene Werte',
+  'The numbers the app works with. Change them as you like; each one can go back to the Standard.': 'Die Zahlen, mit denen die App rechnet. Ändere sie, wie du willst; jede kann zurück auf Standard.',
+  'Packing starts': 'Packen beginnt',
+  'Today and the trip switch from «Plan» to «Pack» this many days before the start.': 'So viele Tage vor dem Start wechseln Heute und die Tour von «Planen» zu «Packen».',
+  'Cold from': 'Kalt ab',
+  'Clothing you did not need on a warm trip gets the rule «only below this temperature».': 'Kleider, die du auf einer warmen Tour nicht gebraucht hast, bekommen die Regel «nur unter dieser Temperatur».',
+  'Km check every': 'Km-Check alle',
+  'Brakes, chain, tyres, bolts: for every bike without its own number.': 'Bremsen, Kette, Reifen, Schrauben: für jedes Velo ohne eigene Zahl.',
+  '«New» mark on tiles': '«Neu» auf Kacheln',
+  'A new tile keeps its dot for this many days. 0: no dot.': 'Eine neue Kachel behält ihren Punkt so viele Tage. 0: kein Punkt.',
+  'Backup reminder after': 'Backup-Erinnerung nach',
+  'Everything is only on this device. The app reminds you when the last backup is older.': 'Alles ist nur auf diesem Gerät. Die App erinnert dich, wenn das letzte Backup älter ist.',
+  'Less: {name}': 'Weniger: {name}',
+  'More: {name}': 'Mehr: {name}',
+  'Standard: {value}': 'Standard: {value}',
+  'Back to Standard|value': 'Auf Standard zurück',
+  '{km} km': '{km} km',
+  '{n} °C': '{n} °C',
+  'Care per part': 'Pflege pro Teil',
+  'Wax the chain, fork service, sealant: under Bikes › Care › «Care for …», per bike': 'Kette wachsen, Gabel-Service, Dichtmilch: unter Velo › Pflege › «Pflege für …», pro Velo',
+  'Tiles on Today': 'Kacheln auf Heute',
+  'Show, hide and order them: hold a tile on Today': 'Zeigen, ausblenden, ordnen: auf Heute eine Kachel gedrückt halten',
+  'Tips on all pages': 'Tipps auf allen Seiten',
+  'One tip a day under the page title. Off: no tip line any more.': 'Ein Tipp pro Tag unter dem Seitentitel. Aus: keine Tipp-Zeile mehr.',
+  'Off: only useful tips, no «Did you know».': 'Aus: nur nützliche Tipps, kein «Wusstest du».',
+  'Ideas for activities': 'Ideen für Aktivitäten',
+  'Hide single ideas under Aktiv › Activity': 'Einzelne Ideen unter Aktiv › Aktivität ausblenden',
+  'Only on this device and in the backup. Nothing here is mandatory.': 'Nur auf diesem Gerät und im Backup. Nichts hier ist Pflicht.',
+  'Own values and suggestions': 'Eigene Werte und Vorschläge',
+  'Packing days, backup reminder, km check, cold, «New»': 'Packtage, Backup-Erinnerung, Km-Check, kalt, «Neu»',
+  'Set your own numbers': 'Eigene Zahlen einstellen',
+  'Me › Own values: when packing starts, the backup reminder, the km check, «cold» and the «New» mark, plus the tips on or off.': 'Ich › Eigene Werte: wann Packen beginnt, die Backup-Erinnerung, der Km-Check, «kalt» und das «Neu» auf Kacheln, dazu die Tipps an oder aus.',
+};
