@@ -65,6 +65,8 @@
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   // SN3+: the seven blocks «je nach Lage», their rules, an own rain block that follows the rule Regen
   const sitCards = $derived(SITUATION_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
+  const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
   const rules = $derived(rulesOf($setsQ?.value));
   const ownRain = $derived(addCards.filter((c) => !c.builtIn && RAIN_WORDS.test(c.name)));
   const sample = $derived(sitCards.find((c) => c.key === 'cold') ?? null);
@@ -219,18 +221,20 @@
   {@const Icon = blockIcon(s.key, s.name)}
   {@const r = rules[s.key]}
   <!-- SN3+: one row per block «je nach Lage»: icon, names, when it comes; a tap opens its rule -->
-  <li class="blk" aria-labelledby="blk-{s.key}">
+  <!-- Impeccable (18.10.2026): an empty block says what it does not do and offers «+ Items» right there -->
+  <li class="blk" class:empty={!s.inventory.length} aria-labelledby="blk-{s.key}">
     <button type="button" class="srow sitrow" aria-haspopup="dialog" onclick={() => (ruling = s.key)}>
       <span class="sib tone-{blockTone(s.key, s.name)}" aria-hidden="true"><Icon size={18} /></span>
       <span class="sm">
         <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span></b>
-        <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty')}{/if}</small>
+        <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty: suggests nothing when packing')}{/if}</small>
         <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>
       </span>
-      <span class="sv num" aria-hidden="true">{#if s.inventory.length}{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}{:else}–{/if}</span>
+      {#if s.inventory.length}<span class="sv num" aria-hidden="true">{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}</span>{/if}
       <span class="sr">{tn(s.inventory.length, '{n} item', '{n} items')}</span>
       <ChevronRight class="schev" size={18} aria-hidden="true" />
     </button>
+    {#if !s.inventory.length}<a class="btn sm addp" href={fillHref(s)} aria-label={t('Add items to {block}', { block: blockLabel(s) })}><Plus size={16} aria-hidden="true" />{t('Items|add')}</a>{/if}
   </li>
 {/snippet}
 
@@ -344,6 +348,7 @@
       </Section>
 
       <Section title={t('Depending on the situation')} sub={`${t('come as a suggestion when the trip fits')} · ${tn(sitCards.length, '{n} building block', '{n} building blocks')}`} id="g-situation">
+        {#if sitEmpty}<p class="shint emptyhint"><Info size={15} aria-hidden="true" /><span>{tn(sitEmpty, '{n} building block is still empty. Put in the items that should come along, for example in cold, heat or rain.', '{n} building blocks are still empty. Put in the items that should come along, for example in cold, heat or rain.')}</span></p>{/if}
         <ul class="card slist">
           {#each sitCards as s (s.key)}{@render sitRow(s)}{/each}
         </ul>
@@ -494,6 +499,38 @@
     font: inherit;
     text-align: left;
     cursor: pointer;
+  }
+  /* Impeccable (18.10.2026): an empty block row with its «+ Items» on the right */
+  .blk.empty {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .blk.empty .sitrow {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* .btn.sm also carries the class «sm» of the row text (Section): keep the button its own size */
+  .blk.empty .addp {
+    flex: none;
+    gap: 4px;
+  }
+  /* on a phone the button goes under the text, in line with it (no squeezed row) */
+  @media (max-width: 559px) {
+    .blk.empty {
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .blk.empty .sitrow {
+      flex-basis: 100%;
+      flex-wrap: nowrap;
+    }
+    .blk.empty .addp {
+      margin: -4px 0 12px 48px;
+    }
+  }
+  .emptyhint {
+    margin: 0 2px 10px;
   }
   .sitrow .sib.tone-blue {
     background: var(--info-soft);

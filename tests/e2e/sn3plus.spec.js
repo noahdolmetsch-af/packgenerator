@@ -97,7 +97,12 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   const cold = sit.getByRole('listitem', { name: NAME('cold'), exact: true });
   await expect(cold).toContainText(`${T('comes along:')} ${T('below|rule')} 5 °C`);
   await expect(cold).toContainText('test_data_gtp_ Winterhandschuhe');
-  await expect(sit.getByRole('listitem', { name: NAME('heat'), exact: true })).toContainText(T('still empty'));
+  // Impeccable (18.10.2026): an empty block says what it does not do and offers «+ Teile» (Material in «Select»)
+  const heat = sit.getByRole('listitem', { name: NAME('heat'), exact: true });
+  await expect(heat).toContainText(T('still empty: suggests nothing when packing'));
+  await expect(heat.getByRole('link', { name: T('Add items to {block}', { block: NAME('heat') }) })).toHaveAttribute('href', '#/gear?fill=heat');
+  await expect(cold.getByRole('link')).toHaveCount(0);
+  await expect(sit).toContainText(/\d+ (Baustein ist|Bausteine sind) noch leer/);
   await expect(sit.getByRole('listitem', { name: NAME('climb'), exact: true })).toContainText(`${T('from|rule')} 1’200 ${T('m climbing a day')} ${T('or a pass')}`);
   // the other groups are one row each with their count; one tap opens them
   const ride = main.getByRole('region', { name: T('On the ride') });

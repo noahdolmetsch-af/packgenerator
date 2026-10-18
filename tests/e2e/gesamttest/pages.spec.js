@@ -102,7 +102,7 @@ const CASES = [
   { id: 'rides', hash: '#/debrief/ride' },
   { id: 'ride-detail', hash: '#/debrief/ride/ride-gtp-01' },
   { id: 'gear', hash: '#/gear' },
-  { id: 'gear-wishlist', hash: '#/gear', act: async (page, T) => tap(page.getByRole('button', { name: new RegExp(`^${T('Wishlist')}`) }).or(page.getByRole('tab', { name: new RegExp(`^${T('Wishlist')}`) }))) },
+  { id: 'gear-wishlist', hash: '#/gear?view=wish' }, // Impeccable (18.10.2026): the tab «Einkauf», no row in «Ansichten» any more
   {
     id: 'gear-item',
     hash: '#/gear?q=Multitool',
