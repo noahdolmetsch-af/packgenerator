@@ -95,6 +95,17 @@
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   // Impeccable (18.10.2026, distill): «Noch offen heute» is one count under «Heute abhaken»; the tiles show the names
   const onTrack = $derived(live.filter((s) => s.met || (s.daily && !s.open)).length);
+  // Impeccable runde 2 (18.10.2026, clarify): the head answers «how do I stand?»: the date, the move goals on track
+  // (rolling 7 days, the same count as the ring «Bewegen») and the season; its dates stay under «Mehr › Saison»
+  const todayLine = $derived(
+    [
+      fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }),
+      rings.move.of ? tn(rings.move.of, 'this week {k} of {n} move goal on track', 'this week {k} of {n} move goals on track', { k: rings.move.n }) : '',
+      season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : '',
+    ]
+      .filter(Boolean)
+      .join(' · '),
+  );
   const tickSub = $derived([live.length ? t('{n} of {m} on track', { n: onTrack, m: live.length }) : '', phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')].filter(Boolean).join(' · '));
 
   // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
@@ -290,7 +301,7 @@
   <div class="flow">
     <header class="ph">
       <h1 class="title">{t('Active|place')}</h1>
-      <p class="sub">{t('Today, {date}', { date: fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }) })}{#if season?.since}{' · '}{season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}{/if}</p>
+      <p class="sub" data-today-line>{todayLine}</p>
     </header>
 
     {#if data && !states.length}
