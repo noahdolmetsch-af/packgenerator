@@ -1,8 +1,20 @@
 # Projektstand
 
-Stand: 15. Oktober 2026
+Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
 
 ## Aktuell live
+
+**Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026).** Die Versionen seit dem letzten Nachführen dieses Abschnitts (alle live, Einzelheiten unter «In Arbeit» weiter unten, dort mit ihrem damaligen Stand):
+
+- **0.144.0 «Regeln einheitlich»** (#175): eine Regen-Grenze, «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo.
+- **0.136.0 Paket 2b «Sortieren, wie du willst»** (#180): Pfeile und Ziehen in allen sortierbaren Listen, «Gilt für», eine Kachelreihe auf Aktiv › Heute.
+- **0.135.0 Paket 2 «Ruhe, Training und Rechnungen»** (#179): Meditation und Timer, Inhalte Flow, eine Zahl pro Sache, Training TR1–TR4, QR-Rechnung.
+- **0.134.0 Paket 1 «Doku und Ich»** (#178): Zwischenstand, Release-Analyse, Handbuch und Kleine Apps, Inspiration, Listen und Typen, Standard-Paket.
+- **0.133.0 Design-Refresh** (#168): Begrüssung, «Wi gaht's?», ruhigere Seiten.
+- **0.131.0 bis 0.132.2** (14.10.2026): Daten bereinigt, Tagespaket mit Tages-Check, Aktiv ausweiten, Velo-Setup, Kluge Suche, Bezahlen vorbereitet; Kamera-Knopf; drei Fehlerbehebungen.
+- **0.68.0 bis 0.124.0** (10. bis 13.10.2026): siehe [Geschichte](geschichte.md) und `src/lib/whatsnew.js`.
+
+### Früher live (Stand bis 0.67.1, 10.10.2026)
 
 - **v0.67.1 Fix-Release (live seit 10.10.2026, Noah F1a D1a):** Alle Datumsfelder zeigen das Datum im Format der App mit Wochentag («Sa., 10. Okt. 2026», Englisch «Sat, Oct 10, 2026») statt «10/10/2026»: neue Komponente `src/lib/ui/DateInput.svelte` (der Kalender des Geräts bleibt, darüber steht das formatierte Datum), eingesetzt in Neue Tour, Steckbrief, Velo schnell, Notiz, Problem, Eingang, Teil-Ablauf und Startwerte. Velo-Typen erscheinen als Wörter (`bikeTypeName` in `src/lib/bikes.js`: Fully, Hardtail, Gravelbike, Rennvelo, Mountainbike) statt als Schlüssel wie «full». «Im Flow» hat im Menü «Mehr» sein Symbol. Die Funde aus Noahs Handytest von 0.67.0 kommen in den nächsten Fix-Release (Kommentar auf der Trello-Karte 0.67.0).
 - **v0.67.0 «Übergänge 1» (live seit 10.10.2026, Noahs Antworten Ü1–Ü12 alle a, U21a U22a+b U24b U25a U26b, 9./10.10.2026):** Der Nutzer bleibt zwischen Planen → Packen → Unterwegs → Rückblick nicht mehr stecken. **Baukasten** in `src/lib/ui/`: `PageHead`, `MainBar` (ein Hauptknopf «Weiter zu …» plus ein ruhiger zweiter Weg, am Handy unten fix), `Empty` (ein Satz plus Aktion), `Interstitial`, `StepBar` (Planen · Packen · Unterwegs · Rückblick, antippbar) und `Celebrate` (Haken plus ein Satz); `TripBand` nutzt StepBar und MainBar. **Hauptknopf nach Phase** (`src/lib/phase.js`): vor dem Start «Weiter zu Packen» / «Packen abschliessen», gepackt «Zur Startseite», während der Tour «Weiter zu Unterwegs», am letzten Tag «Letzten Tag abschliessen», danach «Weiter zum Rückblick», fertig «Zurück zu Touren»; eine leere Liste sagt «Material ergänzen». **Drei Zwischenseiten mit eigener Adresse** (`#/trip/<id>/packed|ended|debriefed`, `src/pages/Between.svelte`): «Gepackt» (Zahlen, Taschen, Start mit Countdown, Erinnerung am Vorabend als Schalter, «Zur Startseite»), «Tour beendet» (nach «Letzten Tag abschliessen», nach «Tour beenden» mit Rückgängig, von selbst am letzten Abend ab 18 Uhr; Tagestouren mit Kurz-Rückblick «Alles gut»), «Rückblick fertig» (Gelernt, «Zurück zu Touren»). Danach zeigt die Tour ihren Wartezustand (Unterwegs mit Countdown). **Tour beenden** vor dem letzten Tag (oder an einer Tagestour, bevor die Fahrt laut Plan vorbei ist) fragt als Blatt: «Weiterfahren» oben, «Tour beenden» rot; bis zum nächsten Tag «Doch noch unterwegs? Tour wieder öffnen». **Heute:** «Weitermachen · Packen, Schritt 2 von 4» zuoberst führt in den richtigen Schritt (immer die nächste Tour), ab 18 Uhr am Vorabend «Morgen geht es los», die Rückblick-Erinnerung hat «Rückblick öffnen», «Tour öffnen» führt in den aktuellen Schritt, am Starttag ist «Unterwegs» der Hauptknopf. **Zurück-Taste** schliesst zuerst Neu-Blatt, Notiz, Tour-, Velo- und Teil-Fenster, die Eingaben bleiben (`src/lib/ui/backclose.js`). **Wächter streng** für Baukasten, Zwischenseiten und Tourseiten; die übrigen Dateien stehen als «noch umbauen» in [Design-Audits](design-audit.md#noch-umbauen). Befunde U001–U009, U011, U013, U014, U070 behoben. Tests: `tests/phase.test.js`, `tests/e2e/uebergaenge.spec.js`.
@@ -39,7 +51,23 @@ Stand: 15. Oktober 2026
 
 ## In Arbeit
 
+**Stand 18.10.2026:** Was fertig gebaut ist, ist in sechs Pakete gebündelt (Noah 18.10.2026, «1a 2b 3b 4a»). Reihenfolge und Inhalt:
+
+1. **P3 Navigation und Standard-Velo (0.145.0):** PR #182, Noah «ok»; wird nach grünem Test zusammengeführt.
+2. **A Daten sicher und Bedienung (0.146.0):** Speicher fest, Abgleich über Sicherung, Dokumente (Datenbank-Stufe 12), Bedienregeln, Kamera überall; gebaut.
+3. **B Server:** Training TR5–TR7, Fitbit, Dokument als PDF, Google Kalender und Aufgaben, KI-Deckel, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push; fast alles gebaut.
+4. **D Touren und Unterwegs:** Strava-Fahrten auf Touren, Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, Chronik; gebaut.
+5. **E Material, Velos, Merken:** Dateneingabe W1–W6, Bausteine, Garmin, Taschen-Setups, Erinnerungen, Geburtstage und Pflanzen, Sportarten, Listen, Ausrüstung, Skitour, Gipfelbuch; gebaut.
+6. **C Heute und Aktiv:** HN4 (#177), Bausteine mehr (#176), Tages-Check, Balance-Ring, Routine, Paket Aktiv; Balance-Ring und Routine im Bau.
+7. **F Woche:** Woche planen, Google Teil 2, Rundgang; Woche gebaut.
+
+Ausführlich: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online).
+
 - **v0.145.0 «Paket 3 – Klare Regeln, dein Standard-Velo» (ein Release statt fünf Teile, 15.10.2026):** Navigation «Regeln der App» 0.140.0 und Start-Karten ST1–ST2 0.140.1, Standard-Velo VS1–VS4 (0.145.0), Scrollen und Listen SL1–SL4 (0.141.0), Wieder sichtbar WS2/WS3/WS5/WS6 (0.143.0) und vier Fehler aus den Bildern von 0.136.0 (Kachel «Fahrten-Buch» zählt Strava, «noch 23 h · 2 Tage», Kachelblatt-Titel mit Ziehen, «kein Platz» unter dem Namen). Hinweistexte HT1–HT2 kommen in ein späteres Paket (der HT-Thread baut sie). Regeln einheitlich RE kam vorher selbst als 0.144.0 (#175, auf main); Paket 3 baut darauf auf und ist darum 0.145.0. Die Arbeitsnummern 0.140.0–0.143.0 fallen weg; ein Eintrag «Was ist neu» 0.145.0. Entscheide: [decisions.md](decisions.md) «15.10.2026: Paket 3 als Release 0.145.0».
+
+### Ältere Einträge (Stand bei ihrem Bau; die Versionen 0.131.1 bis 0.144.0 sind inzwischen live)
+
+- **v0.144.0 «Regeln einheitlich» (RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC):** Eine Regen-Grenze für die ganze App, eingestellt im Baustein Regen (Standard 30 %; `src/lib/rainlimit.svelte.js`): Packen, Regenkleidung (kommt über der Grenze von selbst mit, abwählbar), Was anziehen, Packwetter aus der Prognose, Wetter-Satz und Vorschlag des Tages auf Heute, Plan unterwegs und die Wochenvorschläge in Aktiv lesen sie. «Nie gebraucht» überall erst ab 3 Touren (`src/lib/neverused.js`). Rückblick: nichts vorangekreuzt, ein Knopf «Fertig · N von M übernehmen». Eine Tagesuhr (`src/lib/dayclock.js`: Morgen 6–11, Tag 11–18, Abend 18–22, Nacht 22–6; Abendrunde 20:30 bleibt). Pflege pro Velo: Karte «Pflege für …» über der Teile-Liste (an/aus, km und/oder Tage, was zuerst kommt, Notiz; `src/lib/care/plan.js`). Dazu: die Kopie der letzten Tour nimmt die zuletzt benutzte Tour (wie die Velo-Vorauswahl).
 - **v0.136.0 «Paket 2b – Sortieren, wie du willst» (15.10.2026):** Pfeile und Ziehen in allen sortierbaren Listen (Kategorien, Seitenkacheln, Aktiv-Kacheln, Ziele, Checks einer Tour; `ui/sortable.js`, `SortGrip`, `SortArrows`), Kategorie «Gilt für» (LI3: nur für bestimmte Tourenarten, beim Packen sonst nicht vorgeschlagen, die Suche findet sie), Inspiration (Erklärung unter «Das übernehme ich», der Dialog fragt zuerst nach dem Titel, eine Startseite bekommt keine geratene Art), eine Kachelreihe am Ende von Aktiv › Heute, neun Anzeigefehler aus den Bildern von 0.135.0 (Strava-Fahrten im Start-Kilometerstand zählen im Monat, Meditation im Timer-Protokoll mit Art, «Was ist neu» bündig, Leerzeichen vor «·», «…» bei langen Namen, Rechnungsnummer am Stück, Stoppuhr-Knopf verdeckt nichts, «Min», fünf Pulszonen in einer Reihe). Keine neue Datenbank-Version, keine neue Funktion in «Was die App kann».
 - **v0.135.0 «Paket 2 – Ruhe, Training und Rechnungen» (ein Release statt fünf einzelner PRs; Thread «Mein Überblick» bündelt, 15.10.2026):** enthält Meditation und Timer (ME2, ME3, Z2–Z5), #173 Inhalte Flow + Wusstest du, #170 Eine Zahl pro Sache (DK1–DK3 mit Heute H1/H2), #167 Training (TR1–TR4) und #169 Rechnungen ohne Gebühren (QR1–QR9). Die Arbeitsnummern 0.136.0 bis 0.139.0 fallen weg; ein Eintrag «Was ist neu» 0.135.0 «Ruhe, Training und Rechnungen». Aktiv hat fünf Reiter: Heute, Meditation, Training, Ziele, Aktivität. Datenbank: Version 10 (`activities`) und 11 (`timerLog`). `f.medreview`, `f.timer`, `f.pagetips`, `f.training`, `f.invoices`, `f.bills` sind «seit 0.135.0». Der Service Worker speichert Dateien bis 6 MiB (das App-Bündel ist jetzt etwa 4,4 MB). Die Teile unten stehen weiter einzeln beschrieben.
 - **v0.135.0, Teil «Rechnungen ohne Gebühren» (vorher Arbeitsnummer 0.139.0, PR #169; Mockups QR1–QR8 freigegeben von Noah 14.10.2026 04:00 UTC «a», QR9 05:10 UTC «a» mit Antworten «1-4a»):** Unter Ich › Bezahlen › **Rechnungen** (`#/me/pay/invoices`) schreibt die App eine Schweizer QR-Rechnung aus dem eigenen Konto, mit TWINT als zweitem Zahlweg (an, abwählbar pro Rechnung); Konto und TWINT-Nummer bleiben nur auf dem Gerät. Versand per Mail, als PDF oder als **Zahl-Link** (`#/zahlen/…`, die Person tippt «Ich habe bezahlt»). Bezahlt markieren: von Hand («Bezahlt», «Bezahlt + Mail»), über den Betrag («Geld erhalten»), aus dem Kontoauszug (camt.053/054, mit Rückgängig und «Selbst wählen»), aus einer Rechnung aus dem E-Banking (Bild mit QR-Code) oder aus einem geteilten TWINT-Screenshot (Text-Leser lädt beim ersten Mal, liest nur auf dem Handy). Neuer Tab **«Zu zahlen»** (`#/me/pay/bills`): erhaltene Rechnungen fotografieren, Fälligkeit (sonst 30 Tage), Erinnerung 3 Tage vorher, Zahlteil zum Kopieren, Foto bleibt als Beleg. Gratis, keine Dexie-Änderung (Rechnungen in `settings`). Noch nicht dabei: Teilen-Weg für Bilder (folgt nach «Inspiration»), Karten auf Heute (folgen nach Design-Refresh), Shop.
@@ -127,6 +155,16 @@ Stand: 15. Oktober 2026
 - **v0.44.1 Abnahme AP21–AP24 (9.10.2026, automatisch im Browser, Bericht für Noah):** PF01–PF16: 13 bestanden, 3 teilweise (PF01 Zeitmessung mit Person, PF15 Screenreader, PF16 echter Druckdialog und Teilen-Menü am Handy); fünf Szenarien bestanden (0 Nachtteile zum Entfernen, 0 Doppel, 0 verlorene Haken oder Verweise, 0 widersprüchliche Meldungen). Behoben: Escape in der Handy-Suche und in einer offenen Packlisten-Zeile gibt den Fokus richtig zurück; 44-px-Tippflächen für Kategorie-Köpfe im Material, «PG», «Alle ✓ / Alle –» im Rückblick und den Link zur Velopflege; Import-Vorschau sagt «1 Tour», «1 Learning»; eine leere Fahrt-Datei heisst «Diese Datei ist leer.» Offline lädt die App ihre Schrift aus dem Speicher (die lateinischen Schriftdateien, rund 350 KB, sind jetzt im Offline-Paket). Browser-Test `tests/e2e/abnahme044.spec.js`. Wartet mit 0.44 auf die Übernahme.
 
 ## Offen bei Noah
+
+Stand 18.10.2026:
+
+- Bilder jedes Pakets ansehen und «ok» für das Paket schreiben, damit Claude es zusammenführen kann.
+- Nach Paket B: Vercel «packgen» einmal verbinden, `main` veröffentlichen, wieder trennen (Klick-Anleitung folgt).
+- Google vor dem Livegang: Anmeldung testen, Client-Secret erneuern, Testanmeldung löschen, Datenschutzseite; Kalender und Aufgaben in der Google Cloud Console einschalten.
+- KI-Helfer-Schlüssel läuft am 10.11.2026 ab.
+- Eine echte Tour mit der App packen und Lücken melden.
+
+Ältere Punkte (Stand 9.10.2026):
 
 - Doppel am Computer zusammenlegen: Import prüfen → Datei nochmals wählen → „Nicht im Import“ → Zusammenlegen. Danach Backup vom Computer aufs Handy.
 - Taschen und Velos wägen.
@@ -237,11 +275,11 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 - [ ] Skitour-Ausrüstung als Liste schicken.
 - [ ] Favoriten-Datei am Phone und am Desktop laden (Your data → Import backup → Apply favourites).
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
-- [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
+- [ ] Die übrigen Velos wägen (ohne Taschen, mit Halterungen) und auf "Bikes" eintragen.
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
 - [x] Import-Datei "Werkstatt und Fotos" am Handy mit Merge importiert.
-- [ ] Am Desktop die Import-Datei nochmals mit Merge laden (Besuch Veloshop Vonäsch).
-- [ ] Belege für das Canyon schicken, falls es welche gibt.
+- [ ] Am Desktop die Import-Datei nochmals mit Merge laden (letzter Werkstattbesuch).
+- [ ] Belege für die Velos schicken, falls es welche gibt.
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
@@ -250,6 +288,10 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 - [ ] Regelmässiges aktuelles Backup sichern (Startseite → Download backup); ältere „erstes Backup“-Aufgabe nicht als aktuellen Datenstand verstehen.
 
 ## Nächste Schritte
+
+**Seit 18.10.2026:** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. Danach offen: Neuland, «Mehr selbst einstellen», Links nach aussen. Siehe [Projektstand](projektstand.md).
+
+**Frühere Reihenfolge (Stand 8.10.2026, Verlauf):**
 
 Reihenfolge (Details in der [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026); Versionsnummern geplant):
 
