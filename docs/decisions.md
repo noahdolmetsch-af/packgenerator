@@ -1505,3 +1505,9 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 
 - **Testlink statt Mockups (Noah, 21:52 UTC, «ab sofort … überall»):** gebaut wird ohne Mockups und ohne Bilder vor dem Merge. Zu jedem Paket bekommt Noah den Testlink (Vercel-Vorschau des Paket-PRs) mit «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Zusammengeführt wird erst nach seinem «ok» für dieses Paket. Updates von Abhängigkeiten werden sofort zusammengeführt. Ersetzt «zuerst bauen, dann Bilder» vom 14.10.2026.
 - **CLAUDE.md nachgeführt (Noah, 21:53 UTC, «bitte anweisung in claude ebenfalls integrieren und speichern»):** die Anleitung für Claude nennt jetzt die heutigen Regeln (Testlink, Pakete, Zusammenführen nach «ok», Fragen ohne ★, kein Trello). Ersetzt das «b» von 18.10.2026, 19:56 UTC.
+
+## 18.10.2026: Einfache Wörter und lange Namen (Durchklick DK6/DK7, Baustein ohne Version)
+
+- **Wörter (DK6, Noah 14.10.2026 «1-5 freigeben», Antwort 5a; Noah 14.10.2026 20:15 «a a, b a, c b»):** auf Deutsch «Erkenntnisse» statt «Learnings», «Eingang» statt «Inbox», «Vorhaben» statt «Challenge», «Grundgewicht» statt «Basis», «Neue Tour» statt «Rahmenbedingungen»; überall «Material» (nicht «Ausrüstung»), «Favoriten» und «Aktiv» (nicht «Im Flow»). «später · S1» heisst nur «später».
+- **Kleine Fehler (DK7):** lange Tournamen ohne Leerzeichen brechen auf Touren um (geplante Karten, Packmodus-Band, Liste, In Zahlen, Kacheln) statt die Seite zu verbreitern; ein Import auf einem Gerät ohne Touren und Material sagt «Neu hier» statt «Älter»; «Alles in Ordnung?» zählt alle Zeilen. Test `tests/e2e/durchklick.spec.js`.
+- **Selbst entschieden:** die 0-Linie im km-Diagramm des Rückblicks (DK7b) fällt weg, weil der Rückblick seit 0.137.0 neu gebaut ist und die alte Position nicht mehr passt; ältere Was-ist-neu-Einträge nutzen die neuen Wörter auch.
