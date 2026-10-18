@@ -4,13 +4,14 @@
  * (api/_lib/google.js, scope drive.file only) and the device key from Strava.
  *
  * Settings (db.settings DOCS_KEY, in backups): { drive: true when Drive is allowed, auto: upload new
- * documents by themselves (default on), groups: own groups that are still empty }.
+ * documents by themselves (default on), groups: own groups that are still empty,
+ *   names: { pdf, photo } the own names of the two default groups (Paket A, «1a»; the code key stays '') }.
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { GOOGLE_URL, call } from '../health.js';
 import { readKey } from '../strava/client.svelte.js';
-import { groupOf, DEFAULT_REMIND } from '../docs.js';
+import { groupOf, DEFAULT_REMIND, renamePatches, deletePatches, groupsAfter } from '../docs.js';
 
 export const DOCS_HASH = '#/me/docs';
 export const SCAN_HASH = '#/me/docs/scan';
@@ -22,6 +23,7 @@ export const prefsOf = (v) => ({
   drive: v?.drive === true,
   auto: v?.auto !== false,
   groups: Array.isArray(v?.groups) ? v.groups.filter((g) => typeof g === 'string' && g.trim()) : [],
+  names: Object.fromEntries(['pdf', 'photo'].filter((k) => typeof v?.names?.[k] === 'string' && v.names[k].trim()).map((k) => [k, v.names[k].trim()])),
 });
 
 export const docs = $state({ loaded: false, list: [], prefs: prefsOf(null), busy: '', error: '', uploading: {} });
@@ -214,6 +216,61 @@ export function takeReturn(loc = globalThis.location, hist = globalThis.history,
 }
 
 /* ---------- P3b: a file from the device ---------- */
+
+/*
+ * Paket A (Noah 18.10.2026 «1a»): rename and delete a group. g is a row of groupDocs: { kind: 'pdf' |
+ * 'photo' | 'own', name }. Each returns what «Undo» needs: { rows: [{ id, before }], prefs } (the settings
+ * as they were), or null when nothing changed.
+ */
+async function applyGroup(patches, prefsPatch, db) {
+  const before = (await db.settings.get(DOCS_KEY))?.value ?? {};
+  await db.transaction('rw', db.docs, db.settings, async () => {
+    for (const p of patches) await db.docs.update(p.id, { group: p.after });
+    await db.settings.put({ key: DOCS_KEY, value: { ...before, ...prefsPatch } });
+  });
+  driveFollow(patches.map((p) => p.id), db);
+  return { rows: patches.map((p) => ({ id: p.id, before: p.before })), prefs: before };
+}
+
+/** A new name for a group; a default group keeps its key and only shows the new name (empty = back to its own). */
+export async function renameGroup(g, name, { db = appDb } = {}) {
+  const to = String(name ?? '').trim().slice(0, 60);
+  const p = prefsOf((await db.settings.get(DOCS_KEY))?.value);
+  if (g?.kind === 'pdf' || g?.kind === 'photo') {
+    const names = { ...p.names };
+    if (to) names[g.kind] = to;
+    else delete names[g.kind];
+    return applyGroup([], { names }, db);
+  }
+  if (!to || !g?.name) return null;
+  return applyGroup(renamePatches(await db.docs.toArray(), g.name, to), { groups: groupsAfter(p.groups, g.name, to) }, db);
+}
+
+/** Deletes an own group: its documents go to the default group; no document is deleted. */
+export async function deleteGroup(g, { db = appDb } = {}) {
+  if (g?.kind !== 'own' || !g?.name) return null;
+  const p = prefsOf((await db.settings.get(DOCS_KEY))?.value);
+  return applyGroup(deletePatches(await db.docs.toArray(), g.name), { groups: groupsAfter(p.groups, g.name, null) }, db);
+}
+
+/** «Undo» after a rename or a delete of a group. */
+export async function undoGroup(u, { db = appDb } = {}) {
+  if (!u) return;
+  await db.transaction('rw', db.docs, db.settings, async () => {
+    for (const r of u.rows ?? []) await db.docs.update(r.id, { group: r.before });
+    await db.settings.put({ key: DOCS_KEY, value: u.prefs ?? {} });
+  });
+  driveFollow((u.rows ?? []).map((r) => r.id), db);
+}
+
+/** Paket B: the copies in Drive follow their documents into the group folder they are in now (as moveDoc does). */
+function driveFollow(ids, db) {
+  for (const id of ids)
+    db.docs
+      .get(id)
+      .then((d) => (d?.drive?.id ? driveCall('drive-move', { fileId: d.drive.id, root: d.kind === 'photo' ? 'photos' : 'pdf', group: d.group ?? '' }) : null))
+      .catch(() => {});
+}
 
 /** A file as a data URL. */
 export function readData(file) {

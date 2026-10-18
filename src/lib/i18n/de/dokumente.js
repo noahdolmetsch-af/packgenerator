@@ -6,6 +6,7 @@ export default {
   IDs: 'Ausweise',
   'Insurance and emergency': 'Versicherung und Notfall',
   Money: 'Geld',
+  'Travel|docs': 'Reisen', // a group of documents; plain «Travel» is the bike's «Federweg»
   Warranties: 'Garantien',
   '{n} document': '{n} Dokument',
   '{n} documents': '{n} Dokumente',
@@ -205,4 +206,29 @@ export default {
   'For Google Drive, first connect Strava on this device: it gives this device the key the Google connection uses too.': 'Für Google Drive verbinde zuerst Strava auf diesem Gerät: Das gibt dem Gerät den Schlüssel, den auch die Google-Verbindung braucht.',
   'For Google Drive: «Connect Google Drive» once under Me › Documents (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» unter Ich › Dokumente (braucht Strava auf diesem Gerät).',
   'Open the new document: set the group, «valid until» and «In the packing list».': 'Das neue Dokument öffnet sich: Wähle Gruppe, «gültig bis» und «In die Packliste».',
+  // Paket A (Noah 18.10.2026 «1a»): rename and delete a group (ui/GroupActions.svelte, Dokumente)
+  'More for the group {name}': 'Mehr zur Gruppe {name}',
+  'New name of the group': 'Neuer Name der Gruppe',
+  'every entry in it gets the new name': 'alles darin bekommt den neuen Namen',
+  'only the group goes; its entries stay': 'nur die Gruppe geht weg; der Inhalt bleibt',
+  'Delete the group «{name}»? The {n} entry in it stays.': 'Gruppe «{name}» löschen? Der {n} Eintrag darin bleibt.',
+  'Delete the group «{name}»? The {n} entries in it stay.': 'Gruppe «{name}» löschen? Die {n} Einträge darin bleiben.',
+  'Delete the empty group «{name}»?': 'Leere Gruppe «{name}» löschen?',
+  'The {n} entry in it gets the new name.': 'Der {n} Eintrag darin bekommt den neuen Namen.',
+  'The {n} entries in it get the new name.': 'Die {n} Einträge darin bekommen den neuen Namen.',
+  'Renamed to «{name}».': 'Umbenannt in «{name}».',
+  'Group «{name}» deleted.': 'Gruppe «{name}» gelöscht.',
+  'Delete the group «{name}»? Its {n} document goes back to «{pdf}» or «{photo}»; no document is deleted.':
+    'Gruppe «{name}» löschen? Ihr {n} Dokument kommt zurück nach «{pdf}» oder «{photo}»; kein Dokument wird gelöscht.',
+  'Delete the group «{name}»? Its {n} documents go back to «{pdf}» or «{photo}»; no document is deleted.':
+    'Gruppe «{name}» löschen? Ihre {n} Dokumente kommen zurück nach «{pdf}» oder «{photo}»; kein Dokument wird gelöscht.',
+  'The {n} document in it gets the new name.': 'Das {n} Dokument darin bekommt den neuen Namen.',
+  'The {n} documents in it get the new name.': 'Die {n} Dokumente darin bekommen den neuen Namen.',
+  'Only the name changes; new photos still come here. Empty: back to «{name}».': 'Nur der Name ändert sich; neue Fotos kommen weiter hierher. Leer: zurück zu «{name}».',
+  'Only the name changes; new PDFs still come here. Empty: back to «{name}».': 'Nur der Name ändert sich; neue PDF kommen weiter hierher. Leer: zurück zu «{name}».',
+  'every document in it gets the new name': 'jedes Dokument darin bekommt den neuen Namen',
+  'only the name changes; new files still come here': 'nur der Name ändert sich; neue Dateien kommen weiter hierher',
+  'the documents stay, in «{pdf}» or «{photo}»': 'die Dokumente bleiben, in «{pdf}» oder «{photo}»',
+  'Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.':
+    'Gruppe ändern: «…» neben ihrem Namen › «Umbenennen» oder «Löschen». Beim Löschen bleiben die Dokumente.',
 };

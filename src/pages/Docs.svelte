@@ -11,14 +11,19 @@
    * Dokumente-PDF (Paket B, Noah «1b 2a mit möglichkeiten zum sortieren … 5a», «1a 2a»): «Photograph document»
    * (#/me/docs/scan, DocScan.svelte) first, search in the name and the recognised text, four ways to sort,
    * and Google Drive (a subfolder per group) beside «Reminders» and «For the next trip».
+   * Paket A (Noah 18.10.2026 «1a»): each group heading has «…» with «Rename» and «Delete». A rename changes
+   * the group on every document in it (a default group only gets its own name, its key stays); a delete
+   * asks once, moves the documents to the default group and never deletes one; both have 4 s «Undo».
    */
   import { liveQuery } from 'dexie';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { db } from '../lib/db.js';
   import Seg from '../lib/ui/Seg.svelte';
-  import { docs, DOCS_HASH, SCAN_HASH, MAX_MB, addDoc, updateDoc, renameDoc, moveDoc, deleteDoc, restoreDoc, addGroup, readData, smallPhoto, pdfPages, blobOf, connectDrive, checkDrive, uploadMissing, savePrefs } from '../lib/docs/client.svelte.js';
-  import { groupDocs, ownGroups, groupOf, dataBytes, fileName, reminderRows, packRows, expiry, untilOf, searchDocs, sortDocs, SORTS, REMIND_MONTHS, DEFAULT_REMIND, DEFAULT_GROUP, GROUP_IDEAS } from '../lib/docs.js';
+  import GroupActions from '../lib/ui/GroupActions.svelte';
+  import { UNDO_MS } from '../lib/ui/undo.js';
+  import { docs, DOCS_HASH, SCAN_HASH, MAX_MB, addDoc, updateDoc, renameDoc, moveDoc, deleteDoc, restoreDoc, addGroup, renameGroup, deleteGroup, undoGroup, readData, smallPhoto, pdfPages, blobOf, connectDrive, checkDrive, uploadMissing, savePrefs } from '../lib/docs/client.svelte.js';
+  import { groupDocs, ownGroups, groupOf, dataBytes, fileName, reminderRows, packRows, expiry, untilOf, defaultName, searchDocs, sortDocs, SORTS, REMIND_MONTHS, DEFAULT_REMIND, DEFAULT_GROUP, GROUP_IDEAS } from '../lib/docs.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { nextTrip } from '../lib/debrief.js';
   import { localDay } from '../lib/localday.js';
@@ -54,7 +59,16 @@
   const mb = (b) => `${(b / 1024 / 1024).toLocaleString(locale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 })} MB`;
   const day = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const monthName = (ym) => new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' });
-  const groupName = (g) => (g.kind === 'hits' ? t('Found') : g.kind === 'own' ? t(g.name) : t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']));
+  /** A default group's name: its own name when it was renamed (Paket A), else «Importierte PDF/Fotos». */
+  const defName = (kind) => defaultName(kind, docs.prefs.names) ?? t(DEFAULT_GROUP[kind === 'photo' ? 'photo' : 'pdf']);
+  /**
+   * An own group's shown name: the six ideas in German, an own name as typed (Paket A: never through t(), so
+   * «Travel» is «Reisen» and not the «Federweg» of the bike pages, and a typed name stays as it is).
+   */
+  const ownLabel = (name) => (GROUP_IDEAS.includes(name) ? t(name === 'Travel' ? 'Travel|docs' : name) : name);
+  const groupName = (g) => (g.kind === 'hits' ? t('Found') : g.kind === 'own' ? ownLabel(g.name) : defName(g.kind));
+  /** A heading id without spaces (an own group's key is its folded name). */
+  const gid = (g) => `g-${g.key.replace(/[^a-z0-9]+/gi, '-')}`;
   const kindLine = (d) => (d.kind === 'photo' ? t('Photo') : `PDF · ${tn(d.pages || 1, '{n} page', '{n} pages')}`);
   /** The quiet line of a document in the list: valid until, or the note. */
   function lineOf(d) {
@@ -150,6 +164,38 @@
     undo = null;
     await restoreDoc(row);
   }
+  /* ---------- Paket A: rename and delete a group ---------- */
+  let groupUndo = $state.raw(null); // { text, u, timer }; raw: u goes back into IndexedDB as it is
+  async function saveRename(g, value) {
+    const own = t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']);
+    const back = g.kind !== 'own' && (!value || value === own);
+    const u = await renameGroup(g, back ? '' : value);
+    if (u) offerGroupUndo(t('Renamed to «{name}».', { name: back ? own : value }), u);
+  }
+  async function removeGroup(g) {
+    const name = groupName(g);
+    const u = await deleteGroup(g);
+    if (u) offerGroupUndo(t('Group «{name}» deleted.', { name }), u);
+  }
+  const deleteAsk = (g) =>
+    g.rows.length
+      ? tn(g.rows.length, 'Delete the group «{name}»? Its {n} document goes back to «{pdf}» or «{photo}»; no document is deleted.', 'Delete the group «{name}»? Its {n} documents go back to «{pdf}» or «{photo}»; no document is deleted.', { name: groupName(g), pdf: defName('pdf'), photo: defName('photo') })
+      : t('Delete the empty group «{name}»?', { name: groupName(g) });
+  const renameHelp = (g) =>
+    g.kind === 'own'
+      ? tn(g.rows.length, 'The {n} document in it gets the new name.', 'The {n} documents in it get the new name.')
+      : t(g.kind === 'photo' ? 'Only the name changes; new photos still come here. Empty: back to «{name}».' : 'Only the name changes; new PDFs still come here. Empty: back to «{name}».', { name: t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']) });
+  function offerGroupUndo(text, u) {
+    clearTimeout(groupUndo?.timer);
+    groupUndo = { text, u, timer: setTimeout(() => (groupUndo = null), UNDO_MS) };
+  }
+  async function undoGroupChange() {
+    clearTimeout(groupUndo?.timer);
+    const u = groupUndo?.u;
+    groupUndo = null;
+    await undoGroup(u);
+  }
+
   async function makeGroup() {
     const g = await addGroup(newGroup);
     newGroup = null;
@@ -191,7 +237,7 @@
     <!-- D4: one document -->
     {#if doc}
       {@const ex = expiry(doc, today)}
-      <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={doc.name} title={doc.name} sub={`${groupOf(doc) ? t(groupOf(doc)) : t(DEFAULT_GROUP[doc.kind === 'photo' ? 'photo' : 'pdf'])} · ${t('added on {date}', { date: day(doc.createdAt) })}`} />
+      <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={doc.name} title={doc.name} sub={`${groupOf(doc) ? ownLabel(groupOf(doc)) : defName(doc.kind)} · ${t('added on {date}', { date: day(doc.createdAt) })}`} />
       {#if msg}<p class="msg" role="status">{msg}</p>{/if}
       <div class="ich-cols">
         <div class="ich-main">
@@ -216,8 +262,8 @@
               <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" maxlength="120" value={doc.name} onchange={(e) => e.currentTarget.value.trim() && renameDoc(doc.id, e.currentTarget.value)} /></label>
               <label class="fld"><span class="lbl">{t('Group')}</span>
                 <select class="inp" value={groupOf(doc)} onchange={(e) => (e.currentTarget.value === '+' ? (newGroup = '') : moveDoc(doc.id, e.currentTarget.value))}>
-                  <option value="">{t(DEFAULT_GROUP[doc.kind === 'photo' ? 'photo' : 'pdf'])}</option>
-                  {#each allGroups as g (g)}<option value={g}>{t(g)}</option>{/each}
+                  <option value="">{defName(doc.kind)}</option>
+                  {#each allGroups as g (g)}<option value={g}>{ownLabel(g)}</option>{/each}
                   <option value="+">{t('New group …')}</option>
                 </select>
               </label>
@@ -269,6 +315,7 @@
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Documents')} title={t('Documents')} sub={docs.prefs.drive ? t('Passport, insurance, emergency and travel in one place. Also in your Google Drive.') : t('Passport, insurance, emergency and travel in one place. Only on your device.')} />
     {#if msg}<p class="msg" role="status">{msg}</p>{/if}
     {#if undo}<p class="msg undo" role="status">{t('Deleted «{name}».', { name: undo.row?.name ?? '' })} <button type="button" class="link" onclick={undoDelete}>{t('Undo')}</button></p>{/if}
+    {#if groupUndo}<p class="msg undo" role="status" data-group-undo>{groupUndo.text} <button type="button" class="link" onclick={undoGroupChange}>{t('Undo')}</button></p>{/if}
     <div class="ich-cols">
       <div class="ich-main">
         {#if docs.loaded && !docs.list.length}
@@ -279,15 +326,24 @@
             <Seg chips full={false} label={t('Sort')} value={sort} onchange={(v) => (sort = v)} options={SORTS.map((k) => ({ key: k, name: t(SORT_NAMES[k]) }))} />
           </div>
           {#each groups as g (g.key)}
-            <section class="ich-sec" aria-labelledby={`g-${g.key}`}>
-              <div class="ich-h"><div><h2 id={`g-${g.key}`}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p></div></div>
+            <section class="ich-sec" aria-labelledby={gid(g)}>
+              {#if g.kind === 'hits'}
+                <div class="ich-h"><div><h2 id={gid(g)}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p></div></div>
+              {:else}
+              <GroupActions name={groupName(g)} count={g.rows.length} canDelete={g.kind === 'own'} allowEmpty={g.kind !== 'own'}
+                renameExplain={g.kind === 'own' ? t('every document in it gets the new name') : t('only the name changes; new files still come here')}
+                deleteExplain={t('the documents stay, in «{pdf}» or «{photo}»', { pdf: defName('pdf'), photo: defName('photo') })}
+                renameHelp={renameHelp(g)} deleteAsk={deleteAsk(g)} onrename={(v) => saveRename(g, v)} ondelete={() => removeGroup(g)}>
+                <h2 id={gid(g)}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p>
+              </GroupActions>
+              {/if}
               {#if g.rows.length}
                 <ul class="tiles">
                   {#each g.rows as d (d.id)}
                     {@const ex = expiry(d, today)}
                     <li><a class="card tile" href={`${DOCS_HASH}/${encodeURIComponent(d.id)}`} data-doc={d.id}>
                       <span class="thumb" aria-hidden="true">{#if d.kind === 'photo'}<img src={d.data} alt="" />{:else}PDF{/if}</span>
-                      <span class="ich-m"><b>{d.name}</b><small>{lineOf(d)}{#if d.drive?.id}{' · '}{t('in Drive')}{/if}{#if q.trim() && groupOf(d)}{' · '}{t(groupOf(d))}{/if}</small></span>
+                      <span class="ich-m"><b>{d.name}</b><small>{lineOf(d)}{#if d.drive?.id}{' · '}{t('in Drive')}{/if}{#if q.trim() && groupOf(d)}{' · '}{ownLabel(groupOf(d))}{/if}</small></span>
                       {#if ex?.soon || ex?.over}<span class="pill warn">{ex.over ? t('expired') : t('soon|expiry')}</span>{:else}<span class="pill">{d.kind === 'photo' ? t('Photo') : d.pages > 1 ? `PDF · ${tn(d.pages, '{n} page', '{n} pages')}` : 'PDF'}</span>{/if}
                     </a></li>
                   {/each}
@@ -301,6 +357,7 @@
           <label class="btn" class:busy><Upload size={16} aria-hidden="true" />{t('Add PDF')}<input bind:this={fileEl} type="file" accept="application/pdf,.pdf,image/*" onchange={(e) => addFile(e)} hidden disabled={busy} /></label>
         </div>
         <p class="ich-help">{t('Photograph the pages: the app makes a PDF and reads the text. Or add a PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.')}</p>
+        {#if docs.list.length}<p class="ich-help" data-group-help>{t('Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.')}</p>{/if}
       </div>
       <div class="ich-side">
         <section class="ich-sec" aria-labelledby="rem-h">
