@@ -577,7 +577,8 @@
     </div>
   </header>
   <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): what you do here, the tip of the day, the small tour -->
-  {#if !mode}<AreaIntro place="material" />{/if}
+  <!-- the wishlist has its own Einstieg «Einkauf» (Noah «4a») -->
+  {#if !mode}{#key view === 'wish'}<AreaIntro place={view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
 
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
