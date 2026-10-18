@@ -260,4 +260,18 @@ export default {
   "Activities|intro": "Aktivitäten",
   "Weather|intro": "Wetter",
   "Bags|tour": "Taschen",
+  // the place «Woche» (weekplan)
+  "Your week at a glance": "Deine Woche auf einen Blick",
+  "Everything in one week": "Alles in einer Woche",
+  "Sport, dates, to-dos, holidays and bike service, each in its colour. Hide a kind with its chip.": "Sport, Termine, To-dos, Ferien und Velo-Service, jedes in seiner Farbe. Blende eine Art mit ihrem Chip aus.",
+  "Plan on Sunday": "Am Sonntag planen",
+  "Four short steps: the app suggests, you take, move or leave out.": "Vier kurze Schritte: Die App schlägt vor, du übernimmst, verschiebst oder lässt weg.",
+  "Holidays|intro": "Ferien",
+  "Enter them once: the app suggests pausing the plan and servicing the bike before.": "Einmal eintragen: Die App schlägt vor, den Plan zu pausieren und das Velo vorher zu warten.",
+  "After the first Sunday you see the whole week at a glance, and Today shows what the plan says for today.": "Nach dem ersten Sonntag siehst du die ganze Woche auf einen Blick, und Heute zeigt, was der Plan für heute vorsieht.",
+  "Ten minutes on Sunday evening are enough: plan the whole week in four steps.": "Zehn Minuten am Sonntagabend reichen: Plane die ganze Woche in vier Schritten.",
+  "Too full? Hide a kind with its chip, for example the to-dos, and see only your sport.": "Zu voll? Blende eine Art mit ihrem Chip aus, zum Beispiel die To-dos, und sieh nur deinen Sport.",
+  "Enter your holidays early: the bike service is suggested before you leave.": "Trag deine Ferien früh ein: Der Velo-Service wird dir vor der Abreise vorgeschlagen.",
+  "In Switzerland only 1 August is a public holiday by federal law. The cantons set the other holidays.": "In der Schweiz ist nur der 1. August per Bundesrecht ein Feiertag. Die anderen Feiertage legen die Kantone fest.",
+  "Swiss Federal Constitution, Art. 110": "Bundesverfassung, Art. 110",
 };

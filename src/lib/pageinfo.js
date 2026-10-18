@@ -217,6 +217,15 @@ Object.assign(PAGES, {
     ],
     can: [],
   },
+  weekplan: {
+    tips: [
+      { id: 'wp-sunday', text: 'Ten minutes on Sunday evening are enough: plan the whole week in four steps.', button: 'Plan the week', href: '#/week/plan' },
+      { id: 'wp-chips', text: 'Too full? Hide a kind with its chip, for example the to-dos, and see only your sport.' },
+      { id: 'wp-holiday', text: 'Enter your holidays early: the bike service is suggested before you leave.', button: 'Holidays|tab', href: '#/week/away' },
+      { id: 'know-holiday-ch', kind: 'know', text: 'In Switzerland only 1 August is a public holiday by federal law. The cantons set the other holidays.', source: 'Swiss Federal Constitution, Art. 110' },
+    ],
+    can: [],
+  },
 });
 
 /** The stored state made whole. */

@@ -8,6 +8,7 @@
    */
   import { Plus, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
@@ -73,6 +74,7 @@
 
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('Week {n} · {range} · everything here is a suggestion and can be hidden', { n: isoWeek(monday), range })} />
+  <AreaIntro place="weekplan" />
 
   {#if week}
     <div class="top">

@@ -204,6 +204,20 @@ export const INTROS = {
     ],
     expect: 'Over the years this becomes your logbook: how far, how high, with which bike.',
   },
+  // the place «Woche» (#/week, Woche planen WP1–WP4); 'week' is Aktiv › Woche (#/flow/week). One line
+  // first, like Material and Touren: the week itself stays on the first screen.
+  weekplan: {
+    page: true,
+    folded: true,
+    name: 'Week|place',
+    title: 'Your week at a glance',
+    things: [
+      { icon: 'calendar', title: 'Everything in one week', text: 'Sport, dates, to-dos, holidays and bike service, each in its colour. Hide a kind with its chip.' },
+      { icon: 'check', title: 'Plan on Sunday', text: 'Four short steps: the app suggests, you take, move or leave out.', href: '#/week/plan' },
+      { icon: 'sun', title: 'Holidays|intro', text: 'Enter them once: the app suggests pausing the plan and servicing the bike before.', href: '#/week/away' },
+    ],
+    expect: 'After the first Sunday you see the whole week at a glance, and Today shows what the plan says for today.',
+  },
 };
 
 const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
