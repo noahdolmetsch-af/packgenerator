@@ -104,18 +104,19 @@ test('the page: four sections in German, standards shown, reached from Ich', asy
 });
 
 test('backup days: the reminder on Ich follows, and back to Standard', async ({ page, context }, info) => {
+  // Impeccable «Ich» (18.10.2026): a due backup is the line «backup» in «Wartet auf dich» (the heading «Backup fällig» went)
   // the last backup 8 calendar days ago (noon Zurich): not due with 14 days, due with 7
   await start(page, context, info, { meta: [{ key: 'lastBackup', at: new Date(`${day(-8)}T12:00:00+02:00`).toISOString() }] });
   await page.goto('./#/me');
   await expect(page.getByRole('heading', { level: 1, name: T('Me|place') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Backup due') })).toHaveCount(0);
+  await expect(page.locator('[data-section="waiting"] [data-wait="backup"]')).toHaveCount(0);
 
   await page.goto('./#/me/werte');
   await setValue(page, 'backupDays', 7);
   await expect.poll(() => stored(page)).toEqual({ backupDays: 7 });
   await expect(row(page, 'backupDays')).toContainText(T('Adapted'));
   await page.goto('./#/me');
-  await expect(page.getByRole('heading', { name: T('Backup due') })).toBeVisible();
+  await expect(page.locator('[data-section="waiting"] [data-wait="backup"]')).toBeVisible();
 
   await page.goto('./#/me/werte');
   await row(page, 'backupDays').getByRole('button', { name: T('Back to Standard|value') }).click();
@@ -123,7 +124,7 @@ test('backup days: the reminder on Ich follows, and back to Standard', async ({ 
   await expect(row(page, 'backupDays').getByRole('textbox')).toHaveValue(String(FIELD.backupDays.std));
   await page.goto('./#/me');
   await expect(page.getByRole('heading', { level: 1, name: T('Me|place') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Backup due') })).toHaveCount(0);
+  await expect(page.locator('[data-section="waiting"] [data-wait="backup"]')).toHaveCount(0);
 });
 
 test('pack days: a trip in 3 days is packing when packing starts 3 days before', async ({ page, context }, info) => {
