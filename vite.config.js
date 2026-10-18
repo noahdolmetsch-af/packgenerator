@@ -76,7 +76,8 @@ export default defineConfig({
         // 6 MiB keeps the app stored on the device and offline.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
-        importScripts: ['share-target.js'],
+        // Erinnerungen aufs Handy (Web-Push): show the messages of api/push.js and open the app on a tap.
+        importScripts: ['share-target.js', 'push-sw.js'],
         runtimeCaching: [
           {
             // Trail Journal fonts: cached after the first online visit.

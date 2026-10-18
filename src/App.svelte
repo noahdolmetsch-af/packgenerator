@@ -40,6 +40,8 @@
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Push from './pages/Push.svelte';
+  import { startPushSync } from './lib/push/client.js';
   import Abfragen from './pages/Abfragen.svelte';
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
@@ -249,6 +251,8 @@
     noteBike = bikeId;
     noteOpen = true;
   };
+  // Erinnerungen aufs Handy (Web-Push): the next reminders go to the server when the app opens and when it goes to the background.
+  $effect(() => startPushSync());
   // v0.20.0: the page language for screen readers and the browser.
   $effect(() => {
     document.documentElement.lang = lang.v;
@@ -393,6 +397,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <Phone />
+  {:else if page === 'push'}
+    <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
+    <Push />
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />

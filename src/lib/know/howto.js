@@ -92,6 +92,7 @@ export const HOWTO = {
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file is written there.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],
   'f.playground': ['Open the playground.', 'Pack, ride and debrief a made-up trip.', 'Afterwards everything is as before.'],
+  'f.push': ['Open Me › Reminders on the phone.', 'Switch on «On the phone»; Chrome asks once.', 'Switch on one reminder and tap «Send a test».'],
   'f.helper': ['Open Me › Helper.', 'Enter the helper code; it stays on this device.', 'Before sending you see what goes out.'],
   'f.shortcuts': ['On a computer press ?.', 'The list of shortcuts opens.', 'Try g h, g t, n or /.'],
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
