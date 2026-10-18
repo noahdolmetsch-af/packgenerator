@@ -21,4 +21,8 @@ export default {
   // Rückblick einer Tour 3: «Weiter» open, one clear button at its end
   'To the next trip: {name}': 'Zur nächsten Tour: {name}',
   'Plan the next trip': 'Nächste Tour planen',
+
+  // Fahrten 1: the page is «Fahrten», uploading is the button
+  'Rides|page': 'Fahrten',
+  'Recorded rides with pauses, planned against real and learnings. Everything stays on this device.': 'Aufgezeichnete Fahrten mit Pausen, Plan gegen echt und Learnings. Alles bleibt auf diesem Gerät.',
 };

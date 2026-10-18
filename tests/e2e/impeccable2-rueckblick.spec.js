@@ -122,3 +122,27 @@ test('Rückblick einer Tour: «Fertig» once with the saved line, «Weiter» ope
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
+
+test('Fahrten: the page is «Fahrten»; a ride without a trip shows «Rückblick offen» and «Kurz: Alles gut» with Undo', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, '2026-10-12T10:00:00+02:00');
+  await page.goto('./#/debrief/ride');
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: T('Rides|page') })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: T('Path') })).toContainText(T('Rides|page'));
+  await expect(page.locator('.drop .pickbtn')).toContainText(T('Choose file'));
+  const open = page.locator('li[data-ride][data-open]');
+  await expect(open.first()).toBeVisible();
+  const n = await open.count();
+  const first = open.first();
+  const id = await first.getAttribute('data-ride');
+  await expect(first.locator('.rv-tag').first()).toHaveText(T('Debrief open'));
+  await first.getByRole('button', { name: new RegExp(`^${esc(T('Short: all good'))}: `) }).click();
+  await expect(page.locator(`li[data-ride="${id}"][data-open]`)).toHaveCount(0);
+  await expect(open).toHaveCount(n - 1);
+  await page.locator('.toast').getByRole('button', { name: T('Undo') }).click();
+  await expect(page.locator(`li[data-ride="${id}"][data-open]`)).toHaveCount(1);
+  expect(await wide(page)).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});
