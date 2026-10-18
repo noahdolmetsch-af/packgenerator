@@ -7,7 +7,7 @@
   import { X, Plus, RotateCcw } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
-  import { addPoint, togglePoint, removePoint, resetPoints, pointsOf, openCount } from '../lists.js';
+  import { addPoint, togglePoint, removePoint, resetPoints, pointsOf, openCount } from '../ownlists.js';
   import { changeList, uid } from '../listsdb.js';
   import { offerDone } from '../ui/rename.svelte.js';
 

@@ -8,7 +8,7 @@
   import { ChevronRight, ListChecks } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
-  import { LISTS_KEY, pinnedTo, openCount } from '../lists.js';
+  import { LISTS_KEY, pinnedTo, openCount } from '../ownlists.js';
   import ListView from './ListView.svelte';
 
   let { place, tripId = null } = $props();

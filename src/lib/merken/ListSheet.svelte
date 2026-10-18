@@ -12,7 +12,7 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
-  import { PIN_PLACES, addPoint } from '../lists.js';
+  import { PIN_PLACES, addPoint } from '../ownlists.js';
   import { addList, changeList, removeList, uid } from '../listsdb.js';
   import { t } from '../i18n.svelte.js';
 

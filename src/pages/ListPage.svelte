@@ -7,7 +7,7 @@
   import { ChevronLeft, Settings2, Pin } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
-  import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/lists.js';
+  import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/ownlists.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import ListView from '../lib/merken/ListView.svelte';

@@ -2,7 +2,7 @@
  * Eigene Listen: all lists in one settings record { key: 'merken.lists', value: [list] }, so they travel with
  * every backup and need no new table (like merkendb.js). Every write returns Undo.
  */
-import { LISTS_KEY, newList } from './lists.js';
+import { LISTS_KEY, newList } from './ownlists.js';
 
 export async function loadLists(db) {
   return (await db.settings.get(LISTS_KEY))?.value ?? [];

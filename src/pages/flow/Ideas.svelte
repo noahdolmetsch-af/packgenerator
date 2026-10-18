@@ -20,7 +20,7 @@
   import DateInput from '../../lib/ui/DateInput.svelte';
   import { balanceQuery } from '../../lib/flow/data.svelte.js';
   import { balance, CATS, CAT } from '../../lib/balance.js';
-  import { LISTS_KEY, IDEAS_ID, NOT_NOW_KEY, HIDDEN_AREAS_KEY, ideasList, addPoint, togglePoint, removePoint, tipHidden, weakest } from '../../lib/lists.js';
+  import { LISTS_KEY, IDEAS_ID, NOT_NOW_KEY, HIDDEN_AREAS_KEY, ideasList, addPoint, togglePoint, removePoint, tipHidden, weakest } from '../../lib/ownlists.js';
   import { loadLists, uid } from '../../lib/listsdb.js';
   import { dayLabel } from '../../lib/merken/when.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';

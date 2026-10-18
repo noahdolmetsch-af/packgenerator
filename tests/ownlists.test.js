@@ -1,6 +1,6 @@
 // Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a», «4 ok 5 ok»): lists with or without boxes, pinned to a place.
 import { describe, it, expect } from 'vitest';
-import { newList, addPoint, togglePoint, removePoint, resetPoints, pointsOf, openCount, pinnedTo, cleanPin, PIN_PLACES, ideaRotation, weakest, tipHidden, IDEAS_ID, ideasList } from '../src/lib/lists.js';
+import { newList, addPoint, togglePoint, removePoint, resetPoints, pointsOf, openCount, pinnedTo, cleanPin, PIN_PLACES, ideaRotation, weakest, tipHidden, IDEAS_ID, ideasList } from '../src/lib/ownlists.js';
 
 const NOW = '2026-10-14T10:00:00.000Z';
 

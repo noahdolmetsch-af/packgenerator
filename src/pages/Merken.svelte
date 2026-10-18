@@ -21,7 +21,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import ListSheet from '../lib/merken/ListSheet.svelte';
-  import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/lists.js';
+  import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/ownlists.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
