@@ -129,9 +129,9 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   // v0.47.2: the views carry the counts; what waits for the scale is on "Record weights" in •••
   const views = page.getByRole('group', { name: T('Views') });
   await expect(views.locator('[data-view="all"] small')).toHaveText(String(owned));
-  // Impeccable (18.10.2026): the wishlist is the tab «Einkauf»; its count is in the view head there
+  // Impeccable (18.10.2026): the wishlist is the tab «Einkauf»; its count is in the head there
   await page.goto('./#/gear?view=wish');
-  await expect(page.locator('.vstats dd').first()).toHaveText(String(wish));
+  await expect(page.locator('.page-sub')).toContainText(wish === 1 ? T('{n} wish', { n: wish }) : T('{n} wishes', { n: wish }));
   await page.goto('./#/gear?view=all');
   await page.getByLabel(T('More for Gear')).click();
   const weighGear = num(await page.locator('.gmenu button').filter({ hasText: T('Record weights') }).locator('.badge').textContent());
