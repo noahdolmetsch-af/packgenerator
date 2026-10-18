@@ -77,13 +77,13 @@ export const GROUPS = ['late', 'today', 'week', 'later', 'none'];
  * The open to-dos in the groups of PL3: late · today · this week (next 7 days) · later · without date.
  * Each group is sorted by date, then by when it was written. kmOf(bikeId) gives a bike's counter;
  * rainSince(bikeId, iso) whether that bike rode in the rain since then (a «after rain» reminder).
- * A reminder switched off (Ich › Erinnerungen) does not show.
+ * A reminder switched off (Ich › Erinnerungen) does not show. Birthdays and plants (kind) are left out.
  */
 export function groupTodos(todos, today, kmOf = () => null, rainSince = () => false) {
   const out = Object.fromEntries(GROUPS.map((g) => [g, []]));
   const week = addDays(today, 7);
   for (const td of todos) {
-    if (td.doneAt || td.off) continue;
+    if (td.doneAt || td.off || td.kind) continue; // birthdays and plants have their own groups (merken/kinds.js)
     const left = kmLeft(td, td.repeat?.bikeId ? kmOf(td.repeat.bikeId) : null);
     if (left != null && left <= 0) out.today.push(td);
     else if (td.repeat?.every === 'rain') {

@@ -4,6 +4,7 @@
  * Every write returns the old list, so the caller can offer Undo.
  */
 import { newTodo, tick } from './merken.js';
+import { newBirthday, newPlant, watered } from './merken/kinds.js';
 
 export const MERKEN_KEY = 'merken';
 
@@ -28,6 +29,20 @@ export async function addTodo(db, fields, { now } = {}) {
   if (!todo) return null;
   const { before } = await write(db, (list) => [...list, todo]);
   return { todo, undo: () => restoreTodos(db, before) };
+}
+
+/** Adds a birthday or a plant (merken/kinds.js); returns { todo, undo } or null without a name. */
+export async function addKind(db, kind, fields, { now, today } = {}) {
+  const todo = kind === 'birthday' ? newBirthday(fields, { id: uid(), now }) : kind === 'plant' ? newPlant(fields, { id: uid(), now, today }) : null;
+  if (!todo) return null;
+  const { before } = await write(db, (list) => [...list, todo]);
+  return { todo, undo: () => restoreTodos(db, before) };
+}
+
+/** «Gegossen»: the plant was watered today; returns Undo. */
+export async function waterPlant(db, id, today) {
+  const { before } = await write(db, (list) => list.map((t) => (t.id === id && t.kind === 'plant' ? watered(t, today) : t)));
+  return () => restoreTodos(db, before);
 }
 
 export async function updateTodo(db, id, changes) {
