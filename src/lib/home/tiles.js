@@ -12,7 +12,6 @@
  */
 import { FUNCTIONS } from './fnlist.js';
 import { WHATS_NEW, compareVersions } from '../whatsnew.js';
-import { own } from '../ownlive.svelte.js';
 
 export const WALL_KEY = 'homeWall';
 export const SIZES = ['s', 'w', 'l', 'long'];
@@ -189,12 +188,12 @@ export function keepHidden(next, stored, hidden = []) {
   return out;
 }
 
-/** Idea 1: a «New» dot for two weeks after the version that brought the tile («Eigene Werte» newDays changes it). */
+/** Idea 1: a «New» dot for two weeks after the version that brought the tile (days: «Eigene Werte» newDays, Home passes it; this file stays free of runes for the e2e specs). */
 export const NEW_DAYS = 14;
-export function isNew(tile, today, news = WHATS_NEW) {
+export function isNew(tile, today, news = WHATS_NEW, days = NEW_DAYS) {
   if (!tile?.since) return false;
   const e = news.find((x) => compareVersions(x.version, tile.since) === 0);
   if (!e?.date) return false;
-  const days = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${e.date}T00:00:00Z`)) / 864e5);
-  return days >= 0 && days < own.v.newDays;
+  const age = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${e.date}T00:00:00Z`)) / 864e5);
+  return age >= 0 && age < days;
 }

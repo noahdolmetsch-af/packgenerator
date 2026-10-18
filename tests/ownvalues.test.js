@@ -62,9 +62,9 @@ describe('the app follows the own values', () => {
     const news = [{ version: '9.0.0', date: '2026-10-01' }];
     expect(isNew({ since: '9.0.0' }, '2026-10-10', news)).toBe(true);
     useOwn({ newDays: 5 });
-    expect(isNew({ since: '9.0.0' }, '2026-10-10', news)).toBe(false);
+    expect(isNew({ since: '9.0.0' }, '2026-10-10', news, own.v.newDays)).toBe(false);
     useOwn({ newDays: 0 });
-    expect(isNew({ since: '9.0.0' }, '2026-10-01', news)).toBe(false);
+    expect(isNew({ since: '9.0.0' }, '2026-10-01', news, own.v.newDays)).toBe(false);
   });
   it('the km check of a bike without its own number', () => {
     useOwn({ checkKm: 800 });

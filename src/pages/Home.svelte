@@ -32,6 +32,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
+  import { own } from '../lib/ownlive.svelte.js';
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
   import { backupAfterTrip } from '../lib/todos.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
@@ -742,7 +743,7 @@
     e.preventDefault();
     await db.settings.put({ key: 'userName', value: nameIn.trim() });
   }
-  const newTile = (id) => isNew(TILE[id], today);
+  const newTile = (id) => isNew(TILE[id], today, undefined, own.v.newDays); // «Eigene Werte» newDays
   // v0.127.0 «Tages-Check» 2: the hint to the long press shows until it is closed (settings, in every backup)
   const HINT_KEY = 'homeHintLongPress';
   const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
