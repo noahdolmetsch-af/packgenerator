@@ -4,30 +4,30 @@ Personal tour-preparation PWA for Noah: plan, pack, ride, debrief, bike care. It
 
 Noah writes German and is not a developer. Write replies to him in short, simple German, and explain GitHub steps click by click. The app's source language is English, and the German texts go through `t()`.
 
-## Principle No. 1 (Noah, 10.10.2026, binding, above everything else)
+## Current rules (Noah, 13.–18.10.2026, binding, above everything else)
 
-1. **Overview first:** check the current state in the project (repo docs, memory, Trello, open PRs) and work by our rules, using the project's skills and plugins.
-2. **Plan:** keep an updated roadmap, a sequence and implementation plan, and work packages.
-3. **Mockups for every work package, always shown on the one page «Offene Mockups 2»** (Noah, 10.10.2026, priority 1, «extrem wichtig»; new page since 12.10.2026 «ab sofort einen neuen Ort», the first page hit its 512-file limit): https://claude.ai/artifact/3j2eefXk4fHn6txJsp4i36. Rounds still open on the first page (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv) stay there; every new round goes to the new page. Each round gets its own section, with computer and phone side by side and a link to its Trello question card. The Trello card and the thread reply both link to that section. Never hand over only a folder path.
-4. **Noah approves the mockup.** Only then build and open the PR.
-5. **Noah merges every PR himself** (Noah, 10.10.2026 14:16, «ab sofort und überall»; this replaces the self-merge from 13:52). Claude opens the PR, runs its own and the affected tests locally, gets CI green (CI runs the full Gesamttest) on the head commit, then sends Noah the link and the clicks. **Mockup check before every release:** the PR names the Trello comment where Noah saw and commented on this package's mockups. No such comment means no release PR; ask Noah first.
-6. **After every step:** document the progress (docs, Trello, memory).
-7. **Small things:** check and improve them yourself. **Bigger things:** always ask Noah targeted a/b questions with ★.
+These replace «Principle No. 1» of 10.10.2026 (mockups first, ★, Trello, «Noah merges himself») and the later «pictures before merge» rule. German summary: `docs/arbeitsweise.md`, section «Stand 18.10.2026». Current state and plan: `docs/projektstand.md`.
 
-## How we work (binding, see docs/arbeitsweise.md)
+1. **Goal:** «Eine App, die mich im Alltag unterstützt.» Every package serves one of the four goals in `docs/vorhaben.md`; if not, ask Noah.
+2. **Overview first:** before work, read `docs/projektstand.md`, project memory and the open PRs, and use the project's skills.
+3. **No mockups, a test link instead** (Noah, 18.10.2026 21:52 UTC, «ab sofort, überall»): build without mockups. For every package, send Noah a test link: the Vercel preview of the package PR, with the line «eigener Speicher, Backup hochladen zum Testen mit deinen Daten» (the preview has its own storage; he uploads a backup to test with his data). No pictures are required.
+4. **Packages:** finished parts are bundled into packages; each package is one release with its own version. Since 18.10.2026 there are six packages in the order P3 → A → B → D → E → C → F (see `docs/projektstand.md`). New work may run in parallel.
+5. **Merging:** Claude merges a package for Noah only after Noah got its test link and wrote «ok» for **that** package, CI is green on the head commit and main has not moved. A bare «freigabe» that names nothing does not count. **Exception:** dependency updates (Dependabot) merge as soon as CI is green.
+6. **Questions:** at most 5 per round, a/b options written out, **no ★ default**. Ask, then wait; never decide for him. Example answer line only «1? 2? 3?».
+7. **Everything in the project, no Trello.** When Noah asks what is open, name at most 3 items.
+8. **Free and private:** zero costs (free services only); private data only outside the repo, no real names.
+9. **Quiet:** speak only with a result, a blocker or a question, in short German.
+10. **Ideas:** every release proposes at most 3 new ideas for the idea collection.
+11. **Heute** follows the approved layout HN4; any other change to Heute needs Noah's explicit OK.
+12. **Reorder** everywhere with arrows and drag. Add explanatory text wherever users could get lost.
+13. **After every step:** document the progress (docs, memory). Small things: check and improve them yourself.
 
-- One package at a time, two at most; two builds only when they change different areas of the app.
-- **Faster (Noah, 11.10.2026 «1-5 a»):** small releases with one visible thing; one mockup round per package with at most 5 questions, build right after his answer; flaky tests get their own small «Tests stabil» release. Mockups stay, always.
-- Before every release:
-  1. Mockups (1440 and 390 px, light only).
-  2. Noah reviews them.
-  3. a/b questions, with the recommendation marked ★.
-  4. Build only after his answers.
-- **Noah merges (since 10.10.2026 14:16):** open the PR, run your own and the affected tests locally, get CI green (CI runs the full Gesamttest) on the head commit, then give Noah the link with the clicks «Merge pull request» → «Confirm merge». Never merge yourself. A Vercel rate-limit red does not block. Renumber open PRs when main moves on. After Noah's merge, move the Trello card to «Zu testen» with the test steps and tell Noah in one short German line what is new online.
-- **Mockup check (since 10.10.2026 14:16):** before every release PR, check that Noah saw and commented on the mockups for this package (Trello comment or thread answer). Put the link under «Mockup-Prüfung» in the PR. This saves testing at the end and late front-end wishes.
+## How we work
+
 - Small decisions you take yourself go in the PR under «Selbst entschieden».
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
-- **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order there; if not, ask Noah. Every release PR updates its «Stand heute» section. About every five releases, send Noah a short course check with a/b questions.
+- A Vercel rate-limit red does not block. Renumber open PRs when main moves on. After a merge, tell Noah in one short German line what is new online.
+- **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order; if not, ask Noah. About every five releases, send Noah a short course check with a/b questions.
 
 ## Privacy (never break)
 
@@ -40,7 +40,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 
 - Bump the version in `package.json` and `package-lock.json` (2 places). It must be higher than main; renumber when main has moved on.
 - Update `src/lib/whatsnew.js` (2–4 points) and `src/lib/i18n/de/whatsnew.js`. Put the new version first in the `newerThan` list in `tests/whatsnew.test.js`; the list is strictly descending.
-- Update `docs/status.md`, `docs/decisions.md`, `docs/roadmap.md`, `docs/design-audit.md` and `docs/vorhaben.md` (rules in `docs/README.md`).
+- Update `docs/projektstand.md`, `docs/status.md`, `docs/decisions.md`, `docs/roadmap.md`, `docs/design-audit.md` and `docs/vorhaben.md` (rules in `docs/README.md`).
 - Every new UI text goes through `t('English')` and needs a German entry in `src/lib/i18n/de/*.js`, imported in `de/index.js`. The Gesamttest fails on English words in the German UI.
 - Use the repo's PR template if there is one; otherwise start the body with «Before:» and «After:».
 - **Was fällt weg oder rutscht tiefer** (Noah, 14.10.2026 «3a»): every release PR has this section. List what is no longer there and what moves behind «Mehr», into a fold or further down, with the old and the new way; write «nichts» if nothing does. A loss that Noah did not approve needs his answer before the merge.
