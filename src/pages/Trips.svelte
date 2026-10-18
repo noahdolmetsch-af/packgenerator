@@ -33,7 +33,7 @@
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { overviewCounts, weatherWindow, packBand, tileRows } from '../lib/touren.js';
+  import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { switchTrip, openNew, openTrip, newTrip } from '../lib/nav.js';
@@ -105,6 +105,10 @@
   const plan = $derived(view?.plan ?? []);
   const band = $derived(packBand(plan, $tripsQ ?? [], current));
   const bandRow = $derived(band.state === 'draft' ? band.row : null);
+  // Impeccable 18.10.2026 (Touren 1): while a trip is on the way the band shows it; the pack draft moves
+  // to its row in «Geplant» (the pill «im Packmodus» there becomes the way into Packmodus)
+  const ride = $derived(rideBand(plan, $tripsQ ?? [], today));
+  const topBand = $derived(ride ?? band);
   const PLAN_SHORT = 3;
   let planAll = $state(false);
   const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
@@ -174,6 +178,8 @@
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
   const secs = (s) => hours(s ? s / 3600 : null);
   const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
+  // Impeccable 18.10.2026 (Touren 2): «Keine Fahrt verknüpft» once above the list instead of in every card
+  const noRide = $derived($moreQ ? rows.filter((r) => !hasRide(vals[r.id])).length : 0);
 
   /* ---- SN4h: «In Zahlen» (all groups open at first; Blöcke and closed blocks remembered) ---- */
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
@@ -234,8 +240,8 @@
   <div class="vals" data-values>
     <dl class="vg">
       {#if ride}
-        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
-        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
+        {@render cell(t('Moving time|col'), secs(v.movingS))}
+        {@render cell(t('Elapsed|col'), secs(v.elapsedS))}
         {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
         {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
         {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
@@ -249,11 +255,12 @@
         <dl class="vg">
           {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
           {@render cell(t('Max. power'), n0(v.wMax), 'W')}
-          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
+          {@render cell(t('NP'), n0(v.wNorm), 'W')}
         </dl>
       </div>
-    {:else}
-      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+    {:else if ride}
+      <!-- Impeccable Touren 2: «ohne Wattwerte» only where a ride could have them; «Keine Fahrt verknüpft» is said once above the list -->
+      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
     {/if}
   </div>
 {/snippet}
@@ -275,7 +282,7 @@
     {:else}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
-        <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
+        <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
@@ -324,7 +331,13 @@
                 {:else}
                   <span class="pr"><span class="num">{t(r.state.label, r.state)}</span></span>
                 {/if}
-                {#if bandRow?.tripId === r.tripId}<span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>{/if}
+                {#if bandRow?.tripId === r.tripId}
+                  {#if ride && ride.tripId !== r.tripId}
+                    <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')} · {t('Open pack mode')}<ChevronRight size={13} aria-hidden="true" /></a>
+                  {:else}
+                    <span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>
+                  {/if}
+                {/if}
               </li>
             {/each}
           </ul>
@@ -361,6 +374,17 @@
         {:else if !rows.length}
           <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
         {:else}
+          <!-- Impeccable Touren 2: what is missing, said once; the «?» of the values explained here once -->
+          <div class="vhead" data-values-head>
+            {#if noRide}<p class="vmiss" data-no-ride><Info size={16} aria-hidden="true" /><span>{t('For {n} of {all} trips, times, pace and heart rate are missing because no ride is linked.', { n: num(noRide), all: num(rows.length) })} <a href="#/debrief/ride">{t('Upload ride')}<ChevronRight size={14} aria-hidden="true" /></a></span></p>{/if}
+            {#if rows.length > noRide}
+              <div class="vq" data-values-help>
+                <span>{t('Moving time|col')}<Help label={t('Moving time|col')} text={t(FIELD_HELP.moving)} /></span>
+                <span>{t('Elapsed|col')}<Help label={t('Elapsed|col')} text={t(FIELD_HELP.elapsed)} /></span>
+                {#if rows.some((r) => vals[r.id]?.watts)}<span>{t('NP')}<Help label={t('NP')} text={t(FIELD_HELP.np)} /></span>{/if}
+              </div>
+            {/if}
+          </div>
           <div class="list" data-trip-list>
             {#each groups as g (g.month)}
               <h3 class="mh">{monthLong(g.month)}</h3>
@@ -558,6 +582,62 @@
     background: var(--st-plan-soft);
     color: var(--st-plan);
     font: 500 var(--fs-tiny) / 1.4 var(--font-body);
+  }
+  /* Touren 1: with a trip on the way the pill is the way into Packmodus (above the card's own link) */
+  a.go-pm {
+    position: relative;
+    z-index: 1;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  /* Touren 2: the line above the list */
+  .vhead {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 var(--sp-3);
+  }
+  .vmiss {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .vmiss :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .vmiss a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  /* a 44 px tap area around the link, without pushing the line apart */
+  .vmiss a::after {
+    content: '';
+    position: absolute;
+    inset: -12px -4px;
+  }
+  .vq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* the open sentence of a «?» takes its own line under the three words */
+  .vq > span {
+    display: contents;
+  }
+  .vq :global(.q) {
+    margin-right: 14px;
   }
   .noplan {
     display: flex;

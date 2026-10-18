@@ -121,9 +121,9 @@ test('FE14 help in place: a tap shows the sentence, again hides it', async ({ pa
   await expect(grams).not.toHaveAttribute('aria-describedby', new RegExp(id));
   await page.keyboard.press('Escape');
 
-  // Touren: «Fahrzeit» and «Verstrichen» explain themselves in the values of a trip
+  // Touren: «Fahrzeit» and «Verstrichen» explain themselves once above the list (Impeccable Touren 2)
   await page.goto('./#/trips');
-  const vals = page.locator('[data-values]').first();
+  const vals = page.locator('[data-values-help]');
   const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Moving time|col'))}` });
   await moving.click();
   await expect(vals.getByRole('note')).toHaveText(T(FIELD_HELP.moving));

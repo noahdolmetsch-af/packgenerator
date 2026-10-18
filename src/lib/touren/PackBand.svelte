@@ -6,24 +6,35 @@
    *          «Packmodus öffnen»; a tap anywhere on the band opens Packmodus (the trip's packing day).
    *   none   «Packmodus · nichts offen · Gerade wird keine Tour gepackt» with «Neue Tour» and «Aus einer Vorlage».
    * band: touren.js packBand(); extra: the small word of the trip's pill; onhide(): «Ausblenden» (a suggestion).
+   * Impeccable 18.10.2026 (Touren 1): a third state, while a trip is on the way it leads the band:
+   *   ride   «Unterwegs · Tag 2 von 3», the trip, «Morgen Etappe 3» and «Unterwegs öffnen ›» (band: touren.js rideBand()).
    */
   import { t, tn } from '../i18n.svelte.js';
   import { switchTrip, openNew } from '../nav.js';
   import { PACK_HREF } from '../touren.js';
   import TripState from '../ui/TripState.svelte';
-  import { Backpack, ChevronRight, Plus, LayoutTemplate, X } from '@lucide/svelte';
+  import { Backpack, ChevronRight, Plus, LayoutTemplate, X, Bike } from '@lucide/svelte';
 
   let { band, extra = '', onhide } = $props();
   const pct = $derived(band.state === 'draft' && band.total ? Math.round((100 * band.done) / band.total) : 0);
+  const RIDE_HREF = '#/ride';
+  const href = $derived(band.state === 'ride' ? RIDE_HREF : PACK_HREF);
   const open = (e) => {
     e.preventDefault();
-    switchTrip(band.tripId, PACK_HREF);
+    switchTrip(band.tripId, href);
   };
 </script>
 
-<section class="band" class:draft={band.state === 'draft'} aria-labelledby="pm-h" data-pack-band={band.state}>
-  <span class="bic" aria-hidden="true"><Backpack size={20} /></span>
-  {#if band.state === 'draft'}
+<section class="band" class:draft={band.state !== 'none'} aria-labelledby="pm-h" data-pack-band={band.state}>
+  <span class="bic" aria-hidden="true">{#if band.state === 'ride'}<Bike size={20} />{:else}<Backpack size={20} />{/if}</span>
+  {#if band.state === 'ride'}
+    <div class="bt">
+      <p class="k" id="pm-h">{t('On the way')} · {t('Day {n} of {total}', { n: band.day, total: band.total })}</p>
+      <a class="whole" {href} onclick={open}><b>{band.title}</b></a>
+      <span class="nx">{band.day < band.total ? t('Tomorrow: stage {n}', { n: band.day + 1 }) : t('Last day')}</span>
+    </div>
+    <a class="btn hi go" {href} onclick={open} data-ride-open><Bike size={17} aria-hidden="true" /><span class="kl">{t('Open On the way')}</span><ChevronRight size={17} aria-hidden="true" /></a>
+  {:else if band.state === 'draft'}
     <div class="bt">
       <p class="k" id="pm-h">{t('Pack mode')} · {t('pack draft exists')}</p>
       <a class="whole" href={PACK_HREF} onclick={open}><b>{band.title}</b></a>
@@ -92,6 +103,10 @@
   .bt b {
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     overflow-wrap: break-word;
+  }
+  .nx {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .whole {
     color: var(--ink);
