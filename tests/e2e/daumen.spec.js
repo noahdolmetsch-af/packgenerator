@@ -6,6 +6,7 @@ import { mkdirSync } from 'node:fs';
 import { start, DE, fixture, day } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';
 import { SIGN, FIELD_HELP } from '../../src/lib/daumen.js';
+import { openShort } from './kurz-open.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const phoneOf = (info) => info.project.name === 'phone';
@@ -55,6 +56,7 @@ test('FE1 Daumen-Zone: the main button at the bottom on a phone, Save stays in s
   await shot(page, info, 'fe1-material');
 
   await page.goto('./#/trips');
+  await openShort(page);
   await expectThumb(page, info, page.locator('[data-plan-new]'));
   await page.goto('./#/pack/templates');
   await expectThumb(page, info, page.locator('main .daumen > .btn'));
@@ -126,6 +128,13 @@ test('FE14 help in place: a tap shows the sentence, again hides it', async ({ pa
 
   // Touren: «Dauer» and «Verstrichen» explain themselves in the values of an activity (AT1)
   await page.goto('./#/trips');
+  await openShort(page);
+  // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line, the «?» comes with the activity itself
+  if (phoneOf(info)) {
+    await expect(page.locator('[data-act-line]').first()).toContainText(T('Duration|act'));
+    expect(errors).toEqual([]);
+    return;
+  }
   const vals = page.locator('[data-act-values]').first();
   const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Duration|act'))}` });
   await moving.click();

@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
 import { actRecord } from '../../src/lib/training.js';
+import { openShort } from './kurz-open.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -81,7 +82,9 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   // P3 Touren: the heart rate of each ride (AT1, 14.10.2026: «Ø HF» and «max. HF» in the values of every
   // Strava activity of «Abgeschlossene Touren»; before, SN4g showed them in the rows of the app trips)
   await page.goto('./#/trips');
-  const hr = page.locator('[data-activities] [data-act-values] [data-field="hf"]');
+  await openShort(page);
+  // 0.163.0 «Handy kurz» (2b): on a phone the values of an activity are one grey line
+  const hr = info.project.name === 'phone' ? page.locator('[data-activities] [data-act-line]') : page.locator('[data-activities] [data-act-values] [data-field="hf"]');
   await expect(hr.filter({ hasText: new RegExp(`\\d+\\s*${T('bpm').replace('/', '\\/')}`) }).first()).toBeVisible();
   await hr.first().scrollIntoViewIfNeeded();
   await shot(page, info, 'P3-touren');

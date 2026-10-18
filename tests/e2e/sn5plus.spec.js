@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 // The bag names of gear.js BAGS (that module needs the app's Svelte runtime): the light's suggested
 // bag is the top tube bag, the rain's the seat pack (importplus.js BAG_BY_CATEGORY, unit-tested).
 const BAG = { top: 'Top tube bag', bar: 'Front roll', seat: 'Seat pack / Tailfin' };
@@ -77,6 +78,7 @@ function favData() {
 test('SN5+ Favoriten: bar, zuletzt dabei, Oft dabei, Als Baustein and the hint on Bausteine', async ({ page, context }, info) => {
   const errors = await load(page, context, info, favData());
   await page.goto('./#/favorites');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Favourites') })).toBeVisible();
 
   // F1: a bar per kind; Bikepacking (990 g) is the heaviest, Wochenende (310 + 240 g) in proportion.

@@ -14,8 +14,13 @@
    * by day (the five newest days each a group, older days one group), only the newest group open, a group
    * shows five rows and «Show n more», a row opens to its points; a search and «New for you» stay on top
    * with the group you are in; a jump bar (phone: chips, computer: beside the page); «Back to top».
+   * 0.163.0 «Handy kurz» (Durchklick 2, Noah 15.10.2026 «freigabe», answer 1 «wo sinnvoll»): on a phone the
+   * side parts (message, since your visit, never tried, how to test, planned next) are one closed line each;
+   * «How to test it» opens its line. A computer keeps them open.
    */
   import { liveQuery } from 'dexie';
+  import { tick as settled } from 'svelte';
+  import { phone } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion, compareVersions, itemsOf } from '../lib/whatsnew.js';
   import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { isUsed } from '../lib/tips.js';
@@ -27,7 +32,7 @@
   import { sortBikes } from '../lib/bikes.js';
   import { openData } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
-  import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { Check, ChevronRight, ChevronDown, ChevronUp, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, Star, Lightbulb, Activity, Route, ListOrdered, Tags, MapPin, ListFilter } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
@@ -107,7 +112,11 @@
     writeTested(current, tested);
   }
   let testEl = $state();
-  function showTest() {
+  // 0.163.0: the closed lines of the side on a phone
+  let sideOpen = $state({ msg: false, since: false, never: false, test: false, plan: false });
+  async function showTest() {
+    sideOpen.test = true;
+    await settled();
     testEl?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     testEl?.querySelector('input')?.focus({ preventScroll: true });
   }
@@ -323,69 +332,100 @@
           <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each row leads with «Go» straight to its place in the app.')}</span></p>
         {/if}
       {:else}
+        <!-- 0.163.0 «Handy kurz» (Noah 15.10.2026): on a phone the side parts are one closed line each (SL ListGroup);
+             a computer keeps them open as before -->
+        {#if phone.matches}
+          <ListGroup id="wn-msg" title={t('Message after updates')} peek={msgOn ? t('Show the message after updates') : t('closed with × · with the next update it comes again')} bind:open={sideOpen.msg}>{@render msgBody()}</ListGroup>
+          {#if since}<ListGroup id="wn-since" title={t('Since your last visit')} count={tn(since.length, '{n} new function since {v}', '{n} new functions since {v}', { v: shortVersion(update.from) })} bind:open={sideOpen.since}>{@render sinceBody()}</ListGroup>{/if}
+          {#if never.length}<ListGroup id="wn-never" title={t('Never tried')} count={num(never.length)} peek={never.slice(0, 3).map((r) => t(r.title)).join(' · ')} bind:open={sideOpen.never}>{@render neverBody()}</ListGroup>{/if}
+          {#if newest.test?.length}<div bind:this={testEl} id="wn-test"><ListGroup id="wn-test-g" title={t('How to test {v}', { v: shortVersion(current) })} count={tn(newest.test.length, 'in {n} step', 'in {n} steps')} bind:open={sideOpen.test}>{@render testBody()}</ListGroup></div>{/if}
+          <ListGroup id="wn-plan" title={t('Planned next')} peek={PLANNED.slice(0, 3).map((p) => t(p.name)).join(' · ')} bind:open={sideOpen.plan}>{@render planBody()}</ListGroup>
+        {:else}
         <!-- I11b: the message after an update, switched here (v0.127.0 A-U1: the banner on Today) -->
         <section class="ich-sec" aria-labelledby="wn-msg-h">
           <div class="ich-h"><div><h2 id="wn-msg-h">{t('Message after updates')}</h2><p class="ich-hs">{t('you can change this at any time')}</p></div></div>
-          <div class="card ich-list">
-            <label class="ich-row wn-sw">
-              <span class="ich-m"><b>{t('Show the message after updates')}</b><small>{msgOn ? t('a calm banner on Today for {n} days, until you close it with ×', { n: BANNER_DAYS }) : t('closed with × · with the next update it comes again')}</small></span>
-              <input type="checkbox" role="switch" class="wn-switch" checked={msgOn} onchange={(e) => setMsg(e.currentTarget.checked)} />
-            </label>
-          </div>
+          {@render msgBody()}
         </section>
 
         {#if since}
           <section class="ich-sec" aria-labelledby="wn-since-h">
             <div class="ich-h"><div><h2 id="wn-since-h">{t('Since your last visit')}</h2><p class="ich-hs">{tn(since.length, '{n} new function since {v}', '{n} new functions since {v}', { v: shortVersion(update.from) })}</p></div></div>
-            {#if since.length}
-              <ul class="card ich-list">
-                {#each since.slice(0, 5) as r (r.id)}
-                  {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
-                  <li><button type="button" class="ich-row" data-feature={r.id} onclick={() => goFeature(r, { bikeId })}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small class="num">{shortVersion(r.since)}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-                {/each}
-              </ul>
-            {/if}
+            {@render sinceBody()}
           </section>
         {/if}
 
         {#if never.length}
           <section class="ich-sec" aria-labelledby="wn-never-h">
             <div class="ich-h"><div><h2 id="wn-never-h">{t('Never tried')}</h2><p class="ich-hs">{t('on the playground, your data stays')}</p></div></div>
-            <ul class="card ich-list">
-              {#each never as r (r.id)}
-                {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
-                <li class="ich-row ich-wrap" data-feature={r.id}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small>{t(GROUP[r.group].label)}</small></span><button type="button" class="btn sm" onclick={() => (play = r.play)}>{t('Try it')}</button></li>
-              {/each}
-            </ul>
+            {@render neverBody()}
           </section>
         {/if}
 
         {#if newest.test?.length}
           <section class="ich-sec" aria-labelledby="wn-test-h" bind:this={testEl} id="wn-test">
             <div class="ich-h"><div><h2 id="wn-test-h">{t('How to test {v}', { v: shortVersion(current) })}</h2><p class="ich-hs">{tn(newest.test.length, 'in {n} step', 'in {n} steps')}</p></div></div>
-            <ol class="card ich-list wn-steps">
-              {#each newest.test as s, i (s)}
-                <li><label class="ich-row"><input type="checkbox" checked={tested.includes(i)} onchange={(e) => tick(i, e.currentTarget.checked)} /><span class="ich-m"><span><b class="num">{i + 1}.</b> {t(s)}</span></span></label></li>
-              {/each}
-            </ol>
+            {@render testBody()}
           </section>
         {/if}
 
         <section class="ich-sec" aria-labelledby="wn-plan-h">
           <div class="ich-h"><div><h2 id="wn-plan-h">{t('Planned next')}</h2><p class="ich-hs">{t('from your projects, without a date')}</p></div></div>
-          <ul class="card ich-list">
-            {#each PLANNED as p (p.name)}
-              {@const Icon = PLAN_ICON[p.icon]}
-              <li class="ich-row"><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(p.name)}</b><small>{t(p.note)}</small></span></li>
-            {/each}
-          </ul>
+          {@render planBody()}
         </section>
+        {/if}
         <!-- SL1 (answer 2a): the jump bar beside the page on a computer, it stays in view -->
         <div class="wn-jump-dt"><ListNav groups={jumps} {active} onjump={jump} mode="toc" /></div>
       {/if}
     </div>
   </div>
 </div>
+<!-- 0.163.0: the bodies of the side parts (open sections on a computer, closed lines on a phone) -->
+{#snippet msgBody()}
+  <div class="card ich-list">
+    <label class="ich-row wn-sw">
+      <span class="ich-m"><b>{t('Show the message after updates')}</b><small>{msgOn ? t('a calm banner on Today for {n} days, until you close it with ×', { n: BANNER_DAYS }) : t('closed with × · with the next update it comes again')}</small></span>
+      <input type="checkbox" role="switch" class="wn-switch" checked={msgOn} onchange={(e) => setMsg(e.currentTarget.checked)} />
+    </label>
+  </div>
+{/snippet}
+
+{#snippet sinceBody()}
+  {#if since.length}
+    <ul class="card ich-list">
+      {#each since.slice(0, 5) as r (r.id)}
+        {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
+        <li><button type="button" class="ich-row" data-feature={r.id} onclick={() => goFeature(r, { bikeId })}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small class="num">{shortVersion(r.since)}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+      {/each}
+    </ul>
+  {/if}
+{/snippet}
+
+{#snippet neverBody()}
+  <ul class="card ich-list">
+    {#each never as r (r.id)}
+      {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
+      <li class="ich-row ich-wrap" data-feature={r.id}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small>{t(GROUP[r.group].label)}</small></span><button type="button" class="btn sm" onclick={() => (play = r.play)}>{t('Try it')}</button></li>
+    {/each}
+  </ul>
+{/snippet}
+
+{#snippet testBody()}
+  <ol class="card ich-list wn-steps">
+    {#each newest.test as s, i (s)}
+      <li><label class="ich-row"><input type="checkbox" checked={tested.includes(i)} onchange={(e) => tick(i, e.currentTarget.checked)} /><span class="ich-m"><span><b class="num">{i + 1}.</b> {t(s)}</span></span></label></li>
+    {/each}
+  </ol>
+{/snippet}
+
+{#snippet planBody()}
+  <ul class="card ich-list">
+    {#each PLANNED as p (p.name)}
+      {@const Icon = PLAN_ICON[p.icon]}
+      <li class="ich-row"><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(p.name)}</b><small>{t(p.note)}</small></span></li>
+    {/each}
+  </ul>
+{/snippet}
+
 {#if play}<PlaySheet running={!!d?.demo} kind="weekend" day={play} onclose={() => (play = null)} />{/if}
 
 <style>
@@ -412,6 +452,15 @@
     background: var(--paper);
     color: var(--ink);
     text-decoration: none;
+  }
+  @media (max-width: 719px) {
+    /* 0.163.0: a little less air on a phone */
+    .wn-allrow {
+      margin-bottom: 16px;
+    }
+    .wn-top {
+      margin-bottom: 12px;
+    }
   }
   .wn-allrow:hover .ich-m b {
     text-decoration: underline;

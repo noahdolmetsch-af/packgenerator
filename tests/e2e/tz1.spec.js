@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { tripStates, stateCounts, STATES, STATE_NAMES } from '../../src/lib/tripstate.js';
 import { importAndSettle, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const TODAY = '2026-10-13'; // a Tuesday without a ride: Today does not move on to «On the way»
@@ -63,11 +64,12 @@ async function openTrip(page, id) {
 // legend of the two colours; every card and row keeps its pill (icon + word, never colour alone).
 const LIST_STATES = STATES.filter((s) => s !== 'plan');
 
-test('Touren: the three states on cards and rows, chips with numbers, a pill on every trip, the legend', async ({ page, context }) => {
+test('Touren: the three states on cards and rows, chips with numbers, a pill on every trip, the legend', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   expect(counts.plan * counts.done * counts.rated, 'the fixture has trips in every state').toBeGreaterThan(0);
   await expect(page.locator('.trips .ph .cnt')).toHaveText([T('{n} planned', { n: counts.plan }), T('{n} completed', { n: counts.done }), T('{n} rated', { n: counts.rated })].join(' · '));
@@ -104,7 +106,9 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   await expect(done.locator('li[data-row="test_data_gtp_trip90"] .tst')).toHaveText(`${T('Completed|state')} · GPX`);
 
   // the legend of the two colours under the list
-  await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
+  // 0.163.0 «Handy kurz»: on a phone the legend goes (the star and the stripe stay on the rows)
+  if (info.project.name === 'phone') await expect(done.locator('ul.legend')).toBeHidden();
+  else await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
 
   // one chip shows one state only; tapping it again shows all
   const all = await rows.count();
