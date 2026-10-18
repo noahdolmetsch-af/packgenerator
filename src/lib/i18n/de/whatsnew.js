@@ -4,18 +4,6 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.151.0 Höhenprofil überall
-  'Ups and downs, back in sight ⛰': 'Auf und ab, wieder im Blick ⛰',
-  'The elevation profile of your rides is back in the debrief, and planned tours show theirs on the tile.': 'Das Höhenprofil deiner Fahrten ist zurück im Rückblick, und geplante Touren zeigen ihres auf der Kachel.',
-  'Debrief: «Last ride» and a saved debrief draw the profile of the GPX ride, the planned route dashed over it': 'Rückblick: «Letzte Fahrt» und ein gespeicherter Rückblick zeigen das Profil der GPX-Fahrt, die geplante Strecke gestrichelt darüber',
-  'A ride shows its profile, and under «Planned vs real» planned and ridden in one picture': 'Eine Fahrt zeigt ihr Profil, und bei «Geplant gegen echt» geplant und gefahren in einem Bild',
-  'Trips: a planned trip with a route shows a small profile with km, climbing and the highest point': 'Touren: Eine geplante Tour mit Strecke zeigt ein kleines Profil mit km, Höhenmetern und höchstem Punkt',
-  'Past trips: a small profile under each trip with a GPX ride': 'Vergangene Touren: ein kleines Profil unter jeder Tour mit GPX-Fahrt',
-  'Trips › Look back: the card «Last ride» shows the profile of its GPX ride; with a planned route an orange dashed line lies over it.': 'Touren › Rückblick: Die Karte «Letzte Fahrt» zeigt das Profil ihrer GPX-Fahrt; mit geplanter Strecke liegt eine orange gestrichelte Linie darüber.',
-  'Open a saved debrief of a trip with an uploaded ride: the profile sits under distance, climbing and time.': 'Öffne den gespeicherten Rückblick einer Tour mit hochgeladener Fahrt: Das Profil steht unter Distanz, Höhenmetern und Zeit.',
-  'Open an uploaded ride: a profile under «Numbers», and under «Planned vs real» planned and ridden in one picture.': 'Öffne eine hochgeladene Fahrt: ein Profil bei «Zahlen» und bei «Geplant gegen echt» geplant und gefahren in einem Bild.',
-  'Trips: a planned trip with a GPX route shows a small profile with km, climbing and highest point; Past trips shows one under each trip with a ride.': 'Touren: Eine geplante Tour mit GPX-Strecke zeigt ein kleines Profil mit km, Höhenmetern und höchstem Punkt; Vergangene Touren zeigt eines unter jeder Tour mit Fahrt.',
-
   // 0.132.1 Langer Name passt (Fehler behoben)
   'Long names fit': 'Lange Namen passen',
   'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',

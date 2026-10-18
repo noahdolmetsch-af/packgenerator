@@ -16,25 +16,6 @@
 
 export const WHATS_NEW = [
   {
-    // v0.151.0 «Höhenprofil überall» (F13 from the Release-Analyse, mockups HP1–HP5, Noah 14.10.2026 «1a 2a 3a hp1-hp5 freigeben»)
-    version: '0.151.0',
-    date: '2026-10-14',
-    title: 'Ups and downs, back in sight ⛰',
-    lead: 'The elevation profile of your rides is back in the debrief, and planned tours show theirs on the tile.',
-    points: [
-      { text: 'Debrief: «Last ride» and a saved debrief draw the profile of the GPX ride, the planned route dashed over it', href: '#/debrief' },
-      { text: 'A ride shows its profile, and under «Planned vs real» planned and ridden in one picture', href: '#/debrief/ride' },
-      { text: 'Trips: a planned trip with a route shows a small profile with km, climbing and the highest point', href: '#/trips' },
-    ],
-    small: [{ box: 'new', text: 'Past trips: a small profile under each trip with a GPX ride', href: '#/pack/past' }],
-    test: [
-      'Trips › Look back: the card «Last ride» shows the profile of its GPX ride; with a planned route an orange dashed line lies over it.',
-      'Open a saved debrief of a trip with an uploaded ride: the profile sits under distance, climbing and time.',
-      'Open an uploaded ride: a profile under «Numbers», and under «Planned vs real» planned and ridden in one picture.',
-      'Trips: a planned trip with a GPX route shows a small profile with km, climbing and highest point; Past trips shows one under each trip with a ride.',
-    ],
-  },
-  {
     // v0.132.1 «Langer Name passt» (bug fix, Noah 14.10.2026 18:41 UTC «BUG auf live version dringend»; same look, so no mockup)
     version: '0.132.1',
     date: '2026-10-14',
