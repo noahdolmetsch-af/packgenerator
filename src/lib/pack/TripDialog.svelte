@@ -6,6 +6,7 @@
   import { liveQuery } from 'dexie';
   import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { isOnMe } from '../swap.js';
   import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
@@ -90,7 +91,7 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
-      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
+      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id, testTrip: trip.testTrip === true }
       : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
         { title: '', startDate: rideDate(), days: 1, bikeId: openBike ? defaultBikeId : tourBikeId(trips, bikes) ?? bikes[0]?.id },
@@ -391,8 +392,14 @@
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
   // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
   const warmIds = $derived(new Set((preview?.weather ?? []).filter((i) => coldLayer(i)).map((i) => i.id)));
-  const packList = $derived(built ? groupEntries(withBlocks(built).entries, items, warmIds) : null);
-  const total = $derived(packList ? packList.bag : 0);
+  const builtEntries = $derived(built ? withBlocks(built).entries : []);
+  const packList = $derived(built ? groupEntries(builtEntries, items, warmIds) : null);
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 5b + 4a): the button counts what the trip will hold, as Pack does:
+  // «x in the bags · y on me»; on me = the body and the worn places (swap.js isOnMe), as on the trip.
+  const known = $derived(new Set(items.map((i) => i.id)));
+  const meN = $derived(builtEntries.filter((e) => known.has(e.itemId) && isOnMe(e)).length);
+  const bagN = $derived(builtEntries.filter((e) => known.has(e.itemId)).length - meN);
+  const total = $derived(bagN + meN);
   // v0.114.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
   const raceItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('race') && !skip.has(i.id)));
   const RACE_COLOR = STD_CATEGORIES.find((c) => c.key === 'cook').color;
@@ -522,6 +529,7 @@
       oncreated?.(nt.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
+      if (draft.testTrip !== (trip.testTrip === true)) changes.testTrip = draft.testTrip; // 0.161.0 (Noah H3a)
       if (byBike) {
         // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
         const f = ctxFields();
@@ -876,6 +884,10 @@
         {@render weather()}
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
+      {#if !isNew}
+        <!-- 0.161.0 (Noah H3a): only this switch hides a trip as a test; its name never does. -->
+        <label class="ck"><input type="checkbox" bind:checked={draft.testTrip} data-test-trip /> {t('Test trip (counts nowhere)')}</label>
+      {/if}
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
         {@render templatesFold()}{@render komootRow()}
@@ -895,7 +907,7 @@
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
-      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
+      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt" data-count-split>{` · ${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}</button>
     </div>
   </form>
 </dialog>

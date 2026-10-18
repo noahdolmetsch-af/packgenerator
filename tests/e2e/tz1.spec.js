@@ -72,7 +72,9 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   expect(counts.plan * counts.done * counts.rated, 'the fixture has trips in every state').toBeGreaterThan(0);
-  await expect(page.locator('.trips .ph .cnt')).toHaveText([T('{n} planned', { n: counts.plan }), T('{n} completed', { n: counts.done }), T('{n} rated', { n: counts.rated })].join(' · '));
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 2a): completed and rated count the chosen period and say which (checked below)
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toContainText(T('{n} planned', { n: counts.plan }));
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toContainText(T('in 12 months'));
 
   // «Geplant»: every card carries the pill «Geplant»; the next trip says «Morgen»
   const planned = page.locator('section[data-planned]');
@@ -88,6 +90,8 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   // «Abgeschlossene Touren» over all years: the chips «Alle» and one per state of the list with its number
   const done = page.locator('section[data-finished]');
   await done.getByRole('button', { name: T('All|period'), exact: true }).click();
+  const nState = (s) => done.locator(`[data-trip-list] li[data-row][data-state="${s}"]`).count();
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toHaveText([T('{n} planned', { n: counts.plan }), `${T('since the start')}: ${T('{n} completed', { n: await nState('done') })}`, T('{n} rated', { n: await nState('rated') })].join(' · '));
   const chips = done.getByRole('group', { name: T('Show trips') }).getByRole('button');
   await expect(chips).toHaveCount(1 + LIST_STATES.length);
   await expect(chips.first()).toHaveAttribute('aria-pressed', 'true');

@@ -53,7 +53,7 @@ export function addHelperItems(trip, items, ids, slotOf) {
  * a number id after the highest, topic «Debrief», the trip as the source.
  */
 export function helperLearning(s, trip, learnings, now = new Date().toISOString()) {
-  return { id: nextNumber(learnings), topic: 'Debrief', rule: s.rule, action: s.action ?? '', itemIds: [], source: trip.title ?? '', appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now, from: 'helper' };
+  return { id: nextNumber(learnings), topic: 'Debrief', rule: s.rule, action: s.action ?? '', itemIds: [], source: trip.title ?? '', tripId: trip.id, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now, from: 'helper' };
 }
 
 /* ---------- 5 + 6 Wartung ---------- */

@@ -678,7 +678,7 @@
           <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
             <summary><span class="ib" aria-hidden="true"><Moon size={18} /></span><span class="tw"><b id="eve-h">{t('Evening')}</b><small>{t('charging, clothes for tomorrow')}</small></span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <ul class="do">
-              <li><span class="k"><BedDouble size={18} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
+              <li><span class="k"><BedDouble size={18} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a class="settap" href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
               <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
               <li><span class="k"><CloudSun size={18} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
                 {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
@@ -842,4 +842,10 @@
   .eve .do { padding: 0 16px 4px; }
   .eve .do li:first-child { border-top: 1px solid var(--line); }
   .eve .do small a { color: inherit; }
+  /* 0.161.0 (Bugfixes 0.132.2): the link in a small line keeps a 44 px target */
+  .settap {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 </style>

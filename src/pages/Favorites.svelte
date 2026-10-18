@@ -19,6 +19,7 @@
   import { favoritesByDomain, domainName } from '../lib/domains.js';
   import { favBars, lastTrips, oftenTaken, saveFavBlock, suggestOff, FAV_OFF } from '../lib/favplus.js';
   import { localDay } from '../lib/localday.js';
+  import { homeTrips } from '../lib/home/heute.js';
   import { switchTrip } from '../lib/nav.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import FavBlockSheet from '../lib/gear/FavBlockSheet.svelte';
@@ -49,10 +50,14 @@
     window.print();
   }
   const rowsOf = (g) => (phone.matches && !allG[g.key] && g.items.length > PHONE_ROWS + 1 ? g.items.slice(0, PHONE_ROWS) : g.items);
-  const groups = $derived(favoritesByDomain($itemsQ ?? []));
+  // 0.161.0 B1 (Noah 3a): your own favourites; the wishlist ones only when switched on
+  let withWish = $state(false);
+  const wishFavs = $derived(($itemsQ ?? []).filter((i) => i.favorite && (i.ownership === 'wishlist' || i.ownership === 'to-buy')).length);
+  const groups = $derived(favoritesByDomain($itemsQ ?? [], { wishlist: withWish }));
   const count = $derived(new Set(groups.flatMap((g) => g.items.map((i) => i.id))).size);
   // SN5+: the trips (zuletzt dabei, oft dabei) and the items not to suggest any more.
-  const tripsQ = liveQuery(() => db.trips.toArray());
+  // 0.161.0 B1 (Noah 1b): a test trip is never «zuletzt dabei» nor counts for «Oft dabei»
+  const tripsQ = liveQuery(async () => homeTrips(await db.trips.toArray()));
   const offQ = liveQuery(() => db.settings.get(FAV_OFF));
   const today = localDay();
   const bars = $derived(favBars(groups));
@@ -128,6 +133,7 @@
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Favourites')} sub={$itemsQ ? [tn(count, '{n} item', '{n} items'), count ? t('your favourite things per kind of trip') : ''].filter(Boolean).join(' · ') : ''}>
     {#if count}<Btn icon={Printer} label={t('Print|pdf')} explain={t('Print or save as PDF')} onclick={printAll} />{/if}
   </PathHead>
+  {#if wishFavs}<label class="wishsw no-print" data-fav-wish><input type="checkbox" bind:checked={withWish} /> {tn(wishFavs, 'Show {n} from the wishlist', 'Show {n} from the wishlist')}</label>{/if}
   {#if $itemsQ}
     {#if count}
       <div class="fgrid">
@@ -292,6 +298,14 @@
   }
   .favs {
     max-width: 1240px;
+  }
+  .wishsw {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 var(--sp-3);
+    color: var(--ink-2);
   }
   .fgrid {
     display: grid;

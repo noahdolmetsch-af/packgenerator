@@ -61,7 +61,8 @@
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
   import { factStates, factCounts, matchesState } from '../lib/review/state.js';
-  import { isArchived } from '../lib/home/heute.js';
+  import { homeTrips, testTrips } from '../lib/home/heute.js';
+  import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
@@ -104,7 +105,10 @@
       .slice(0, 2),
   );
   const rides = $derived($ridesQ ?? []);
-  const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 1b + H3a): trips with the «Test trip» switch count nowhere, as on Today
+  const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
+  const hiddenTests = $derived(testTrips($tripsQ ?? []).length);
+  let tidyOpen = $state(false);
   const counts = $derived(overviewCounts(view));
   const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
@@ -141,8 +145,8 @@
 
   /* ---- SN4g: the finished trips (the same rows as Vergangene Touren, review/rueckblick.js) ---- */
   const dataQ = liveQuery(() => loadReview(db));
-  // like the rest of Touren the test trips stay until «Testdaten aufräumen» archives them; archived trips go
-  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: $dataQ.trips.filter((x) => !isArchived(x)), today }) : []);
+  // 0.161.0 B1 (Noah 1b): no archived and no test trips, the same trips as Today and the Rückblick
+  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: homeTrips($dataQ.trips), today }) : []);
   const states = $derived($dataQ ? factStates(facts, { debriefs: $dataQ.debriefs, rides: $dataQ.rides, today }) : {});
   const bikes = $derived($dataQ?.bikes ?? []);
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
@@ -240,6 +244,7 @@
     tvNow = keep;
     db.settings.put({ key: TOUR_VIEW_KEY, value: { ...keep, at: new Date().toISOString() } });
   }
+  const periodWords = $derived(mode === '12m' ? t('in 12 months') : mode === 'year' ? t('in {year}', { year }) : t('since the start'));
   const periodName = $derived(PERIODS.find((p) => p.key === mode)?.name ?? '');
   const scope = $derived([periodName, filtered ? t('{n} of {all} trips', { n: num(rows.length), all: num(inPeriod.length) }) : tn(inPeriod.length, 'the {n} trip', 'all {n} trips')].join(', '));
 
@@ -326,7 +331,9 @@
   <header class="ph">
     <div>
       <h1 class="title">{t('Trips|place')}</h1>
-      {#if counts}<p class="cnt num">{[tn(counts.plan, '{n} planned', '{n} planned'), tn(counts.done, '{n} completed', '{n} completed'), tn(counts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
+      <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
+      {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${periodWords}: ${tn(stCounts.done, '{n} completed', '{n} completed')}`, tn(stCounts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
+      {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
     </div>
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
@@ -498,6 +505,7 @@
   {/if}
 </div>
 
+{#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
 {#if sheet}
   <FilterSheet {filter} {st} rows={inPeriod} {ctx} {states} {bikes} saved={tours.saved} onapply={(f, s) => ((filter = f), (st = s))} onsave={(name, f) => saveTours({ saved: saveFilter(tours.saved, name, f) })} ondrop={(id) => saveTours({ saved: dropFilter(tours.saved, id) })} onclose={() => (sheet = false)} />
 {/if}
@@ -522,6 +530,9 @@
     margin: var(--sp-1) 0 0;
     color: var(--ink-2);
     font: 400 var(--fs-body) / 1.45 var(--font-body);
+  }
+  .cnt.tests {
+    font-size: var(--fs-small);
   }
   .sh {
     display: flex;

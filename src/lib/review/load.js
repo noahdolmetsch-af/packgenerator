@@ -17,5 +17,5 @@ export async function loadReview(db) {
     db.learnings.toArray(),
     db.settings.get(PACE_KEY),
   ]);
-  return { trips, debriefs, items, containers, bikes, visits, rides, learnings, pace: pace?.value ?? null };
+  return { trips, debriefs, items, containers, bikes, visits, rides, learnings: learnings.filter((l) => !l.archivedAt), pace: pace?.value ?? null };
 }
