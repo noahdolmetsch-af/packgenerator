@@ -14,7 +14,18 @@ export const EVERY_MS = 5 * 60_000;
 /** The question window: open, and how many questions «Later» already put aside. */
 export const syncUi = $state({ open: false, seen: 0 });
 
-export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0 });
+export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0, autoOpen: true, asList: false });
+
+/**
+ * Noah 18.10.2026 «1b und a kann eingestellt werden 2a oder umschalten auf b»: how the questions come.
+ * settings 'syncAsk' { auto: open the window by itself (default; false = only a hint), list: all at once (default: one by one) }.
+ * Noah 18.10.2026 20:07 «1a 2a 3a» (newest): the window opens by itself; the hint stays as a setting.
+ */
+export const ASK_PREFS = 'syncAsk';
+export async function setAskPrefs(db, patch) {
+  const cur = (await db.settings.get(ASK_PREFS))?.value ?? {};
+  await db.settings.put({ key: ASK_PREFS, value: { ...cur, ...patch } });
+}
 
 const device = () => (globalThis.matchMedia?.('(pointer: coarse)').matches ? 'phone' : 'computer');
 
@@ -52,8 +63,10 @@ let changeTimer = null;
 export function watchSync(db, win = globalThis) {
   if (dbRef) return;
   dbRef = db;
-  liveQuery(async () => ({ cfg: await readCfg(db), asks: await db.meta.where('key').startsWith(ASK).count() })).subscribe({
-    next: ({ cfg, asks }) => {
+  liveQuery(async () => ({ cfg: await readCfg(db), asks: await db.meta.where('key').startsWith(ASK).count(), prefs: (await db.settings.get(ASK_PREFS))?.value ?? {} })).subscribe({
+    next: ({ cfg, asks, prefs }) => {
+      sync.autoOpen = prefs.auto !== false; // Noah 18.10.2026 20:07 «1a»: by itself unless switched off
+      sync.asList = !!prefs.list;
       sync.on = !!cfg?.on;
       sync.last = cfg?.lastAt ?? null;
       sync.error = cfg?.error ?? null;

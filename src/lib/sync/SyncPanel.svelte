@@ -14,7 +14,7 @@
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
   import { startSync, stopSync, readCfg } from './engine.js';
-  import { sync, syncUi, runSync } from './auto.svelte.js';
+  import { sync, syncUi, runSync, setAskPrefs } from './auto.svelte.js';
   import { snapDb, takeSnapshot, hasDataIn } from '../maintenance/snapshots.js';
   import { liveQuery } from 'dexie';
 
@@ -144,11 +144,11 @@
   {:else}
     <p class="state" data-sync-state={sync.running ? 'running' : $cfgQ.error ? 'error' : 'ok'}>
       <span class="dot {$demoQ ? 'off' : $cfgQ.error ? 'warn' : 'ok'}" aria-hidden="true"></span>
-      {#if $demoQ}{t('Paused while the demo runs.')}
+      <span class="st">{#if $demoQ}{t('Paused while the demo runs.')}
       {:else if sync.running}{t('Syncing …')}
       {:else if $cfgQ.error}{errText($cfgQ.error)}
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
-      {:else}{t('On · not synced yet.')}{/if}
+      {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
     {#if sync.asks}
       <p class="asks" data-sync-asks>
@@ -156,6 +156,12 @@
         <button type="button" class="btn sm hi" onclick={() => { syncUi.seen = 0; syncUi.open = true; }}>{t('Decide')}</button>
       </p>
     {/if}
+    <!-- Noah 18.10.2026 «1b und a kann eingestellt werden 2a oder umschalten auf b»: how the questions come -->
+    <fieldset class="prefs" data-sync-prefs>
+      <legend>{t('When both devices changed an entry')}</legend>
+      <label><input type="checkbox" checked={sync.autoOpen} onchange={(e) => setAskPrefs(db, { auto: e.currentTarget.checked })} /> {t('Open the question window by itself (else a hint at the bottom)')}</label>
+      <label><input type="checkbox" checked={sync.asList} onchange={(e) => setAskPrefs(db, { list: e.currentTarget.checked })} /> {t('Show all questions as one list (else one after the other)')}</label>
+    </fieldset>
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
     {#if view === 'pair'}
@@ -210,7 +216,16 @@
     padding-top: 14px;
     border-top: 1px solid var(--line);
   }
-  .state,
+  .state {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 10px;
+  }
+  .st {
+    flex: 1;
+    min-width: 0;
+  }
   .asks {
     display: flex;
     flex-wrap: wrap;
@@ -230,6 +245,29 @@
   }
   .dot.warn {
     background: var(--warn);
+  }
+  .prefs {
+    margin: 0 0 12px;
+    padding: 0;
+    border: 0;
+  }
+  .prefs legend {
+    margin-bottom: 4px;
+    padding: 0;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .prefs label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: var(--fs-small);
+  }
+  .prefs input {
+    flex: none;
+    width: 20px;
+    height: 20px;
   }
   .lab {
     display: block;

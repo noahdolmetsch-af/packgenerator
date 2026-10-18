@@ -90,4 +90,10 @@ export default {
   'Me › Data and backup › «Switch on sync».': 'Ich › Daten und Backup › «Abgleich einschalten».',
   'On the other device: scan the QR code, «Pair».': 'Auf dem anderen Gerät: QR-Code scannen, «Koppeln».',
   'Both changed the same entry: choose which version counts.': 'Derselbe Eintrag auf beiden geändert: wählen, welche Version gilt.',
+  // Noah 18.10.2026 «1b und a kann eingestellt werden 2a oder umschalten auf b möglich 3a»
+  'When both devices changed an entry': 'Wenn ein Eintrag auf beiden Geräten geändert wurde',
+  'Open the question window by itself (else a hint at the bottom)': 'Fenster mit der Frage von selbst öffnen (sonst ein Hinweis unten)',
+  'Show all questions as one list (else one after the other)': 'Alle Fragen als eine Liste zeigen (sonst eine nach der anderen)',
+  'Show all as a list': 'Alle als Liste zeigen',
+  'Show one at a time': 'Eine nach der anderen zeigen',
 };

@@ -13,7 +13,7 @@ import { keysOf, recName, seal } from '../../src/lib/sync/code.js';
 
 const T = (en) => DE[en] ?? en;
 const fixture = fileURLToPath(new URL('./fixture.json', import.meta.url));
-const item = JSON.parse(readFileSync(fixture, 'utf8')).tables.items[0];
+const [item, item2] = JSON.parse(readFileSync(fixture, 'utf8')).tables.items;
 const shot = (page, name) => (process.env.MOCK_OUT ? page.screenshot({ path: `${process.env.MOCK_OUT}/${name}.png` }) : null);
 
 /** One fake server per test, shared by both devices. */
@@ -90,36 +90,65 @@ test('Switch on on one device, pair the other with the link: both have the same 
   await b.context.close();
 });
 
-test('Changed on both devices: the app asks which version counts, and the chosen one stays', async ({ browser }, info) => {
+test('Changed on both devices: the window asks, one question after the other or all as a list; a hint as a setting; the chosen one stays', async ({ browser }, info) => {
   const server = syncServer();
   const size = info.project.name === 'phone' ? 390 : 1440;
-  // the phone already synced its own version of the first item (fictional)
+  // the phone already synced its own version of the first two items (fictional)
   const code = '7K2M-9QXA-4F8R-T3WD-H6NB-P2CE-5VJY-8GKS';
   const keys = await keysOf(code);
   const theirs = { ...item, name: `${item.name} (Handy)`, weightG: (item.weightG ?? 0) + 25 };
-  const done = await server.call('push', { token: keys.token, items: [{ k: await recName(keys, 'items', item.id), base: 0, e: await seal(keys, { t: 'items', id: item.id, v: theirs, del: false, at: '2026-10-18T17:25:00.000Z', dev: 'phone' }) }] });
-  expect(done.done).toHaveLength(1);
+  const theirs2 = { ...item2, weightG: (item2.weightG ?? 0) + 10 };
+  const sealed = async (v, at) => ({ k: await recName(keys, 'items', v.id), base: 0, e: await seal(keys, { t: 'items', id: v.id, v, del: false, at, dev: 'phone' }) });
+  const done = await server.call('push', { token: keys.token, items: [await sealed(theirs, '2026-10-18T17:25:00.000Z'), await sealed(theirs2, '2026-10-18T17:26:00.000Z')] });
+  expect(done.done).toHaveLength(2);
 
   const a = await device(browser, info, server);
   await a.page.goto('./');
   await importAndSettle(a.page, fixture);
   await a.page.goto(`./#/me/data?koppeln=${code}`);
   await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
+  // 1a (Noah 18.10.2026 20:07): the window opens by itself
+  const hint = a.page.locator('[data-sync-hint]');
   const dlg = a.page.getByRole('dialog', { name: T('Changed on both devices') });
   await expect(dlg).toBeVisible();
+  await expect(hint).toHaveCount(0);
+  // 2a: one after the other
+  await expect(dlg).toBeVisible();
+  await expect(dlg).toHaveAttribute('data-view', 'one');
   await expect(dlg).toContainText(item.name);
   await expect(dlg.locator('[data-choice="theirs"]')).toContainText(`${theirs.weightG} g`);
   await expect(dlg.locator('[data-choice="mine"]')).toContainText(`${item.weightG} g`);
   await expect(dlg.locator('[data-choice="theirs"]')).toContainText(T('Phone'));
-  await shot(a.page, `A5-frage-${size}`);
-  // «Later» keeps both; the panel and the light say what is open
+  await shot(a.page, `A6-frage-${size}`);
+  // … or all as one list (kept as a setting)
+  await dlg.getByRole('button', { name: T('Show all as a list') }).click();
+  await expect(dlg).toHaveAttribute('data-view', 'list');
+  await expect(dlg.locator('[data-question]')).toHaveCount(2);
+  await shot(a.page, `A7-liste-${size}`);
+  await dlg.getByRole('button', { name: T('Show one at a time') }).click();
+  await expect(dlg).toHaveAttribute('data-view', 'one');
+  // «Later» keeps both; the panel says what is open and holds the two settings
   await dlg.getByRole('button', { name: T('Decide later') }).click();
   await expect(dlg).toBeHidden();
-  await expect(syncBox(a.page).locator('[data-sync-asks]')).toContainText(T('{n} entry changed on both devices.').replace('{n}', '1'));
-  await shot(a.page, `A6-offen-${size}`);
-  await syncBox(a.page).locator('[data-sync-asks]').getByRole('button', { name: T('Decide') }).click();
+  await expect(hint).toBeHidden();
+  await expect(syncBox(a.page).locator('[data-sync-asks]')).toContainText(T('{n} entries changed on both devices.').replace('{n}', '2'));
+  const prefs = syncBox(a.page).locator('[data-sync-prefs]');
+  await expect(prefs.getByRole('checkbox')).toHaveCount(2);
+  await expect(prefs.getByRole('checkbox', { name: T('Open the question window by itself (else a hint at the bottom)') })).toBeChecked();
+  await prefs.scrollIntoViewIfNeeded();
+  await shot(a.page, `A8-offen-${size}`);
+  // the setting «only a hint»: after a restart the hint comes instead of the window
+  const auto = prefs.getByRole('checkbox', { name: T('Open the question window by itself (else a hint at the bottom)') });
+  await auto.uncheck();
+  await a.page.reload();
+  await expect(hint).toContainText(T('{n} entries changed on both devices.').replace('{n}', '2'));
+  await expect(dlg).toBeHidden();
+  await shot(a.page, `A9-hinweis-${size}`);
+  await hint.getByRole('button', { name: T('Decide') }).click();
   await expect(dlg).toBeVisible();
   await dlg.locator('[data-choice="theirs"]').click();
+  await expect(dlg).toContainText(item2.name);
+  await dlg.locator('[data-choice="mine"]').click();
   await expect(dlg).toBeHidden();
   await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
   // the other version is in place now
