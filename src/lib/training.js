@@ -105,6 +105,18 @@ export function boundsOfStrava(z) {
 /** Four whole numbers, rising, between 60 and 230. */
 export const validBounds = (b) => Array.isArray(b) && b.length === 4 && b.every((x, i) => Number.isInteger(x) && x >= 60 && x <= 230 && (i === 0 || x > b[i - 1]));
 
+/** The older own zones of Rückblick › Tempo (settings 'hrZones': { bounds: top of Z1–Z4 }); read, then replaced by OWN_ZONES_KEY. */
+export const LEGACY_ZONES_KEY = 'hrZones';
+/**
+ * One set of zones for the whole app: Noah's own bounds from Training ({ own: first beat of Z2–Z5 }), else the
+ * older ones from Rückblick › Tempo (top of Z1–Z4, so one beat more). → { own } or null.
+ */
+export function ownOf(own, legacy) {
+  if (validBounds(own?.own)) return own;
+  const b = Array.isArray(legacy?.bounds) ? legacy.bounds.map((x) => Math.round(Number(x)) + 1) : null;
+  return validBounds(b) ? { own: b } : null;
+}
+
 /** The zones in use: own (changed), else Strava's, else the standard. → { bounds, source: 'own'|'strava'|'default' } */
 export function zonesOf(stravaZones, own) {
   if (validBounds(own?.own)) return { bounds: own.own, source: 'own' };

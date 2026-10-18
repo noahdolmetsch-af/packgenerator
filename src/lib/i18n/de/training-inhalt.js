@@ -161,4 +161,5 @@ export default {
   '- Best 20 minutes: {w} W': '- Beste 20 Minuten: {w} W',
   '- Planned for next week: {n} sessions': '- Für nächste Woche geplant: {n} Einheiten',
   'How was my week? Please answer in three short sentences: what went well, what was missing, one idea for next week. No medical advice.': 'Wie war meine Woche? Bitte antworte in drei kurzen Sätzen: was gut lief, was fehlte, eine Idee für nächste Woche. Keine medizinischen Ratschläge.',
+  'Strava is not reachable right now. Try again later.': 'Strava ist gerade nicht erreichbar. Versuch es später noch einmal.',
 };
