@@ -1,7 +1,7 @@
 // v0.105.0 Design-Refresh P8 «Aktiv» (A1–A14c, mockups runde14–18): the redrawn Aktiv pages on a phone
 // and a computer, in German, with a fixed clock and 13 weeks of fictional data (aktiv-fixture.js).
 // 1. Every page: one h1, the crumb, no sideways scroll, no page error.
-// 2. A1 Aktiv heute: «Heute abhaken», the rings, «Mehr» opens «Ziele»; A5 Ziele: rows with 7 dots, the goal path.
+// 2. A1 Aktiv heute: «Heute abhaken» with «x von y im Soll», «Mehr» without the tabs, the tab «Ziele»; A5 Ziele: rows with 7 dots, the goal path.
 // 3. A7 Aktivität: «Vorschlag für heute» is a suggestion tile; a choice becomes a challenge that counts.
 // 4. A8 Meilensteine: «Bald erreichbar» as rows, the trophy shelf.
 // 5. A13 Mehr zur Meditation: 7 folds, Vorlagen first; «Heute vielleicht» as a suggestion tile, «Heute nicht».
@@ -63,17 +63,29 @@ test('Aktiv pages: one look, no sideways scroll, no page error', async ({ page, 
   expect(errors).toEqual([]);
 });
 
-test('A1 and A5: tick tiles, rings, «Mehr» opens the goals with dots and the goal path', async ({ page, context }) => {
+test('A1 and A5: tick tiles, rings, the tab «Ziele» opens the goals with dots and the goal path', async ({ page, context }) => {
   const errors = await open(page, context);
   const main = page.locator('main');
   await go(page, '#/flow');
   await expect(main.getByRole('heading', { level: 2, name: T('Tick off today') })).toBeVisible();
-  await main.locator('[data-row="goals"] a').click();
+  // Impeccable (18.10.2026, distill): «Mehr» no longer repeats the tabs; «Noch offen heute» is one count under «Heute abhaken»
+  const more = main.locator('section[aria-labelledby="more-h"]');
+  await expect(more.locator('[data-row="timer"]')).toBeVisible();
+  await expect(more.locator('[data-row="goals"], [data-row="med"], [data-row="activity"]')).toHaveCount(0);
+  await expect(main.locator('#open-h')).toHaveCount(0);
+  await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(`^${T('{n} of {m} on track', { n: '\\d+', m: '\\d+' })} · `));
+  await page.locator('.ptabs').getByRole('link', { name: T('Goals|tab'), exact: true }).click();
   await expect(page).toHaveURL(/#\/flow\/goals$/);
   const row = main.locator('li[data-row="meditation"]');
   await expect(row.locator('.d7 i')).toHaveCount(7);
   await expect(main.locator('svg').filter({ has: page.locator('clipPath') }).first()).toBeVisible();
   await fits(page, 'A5');
+  // Impeccable (layout): on a phone «Stoppuhr ›» sits in the head of «Heute abhaken»; nothing floats over the tiles
+  await page.setViewportSize({ width: 390, height: 844 });
+  await go(page, '#/flow');
+  await main.locator('section[aria-labelledby="tick-h"]').getByRole('button', { name: T('Stopwatch'), exact: true }).click();
+  await expect(page.locator('dialog.tsheet[open]')).toBeVisible();
+  await expect(page.locator('.fmini')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
