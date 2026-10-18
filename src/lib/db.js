@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { trackSync } from './sync/track.js';
 
 /**
  * The app's database. It lives in IndexedDB, inside the browser on this device.
@@ -45,6 +46,26 @@ export const DATA_TABLES = [
   'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
   'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
 ];
+
+/**
+ * v0.45.1 (G015a) / v0.77.0: settings records that are the app's own memory on this device, not the
+ * user's data (tips shown, the Helfer-Code). They never go into a backup (backup.js) and the automatic
+ * sync (P8, sync/track.js) never sends them.
+ */
+export const DEVICE_SETTINGS = ['tips', 'helper'];
+
+/**
+ * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
+ * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
+ */
+export const syncLocal = (table, key) => (table === 'settings' && (DEVICE_SETTINGS.includes(key) || SYNC_DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'))) || SYNC_DEVICE_TABLES.includes(table);
+/**
+ * Paket B: copies of Google that every device fetches by itself every 15 minutes (Fitbit days and the
+ * Fitbit and calendar connection with its «last fetch»). Synced, both devices would write them at the
+ * same time and the window «Changed on both devices» would ask about them. They stay in the backup.
+ */
+export const SYNC_DEVICE_TABLES = ['healthDays'];
+export const SYNC_DEVICE_SETTINGS = ['health', 'agenda'];
 
 /**
  * @typedef {Object} Item
@@ -188,6 +209,9 @@ export function createDb(name = 'pack-generator') {
     gEvents: 'id, day, cal',
     gTasks: 'id, list, due, done',
   });
+  // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
+  // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.
+  trackSync(db, { tables: DATA_TABLES, skip: syncLocal });
   return db;
 }
 

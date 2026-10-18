@@ -54,6 +54,8 @@ import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } fr
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
+import { watchSync } from './lib/sync/auto.svelte.js';
+import SyncAsk from './lib/sync/SyncAsk.svelte';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -101,6 +103,11 @@ noteAppOpen();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
+
+// P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
+// themselves (sync/auto.svelte.js); when both devices changed the same entry, a window asks (3b).
+watchSync(db);
+mount(SyncAsk, { target: document.body.appendChild(document.createElement('div')) });
 
 // v0.134.0 «Listen und Typen»: the person's own lists (categories) without holding up the start
 // (App.svelte draws the page again once they are in place); later changes as they come.

@@ -443,4 +443,10 @@ export default {
   'Tap + on a day to open a free time, then send the link by WhatsApp.': 'Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.',
   'New bookings show on Today; tap a time to see who comes or to cancel it.': 'Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.',
   'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».': 'Beispiel: Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».',
+  // P8 «Automatischer Abgleich»
+  'Needs the internet now and then; it is free and the server cannot read your data.': 'Braucht ab und zu Internet; es ist gratis, und der Server kann deine Daten nicht lesen.',
+  'On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.': 'Am Computer: Ich › Daten und Backup › «Abgleich einschalten»; ein QR-Code und ein Code erscheinen.',
+  'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).': 'Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).',
+  'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.': 'Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.',
+  'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».': 'Beispiel: Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».',
 };

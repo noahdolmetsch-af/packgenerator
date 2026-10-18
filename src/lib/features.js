@@ -163,6 +163,8 @@ const OWN = [
   // P3b «Daten sicher»: Ich › Dokumente (D3/D4) and the exchange between phone and computer
   { id: 'f.docs', group: 'data', title: 'Documents', text: 'Passport, insurance and emergency sheet as PDF or photo; a reminder before they expire and «ID and cash with you?» in the packing list.', href: '#/me/docs', words: 'dokumente pass ausweis id versicherung notfall pdf gültig ablauf erinnerung cash packliste' },
   { id: 'f.sync', group: 'data', title: 'Phone and computer', text: 'Send the backup file to the other device; it says which is newer and suggests what to do, with a copy of before.', href: '#/me/data', words: 'abgleich handy computer synchron sync teilen backup neuer älter zusammenführen' },
+  // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»)
+  { id: 'f.autosync', group: 'data', title: 'Automatic sync', text: 'Phone and computer keep the same data by themselves, sealed with a code; when both changed the same entry, the app asks which version counts.', href: '#/me/data', words: 'abgleich automatisch synchron sync koppeln code handy computer server verschlüsselt konflikt beide geändert' },
   // P3b Teil 3 «Kamera überall»: the camera wherever a photo is added, a receipt with several pages
   { id: 'f.camera', group: 'data', title: 'Camera everywhere', text: 'On the phone the camera opens with one tap for a note, an item, a bike, a setup and a problem; a receipt can have several pages.', href: '#/bikes?tab=shop', words: 'kamera foto fotografieren beleg quittung seite galerie bild' },
   // 0.157.0 «Fitbit verbinden» (G1–G2)
