@@ -36,4 +36,7 @@ export default {
   'Copy the helper code from your Vercel project (Settings › Environment Variables › HELPER_TOKEN).': 'Den Helfer-Code aus deinem Vercel-Projekt kopieren (Einstellungen › Environment Variables › HELPER_TOKEN).',
   'Paste it here and tap «Save code».': 'Hier einfügen und «Code speichern» tippen.',
   'Save code': 'Code speichern',
+
+  // Inspiration: the empty card says what a link brings
+  'Keep a link to a rig, a packing list or a video. What you take over from it, the app shows you as a hint while packing.': 'Leg einen Link zu einem Rig, einer Packliste oder einem Video ab. Was du daraus übernimmst, zeigt dir die App beim Packen als Hinweis.',
 };

@@ -78,7 +78,8 @@ test('Inspiration: add links, kind recognised, filter, a note becomes a packing 
     await expect(entry).not.toContainText('neu');
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Inspiration' })).toBeVisible();
-  if (phone) await expect(page.locator('main .back').getByRole('link', { name: 'Ich' })).toBeVisible();
+  // Impeccable Runde 2: the path «Ich › Inspiration» like the other pages under Ich, phone and computer
+  await expect(page.locator('main .vhead .crumbs').getByRole('link', { name: 'Ich' })).toBeVisible();
 
   // The rig of Velos › Setup is already here (one list, never twice).
   await expect(page.locator('article.ic-card', { hasText: `${P} Rigs of Doom 2025` })).toContainText('Rig');

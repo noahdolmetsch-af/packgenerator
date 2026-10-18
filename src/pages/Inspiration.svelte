@@ -9,22 +9,23 @@
    *   becomes: a packing rule (a quiet hint while packing), a wishlist item or a note (TakeDialog); a
    *   route a trip draft (a trip idea, like «Aus Notiz wird …» on the Notes page), a race a calendar file.
    * - Rigs and races are the same links as in Velos › Setup (settings 'rigLinks'), never kept twice.
+   * Impeccable Runde 2: the head like the other pages under Ich (path «Ich › Inspiration», also on a computer);
+   * the empty card says what a link brings: what you take over shows as a hint while packing.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
-  import { wide } from '../lib/media.svelte.js';
   import { take, openNote } from '../lib/nav.js';
   import { nextId } from '../lib/gear.js';
   import { newTrip } from '../lib/trips.js';
   import { sortBikes } from '../lib/bikes.js';
   import { TYPES, TAKEN_LABEL, INSPO_KEY, RIG_KEY, INSPO_WISH, allLinks, freshLink, putLink, dropLink, filterLinks, rigsOfRace, recentTaken, withTaken, ruleFrom, wishFrom, noteFrom, raceIcs } from '../lib/inspiration.js';
-  import PageHead from '../lib/ui/PageHead.svelte';
+  import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import InspoCard from '../lib/inspiration/InspoCard.svelte';
   import LinkDialog from '../lib/inspiration/LinkDialog.svelte';
   import TakeDialog from '../lib/inspiration/TakeDialog.svelte';
-  import { ChevronLeft, Plus, Check, Compass } from '@lucide/svelte';
+  import { Plus, Check, Compass } from '@lucide/svelte';
 
   const rigQ = liveQuery(() => db.settings.get(RIG_KEY));
   const inspQ = liveQuery(() => db.settings.get(INSPO_KEY));
@@ -149,8 +150,7 @@
 </script>
 
 <div class="insp">
-  {#if !wide.matches}<p class="back"><a href="#/me"><ChevronLeft size={16} aria-hidden="true" />{t('Me|place')}</a></p>{/if}
-  <PageHead title={t('Inspiration')} text={t('Your own links to rigs, packing lists, videos, routes, listening tips, products and races. The app recognises the kind of link. Your notes stay with you.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inspiration')} sub={t('Your own links to rigs, packing lists, videos, routes, listening tips, products and races. The app recognises the kind of link. Your notes stay with you.')} />
 
   <form class="if-add" onsubmit={(e) => (e.preventDefault(), openAdd())}>
     <div class="if-row">
@@ -184,7 +184,7 @@
   {/if}
 
   {#if !links.length}
-    <Empty icon={Compass} title={t('No links yet')} text={t('Paste your first link above: a rig, a packing list, a video or a route. Only your own links are here.')} />
+    <Empty icon={Compass} title={t('No links yet')} text={t('Keep a link to a rig, a packing list or a video. What you take over from it, the app shows you as a hint while packing.')} />
   {:else if !shown.length}
     <p class="if-hint">{t('Nothing of this kind yet.')}</p>
   {:else}
