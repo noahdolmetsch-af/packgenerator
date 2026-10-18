@@ -196,7 +196,7 @@
       <div class="vr">
         <dt>{r.label}</dt>
         <dd>
-          {#if r.value != null}{r.value}{#if r.href} · <a class="inl" href={r.href.href}>{r.href.label}</a>{/if}
+          {#if r.value != null}{r.value}{#if r.href}{' · '}<a class="inl" href={r.href.href}>{r.href.label}</a>{/if}
           {:else if r.field}{@render enterHere(r.field)}
           {:else}{@render enter(r.edit)}{/if}
         </dd>

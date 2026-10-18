@@ -14,6 +14,8 @@ import { sortBikes } from '../bikes.js';
 import { checkOf } from '../flowcheck.js';
 import { isMedAct } from '../flow/hobby/medstart.js';
 import { daysBetween } from './tiles.js';
+import { withStravaRides } from '../kmbook.js';
+import { monthKm } from '../home/bausteine.js';
 
 const T = {
   velocare: { id: 'velocare', label: 'Bike care', icon: 'wrench', href: '#/bikes?tab=care' },
@@ -51,16 +53,21 @@ const T = {
   ms: { id: 'ms', label: 'Milestones', icon: 'star', href: '#/flow/milestones' },
   lookback: { id: 'lookback', label: 'Look back|page', icon: 'chart', href: '#/debrief' },
   daycheck: { id: 'daycheck', label: 'Your questions', icon: 'check', spot: 'chk-h' }, // WG: the daily check is «Wi gaht's?» now
+  // 0.136.0 (Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren»): the places of the old «Weiter» row
+  rest: { id: 'rest', label: 'Recovery|page', icon: 'moon', href: '#/flow/rest' },
+  week: { id: 'week', label: 'Week', icon: 'calendar', href: '#/flow/week' },
+  trophies: { id: 'trophies', label: 'Trophy showcase', icon: 'trophy', href: '#/flow/trophies' },
+  hepa: { id: 'hepa', label: 'Exercise recommended', icon: 'heart', url: 'https://www.hepa.ch/' },
 };
 const ex = (d) => ({ ...d, extra: true });
 
 /** The pages with a tile row and their tiles, in the order of the mockups (SK1–SK5, SKX4). */
 export const SK_PAGES = {
   past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
-  debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp)],
+  debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
   bikes: [T.pack, T.stravacheck, T.workshop, T.bikecompare, T.kmbook, T.tomorrow, ex(T.velocare), ex(T.bp), ex(T.x12)],
   gear: [T.blocks, T.templates, T.weight, T.wardrobe, T.favs, T.wish, T.pack, ex(T.unweighed), ex(T.lighter)],
-  flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck],
+  flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck, ex(T.rest), ex(T.week), ex(T.trophies), ex(T.hepa)],
 };
 /** The page names in the sheet's subtitle. */
 export const SK_PAGE_NAME = { past: 'Past trips', debrief: 'Look back|page', bikes: 'Bikes', gear: 'Gear|place', flow: 'Active|place', trips: 'Trips|place' };
@@ -72,15 +79,14 @@ export { SK_BIG } from './tiles.js';
 export const SK_NEEDS = {
   past: ['trips', 'debriefs', 'bikes', 'maintenance', 'visits', 'flowLog', 'learnings'],
   debrief: ['trips', 'debriefs', 'learnings', 'settings', 'bikes', 'maintenance', 'visits'],
-  bikes: ['trips', 'bikes', 'visits', 'kmBook', 'maintenance'],
+  bikes: ['trips', 'bikes', 'visits', 'kmBook', 'maintenance', 'rides'],
   gear: ['items', 'trips', 'settings'],
-  flow: ['flowActs', 'flowLog', 'flowChecks', 'kmBook', 'trips', 'debriefs'],
+  flow: ['flowActs', 'flowLog', 'flowChecks', 'kmBook', 'trips', 'debriefs', 'rides'],
 };
 
 /** An outside tile's address (a few depend on the language). */
 export const tileUrl = (d, lang) => (d.url === 'meteo' ? meteoUrl(lang) : d.url === 'schweizmobil' ? schweizMobilUrl(lang) : d.url);
 
-const monthOf = (d) => d.slice(0, 7);
 
 /**
  * The live hint of every tile on a page: { id: { text } } or { id: { quiet } } when the tile has
@@ -132,9 +138,9 @@ export function hintsFor(page, data = {}, today) {
   h.packnext = next ? { text: nextLine } : { quiet: t('no trip planned') };
   h.pack = next ? { text: nextLine } : { quiet: t('no trip planned') };
   if (data.kmBook) {
-    const month = monthOf(today);
-    const rows = data.kmBook.filter((e) => e.state !== 'removed' && e.date && monthOf(e.date) === month && (e.kind ?? 'ride') === 'ride');
-    const km = Math.round(rows.reduce((s, e) => s + (Number(e.km) || 0), 0));
+    // Paket 3 (bug from the 0.136.0 pictures): the same km as «Velo in diesem Monat» on Aktiv: uploaded rides plus
+    // counted Strava rides and the Strava rides of «Training» (data.acts, bikeActs), not the ledger alone
+    const { km } = monthKm(withStravaRides(data.rides ?? [], data.kmBook, data.acts ?? []), today);
     h.kmbook = { text: km ? t('This month {km} km', { km: num(km) }) : t('No ride this month yet') };
     const check = data.kmBook.filter((e) => e.state === 'open').length;
     h.stravacheck = check ? { text: tn(check, '{n} ride to check', '{n} rides to check') } : { quiet: t('nothing to check') };
@@ -175,6 +181,10 @@ export function hintsFor(page, data = {}, today) {
   h.x4s = { text: t('Your latest activity') };
   h.x4g = { text: t('Book a tennis court') };
   h.ms = { text: t('Your stars and the next one') };
+  h.rest = { text: t('Sauna, walk, early to bed') };
+  h.week = { text: t('Fixed dates and suggestions') };
+  h.trophies = { text: t('All your stars') };
+  h.hepa = { text: t('How much exercise per week?') };
   h.lookback = { text: open.length ? t('{n} without a debrief', { n: open.length }) : tn(done.length, '{n} trip', '{n} trips') };
   return h;
 }

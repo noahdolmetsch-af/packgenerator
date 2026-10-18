@@ -6,7 +6,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash, placesOf, isWornBag, formatVolume, containerWeight } from '../lib/bikes.js';
   import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
-  import { CATEGORIES, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
+  import { CATEGORIES, catApplies, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
   import { weighQueue } from '../lib/weigh.js';
   import { tripStats, packSteps, togglePacked, packAll, tickReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched, isDayTrip } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
@@ -66,6 +66,8 @@
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
+  import { quickStart } from '../lib/quickstart.js';
+  import { homeForecast } from '../lib/home-weather.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { targetPressure, pressureText } from '../lib/bikespecs.js';
@@ -260,10 +262,18 @@
   }
   // v0.67.0 (U001, U003): «Packen abschliessen»: the step is done (packedAt), then the interstitial
   // «Gepackt» (a day ride goes straight on, Ü5a). The Pack tab asks first when something is missing.
+  // Regeln der App A a (mockup A1): nothing jumps on its own; a day trip without a bike stays here and
+  // a note says so, with a link to Today (8 s).
+  let packedNote = $state(null); // the trip id while «All packed» shows
+  let packedTimer = null;
   async function finishPacking() {
     const cur = $state.snapshot(trip);
     await change(() => ({ packedAt: localDay() }));
-    location.hash = afterPacking(cur, localDay());
+    const to = afterPacking(cur, localDay());
+    if (to) return void (location.hash = to);
+    packedNote = cur.id;
+    clearTimeout(packedTimer);
+    packedTimer = setTimeout(() => (packedNote = null), 8000);
   }
   const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
   const phaseOpts = $derived({ debriefDone });
@@ -335,6 +345,19 @@
   async function makeDayRide(wish = '1') {
     if (dayBusy) return;
     dayBusy = true;
+    // WS2 (Noah 14.10.2026): «Quick start» from New, the search and the tips, by the rules of Today
+    if (wish === 'quick' || wish?.startsWith('quick:')) {
+      try {
+        const forecast = navigator.onLine ? await homeForecast(db).catch(() => null) : null;
+        const nt = await quickStart(db, { trips: $state.snapshot(trips), bikes: $state.snapshot(bikes), items: $state.snapshot(items), forecast, bikeId: wish.slice(6) || null });
+        if (!nt) return (dialog = { trip: null }); // no bike yet: the dialog says why
+        dayMade = { id: nt.id, before: chosen, day: true, quick: true, hours: nt.hours, wx: nt.wx, wxFrom: nt.wxFrom };
+        choose(nt.id);
+      } finally {
+        dayBusy = false;
+      }
+      return;
+    }
     // v0.46.0 (Noah 14a, 19a): a bike chosen on Today or in the search ("tagestour factor")
     const bikeId = wish && wish !== '1' ? wish : null;
     try {
@@ -391,7 +414,8 @@
     const asBag = bagItemIds(bags); // bags go on the bike (Bags for this trip), not into a bag
     const fixed = new Set(bike?.fixtures ?? []); // always mounted, part of the bike
     // v0.21.0: the items of the trip's area; a search finds every item you own.
-    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && (inDomain(i, domain) || q.trim()) && matches(i, { q }));
+    // LI3 «Gilt für»: a category set to other areas stays out too (a search still finds its items).
+    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && ((inDomain(i, domain) && catApplies(i.category, domain)) || q.trim()) && matches(i, { q }));
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
     const rank = (i) => (isWorn(i) || inStandard(i) ? 0 : blockKeys(i).length ? 1 : leaveHome(i) ? 2 : 3);
     return list.sort((a, b) => rank(a) - rank(b) || Number(!!b.favorite) - Number(!!a.favorite) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
@@ -963,7 +987,7 @@
     <!-- v0.47.1 (Noah b): bike, date, hours and weather are in the top card; the card only says what was made. -->
     {@const what = tn(trip.entries.length, '{n} item', '{n} items')}
     <div class="made-card" role="status">
-      <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
+      <p class="made-t"><b>{dayMade.quick ? t('Quick start created') : dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
       <p class="made-s">{t('You find it under Trips and at the top of Today.')}</p>
       <div class="dayride-acts">
         <button type="button" class="btn sm" onclick={() => (dialog = { trip })}>{t('Change')}</button>
@@ -1012,9 +1036,9 @@
     </NotPacked>{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
-        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
+        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip}{' · '}{t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
         {#if water}<p>{t('Water')}: {num(water)} L</p>{/if}
-        {#if bikeTrip && split}<p>{t('Front / rear')}: {split.estimate ? '~' : ''}{split.front} / {split.rear} % {#if split.estimate}· {t('estimate, {n} not weighed', { n: axle.missing })}{/if}{#if split.rear > rearLimit} · {split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}{/if}</p>{/if}
+        {#if bikeTrip && split}<p>{t('Front / rear')}: {split.estimate ? '~' : ''}{split.front} / {split.rear} % {#if split.estimate}· {t('estimate, {n} not weighed', { n: axle.missing })}{/if}{#if split.rear > rearLimit}{' · '}{split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}{/if}</p>{/if}
         {#if toWeigh}<button class="text-button" onclick={() => weighing = true}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
       </div>
     {/snippet}
@@ -1056,6 +1080,9 @@
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
   {/if}
+  {#if packedNote && packedNote === trip?.id}
+    <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a></div>
+  {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
@@ -1088,7 +1115,7 @@
   .print { display: none; }
   /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
   .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px var(--shadow); font-weight: 600; overflow-wrap: break-word; }
-  .onion-toast .btn { flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
+  .onion-toast .btn { display: inline-flex; align-items: center; flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
   @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
   .prep-rows { list-style: none; padding: 0; }

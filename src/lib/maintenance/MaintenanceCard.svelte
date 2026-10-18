@@ -78,7 +78,7 @@
       <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
       <span class="ich-m">
         <b>{t('Links')}</b>
-        <small>{#if links?.checked}{t('{ok} of {all} answer', { ok: links.ok, all: links.all })}{#if links.broken.length} · {t('not answering: {names}', { names: links.broken.map((n) => t(n)).join(', ') })}{/if}{:else}{t('not checked')}{/if}</small>
+        <small>{#if links?.checked}{t('{ok} of {all} answer', { ok: links.ok, all: links.all })}{#if links.broken.length}{' · '}{t('not answering: {names}', { names: links.broken.map((n) => t(n)).join(', ') })}{/if}{:else}{t('not checked')}{/if}</small>
       </span>
       {#if links?.broken.length}<span class="pill warn">{t('to do')}</span>{/if}
     </li>

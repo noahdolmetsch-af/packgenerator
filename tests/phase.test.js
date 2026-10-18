@@ -114,7 +114,7 @@ describe('the interstitials (Ü3a, Ü5a)', () => {
   it('after packing: «Gepackt» for a trip of several days; a day ride goes straight on (Ü5a)', () => {
     expect(afterPacking(trip(), D0)).toBe('#/trip/test_data_gtp_alp/packed');
     expect(afterPacking(trip({ days: 1 }), D0)).toBe('#/ride');
-    expect(afterPacking(hike({ days: 1 }), D0)).toBe('#/');
+    expect(afterPacking(hike({ days: 1 }), D0)).toBe(null); // A a: stays on Pack
   });
 });
 

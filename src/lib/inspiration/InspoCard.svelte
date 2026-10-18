@@ -70,6 +70,7 @@
   </div>
   {#if HAS_TAKE.includes(link.type)}
     <label class="ic-take"><span class="ic-tl">{t('What I take from it')}</span><input class="inp" bind:value={take} onblur={save} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), save())} placeholder={t('What do you take with you?')} /></label>
+    <p class="ic-help">{t('Write what you take from it, then choose where it goes.')}</p>
   {/if}
   {#if acts.length || (link.type === 'race' && rigs)}
     <div class="ic-acts" role="group" aria-label={t('The note becomes …')}>
@@ -236,6 +237,11 @@
   .ic-tl {
     color: var(--ink-3);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
+  }
+  .ic-help {
+    margin: -4px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .ic-acts {
     display: flex;

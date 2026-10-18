@@ -134,7 +134,7 @@
             {/each}
           </div>
           {#if stepFor(r)}<small>{t(stepFor(r))}</small>{/if}
-          <small>{t('Priority')}: {t(PRIORITY_NAME[r.priority] ?? 'Medium')}{#if r.dueDate} · {t('by {date}', { date: dateOf(r.dueDate) })}{:else if r.beforeRide} · {t('Before the next ride')}{/if}</small>
+          <small>{t('Priority')}: {t(PRIORITY_NAME[r.priority] ?? 'Medium')}{#if r.dueDate}{' · '}{t('by {date}', { date: dateOf(r.dueDate) })}{:else if r.beforeRide}{' · '}{t('Before the next ride')}{/if}</small>
         </li>
       {/each}
     </ul>

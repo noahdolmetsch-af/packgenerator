@@ -2,12 +2,13 @@
  * What the debriefs say across trips (v0.19.2, "Auswerten", Noah 5a 6a 7a):
  * - usage per item: how often taken, used, not used, broken, missing;
  * - one row per debriefed trip for the comparison chart, and the trend;
- * - never used (called "dead weight" until 0.47.2; the Gear view is gear/material.js): taken at least twice and never used;
+ * - never used (called "dead weight" until 0.47.2; the Gear view is gear/material.js): taken at least 3 times (v0.144.0 RE: NEVER_USED_MIN) and never used;
  * - why a wishlist item is there and how much it would help.
  * Pure functions, easy to test.
  */
 import { isInventory, isConsumable } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
+import { NEVER_USED_MIN } from './neverused.js';
 
 const g = (item, qty = 1) => (item?.weightG == null ? 0 : item.weightG * (qty || item.qty || 1));
 const norm = (s) => String(s ?? '').trim().toLowerCase();
@@ -89,7 +90,7 @@ export function trend(rows) {
 }
 
 /**
- * Dead weight (Noah 6a): owned items taken on at least 2 debriefed trips and never used, heaviest
+ * Dead weight (Noah 6a): owned items taken on at least NEVER_USED_MIN (v0.144.0 RE: 3, was 2) debriefed trips and never used, heaviest
  * first; then "rarely used": used on at most a third of 3 or more trips.
  * Returns { dead: [{ item, u, g }], rare: [{ item, u, g }], deadG }.
  */
@@ -97,7 +98,7 @@ export function deadWeight(items, usage) {
   const rows = items
     .filter((i) => isInventory(i) && usage[i.id])
     .map((item) => ({ item, u: usage[item.id], g: g(item) }));
-  const dead = rows.filter((r) => r.u.taken >= 2 && r.u.used === 0).sort((a, b) => b.g - a.g || a.item.name.localeCompare(b.item.name));
+  const dead = rows.filter((r) => r.u.taken >= NEVER_USED_MIN && r.u.used === 0).sort((a, b) => b.g - a.g || a.item.name.localeCompare(b.item.name));
   const rare = rows.filter((r) => r.u.taken >= 3 && r.u.used > 0 && r.u.used / r.u.taken <= 1 / 3).sort((a, b) => b.g - a.g);
   return { dead, rare, deadG: dead.reduce((s, r) => s + r.g, 0) };
 }

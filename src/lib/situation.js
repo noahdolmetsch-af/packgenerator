@@ -16,6 +16,7 @@
 import { rainChance } from './wardrobe.js';
 import { forecastForTrip } from './weather.js';
 import { ridingHours } from './route.js';
+import { RAIN_LIMIT } from './rainlimit.svelte.js';
 
 /** The seven blocks «je nach Lage», in the order of the page. */
 export const SITUATION_BLOCKS = ['cold', 'heat', 'climb', 'long', 'abroad', 'train', 'rain'];
@@ -54,7 +55,8 @@ export const DEFAULT_RULES = {
   long: { on: true, metric: 'hours', cmp: 'gt', limit: 5 },
   abroad: { on: true, metric: 'abroad' },
   train: { on: true, metric: 'train' },
-  rain: { on: true, metric: 'rainPct', cmp: 'gte', limit: 30 },
+  // v0.144.0 RE (1a): this limit is the one rain limit of the whole app (rainlimit.svelte.js).
+  rain: { on: true, metric: 'rainPct', cmp: 'gte', limit: RAIN_LIMIT },
 };
 
 const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);

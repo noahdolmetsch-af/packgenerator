@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.31.0 (Noah 9a): choose the standard bag of one place. A list that comes up from below on a
    * phone (centred on a big screen) instead of a select box: one row per bag with its volume and
@@ -24,7 +25,7 @@
 </script>
 
 <!-- Design-Refresh P7 (V4): a soft panel of choices with a round mark, «No bag» last, «Add bag» below, «Done». -->
-<dialog class="sheet vdlg bagsheet" bind:this={dialog} onclose={onclose} aria-labelledby="bagsheet-h">
+<dialog use:backClose class="sheet vdlg bagsheet" bind:this={dialog} onclose={onclose} aria-labelledby="bagsheet-h">
   <span class="grab" aria-hidden="true"></span>
   <div class="vd-head">
     <div class="vd-t">

@@ -1,4 +1,4 @@
-// «Inhalte Flow» IF1–IF3: tip line «Gut zu wissen», fold «Das kann die App hier», tiles «Weiter» (src/lib/pageinfo.js)
+// «Inhalte Flow» IF1–IF3: tip line «Gut zu wissen», fold «Das kann die App hier» (src/lib/pageinfo.js); the tiles «Weiter» are SK (sk.js)
 export default {
   'Good to know:': 'Gut zu wissen:',
   'Tip {n} of {of} for {page}': 'Tipp {n} von {of} für {page}',
@@ -15,15 +15,10 @@ export default {
   'Show «What the app can do here»': '«Das kann die App hier» zeigen',
   'Own tip': 'Eigener Tipp',
   'Add|tip': 'Dazu',
-  'Enter a web address, for example strava.com': 'Gib eine Webadresse ein, zum Beispiel strava.com',
   'What the app can do here': 'Das kann die App hier',
   '{n} thing|can': '{n} Ding',
   '{n} things|can': '{n} Dinge',
   'Hide this line': 'Diese Zeile ausblenden',
-  'Next|more': 'Weiter',
-  'opens outside the app': 'öffnet ausserhalb der App',
-  'Remove the link {name}': 'Link {name} entfernen',
-  'Own link': 'Eigener Link',
   'Tips for this page ›': 'Tipps für diese Seite ›',
 
   // Aktiv › Heute
@@ -39,15 +34,6 @@ export default {
   'Your rides tick off «Cycling outdoors»': 'Deine Fahrten haken «Velo draussen» ab',
   '«Counts too»': '«Zählt auch»',
   'Commuting and trip days count by themselves': 'Pendeln und Tourtage zählen von selbst',
-  'all activities': 'alle Aktivitäten',
-  'your next stars': 'deine nächsten Sterne',
-  'Ride log': 'Fahrtenbuch',
-  'rides and km': 'Fahrten und km',
-  'sauna, walk, early to bed': 'Sauna, Spaziergang, früh ins Bett',
-  'Exercise recommended': 'Bewegung empfohlen',
-  'How much per week?': 'Wie viel pro Woche?',
-  'your last activity': 'deine letzte Aktivität',
-  'fixed dates': 'feste Termine',
 
   // Meditation
   'Short and often carries further than rare and long. 5 minutes count.': 'Kurz und oft trägt weiter als selten und lang. 5 Minuten zählen.',
@@ -61,15 +47,9 @@ export default {
   'when it goes deepest': 'wann es am tiefsten geht',
   'Quotes and own links': 'Zitate und eigene Links',
   'under More': 'unter Mehr',
-  'My music': 'Meine Musik',
-  'own link, at the start': 'eigener Link, beim Start',
-  'sauna, walk': 'Sauna, Spaziergang',
-  'fixed times': 'feste Zeiten',
-  'all your stars': 'alle deine Sterne',
-  'stars of meditation': 'Sterne der Meditation',
   // «Wusstest du» WD1–WD3 (approved 18:34)
   'Tips and «Did you know»': 'Tipps und «Wusstest du»',
-  'One tip a day, what the app can do on the page, tiles to the next places and your own links; Earth and Everest in Past trips.': 'Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.',
+  'One tip a day and what the app can do on the page; Earth and Everest in Past trips.': 'Ein Tipp pro Tag und was die App auf der Seite kann; Erde und Everest in Vergangene Touren.',
   'What should come?': 'Was soll kommen?',
   'Applies to all pages': 'Gilt für alle Seiten',
   'Only useful tips': 'Nur nützliche Tipps',
@@ -100,8 +80,8 @@ export default {
   'only below 5 °C': 'nur unter 5 °C',
   'A long tour is coming: a spare tube, a pump and food for the whole day belong in the bag.': 'Eine lange Tour steht an: Ersatzschlauch, Pumpe und Essen für den ganzen Tag gehören in die Tasche.',
   'only before a tour over 100 km': 'nur vor einer Tour über 100 km',
-  // Paket 2: «So geht's» steps for f.pagetips (src/lib/know/howto.js)
-  'Open Aktiv › Heute: the tip of the day stands under the title.': 'Öffne Aktiv › Heute: Der Tipp des Tages steht unter dem Titel.',
-  'Tap «All tips ›»: every tip with its own switch.': 'Tippe auf «Alle Tipps ›»: jeder Tipp mit eigenem Schalter.',
-  'At the page end: «What the app can do here» and the tiles.': 'Am Seitenende: «Das kann die App hier» und die Kacheln.',
+  // «So geht's» (K4)
+  'Open Aktiv › Heute: the tip of the day is under the title.': 'Öffne Aktiv › Heute: Der Tipp des Tages steht unter dem Titel.',
+  'Tap «All tips ›» to switch single tips on or off.': 'Tippe auf «Alle Tipps ›», um einzelne Tipps ein- oder auszuschalten.',
+  'At the page end, open «What the app can do here».': 'Öffne am Seitenende «Das kann die App hier».',
 };

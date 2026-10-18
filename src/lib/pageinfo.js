@@ -4,7 +4,8 @@
  *   - the tip line «Gut zu wissen»: one tip a day, own words, × hides it for today, «Alle Tipps» shows all
  *     (IF3: switch single tips off, all tips off, add an own tip);
  *   - the fold «Das kann die App hier»: closed, a few rows, each opens the place in the app (1b);
- *   - the tiles «Weiter» at the end of the page: places in the app, links outside (3a) and own links.
+ * The tiles «Weiter» (3a) are the page tiles of SK (src/lib/sk/PageTiles.svelte, approved 13.10.2026):
+ * one tile row at the page end, with links outside and own links, so they are not here twice.
  * «Wusstest du» WD1 + WD3 (Noah 14.10.2026, mockups approved 18:34 «wd1-wd3 freigegeben», «1a»): a tip has a
  * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
  * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold
@@ -12,13 +13,7 @@
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
-import { linkOf } from './flowmed.js';
-
 export const PAGEINFO_KEY = 'pageInfo';
-/** Built-in tiles at most (SK1–SK6: 7 plus the empty «+»), and own links at most. */
-export const MAX_TILES = 7;
-export const MAX_OWN = 8;
-
 /** Heat from this many °C, cold below this many °C, a long tour from this many km (WD3). */
 export const HEAT_C = 28;
 export const COLD_C = 5;
@@ -34,7 +29,7 @@ export const TODAY_TIPS = [
 ];
 
 /**
- * The pages with their tips, rows and tiles. In hrefs `{base}` is the page's own address (an activity page).
+ * The pages with their tips and rows. In hrefs `{base}` is the page's own address (an activity page).
  * A tile: { id, icon, title, sub, href } inside the app, or { …, out: 'https://…', domain } outside;
  * { id, own: true, title, sub } is an empty slot for an own link (e.g. «My music», DG-X8).
  */
@@ -56,15 +51,6 @@ export const PAGES = {
       { id: 'strava', title: 'Strava counts along', sub: 'Your rides tick off «Cycling outdoors»', href: '#/debrief/ride' },
       { id: 'counts', title: '«Counts too»', sub: 'Commuting and trip days count by themselves', href: '#/flow/goals' },
     ],
-    tiles: [
-      { id: 'goals', icon: 'goals', title: 'Goals|flow', sub: 'all activities', href: '#/flow/goals' },
-      { id: 'milestones', icon: 'star', title: 'Milestones', sub: 'your next stars', href: '#/flow/milestones' },
-      { id: 'rides', icon: 'bike', title: 'Ride log', sub: 'rides and km', href: '#/debrief/ride' },
-      { id: 'rest', icon: 'moon', title: 'Recovery|page', sub: 'sauna, walk, early to bed', href: '#/flow/rest' },
-      { id: 'hepa', icon: 'heart', title: 'Exercise recommended', sub: 'How much per week?', out: 'https://www.hepa.ch/', domain: 'hepa.ch' },
-      { id: 'strava', icon: 'pulse', title: 'Strava', sub: 'your last activity', out: 'https://www.strava.com/dashboard', domain: 'strava.com' },
-      { id: 'week', icon: 'calendar', title: 'Week', sub: 'fixed dates', href: '#/flow/week' },
-    ],
   },
   meditation: {
     tips: [
@@ -83,13 +69,6 @@ export const PAGES = {
       { id: 'patterns', title: 'Patterns', sub: 'when it goes deepest', href: '{base}/muster' },
       { id: 'more', title: 'Quotes and own links', sub: 'under More', href: '{base}/mehr' },
     ],
-    tiles: [
-      { id: 'music', icon: 'music', title: 'My music', sub: 'own link, at the start', own: true },
-      { id: 'rest', icon: 'moon', title: 'Recovery|page', sub: 'sauna, walk', href: '#/flow/rest' },
-      { id: 'week', icon: 'calendar', title: 'Week', sub: 'fixed times', href: '#/flow/week' },
-      { id: 'trophies', icon: 'trophy', title: 'Trophy showcase', sub: 'all your stars', href: '#/flow/trophies' },
-      { id: 'milestones', icon: 'star', title: 'Milestones', sub: 'stars of meditation', href: '#/flow/milestones?act={act}' },
-    ],
   },
 };
 
@@ -104,7 +83,6 @@ export function infoOf(v) {
     own: obj(o.own),
     gone: obj(o.gone),
     canOff: obj(o.canOff),
-    links: obj(o.links),
   };
 }
 
@@ -173,29 +151,6 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
 /** The rows of «Das kann die App hier» with the page's address filled in. */
 export const canRows = (page, base = '') => list(PAGES[page]?.can).map((r) => ({ ...r, href: r.href.replace('{base}', base) }));
 
-/** The page's own links. */
-export const ownLinks = (info, page) => list(infoOf(info).links[page]).filter((x) => x && x.url);
-
-/** The tiles: the page's own (at most MAX_TILES), then the own links (at most MAX_OWN); an empty own slot only while there is no own link. */
-export function tilesOf(info, page, { base = '', act = '' } = {}) {
-  const links = ownLinks(info, page);
-  const fill = (h) => h.replace('{base}', base).replace('{act}', encodeURIComponent(act));
-  const own = links.map((l) => ({ id: l.id, icon: 'link', title: l.title, out: l.url, domain: domainOf(l.url), mine: true }));
-  const base0 = list(PAGES[page]?.tiles)
-    .filter((x) => !(x.own && links.length))
-    .map((x) => (x.href ? { ...x, href: fill(x.href) } : x));
-  return [...base0.slice(0, MAX_TILES), ...own.slice(0, MAX_OWN)];
-}
-
-/** The host of an address without «www.». */
-export function domainOf(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return '';
-  }
-}
-
 /* ---------- changes (each returns the new stored value) ---------- */
 export const setTipsOn = (info, on) => ({ ...infoOf(info), tipsOn: !!on });
 /** WD1: «Only useful tips» (false) or «Also knowledge and fun» (true), for all pages. */
@@ -225,18 +180,6 @@ export const setCan = (info, page, on) => {
   return { ...i, canOff: { ...i.canOff, [page]: !on } };
 };
 export const canShown = (info, page) => !infoOf(info).canOff[page];
-/** An own link (title and address the user typed; only http and https); null when the address is not usable. */
-export function addLink(info, page, title, url, now = Date.now()) {
-  const l = linkOf(title, url, now);
-  if (!l) return null;
-  const i = infoOf(info);
-  if (ownLinks(i, page).length >= MAX_OWN) return null;
-  return { ...i, links: { ...i.links, [page]: [...ownLinks(i, page), { id: l.id, title: l.title, url: l.url }] } };
-}
-export function removeLink(info, page, id) {
-  const i = infoOf(info);
-  return { ...i, links: { ...i.links, [page]: ownLinks(i, page).filter((x) => x.id !== id) } };
-}
 
 /* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
 export const EARTH_KM = 40075;

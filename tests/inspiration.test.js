@@ -42,6 +42,10 @@ describe('the kind from the address (UC2-4)', () => {
     expect(detectType('https://example.org/something').type).toBeNull();
     expect(detectType('').type).toBeNull();
     expect(detectType('not a link at all').type).toBeNull();
+    // A start page says nothing about the kind (Noah 15.10.2026 «3a»).
+    expect(detectType('https://bikepacking.com/').type).toBeNull();
+    expect(detectType('bikepacking.com').type).toBeNull();
+    expect(detectType('https://www.youtube.com').type).toBeNull();
   });
 
   it('every kind has a badge, a filter chip and actions, each with a German text', () => {

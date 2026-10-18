@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Which bike for this trip? (v0.19.3, N13): the bikes side by side. "Use for this trip" moves
    * the trip to that bike and its bags, like changing the bike under Edit.
@@ -24,7 +25,7 @@
   const chf = (n) => `CHF ${num(Math.round(n))}`;
 </script>
 
-<dialog class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
+<dialog use:backClose class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
   <p class="meta">{trip.title}</p>
   <h2 id="choice-h" class="title">{t('Which bike?')}</h2>
   <div class="grid">
@@ -42,7 +43,7 @@
           </dd>
           <!-- v0.22.0 (AP06): Bike care in the same words as Home, Pack and Care. -->
           <dt>{t('Bike care')}</dt>
-          <dd class:warn={r.late} data-sign={r.late ? signFor('warn') : null}>{bikeCareWords(r.care).tag}{#if r.care.soon.length} · {tn(r.care.soon.length, '{n} more before or on the trip', '{n} more before or on the trip')}{/if}{#if r.care.status === 'due'}<small>{bikeCareWords(r.care).text}</small>{/if}</dd>
+          <dd class:warn={r.late} data-sign={r.late ? signFor('warn') : null}>{bikeCareWords(r.care).tag}{#if r.care.soon.length}{' · '}{tn(r.care.soon.length, '{n} more before or on the trip', '{n} more before or on the trip')}{/if}{#if r.care.status === 'due'}<small>{bikeCareWords(r.care).text}</small>{/if}</dd>
           <dt>{t('Per 1000 km')}</dt>
           <dd class="num">{r.per?.chf != null ? chf(r.per.chf) : '–'}</dd>
           <dt>{t('Trips before')}</dt>

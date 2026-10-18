@@ -116,6 +116,7 @@ const OWN = [
   { id: 'f.strava', group: 'bike', title: 'Strava connection', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava verbinden fahrten holen automatisch velo km' },
   // v0.132.0 «Velo-Setup» (UC3-1 to UC3-3)
   { id: 'f.velosetup', group: 'bike', title: 'Bike setup and race rigs', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'setup race rig bikepacking fotos gewicht rennen vergleich links' },
+  { id: 'f.standardbike', group: 'bike', title: 'Standard bike and order', text: 'The first bike is your standard bike (★); arrows set the order, and you choose what a new trip brings.', href: '#/bikes?tab=setup', words: 'standard velo stern reihenfolge pfeile neue tour zuletzt gefahren' },
   { id: 'f.bagplan', group: 'bike', title: 'Bag plan', text: 'Which bag sits where, weight front, middle and rear, hints to move an item.', href: '#/bikes?tab=rig&view=bags', words: 'taschen plan gewicht verteilung vorne hinten umpacken' },
   { id: 'f.setuplog', group: 'bike', title: 'Setup log', text: 'What you changed on the bike, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log', words: 'logbuch änderung kettenblatt reifen werkstatt' },
   { id: 'f.problem', group: 'bike', title: 'Problem on the bike', text: 'One problem per row with priority and deadline; the app sorts who fixes it.', run: 'problem', seen: 'problems', words: 'problem reparatur kaputt frist' },
@@ -139,7 +140,7 @@ const OWN = [
   // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
   { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   // v0.136.0 «Inhalte Flow» IF1–IF3 + «Wusstest du» WD1–WD3
-  { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day, what the app can do on the page, tiles to the next places and your own links; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
+  { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day and what the app can do on the page; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze' },
   // «Training» TR2 (Noah 13.10.2026 «1-5a»): every Strava activity with its heart rate zones
   { id: 'f.training', group: 'active', title: 'Training with heart rate zones', text: 'Every activity from Strava with the minutes in each zone; plan the week and look back.', href: '#/flow/training', words: 'training puls pulszonen zonen strava aktivität lauf wandern herzfrequenz' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },

@@ -13,7 +13,7 @@
 export const HANDBOOK = {
   dayride: {
     on: 'Needs a trip that has started or ended.',
-    steps: ['Tap «New» › «Day ride now», or the day ride tile on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
+    steps: ['Tap «New» › «Quick start», or «Quick start» on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
     example: 'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.',
   },
   blocks: {
@@ -306,6 +306,11 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],
     example: 'Example: link to a race rig with key words «frame bag, 2 bottles» → a card with a drawn picture.',
   },
+  'f.standardbike': {
+    on: 'Needs at least two bikes.',
+    steps: ['Open Bikes › Setup › «Standard bike and order» › «Change».', 'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.'],
+    example: 'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.',
+  },
   'f.bagplan': {
     on: 'Needs a packing list with bags (Pack).',
     steps: ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear; tap «Move» on a hint.'],
@@ -431,7 +436,7 @@ export const HANDBOOK = {
     },
   'f.pagetips': {
     on: null,
-    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here» and the tiles «Next», with «+ Own link».'],
+    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here»; each row opens its place.'],
     example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {

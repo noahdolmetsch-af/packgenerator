@@ -10,7 +10,7 @@
    * block: a card of Bausteine (sets.js allSets + setView: key, name, items, inventory, g, missing);
    * rule: situation.js ruleOf(); onsave({ rule, out }): out = the item IDs to take out; onrename(); onclose().
    */
-  import { X, Pencil, Plus, ChevronRight } from '@lucide/svelte';
+  import { X, Pencil, Plus, ChevronRight, Info } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
   import { formatWeight, itemWeight, isInventory, knownWeight } from '../gear.js';
@@ -89,7 +89,7 @@
     <div class="head">
       <div>
         <h2 id="rs-h">{block.name}</h2>
-        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length} · {knownWeight(block.g, block.missing)}{/if}</p>
+        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
       </div>
       <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -118,7 +118,11 @@
           <label class="rrow alt"><span>{t('or the highest point from')}</span><span class="lim"><input class="inp num" type="text" inputmode="numeric" aria-label={t('Highest point from')} bind:value={alt} oninput={() => (error = '')} /><span class="unit">{t('m above sea level')}</span></span></label>
         {/if}
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric} · {t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'} · {t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      {#if block.key === 'rain' && metric === 'rainPct'}
+        <!-- v0.144.0 RE «Regen überall gleich» (Noah 1a): this limit is the one rain limit of the app -->
+        <p class="everywhere" data-rain-everywhere><Info size={16} aria-hidden="true" /><span><b>{t('Counts everywhere in the app:')}</b> {t('Packing, rain gear, What to wear, the weather on Today, the suggestion of the day, the plan on the way.')} {t('One limit for everything: from {n} % a trip counts as wet.', { n: Number.isFinite(toNum(limit)) ? num(toNum(limit)) : num(std.limit) })}</span></p>
+      {/if}
       {#if error}<p class="err" role="alert">{error}</p>{/if}
     </fieldset>
 
@@ -310,6 +314,22 @@
   }
   .err {
     color: var(--bad);
+  }
+  .everywhere {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .everywhere :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
   .ih {
     display: block;

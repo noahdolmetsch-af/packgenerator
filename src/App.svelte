@@ -30,7 +30,9 @@
   import Search from './lib/nav/Search.svelte';
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
+  import { rainLimitOf, setRainLimit } from './lib/rainlimit.svelte.js';
   import { db } from './lib/db.js';
+  import { watchTourBike } from './lib/tourbike.svelte.js';
   import { wide } from './lib/media.svelte.js';
   import { Plus } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
@@ -273,8 +275,13 @@
     document.addEventListener('keydown', trap);
     return () => document.removeEventListener('keydown', trap);
   });
+  // VS2 (Noah 14.10.2026): which bike a new trip brings, read once and kept up to date
+  watchTourBike(db);
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
-  // v0.38.0 (Noah E): a number only where something waits (Bikes place).
+  // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
+  const rainQ = liveQuery(() => db.settings.get('sets'));
+  $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
+  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
   const dueQ = liveQuery(async () => {
     const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
     const today = localDay();

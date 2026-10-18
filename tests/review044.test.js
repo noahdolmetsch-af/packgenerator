@@ -173,7 +173,8 @@ describe('packing', () => {
   });
 
   it('dead weight in the window, the most used items (not worn, not food)', () => {
-    expect(r.pack.dead.map((d) => d.item.id)).toEqual([`${P}B`]);
+    // v0.144.0 RE «Nie gebraucht überall gleich»: B was along twice and never used: not dead weight yet (from 3 trips on)
+    expect(r.pack.dead.map((d) => d.item.id)).toEqual([]);
     expect(r.pack.top.map((x) => [x.item.id, x.n])).toEqual([
       [`${P}A`, 3],
       [`${P}C`, 2],

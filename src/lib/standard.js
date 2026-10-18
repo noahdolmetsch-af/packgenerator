@@ -25,7 +25,7 @@ import { ARTS } from './flowmed.js';
 import { FUN_IDEAS } from './flowsugg.js';
 import { TODAY_OPTIONS } from './challenge.js';
 
-/** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons } }. */
+/** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
 
 /** Entries as { id, name } (name: the English key for t()). */
@@ -74,8 +74,9 @@ const arr = (x) => (Array.isArray(x) ? x : []);
 
 /**
  * A stored override made whole: { names: {id: name}, hidden: [id], order: [id], own: [{ id, name,
- * color?, icon? }], deleted: [id], icons: {id: icon name} }. deleted (LI answer 1b): Standard entries
- * the person removed; «Auf Standard zurücksetzen» brings them back.
+ * color?, icon? }], deleted: [id], icons: {id: icon name}, areas: {id: [area key]} }. deleted (LI answer
+ * 1b): Standard entries the person removed; «Auf Standard zurücksetzen» brings them back. areas (LI3
+ * «Gilt für», Noah «2b» 15.10.2026): the trip areas an entry applies to; none stored means all.
  */
 export function overrideOf(value) {
   const words = (x) => (x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).filter(([, n]) => typeof n === 'string' && n.trim()).map(([id, n]) => [id, n.trim()])) : {});
@@ -83,17 +84,22 @@ export function overrideOf(value) {
     .filter((e) => e && typeof e.id === 'string' && typeof e.name === 'string' && e.name.trim())
     .map((e) => ({ id: e.id, name: e.name.trim(), ...(typeof e.color === 'string' ? { color: e.color } : {}), ...(typeof e.icon === 'string' ? { icon: e.icon } : {}) }));
   const uniq = (list) => [...new Set(arr(list).filter((id) => typeof id === 'string'))];
-  return { names: words(value?.names), hidden: uniq(value?.hidden), order: uniq(value?.order), own, deleted: uniq(value?.deleted), icons: words(value?.icons) };
+  const areas = Object.fromEntries(
+    Object.entries(value?.areas && typeof value.areas === 'object' ? value.areas : {})
+      .map(([id, keys]) => [id, uniq(keys)])
+      .filter(([, keys]) => keys.length),
+  );
+  return { names: words(value?.names), hidden: uniq(value?.hidden), order: uniq(value?.order), own, deleted: uniq(value?.deleted), icons: words(value?.icons), areas };
 }
 
 /** Has the person changed anything in this list? */
 export const isChanged = (value) => {
   const o = overrideOf(value);
-  return Object.keys(o.names).length > 0 || o.hidden.length > 0 || o.order.length > 0 || o.own.length > 0 || o.deleted.length > 0 || Object.keys(o.icons).length > 0;
+  return Object.keys(o.names).length > 0 || o.hidden.length > 0 || o.order.length > 0 || o.own.length > 0 || o.deleted.length > 0 || Object.keys(o.icons).length > 0 || Object.keys(o.areas).length > 0;
 };
 
 /**
- * A list as the person sees it: [{ id, name, std, own, renamed, hidden, icon, color }]. std: the
+ * A list as the person sees it: [{ id, name, std, own, renamed, hidden, icon, color, areas }]. std: the
  * Standard name (null for an own entry). Order: the person's order first, then the rest in Standard
  * order, own entries after the Standard ones. Hidden entries stay in the list (flag), so a page can
  * show them greyed out and nothing that uses them breaks; visible() leaves them out. Deleted Standard
@@ -113,7 +119,7 @@ export function applyOverrides(entries, value) {
     .map(({ e }) => e);
   return sorted.map((e) => {
     const name = o.names[e.id] ?? e.name ?? e.std;
-    return { id: e.id, name, std: e.std, own: e.own, renamed: !e.own && name !== e.std, hidden: o.hidden.includes(e.id), icon: o.icons[e.id] ?? e.icon ?? null, color: e.color ?? null };
+    return { id: e.id, name, std: e.std, own: e.own, renamed: !e.own && name !== e.std, hidden: o.hidden.includes(e.id), icon: o.icons[e.id] ?? e.icon ?? null, color: e.color ?? null, areas: o.areas[e.id] ?? null };
   });
 }
 

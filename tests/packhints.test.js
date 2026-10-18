@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../src/lib/packhints.js';
+import { packBadges, ballast, leaveAtHome, keepOnTrip, BALLAST_AFTER } from '../src/lib/packhints.js';
+import { NEVER_USED_MIN } from '../src/lib/neverused.js';
 
 const items = [
   { id: 'OB01', name: 'Zip-off trousers', category: 'offbike', weightG: 300, ownership: 'owned' },
@@ -27,8 +28,10 @@ describe('ballast card', () => {
   it('lists what was not used the last times, heaviest first, without bags', () => {
     const b = ballast(now, items, trips, debriefs);
     // v0.28.0 (AP25): the brake pads are tools: never ballast.
-    expect(b.rows.map((r) => [r.itemId, r.n])).toEqual([['OB01', 3], ['LX01', 2]]);
-    expect(b.totalG).toBe(360);
+    // v0.144.0 RE «Nie gebraucht überall gleich»: only from 3 trips on, so the seat mat (2×) is not ballast yet.
+    expect(BALLAST_AFTER).toBe(NEVER_USED_MIN);
+    expect(b.rows.map((r) => [r.itemId, r.n])).toEqual([['OB01', 3]]);
+    expect(b.totalG).toBe(300);
     expect(b.unweighed).toBe(0);
     expect(b.rows[0].titles).toEqual(['Trip C', 'Trip B', 'Trip A']);
   });
@@ -41,7 +44,7 @@ describe('ballast card', () => {
   it('Leave at home takes the items off, Keep stops asking', () => {
     expect(leaveAtHome(now, ['OB01', 'LX01']).entries.map((e) => e.itemId)).toEqual(['KL15', 'TA01', 'WZ19']);
     const kept = { ...now, ...keepOnTrip(now, 'OB01') };
-    expect(ballast(kept, items, trips, debriefs).rows.map((r) => r.itemId)).toEqual(['LX01']);
+    expect(ballast(kept, items, trips, debriefs).rows.map((r) => r.itemId)).toEqual([]);
   });
 
   it('nothing without debriefs', () => {
@@ -55,8 +58,9 @@ describe('badges', () => {
     const b = packBadges(now, trips, debriefs, tips);
     expect(b.OB01.map((x) => x.label)).toEqual(['3× not used']);
     expect(b.KL15.map((x) => x.label)).toEqual(['Missed last time']);
-    expect(b.LX01.map((x) => x.label)).toEqual(['2× not used', 'Tip']);
-    expect(b.LX01[1].text).toBe('Only on trips with a camp.');
+    // v0.144.0 RE: 2× not used is no badge any more (from 3 trips on)
+    expect(b.LX01.map((x) => x.label)).toEqual(['Tip']);
+    expect(b.LX01[0].text).toBe('Only on trips with a camp.');
   });
 
   it('says when an item broke the last time it came along', () => {

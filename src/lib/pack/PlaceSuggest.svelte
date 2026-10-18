@@ -22,7 +22,7 @@
       {@const item = itemsById[r.itemId]}
       {@const name = item ? nameOf(item) : r.itemId}
       <li>
-        <span class="ps-text"><b>{name}</b> → {bagName(r)}<small>{t('now: {place}', { place: fromName(r) })}{#if r.addBag} · {t('adds this bag for this trip only')}{/if}</small></span>
+        <span class="ps-text"><b>{name}</b> → {bagName(r)}<small>{t('now: {place}', { place: fromName(r) })}{#if r.addBag}{' · '}{t('adds this bag for this trip only')}{/if}</small></span>
         <span class="ps-acts">
           <button type="button" class="btn sm" onclick={() => onapply([r])} aria-label={t('Apply: {name} to {bag}', { name, bag: bagName(r) })}>{t('Apply')}</button>
           <button type="button" class="x" onclick={() => ondismiss(r.itemId)} aria-label={t('Dismiss the suggestion for {name}', { name })}>×</button>

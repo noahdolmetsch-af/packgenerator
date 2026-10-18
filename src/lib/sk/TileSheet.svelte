@@ -15,6 +15,8 @@
   import { skIcon } from './icons.js';
   import OwnLinkSheet from './OwnLinkSheet.svelte';
   import { t } from '../i18n.svelte.js';
+  import SortGrip from '../ui/SortGrip.svelte';
+  import { sortable } from '../ui/sortable.js';
 
   let { name = '', arr, state: cur, hints = {}, mode = 'edit', onchange, onclose } = $props();
 
@@ -48,10 +50,10 @@
   const label = (d) => (d.own ? d.label : t(d.label));
 </script>
 
-{#snippet row(d, extra)}
+{#snippet row(d, extra, over = false)}
   {@const Icon = skIcon(d.icon)}
   <span class="sk-ic" aria-hidden="true"><Icon size={18} /></span>
-  <span class="sk-m"><span class="sk-n">{label(d)}{#if d.url}<ExternalLink class="sk-ext" size={14} aria-hidden="true" />{/if}{#if extra}{@render extra()}{/if}</span>{#if hints[d.id]?.text || hints[d.id]?.quiet}<span class="sk-s">{hints[d.id]?.text ?? hints[d.id]?.quiet}</span>{/if}</span>
+  <span class="sk-m"><span class="sk-n">{label(d)}{#if d.url}<ExternalLink class="sk-ext" size={14} aria-hidden="true" />{/if}{#if extra}{@render extra()}{/if}</span>{#if hints[d.id]?.text || hints[d.id]?.quiet}<span class="sk-s">{hints[d.id]?.text ?? hints[d.id]?.quiet}</span>{/if}{#if over}<!-- Paket 3 (bug from the 0.136.0 pictures): the badge under the name, so a short name never wraps beside it --><span class="sk-badge" data-sk-noroom>{t('no room')}</span>{/if}</span>
 {/snippet}
 
 <dialog class="sheet from-below sk-sheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="sk-sheet-h" data-sk-sheet>
@@ -101,16 +103,16 @@
     {/snippet}
 
     {#snippet shownSec()}
-      <ul class="sk-list">
+      <ul class="sk-list" use:sortable={{ onmove: (from, to) => onchange((s) => moveTile(s, shownIds, arr.sorted[from].id, to)) }}>
         {#each arr.sorted as d, i (d.id)}
-          <li data-sk-row={d.id} class:sk-over={i >= MAX_TILES}>
+          <li data-sk-row={d.id} data-sort-id={d.id} class:sk-over={i >= MAX_TILES}>
+            <SortGrip name={label(d)} onstep={(dir) => move(d.id, dir)} />
             <span class="sk-mv">
               <button type="button" class="sk-ib" aria-label={t('Move {name} up', { name: label(d) })} disabled={i === 0} onclick={() => move(d.id, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
               <button type="button" class="sk-ib" aria-label={t('Move {name} down', { name: label(d) })} disabled={i === arr.sorted.length - 1} onclick={() => move(d.id, 1)}><ChevronDown size={18} aria-hidden="true" /></button>
             </span>
             {#snippet pinMark()}{#if pinned(d.id)}<button type="button" class="sk-pin" aria-label={t('Pinned · let {name} sort by use again', { name: label(d) })} title={t('Pinned|tile')} onclick={() => onchange((s) => unpin(s, d.id))}><Pin size={14} aria-hidden="true" /></button>{/if}{/snippet}
-            {@render row(d, pinMark)}
-            {#if i >= MAX_TILES}<span class="sk-badge">{t('no room')}</span>{/if}
+            {@render row(d, pinMark, i >= MAX_TILES)}
             <button type="button" class="sk-sw" role="switch" aria-checked="true" data-sk-switch={d.id} aria-label={t('Show {name}', { name: label(d) })} onclick={() => onchange((s) => hideTile(s, d.id))}><span class="sk-knob"></span></button>
           </li>
         {/each}
@@ -132,7 +134,7 @@
         {@render shownSec()}
       </details>
     {:else}
-      <h3>{t('Shown · move with the arrows')}</h3>
+      <h3>{t('Shown · drag or use the arrows to move')}</h3>
       {@render shownSec()}
       {@render addSec()}
     {/if}
@@ -258,7 +260,8 @@
     gap: 6px;
   }
   .sk-badge {
-    flex: none;
+    align-self: flex-start;
+    margin-top: 4px;
     padding: 2px 10px;
     border-radius: 999px;
     background: var(--paper-2);

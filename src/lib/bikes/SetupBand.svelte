@@ -5,14 +5,17 @@
    * Design-Refresh P7 «Velo» (V1, Noah 12.10.2026 «v1-v4 freigabe»): no dark band any more. A quiet
    * line under the page title, the bikes as light chips (the chosen one dark, with a bike icon),
    * «+ Velo» dashed, then the bike's name as the section title with its numbers below.
+   * VS3 (Noah 14.10.2026 «1a»): the standard bike (first in the order) has a star; one quiet line
+   * «Standard bike and order · Change» opens the order window.
    */
   import { tick } from 'svelte';
-  import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Bike } from '@lucide/svelte';
+  import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Bike, Star } from '@lucide/svelte';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { formatVolume, bikeTypeName } from '../bikes.js';
   import { formatWeight } from '../gear.js';
+  import './standardvelo.css';
 
-  let { bikes, bike, setup, kind, due = 0, careHref = '', sub = '', onbike, onadd, onedit } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
@@ -33,20 +36,24 @@
   <div class="tabsrow">
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
-        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span></button>
+        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</button>
       {/each}
     </div>
     <button type="button" class="add" onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={16} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
   </div>
+  {#if onorder && bikes.length > 1}
+    <p class="sv-line"><Star size={14} class="sv-star" aria-hidden="true" /><span>{t('Standard bike and order')}</span><button type="button" class="link" onclick={() => onorder()}>{t('Change')}</button></p>
+  {/if}
   <h2 class="name">
     <span>{bike.name}</span>
-    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Rename {name}', { name: bike.name })} title={t('Rename')}><Pencil size={16} aria-hidden="true" /></button>
+    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /></button>
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}
     <span><Gauge size={15} aria-hidden="true" />{#if bike.km != null}<b>{num(bike.km)} km</b>{:else}{t('km not set')}{/if}</span>
     <span><Weight size={15} aria-hidden="true" />{#if kind === 'missing'}{t('bike not weighed')}{:else}<b>{kind === 'estimate' ? '~' : ''}{kg(bike.weightG)}</b> {kind === 'estimate' ? t('estimate') : t('measured')}{/if}</span>
     <span><Briefcase size={15} aria-hidden="true" />{tn(setup.bagCount, '{n} bag', '{n} bags')} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
+    {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
 </section>
@@ -55,6 +62,25 @@
   .setup-band {
     margin: 0 0 16px;
     min-width: 0;
+  }
+  .sv-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: -8px 0 16px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .sv-line .link {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
   }
   .vb-sub {
     margin: -6px 0 12px;
@@ -153,6 +179,10 @@
     overflow-wrap: break-word;
   }
   .meta b {
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .meta > .vb-cost {
     color: var(--ink-2);
     font-weight: 600;
   }

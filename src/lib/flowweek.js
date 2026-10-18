@@ -10,6 +10,7 @@
  * Pure functions; the page is src/pages/flow/Week.svelte.
  */
 import { addDays, daysBetween, activeGoals } from './flow.js';
+import { wetPct } from './rainlimit.svelte.js';
 
 export const FIXED_KEY = 'flow.fixed';
 export const PLAN_KEY = 'flow.weekPlan';
@@ -67,7 +68,7 @@ export const hideSugg = (list = [], day, actId, today) => pruneNo([...new Set([.
 export function wxOf(forecast, day) {
   const d = forecast?.days?.find((x) => x.date === day);
   if (!d) return null;
-  const wet = d.rain === 'rain' || (Number(d.rainPct) || 0) >= 60;
+  const wet = d.rain === 'rain' || wetPct(Number(d.rainPct) || 0); // v0.144.0 RE: the one rain limit (was 60 %)
   return { max: d.max, rain: d.rain, wet, dry: !wet && d.rain !== 'showers' };
 }
 

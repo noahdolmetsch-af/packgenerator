@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 «Ablegen als …» (Noah 6a, 7a): one sheet per entry. First the 7 targets (the app's
    * suggestion on top, marked), then one short form for the chosen target with ONE main button named
@@ -132,11 +133,11 @@
 <!-- Design-Refresh P9 (I4, Noah 12.10.2026 «Runde 19 freigegeben»): the window look of the new style: the
      entry under the title, the 7 targets as tiles (the suggestion first, marked and chosen), the fields of
      the chosen target right below, the main button bottom right, named by where the entry lands. -->
-<dialog class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
+<dialog use:backClose class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="file-h" class="title">{t('File as …')}</h2>
-      <p class="vd-sub">{short(note.text ?? '')}{#if note.at} · {when(note.at)}{/if}</p>
+      <p class="vd-sub">{short(note.text ?? '')}{#if note.at}{' · '}{when(note.at)}{/if}</p>
     </div>
     {#if note.photo}<img class="ph" src={note.photo} alt={t('Photo of the entry')} />{/if}
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>

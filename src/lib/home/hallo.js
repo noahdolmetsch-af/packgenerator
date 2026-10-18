@@ -7,7 +7,10 @@
  * HG1 4b: Morge 05–11, Tag 11–18, Abig 18–22; 3: Nacht 22–05 only «Guät Nacht, Nachtülä» (no name,
  * no question, no tap line).
  * No imports on purpose: abfragen.js reads HELLO_QUESTIONS from here (the one history knows them).
+ * v0.144.0 RE «Eine Tagesuhr» (4a): the hours come from dayclock.js (no imports itself); the morning now
+ * starts at 06:00 like everywhere (was 05:00), the night is 22:00–05:59.
  */
+import { partOfDay } from '../dayclock.js';
 
 /** HG1: the question after the name. */
 export const HELLO_ASK = 'wi gahts Dir hüt und was häsch vor?';
@@ -16,8 +19,8 @@ export const HELLO_NIGHT = 'Guät Nacht, Nachtülä';
 /** HG1 4b: the first words by time of day. */
 export const HELLO_WORDS = { morning: 'Guete Morge', day: 'Hoi', evening: 'Guete Abig' };
 
-/** HG1 4b: 'morning' 05:00–10:59, 'day' 11:00–17:59, 'evening' 18:00–21:59, 'night' 22:00–04:59. */
-export const helloPart = (hour) => (hour >= 22 || hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'evening');
+/** HG1 4b with RE 4a: 'morning' 06:00–10:59, 'day' 11:00–17:59, 'evening' 18:00–21:59, 'night' 22:00–05:59 (dayclock.js). */
+export const helloPart = (hour) => partOfDay(hour);
 
 /** HG1: «Hoi Lena, wi gahts Dir hüt und was häsch vor?»; without a name «Hoi, wi gahts …»; at night «Guät Nacht, Nachtülä». */
 export function greetFor(hour, name = '') {

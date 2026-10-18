@@ -297,7 +297,8 @@
     persist();
   }
 
-  // Step 3: suggestions, all ticked to start with; ones applied in an earlier save are left out.
+  // Step 3: suggestions; ones applied in an earlier save are left out.
+  // v0.144.0 RE «Rückblick: nichts vorangekreuzt» (Noah 3a): nothing is ticked to start with.
   const counts = $derived(d && trip ? debriefCounts(d, trip, items) : null);
   // v0.29.0 (Noah 8a): a quick note that is already an answer ("not needed", "was missing") is not a learning of its own.
   const freeNotes = $derived(wayNotes.filter((n) => !n.kind));
@@ -325,7 +326,10 @@
     { key: 'learn', name: 'Learnings' },
     { key: 'template', name: 'Template' },
   ];
-  const ticked = (s) => ticks[s.id] ?? true;
+  const ticked = (s) => ticks[s.id] ?? false;
+  // RE 3a: the one button «Fertig · N von M übernehmen» counts the ticked ones of «Weitere Vorschläge».
+  const moreOn = $derived(more.filter(ticked).length);
+  const doneLabel = $derived(!more.length ? t('Done|debrief') : moreOn ? t('Done · take over {n} of {m}', { n: moreOn, m: more.length }) : t('Done · take over nothing'));
 
   // v0.30.1 (Noah C3): "Yes, remember" saved nothing (the suggestion was ticked already, so the tap
   // changed nothing). Now it applies this one suggestion at once, the way "Save debrief" applies the
@@ -460,7 +464,7 @@
       </section>
     </div>
   {:else if d}
-    {#snippet go()}{#if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={18} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Done|debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {#snippet go()}{#if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={18} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish} data-done-take>{doneLabel}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">
@@ -536,9 +540,9 @@
               <label class="sentence"><span>{t('One sentence for next time')}</span>
                 <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea></label>
               {#if more.length}
-                <!-- the other suggestions stay in sight: what is ticked is applied with «Fertig» -->
+                <!-- the other suggestions stay in sight: what is ticked is applied with «Fertig»; RE 3a: nothing is ticked to start with -->
                 <div class="moresugs">
-                  <p class="mh"><span>{t('More suggestions')}</span><span class="rv-v">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</span></p>
+                  <p class="mh"><span>{t('More suggestions')}</span><span class="rv-v num">{t('{n} of {m} ticked', { n: moreOn, m: more.length })}</span></p>
                   {#each GROUPS as grp (grp.key)}
                     {@const list = more.filter((x) => x.group === grp.key)}
                     {#if list.length}
@@ -546,7 +550,7 @@
                       {#each list as x (x.id)}<label class="chk"><input type="checkbox" checked={ticked(x)} onchange={(ev) => (ticks[x.id] = ev.currentTarget.checked)} /><span>{x.label}<small>{x.detail}</small></span></label>{/each}
                     {/if}
                   {/each}
-                  <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
+                  <p class="hint tp-small">{t('Nothing is ticked to start with. Tick what you want to take over; the rest stays as it is.')}</p>
                 </div>
               {/if}
             </div>
