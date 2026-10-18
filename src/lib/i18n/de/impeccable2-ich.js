@@ -29,4 +29,11 @@ export default {
   'used|features': 'benutzt',
   'new for you': 'neu für dich',
   'Used ones move down. Under «…»: how it works, and try it in the playground.': 'Benutzte rutschen nach unten. Unter «…»: so geht’s, und in der Spielwiese ausprobieren.',
+
+  // KI-Helfer: first set up, then switch on
+  'Set up in 2 steps': 'Einrichten in 2 Schritten',
+  'once; the code stays only on this device': 'einmalig; der Code bleibt nur auf diesem Gerät',
+  'Copy the helper code from your Vercel project (Settings › Environment Variables › HELPER_TOKEN).': 'Den Helfer-Code aus deinem Vercel-Projekt kopieren (Einstellungen › Environment Variables › HELPER_TOKEN).',
+  'Paste it here and tap «Save code».': 'Hier einfügen und «Code speichern» tippen.',
+  'Save code': 'Code speichern',
 };

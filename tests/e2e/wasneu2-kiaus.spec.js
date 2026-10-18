@@ -145,7 +145,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
 
   // the key is saved, the helper stays off: nothing shows, the tile stays away
   await page.getByLabel(T('Helper code')).fill(CODE);
-  await page.getByRole('button', { name: T('Save'), exact: true }).first().click();
+  await page.getByRole('button', { name: T('Save code'), exact: true }).click(); // Impeccable Runde 2: the 2-step card
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
   await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
   await expect(page.getByText(T('Key saved'))).toBeVisible();

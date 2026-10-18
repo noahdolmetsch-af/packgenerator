@@ -6,12 +6,15 @@
    * every place comes back at once. Below the six places with «on»/«off». Beside it «Setup», which stays
    * when it is off: the key (code, check), the monthly limit with this month's spend, «What goes to Claude?».
    * The code is only on this device, never in a backup or an export.
+   * Impeccable Runde 2: first set up, then switch on. Without a key a card on top says «Set up in 2 steps»
+   * (copy the code from Vercel, paste it here and «Save code»), then «Check the connection» in the same card;
+   * the switch and the places follow below. The second «What goes to Claude?» (in the notice) is gone; the one
+   * in the setup stays.
    */
   import { Sparkles, Check, ChevronRight, Route, Backpack, BookOpen, Bike, Search, Sun, Scale, TriangleAlert, KeyRound } from '@lucide/svelte';
   import { t } from '../lib/i18n.svelte.js';
   import { helper, saveSettings, ask, errorText, isPaused, thisMonth, DEFAULT_CAP } from '../lib/helper/client.svelte.js';
   import { HELPER_PLACES } from '../lib/helper/places.js';
-  import HelperNotice from '../lib/helper/HelperNotice.svelte';
   import '../lib/helper/helper.css';
   import '../lib/ich/ich.css';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
@@ -24,17 +27,18 @@
   let testMsg = $state('');
   let testing = $state(false);
   let codeEl = $state();
-  let keyFold = $state();
   let seeded = false;
   $effect(() => {
     if (helper.loaded && !seeded) {
       seeded = true;
       code = helper.code;
       cap = String(helper.capChf);
-      if (!helper.code && keyFold) keyFold.open = true;
     }
   });
   const setUp = $derived(!!helper.code);
+  // Impeccable Runde 2: the card «Set up in 2 steps» stays after saving in this visit, for «Check the connection»
+  let justSaved = $state(false);
+  const steps = $derived(helper.loaded && (!setUp || justSaved));
   const shown = $derived(helper.show);
   const spentChf = $derived(helper.spend?.month === thisMonth() ? helper.spend.chf : 0);
   const chf = (n) => `CHF ${Number(n).toFixed(2)}`;
@@ -46,6 +50,7 @@
     await saveSettings({ code: c });
     msg = c ? t('Saved on this device.') : t('Helper code removed.');
     testMsg = '';
+    if (c && steps) justSaved = true;
   }
   async function saveCap() {
     const n = Number(String(cap).replace(',', '.'));
@@ -60,10 +65,6 @@
     testing = false;
     testMsg = r.ok ? t('Connected. This month: {chf}.', { chf: chf(r.spend?.chf ?? 0) }) : errorText(r.error, { capChf: helper.capChf });
   }
-  function setupKey() {
-    if (keyFold) keyFold.open = true;
-    codeEl?.focus();
-  }
 </script>
 
 <div class="kh helper-page ich-page">
@@ -71,6 +72,31 @@
 
   <div class="ich-cols">
     <div class="ich-main">
+      {#if steps}
+        <!-- Impeccable Runde 2: first set up (2 steps), then switch on -->
+        <section class="ich-sec" aria-labelledby="hp-steps-h" data-setup-steps>
+          <div class="ich-h"><div><h2 id="hp-steps-h">{t('Set up in 2 steps')}</h2><p class="ich-hs">{t('once; the code stays only on this device')}</p></div></div>
+          <div class="card hp-card hp-steps">
+            <ol class="hp-ol">
+              <li>{t('Copy the helper code from your Vercel project (Settings › Environment Variables › HELPER_TOKEN).')}</li>
+              <li>{t('Paste it here and tap «Save code».')}</li>
+            </ol>
+            {#if setUp}
+              <p class="hp-done"><Check size={18} aria-hidden="true" /><b>{t('Key saved')}</b></p>
+              <div class="ich-acts"><button type="button" class="btn hi" disabled={testing} onclick={test}>{testing ? t('Checking …') : t('Check the connection')}</button></div>
+              {#if testMsg}<p class="kh-msg" role="status">{testMsg}</p>{/if}
+            {:else}
+              <form class="hp-row" onsubmit={saveCode}>
+                <label class="hp-field"><span class="lbl">{t('Helper code')}</span>
+                  <input class="inp" bind:this={codeEl} type={reveal ? 'text' : 'password'} bind:value={code} autocomplete="off" spellcheck="false" placeholder={t('the long code from Vercel (HELPER_TOKEN)')} /></label>
+                <button type="button" class="btn" onclick={() => (reveal = !reveal)} aria-pressed={reveal}>{reveal ? t('Hide') : t('Show')}</button>
+                <button type="submit" class="btn hi">{t('Save code')}</button>
+              </form>
+            {/if}
+          </div>
+        </section>
+      {/if}
+
       <!-- K4: the one switch -->
       <section class="ich-sec" aria-labelledby="hp-show-h">
         <div class="ich-h"><div><h2 id="hp-show-h">{t('AI helper')}</h2></div></div>
@@ -105,14 +131,14 @@
       <section class="ich-sec" aria-labelledby="hp-setup-h">
         <div class="ich-h"><div><h2 id="hp-setup-h">{t('Setup|helper')}</h2><p class="ich-hs">{t('stays, even when it is off')}</p></div></div>
         <div class="card hp-card ich-list">
-          <details class="hp-fold" bind:this={keyFold}>
+          {#if !steps}
+          <details class="hp-fold">
             <summary class="ich-row">
               <span class="ich-ib">{#if setUp}<Check size={18} aria-hidden="true" />{:else}<KeyRound size={18} aria-hidden="true" />{/if}</span>
               <span class="ich-m"><b>{setUp ? t('Key saved') : t('No key yet')}</b><small>{setUp ? t('set up') : t('not set up')}</small></span>
               <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
             </summary>
             <div class="hp-in">
-              {#if !setUp}<div class="hp-notice"><HelperNotice onsetup={setupKey} /></div>{/if}
               <p class="hp-help">{t('Stored only on this device. It never goes into a backup, an export or a shared list.')}</p>
               <form class="hp-row" onsubmit={saveCode}>
                 <label class="hp-field"><span class="lbl">{t('Helper code')}</span>
@@ -125,6 +151,7 @@
               {#if testMsg}<p class="kh-msg" role="status">{testMsg}</p>{/if}
             </div>
           </details>
+          {/if}
           <details class="hp-fold" open={isPaused()}>
             <summary class="ich-row">
               <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
@@ -237,8 +264,28 @@
     line-height: 1.5;
     overflow-wrap: break-word;
   }
-  .hp-notice {
-    margin: 0 0 12px;
+  /* Impeccable Runde 2: «Set up in 2 steps» */
+  .hp-steps {
+    padding: 16px 18px;
+  }
+  .hp-ol {
+    margin: 0 0 14px;
+    padding-left: 1.4em;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .hp-ol li + li {
+    margin-top: 6px;
+  }
+  .hp-ol li {
+    overflow-wrap: break-word;
+  }
+  .hp-done {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    color: var(--ok);
   }
   .hp-check {
     margin-top: 10px;
