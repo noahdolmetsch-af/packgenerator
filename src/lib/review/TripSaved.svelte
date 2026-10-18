@@ -29,6 +29,7 @@
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
   // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
   import { liveQuery } from 'dexie';
+  import { tick } from 'svelte';
   import { db } from '../db.js';
   import { updateTemplate } from '../templates.js';
   import { loadGanz } from './actdata.js';
@@ -51,7 +52,7 @@
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
   import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
-  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null, notes = [], onpatch = null } = $props();
+  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], openSugg = [], ontake = null, onno = null, onreopen = null, offer = null, notes = [], onpatch = null } = $props();
   // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
   const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
   const stravaId = $derived(($stravaQ ?? []).find((e) => e.stravaId && e.state !== 'removed')?.stravaId ?? null);
@@ -253,7 +254,22 @@
   }
   const DAYKIND = { unused: 'Packed again for {trip}, not used this time', missing: 'Was missing', broken: 'Broke: check it before the next trip', note: 'Your sentence for next time' };
   const WEAR = { chain: 'Chain', tyres: 'Tyres', pads: 'Brake pads' };
+
+  // Impeccable: «N Vorschläge ansehen ↓» (the page's button) opens «Die Tour» and scrolls to the suggestions
+  async function showSugg() {
+    if (day != null) day = null;
+    if (!open.tour) toggle('tour', true);
+    await tick();
+    const el = document.getElementById('rv-suggestions');
+    el?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el?.focus({ preventScroll: true });
+  }
+  $effect(() => {
+    window.addEventListener('rv-suggestions', showSugg);
+    return () => window.removeEventListener('rv-suggestions', showSugg);
+  });
 </script>
+
 
 {#snippet rainIcon(rain)}
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
@@ -323,9 +339,29 @@
                 {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
               </ul>
               {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
-              {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
             {/if}
           </section>
+
+          <!-- Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the open suggestions in sight, right under
+               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (4 s «Rückgängig», Debrief.svelte) -->
+          {#if openSugg.length}
+            <section class="rv-sec sugs" id="rv-suggestions" aria-labelledby="sg-h" data-suggestions tabindex="-1">
+              <div class="rv-h"><div><h2 id="sg-h">{tn(openSugg.length, '{n} suggestion from this trip', '{n} suggestions from this trip')}</h2><p class="rv-sub">{t('Take over what helps next time; the rest stays as it is.')}</p></div></div>
+              <ul class="rv-box">
+                {#each openSugg as x (x.id)}
+                  <li class="rv-row sg">
+                    <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
+                    <span class="rv-m"><span class="rv-t">{x.label}</span>{#if x.detail}<span class="rv-s">{x.detail}</span>{/if}</span>
+                    <span class="yn">
+                      <button type="button" class="btn sm" onclick={() => ontake?.(x)}>{t('Take over')}</button>
+                      <button type="button" class="btn sm btn-link" onclick={() => onno?.(x)}>{t('No, thanks')}</button>
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+              {#if onreopen}<p class="rv-note sgmore"><button type="button" class="tp-link" onclick={onreopen}>{t('Change answers')}</button></p>{/if}
+            </section>
+          {/if}
 
           <!-- SN2x: Strecke, map and profile with the numbers of the timeline -->
           {#if line.length || profile}
@@ -1051,10 +1087,34 @@
     flex: none;
     color: var(--hi);
   }
-  .open {
-    margin: 12px 0 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+  /* Impeccable: the open suggestions, one row each, the two answers on the right (below on the phone) */
+  .sugs {
+    scroll-margin-top: 80px;
+  }
+  .sugs:focus {
+    outline: none;
+  }
+  .sg {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .sg .rv-m {
+    flex: 1 1 14em;
+  }
+  .sg .rv-ic {
+    align-self: flex-start;
+  }
+  .yn {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .yn .btn {
+    min-height: 44px;
+  }
+  .sgmore {
+    justify-content: flex-end;
   }
   .legend {
     display: flex;
