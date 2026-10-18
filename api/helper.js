@@ -24,6 +24,17 @@ import { route, json, needStore, redisEnv, pick, ApiError } from './_lib/core.js
 import { TASKS, TASK_NAMES, DEFAULT_MODEL, DEFAULT_CAP_CHF, pickModel, buildRequest, validate, costChf, monthKey, spendKey, forbiddenKey } from './_lib/helper.js';
 
 export const MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
+/**
+ * Empty credit (Noah 18.10.2026 «1a und wenn das guthaben aufgebraucht ist, erlischt das feld in der app
+ * überall»): Anthropic answers 400 invalid_request_error «Your credit balance is too low …». The server
+ * answers 402 { code: 'no_credit' } and keeps CREDIT_KEY = 'empty' (the app hides the helper everywhere).
+ * A later answer that works, or a status with probe (one tiny Haiku call, only while the key says empty),
+ * deletes the key again; the health check (api/health) may read and clear the same key.
+ */
+export const CREDIT_KEY = 'helper:credit';
+const CREDIT_TTL = 60 * 24 * 60 * 60;
+export const isNoCredit = (status, msg) => status === 400 && /credit balance/i.test(String(msg?.error?.message ?? ''));
+const PROBE_MODEL = 'claude-haiku-5-5';
 const MAX_BODY = 400_000; // characters: 700 items with names fit easily
 const SPEND_TTL = 70 * 24 * 60 * 60; // a month's counter stays a little over two months
 
@@ -80,7 +91,24 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         const month = monthKey(now());
         const spent = Number(await store.get(spendKey(month))) || 0;
         const spend = (chf) => ({ month, chf: round2(chf), cap: cfg.cap });
-        if (task === 'status') return json(request, 200, { ok: true, task, model, spend: spend(spent) });
+        let credit = (await store.get(CREDIT_KEY)) === 'empty' ? 'empty' : 'ok';
+        if (task === 'status' && credit === 'empty' && body?.probe === true && cfg.apiKey) {
+          // one tiny call (a few hundredths of a centime) to see whether the credit is back
+          try {
+            const r = await doFetch(MESSAGES_URL, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', 'x-api-key': cfg.apiKey, 'anthropic-version': '2023-06-01' },
+              body: JSON.stringify({ model: PROBE_MODEL, max_tokens: 1, messages: [{ role: 'user', content: 'ok' }] }),
+            });
+            const m = await r.json().catch(() => null);
+            const c = m?.usage ? costChf(PROBE_MODEL, m.usage) : 0;
+            if (c > 0) await store.incrbyfloat(spendKey(month), c);
+            if (r.ok) (credit = 'ok'), await store.del(CREDIT_KEY);
+          } catch {
+            /* unreachable: the key stays as it is */
+          }
+        }
+        if (task === 'status') return json(request, 200, { ok: true, task, model, credit, spend: spend(spent) });
         if (spent >= cfg.cap) throw new ApiError(429, 'monthly_cap', 'The monthly limit is reached; the helper pauses until next month.', { spend: spend(spent) });
         if (!cfg.apiKey) throw new ApiError(503, 'not_set_up', 'The helper is not set up on the server (ANTHROPIC_API_KEY is missing).');
 
@@ -102,6 +130,10 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
           total = Number(await store.incrbyfloat(spendKey(month), cost)) || spent + cost;
           await store.expire(spendKey(month), SPEND_TTL);
         }
+        if (isNoCredit(res.status, msg)) {
+          await store.set(CREDIT_KEY, 'empty', CREDIT_TTL);
+          throw new ApiError(402, 'no_credit', 'The AI credit is used up.', { credit: 'empty', spend: spend(total) });
+        }
         if (!res.ok || !msg) {
           if (res.status === 429 || res.status === 529) throw new ApiError(503, 'busy', 'Claude is busy right now. Try again in a minute.', { spend: spend(total) });
           throw new ApiError(502, 'upstream_error', 'Claude answered with an error.', { spend: spend(total) });
@@ -109,7 +141,8 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         if (msg.stop_reason === 'refusal') throw new ApiError(502, 'refused', 'Claude did not answer this request.', { spend: spend(total) });
         const use = (msg.content ?? []).find((b) => b?.type === 'tool_use' && b.name === 'answer');
         if (!use || !use.input || typeof use.input !== 'object') throw new ApiError(502, 'no_answer', 'Claude gave no usable answer.', { spend: spend(total) });
-        return json(request, 200, { ok: true, task, result: validate(task, input, use.input), spend: spend(total) });
+        if (credit === 'empty') await store.del(CREDIT_KEY);
+        return json(request, 200, { ok: true, task, result: validate(task, input, use.input), credit: 'ok', spend: spend(total) });
       },
     },
     'helper',

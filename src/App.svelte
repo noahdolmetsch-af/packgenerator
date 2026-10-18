@@ -56,6 +56,7 @@
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
+  import CreditNotice from './lib/helper/CreditNotice.svelte';
   import Invoices from './pages/Invoices.svelte';
   import Bills from './pages/Bills.svelte';
   import PayLink from './pages/PayLink.svelte';
@@ -466,6 +467,8 @@
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
+<!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
+{#if page !== 'share'}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}

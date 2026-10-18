@@ -1441,6 +1441,11 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Infotext (Noah «3b», dann «erstelle selber einen vorschlag … dann ok»):** Klappe «Nutzung und Kosten» unter Ich › KI-Helfer › Einrichtung.
 - **Selbst entschieden:** Ein gespeichertes Limit von genau CHF 5 (alter Standard) zählt einmalig als CHF 2; jedes Speichern merkt `capV: 2`, ein später gewähltes Limit von 5 bleibt.
 
+## 18.10.2026: KI-Guthaben leer (Paket B Server)
+
+- **Noah «1a und wenn das guthaben aufgebraucht ist, erlischt das feld in der app überall»:** Anthropic meldet 400 «credit balance» → `api/helper` antwortet 402 `no_credit` und merkt `helper:credit = 'empty'` in Redis. Die App sagt einmal «Das KI-Guthaben ist aufgebraucht. Alles andere funktioniert wie gewohnt.» und blendet den Helfer überall aus (`isOn`/`isShown`); die Gratis-Antworten bleiben.
+- **Selbst entschieden:** Zurück kommt er von selbst: einmal am Tag fragt die App `status` mit `probe: true` (ein winziger Haiku-Aufruf, nur solange leer); jede Antwort, die klappt, löscht die Marke. Ich › KI-Helfer zeigt eine Zeile, «Verbindung prüfen» prüft sofort.
+
 ## 15.10.2026: Assistent (Paket B Server)
 
 - **Noah «1 beides 2a und b 3 a und b»:** «Frag die App» und «Hilf mir planen»; gratis (Regeln + Chrome-KI) und Claude; eigener Knopf und in der Suche.

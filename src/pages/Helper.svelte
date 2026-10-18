@@ -13,7 +13,7 @@
    */
   import { Sparkles, Check, ChevronRight, Route, Backpack, BookOpen, Bike, Search, Sun, Scale, TriangleAlert, KeyRound, Cpu, Coins } from '@lucide/svelte';
   import { t } from '../lib/i18n.svelte.js';
-  import { helper, saveSettings, ask, errorText, isPaused, thisMonth, DEFAULT_CAP, MODELS } from '../lib/helper/client.svelte.js';
+  import { helper, saveSettings, ask, errorText, isPaused, noCredit, thisMonth, DEFAULT_CAP, MODELS } from '../lib/helper/client.svelte.js';
   import { HELPER_PLACES } from '../lib/helper/places.js';
   import HelperNotice from '../lib/helper/HelperNotice.svelte';
   import '../lib/helper/helper.css';
@@ -65,9 +65,9 @@
   async function test() {
     testing = true;
     testMsg = '';
-    const r = await ask('status', {});
+    const r = await ask('status', {}, { probe: noCredit() });
     testing = false;
-    testMsg = r.ok ? t('Connected. This month: {chf}.', { chf: chf(r.spend?.chf ?? 0) }) : errorText(r.error, { capChf: helper.capChf });
+    testMsg = r.ok && noCredit() ? errorText('no_credit') : r.ok ? t('Connected. This month: {chf}.', { chf: chf(r.spend?.chf ?? 0) }) : errorText(r.error, { capChf: helper.capChf });
   }
   function setupKey() {
     if (keyFold) keyFold.open = true;
@@ -89,6 +89,7 @@
             <span class="ich-m"><b>{t('Show the AI helper in the app')}</b><small>{shown ? (setUp ? t('On: it shows in the places below.') : t('On: it shows as soon as the key is saved.')) : t('Off: it shows nowhere. Your key and your settings stay stored.')}</small></span>
             <input type="checkbox" role="switch" class="hp-sw" checked={shown} disabled={!helper.loaded} onchange={(e) => saveSettings({ show: e.currentTarget.checked })} />
           </label>
+          {#if noCredit()}<p class="kh-msg hp-credit" role="status" data-hp="credit">{t('The AI credit is used up. Everything else works as usual.')} {t('The helper is hidden everywhere until the credit is topped up; it comes back by itself.')}</p>{/if}
         </div>
       </section>
 

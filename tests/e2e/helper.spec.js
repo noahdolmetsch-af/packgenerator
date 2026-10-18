@@ -460,3 +460,54 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   expect(seen.filter((r) => r.task !== 'status')).toHaveLength(1);
   expect(errors).toEqual([]);
 });
+
+test('no credit (Noah 18.10 1a): the sentence once, then the helper is hidden everywhere; it comes back by itself', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  let empty = true;
+  const seen = await fakeHelper(page, {
+    reply: (b) => {
+      if (b.task === 'status') return { status: 200, body: { ok: true, task: 'status', model: 'claude-sonnet-5-5', credit: empty ? 'empty' : 'ok', spend: { month: month(), chf: 0.12, cap: 2 } } };
+      if (empty) return { status: 402, body: { code: 'no_credit', credit: 'empty', message: 'The AI credit is used up.' } };
+      return null;
+    },
+  });
+  await setUp(page);
+  await page.goto('./');
+  if (info.project.name === 'phone') await page.getByRole('button', { name: /Search everything|Alles durchsuchen/ }).click();
+  const field = page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') });
+  await field.fill('Was nehme ich für 2 Tage Regen mit?');
+  await expect.poll(() => seen.filter((r) => r.task === 'search').length).toBe(1);
+  const note = page.locator('[data-cn="credit"]');
+  await expect(note).toHaveText(new RegExp(esc(T('The AI credit is used up. Everything else works as usual.'))));
+  const res = page.getByRole('region', { name: T('Search results') });
+  await expect(res.getByText(T('Ask the helper'))).toHaveCount(0);
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('kh-no-credit.png') });
+  await note.getByRole('button', { name: T('OK') }).click();
+  await expect(note).toHaveCount(0);
+  await expect.poll(async () => (await table(page, 'meta')).find((m) => m.key === 'helper.credit')?.value).toMatchObject({ empty: true, told: true });
+
+  // nothing more goes out, the free answers stay (Assistent), the notice does not come again
+  await page.goto('./#/assistent');
+  await page.getByRole('searchbox', { name: T('Your question') }).fill('Wie viele km diesen Monat?');
+  await page.getByRole('button', { name: T('Ask'), exact: true }).click();
+  await expect(page.locator('.aa')).toBeVisible();
+  await expect(page.locator('.kh-ans')).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('[data-cn="credit"]')).toHaveCount(0);
+  expect(seen.filter((r) => r.task !== 'status')).toHaveLength(1);
+
+  // Ich › KI-Helfer says why; topped up, «Check the connection» brings everything back
+  await page.goto('./#/helper');
+  await expect(page.locator('[data-hp="credit"]')).toBeVisible();
+  empty = false;
+  await page.locator('details.hp-fold').first().locator('summary').click(); // the key fold, closed once the code is saved
+  await page.getByRole('button', { name: T('Check the connection') }).click();
+  await expect(page.locator('[data-hp="credit"]')).toHaveCount(0);
+  await expect.poll(async () => (await table(page, 'meta')).find((m) => m.key === 'helper.credit')?.value).toMatchObject({ empty: false });
+  await page.goto('./');
+  if (info.project.name === 'phone') await page.getByRole('button', { name: /Search everything|Alles durchsuchen/ }).click();
+  await page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).fill('Was nehme ich für 3 Tage Regen mit?');
+  await expect(page.getByRole('region', { name: T('Search results') }).locator('.kh-ans b').first()).toHaveText('Regenjacke');
+  expect(errors).toEqual([]);
+});

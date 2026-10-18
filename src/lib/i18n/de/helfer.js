@@ -112,4 +112,7 @@ export default {
   'Tip|helper': 'Tipp',
   'Haiku 5.5 is enough for short questions and is about 20 times cheaper. You can switch under «Model».': 'Haiku 5.5 reicht für kurze Fragen und ist etwa 20-mal günstiger. Umstellen kannst du unter «Modell».',
   'All amounts are estimates. The exact bill is in the Anthropic console.': 'Alle Beträge sind Schätzungen. Die genaue Rechnung zeigt die Anthropic-Konsole.',
+  'The AI credit is used up. Everything else works as usual.': 'Das KI-Guthaben ist aufgebraucht. Alles andere funktioniert wie gewohnt.',
+  'The helper is hidden everywhere until the credit is topped up; it comes back by itself.': 'Der Helfer ist überall ausgeblendet, bis das Guthaben aufgeladen ist; er kommt von selbst zurück.',
+  'credit used up · hidden|helper': 'Guthaben aufgebraucht · ausgeblendet',
 };

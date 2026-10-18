@@ -1,7 +1,7 @@
 // v0.77.0 «KI-Helfer»: the server function api/helper.js with a fake environment, a fake Redis and a
 // fake Claude. Fictional values only (no real key or code anywhere).
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { makeHandler, sameToken, helperEnv, MESSAGES_URL } from '../api/helper.js';
+import { makeHandler, sameToken, helperEnv, MESSAGES_URL, CREDIT_KEY, isNoCredit } from '../api/helper.js';
 import { validate, costChf, monthKey, spendKey, buildRequest, forbiddenKey, TASK_NAMES, pickModel, MODEL_CHOICES } from '../api/_lib/helper.js';
 import { allowedOrigin } from '../api/_lib/core.js';
 
@@ -9,14 +9,16 @@ const TOKEN = 'test-code-not-real-0000';
 const REDIS = 'https://redis.example.test';
 const env = (over = {}) => () => ({ apiKey: 'sk-test-not-real', token: TOKEN, model: 'claude-sonnet-5-5', cap: 5, redisUrl: REDIS, redisToken: 'redis-test', ...over });
 
-function fakeWorld({ spent = '0', claude = null, claudeStatus = 200 } = {}) {
-  const store = { [spendKey('2026-10')]: spent };
+function fakeWorld({ spent = '0', claude = null, claudeStatus = 200, credit = null } = {}) {
+  const store = { [spendKey('2026-10')]: spent, ...(credit ? { [CREDIT_KEY]: credit } : {}) };
   const calls = [];
   const doFetch = vi.fn(async (url, init) => {
     if (url === REDIS) {
       const [cmd, k, v] = JSON.parse(init.body);
       calls.push({ redis: cmd, k, v });
       if (cmd === 'GET') return Response.json({ result: store[k] ?? null });
+      if (cmd === 'SET') return Response.json({ result: ((store[k] = v), 'OK') });
+      if (cmd === 'DEL') return Response.json({ result: k in store ? (delete store[k], 1) : 0 });
       if (cmd === 'INCRBYFLOAT') return Response.json({ result: String((store[k] = String(Number(store[k] ?? 0) + Number(v)))) });
       return Response.json({ result: 1 });
     }
@@ -76,7 +78,7 @@ describe('POST /api/helper', () => {
     const w = fakeWorld({ spent: '1.234' });
     const r = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'status' }));
     expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ ok: true, task: 'status', model: 'claude-sonnet-5-5', spend: { month: '2026-10', chf: 1.23, cap: 5 } });
+    expect(await r.json()).toEqual({ ok: true, task: 'status', model: 'claude-sonnet-5-5', credit: 'ok', spend: { month: '2026-10', chf: 1.23, cap: 5 } });
     expect(r.headers.get('access-control-allow-origin')).toBe('http://localhost:5173');
     expect(w.calls.some((c) => c.claude)).toBe(false);
   });
@@ -105,7 +107,7 @@ describe('POST /api/helper', () => {
     const sent = JSON.parse(call.init.body);
     expect(sent).toMatchObject({ model: 'claude-sonnet-5-5', tool_choice: { type: 'auto', disable_parallel_tool_use: true } });
     expect(sent.tools[0]).toMatchObject({ name: 'answer', strict: true });
-    expect(w.calls.filter((c) => c.redis).map((c) => c.redis)).toEqual(['GET', 'INCRBYFLOAT', 'EXPIRE']);
+    expect(w.calls.filter((c) => c.redis).map((c) => c.redis)).toEqual(['GET', 'GET', 'INCRBYFLOAT', 'EXPIRE']);
     // never a request body, key or code in the logs
     expect(log).not.toHaveBeenCalled();
     expect(err).not.toHaveBeenCalled();
@@ -133,6 +135,38 @@ describe('POST /api/helper', () => {
     expect(r.status).toBe(502);
     expect((await r.json()).code).toBe('no_answer');
     expect(none.calls.some((c) => c.redis === 'INCRBYFLOAT')).toBe(true);
+  });
+  it('empty credit (Noah 18.10 «1a»): 402 no_credit, keeps the key; probe and a working answer clear it', async () => {
+    const low = { type: 'error', error: { type: 'invalid_request_error', message: 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.' } };
+    expect(isNoCredit(400, low)).toBe(true);
+    expect(isNoCredit(400, { error: { message: 'messages: field required' } })).toBe(false);
+    expect(isNoCredit(500, low)).toBe(false);
+    const w = fakeWorld({ claude: low, claudeStatus: 400 });
+    const r = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'trip', input: tripInput }));
+    expect(r.status).toBe(402);
+    expect(await r.json()).toMatchObject({ code: 'no_credit', credit: 'empty' });
+    expect(w.store[CREDIT_KEY]).toBe('empty');
+    expect(w.calls.find((c) => c.redis === 'SET')).toMatchObject({ k: CREDIT_KEY, v: 'empty' });
+    // status without probe: says empty, asks nobody
+    const st = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'status' }));
+    expect(await st.json()).toMatchObject({ ok: true, credit: 'empty' });
+    expect(w.calls.filter((c) => c.claude)).toHaveLength(1);
+    // status with probe while still empty: one tiny Haiku call, stays empty
+    const p1 = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'status', probe: true }));
+    expect(await p1.json()).toMatchObject({ credit: 'empty' });
+    const probe = JSON.parse(w.calls.filter((c) => c.claude)[1].init.body);
+    expect(probe).toMatchObject({ model: 'claude-haiku-5-5', max_tokens: 1 });
+    expect(w.store[CREDIT_KEY]).toBe('empty');
+    // credit topped up: the probe works and clears the key
+    const ok = fakeWorld({ credit: 'empty', claude: { model: 'claude-haiku-5-5', usage: { input_tokens: 8, output_tokens: 1 }, content: [{ type: 'text', text: 'ok' }] } });
+    const p2 = await makeHandler({ env: env(), doFetch: ok.doFetch, now })(req({ task: 'status', probe: true }));
+    expect(await p2.json()).toMatchObject({ credit: 'ok' });
+    expect(ok.store[CREDIT_KEY]).toBeUndefined();
+    // a working answer also clears it
+    const ans = fakeWorld({ credit: 'empty', claude: claudeAnswer({ conditions: { area: 'bikepacking', bikeId: '', days: 1, overnight: 'none', cook: false, tempMin: 5, tempMax: 12, rain: 'none' }, blocks: [], items: [], note: '' }) });
+    const a = await makeHandler({ env: env(), doFetch: ans.doFetch, now })(req({ task: 'trip', input: tripInput }));
+    expect(await a.json()).toMatchObject({ ok: true, credit: 'ok' });
+    expect(ans.store[CREDIT_KEY]).toBeUndefined();
   });
   it('an unexpected error logs only its kind', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
