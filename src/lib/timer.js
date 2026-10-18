@@ -18,7 +18,7 @@
 export const MODES = [
   { id: 'up', label: 'Timer', sub: 'counts up' },
   { id: 'down', label: 'Countdown', sub: 'counts down' },
-  { id: 'interval', label: 'Interval', sub: 'e.g. Tabata 20/10' },
+  { id: 'interval', label: 'Interval|timer', sub: 'e.g. Tabata 20/10' },
   { id: 'pomodoro', label: 'Pomodoro', sub: '25/5 or 52/17' },
   { id: 'until', label: 'Until|timer', sub: 'e.g. until 17:30' },
 ];
