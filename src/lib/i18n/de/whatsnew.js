@@ -7,7 +7,7 @@ export default {
   // 0.146.0 Paket A «Daten sicher und Bedienung»
   'Safe data, calm hands': 'Sichere Daten, ruhige Hände',
   'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.': 'Deine Daten bleiben und reisen zwischen Handy und Computer, Fenster behalten dein Getipptes, und jede Seite sagt, wofür sie da ist.',
-  'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire': 'Ich › Dokumente: Pass, Versicherung und Notfallblatt als PDF oder Foto, mit Erinnerung, bevor sie ablaufen',
+  'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire; rename or delete a group with «…»': 'Ich › Dokumente: Pass, Versicherung und Notfallblatt als PDF oder Foto, mit Erinnerung, bevor sie ablaufen; eine Gruppe mit «…» umbenennen oder löschen',
   '«Phone and computer»: send the backup to the other device; the app says which is newer, and «Replace all data» asks twice and keeps a copy': '«Handy und Computer»: Schick das Backup ans andere Gerät; die App sagt, was neuer ist, und «Alle Daten ersetzen» fragt zweimal und behält eine Kopie',
   '«What is here» on top of 14 pages, tips and examples to keep as a note on ten more places': '«Was hier steht» oben auf 14 Seiten, Tipps und Beispiele zum Übernehmen als Notiz an zehn weiteren Orten',
   'The camera opens with one tap for a note, an item, a bike and a problem; a receipt can have several pages': 'Die Kamera öffnet mit einem Tipp bei Notiz, Material, Velo und Problem; ein Beleg kann mehrere Seiten haben',

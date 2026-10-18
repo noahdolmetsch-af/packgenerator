@@ -72,6 +72,46 @@ export function groupDocs(list, by = 'new', extra = []) {
     .sort((a, b) => order(a) - order(b) || fold(a.name).localeCompare(fold(b.name)));
 }
 
+/* ---------- Paket A (Noah 18.10.2026 «1a»): rename and delete a group ---------- */
+
+/** Same group name? Case and accents do not count («reisen» = «Reisen»). */
+export const sameGroup = (a, b) => fold(String(a ?? '').trim()) === fold(String(b ?? '').trim());
+
+/**
+ * The name a default group shows: the own name it was given (prefs.names.pdf / .photo), else null
+ * (the page then shows t(DEFAULT_GROUP[kind])). The code key stays '' on the documents.
+ */
+export const defaultName = (kind, names) => {
+  const n = names?.[kind === 'photo' ? 'photo' : 'pdf'];
+  return typeof n === 'string' && n.trim() ? n.trim() : null;
+};
+
+/**
+ * Renaming an own group: every document in it gets the new name. → [{ id, before, after }].
+ * A new name that is another group's already puts both together (that is what the person asked for).
+ */
+export function renamePatches(list, from, to) {
+  const after = String(to ?? '').trim().slice(0, 60);
+  if (!after || !String(from ?? '').trim()) return [];
+  return (list ?? []).filter((d) => groupOf(d) && sameGroup(groupOf(d), from) && groupOf(d) !== after).map((d) => ({ id: d.id, before: d.group, after }));
+}
+
+/** Deleting an own group: its documents go back to the default group ('' = «Importierte PDF/Fotos»), none is deleted. */
+export function deletePatches(list, name) {
+  if (!String(name ?? '').trim()) return [];
+  return (list ?? []).filter((d) => groupOf(d) && sameGroup(groupOf(d), name)).map((d) => ({ id: d.id, before: d.group, after: '' }));
+}
+
+/** The kept empty groups after a rename (from → to) or a delete (to null), without doubles. */
+export function groupsAfter(groups, from, to = null) {
+  const out = [];
+  for (const g of [...(groups ?? []).map((x) => (sameGroup(x, from) ? to : x))]) {
+    const s = String(g ?? '').trim();
+    if (s && !out.some((x) => sameGroup(x, s))) out.push(s);
+  }
+  return out;
+}
+
 /** All own group names (for «In Gruppe verschieben»), A–Z, without doubles. */
 export function ownGroups(list, extra = []) {
   const seen = new Map();

@@ -24,7 +24,7 @@ export const WHATS_NEW = [
     title: 'Safe data, calm hands',
     lead: 'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.',
     points: [
-      { text: 'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire', href: '#/me/docs' },
+      { text: 'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire; rename or delete a group with «…»', href: '#/me/docs' },
       { text: '«Phone and computer»: send the backup to the other device; the app says which is newer, and «Replace all data» asks twice and keeps a copy', href: '#/me/data' },
       { text: '«What is here» on top of 14 pages, tips and examples to keep as a note on ten more places', href: '#/gear' },
     ],

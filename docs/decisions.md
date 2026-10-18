@@ -1474,6 +1474,7 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
   - Rückgängig-Hinweise verschwinden nach 4 s statt 8–10 s.
   - Der Werkstattbesuch zeigt den Beleg zuerst (oben), Datum und km danach.
   - Die Karte «Was hier steht» und die Tipp-Zeile kommen neu unter den Titel; der Inhalt darunter rutscht nach unten (mit × wird die Karte eine Zeile).
+- **Gruppen umbenennen und löschen** (Noah 18.10.2026 «1a»; App-Regel «Jede Gruppe lässt sich umbenennen und löschen»): Ich › Dokumente hat an jedem Gruppenkopf «…» mit «Umbenennen» und «Löschen», gebaut als wiederverwendbares `src/lib/ui/GroupActions.svelte` (Rückgängig 4 s macht die Seite). Selbst entschieden: die zwei Standardgruppen «Importierte PDF/Fotos» haben nur «Umbenennen» (eigener Name in den Einstellungen `docs.names`, der Code-Schlüssel '' bleibt, leer = zurück zum Standardnamen); eine gelöschte Gruppe schickt ihre Dokumente je nach Art zurück in die Standardgruppe, kein Dokument wird gelöscht; keine neue Dexie-Version; «Ausweise» umbenennen beendet die gemeinsame Packlisten-Zeile «ID und Cash dabei?» (sie hängt am Namen `IDs`), dann bekommt jedes Dokument seine eigene Zeile; die Gruppen-Idee «Travel» zeigt jetzt «Reisen» (vorher fälschlich «Federweg» der Velo-Seiten) und selbst getippte Gruppennamen gehen nicht mehr durch die Übersetzung.
 
 ## 15.10.2026: Paket 3 als Release 0.145.0
 
