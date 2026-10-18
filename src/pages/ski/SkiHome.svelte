@@ -4,10 +4,14 @@
    * backpack check («Rucksack-Check n von m», a bar, the one main button, what is still open by group);
    * then three rows (Start-Check, Saison-Pflege with «n fällig», Nach der Tour) and «Mehr» folded:
    * the season in numbers, the ski learnings, the building blocks. Without a ski tour: «Skitour planen».
+   * Noah 15.10.2026 «1a» (Planen und Unterwegs first): SKB1 «Letztes Mal hier» and SKB3 the daylight on the
+   * card; SKB5 on the tour day, once started, the card «Unterwegs» on top: the time to the turnaround and
+   * the decision points, each ticked with its time (lib/skiday.js).
    */
-  import { MountainSnow, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus } from '@lucide/svelte';
-  import { skiQuery } from '../../lib/ski/skidb.js';
-  import { nextSkiTrip, checkGroups, checkCount, seasonStats, careTasks, careState, careDue, seasonHm, lastWithoutNotes, lastPastSki, hmOf, CARE_PHASES, SKI } from '../../lib/ski.js';
+  import { MountainSnow, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus, Sunrise, History, Check } from '@lucide/svelte';
+  import { skiQuery, setSki } from '../../lib/ski/skidb.js';
+  import { lastHere, daylight, underWay, reachPoint, clockOf, leftText, pointsOf } from '../../lib/skiday.js';
+  import { durationText, nextSkiTrip, checkGroups, checkCount, seasonStats, careTasks, careState, careDue, seasonHm, lastWithoutNotes, lastPastSki, hmOf, CARE_PHASES, SKI } from '../../lib/ski.js';
   import { newTrip } from '../../lib/nav.js';
   import { localDay } from '../../lib/localday.js';
   import Empty from '../../lib/ui/Empty.svelte';
@@ -26,6 +30,19 @@
   const stats = $derived(seasonStats(trips, today));
   const longDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const nameOf = (trip) => trip?.ski?.peak?.trim() || trip?.title || t('Ski tour');
+
+  /* SKB1, SKB3: the last time here and the daylight of the next tour */
+  const before = $derived(nx?.upcoming ? lastHere(nx.trip, trips, today) : null);
+  const light = $derived(nx?.upcoming ? daylight(nx.trip.startDate, nx.trip.place) : null);
+  /* SKB5: on the way (the clock moves every half minute) */
+  let now = $state(new Date());
+  $effect(() => {
+    const id = setInterval(() => (now = new Date()), 30000);
+    return () => clearInterval(id);
+  });
+  const onTour = $derived(trips.find((x) => underWay(x, today, now)) ?? null);
+  const way = $derived(onTour ? underWay(onTour, today, now) : null);
+  const reach = (id) => setSki(onTour.id, (ski) => ({ points: reachPoint(pointsOf({ ski }), id, clockOf(new Date())) }));
 
   /* the care row: the phase of now and what is due */
   const tasks = $derived(careTasks(data?.tasks));
@@ -59,6 +76,26 @@
   {#if data}
     <div class="sk-cols">
       <div>
+        {#if way}
+          <section class="surf sk-pad way" aria-label={t('On the way')} data-under-way>
+            <p class="sk-kicker">{t('On the way')} · {nameOf(onTour)}</p>
+            {#if way.turnAt}
+              <p class="sk-title num" class:late={way.left < 0}>{way.left >= 0 ? t('{left} to the turnaround ({time})', { left: leftText(way.left), time: way.turnAt }) : t('Turnaround {time} was {left} ago', { time: way.turnAt, left: leftText(way.left) })}</p>
+            {:else}
+              <p class="sk-quiet">{t('No turnaround time set.')} <a href="#/ski/start/{encodeURIComponent(onTour.id)}">{t('Start check')}</a></p>
+            {/if}
+            {#if way.points.length}
+              <ul class="sk-list wp">
+                {#each way.points as p (p.id)}
+                  <li><button type="button" class="sk-tick" role="checkbox" aria-checked={!!p.at} onclick={() => reach(p.id)} data-point={p.name}>
+                    <span class="sk-box" aria-hidden="true">{#if p.at}<Check size={18} strokeWidth={3} />{/if}</span>
+                    <span class="sk-tt"><b>{p.name}</b>{#if p.at}<small class="num">{t('reached at {time}', { time: p.at })}</small>{/if}</span>
+                  </button></li>
+                {/each}
+              </ul>
+            {/if}
+          </section>
+        {/if}
         {#if nx}
           {@const trip = nx.trip}
           <section class="surf sk-pad main" aria-label={t('Next ski tour')} data-trip={trip.id}>
@@ -66,6 +103,8 @@
             <p class="sk-title">{nameOf(trip)}{#if hmOf(trip)}{" · "}{num(hmOf(trip))} {t('m climbed|short')}{/if}</p>
             <div class="sk-count chk"><b>{t('Backpack check')}</b><span class="num">{t('{n} of {m}', { n: count.packed, m: count.total })}</span></div>
             <span class="sk-bar" role="progressbar" aria-label={t('Backpack check')} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct}><i style:width="{pct}%"></i></span>
+            {#if before}<p class="sk-quiet line" data-last-here><History size={16} aria-hidden="true" /><span>{t('Last time here: {day}', { day: longDay(before.day) })}{#if before.activeMin}{' · '}{t('{time} moving', { time: durationText(before.activeMin) })}{/if}{#if before.note}{' · «'}{before.note}{'»'}{/if}</span></p>{/if}
+            {#if light}<p class="sk-quiet line num" data-daylight><Sunrise size={16} aria-hidden="true" /><span>{light.rough ? t('Light from {rise} to {set} (roughly, in Switzerland)', light) : t('Light from {rise} to {set}', light)}</span></p>{/if}
             <a class="btn hi sk-go" href="#/ski/check/{encodeURIComponent(trip.id)}" data-to="check">{t('Open the backpack check')}<ChevronRight size={20} aria-hidden="true" /></a>
             {#if open.length}
               <p class="sk-quiet">{t('Still open: {list}', { list: open.map((g) => `${t(g.name)} ${g.total - g.packed}`).join(' · ') })}</p>
@@ -200,5 +239,16 @@
   }
   .blocks {
     border-top: 1px solid var(--line);
+  }
+  .line {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .way {
+    margin-bottom: 14px;
+  }
+  .late {
+    color: var(--warn);
   }
 </style>

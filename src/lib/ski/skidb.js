@@ -51,11 +51,13 @@ export async function setCheck(tripId, id, done) {
   });
 }
 
-/** Merge fields into trip.ski. */
+/** Merge fields into trip.ski; fields may be a function of the stored trip.ski (so quick taps never lose one). */
 export async function setSki(tripId, fields) {
   await db.transaction('rw', db.trips, async () => {
     const trip = await db.trips.get(tripId);
-    if (trip) await db.trips.update(tripId, touched({ ski: { ...(trip.ski ?? {}), ...fields } }));
+    if (!trip) return;
+    const ski = trip.ski ?? {};
+    await db.trips.update(tripId, touched({ ski: { ...ski, ...(typeof fields === 'function' ? fields(ski) : fields) } }));
   });
 }
 

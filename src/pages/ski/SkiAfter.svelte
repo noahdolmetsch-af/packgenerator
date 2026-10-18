@@ -12,6 +12,7 @@
    */
   import { ChevronLeft, Plus } from '@lucide/svelte';
   import { skiQuery, saveAfter } from '../../lib/ski/skidb.js';
+  import { pointsOf } from '../../lib/skiday.js';
   import { lastWithoutNotes, lastPastSki, companions, CHANGE_TAGS, stravaFor, skiGroupOf, parseDuration, durationText, SKI } from '../../lib/ski.js';
   import { inDomain } from '../../lib/domains.js';
   import { isInventory } from '../../lib/gear.js';
@@ -114,6 +115,8 @@
     location.hash = '#/ski';
   }
   const later = () => (location.hash = '#/ski');
+  // SKB6: the decision points ticked on the way, with their time
+  const pts = $derived(pointsOf(trip));
 </script>
 
 <div class="sk">
@@ -156,6 +159,12 @@
               <button type="button" class="sk-chip" aria-pressed={f.alone} onclick={toggleAlone}>{t('alone')}</button>
             </div>
           </div>
+          {#if pts.length}
+            <div class="sk-field" data-after-points>
+              <span>{t('On the way')}{#if trip.ski?.turnAt}{' · '}{t('Turnaround {time}', { time: trip.ski.turnAt })}{/if}</span>
+              <ul class="sk-list">{#each pts as p (p.id)}<li class="num">{p.name}{' · '}{p.at ? t('reached at {time}', { time: p.at }) : t('not reached')}</li>{/each}</ul>
+            </div>
+          {/if}
           {#if !fromStrava}<p class="sk-quiet">{t('No Strava activity? Type everything in by hand.')}</p>{/if}
         </section>
         <section class="surf sk-pad info">

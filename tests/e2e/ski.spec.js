@@ -226,3 +226,64 @@ test('Saison-Pflege: three phases, «Erledigt» keeps day and metres, Undo takes
   await expect.poll(async () => (await setting(page, 'ski.care')).filter((e) => e.task === 'skins').length).toBe(0);
   await expect(page.locator('[data-task="skins"] [role="checkbox"]')).toHaveAttribute('aria-checked', 'false');
 });
+
+// Skitour «Planen und Unterwegs» (Noah 15.10.2026 «1a 2a»; SKB1–SKB3, SKB5, SKB6): the last time here and the
+// daylight on the card, the last train back suggests a turnaround, the decision points ticked on the way
+// with their time and shown in «Nach der Tour».
+const patchTrip = (page, id, patch) =>
+  page.evaluate(
+    async ([tid, p]) => {
+      const req = indexedDB.open('pack-generator');
+      const db = await new Promise((r) => (req.onsuccess = () => r(req.result)));
+      const store = db.transaction('trips', 'readwrite').objectStore('trips');
+      const cur = await new Promise((r) => (store.get(tid).onsuccess = (e) => r(e.target.result)));
+      await new Promise((r) => (store.put({ ...cur, ...p, ski: { ...(cur.ski ?? {}), ...(p.ski ?? {}) } }).onsuccess = r));
+      db.close();
+    },
+    [id, patch],
+  );
+
+test('Planen und Unterwegs: last time here, daylight, train → turnaround, decision points with their time', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await open(page, context, info);
+  await patchTrip(page, PAST, { ski: { peak: 'Muster-Gipfel', activeMin: 200, good: 'Pulver am Nordhang' } });
+  await patchTrip(page, NEXT, { place: { name: 'Testdorf', lat: 46.6, lon: 9.8 }, ski: { peak: 'Muster-Gipfel' } });
+  await page.reload();
+  const card = page.getByRole('region', { name: T('Next ski tour') });
+  await expect(card.locator('[data-last-here]')).toContainText('Pulver am Nordhang');
+  await expect(card.locator('[data-last-here]')).toContainText(T('{time} moving', { time: '3:20' }));
+  await expect(card.locator('[data-daylight]')).toContainText(/\d\d:\d\d.*\d\d:\d\d/);
+  expect(await noSideScroll(page)).toBe(true);
+
+  // the Start-Check: the last train back suggests the turnaround; two decision points
+  await page.goto(`./#/ski/start/${NEXT}`);
+  await page.locator('[data-train] input[type="time"]').fill('17:12');
+  await page.locator('[data-train] input[type="time"]').blur();
+  const chip = page.locator('[data-from-train]');
+  await expect(chip).toHaveText(T('Suggestion: turn at {time}', { time: '14:42' }));
+  await chip.click();
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  expect((await trip(page, NEXT)).ski.turnAt).toBe('14:42');
+  const pts = page.locator('[data-points]');
+  for (const name of ['Sattel', 'Grat']) {
+    await pts.locator('input').fill(name);
+    await pts.locator('button[type="submit"]').click();
+  }
+  await expect(pts.locator('li')).toHaveCount(2);
+  expect(await noSideScroll(page)).toBe(true);
+
+  // on the tour day, once started: the time to the turnaround and the points with their time
+  await patchTrip(page, NEXT, { startDate: D0, ski: { startedAt: `${D0}T08:00:00Z` } });
+  await page.goto('./#/ski');
+  await page.reload();
+  const way = page.locator('[data-under-way]');
+  await expect(way).toContainText(T('{left} to the turnaround ({time})', { left: '5:42', time: '14:42' }));
+  await way.locator('[data-point="Sattel"]').click();
+  await expect(way.locator('[data-point="Sattel"]')).toContainText(T('reached at {time}', { time: '09:00' }));
+  await shot(page, info, 'F-Unterwegs');
+  await page.goto(`./#/ski/after/${NEXT}`);
+  await expect(page.locator('[data-after-points]')).toContainText(`Sattel · ${T('reached at {time}', { time: '09:00' })}`);
+  await expect(page.locator('[data-after-points]')).toContainText(`Grat · ${T('not reached')}`);
+  expect(errors).toEqual([]);
+});

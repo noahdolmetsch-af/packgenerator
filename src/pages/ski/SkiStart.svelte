@@ -7,12 +7,16 @@
    * takes one away. «Los geht's · um HH:MM umkehren»; on the day the turnaround time comes as a notice
    * in the app (lib/ski/SkiTurn.svelte, no push). Everything is a suggestion.
    * #/ski/start (today's or the next ski tour) or #/ski/start/<trip id>.
+   * SKB2 (Noah 15.10.2026 «2a»): «Letzter Zug zurück» with the way down suggests a turnaround time (a chip
+   * that sets it; nothing set by itself). SKB6: the decision points of the tour, ticked on the way with
+   * their time (lib/skiday.js).
    */
-  import { ChevronLeft, Check, ExternalLink } from '@lucide/svelte';
+  import { ChevronLeft, Check, ExternalLink, Plus, X } from '@lucide/svelte';
   import { skiQuery, ensureStartChecks, setCheck, setSki } from '../../lib/ski/skidb.js';
-  import { nextSkiTrip, START_CHECKS, TURN_TIMES, turnTime, isSki, SKI } from '../../lib/ski.js';
+  import { nextSkiTrip, START_CHECKS, TURN_TIMES, turnTime, isSki, SKI, parseDuration, durationText } from '../../lib/ski.js';
   import { newTrip } from '../../lib/nav.js';
   import { localDay } from '../../lib/localday.js';
+  import { turnFromTrain, DESCENT_MIN, addPoint, dropPoint, pointsOf } from '../../lib/skiday.js';
   import Empty from '../../lib/ui/Empty.svelte';
   import { t } from '../../lib/i18n.svelte.js';
 
@@ -51,6 +55,23 @@
     const n = v === '' ? null : Math.max(0, Math.min(100, Math.round(Number(v))));
     await setSki(trip.id, { batteryPct: Number.isFinite(n) ? n : null });
   }
+  /* SKB2: the last train back → a turnaround suggestion */
+  const trainAt = $derived(turnTime(trip?.ski?.trainAt));
+  const descent = $derived(Number.isFinite(trip?.ski?.descentMin) && trip.ski.descentMin > 0 ? trip.ski.descentMin : DESCENT_MIN);
+  const fromTrain = $derived(turnFromTrain(trainAt, descent));
+  const setTrain = (e) => setSki(trip.id, { trainAt: turnTime(e.currentTarget.value) });
+  const setDescent = (e) => setSki(trip.id, { descentMin: parseDuration(e.currentTarget.value) ?? null });
+  /* SKB6: the decision points */
+  const points = $derived(pointsOf(trip));
+  let point = $state('');
+  async function addOne(e) {
+    e?.preventDefault();
+    const name = point.trim();
+    if (!name) return;
+    point = '';
+    await setSki(trip.id, (ski) => ({ points: addPoint(pointsOf({ ski }), name) }));
+  }
+  const dropOne = (id) => setSki(trip.id, (ski) => ({ points: dropPoint(pointsOf({ ski }), id) }));
   async function go() {
     if (trip) await setSki(trip.id, { startedAt: new Date().toISOString() });
     location.hash = '#/ski';
@@ -87,10 +108,29 @@
               <button type="button" class="sk-chip add" aria-pressed={otherOn} onclick={() => (other = !other)}>{t('other|time')}</button>
               {#if otherOn}<input class="inp num tm" type="time" value={TURN_TIMES.includes(turnAt) ? '' : turnAt} onchange={(e) => pickTurn(e.currentTarget.value)} aria-label={t('Own turnaround time')} />{/if}
             </div>
+            <div class="train more" data-train>
+              <label class="sk-field"><span>{t('Last train back')}</span><input class="inp num tm" type="time" value={trainAt} onchange={setTrain} /></label>
+              <label class="sk-field"><span>{t('Way down to the train')}</span><input class="inp num dn" value={durationText(descent)} onchange={setDescent} placeholder="2:00" /></label>
+              {#if fromTrain}<button type="button" class="sk-chip num" aria-pressed={turnAt === fromTrain} onclick={() => turnAt !== fromTrain && pickTurn(fromTrain)} data-from-train>{t('Suggestion: turn at {time}', { time: fromTrain })}</button>{/if}
+            </div>
+            {#if fromTrain}<p class="sk-quiet more">{t('Train {train} minus the way down {down} and 30 minutes buffer. Only a suggestion.', { train: trainAt, down: durationText(descent) })}</p>{/if}
           {/if}
         </li>
       {/each}
     </ul>
+    <section class="surf sk-pad pts" aria-labelledby="pts-h" data-points>
+      <h2 id="pts-h" class="ph">{t('Decision points (optional)')}</h2>
+      <p class="sk-quiet">{t('Where you decide again on the way. On the tour you tick each one; its time goes into «After the tour».')}</p>
+      {#if points.length}
+        <ul class="sk-list">
+          {#each points as p (p.id)}<li class="pt"><span>{p.name}</span><button type="button" class="ix" aria-label={t('Remove {name}', { name: p.name })} onclick={() => dropOne(p.id)}><X size={16} aria-hidden="true" /></button></li>{/each}
+        </ul>
+      {/if}
+      <form class="addp" onsubmit={addOne}>
+        <input class="inp" bind:value={point} maxlength="60" placeholder={t('e.g. {x}', { x: 'Sattel 2400 m' })} aria-label={t('New decision point')} />
+        <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add|point')}</button>
+      </form>
+    </section>
     <button type="button" class="btn hi sk-go" onclick={go}>{turnAt ? t("Let's go · turn around at {time}", { time: turnAt }) : t("Let's go")}</button>
     <p class="sk-quiet sk-center">{t('A suggestion, nothing is a must. The turnaround time comes as a reminder.')}</p>
   {/if}
@@ -136,6 +176,56 @@
   .tm {
     width: auto;
     min-height: 44px;
+  }
+  .train {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .dn {
+    width: 90px;
+    min-height: 44px;
+  }
+  .pts {
+    display: grid;
+    gap: 10px;
+  }
+  .ph {
+    margin: 0;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .pt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+  }
+  .ix {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .addp {
+    display: flex;
+    gap: 8px;
+  }
+  .addp .inp {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .addp .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   @media (max-width: 359px) {
     .more {
