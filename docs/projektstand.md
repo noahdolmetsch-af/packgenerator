@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **18. Oktober 2026, abends**. Live ist **Version 0.144.0** (seit 15.10.2026).
+Stand: **18. Oktober 2026, abends**. Live ist **Version 0.145.0** (Paket P3, seit 18.10.2026; nachgeführt 18.10.2026, 22 Uhr UTC).
 
 Diese Seite ist der Einstieg: was die App ist, was heute online ist, was fertig gebaut auf die Veröffentlichung wartet, in welcher Reihenfolge es kommt und was danach geplant ist. Wie das Projekt bis hierhin gewachsen ist, steht in der [Geschichte](geschichte.md). Einzelheiten stehen in den Dokumenten, die unten verlinkt sind.
 
@@ -57,7 +57,7 @@ Vom 15. bis 18.10.2026 wurde viel gebaut, aber wenig veröffentlicht. Am 18.10.2
 
 | Reihenfolge | Paket | Version (vorläufig) | Inhalt | Stand 18.10. |
 |---|---|---|---|---|
-| 1 | **P3 Navigation und Standard-Velo** | 0.145.0 | Navigation ohne Springen, Standard-Velo mit ★ und Reihenfolge, lange Listen klappen zu, Schnellstart und «Wie letzte Tour» wieder da, vier Anzeigefehler | PR #182 offen, Noah hat «ok» gegeben; wird nach grünem Test zusammengeführt |
+| 1 | **P3 Navigation und Standard-Velo** | 0.145.0 | Navigation ohne Springen, Standard-Velo mit ★ und Reihenfolge, lange Listen klappen zu, Schnellstart und «Wie letzte Tour» wieder da, vier Anzeigefehler | live seit 18.10.2026 (PR #182) |
 | 2 | **A Daten sicher und Bedienung** | 0.146.0 | Browser behält die Daten fest, Abgleich Handy–Computer über eine Sicherung, «Alle Daten ersetzen» fragt zweimal und macht vorher ein Backup, neuer Ort «Dokumente» (Pass, Versicherung als PDF, Datenbank-Stufe 12); einheitliche Bedienregeln (siehe Abschnitt 5); Kamera-Knopf überall; Hinweistexte und mehr Inhalt in der App | gebaut, wird gebündelt |
 | 3 | **B Server** | ab 0.147.0 | Training mit Leistung und Wochenrückblick, Fitbit verbinden (Stufe 13), Dokument fotografieren als PDF (Stufe 14), Google Kalender und Aufgaben lesen (Stufe 15), KI-Helfer mit Monatsdeckel und Assistent «Frag die App», Termine buchen, Shop, automatischer Abgleich Handy–Computer, Erinnerungen aufs Handy (Web-Push) | fast alles gebaut; automatischer Abgleich und Push noch im Bau |
 | 4 | **D Touren und Unterwegs** | danach | Strava-Fahrten auf der Touren-Seite, Höhenprofil, ein Weg «Fahrt hochladen» (GPX, TCX, CSV), Planungs-Notizen im Tour-Entwurf, kürzere Handy-Seiten, Fehlerbehebungen, Chronik | gebaut |
@@ -67,7 +67,7 @@ Vom 15. bis 18.10.2026 wurde viel gebaut, aber wenig veröffentlicht. Am 18.10.2
 
 **Abhängigkeiten:** A kommt vor B, weil die Datenbank-Stufen aufeinander aufbauen (12 Dokumente → 13 Fitbit → 14 Dokument-PDF → 15 Google). C braucht B (Aktiv nutzt Fitbit und Training). D und E hängen nicht an B. Neue Arbeit darf parallel weiterlaufen.
 
-**Offene Pull Requests (18.10.2026):** #182 (P3), #176 und #177 (Teile von C, eingefroren bis C dran ist), #181 (nur Tests, optional, derselbe Fix steckt in #176/#177).
+**Offene Pull Requests (18.10.2026, abends):** #176 und #177 (Teile von C, eingefroren bis C dran ist), #181 (nur Tests, optional, derselbe Fix steckt in #176/#177).
 
 ## 4. Danach geplant oder nur als Idee
 
@@ -93,7 +93,7 @@ Ausführlich mit Datum im [Entscheidungslog](decisions.md#1510-bis-18102026-pake
 - **Automatischer Abgleich Handy–Computer** mit einer Gratis-Datenbank auf Vercel (Google Drive als Ersatz); bei einem Konflikt fragt die App. Kommt mit dem Server-Paket.
 - **Erinnerungen aufs Handy** (Web-Push) mit einem Gratis-Wecker (cron-job.org).
 - **Tages-Check:** Morgen-Check und Abend-Rückblick wieder als eigene Seiten, Kachel «Deine 15 Fragen», grosser Balance-Ring auf Heute.
-- **Veröffentlichen (Regel seit 15.10., bestätigt 18.10.):** Claude führt ein Paket für Noah zusammen, aber erst, wenn Noah die Bilder dieses Pakets gesehen und dafür «ok» geschrieben hat, alle Tests grün sind und `main` sich nicht bewegt hat.
+- **Testlink statt Mockups (18.10., 21:52 UTC, «ab sofort, überall»):** gebaut wird ohne Mockups. Zu jedem Paket bekommt Noah einen Testlink (Vercel-Vorschau) mit dem Satz «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Claude führt ein Paket erst nach Noahs «ok» für dieses Paket zusammen, mit grünen Tests und unverändertem `main`. Updates von Abhängigkeiten werden sofort zusammengeführt.
 
 ## 6. Was Noah noch tun muss
 
@@ -108,7 +108,7 @@ Mit Klick-Anleitung, wenn es so weit ist:
 
 Kurzfassung. Ausführlich in [arbeitsweise.md](arbeitsweise.md#stand-18102026-regeln-die-heute-gelten).
 
-- Claude baut zuerst und zeigt dann **Bilder der fertigen App** (Handy 390 px und Computer 1440 px, hell) zusammen mit der Vorschau. Es gibt keine Mockups mehr vor dem Bau (seit 14.10.2026).
+- Claude baut **ohne Mockups** und schickt zu jedem Paket einen **Testlink** (Vercel-Vorschau): «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Zusammengeführt wird nach Noahs «ok» für dieses Paket (seit 18.10.2026).
 - Fragen an Noah: höchstens 5 pro Runde, a/b ausgeschrieben, **ohne ★-Vorauswahl**. Claude fragt und wartet.
 - Jeder Release-PR hat den Abschnitt **«Was fällt weg oder rutscht tiefer»**.
 - Alles wird im Projekt besprochen, **nicht mehr in Trello**.
