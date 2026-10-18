@@ -20,4 +20,12 @@ export default {
   '{n} building block to check': '{n} Baustein zu prüfen',
   '{n} building blocks to check': '{n} Bausteine zu prüfen',
   'One building block after the other: keep, out or elsewhere': 'Ein Baustein nach dem anderen: behalten, raus oder woandershin',
-};
+  // Kleider 1: a phone shows each layer as one line
+  'Tap a layer or a body zone to see only these clothes.': 'Tippe eine Schicht oder eine Körperzone, um nur diese Kleider zu sehen.',
+  // Kleider 2: the head line follows the switch, the switch explained once
+  '{n} piece of clothing for cycling': '{n} Kleidungsstück fürs Velo',
+  '{n} pieces of clothing for cycling': '{n} Kleider fürs Velo',
+  '{n} piece of clothing for everyday': '{n} Kleidungsstück für den Alltag',
+  '{n} pieces of clothing for everyday': '{n} Kleider für den Alltag',
+  'Cycling: what you wear on the bike. Everyday: everything else. All: both together.': 'Velo: was du auf dem Velo trägst. Alltag: alles andere. Alle: beides zusammen.',
+  'Hide this note': 'Hinweis ausblenden',};

@@ -110,3 +110,55 @@ test('Einkauf 2: no Woanders box and no Wishlist chip per row; the shop link thr
   await page.keyboard.press('Escape');
   await noSideways(page);
 });
+
+/** The material fixture plus a few fictional clothes in three layers. */
+function clothesFixture() {
+  const data = materialFixture();
+  const P = 'test_data_gtp_ ';
+  const c = (id, name, layer, zone, weightG) => ({ id, name: `${P}${name}`, category: 'onbike', weightG, qty: 1, weightStatus: 'measured', defaultBag: 'top', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'], layer, zone, tempMin: 5, tempMax: 20 });
+  data.tables.items.push(c('KX01', 'Merino shirt', 'base', 'torso', 150), c('KX02', 'Fleece', 'mid', 'torso', 300), c('KX03', 'Gloves', 'accessory', 'hands', 60));
+  return data;
+}
+
+test('Kleider 1 and 2: the head follows the switch, the switch explained once; a phone shows each layer as a line', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: clothesFixture() });
+  await page.goto('./#/wardrobe');
+  await expect(page.getByRole('heading', { level: 1, name: 'Kleider' })).toBeVisible();
+  await expect(page.locator('.page-sub')).toContainText(/^\d+ Kleid(er|ungsstück) fürs Velo · /);
+  // «Velo · Alltag · Alle» explained under the switch, once: × hides it for good
+  const help = page.locator('[data-use-help]');
+  await expect(help).toHaveText('Velo: was du auf dem Velo trägst. Alltag: alles andere. Alle: beides zusammen.');
+  await page.getByRole('group', { name: 'Einsatz' }).getByRole('button', { name: /^Alle/ }).click();
+  await expect(page.locator('.page-sub')).not.toContainText('fürs Velo');
+  await help.getByRole('button', { name: 'Hinweis ausblenden' }).click();
+  await expect(help).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: 'Kleider' })).toBeVisible();
+  await expect(page.locator('[data-use-help]')).toHaveCount(0);
+
+  const layers = page.locator('section.layer');
+  if (desktop(info)) {
+    // a computer keeps the layers open side by side, «Tippen filtert» stays on the onion
+    await expect(page.locator('.ltog')).toHaveCount(0);
+    await expect(page.locator('#onion-h')).toContainText('Tippen filtert');
+    await expect(page.getByText('Merino shirt', { exact: false })).toBeVisible();
+  } else {
+    // a phone: one line per layer with name, count and weight; the hint above the first one
+    await expect(page.getByText('Tippe eine Schicht oder eine Körperzone, um nur diese Kleider zu sehen.')).toBeVisible();
+    await expect(page.locator('#onion-h')).not.toContainText('Tippen filtert');
+    const base = page.locator('section.layer[data-layer="base"]');
+    const tog = base.locator('.ltog');
+    await expect(tog).toHaveAttribute('aria-expanded', 'false');
+    await expect(tog).toContainText('Basis');
+    await expect(page.getByText('Merino shirt', { exact: false })).toHaveCount(0);
+    for (const b of await layers.locator('.ltog').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    await tog.click();
+    await expect(tog).toHaveAttribute('aria-expanded', 'true');
+    await expect(base.getByText('Merino shirt', { exact: false })).toBeVisible();
+    // the other layers stay closed; a tap on a layer of the onion opens what it filters
+    await expect(page.locator('[data-layer="mid"] .ltog')).toHaveAttribute('aria-expanded', 'false');
+    await page.getByRole('group', { name: 'Schicht filtern' }).getByRole('button', { name: /^Mitte/ }).click();
+    await expect(page.getByText('Fleece', { exact: false })).toBeVisible();
+  }
+  await noSideways(page);
+});
