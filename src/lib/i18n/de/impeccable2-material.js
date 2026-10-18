@@ -12,4 +12,8 @@ export default {
   // Material «Alles» 3: one line for the controls, «Display» in the sheet on a phone
   '{n} without weight · weigh now': '{n} ohne Gewicht · jetzt wiegen',
   'Display|gear sheet': 'Darstellung',
+  // Einkauf 2: the shop link only once, in the row's «…»
+  'Enter shop link': 'Shop-Link eintragen',
+  'Change shop link': 'Shop-Link ändern',
+  'Your own link to the shop': 'Dein eigener Link zum Shop',
 };

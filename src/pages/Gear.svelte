@@ -18,8 +18,12 @@
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: tiles at the page end, X7 at each wish
-  import Woanders from '../lib/sk/Woanders.svelte';
-  import { slotOf } from '../lib/sk/links.js';
+  // Impeccable runde 2 (Einkauf 2): the shop link of a wish only when there is one; «Enter shop link» in the row's «…»
+  import OwnLinkSheet from '../lib/sk/OwnLinkSheet.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import { slotOf, linkOn } from '../lib/sk/links.js';
+  import { skLinks, watchLinks } from '../lib/sk/linkstore.svelte.js';
+  import { setOwnLink, removeOwnLink, setLinkOff } from '../lib/sk/store.js';
   import AssignDialog from '../lib/gear/AssignDialog.svelte';
   import { assignSet } from '../lib/gear/assign.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
@@ -34,7 +38,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
@@ -533,6 +537,15 @@
     undoTimer = setTimeout(() => (undo = null), ms);
     picked.clear();
   }
+  // Impeccable runde 2 (Einkauf 2): a wish's own shop link (SK X7): shown as a small link only when entered
+  watchLinks();
+  const shopOn = $derived(linkOn(skLinks.off, 'x7'));
+  const shopLink = (item) => (shopOn ? skLinks.own[slotOf('x7', item.id)] ?? null : null);
+  let shopFor = $state(null); // the wish whose link window is open
+  const wishActions = (item) => [
+    ...(shopOn ? [shopLink(item) ? { name: t('Change shop link'), explain: t('Your own link to the shop'), icon: Pencil, run: () => (shopFor = item) } : { name: t('Enter shop link'), explain: t('Your own link to the shop'), icon: Link2, run: () => (shopFor = item) }] : []),
+    { name: t('Open|item'), explain: t('Open and edit'), icon: ExternalLink, run: () => open(item) },
+  ];
   // Impeccable (18.10.2026): «Bought» on a row of «Shopping»: the wish becomes my gear, 4 s Undo;
   // without a weight the bar also offers «Add weight» (it opens the item as it is now).
   const bought = (item) =>
@@ -792,16 +805,20 @@
                     {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
                   {:else}
                     <FavStar {item} describedby="gn-{item.id}" />
-                    <button type="button" class:wl={item.ownership === 'wishlist'} class:picked={showPanel && selItem?.id === item.id} onclick={() => openRow(item)}>
-                      <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
+                    <!-- Impeccable runde 2 (Einkauf 2): the whole list is wishes, so only «To buy» keeps its chip -->
+                    <button type="button" class:wl={item.ownership !== 'to-buy'} class:picked={showPanel && selItem?.id === item.id} onclick={() => openRow(item)}>
+                      {#if item.ownership === 'to-buy'}<span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>{/if}
                       <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                       <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                       <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
                     </button>
-                    <!-- Impeccable (18.10.2026): one tap in the shop: it moves to my gear, with Undo -->
-                    <span class="buyw"><button type="button" class="btn sm buy" aria-label={t('Bought: {name}', { name: nameOf(item) })} disabled={busy} onclick={() => bought(item)}><Check size={16} aria-hidden="true" />{t('Bought|shop')}</button></span>
-                    <!-- SK X7 (SKX1): «Im Shop ansehen», your own link for this wish -->
-                    <div class="skw"><Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} /></div>
+                    <!-- Impeccable (18.10.2026): one tap in the shop: it moves to my gear, with Undo.
+                         Impeccable runde 2 (Einkauf 2): «Im Shop ansehen ↗» only when a link is entered; «…» enters or changes it -->
+                    <span class="buyw">
+                      {#if shopLink(item)}<a class="shopl" href={shopLink(item).url} target="_blank" rel="noopener noreferrer" data-shop-link={item.id}>{shopLink(item).name || t('View in the shop')}<ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>{/if}
+                      <button type="button" class="btn sm buy" aria-label={t('Bought: {name}', { name: nameOf(item) })} disabled={busy} onclick={() => bought(item)}><Check size={16} aria-hidden="true" />{t('Bought|shop')}</button>
+                      <MoreActions small title={nameOf(item)} label={t('More for {name}', { name: nameOf(item) })} actions={wishActions(item)} />
+                    </span>
                   {/if}
                 </li>
               {:else}
@@ -1035,6 +1052,12 @@
       </div>
     {/if}
   </div>
+{/if}
+
+{#if shopFor}
+  {@const it = shopFor}
+  {@const slot = slotOf('x7', it.id)}
+  <OwnLinkSheet title={t('Enter a link')} context={[t('View in the shop'), nameOf(it)].join(' · ')} value={skLinks.own[slot] ?? null} name={t('View in the shop')} onsave={(v) => setOwnLink(slot, v)} onremove={skLinks.own[slot] ? () => removeOwnLink(slot) : null} onoff={() => setLinkOff('x7', true)} onclose={() => (shopFor = null)} />
 {/if}
 
 {#if assign}
@@ -1700,17 +1723,27 @@
       padding: 0 8px 8px 52px;
     }
   }
-  /* SK X7: the «Woanders» row under a wish, over the row's width */
   .wish .fr {
     flex-wrap: wrap;
   }
-  .wish .skw {
-    flex-basis: 100%;
-    min-width: 0;
-    padding: 0 8px 10px;
+  /* Impeccable runde 2 (Einkauf 2): the own shop link, small, beside «Bought» */
+  .shopl {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
   }
-  .wish .skw :global(.sk-wo) {
-    margin-top: 0;
+  .shopl:hover {
+    color: var(--ink);
+  }
+  .wish .buyw {
+    gap: 4px;
   }
   .wish .rows button:not(.btn) {
     grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1764,6 +1797,19 @@
     }
     .wish .w {
       grid-column: 4;
+    }
+    /* Impeccable runde 2 (Einkauf 2): no «Wishlist» chip on a computer either; the name takes its column */
+    .wish .rows button.wl {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 140px) 80px;
+    }
+    .wish .rows button.wl .nm {
+      grid-column: 1;
+    }
+    .wish .rows button.wl .bg {
+      grid-column: 2;
+    }
+    .wish .rows button.wl .w {
+      grid-column: 3;
     }
   }
   .st {

@@ -82,3 +82,31 @@ test('Material 3: the numbers once, the controls in one line, Display in the she
   }
   await noSideways(page);
 });
+
+test('Einkauf 2: no Woanders box and no Wishlist chip per row; the shop link through the row menu', async ({ page, context }, info) => {
+  await openGear(page, context, info, '#/gear?view=wish');
+  const wish = page.getByRole('region', { name: 'Einkauf' });
+  await expect(wish.locator('li.fr').first()).toBeVisible();
+  // no dashed «Woanders · Im Shop ansehen · eintragen» under every row, and no «Wunschliste» chip (the whole list is wishes)
+  await expect(wish.locator('[data-sk-woanders]')).toHaveCount(0);
+  await expect(wish.locator('.st-wishlist')).toHaveCount(0);
+  const row = wish.locator('li.fr').filter({ hasText: 'Ultralight tarp' });
+  await expect(row.locator('a[data-shop-link]')).toHaveCount(0);
+  // «…» › «Shop-Link eintragen»: the small window; afterwards a small «Im Shop ansehen ↗» in the row
+  await row.getByRole('button', { name: 'Mehr zu Ultralight tarp' }).click();
+  await page.getByRole('menuitem', { name: /Shop-Link eintragen/ }).click();
+  const sheet = page.locator('dialog[data-sk-own]');
+  await expect(sheet).toBeVisible();
+  await sheet.getByLabel('Adresse').fill('example.org/tarp');
+  await sheet.getByRole('button', { name: 'Speichern' }).click();
+  await expect(sheet).toBeHidden();
+  const link = row.locator('a[data-shop-link]');
+  await expect(link).toHaveText(/Im Shop ansehen/);
+  await expect(link).toHaveAttribute('href', 'https://example.org/tarp');
+  await expect(link).toHaveAttribute('target', '_blank');
+  // the menu now says «Shop-Link ändern»
+  await row.getByRole('button', { name: 'Mehr zu Ultralight tarp' }).click();
+  await expect(page.getByRole('menuitem', { name: /Shop-Link ändern/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await noSideways(page);
+});
