@@ -23,4 +23,10 @@ export default {
   '{area} · what you missed goes into the evening-before check with one tap': '{area} · was dir gefehlt hat, kommt mit einem Tipp in den Vorabend-Check',
   'To the evening before': 'Zum Vorabend',
   '{name}: to the evening-before check': '{name}: in den Vorabend-Check',
+
+  // Was die App kann: the state in words, the path like the title
+  'What the app can do|crumb': 'Was die App kann',
+  'used|features': 'benutzt',
+  'new for you': 'neu für dich',
+  'Used ones move down. Under «…»: how it works, and try it in the playground.': 'Benutzte rutschen nach unten. Unter «…»: so geht’s, und in der Spielwiese ausprobieren.',
 };
