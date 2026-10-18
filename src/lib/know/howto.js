@@ -128,6 +128,8 @@ export const HOWTO = {
   'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
   'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
   // v0.147.0 Paket B (Fitbit)
+  // v0.147.0 Paket B: GM «Mail in der App»
+  'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],
   'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],

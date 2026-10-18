@@ -43,6 +43,7 @@
   import Fitbit from './pages/Fitbit.svelte';
   import DocScan from './pages/DocScan.svelte';
   import Agenda from './pages/Agenda.svelte';
+  import MailPage from './pages/Mail.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
@@ -419,6 +420,9 @@
   {:else if page === 'agenda'}
     <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
     <Agenda />
+  {:else if page === 'mail'}
+    <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
+    {#key hash}<MailPage />{/key}
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}

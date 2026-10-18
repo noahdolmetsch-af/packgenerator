@@ -14,6 +14,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
+
 **Nachtrag 15.10.2026 (v0.135.0 «Paket 2 – Ruhe, Training und Rechnungen»):** ein Release aus fünf Teilen: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (#173), Eine Zahl pro Sache mit Heute H1/H2 (#170), Training TR1–TR4 (#167), Rechnungen ohne Gebühren QR1–QR9 (#169). Die Nachträge unten zu 0.136.0 bis 0.139.0 beschreiben die Teile; ihre eigenen Nummern fallen weg. Als Nächstes: Paket 2b (Pfeile + Ziehen, LI3 «Gilt für», Inspiration-Korrekturen).
 
 **Nachtrag 14.10.2026 (v0.136.0, jetzt Teil von 0.135.0):** «Inhalte Flow» + «Wusstest du» (Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW): Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest. Als Nächstes: IF2 Meditation, Hinweistexte HT (wartet auf Freigabe), Texte der Sportarten.

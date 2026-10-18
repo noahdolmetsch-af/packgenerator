@@ -8,7 +8,7 @@ export default {
   'Connected, and it looks after itself': 'Verbunden, und sie schaut selbst nach sich',
   'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.': 'Deine Uhr, dein Google-Kalender und deine Fahrten reden mit der App, Handy und Computer gleichen sich selbst ab, und der Server prüft sich jeden Tag.',
   'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers': 'Training: Leistung, Gewicht und Analysen zu jeder Fahrt, dazu der «Wochenrückblick» mit fünf Zahlen',
-  'Fitbit, Google calendar and tasks, and documents photographed as a PDF, also in your Google Drive': 'Fitbit, Google-Kalender und Aufgaben, und Dokumente fotografiert als PDF, auch in deinem Google Drive',
+  'Fitbit, Google calendar, tasks and Gmail, and documents photographed as a PDF, also in your Google Drive': 'Fitbit, Google-Kalender, Aufgaben und Gmail, und Dokumente fotografiert als PDF, auch in deinem Google Drive',
   'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks': 'Handy und Computer gleichen sich selbst ab, verschlossen mit einem Code; wenn beide dasselbe geändert haben, fragt die App',
   'Assistant: ask the app about your rides, bikes and gear, or let it help you plan a trip': 'Assistent: Frag die App nach Fahrten, Velos und Material, oder lass dir beim Planen einer Tour helfen',
   'Under Me: people book your free times with one link, a shop without fees, and reminders on the phone': 'Unter Ich: Leute buchen deine freien Zeiten mit einem Link, ein Shop ohne Gebühren, und Erinnerungen aufs Handy',

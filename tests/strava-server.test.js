@@ -5,6 +5,7 @@ import { makeHandler as stravaHandler, trimActivity, AUTHORIZE_URL, TOKEN_URL, A
 import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES, DRIVE_SCOPE, DRIVE_API, DRIVE_UPLOAD, DRIVE_MAX_BYTES, cleanName } from '../api/_lib/google.js';
 import { safeReturn, hash, KEYS, APP_RETURN } from '../api/_lib/oauth.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API } from '../api/_lib/googleplan.js';
+import { MAIL_SCOPES, GMAIL_API, fromB64url } from '../api/_lib/googlemail.js';
 
 const REDIS = 'https://redis.example.test';
 const ORIGIN = 'http://localhost:5173';
@@ -486,5 +487,84 @@ describe('Google Kalender und Aufgaben (GA)', () => {
     const t = await setup();
     expect((await t.main(get('/api/google?step=tasks'))).status).toBe(401);
     expect((await t.main(post('/api/google?step=cal-save', { title: 'x', day: '2026-10-20' }))).status).toBe(401);
+  });
+});
+
+describe('Google Mail (GM)', () => {
+  const gToken = () => () => Response.json({ access_token: 'g-acc', refresh_token: 'g-ref', expires_in: 3600, scope: MAIL_SCOPES.join(' ') });
+  const b64 = (s) => Buffer.from(s, 'utf8').toString('base64url');
+  const msgs = {
+    m1: { id: 'm1', threadId: 'th1', labelIds: ['INBOX', 'UNREAD'], snippet: 'Dein Velo ist bereit', internalDate: String(Date.parse('2026-10-12T08:00:00Z')), payload: { headers: [{ name: 'From', value: 'Veloladen Muster <info@veloladen.example.test>' }, { name: 'Subject', value: 'Velo-Service fertig' }, { name: 'Message-ID', value: '<abc@example.test>' }], mimeType: 'multipart/mixed', parts: [{ mimeType: 'text/plain', body: { data: b64('Grüezi\nDein Velo ist bereit.') } }, { filename: 'Rechnung.pdf', mimeType: 'application/pdf', body: { size: 12000 } }] } },
+    m2: { id: 'm2', threadId: 'th2', labelIds: ['INBOX'], snippet: 'Lektion morgen', internalDate: String(Date.parse('2026-10-11T08:00:00Z')), payload: { headers: [{ name: 'From', value: 'tennis@example.test' }, { name: 'Subject', value: 'Tennis' }], mimeType: 'text/html', body: { data: b64('<p>Lektion&nbsp;morgen</p><style>x{}</style>') } } },
+  };
+  function fakeGmail() {
+    const seen = [];
+    const handle = async (url, init = {}) => {
+      const u = new URL(url);
+      seen.push({ method: init.method ?? 'GET', path: u.pathname, q: Object.fromEntries(u.searchParams), body: init.body ? JSON.parse(init.body) : null });
+      if (u.pathname.endsWith('/messages/send')) return Response.json({ id: 'sent1' });
+      if (u.pathname.endsWith('/messages')) return Response.json({ messages: [{ id: 'm1' }, { id: 'm2' }], nextPageToken: '12345' });
+      const id = u.pathname.split('/').pop();
+      return msgs[id] ? Response.json(msgs[id]) : new Response('{}', { status: 404 });
+    };
+    return { seen, handle };
+  }
+  async function setup() {
+    const f = fakeGmail();
+    const w = world({ [TOKEN_URL]: stravaToken(), [G_TOKEN]: gToken(), [GMAIL_API]: f.handle });
+    const s = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(s, w)).get('key');
+    const { main, callback } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const start = await (await main(post('/api/google?step=start', { services: ['mail'] }, { key }))).json();
+    expect(new URL(start.url).searchParams.get('scope').split(' ')).toEqual(MAIL_SCOPES);
+    await callback(get(`/api/google/callback?code=g-code&state=${new URL(start.url).searchParams.get('state')}`));
+    return { f, key, main };
+  }
+
+  it('the status says mail is allowed; the inbox lists mails with sender, subject and unread', async () => {
+    const t = await setup();
+    expect(await (await t.main(get('/api/google?step=status', { key: t.key }))).json()).toMatchObject({ mail: true, calendar: false });
+    const res = await (await t.main(get('/api/google?step=mail-list', { key: t.key }))).json();
+    expect(res.next).toBe('12345');
+    expect(res.mails.map((m) => [m.id, m.fromName, m.from, m.subject, m.unread])).toEqual([
+      ['m1', 'Veloladen Muster', 'info@veloladen.example.test', 'Velo-Service fertig', true],
+      ['m2', 'tennis@example.test', 'tennis@example.test', 'Tennis', false],
+    ]);
+    expect(t.f.seen[0].q).toMatchObject({ q: 'in:inbox', maxResults: '20' });
+    await t.main(get('/api/google?step=mail-list&q=Velo-Service&page=12345', { key: t.key }));
+    expect(t.f.seen.filter((x) => x.path.endsWith('/messages')).at(-1).q).toMatchObject({ q: 'Velo-Service', pageToken: '12345' });
+    expect((await t.main(get('/api/google?step=mail-list&page=x%20y', { key: t.key }))).status).toBe(400);
+  });
+
+  it('reads one mail as text, with its attachments by name', async () => {
+    const t = await setup();
+    const a = (await (await t.main(get('/api/google?step=mail-get&id=m1', { key: t.key }))).json()).mail;
+    expect(a).toMatchObject({ subject: 'Velo-Service fertig', text: 'Grüezi\nDein Velo ist bereit.', files: [{ name: 'Rechnung.pdf', size: 12000 }] });
+    expect((await (await t.main(get('/api/google?step=mail-get&id=m2', { key: t.key }))).json()).mail.text).toBe('Lektion morgen');
+    expect((await t.main(get('/api/google?step=mail-get&id=../x', { key: t.key }))).status).toBe(400);
+  });
+
+  it('sends a new mail and an answer in its thread', async () => {
+    const t = await setup();
+    const res = await (await t.main(post('/api/google?step=mail-send', { to: 'Velo Muster <info@veloladen.example.test>', subject: 'Termin Grüezi', text: 'Passt Donnerstag?' }, { key: t.key }))).json();
+    expect(res.id).toBe('sent1');
+    const raw = fromB64url(t.f.seen.at(-1).body.raw);
+    expect(raw).toContain('To: Velo Muster <info@veloladen.example.test>');
+    expect(raw).toContain(`Subject: =?UTF-8?B?${Buffer.from('Termin Grüezi').toString('base64')}?=`);
+    await t.main(post('/api/google?step=mail-send', { to: 'info@veloladen.example.test', subject: 'Re: Velo-Service fertig', text: 'Danke!', replyTo: 'm1' }, { key: t.key }));
+    const last = t.f.seen.at(-1);
+    expect(last.body.threadId).toBe('th1');
+    expect(fromB64url(last.body.raw)).toContain('In-Reply-To: <abc@example.test>');
+  });
+
+  it('refuses wrong addresses, an empty text, header tricks and other devices', async () => {
+    const t = await setup();
+    const send = (b, key = t.key) => t.main(post('/api/google?step=mail-send', b, { key }));
+    expect((await send({ to: 'kein-mail', text: 'x' })).status).toBe(400);
+    expect((await send({ to: 'a@example.test', text: '  ' })).status).toBe(400);
+    expect((await send({ to: '', text: 'x' })).status).toBe(400);
+    await send({ to: 'a@example.test', subject: 'Hallo\r\nBcc: b@example.test', text: 'x' });
+    expect(fromB64url(t.f.seen.at(-1).body.raw)).not.toMatch(/\r\nBcc:/);
+    expect((await t.main(post('/api/google?step=mail-send', { to: 'a@example.test', text: 'x' }))).status).toBe(401);
   });
 });

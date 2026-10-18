@@ -905,6 +905,14 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
 - **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
+## 18.10.2026: 0.147.0 Teil GM «Mail in der App» (in Paket B)
+
+- Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket.
+- **Server:** `api/google` bekommt `mail-list` (Posteingang oder Gmail-Suche, 20 pro Seite), `mail-get` (Text und Namen der Anhänge) und `mail-send` (an, cc, Betreff, Text; Antwort mit In-Reply-To und im gleichen Gmail-Verlauf); Hilfen in `api/_lib/googlemail.js`. Scopes `gmail.readonly` + `gmail.send`, zusätzlich angefragt (`services: ['mail']`). Der Server speichert keine Mail.
+- **App:** Seite «Mail» unter Ich; nichts ausser Einstellungen (verbunden, Signatur) wird gespeichert. «Mails dazu» unter einem Termin sucht nach den Titelwörtern, 30 Tage vor bis 2 Tage nach dem Termin.
+- **Selbst entschieden:** Seite unter Ich, nicht auf Heute (Regel 13). Eine Mail geht erst nach «Senden» raus. Nur Text, keine Anhänge beim Senden (kommt mit DF). HTML-Mails werden als Text gezeigt (sicher, keine fremden Bilder). «In Gmail öffnen» für alles Weitere.
+- **Nicht in diesem Teil:** Anhänge senden und öffnen (DF), Auswertungen (GX).
+
 ## 14.10.2026: 0.132.2 «Velo draussen ohne falschen Haken»
 
 - (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup)

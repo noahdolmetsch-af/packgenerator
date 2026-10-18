@@ -17,7 +17,7 @@
 export const WHATS_NEW = [
   {
     // v0.147.0 Paket B «Server»: Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit, Dokument als PDF,
-    // Google Kalender und Aufgaben, KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
+    // Google Kalender und Aufgaben, Mail (GM), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
     // automatischer Abgleich Handy–Computer, Selbstwartung + Web-Push. One release for all the server parts.
     version: '0.147.0',
     date: '2026-10-18',
@@ -25,7 +25,7 @@ export const WHATS_NEW = [
     lead: 'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.',
     points: [
       { text: 'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers', href: '#/flow/review' },
-      { text: 'Fitbit, Google calendar and tasks, and documents photographed as a PDF, also in your Google Drive', href: '#/me/fitbit' },
+      { text: 'Fitbit, Google calendar, tasks and Gmail, and documents photographed as a PDF, also in your Google Drive', href: '#/me/fitbit' },
       { text: 'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks', href: '#/me/data' },
     ],
     small: [

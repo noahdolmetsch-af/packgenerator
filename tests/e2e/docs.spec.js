@@ -10,7 +10,15 @@ import DE from '../../src/lib/i18n/de/index.js';
 const P = 'test_data_gtp_';
 const de = (en) => DE[en] ?? en;
 const shot = async (page, info, name) => {
-  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+  if (!process.env.SHOTS) return;
+  // The whole page in one picture: a viewport as tall as the page, so the fixed bottom bar sits at the end
+  // like after scrolling down, not across the middle of the picture.
+  const size = page.viewportSize();
+  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewportSize({ width: size.width, height: Math.max(size.height, tall) });
+  await page.waitForTimeout(150);
+  await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await page.setViewportSize(size);
 };
 
 const readTable = (page, name) =>

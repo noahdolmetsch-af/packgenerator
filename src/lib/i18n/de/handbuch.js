@@ -412,6 +412,12 @@ export default {
   'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
   'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
   'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  // Google Mail (GM)
+  'Connect once under Me › Mail (needs Strava connected on this device).': 'Einmal verbinden unter Ich › Mail (braucht Strava auf diesem Gerät).',
+  'Open Me › Mail and tap «Connect with Google».': 'Öffne Ich › Mail und tippe «Mit Google verbinden».',
+  'Tap a mail to read it; «Answer» or «New mail» writes one.': 'Tippe eine Mail an, um sie zu lesen; «Antworten» oder «Neue Mail» schreibt eine.',
+  'Under an appointment, «Mails to it» finds the mails about it.': 'Unter einem Termin findet «Mails dazu» die Mails dazu.',
+  'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.': 'Beispiel: Termin «Velo-Service» → «Mails dazu» zeigt die Bestätigung der Werkstatt.',
   // Google Kalender und Aufgaben (GA)
   'Connect once under Me › Appointments and tasks (needs Strava connected on this device).': 'Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).',
   'Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».': 'Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».',
