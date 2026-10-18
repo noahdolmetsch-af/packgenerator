@@ -5,6 +5,7 @@
    * the visits by month with their receipt photo, the cost per year. A receipt filed in the Eingang
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
@@ -67,6 +68,7 @@
   />
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <HintCard page="workshop" />
   <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   {#if bikes.length > 1}

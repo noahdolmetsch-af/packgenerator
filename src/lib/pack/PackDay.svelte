@@ -15,6 +15,7 @@
    * it as its own section with check boxes, and on the right «Gewicht nach Taschen» (the scale of P4),
    * «Aus früheren Touren» and «Mehr» (Laden). The open bag keeps its classes (.pbag.cur, #pb-<key>).
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
@@ -283,6 +284,7 @@
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} note />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
+  <HintCard page="pack" />
   <TipLine page="pack" name={t('Pack')} />
   {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->

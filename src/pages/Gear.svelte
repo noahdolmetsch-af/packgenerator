@@ -1,4 +1,5 @@
 <script>
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { take } from '../lib/nav.js';
@@ -538,6 +539,7 @@
   </header>
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  {#if items.length}<HintCard page="gear" />{/if}
   {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
 
   {#if !items.length && $itemsQuery}

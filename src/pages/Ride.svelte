@@ -1,4 +1,5 @@
 <script>
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { localDay } from '../lib/localday.js';
@@ -462,6 +463,7 @@
     <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
   {/if}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day (with «Passt zu heute»), at the end the fold -->
+  <HintCard page="ride" />
   <TipLine page="ride" name={t('On the way')} />
   <!-- v0.106.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
        day in blocks with the block of now and the weather hour by hour; right the note for the debrief,

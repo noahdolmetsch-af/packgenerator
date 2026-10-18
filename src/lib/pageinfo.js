@@ -92,6 +92,7 @@ export function infoOf(v) {
     own: obj(o.own),
     gone: obj(o.gone),
     canOff: obj(o.canOff),
+    hintOff: obj(o.hintOff),
   };
 }
 
@@ -208,6 +209,12 @@ export const setCan = (info, page, on) => {
   return { ...i, canOff: { ...i.canOff, [page]: !on } };
 };
 export const canShown = (info, page) => !infoOf(info).canOff[page];
+/** HT1–HT2 (1a): × folds a page's hint card to the line «Was hier steht ›», which opens it again. */
+export const setHint = (info, page, on) => {
+  const i = infoOf(info);
+  return { ...i, hintOff: { ...i.hintOff, [page]: !on } };
+};
+export const hintShown = (info, page) => !infoOf(info).hintOff[page];
 
 /* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
 export const EARTH_KM = 40075;

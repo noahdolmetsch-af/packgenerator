@@ -18,6 +18,7 @@
    * short intro of the start page again (lib/home/IntroKT.svelte).
    * «Inspiration» (UC2-1): a row under Notes, #/inspiration (on a phone the only way there).
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
@@ -105,6 +106,7 @@
   {/if}
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <HintCard page="me" />
   <TipLine page="me" name={t('Me|place')} />
 
   <div class="ich-cols">

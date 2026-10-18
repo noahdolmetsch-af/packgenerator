@@ -1,4 +1,5 @@
 <script>
+  import HintCard from '../pageinfo/HintCard.svelte';
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { localDay } from '../localday.js';
@@ -393,6 +394,7 @@
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+    {#if bikes.length}<HintCard page="care" />{/if}
     {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
   {/if}
   {#if !bikes.length && $bikesQ}

@@ -9,6 +9,7 @@
    * with "Add to wishlist", the learned offset in the header with "Reset", a photo per piece,
    * "Save as kit …" (selected pieces or today's suggestion) and Alltag-only clothes only under Alltag.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
@@ -299,6 +300,7 @@
   </header>
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the example «Was trage ich bei wie viel Grad?» -->
+  <HintCard page="wardrobe" />
   <TipLine page="wardrobe" name={t('Wardrobe')} />
 
   {#if trip}

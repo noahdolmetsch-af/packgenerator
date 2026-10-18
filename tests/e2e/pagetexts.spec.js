@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { PAGES, examplesOf } from '../../src/lib/pageinfo.js';
+import { HINTS } from '../../src/lib/hints.js';
 import { importAndSettle } from './settle.js';
 
 const T = (en, vars) => {
@@ -123,11 +124,49 @@ test('the tip line and the fold on the other places', async ({ page, context }, 
     const ids = PAGES[key].tips.map((x) => x.id);
     const line = main.locator('[data-tip]');
     await expect(line, key).toHaveCount(1);
+    // HT 3a: the card «Was hier steht» on top, before the tip line
+    const card = main.locator(`[data-hint="${key}"]`);
+    await expect(card, key).toContainText(T(HINTS[key].lead[0]));
+    expect(await card.evaluate((c, l) => !!(c.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_FOLLOWING), await line.elementHandle()), `${key}: the card comes before the tip`).toBe(true);
     expect(ids, key).toContain(await line.getAttribute('data-tip'));
     if (PAGES[key].can.length) await expect(main.locator('[data-section="can"]'), key).toHaveCount(1);
     for (const ex of examplesOf(key)) await expect(main.locator(`[data-example="${ex.id}"]`), key).toContainText(T(ex.title));
     await fits(page, key);
     await page.screenshot({ path: `qa/pagetexts-${key}-${test.info().project.name}.png`, fullPage: true });
   }
+  expect(errors).toEqual([]);
+});
+
+test('HT1 Velopflege: the card with its situations, jumps, the fold at the end, fold and back', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/bikes?tab=care');
+  const main = page.locator('main');
+  const card = main.locator('[data-hint="care"]');
+  await expect(card).toContainText(T(HINTS.care.lead[1]));
+  // 2b: on a phone «Typisch hier» starts folded, on a computer it is open
+  const uses = card.getByText(T(HINTS.care.uses[0][1]));
+  if (test.info().project.name === 'phone') {
+    await expect(uses).toBeHidden();
+    await card.locator('[data-uses] summary').click();
+  }
+  await expect(uses).toBeVisible();
+  // «Weiter unten»: a chip jumps to its part of the page
+  const chip = card.locator('[data-jump="due-h"]');
+  await expect(chip).toHaveText(T('Due now'));
+  await chip.click();
+  await expect(main.locator('#due-h')).toBeInViewport();
+  // «Das kann die App hier» opens the fold at the end
+  await card.locator('[data-hint-can]').click();
+  await expect(main.locator('[data-section="can"]')).toHaveAttribute('open', '');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await fits(page, 'Velopflege mit Hinweis');
+  await page.screenshot({ path: `qa/hinweis-care-${test.info().project.name}.png`, fullPage: true });
+  // 1a: × leaves the quiet line «Was hier steht», which opens the card again
+  await card.getByRole('button', { name: T('Fold the explanation') }).click();
+  const back = main.locator('[data-hint-line="care"]');
+  await expect(back).toContainText(T('What is here'));
+  await expect(card).toHaveCount(0);
+  await back.click();
+  await expect(main.locator('[data-hint="care"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

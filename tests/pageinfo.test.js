@@ -43,7 +43,7 @@ describe('the tip of the day', () => {
     expect(allTips(removeTip(i, 'aktiv', own.id), 'aktiv').some((x) => x.own)).toBe(false);
   });
   it('a broken stored value falls back to the defaults', () => {
-    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {} });
+    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {}, hintOff: {} });
     expect(tipOfDay({ off: 'no', own: [] }, 'aktiv', '2026-10-14')).toBeTruthy();
   });
 });

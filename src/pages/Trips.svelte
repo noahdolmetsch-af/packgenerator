@@ -22,6 +22,7 @@
    * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
    * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
@@ -262,6 +263,7 @@
       </Empty>
     {:else}
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
+      <HintCard page="trips" />
       <TipLine page="trips" name={t('Trips|place')} />
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
