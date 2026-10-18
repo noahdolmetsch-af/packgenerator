@@ -44,7 +44,7 @@ export default {
   'What do I wear?': 'Was ziehe ich an?',
   'Look back|function': 'Rückblick',
   'Weigh|function': 'Wiegen',
-  'Note · Inbox': 'Notiz · Inbox',
+  'Note · Inbox': 'Notiz · Eingang',
   'Glacier|palette': 'Gletscher',
   'A day ride in one tap: the list of your last one, with the weather.': 'Eine Tagestour mit 1 Tipp: die Liste deiner letzten, mit dem Wetter.',
   'Plan a trip: name, date and bike, the packing list follows.': 'Tour planen: Name, Datum und Velo, die Packliste kommt dazu.',
@@ -98,7 +98,7 @@ export default {
   'no data|light': 'keine Daten',
   '+ log km': '+ km nachtragen',
   '{n} due soon': '{n} bald fällig',
-  'base weight': 'Basis',
+  'base weight': 'Basisgewicht',
   'km per month, last 12 months': 'km pro Monat, letzte 12 Monate',
   Series: 'Serie',
   '{n} week in a row': '{n} Woche in Folge',
@@ -127,7 +127,7 @@ export default {
   '{bike}: washed|command': '{bike}: gewaschen',
   'Note: "{text}"': 'Notiz: «{text}»',
   'Saved with today’s date, with Undo': 'Mit heutigem Datum gespeichert, mit Rückgängig',
-  'Into the Inbox': 'In die Inbox',
+  'Into the Inbox': 'In den Eingang',
 
   /* ---------- Farbwelt ---------- */
   Colours: 'Farbwelt',

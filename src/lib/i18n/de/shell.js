@@ -1,15 +1,15 @@
 /** Navigation, start page, New, search, Inbox, your data. */
 export default {
   Home: 'Start',
-  Gear: 'Ausrüstung',
+  Gear: 'Material',
   Pack: 'Packen',
   Bikes: 'Velos',
   Debrief: 'Rückblick',
   New: 'Neu',
   Language: 'Sprache',
   Sections: 'Bereiche',
-  Inbox: 'Inbox',
-  'Inbox, {n} to sort': 'Inbox, {n} zum Einordnen',
+  Inbox: 'Eingang',
+  'Inbox, {n} to sort': 'Eingang, {n} zum Ablegen',
   'Pack Generator, start page': 'Pack Generator, Startseite',
 
   /* ---------- general ---------- */
@@ -30,8 +30,8 @@ export default {
   wishlist: 'Wunschliste',
   Favourites: 'Favoriten',
   favourites: 'Favoriten',
-  Learning: 'Learning',
-  Learnings: 'Learnings',
+  Learning: 'Erkenntnis',
+  Learnings: 'Erkenntnisse',
   Trips: 'Touren',
   Notes: 'Notizen',
   Done: 'Fertig',
@@ -42,7 +42,7 @@ export default {
   'Leave at home': 'Zu Hause lassen',
   'Quick note': 'Notiz',
   'Quick notes': 'Notizen',
-  'Gear item': 'Ausrüstungsteil',
+  'Gear item': 'Materialteil',
   'not weighed': 'nicht gewogen',
   '{n} item': '{n} Teil',
   '{n} items': '{n} Teile',
@@ -84,7 +84,7 @@ export default {
   'Your data lives only in this browser: one file keeps it safe (every {n} days).':
     'Deine Daten sind nur in diesem Browser: eine Datei sichert sie (alle {n} Tage).',
   'Download backup': 'Backup herunterladen',
-  '{w} gear': '{w} Ausrüstung',
+  '{w} gear': '{w} Material',
   'On the way': 'Unterwegs',
   'to go': 'bis Start',
   '{n} day to go': 'noch {n} Tag',
@@ -145,11 +145,11 @@ export default {
   'Forecast from 16 days before': 'Vorhersage ab 16 Tagen vorher',
   'sun computed offline': 'Sonne offline berechnet',
   'From your debriefs': 'Aus deinen Rückblicken',
-  'No learnings yet': 'Noch keine Learnings',
+  'No learnings yet': 'Noch keine Erkenntnisse',
   'After a trip, the debrief turns what you did not use into tips.':
     'Nach einer Tour macht der Rückblick aus dem, was du nicht gebraucht hast, Tipps.',
-  '{n} learning': '{n} Learning',
-  '{n} learnings': '{n} Learnings',
+  '{n} learning': '{n} Erkenntnis',
+  '{n} learnings': '{n} Erkenntnisse',
   all: 'alle',
   'Your pace': 'Dein Tempo',
   '{kmh} km/h moving': '{kmh} km/h in Fahrt',
@@ -219,7 +219,7 @@ export default {
   '{n} items not on any trip since {date}': '{n} Teile seit {date} auf keiner Tour',
   '{w} in total': 'Total {w}',
   'Look through': 'Durchsehen',
-  'All learnings': 'Alle Learnings',
+  'All learnings': 'Alle Erkenntnisse',
   'Show your pace': 'Dein Tempo zeigen',
   'Home place, e.g. Aarau': 'Wohnort, z. B. Aarau',
   'Your home place': 'Dein Wohnort',
@@ -230,7 +230,7 @@ export default {
   'Repair on a bike': 'Reparatur am Velo',
   'Note for a trip': 'Notiz für eine Tour',
   'Done, nothing to keep': 'Erledigt, nichts behalten',
-  'Debrief → Learnings': 'Rückblick → Learnings',
+  'Debrief → Learnings': 'Rückblick → Erkenntnisse',
   'its debrief': 'ihr Rückblick',
   'All notes': 'Alle Notizen',
   'Trip note': 'Tour-Notiz',
@@ -245,10 +245,10 @@ export default {
     'Noch keine Notizen. Tippe auf jeder Seite auf +, wenn dir etwas auffällt.',
   'Open photo': 'Foto öffnen',
   'Other places for this note': 'Andere Orte für diese Notiz',
-  'Back to inbox': 'Zurück in die Inbox',
+  'Back to inbox': 'Zurück in den Eingang',
   'This photo could not be read.': 'Dieses Foto konnte nicht gelesen werden.',
   'Write a few words or add a photo.': 'Schreib ein paar Worte oder füge ein Foto hinzu.',
-  'Saved in the Inbox.': 'In der Inbox gespeichert.',
+  'Saved in the Inbox.': 'Im Eingang gespeichert.',
   'e.g. Rear brake squeaks on the Spark': 'z. B. Hinterradbremse quietscht am Spark',
   'Reading…': 'Wird gelesen…',
   'Other photo': 'Anderes Foto',
@@ -271,7 +271,7 @@ export default {
   'Open Pack Generator': 'Pack Generator öffnen',
 
   /* ---------- your data (DataPanel, backup.js, demo.js) ---------- */
-  'Gear + wishlist': 'Ausrüstung + Wunschliste',
+  'Gear + wishlist': 'Material + Wunschliste',
   Kits: 'Kits',
   Debriefs: 'Rückblicke',
   Events: 'Ereignisse',
@@ -300,7 +300,7 @@ export default {
     'Eine Demo läuft: Backups sind aus, bis du sie beendest (gelber Balken oben).',
   'Apply favourites': 'Favoriten übernehmen',
   '{stars} items in your gear get a ★, {adds} new items are added, and a template with all favourites is saved.':
-    '{stars} Teile deiner Ausrüstung bekommen einen ★, {adds} neue Teile kommen dazu, und eine Vorlage mit allen Favoriten wird gespeichert.',
+    '{stars} Teile deines Materials bekommen einen ★, {adds} neue Teile kommen dazu, und eine Vorlage mit allen Favoriten wird gespeichert.',
   'Weights, bags and everything else you typed in stay as they are. Nothing is deleted.':
     'Gewichte, Taschen und alles andere, was du eingegeben hast, bleiben, wie sie sind. Nichts wird gelöscht.',
   'End the running demo first, else the stars would vanish with it.':
@@ -313,8 +313,8 @@ export default {
   'End the running demo first.': 'Beende zuerst die laufende Demo.',
   // v0.44.1 (AP22): one or many for each count ("1 Tour", not "1 Touren").
   'contains {items}, {trips} and {learnings}.': 'enthält {items}, {trips} und {learnings}.',
-  '{n} gear item': '{n} Ausrüstungsteil',
-  '{n} gear items': '{n} Ausrüstungsteile',
+  '{n} gear item': '{n} Materialteil',
+  '{n} gear items': '{n} Materialteile',
   'Replace all data': 'Alle Daten ersetzen',
   Merge: 'Zusammenführen',
   'Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.':
@@ -377,7 +377,7 @@ export default {
   'What the counter says': 'Was der Zähler anzeigt',
   'Workshop receipt: ': 'Werkstatt-Quittung: ',
   'Workshop visit': 'Werkstattbesuch',
-  'Photo of the receipt into the Inbox': 'Foto der Quittung in die Inbox',
+  'Photo of the receipt into the Inbox': 'Foto der Quittung in den Eingang',
   'From the open trip, in Templates': 'Aus der offenen Tour, in Vorlagen',
 
   /* ---------- search ---------- */
@@ -385,7 +385,7 @@ export default {
   // v0.46.1: the empty search sheet on a phone
   'Type two letters or more, or say what you want to do: "weigh", "day ride".': 'Tippe zwei Buchstaben oder mehr, oder sag, was du tun willst: «wiegen», «Tagestour».',
   'Search everything': 'Alles durchsuchen',
-  'Find gear, trips, bikes, notes': 'Ausrüstung, Touren, Velos, Notizen finden',
+  'Find gear, trips, bikes, notes': 'Material, Touren, Velos, Notizen finden',
   'Search results': 'Suchergebnisse',
   '{n} more': '{n} weitere',
   'Nothing found for "{q}".': 'Nichts gefunden für «{q}».',
@@ -463,7 +463,7 @@ export default {
   'Gear|place': 'Material',
   'Bikes|place': 'Velos',
   'Profile and settings': 'Profil und Einstellungen',
-  'Debriefs and learnings': 'Rückblicke und Learnings',
+  'Debriefs and learnings': 'Rückblicke und Erkenntnisse',
   'trip ended': 'Tour vorbei',
   'Continue planning': 'Weiter planen',
   'Start packing': 'Packen',

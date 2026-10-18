@@ -13,7 +13,7 @@ export default {
   'Favourite|star': 'Favorit',
   'Make {name} a favourite': '{name} zum Favoriten machen',
   'Do not suggest any more': 'Nicht mehr vorschlagen',
-  'It stays in your gear': 'Es bleibt in deiner Ausrüstung',
+  'It stays in your gear': 'Es bleibt in deinem Material',
   'A suggestion from your past trips. Under «…»: do not suggest any more.': 'Vorschlag aus deinen letzten Touren. Unter «…»: nicht mehr vorschlagen.',
   'After a few trips, what is often with you shows here.': 'Nach ein paar Touren steht hier, was oft dabei ist.',
   'Nothing yet that is often with you and has no star.': 'Noch nichts, was oft dabei ist und keinen Stern hat.',

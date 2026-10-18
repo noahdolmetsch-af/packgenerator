@@ -10,7 +10,6 @@
   import { PLACES, PLACE_TABS, tabOf, tabStep } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
-  import { MapPin, X } from '@lucide/svelte';
 
   let { place, hash = '#/', moved = null, onclosemoved } = $props();
 
@@ -108,13 +107,7 @@
     </p>
   {/if}
 {/if}
-{#if moved}
-  <div class="moved" role="status">
-    <span class="ico" aria-hidden="true"><MapPin size={20} /></span>
-    <p>{t('The old address {old} now leads here:', { old: moved })} <b>{curName ? `${placeName} › ${curName}` : placeName}</b>.</p>
-    <button type="button" class="x" aria-label={t('Close note')} onclick={onclosemoved}><X size={20} aria-hidden="true" /></button>
-  </div>
-{/if}
+<!-- v0.137.0 (Durchklick DK6): no note about an old address; the old address still leads here -->
 </div>
 
 <style>
@@ -205,41 +198,5 @@
   .d.on {
     width: 18px;
     background: var(--pc);
-  }
-  .moved {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--sp-3);
-    margin: 0 0 var(--sp-4);
-    padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-4);
-    border: 1px solid var(--line);
-    border-left: 4px solid var(--pc);
-    border-radius: 12px;
-    background: var(--paper);
-    color: var(--ink);
-  }
-  .ico {
-    display: inline-flex;
-    flex: 0 0 auto;
-    margin-top: 2px;
-    color: var(--ink-2);
-  }
-  .moved p {
-    flex: 1;
-    margin: 0;
-    font: 400 var(--fs-label) / 1.45 var(--font-body);
-  }
-  .x {
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
-    margin: calc(-1 * var(--sp-2)) 0;
-    border: 0;
-    border-radius: 22px;
-    background: none;
-    color: var(--ink-2);
-    cursor: pointer;
   }
 </style>

@@ -38,8 +38,8 @@ describe('PF14: sums with unknown weights', () => {
     expect(weightText(2690, 7)).toBe('known: 2.69 kg · 7 not weighed');
     expect(weightText(2690, 0)).toBe('2.69 kg');
     lang.v = 'de';
-    expect(knownWeight(2690, 7)).toBe('bekannt: 2.69 kg');
-    expect(weightText(2690, 7)).toBe('bekannt: 2.69 kg · 7 nicht gewogen');
+    expect(knownWeight(2690, 7)).toBe('2.69 kg (gewogen)');
+    expect(weightText(2690, 7)).toBe('2.69 kg (gewogen) · 7 nicht gewogen');
   });
 
   it('Gear: the gear weight says how many non-food items are not weighed', () => {

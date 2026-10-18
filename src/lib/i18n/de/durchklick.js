@@ -9,4 +9,9 @@ export default {
   'all together, with food and water': 'alles zusammen, mit Essen und Wasser',
   // v0.137.0 Heute (H1, Noah «3a»): small line under the trip, the same total as the trip head
   'with food, water and worn items {w}': 'mit Essen, Wasser, Getragenem {w}',
+  // v0.137.0 «Einfache Wörter» (Durchklick DK6, Antwort 5a): no internal code next to «later»
+  'later|soon': 'später',
+  // v0.137.0 (Durchklick DK7c): import on an empty device
+  'New here': 'Neu hier',
+  'This device has no trips and no gear yet, so nothing is lost.': 'Auf diesem Gerät sind noch keine Touren und kein Material, es geht also nichts verloren.',
 };

@@ -148,7 +148,9 @@
       const existing = {};
       for (const k of DATA_TABLES) existing[k] = await db.table(k).toCollection().primaryKeys();
       // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
-      const state = compareStates(data.lastChange ?? null, await lastChangeOf(db), data.exportedAt ?? null);
+      // v0.137.0 (Durchklick DK7c): a device without trips and gear has nothing to lose: no «older» warning.
+      const fresh = !existing.trips?.length && !existing.items?.length;
+      const state = fresh ? { kind: 'fresh' } : compareStates(data.lastChange ?? null, await lastChangeOf(db), data.exportedAt ?? null);
       pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state };
       message = '';
     } catch {
@@ -340,7 +342,9 @@
               <strong>{pending.name}</strong> {t('contains {items}, {trips} and {learnings}.', { items: tn(pending.counts.items, '{n} gear item', '{n} gear items'), trips: tn(pending.counts.trips, '{n} trip', '{n} trips'), learnings: tn(pending.counts.learnings, '{n} learning', '{n} learnings') })}
             </p>
             <!-- v0.34.0 (L10): is the file newer or older than this device? -->
-            {#if pending.state.kind !== 'unknown'}
+            {#if pending.state.kind === 'fresh'}
+              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has no trips and no gear yet, so nothing is lost.')}</p>
+            {:else if pending.state.kind !== 'unknown'}
               <p class="state"><i class="badge {pending.state.kind}">{pending.state.kind === 'newer' ? t('Newer') : pending.state.kind === 'older' ? t('Older') : t('Same state')}</i>
                 {pending.state.kind === 'newer' ? t('This file is newer than the data on this device (file {file}, this device {local}).', { file: when(pending.state.file), local: when(pending.state.local) }) : pending.state.kind === 'older' ? t('This file is older than the data on this device (file {file}, this device {local}). Replace would put the older state here.', { file: when(pending.state.file), local: when(pending.state.local) }) : t('This file has the same state as this device ({file}).', { file: when(pending.state.file) })}</p>
             {:else if pending.state.exported}

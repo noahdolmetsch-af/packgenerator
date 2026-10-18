@@ -812,8 +812,10 @@
   }
   .kv li > span:first-child,
   .top li > span {
+    /* Durchklick DK7a: a long trip name without spaces wraps */
+    min-width: 0;
     color: var(--ink-2);
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .kv b,
   .top b {
@@ -827,8 +829,9 @@
     align-items: center;
     min-height: 44px;
     color: var(--ink);
+    min-width: 0;
     font-weight: 500;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .sh {
     margin: 12px 0 0;

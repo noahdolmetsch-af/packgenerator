@@ -72,7 +72,7 @@ test('Im Flow: one tap from its card on Today, two taps through More', async ({ 
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   const card = page.locator('[data-section="flow"]');
-  await card.getByRole('link', { name: /Im Flow|In the flow/ }).click(); // 1 tap
+  await card.getByRole('link', { name: /Aktiv|In the flow/ }).click(); // 1 tap
   await expect(page).toHaveURL(/#\/flow$/);
   // Design-Refresh P8 (A1): the page is titled «Aktiv», like its place
   await expect(page.locator('main h1')).toHaveText(/^(Aktiv|Active)$/);
