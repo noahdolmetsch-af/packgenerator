@@ -9,8 +9,9 @@
    *
    * block: a card of Bausteine (sets.js allSets + setView: key, name, items, inventory, g, missing);
    * rule: situation.js ruleOf(); onsave({ rule, out }): out = the item IDs to take out; onrename(); onclose().
+   * «Gruppen überall» (Noah 18.10.2026): ondelete() asks to delete the block (built-in ones too).
    */
-  import { X, Pencil, Plus, ChevronRight, Info } from '@lucide/svelte';
+  import { X, Pencil, Plus, ChevronRight, Info, Trash2 } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
   import { formatWeight, itemWeight, isInventory, knownWeight } from '../gear.js';
@@ -19,7 +20,7 @@
   import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf } from '../situation.js';
   import { cmpWord, unitOf, sourceLine } from '../situationtext.js';
 
-  let { block, rule, onsave, onrename, onclose } = $props();
+  let { block, rule, onsave, onrename, ondelete = null, onclose } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -142,6 +143,7 @@
     {/if}
     <a class="btn add" href={`#/gear?fill=${encodeURIComponent(block.key)}`} onclick={() => dialog.close()}><Plus size={18} aria-hidden="true" />{t('Add items')}</a>
     <button type="button" class="namerow" onclick={() => onrename?.()}><Pencil size={18} aria-hidden="true" /><span>{t('Name|block')}</span><small>{block.name}</small><ChevronRight size={18} aria-hidden="true" /></button>
+    {#if ondelete}<button type="button" class="namerow del" onclick={() => ondelete()}><Trash2 size={18} aria-hidden="true" /><span>{t('Delete building block')}</span><small></small><ChevronRight size={18} aria-hidden="true" /></button>{/if}
 
     <div class="foot">
       <button type="button" class="tp-link reset" onclick={reset}>{t('Reset|rule')}</button>
@@ -415,6 +417,9 @@
     margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid var(--line);
+  }
+  .namerow.del {
+    color: var(--bad);
   }
   .reset {
     margin-right: auto;

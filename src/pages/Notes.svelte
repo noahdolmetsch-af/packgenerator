@@ -9,14 +9,14 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { TOPICS, guessTopic, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
+  import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
   import { sortBikes } from '../lib/bikes.js';
   import { shrinkImage } from '../lib/photo.js';
   import { localDay } from '../lib/localday.js';
   import NoteSheet from '../lib/notes/NoteSheet.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen } from '@lucide/svelte';
+  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import '../lib/ich/ich.css';
 
@@ -96,7 +96,7 @@
     linkUrl = '';
     checkMode = false;
     dictated = false;
-    saved = t('Saved under {topic}.', { topic: t(TOPICS.find((x) => x.key === n.topic).name) });
+    saved = t('Saved under {topic}.', { topic: topicText(noteTopic(n), t) });
     setTimeout(() => (saved = ''), 4000);
   }
 
@@ -105,7 +105,7 @@
   const openNote = $derived(open ? notes.find((n) => n.id === open) : null);
 
   function exportMd() {
-    const md = notesMarkdown(notes, { topicName: (k) => (k === '__title' ? t('Notes') : k === '__pinned' ? t('pinned') : t(TOPICS.find((x) => x.key === k)?.name ?? k)), bikeName: (id) => names[id] ?? '', today: localDay() });
+    const md = notesMarkdown(notes, { topicName: (k) => (k === '__title' ? t('Notes') : k === '__pinned' ? t('pinned') : topicText(k, t)), bikeName: (id) => names[id] ?? '', today: localDay() });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
     a.download = `notizen-${localDay()}.md`;
@@ -113,7 +113,6 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
-  const TOPIC = Object.fromEntries(TOPICS.map((x) => [x.key, x]));
   const dayShort = (iso) => (iso ? (iso.slice(0, 10) === localDay() ? t('today') : new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })) : '');
 </script>
 
@@ -142,7 +141,7 @@
       </div>
     {/if}
     {#if photo}<p class="phrow"><img src={photo} alt={t('Photo of the note')} /><button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button></p>{/if}
-    <p class="tools hintrow"><span class="hint">{text.trim() ? t('Topic: {topic}', { topic: t(TOPIC[topicNow].name) }) : t('The topic follows the text')}</span></p>
+    <p class="tools hintrow"><span class="hint">{text.trim() ? t('Topic: {topic}', { topic: topicText(topicNow ?? '', t) }) : t('The topic follows the text')}</span></p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     {#if saved}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{saved}</p>{/if}
   </form>
@@ -155,7 +154,7 @@
         <span class="ich-ib"><Kind size={18} aria-hidden="true" /></span>
         <span class="ich-m">
           <b>{noteTitle(n) || t('Note')}</b>
-          <small>{[dayShort(n.editedAt ?? n.at), p.total ? `${t('Checklist')} · ${t('{done} of {total} done', p)}` : n.link?.url ? t('Link') : n.photo ? t('Photo') : '', `${t('Topic')} ${t(TOPIC[n.topic ?? 'general']?.name ?? 'General')}`, n.bikeId && names[n.bikeId] ? names[n.bikeId] : '', ...tagsOf(n.text).map((tg) => `#${tg}`)].filter(Boolean).join(' · ')}</small>
+          <small>{[dayShort(n.editedAt ?? n.at), p.total ? `${t('Checklist')} · ${t('{done} of {total} done', p)}` : n.link?.url ? t('Link') : n.photo ? t('Photo') : '', `${t('Topic')} ${topicText(noteTopic(n), t)}`, n.bikeId && names[n.bikeId] ? names[n.bikeId] : '', ...tagsOf(n.text).map((tg) => `#${tg}`)].filter(Boolean).join(' · ')}</small>
         </span>
         <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
       </button>
@@ -194,10 +193,10 @@
       </div>
 
       <section class="ich-sec" aria-labelledby="topics-h">
-        <div class="ich-h"><div><h2 id="topics-h">{t('Topics')}</h2><p class="ich-hs">{t('The topic follows the text')}</p></div></div>
+        <div class="ich-h"><div><h2 id="topics-h">{t('Topics')}</h2><p class="ich-hs">{t('The topic follows the text')}</p></div><a class="ich-edit" href="#/me/lists?noteTopics"><Pencil size={14} aria-hidden="true" />{t('Edit topics')}</a></div>
         <div class="card ich-body fl" role="group" aria-label={t('Filter')}>
-          {#each FILTERS.filter((f) => !f.has) as f (f.key)}
-            <button type="button" class="fchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{#if f.topic}<i class="dot t-{f.topic}" aria-hidden="true"></i>{/if}{t(f.name)} · <span class="num">{counts[f.key]}</span></button>
+          {#each FILTERS.filter((f) => !f.has && (!f.none || counts[f.key])) as f (f.key)}
+            <button type="button" class="fchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{#if f.topic}<i class="dot t-{f.topic}" aria-hidden="true"></i>{/if}{f.raw ? f.name : t(f.name)} · <span class="num">{counts[f.key]}</span></button>
           {/each}
           <p class="fh">{t('Holds')}</p>
           {#each FILTERS.filter((f) => f.has) as f (f.key)}
