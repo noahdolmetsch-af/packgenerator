@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.147.0 Paket B «Server»
+  'Connected, and it looks after itself': 'Verbunden, und sie schaut selbst nach sich',
+  'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.': 'Deine Uhr, dein Google-Kalender und deine Fahrten reden mit der App, Handy und Computer gleichen sich selbst ab, und der Server prüft sich jeden Tag.',
+  'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers': 'Training: Leistung, Gewicht und Analysen zu jeder Fahrt, dazu der «Wochenrückblick» mit fünf Zahlen',
+  'Fitbit, Google calendar and tasks, and documents photographed as a PDF, also in your Google Drive': 'Fitbit, Google-Kalender und Aufgaben, und Dokumente fotografiert als PDF, auch in deinem Google Drive',
+  'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks': 'Handy und Computer gleichen sich selbst ab, verschlossen mit einem Code; wenn beide dasselbe geändert haben, fragt die App',
+  'Assistant: ask the app about your rides, bikes and gear, or let it help you plan a trip': 'Assistent: Frag die App nach Fahrten, Velos und Material, oder lass dir beim Planen einer Tour helfen',
+  'Under Me: people book your free times with one link, a shop without fees, and reminders on the phone': 'Unter Ich: Leute buchen deine freien Zeiten mit einem Link, ein Shop ohne Gebühren, und Erinnerungen aufs Handy',
+  'The AI helper stops at CHF 2 a month; when the credit is empty it says so once and steps aside until it works again': 'Der KI-Helfer stoppt bei CHF 2 im Monat; ist das Guthaben leer, sagt er es einmal und tritt zur Seite, bis es wieder geht',
+  'Open Aktiv › Heute › Woche and tap «Week in review ›»: five numbers, the week strip and the highlights.': 'Öffne Aktiv › Heute › Woche und tippe «Wochenrückblick ›»: fünf Zahlen, der Wochenstreifen und die Höhepunkte.',
+  'Open Me › Documents, tap «Photograph document», choose two photos from the gallery and «Save as PDF»: the new document opens.': 'Öffne Ich › Dokumente, tippe «Dokument fotografieren», wähle zwei Fotos aus der Galerie und «Als PDF speichern»: das neue Dokument öffnet sich.',
+  'Open Me › Data and backup › Phone and computer, «Switch on sync»: a QR code and a code appear for the other device.': 'Öffne Ich › Daten und Backup › Handy und Computer, «Abgleich einschalten»: ein QR-Code und ein Code erscheinen für das andere Gerät.',
   // 0.146.0 Paket A «Daten sicher und Bedienung»
   'Safe data, calm hands': 'Sichere Daten, ruhige Hände',
   'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.': 'Deine Daten bleiben und reisen zwischen Handy und Computer, Fenster behalten dein Getipptes, und jede Seite sagt, wofür sie da ist.',

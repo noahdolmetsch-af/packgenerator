@@ -139,8 +139,10 @@ const OWN = [
   // v0.125.0 «Werte überall» (WU3): year goals for km, metres climbed and minutes, and the footprint
   { id: 'f.yeargoals', group: 'active', title: 'Year goals and footprint', text: 'One year goal each for km, metres climbed and minutes, each can be switched off; the CO₂ your rides saved.', href: '#/flow/goals', words: 'jahresziel höhenmeter hm fussabdruck co2 km ziel jahr' },
   // v0.133.0 «Wi gaht's?» (AB1–AB6, WG): the questions with their own rhythm, two fixed rounds, history and analysis
-  // v0.153.0 Termine buchen (BU1–BU5): people book your free times through a link
+  // v0.147.0 Paket B: Termine buchen (BU1–BU5): people book your free times through a link
   { id: 'f.offers', group: 'active', title: 'Offers', text: 'Open free times for tennis, a guided tour or a bike service; people book them through one link, without the app.', href: '#/me/offers', words: 'termine buchen angebote tennis lektion schüler tour service kalender link' },
+  // v0.147.0 Paket B: Shop ohne Gebühren (SHOP1–SHOP4b)
+  { id: 'f.webshop', group: 'data', title: 'Shop without fees', text: 'Sell downloads, codes or things to send: one shop link, no app or account needed; people pay with TWINT or a QR bill, you see the orders.', href: '#/me/shop', words: 'shop laden verkaufen produkt bestellung versand download code twint qr porto vorrat' },
   { id: 'f.abfragen', group: 'active', title: 'Your questions', text: 'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis.', href: '#/me/abfragen', words: 'wi gahts fragen tagescheck morgen abend runde verlauf auswertung schlaf stimmung' },
   // v0.136.0 «Inhalte Flow» IF1–IF3 + «Wusstest du» WD1–WD3
   { id: 'f.pagetips', group: 'active', title: 'Tips and «Did you know»', text: 'One tip a day on twelve places, what the app can do there and examples to keep as a note; Earth and Everest in Past trips.', href: '#/flow', words: 'tipp tipps wusstest du wissen links kacheln erde everest föhn hitze regen wind beispiel notiz kleider kette hinweis erklärung was hier steht' },
@@ -167,7 +169,7 @@ const OWN = [
   { id: 'f.autosync', group: 'data', title: 'Automatic sync', text: 'Phone and computer keep the same data by themselves, sealed with a code; when both changed the same entry, the app asks which version counts.', href: '#/me/data', words: 'abgleich automatisch synchron sync koppeln code handy computer server verschlüsselt konflikt beide geändert' },
   // P3b Teil 3 «Kamera überall»: the camera wherever a photo is added, a receipt with several pages
   { id: 'f.camera', group: 'data', title: 'Camera everywhere', text: 'On the phone the camera opens with one tap for a note, an item, a bike, a setup and a problem; a receipt can have several pages.', href: '#/bikes?tab=shop', words: 'kamera foto fotografieren beleg quittung seite galerie bild' },
-  // 0.157.0 «Fitbit verbinden» (G1–G2)
+  // v0.147.0 Paket B: «Fitbit verbinden» (G1–G2)
   { id: 'f.docscan', group: 'data', title: 'Documents as PDF', text: 'Photograph a document or choose photos from the gallery: the app straightens the pages, reads the text and keeps a PDF, also in your Google Drive.', href: '#/me/docs', words: 'dokument pdf scan scannen foto fotografieren quittung brief garantie ablage drive google galerie text' },
   { id: 'f.agenda', group: 'data', title: 'Google calendar and tasks', text: 'Your Google calendar and Google Tasks in the app: see the next 14 days, enter appointments, tick and add tasks.', href: '#/me/agenda', words: 'google kalender termine termin aufgaben tasks to-do todo agenda woche planen' },
   { id: 'f.fitbit', group: 'data', title: 'Fitbit connection', text: 'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.', href: '#/me/fitbit', words: 'fitbit google gesundheit schlaf ruhepuls hrv schritte aktivzonen uhr' },

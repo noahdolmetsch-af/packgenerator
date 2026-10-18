@@ -45,6 +45,8 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.standardbike']).toBe('0.145.0'); // v0.145.0 «Paket 3»: Standard-Velo VS1–VS4 (0.144.0 RE brought no new function)
     expect(SINCE['f.docs']).toBe(SINCE['f.sync']); // P3b «Daten sicher»: Dokumente and the exchange come together
     expect(SINCE['f.camera']).toBe(SINCE['f.docs']); // P3c «Kamera überall» ships with them in 0.146.0
+    // v0.147.0 Paket B «Server»: every new function of the server package comes with this version
+    for (const id of ['f.fitbit', 'f.analyses', 'f.weight', 'f.weekreview', 'f.docscan', 'f.agenda', 'f.assistent', 'f.offers', 'f.autosync', 'f.push', 'f.webshop']) expect(SINCE[id], id).toBe('0.147.0');
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -124,7 +126,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 20))).toEqual(['f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks']);
+    expect(ids(newest.slice(0, 31))).toEqual(['f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -151,11 +153,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();

@@ -344,7 +344,7 @@ export default {
   'Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.': 'Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.',
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.': 'Beispiel: Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.',
-  // TR5–TR7 «Leistung und Analysen» and TR6 «Gewicht» (0.148.0)
+  // TR5–TR7 «Leistung und Analysen» and TR6 «Gewicht» (0.147.0)
   'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.': 'Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.',
   'Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.',
   'Open Training › Week: the analyses over the weeks under the look back.': 'Öffne Training › Woche: die Analysen über die Wochen unter dem Rückblick.',
@@ -408,7 +408,7 @@ export default {
   'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
   'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
   'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
-  // 0.157.0 Fitbit-Verbindung
+  // 0.147.0 Fitbit-Verbindung
   'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
   'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
   'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
@@ -437,7 +437,7 @@ export default {
   'Ask the app: type a question or tap an example; the answer comes from your data, with a link.': 'Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.',
   'Help me plan: answer four short questions, check the plan, «Create the trip».': 'Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».',
   'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».': 'Beispiel: «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».',
-  // v0.153.0 Termine buchen
+  // v0.147.0 Termine buchen
   'Needs the booking server; online payment only in test mode.': 'Braucht den Buchungs-Server; online bezahlen nur im Testmodus.',
   'Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.': 'Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.',
   'Tap + on a day to open a free time, then send the link by WhatsApp.': 'Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.',
@@ -455,4 +455,10 @@ export default {
   'Switch on «On the phone» and allow notifications.': 'Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.',
   'Switch on the reminders you want, one by one.': 'Schalte die gewünschten Erinnerungen einzeln ein.',
   'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»': 'Beispiel: am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»',
+  // v0.147.0 Shop ohne Gebühren
+  'Nothing to switch on; the orders wait on the server until the app fetches them.': 'Nichts einzuschalten; die Bestellungen warten auf dem Server, bis die App sie abholt.',
+  'Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.': 'Öffne Ich › Bezahlen › Shop und erfasse ein Produkt: einen Download, einen Code oder etwas zum Verschicken mit Porto und Vorrat.',
+  'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
+  'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
+  'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
 };

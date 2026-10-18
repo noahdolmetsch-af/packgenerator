@@ -59,7 +59,7 @@ Vom 15. bis 18.10.2026 wurde viel gebaut, aber wenig veröffentlicht. Am 18.10.2
 |---|---|---|---|---|
 | 1 | **P3 Navigation und Standard-Velo** | 0.145.0 | Navigation ohne Springen, Standard-Velo mit ★ und Reihenfolge, lange Listen klappen zu, Schnellstart und «Wie letzte Tour» wieder da, vier Anzeigefehler | PR #182 offen, Noah hat «ok» gegeben; wird nach grünem Test zusammengeführt |
 | 2 | **A Daten sicher und Bedienung** | 0.146.0 | Browser behält die Daten fest, Abgleich Handy–Computer über eine Sicherung, «Alle Daten ersetzen» fragt zweimal und macht vorher ein Backup, neuer Ort «Dokumente» (Pass, Versicherung als PDF, Datenbank-Stufe 12); einheitliche Bedienregeln (siehe Abschnitt 5); Kamera-Knopf überall; Hinweistexte und mehr Inhalt in der App | gebaut, wird gebündelt |
-| 3 | **B Server** | ab 0.147.0 | Training mit Leistung und Wochenrückblick, Fitbit verbinden (Stufe 13), Dokument fotografieren als PDF (Stufe 14), Google Kalender und Aufgaben lesen (Stufe 15), KI-Helfer mit Monatsdeckel und Assistent «Frag die App», Termine buchen, Shop, automatischer Abgleich Handy–Computer, Erinnerungen aufs Handy (Web-Push) | fast alles gebaut; automatischer Abgleich und Push noch im Bau |
+| 3 | **B Server** | 0.147.0 | Training mit Leistung und Wochenrückblick, Fitbit verbinden (Stufe 13), Dokument fotografieren als PDF (Stufe 14), Google Kalender und Aufgaben lesen (Stufe 15), KI-Helfer mit Monatsdeckel und Assistent «Frag die App», Termine buchen, Shop, automatischer Abgleich Handy–Computer, Erinnerungen aufs Handy (Web-Push) | gebündelt am 18.10.2026 (alle neun Teile); Dokument als PDF ohne eigene Stufe (Stufe 12 von A), Google Stufe 15 |
 | 4 | **D Touren und Unterwegs** | danach | Strava-Fahrten auf der Touren-Seite, Höhenprofil, ein Weg «Fahrt hochladen» (GPX, TCX, CSV), Planungs-Notizen im Tour-Entwurf, kürzere Handy-Seiten, Fehlerbehebungen, Chronik | gebaut |
 | 5 | **E Material, Velos, Merken** | danach | Dateneingabe W1–W6 (Kette messen, Reifendruck), mehr Bausteine, Bezahl-Erinnerung nur unter Ich › Bezahlen, Garmin-Seiten pro Velo, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, eigene Listen, Ort «Ausrüstung», Skitour-Saisonstart, Gipfelbuch | gebaut |
 | 6 | **C Heute und Aktiv** | danach | Heute neu geordnet (HN4, PR #177; Bausteine mehr, PR #176), Tages-Check mit Morgen-Check und Abend-Rückblick, grosser Balance-Ring mit 9 Bereichen statt der drei Im-Flow-Ringe, Routine «Das tut mir gut», Paket Aktiv (Ziel-Prognose, Erholung, Trainingsplan) | gebaut; Balance-Ring und Routine im Bau. Braucht B |
@@ -99,7 +99,7 @@ Ausführlich mit Datum im [Entscheidungslog](decisions.md#1510-bis-18102026-pake
 
 Mit Klick-Anleitung, wenn es so weit ist:
 
-- **Nach dem Server-Paket (B):** im Vercel-Projekt «packgen» einmal mit GitHub verbinden, `main` veröffentlichen, warten bis «Ready», wieder trennen.
+- **Vor und nach dem Server-Paket (B):** die Anleitung «Server einrichten» Teil 1–3 vor dem Merge (packgen baut danach von selbst über den Ignored Build Step, nie mehr trennen; `HELPER_MONTHLY_CHF=2`), Teil 4–8 danach.
 - **Google vor dem Livegang:** Anmeldung testen, das Client-Secret erneuern, die Testanmeldung löschen, eine Datenschutzseite anlegen; Kalender und Aufgaben in der Google Cloud Console einschalten.
 - **KI-Helfer:** der Schlüssel läuft am 10.11.2026 ab (eine Erinnerung ist eingerichtet).
 - **Echte Nutzung:** eine echte Tour mit der App packen und die Lücken melden (Prüffrage 5 im Kurs-Check).

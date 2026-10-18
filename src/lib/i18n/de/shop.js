@@ -95,4 +95,10 @@ export default {
   '{n} product': '{n} Produkt',
   '{n} products': '{n} Produkte',
   'Digital and real things, free': 'Digitales und Echtes, gratis',
+  // v0.147.0 «Was die App alles kann» and «So geht's»
+  'Shop without fees': 'Shop ohne Gebühren',
+  'Sell downloads, codes or things to send: one shop link, no app or account needed; people pay with TWINT or a QR bill, you see the orders.': 'Verkaufe Downloads, Codes oder Dinge zum Verschicken: ein Shop-Link, ohne App und ohne Konto; bezahlt wird mit TWINT oder QR-Rechnung, du siehst die Bestellungen.',
+  'Open Me › Payments › Shop and add a product.': 'Öffne Ich › Bezahlen › Shop und erfasse ein Produkt.',
+  'Copy the shop link and send it.': 'Kopiere den Shop-Link und schick ihn.',
+  'Open «Orders» to mark paid and shipped.': 'Öffne «Bestellungen», um bezahlt und versendet zu markieren.',
 };

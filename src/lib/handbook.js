@@ -437,7 +437,7 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
-  // v0.153.0
+  // v0.147.0 Paket B (Termine buchen)
   'f.offers': {
     on: 'Needs the booking server; online payment only in test mode.',
     steps: ['Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.', 'Tap + on a day to open a free time, then send the link by WhatsApp.', 'New bookings show on Today; tap a time to see who comes or to cancel it.'],
@@ -549,6 +549,11 @@ export const HANDBOOK = {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
+  },
+  'f.webshop': {
+    on: 'Nothing to switch on; the orders wait on the server until the app fetches them.',
+    steps: ['Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.', 'Copy the shop link and send it; people buy without the app or an account.', 'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.'],
+    example: 'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.',
   },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',

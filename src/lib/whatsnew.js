@@ -16,6 +16,30 @@
 
 export const WHATS_NEW = [
   {
+    // v0.147.0 Paket B «Server»: Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit, Dokument als PDF,
+    // Google Kalender und Aufgaben, KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
+    // automatischer Abgleich Handy–Computer, Selbstwartung + Web-Push. One release for all the server parts.
+    version: '0.147.0',
+    date: '2026-10-18',
+    title: 'Connected, and it looks after itself',
+    lead: 'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.',
+    points: [
+      { text: 'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers', href: '#/flow/review' },
+      { text: 'Fitbit, Google calendar and tasks, and documents photographed as a PDF, also in your Google Drive', href: '#/me/fitbit' },
+      { text: 'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks', href: '#/me/data' },
+    ],
+    small: [
+      { box: 'new', text: 'Assistant: ask the app about your rides, bikes and gear, or let it help you plan a trip', href: '#/assistent' },
+      { box: 'new', text: 'Under Me: people book your free times with one link, a shop without fees, and reminders on the phone', href: '#/me/offers' },
+      { box: 'nicer', text: 'The AI helper stops at CHF 2 a month; when the credit is empty it says so once and steps aside until it works again', href: '#/helper' },
+    ],
+    test: [
+      'Open Aktiv › Heute › Woche and tap «Week in review ›»: five numbers, the week strip and the highlights.',
+      'Open Me › Documents, tap «Photograph document», choose two photos from the gallery and «Save as PDF»: the new document opens.',
+      'Open Me › Data and backup › Phone and computer, «Switch on sync»: a QR code and a code appear for the other device.',
+    ],
+  },
+  {
     // v0.146.0 Paket A «Daten sicher und Bedienung»: P3b (data kept, phone and computer, Ich › Dokumente, rules 3a/5a),
     // P3c (Bedienregeln, camera everywhere) and «Mehr Inhalt» with Hinweistexte HT1–HT2. Noah 18.10.2026 «1b»:
     // a new tour takes the standard bike, the bike chosen last does not decide it.

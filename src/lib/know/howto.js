@@ -111,6 +111,7 @@ export const HOWTO = {
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
   'f.offers': ['Open Me › Offers and start an offer.', 'Tap + on a day to open a free time.', 'Send the link; new bookings show on Today.'],
+  'f.webshop': ['Open Me › Payments › Shop and add a product.', 'Copy the shop link and send it.', 'Open «Orders» to mark paid and shipped.'],
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
@@ -126,12 +127,12 @@ export const HOWTO = {
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
   'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
-  // 0.157.0
+  // v0.147.0 Paket B (Fitbit)
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],
   'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
-  // v0.148.0 «Leistung und Analysen»
+  // v0.147.0 Paket B «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
