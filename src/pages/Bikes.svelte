@@ -79,7 +79,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <SetupTab bikeId={route.bike} more={route.open} onbike={pickBike} onopened={opened} />
-    <PageTiles page="bikes" />
+    <PageTiles page="bikes" extrasHint />
   {/if}
 </div>
 
