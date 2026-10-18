@@ -476,6 +476,8 @@
   .pc {
     position: relative;
     display: grid;
+    /* Durchklick DK7a: a long trip name without spaces wraps instead of widening the page */
+    grid-template-columns: minmax(0, 1fr);
     align-content: start;
     gap: 6px;
     min-width: 0;
@@ -490,12 +492,15 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 4px 8px;
+    min-width: 0;
   }
   .pn {
+    min-width: 0;
+    max-width: 100%;
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .whole::after {
     content: '';
@@ -689,12 +694,15 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 4px 8px;
+    min-width: 0;
   }
   .rn {
+    min-width: 0;
+    max-width: 100%;
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   /* the whole row opens the trip */
   .rn::after {
