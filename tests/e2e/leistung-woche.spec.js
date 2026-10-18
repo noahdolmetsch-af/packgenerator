@@ -25,7 +25,10 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   });
   await page.goto('./');
   await ready(page);
-  await seedActivities(page, { plan: planSessions(), weight: { entries: [{ day: day(-200), kg: 72.4 }, { day: day(-20), kg: 71.2 }] } });
+  // a short run today too, so «this week» has a bar on every weekday, also on a Monday (the plan has bike rides only, so p9 stays open)
+  const run = activities().find((a) => a.id === '3900');
+  const acts = [...activities(), { ...run, id: '3901', start: `${day(0)}T06:00:00Z`, startLocal: `${day(0)}T07:00:00Z` }];
+  await seedActivities(page, { acts, plan: planSessions(), weight: { entries: [{ day: day(-200), kg: 72.4 }, { day: day(-20), kg: 71.2 }] } });
   await page.goto('./#/flow/training');
   await page.reload();
   await ready(page);
