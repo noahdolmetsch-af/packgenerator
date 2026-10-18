@@ -5,15 +5,17 @@
    * each one tap off and its time changeable. Plant: name + «every N days» (+ place), last watered,
    * a reminder on the due day (time changeable, can be off). With todo set, the window changes it;
    * «Delete» deletes at once and the page offers Undo for 4 s (ondone({ undo, removed })).
+   * Content (Noah «1a» 18.10.2026): a gift idea with 5 examples to tap; 12 common plants that fill
+   * «every N days»; «Longer in winter» (Nov–Feb ×1.5, on by default); the finger test as a tip.
    */
   import { tick } from 'svelte';
-  import { X, Cake, Sprout, Bell } from '@lucide/svelte';
+  import { X, Cake, Sprout, Bell, Gift, Snowflake } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
   import { addKind, updateTodo, removeTodo } from '../merkendb.js';
-  import { BDAY_REMINDS, PLANT_AT, PLANT_EVERY, daysInMonth, validMd, toggleRemind, remindAt } from './kinds.js';
+  import { BDAY_REMINDS, PLANT_AT, PLANT_EVERY, GIFT_IDEAS, PLANT_SUGGESTIONS, WINTER_FACTOR, daysInMonth, validMd, toggleRemind, remindAt } from './kinds.js';
   import { t, locale } from '../i18n.svelte.js';
 
   let { kind = 'birthday', todo = null, onclose, ondone } = $props();
@@ -32,12 +34,20 @@
   let day = $state(md0[1] || '');
   let year = $state(from?.bday?.year ?? '');
   let reminds = $state((from?.reminds ?? BDAY_REMINDS).map((r) => ({ ...r })));
+  let gift = $state(from?.gift ?? '');
   // plant
   let every = $state(from?.plant?.every ?? PLANT_EVERY);
   let place = $state(from?.plant?.place ?? '');
   let last = $state(from?.plant?.last ?? today);
   let remindOn = $state(from ? !!from.remind : true);
   let plantAt = $state(from?.remind?.at ?? PLANT_AT);
+  let winter = $state(from?.plant?.winter !== false);
+  const winterEvery = $derived(Math.round(Math.max(1, Math.round(+every || PLANT_EVERY)) * WINTER_FACTOR));
+  function suggest(s) {
+    name = t(s.name);
+    every = s.every;
+    error = '';
+  }
 
   let error = $state('');
   let dialog;
@@ -69,12 +79,12 @@
       const md = month && day ? `${pad(+month)}-${pad(Math.min(+day, daysInMonth(+month)))}` : '';
       if (!validMd(md)) return (error = t('Choose the day and the month.'));
       const y = Number.isInteger(+year) && +year > 1900 && +year <= +today.slice(0, 4) ? +year : null;
-      const fields = { text: name.trim(), bday: { md, year: y }, reminds: $state.snapshot(reminds) };
-      r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'birthday', { name, md, year: y, reminds: fields.reminds });
+      const fields = { text: name.trim(), bday: { md, year: y }, reminds: $state.snapshot(reminds), gift: gift.trim() || undefined };
+      r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'birthday', { name, md, year: y, reminds: fields.reminds, gift });
     } else {
       const n = Math.max(1, Math.round(+every || PLANT_EVERY));
-      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
-      r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'plant', { name, every: n, place, last: fields.plant.last, remind: fields.remind }, { today });
+      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
+      r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'plant', { name, every: n, place, last: fields.plant.last, remind: fields.remind, winter }, { today });
     }
     dialog.close();
     ondone?.(r);
@@ -94,6 +104,14 @@
     <label class="fld"><span class="lbl">{t('Name')}</span>
       <input class="inp" bind:this={input} bind:value={name} maxlength="80" enterkeyhint="done" placeholder={k === 'birthday' ? t('e.g. Grandpa') : t('e.g. Basil')} aria-invalid={!!error} />
     </label>
+    {#if k === 'plant' && !from}
+      <div class="fld" role="group" aria-label={t('Suggestions')}>
+        <span class="lbl">{t('Suggestions')}</span>
+        <div class="rrow sugg">
+          {#each PLANT_SUGGESTIONS as s (s.name)}<button type="button" class="chip" aria-pressed={name === t(s.name)} onclick={() => suggest(s)}>{t(s.name)}</button>{/each}
+        </div>
+      </div>
+    {/if}
 
     {#if k === 'birthday'}
       <fieldset class="fld"><legend class="lbl">{t('Date')}</legend>
@@ -121,6 +139,13 @@
           </div>
         {/each}
       </fieldset>
+      <div class="fld">
+        <label class="lbl" for="kd-gift"><Gift size={16} aria-hidden="true" />{t('Gift idea (optional)')}</label>
+        <input id="kd-gift" class="inp" bind:value={gift} maxlength="120" />
+        <div class="rrow sugg" role="group" aria-label={t('Gift ideas')}>
+          {#each GIFT_IDEAS as g (g)}<button type="button" class="chip" aria-pressed={gift === t(g)} onclick={() => (gift = t(g))}>{t(g)}</button>{/each}
+        </div>
+      </div>
     {:else}
       {#if error}<p class="err" role="alert">{error}</p>{/if}
       <div class="two">
@@ -134,6 +159,11 @@
       <label class="fld"><span class="lbl">{t('Last watered')}</span>
         <DateInput class="inp" bind:value={last} max={today} aria-label={t('Last watered')} />
       </label>
+      <div class="fld wrow">
+        <span class="wtx"><b><Snowflake size={16} aria-hidden="true" />{t('Longer in winter')}</b><small>{t('November to February every {n} days instead of {m}', { n: winterEvery, m: Math.max(1, Math.round(+every || PLANT_EVERY)) })}</small></span>
+        <button type="button" class="switch" role="switch" aria-checked={winter} aria-label={t('Longer in winter')} onclick={() => (winter = !winter)}><span class="knob"></span></button>
+      </div>
+      <p class="hint">{t('Finger test: if the soil is dry 2 cm deep, it needs water.')}</p>
       <fieldset class="fld"><legend class="lbl"><Bell size={16} aria-hidden="true" />{t('Remind')}</legend>
         <div class="rrow">
           <button type="button" class="chip" aria-pressed={!remindOn} onclick={() => (remindOn = false)}>{t('No')}</button>
@@ -231,6 +261,64 @@
     background: var(--ink);
     border-color: var(--ink);
     color: var(--paper);
+  }
+  .sugg {
+    gap: 6px;
+  }
+  .wrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .wtx {
+    flex: 1;
+    min-width: 0;
+  }
+  .wtx b {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .wtx small {
+    color: var(--ink-2);
+  }
+  .switch {
+    position: relative;
+    flex: none;
+    width: 48px;
+    height: 28px;
+    border: 0;
+    border-radius: 99px;
+    background: var(--line-strong, var(--line));
+    cursor: pointer;
+  }
+  .switch::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .switch .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow);
+    transition: left 0.15s;
+  }
+  .switch[aria-checked='true'] {
+    background: var(--accent);
+  }
+  .switch[aria-checked='true'] .knob {
+    left: 23px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .switch .knob {
+      transition: none;
+    }
   }
   .rrow .time {
     width: 140px;

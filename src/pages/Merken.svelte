@@ -10,7 +10,7 @@
    * for 4 s (Noah's rule for deleting).
    */
   import { liveQuery } from 'dexie';
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -19,7 +19,7 @@
   import { groupTodos, doneTodos, GROUPS } from '../lib/merken.js';
   import { appDates, SOURCES, SOURCES_KEY } from '../lib/merken/appdates.js';
   import { dayLabel } from '../lib/merken/when.js';
-  import { birthdayRows, plantRows } from '../lib/merken/kinds.js';
+  import { birthdayRows, birthdaySections, plantRows, everyOn, SOON_DAYS } from '../lib/merken/kinds.js';
   
   import { putSetting } from '../lib/remind/ask.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
@@ -38,6 +38,12 @@
   const groups = $derived(groupTodos(d.todos, today, kmOf, rainSince));
   const done = $derived(doneTodos(d.todos));
   const bdays = $derived(birthdayRows(d.todos, today));
+  const bdaySecs = $derived(birthdaySections(bdays));
+  function secName(key) {
+    if (key === 'soon') return t('Next {n} days', { n: SOON_DAYS });
+    const opts = { month: 'long', timeZone: 'UTC', ...(key.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) };
+    return new Date(`${key}-15T12:00:00Z`).toLocaleDateString(locale(), opts);
+  }
   const plants = $derived(plantRows(d.todos, today));
   const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0) + bdays.length + plants.length);
   const inDays = (n) => (n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days'));
@@ -49,7 +55,8 @@
   }
   function plantMeta(r) {
     const p = r.td.plant;
-    return [tn(p.every, 'Water every day', 'Water every {n} days'), p.place, !r.td.off && r.td.remind?.at ? r.td.remind.at : ''].filter(Boolean).join(' · ');
+    const n = everyOn(p, p.last);
+    return [n !== p.every ? t('Every {n} days in winter', { n }) : tn(p.every, 'Water every day', 'Water every {n} days'), p.place, !r.td.off && r.td.remind?.at ? r.td.remind.at : ''].filter(Boolean).join(' · ');
   }
   async function water(r) {
     const undo = await waterPlant(db, r.td.id, today);
@@ -130,18 +137,22 @@
 
     {#if bdays.length}
       <h2 class="gh">{t('Birthdays')}</h2>
-      <ul class="bdays">
-        {#each bdays as r (r.td.id)}
-          <li class="td">
-            <span class="ki" aria-hidden="true"><Cake size={16} /></span>
-            <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
-              <b>{r.td.text}</b>
-              <small>{#if !r.td.off && r.td.reminds?.length}<Bell size={13} aria-hidden="true" />{/if}{bdayMeta(r)}</small>
-            </button>
-            <span class="due" class:soon={r.in <= 1}>{inDays(r.in)}</span>
-          </li>
-        {/each}
-      </ul>
+      {#each bdaySecs as sec (sec.key)}
+        <h3 class="sh">{secName(sec.key)}</h3>
+        <ul class="bdays">
+          {#each sec.rows as r (r.td.id)}
+            <li class="td">
+              <span class="ki" aria-hidden="true"><Cake size={16} /></span>
+              <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
+                <b>{r.td.text}</b>
+                <small>{#if !r.td.off && r.td.reminds?.length}<Bell size={13} aria-hidden="true" />{/if}{bdayMeta(r)}</small>
+                {#if r.td.gift}<small class="gift"><Gift size={13} aria-hidden="true" />{r.td.gift}</small>{/if}
+              </button>
+              <span class="due" class:soon={r.in <= 1}>{inDays(r.in)}</span>
+            </li>
+          {/each}
+        </ul>
+      {/each}
     {/if}
     {#if plants.length}
       <h2 class="gh">{t('Plants')}</h2>
@@ -247,6 +258,11 @@
     font: 600 var(--fs-tiny) / 1.4 var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+  .sh {
+    margin: 10px 0 2px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.4 var(--font-body);
   }
   .kinds {
     display: flex;

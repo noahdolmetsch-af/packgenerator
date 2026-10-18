@@ -1,6 +1,7 @@
 // Merken: Geburtstage und Pflanzen (Noah 15.10.2026). Fictional names only.
 import { describe, it, expect } from 'vitest';
-import { isLeap, validMd, birthdayIn, nextBirthday, daysBetween, ageOn, birthdayReminders, toggleRemind, remindAt, newBirthday, newPlant, plantNext, watered, birthdayRows, plantRows, plantReminder, yearlyRule, birthdayEvents, BDAY_REMINDS, isKind } from '../src/lib/merken/kinds.js';
+import { isLeap, validMd, birthdayIn, nextBirthday, daysBetween, ageOn, birthdayReminders, toggleRemind, remindAt, newBirthday, newPlant, plantNext, watered, birthdayRows, plantRows, plantReminder, yearlyRule, birthdayEvents, BDAY_REMINDS, isKind, GIFT_IDEAS, PLANT_SUGGESTIONS, isWinter, everyOn, birthdaySections } from '../src/lib/merken/kinds.js';
+import DE from '../src/lib/i18n/de/index.js';
 import { addDays, groupTodos } from '../src/lib/merken.js';
 import { AREAS, areaOf, remindIcs } from '../src/lib/remind.js';
 import { icsCalendar } from '../src/lib/flowmed.js';
@@ -107,5 +108,52 @@ describe('in the Merken list', () => {
     expect(isKind(b) && isKind(p) && !isKind({ text: 'x' })).toBe(true);
     expect(AREAS.map((a) => a.key)).toEqual(expect.arrayContaining(['birthday', 'plant']));
     expect([areaOf(b), areaOf(p)]).toEqual(['birthday', 'plant']);
+  });
+});
+
+describe('content (Noah «1a» 18.10.2026, inhalt-vorschlag parts 4 and 5)', () => {
+  it('a gift idea is kept, an empty one left out; 5 examples, all in German', () => {
+    expect(newBirthday({ name: 'Mia', md: '10-18', gift: ' Ein Buch ' }, { id: 'b' }).gift).toBe('Ein Buch');
+    expect('gift' in newBirthday({ name: 'Mia', md: '10-18', gift: '' }, { id: 'b' })).toBe(false);
+    expect(GIFT_IDEAS.map((g) => DE[g])).toEqual(['Gemeinsame Velotour', 'Ein Buch', 'Etwas Selbstgemachtes', 'Ein Erlebnis zusammen', 'Anrufen reicht auch']);
+  });
+  it('12 plant suggestions with their start value, all in German', () => {
+    expect(PLANT_SUGGESTIONS.map((p) => [DE[p.name], p.every])).toEqual([
+      ['Monstera', 7], ['Efeutute', 7], ['Ficus', 7], ['Grünlilie', 7], ['Orchidee (tauchen)', 7], ['Friedenslilie', 5],
+      ['Bogenhanf', 14], ['Zamioculcas', 14], ['Aloe', 14], ['Kaktus', 21], ['Basilikum', 2], ['Tomate auf dem Balkon', 1],
+    ]);
+  });
+  it('the next 30 days on top, the rest by month, next ones first', () => {
+    const list = [['Mia', '10-18'], ['Lena', '11-14'], ['Opa', '11-20'], ['Tim', '11-28'], ['Ana', '01-03']].map(([name, md], i) => newBirthday({ name, md }, { id: `b${i}` }));
+    const secs = birthdaySections(birthdayRows(list, TODAY));
+    expect(secs.map((x) => [x.key, x.rows.map((r) => r.td.text)])).toEqual([['soon', ['Mia', 'Lena']], ['2026-11', ['Opa', 'Tim']], ['2027-01', ['Ana']]]);
+    expect(daysBetween(TODAY, '2026-11-14')).toBe(30);
+  });
+});
+
+describe('plants in winter (November to February: 1.5 times longer, whole days)', () => {
+  const plant = (every, last, winter) => newPlant({ name: 'Monstera', every, last, winter }, { id: 'p', today: last });
+  it('knows the winter months on calendar days', () => {
+    expect(['2026-10-31', '2026-11-01', '2026-12-31', '2027-01-15', '2027-02-28', '2027-03-01'].map(isWinter)).toEqual([false, true, true, true, true, false]);
+  });
+  it('the interval from a watering in winter is 1.5 times longer, rounded', () => {
+    expect(everyOn(plant(7, '2026-11-02').plant, '2026-11-02')).toBe(11); // 10.5 → 11
+    expect(everyOn(plant(14, '2026-11-02').plant, '2026-11-02')).toBe(21);
+    expect(everyOn(plant(5, '2026-11-02').plant, '2026-11-02')).toBe(8); // 7.5 → 8
+    expect(everyOn(plant(1, '2026-11-02').plant, '2026-11-02')).toBe(2); // 1.5 → 2
+    expect(everyOn(plant(7, '2026-10-02').plant, '2026-10-02')).toBe(7);
+  });
+  it('the next day counts from the last watering: October normal, November longer, March normal again', () => {
+    expect(plantNext(plant(7, '2026-10-31'))).toBe('2026-11-07');
+    expect(plantNext(plant(7, '2026-11-01'))).toBe('2026-11-12');
+    expect(plantNext(plant(7, '2027-02-28'))).toBe('2027-03-11');
+    expect(plantNext(plant(7, '2027-03-01'))).toBe('2027-03-08');
+    expect(plantNext(watered(plant(2, '2026-10-30'), '2026-11-03'))).toBe('2026-11-06');
+  });
+  it('the switch is on by default; switched off the interval stays', () => {
+    expect(plant(7, '2026-11-01').plant.winter).toBeUndefined();
+    const off = plant(7, '2026-11-01', false);
+    expect(off.plant.winter).toBe(false);
+    expect(plantNext(off)).toBe('2026-11-08');
   });
 });
