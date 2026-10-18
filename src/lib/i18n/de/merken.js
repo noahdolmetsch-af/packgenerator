@@ -10,7 +10,6 @@ export default {
   'On the day, 08:00': 'Am Tag, 08:00',
   '1 day before': '1 Tag vorher',
   'Time …': 'Zeit …',
-  'It then shows at the top of Today.': 'Steht dann oben auf Heute.',
   Repeat: 'Wiederholen',
   Never: 'Nie',
   'Every week': 'Jede Woche',

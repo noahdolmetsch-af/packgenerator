@@ -5,20 +5,26 @@
    * later · without date; below, smaller, what the app already knows, each source deselectable.
    * Reminders (ER1–ER3) show here and only here (Noah 5b: not on Heute). A tick has «Rückgängig»; a
    * repeating to-do moves on to its next date. Done to-dos move to «Erledigt».
+   * Geburtstage and Pflanzen (Noah 15.10.2026 «plus geburtstag, pflanzen»): own groups under the to-dos,
+   * next ones first («in 3 Tagen»); a plant has «Gegossen» (one tap, with Undo). Deleting offers Undo
+   * for 4 s (Noah's rule for deleting).
    */
   import { liveQuery } from 'dexie';
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2 } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { switchTrip } from '../lib/nav.js';
-  import { MERKEN_KEY, tickTodo } from '../lib/merkendb.js';
+  import { MERKEN_KEY, tickTodo, waterPlant } from '../lib/merkendb.js';
   import { groupTodos, doneTodos, GROUPS } from '../lib/merken.js';
   import { appDates, SOURCES, SOURCES_KEY } from '../lib/merken/appdates.js';
   import { dayLabel } from '../lib/merken/when.js';
+  import { birthdayRows, birthdaySections, plantRows, everyOn, SOON_DAYS } from '../lib/merken/kinds.js';
+  
   import { putSetting } from '../lib/remind/ask.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
+  import KindSheet from '../lib/merken/KindSheet.svelte';
 
   const today = localDay();
   const q = liveQuery(async () => {
@@ -31,7 +37,32 @@
   const rainSince = (bikeId, since) => d.trips.some((tr) => tr.bikeId === bikeId && tr.wx?.rain && tr.startDate && tr.startDate <= today && tr.startDate >= String(since).slice(0, 10));
   const groups = $derived(groupTodos(d.todos, today, kmOf, rainSince));
   const done = $derived(doneTodos(d.todos));
-  const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0));
+  const bdays = $derived(birthdayRows(d.todos, today));
+  const bdaySecs = $derived(birthdaySections(bdays));
+  function secName(key) {
+    if (key === 'soon') return t('Next {n} days', { n: SOON_DAYS });
+    const opts = { month: 'long', timeZone: 'UTC', ...(key.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) };
+    return new Date(`${key}-15T12:00:00Z`).toLocaleDateString(locale(), opts);
+  }
+  const plants = $derived(plantRows(d.todos, today));
+  const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0) + bdays.length + plants.length);
+  const inDays = (n) => (n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days'));
+  const plantDue = (n) => (n < 0 ? tn(-n, 'due for {n} day', 'due for {n} days') : n === 0 ? t('due today') : inDays(n));
+  const dateOf = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  function bdayMeta(r) {
+    const on = !r.td.off && r.td.reminds?.length;
+    return [r.age != null ? (r.in === 0 ? t('turns {n} today', { n: r.age }) : t('turns {n}', { n: r.age })) : '', dateOf(r.day), on ? r.td.reminds.map((x) => (x.before ? t('Day before {time}', { time: x.at }) : t('On the day {time}', { time: x.at }))).join(', ') : ''].filter(Boolean).join(' · ');
+  }
+  function plantMeta(r) {
+    const p = r.td.plant;
+    const n = everyOn(p, p.last);
+    return [n !== p.every ? t('Every {n} days in winter', { n }) : tn(p.every, 'Water every day', 'Water every {n} days'), p.place, !r.td.off && r.td.remind?.at ? r.td.remind.at : ''].filter(Boolean).join(' · ');
+  }
+  async function water(r) {
+    const undo = await waterPlant(db, r.td.id, today);
+    say(t('{name} · watered', { name: r.td.text }), undo);
+  }
+  let kindSheet = $state(null); // { kind } or { todo }
   const fromApp = $derived(
     appDates({
       trips: d.trips,
@@ -49,11 +80,12 @@
   let showDone = $state(false);
   let notice = $state(null);
   let noticeTimer;
-  function say(text, undo) {
+  function say(text, undo, ms = 8000) {
     clearTimeout(noticeTimer);
     notice = { text, undo };
-    noticeTimer = setTimeout(() => (notice = null), 8000);
+    noticeTimer = setTimeout(() => (notice = null), ms);
   }
+  const done4 = (r) => r?.undo && (r.removed ? say(t('Deleted.'), r.undo, 4000) : say(t('Saved.'), r.undo));
   async function tickIt(x) {
     const undo = await tickTodo(db, x.id, { today, bikeKm: x.repeat?.bikeId ? kmOf(x.repeat.bikeId) : null });
     say(x.repeat ? t('{name} · done, comes again', { name: x.text }) : t('{name} · done', { name: x.text }), undo);
@@ -79,6 +111,10 @@
 
   <div class="card list">
     <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
+    <div class="kinds">
+      <button type="button" class="chip" onclick={() => (kindSheet = { kind: 'birthday' })}><Cake size={16} aria-hidden="true" />{t('Birthday')}</button>
+      <button type="button" class="chip" onclick={() => (kindSheet = { kind: 'plant' })}><Sprout size={16} aria-hidden="true" />{t('Plant')}</button>
+    </div>
 
     {#if !open}<p class="empty">{t('Nothing to do. Add a to-do, or let the app remind you after an entry.')}</p>{/if}
     {#each GROUPS as g (g)}
@@ -98,6 +134,44 @@
         </ul>
       {/if}
     {/each}
+
+    {#if bdays.length}
+      <h2 class="gh">{t('Birthdays')}</h2>
+      {#each bdaySecs as sec (sec.key)}
+        <h3 class="sh">{secName(sec.key)}</h3>
+        <ul class="bdays">
+          {#each sec.rows as r (r.td.id)}
+            <li class="td">
+              <span class="ki" aria-hidden="true"><Cake size={16} /></span>
+              <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
+                <b>{r.td.text}</b>
+                <small>{#if !r.td.off && r.td.reminds?.length}<Bell size={13} aria-hidden="true" />{/if}{bdayMeta(r)}</small>
+                {#if r.td.gift}<small class="gift"><Gift size={13} aria-hidden="true" />{r.td.gift}</small>{/if}
+              </button>
+              <span class="due" class:soon={r.in <= 1}>{inDays(r.in)}</span>
+            </li>
+          {/each}
+        </ul>
+      {/each}
+    {/if}
+    {#if plants.length}
+      <h2 class="gh">{t('Plants')}</h2>
+      <ul class="plants">
+        {#each plants as r (r.td.id)}
+          <li class="td">
+            <span class="ki" aria-hidden="true"><Sprout size={16} /></span>
+            <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
+              <b>{r.td.text}</b>
+              <small>{#if !r.td.off && r.td.remind}<Bell size={13} aria-hidden="true" />{/if}{plantMeta(r)}</small>
+            </button>
+            <span class="side">
+              <span class="due" class:late={r.in < 0} class:soon={r.in === 0}>{plantDue(r.in)}</span>
+              <button type="button" class="water" onclick={() => water(r)} aria-label={t('Watered: {name}', { name: r.td.text })}><Droplet size={16} aria-hidden="true" /><span>{t('Watered')}</span></button>
+            </span>
+          </li>
+        {/each}
+      </ul>
+    {/if}
 
     <h2 class="gh app">{t('From the app, smaller')}</h2>
     {#if fromApp.length}
@@ -136,7 +210,10 @@
   <div class="mk-toast" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}</div>
 {/if}
 {#if sheet}
-  <TodoSheet todo={sheet.todo ?? null} onclose={() => (sheet = null)} ondone={(r) => r?.undo && say(r.removed ? t('Deleted.') : t('Saved.'), r.undo)} />
+  <TodoSheet todo={sheet.todo ?? null} onclose={() => (sheet = null)} ondone={done4} />
+{/if}
+{#if kindSheet}
+  <KindSheet kind={kindSheet.kind ?? 'birthday'} todo={kindSheet.todo ?? null} onclose={() => (kindSheet = null)} ondone={done4} />
 {/if}
 
 <style>
@@ -181,6 +258,62 @@
     font: 600 var(--fs-tiny) / 1.4 var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+  .sh {
+    margin: 10px 0 2px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.4 var(--font-body);
+  }
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .kinds .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-2);
+  }
+  .ki {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin: 9px 0 0;
+    border-radius: 50%;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .soon {
+    color: var(--ink);
+  }
+  .side {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .side .due {
+    margin-top: 2px;
+  }
+  .water {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
   }
   .gh.app {
     margin-top: 24px;

@@ -111,7 +111,7 @@
           <button type="button" class="chip" aria-pressed={remind === 'time'} onclick={() => (remind = 'time')}>{t('Time …')}</button>
           {#if remind === 'time' || remind === 'before'}<input class="inp time" type="time" bind:value={time} aria-label={t('Time')} />{/if}
         </div>
-        <p class="hint">{t('It then shows at the top of Today.')}</p>
+        <p class="hint">{t('Shows in Calendar › Remember and on Me › Reminders, not on Today.')}</p>
       </fieldset>
     {/if}
 

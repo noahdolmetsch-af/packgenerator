@@ -7,6 +7,8 @@
  * Pure functions; remindStore.svelte.js and the pages write.
  */
 import { addDays } from './merken.js';
+import { birthdayEvents } from './merken/kinds.js';
+import { localDay } from './localday.js';
 
 /** The settings records: what was answered per place, and whether the app may ask at all (ER3). */
 export const ASK_KEY = 'remind.ask';
@@ -20,6 +22,8 @@ export const AREAS = [
   { key: 'trips', label: 'Trips|place' },
   { key: 'bike', label: 'Bike|area' },
   { key: 'own', label: 'Own|reminders' },
+  { key: 'birthday', label: 'Birthdays' },
+  { key: 'plant', label: 'Plants' },
 ];
 export const areaOf = (todo) => (AREAS.some((a) => a.key === todo.area) ? todo.area : 'own');
 
@@ -129,9 +133,13 @@ export function careReminder({ bike, kind, text, today, way, km = 300 }) {
 
 /* ---------- the phone calendar (ER3 «Google-Kalender mit Alarm») ---------- */
 
-/** A calendar file for reminders with a time, each with an alarm at that time (VALARM). icsCalendar: flowmed.js. */
+/**
+ * A calendar file for reminders with a time, each with an alarm at that time (VALARM). icsCalendar: flowmed.js.
+ * Birthdays come as yearly events (merken/kinds.js); plants not, their day moves with every «Gegossen».
+ */
 export function remindIcs(todos, icsCalendar, now = Date.now()) {
   const rr = (r) => (r?.every === 'day' ? 'FREQ=DAILY' : r?.every === 'week' ? 'FREQ=WEEKLY' : r?.every === 'month' ? `FREQ=MONTHLY${r.n > 1 ? `;INTERVAL=${r.n}` : ''}` : undefined);
-  const events = todos.filter((t) => t.due && t.remind && !t.off).map((t) => ({ uid: `remind-${t.id}`, title: t.text, day: addDays(t.due, -(t.remind.before ?? 0)), time: t.remind.at, minutes: 15, rrule: rr(t.repeat) }));
+  const events = todos.filter((t) => t.due && t.remind && !t.off && !t.kind).map((t) => ({ uid: `remind-${t.id}`, title: t.text, day: addDays(t.due, -(t.remind.before ?? 0)), time: t.remind.at, minutes: 15, rrule: rr(t.repeat) }));
+  events.push(...birthdayEvents(todos, localDay(new Date(now)))); // a yearly event per birthday reminder
   return icsCalendar(events, now).replace(/END:VEVENT/g, 'BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:Reminder\r\nTRIGGER:PT0M\r\nEND:VALARM\r\nEND:VEVENT');
 }

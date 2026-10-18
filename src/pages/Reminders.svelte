@@ -5,19 +5,25 @@
    * Right: whether the app may ask «Soll ich dich erinnern?», the places set to «Nie fragen» (with
    * «Zurücksetzen»), and where reminders show: always in Kalender › Merken (5b: not on Heute), and as a
    * calendar file with an alarm for the phone's calendar when switched on.
+   * Geburtstage and Pflanzen (Noah 15.10.2026) have their own areas; their window is KindSheet, and a
+   * delete there offers Undo for 4 s.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { t, lang } from '../lib/i18n.svelte.js';
+  import { t, tn, lang } from '../lib/i18n.svelte.js';
   import { MERKEN_KEY, updateTodo } from '../lib/merkendb.js';
   import { kmLeft } from '../lib/merken.js';
   import { AREAS, areaOf, ASK_KEY, OFFER_KEY, ICS_KEY, neverAsked, forget, remindIcs } from '../lib/remind.js';
   import { icsCalendar } from '../lib/flowmed.js';
   import { putSetting } from '../lib/remind/ask.svelte.js';
   import { dayLabel } from '../lib/merken/when.js';
+  import { isKind, birthdayReminders, plantReminder } from '../lib/merken/kinds.js';
+  import { localDay } from '../lib/localday.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
+  import KindSheet from '../lib/merken/KindSheet.svelte';
   import '../lib/ich/ich.css';
 
   const q = liveQuery(async () => {
@@ -25,13 +31,24 @@
     return { todos: m?.value ?? [], answers: a?.value ?? {}, offer: o?.value ?? true, ics: !!i?.value, bikes, acts };
   });
   const d = $derived($q ?? { todos: [], answers: {}, offer: true, ics: false, bikes: [], acts: [] });
-  const reminders = $derived(d.todos.filter((x) => !x.doneAt && (x.remind || x.repeat || x.src)));
-  const ICON = { active: Activity, trips: Route, bike: Bike, own: ListTodo };
+  const reminders = $derived(d.todos.filter((x) => !x.doneAt && (x.remind || x.repeat || x.src || isKind(x))));
+  const ICON = { active: Activity, trips: Route, bike: Bike, own: ListTodo, birthday: Cake, plant: Sprout };
+  const today = localDay();
+  const hasIcs = $derived(reminders.some((x) => !x.off && ((x.due && x.remind && !x.kind) || (x.kind === 'birthday' && x.reminds?.length))));
   let editing = $state(null);
 
   const kmOf = (id) => d.bikes.find((b) => b.id === id)?.km ?? null;
   const bikeName = (id) => d.bikes.find((b) => b.id === id)?.name ?? '';
+  function kindLine(x) {
+    if (x.kind === 'birthday') {
+      const rs = birthdayReminders({ ...x, off: false }, today);
+      return [t('Every year'), ...(rs.length ? rs.map((r) => `${dayLabel(r.day, today)} ${r.at}`) : [t('No reminder')])].join(' · ');
+    }
+    const r = plantReminder({ ...x, off: false }, today);
+    return [tn(x.plant.every, 'Water every day', 'Water every {n} days'), r ? `${dayLabel(r.day, today)} ${r.at}` : t('No reminder')].join(' · ');
+  }
   function line(x) {
+    if (isKind(x)) return kindLine(x);
     const r = x.repeat;
     const parts = [];
     if (r?.every === 'day') parts.push(t('Every day'));
@@ -146,7 +163,7 @@
           {#if d.ics}
             <li class="ich-row sub">
               <span class="ich-m"><small>{t('Open the file on the phone: Google Calendar takes the reminders with an alarm.')}</small></span>
-              <button type="button" class="btn" onclick={download} disabled={!reminders.some((x) => x.due && x.remind && !x.off)}>{t('Calendar file')}</button>
+              <button type="button" class="btn" onclick={download} disabled={!hasIcs}>{t('Calendar file')}</button>
             </li>
           {/if}
         </ul>
@@ -155,7 +172,9 @@
   </div>
 </div>
 
-{#if editing}
+{#if editing && isKind(editing)}
+  <KindSheet todo={editing} onclose={() => (editing = null)} ondone={(r) => r?.removed && offerDone(t('Deleted.'), r.undo, 4000)} />
+{:else if editing}
   <TodoSheet todo={editing} onclose={() => (editing = null)} />
 {/if}
 
