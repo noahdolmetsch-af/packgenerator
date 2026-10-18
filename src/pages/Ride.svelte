@@ -42,6 +42,7 @@
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
   import MoreActions from '../lib/ui/MoreActions.svelte';
+  import UndoToast from '../lib/review/UndoToast.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { tick } from 'svelte';
   import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
@@ -315,21 +316,55 @@
     });
   }
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
+  // Impeccable Unterwegs 3: «Entfernen» sits in the «…» of each note and works at once, with 4 s «Rückgängig».
+  let dropped = $state(null); // { text, restore }
+  let dropTimer;
   async function dropNote(n) {
-    if (!confirm(t('Delete this note?'))) return;
+    const before = debrief ? $state.snapshot(debrief) : null;
     if (n.noteId) {
       const rec = ($notesQ ?? []).find((x) => x.id === n.noteId);
-      return db.transaction('rw', db.notes, db.debriefs, async () => {
+      await db.transaction('rw', db.notes, db.debriefs, async () => {
         await db.notes.delete(n.noteId);
         const d = rec?.debrief ? await db.debriefs.get(trip.id) : null;
         if (d) await db.debriefs.put(dropNoteFromDebrief(d, rec));
       });
+      offerUndo(n, async () => {
+        await db.transaction('rw', db.notes, db.debriefs, async () => {
+          if (rec) await db.notes.put(rec);
+          if (rec?.debrief && before) await db.debriefs.put(before);
+        });
+      });
+      return;
     }
     const d = $state.snapshot(debrief);
     const i = Number(n.key.slice(5));
     d.rideNotes = d.rideNotes.filter((_, k) => k !== i);
     await db.debriefs.put(d);
+    offerUndo(n, () => db.debriefs.put(before));
   }
+  function offerUndo(n, restore) {
+    clearTimeout(dropTimer);
+    dropped = { text: t('Note removed: {text}', { text: n.text.length > 40 ? `${n.text.slice(0, 40)}…` : n.text }), restore };
+    dropTimer = setTimeout(() => (dropped = null), 4000);
+  }
+  async function undoDrop() {
+    const x = dropped;
+    clearTimeout(dropTimer);
+    dropped = null;
+    await x?.restore();
+  }
+  // Impeccable Unterwegs 3: the newest three notes, the rest behind «Alle {n} Notizen».
+  const NOTES_SHOWN = 3;
+  let allNotes = $state(false);
+  const shownNotes = $derived(allNotes || notes.length <= NOTES_SHOWN ? notes : notes.slice(-NOTES_SHOWN));
+  // On a phone a long press on a note opens its «…» too.
+  const noteMenus = {};
+  let pressTimer;
+  const pressStart = (key) => {
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => noteMenus[key]?.show(), 550);
+  };
+  const pressEnd = () => clearTimeout(pressTimer);
   const time = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 
   /* ---------- v0.29.0 (Noah 7a): the block of now ---------- */
@@ -499,7 +534,7 @@
               <li><Shirt size={20} aria-hidden="true" /><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
               <li><Utensils size={20} aria-hidden="true" /><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
               <li><Droplet size={20} aria-hidden="true" /><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L', { n: num(nowB.drinkL) })}</span>{#if refillText(nowB)}<small>{refillText(nowB)}</small>{/if}</div></li>
-              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<small>{names(bp.lights)}</small>{/if}</div></li>
+              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<details class="lamps"><summary><small>{tn(bp.lights.length, '{n} lamp with you', '{n} lamps with you')}</small><ChevronRight class="chev" size={14} aria-hidden="true" /></summary><small class="lamplist">{names(bp.lights)}</small></details>{/if}</div></li>
             </ul>
           {/if}
           {#if nextB}
@@ -611,10 +646,13 @@
           <p class="ok tp-small" role="status">{noteMsg}</p>
           {#if notes.length}
             <ul class="notes">
-              {#each notes as n (n.key)}
-                <li><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><button type="button" class="tp-link" onclick={() => dropNote(n)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
+              {#each shownNotes as n (n.key)}
+                <li ontouchstart={() => pressStart(n.key)} ontouchend={pressEnd} ontouchmove={pressEnd} ontouchcancel={pressEnd}><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><MoreActions bind:this={noteMenus[n.key]} small title={n.text} label={t('More for this note|ride')} actions={[{ name: t('Remove'), explain: t('with Undo'), icon: X, run: () => dropNote(n) }]} /></li>
               {/each}
             </ul>
+            {#if notes.length > NOTES_SHOWN}
+              <button type="button" class="tp-link allnotes" aria-expanded={allNotes} onclick={() => (allNotes = !allNotes)}>{allNotes ? t('Show the newest 3 only') : t('All {n} notes', { n: notes.length })}<ChevronRight class="chev" size={16} aria-hidden="true" /></button>
+            {/if}
           {/if}
         </div>
       </section>
@@ -701,6 +739,7 @@
     </div>
   </div>
 </div>
+{#if dropped}<UndoToast text={dropped.text} onundo={undoDrop} />{/if}
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
 
@@ -739,6 +778,14 @@
   .tiles li > :global(svg) { margin-top: 2px; color: var(--ink-2); }
   .tiles small { display: block; font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word; }
   .tiles .val { font-weight: 600; }
+  /* Impeccable Unterwegs 2: the lamps behind one line, so the four tiles stay the same size */
+  .lamps summary { display: flex; align-items: center; gap: 2px; min-height: 44px; margin: -8px 0 -12px; cursor: pointer; list-style: none; color: var(--ink-2); }
+  .lamps summary::-webkit-details-marker { display: none; }
+  .lamps summary small { text-decoration: underline; text-underline-offset: 3px; }
+  .lamps :global(.chev) { flex: none; transition: transform 0.15s; }
+  .lamps[open] :global(.chev) { transform: rotate(90deg); }
+  .lamps summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .lamplist { margin-top: 8px; }
   /* a very small phone: one tile per row, so no word breaks */
   @media (max-width: 379px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
   .do { list-style: none; margin: 0; padding: 0; }
@@ -770,7 +817,7 @@
   .notes li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 4px 0; border-top: 1px solid var(--line); }
   .notes .when { flex: none; font-size: var(--fs-tiny); font-weight: 600; }
   .notes li span { min-width: 0; overflow-wrap: break-word; }
-  .notes .tp-link { min-height: 44px; }
+  .allnotes { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin-top: 4px; }
   @media (max-width: 479px) {
     .notes li { grid-template-columns: minmax(0, 1fr) auto; padding-top: 8px; }
     .notes .when { grid-column: 1 / -1; }

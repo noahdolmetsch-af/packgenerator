@@ -533,7 +533,7 @@
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {openSugg} ontake={(s) => holdSugg(s, 'take')} onno={(s) => holdSugg(s, 'no')} onreopen={reopen} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
-        <PageTiles page="debrief" />
+        <PageTiles page="debrief" extrasHint />
       {:else}
       <!-- v0.109.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
@@ -730,7 +730,7 @@
 {:else}
   <!-- v0.49.0 R1 (Noah 4a): one page «Rückblick»: the last ride, the 12 months, trips compared. -->
   <Hub {spot} />
-  <PageTiles page="debrief" />
+  <PageTiles page="debrief" extrasHint />
 {/if}
 
 <style>

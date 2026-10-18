@@ -144,8 +144,8 @@ for (const lang of ['en', 'de']) {
     await expect(page.locator('ul.exc').first().getByRole('button', { name: new RegExp(esc(T('Not used'))) })).toHaveCount(1);
     await fits('debrief');
     await page.getByRole('button', { name: T('Done|debrief') }).click();
-    await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
-    await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
+    // Impeccable Runde 2: «Gespeichert» is one line in «Fertig. Gute Tour!», no card of its own
+    await expect(page.locator('[data-saved]')).toContainText(T('Saved on {date}', { date: '' }).trim());
 
     // 9. The trip no longer waits for a debrief; it is listed as done.
     // v0.40.0 (Noah 3a): one list of past trips with the debrief state; the Debrief page links to it.

@@ -220,7 +220,7 @@ for (const lang of ['de', 'en']) {
     await all.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) }).click();
     await expect(all.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Broken') }) })).toBeVisible();
     await go(page).click();
-    await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+    await expect(page.locator('[data-saved]')).toBeVisible();
     const saved = (await table(page, 'debriefs')).find((d) => d.tripId === trip.id);
     expect(saved).toMatchObject({ status: 'done', items: { TO01: 'broken', TO02: 'broken' } });
     expect(saved.missing.map((m) => m.name)).toEqual(['test_data_gtp_ Sitzcreme']);
@@ -251,7 +251,7 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   let clicks = 0;
   await go(page).click();
   clicks++;
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  await expect(page.locator('[data-saved]')).toBeVisible();
   expect(clicks).toBe(1);
   const d = (await table(page, 'debriefs')).find((x) => x.tripId === trip.id);
   expect(d).toMatchObject({ status: 'done', weather: 'planned', amount: 'right', bags: 'fine', items: {}, missing: [] });

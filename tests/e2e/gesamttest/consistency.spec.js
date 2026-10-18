@@ -165,7 +165,9 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const openPast = await page.locator('main table.tt').getByRole('link', { name: rateName }).count();
   await page.goto('./#/debrief');
   await page.reload();
-  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: rateName }).count();
+  // Impeccable Rückblick 2: on the Rückblick the button says «Rückblick schreiben» or «Rückblick weiterschreiben»
+  const writeName = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): `);
+  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: writeName }).count();
   await expect.poll(openOf, { message: `Past trips (${openPast} open) vs Rückblick` }).toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
