@@ -280,7 +280,11 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   await expect(card.locator('[data-q="ziele.ziel"]')).toHaveCount(0);
   // on again: the morning round asks them at 07:00
   await page.goto('./#/me/abfragen');
-  await page.locator('[data-rounds]').getByRole('switch', { name: T('Ask in two rounds') }).click();
+  const sw2 = page.locator('[data-rounds]').getByRole('switch', { name: T('Ask in two rounds') });
+  await sw2.click();
+  await expect(sw2).toBeChecked();
+  // wait for the saved setting before leaving the page (else Heute may read the old one; phone CI 18.10.2026)
+  await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds?.on).toBe(true);
   await page.goto('./#/');
   await ready(page);
   await expect(card.locator('[data-q="ziele.ziel"]')).toContainText('7:00');
