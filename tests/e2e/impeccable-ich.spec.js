@@ -95,3 +95,15 @@ test('Ich: Waiting for you on top, App maintenance, More and Help folded', async
   await noSideways(page);
   expect(errors).toEqual([]);
 });
+
+test('Daten und Backup: the head in words, one main button Save backup', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/me/data');
+  const panel = page.locator('.datapanel');
+  await expect(panel.locator('[data-head-line]')).not.toContainText(/grün/);
+  await expect(panel.getByRole('button', { name: T('Save backup') })).toBeVisible();
+  await expect(panel.getByRole('button', { name: T('Export backup') })).toHaveCount(0);
+  await expect(panel.locator('#data-title + .ich-hs')).toContainText(/Letztes Backup: /);
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});

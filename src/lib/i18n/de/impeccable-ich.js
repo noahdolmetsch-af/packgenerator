@@ -32,4 +32,15 @@ export default {
   'Try it out, clean up test data': 'Ausprobieren, Testdaten aufräumen',
   'all in order': 'alles in Ordnung',
 
+  // Daten und Backup: one clear main button, the head in words
+  'Save backup': 'Backup speichern',
+  'Last backup: never': 'Letztes Backup: noch nie',
+  'Last backup: {when}': 'Letztes Backup: {when}',
+  'last change {when}': 'letzte Änderung {when}',
+  'Backup missing.': 'Backup fehlt.',
+  'Backup due.': 'Backup fällig.',
+  'The folder backup needs your OK.': 'Das Ordner-Backup braucht dein OK.',
+  'The storage is almost full.': 'Der Speicher ist fast voll.',
+  'Everything is in order.': 'Alles ist in Ordnung.',
+  'Everything else is in order.': 'Alles andere ist in Ordnung.',
 };

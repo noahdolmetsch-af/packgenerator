@@ -90,7 +90,14 @@
     }
     return out;
   });
-  const greens = $derived(lights.filter((l) => l.state === 'ok').length);
+  // Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the head says in words what is missing, no count
+  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.') };
+  const headLine = $derived.by(() => {
+    const warns = lights.filter((l) => l.state === 'warn');
+    if (!warns.length) return t('Everything is in order.');
+    const rest = lights.some((l) => l.state === 'ok') ? ` ${t('Everything else is in order.')}` : '';
+    return `${warns.map((l) => WARN[l.key]()).join(' ')}${rest}`;
+  });
   let fileEl = $state();
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
@@ -245,14 +252,14 @@
 <div class="datapanel ich-cols">
   <div class="ich-main">
     <section class="ich-sec" aria-labelledby="lights-h">
-      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs">{t('{n} of {all} green', { n: greens, all: lights.filter((l) => l.state !== 'off').length })} · {t('If something is yellow, its button is beside it.')}</p></div></div>
+      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs" data-head-line>{headLine}</p></div></div>
       <ul class="card ich-list">
         {#each lights as l (l.key)}
           <li class="ich-row ich-wrap light">
             <span class="dot {l.state}" aria-hidden="true"></span>
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
-            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Now|do')}</button>
+            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Make a backup')}</button>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
@@ -260,10 +267,10 @@
     </section>
 
     <section class="ich-sec" aria-labelledby="data-title">
-      <div class="ich-h"><div><h2 id="data-title">{t('Backup')}</h2>{#if $changeQ?.at}<p class="ich-hs">{t('Last change on this device: {when}.', { when: when($changeQ.at) })}</p>{/if}</div></div>
+      <div class="ich-h"><div><h2 id="data-title">{t('Backup')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
       <div class="card ich-body">
         <div class="ich-acts">
-          <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Export backup')}</button>
+          <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Save backup')}</button>
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
           <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
         </div>

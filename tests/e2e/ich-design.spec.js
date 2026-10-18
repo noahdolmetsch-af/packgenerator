@@ -63,7 +63,7 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   // one light each for the backup, the folder and the storage; each says its state in words too
   await expect(panel.locator('li.light')).toHaveCount(3);
   await expect(panel.locator('li.light .dot')).toHaveCount(3);
-  await expect(panel.getByRole('button', { name: T('Export backup') })).toBeVisible();
+  await expect(panel.getByRole('button', { name: T('Save backup') })).toBeVisible();
   await expect(panel.getByText(T('Import backup'), { exact: true })).toBeVisible();
   await expect(panel.getByRole('heading', { name: T('Other data') })).toBeVisible();
   await panel.getByRole('link', { name: new RegExp(T('To the phone')) }).click();

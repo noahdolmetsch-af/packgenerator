@@ -584,7 +584,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await rec.click(data.getByRole('button', { name: T('Export backup') }));
+  await rec.click(data.getByRole('button', { name: T('Save backup') }));
   const file = info.outputPath('pf09-export.json');
   await (await wait).saveAs(file);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
@@ -999,7 +999,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await data.getByRole('button', { name: T('Export backup') }).click();
+  await data.getByRole('button', { name: T('Save backup') }).click();
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
