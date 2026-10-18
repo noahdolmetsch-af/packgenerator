@@ -22,6 +22,7 @@
 import { t as tr } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 import { own } from './ownlive.svelte.js';
+import { partStdOf } from './ownvalues.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -183,7 +184,9 @@ export function ensureParts(bike) {
 }
 
 /** The part's definition merged with what the bike stores (model, history). */
-export const partInfo = (stored) => ({ ...PART[stored.key], ...stored });
+export const partInfo = (stored) => ({ ...PART[stored.key], ...partStd(stored.key), ...stored });
+/** «Eigene Werte»: the care interval Noah set as the standard of every bike (chain wax, sealant, fork), {} for other parts. */
+export const partStd = (key) => partStdOf(own.v, key);
 
 const lastOf = (part, test) => [...(part.history ?? [])].reverse().find(test) ?? null;
 /** The last time it was replaced (or first recorded). */

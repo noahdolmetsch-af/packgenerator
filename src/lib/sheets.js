@@ -12,7 +12,7 @@
  * with pickup = { date, jobs: [{ key, name, detail, part, action, taskId }], ticks: { id: true }, applied: date | null }.
  * Pure functions, tested in tests/sheets.test.js.
  */
-import { PART, CHECK_PARTS, ensureParts, logPart, kmSince, partInfo, fits, upcomingTrips } from './care.js';
+import { PART, CHECK_PARTS, ensureParts, logPart, kmSince, partInfo, partStd, fits, upcomingTrips } from './care.js';
 import { FIT_KEY, fitValue, hasSuspension, specValue } from './bikespecs.js';
 import { lastWork, partStatus, isDueState, shopSkip } from './care/last.js';
 import { orderText, withVisits, tyreSetup, timeDue, workshopOrder } from './workshop.js';
@@ -194,8 +194,8 @@ const daysBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.pa
 
 /** The rule of a part in words: «every 150 km · replace at 0.5 %», «yearly», «every 3 months». */
 export function intervalText(key) {
-  const p = PART[key];
-  if (!p) return '';
+  if (!PART[key]) return '';
+  const p = { ...PART[key], ...partStd(key) }; // «Eigene Werte»: the own standard interval
   const out = [];
   if (p.everyKm) out.push(t('every {km} km', { km: num(p.everyKm) }));
   if (p.everyDays) out.push(p.everyDays >= 365 ? t('yearly') : t('every {n} months', { n: Math.round(p.everyDays / 30.4) }));

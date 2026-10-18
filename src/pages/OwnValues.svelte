@@ -17,7 +17,7 @@
   import { setTipsOn, setKnowOn } from '../lib/pageinfo.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, num } from '../lib/i18n.svelte.js';
-  import { Minus, Plus, Undo2, ChevronRight, Package, Bike, Sun, Database, Lightbulb, Wrench, Info, LayoutGrid, Activity } from '@lucide/svelte';
+  import { Minus, Plus, Undo2, ChevronRight, Package, Bike, Database, Lightbulb, Wrench, Info, Activity } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const q = liveQuery(() => db.settings.get(OWN_KEY));
@@ -28,7 +28,6 @@
   const SECTIONS = [
     { key: 'pack', name: 'Pack|stage', icon: Package },
     { key: 'bike', name: 'Bike', icon: Bike },
-    { key: 'today', name: 'Today', icon: Sun },
     { key: 'data', name: 'Data', icon: Database },
   ];
   const fieldsOf = (area) => OWN_FIELDS.filter((f) => f.area === area);
@@ -90,16 +89,7 @@
               <!-- IS 256: the care per part and per bike is already its own card (v0.144.0 RE) -->
               <a class="ich-row" href="#/bikes?tab=care">
                 <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
-                <span class="ich-m"><b>{t('Care per part')}</b><small>{t('Wax the chain, fork service, sealant: under Bikes › Care › «Care for …», per bike')}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-              </a>
-            </li>
-          {/if}
-          {#if s.key === 'today'}
-            <li>
-              <a class="ich-row" href="#/">
-                <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
-                <span class="ich-m"><b>{t('Tiles on Today')}</b><small>{t('Show, hide and order them: hold a tile on Today')}</small></span>
+                <span class="ich-m"><b>{t('Care per bike')}</b><small>{t('One bike needs other numbers? Bikes › Care › «Care for …»: they win over these')}</small></span>
                 <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
               </a>
             </li>

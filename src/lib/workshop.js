@@ -9,6 +9,7 @@
 import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, kmSince, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 import { localDay } from './localday.js';
+import { own } from './ownlive.svelte.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -174,7 +175,7 @@ export function beforeTrip(bike, trip, setup = { front: null, rear: null }, toda
   const end = addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
   if (today > end) return null;
   // Earlier than 14 days before: only what is already due today (answer 10a).
-  const early = today < addDays(trip.startDate, -REMIND_DAYS);
+  const early = today < addDays(trip.startDate, -own.v.workshopDays); // «Eigene Werte» (standard REMIND_DAYS)
   const res = bikeDue(bike, trip, setup, today, end);
   return early ? { ...res, rows: res.rows.filter((r) => r.when === 'now' && (r.late || r.worn)) } : res;
 }

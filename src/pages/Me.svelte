@@ -180,7 +180,7 @@
             <!-- «Mehr selbst einstellen» (IS 254–258): the numbers of the app and the suggestions on or off -->
             <a class="ich-row" href="#/me/werte">
               <span class="ich-ib"><SlidersHorizontal size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Own values and suggestions')}</b><small>{t('Packing days, backup reminder, km check, cold, «New»')}</small></span>
+              <span class="ich-m"><b>{t('Own values')}</b><small>{t('Packing step, backup reminder, bike check, care, cold')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

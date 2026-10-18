@@ -69,7 +69,7 @@ export const PAGE_GROUPS = [
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.
       { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
       // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte.
-      { id: 'werte', title: 'Own values', href: '#/me/werte', icon: 'sliders', words: 'own values eigene werte einstellungen settings packen packtage pack days backup erinnerung reminder km check kalt cold neu new standard vorschläge suggestions tipps tips' },
+      { id: 'werte', title: 'Own values', href: '#/me/werte', icon: 'sliders', words: 'own values eigene werte einstellungen settings packen packtage pack days backup erinnerung reminder km check velo-check kette wachsen chain wax dichtmilch sealant gabel fork werkstatt workshop kalt cold standard vorschläge suggestions tipps tips' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
       // v0.76.0: «Ich» itself, with the language (v0.97.0: the look has its own page).
       { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english home place heimat keyboard shortcuts tastenkürzel help hilfe version' },

@@ -1,5 +1,5 @@
 // «Mehr selbst einstellen» (Noah 15.10.2026, IS 254–258): Ich › Eigene Werte (#/me/werte). The backup
-// reminder follows the own days, packing starts N days before a trip, «cold» is the suggested
+// reminder follows the own days (content approved by Noah 18.10.2026 19:36), packing starts N days before a trip, «cold» is the suggested
 // temperature rule, everything goes back to Standard. Fictional fixture only, German texts.
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -72,22 +72,24 @@ async function setValue(page, key, v) {
 }
 const sideways = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
-test('the page: five sections in German, standards shown, reached from Ich', async ({ page, context }, info) => {
+test('the page: four sections in German, standards shown, reached from Ich', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info);
   await page.goto('./#/me');
-  await page.locator('main').getByRole('link', { name: new RegExp(esc(T('Own values and suggestions'))) }).click();
+  await page.locator('main').getByRole('link', { name: new RegExp(esc(T('Own values'))) }).click();
   await expect(page).toHaveURL(/#\/me\/werte$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Own values') })).toBeVisible();
-  for (const h of ['Pack|stage', 'Bike', 'Today', 'Data', 'Suggestions']) await expect(page.locator('main').getByRole('heading', { level: 2, name: T(h) })).toBeVisible();
+  for (const h of ['Pack|stage', 'Bike', 'Data', 'Suggestions']) await expect(page.locator('main').getByRole('heading', { level: 2, name: T(h) })).toBeVisible();
   await expect(row(page, 'backupDays')).toContainText(T('Standard: {value}', { value: tn(FIELD.backupDays.std, '{n} day', '{n} days') }));
   await expect(row(page, 'checkKm')).toContainText(T('Standard: {value}', { value: T('{km} km', { km: FIELD.checkKm.std.toLocaleString('de-CH') }) }));
+  await expect(row(page, 'waxKm')).toContainText(T('Standard: {value}', { value: T('{km} km', { km: String(FIELD.waxKm.std) }) }));
+  await expect(row(page, 'workshopDays')).toContainText(T('Standard: {value}', { value: tn(FIELD.workshopDays.std, '{n} day', '{n} days') }));
   await expect(row(page, 'coldC')).toContainText(T('Standard: {value}', { value: T('{n} °C', { n: FIELD.coldC.std }) }));
   // nothing changed: no «Auf Standard zurück»
   await expect(page.locator('[data-own-reset]')).toHaveCount(0);
   // the care per part lives at the bike, the page links there
-  await expect(page.locator('main a[href="#/bikes?tab=care"]')).toContainText(T('Care per part'));
+  await expect(page.locator('main a[href="#/bikes?tab=care"]')).toContainText(T('Care per bike'));
   expect(await sideways(page)).toBe(0);
   // one value adapted: the mark and «Auf Standard zurück» show
   await row(page, 'packDays').getByRole('button', { name: T('More: {name}', { name: T(FIELD.packDays.name) }) }).click();

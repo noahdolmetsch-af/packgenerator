@@ -14,7 +14,7 @@
  * Everything stays a suggestion: switching off only stops the reminder, the history stays.
  * Pure functions, tested in tests/careplan.test.js.
  */
-import { PART, ensureParts, fits, checkKmOf } from '../care.js';
+import { PART, ensureParts, fits, checkKmOf, partStd } from '../care.js';
 import { own as ownLive } from '../ownlive.svelte.js';
 
 /**
@@ -42,7 +42,7 @@ export function careStd(key) {
   const c = CARE_ITEM[key];
   if (!c) return null;
   if (c.kind === 'check') return { everyKm: ownLive.v.checkKm }; // «Eigene Werte» checkKm (standard CHECK_KM)
-  const p = PART[c.parts[0]];
+  const p = { ...PART[c.parts[0]], ...partStd(c.parts[0]) }; // «Eigene Werte»: the own standard interval
   if (c.kind === 'wear') return { warnAt: p.warnAt ?? null, limit: p.limit ?? null };
   return { everyKm: nn(p.everyKm), everyDays: nn(p.everyDays) };
 }
