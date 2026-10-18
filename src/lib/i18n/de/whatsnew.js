@@ -4,19 +4,6 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.171.0 (Arbeitsnummer) GPX-Weg: der Weg nach dem ersten GPX-Upload
-  'Your first ride, explained': 'Deine erste Fahrt, erklärt',
-  'Uploading a ride now says what happens before and after, and the same ride counts only once.': 'Beim Hochladen einer Fahrt steht jetzt, was vorher und nachher passiert, und dieselbe Fahrt zählt nur einmal.',
-  'Every «Upload ride» is the same way: check the file, see what saving does, land on the ride with «Ride saved»': 'Jedes «Fahrt hochladen» geht gleich: Datei prüfen, sehen was Speichern macht, auf der Fahrt landen mit «Fahrt gespeichert»',
-  'Your pace explains itself on top and says the standard rule plainly until your own rule counts': 'Dein Tempo erklärt sich oben selbst und sagt die Standardregel klar, bis deine eigene Regel zählt',
-  'GPX, TCX and the CSV list of Strava or Garmin all go through «Upload ride»; a list fills the km of your trips':
-    'GPX, TCX und die CSV-Liste von Strava oder Garmin gehen alle über «Fahrt hochladen»; eine Liste füllt die km deiner Touren',
-  'Several ride files at once; a planned route offers «Use as route for a trip»': 'Mehrere Fahrt-Dateien auf einmal; eine geplante Route bietet «Als Route für eine Tour nutzen» an',
-  'The same ride uploaded twice counts once for your pace': 'Dieselbe Fahrt zweimal hochgeladen zählt nur einmal für dein Tempo',
-  'Trips › Look back › Your pace: the box «How «Your pace» works» shows on top; tap «Upload ride».': 'Touren › Rückblick › Dein Tempo: oben steht «So funktioniert «Dein Tempo»»; tippe «Fahrt hochladen».',
-  'Choose a GPX file of a ride: under «What happens when you save» it says «ride 1 of 5». Tap «Save ride».': 'Wähle eine GPX-Datei einer Fahrt: unter «Das passiert beim Speichern» steht «Fahrt 1 von 5». Tippe «Fahrt speichern».',
-  'The ride opens with the card «Ride saved»: Look back, your pace and the waiting learnings.': 'Die Fahrt öffnet mit der Karte «Fahrt gespeichert»: Rückblick, dein Tempo und die wartenden Learnings.',
-  'Upload the same file again: «It counts only once». Choose a planned route (no times): «Use as route for a trip».': 'Lade dieselbe Datei nochmals hoch: «Sie zählt nur einmal». Wähle eine geplante Route (ohne Zeiten): «Als Route für eine Tour nutzen».',
   // 0.134.0 «Paket 1 – Doku und Ich» (Inspiration, Listen und Typen, Handbuch + Kleine Apps, leere App, Wandern 15 L)
   'Your app, your way': 'Deine App, deine Ordnung',
   'Collect your own inspiration, order your categories yourself and look up how every function works.': 'Sammle deine eigene Inspiration, ordne deine Kategorien selbst und schlag nach, wie jede Funktion geht.',
