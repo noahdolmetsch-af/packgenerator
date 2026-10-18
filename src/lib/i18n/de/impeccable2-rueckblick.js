@@ -8,4 +8,9 @@ export default {
   'Note removed: {text}': 'Notiz entfernt: {text}',
   'All {n} notes': 'Alle {n} Notizen',
   'Show the newest 3 only': 'Nur die neuesten 3 zeigen',
+
+  // Rückblick 2: one word for «Rückblick machen», the short way «Kurz: Alles gut»
+  'Short: all good': 'Kurz: Alles gut',
+  'Saved: {title}, all good.': 'Gespeichert: {title}, alles gut.',
+  'Nothing learned yet. It comes from every debrief, «Write the debrief» above is the next one.': 'Noch nichts gelernt. Es kommt aus jedem Rückblick, «Rückblick schreiben» oben ist der nächste.',
 };

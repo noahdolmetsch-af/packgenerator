@@ -730,7 +730,7 @@
 {:else}
   <!-- v0.49.0 R1 (Noah 4a): one page «Rückblick»: the last ride, the 12 months, trips compared. -->
   <Hub {spot} />
-  <PageTiles page="debrief" />
+  <PageTiles page="debrief" extrasHint />
 {/if}
 
 <style>

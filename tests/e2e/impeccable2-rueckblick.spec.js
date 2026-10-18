@@ -11,6 +11,7 @@ const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const wide = (page) => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
 // the fixture: a 3-day trip running from 8 October
 const RUNNING = 'test_data_gtp_trip24';
@@ -66,6 +67,35 @@ test('Unterwegs: the lamps behind one line, the newest 3 notes, «Entfernen» in
   await expect(toast).toContainText(T('Note removed: {text}', { text: 'test_data_gtp_ Notiz 4' }));
   await toast.getByRole('button', { name: T('Undo') }).click();
   await expect(sec.locator('.notes')).toContainText('test_data_gtp_ Notiz 4');
+  expect(await wide(page)).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});
+
+test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every way only once at the page end', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, '2026-10-12T10:00:00+02:00');
+  await page.goto('./#/debrief');
+  await page.reload();
+  const hero = page.locator('[data-open-debrief]');
+  const name = (await hero.locator('.hname').textContent()).trim();
+  const write = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): ${esc(name)}$`);
+  await expect(hero.getByRole('link', { name: write })).toBeVisible();
+  await expect(hero.getByRole('link', { name: new RegExp(`^${esc(T('Rate|debrief'))}`) })).toHaveCount(0);
+  // the short way saves at once, «Rückgängig» brings the open debrief back
+  await hero.getByRole('button', { name: `${T('Short: all good')}: ${name}` }).click();
+  await expect(page.locator('.hub .undo')).toContainText(T('Saved: {title}, all good.', { title: name }));
+  await expect(page.locator('[data-open-debrief] .hname')).not.toHaveText(name);
+  await page.locator('.hub .undo').getByRole('button', { name: T('Undo') }).click();
+  await expect(page.locator('[data-open-debrief] .hname')).toHaveText(name);
+  // the tile row leaves out what the page shows as a section or row already; it waits under «Kachel hinzufügen»
+  const row = page.locator('[data-sk="debrief"]');
+  await expect(row.locator('[data-sk-tile]').first()).toBeVisible();
+  for (const id of ['logbook', 'pace', 'learnings', 'past']) await expect(row.locator(`[data-sk-tile="${id}"]`)).toHaveCount(0);
+  await expect(row.locator('[data-sk-tile="tpl"]')).toBeVisible();
+  await expect(row.locator('[data-sk-extras]')).toBeVisible();
+  // «Mehr» keeps Logbuch, Vergangene Touren and Fahrten
+  await expect(page.getByRole('region', { name: T('More') }).getByRole('link')).toHaveCount(3);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

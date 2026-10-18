@@ -53,7 +53,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   const hero = main.locator('[data-open-debrief]');
   await expect(hero.getByText('Abendrunde Hügel', { exact: true })).toBeVisible();
   await expect(main.locator('.btn.hi')).toHaveCount(1);
-  await expect(hero.getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
+  // Impeccable Rückblick 2: one word for it, «Rückblick schreiben»
+  await expect(hero.getByRole('link', { name: 'Rückblick schreiben: Abendrunde Hügel' })).toBeVisible();
   // the last ride's numbers are folded at the end
   await main.getByRole('button', { name: 'Zahlen der letzten Fahrt' }).click();
   const last = main.locator('.lastride');
