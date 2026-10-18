@@ -183,6 +183,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/lists')) return 'lists'; // v0.134.0 «Listen und Typen» (LI1–LI4)
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
+  if (h.startsWith('#/week')) return 'week'; // «Woche planen» (WP1–WP3, Noah 15.10.2026 «1a»): its own place
   return 'home';
 }
 
@@ -217,6 +218,8 @@ export function redirectOf(hash = '') {
  */
 export const PLACES = [
   { key: 'today', href: '#/', label: 'Today|place', letter: 'h' },
+  // «Woche planen» (mockup WP1, Noah 15.10.2026 21:11 «1a»): the week is its own place, next to Heute.
+  { key: 'week', href: '#/week', label: 'Week|place', letter: 'w' },
   // v0.46.1 (Noah): «Touren» opens the overview of all trips, no longer the last trip at Packen.
   { key: 'trips', href: '#/trips', label: 'Trips|place', letter: 't' },
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
@@ -227,12 +230,24 @@ export const PLACES = [
 ];
 
 /**
+ * The places in the bottom bar of a phone: still five (Noah 15.10.2026 «1a»: «Woche» takes the place of
+ * «Material» there; Material stays in the sidebar, under Ich › Material and with g m).
+ */
+export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear');
+
+/**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
  * on top of each place too (nav/PlaceTabs), at most four. match: the addresses that count as this entry.
  */
 export const PLACE_TABS = {
   today: [],
+  // «Woche planen» WP1–WP3: the week, the Sunday planning and the holidays
+  week: [
+    { key: 'week', label: 'This week|tab', href: '#/week', match: (h) => /^#\/week\/?(\?|$)/.test(h) },
+    { key: 'plan', label: 'Plan the week|tab', href: '#/week/plan', match: (h) => h.startsWith('#/week/plan') },
+    { key: 'away', label: 'Holidays|tab', href: '#/week/away', match: (h) => h.startsWith('#/week/away') },
+  ],
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
@@ -284,6 +299,7 @@ export function placeOf(page) {
   if (page === 'home') return 'today';
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
+  if (page === 'week') return 'week';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';

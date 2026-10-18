@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
-import { PLACES } from '../../src/lib/nav.js';
+import { PLACES, BAR_PLACES } from '../../src/lib/nav.js';
 import { openData, settle } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
@@ -18,6 +18,8 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 /** address → the main place that must be marked (null: none of the four, e.g. the Inbox). */
 const ROUTES = [
   ['#/', 'Today|place'],
+  ['#/week', 'Week|place'], // «Woche planen» WP1
+  ['#/week/plan', 'Week|place'],
   ['#/trips', 'Trips|place'],
   ['#/pack', 'Trips|place'],
   ['#/pack?day', 'Trips|place'],
@@ -51,13 +53,15 @@ for (const lang of ['en', 'de']) {
       await page.goto(`./${hash}`);
       // v0.78.0: the tabs of a place (nav.ptabs) may also link to #/gear; this is the main navigation.
       // SN5 (approved): a sub-page's path line (nav.pcrumbs, e.g. «Material › Favoriten») links back too.
-      const nav = page.locator('nav[aria-label]:not(.ptabs):not(.pcrumbs)').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
+      // «Woche planen» (Noah 1a): the phone bar has no Material any more, so the bar is found by Heute
+      const nav = page.locator('nav[aria-label]:not(.ptabs):not(.pcrumbs)').filter({ visible: true }).filter({ has: page.locator('[data-place="today"]') });
       await expect(nav, hash).toHaveCount(1);
       // the same places (v0.76.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
       const places = page.locator('nav.bottom a, .side li.pl > a.pa');
-      await expect(places, hash).toHaveText(PLACES.map((p) => T(p.label)));
+      await expect(places, hash).toHaveText((width < 900 ? BAR_PLACES : PLACES).map((p) => T(p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
-      if (place) await expect(lit, hash).toHaveText(T(place));
+      if (place === 'Gear|place' && width < 900) await expect(lit, hash).toHaveCount(0); // Material is under Ich on a phone
+      else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();
       const sw = await page.evaluate(() => document.documentElement.scrollWidth);
