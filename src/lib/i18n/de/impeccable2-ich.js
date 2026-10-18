@@ -12,4 +12,10 @@ export default {
   // Eingang: the older notes folded, a calm progress
   'Filed today: {n} of {total}': 'Heute abgelegt: {n} von {total}',
   'Older notes. Open them when you have time.': 'Ältere Notizen. Öffnen, wenn du Zeit hast.',
+
+  // Notizen: empty without 11 chips at «0», the way to the Inbox
+  'No notes yet. What you want to keep lands here.': 'Noch keine Notizen. Hier landet, was du behalten willst.',
+  '{n} note is waiting in the Inbox.': 'Im Eingang wartet {n} Notiz.',
+  '{n} notes are waiting in the Inbox.': 'Im Eingang warten {n} Notizen.',
+  'To the Inbox ({n})': 'Zum Eingang ({n})',
 };
