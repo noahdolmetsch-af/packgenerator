@@ -1027,7 +1027,7 @@
     max-width: 100%;
     white-space: normal;
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   @media (max-width: 719px) {
     .goon :global(.btn) {
