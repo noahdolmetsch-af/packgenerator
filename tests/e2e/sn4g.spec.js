@@ -2,7 +2,7 @@
 // freigegeben»), German UI, phone 390 and desktop 1440, fictional data (sn4plus-fixture.js plus one uploaded
 // ride on its own):
 // a) the band «Packmodus» in both states, «Geplant» as a short list, a tap on the band opens Packmodus;
-// b) «Abgeschlossene Touren»: all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
+// b) «Packmodus» (AT1, 14.10.2026: was «Abgeschlossene Touren», now the Strava activities): all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
 //    Ø Tempo, Ø and max. Puls, Wetter, Temp.), «ohne Wattwerte» without a power meter, «Bewerten» /
 //    «Kurz bewerten» on the grey rows, every trip a card on a phone;
 // c) «Filter»: a dialog / sheet with counts, the active filters as chips to tap away, «Filter löschen», a saved
@@ -124,7 +124,9 @@ test('a2) nothing open: «Gerade wird keine Tour gepackt» with «Neue Tour» an
 test('b) every finished trip of the period by month with its values; grey rows keep «Bewerten» / «Kurz bewerten»', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const phone = info.project.name === 'phone';
-  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Completed trips') })).toBeVisible();
+  // AT1 (Noah 14.10.2026 21:19): «Abgeschlossene Touren» lists the Strava activities (tests/e2e/at1.spec.js);
+  // the trips packed in the app are the section «Packmodus», with their values (answer 4a, 14.10.2026 «1-5a»)
+  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Pack mode|section') })).toBeVisible();
   // the month heads, newest first
   const heads = await list(page).locator('h3.mh').allTextContents();
   expect(heads.length).toBeGreaterThan(3);
@@ -135,6 +137,8 @@ test('b) every finished trip of the period by month with its values; grey rows k
   await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^\d+:\d\d$/);
   await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
   await expect(herbst.locator('[data-power]')).toHaveCount(0);
+  // AT1: below the values, which Strava activity belongs to the trip (none in this fixture)
+  await expect(herbst.locator('[data-strava-of="0"]')).toHaveText(T('no Strava activity'));
   await expect(herbst.locator('[data-rate]')).toHaveCount(0);
   // grey: a trip whose Rückblick is missing keeps «Bewerten», the uploaded ride on its own «Kurz bewerten»
   const abend = rowOf(page, 'Abendrunde Hügel');

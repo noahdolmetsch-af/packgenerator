@@ -19,6 +19,11 @@
    *     period, chips and filters, except «Zum Vorjahr».
    *   - «Weiter»: the tiles DG-O1 Gute Tage (never filtered), DG-O2 Offene Rückblicke and DG-O5 Karte aller
    *     Touren (both follow the filters), touren/TourTiles.svelte.
+   * AT1 «Abgeschlossene Touren aus Strava» (mockup AT1, Noah 14.10.2026 21:19 «1a 2a 3b 4b at1 freigeben»):
+   * «Abgeschlossene Touren» is now every Strava activity with its values (touren/Activities.svelte); the
+   * trips packed in the app follow as «Packmodus» (the name instead of «App-Touren»), the only place to rate.
+   * Their rows keep their values (Noah 14.10.2026 «1-5a», answer 4a of the release inventory: ride time,
+   * heart rate, power, weather and temp. stay) and add the things packed and the Strava activity of the trip.
    * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
    * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
@@ -45,7 +50,7 @@
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
-  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search } from '@lucide/svelte';
+  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
@@ -60,7 +65,15 @@
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
+  import { saveActFilter } from '../lib/touren/actfilter.js';
   import TourTiles from '../lib/touren/TourTiles.svelte';
+  // AT1: the Strava activities
+  import Activities from '../lib/touren/Activities.svelte';
+  import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
+  import { loadActs } from '../lib/review/actdata.js';
+  import { ftpEstimate } from '../lib/training.js';
+  import { zones } from '../lib/strava/zones.svelte.js';
+  import { strava } from '../lib/strava/client.svelte.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
@@ -131,6 +144,13 @@
     return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
   });
   const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
+
+  /* ---- AT1: «Abgeschlossene Touren» = every Strava activity; a trip of the Packmodus marks its own ---- */
+  const actsQ = liveQuery(() => loadActs(db));
+  const acts = $derived($actsQ ?? []);
+  const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
+  const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
+  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '' });
 
   let mode = $state('12m');
   const year = today.slice(0, 4);
@@ -255,7 +275,18 @@
     {:else}
       <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
     {/if}
+    {@render packInfo(r)}
   </div>
+{/snippet}
+
+{#snippet packInfo(r)}
+  <!-- AT1: below the values of a Packmodus row: the things packed and the Strava activity of the trip -->
+  {@const ents = r.trip?.entries ?? []}
+  {@const sv = stravaOf(r)}
+  <p class="pinfo" data-pack-info>
+    {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
+    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{sv.n > 1 ? t('Strava: {n} activities', { n: sv.n }) : sv.n === 1 ? t('Strava: {name}', { name: sv.name || t('1 activity') }) : t('no Strava activity')}</span>
+  </p>
 {/snippet}
 
 <div class="trips">
@@ -334,11 +365,15 @@
         {/if}
       </section>
 
-      <!-- SN4g: «Abgeschlossene Touren» (answers 4a, 5a, 6) -->
-      <section class="done" aria-labelledby="trips-done" data-finished>
+      <!-- AT1: «Abgeschlossene Touren», every Strava activity (answers 1a 2a 3b 4b) -->
+      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} />{/if}
+
+      <!-- AT1: «Packmodus» (was «App-Touren»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a) -->
+      <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
           <div>
-            <h2 id="trips-done">{t('Completed trips')}</h2>
+            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('Pack mode|section')}</h2>
+            <p class="ss">{t('Trips you packed in the app: what came along and what proved itself')}</p>
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
           </div>
           <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
@@ -440,6 +475,9 @@
     margin: 0 0 var(--sp-2);
   }
   .sh h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0;
     font: 600 var(--fs-section) / 1.25 var(--font-body);
   }
@@ -820,6 +858,21 @@
   .nw :global(svg) {
     flex: none;
   }
+  /* AT1: below the values of a Packmodus row, a line of its own */
+  .pinfo {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .pinfo span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
   .legend {
     display: grid;
     gap: 4px;
@@ -887,6 +940,10 @@
       gap: 6px;
       padding: 8px 0 0;
       border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .pinfo {
+      padding-top: 8px;
       border-top: 1px solid var(--line);
     }
     .rr :global(.btn) {
