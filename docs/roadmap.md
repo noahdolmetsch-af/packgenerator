@@ -84,12 +84,15 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
+**Nachtrag 18.10.2026 (v0.146.0 «Paket A – Daten sicher und Bedienung»):** P3b (Speicher behalten, Abgleich Handy–Computer, Kopie vor jedem Import, Ich › Dokumente, Regeln 3a/5a), P3c (Bedienregeln, Kamera überall) und «Mehr Inhalt» mit Hinweistexten HT1–HT2 als ein Release auf Paket 3 (0.145.0). Offen danach: Dokumente-PDF DP (Kamera, Texterkennung, Drive; baut auf der Dokumente-Seite auf, Dexie 14), Fitbit (Dexie 13), Hinweis-Karte auf weiteren Orten (Bausteine, Vorlagen, Setup …), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
+
 **Nachtrag 15.10.2026 (v0.145.0 «Paket 3 – Klare Regeln, dein Standard-Velo»):** Navigation + Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar (WS2, WS3, WS5, WS6) und vier Anzeigefehler als ein Release, auf Regeln einheitlich 0.144.0 (#175) aufgebaut. Offen danach: Hinweistexte HT1–HT2 (eigener Thread, späteres Paket), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
 
 **Nachtrag 15.10.2026 (v0.136.0 «Paket 2b – Sortieren, wie du willst»):** Pfeile + Ziehen überall, LI3 «Gilt für», Inspiration-Korrekturen, eine Kachelreihe auf Aktiv › Heute und neun Anzeigefehler aus 0.135.0. Als Nächstes: nach Noahs Reihenfolge in [vorhaben.md](vorhaben.md).
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**18.10.2026, v0.146.0 «Paket A»:** P3b Daten sicher, P3c Bedienregeln und Kamera, Mehr Inhalt und Hinweistexte HT1–HT2 als ein Release.
 **15.10.2026, v0.145.0 «Paket 3»:** Regeln der App, Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar als ein Release; die Einträge zu 0.140.0–0.143.0 und 0.145.0 (Standard-Velo) sind Teile davon; Regeln einheitlich ist 0.144.0 für sich (#175).
 **15.10.2026, v0.136.0 «Paket 2b»:** Sortieren mit Pfeilen und Ziehen, «Gilt für», Inspiration, Anzeigefehler.
 **15.10.2026, v0.135.0 «Paket 2»:** Meditation und Timer, Inhalte Flow + Wusstest du, Eine Zahl pro Sache, Training und Rechnungen als ein Release; die Einträge zu 0.136.0–0.139.0 darunter sind Teile davon.
