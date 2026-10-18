@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -43,6 +44,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   // (TZ-1 «Zustand sichtbar»: no own group any more; it stands under Geplant with its line;
   // SN4g: «Geplant» is a list of cards, the finished trips are rows of «Abgeschlossene Touren»)
   await page.goto('./#/trips');
+  await openShort(page);
   const planned = page.locator('section[data-planned]');
   await expect(planned.getByText(T('Marked as ended, the date is still ahead'))).toBeVisible();
   await expect(page.locator('section[data-finished]').getByText(EARLY)).toHaveCount(0);
@@ -60,6 +62,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByText(T('Nothing with «test» in its name left.'))).toBeVisible();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(TEST)).toHaveCount(0);
 
@@ -70,6 +73,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByRole('status')).toContainText(/zurück/);
   await sheet.getByRole('button', { name: T('Close') }).click();
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(TEST)).toBeVisible();
 
   // H: the debrief of that trip asks first; «Trotzdem» opens it.
@@ -80,9 +84,11 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
 
   // «Wieder planen» on Touren: the trip opens at Plan and leaves the group.
   await page.goto('./#/trips');
+  await openShort(page);
   await page.getByRole('button', { name: `${T('Plan again')}: ${EARLY}` }).click();
   await expect(page).toHaveURL(/#\/pack/);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { name: new RegExp(T('Ended before it began')) })).toHaveCount(0);
 
   // G: the playground with a weekend trip; ending it puts the data back.
@@ -97,6 +103,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   const bar = page.getByRole('region', { name: 'Demo' });
   await expect(bar).toContainText(T('your data is safe · nothing counts'));
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByText(T('Jura loop'), { exact: true }).first()).toBeVisible();
   const ended = page.waitForEvent('load');
   await bar.getByRole('button', { name: T('End|playground') }).click();
@@ -104,6 +111,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await settle(page, { sameTrips: false });
   await expect(page.getByRole('region', { name: 'Demo' })).toHaveCount(0);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(T('Jura loop'), { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);

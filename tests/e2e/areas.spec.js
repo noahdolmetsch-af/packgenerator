@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const FIXTURE = fileURLToPath(new URL('./fixture.json', import.meta.url));
 
@@ -171,6 +172,7 @@ for (const lang of ['en', 'de']) {
 
     // 10. All my favourite things, by area.
     await page.goto('./#/favorites');
+    await openShort(page);
     await expect(page.getByRole('heading', { name: T('Favourites') })).toBeVisible();
     const wk = page.getByRole('region', { name: new RegExp(`^${esc(T('Weekend'))}`) });
     await expect(wk.getByRole('link', { name: 'Paperback book' })).toHaveAttribute('href', '#/gear?q=Paperback%20book');

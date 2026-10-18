@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const T = (en, vars) => {
@@ -38,6 +39,7 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   await expect(page.locator('h1').first()).toHaveCount(1);
   // v0.126.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
@@ -69,6 +71,7 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
 test('Rahmenbedingungen: sport as chips, «Vorlage wählen» with the starts as buttons', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/trips');
+  await openShort(page);
   await page.locator('section[data-planned] [data-plan-new]').click(); // SN4g: «Neue Tour» in the head of «Geplant»
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();

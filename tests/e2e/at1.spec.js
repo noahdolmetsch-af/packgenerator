@@ -14,6 +14,7 @@ import { PAGE } from '../../src/lib/touren/aktivitaeten.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
 import { at1Acts } from './at1-acts.js';
 import { importAndSettle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const SHOTS = '/tmp/claude-0/sn-shots/at1';
 const T = (en, vars) => {
@@ -62,6 +63,7 @@ async function start(page, context, info, d = data()) {
   await page.goto('./');
   await importAndSettle(page, file);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.locator('[data-act-list] [data-act-row]').first()).toBeVisible();
   return { errors, d };
 }
@@ -86,9 +88,14 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
   await expect(herbst.locator('.ak')).toContainText('115');
   // the Packmodus row of that trip also names its Strava activities
   const pm = pack.locator('li[data-row]').filter({ has: page.getByRole('link', { name: 'Herbsttour Hochland', exact: true }) });
-  await expect(pm.locator('[data-strava-of="2"]')).toHaveText(T('Strava: {n} activities', { n: 2 }));
-  // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
-  await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
+  if (info.project.name === 'phone') {
+    // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line; the things packed and Strava after a tap
+    await expect(pm.locator('[data-pack-line]')).toContainText(T('Weather'));
+  } else {
+    await expect(pm.locator('[data-strava-of="2"]')).toHaveText(T('Strava: {n} activities', { n: 2 }));
+    // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
+    await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
+  }
   // the Strava type and the bike the ride ledger counted it for
   const one = row(page, `a:${A}1`);
   await expect(one.locator('[data-type="Ride"]')).toHaveText(T('Strava type «{type}»', { type: 'Ride' }));
@@ -104,6 +111,16 @@ test('b) the values: 1a TSS only with a power meter, 2a zones in min and %, 3b o
   const all = d.tables.activities;
   const pmRide = row(page, `a:${A}1`);
   const ftp = ftpEstimate(all, D0);
+  if (info.project.name === 'phone') {
+    // 0.163.0 «Handy kurz» (answer 2b): on a phone the values are one grey line, the rest after a tap
+    await expect(pmRide.locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 2:30 · ${T('Elapsed|col')} 2:45 · ${T('Ø speed')} 25.0 km/h · ${T('Ø HR')} 138 ${T('bpm')} · ${T('Max. HR')} 172 ${T('bpm')} · ${T('TSS')} ${powerLoad(all[0], ftp).load} · ${T('Ø power')} 182 W`);
+    await expect(row(page, `a:${A}6`).locator('[data-act-line]')).toContainText(`${T('Ø power')} 150 W`);
+    await expect(row(page, `a:${A}5`).locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 1:00 · ${T('Elapsed|col')} 1:00 · ${T('Ø HR')} 92 ${T('bpm')} · ${T('Max. HR')} 120 ${T('bpm')}`);
+    await expect(page.locator('[data-act-values], [data-act-zones]')).toHaveCount(0);
+    await noSideways(page);
+    expect(errors).toEqual([]);
+    return;
+  }
   await expect(field(pmRide, 'tss')).toHaveText(String(powerLoad(all[0], ftp).load));
   await expect(field(pmRide, 'w20')).toHaveText('236 W');
   await expect(field(pmRide, 'wmax')).toHaveText('640 W');
@@ -192,6 +209,7 @@ test('d) part 2 «Filter»: commute, power meter, the chips to tap away, a saved
   await chip.click();
   await expect(list).toHaveCount(7);
   await page.reload();
+  await openShort(page);
   await expect(mine).toHaveAttribute('aria-pressed', 'false');
   await mine.click();
   await expect(list).toHaveCount(6);

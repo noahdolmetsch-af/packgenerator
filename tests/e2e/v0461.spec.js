@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { newButton } from './newbutton.js';
 import { openData, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -181,6 +182,7 @@ test('6 (v0.46.3, Noah: "unschön"; v0.76.0): Ich is calm, no trip rows; the lis
   await expect(page).toHaveURL(/#\/pack\/templates/);
   // The packing list of a trip: Touren → its row.
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByText(`${P} Jura event`).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -190,6 +192,7 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { name: 'Touren', level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Tour anlegen' })).toBeVisible();
   const errors = await start(page, context, info);
@@ -205,6 +208,7 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // v0.125.0 TZ-1 «Zustand sichtbar»: the count line and the groups are the three trip states
     await expect(page.getByText(/\d+ geplant/).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^Neue Tour/ }).first()).toBeVisible();
+    await openShort(page); // 0.163.0: on a phone the Packmodus is one line until tapped
     // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»;
     // AT1 (14.10.2026): «Abgeschlossene Touren» are the Strava activities, the trips packed in the app «Packmodus»
     await expect(page.locator('section[data-planned], section[data-activities], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Abgeschlossen/, /Packmodus/]);

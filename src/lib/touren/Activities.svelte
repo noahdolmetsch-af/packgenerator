@@ -11,6 +11,9 @@
    * chips to tap away, the saved ones as «Meine Filter» above the list.
    * rows: tourRows (aktivitaeten.js); bikes; today; periodOf: rueckblick.js periodOf; saved: the saved
    * filters; onsave(name, filter); ondrop(id).
+   * 0.163.0 «Handy kurz» (Noah 15.10.2026, answer 2b): on a phone the newest PHONE_ROWS show, then «Show n more»;
+   * a row's values are one grey line (ACT_LINE: Dauer, Verstrichen, Ø Tempo, Ø/max. HF, TSS, Ø Leistung,
+   * without the missing ones), the zones and the other values after a tap on the activity. A computer keeps the full rows.
    */
   import { t, tn, num } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
@@ -25,7 +28,9 @@
   import { emptyActFilter, normActFilter, filterActs, actChips, withoutActChip, sameActFilter } from './actfilter.js';
   import ActFilterSheet from './ActFilterSheet.svelte';
   import { n0, n1, hours, dates, monthLong, DASH } from '../review/fmt.js';
-  import { ChevronRight, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search } from '@lucide/svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS, ACT_LINE, shortLine, capGroups } from './kurz.js';
+  import { ChevronRight, ChevronDown, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search } from '@lucide/svelte';
 
   let { rows = [], bikes = [], today, periodOf, connected = true, saved = [], onsave, ondrop } = $props();
 
@@ -43,7 +48,9 @@
   let filter = $state(emptyActFilter());
   let sheet = $state(false);
   const list = $derived(filterActs(ofKind, filter));
-  const groups = $derived(byMonth(list.slice(0, shown)));
+  let phoneAll = $state(false); // 0.163.0: on a phone «Show n more» opens the page of 20
+  const short = $derived(phone.matches && !phoneAll);
+  const groups = $derived(short ? capGroups(byMonth(list.slice(0, PHONE_ROWS)), PHONE_ROWS) : byMonth(list.slice(0, shown)));
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const setMode = (v) => ((mode = v), (shown = PAGE));
   const setKind = (k) => ((kind = k), (shown = PAGE));
@@ -67,6 +74,8 @@
     w20: (r) => [t('Max. 20 min'), n0(r.w20), 'W'],
   };
   const HELP = { dauer: 'moving', verstr: 'elapsed' };
+  /** 0.163.0 (2b): the grey line of a row on a phone. */
+  const lineOf = (r) => shortLine(ACT_LINE.filter((f) => fieldsOf(r).includes(f)).map((f) => FIELD[f](r)), DASH);
   const when = (r) => (r.n > 1 ? `${dates(r.day, r.endDay)} · ${tn(r.n, '{n} activity', '{n} activities')}` : `${dates(r.day)}${r.time ? ` · ${r.time}` : ''}`);
   const zmin = (m) => (m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} h` : t('{n} min', { n: m }));
 </script>
@@ -75,7 +84,7 @@
   <div class="sh">
     <div>
       <h2 id="trips-acts">{t('Completed trips')}</h2>
-      <p class="ss" data-acts-sub>{t('All Strava activities')} · {tn(inPeriod.length, '{n} activity', '{n} activities')} · {t('newest first, by month')}</p>
+      <p class="ss" data-acts-sub>{t('All Strava activities')} · {tn(inPeriod.length, '{n} activity', '{n} activities')}{#if !phone.matches}{' · '}{t('newest first, by month')}{/if}</p>
     </div>
     <a class="btn btn-link more" href="#/flow/training?view=list">{t('In Training')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
@@ -130,34 +139,42 @@
                   {#if r.bikeId && bikeName[r.bikeId]}<span class="bk" data-bike={r.bikeId}><ArrowRight size={12} aria-hidden="true" /><Bike size={12} aria-hidden="true" />{bikeName[r.bikeId]}</span>{/if}
                 </p>
               </div>
-              <div class="ak num"><span><b>{r.km > 0 || r.kind !== 'other' ? n1(r.km) : DASH}</b><small>km</small></span><span><b>{n0(r.hm)}</b><small>{t('Hm|col')}</small></span></div>
+              {#if !phone.matches || r.km > 0 || r.hm}<div class="ak num"><span><b>{r.km > 0 || r.kind !== 'other' ? n1(r.km) : DASH}</b><small>km</small></span><span><b>{n0(r.hm)}</b><small>{t('Hm|col')}</small></span></div>{/if}
               <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
-              <dl class="av" data-act-values>
-                {#each fieldsOf(r) as f (f)}
-                  {@const [label, value, unit] = FIELD[f](r)}
-                  <div class="vc" data-field={f}><dt>{label}{#if HELP[f]}<Help {label} text={t(FIELD_HELP[HELP[f]])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
-                {/each}
-              </dl>
-              <div class="az" data-act-zones>
-                <span class="azl"><HeartPulse size={14} aria-hidden="true" />{t('Time in HR zones')}</span>
-                {#if parts}
-                  <span class="azb"><ZoneBar secs={r.zones} h={10} /></span>
-                  <ul class="azv">
-                    {#each parts as p, i (i)}<li><b class="z{i + 1}">Z{i + 1}</b><span class="num">{zmin(p.min)}</span><small class="num">{p.pct} %</small></li>{/each}
-                  </ul>
-                {:else}
-                  <span class="azn">{r.hf != null ? t('Comes when the activity is opened once.') : t('No heart rate.')}</span>
-                {/if}
-              </div>
+              {#if phone.matches}
+                <!-- 0.163.0 (2b): one grey line; the zones and the other values after a tap -->
+                {@const line = lineOf(r)}
+                {#if line}<p class="aline num" data-act-line>{line}</p>{/if}
+              {:else}
+                <dl class="av" data-act-values>
+                  {#each fieldsOf(r) as f (f)}
+                    {@const [label, value, unit] = FIELD[f](r)}
+                    <div class="vc" data-field={f}><dt>{label}{#if HELP[f]}<Help {label} text={t(FIELD_HELP[HELP[f]])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
+                  {/each}
+                </dl>
+                <div class="az" data-act-zones>
+                  <span class="azl"><HeartPulse size={14} aria-hidden="true" />{t('Time in HR zones')}</span>
+                  {#if parts}
+                    <span class="azb"><ZoneBar secs={r.zones} h={10} /></span>
+                    <ul class="azv">
+                      {#each parts as p, i (i)}<li><b class="z{i + 1}">Z{i + 1}</b><span class="num">{zmin(p.min)}</span><small class="num">{p.pct} %</small></li>{/each}
+                    </ul>
+                  {:else}
+                    <span class="azn">{r.hf != null ? t('Comes when the activity is opened once.') : t('No heart rate.')}</span>
+                  {/if}
+                </div>
+              {/if}
             </li>
           {/each}
         </ul>
       {/each}
     </div>
-    {#if list.length > shown}
+    {#if short && list.length > PHONE_ROWS}
+      <button type="button" class="phone-more" onclick={() => (phoneAll = true)} data-act-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(list.length - PHONE_ROWS, 'Show {n} more activity', 'Show {n} more activities')}</button>
+    {:else if !short && list.length > shown}
       <button type="button" class="btn k loadmore" onclick={() => (shown += PAGE)} data-load-more>{t('Load more')}<span class="num">{t('{n} of {all}', { n: num(shown), all: num(list.length) })}</span></button>
     {/if}
-    <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('All values from Strava. TSS from power and your FTP: without a power meter «–». A multi-day trip of the Packmodus is one row with all its activities. Only to look at, no rating.')}</span></p>
+    <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('All values from Strava. TSS from power and your FTP: without a power meter «–». A multi-day trip of the Packmodus is one row with all its activities. Only to look at, no rating.')}</span></p>
   {/if}
 </section>
 
@@ -517,6 +534,46 @@
   .hint {
     margin-top: var(--sp-3);
   }
+  /* 0.163.0 «Handy kurz»: the grey line of a row and «Show n more» on a phone */
+  .aline {
+    grid-column: 2 / 4;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .phone-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    margin: var(--sp-2) 0 0;
+    padding: 10px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  @media (max-width: 719px) {
+    .hide-phone,
+    .ty {
+      display: none;
+    }
+    /* the sport chips in one line that scrolls sideways */
+    .kchips {
+      order: 3;
+      flex-wrap: nowrap;
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .kc {
+      flex: none;
+    }
+  }
   @media (max-width: 700px) {
     .fbtn {
       margin-left: 0;
@@ -526,7 +583,7 @@
     }
     .ar {
       grid-template-columns: 36px minmax(0, 1fr) 18px;
-      padding: 14px 2px;
+      padding: 10px 2px; /* 0.163.0: a little closer on a phone */
     }
     .aic {
       width: 36px;
