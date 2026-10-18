@@ -216,7 +216,7 @@ describe('the season care', () => {
 
   it('three phases with the tasks of the mockup, each in German', () => {
     expect(CARE_PHASES.map((p) => p.key)).toEqual(['start', 'during', 'end']);
-    expect(CARE_PHASES.map((p) => tasks.filter((x) => x.phase === p.key).length)).toEqual([6, 3, 4]);
+    expect(CARE_PHASES.map((p) => tasks.filter((x) => x.phase === p.key).length)).toEqual([7, 3, 4]);
     for (const x of CARE_TASKS) expect([DE[x.task], DE[x.hint]].every(Boolean), x.id).toBe(true);
   });
 
@@ -229,7 +229,7 @@ describe('the season care', () => {
     expect(done).toMatchObject({ task: 'skins', day: '2026-11-03', hm: 0, season: '2026/27' });
     expect(careState(T.skins, [done], '2027-01-01', 0)).toMatchObject({ state: 'ok', done });
     expect(careState(T.skins, [{ ...done, season: '2025/26' }], '2026-11-02', 0).state).toBe('due');
-    expect(careDue(tasks, [done], '2026-11-04', 0)).toBe(5);
+    expect(careDue(tasks, [done], '2026-11-04', 0)).toBe(6);
   });
 
   it('wax is due every 5,000 m climbed since the last wax this season (soon from 4,000)', () => {
@@ -250,7 +250,7 @@ describe('the season care', () => {
 
   it('the list is yours: own tasks join their phase, hidden ones go', () => {
     const list = careTasks({ own: [{ id: 'own-1', phase: 'start', task: 'Stöcke prüfen' }, { id: 'own-2', phase: 'nowhere', task: 'x' }], hidden: ['crampons'] });
-    expect(list.filter((x) => x.phase === 'start').map((x) => x.id)).toEqual(['lvs', 'skins', 'service', 'binding', 'boots', 'own-1']);
+    expect(list.filter((x) => x.phase === 'start').map((x) => x.id)).toEqual(['lvs', 'skins', 'service', 'binding', 'boots', 'contact', 'own-1']);
     expect(list.find((x) => x.id === 'own-1').own).toBe(true);
   });
 });

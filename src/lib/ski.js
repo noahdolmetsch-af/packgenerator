@@ -294,6 +294,8 @@ export const CARE_TASKS = [
   { id: 'binding', phase: 'start', task: 'Check the binding', hint: 'Pins, heel piece, setting fits the boot' },
   { id: 'boots', phase: 'start', task: 'Boots: buckles and soles', hint: 'The walk mode moves freely' },
   { id: 'crampons', phase: 'start', task: 'Ski crampons fit the binding', hint: 'Put them in once' },
+  // the Saisonstart-Check (SKB14) shows the start tasks too; one list, so a tick counts on both pages
+  { id: 'contact', phase: 'start', task: 'Emergency contact up to date', hint: 'Someone at home knows your route and your return' },
   { id: 'wax', phase: 'during', task: 'Wax the skis', hint: 'About every 5,000 m climbed' },
   { id: 'dry', phase: 'during', task: 'Dry the skins', hint: 'After every tour, not on the heater' },
   { id: 'edges', phase: 'during', task: 'Sharpen the edges', hint: 'After rocky descents' },

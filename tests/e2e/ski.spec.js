@@ -101,7 +101,7 @@ test('Skitouren page: the tab, the next tour with its check, three rows, more', 
   await expect(page.locator('main .btn.hi:visible')).toHaveCount(1);
   // the rows: Start-Check, Saison-Pflege with what is due (5 start tasks, the transceiver is done), Nach der Tour
   await expect(page.locator('[data-row="start"]')).toContainText(T('Start check at the car park'));
-  await expect(page.locator('[data-row="care"] .pill')).toHaveText(T('{n} due', { n: 5 }));
+  await expect(page.locator('[data-row="care"] .pill')).toHaveText(T('{n} due', { n: 6 }));
   await expect(page.locator('[data-row="after"]')).toContainText(T('Last tour: {name}, not noted yet', { name: 'test_data_gtp_ Muster-Gipfel' }));
   // «Mehr» folded: the season and the building blocks
   await page.locator('details.more > summary').click();

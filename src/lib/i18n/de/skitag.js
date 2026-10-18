@@ -18,4 +18,7 @@ export default {
   'reached at {time}': 'erreicht um {time}',
   '{left} to the turnaround ({time})': 'Noch {left} bis zur Umkehr ({time})',
   '{time} moving': '{time} unterwegs',
+  // the Saisonstart-Check and the Saison-Pflege share one list
+  'Someone at home knows your route and your return': 'Jemand zuhause kennt Route und Rückkehr',
+  'All of the season care': 'Ganze Saison-Pflege',
 };
