@@ -17,4 +17,20 @@ export default {
   'See care · {n} due': 'Pflege ansehen · {n} fällig',
   '{n} part without a start value · enter now': '{n} Teil ohne Startwert · jetzt eintragen',
   '{n} parts without a start value · enter now': '{n} Teile ohne Startwert · jetzt eintragen',
+  // Ausstattung 1: empty measures and part weights as a sentence with an action
+  'No measures yet. Saddle height and tyre pressure help you when you switch bikes or after the workshop.': 'Noch keine Masse. Sitzhöhe und Reifendruck helfen dir, wenn du das Velo wechselst oder es in der Werkstatt war.',
+  'Enter measures': 'Masse eintragen',
+  'No part weights yet. The bike weighs {kg} measured. Tap a part to enter its weight.': 'Noch keine Teilgewichte. Das Velo wiegt {kg} gemessen. Tippe auf ein Teil, um sein Gewicht einzutragen.',
+  'No part weights yet. Tap a part to enter its weight.': 'Noch keine Teilgewichte. Tippe auf ein Teil, um sein Gewicht einzutragen.',
+  // Setup 1-3: own head, the trip of the weights, outside the bags, the fold at the end
+  '{bike} · photos, weight, bags, changes': '{bike} · Fotos, Gewicht, Taschen, Änderungen',
+  'Photos of the setup': 'Fotos vom Setup',
+  'for {trip} on {date}': 'für {trip} am {date}',
+  'for {trip}': 'für {trip}',
+  'choose another trip': 'andere Tour wählen',
+  'Trips with a packing list on this bike': 'Touren mit Packliste auf diesem Velo',
+  '{kg} kg outside the bags': '{kg} kg ausserhalb der Taschen',
+  'Ideas and races · {n} link': 'Ideen und Rennen · {n} Link',
+  'Ideas and races · {n} links': 'Ideen und Rennen · {n} Links',
+  'Rigs of others, your races and what you want to compare': 'Rigs von anderen, deine Rennen und was du vergleichen willst',
 };

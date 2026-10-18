@@ -20,6 +20,16 @@
   let more = $state(false);
   const shown = $derived(compact && !more ? rows.filter((r) => FIRST.includes(r.key)) : rows);
   const filled = $derived(rows.filter((r) => r.value != null).length);
+  // Impeccable Runde 2 (18.10.2026, Ausstattung 1): without any measure, one sentence and one button
+  // instead of four empty «–» tiles; the button opens the first measure to type in.
+  let started = $state(false);
+  const blank = $derived(compact && !filled && !started);
+  async function begin() {
+    started = true;
+    await tick();
+    const first = rows.find((r) => FIRST.includes(r.key));
+    if (first) open(first);
+  }
   const show = (r) => (r.value == null ? '–' : r.num && typeof r.value === 'number' ? `${num(r.value)}${r.unit ? ` ${r.unit}` : ''}` : String(r.value));
 
   let editing = $state(null); // key
@@ -81,9 +91,13 @@
 <section class="card fit" class:compact aria-labelledby="fit-h">
   <div class="fh">
     <h2 id="fit-h"><Ruler size={20} aria-hidden="true" />{t('Fit and setup')}</h2>
-    <span class="r num">{t('{n} of {all}', { n: filled, all: rows.length })}</span>
+    {#if !blank}<span class="r num">{t('{n} of {all}', { n: filled, all: rows.length })}</span>{/if}
     {#if !compact}<a class="cmp" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>{/if}
   </div>
+  {#if blank}
+    <p class="blank">{t('No measures yet. Saddle height and tyre pressure help you when you switch bikes or after the workshop.')}</p>
+    <button type="button" class="btn blankgo" onclick={begin}>{t('Enter measures')}</button>
+  {:else}
   <dl class="grid">
     {#each shown as r (r.key)}
       <div class="cell" class:first={FIRST.includes(r.key)}>
@@ -102,7 +116,8 @@
       </div>
     {/each}
   </dl>
-  {#if compact && rows.length > FIRST.length}
+  {/if}
+  {#if !blank && compact && rows.length > FIRST.length}
     <button type="button" class="morefit" aria-expanded={more} onclick={() => (more = !more)}>{more ? t('Fewer measurements') : t('+ {n} more measurements', { n: rows.length - FIRST.length })}</button>
   {/if}
 </section>
@@ -115,6 +130,15 @@
 {/if}
 
 <style>
+  .blank {
+    margin: 4px 0 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    max-width: 60ch;
+  }
+  .blankgo {
+    margin: 0 0 6px;
+  }
   .fit {
     margin: 0 0 12px;
     padding: 14px 16px 10px;

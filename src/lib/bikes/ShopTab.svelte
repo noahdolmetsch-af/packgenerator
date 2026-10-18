@@ -16,6 +16,7 @@
   import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks, Plus, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
   import OrderDialog from '../care/OrderDialog.svelte';
+  import BikeChips from './BikeChips.svelte';
   // Impeccable Runde 2 (18.10.2026, Werkstatt 1-3): the same «Auftrag für den Velomech» as in Care,
   // amounts written one way, the year's sum of the chosen bike in the head line.
   import { shopOrders } from '../care/orders.js';
@@ -74,12 +75,8 @@
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
 
-  {#if bikes.length > 1}
-    <div class="fchips" role="group" aria-label={t('Bike')}>
-      <button type="button" class="fchip" aria-pressed={!pick} onclick={() => choose(null)}>{t('All bikes')}</button>
-      {#each bikes as b (b.id)}<button type="button" class="fchip" aria-pressed={pick === b.id} onclick={() => choose(b.id)}>{b.name}</button>{/each}
-    </div>
-  {/if}
+  <!-- Impeccable Runde 2 (Ausstattung 2): the same bike choice as on every Velo page, one row to swipe on a phone -->
+  {#if bikes.length > 1}<BikeChips {bikes} current={pick} all={t('All bikes')} onpick={choose} />{/if}
 
   <div class="scols">
     <div class="smain">
@@ -237,30 +234,6 @@
   }
   .srows .mon + li {
     border-top: 0;
-  }
-  .fchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 20px;
-  }
-  .fchip {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
-  }
-  .fchip:hover {
-    background: var(--paper-2);
-  }
-  .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
   }
   .addv {
     margin: 0 0 20px;

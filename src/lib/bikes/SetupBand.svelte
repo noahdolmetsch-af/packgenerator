@@ -21,6 +21,12 @@
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
   let strip = $state();
+  let row = $state();
+  // the chosen bike stands first on a phone: show the row from its start again
+  $effect(() => {
+    void bike.id;
+    if (row) row.scrollLeft = 0;
+  });
   function keys(e) {
     const i = bikes.findIndex((b) => b.id === bike.id);
     const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
@@ -34,7 +40,7 @@
 
 <section class="setup-band" aria-label={t('Bike')}>
   {#if sub}<p class="page-sub vb-sub">{sub}</p>{/if}
-  <div class="tabsrow">
+  <div class="tabsrow" bind:this={row}>
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
         <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</button>
@@ -195,6 +201,17 @@
     display: inline-flex;
     font: 400 var(--fs-body) / 1 var(--font-body);
   }
+  /* quiet like the pencil beside it: no frame until hover or focus */
+  .bmenu :global(.btn.dots) {
+    border-color: transparent;
+    background: none;
+    color: var(--ink-3);
+  }
+  .bmenu :global(.btn.dots:hover),
+  .bmenu :global(.btn.dots:focus-visible) {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
   .vb-link {
     position: relative;
     display: inline-flex;
@@ -226,6 +243,34 @@
     top: 50%;
     height: 44px;
     transform: translateY(-50%);
+  }
+  /* Impeccable Runde 2 (Ausstattung 2): on a phone the bikes are one row to swipe, the chosen one first
+     and the right end fading out, like BikeChips on the other Velo pages. */
+  @media (max-width: 599px) {
+    .tabsrow {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      padding-right: 32px;
+      -webkit-mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
+      mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
+    }
+    .tabsrow::-webkit-scrollbar {
+      display: none;
+    }
+    .tabsrow button {
+      flex: none;
+      max-width: 80vw;
+    }
+    .strip .bn {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .strip button[aria-selected='true'] {
+      order: -1;
+    }
   }
   @media print {
     .tabsrow {

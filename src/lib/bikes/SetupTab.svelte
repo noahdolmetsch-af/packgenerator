@@ -764,10 +764,6 @@
     background: var(--paper-2);
     color: var(--ink-2);
   }
-  .vk-row .ib.late {
-    background: var(--warn-soft);
-    color: var(--warn);
-  }
   .vk-row .m {
     display: flex;
     flex-direction: column;
@@ -787,9 +783,6 @@
   .vk-row :global(.chev) {
     flex: none;
     color: var(--ink-3);
-  }
-  .vk-row i.pill {
-    font-style: normal;
   }
   .vk-imp {
     display: grid;

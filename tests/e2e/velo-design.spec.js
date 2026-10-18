@@ -117,7 +117,7 @@ test('V12 to V14b: import, workshop, equipment and compare with path and title',
   await expect(page.locator('main .btn.hi')).toHaveCount(1);
 
   await page.goto(`./#/bikes?tab=compare&bike=${SPARK}`);
-  await onePage(page, T('Equipment {bike}', { bike: NAME }));
+  await onePage(page, T('Equipment|tab'));
   await page.getByRole('link', { name: T('Compare bikes') }).click();
   await onePage(page, T('Compare bikes'));
   await path(page).getByRole('link', { name: T('Equipment|tab') }).click();
