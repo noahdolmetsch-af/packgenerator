@@ -377,4 +377,8 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // Routine «Das tut mir gut» (D1 + D2)
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
+  'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
 };

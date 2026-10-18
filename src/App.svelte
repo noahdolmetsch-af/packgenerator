@@ -52,6 +52,7 @@
   import Lists from './pages/Lists.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
+  import Routine from './pages/Routine.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
@@ -327,7 +328,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'routine'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
@@ -378,6 +379,9 @@
   {:else if page === 'timer'}
     <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
     {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
+  {:else if page === 'routine'}
+    <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
+    <Routine />
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />

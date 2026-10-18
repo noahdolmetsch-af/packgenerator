@@ -70,6 +70,8 @@ export const TILES = [
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
   // 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 «1a 2a 3a 4b HN4 freigegeben»; HN3a, HA1b)
   { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.155.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
+  // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben», 1a: a wide tile at the top of Heute)
+  { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.156.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
   { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.155.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
@@ -96,6 +98,7 @@ export const READY = [
   ['meditation', 'long'],
   ['daycard', 'long'],
   ['important', 'long'],
+  ['routine', 'long'], // Routine «Das tut mir gut» (D1 1a «ganz oben»): right under the head of HN4, which stays as it is
   ['flow', 'l'],
   ['balance', 'l'],
   ['week', 'l'],
@@ -148,7 +151,8 @@ export const sizeFor = (id, size) => (TILE[id]?.sizes.includes(size) ? size : TI
 export function wallOf(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
     const out = wallBefore5(value);
-    return (value.v ?? 1) < 5 ? toHN4(out) : out;
+    const hn = (value.v ?? 1) < 5 ? toHN4(out) : out;
+    return (value.v ?? 1) < 6 ? withRoutine(hn) : hn;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -214,8 +218,21 @@ export function wallBefore5(value) {
   }
   return out;
 }
-/** The record to store (v 5: the order of 0.155.0 HN4). */
-export const wallRecord = (tiles) => ({ v: 5, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * Routine «Das tut mir gut» (D1, Noah 1a): a wall stored before (v < 6) gets the routine once, right under the
+ * tiles on top (HEAD_0155: meditation, day card, Important today; without them: on top). Taken away after that
+ * (the wall is v 6 then), it stays away. → tiles
+ */
+export function withRoutine(tiles = []) {
+  if (tiles.some((x) => x.id === 'routine')) return tiles;
+  let at = 0;
+  while (at < tiles.length && HEAD_0155.includes(tiles[at].id)) at++;
+  const out = [...tiles];
+  out.splice(at, 0, { id: 'routine', size: TILE.routine.size });
+  return out;
+}
+/** The record to store (v 5: the order of 0.155.0 HN4; v 6: the routine came once). */
+export const wallRecord = (tiles) => ({ v: 6, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
