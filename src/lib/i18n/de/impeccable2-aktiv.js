@@ -30,4 +30,13 @@ export default {
   'Another suggestion': 'Anderer Vorschlag',
   'Small things to tick off': 'Kleine Dinge zum Abhaken',
   'No active day this week yet. What you tick off shows here as a dot.': 'Noch kein aktiver Tag diese Woche. Was du abhakst, erscheint hier als Punkt.',
+  // Timer: «Stoppuhr», «Schnellstarts», «Auch in Aktiv abhaken ›»
+  'Stopwatch, countdown, interval, Pomodoro or until a time. All optional.': 'Stoppuhr, Countdown, Intervall, Pomodoro oder bis Uhrzeit. Alles freiwillig.',
+  'Quick starts': 'Schnellstarts',
+  'Own quick start': 'Eigener Schnellstart',
+  'Name of the quick start': 'Name des Schnellstarts',
+  'Also tick off in Aktiv': 'Auch in Aktiv abhaken',
+  'Which activity?': 'Welche Aktivität?',
+  'Tick off · {n} min': 'Abhaken · {n} Min',
+  'Ticked in Aktiv: {name}': 'In Aktiv abgehakt: {name}',
 };

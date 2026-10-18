@@ -109,3 +109,42 @@ test('Aktivität: an empty week says what will show', async ({ page, context }) 
   await expect(page.locator('main [data-week-empty]')).toHaveText(T('No active day this week yet. What you tick off shows here as a dot.'));
   expect(errors).toEqual([]);
 });
+
+test('Timer: «Stoppuhr» everywhere, chips on a phone, «Schnellstarts», a finished timer ticks in Aktiv only on a tap', async ({ page, context }) => {
+  const errors = await open(page, context);
+  const main = page.locator('main');
+  await go(page, '#/timer');
+  await expect(main.locator('[data-mode="up"]')).toContainText(T('Stopwatch'));
+  await expect(main.locator('#t-blocks')).toHaveText(T('Quick starts'));
+  const phoneSize = page.viewportSize().width < 720;
+  // a phone: the kinds are small chips without their second line; the clock and Start are on the first screen
+  await expect(main.locator('[data-mode="down"] small')).toBeVisible({ visible: !phoneSize });
+  if (phoneSize) {
+    const goBox = await main.locator('[data-act="go"]').boundingBox();
+    expect(goBox.y + goBox.height).toBeLessThanOrEqual(page.viewportSize().height);
+  }
+  await main.locator('[data-typed]').fill('1 min');
+  await main.locator('form.typed button[type="submit"]').click();
+  await page.clock.runFor(62_000);
+  const done = main.locator('[data-done]');
+  await expect(done).toBeVisible();
+  // nothing ticked by itself
+  const timerTicks = () => page.evaluate(() => new Promise((res) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const q = r.result.transaction('flowLog').objectStore('flowLog').getAll();
+      q.onsuccess = () => res(q.result.filter((e) => e.via === 'timer').length);
+    };
+  }));
+  expect(await timerTicks()).toBe(0);
+  await done.locator('[data-aktiv-open]').click();
+  const chips = done.locator('[data-aktiv]');
+  expect(await chips.count()).toBeGreaterThan(0);
+  await chips.nth(1).click();
+  await expect(chips.nth(1)).toHaveAttribute('aria-checked', 'true');
+  await done.locator('[data-aktiv-tick]').click();
+  await expect(done.locator('[data-aktiv-done]')).toBeVisible();
+  await expect.poll(timerTicks).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});
