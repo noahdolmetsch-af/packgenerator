@@ -27,7 +27,8 @@
   import { phone } from '../media.svelte.js';
   import { t, lang } from '../i18n.svelte.js';
 
-  let { page } = $props();
+  // extrasHint (Impeccable 18.10.2026, Velos 1): a quiet line that more tiles wait under «Add a tile»
+  let { page, extrasHint = false } = $props();
 
   const today = localDay();
   // svelte-ignore state_referenced_locally
@@ -126,6 +127,7 @@
     </ul>
     <div class="sk-foot">
       <p class="sk-quiet">
+        {#if extrasHint && arr.extras.length}<span data-sk-extras>{t('More tiles are under «Add a tile».')}</span>{/if}
         {#each arr.quiet as q (q.tile.id)}<span data-sk-quiet={q.tile.id}><CircleDashed size={14} aria-hidden="true" />{t('{name}: {what} · comes back by itself', { name: label(q.tile), what: q.text })}</span>{/each}
       </p>
       <p class="sk-right">

@@ -380,6 +380,7 @@
   // («Geplant · unterwegs, Tag 2 von 3») instead of a kicker line of its own.
   const running = $derived(!!trip && tripStarted && !trip.finished);
   const todayIdx = $derived(trip ? Math.max(0, Math.min(days - 1, dayIndex(trip, today))) : 0);
+  const bcCompact = $derived(running && todayIdx >= 1);
   const dayOf = $derived(days > 1 ? t('Day {n} of {total}', { n: todayIdx + 1, total: days }) : '');
   // SN1 (question 1a): before the last day the main button is «Notiz»; «Tour beenden» moves into «…»
   // and becomes the main button on the last day (mainStep 'last').
@@ -474,7 +475,9 @@
        tonight's charging and «Mehr» (what is where, the evening, the stage). -->
   <div class="tp-grid2 r">
     <div class="col">
-      {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
+      <!-- Impeccable (Noah 18.10.2026): from day 2 of a running trip the open base check
+           is one quiet line, so the days and «Jetzt» come into the first screen. -->
+      {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}

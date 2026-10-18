@@ -553,7 +553,7 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
     const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
     await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
     // v0.102.0 Design-Refresh P3: the button shows a short line under the name too; its name stays «view count»
-    await rec.check(`${when}: the number is explained (the view "Favourite things" with its count)`, () => expect(fav).toHaveAccessibleName(new RegExp(`^${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
+    await rec.check(`${when}: the number is explained (the view "Favourites" with its count)`, () => expect(fav).toHaveAccessibleName(new RegExp(`^${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
     await rec.check(`${when}: exactly the favourites are listed`, async () => {
       for (const i of favs) await expect(page.locator('main').getByText(LANG === 'de' ? i.nameDe : i.name).first()).toBeVisible({ timeout: 3000 });
       await expect(page.locator('main').getByText(nm('WZ02'))).toHaveCount(0);
@@ -584,7 +584,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await rec.click(data.getByRole('button', { name: T('Export backup') }));
+  await rec.click(data.getByRole('button', { name: T('Save backup') }));
   const file = info.outputPath('pf09-export.json');
   await (await wait).saveAs(file);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
@@ -999,7 +999,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await data.getByRole('button', { name: T('Export backup') }).click();
+  await data.getByRole('button', { name: T('Save backup') }).click();
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);

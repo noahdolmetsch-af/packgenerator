@@ -36,6 +36,7 @@
   import OrderDialog from './OrderDialog.svelte';
   import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
   import { hasBike } from '../domains.js';
+  import { daysFrom } from '../today.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, eventPrep } from '../readiness.js';
 
@@ -364,6 +365,10 @@
   const tripsShown = $derived(openC ? trips.filter((x) => x.trip.bikeId === openC.bike.id) : trips);
   const next = $derived(tripsShown[0] ?? null);
   const later = $derived(tripsShown.slice(1));
+  // Impeccable (18.10.2026, Velopflege 1): a trip that starts in the next 7 days stands on top of the
+  // page (above «Due now»), not after the whole overview.
+  const soonDays = $derived(next ? daysFrom(today, next.trip.startDate) : null);
+  const nextSoon = $derived(soonDays != null && soonDays <= 7);
   // v0.22.0 (AP06): #/bikes?tab=care&trip=<id> (Home, Pack) goes to that trip's preparation.
   let laterOpen = $state(false);
   let wentTo = null;
@@ -399,6 +404,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else}
+    {#if next && nextSoon}{@render trip(next, soonDays)}{/if}
     {#if !openC}
     <CareOverview
       {checks}
@@ -416,10 +422,10 @@
     />
     {/if}
 
-    {#snippet trip(x)}
-      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
+    {#snippet trip(x, soon = null)}
+      <TripCare {soon} trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
     {/snippet}
-    {#if next}{@render trip(next)}{/if}
+    {#if next && !nextSoon}{@render trip(next)}{/if}
     {#if later.length}
       <div class="folds"><Fold label={t('Later trips')} summary={later.map((x) => x.trip.title).join(' · ')} bind:open={laterOpen}>{#each later as x (x.trip.id)}{@render trip(x)}{/each}</Fold></div>
     {/if}

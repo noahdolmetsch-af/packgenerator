@@ -92,7 +92,7 @@
   {:else}
     <SetupTab bikeId={route.bike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
-    <PageTiles page="bikes" />
+    <PageTiles page="bikes" extrasHint />
   {/if}
 </div>
 

@@ -47,10 +47,11 @@
   import { localDay } from '../localday.js';
   import { mainStep } from '../phase.js';
   import '../trip/trip.css';
-  import { Sparkles } from '@lucide/svelte';
+  import { Sparkles, ArrowDown } from '@lucide/svelte';
+  import { packSteps } from '../trips.js';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, lessons = [], reminders = [] } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [] } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -178,7 +179,48 @@
   // menu «…») makes it planned again. A template comes from a planned or a rated trip (spec §4).
   const tplHere = $derived(bikeTrip && (!fixed || !!phaseOpts.debriefDone));
   const cellAct = (fn) => (fixed ? {} : { type: 'button', onclick: fn });
+  // Impeccable 18.10.2026 (Planen 1, Noah «alle a-d umsetzen»): one core line under the step bar
+  // («30 Teile in 6 Taschen · 4.5 kg mit Essen und Wasser · 7 Aufgaben offen») and quiet jump marks to the
+  // packing list, the tasks, the route and the weather. The order of the sections stays; nothing goes away.
+  let rootEl = $state();
+  const bagSteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
+  const coreN = $derived(bagSteps.reduce((n, s) => n + s.entries.length, 0));
+  const tasksOpen = $derived(prep?.prep?.open ?? 0);
+  const coreLine = $derived([
+    coreN ? `${tn(coreN, '{n} item', '{n} items')} ${tn(bagSteps.length, 'in {n} bag', 'in {n} bags')}` : t('The list is still empty.'),
+    stats?.packG ? t('{kg} with food and water', { kg: `${stats.packMissing ? '~' : ''}${kg(stats.packG)}` }) : '',
+    tasksOpen ? tn(tasksOpen, '{n} task open', '{n} tasks open') : '',
+  ].filter(Boolean).join(' · '));
+  const jumps = $derived([
+    { key: 'list', label: t('Packing list|jump') },
+    onprep ? { key: 'tasks', label: t('Tasks|jump') } : null,
+    showRoute ? { key: 'route', label: t('Route|jump') } : null,
+    { key: 'weather', label: t('Weather|jump') },
+  ].filter(Boolean));
+  function jump(key) {
+    if (key === 'tasks') return onprep?.();
+    const q = (sel) => rootEl?.querySelector(sel);
+    const el = key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
+    if (!el) return;
+    el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    // the keyboard goes along: the heading of the section takes the focus without a second jump
+    const h = el.querySelector('h2') ?? el;
+    if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+    h.focus({ preventScroll: true });
+  }
 </script>
+
+{#snippet core()}
+  <div class="core" data-core-line>
+    <p class="core-l num">{coreLine}</p>
+    {#if jumps.length > 1}
+      <nav class="core-j" aria-label={t('Jump to')}>
+        <ArrowDown class="core-a" size={16} aria-hidden="true" />
+        {#each jumps as j (j.key)}<button type="button" class="tp-chip core-c" data-jump={j.key} onclick={() => jump(j.key)}>{j.label}</button>{/each}
+      </nav>
+    {/if}
+  </div>
+{/snippet}
 
 {#snippet go()}
   {#if main.kind === 'add'}<button class="btn hi go" onclick={() => show('add')}>{t(main.label)}<Plus size={20} aria-hidden="true" /></button>
@@ -189,19 +231,19 @@
 {#snippet checkBtn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/snippet}
 {#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')}><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
-<div class="calm-pack trip-page" class:review-mode={review}>
+<div class="calm-pack trip-page" class:review-mode={review} bind:this={rootEl}>
   {#if review}
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
     {#if planTop}
       <div class="plan-top">
         <div class="pcol">
-          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} />{/if}
+          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} onopen={onprep} />{/if}
           {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
           {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
           {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
@@ -417,6 +459,13 @@
   .left, .right { min-width: 0; }
   .plan-top { display: grid; gap: var(--sp-5); margin: 0 0 var(--sp-5); }
   .pcol { display: grid; gap: var(--sp-5); align-content: start; min-width: 0; }
+  /* Impeccable Planen 1: the core line and the jump marks under the step bar; they wrap, never scroll sideways */
+  .core { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0 0 16px; min-width: 0; }
+  .core-l { flex: 1 1 280px; min-width: 0; margin: 0; color: var(--ink); font-weight: 500; overflow-wrap: break-word; }
+  .core-j { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+  .core-j :global(.core-a) { flex: none; color: var(--ink-3); }
+  .core-c { padding: 6px 11px; border-color: var(--line); color: var(--ink-2); font-size: var(--fs-small); }
+  @media (hover: hover) { .core-c:hover { border-color: var(--line-strong); color: var(--ink); } }
   @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
