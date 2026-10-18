@@ -42,6 +42,7 @@
   import Fitbit from './pages/Fitbit.svelte';
   import Docs from './pages/Docs.svelte';
   import DocScan from './pages/DocScan.svelte';
+  import Agenda from './pages/Agenda.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
@@ -404,6 +405,9 @@
   {:else if page === 'docscan'}
     <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
     <DocScan />
+  {:else if page === 'agenda'}
+    <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
+    <Agenda />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}

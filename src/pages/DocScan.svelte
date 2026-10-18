@@ -10,6 +10,7 @@
    * 3 Save: the text is read on the device for the search and the name (Noah «5a»), then the PDF goes to
    *   «Importierte PDF» (or the chosen group) and, when Drive is on, into Google Drive.
    */
+  import DateInput from '../lib/ui/DateInput.svelte';
   import { onMount } from 'svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -296,7 +297,7 @@
           <div class="ich-h"><div><h2 id="facts-h">{t('Details')}</h2><p class="ich-hs">{t('everything can be changed later')}</p></div></div>
           <div class="card ich-body facts">
             <label>{t('Name|doc')}<input type="text" bind:value={name} maxlength="120" placeholder={make === 'photos' ? t('Photo') : t('suggested from the text')} /></label>
-            <label>{t('Date')}<input type="date" bind:value={date} max={today} /></label>
+            <label>{t('Date')}<DateInput bind:value={date} max={today} /></label>
             <label>{t('Keep in')}
               <select bind:value={group}>
                 <option value="">{t(DEFAULT_GROUP[make === 'photos' ? 'photo' : 'pdf'])}</option>

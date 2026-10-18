@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 13; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values
+export const SCHEMA_VERSION = 15; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none)
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -180,6 +180,13 @@ export function createDb(name = 'pack-generator') {
   // Version 13 (Fitbit über Google Health) only adds the daily values, so existing data stays as it is.
   db.version(13).stores({
     healthDays: 'date',
+  });
+  // Version 15 (Google Kalender und Aufgaben, GA): a copy of Google's events and tasks on this device.
+  // Not in DATA_TABLES: Google keeps the truth, a backup would only carry an old copy. 14 is a gap
+  // (Dokumente-PDF needs no version of its own, A's 12 has the documents); Dexie allows it.
+  db.version(15).stores({
+    gEvents: 'id, day, cal',
+    gTasks: 'id, list, due, done',
   });
   return db;
 }

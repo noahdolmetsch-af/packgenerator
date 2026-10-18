@@ -31,7 +31,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -46,6 +46,7 @@
   import '../lib/ich/ich.css';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { dueCount } from '../lib/docs.js';
+  import { agenda } from '../lib/agenda/client.svelte.js';
   // P3b (D3): how many documents expire soon (the yellow pill on «Documents»)
   const docDue = $derived(dueCount(docList.list, localDay()));
   import { weight } from '../lib/weight.svelte.js';
@@ -101,6 +102,7 @@
     return w ? t('{kg} kg · {day} · only on this device', { kg: num(w.kg), day }) : t('Voluntary, for watts per kg · only on this device');
   });
   const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
+  const agendaOn = $derived(agenda.prefs.calendar || agenda.prefs.tasks);
 </script>
 
 <div class="mepage ich-page">
@@ -139,6 +141,14 @@
             <a class="ich-row" href="#/me/docs">
               <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Documents')}</b><small>{docList.list.length ? tn(docList.list.length, '{n} document', '{n} documents') : t('Passport, insurance, emergency sheet')}{docDue ? ` · ${tn(docDue, '{n} expires soon', '{n} expire soon')}` : ''}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Google Kalender und Aufgaben (GA): appointments and tasks from Google, also for «Woche planen» -->
+            <a class="ich-row" href="#/me/agenda">
+              <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Appointments and tasks')}</b><small>{agendaOn ? t('from your Google calendar and Google Tasks') : t('Connect Google Calendar and Google Tasks')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

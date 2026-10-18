@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { makeHandler as stravaHandler, trimActivity, AUTHORIZE_URL, TOKEN_URL, API, DEAUTH_URL, SCOPE } from '../api/strava.js';
 import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES, DRIVE_SCOPE, DRIVE_API, DRIVE_UPLOAD, DRIVE_MAX_BYTES, cleanName } from '../api/_lib/google.js';
 import { safeReturn, hash, KEYS, APP_RETURN } from '../api/_lib/oauth.js';
+import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API } from '../api/_lib/googleplan.js';
 
 const REDIS = 'https://redis.example.test';
 const ORIGIN = 'http://localhost:5173';
@@ -373,5 +374,117 @@ describe('Google Drive (Dokumente-PDF)', () => {
   it('cleanName keeps names Drive accepts', () => {
     expect(cleanName(' Brief/2026\nMuster ')).toBe('Brief 2026 Muster');
     expect(cleanName('', 'Dokument')).toBe('Dokument');
+  });
+});
+
+describe('Google Kalender und Aufgaben (GA)', () => {
+  const gToken = () => () => Response.json({ access_token: 'g-acc', refresh_token: 'g-ref', expires_in: 3600, scope: [...SCOPES, ...CALENDAR_SCOPES, TASKS_SCOPE].join(' ') });
+  // A tiny fake Calendar and Tasks: fictional entries only.
+  function fakePlan() {
+    const events = {
+      primary: [
+        { id: 'ev1', summary: 'Zahnarzt Muster', start: { dateTime: '2026-10-13T08:30:00+02:00' }, end: { dateTime: '2026-10-13T09:15:00+02:00' }, htmlLink: 'https://calendar.example.test/ev1' },
+        { id: 'ev2', summary: 'Jura-Wochenende', start: { date: '2026-10-17' }, end: { date: '2026-10-19' } },
+        { id: 'ev3', status: 'cancelled', start: { date: '2026-10-14' } },
+      ],
+    };
+    const lists = { 'list-a': [{ id: 't1', title: 'Kette messen', due: '2026-10-14T00:00:00.000Z', status: 'needsAction' }] };
+    const seen = [];
+    let n = 0;
+    const handle = async (url, init = {}) => {
+      const u = new URL(url);
+      seen.push({ method: init.method ?? 'GET', path: u.pathname, q: Object.fromEntries(u.searchParams), body: init.body ? JSON.parse(init.body) : null });
+      const p = u.pathname;
+      if (p.endsWith('/users/me/calendarList')) return Response.json({ items: [{ id: 'primary@example.test', summary: 'Noah Muster', primary: true, accessRole: 'owner', backgroundColor: '#4a90d9' }, { id: 'feiertage@example.test', summary: 'Feiertage', accessRole: 'reader' }] });
+      let m = p.match(/\/calendars\/([^/]+)\/events(?:\/([^/]+))?$/);
+      if (m) {
+        const c = decodeURIComponent(m[1]);
+        if (c === 'forbidden') return new Response('{}', { status: 403 });
+        if (init.method === 'POST') return Response.json({ id: `new${++n}`, ...JSON.parse(init.body) });
+        if (init.method === 'PATCH') return Response.json({ id: m[2], ...JSON.parse(init.body) });
+        if (init.method === 'DELETE') return new Response(null, { status: 204 });
+        return Response.json({ items: events[c] ?? [] });
+      }
+      if (p.endsWith('/users/@me/lists')) return Response.json({ items: [{ id: 'list-a', title: 'Meine Aufgaben' }] });
+      m = p.match(/\/lists\/([^/]+)\/tasks(?:\/([^/]+))?$/);
+      if (m) {
+        if (init.method === 'POST') return Response.json({ id: `nt${++n}`, status: 'needsAction', ...JSON.parse(init.body) });
+        if (init.method === 'PATCH') return Response.json({ id: m[2], title: 'Kette messen', ...JSON.parse(init.body) });
+        if (init.method === 'DELETE') return new Response(null, { status: 204 });
+        return Response.json({ items: u.searchParams.get('showCompleted') === 'false' ? lists[decodeURIComponent(m[1])] ?? [] : [] });
+      }
+      return new Response('{}', { status: 404 });
+    };
+    return { handle, seen };
+  }
+  async function setup() {
+    const f = fakePlan();
+    const w = world({ [TOKEN_URL]: stravaToken(), [G_TOKEN]: gToken(), [CALENDAR_API]: f.handle, [TASKS_API]: f.handle });
+    const s = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(s, w)).get('key');
+    const { main, callback } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const start = await (await main(post('/api/google?step=start', { services: ['calendar', 'tasks'] }, { key }))).json();
+    expect(new URL(start.url).searchParams.get('scope').split(' ')).toEqual([...CALENDAR_SCOPES, TASKS_SCOPE]);
+    await callback(get(`/api/google/callback?code=g-code&state=${new URL(start.url).searchParams.get('state')}`));
+    return { f, key, main };
+  }
+
+  it('asks for calendar and tasks only, and the status says both are allowed', async () => {
+    const t = await setup();
+    expect(await (await t.main(get('/api/google?step=status', { key: t.key }))).json()).toMatchObject({ connected: true, calendar: true, tasks: true, drive: false });
+  });
+
+  it('lists the calendars and the events of a span, in Zurich days, without cancelled ones', async () => {
+    const t = await setup();
+    const cals = await (await t.main(get('/api/google?step=cal-list', { key: t.key }))).json();
+    expect(cals.calendars).toEqual([
+      { id: 'primary@example.test', name: 'Noah Muster', color: '#4a90d9', primary: true, write: true },
+      { id: 'feiertage@example.test', name: 'Feiertage', color: null, primary: false, write: false },
+    ]);
+    const res = await (await t.main(get('/api/google?step=cal-events&from=2026-10-12&to=2026-10-18', { key: t.key }))).json();
+    expect(res.events.map((e) => [e.id, e.day, e.lastDay, e.allDay])).toEqual([
+      ['primary|ev1', '2026-10-13', '2026-10-13', false],
+      ['primary|ev2', '2026-10-17', '2026-10-18', true],
+    ]);
+    const q = t.f.seen.find((x) => x.path.includes('/events')).q;
+    expect(q).toMatchObject({ timeMin: '2026-10-12T00:00:00+02:00', timeMax: '2026-10-19T00:00:00+02:00', singleEvents: 'true' });
+    expect((await t.main(get('/api/google?step=cal-events&from=2026-10-12&to=2027-03-01', { key: t.key }))).status).toBe(400);
+    expect((await t.main(get('/api/google?step=cal-events&from=2026-10-12&to=2026-10-13&cal=../x', { key: t.key }))).status).toBe(400);
+    const no = await t.main(get('/api/google?step=cal-events&from=2026-10-12&to=2026-10-13&cal=forbidden', { key: t.key }));
+    expect([no.status, (await no.json()).code]).toEqual([403, 'calendar_not_allowed']);
+  });
+
+  it('makes, changes and deletes an event', async () => {
+    const t = await setup();
+    const made = await (await t.main(post('/api/google?step=cal-save', { title: 'Tennis-Lektion', day: '2026-10-20', allDay: false, from: '18:00', to: '19:00', where: 'Halle Muster' }, { key: t.key }))).json();
+    expect(made.event).toMatchObject({ cal: 'primary', title: 'Tennis-Lektion', allDay: false, where: 'Halle Muster' });
+    expect(t.f.seen.at(-1)).toMatchObject({ method: 'POST', body: { start: { dateTime: '2026-10-20T18:00:00', timeZone: 'Europe/Zurich' }, end: { dateTime: '2026-10-20T19:00:00', timeZone: 'Europe/Zurich' } } });
+    await t.main(post('/api/google?step=cal-save', { gid: made.event.gid, title: 'Ferien', day: '2026-12-24', lastDay: '2026-12-31' }, { key: t.key }));
+    expect(t.f.seen.at(-1)).toMatchObject({ method: 'PATCH', body: { start: { date: '2026-12-24' }, end: { date: '2027-01-01' } } });
+    expect((await t.main(post('/api/google?step=cal-delete', { gid: made.event.gid }, { key: t.key }))).status).toBe(200);
+    expect((await t.main(post('/api/google?step=cal-save', { title: '', day: '2026-10-20' }, { key: t.key }))).status).toBe(400);
+    expect((await t.main(post('/api/google?step=cal-delete', {}, { key: t.key }))).status).toBe(400);
+  });
+
+  it('lists task lists and tasks, adds, ticks and deletes a task', async () => {
+    const t = await setup();
+    expect((await (await t.main(get('/api/google?step=task-lists', { key: t.key }))).json()).lists).toEqual([{ id: 'list-a', title: 'Meine Aufgaben' }]);
+    const all = await (await t.main(get('/api/google?step=tasks', { key: t.key }))).json();
+    expect(all.tasks).toEqual([expect.objectContaining({ id: 't1', list: 'list-a', title: 'Kette messen', due: '2026-10-14', done: false })]);
+    const add = await (await t.main(post('/api/google?step=task-save', { list: 'list-a', title: 'Druck erfassen', due: '2026-10-16' }, { key: t.key }))).json();
+    expect(add.task).toMatchObject({ title: 'Druck erfassen', due: '2026-10-16', done: false });
+    expect(t.f.seen.at(-1).body).toEqual({ title: 'Druck erfassen', due: '2026-10-16T00:00:00.000Z' });
+    const tick = await (await t.main(post('/api/google?step=task-save', { list: 'list-a', id: 't1', done: true }, { key: t.key }))).json();
+    expect(tick.task.done).toBe(true);
+    expect(t.f.seen.at(-1)).toMatchObject({ method: 'PATCH', body: { status: 'completed' } });
+    expect((await t.main(post('/api/google?step=task-delete', { list: 'list-a', id: 't1' }, { key: t.key }))).status).toBe(200);
+    expect((await t.main(post('/api/google?step=task-save', { list: 'list-a' }, { key: t.key }))).status).toBe(400);
+    expect((await t.main(post('/api/google?step=task-save', { list: 'list-a', title: 'x', due: '16.10.2026' }, { key: t.key }))).status).toBe(400);
+  });
+
+  it('refuses other devices', async () => {
+    const t = await setup();
+    expect((await t.main(get('/api/google?step=tasks'))).status).toBe(401);
+    expect((await t.main(post('/api/google?step=cal-save', { title: 'x', day: '2026-10-20' }))).status).toBe(401);
   });
 });

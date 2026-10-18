@@ -1,0 +1,111 @@
+// Google Kalender und Aufgaben (GA, Noah 15.10.2026 «3 beides», 21:11 «3b»; built «vorerst ohne mockup»):
+// Ich › Termine und Aufgaben connects calendar and tasks with the Google login, shows the next 14 days
+// and the tasks, ticks and adds a task and enters an appointment; every change goes to the server first.
+// The server (packgen-three.vercel.app/api/google) and the Google login are answered by the test;
+// everything else outside the preview server is blocked. Fictional entries only.
+import { test, expect } from '@playwright/test';
+import { ready } from './settle.js';
+import DE from '../../src/lib/i18n/de/index.js';
+
+const P = 'test_data_gtp_';
+const de = (en) => DE[en] ?? en;
+const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${zurichToday()}T12:00:00Z`));
+const shot = async (page, info, name) => {
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+};
+const ev = (id, d, over = {}) => ({ id: `cal1|${id}`, gid: id, cal: 'cal1', title: id, where: '', note: '', allDay: false, day: d, lastDay: d, start: `${d}T08:30:00+02:00`, end: `${d}T09:15:00+02:00`, link: 'https://calendar.example.test/x', busy: true, ...over });
+
+test('Termine und Aufgaben: connect, see the next days, tick and add a task, enter an appointment', async ({ page, context, baseURL }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const log = [];
+  let allowed = false;
+  const tasks = [
+    { id: 't1', list: 'l1', title: 'Kette messen', notes: '', due: day(2), done: false, doneAt: null, parent: null, position: '1' },
+    { id: 't2', list: 'l1', title: 'Pneu flicken', notes: 'hinten', due: day(-1), done: false, doneAt: null, parent: null, position: '2' },
+    { id: 't3', list: 'l1', title: 'Rechnung Muster zahlen', notes: '', due: null, done: false, doneAt: null, parent: null, position: '3' },
+  ];
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+  await context.route(/packgen-three\.vercel\.app\/api\/google/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const url = new URL(req.url());
+    const step = url.searchParams.get('step');
+    const body = req.postData() ? JSON.parse(req.postData()) : null;
+    log.push({ step, auth: req.headers().authorization ?? null, params: Object.fromEntries(url.searchParams), body });
+    const ok = (b) => route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ ok: true, ...b }) });
+    if (step === 'status') return ok({ connected: allowed, calendar: allowed, tasks: allowed });
+    if (step === 'start') return ok({ url: 'https://accounts.google.com/o/oauth2/v2/auth?client_id=x&state=y' });
+    if (step === 'cal-list') return ok({ calendars: [{ id: 'cal1', name: 'Noah Muster', color: '#4a90d9', primary: true, write: true }, { id: 'cal2', name: 'Feiertage', color: '#7a9a5a', primary: false, write: false }] });
+    if (step === 'cal-events') return ok({ events: [ev('Zahnarzt Muster', day(0), { where: 'Praxis Muster' }), ev('Tennis-Lektion', day(1), { start: `${day(1)}T18:00:00+02:00`, end: `${day(1)}T19:00:00+02:00` }), ev('Jura-Wochenende', day(3), { allDay: true, lastDay: day(4), start: day(3) })] });
+    if (step === 'task-lists') return ok({ lists: [{ id: 'l1', title: 'Meine Aufgaben' }] });
+    if (step === 'tasks') return ok({ tasks });
+    if (step === 'task-save') {
+      const old = tasks.find((x) => x.id === body.id);
+      return ok({ task: { ...(old ?? { id: 'tnew', list: body.list, notes: '', due: null, done: false, doneAt: null, parent: null, position: '0' }), ...body } });
+    }
+    if (step === 'cal-save') return ok({ event: ev(body.title, body.day, { gid: 'new1', id: 'cal1|new1', start: `${body.day}T${body.from}:00+02:00`, end: `${body.day}T${body.to}:00+02:00` }) });
+    return route.fulfill({ status: 400, headers: cors, body: '{}' });
+  });
+  await context.route(/accounts\.google\.com\/o\/oauth2/, (route) => {
+    allowed = true;
+    return route.fulfill({ status: 302, headers: { location: `${baseURL}#/me/agenda?google=connected` } });
+  });
+  await context.addInitScript((key) => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+    localStorage.setItem('pg.strava.key', key);
+  }, `${P}key`);
+  await page.goto('./');
+  await ready(page);
+
+  // Ich › Termine und Aufgaben: not connected, both ticked
+  await page.goto('./#/me');
+  await page.getByRole('link', { name: new RegExp(de('Appointments and tasks')) }).click();
+  await expect(page.getByRole('heading', { level: 1, name: de('Appointments and tasks') })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: new RegExp(de('Google Calendar')) })).toBeChecked();
+  await shot(page, info, 'A1-verbinden');
+  await page.getByRole('button', { name: de('Connect with Google') }).click();
+
+  // back: the address is clean, the first fetch asked for the span with this device's key
+  await expect(page.getByRole('heading', { name: de('Appointments'), exact: true })).toBeVisible();
+  expect(page.url()).not.toContain('google=');
+  expect(log.find((x) => x.step === 'start').body.services).toEqual(['calendar', 'tasks']);
+  await expect.poll(() => log.find((x) => x.step === 'cal-events')?.params).toMatchObject({ from: day(-7), to: day(60), cal: 'cal1' });
+  expect(log.find((x) => x.step === 'cal-events').auth).toBe(`Bearer ${P}key`);
+  await expect(page.getByText('Zahnarzt Muster')).toBeVisible();
+  await expect(page.getByText('Jura-Wochenende')).toHaveCount(2);
+  await expect(page.getByRole('heading', { name: `${de('Overdue')} · 1` })).toBeVisible();
+  await shot(page, info, 'A2-termine-aufgaben');
+
+  // tick a task: it goes to Google, then the copy follows
+  await page.getByRole('button', { name: `${de('Done: {name}').replace('{name}', 'Pneu flicken')}` }).click();
+  await expect.poll(() => log.find((x) => x.step === 'task-save')?.body).toEqual({ list: 'l1', id: 't2', done: true });
+  await expect(page.getByRole('heading', { name: new RegExp(de('Overdue')) })).toHaveCount(0);
+
+  // a new task with a due day
+  await page.getByRole('textbox', { name: de('New task') }).fill('Druck erfassen');
+  await page.getByRole('button', { name: de('Add') }).click();
+  await expect.poll(() => log.filter((x) => x.step === 'task-save').at(-1)?.body).toEqual({ list: 'l1', title: 'Druck erfassen' });
+  await expect(page.getByText('Druck erfassen').first()).toBeVisible();
+
+  // a new appointment
+  await page.getByRole('button', { name: de('New appointment') }).click();
+  const form = page.getByRole('form', { name: de('New appointment') });
+  await form.getByLabel(de('Title')).fill('Velo-Service');
+  await form.getByLabel(de('From|time')).fill('17:30');
+  await form.getByLabel(de('To'), { exact: true }).fill('18:00');
+  await shot(page, info, 'A3-termin');
+  await form.getByRole('button', { name: de('Enter in Google') }).click();
+  await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00' });
+  await expect(page.getByText('Velo-Service').first()).toBeVisible();
+
+  // which calendars: the holidays too
+  await page.getByRole('checkbox', { name: /Feiertage/ }).check();
+  await expect.poll(() => log.filter((x) => x.step === 'cal-events').at(-1)?.params.cal).toBe('cal1,cal2');
+  await shot(page, info, 'A4-fertig');
+
+  expect(errors).toEqual([]);
+});
