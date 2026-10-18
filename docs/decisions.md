@@ -1449,6 +1449,32 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Bleibt bewusst im Code** (Noah 14.10.2026 20:23 UTC «Diesen Code explizit lassen»): R88 `orderFunctions`, R107 `flowcheck` Vorschlag/`checkHref`, R75 `learnedRule`.
 - **Selbst entschieden:** Die Erinnerung an die Sporttasche kommt ab 18:00 (Abend der Tagesuhr, vorher 17:00). «Für morgen ab 14:00» bei Tagestour und Was anziehen ist keine Tageszeit und bleibt. Gabel und Dämpfer erscheinen in «Pflege für …» nur an Velos mit Federung (wie die Fälligkeiten). Der km-Check hat nur km. Ein Pflege-Blatt pro Pflege (die Kette hat zwei Zeilen: Wachsen und Messen). Die Zeile in der Packliste ist ein Knopf, darum steht «Regel ändern» im Hinweis bei den Bausteinen, nicht in der Zeile. Die Kopie der letzten Tour nimmt die zuletzt benutzte Tour (gleiche Regel wie die Velo-Vorauswahl, `tripUsedAt`).
 
+## 18.10.2026: Paket A Daten sicher und Bedienung (0.146.0)
+
+- **Ein Release aus drei Teilen** (Noah bündelt 18.10.2026 19:37 neu), je ein echter Merge auf Paket 3 (0.145.0, #182): (1) P3b «Daten sicher» fdd9904 + 6e1086d, (2) P3c «Bedienregeln» und «Kamera überall» cd792d2 + 99590b0 + 859d457 (Branch `claude/project-thread-2ay0i3`; 72a18b8 «Automatischer Abgleich» gehört zu Paket B und ist nicht dabei), (3) «Mehr Inhalt in der App» und Hinweistexte HT1–HT2 (Branch `content-app`, a8be22a8).
+- **Freigaben:** P3b/P3c Noah 15.10.2026 «1a», Regeln «3a», «4a», «5a»; Dokumente D3/D4 «d1-d5 freigeben» 12.10.2026; Inhalt «5a» und «a» (1a 2a 3a 4a 5a) 15.10.2026; HT1–HT2 «HT1–HT2 freigegeben», «1a 2b 3a» 14.10.2026.
+- **Noah 18.10.2026 «1b»: eine neue Tour bringt immer das Standard-Velo** (P3c-Commit 859d457). Das zuletzt gewählte Velo (`pg.lastBike`, P3c 4a) entscheidet im Fenster «Neue Tour» nie; `dayride.js lastBikeId` ist wieder wie auf main (nur die Touren). Heute und Schnellstart nehmen so weiter das Velo der letzten Tour; Velos-Tabs, Problem melden und Schnellerfassung behalten 4a. Die Einstellung von Standard-Velo («das zuletzt gefahrene») bleibt.
+- **Selbst entschieden:**
+  - P3b: Leeres Gerät: keine zweite Frage (nichts zu verlieren). Die Kopie vor dem Import ist ein Schnappschuss auf dem Gerät («Vor Updates», die letzten 3), keine heruntergeladene Datei. Dokumente liegen unter Ich › Dokumente.
+  - P3c: T3a war schon seit 0.125.0 live (Heute: «Datum vorbei. Bist du gefahren?»), nichts geändert. A1a (Meditation-Kachel) kommt mit Paket Aktiv. Meditation-Seiten behalten ihr «‹ zurück»; TripBand am Handy bleibt kurz «‹ Touren». Langes Drücken im Rückblick schaltet direkt auf «Kaputt» (nochmals lang = wieder gebraucht); Rechtsklick am Computer gleich.
+  - Inhalt: Beispiel-Vorlagen für Touren gibt es schon (domains.js); Beispiel-Teile für Bausteine gehören zu «Bausteine mehr» (#176). Die Beispiele erscheinen nur, solange «Tipps auf allen Seiten» an ist. Handbuch f.pagetips angepasst. Heute unverändert (HN4).
+  - HT: keine Zahlen in den Sprung-Chips; Bausteine, Vorlagen, Setup, Ausstattung, Fahrten-Buch und Inspiration bekommen die Karte später (14 statt etwa 20 Orte). Material: Sprung-Chips zu Ansichten, Wunschliste, Auswertung.
+  - Merge: Fenster mit beiden Regeln tragen `use:backClose` (Paket 3: Zurück schliesst zuerst das Fenster) und `use:keepTyped` (3a); TickSheet und TimerSheet behalten ihre eigene Regel für den Tipp daneben (`data-backdrop="own"`).
+  - Merge: Velodetails (seit Paket 3 hinter dem Velo-Stift): ✕ behält das Getippte wie Escape und Zurück, nur «Verwerfen» lässt den Namen, wie er war.
+  - Merge: Heute zeigt die Start-Karten von Paket 3 (kein automatischer Sprung zu «Tour beendet»); Demo-Touren zählen dabei wie echte (P3c H2b).
+  - Merge: Material zeigt «Nach oben» (Paket 3) und darunter «Das kann die App hier» (Inhalt).
+  - Das Blatt «Pflege für …» (RE 0.144.0, kam nach der P3b-Basis) behält das Getippte auch (`use:keepTyped`); sein «Abbrechen» bleibt (umbenannt sind nur die fünf Fenster mit eigener Behalten-Logik).
+  - Der Gesamttest-Helfer `importBackup` beantwortet die zweite Frage von 5a, wenn sie kommt.
+  - `f.docs`, `f.sync`, `f.camera` sind «seit 0.146.0»; docs/handbuch.md zählt 109 Funktionen.
+- **Was fällt weg oder rutscht tiefer:**
+  - «Abbrechen» in den Fenstern Velo, Tasche, Umbenennen, Material und Tour heisst jetzt «Verwerfen». ✕ schliesst weiter, behält aber das Getippte (vorher: weg).
+  - «Alle Daten ersetzen» braucht auf einem Gerät mit Daten einen zweiten Tipp («Ja, alles ersetzen»).
+  - Langes Wischen in Material löscht/archiviert nicht mehr sofort, sondern fragt zuerst.
+  - Bei «Ich» steht statt eines Punkts eine Zahl.
+  - Rückgängig-Hinweise verschwinden nach 4 s statt 8–10 s.
+  - Der Werkstattbesuch zeigt den Beleg zuerst (oben), Datum und km danach.
+  - Die Karte «Was hier steht» und die Tipp-Zeile kommen neu unter den Titel; der Inhalt darunter rutscht nach unten (mit × wird die Karte eine Zeile).
+
 ## 15.10.2026: Paket 3 als Release 0.145.0
 
 - **Ein Release statt fünf (Thread «Mein Überblick» bündelt, Reihenfolge vom Koordinator):** Navigation «Regeln der App» 0.140.0 + Start-Karten ST1–ST2 0.140.1, Standard-Velo VS1–VS4 (0.145.0), Scrollen und Listen SL1–SL4 (0.141.0), WS2, WS5, WS6, Regeln einheitlich RE (#175, 0.144.0; zuerst Kopf 689993bb, dann der neue Kopf 4fec4e9 mit main 0.136.0), WS3 «Wie letzte Tour» (0.143.0) und vier Fehler aus den Bildern von 0.136.0. Je ein echter Merge-Commit pro Teil; RE ist inzwischen selbst als 0.144.0 auf main (#175, Merge von origin/main 2aba540d); die Arbeitsnummern 0.140.0–0.143.0 fallen weg; «Was ist neu» hat einen Eintrag 0.145.0 «Klare Regeln, dein Standard-Velo». Die Entscheide der Teile stehen in ihren Abschnitten oben.

@@ -52,7 +52,7 @@ test('the bike pencil opens Bike details: rename there, the same bike stays chos
   expect(errors).toEqual([]);
 });
 
-test('back keeps the typed name: Escape (Android back) and history back save, Close leaves it', async ({ page, context }, info) => {
+test('back keeps the typed name: Escape (Android back) and history back save, Close keeps it (3a), only Discard leaves it', async ({ page, context }, info) => {
   const { T, errors } = await setup(page, context, info);
   await page.goto(`./#/bikes?bike=${FACTOR}`);
   const band = page.locator('section.setup-band');
@@ -71,14 +71,19 @@ test('back keeps the typed name: Escape (Android back) and history back save, Cl
   await expect(det).toHaveCount(0);
   await expect(page).toHaveURL(/#\/bikes/);
   await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
-  // ✕ leaves the name as it was
+  // P3b rule 3a: ✕ keeps what was typed too; only «Verwerfen» leaves the name as it was
   await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor Back` }) }).click();
-  await field.fill(`${P} nie gespeichert`);
+  await field.fill(`${P} Factor X`);
   await det.getByRole('button', { name: T('Close') }).click();
   await expect(det).toHaveCount(0);
-  await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
+  await expect(band.getByRole('heading', { name: `${P} Factor X` })).toBeVisible();
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor X` }) }).click();
+  await field.fill(`${P} nie gespeichert`);
+  await det.getByRole('button', { name: T('Discard'), exact: true }).click();
+  await expect(det).toHaveCount(0);
+  await expect(band.getByRole('heading', { name: `${P} Factor X` })).toBeVisible();
   // the other details are in the same window; there too Escape keeps what was typed
-  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor Back` }) }).click();
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor X` }) }).click();
   await det.getByLabel(T('What you use it for')).fill(`${P} Alpencross`);
   await page.keyboard.press('Escape');
   await expect(det).toBeHidden();

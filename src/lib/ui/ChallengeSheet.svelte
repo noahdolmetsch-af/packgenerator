@@ -6,6 +6,7 @@
    *
    * open (bindable), what (shown word), times, until (YYYY-MM-DD), running (bool), onsave({ times, until }), onstop().
    */
+  import { keepTyped } from './keeptyped.js';
   import { Trophy } from '@lucide/svelte';
   import { backClose } from './backclose.js';
   import { t } from '../i18n.svelte.js';
@@ -29,7 +30,7 @@
   }
 </script>
 
-<dialog class="sheet chs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="chs-h">
+<dialog use:keepTyped={'challenge:' + what} class="sheet chs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="chs-h">
   <form onsubmit={save}>
     <h2 id="chs-h" class="title">{running ? t('Your challenge') : t('Set as a challenge')}</h2>
     <p class="muted">{t('Voluntary, changeable any time.')}</p>

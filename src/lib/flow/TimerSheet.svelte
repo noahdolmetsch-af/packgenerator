@@ -84,7 +84,7 @@
   });
 </script>
 
-<dialog use:backClose class="sheet from-below tsheet" bind:this={dlg} onclose={() => (ui.timerOpen = false)} onclick={(e) => e.target === dlg && small()} aria-labelledby="timer-h">
+<dialog use:backClose data-backdrop="own" class="sheet from-below tsheet" bind:this={dlg} onclose={() => (ui.timerOpen = false)} onclick={(e) => e.target === dlg && small()} aria-labelledby="timer-h">
   {#if ui.timerOpen}
     <div class="grab" aria-hidden="true"></div>
     <div class="hd">

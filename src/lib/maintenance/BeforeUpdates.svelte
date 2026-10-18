@@ -26,7 +26,9 @@
   let sec = $state();
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
-  const backLabel = (s) => (s.kind === 'update' ? t('Back to the state before {v}', { v: shortVersion(s.to ?? current) }) : t('Undo going back'));
+  const backLabel = (s) => (s.kind === 'update' ? t('Back to the state before {v}', { v: shortVersion(s.to ?? current) }) : s.kind === 'import' ? t('Back to the state before the import') : t('Undo going back'));
+  // P3b «Daten sicher» (rule 5a): the copies before an import stand here too
+  const rowName = (s) => (s.kind === 'update' ? t('Version {v}', { v: shortVersion(s.version ?? '?') }) : s.kind === 'import' ? t('Before an import') : t('Before going back'));
 
   // from the news banner (#/me/data?at=before-updates): this section in view
   $effect(() => {
@@ -52,13 +54,13 @@
 </script>
 
 <section class="ich-sec" id="before-updates" aria-labelledby="bu-h" data-section="before-updates" bind:this={sec}>
-  <div class="ich-h"><div><h2 id="bu-h">{t('Before updates')}</h2><p class="ich-hs">{t('A copy of your data before every update, only on this device. The last 3 stay.')}</p></div></div>
+  <div class="ich-h"><div><h2 id="bu-h">{t('Before updates')}</h2><p class="ich-hs">{t('A copy of your data before every update and every import, only on this device. The last 3 stay.')}</p></div></div>
   <ul class="card ich-list">
     {#each $listQ ?? [] as s (s.id)}
       <li class="ich-row ich-wrap" data-snapshot={s.kind}>
         <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
         <span class="ich-m">
-          <b>{s.kind === 'update' ? t('Version {v}', { v: shortVersion(s.version ?? '?') }) : t('Before going back')}</b>
+          <b>{rowName(s)}</b>
           <small>{when(s.at)} · {tn(s.rows ?? 0, '{n} record', '{n} records')}</small>
         </span>
         <button type="button" class="btn sm" onclick={() => ((asking = s), (message = ''))} disabled={busy}>{backLabel(s)}</button>

@@ -153,7 +153,7 @@ test('first aid: the small set on a day ride (v0.72.0), the full set with a 1-ni
   // v0.30.0 (Noah, finding 2): the start is the "Standard" card; v0.114.0: under «Vorlage wählen», Standard pressed.
   await fresh.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
   await expect(fresh.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: T('Standard'), exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await fresh.getByRole('button', { name: T('Cancel') }).click();
+  await fresh.getByRole('button', { name: T('Discard') }).click();
   await expect(fresh).toBeHidden();
 
   // a 2-day trip with a night in lodging brings both, and says why

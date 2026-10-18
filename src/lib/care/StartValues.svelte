@@ -7,6 +7,7 @@
    * 3. what is new since then («original» or «new», a new part with its date and, if known, km).
    * Unsure? «original» is a good start value. Nothing is stored before the last button.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { localDay } from '../localday.js';
   import { parseKm, partName } from '../care.js';
@@ -72,7 +73,7 @@
 
 <!-- Design-Refresh P7 (V9, Noah 12.10.2026 «v5-v10 freigabe»): the start values as a window of the bike
      pages: the question, «bike · step n of 3», three named steps, «original / new» as chips. -->
-<dialog use:backClose class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
+<dialog use:backClose use:keepTyped={'startvalues:' + (bike?.id ?? '')} class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
   <div class="fh vd-head">
     <div class="vd-t">
       <h2 id="sv-h" class="title">{[t('When did you buy it?'), t('How many km today?'), t('What is new since the purchase?')][step]}</h2>

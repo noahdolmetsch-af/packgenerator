@@ -29,7 +29,7 @@
 <!-- Design-Refresh P9 (I12, Noah 12.10.2026 «Runde 20 freigegeben»): the window look of the new style:
      title with a quiet line and ✕, «Places» and «Everywhere» as two soft panels with the keys right,
      the tip for a phone, «Close» bottom right. The same shortcuts as before. -->
-<dialog class="sheet keys vdlg" bind:this={dialog} use:backClose onclose={() => (open = false)} onclick={(e) => e.target === dialog && close()} aria-labelledby="keys-h">
+<dialog data-backdrop="own" class="sheet keys vdlg" bind:this={dialog} use:backClose onclose={() => (open = false)} onclick={(e) => e.target === dialog && close()} aria-labelledby="keys-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="keys-h">{t('Keyboard shortcuts')}</h2>

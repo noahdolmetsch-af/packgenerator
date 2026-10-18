@@ -141,6 +141,7 @@ export async function downloadBackup(db) {
   const data = await buildBackup(db);
   saveFile(JSON.stringify(data, null, 2));
   await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+  await markSync(db); // P3b: the other device may import this file
 }
 
 function saveFile(text, name = backupFileName()) {
@@ -177,6 +178,7 @@ export async function shareBackup(db, nav = globalThis.navigator) {
     try {
       await nav.share({ files: [file], title: file.name });
       await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+      await markSync(db);
       return 'shared';
     } catch (err) {
       if (err?.name === 'AbortError') return 'cancelled';
@@ -185,6 +187,7 @@ export async function shareBackup(db, nav = globalThis.navigator) {
   }
   saveFile(text);
   await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+  await markSync(db);
   return 'downloaded';
 }
 
@@ -270,4 +273,56 @@ export function backupDue(lastIso, now = new Date(), limit = BACKUP_DAYS) {
   if (!lastIso) return { due: true, days: null };
   const days = Math.floor((now - new Date(lastIso)) / 864e5);
   return { due: days >= limit, days };
+}
+
+/* ---------- P3b «Daten sicher» (Noah 15.10.2026 «1a»): computer and phone in step ---------- */
+
+/**
+ * Key in the "meta" table: the state both devices last shared ({ at, mine, theirs }). Never exported.
+ * mine: this device's change time right after the exchange; theirs: the file's change time (on import).
+ * Written when this device sends or saves a backup file, and after an import.
+ */
+export const SYNC_KEY = 'syncMark';
+const SAME_MS = 2000;
+const ms = (iso) => (iso ? Date.parse(iso) : NaN);
+
+/** The state both devices knew at the last exchange (ms), or NaN without one. */
+function knownOf(mark) {
+  const xs = [ms(mark?.mine), ms(mark?.theirs)].filter((x) => !Number.isNaN(x));
+  return xs.length ? Math.max(...xs) : NaN;
+}
+
+/**
+ * What to do with a backup file from the other device. fileAt: the file's change time; localAt: this
+ * device's; mark: SYNC_KEY's value (or null). Everything is a suggestion; the buttons stay.
+ * Returns { advice, hereChanged, thereChanged }:
+ *   'same'  the same state: nothing to do
+ *   'take'  only the file has news: take it over (Replace all data)
+ *   'keep'  only this device has news: better send a backup from here
+ *   'both'  both changed since the last exchange: Merge keeps both (same records: the file's)
+ *   null    the app cannot tell (a file of an older version, no dates)
+ */
+export function syncAdvice(fileAt, localAt, mark = null) {
+  const f = ms(fileAt);
+  const l = ms(localAt);
+  if (Number.isNaN(f) || Number.isNaN(l)) return { advice: null, hereChanged: null, thereChanged: null };
+  if (Math.abs(f - l) < SAME_MS) return { advice: 'same', hereChanged: false, thereChanged: false };
+  const known = knownOf(mark);
+  if (Number.isNaN(known)) {
+    // never exchanged on this device: the newer one wins
+    return f > l ? { advice: 'take', hereChanged: null, thereChanged: true } : { advice: 'keep', hereChanged: true, thereChanged: null };
+  }
+  const hereChanged = l - known >= SAME_MS;
+  const thereChanged = f - known >= SAME_MS;
+  if (hereChanged && thereChanged) return { advice: 'both', hereChanged, thereChanged };
+  if (thereChanged) return { advice: 'take', hereChanged, thereChanged };
+  if (hereChanged) return { advice: 'keep', hereChanged, thereChanged };
+  // neither is newer than the shared state, but they differ: the newer one wins
+  return { advice: f > l ? 'take' : 'keep', hereChanged, thereChanged };
+}
+
+/** Remember the exchange: after sending or saving a file (no theirs), or after an import. */
+export async function markSync(db, { theirs = null, now = new Date() } = {}) {
+  const mine = await lastChangeOf(db);
+  await db.table('meta').put({ key: SYNC_KEY, at: now.toISOString(), mine, theirs });
 }

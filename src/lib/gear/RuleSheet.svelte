@@ -10,6 +10,7 @@
    * block: a card of Bausteine (sets.js allSets + setView: key, name, items, inventory, g, missing);
    * rule: situation.js ruleOf(); onsave({ rule, out }): out = the item IDs to take out; onrename(); onclose().
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { X, Pencil, Plus, ChevronRight, Info } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
@@ -84,7 +85,7 @@
   }
 </script>
 
-<dialog class="sheet from-below rsheet" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="rs-h">
+<dialog use:keepTyped={'rule:' + block.key} class="sheet from-below rsheet" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="rs-h">
   <form onsubmit={save} novalidate>
     <div class="head">
       <div>

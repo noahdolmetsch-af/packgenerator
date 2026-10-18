@@ -16,9 +16,12 @@
    * it as its own section with check boxes, and on the right «Gewicht nach Taschen» (the scale of P4),
    * «Aus früheren Touren» and «Mehr» (Laden). The open bag keeps its classes (.pbag.cur, #pb-<key>).
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
+  import DocChecks from './DocChecks.svelte';
   import { tick as settle, untrack } from 'svelte';
   import { buzz } from '../bedienung.svelte.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -282,6 +285,9 @@
 
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} note />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
+  <HintCard page="pack" />
+  <TipLine page="pack" name={t('Pack')} />
   {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
   {#if total === 0 && fixed}<Empty icon={ListChecks} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: () => askReopen(trip) }} />
@@ -397,6 +403,8 @@
       <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
            under its item is not repeated here. -->
       <LessonsCard lessons={newLessons} {reminders} />
+      <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+      <DocChecks {trip} />
       {#if oncharge}
         <section class="psec" aria-labelledby="more-h">
           <h2 id="more-h" class="sh">{t('More')}</h2>

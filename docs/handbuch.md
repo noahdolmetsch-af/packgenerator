@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 106 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 109 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -37,13 +37,13 @@ Drei Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startb
 
 ## Vor der Tour
 
-### Tagestour in 1 Tipp
+### Schnellstart in 1 Tipp
 
-Ein Tipp plant eine kurze Fahrt wie deine letzte, mit dem Wetter.
+Ein Tipp plant eine Tour für heute: 2,5 Std., zuletzt gefahrenes Velo, mit dem Wetter.
 
 **Aufschalten:** Braucht eine Tour, die begonnen hat oder vorbei ist.
 
-1. Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.
+1. Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.
 2. Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.
 
 **Beispiel:** Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.
@@ -581,7 +581,7 @@ Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
 2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.
 3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Learnings merken.
 
-**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
+**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 Min Pausen.
 
 ### Vergangene Touren
 
@@ -904,7 +904,7 @@ Lange auf eine Aktivität drücken; sie läuft auf jeder Seite weiter.
 1. Unter Aktiv eine Aktivität lange drücken (Rechtsklick am Computer).
 2. Wähle Stoppuhr; sie läuft auf jeder Seite weiter.
 
-**Beispiel:** 15 min Countdown für Yoga → am Ende klingt die Klangschale.
+**Beispiel:** 15 Min Countdown für Yoga → am Ende klingt die Klangschale.
 
 ### Ziele und Tage
 
@@ -941,14 +941,15 @@ Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein V
 
 ### Tipps und «Wusstest du»
 
-Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.
+Ein Tipp pro Tag an zwölf Orten, was die App dort kann und Beispiele, die du als Notiz behältst; Erde und Everest in Vergangene Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
-2. Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».
+1. Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
+2. Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.
+3. Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Ich › Notizen ab.
 
-**Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
+**Beispiel:** An einem Regentag sagt Packen zuerst, die Regenjacke nach oben zu legen; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
 
 ### Training mit Pulszonen
 
@@ -982,7 +983,7 @@ Starten wie letztes Mal oder aus einer Vorlage; Klänge und eine ruhige Uhr.
 1. Öffne Aktiv › Meditation.
 2. Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.
 
-**Beispiel:** 10 min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
+**Beispiel:** 10 Min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
 
 ### Meditations-Protokoll
 
@@ -1106,6 +1107,42 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Dokumente
+
+Pass, Versicherung und Notfallblatt als PDF oder Foto; eine Erinnerung, bevor sie ablaufen, und «ID und Cash dabei?» in der Packliste.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Dokumente und tippe «PDF hinzufügen» (ein PDF oder ein Foto vom Papier).
+2. Wähle die Gruppe und «gültig bis»; die Erinnerung kommt von selbst 6 Monate vorher.
+3. Schalte «In die Packliste» ein: Jede Tour fragt «ID und Cash dabei?».
+
+**Beispiel:** Identitätskarte gültig bis 03.2027 → ab 09.2026 «Identitätskarte erneuern» unter Erinnerungen.
+
+### Handy und Computer
+
+Schick die Backup-Datei an das andere Gerät; es sagt, was neuer ist, und schlägt vor, was zu tun ist, mit einer Kopie von vorher.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Auf dem Gerät mit dem neueren Stand: Ich › Daten und Backup › «An Handy senden» (oder «An Computer senden»).
+2. Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder «Backup öffnen».
+3. Die App sagt, was neuer ist, und schlägt vor: ersetzen, zusammenführen oder nichts; eine Kopie von vorher bleibt unter «Vor Updates».
+
+**Beispiel:** Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.
+
+### Kamera überall
+
+Am Handy öffnet die Kamera mit einem Tipp: für Notiz, Material, Velo, Setup und Problem; ein Beleg kann mehrere Seiten haben.
+
+**Aufschalten:** Am Handy oder Tablet; am Computer kommt die Dateiauswahl.
+
+1. Tippe «Foto machen», wo ein Foto dazukommt (Notiz, Material, Velo, Setup, Problem); «Galerie» nimmt ein vorhandenes.
+2. Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.
+3. Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.
+
+**Beispiel:** Eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.
 
 ### Auto-Backup in einen Ordner
 

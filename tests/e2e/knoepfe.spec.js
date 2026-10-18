@@ -85,6 +85,7 @@ async function overview(page) {
 
 /** A finger held on an element for `ms` (Chromium touch events through CDP). */
 async function longPress(page, locator, ms = 700) {
+  await locator.scrollIntoViewIfNeeded(); // Paket A: the card «Was hier steht» on top moves the rows down
   const box = await locator.boundingBox();
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
