@@ -42,6 +42,7 @@
 <style>
   .tipl {
     display: flex;
+    margin-bottom: 12px; /* «Mehr Inhalt»: on pages without a grid gap the next section keeps its distance */
     background: var(--hi-soft);
     align-items: flex-start;
     gap: 10px;
