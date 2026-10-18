@@ -519,6 +519,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Clean up test data.', 'Archive it all; «Undo» brings it back.'],
     example: 'Example: «Test trip 2» and «test bike» go to the archive.',
   },
+  'f.tour': {
+    on: null,
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
+  },
   'f.playground': {
     on: null,
     steps: ['Open Me › Try it out › Playground, or «Try it» on a function.', 'Pack, ride and debrief a made-up trip; at the end all is as before.'],

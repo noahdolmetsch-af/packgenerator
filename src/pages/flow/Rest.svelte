@@ -7,6 +7,7 @@
    * The rules are pure and tested (lib/flowrest.js).
    */
   import { Plus, Check, Lightbulb, Moon } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -75,6 +76,7 @@
     <MoreAktiv items={pages} on="rest" />
     <PageHead title={t('Recovery|page')} text={t('So that after the bike, tennis and gym the pause has its place too')} />
   </header>
+  <AreaIntro place="rest" />
 
   {#if data}
     <section class="card hero" aria-label={t('Recovery this week')} data-rest-ring>

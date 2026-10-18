@@ -91,6 +91,7 @@ export const HOWTO = {
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file is written there.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],
+  'f.tour': ['Open Me › Handbook › Tour.', 'Choose the example trip or your own data.', 'Tap «Next» through the steps.'],
   'f.playground': ['Open the playground.', 'Pack, ride and debrief a made-up trip.', 'Afterwards everything is as before.'],
   'f.helper': ['Open Me › Helper.', 'Enter the helper code; it stays on this device.', 'Before sending you see what goes out.'],
   'f.shortcuts': ['On a computer press ?.', 'The list of shortcuts opens.', 'Try g h, g t, n or /.'],

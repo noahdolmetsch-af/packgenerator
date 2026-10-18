@@ -386,4 +386,8 @@ export default {
   'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',
   'Enter holidays once under Woche › Holidays; the training plan pauses if you want.': 'Trag Ferien einmal unter Woche › Ferien ein; der Trainingsplan pausiert, wenn du willst.',
   'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.': 'Beispiel: Freitag bis Sonntag Jura-Wochenende → die lange Ausfahrt fällt weg, «Kette messen» kommt als Vorschlag auf Mittwoch.',
+  // «Rundgang» (f.tour)
+  'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
+  'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
+  'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
 };

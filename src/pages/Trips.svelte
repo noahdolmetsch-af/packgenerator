@@ -63,6 +63,7 @@
   import TourTiles from '../lib/touren/TourTiles.svelte';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -266,6 +267,8 @@
     </div>
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
+  <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): what you do here, the tip of the day, the small tour -->
+  <AreaIntro place="touren" />
   {#if view}
     {#if view.empty}
       <!-- v0.127.0 A-U2: the one empty building block -->
