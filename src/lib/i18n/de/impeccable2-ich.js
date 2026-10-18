@@ -43,4 +43,12 @@ export default {
   // Handbuch: a search
   'Search the handbook': 'Im Handbuch suchen',
   'How do I …? e.g. «chain», «backup»': 'Wie geht …? z. B. «Kette», «Backup»',
+
+  // Wi gaht's?: the daily load in the head, the explaining blocks folded
+  '{on} questions on': '{on} Fragen an',
+  'about {n} times a day, in 2 rounds ({a} and {b})': 'etwa {n} Mal pro Tag gefragt, in 2 Runden ({a} und {b})',
+  'about {n} times a day': 'etwa {n} Mal pro Tag gefragt',
+  'A lot? Switch single questions off or set them to «weekly».': 'Viel? Schalte einzelne Fragen aus oder stell sie auf «wöchentlich».',
+  'How it works|ab': 'So funktioniert es',
+  'Where the values come from, answer kinds': 'Woher die Werte kommen, Antwort-Arten',
 };

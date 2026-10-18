@@ -8,7 +8,7 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
 } from '../src/lib/abfragen.js';
 import { redirectOf, pageOf, OLD_CHECK } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
@@ -417,5 +417,19 @@ describe('the analyses (AB6), only to look at', () => {
 
   it('where the values come from', () => {
     expect(sourceCounts([{ src: 'hand' }, { src: 'hand' }, { src: 'strava' }, { src: 'x' }])).toEqual({ hand: 2, fitbit: 0, strava: 1, app: 0 });
+  });
+});
+
+// Impeccable Runde 2 «Tageslast»: about how many times a day the app asks
+describe('perDay', () => {
+  it('counts the times of the questions that are on: 3× daily 3, daily 1, a question switched off nothing', () => {
+    const at = new Date(Date.UTC(2026, 9, 9, 10));
+    const base = perDay(null);
+    // the 31 on at the start ask more than once a day in sum
+    expect(base).toBeGreaterThan(BUSY_DAY);
+    const three = putOwn(null, newOwn({ text: 'Drei', form: { kind: 'scale' }, every: { kind: 'times', times: ['08:00', '13:00', '20:00'] } }, at), `${D0}T10:00`);
+    expect(perDay(three)).toBe(base + 3);
+    const off = setOn(three, three.own[0].id, false, `${D0}T11:00`);
+    expect(perDay(off)).toBe(base);
   });
 });
