@@ -25,6 +25,7 @@
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
+  import DocChecks from './DocChecks.svelte';
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -210,6 +211,8 @@
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <LessonsCard {lessons} {reminders} />
+          <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+          <DocChecks {trip} />
         </div>
       </div>
     {/if}

@@ -7,6 +7,7 @@
    * link: the link to change (with its type), or null. url, title: a new link's start (pasted on the page
    * or shared from another app). shared: it came through «Teilen» (offers «Into the Inbox instead»).
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { X, Check } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
@@ -69,7 +70,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg from-below ld" bind:this={dialog} use:backClose {onclose} aria-labelledby="ld-h">
+<dialog use:keepTyped={'link:' + (link?.id ?? `new:${url}`)} class="sheet vdlg from-below ld" bind:this={dialog} use:backClose {onclose} aria-labelledby="ld-h">
   <form onsubmit={save} novalidate>
     <div class="vd-head">
       <div class="vd-t">

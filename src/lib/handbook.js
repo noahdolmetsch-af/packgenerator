@@ -494,6 +494,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.docs': {
+    on: null,
+    steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
+    example: 'Example: identity card valid until 03.2027 → from 09.2026 «Renew identity card» under Reminders.',
+  },
+  'f.sync': {
+    on: null,
+    steps: ['On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).', 'On the other device: tap the file › Share › Pack Generator, or «Open backup».', 'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».'],
+    example: 'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.',
+  },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],

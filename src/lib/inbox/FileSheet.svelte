@@ -6,6 +6,7 @@
    * by where the entry lands. A receipt asks for bike, shop, date and amount (the work is optional)
    * and becomes a workshop visit with the photo. «Anderes Ziel wählen» goes back to the list.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
@@ -133,7 +134,7 @@
 <!-- Design-Refresh P9 (I4, Noah 12.10.2026 «Runde 19 freigegeben»): the window look of the new style: the
      entry under the title, the 7 targets as tiles (the suggestion first, marked and chosen), the fields of
      the chosen target right below, the main button bottom right, named by where the entry lands. -->
-<dialog use:backClose class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
+<dialog use:backClose use:keepTyped={'file:' + (note?.id ?? '')} class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="file-h" class="title">{t('File as …')}</h2>

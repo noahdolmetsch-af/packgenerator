@@ -116,7 +116,7 @@ for (const lang of ['de', 'en']) {
     await bar.getByRole('button', { name: T('Change') }).click();
     const edit = page.getByRole('dialog', { name: T('Trip details') });
     await expect(edit.getByLabel(T('Name'))).toHaveValue(title);
-    await edit.getByRole('button', { name: T('Cancel') }).click();
+    await edit.getByRole('button', { name: T('Discard') }).click();
     await expect(edit).toBeHidden();
 
     // Undo: the trip is gone, no question asked.
@@ -173,7 +173,7 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   await name.fill('test_data_gtp_ Mein Name');
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click();
   await expect(name).toHaveValue('test_data_gtp_ Mein Name');
-  await dlg.getByRole('button', { name: T('Cancel') }).click();
+  await dlg.getByRole('button', { name: T('Discard') }).click();
   expect(errors).toEqual([]);
 });
 

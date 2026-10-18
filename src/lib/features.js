@@ -154,6 +154,9 @@ const OWN = [
   { id: 'f.search', group: 'data', title: 'Search commands', text: '«kette geölt gravel» enters it right away; «notiz …» writes a note.', run: 'search', words: 'suche befehl befehle' },
   { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes by day; «File as …» with 7 targets; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
+  // P3b «Daten sicher»: Ich › Dokumente (D3/D4) and the exchange between phone and computer
+  { id: 'f.docs', group: 'data', title: 'Documents', text: 'Passport, insurance and emergency sheet as PDF or photo; a reminder before they expire and «ID and cash with you?» in the packing list.', href: '#/me/docs', words: 'dokumente pass ausweis id versicherung notfall pdf gültig ablauf erinnerung cash packliste' },
+  { id: 'f.sync', group: 'data', title: 'Phone and computer', text: 'Send the backup file to the other device; it says which is newer and suggests what to do, with a copy of before.', href: '#/me/data', words: 'abgleich handy computer synchron sync teilen backup neuer älter zusammenführen' },
   { id: 'f.autobackup', group: 'data', title: 'Auto backup into a folder', text: 'Writes after every change into a folder you choose (computer only).', run: 'data', seen: 'folder', words: 'auto backup ordner' },
   // v0.139.0 «Rechnungen ohne Gebühren» (mockups QR1–QR9, Noah 14.10.2026 04:00 and 05:10 «a»)
   { id: 'f.invoices', group: 'data', title: 'Invoices with QR bill and TWINT', text: 'A Swiss QR bill from your account with TWINT; see who paid by hand, by amount, from the bank statement or the pay link.', href: '#/me/pay/invoices', words: 'rechnung qr-rechnung twint bezahlt kontoauszug camt geld erhalten zahl-link' },

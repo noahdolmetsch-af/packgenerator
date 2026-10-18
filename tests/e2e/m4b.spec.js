@@ -154,7 +154,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await expect(nt.getByLabel(T('Riding hours per day'))).toHaveValue('4');
   await expect(nt.getByRole('button', { name: T('Bivouac + tent') })).toHaveAttribute('aria-pressed', 'true');
   await expect(nt.getByLabel(T('Cooking'))).toBeChecked();
-  await nt.getByRole('button', { name: T('Cancel') }).click();
+  await nt.getByRole('button', { name: T('Discard') }).click();
 });
 
 test('On the way note: in the Inbox and in the debrief; a missing item becomes a learning', async ({ page, context }, info) => {

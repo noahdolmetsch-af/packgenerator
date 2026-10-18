@@ -8,6 +8,7 @@
    * small labels, light chips (the chosen one dark), the photo as one quiet row «Photo (optional)» with
    * «Add», the buttons bottom right (Cancel, then the main one). The same steps as before.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -148,7 +149,7 @@
     </div>
   </div>
 {:else}
-  <form class="pf" onsubmit={save}>
+  <form class="pf" onsubmit={save} use:keepTyped={'problem'}>
     <fieldset class="bikes">
       <legend class="lbl">{t('Which bike?')}</legend>
       <div class="chips">

@@ -10,6 +10,7 @@
    * ondone({ text, snap }): the page shows the text with Undo and the dialog closes. Without
    * ondone (the item dialog) the text and Undo show here and the dialog stays open.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { BAGS, BAG, choosable, CATEGORY, namesList } from '../gear.js';
@@ -163,7 +164,7 @@
   }
 </script>
 
-<dialog use:backClose class="sheet assign" bind:this={dialog} onclose={onclose} aria-labelledby="assign-h">
+<dialog use:backClose use:keepTyped={'assign:' + (item?.id ?? 'many')} class="sheet assign" bind:this={dialog} onclose={onclose} aria-labelledby="assign-h">
   <form onsubmit={apply} novalidate>
     <!-- v0.102.0 Design-Refresh P3 (M4): the title with a close button, the chosen items named below -->
     <div class="ah">

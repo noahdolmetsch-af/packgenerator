@@ -10,6 +10,7 @@
    * period; ctx: { bikeOf, wattsOf }; states: factStates; bikes; saved: [{ id, name, f }];
    * onapply(filter, st); onsave(name, filter); ondrop(id); onclose().
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
   import StateChips from '../ui/StateChips.svelte';
@@ -69,7 +70,7 @@
   </div>
 {/snippet}
 
-<dialog class="sheet from-below fsheet" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="fl-h" data-filter-sheet>
+<dialog use:keepTyped={'tourfilter'} data-backdrop="own" class="sheet from-below fsheet" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="fl-h" data-filter-sheet>
   <div class="fh">
     <span class="fic" aria-hidden="true"><SlidersHorizontal size={20} /></span>
     <div class="ft"><h2 id="fl-h">{t('Filter')}</h2><p>{t('For the list and «In numbers». Everything can be switched off.')}</p></div>

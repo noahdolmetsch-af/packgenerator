@@ -47,7 +47,7 @@
   }
 </script>
 
-<dialog use:backClose class="sheet from-below aksheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="tick-h">
+<dialog use:backClose class="sheet from-below aksheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="tick-h" data-backdrop="own">
   {#if a}
     <div class="hd">
       <div class="ht"><h2 id="tick-h">{t('Tick {name}', { name: actName(a) })}</h2><p class="muted">{t('long press · only when needed')}</p></div>
