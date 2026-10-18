@@ -1,6 +1,7 @@
 // «Woche planen» WP1–WP4: the rules of the week (lib/woche.js). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { buildWeek, cleanItem, itemsOf, cleanAway, awayOf, applyAway, planMonday, skipFor, calEntries, dotsOf, freeDay, KINDS } from '../src/lib/woche.js';
+import { buildWeek, cleanItem, itemsOf, cleanAway, awayOf, applyAway, planMonday, skipFor, calEntries, dotsOf, freeDay, KINDS, takeSuggestion } from '../src/lib/woche.js';
+import { easter, holidaysOf, holidayOn, lastSunday, seasonOf } from '../src/lib/woche/kalender.js';
 import { PLACES, BAR_PLACES, pageOf, placeOf, PLACE_TABS, tabOf } from '../src/lib/nav.js';
 
 const MON = '2026-10-19';
@@ -110,5 +111,60 @@ describe('the place «Woche» (Noah 1a)', () => {
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('plan');
     expect(tabOf('week', '#/week/away')).toBe('away');
+  });
+});
+
+describe('content (Noah 18.10.2026 «1a 2a 3b 4a 5a»)', () => {
+  it('knows the holidays of Zürich and the season hints of a week', () => {
+    expect(easter(2026)).toBe('2026-04-05');
+    expect(easter(2027)).toBe('2027-03-28');
+    expect(holidaysOf(2026).map((h) => h.day)).toEqual(['2026-01-01', '2026-01-02', '2026-04-03', '2026-04-06', '2026-05-01', '2026-05-14', '2026-05-25', '2026-08-01', '2026-12-25', '2026-12-26']);
+    expect(holidayOn('2026-05-14')).toBe('ascension');
+    expect(holidayOn('2026-05-15')).toBeNull();
+    expect(lastSunday(2026, 10)).toBe('2026-10-25');
+    expect(seasonOf(MON).map((x) => x.key)).toEqual(['lights', 'winter']);
+    expect(seasonOf('2026-07-06')).toEqual([]);
+    const w = buildWeek({ ...base, monday: '2026-05-11', today: '2026-05-11' });
+    expect(w.days[3].holiday).toBe('ascension');
+  });
+  it('a long ride on a rainy day is suggested for the driest free day (1a)', () => {
+    const forecast = { days: [
+      { date: '2026-10-21', max: 9, rain: 'rain', rainPct: 90 },
+      { date: '2026-10-22', max: 12, rain: 'none', rainPct: 5 },
+      { date: '2026-10-24', max: 15, rain: 'none', rainPct: 0 },
+    ] };
+    const sessions = [{ id: 'L', day: '2026-10-21', kind: 'bike', name: 'Long ride', mins: 180, zone: 2 }];
+    const w = buildWeek({ ...base, sessions, forecast });
+    expect(w.days[2].wx).toMatchObject({ wet: true });
+    const s = w.suggestions.find((x) => x.ref === 'wx:L');
+    expect(s).toMatchObject({ act: 'move', day: '2026-10-24', kind: 'sport' }); // Saturday beats Thursday
+    expect(takeSuggestion(s, { sessions }).sessions[0].day).toBe('2026-10-24');
+    expect(buildWeek({ ...base, sessions: [{ ...sessions[0], mins: 60 }], forecast }).suggestions.some((x) => x.act === 'move')).toBe(false);
+  });
+  it('hints on the load and last week in one line (2a, 3b)', () => {
+    const sessions = [
+      { id: 'a', day: '2026-10-20', kind: 'bike', mins: 60, zone: 4 },
+      { id: 'b', day: '2026-10-21', kind: 'run', mins: 160, zone: 2 },
+      { id: 'p', day: '2026-10-13', kind: 'bike', mins: 60 },
+      { id: 'q', day: '2026-10-15', kind: 'bike', mins: 60 },
+    ];
+    const acts = [{ day: '2026-10-13', kind: 'bike', km: 31.6, movingS: 3600 }, { day: '2026-10-20', kind: 'bike', km: 40, movingS: 5400 }];
+    const w = buildWeek({ ...base, sessions, acts });
+    expect(w.review).toEqual({ planned: 2, done: 1, rides: 1, km: 32, mins: 60, todos: 0 });
+    expect(w.hints.map((h) => h.key)).toEqual(['twoHard', 'jump']);
+    expect(w.hints[0].day).toBe('2026-10-21');
+    expect(buildWeek({ ...base, monday: '2026-07-06', today: '2026-07-06' }).review).toBeNull();
+  });
+  it('to-dos before a trip, each once (5a); season hints taken once a year', () => {
+    const trips = [{ id: 'T', title: 'Jura', startDate: '2026-10-24', days: 2 }];
+    const w = buildWeek({ ...base, trips });
+    const tour = w.suggestions.filter((x) => x.ref.startsWith('tour:T:'));
+    expect(tour.map((x) => [x.tour.what, x.day])).toEqual([['pack', '2026-10-23'], ['wx', '2026-10-23'], ['bike', '2026-10-22']]);
+    const items = takeSuggestion(tour[0], { items: [] }, tour[0].day, 'Packing list: Jura').items;
+    expect(items[0]).toMatchObject({ kind: 'todo', ref: 'tour:T:pack', day: '2026-10-23' });
+    expect(buildWeek({ ...base, trips, items: itemsOf(items) }).suggestions.some((x) => x.ref === 'tour:T:pack')).toBe(false);
+    const season = w.suggestions.find((x) => x.season === 'lights');
+    const kept = itemsOf(takeSuggestion(season, { items: [] }, season.day, 'lights').items);
+    expect(buildWeek({ ...base, items: kept }).suggestions.some((x) => x.season === 'lights')).toBe(false);
   });
 });

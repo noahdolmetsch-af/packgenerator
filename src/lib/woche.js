@@ -13,9 +13,15 @@
  *   week.planned   'YYYY-MM-DD'                            the Monday last planned with «Woche planen»
  *   week.calendar  [{ id, title, day, time, minutes, src }] dates of an outside calendar. Filled by
  *                  Google Teil 2 (GA, Google Kalender); the week only reads it (CAL_KEY, calEntries).
+ * Content (Noah 18.10.2026 «1a 2a 3b 4a 5a»): the home weather per day, and a long session on a wet day
+ * suggested for a dry one · hints on the load (two hard days in a row, no rest day, much more than
+ * last week) · last week in one line · the holidays of the canton of Zürich and season hints · to-dos
+ * in the days before a trip. All of it are suggestions, taken or skipped like the others.
  * Pure functions; the pages are src/pages/Woche*.svelte, the data comes from lib/woche/load.js.
  */
 import { shiftDay, mondayOf, doneBy } from './training.js';
+import { wxOf } from './flowweek.js';
+import { holidayOn, seasonOf } from './woche/kalender.js';
 
 export const ITEMS_KEY = 'week.items';
 export const AWAY_KEY = 'week.away';
@@ -62,6 +68,7 @@ export function cleanItem(x = {}) {
     done: !!x.done,
     ...(x.bikeId ? { bikeId: String(x.bikeId) } : {}),
     ...(x.part ? { part: String(x.part) } : {}),
+    ...(x.ref ? { ref: String(x.ref) } : {}),
   };
 }
 export const itemsOf = (v) => (Array.isArray(v) ? v.map(cleanItem).filter((x) => x && (x.kind !== 'date' || x.day)) : []);
@@ -131,11 +138,11 @@ export function freeDay(days, from, away = []) {
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
-  const days = week.map((day) => ({ day, today: day === today, past: day < today, away: awayOn(away, day), entries: [] }));
+  const days = week.map((day) => ({ day, today: day === today, past: day < today, away: awayOn(away, day), holiday: holidayOn(day), wx: wxOf(forecast, day), entries: [] }));
   const at = (day) => days.find((d) => d.day === day);
   const paused = [];
 
@@ -148,7 +155,7 @@ export function buildWeek(src) {
       paused.push({ ref: `drop:${s.id}`, kind: 'sport', title: s.name || null, mins: s.mins, sessionKind: s.kind, day: s.day, away: a });
       continue;
     }
-    d.entries.push({ id: `tr:${s.id}`, kind: 'sport', title: s.name || null, sessionKind: s.kind, sub: { mins: s.mins }, time: '', done: !!doneBy(s, acts), own: false, href: '#/flow/training' });
+    d.entries.push({ id: `tr:${s.id}`, kind: 'sport', title: s.name || null, sessionKind: s.kind, sub: { mins: s.mins }, time: '', done: !!doneBy(s, acts), own: false, href: '#/flow/training', mins: s.mins, zone: s.zone, sid: s.id });
   }
   for (const d of days) {
     if (d.away?.pause) continue;
@@ -191,6 +198,30 @@ export function buildWeek(src) {
     suggestions.push({ ref, kind: 'bike', title: c.name, sub: { bike: c.bikeName, before: before && nextAway ? nextAway.title || true : null }, day, act: 'take', bikeId: c.bikeId, part: c.key });
   }
   for (const p of paused) if (!skipped.has(p.ref)) suggestions.push({ ...p, sub: { paused: p.away.title || true }, act: 'drop' });
+  const taken = new Set(items.filter((x) => x.ref).map((x) => x.ref));
+  // the weather (1a): a long session outside on a wet day → the driest free day of the rest of the week
+  for (const d of days) {
+    if (!d.wx?.wet || d.day < from) continue;
+    for (const e of d.entries) {
+      if (!e.sid || e.done || e.mins < LONG_MINS || !OUTSIDE.includes(e.sessionKind) || skipped.has(`wx:${e.sid}`)) continue;
+      const dry = days.filter((x) => x.day >= from && x.wx?.dry && !x.away && !x.entries.some((y) => y.sid && y.mins >= LONG_MINS));
+      if (!dry.length) continue;
+      const best = dry.reduce((a, b) => (rank(b) > rank(a) ? b : a));
+      suggestions.push({ ref: `wx:${e.sid}`, kind: 'sport', title: e.title, sessionKind: e.sessionKind, sub: { wet: d.day }, day: best.day, act: 'move', id: e.sid });
+    }
+  }
+  // trips (5a): the packing list and the weather the day before, the bike two days before
+  for (const tr of trips) {
+    if (!isDay(tr.startDate) || tr.startDate <= today || tr.startDate > shiftDay(end, 2)) continue;
+    for (const [what, back] of TOUR_STEPS) {
+      const ref = `tour:${tr.id}:${what}`;
+      const day = shiftDay(tr.startDate, -back) < from ? from : shiftDay(tr.startDate, -back);
+      if (taken.has(ref) || skipped.has(ref) || day >= tr.startDate || day >= end) continue;
+      suggestions.push({ ref, kind: 'todo', title: null, tour: { what, trip: tr.title }, sub: null, day, act: 'take' });
+    }
+  }
+  // the season (4a)
+  for (const x of seasonOf(monday)) if (!taken.has(x.ref) && !skipped.has(x.ref)) suggestions.push({ ref: x.ref, kind: 'todo', title: null, season: x.key, sub: null, day: freeDay(days, from, away), act: 'take' });
 
   const shown = (k) => !hide.includes(k);
   const all = days.flatMap((d) => d.entries);
@@ -203,12 +234,78 @@ export function buildWeek(src) {
     away: days.filter((d) => d.entries.some((e) => e.kind === 'away')).map((d) => d.day),
     bike: all.filter((e) => e.kind === 'bike' && !e.done).length + suggestions.filter((s) => s.kind === 'bike').length,
   };
+  const review = reviewOf({ monday, sessions, acts, items });
   return {
     days: days.map((d) => ({ ...d, entries: d.entries.filter((e) => shown(e.kind)) })),
     sums,
     suggestions: suggestions.filter((s) => shown(s.kind)),
     paused,
+    review,
+    hints: loadHints(days, sums.mins, review),
   };
+}
+
+/** A session this long (minutes) is a long one; it likes a dry day. */
+export const LONG_MINS = 120;
+const OUTSIDE = ['bike', 'run', 'hike'];
+/** The to-dos before a trip and how many days before: packing list, weather, bike check. */
+export const TOUR_STEPS = [
+  ['pack', 1],
+  ['wx', 1],
+  ['bike', 2],
+];
+/** How good a dry day is for the long one: weekends and holidays first, then warmth. */
+const rank = (d) => (d.holiday || isWeekend(d.day) ? 100 : 0) + (Number(d.wx?.max) || 0) - d.entries.length;
+const isWeekend = (day) => [0, 6].includes(new Date(`${day}T12:00:00Z`).getUTCDay());
+
+/** A session is hard in zone 4 or 5, or from 2½ hours on. */
+const hard = (e) => e.sid && ((e.zone ?? 0) >= 4 || e.mins >= 150);
+
+/**
+ * Last week in one line (3b): { planned, done, rides, km, mins, todos } or null when nothing happened.
+ * planned/done: sessions of the training plan; rides, km, mins: the activities from Strava.
+ */
+export function reviewOf({ monday, sessions = [], acts = [], items = [] }) {
+  const from = shiftDay(monday, -7);
+  const inLast = (d) => d >= from && d < monday;
+  const plan = sessions.filter((s) => inLast(s.day));
+  const done = acts.filter((a) => inLast(a.day ?? ''));
+  const todos = items.filter((x) => x.done && x.day && inLast(x.day)).length;
+  if (!plan.length && !done.length && !todos) return null;
+  return {
+    planned: plan.length,
+    done: plan.filter((s) => doneBy(s, acts)).length,
+    rides: done.length,
+    km: Math.round(done.reduce((n, a) => n + (Number(a.km) || 0), 0)),
+    mins: Math.round(done.reduce((n, a) => n + (Number(a.movingS) || 0), 0) / 60),
+    todos,
+  };
+}
+
+/**
+ * Hints on the load (2a), quiet grey lines: [{ key, day? , pct? }]
+ *   twoHard  two hard sessions on two days in a row (day: the second)
+ *   noRest   sport on all seven days
+ *   jump     the training plan has much more time than last week's activities (pct more, from 30 %)
+ */
+export function loadHints(days, plannedMins, review) {
+  const out = [];
+  for (let i = 1; i < days.length; i++) if (days[i].entries.some(hard) && days[i - 1].entries.some(hard)) out.push({ key: 'twoHard', day: days[i].day });
+  if (days.every((d) => d.entries.some((e) => e.kind === 'sport'))) out.push({ key: 'noRest' });
+  if (review?.mins >= 60 && plannedMins > review.mins * 1.3) out.push({ key: 'jump', pct: Math.round((plannedMins / review.mins - 1) * 100) });
+  return out;
+}
+
+/**
+ * Taking a suggestion, as the change to save: { items } (the week's list) or { sessions } (the
+ * training plan). title: the words of the suggestion (titleOf on the page), for new to-dos.
+ */
+export function takeSuggestion(s, { items = [], sessions = [] }, day = s.day, title = s.title) {
+  if (s.act === 'move') return { sessions: sessions.map((x) => (x.id === s.id ? { ...x, day } : x)) };
+  if (s.kind === 'todo' && s.id) return { items: items.map((x) => (x.id === s.id ? { ...x, day } : x)) };
+  if (s.kind === 'todo') return { items: [...items, cleanItem({ kind: 'todo', title, day, ref: s.ref })] };
+  if (s.kind === 'bike') return { items: [...items, cleanItem({ kind: 'bike', title: s.title, day, bikeId: s.bikeId, part: s.part })] };
+  return {};
 }
 
 /** Skip a suggestion for the week of that Monday (old ones go after two weeks). */

@@ -6,13 +6,15 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, CalendarCheck, ChevronRight, Palmtree } from '@lucide/svelte';
+  import { Plus, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
-  import { titleOf, subOf, dayName, shortDate, hours } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf } from '../lib/woche.js';
+  import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { homeForecast } from '../lib/home-weather.js';
+  import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -25,7 +27,14 @@
   let next = $state(false);
   const monday = $derived(shiftDay(mondayOf(today), next ? 7 : 0));
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
-  const week = $derived(src ? buildWeek({ ...src, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  // the home weather (Noah 18.10 «1a»): fetched at most every 3 hours, offline the saved one
+  let forecast = $state(null);
+  $effect(() => {
+    homeForecast(db)
+      .then((f) => (forecast = f))
+      .catch(() => (forecast = null));
+  });
+  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
   const due = $derived(src && src.planned !== planMonday(today));
 
@@ -38,8 +47,9 @@
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
   async function take(s) {
-    if (s.kind === 'todo') return saveItems(items().map((x) => (x.id === s.id ? { ...x, day: s.day } : x)));
-    if (s.kind === 'bike') return saveItems([...items(), cleanItem({ kind: 'bike', title: s.title, day: s.day, bikeId: s.bikeId, part: s.part })]);
+    const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, s.day, titleOf(s));
+    if (ch.items) await saveItems(ch.items);
+    if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: prunePlan(ch.sessions, today) });
   }
   async function drop(s) {
     // a session paused by holidays: «leave it out» takes it out of the training plan
@@ -81,6 +91,12 @@
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
       {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job', '{n} bike jobs')}</span>{/if}
     </p>
+    {#if reviewLine(week.review) || week.hints.length}
+      <div class="notes">
+        {#if reviewLine(week.review)}<p class="why" data-review><History size={15} aria-hidden="true" /><span>{reviewLine(week.review)}</span></p>{/if}
+        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
+      </div>
+    {/if}
 
     <div class="lay">
       <section class="days" aria-label={t('The days of the week')}>
@@ -89,8 +105,9 @@
             <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
               <summary>
                 <b>{dayName(d.day)}</b>
+                {#if d.wx}{@render wxMark(d.wx)}{/if}
                 <span class="dots" aria-hidden="true">{#each dotsOf(d) as k (k)}<i class="k-{k}"></i>{/each}</span>
-                <span class="cnt">{d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
+                <span class="cnt">{d.holiday ? holidayName(d.holiday) : d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
                 <ChevronRight size={18} aria-hidden="true" />
               </summary>
               <div class="ens">
@@ -100,6 +117,7 @@
           {:else}
             <div class="dc" class:today={d.today} class:past={d.past} data-day={d.day}>
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
+              {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
             </div>
           {/if}
@@ -117,6 +135,7 @@
                 <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? t('suggested: {day}', { day: dayName(s.day) }) : ''].filter(Boolean).join(' · ')}</small></span>
                 <span class="sb">
                   {#if s.act === 'drop'}<button type="button" class="btn sm" onclick={() => drop(s)}>{t('Leave out')}</button>
+                  {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
                 </span>
@@ -153,6 +172,13 @@
     </div>
   {/if}
 </div>
+
+{#snippet wxMark(wx)}
+  <span class="wx" class:wet={wx.wet} data-wx={wx.wet ? 'wet' : wx.dry ? 'dry' : 'showers'}>
+    {#if wx.wet}<CloudRain size={15} aria-hidden="true" />{:else if wx.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}
+    <span class="sr">{wxWords(wx)}</span>{#if wx.max != null}<span class="num" aria-hidden="true">{Math.round(wx.max)}°</span>{/if}
+  </span>
+{/snippet}
 
 <style>
   .wkp {
@@ -232,6 +258,48 @@
     color: var(--ink);
   }
   /* the seven days take the full width; «Still to plan» and «Add» sit beneath them, beside only on very wide screens */
+  .notes {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: -4px 0 14px;
+  }
+  .notes p {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+  }
+  .notes :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .dm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: -2px 0 2px;
+    font-size: var(--fs-tiny);
+    color: var(--ink-2);
+  }
+  .wx {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: var(--fs-tiny);
+    color: var(--ink-2);
+  }
+  .wx.wet {
+    color: var(--wk-date);
+  }
+  .hol {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wk-away) 16%, var(--paper));
+    color: var(--ink);
+    overflow-wrap: break-word;
+  }
   .lay {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

@@ -7,12 +7,14 @@
    * next week (planMonday). Sessions are written into the training plan (Aktiv › Training), the rest
    * into the week's own list; nothing is kept twice.
    */
-  import { Check, X, ArrowRight, Plus, Palmtree } from '@lucide/svelte';
+  import { Check, X, ArrowRight, Plus, Palmtree, Info } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
-  import { titleOf, subOf, dayName, shortDate, hours } from '../lib/woche/words.js';
-  import { ITEMS_KEY, NO_KEY, PLANNED_KEY, buildWeek, cleanItem, pruneItems, skipFor, planMonday, daysOf, awayOn } from '../lib/woche.js';
+  import { titleOf, subOf, dayName, shortDate, hours, hintText, reviewLine } from '../lib/woche/words.js';
+  import { ITEMS_KEY, NO_KEY, PLANNED_KEY, buildWeek, cleanItem, pruneItems, skipFor, planMonday, daysOf, awayOn, takeSuggestion } from '../lib/woche.js';
+  import { homeForecast } from '../lib/home-weather.js';
+  import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, KIND_NAMES as TRAIN_KINDS, shiftDay, copyWeek, cleanSession, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -24,7 +26,13 @@
   const q = weekQuery(today);
   const src = $derived($q);
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
-  const week = $derived(src ? buildWeek({ ...src, hide: [], monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  let forecast = $state(null);
+  $effect(() => {
+    homeForecast(db)
+      .then((f) => (forecast = f))
+      .catch(() => (forecast = null));
+  });
+  const week = $derived(src ? buildWeek({ ...src, forecast, hide: [], monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
 
   const STEPS = [
     { n: 1, name: 'What is fixed' },
@@ -76,10 +84,9 @@
   const dayFor = (s) => moved[s.ref] ?? s.day ?? week7.find((d) => d >= today) ?? monday;
   const sugg = (kind) => (week?.suggestions ?? []).filter((s) => s.kind === kind);
   async function take(s) {
-    const day = dayFor(s);
-    const items = src?.rawItems ?? [];
-    if (s.kind === 'todo') await putWeek(ITEMS_KEY, items.map((x) => (x.id === s.id ? { ...x, day } : x)));
-    else await putWeek(ITEMS_KEY, pruneItems([...items, cleanItem({ kind: 'bike', title: s.title, day, bikeId: s.bikeId, part: s.part })], today));
+    const ch = takeSuggestion(s, { items: src?.rawItems ?? [], sessions: src?.sessions ?? [] }, dayFor(s), titleOf(s));
+    if (ch.items) await putWeek(ITEMS_KEY, pruneItems(ch.items, today));
+    if (ch.sessions) await saveTrain(ch.sessions);
   }
   const other = (s) => (moved = { ...moved, [s.ref]: nextDay(dayFor(s)) });
   const skip = (s) => putWeek(NO_KEY, skipFor(src?.no ?? [], s.ref, monday));
@@ -162,6 +169,12 @@
             </li>
           {/each}
         </ul>
+        {#if sugg('sport').some((s) => s.act === 'move')}
+          <h3 class="sub">{t('The weather')}</h3>
+          <ul class="rows">{#each sugg('sport').filter((s) => s.act === 'move') as s (s.ref)}{@render suggRow(s)}{/each}</ul>
+        {/if}
+        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why hint" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
+        {#if reviewLine(week.review)}<p class="why sm" data-review>{reviewLine(week.review)}</p>{/if}
         {#if !sessions.length && !proposals.length}<p class="none">{t('No sessions planned and none last week. Plan them in Aktiv › Training.')}</p>{/if}
         <div class="fb">
           {#if proposals.length}<button type="button" class="btn" onclick={takeAll} data-take-all>{t('Take all')}</button>{/if}
@@ -212,6 +225,19 @@
 {/snippet}
 
 <style>
+  .sub {
+    margin: 14px 0 4px;
+    font-size: var(--fs-small);
+  }
+  .hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .hint :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
   .wpl {
     max-width: 760px;
   }

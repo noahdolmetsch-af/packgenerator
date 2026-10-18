@@ -133,3 +133,32 @@ test('Ferien: entered once, the training plan pauses and the packing list comes 
   await expect(page.locator(`[data-day="${day(0)}"] [data-kind="todo"]`).filter({ hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
   await expect(page.locator(`[data-day="${day(1)}"] [data-kind="away"]`).filter({ hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
 });
+
+test('Content: weather per day, the rainy long ride moves, last week, load hints and trip to-dos', async ({ page, context }, info) => {
+  // the home forecast: rain on Sunday (the long ride), dry otherwise
+  await page.route(/api\.open-meteo\.com\/v1\/forecast/, (route) => {
+    const days = [...Array(16).keys()].map((n) => day(n));
+    return route.fulfill({ json: { daily: { time: days, temperature_2m_min: days.map(() => 6), temperature_2m_max: days.map((d, n) => 12 + n), precipitation_sum: days.map((d, n) => (n === 2 ? 12 : 0)), precipitation_probability_max: days.map((d, n) => (n === 2 ? 90 : 5)) } } });
+  });
+  const data = weekFixture();
+  data.tables.settings.find((s) => s.key === 'training.plan').value.sessions.push({ id: 'test_data_gtp_s4', day: day(-1), kind: 'bike', name: 'test_data_gtp_ Schwellen', mins: 75, zone: 4 });
+  data.tables.settings.find((s) => s.key === 'training.plan').value.sessions[0].zone = 4;
+  const T = await openHome(page, context, info, { data });
+  await page.goto('./#/week');
+  await expect(page.locator(`[data-day="${day(2)}"] [data-wx="wet"]`)).toBeVisible();
+  await expect(page.locator(`[data-day="${day(1)}"] [data-wx="dry"]`)).toBeVisible();
+  // 3b last week in one line, 2a the hint on two hard days
+  await expect(page.locator('[data-review]')).toContainText(T('Last week: {list}', { list: '' }).trim());
+  await expect(page.locator('[data-load-hint="twoHard"]')).toBeVisible();
+  // 5a the trip tomorrow: packing list, weather and bike check today
+  for (const what of ['pack', 'wx', 'bike']) await expect(page.locator(`[data-sugg="tour:test_data_gtp_Herbstrunde:${what}"]`)).toBeVisible();
+  const pack = page.locator('[data-sugg="tour:test_data_gtp_Herbstrunde:pack"]');
+  await pack.getByRole('button', { name: T('Take') }).click();
+  await expect(page.locator(`[data-day="${day(0)}"] [data-kind="todo"]`).filter({ hasText: T('Packing list: {trip}', { trip: 'test_data_gtp_ Herbstrunde' }) })).toHaveCount(1);
+  await expect(pack).toHaveCount(0);
+  // 1a the long ride on rainy Sunday moves to dry Saturday
+  const wx = page.locator('[data-sugg="wx:test_data_gtp_s3"]');
+  await wx.getByRole('button', { name: T('Move|week') }).click();
+  await expect(page.locator(`[data-day="${day(1)}"] [data-entry="tr:test_data_gtp_s3"]`)).toHaveCount(1);
+  await expect(wx).toHaveCount(0);
+});
