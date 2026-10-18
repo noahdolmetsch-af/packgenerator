@@ -13,12 +13,18 @@
    * the bike's own pace on that surface is used for the riding time), «Geplant und gefahren» per trip, the
    * months since the first ride (km/h, Ø heart rate, power, zones) and «Deine Pulszonen». Every ride shows
    * its bike and its surface, which can be changed per ride.
+   * GPX-Weg (Noah 15.10.2026 «1-5 a»): «Fahrt hochladen» here opens the one upload of the app (#/debrief/ride),
+   * so a ride is saved, shows up in Look back and counts once. On top the «Einstieg» (how it works). Until
+   * your rule counts, the card says the standard numbers plainly and your rides so far underneath. Rides
+   * saved in this visit are marked «Neu»; the same ride twice shows once.
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { SPEED_KMH, CLIMB_MH } from '../route.js';
-  import { PACE_KEY, PACE_MIN, rideTiming, learnPace, guessFor, paceOf, ruleOf, withStandard, paceSeries } from '../pace.js';
+  import { PACE_KEY, PACE_MIN, learnPace, guessFor, paceOf, ruleOf, withStandard, paceSeries, uniqueRides, startKey } from '../pace.js';
+  import { savedNote } from '../ridejourney.js';
+  import AreaIntro from '../ui/AreaIntro.svelte';
   import { reviewWindow } from '../yearreview.js';
   import { localDay } from '../localday.js';
   import { n1, dayLong } from '../review/fmt.js';
@@ -47,13 +53,13 @@
     return () => clearTimeout(id);
   });
   const loaded = $derived(ready || !!$paceQ);
-  const rides = $derived([...(saved?.rides ?? [])].sort((a, b) => b.date.localeCompare(a.date)));
+  const rides = $derived([...uniqueRides(saved?.rides ?? [])].sort((a, b) => b.date.localeCompare(a.date)));
   const pace = $derived(paceOf(saved));
   const rule = $derived(ruleOf(pace.learned));
   const std = { kmh: SPEED_KMH, climbMh: CLIMB_MH };
 
-  let msg = $state('');
-  let busy = $state(false);
+  const note = savedNote();
+  const isNew = (r) => !!note?.ids.some((id) => startKey(id) === startKey(r.id));
 
   /* ---- SN2+ SN2h/SN2i: bikes, surfaces, planned and ridden, the months ---- */
   const werteQ = liveQuery(async () => ({ ...(await loadWerte(db)), review: await loadReview(db) }));
@@ -80,32 +86,9 @@
   }
   const setStandard = (on) => db.settings.put({ key: PACE_KEY, value: withStandard($state.snapshot(saved), on) });
 
-  async function pick(event) {
-    const files = [...event.currentTarget.files];
-    event.currentTarget.value = '';
-    if (!files.length) return;
-    busy = true;
-    msg = '';
-    try {
-      const list = [...(saved?.rides ?? [])];
-      let added = 0;
-      const skipped = [];
-      for (const f of files) {
-        const r = rideTiming(await f.text(), f.name);
-        if (!r) skipped.push(f.name);
-        else if (!list.some((x) => x.id === r.id)) list.push({ ...r, use: true }), added++;
-      }
-      await store(list);
-      msg = tn(added, '{n} ride added.', '{n} rides added.') + (skipped.length ? ` ${t('Without times (planned routes?): {files}.', { files: skipped.join(', ') })}` : '');
-    } catch (e) {
-      msg = t('Could not read the file: {error}', { error: e.message });
-    } finally {
-      busy = false;
-    }
-  }
-
-  const toggle = (id) => store(saved.rides.map((r) => (r.id === id ? { ...r, use: r.use === false } : r)));
-  const drop = (id) => store(saved.rides.filter((r) => r.id !== id));
+  // the same ride twice (both ways in) shows once: untick and remove act on both
+  const toggle = (id) => store(saved.rides.map((r) => (startKey(r.id) === startKey(id) ? { ...r, use: r.use === false } : r)));
+  const drop = (id) => store(saved.rides.filter((r) => startKey(r.id) !== startKey(id)));
   const hm = (h) => `${Math.floor(h)}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
 
   /* ---- the small charts: the last 12 months (Noah ★a) or all rides ---- */
@@ -161,18 +144,33 @@
      rule as a white card, what the riding time uses now, then the small charts; right the rides.
      SN2: the line under the title, the rule short and big, five marks, «Fahrt hochladen» as the main button. -->
 {#snippet picker(cls, children)}
-  <label class={cls}>{@render children()}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
+  <a class={cls} href="#/debrief/ride">{@render children()}</a>
 {/snippet}
 <p class="page-sub psub">{t('How the app guesses the riding time of a new trip')}</p>
+<AreaIntro
+  key="pace"
+  kicker={t('How «Your pace» works')}
+  title={t('The app learns how fast you ride')}
+  sub={t('So the guessed riding time fits when you pack and on the way.')}
+  steps={[
+    { name: t('Upload ride'), text: t('a ride you rode, as a GPX file (Garmin, Wahoo, Strava, komoot: the ride › Export › GPX).') },
+    { name: t('The app learns'), text: t('your speed on the flat and the time for the climbing. Stops of 5 minutes or more do not count.') },
+    { name: t('You plan closer'), text: t('from {min} rides (each 20 km or more) every new trip guesses with your pace. You can switch back any time.', { min: PACE_MIN }) },
+  ]}
+  tip={t('Upload 3 to 5 normal rides with luggage, no races. That gives the best guess.')}
+  know={t('Without rides of your own the app guesses with {kmh} km/h and 1 h per {m} m of climbing, a calm pace with luggage. Your rides replace it.', { kmh: num(std.kmh), m: num(std.climbMh) })}
+  links={[{ label: t('Handbook: Your pace'), href: '#/me/handbook?f=pace' }]}
+/>
 <div class="tempo rv-lay">
   <div class="rv-col">
     <!-- 1. the rule, what the riding time uses now, the marks up to your own rule -->
     <section class="rule" id="pace" aria-labelledby="rule-h">
       <div class="rv-box pad rcard">
-        <p class="kick"><Gauge size={14} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : t('Standard rule')}</p>
-        <h2 id="rule-h" class="sentence">{t('{kmh} km/h and 1 h per {m} Hm', { kmh: num(rule ? rule.kmh : std.kmh), m: num(rule ? rule.climbMh : std.climbMh) })}</h2>
-        {#if rule && !pace.mine}<p class="flat">{t('Your rule so far; the riding time still uses {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}</p>{/if}
-        {#if rule && overall != null}<p class="flat">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
+        <!-- GPX-Weg: until your rule counts, the card says the standard plainly and your rides so far below -->
+        <p class="kick"><Gauge size={14} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : rides.length ? tn(pace.n, 'Standard rule · your rides so far: {n}', 'Standard rule · your rides so far: {n}') : t('Standard rule · no ride of your own yet')}</p>
+        <h2 id="rule-h" class="sentence">{t('{kmh} km/h and 1 h per {m} Hm', { kmh: num(rule && (pace.mine || pace.standard) ? rule.kmh : std.kmh), m: num(rule && (pace.mine || pace.standard) ? rule.climbMh : std.climbMh) })}</h2>
+        {#if rule && !pace.mine && !pace.standard}<p class="flat">{t('Your rides so far: {avg} km/h with the climbing, your rule would be {kmh} km/h and 1 h per {m} Hm. From {min} rides the app uses it.', { avg: n1(overall ?? rule.kmh), kmh: num(rule.kmh), m: num(rule.climbMh), min: PACE_MIN })}</p>{/if}
+        {#if rule && overall != null && (pace.mine || pace.standard)}<p class="flat">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
         {#if loaded}
           <div class="state" role="status">
             {#if pace.mine}
@@ -183,14 +181,13 @@
               <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={18} aria-hidden="true" />{t('Use my rule')}</button>
             {:else}
               <span class="marks" aria-hidden="true">{#each Array.from({ length: PACE_MIN }, (_, i) => i) as i (i)}<i class:on={i < pace.n}></i>{/each}</span>
-              <p class="need">{t('{n} of {min} rides. From {min} rides your own pace counts, you can switch back any time.', { n: pace.n, min: PACE_MIN })}</p>
+              <p class="need">{pace.n ? t('{n} of {min} rides. From {min} rides your own pace counts, you can switch back any time.', { n: pace.n, min: PACE_MIN }) : t('0 of {min} rides. Until then the app guesses with {kmh} km/h and 1 h per {m} Hm.', { min: PACE_MIN, kmh: num(std.kmh), m: num(std.climbMh) })}</p>
             {/if}
           </div>
         {/if}
         <div class="acts">
-          {#snippet upl()}<Upload size={17} aria-hidden="true" /><span class="kl">{busy ? t('Reading …') : t('Upload ride')}</span>{/snippet}
+          {#snippet upl()}<Upload size={17} aria-hidden="true" /><span class="kl">{t('Upload ride')}</span>{/snippet}
           {@render picker('btn k hi', upl)}
-          {#if msg}<p class="msg" role="status">{msg}</p>{/if}
         </div>
       </div>
     </section>
@@ -247,8 +244,8 @@
             {@const x = tempoOf(r.id)}
             {@const rb = x?.bikeId ? bikeById[x.bikeId] ?? null : null}
             {@const sf = x ? surfaceOf(x, rb) : null}
-            <li class:off={r.use === false} data-ride={r.id}>
-              <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><span class="rv-t">{r.name}</span><span class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</span></span></label>
+            <li class:off={r.use === false} class:fresh={isNew(r)} data-ride={r.id}>
+              <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><span class="rv-t">{r.name}{#if isNew(r)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</span></span></label>
               <button type="button" class="rm" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
               <!-- SN2+ SN2h: the ride's bike and its surface, changeable per ride -->
               {#if W}
@@ -393,10 +390,13 @@
   .acts .btn {
     min-height: 44px;
   }
-  .msg {
-    margin: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+  /* GPX-Weg: a ride saved in this visit */
+  .rides li.fresh {
+    box-shadow: inset 3px 0 0 var(--ok);
+  }
+  .rv-tag.nw {
+    margin-left: 8px;
+    vertical-align: 1px;
   }
   .rides {
     padding: 0 16px;

@@ -218,7 +218,7 @@ export const HANDBOOK = {
   },
   pace: {
     on: 'Needs a ride with a GPX file: Trips › Look back › «Upload a ride».',
-    steps: ['Upload a few GPX rides.', 'Open «Show your pace»: riding times now use your own pace.'],
+    steps: ['Trips › Look back › Your pace › «Upload ride»: choose a GPX file, check it and save.', 'From 5 rides of 20 km or more, every trip guesses its riding time with your own pace.'],
     example: 'Example: your pace is 19 km/h on gravel → a 76 km route shows about 4 h.',
   },
   trend: {
@@ -237,8 +237,8 @@ export const HANDBOOK = {
     example: 'Example: «warm socks were missing» → your wool socks are suggested.',
   },
   'f.upload': {
-    on: 'Needs a GPX or TCX file from your bike computer or app.',
-    steps: ['Tap «New» › «Upload ride», or Trips › Look back.', 'Choose the file; distance, climbing and pauses show.', 'Note up to 3 learnings.'],
+    on: 'Needs a GPX or TCX file from your bike computer or app, or the CSV list from Strava or Garmin.',
+    steps: ['Tap «New» › «Upload ride», or Trips › Look back. Several files at once work too.', 'Choose the file; distance, climbing, pauses and what saving does show.', 'Save: the card «Ride saved» says what happened; note up to 3 learnings.'],
     example: 'Example: planned 5 h, real 5 h 40 with 50 min of pauses.',
   },
   'f.past': {
