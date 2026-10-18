@@ -6,6 +6,7 @@
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
@@ -63,6 +64,7 @@
     title={t('Workshop & receipts')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}`}
   />
+  <AreaIntro place="werkstatt" />
 
   {#if bikes.length > 1}
     <div class="fchips" role="group" aria-label={t('Bike')}>

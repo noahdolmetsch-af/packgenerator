@@ -193,6 +193,54 @@ export const INTROS = {
     ],
     expect: 'With a handful of blocks a new list is ready in a few taps, and changes reach every trip.',
   },
+  pflege: {
+    page: true,
+    name: 'Care|tab',
+    title: 'Keep every bike ready to ride',
+    things: [
+      { icon: 'wrench', title: 'What is due', text: 'Chain, brakes, tyres: what needs care soon is on top. Due means: before the next ride.' },
+      { icon: 'check', title: 'Log a service', text: 'Open a bike, tap a part and enter what you did. Its km start again.' },
+      { icon: 'list', title: 'Import rides', text: 'Rides from Strava or a GPX file add the km to the right bike.', href: '#/bikes?tab=care&view=import' },
+    ],
+    expect: 'After a few weeks the app knows how many km each part has done and tells you before something wears out.',
+    // what is due comes first (a to-do list, like Material «list first»): one line until you open it
+    folded: true,
+  },
+  werkstatt: {
+    page: true,
+    name: 'Workshop & receipts',
+    title: 'What waits for the bike shop, and every visit',
+    things: [
+      { icon: 'wrench', title: 'For the workshop', text: 'Note what the bike shop should look at, so nothing is forgotten at the counter.' },
+      { icon: 'copy', title: 'Visits and receipts', text: 'Every visit with its date, price and receipt.' },
+      { icon: 'chart', title: 'Costs per year', text: 'What each bike cost in care this year, at a glance.' },
+    ],
+    expect: 'Over time you see what each bike costs to keep, and the receipts are at hand for the warranty.',
+  },
+  ausstattung: {
+    page: true,
+    name: 'Equipment|tab',
+    title: 'Every part of your bike',
+    things: [
+      { icon: 'list', title: 'Parts in groups', text: 'Frame, wheels, drivetrain, brakes: each part with weight, price and date.' },
+      { icon: 'check', title: 'Enter values', text: 'One value after the other: «Next» goes to the next field.' },
+      { icon: 'chart', title: 'Compare bikes', text: 'Two or more bikes side by side: weight, parts and measurements.' },
+    ],
+    expect: 'Once the parts are entered you know what each bike weighs and what a part cost.',
+  },
+  einkauf: {
+    page: true,
+    name: 'Shopping|tab',
+    title: 'Your wish list, with prices',
+    things: [
+      { icon: 'cart', title: 'Note a wish', text: 'What you would like to buy, with its price.' },
+      { icon: 'star', title: 'Why this one', text: 'The app shows why a wish makes sense: missing on a trip, broken, or lighter than the old one.' },
+      { icon: 'scale', title: 'In no total', text: 'A wish counts in no weight and no list until you own it.' },
+    ],
+    expect: 'The wishes with the best reason come first, so the next purchase is an easy choice.',
+    // a list page too («list first»): one line until you open it
+    folded: true,
+  },
   past: {
     page: true,
     name: 'Past trips',

@@ -85,6 +85,10 @@ async function overview(page) {
 
 /** A finger held on an element for `ms` (Chromium touch events through CDP). */
 async function longPress(page, locator, ms = 700) {
+  // a touch only lands on what is on the screen and not under the phone bar (the Einstieg line on top of
+  // Care moves the rows down)
+  await locator.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  await page.waitForTimeout(300); // the scroll event has passed (a scroll closes the bubble)
   const box = await locator.boundingBox();
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;

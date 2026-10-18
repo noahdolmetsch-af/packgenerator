@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   /**
    * v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a; model: Canyon «Ausstattung · Alle Komponenten»):
    * the Bikes tab «Ausstattung». One bike at a time: Noah's four measurements on top as tiles (the
@@ -86,6 +87,7 @@
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
+    <AreaIntro place="ausstattung" />
     {#if bikes.length > 1}
       <div class="bchips" role="group" aria-label={t('Bike')}>
         {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}>{b.name}</button>{/each}

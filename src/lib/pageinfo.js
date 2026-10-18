@@ -208,6 +208,43 @@ Object.assign(PAGES, {
     ],
     can: [],
   },
+  pflege: {
+    tips: [
+      { id: 'care-wet', text: 'After a rainy ride wipe and oil the chain the same day: then it does not rust.' },
+      { id: 'care-trip', text: 'Check tyres, brakes and chain a few days before a long tour: then there is time for a spare part.' },
+      { id: 'care-strava', text: 'With Strava connected the km of every ride count by themselves.' },
+      { id: 'know-latex', kind: 'know', text: 'Latex inner tubes lose air faster than butyl tubes: they often need pumping every day or two.', source: 'Schwalbe, tube guide' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long'),
+    ],
+    can: [],
+  },
+  werkstatt: {
+    tips: [
+      { id: 'shop-list', text: 'Write the list for the workshop at home: at the counter you forget half.' },
+      { id: 'shop-receipt', text: 'Keep the receipt with the visit: for the warranty you need the date of purchase.' },
+      { id: 'shop-km', text: 'Note the km at the visit: later you know how long a part lasted.' },
+      { id: 'know-warranty', kind: 'know', text: 'In Switzerland claims for defects in new goods are usually time-barred two years after delivery.', source: 'Swiss Code of Obligations, Art. 210' },
+    ],
+    can: [],
+  },
+  ausstattung: {
+    tips: [
+      { id: 'eq-scale', text: 'Weigh small parts on a kitchen scale: it is precise enough.' },
+      { id: 'eq-frame', text: 'Note the frame number: it helps if the bike is ever stolen.' },
+      { id: 'eq-date', text: 'Enter the date of a new part: then care knows how old it is.' },
+      { id: 'know-uci', kind: 'know', text: 'In road races a bike must weigh at least 6.8 kg.', source: 'UCI technical regulations' },
+    ],
+    can: [],
+  },
+  einkauf: {
+    tips: [
+      { id: 'wish-wait', text: 'Leave a wish on the list for a week: if you still want it then, it is a good buy.' },
+      { id: 'wish-weight', text: 'Enter the weight of a wish: you see what it would save against the old part.' },
+      { id: 'wish-debrief', text: 'If something was missing on a trip, the wish shows it as its reason.' },
+      { id: 'know-repair', kind: 'know', text: 'Repairing instead of buying new saves resources: the right to repair goods has been strengthened in the EU since 2024.', source: 'European Union, Right to Repair Directive (2024)' },
+    ],
+    can: [],
+  },
   past: {
     tips: [
       { id: 'past-rate', text: 'Rate a trip with one tap on «Rate»: the next list learns from it.' },
