@@ -377,4 +377,10 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // Erinnerungen aufs Handy (Web-Push)
+  'Needs Chrome on the phone and the server set up once.': 'Braucht Chrome auf dem Handy und einmal den eingerichteten Server.',
+  'Open Me › Reminders on the phone.': 'Öffne Ich › Erinnerungen aufs Handy.',
+  'Switch on «On the phone» and allow notifications.': 'Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.',
+  'Switch on the reminders you want, one by one.': 'Schalte die gewünschten Erinnerungen einzeln ein.',
+  'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»': 'Beispiel: am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»',
 };
