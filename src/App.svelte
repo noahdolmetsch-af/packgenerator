@@ -41,7 +41,6 @@
   import Data from './pages/Data.svelte';
   import Docs from './pages/Docs.svelte';
   import Fitbit from './pages/Fitbit.svelte';
-  import Docs from './pages/Docs.svelte';
   import DocScan from './pages/DocScan.svelte';
   import Agenda from './pages/Agenda.svelte';
   import WasNeu from './pages/WasNeu.svelte';
