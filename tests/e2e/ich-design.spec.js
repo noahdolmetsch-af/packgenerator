@@ -141,6 +141,8 @@ test('I10 and I12: the home place window and the shortcuts window', async ({ pag
   await expect(home.getByRole('button', { name: T('Save') })).toBeDisabled();
   await home.getByRole('button', { name: T('Close') }).click();
   await expect(home).toBeHidden();
+  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
   await page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }).click();
   const keys = page.getByRole('dialog', { name: T('Keyboard shortcuts') });
   await expect(keys.getByRole('heading', { name: T('Places') })).toBeVisible();

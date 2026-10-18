@@ -68,3 +68,30 @@ test('Eingang: the button names the suggestion, Just keep with one tap and Undo,
   await noSideways(page);
   expect(errors).toEqual([]);
 });
+
+test('Ich: Waiting for you on top, App maintenance, More and Help folded', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/me');
+  const wait = page.locator('[data-section="waiting"]');
+  await expect(wait.getByRole('heading', { name: T('Waiting for you') })).toBeVisible();
+  const inbox = wait.locator('[data-wait="inbox"]');
+  await expect(inbox).toContainText(/Eingang: \d+ Notizen zum Ablegen/);
+  await expect(inbox.getByRole('link', { name: T('File') })).toHaveAttribute('href', '#/inbox');
+  // the AI key that runs out within 30 days: «Ansehen» opens «App-Wartung»
+  const maint = page.locator('[data-section="maintenance"]');
+  await expect(maint).not.toHaveAttribute('open', '');
+  await wait.locator('[data-wait^="key-"]').getByRole('button', { name: T('Look|maint') }).click();
+  await expect(maint).toHaveAttribute('open', '');
+  await expect(maint.locator('[data-maint="keys"]')).toBeVisible();
+  // «Mehr» and «Hilfe» are folded, one tap opens them
+  await expect(page.getByRole('button', { name: new RegExp(T('Try it out')) })).toBeHidden();
+  await page.locator('main summary').filter({ has: page.getByRole('heading', { name: T('More'), exact: true }) }).click();
+  await expect(page.getByRole('button', { name: new RegExp(T('Try it out')) })).toBeVisible();
+  await expect(page.locator('a.ich-row[href="#/me/handbook"]')).toBeHidden();
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
+  await expect(page.locator('a.ich-row[href="#/me/handbook"]')).toBeVisible();
+  // the row «Data and backup» no longer repeats «Backup due»
+  await expect(page.locator('a.ich-row[href="#/me/data"] .pill')).toHaveCount(0);
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});

@@ -102,6 +102,10 @@ test('App maintenance shows the two Strava bars from the stored numbers', async 
   await settle(page, { sameTrips: false });
   const card = page.locator('[data-section="maintenance"]');
   await expect(card.getByRole('heading', { name: T('App maintenance') })).toBeVisible();
+  // Impeccable (18.10.2026, changed on purpose): folded on Ich, its head counts the hints (85 % of the
+  // 15-minute limit and the AI key with 26 days left)
+  await expect(card.locator('summary')).toContainText(T('{n} hints', { n: 2 }));
+  await card.locator('summary').click();
   await expect(card.locator('[data-bar="short"]')).toContainText(T('{used} of {limit}', { used: 85, limit: 100 }));
   await expect(card.locator('[data-bar="daily"]')).toContainText(T('{used} of {limit}', { used: 400, limit: 1000 }));
   // the AI helper key from the start, 26 days left

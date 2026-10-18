@@ -34,7 +34,8 @@ const CASES = [
   { id: 'today-new-sheet', hash: '#/', act: async (page, T) => tap(await newButton(page, T('New'))) },
   // v0.76.0 «Fünf Orte»: «Ich» (top right) took the place of the «More» sheet
   { id: 'me', hash: '#/me' },
-  { id: 'keys', hash: '#/me', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') })) },
+  // Impeccable (18.10.2026): the shortcuts are one tap deeper, under the row «Help»
+  { id: 'keys', hash: '#/me', act: async (page, T) => (await tap(page.locator('main summary').filter({ hasText: T('Help|me') })), tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }))) },
   {
     id: 'today-search',
     hash: '#/',

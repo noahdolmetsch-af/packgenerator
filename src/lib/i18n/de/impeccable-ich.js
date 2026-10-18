@@ -11,4 +11,25 @@ export default {
   'The button names the suggestion · ••• for other targets': 'Der Knopf nennt den Vorschlag · ••• für andere Ziele',
   'No notes yet. Tap + at the top › Note when something comes up on the way.': 'Noch keine Notizen. Tippe oben auf + › Notiz, wenn dir unterwegs etwas einfällt.',
 
+  // Ich: «Wartet auf dich», folds
+  'Waiting for you': 'Wartet auf dich',
+  'Backup: none yet': 'Backup: noch keins',
+  'Backup: the last one {n} day ago': 'Backup: das letzte vor {n} Tag',
+  'Backup: the last one {n} days ago': 'Backup: das letzte vor {n} Tagen',
+  'Inbox: {n} note to file': 'Eingang: {n} Notiz zum Ablegen',
+  'Inbox: {n} notes to file': 'Eingang: {n} Notizen zum Ablegen',
+  'Bills: {n} open': 'Rechnungen: {n} offen',
+  '{name} runs out in {n} day': '{name} läuft in {n} Tag ab',
+  '{name} runs out in {n} days': '{name} läuft in {n} Tagen ab',
+  '{name} ran out': '{name} ist abgelaufen',
+  'Look|maint': 'Ansehen',
+  'All done.': 'Alles erledigt.',
+  'Last backup today.': 'Letztes Backup heute.',
+  'Last backup {n} day ago.': 'Letztes Backup vor {n} Tag.',
+  'Last backup {n} days ago.': 'Letztes Backup vor {n} Tagen.',
+  'Help|me': 'Hilfe',
+  'Handbook, keyboard shortcuts, show the intro again': 'Handbuch, Tastenkürzel, Einführung nochmals zeigen',
+  'Try it out, clean up test data': 'Ausprobieren, Testdaten aufräumen',
+  'all in order': 'alles in Ordnung',
+
 };
