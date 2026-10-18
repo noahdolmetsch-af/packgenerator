@@ -449,4 +449,10 @@ export default {
   'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).': 'Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).',
   'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.': 'Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.',
   'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».': 'Beispiel: Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».',
+  // Erinnerungen aufs Handy (Web-Push)
+  'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.': 'Braucht Chrome auf dem Handy. Einmal: auf dieser Seite «Adresse für cron-job.org kopieren» und in cron-job.org einfügen.',
+  'Open Me › Reminders on the phone.': 'Öffne Ich › Erinnerungen aufs Handy.',
+  'Switch on «On the phone» and allow notifications.': 'Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.',
+  'Switch on the reminders you want, one by one.': 'Schalte die gewünschten Erinnerungen einzeln ein.',
+  'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»': 'Beispiel: am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»',
 };

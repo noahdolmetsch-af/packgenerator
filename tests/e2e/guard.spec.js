@@ -91,6 +91,7 @@ const ROUTES = [
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
+  ['#/me/push', 'Erinnerungen aufs Handy'],
   // AB «Deine Abfragen»: Ich › Deine Abfragen and Ich › Daten › Verlauf, strict like their files
   ['#/me/abfragen', "Wi gaht's?"], // Noah 14.10.2026 01:34:32: the page is called «Wi gaht's?»
   ['#/me/history', 'Verlauf'],
