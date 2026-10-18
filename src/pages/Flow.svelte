@@ -355,6 +355,8 @@
                   <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
                 </details>
               {/if}
+              <!-- Impeccable runde 2 (small observation): the active zone minutes are one quiet line under the rings until Fitbit (P11), not a section of their own -->
+              <p class="azm" data-section="azm"><Timer size={16} aria-hidden="true" /><span><b>{t('Active zone minutes')}</b>{' · '}{t('weekly goal 150 min, changeable')}{' · '}{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
             </div>
           </Sec>
           <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
@@ -375,10 +377,6 @@
               {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
             {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
-          </Sec>
-          <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
-          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
-            <p class="card azm" data-section="azm"><Timer size={18} aria-hidden="true" /><span>{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
           </Sec>
         </div>
         <aside class="col">
@@ -539,10 +537,22 @@
   }
   .azm {
     display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    margin: 0;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin: var(--sp-3) 0 0;
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
     color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .azm :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .azm b {
+    color: var(--ink-2);
+    font-weight: 600;
   }
   .kmn {
     display: flex;
