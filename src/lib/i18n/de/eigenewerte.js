@@ -38,4 +38,11 @@ export default {
   'Care per bike': 'Pflege pro Velo',
   'One bike needs other numbers? Bikes › Care › «Care for …»: they win over these': 'Braucht ein Velo andere Zahlen? Velo › Pflege › «Pflege für …»: die gelten vor diesen',
   'Packing step, backup reminder, bike check, care, cold': 'Packen-Schritt, Backup-Erinnerung, Velo-Check, Pflege, kalt',
+  // Noah 18.10.2026 19:52 «3a 4b»: two values for the phone push of package B
+  '«Hot» from': '«Heiss» ab',
+  'From this temperature the app warns you on the morning of the tour day.': 'Ab dieser Temperatur warnt dich die App am Morgen des Tourtags.',
+  'Evening-before reminder at': 'Vorabend-Erinnerung um',
+  'At this time the reminder of the evening-before check comes to the phone, as soon as reminders to the phone are switched on.': 'Um diese Zeit kommt die Erinnerung an den Vorabend-Check aufs Handy, sobald Erinnerungen aufs Handy eingeschaltet sind.',
+  '{time}|clock': '{time} Uhr',
+  'o’clock': 'Uhr',
 };

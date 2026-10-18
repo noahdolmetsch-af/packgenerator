@@ -12,7 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { putSetting } from '../lib/flowdb.js';
-  import { OWN_KEY, OWN_FIELDS, normOwn, setOwn, clampOwn } from '../lib/ownvalues.js';
+  import { OWN_KEY, OWN_FIELDS, normOwn, setOwn, clampOwn, timeText } from '../lib/ownvalues.js';
   import { pageInfo } from '../lib/pageinfo/store.svelte.js';
   import { setTipsOn, setKnowOn } from '../lib/pageinfo.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
@@ -33,7 +33,7 @@
   const fieldsOf = (area) => OWN_FIELDS.filter((f) => f.area === area);
 
   // the value in words: «2 Tage», «1000 km», «10 °C»
-  const say = (f, v) => (f.unit === 'days' ? tn(v, '{n} day', '{n} days') : f.unit === 'km' ? t('{km} km', { km: num(v) }) : t('{n} °C', { n: v }));
+  const say = (f, v) => (f.unit === 'time' ? t('{time}|clock', { time: timeText(v) }) : f.unit === 'days' ? tn(v, '{n} day', '{n} days') : f.unit === 'km' ? t('{km} km', { km: num(v) }) : t('{n} °C', { n: v }));
 
   // what is typed but not yet saved, per field (saved on change, Enter or leaving the field)
   let typed = $state({});
@@ -67,14 +67,14 @@
                   <input
                     class="inp num ew-in"
                     type="text"
-                    inputmode={f.min < 0 ? 'text' : 'numeric'}
+                    inputmode={f.unit === 'time' ? 'text' : 'numeric'}
                     aria-label={t(f.name)}
-                    value={typed[f.key] ?? String(v)}
+                    value={typed[f.key] ?? (f.unit === 'time' ? timeText(v) : String(v))}
                     oninput={(e) => (typed[f.key] = e.currentTarget.value)}
                     onchange={() => commit(f)}
                     onkeydown={(e) => e.key === 'Enter' && commit(f)}
                   />
-                  <span class="ew-unit">{f.unit === 'days' ? tn(v, 'day', 'days') : f.unit}</span>
+                  <span class="ew-unit">{f.unit === 'days' ? tn(v, 'day', 'days') : f.unit === 'time' ? t('o’clock') : f.unit}</span>
                   <button type="button" class="ew-step" aria-label={t('More: {name}', { name: t(f.name) })} disabled={v >= f.max} onclick={() => step(f, 1)}><Plus size={18} aria-hidden="true" /></button>
                 </span>
               </div>

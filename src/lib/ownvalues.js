@@ -6,6 +6,10 @@
  *
  *   packDays      the step «Packen» from N days before a trip (Today, the trip, «In Arbeit»)  2     1–7
  *   coldC         «cold» from N °C: the temperature rule the app suggests for clothing       10    0–20
+ *   hotC          «hot» from N °C: the morning heat warning on a tour day (push, package B)  30    20–40
+ *   eveRemindAt   the evening-before reminder at this time, minutes after midnight (push,   1140  00:00–23:45
+ *                 package B; Noah 18.10.2026 19:52 «3a»: the day clock's evening stays 18:00)  (19:00, 15-min steps)
+ * hotC and eveRemindAt only exist as settings and getters until phone push is built (Noah «3a 4b»).
  *   checkKm       the km check every N km, for a bike without its own number (care.js)      1000  300–3000
  *   waxKm         wax the chain every N km (part chain)                                       150   50–1000
  *   sealantDays   top up the sealant every N days (part tyres, tubeless)                      90    30–365
@@ -26,6 +30,8 @@ export const OWN_KEY = 'ownValues';
 export const OWN_FIELDS = [
   { key: 'packDays', area: 'pack', std: 2, min: 1, max: 7, step: 1, unit: 'days', name: 'Packing step from', why: 'Today and the trip switch from «Plan» to «Pack» this many days before the start.' },
   { key: 'coldC', area: 'pack', std: 10, min: 0, max: 20, step: 1, unit: '°C', name: '«Cold» from', why: 'Clothing you did not need on a warm trip gets the rule «only below this temperature».' },
+  { key: 'hotC', area: 'pack', std: 30, min: 20, max: 40, step: 1, unit: '°C', name: '«Hot» from', why: 'From this temperature the app warns you on the morning of the tour day.' },
+  { key: 'eveRemindAt', area: 'pack', std: 1140, min: 0, max: 1425, step: 15, unit: 'time', name: 'Evening-before reminder at', why: 'At this time the reminder of the evening-before check comes to the phone, as soon as reminders to the phone are switched on.' },
   { key: 'checkKm', area: 'bike', std: 1000, min: 300, max: 3000, step: 100, unit: 'km', name: 'Bike check every', why: 'Brakes, chain, tyres, bolts: looked at again after this many km.' },
   { key: 'waxKm', area: 'bike', std: 150, min: 50, max: 1000, step: 10, unit: 'km', part: 'chain', prop: 'everyKm', name: 'Wax the chain every', why: 'The chain reminder comes after this many km.' },
   { key: 'sealantDays', area: 'bike', std: 90, min: 30, max: 365, step: 1, unit: 'days', part: 'tyres', prop: 'everyDays', name: 'Top up sealant every', why: 'Only for tubeless tyres: the sealant dries out over time.' },
@@ -33,6 +39,7 @@ export const OWN_FIELDS = [
   { key: 'workshopDays', area: 'bike', std: 14, min: 3, max: 30, step: 1, unit: 'days', name: 'Workshop lead before a trip', why: 'From this many days before a trip, Bike care lists what the workshop still has to do.' },
   { key: 'backupDays', area: 'data', std: 14, min: 7, max: 60, step: 1, unit: 'days', name: 'Backup reminder every', why: 'Everything is only on this device. The app reminds you when the last backup is older.' },
 ];
+/** eveRemindAt: minutes after midnight (1140 = 19:00, 1425 = 23:45). */
 /** The care intervals set here, by part: { chain: { everyKm: 'waxKm' }, … }. */
 export const OWN_PARTS = OWN_FIELDS.filter((f) => f.part).reduce((m, f) => ((m[f.part] = { ...(m[f.part] ?? {}), [f.prop]: f.key }), m), {});
 /** The standard of a part from the own values: { everyKm: 120 } for the chain; {} for a part not set here. */
@@ -45,7 +52,9 @@ export const OWN_DEFAULTS = Object.freeze(Object.fromEntries(OWN_FIELDS.map((f) 
 export function clampOwn(key, value) {
   const f = OWN_FIELD[key];
   if (!f) return null;
-  const n = typeof value === 'number' ? value : Number(String(value ?? '').trim().replace(',', '.').replace(/[−–]/, '-'));
+  const hm = f.unit === 'time' && typeof value === 'string' ? /^\s*(\d{1,2})[:.h](\d{2})\s*$/.exec(value) : null;
+  if (hm && (Number(hm[1]) > 23 || Number(hm[2]) > 59)) return null;
+  const n = hm ? Number(hm[1]) * 60 + Number(hm[2]) : typeof value === 'number' ? value : Number(String(value ?? '').trim().replace(',', '.').replace(/[−–]/, '-'));
   if (value === '' || value == null || !Number.isFinite(n)) return null;
   const r = Math.round(n / f.step) * f.step;
   return Math.min(f.max, Math.max(f.min, r));
@@ -66,6 +75,13 @@ export function setOwn(raw, key, value) {
   if (OWN_FIELD[key]) cur[key] = v;
   return Object.fromEntries(Object.entries(cur).filter(([k, x]) => x !== OWN_FIELD[k].std));
 }
+
+/** Minutes after midnight as «19:00». */
+export const timeText = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+/** The time of the evening-before reminder, «19:00» (for the phone push of package B). */
+export const eveRemindAt = (raw) => timeText(normOwn(raw).eveRemindAt);
+/** The heat limit of the morning warning on a tour day, °C (for the phone push of package B). */
+export const hotLimit = (raw) => normOwn(raw).hotC;
 
 /** Is a field changed from its standard? */
 export const isOwnChanged = (raw, key) => normOwn(raw)[key] !== OWN_FIELD[key]?.std;

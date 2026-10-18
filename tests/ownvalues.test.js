@@ -1,6 +1,6 @@
 // «Mehr selbst einstellen» (IS 254–256, Noah 18.10.2026 19:36): the own values, their standards and where they count.
 import { describe, it, expect, afterEach } from 'vitest';
-import { OWN_FIELDS, OWN_DEFAULTS, clampOwn, normOwn, setOwn, isOwnChanged } from '../src/lib/ownvalues.js';
+import { OWN_FIELDS, OWN_DEFAULTS, clampOwn, normOwn, setOwn, isOwnChanged, eveRemindAt, hotLimit, timeText } from '../src/lib/ownvalues.js';
 import { own, useOwn } from '../src/lib/ownlive.svelte.js';
 import { PACK_DAYS, currentStep } from '../src/lib/phase.js';
 import { BACKUP_DAYS, backupDue } from '../src/lib/backup.js';
@@ -16,7 +16,7 @@ afterEach(() => useOwn(null));
 
 describe('own values', () => {
   it('the standards are the numbers that were fixed in the code', () => {
-    expect(OWN_DEFAULTS).toEqual({ packDays: PACK_DAYS, coldC: WARM_LIMIT, checkKm: CHECK_KM, waxKm: PART.chain.everyKm, sealantDays: PART.tyres.everyDays, forkDays: PART.fork.everyDays, workshopDays: REMIND_DAYS, backupDays: BACKUP_DAYS });
+    expect(OWN_DEFAULTS).toEqual({ packDays: PACK_DAYS, coldC: WARM_LIMIT, checkKm: CHECK_KM, waxKm: PART.chain.everyKm, sealantDays: PART.tyres.everyDays, forkDays: PART.fork.everyDays, workshopDays: REMIND_DAYS, backupDays: BACKUP_DAYS, hotC: 30, eveRemindAt: 19 * 60 });
     expect(own.v).toEqual(OWN_DEFAULTS);
   });
   it('clamps typed values to sane ranges', () => {
@@ -33,6 +33,21 @@ describe('own values', () => {
     expect(clampOwn('waxKm', 'abc')).toBeNull();
     expect(clampOwn('waxKm', '')).toBeNull();
     expect(clampOwn('nope', 3)).toBeNull();
+  });
+  it('hot from 30 °C (20–40) and the evening-before reminder at 19:00 in 15-minute steps (Noah «3a 4b»)', () => {
+    expect(hotLimit(null)).toBe(30);
+    expect(eveRemindAt(null)).toBe('19:00');
+    expect(clampOwn('hotC', 15)).toBe(20);
+    expect(clampOwn('hotC', 45)).toBe(40);
+    expect(clampOwn('eveRemindAt', '20:30')).toBe(20 * 60 + 30);
+    expect(clampOwn('eveRemindAt', '20:37')).toBe(20 * 60 + 30);
+    expect(clampOwn('eveRemindAt', '7.15')).toBe(7 * 60 + 15);
+    expect(clampOwn('eveRemindAt', '24:00')).toBeNull();
+    expect(clampOwn('eveRemindAt', 'abends')).toBeNull();
+    expect(clampOwn('eveRemindAt', 2000)).toBe(23 * 60 + 45);
+    expect(timeText(0)).toBe('00:00');
+    expect(eveRemindAt(setOwn(null, 'eveRemindAt', '18:45'))).toBe('18:45');
+    expect(hotLimit(setOwn(null, 'hotC', 33))).toBe(33);
   });
   it('makes a stored record whole, broken fields fall back to the standard', () => {
     expect(normOwn(null)).toEqual(OWN_DEFAULTS);

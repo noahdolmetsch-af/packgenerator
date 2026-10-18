@@ -155,3 +155,23 @@ test('cold: the temperature rule the app suggests follows', async ({ page, conte
   await dialog.locator('details[data-fold="rules"] > summary').click();
   await expect(dialog.getByPlaceholder(T('e.g. {x}', { x: '6' }))).toBeVisible();
 });
+
+test('hot from and the evening-before reminder: settings only, standards 30 C and 19:00', async ({ page, context }, info) => {
+  await start(page, context, info);
+  await page.goto('./#/me/werte');
+  await expect(row(page, 'hotC')).toContainText(T('From this temperature the app warns you on the morning of the tour day.'));
+  await expect(row(page, 'hotC')).toContainText(T('Standard: {value}', { value: T('{n} °C', { n: 30 }) }));
+  await expect(row(page, 'eveRemindAt')).toContainText(T('Standard: {value}', { value: T('{time}|clock', { time: '19:00' }) }));
+  // a time in 15-minute steps: 20:37 becomes 20:30, the plus button adds 15 minutes
+  await row(page, 'eveRemindAt').getByRole('textbox', { name: T(FIELD.eveRemindAt.name) }).fill('20:37');
+  await row(page, 'eveRemindAt').getByRole('textbox', { name: T(FIELD.eveRemindAt.name) }).press('Enter');
+  await expect.poll(() => stored(page)).toEqual({ eveRemindAt: 20 * 60 + 30 });
+  await expect(row(page, 'eveRemindAt').getByRole('textbox')).toHaveValue('20:30');
+  await row(page, 'eveRemindAt').getByRole('button', { name: T('More: {name}', { name: T(FIELD.eveRemindAt.name) }) }).click();
+  await expect(row(page, 'eveRemindAt').getByRole('textbox')).toHaveValue('20:45');
+  await setValue(page, 'hotC', 33);
+  await expect.poll(() => stored(page)).toEqual({ eveRemindAt: 20 * 60 + 45, hotC: 33 });
+  await row(page, 'eveRemindAt').getByRole('button', { name: T('Back to Standard|value') }).click();
+  await row(page, 'hotC').getByRole('button', { name: T('Back to Standard|value') }).click();
+  await expect.poll(() => stored(page)).toBe(null);
+});
