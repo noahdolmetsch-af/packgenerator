@@ -14,8 +14,9 @@
   import { formatVolume, bikeTypeName } from '../bikes.js';
   import { formatWeight } from '../gear.js';
   import './standardvelo.css';
+  import MoreActions from '../ui/MoreActions.svelte';
 
-  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null, menu = [], link = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
@@ -47,6 +48,8 @@
   <h2 class="name">
     <span>{bike.name}</span>
     <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /></button>
+    <!-- Impeccable Runde 2 (Velos 2): the bike's «…», with «Link zu Hersteller und Garantie eintragen» -->
+    {#if menu.length}<span class="bmenu"><MoreActions title={bike.name} label={t('More for {title}', { title: bike.name })} actions={menu} /></span>{/if}
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}
@@ -54,6 +57,7 @@
     <span><Weight size={15} aria-hidden="true" />{#if kind === 'missing'}{t('bike not weighed')}{:else}<b>{kind === 'estimate' ? '~' : ''}{kg(bike.weightG)}</b> {kind === 'estimate' ? t('estimate') : t('measured')}{/if}</span>
     <span><Briefcase size={15} aria-hidden="true" />{tn(setup.bagCount, '{n} bag', '{n} bags')} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
     {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
+    {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
 </section>
@@ -186,6 +190,21 @@
     color: var(--ink-2);
     font-weight: 600;
   }
+  .bmenu {
+    flex: none;
+    display: inline-flex;
+    font: 400 var(--fs-body) / 1 var(--font-body);
+  }
+  .vb-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    overflow-wrap: break-word;
+  }
   .nw {
     display: inline-flex;
     align-items: center;
@@ -197,7 +216,8 @@
     position: relative;
     text-decoration: none;
   }
-  /* 44 px tap area around the small badge, without moving the layout. */
+  /* 44 px tap area around the small badge and the link, without moving the layout. */
+  .vb-link::after,
   .due::after {
     content: '';
     position: absolute;

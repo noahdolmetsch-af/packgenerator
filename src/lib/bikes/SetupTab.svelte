@@ -40,8 +40,14 @@
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
   import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
-  import Woanders from '../sk/Woanders.svelte'; // SK X9
-  import { slotOf } from '../sk/links.js';
+  // Impeccable Runde 2 (18.10.2026, Velos 2): «Hersteller und Garantie» (SK X9) is entered from the bike's «…»;
+  // under its name only once a link is there, as «Hersteller und Garantie ↗».
+  import { slotOf, LINKS, linkOn } from '../sk/links.js';
+  import { skLinks, watchLinks } from '../sk/linkstore.svelte.js';
+  import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
+  import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
+  import SkToast from '../sk/SkToast.svelte';
+  import { Pencil, EyeOff, ShieldCheck } from '@lucide/svelte';
   import { take } from '../nav.js';
   import { strava } from '../strava/client.svelte.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
@@ -108,12 +114,40 @@
     };
     setTimeout(show, 0);
   });
-  // «3 bikes · Gravel as the next one»: the bike of the next trip, when there is one.
-  const nextOn = $derived.by(() => {
+  // Impeccable Runde 2 (Velos 2): «4 bikes · next trip: {trip} on {date} with {bike}»; without a trip only the count.
+  const nextRide = $derived.by(() => {
     const n = nextTrip(($tripsQ ?? []).filter((x) => x.bikeId));
-    return n ? bikes.find((b) => b.id === n.bikeId) ?? null : null;
+    const b = n ? bikes.find((x) => x.id === n.bikeId) ?? null : null;
+    return n && b ? { trip: n, bike: b } : null;
   });
-  const sub = $derived([tn(bikes.length, '{n} bike', '{n} bikes'), nextOn ? t('{bike} as the next one', { bike: nextOn.name }) : ''].filter(Boolean).join(' · '));
+  const sub = $derived([tn(bikes.length, '{n} bike', '{n} bikes'), nextRide ? t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) : ''].filter(Boolean).join(' · '));
+
+  /* ---------- Velos 2: the maker and warranty link in the bike's «…» ---------- */
+  watchLinks();
+  const makerSlot = $derived(bike ? slotOf('x9', bike.id) : null);
+  const maker = $derived(makerSlot ? skLinks.own[makerSlot] ?? null : null);
+  const makerOn = $derived(linkOn(skLinks.off, 'x9'));
+  let makerEdit = $state(false);
+  let linkNote = $state(null);
+  function hideMaker() {
+    setLinkOff('x9', true);
+    linkNote = { text: t('«{name}» no longer shown', { name: t(LINKS.x9.label) }), undo: () => setLinkOff('x9', false) };
+  }
+  const bikeMenu = $derived(
+    bike
+      ? [
+          { name: t('Edit|bike'), explain: t('Name, type, weight and more'), icon: Pencil, run: () => (bikeDialog = { bike }) },
+          ...(makerOn
+            ? [
+                maker
+                  ? { name: t('Change the maker and warranty link'), explain: maker.url, icon: ShieldCheck, run: () => (makerEdit = true) }
+                  : { name: t('Enter a link to maker and warranty'), explain: t('Warranty and recalls · your own link'), icon: ShieldCheck, run: () => (makerEdit = true) },
+                { name: t('Don’t show «{name}» any more', { name: t(LINKS.x9.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: hideMaker },
+              ]
+            : []),
+        ]
+      : [],
+  );
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
@@ -311,9 +345,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} />
-    <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
-    <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
+    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
@@ -381,7 +413,16 @@
         <section class="vsec" aria-labelledby="pa-h">
           <div class="vh"><div class="vh-t"><h2 id="pa-h">{t('Care and equipment')}</h2><p class="vh-s num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : '', bike.weightG ? `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}` : ''].filter(Boolean).join(' · ')}</p></div></div>
           <ul class="card vlist vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
-            <li><a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care" class:late={careWords?.tone === 'late' || careWords?.tone === 'due'}><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{careWords?.text || careWords?.tag || ''}</small></span>{#if care?.rows.length}<i class="pill warn">{careWords.tag}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <!-- Impeccable Runde 2 (Velos 3): with something due, «Bike care» is the one main button of the page;
+                 otherwise a calm row, «… parts without a start value · enter now» when data is missing. -->
+            <li>
+              {#if care?.rows.length}
+                <a class="btn hi vk-care" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><Wrench size={18} aria-hidden="true" />{tn(care.rows.length, 'See care · {n} due', 'See care · {n} due')}</a>
+                <p class="vk-care-s">{careWords?.text}</p>
+              {:else}
+                <a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{care?.gaps && !care.kmMissing ? tn(care.gaps, '{n} part without a start value · enter now', '{n} parts without a start value · enter now') : careWords?.text || careWords?.tag || ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+              {/if}
+            </li>
             <li>
               <SetupFold flat icon={Package} label={t('Always mounted')} summary={[(bike.fixtures ?? []).map((f) => (itemsById[f] ? nameOf(itemsById[f]) : f)).join(', ') || t('nothing'), weightWords].join(' · ')}>
                 <div class="details-in">
@@ -413,9 +454,10 @@
           </ul>
         </section>
 
-        <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care) -->
+        <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care).
+             Impeccable Runde 2 (Velos 3): a normal button; the km mostly come by themselves. -->
         <div class="card vk-imp">
-          <a class="btn hi vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={18} aria-hidden="true" />{t('Import rides')}</a>
+          <a class="btn vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={18} aria-hidden="true" />{t('Import rides')}</a>
           <p class="vk-imp-s">{t('Strava file or GPX · counts the km for every part')}</p>
           <!-- WS5: Strava right here, one tap to connect (or to see it, when connected) -->
           <a class="vk-row vk-strava" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{strava.key ? t('connected: new rides come by themselves') : t('connect: new rides come by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
@@ -471,6 +513,11 @@
   {/if}
   {#if !bike}{@render settings()}{@render yourBags()}{/if}
 </div>
+
+{#if makerEdit && bike}
+  <OwnLinkSheet title={t('Enter a link')} context={bike.name} value={maker} name={t(LINKS.x9.label)} onsave={(v) => setOwnLink(makerSlot, v)} onremove={maker ? () => removeOwnLink(makerSlot) : null} onoff={hideMaker} onclose={() => (makerEdit = false)} />
+{/if}
+<SkToast bind:note={linkNote} />
 
 <!-- v0.40.0 (design check R1/R2): the empty places as one row "4 places empty ›"; open, each one as before. -->
 {#snippet empties(list)}
@@ -752,6 +799,17 @@
   .vk-go {
     width: 100%;
     box-sizing: border-box;
+  }
+  .vk-care {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 12px 0 0;
+  }
+  .vk-care-s {
+    margin: 6px 0 12px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    overflow-wrap: break-word;
   }
   .vk-imp-s {
     margin: 0;
