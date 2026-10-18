@@ -28,4 +28,8 @@ export default {
   '{n} piece of clothing for everyday': '{n} Kleidungsstück für den Alltag',
   '{n} pieces of clothing for everyday': '{n} Kleider für den Alltag',
   'Cycling: what you wear on the bike. Everyday: everything else. All: both together.': 'Velo: was du auf dem Velo trägst. Alltag: alles andere. Alle: beides zusammen.',
-  'Hide this note': 'Hinweis ausblenden',};
+  'Hide this note': 'Hinweis ausblenden',
+  // Favoriten 1: the suggestions on top; Favoriten 2: the bar said once
+  '{n} suggestion: often with you, no star yet': '{n} Vorschlag: oft dabei, noch ohne Stern',
+  '{n} suggestions: often with you, no star yet': '{n} Vorschläge: oft dabei, noch ohne Stern',
+  'Bar: the weight of the favourites against the heaviest kind': 'Balken: Gewicht der Favoriten im Vergleich zur schwersten Art',};
