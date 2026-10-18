@@ -23,12 +23,12 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Lightbulb, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
-  import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
+  import { flowStates, rings as ringsOf, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
   import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
   import { openTimer, actName, goalName } from '../lib/flow/ui.svelte.js';
@@ -88,22 +88,14 @@
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
-  const sum = $derived(summary(states));
   // WS6 (Noah 3a): what counts for «Erholung», folded open under the rings, with «zuletzt am»
   const rest = $derived(restRows(states, data?.log ?? [], today));
   const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const week = lastDays(today, 7);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
-  const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
-  const sumLine = $derived.by(() => {
-    const met = sum.met.map(actName);
-    // v0.69.1 G: «Yoga Yoga Studio» → «Yoga Studio»; a sub-goal without the name: «Yoga (Zuhause)»
-    const subOf = (m) => (goalName(m.goal).toLowerCase().includes(actName(m.act).toLowerCase()) ? goalName(m.goal) : `${actName(m.act)} (${goalName(m.goal)})`);
-    const miss = sum.missing.map((m) => (m.goal ? subOf(m) : `${m.n}× ${actName(m.act)}`));
-    const a = met.length ? t('{list} on track.', { list: list(met) }) : '';
-    const b = miss.length ? t('{list} still to do.', { list: list(miss) }) : met.length ? t('Everything on track.') : '';
-    return [a, b].filter(Boolean).join(' ');
-  });
+  // Impeccable (18.10.2026, distill): «Noch offen heute» is one count under «Heute abhaken»; the tiles show the names
+  const onTrack = $derived(live.filter((s) => s.met || (s.daily && !s.open)).length);
+  const tickSub = $derived([live.length ? t('{n} of {m} on track', { n: onTrack, m: live.length }) : '', phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')].filter(Boolean).join(' · '));
 
   // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
   const route = $derived(sub.split('?')[0].split('/'));
@@ -143,11 +135,8 @@
   let seasonOpen = $state(false);
   // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
   const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
-  const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
+  // Impeccable (18.10.2026, distill): «Ziele × Tage», «Meditation» and «Aktivität und Meilensteine» are the tabs above, so «Mehr» keeps the rest
   const moreRows = $derived([
-    { key: 'goals', icon: Pulse, title: t('Goals × days'), sub: rings.move.of ? t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of }) : '', href: '#/flow/goals' },
-    ...(medAct ? [{ key: 'med', icon: Lightbulb, title: actName(medAct), sub: t('start, log, more'), href: `#/flow/act/${encodeURIComponent(medAct.id)}` }] : []),
-    { key: 'activity', icon: Star, title: t('Activity and milestones'), href: '#/flow/activity' },
     { key: 'timer', icon: Timer, title: t('Stopwatch'), sub: t('runs until you are done, then ticks off'), onclick: () => openTimer() },
     ...(season ? [{ key: 'season', icon: Sun, title: t('Season'), sub: `${season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}${season.next ? ` · ${season.half === 'summer' ? t('Winter from {date}', { date: dayShort(season.next) }) : t('Summer from {date}', { date: dayShort(season.next) })}` : ''}`, onclick: () => (seasonOpen = !seasonOpen), expanded: seasonOpen }] : []),
   ]);
@@ -312,7 +301,8 @@
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
-          <Sec id="tick-h" title={t('Tick off today')} sub={phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')}>
+          <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
+          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
@@ -361,11 +351,6 @@
           <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
             <div class="card">{@render checkRow()}</div>
           </Sec>
-          {#if sumLine}
-            <Sec id="open-h" title={t('Still open today|aktiv')}>
-              <p class="card sumline">{sumLine}</p>
-            </Sec>
-          {/if}
           <Sec id="more-h" title={t('More|item')}>
             <Rows rows={moreRows} open={seasonList} />
           </Sec>
@@ -425,7 +410,7 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  /* 0.136.0: on a phone the floating «Stoppuhr» button sits over the page end; room below the last tiles */
+  /* 0.136.0: on a phone the small running clock floats over the page end; room below the last tiles */
   @media (max-width: 719px) {
     .flow {
       padding-bottom: 72px;
@@ -553,11 +538,6 @@
     justify-content: space-between;
     color: var(--ink-3);
     font-size: var(--fs-tiny);
-  }
-  .sumline {
-    margin: 0;
-    font-size: var(--fs-body);
-    line-height: 1.45;
   }
   .crow {
     display: flex;
