@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 110 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 111 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -368,6 +368,18 @@ Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Ad
 3. Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.
 
 **Beispiel:** Ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.
+
+### Sportart einer Tour
+
+Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren oder Wandern: Jede Velo-Sportart bringt ihr eigenes Standard-Velo.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Wähle in Neue Tour die Sportart: Die meistgenutzten stehen zuerst.
+2. Eine Velo-Sportart bringt ihr Standard-Velo; tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.
+3. Auf Touren schlägt «Neu: Jede Tour hat eine Sportart» eine Sportart für deine alten Velotouren vor.
+
+**Beispiel:** Gravel → das Gravel-Velo ist vorgewählt; 2 Tage mit Hotel → der Hinweis «Zu Bikepacking».
 
 ### Tour aus komoot
 
