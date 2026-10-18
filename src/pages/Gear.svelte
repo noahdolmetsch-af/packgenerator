@@ -18,8 +18,12 @@
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: tiles at the page end, X7 at each wish
-  import Woanders from '../lib/sk/Woanders.svelte';
-  import { slotOf } from '../lib/sk/links.js';
+  // Impeccable runde 2 (Einkauf 2): the shop link of a wish only when there is one; «Enter shop link» in the row's «…»
+  import OwnLinkSheet from '../lib/sk/OwnLinkSheet.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import { slotOf, linkOn } from '../lib/sk/links.js';
+  import { skLinks, watchLinks } from '../lib/sk/linkstore.svelte.js';
+  import { setOwnLink, removeOwnLink, setLinkOff } from '../lib/sk/store.js';
   import AssignDialog from '../lib/gear/AssignDialog.svelte';
   import { assignSet } from '../lib/gear/assign.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
@@ -34,7 +38,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
@@ -343,11 +347,16 @@
   const shownAs = $derived(selecting ? 'list' : display);
   // v0.102.0 Design-Refresh P3 (M1): the chosen item shows on the right in the list too (computer)
   const showPanel = $derived(wideQ.current && !mode);
-  const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? sorted[0] ?? null) : null);
+  // Impeccable runde 2 (18.10.2026, Material 2): nothing chosen, nothing shown: a calm card says what a tap shows
+  // (it was the first item of the order, e.g. a passport, which looked random)
+  const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? null) : null);
   function pickCard(item) {
-    if (showPanel && picked1 !== item.id && selItem?.id !== item.id) return (picked1 = item.id);
+    if (showPanel && selItem?.id !== item.id) return (picked1 = item.id);
     open(item);
   }
+  // Einkauf in the right column: the price and why it is on the list (the price is its own row)
+  const priceOf = (item) => (typeof item?.priceChf === 'number' && item.priceChf > 0 ? `CHF ${item.priceChf.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '');
+  const whyOf = (item) => (reasonsOf[item.id] ?? []).filter((r) => !r.startsWith('CHF '));
   async function leaveAtHome(item) {
     await markHome(item);
   }
@@ -528,6 +537,15 @@
     undoTimer = setTimeout(() => (undo = null), ms);
     picked.clear();
   }
+  // Impeccable runde 2 (Einkauf 2): a wish's own shop link (SK X7): shown as a small link only when entered
+  watchLinks();
+  const shopOn = $derived(linkOn(skLinks.off, 'x7'));
+  const shopLink = (item) => (shopOn ? skLinks.own[slotOf('x7', item.id)] ?? null : null);
+  let shopFor = $state(null); // the wish whose link window is open
+  const wishActions = (item) => [
+    ...(shopOn ? [shopLink(item) ? { name: t('Change shop link'), explain: t('Your own link to the shop'), icon: Pencil, run: () => (shopFor = item) } : { name: t('Enter shop link'), explain: t('Your own link to the shop'), icon: Link2, run: () => (shopFor = item) }] : []),
+    { name: t('Open|item'), explain: t('Open and edit'), icon: ExternalLink, run: () => open(item) },
+  ];
   // Impeccable (18.10.2026): «Bought» on a row of «Shopping»: the wish becomes my gear, 4 s Undo;
   // without a weight the bar also offers «Add weight» (it opens the item as it is now).
   const bought = (item) =>
@@ -654,10 +672,18 @@
           </details>
         </div>
         </ListBar>
-        <!-- one quiet line: how it is sorted, list or cards, select -->
+        <!-- one quiet line: how it is sorted, list or cards, select.
+             Impeccable runde 2 (Material 3): «Compact | With bag» joins this line; on a phone both toggles live in
+             «Sort and filter» under «Display» (one tap more), so the first categories come up a screen earlier -->
         <div class="metaline">
           <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
           {@render showAs()}
+          {#if !phone.matches && tab === 'inventory' && shownAs === 'list'}
+            <span class="seg bagseg" role="group" aria-label={t('Show the bag')}>
+              <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
+              <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
+            </span>
+          {/if}
         </div>
 
         {#if fill}
@@ -684,21 +710,24 @@
             <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
             <p class="vs">{VIEW_TEXT[view]}</p>
           </div>
+          <!-- Impeccable runde 2 (Material 3): under «All» the head line has these numbers already; the tiles show
+               only in a filtered view, where they count something else -->
+          {#if view !== 'all'}
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
             <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.g)}</dd></div>
             {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
+          {/if}
         </section>
         {/if}
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
         {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={18} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
 
-        {#if toWeigh && !selecting && !searching}
+        {#if toWeigh && !selecting && !searching && !(shownAs === 'list' && tab === 'inventory')}
           <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
-          <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
-          <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button></p>
+          <p class="weighrow">{@render weighLink()}</p>
         {/if}
         {#if shownAs === 'cards'}
           {#if sorted.length}
@@ -722,10 +751,8 @@
               {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
               {#if view === 'fav'}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
             </p>
-            <span class="seg" role="group" aria-label={t('Show the bag')}>
-              <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
-              <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
-            </span>
+            <!-- Impeccable runde 2 (Material 3): «60 without weight · weigh now» on the count line (one row less) -->
+            {#if toWeigh && !selecting && !searching}<span class="weighin">{@render weighLink()}</span>{/if}
           </div>
           <!-- SL2 (answer 2a): the jump bar, on a phone as chips -->
           {#if !searching}<div class="jump-ph"><ListNav groups={catJumps} active={activeCat} onjump={jump} /></div>{/if}
@@ -778,16 +805,20 @@
                     {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
                   {:else}
                     <FavStar {item} describedby="gn-{item.id}" />
-                    <button type="button" class:wl={item.ownership === 'wishlist'} onclick={() => open(item)}>
-                      <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
+                    <!-- Impeccable runde 2 (Einkauf 2): the whole list is wishes, so only «To buy» keeps its chip -->
+                    <button type="button" class:wl={item.ownership !== 'to-buy'} class:picked={showPanel && selItem?.id === item.id} onclick={() => openRow(item)}>
+                      {#if item.ownership === 'to-buy'}<span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>{/if}
                       <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                       <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                       <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
                     </button>
-                    <!-- Impeccable (18.10.2026): one tap in the shop: it moves to my gear, with Undo -->
-                    <span class="buyw"><button type="button" class="btn sm buy" aria-label={t('Bought: {name}', { name: nameOf(item) })} disabled={busy} onclick={() => bought(item)}><Check size={16} aria-hidden="true" />{t('Bought|shop')}</button></span>
-                    <!-- SK X7 (SKX1): «Im Shop ansehen», your own link for this wish -->
-                    <div class="skw"><Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} /></div>
+                    <!-- Impeccable (18.10.2026): one tap in the shop: it moves to my gear, with Undo.
+                         Impeccable runde 2 (Einkauf 2): «Im Shop ansehen ↗» only when a link is entered; «…» enters or changes it -->
+                    <span class="buyw">
+                      {#if shopLink(item)}<a class="shopl" href={shopLink(item).url} target="_blank" rel="noopener noreferrer" data-shop-link={item.id}>{shopLink(item).name || t('View in the shop')}<ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>{/if}
+                      <button type="button" class="btn sm buy" aria-label={t('Bought: {name}', { name: nameOf(item) })} disabled={busy} onclick={() => bought(item)}><Check size={16} aria-hidden="true" />{t('Bought|shop')}</button>
+                      <MoreActions small title={nameOf(item)} label={t('More for {name}', { name: nameOf(item) })} actions={wishActions(item)} />
+                    </span>
                   {/if}
                 </li>
               {:else}
@@ -819,6 +850,13 @@
       <!-- v0.102.0 Design-Refresh P3 (M1): the right column: the chosen item, then the views as one card
            (on a phone and a narrow window both come under the list) -->
       <div class="rcol">
+        {#if showPanel && !selItem}
+          <!-- Impeccable runde 2 (Material 2): no choice yet, a calm card instead of a random item -->
+          <aside class="detail dnone" aria-labelledby="det-none-h" data-detail-none>
+            <h2 id="det-none-h" class="title">{t('Tap an item')}</h2>
+            <p class="dnt">{view === 'wish' ? t('On the right you see its price, why it is on the list and «Bought».') : t('On the right you see how often it was along, its year on tour and lighter alternatives.')}</p>
+          </aside>
+        {/if}
         {#if showPanel && selItem}
           <!-- v0.47.2 (Noah 8a): the chosen item in detail; "Open and edit" opens the item window -->
           <aside class="detail" aria-labelledby="det-h">
@@ -828,12 +866,24 @@
             </div>
             <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : '', proven(selItem) ? `★ ${t('Proven')}` : ''].filter(Boolean).join(' · ')}</p>
             <div class="dcard">
+              {#if view === 'wish' && (selItem.ownership === 'wishlist' || selItem.ownership === 'to-buy')}
+                <!-- Impeccable runde 2 (Material 2): a wish says its price and why it is on the list, not its year on tour -->
+                <dl class="dwish">
+                  <div><dt>{t('Price')}</dt><dd class="num" class:muted={!priceOf(selItem)}>{priceOf(selItem) || t('no price yet')}</dd></div>
+                  <div><dt>{t('Why on the list')}</dt><dd>{whyOf(selItem).length ? whyOf(selItem).join(' · ') : t('You put it on the list yourself.')}</dd></div>
+                </dl>
+                <div class="dacts">
+                  <button type="button" class="btn hi" disabled={busy} onclick={() => bought(selItem)}><Check size={16} aria-hidden="true" />{t('Bought: to my gear')}</button>
+                  <button type="button" class="btn" onclick={() => open(selItem)} data-explain={t('Open and edit')}>{t('Open|item')}</button>
+                </div>
+              {:else}
               <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
               <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
               <div class="dacts">
                 <button type="button" class="btn hi" onclick={() => open(selItem)} data-explain={t('Open and edit')}>{t('Open|item')}</button>
                 <button type="button" class="btn" onclick={() => assignOne(selItem)}>{t('Assign …')}</button>
               </div>
+              {/if}
             </div>
           </aside>
         {/if}
@@ -853,8 +903,13 @@
   {/if}
 </div>
 
+{#snippet weighLink()}
+  <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
+  <button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh now', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button>
+{/snippet}
+
 {#snippet showAs()}
-  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>
+  {#if !phone.matches}<span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>{/if}
   <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
   <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
@@ -929,7 +984,7 @@
 {/snippet}
 
 {#if sheet}
-  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} total={base.length} cats={catOpts} bags={bagOpts} areas={areaOpts} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
+  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} total={base.length} cats={catOpts} bags={bagOpts} areas={areaOpts} look={phone.matches ? { display, showBag, bagOk: tab === 'inventory' && !selecting } : null} onlook={(p) => { if (p.display) setDisplay(p.display); if ('showBag' in p) setShowBag(p.showBag); }} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
 {/if}
 
 {#snippet nothing()}
@@ -997,6 +1052,12 @@
       </div>
     {/if}
   </div>
+{/if}
+
+{#if shopFor}
+  {@const it = shopFor}
+  {@const slot = slotOf('x7', it.id)}
+  <OwnLinkSheet title={t('Enter a link')} context={[t('View in the shop'), nameOf(it)].join(' · ')} value={skLinks.own[slot] ?? null} name={t('View in the shop')} onsave={(v) => setOwnLink(slot, v)} onremove={skLinks.own[slot] ? () => removeOwnLink(slot) : null} onoff={() => setLinkOff('x7', true)} onclose={() => (shopFor = null)} />
 {/if}
 
 {#if assign}
@@ -1662,20 +1723,34 @@
       padding: 0 8px 8px 52px;
     }
   }
-  /* SK X7: the «Woanders» row under a wish, over the row's width */
   .wish .fr {
     flex-wrap: wrap;
   }
-  .wish .skw {
-    flex-basis: 100%;
-    min-width: 0;
-    padding: 0 8px 10px;
+  /* Impeccable runde 2 (Einkauf 2): the own shop link, small, beside «Bought» */
+  .shopl {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
   }
-  .wish .skw :global(.sk-wo) {
-    margin-top: 0;
+  .shopl:hover {
+    color: var(--ink);
+  }
+  .wish .buyw {
+    gap: 4px;
   }
   .wish .rows button:not(.btn) {
     grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  /* Impeccable runde 2: the wish shown in the right column */
+  .wish .rows button.picked {
+    background: var(--paper-2);
   }
   .wish .st {
     grid-row: 1 / span 2;
@@ -1722,6 +1797,19 @@
     }
     .wish .w {
       grid-column: 4;
+    }
+    /* Impeccable runde 2 (Einkauf 2): no «Wishlist» chip on a computer either; the name takes its column */
+    .wish .rows button.wl {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 140px) 80px;
+    }
+    .wish .rows button.wl .nm {
+      grid-column: 1;
+    }
+    .wish .rows button.wl .bg {
+      grid-column: 2;
+    }
+    .wish .rows button.wl .w {
+      grid-column: 3;
     }
   }
   .st {
@@ -1968,8 +2056,51 @@
     margin: -4px 0 8px;
     font-size: var(--fs-small);
   }
-  .weighrow .link {
+  .weighrow .link,
+  .weighin .link {
     color: var(--ink-2);
+  }
+  .weighin {
+    font-size: var(--fs-small);
+  }
+  /* Impeccable runde 2 (Material 2): no item chosen yet: a quiet card, no numbers */
+  .dnone {
+    padding: 18px 20px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-card);
+  }
+  .dnone .title {
+    font-size: var(--fs-sub);
+    font-weight: 600;
+  }
+  .dnt {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  /* a wish in the right column: price and why, as two rows */
+  .dwish {
+    display: grid;
+    gap: 0;
+    margin: 0 0 14px;
+  }
+  .dwish div {
+    display: grid;
+    grid-template-columns: 9em minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dwish dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .dwish dd {
+    margin: 0;
+  }
+  .dwish dd.muted {
+    color: var(--ink-3);
   }
   .fillbar {
     margin-top: 4px;
@@ -2049,20 +2180,21 @@
       flex-basis: 100%;
     }
   }
-  .viewbar .seg {
+  .bagseg {
+    margin-left: auto;
     border: 0;
     padding: 3px;
     border-radius: 12px;
     background: var(--paper-2);
   }
-  .viewbar .seg button,
-  .viewbar .seg button + button {
+  .bagseg button,
+  .bagseg button + button {
     border: 0;
     border-radius: 9px;
     background: transparent;
     color: var(--ink-2);
   }
-  .viewbar .seg button[aria-pressed='true'] {
+  .bagseg button[aria-pressed='true'] {
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 1px 3px var(--shadow);

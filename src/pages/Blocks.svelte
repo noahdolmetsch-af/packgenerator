@@ -30,7 +30,7 @@
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
   import { NIGHT_BLOCKS, RIDE_BLOCKS, OUTDOOR_BLOCKS } from '../lib/context.js';
-  import { REVIEW_KEY, reviewOpen } from '../lib/blocksplit.js';
+  import { REVIEW_KEY, reviewOpen, reviewBlocks } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
@@ -62,6 +62,8 @@
   // v0.66.0: «Bausteine prüfen» says when something from the update is still to check.
   const reviewQ = liveQuery(() => db.settings.get(REVIEW_KEY));
   const toCheck = $derived(reviewOpen($reviewQ?.value));
+  // Impeccable runde 2 (Bausteine 2): the chip says how many blocks wait, and leads there
+  const checkN = $derived(reviewBlocks($reviewQ?.value));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   // SN3+: the seven blocks «je nach Lage», their rules, an own rain block that follows the rule Regen
   const sitCards = $derived(SITUATION_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
@@ -304,7 +306,8 @@
 <div class="blocks">
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Building blocks')} extra={headSub}>
     <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere; SN3: a normal button -->
-    <Btn icon={ListChecks} label={t('Check|blocks')} explain={t('Check building blocks')} sub={toCheck ? t('to check|blocks') : ''} href="#/blocks/check" />
+    <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
+    <Btn icon={ListChecks} label={t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
   {#if adding}
@@ -406,7 +409,7 @@
       <p>{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
       <p>{t('Tools are never called "not needed" in the debrief.')}</p>
     </Help>
-    {#if toCheck}<i class="nbadge">{t('to check|blocks')}</i>{/if}
+    {#if toCheck}<a class="nbadge chk tap" href="#/blocks/check">{tn(checkN, '{n} building block to check', '{n} building blocks to check')} ›</a>{/if}
   </p>
 {/snippet}
 

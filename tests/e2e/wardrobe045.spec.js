@@ -6,6 +6,7 @@
 // blocked, the home forecast is written into the app's database. Service workers are blocked
 // (playwright.config.js). V045_SHOTS=<folder> saves the screenshots of the new screens there.
 import { test, expect } from '@playwright/test';
+import { openLayers } from './wardrobe-open.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -136,6 +137,7 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   await noSideScroll(page);
   await card.getByRole('link', { name: T('Open the wardrobe') }).click();
   await expect(page).toHaveURL(/#\/wardrobe$/);
+  await openLayers(page); // Impeccable runde 2: a phone shows the layers closed
 
   // 8. The offset in the header, Reset and Undo.
   const off = page.locator('p.offset');

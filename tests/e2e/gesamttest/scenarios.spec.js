@@ -286,7 +286,7 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   // weigh: skip to the new item, 245 g
   await page.goto('./#/gear');
   await page.reload();
-  await page.getByRole('button', { name: new RegExp(esc(T('{n} without weight · weigh', { n: 'X' })).replace('X', '\\d+')) }).click();
+  await page.getByRole('button', { name: new RegExp(esc(T('{n} without weight · weigh now', { n: 'X' })).replace('X', '\\d+')) }).click();
   const weigh = page.locator('section.weigh');
   const name = weigh.locator('.name');
   await expect(name).toBeVisible();
