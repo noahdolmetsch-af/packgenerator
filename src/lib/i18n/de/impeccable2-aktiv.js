@@ -16,4 +16,12 @@ export default {
   'Tap a planned one to change it.': 'Eine geplante antippen zum Ändern.',
   'No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.':
     'Noch keine Trainingszeit in den letzten 6 Wochen. Sobald Strava eine Aktivität mit Puls bringt, steht hier pro Woche ein Balken.',
+  // Ziele: three calm states, «Reihenfolge ändern» on a phone, the year goals' switch says «zeigen»
+  'Your goals, last 7 days': 'Deine Ziele, letzte 7 Tage',
+  '{n}× more in {d} days': 'noch {n}× in {d} Tagen',
+  'until tomorrow|goal': 'bis morgen',
+  'until the day after tomorrow|goal': 'bis übermorgen',
+  'Change the order': 'Reihenfolge ändern',
+  'Done|order': 'Fertig',
+  'show|goal': 'zeigen',
 };

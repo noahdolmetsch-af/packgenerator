@@ -59,3 +59,26 @@ test('Training: the subtitle fits the week, the empty look back says why and lea
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+test('Ziele: calm states instead of «! heute offen» everywhere, the year goals say «zeigen»', async ({ page, context }) => {
+  const errors = await open(page, context);
+  const main = page.locator('main');
+  await go(page, '#/flow/goals');
+  await expect(main.locator('#acts-h')).toHaveText(T('Your goals, last 7 days'));
+  const rows = main.locator('ul.acts > li[data-id]');
+  await expect(rows.first()).toBeVisible();
+  // «heute offen» only for a daily goal; a rolling goal not on track is grey, without «!»
+  const left = main.locator('[data-pill="left"]');
+  expect(await left.count()).toBeGreaterThan(0);
+  await expect(left.first()).toHaveText(new RegExp(T('{n}× more in {d} days', { n: '\\d+', d: '\\d+' })));
+  await expect(left.first()).not.toHaveClass(/warn/);
+  for (const p of await main.locator('[data-pill="today"]').all()) {
+    const row = p.locator('xpath=ancestor::li[1]');
+    await expect(row.locator('small').first()).toContainText(/täglich|pro Tag|jeden Tag|\/ ?Tag/i);
+  }
+  // the year goals' switch says what it does
+  const yg = main.locator('[data-section="year-goals"] [data-goal="km"]');
+  await expect(yg.locator('label.ygsw')).toContainText(T('show|goal'));
+  await expect(yg.getByRole('switch')).toBeChecked();
+  expect(errors).toEqual([]);
+});

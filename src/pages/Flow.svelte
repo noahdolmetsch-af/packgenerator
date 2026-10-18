@@ -201,6 +201,25 @@
     if (i >= 0 && i !== from) move(dragId, i);
   }
   const gripUp = () => (dragId = null);
+  // Impeccable runde 2 (distill): moving is rare, reading is daily; on a phone the grip and the arrows wait for «Reihenfolge ändern»
+  let reorder = $state(false);
+  const sorting = $derived(!phone.matches || reorder);
+
+  /* Impeccable runde 2 (clarify): three calm states instead of «! heute offen» on nearly every goal.
+     A daily goal not done today: «heute offen» (orange). A rolling goal not on track: «noch 1× in 10 Tagen»
+     (grey, no «!»). A rolling goal on track whose window runs out in 1–2 days without a new entry:
+     «bis morgen» / «bis übermorgen» (orange). Else «im Soll». */
+  function goalPill(s) {
+    if (s.met || (s.daily && !s.open)) {
+      const due = s.daily ? null : Math.min(...s.goals.filter((r) => r.goal.days > 1 && r.dueIn != null).map((r) => r.dueIn));
+      if (due === 1) return { key: 'due', cls: 'warn', text: t('until tomorrow|goal') };
+      if (due === 2) return { key: 'due', cls: 'warn', text: t('until the day after tomorrow|goal') };
+      return { key: 'ok', cls: 'ok', text: t('on track') };
+    }
+    if (s.open) return { key: 'today', cls: 'warn', text: t('open today') };
+    const r = s.goals.find((x) => !x.met);
+    return { key: 'left', cls: '', text: t('{n}× more in {d} days', { n: r.goal.count - r.done, d: r.goal.days }) };
+  }
 
   /* v0.86.0 «Meditation einfach»: a tap on Meditation in «Heute abhaken» opens the start sheet (mockup A) */
   let medFor = $state(null);
@@ -258,8 +277,10 @@
     </div>
     <div class="lay">
       <div class="col">
-        <Sec id="acts-h" title={t('Goals × days')} sub={t('Dots = last 7 days · today on the right')}>
-          <ul class="acts card" bind:this={listEl}>
+        <!-- Impeccable runde 2 (distill): on a phone grip and arrows come after «Reihenfolge ändern»; a computer keeps them -->
+        <Sec id="acts-h" title={t('Your goals, last 7 days')} sub={t('Dots = last 7 days · today on the right')} more={phone.matches ? { label: reorder ? t('Done|order') : t('Change the order'), onclick: () => (reorder = !reorder), expanded: reorder } : null}>
+          {#if phone.matches && reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
+          <ul class="acts card" class:sorting={sorting} bind:this={listEl}>
             {#each all as a, i (a.id)}
               {@const s = stateOf.get(a.id)}
               {#if ringF === 'all' || a.ring === ringF}
@@ -270,15 +291,18 @@
                     {#if s && !s.resting}
                       <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
                       <span class="st num">{s.stand.n} / {s.stand.of}</span>
-                      <span class="bdw"><span class="pill {s.met || (s.daily && !s.open) ? 'ok' : 'warn'}">{s.met || (s.daily && !s.open) ? t('on track') : t('open today')}</span></span>
+                      {@const p = goalPill(s)}
+                      <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
                     {:else}
                       <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
                       <span class="st num">–</span>
                       <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
                     {/if}
                   </a>
-                  <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
-                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
+                  {#if sorting}
+                    <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                    <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
+                  {/if}
                 </li>
               {/if}
             {/each}
@@ -293,7 +317,7 @@
         {/if}
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
-        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>
+        {#if !phone.matches}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
       </aside>
     </div>
   </div>
@@ -731,5 +755,12 @@
   .note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  /* Impeccable runde 2: without grip and arrows (a phone, not reordering) the row ends with the same gutter as it starts */
+  .acts:not(.sorting) {
+    padding-right: var(--sp-4);
+  }
+  .ronote {
+    margin: 0 2px var(--sp-2);
   }
 </style>
