@@ -16,6 +16,7 @@
   import BlockCheck from './pages/BlockCheck.svelte';
   import Features from './pages/Features.svelte';
   import Helper from './pages/Helper.svelte';
+  import Assistent from './pages/Assistent.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
@@ -33,7 +34,7 @@
   import { rainLimitOf, setRainLimit } from './lib/rainlimit.svelte.js';
   import { db } from './lib/db.js';
   import { wide } from './lib/media.svelte.js';
-  import { Plus } from '@lucide/svelte';
+  import { Plus, MessageCircle } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
@@ -318,6 +319,8 @@
   <header class="top">
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
+      <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
+      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
       <Search compact />
       {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
@@ -432,6 +435,9 @@
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
     <InvoiceNew />
+  {:else if page === 'assistent'}
+    <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
+    <Assistent {hash} />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -539,6 +545,15 @@
   }
   .plus:hover {
     background: var(--hi-hover);
+  }
+  .asst-ic {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--ink);
   }
   .tools {
     display: flex;

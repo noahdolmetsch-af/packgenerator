@@ -378,4 +378,9 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // «Assistent» (15.10.2026)
+  'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.': 'Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.',
+  'Ask the app: type a question or tap an example; the answer comes from your data, with a link.': 'Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.',
+  'Help me plan: answer four short questions, check the plan, «Create the trip».': 'Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».',
+  'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».': 'Beispiel: «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».',
 };

@@ -1440,3 +1440,10 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Modell (Noah «2a, wobei nutzer dies ändern kann im frontend»):** Sonnet 5.5 bleibt Standard; die App kann Haiku 5.5 wählen. Der Server nimmt nur Modelle aus `MODEL_CHOICES`, sonst `HELPER_MODEL`.
 - **Infotext (Noah «3b», dann «erstelle selber einen vorschlag … dann ok»):** Klappe «Nutzung und Kosten» unter Ich › KI-Helfer › Einrichtung.
 - **Selbst entschieden:** Ein gespeichertes Limit von genau CHF 5 (alter Standard) zählt einmalig als CHF 2; jedes Speichern merkt `capV: 2`, ein später gewähltes Limit von 5 bleibt.
+
+## 15.10.2026: Assistent (Paket B Server)
+
+- **Noah «1 beides 2a und b 3 a und b»:** «Frag die App» und «Hilf mir planen»; gratis (Regeln + Chrome-KI) und Claude; eigener Knopf und in der Suche.
+- **Selbst entschieden:** Claude antwortet nur, wenn der KI-Helfer eingeschaltet ist (Monatslimit); sonst bleibt alles gratis. Knopf in der Seitenleiste unter «Suchen» und am Handy neben der Suche; Heute bleibt unverändert (Regel 13).
+- **Noah «ich möchte diese info im front end ersichtlich machen», «spezifisch sollen diese beispiele in der app als beispiele angezeigt werden»:** Klappe «So antwortet der Assistent» mit Beispielen; bei Claude nur, was schon gebaut ist.
+- **Wetter im Plan:** kommt in «Neue Tour» für den Ort der Tour (der Plan kennt noch keinen Ort).

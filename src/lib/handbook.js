@@ -111,6 +111,11 @@ export const HANDBOOK = {
     steps: ['In the dark trip band, tap the small «more» button.', 'Choose the other trip.'],
     example: 'Example: from «Lake loop» to «Alps weekend» without going back to Trips.',
   },
+  'f.assistent': {
+    on: 'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.',
+    steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
+    example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
+  },
   'f.ask': {
     on: 'Needs the helper code: Me › AI helper, switch on and save the code.',
     steps: ['Open the helper and type a few words.', 'Check the suggestion and take only what fits.'],
