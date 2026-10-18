@@ -59,7 +59,7 @@ test('V6 and V7: care overview, a bike opens as its own page, Pflege goes back',
   await onePage(page, T('Bike care'));
   await expect(path(page).getByRole('link', { name: T('Bike') })).toBeVisible();
   const ov = page.getByRole('region', { name: T('Care overview') });
-  for (const h of [T('Due now'), T('Bikes'), T('For the bike shop'), T('Costs {year}', { year: new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }).slice(0, 4) }), T('More')]) {
+  for (const h of [T('Due now'), T('Bikes'), T('Order for the bike shop'), T('Costs {year}', { year: new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }).slice(0, 4) }), T('More')]) {
     await expect(ov.getByRole('heading', { name: h, exact: true })).toBeVisible();
   }
   // The overview shows the bikes as rows only; no accordion below it.

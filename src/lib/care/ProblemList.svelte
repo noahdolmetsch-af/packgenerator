@@ -42,7 +42,8 @@
 {#if list.length || (filterable && repairs.length)}
   <section class="problems" class:filterable aria-labelledby="problems-h">
     <div class="phead">
-      <h2 id="problems-h" class="zlabel">{t('Problems')} <span class="pill act num">{openCount}</span></h2>
+      <!-- Impeccable (18.10.2026, Velopflege): in the overview the title reads like the other titles there, not in capitals -->
+      <h2 id="problems-h" class="zlabel" class:vt={filterable}>{t('Problems')} <span class="pill act num">{openCount}</span></h2>
       {#if filterable}
         <div class="pf">
           <Seg small full={false} label={t('Show problems')} value={show} onchange={(v) => (show = v)} options={[{ key: 'open', name: t('Open|problems') }, { key: 'all', name: t('All|problems') }]} />
@@ -104,6 +105,16 @@
   }
   .phead .zlabel {
     flex: 1 1 auto;
+  }
+  .phead .zlabel.vt {
+    margin: 0 2px 10px;
+    color: var(--ink);
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .phead .zlabel.vt::after {
+    display: none;
   }
   .pf {
     display: flex;

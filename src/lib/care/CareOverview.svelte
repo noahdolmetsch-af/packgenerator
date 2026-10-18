@@ -19,6 +19,7 @@
   import { bikesHash } from '../bikes.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { chfText } from '../money.js';
   // SK X5 + X15 (SKX3); Impeccable (18.10.2026, Velopflege 2): the links of a due row live in its «…»,
   // the workshop booking link is entered once under «More».
   import { slotOf, PARKTOOL_URL, LINKS, linkOn } from '../sk/links.js';
@@ -51,7 +52,6 @@
   let diaryOpen = $state(false);
 
   const short = (name) => String(name ?? '');
-  const chf = (n) => n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const LOG_ICON = { replace: ArrowLeftRight, service: Droplet, check: Check, wash: Droplet, repair: Wrench, milestone: Trophy };
   /**
    * v0.117.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
@@ -172,7 +172,7 @@
     <aside class="ovside">
       <section class="vsec" aria-labelledby="shop-h">
         <div class="vh">
-          <div class="vh-t"><h2 id="shop-h">{t('For the bike shop')}</h2></div>
+          <div class="vh-t"><h2 id="shop-h">{t('Order for the bike shop')}</h2></div>
           {#if orders.length}<button type="button" class="vh-a" onclick={() => onorder(orders[0].bike.id)}>{t('Share the order')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
         </div>
         {#if orders.length}
@@ -188,7 +188,7 @@
             {/each}
           </ul>
         {:else}
-          <p class="card quiet">{t('Nothing for the bike shop right now.')}</p>
+          <p class="card quiet">{t('No order for the bike shop right now. Due work and problems marked «bike shop» come here by themselves.')}</p>
         {/if}
       </section>
 
@@ -196,13 +196,13 @@
         <div class="vh"><div class="vh-t"><h2 id="cost-h">{t('Costs {year}', { year })}</h2></div></div>
         <div class="card cost">
           <dl class="tiles">
-            <div><dt>{t('all bikes')}</dt><dd class="num">CHF {num(Math.round(cost.total))}</dd></div>
+            <div><dt>{t('all bikes')}</dt><dd class="num">{chfText(Math.round(cost.total))}</dd></div>
             <div><dt>{t('bike shop|tile')}</dt><dd class="num">{who.shop}</dd></div>
             <div><dt>{t('done myself')}</dt><dd class="num">{who.self}</dd></div>
           </dl>
           <ul class="costs">
             {#each cost.rows as r (r.bike.id)}
-              <li><span class="cn">{short(r.bike.name)}</span><span class="cb" aria-hidden="true"><i style:width="{cost.max ? Math.round((r.chf / cost.max) * 100) : 0}%"></i></span><span class="cv num">{chf(r.chf)}</span></li>
+              <li><span class="cn">{short(r.bike.name)}</span><span class="cb" aria-hidden="true"><i style:width="{cost.max ? Math.round((r.chf / cost.max) * 100) : 0}%"></i></span><span class="cv num">{chfText(r.chf)}</span></li>
             {/each}
           </ul>
         </div>
@@ -222,7 +222,7 @@
                     <span class="dt">
                       <small>{dateOf(h.date)}</small>
                       <b>{h.milestone ? t('{bike} has {km} km', { bike: short(h.bikeName), km: num(h.km) }) : `${h.what}${h.action !== 'wash' && h.action !== 'repair' ? `: ${h.action === 'check' && h.value != null ? `${num(h.value)} ${h.unit}`.trim() : h.action === 'replace' ? t('replaced') : h.action === 'service' ? t('serviced') : h.result === 'needed' ? t('work needed') : t('checked, OK')}` : ''}`}</b>
-                      <small>{h.milestone ? t('Milestone') : [short(h.bikeName), h.by === 'shop' ? t('bike shop|by') : h.by === 'self' ? t('me|by') : '', h.km != null ? `${num(h.km)} km` : '', typeof h.chf === 'number' && h.chf > 0 ? `CHF ${chf(h.chf)}` : ''].filter(Boolean).join(' · ')}</small>
+                      <small>{h.milestone ? t('Milestone') : [short(h.bikeName), h.by === 'shop' ? t('bike shop|by') : h.by === 'self' ? t('me|by') : '', h.km != null ? `${num(h.km)} km` : '', typeof h.chf === 'number' && h.chf > 0 ? chfText(h.chf) : ''].filter(Boolean).join(' · ')}</small>
                     </span>
                   </li>
                 {/each}
