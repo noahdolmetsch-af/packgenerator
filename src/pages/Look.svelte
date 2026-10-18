@@ -1,4 +1,5 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
   /**
    * v0.97.0 Design-Refresh R1 «Darstellung» (G1 neu, Noah 11.10 23:10 «Runde 1 alles ★ und G1–G12
    * freigegeben»; 12.10 «1a 2a»): Ich › Darstellung (#/me/look). The font of the whole app (8, four
@@ -11,7 +12,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
-  import { ChevronLeft, ChevronRight, Check } from '@lucide/svelte';
+  import { ChevronRight, Check } from '@lucide/svelte';
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
@@ -24,7 +25,7 @@
 </script>
 
 <div class="look">
-  <p class="back"><a href="#/me"><ChevronLeft size={16} aria-hidden="true" />{t('Me|place')}</a></p>
+  <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Appearance')} />
   <PageHead title={t('Appearance')} text={t('Font, colours and size, only on this device. Everything is optional.')} />
 
   <div class="cols">

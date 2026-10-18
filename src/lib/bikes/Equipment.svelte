@@ -9,6 +9,7 @@
    * (A3a); weight per area and the most expensive parts sit on the right, on a phone below (A4a).
    * A tap on a part opens a small sheet for name, weight and price. «Compare bikes» is one tap away.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
@@ -176,7 +177,7 @@
 </div>
 
 {#if edit}
-  <dialog use:backClose class="sheet" bind:this={dialog} onclose={() => (edit = null)} aria-labelledby="eq-edit-h">
+  <dialog use:backClose use:keepTyped={'equip:' + (bikeId ?? '') + ':' + edit.key} class="sheet" bind:this={dialog} onclose={() => (edit = null)} aria-labelledby="eq-edit-h">
     <p class="meta">{bike?.name}</p>
     <h2 id="eq-edit-h" class="title">{edit.cat}</h2>
     <form method="dialog" onsubmit={(e) => (e.preventDefault(), save())}>

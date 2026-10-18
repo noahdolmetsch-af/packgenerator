@@ -4,9 +4,12 @@
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, backupDue } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
+  import { keepState, askKeep } from './storagekeep.js';
+  import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
+  import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
-  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check } from '@lucide/svelte';
+  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
@@ -76,6 +79,15 @@
   $effect(() => {
     navigator.storage?.estimate?.().then((e) => (storage = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
   });
+  // P3b «Daten sicher» (Noah 15.10.2026 «1a»): does the browser keep the data for good?
+  let keep = $state('unknown');
+  $effect(() => {
+    keepState().then((k) => (keep = k));
+  });
+  async function keepNow() {
+    keep = await askKeep();
+    message = keep === 'kept' ? t('Done: the browser keeps your data now.') : t('The browser said no for now. It decides by itself; the app icon on the home screen and regular use help. Your backups protect you meanwhile.');
+  }
   const lastIso = $derived([$lastQ?.at, folder.lastWrite].filter(Boolean).sort().at(-1) ?? null);
   const due = $derived(backupDue(lastIso));
   const mb = (bytes) => (bytes / 1048576).toLocaleString(locale(), { maximumFractionDigits: 1 });
@@ -88,6 +100,7 @@
       const pct = Math.min(100, Math.round((storage.used / storage.quota) * 100));
       out.push({ key: 'storage', name: 'Storage', state: pct < 80 ? 'ok' : 'warn', line: t('{pct} % used · {mb} MB', { pct, mb: mb(storage.used) }) });
     }
+    if (keep !== 'unknown') out.push({ key: 'keep', name: 'Kept by the browser', state: keep === 'kept' ? 'ok' : 'warn', line: keep === 'kept' ? t('Your data stays, even when the device runs low on space.') : t('When space runs low, the browser may delete it without asking.') });
     return out;
   });
   const greens = $derived(lights.filter((l) => l.state === 'ok').length);
@@ -97,7 +110,28 @@
   async function pickFile(event) {
     const file = event.target.files[0];
     event.target.value = '';
-    if (!file) return;
+    if (file) await readFile(file);
+  }
+
+  // P3b «Abgleich»: a backup file shared to the app («Teilen › Pack Generator», public/share-target.js)
+  // waits in a cache; #/me/data?shared=backup reads it like a picked file.
+  $effect(() => {
+    if (!/[?&]shared=backup\b/.test(location.hash) || typeof caches === 'undefined') return;
+    (async () => {
+      try {
+        const cache = await caches.open(SHARE_BACKUP_CACHE);
+        const res = await cache.match(SHARE_BACKUP_KEY);
+        if (!res) return;
+        await cache.delete(SHARE_BACKUP_KEY);
+        const name = decodeURIComponent(res.headers.get('X-File-Name') ?? '') || 'backup.json';
+        await readFile(new File([await res.blob()], name, { type: 'application/json' }));
+      } catch {
+        message = t('The shared file could not be read. Nothing was changed.');
+      }
+    })();
+  });
+
+  async function readFile(file) {
     try {
       const data = JSON.parse(await file.text());
       // v0.36.0 (Noah 1a): the reviewed gear list is no backup either. It waits on "Import prüfen"
@@ -141,8 +175,12 @@
       const existing = {};
       for (const k of DATA_TABLES) existing[k] = await db.table(k).toCollection().primaryKeys();
       // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
-      const state = compareStates(data.lastChange ?? null, await lastChangeOf(db), data.exportedAt ?? null);
-      pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state };
+      const localAt = await lastChangeOf(db);
+      const state = compareStates(data.lastChange ?? null, localAt, data.exportedAt ?? null);
+      // P3b «Abgleich»: what changed since the last exchange, and what the app suggests
+      const sync = syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
+      const hasData = existing.items.length + existing.trips.length + existing.bikes.length > 0;
+      pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state, sync, hasData, sure: false };
       message = '';
     } catch {
       pending = null;
@@ -209,15 +247,33 @@
   }
   const shownValue = (v) => (v == null || v === '' ? '–' : String(v));
 
+  // P3b «Abgleich»: the suggestion in «Check import» (syncAdvice in backup.js)
+  const ADVICE = {
+    same: () => t('The file has the same state as this device. Nothing to do.'),
+    take: () => t('The file is newer, and nothing changed here since the last exchange: take it over with «Replace all data».'),
+    keep: () => t('This device is newer. Better send a backup from here to the other device.'),
+    both: () => t('Both devices changed since the last exchange. «Merge» keeps both; where the same record changed, the file wins.'),
+  };
+  const syncQ = liveQuery(() => db.meta.get(SYNC_KEY));
+  const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null;
   async function applyImport(mode) {
+    // P3b «Daten sicher» (Noah 15.10.2026, rule 5a): «Replace all data» asks a second time when there is
+    // data on this device (an empty device has nothing to lose).
+    if (mode === 'replace' && pending.hasData && !pending.sure) {
+      pending = { ...pending, sure: true };
+      return;
+    }
     try {
+      // 5a: before every import a copy of the data now («Before updates»: «Back to the state before the import»)
+      const copied = pending.hasData ? await takeSnapshot(db, snapDb(), { version: current, kind: 'import' }) : null;
       await settling(async () => {
         await restoreBackup(db, pending.data, mode);
         await blocksAfterImport(db, pending.data, mode); // v0.33.0: old data in the file gets the building blocks too
         await tidyData(db);
         await markImported(db, pending.data, mode); // v0.34.0 (L10): the device now holds the file's state
+        await markSync(db, { theirs: pending.data.lastChange ?? pending.data.exportedAt ?? null }); // P3b: the last exchange
       });
-      message = mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name });
+      message = (mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name })) + (copied ? ` ${t('The state before is kept as a copy under «Before updates».')}` : '');
       pending = null;
     } catch (err) {
       message = `${t('Import failed, nothing was changed.')} ${err.message}`;
@@ -253,7 +309,8 @@
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
             {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Now|do')}</button>
-            {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>{/if}
+            {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
+            {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
       </ul>
@@ -344,16 +401,49 @@
               <li>{t('Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).', { now: pending.impact.now, trips: pending.impact.nowTrips, file: pending.impact.file })}{#if pending.impact.lost}{' '}<strong>{t('Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).', { lost: pending.impact.lost, lostTrips: pending.impact.lostTrips })}</strong>{/if}</li>
               <li>{t('Merge: new from the file: {added}; same ID, overwritten by the file: {same}; nothing is deleted.', { added: pending.impact.added, same: pending.impact.same })}</li>
             </ul>
-            <div class="ich-acts end">
-              <button type="button" class="btn" onclick={() => (pending = null)}>{t('Cancel')}</button>
-              <button type="button" class="btn" onclick={() => applyImport('merge')}>{t('Merge')}</button>
-              <button type="button" class="btn hi" onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
-            </div>
-            <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}</p>
+            <!-- P3b «Abgleich»: what changed since the last exchange, and a suggestion (the buttons stay) -->
+            {#if pending.sync.advice}
+              <p class="advice" data-advice={pending.sync.advice}><b>{t('Suggestion:')}</b> {ADVICE[pending.sync.advice]()}</p>
+            {/if}
+            {#if pending.sure}
+              <!-- 5a: the second question -->
+              <div class="sure" role="group" aria-label={t('Really replace all data?')}>
+                <p><b>{t('Really replace all data?')}</b> {t('Everything on this device is replaced by the file. A copy of the data now is made first; «Before updates» brings it back.')}</p>
+                <div class="ich-acts end">
+                  <button type="button" class="btn" onclick={() => (pending = { ...pending, sure: false })}>{t('Back|note')}</button>
+                  <button type="button" class="btn hi" onclick={() => applyImport('replace')}>{t('Yes, replace all')}</button>
+                </div>
+              </div>
+            {:else}
+              <div class="ich-acts end">
+                <button type="button" class="btn" class:hi={pending.sync.advice === 'keep' || pending.sync.advice === 'same'} onclick={() => (pending = null)}>{t('Cancel')}</button>
+                <button type="button" class="btn" class:hi={pending.sync.advice === 'both'} onclick={() => applyImport('merge')}>{t('Merge')}</button>
+                <button type="button" class="btn" class:hi={!pending.sync.advice || pending.sync.advice === 'take'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
+              </div>
+            {/if}
+            <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}{pending.hasData ? ` ${t('Before either, the app keeps a copy of the data now.')}` : ''}</p>
           </div>
         {/if}
 
         {#if message}<p class="msg" role="status">{message}</p>{/if}
+      </div>
+    </section>
+
+    <!-- P3b «Abgleich Handy–Computer» (Noah 15.10.2026 «1a»): free, no server. The newer device sends its
+         backup file, the other one opens it; the app says which is newer and suggests what to do. -->
+    <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
+      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p></Help></div></div>
+      <div class="card ich-body">
+        <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
+        <ol class="steps">
+          <li>{t('On the device with the newer state: «{send}».', { send: phone.matches ? t('Send to computer') : t('Send to phone') })}</li>
+          <li>{t('On the other device: tap the file › Share › Pack Generator, or «Open backup» here.')}</li>
+          <li>{t('The app says which state is newer and suggests what to do. A copy of the data before is always kept.')}</li>
+        </ol>
+        <div class="ich-acts">
+          <button type="button" class="btn" onclick={() => fileEl?.click()}><FolderOpen size={16} aria-hidden="true" />{t('Open backup')}</button>
+        </div>
+        {#if folderBackupSupported}<p class="ich-help">{t('Tip: with «Auto-backup to a folder» in a Drive folder, the newest file is always there (pack-generator-latest.json); open it on the phone.')}</p>{/if}
       </div>
     </section>
 
@@ -575,6 +665,33 @@
     border-radius: 50%;
     vertical-align: 1px;
     background: var(--warn);
+  }
+  .advice,
+  .confirm p.advice {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
+  .sure {
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid var(--line-strong, var(--line));
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .synced {
+    margin: 0 0 8px;
+  }
+  .steps {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .steps li + li {
+    margin-top: 4px;
   }
   .msg {
     margin: 12px 0 0;

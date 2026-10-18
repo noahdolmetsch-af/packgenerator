@@ -208,8 +208,8 @@ for (const lang of ['de', 'en']) {
     await expect(page).toHaveURL(new RegExp(`#/debrief/${trip.id}`));
     // v0.92.0 «Rückblick antippen»: the chips on top show them; what was missing is in its row.
     const diff = page.getByRole('region', { name: T('What did you not need?') });
-    await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) })).toBeVisible();
-    await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Spare tube', state: T('Broken') }) })).toBeVisible();
+    await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change, long press: broken.', { name: 'Multi tool', state: T('Not used') }) })).toBeVisible();
+    await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change, long press: broken.', { name: 'Spare tube', state: T('Broken') }) })).toBeVisible();
     await openRow(page, 'miss-fold');
     // v0.109.0 Design-Refresh P6: «Was hat gefehlt?» is an open section (section.miss-fold)
     await expect(page.locator('.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('Was missing'));

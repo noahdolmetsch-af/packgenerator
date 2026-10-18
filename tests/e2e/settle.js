@@ -78,13 +78,27 @@ export async function openData(page) {
 }
 
 /**
+ * «Replace all data». P3b rule 5a (Noah 15.10.2026 «5a»): on a device that has data the app asks a
+ * second time («Wirklich alle Daten ersetzen?»); this answers «Ja, alles ersetzen». An empty device
+ * imports at once.
+ */
+export async function replaceAll(panel) {
+  await panel.getByRole('button', { name: either('Replace all data'), exact: true }).press('Enter');
+  const sure = panel.getByRole('group', { name: either('Really replace all data?') });
+  const done = panel.getByText(/importiert|Imported|nicht gelesen|could not/i).first();
+  await expect(sure.or(done).first()).toBeVisible();
+  if (await sure.isVisible()) await sure.getByRole('button', { name: either('Yes, replace all') }).click();
+}
+
+/**
  * Imports a backup (a file path or { name, mimeType, buffer }) through «Your data», «Replace all data»
  * or «Merge», then waits until the app has settled (the tidy-up done, Today's auto-open decided).
  */
 export async function importAndSettle(page, file, { mode = 'replace' } = {}) {
   const panel = await openData(page);
   await panel.getByLabel(either('Import backup')).setInputFiles(file);
-  await panel.getByRole('button', { name: either(mode === 'replace' ? 'Replace all data' : 'Merge') }).press('Enter');
+  if (mode === 'replace') await replaceAll(panel);
+  else await panel.getByRole('button', { name: either('Merge') }).press('Enter');
   await settle(page);
   return panel;
 }
@@ -97,4 +111,24 @@ export async function closeDialog(page) {
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
+}
+
+/**
+ * Paket A (HT1–HT2 «1a», «Mehr Inhalt»): the card «Was hier steht» and the tip line sit on top of a page;
+ * a person who has read them folds the card (×, it becomes one line) and hides today's tip (×).
+ * For specs that check what comes first on a page after that; only for pages that have the card.
+ */
+export async function foldPageInfo(page) {
+  // the card comes once the page's settings are read: wait for it (open, or folded to its line)
+  await expect(page.locator('main section.hint, main [data-hint-line]').first()).toBeVisible();
+  const fold = page.locator('main').getByRole('button', { name: either('Fold the explanation') });
+  if (await fold.count()) {
+    await fold.first().click();
+    await expect(page.locator('main [data-hint-line]')).toBeVisible();
+  }
+  const hide = page.locator('main').getByRole('button', { name: either('Hide the tip for today') });
+  if (await hide.count()) {
+    await hide.first().click();
+    await expect(hide).toHaveCount(0);
+  }
 }

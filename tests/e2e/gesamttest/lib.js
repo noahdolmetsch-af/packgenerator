@@ -80,8 +80,11 @@ export async function importBackup(page, info, obj, { lang = 'de', name = 'gesam
   // can be gone at once: wait for the data itself.
   const want = typeof obj === 'string' ? JSON.parse(obj) : obj;
   const ids = (want.tables.items ?? []).map((i) => i.id);
+  // P3b rule 5a: on a device with data «Replace all data» asks a second time; answer it when it comes
+  const sure = data.getByRole('group', { name: T('Really replace all data?') });
   await expect
     .poll(async () => {
+      if (mode === 'replace' && (await sure.isVisible())) await sure.getByRole('button', { name: T('Yes, replace all') }).click();
       const have = new Set((await table(page, 'items')).map((i) => i.id));
       return ids.every((id) => have.has(id)) && (mode !== 'replace' || have.size === ids.length);
     }, { timeout: 30_000 })

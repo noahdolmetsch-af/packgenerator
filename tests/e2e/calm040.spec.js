@@ -177,7 +177,7 @@ test('New trip: the sport chips with Fahrrad pressed, the days field with "More"
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
   await noSideways(page);
   await shot(page, info, 'neue-tour', true);
-  await dlg.getByRole('button', { name: T('Cancel') }).click();
+  await dlg.getByRole('button', { name: T('Discard') }).click();
   expect(errors).toEqual([]);
 });
 

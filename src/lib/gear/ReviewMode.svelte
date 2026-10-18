@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   import { db } from '../db.js';
   import { replaceEverywhere } from '../replace.js';
   import { CATEGORY, BAG, CATEGORIES, formatWeight, itemWeight, isInventory } from '../gear.js';
@@ -41,7 +42,7 @@
     await db.items.update(rec.id, patch);
     clearTimeout(timer);
     last = { text: t(text, { name: nameOf(rec) }), rec };
-    timer = setTimeout(() => (last = null), 10000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
     setTimeout(() => document.querySelector('.review .btn.hi')?.focus(), 50);
   }
   async function undoLast() {

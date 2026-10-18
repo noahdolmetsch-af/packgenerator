@@ -16,6 +16,30 @@
 
 export const WHATS_NEW = [
   {
+    // v0.146.0 Paket A «Daten sicher und Bedienung»: P3b (data kept, phone and computer, Ich › Dokumente, rules 3a/5a),
+    // P3c (Bedienregeln, camera everywhere) and «Mehr Inhalt» with Hinweistexte HT1–HT2. Noah 18.10.2026 «1b»:
+    // a new tour takes the standard bike, the bike chosen last does not decide it.
+    version: '0.146.0',
+    date: '2026-10-18',
+    title: 'Safe data, calm hands',
+    lead: 'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.',
+    points: [
+      { text: 'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire', href: '#/me/docs' },
+      { text: '«Phone and computer»: send the backup to the other device; the app says which is newer, and «Replace all data» asks twice and keeps a copy', href: '#/me/data' },
+      { text: '«What is here» on top of 14 pages, tips and examples to keep as a note on ten more places', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'The camera opens with one tap for a note, an item, a bike and a problem; a receipt can have several pages', href: '#/bikes?tab=shop' },
+      { box: 'nicer', text: 'Closing a window keeps what you typed; only «Discard» deletes it. «Undo» stays 4 seconds everywhere' },
+      { box: 'nicer', text: 'The bike chosen last stays chosen in Bikes, Report a problem and quick jobs; a new tour still brings your standard bike', href: '#/bikes' },
+    ],
+    test: [
+      'Open Me › Documents, tap «Add PDF», choose a PDF or a photo, set «valid until» and switch on «In the packing list».',
+      'Open a window with a text field (for example a bag), type something and close it with ✕: open it again, the text is back.',
+      'Open Bike care: the card «What is here» is on top; × folds it to one line.',
+    ],
+  },
+  {
     // v0.145.0 «Paket 3»: Navigation «Regeln der App» + Start-Karten (ST1–ST2), Standard-Velo (VS1–VS4), Scrollen und
     // Listen (SL1–SL4), Wieder sichtbar (WS2, WS3, WS5, WS6) and four fixes from the 0.136.0 pictures. One release
     // instead of the working numbers 0.140.0–0.143.0 and 0.145.0; RE «Regeln einheitlich» came first as 0.144.0 (#175).

@@ -1,4 +1,5 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
   /**
    * «Inspiration» (UC2-1, UC2-2, UC2-4; mockups 13.10.2026, Noah «3b» + «a», 4a, 5a): your own links to
    * rigs, packing lists, videos, routes, listening tips, products, races and guides. On a computer an
@@ -24,7 +25,7 @@
   import InspoCard from '../lib/inspiration/InspoCard.svelte';
   import LinkDialog from '../lib/inspiration/LinkDialog.svelte';
   import TakeDialog from '../lib/inspiration/TakeDialog.svelte';
-  import { ChevronLeft, Plus, Check, Compass } from '@lucide/svelte';
+  import { Plus, Check, Compass } from '@lucide/svelte';
 
   const rigQ = liveQuery(() => db.settings.get(RIG_KEY));
   const inspQ = liveQuery(() => db.settings.get(INSPO_KEY));
@@ -149,7 +150,7 @@
 </script>
 
 <div class="insp">
-  {#if !wide.matches}<p class="back"><a href="#/me"><ChevronLeft size={16} aria-hidden="true" />{t('Me|place')}</a></p>{/if}
+  {#if !wide.matches}<Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Inspiration')} />{/if}
   <PageHead title={t('Inspiration')} text={t('Your own links to rigs, packing lists, videos, routes, listening tips, products and races. The app recognises the kind of link. Your notes stay with you.')} />
 
   <form class="if-add" onsubmit={(e) => (e.preventDefault(), openAdd())}>

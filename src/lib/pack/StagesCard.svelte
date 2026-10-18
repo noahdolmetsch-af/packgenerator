@@ -6,6 +6,7 @@
    * stages the route is shared out evenly, as before. Stored as trip.stages (stages.js), with Undo through
    * Pack's change (onchange). Unterwegs takes the same days (ride.js stage).
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { stagePlan, ownStages, cleanStages } from '../stages.js';
   import { backClose } from '../ui/backclose.js';
   import { t, num } from '../i18n.svelte.js';
@@ -61,7 +62,7 @@
 </section>
 
 {#if open}
-  <dialog class="sheet stg" bind:this={el} use:backClose onclose={() => (open = false)} aria-labelledby="stg-h">
+  <dialog use:keepTyped={'stages:' + (trip?.id ?? '')} class="sheet stg" bind:this={el} use:backClose onclose={() => (open = false)} aria-labelledby="stg-h">
     <form onsubmit={save} use:weiter>
       <h2 id="stg-h">{t('Divide into stages')}</h2>
       <p class="note">{hasRoute ? t('Where does each day end? In km from the start, and the place if you like. Empty: shared out evenly.') : t('Name the places where each day ends, if you like. With a GPX route the km follow.')}</p>

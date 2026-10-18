@@ -1,4 +1,5 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Bikes → Setup. v0.31.0 (Noah 9a, variant A "Ruhig und klar"):
    * - a dark band like the trip pages: name, km, weight, bags, "n care due"; the bikes as tabs in it;
@@ -438,6 +439,7 @@
                   </button>
                 {/each}
                 <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
+                <CameraButton onchange={addPhotos} disabled={adding} />
               </div>
               <p class="note">{t('Open a photo to show it in Pack, rename it or keep it for one trip.')}</p>
               <!-- v0.27.0 (AP22): below the gallery, so a long message wraps instead of scrolling sideways. -->
