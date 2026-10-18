@@ -6,6 +6,7 @@
    */
   import { toWx } from '../weather.js';
   import { t, locale, num } from '../i18n.svelte.js';
+  import { wetPct } from '../rainlimit.svelte.js';
   import { Sun, CloudSun, CloudRain } from '@lucide/svelte';
 
   let { days = [] } = $props();
@@ -23,7 +24,7 @@
       <span class="wd">{d.label || wd(d.date)}</span>
       <Icon size={20} aria-hidden="true" />
       <b class="num">{deg(d.max)} / {deg(d.min)}</b>
-      <span class="rn num">{(d.rainMm ?? 0) >= 1 || (d.rainPct ?? 0) >= 30 ? [d.rainMm ? `${num(Math.round(d.rainMm))} mm` : '', d.rainPct != null ? `${num(d.rainPct)} %` : ''].filter(Boolean).join(' · ') : t('dry')}</span>
+      <span class="rn num">{(d.rainMm ?? 0) >= 1 || wetPct(d.rainPct) ? [d.rainMm ? `${num(Math.round(d.rainMm))} mm` : '', d.rainPct != null ? `${num(d.rainPct)} %` : ''].filter(Boolean).join(' · ') : t('dry')}</span>
     </li>
   {/each}
 </ol>

@@ -145,7 +145,7 @@
             {#if main || stale || open.length}<p class="lbl">{t('Report {month}', { month: monthName })}</p>{/if}
             <ul>
               {#each report as m (m.bike.id)}
-                <li><b>{m.bike.name}</b>: {tn(m.rides, '{n} ride', '{n} rides')} · {num(Math.round(m.km))} km · {m.diff == null ? t('no Strava value') : t('{km} km difference to Strava', { km: num(Math.round(m.diff)) })} · {tn(m.missing, '{n} part without a start point', '{n} parts without a start point')}{#if m.last} · {t('last source {source}, {date}', { source: t(SOURCE_NAME[m.last.source] ?? m.last.source), date: dateOf(m.last.date) })}{/if}</li>
+                <li><b>{m.bike.name}</b>: {tn(m.rides, '{n} ride', '{n} rides')} · {num(Math.round(m.km))} km · {m.diff == null ? t('no Strava value') : t('{km} km difference to Strava', { km: num(Math.round(m.diff)) })} · {tn(m.missing, '{n} part without a start point', '{n} parts without a start point')}{#if m.last}{' · '}{t('last source {source}, {date}', { source: t(SOURCE_NAME[m.last.source] ?? m.last.source), date: dateOf(m.last.date) })}{/if}</li>
               {/each}
             </ul>
             <button type="button" class="lnk" onclick={readMonth}>{t('Read')}</button>

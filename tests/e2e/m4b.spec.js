@@ -191,15 +191,19 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
   await page.getByRole('button', { name: T('Add "{q}" as new (not in your gear)', { q: 'test_data_gtp_ Head torch' }) }).click();
   await expect(page.locator('ul.exc li').filter({ hasText: 'test_data_gtp_ Head torch' })).toBeVisible();
   await noSideScroll(page);
-  // Both become suggestions, all ticked: one shown as "For next time", the others under "More suggestions".
+  // Both become suggestions: one shown as "For next time", the others under "More suggestions".
+  // v0.144.0 RE (Noah 3a): nothing is ticked to start with; a tick (or «Yes, remember») takes one over.
   await openRow(page, 'next-fold'); // v0.92.0: the suggestions are one row «Fürs nächste Mal»
   for (const label of [T('Take {name} next time', { name: 'test_data_gtp_ Head torch' }), 'From the ride: "test_data_gtp_ Gloves too thin"']) {
     const box = page.getByRole('checkbox', { name: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
-    if (await box.count()) await expect(box).toBeChecked();
-    else {
+    if (await box.count()) {
+      await expect(box).not.toBeChecked();
+      await box.check();
+    } else {
       await expect(page.locator('.learn')).toContainText(label);
-      // v0.30.1 (Noah C3): "Yes, remember" saves it at once; untouched, "Save debrief" applies it too.
-      await expect(page.locator('.learn').getByRole('button', { name: T('Yes, remember') })).toBeVisible();
+      // v0.30.1 (Noah C3): "Yes, remember" saves it at once.
+      await page.locator('.learn').getByRole('button', { name: T('Yes, remember') }).click();
+      await expect(page.locator('.remembered')).toContainText(label);
     }
   }
   await page.getByRole('button', { name: T('Done|debrief') }).click();

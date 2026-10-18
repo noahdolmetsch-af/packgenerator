@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 one note, open (Noah 12a-16a): topic, pin (at most 3), title, text, link, photo,
    * checklist (tick, add, remove), what it is linked to, and «Aus Notiz wird …»: a trip idea, a wish
@@ -116,7 +117,7 @@
      note's title with a quiet line (what it holds, topic, pinned) and ✕; title and text, the checklist on a
      soft panel with «+ Point», the topic as chips, «Turn the note into …» folded; at the bottom Delete,
      Pin / Unpin and «Done». The same functions as before. -->
-<dialog class="sheet nsheet vdlg" bind:this={dialog} onclose={onclose} oncancel={(e) => (e.preventDefault(), closeIt())} aria-labelledby="note-h">
+<dialog use:backClose class="sheet nsheet vdlg" bind:this={dialog} onclose={onclose} oncancel={(e) => (e.preventDefault(), closeIt())} aria-labelledby="note-h">
   {#if !make}
     {@const cl = draft.checklist ?? []}
     <div class="vd-head">

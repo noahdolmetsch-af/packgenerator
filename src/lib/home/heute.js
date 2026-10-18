@@ -16,6 +16,8 @@ import { t, tn, num } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tripEnd } from '../debrief.js';
 import { greetFor } from './hallo.js'; // HG1
+import { RAIN_LIMIT, wetPct } from '../rainlimit.svelte.js';
+import { partOfDay, isEveningOn } from '../dayclock.js';
 
 /* ---------- test trips ---------- */
 
@@ -37,8 +39,14 @@ export const archiveChanges = (now = new Date().toISOString()) => ({ archivedAt:
 
 /* ---------- greeting and weather ---------- */
 
-/** 'morning' before 12, 'day' until 18, 'evening' from 18 (Noah 32a: the evening puts other rows first). */
-export const dayPart = (hour) => (hour < 12 && hour >= 4 ? 'morning' : hour >= 12 && hour < 18 ? 'day' : 'evening');
+/**
+ * 'morning', 'day' or 'evening' (Noah 32a: the evening puts other rows first). v0.144.0 RE «Eine Tagesuhr»:
+ * the one day clock (dayclock.js: morning 06–11, day 11–18, evening from 18); the night counts as evening here.
+ */
+export const dayPart = (hour) => {
+  const p = partOfDay(hour);
+  return p === 'night' ? 'evening' : p;
+};
 
 /**
  * HG1 «Begrüssung auf Heute» (1a 4b 3): the heading of Today, always Swiss German by time of day
@@ -46,8 +54,8 @@ export const dayPart = (hour) => (hour < 12 && hour >= 4 ? 'morning' : hour >= 1
  */
 export const greeting = (hour, name = '') => greetFor(hour, name);
 
-/** Rain from this probability (%) on in an hour counts as wet. */
-export const WET_PCT = 50;
+/** Rain from this probability (%) on in an hour counts as wet (v0.144.0 RE: the one rain limit, standard 30 %; was 50 %). */
+export const WET_PCT = RAIN_LIMIT;
 
 /**
  * The weather in one sentence from the home forecast (home-weather.js; days with min, max, rain and,
@@ -56,7 +64,7 @@ export const WET_PCT = 50;
  */
 export function weatherLine(forecast, now = new Date()) {
   const hour = now.getHours();
-  const tomorrow = hour >= 18;
+  const tomorrow = isEveningOn(hour); // RE: from the evening of the day clock (18:00)
   const d = new Date(now);
   if (tomorrow) d.setDate(d.getDate() + 1);
   const date = localDay(d);
@@ -69,7 +77,7 @@ export function weatherLine(forecast, now = new Date()) {
   let text;
   let dry;
   if (pcts?.length === 24) {
-    const wetAt = pcts.findIndex((p, h) => h >= from && h <= 22 && p >= WET_PCT);
+    const wetAt = pcts.findIndex((p, h) => h >= from && h <= 22 && wetPct(p));
     if (wetAt === from) (text = t('{t}° and rain likely.', { t: temp })), (dry = false);
     else if (wetAt > 0) (text = t('{t}° and dry until {h}:00.', { t: temp, h: wetAt })), (dry = wetAt - from >= 3);
     else (text = t('{t}° and dry.', { t: temp })), (dry = true);
@@ -84,13 +92,13 @@ export function weatherLine(forecast, now = new Date()) {
 
 /**
  * Is a day dry enough for a ride (the suggestion of the day, Noah 19a)? With hours: no hour from
- * fromHour (at least 9) to 18 with rain from WET_PCT on; else the day's own rain word. No day: false.
+ * fromHour (at least 9) to 18 with rain from the rain limit on; else the day's own rain word. No day: false.
  */
 export function dayDry(forecast, date, fromHour = 9) {
   const day = (forecast?.days ?? []).find((x) => x.date === date);
   if (!day) return false;
   const p = day.hourly?.p;
-  if (p?.length === 24) return p.slice(Math.max(9, fromHour), 19).every((x) => x == null || x < WET_PCT);
+  if (p?.length === 24) return p.slice(Math.max(9, fromHour), 19).every((x) => !wetPct(x));
   return (day.rain ?? 'none') === 'none';
 }
 

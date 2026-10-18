@@ -14,6 +14,7 @@
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf, lang } from '../lib/i18n.svelte.js';
+  import { wetHour } from '../lib/rainlimit.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
@@ -25,7 +26,8 @@
   import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
-  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START } from '../lib/ride.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
+  import { RIDE_SEEN_KEY, rideSeen } from '../lib/home/startkarten.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
   import { homeOf } from '../lib/dayride.js';
@@ -71,6 +73,15 @@
     }
   })();
   const trip = $derived(trips.find((t) => t.id === chosen && t.startDate) ?? nextTrip(trips, today) ?? trips.find((t) => t.id === chosen) ?? null);
+  // Start-Karten 3b (Noah 14.10.2026): once On the way showed today's trip, the card «Heute unterwegs» on Today goes away
+  $effect(() => {
+    if (!trip || !onTripDay(trip, today)) return;
+    try {
+      localStorage.setItem(RIDE_SEEN_KEY, rideSeen(trip.id, today));
+    } catch {
+      /* private mode: the card stays the whole day */
+    }
+  });
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
@@ -386,7 +397,8 @@
     ...(main.kind === null ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
-  const wetH = (x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50;
+  // v0.144.0 RE: the one rain limit of the app (was 50 %)
+  const wetH = (x) => wetHour(x);
   const nowWx = $derived.by(() => {
     if (!nowB?.temp) return null;
     const hrs = saved?.places?.[0]?.hours ?? [];
@@ -544,7 +556,7 @@
                   <p class="wsum">{wxSummary(hrs)}</p>
                   <ul class="hours">
                     {#each hrs as x (x.t)}
-                      <li class:wet={(x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50} class:newday={x.h === 0}><span class="hh num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</span><b class="num">{x.temp != null ? `${Math.round(x.temp)}°` : '–'}</b><small class="num">{x.rainMm ? `${x.rainMm} mm` : dir(x.rainPct) || '–'}</small><small class="num">{x.wind != null ? `${Math.round(x.wind)} km/h` : '–'}</small>{#if x.gust != null && x.gust >= 30}<small class="num">({Math.round(x.gust)})</small>{/if}</li>
+                      <li class:wet={wetH(x)} class:newday={x.h === 0}><span class="hh num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</span><b class="num">{x.temp != null ? `${Math.round(x.temp)}°` : '–'}</b><small class="num">{x.rainMm ? `${x.rainMm} mm` : dir(x.rainPct) || '–'}</small><small class="num">{x.wind != null ? `${Math.round(x.wind)} km/h` : '–'}</small>{#if x.gust != null && x.gust >= 30}<small class="num">({Math.round(x.gust)})</small>{/if}</li>
                     {/each}
                   </ul>
                 </div>

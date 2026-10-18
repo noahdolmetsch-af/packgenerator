@@ -205,10 +205,16 @@ describe('live hints', () => {
   });
   it('the next trip and the rides of this month', () => {
     const trips = [{ id: 'a', title: 'Jura weekend', startDate: day(7), days: 2, entries: [{ packed: true }, { packed: false }] }];
-    const kmBook = [{ id: 'k1', date: day(-2), km: 40.4, kind: 'ride', state: 'counted' }, { id: 'k2', date: '2026-09-30', km: 99, kind: 'ride', state: 'counted' }, { id: 'k3', date: day(-1), km: 12, state: 'open' }];
-    const h = hintsFor('bikes', { trips, bikes: [], visits: [], kmBook, maintenance: [] }, today);
+    // Paket 3: the month counts like «Velo in diesem Monat» (withStravaRides): a counted Strava ride, an uploaded
+    // ride and a Strava ride of «Training» without a ledger entry; a ride still to check (open) does not count yet
+    const kmBook = [{ id: 'k1', date: day(-2), km: 40.4, kind: 'ride', state: 'counted', source: 'strava', stravaId: 's1' }, { id: 'k2', date: '2026-09-30', km: 99, kind: 'ride', state: 'counted', source: 'strava' }, { id: 'k3', date: day(-1), km: 12, kind: 'ride', state: 'open', source: 'strava' }];
+    const rides = [{ id: 'r1', date: day(-3), km: 20 }];
+    const acts = [{ id: 'a1', kind: 'bike', day: day(-4), km: 25 }];
+    const h = hintsFor('bikes', { trips, bikes: [], visits: [], kmBook, maintenance: [], rides, acts }, today);
     expect(h.pack.text).toBe('Jura weekend · in 7 days · 1 of 2');
-    expect(h.kmbook.text).toBe('This month 52 km');
+    expect(h.kmbook.text).toBe('This month 85 km');
     expect(h.stravacheck.text).toBe('1 ride to check');
+    // the Strava rides alone (before a bike's start point, no ledger entry) are a ride this month too
+    expect(hintsFor('flow', { kmBook: [], rides: [], acts, flowActs: [], flowLog: [], flowChecks: [], trips: [], debriefs: [] }, today).kmbook.text).toBe('This month 25 km');
   });
 });

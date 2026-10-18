@@ -318,7 +318,8 @@
   }
   .zl {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* 0.136.0: all five zones in one row on a computer (220 px left Z5 alone on a second row) */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 8px 24px;
     margin: 0;
     padding: 0;

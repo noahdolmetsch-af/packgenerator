@@ -4,9 +4,9 @@
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake } from '@lucide/svelte';
+  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
+  import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
   import { ridesIntoDark } from '../blockplan.js';
@@ -25,7 +25,7 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { selectAll } from '../ui/selectall.js';
-  import { rideName, rideDate, freeTitle, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
+  import { rideName, rideDate, freeTitle, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
@@ -37,6 +37,10 @@
   import { newTripOff } from '../repairslim.js';
   import { similarHours, nameClash } from '../formprefill.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import { tourBike, tourBikeId, standardBike, setTourBike, TOUR_BIKE } from '../tourbike.svelte.js';
+  import TourBikeAsk from '../bikes/TourBikeAsk.svelte';
+  import BikeOrderSheet from '../bikes/BikeOrderSheet.svelte';
+  import '../bikes/standardvelo.css';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -79,13 +83,17 @@
   let autoNow = null; // the trip's id and creation time, fixed at the first save
   let ended = false; // "Create trip" or "Discard": closing does nothing more
   const trips = $derived(allTrips.filter((x) => x.id !== autoId));
+  // VS1 (Noah 14.10.2026): «always the standard bike» wins over the bike of the open trip; with «the one
+  // ridden last» the open trip's bike comes first, as before
+  // svelte-ignore state_referenced_locally
+  const openBike = tourBike.mode === 'last' && bikes.some((b) => b.id === defaultBikeId);
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
       ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
       : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
-        { title: '', startDate: rideDate(), days: 1, bikeId: bikes.some((b) => b.id === defaultBikeId) ? defaultBikeId : lastBikeId(trips, bikes) ?? bikes[0]?.id },
+        { title: '', startDate: rideDate(), days: 1, bikeId: openBike ? defaultBikeId : tourBikeId(trips, bikes) ?? bikes[0]?.id },
   );
   // v0.25.1 (Noah 2a): the name is made from bike, date and days until Noah types in it.
   let autoName = $state(isNew);
@@ -137,9 +145,11 @@
   // a suggestion that Packen takes off with one tap; a Repair that is not slim yet stays off (repairslim.js).
   // svelte-ignore state_referenced_locally
   let off = $state(isNew ? newTripOff(items) : []);
-  // v0.114.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
+  // v0.114.0 (bug «Letzte Tour»): a new trip never started from a past trip here, only Standard or a template.
+  // v0.143.0 WS3 (Release-Analyse F5, Noah 14.10.2026 «1a»): «Like the last trip» is back, but only from a
+  // trip really ridden with the chosen bike (riddenTrips: never a trip planned for later, never skipped).
   // svelte-ignore state_referenced_locally
-  let start = $state(startFrom === 'last' ? 'standard' : startFrom);
+  let start = $state(startFrom);
   // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
   // bike as the dialog's defaults; everything stays changeable here.
   function useTemplate(id) {
@@ -188,12 +198,24 @@
   const areaTemplates = $derived(templates.filter((x) => !x.archivedAt && tplDomain(x) === area));
   const chosenTpl = $derived(templates.find((x) => x.id === start) ?? null);
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
+  // v0.143.0 WS3: the trips a copy may come from, and the last one ridden with the bike chosen above
+  // (the bike chips decide the bike; «Like the last trip» follows them).
+  const ridden = $derived(riddenTrips(trips));
+  const lastRidden = $derived(isNew && byBike && draft.bikeId ? lastTripOn(draft.bikeId, ridden) : null);
+  const lastWhen = $derived(lastRidden?.startDate ? new Date(`${lastRidden.startDate}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  const lastLine = $derived(lastRidden ? [lastWhen, lastRidden.bike ?? bikes.find((b) => b.id === lastRidden.bikeId)?.name ?? ''].filter(Boolean).join(' · ') : '');
+  function pickLast() {
+    start = 'last';
+    example = null;
+  }
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
   // A template of another area does not fit: back to the standard (the area's items).
   // v0.28.0 (Noah 8.10.2026): a new trip starts with the standard set; templates are optional.
   $effect(() => {
     const tp = templates.find((x) => x.id === start);
     if (tp && tplDomain(tp) !== area) start = 'standard';
+    // v0.143.0 WS3: no ridden trip with this bike (or not a bike trip): back to the standard
+    if (start === 'last' && !lastRidden) start = 'standard';
     if (example && !examplesFor(area).some((x) => x.id === example)) example = null;
   });
   let error = $state('');
@@ -226,9 +248,33 @@
   // svelte-ignore state_referenced_locally
   const bikeAtStart = isNew && trips.some((x) => hasBike(x) && !x.skipped && x.bikeId === draft.bikeId) ? draft.bikeId : null;
   // svelte-ignore state_referenced_locally
-  const bikeFromOpen = bikes.some((b) => b.id === defaultBikeId);
+  const bikeFromOpen = openBike;
   let bikeOwn = $state(false);
   const bikePre = $derived(!!bikeAtStart && !bikeOwn && draft.bikeId === bikeAtStart && bikes.length > 1);
+  // VS1–VS4 (Noah 14.10.2026 «VS1–VS4 freigegeben», «1a 2b 3a»): the standard bike (first in the order)
+  // has a star and is chosen unless «the one ridden last» was picked; the app asks that once, here,
+  // at the first new trip with more than one bike. «Change standard» opens the order window.
+  const stdBike = $derived(standardBike(bikes));
+  const stdPre = $derived(!bikeFromOpen && !bikeOwn && tourBike.mode !== 'last' && draft.bikeId === stdBike?.id && bikes.length > 1);
+  let askTourBike = $state(false);
+  let orderOpen = $state(false);
+  $effect(() => {
+    // «bei der allerersten Tour, nur einmalig» (Noah 13.10.2026 21:33): only while no trip exists yet
+    if (!isNew || bikes.length < 2 || bikeFromOpen || (allTrips ?? []).length) return;
+    db.settings.get(TOUR_BIKE).then((row) => (askTourBike = !row));
+  });
+  // a new standard chosen in the order window comes along while no bike was tapped
+  let prevStd = null;
+  $effect(() => {
+    const id = stdBike?.id ?? null;
+    if (isNew && !bikeOwn && !bikeFromOpen && tourBike.mode !== 'last' && prevStd && id && id !== prevStd && draft.bikeId === prevStd) draft.bikeId = id;
+    prevStd = id;
+  });
+  async function answerTourBike(mode) {
+    askTourBike = false;
+    await setTourBike(db, mode);
+    if (!bikeOwn) draft.bikeId = tourBikeId(trips, bikes, mode) ?? draft.bikeId;
+  }
   // the check at the name field: another trip has this name → a free one to take with one tap
   const clash = $derived(nameClash(draft.title, trips, trip?.id ?? null));
   const clashWhen = $derived(clash?.trip.startDate ? new Date(`${clash.trip.startDate}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '');
@@ -296,7 +342,7 @@
   /** The start of a new bike trip (template, last trip or standard set), before its context. */
   function startTrip() {
     const tpl = templates.find((x) => x.id === start);
-    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : trips, items);
+    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : ridden, items);
     return { base, tpl, fromCopy: !tpl && !!base.copiedFrom };
   }
   // v0.25.0 (M3): "Your packing list", live from the same pure functions as "Create trip".
@@ -314,7 +360,7 @@
   const byId = $derived(new Map(items.map((i) => [i.id, i])));
 
   // v0.30.0 (Noah, finding 2): the new trip as "Create trip" will make it, live (count on the button).
-  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips, items, fields: ctxFields(), sets: setsValue }, 0) : null);
+  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips: ridden, items, fields: ctxFields(), sets: setsValue }, 0) : null);
   // Building blocks that do not come by themselves (contextSets), with what each would add. The
   // same function as Pack's "Add material → Building blocks" (addSetEntries), same bags skipped.
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -467,7 +513,7 @@
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
       const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
       ended = true;
       clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
@@ -511,7 +557,7 @@
     if (!bike || !hoursOk) return null;
     const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
     const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
+    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
   }
   let autoTimer;
   let autoBusy = Promise.resolve();
@@ -639,15 +685,23 @@
 
 {#snippet templatesFold()}
   <!-- v0.114.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
-       two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»). -->
+       two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»).
+       v0.143.0 WS3: «Like the last trip» on top again, only a trip really ridden with the chosen bike. -->
   <section class="tplbox" class:open={tplOpen}>
     <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
       <span class="tplic" aria-hidden="true"><Star size={18} /></span>
-      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it. Only templates, no past trips.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
+      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it: the last trip ridden with this bike or a template.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : start === 'last' && lastRidden ? t('Like the last trip') : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
       {#if tplOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
     </button>
     {#if tplOpen}
       <div id="tpl-body" class="tplbody">
+        <!-- v0.143.0 WS3 (F5, Noah «1a»): first the last trip really ridden with this bike, with its date and bike -->
+        {#if lastRidden}
+          <p class="grp-l">{t('Like the last trip')}</p>
+          <div class="obtns" role="group" aria-label={t('Like the last trip')}>
+            <OptionButton pressed={start === 'last'} icon={History} label={lastRidden.title || t('Last trip')} title={lastLine} data-start="last" onclick={pickLast} />
+          </div>
+        {/if}
         <p class="grp-l">{t('Your templates')}</p>
         <div class="obtns" role="group" aria-label={t('Your templates')}>
           <OptionButton pressed={start === 'standard' && !example} label={t('Standard')} onclick={() => ((start = 'standard'), (example = null))} />
@@ -661,8 +715,9 @@
         {/if}
         <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
           {#if chosenTpl}<b>{chosenTpl.name}</b> · {tplLine(chosenTpl)}
-          {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null} · {t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
-          {:else}<b>{t('Standard')}</b>{#if preview} · {tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
+          {:else if start === 'last' && lastRidden}<b>{lastRidden.title || t('Last trip')}</b> · {lastLine}{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')}{/if}{' · '}{t('copied, nothing ticked off')}
+          {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null}{' · '}{t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
+          {:else}<b>{t('Standard')}</b>{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
         </span></p>
         <p class="note small">{t('Save your own templates from a trip with «Save as template».')}{#if examples.length} <button type="button" class="tp-link" onclick={hideExamples}>{t('Hide examples')}</button>{/if}</p>
       </div>
@@ -743,9 +798,11 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
-          {#if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
+          {#if stdPre}
+            <p class="sv-hint std-pre"><Star size={14} class="sv-star" aria-hidden="true" /><span><b>{t('Standard bike')}</b> {t('is chosen. A tap on another bike counts only for this trip.')} <button type="button" class="std-link" onclick={() => (orderOpen = true)}>{t('Change standard')}</button></span></p>
+          {:else if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
         </fieldset>
       {:else}
         <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
@@ -843,7 +900,30 @@
   </form>
 </dialog>
 
+{#if askTourBike}
+  <TourBikeAsk standard={stdBike} onanswer={answerTourBike} />
+{/if}
+{#if orderOpen}
+  <BikeOrderSheet {bikes} onclose={() => (orderOpen = false)} />
+{/if}
+
 <style>
+  .std-pre {
+    margin-top: 8px;
+  }
+  .std-pre b {
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .std-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .area {
     border: 0;
     margin: 0;

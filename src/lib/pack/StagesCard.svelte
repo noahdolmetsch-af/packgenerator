@@ -53,7 +53,7 @@
     {#each plan as s (s.day)}
       <li>
         <span class="ic" aria-hidden="true">{#if s.night}<Tent size={16} />{:else}<Flag size={16} />{/if}</span>
-        <span class="tx"><b>{t('Day {n}', { n: s.day + 1 })}</b>{#if way(s)} · {way(s)}{/if}</span>
+        <span class="tx"><b>{t('Day {n}', { n: s.day + 1 })}</b>{#if way(s)}{' · '}{way(s)}{/if}</span>
         {#if s.km != null}<span class="km num">{num(Math.round(s.km))} km</span>{/if}
       </li>
     {/each}

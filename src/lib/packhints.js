@@ -9,11 +9,12 @@ import { debriefedTrips } from './insights.js';
 import { isInventory } from './gear.js';
 import { t } from './i18n.svelte.js';
 import { alwaysKeep, weatherCounts } from './learn.js';
+import { NEVER_USED_MIN } from './neverused.js';
 
-/** Not used this many times in a row (the last times it came along) makes an item ballast. */
-export const BALLAST_AFTER = 2;
+/** Not used this many times in a row (the last times it came along) makes an item ballast (v0.144.0 RE: the shared «never used» number, 3; was 2). */
+export const BALLAST_AFTER = NEVER_USED_MIN;
 /** Only the last times count: an item used long ago and not since is ballast. */
-const LOOK_BACK = 3;
+const LOOK_BACK = Math.max(3, NEVER_USED_MIN);
 const NOT_BALLAST = ['bags', 'bike', 'food'];
 
 /** The other finished trips, newest first. */

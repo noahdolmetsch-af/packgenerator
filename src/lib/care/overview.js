@@ -7,7 +7,7 @@
  *   weeks without a breakdown).
  * bikes: from withVisits (workshop.js). Pure functions, easy to test.
  */
-import { AREAS, PART, CHECK_KM, checkState, bikeLog, isPrep, taskBike, partName } from '../care.js';
+import { AREAS, PART, checkState, bikeLog, isPrep, taskBike, partName } from '../care.js';
 import { visitTotal } from '../workshop.js';
 import { partStatus, isDueState } from './last.js';
 import { localDay } from '../localday.js';
@@ -46,18 +46,20 @@ export const ringTone = (score) => (score == null ? 'none' : score >= 80 ? 'good
  * At most `max` due cards over all bikes, the most urgent first: a worn part or work needed, then
  * what is overdue, then the 1000 km check and the services by km. v0.137.0 (DK1): a problem that is due
  * (readiness.repairDue: before the next ride, its date, work needed) is a card too; the others stay in the problem list.
- * checks: [{ bike, care }] with care from readiness.bikeCare. Returns { cards: [{ bike, row, rank }], total }.
+ * checks: [{ bike, care }] with care from readiness.bikeCare. Returns { cards: [{ bike, row, rank }], total, next }
+ * (next: the bike of the first card not shown, for «n more due: open the bike»).
  */
 export function dueCards(checks, max = 3) {
   const rank = (r) => (r.kind === 'part' ? 3 : r.kind === 'time' || r.kind === 'repair' ? 2 : 1);
   const all = checks.flatMap((c) => (c.care?.rows ?? []).map((row) => ({ bike: c.bike, row, rank: rank(row) })));
   all.sort((a, b) => b.rank - a.rank);
-  return { cards: all.slice(0, max), total: all.length };
+  return { cards: all.slice(0, max), total: all.length, next: all[max]?.bike ?? null };
 }
 
 /** km since the last 1000 km check: { since, every, date } (the oldest check point), or null. */
 export function kmSinceService(bike) {
-  const rows = checkState(bike).rows.filter((r) => r.since != null);
+  const cs = checkState(bike);
+  const rows = cs.rows.filter((r) => r.since != null);
   if (!rows.length) return null;
   const since = Math.max(...rows.map((r) => r.since));
   // The date of the oldest check point's last look.
@@ -66,7 +68,7 @@ export function kmSinceService(bike) {
     const last = [...(p.history ?? [])].reverse().find((h) => h.result !== 'needed' && typeof h.km === 'number' && bike.km - h.km === since);
     if (last) date = last.date;
   }
-  return { since, every: CHECK_KM, date };
+  return { since, every: cs.every, date };
 }
 
 /** Bike problems (repairs on a bike), all states: for «weeks without a breakdown». */

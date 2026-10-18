@@ -27,14 +27,16 @@
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
   import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
-  import { favActs, moveFav, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
+  import { favActs, moveFav, moveFavTo, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
   import { suggestions, openIdeas, actFromTemplate, connections, ALWAYS, HIDDEN_KEY } from '../../lib/flowsugg.js';
   import { saveStars, putSetting, putActs, deleteAct } from '../../lib/flowdb.js';
   import { tickWith, toast, actName } from '../../lib/flow/ui.svelte.js';
   import { tileName } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
-  import { withStravaRides } from '../../lib/kmbook.js';
+  import { withStravaRides, bikeActs } from '../../lib/kmbook.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
+  import SortGrip from '../../lib/ui/SortGrip.svelte';
+  import { sortable } from '../../lib/ui/sortable.js';
 
   const today = localDay();
   const q = hobbyQuery(today);
@@ -70,6 +72,10 @@
   const others = $derived((data?.acts ?? []).filter((a) => !a.fav && !a.paused));
   async function moveTile(a, dir) {
     const out = moveFav(favs, a.id, dir);
+    if (out.length) await putActs(db, out);
+  }
+  async function dropTile(from, to) {
+    const out = moveFavTo(favs, favs[from].id, to);
     if (out.length) await putActs(db, out);
   }
   const setLine = (a, v) => putActs(db, [{ ...a, tileLine: v }]);
@@ -131,7 +137,8 @@
      the rest folded under «Mehr» */
   // v0.121.0 (Noah «1a»): the counted Strava rides count too
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
-  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? []) }) : []);
+  const actQ = liveQuery(() => bikeActs(db));
+  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? [], $actQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');
   const sgQ = liveQuery(async () => {
     const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);
@@ -211,9 +218,10 @@
           {#if editing}
             <section class="card ted" aria-labelledby="tiles-ed-h">
               <h3 id="tiles-ed-h" class="sh">{t('Tiles: order, line, favourites')}</h3>
-              <ul class="ed">
+              <ul class="ed" use:sortable={{ onmove: dropTile }}>
                 {#each favs as a, i (a.id)}
-                  <li>
+                  <li data-sort-id={a.id}>
+                    <SortGrip name={tileName(a)} onstep={(dir) => moveTile(a, dir)} />
                     <span class="en"><b>{tileName(a)}</b><small>{actName(a)} · <button type="button" class="lnk" onclick={() => (renaming = a)} aria-label={t('Rename {name}', { name: tileName(a) })}>{t('rename')}</button></small></span>
                     <label class="el"><span class="sr">{t('Line on {name}', { name: tileName(a) })}</span>
                       <select class="sel" value={lineOf(a)} onchange={(e) => setLine(a, e.currentTarget.value)}>
@@ -267,7 +275,7 @@
         {@const ring = s.act?.ring ?? s.tpl?.ring}
         <li data-sugg={s.id}>
           <span class="dot {ring}" aria-hidden="true"></span>
-          <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : `${s.min} min`}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
+          <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : t('{n} min', { n: s.min })}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
           <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={18} aria-hidden="true" /></button>
           <button type="button" class="ib plus" aria-label={t('Tick {name}', { name: suggName(s) })} onclick={() => doSugg(s)}><Plus size={20} aria-hidden="true" /></button>
         </li>

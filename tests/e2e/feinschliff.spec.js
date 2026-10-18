@@ -29,75 +29,56 @@ const bikesTable = (page) =>
       }),
   );
 
-test('rename a bike: one sheet, the keyboard key saves, the same bike stays chosen, Undo', async ({ page, context }, info) => {
+// Regeln der App C b (Noah 14.10.2026, mockup C2): the pencil next to the bike's name opens «Bike details»
+test('the bike pencil opens Bike details: rename there, the same bike stays chosen', async ({ page, context }, info) => {
   const { T, errors } = await setup(page, context, info);
   await page.goto('./#/bikes');
   const band = page.locator('section.setup-band');
   // without ?bike= Setup shows the first bike by name: Factor
   await expect(band.getByRole('heading', { name: `${P} Factor` })).toBeVisible();
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor` }) }).click();
-  const rn = page.locator('dialog.rename[open]');
-  const field = rn.getByRole('textbox', { name: T('Name'), exact: true });
-  await expect(rn.getByRole('heading', { name: T('Rename bike') })).toBeVisible();
-  await expect(field).toBeFocused();
-  await expect(field).toHaveAttribute('enterkeyhint', 'done');
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor` }) }).click();
+  const det = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
+  await expect(det.getByRole('heading', { name: T('Bike details') })).toBeVisible();
+  const field = det.getByRole('textbox', { name: T('Name'), exact: true });
   await expect(field).toHaveValue(`${P} Factor`);
   // a name that sorts last: the page must not jump to another bike
   await field.fill(`${P} Zeta`);
-  await field.press('Enter');
-  await expect(rn).toHaveCount(0);
+  await det.getByRole('button', { name: T('Save') }).click();
+  await expect(det).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp(`bike=${FACTOR}`));
   await expect(band.getByRole('heading', { name: `${P} Zeta` })).toBeVisible();
   expect((await bikesTable(page)).find((b) => b[0] === FACTOR)[1]).toBe(`${P} Zeta`);
-  const toast = page.locator('.rtoast');
-  await expect(toast).toContainText(T('Renamed to "{name}".', { name: `${P} Zeta` }));
-  await toast.getByRole('button', { name: T('Undo') }).click();
-  await expect(band.getByRole('heading', { name: `${P} Factor` })).toBeVisible();
-  await expect(toast).toHaveCount(0);
-  // the ✕ empties the field; an empty name is not saved
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor` }) }).click();
-  await rn.getByRole('button', { name: T('Clear the name') }).click();
-  await expect(field).toHaveValue('');
-  await expect(field).toBeFocused();
-  await rn.getByRole('button', { name: T('Save') }).click();
-  await expect(rn.getByRole('alert')).toHaveText(T('Give it a name.'));
-  await rn.getByRole('button', { name: T('Cancel') }).click();
-  await expect(rn).toHaveCount(0);
-  expect((await bikesTable(page)).find((b) => b[0] === FACTOR)[1]).toBe(`${P} Factor`);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
 
-test('back keeps the typed name: Escape (Android back) and history back save, Close and Cancel leave it', async ({ page, context }, info) => {
+test('back keeps the typed name: Escape (Android back) and history back save, Close leaves it', async ({ page, context }, info) => {
   const { T, errors } = await setup(page, context, info);
   await page.goto(`./#/bikes?bike=${FACTOR}`);
   const band = page.locator('section.setup-band');
-  const rn = page.locator('dialog.rename[open]');
-  const field = rn.getByRole('textbox', { name: T('Name'), exact: true });
+  const det = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
+  const field = det.getByRole('textbox', { name: T('Name'), exact: true });
   // Escape: what Chrome on Android sends for its own back (CloseWatcher → cancel)
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor` }) }).click();
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor` }) }).click();
   await field.fill(`${P} Factor Esc`);
   await page.keyboard.press('Escape');
-  await expect(rn).toHaveCount(0);
+  await expect(det).toHaveCount(0);
   await expect(band.getByRole('heading', { name: `${P} Factor Esc` })).toBeVisible();
   // the browser's back button (popstate): saved too, the page stays
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor Esc` }) }).click();
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor Esc` }) }).click();
   await field.fill(`${P} Factor Back`);
   await page.goBack();
-  await expect(rn).toHaveCount(0);
+  await expect(det).toHaveCount(0);
   await expect(page).toHaveURL(/#\/bikes/);
   await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
-  // ✕ and «Cancel» leave the name as it was
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor Back` }) }).click();
+  // ✕ leaves the name as it was
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor Back` }) }).click();
   await field.fill(`${P} nie gespeichert`);
-  await rn.getByRole('button', { name: T('Close') }).click();
-  await expect(rn).toHaveCount(0);
+  await det.getByRole('button', { name: T('Close') }).click();
+  await expect(det).toHaveCount(0);
   await expect(band.getByRole('heading', { name: `${P} Factor Back` })).toBeVisible();
-  // the other details are one link further; there too Escape keeps what was typed
-  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Factor Back` }) }).click();
-  await rn.getByRole('button', { name: new RegExp(T('Type, use and photo: Bike details')) }).click();
-  const det = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
-  await expect(det).toBeVisible();
+  // the other details are in the same window; there too Escape keeps what was typed
+  await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Factor Back` }) }).click();
   await det.getByLabel(T('What you use it for')).fill(`${P} Alpencross`);
   await page.keyboard.press('Escape');
   await expect(det).toBeHidden();

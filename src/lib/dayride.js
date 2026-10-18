@@ -11,7 +11,7 @@
  *     preset comes from the forecast for the start date (weather.js); offline it falls back silently.
  * The rules are pure functions (tests/dayride.test.js); only fetchHomeForecast talks to the network.
  */
-import { newTrip, WX_PRESETS } from './trips.js';
+import { newTrip, WX_PRESETS, tripUsedAt } from './trips.js';
 import { tripFromTemplate } from './templates.js';
 import { contextTrip } from './context.js';
 import { hasBike } from './domains.js';
@@ -84,11 +84,7 @@ export const daySource = (trips = []) => [...trips].filter(isDayRide).sort(newes
  * When a trip was last "used": the later of when it was made (createdAt) and its start day once
  * that day has come. A trip planned for later counts from when it was made, not from its start date.
  */
-const usedAt = (trip, today) => {
-  const made = trip.createdAt ?? '';
-  const ridden = trip.startDate && trip.startDate <= today ? `${trip.startDate}T23:59:59` : '';
-  return made > ridden ? made : ridden;
-};
+const usedAt = (trip, today) => tripUsedAt(trip, today); // v0.144.0 RE: one rule, shared with the copy (trips.js)
 
 /**
  * The bike of the last trip by bike that still exists, else the first bike (bikes sorted as shown).

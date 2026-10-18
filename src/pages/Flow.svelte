@@ -27,6 +27,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
+  import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
   import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
@@ -42,7 +43,8 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
   import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
-  import { heartBetween, withStravaRides } from '../lib/kmbook.js';
+  import { heartBetween, withStravaRides, waitingThisMonth, bikeActs } from '../lib/kmbook.js';
+  import { CHECK_HASH } from '../lib/strava/client.svelte.js';
   import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -73,7 +75,8 @@
   import { localDay } from '../lib/localday.js';
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
-  import { t, locale, lang, num } from '../lib/i18n.svelte.js';
+  import { t, tn, locale, lang, num } from '../lib/i18n.svelte.js';
+  import SortArrows from '../lib/ui/SortArrows.svelte';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -86,6 +89,9 @@
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
   const sum = $derived(summary(states));
+  // WS6 (Noah 3a): what counts for «Erholung», folded open under the rings, with «zuletzt am»
+  const rest = $derived(restRows(states, data?.log ?? [], today));
+  const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const week = lastDays(today, 7);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
@@ -117,8 +123,11 @@
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
-  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? []), today));
+  const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point count too
+  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? [], $actQ ?? []), today));
   const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
+  // 0.136.0: Strava rides of this month without a bike wait in «Zum Prüfen» and count after «Passt»
+  const kmWaiting = $derived(waitingThisMonth($kmBookQ ?? [], today));
   const prevMonth = $derived.by(() => {
     const [y, m] = today.split('-').map(Number);
     return new Date(Date.UTC(y, m - 2, 15)).toISOString().slice(0, 10);
@@ -269,6 +278,7 @@
                     {/if}
                   </a>
                   <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
                 </li>
               {/if}
             {/each}
@@ -283,7 +293,7 @@
         {/if}
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
-        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
+        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>
       </aside>
     </div>
   </div>
@@ -307,7 +317,20 @@
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
-            <div class="card ringc"><Rings {rings} size={phone.matches ? 112 : 140} quiet /></div>
+            <div class="card ringc">
+              <Rings {rings} size={phone.matches ? 112 : 140} quiet />
+              {#if rest.length}
+                <details class="restf" data-rest>
+                  <summary><span>{t('What counts for recovery')}</span><small class="num">{t('last 7 days')}</small></summary>
+                  <ul>
+                    {#each rest as r (r.act.id)}
+                      <li><span>{actName(r.act)}</span><small class="num">{lastLine(r)}</small></li>
+                    {/each}
+                  </ul>
+                  <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
+                </details>
+              {/if}
+            </div>
           </Sec>
           <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
             <a class="card kmc" href="#/debrief/ride" data-section="km">
@@ -326,6 +349,7 @@
               {/if}
               {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
+            {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
           </Sec>
           <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
           <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
@@ -395,6 +419,18 @@
     margin: 0 auto;
     min-width: 0;
   }
+  .kmwait {
+    display: block;
+    margin-top: 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* 0.136.0: on a phone the floating «Stoppuhr» button sits over the page end; room below the last tiles */
+  @media (max-width: 719px) {
+    .flow {
+      padding-bottom: 72px;
+    }
+  }
   .ph .sub {
     margin: var(--sp-1) 0 0;
     color: var(--ink-3);
@@ -424,6 +460,43 @@
   }
   .ringc {
     padding: var(--sp-4) var(--sp-5);
+  }
+  .restf {
+    margin-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+  }
+  .restf summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .restf small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .restf ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .restf li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .restf li small {
+    text-align: right;
+  }
+  .restf .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
   .kmc {
     display: flex;

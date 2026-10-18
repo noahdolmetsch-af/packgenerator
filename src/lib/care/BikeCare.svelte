@@ -24,8 +24,10 @@
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
     ontoggle, onkm, oncheck, ondone, onpart, ontyre, onvisit, onorder, onwish, onrepair, onstart = null,
-    kmEntries = [], bikes = [], onstartpoint = null, onq1 = null,
+    kmEntries = [], bikes = [], onstartpoint = null, onq1 = null, stored = null, oncare = null,
   } = $props();
+  // v0.144.0 RE (Noah 4a): the card «Pflege für …» above the part list (care/CarePlanCard.svelte).
+  import CarePlanCard from './CarePlanCard.svelte';
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
@@ -265,7 +267,7 @@
       <small class="sub num">
         {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
         {#if open}
-          {#if bike.kmDate} · {kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
+          {#if bike.kmDate}{' · '}{kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
           · <button type="button" class="lnk" aria-expanded={kmOpen || bike.km == null} onclick={() => (kmOpen = !kmOpen)}>{bike.km == null ? t('enter km') : t('change km')}</button>
         {:else if lastVisit}
           · {t('bike shop {date}', { date: dateOf(lastVisit.date) })}
@@ -315,16 +317,16 @@
             {@render partRow(x.r, x)}
           {:else if x.d.kind === 'check'}
             <li class="pt due">
-              <span class="pn"><button type="button" class="part-btn" onclick={showCheck}>{t('{km} km check', { km: num(CHECK_KM) })}</button></span>
+              <span class="pn"><button type="button" class="part-btn" onclick={showCheck}>{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</button></span>
               <span class="st">{@render badge('due')}</span>
               <span class="last"><span class="lt">{x.d.detail}</span></span>
               <span class="next late">{checkLate.join(', ') || '–'}</span>
               <span class="wear"></span>
               <span class="act"><span class="rowacts">
-                <Btn icon={Eye} label={t('Look|check')} explain={explain('Look|check')} sub={t('{km} km check', { km: num(CHECK_KM) })} onclick={showCheck} />
-                <MoreActions title={[t('{km} km check', { km: num(CHECK_KM) }), bike.name].join(' · ')} label={t('More for {title}', { title: t('{km} km check', { km: num(CHECK_KM) }) })} actions={[
+                <Btn icon={Eye} label={t('Look|check')} explain={explain('Look|check')} sub={t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })} onclick={showCheck} />
+                <MoreActions title={[t('{km} km check', { km: num(c.check.every ?? CHECK_KM) }), bike.name].join(' · ')} label={t('More for {title}', { title: t('{km} km check', { km: num(c.check.every ?? CHECK_KM) }) })} actions={[
                   { name: t('Look|check'), explain: explain('Look|check'), icon: Eye, run: showCheck, current: true },
-                  { name: t('All OK|check'), explain: explain('All OK|check'), icon: ListChecks, run: () => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM })) },
+                  { name: t('All OK|check'), explain: explain('All OK|check'), icon: ListChecks, run: () => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: c.check.every ?? CHECK_KM })) },
                 ]} />
               </span></span>
             </li>
@@ -358,6 +360,7 @@
       {/if}
       {#if filter === 'all'}
         <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
+        {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
       {:else}
       {#if soon.length || ok.length}
@@ -393,14 +396,14 @@
       {/if}
       <div class="folds">
         <details class="fold" id="check-{bike.id}" bind:open={checkOpen}>
-          <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if checkOpen}
             <ul class="checks">
               {#each c.check.rows as r (r.key)}
                 <li class:late={r.due}><span>{r.name}</span><span class="num m">{needsWork(bike.parts.find((p) => p.key === r.key)) ? t('work needed') : r.unknown ? (bike.km == null ? t('set km') : t('not recorded')) : t('{km} km ago', { km: num(r.since) })}</span></li>
               {/each}
             </ul>
-            <Btn label={t('All OK|check')} explain={explain('All OK|check')} class="sm" onclick={() => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM }))} />
+            <Btn label={t('All OK|check')} explain={explain('All OK|check')} class="sm" onclick={() => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: c.check.every ?? CHECK_KM }))} />
             <p class="hint">{t('Something not OK? Open the part and tap "Replace or work needed".')}</p>
           {/if}
         </details>
@@ -427,7 +430,7 @@
             <section class="sub-sec" aria-labelledby="shop-h-{bike.id}">
               <h3 id="shop-h-{bike.id}" class="ch">{t('For the bike shop')}</h3>
               {#if c.order?.rows.length}
-                <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
+                <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total}{' · '}{t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
                 <Btn label={t('Send|order')} explain={explain('Send|order')} onclick={onorder} />
               {:else}
                 <p class="quiet">{t('Nothing for the bike shop right now.')}</p>
@@ -445,7 +448,7 @@
               {/if}
               <p class="legend">
                 <span><i class="dot me" aria-hidden="true"></i>{tn(year.self, 'me: {n} job', 'me: {n} jobs')}</span>
-                <span><i class="dot mech" aria-hidden="true"></i>{tn(year.shop, 'bike shop: {n} visit', 'bike shop: {n} visits')}{#if year.shop} · <span class="num">{year.unknown === year.shop ? t('cost unknown') : `${chf(year.chf)}${year.unknown ? ` + ${t('unknown')}` : ''}`}</span>{/if}</span>
+                <span><i class="dot mech" aria-hidden="true"></i>{tn(year.shop, 'bike shop: {n} visit', 'bike shop: {n} visits')}{#if year.shop}{' · '}<span class="num">{year.unknown === year.shop ? t('cost unknown') : `${chf(year.chf)}${year.unknown ? ` + ${t('unknown')}` : ''}`}</span>{/if}</span>
               </p>
               <p class="quiet num">{year.per?.chf != null ? t('CHF {chf} per 1000 km', { chf: num(year.per.chf) }) : year.per?.wait ? t('Cost per 1000 km after {km} more km', { km: num(year.per.wait) }) : t('Cost per 1000 km: add the km at a visit')}</p>
               {#if lastVisit}
