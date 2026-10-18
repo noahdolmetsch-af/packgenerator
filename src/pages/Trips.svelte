@@ -131,6 +131,9 @@
   const band = $derived(packBand(plan, $tripsQ ?? [], current));
   const bandRow = $derived(band.state === 'draft' ? band.row : null);
   const PLAN_SHORT = 3;
+  // Paket D: on a phone «Geplant» shows the next two first, so Touren stays within three screens (Handy kurz)
+  // with «Schnell starten» (WS2) and the count line with its period (B1) above it
+  const planShort = $derived(phone.matches ? 2 : PLAN_SHORT);
   let planAll = $state(false);
   const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
   const go = (r) => switchTrip(r.tripId, r.go.href);
@@ -374,7 +377,7 @@
         {/if}
         {#if plan.length}
           <ul class="pcards">
-            {#each planAll ? plan : plan.slice(0, PLAN_SHORT) as r (r.id)}
+            {#each planAll ? plan : plan.slice(0, planShort) as r (r.id)}
               {@const ents = byId[r.tripId]?.entries ?? []}
               {@const packed = ents.filter((e) => e.packed).length}
               {@const p = r.kind === 'trip' && ents.length ? Math.round((100 * packed) / ents.length) : r.kind === 'ride' ? pct(r.state) : null}
@@ -404,7 +407,7 @@
               </li>
             {/each}
           </ul>
-          {#if plan.length > PLAN_SHORT}<button type="button" class="btn btn-link more" aria-expanded={planAll} onclick={() => (planAll = !planAll)}>{planAll ? t('Fewer|list') : tn(plan.length, 'All {n} planned trip', 'All {n} planned trips')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
+          {#if plan.length > planShort}<button type="button" class="btn btn-link more" aria-expanded={planAll} onclick={() => (planAll = !planAll)}>{planAll ? t('Fewer|list') : tn(plan.length, 'All {n} planned trip', 'All {n} planned trips')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
         {:else}
           <p class="noplan" data-no-plan><Calendar size={16} aria-hidden="true" />{t('No trip planned.')} <button type="button" class="btn btn-link" onclick={() => openNew('list')}>{t('New trip')}<ChevronRight size={14} aria-hidden="true" /></button></p>
         {/if}
