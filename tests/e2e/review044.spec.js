@@ -103,6 +103,11 @@ test('Review: the old address leads to the 12 months on the look back page, no s
   await expect(card.getByRole('list', { name: 'Letzte 12 Monate' }).locator('li').filter({ hasText: /Touren?$/ })).toHaveCount(1);
   await expect(card.getByRole('img', { name: 'km pro Monat' })).toBeVisible();
   const all = card.getByRole('button', { name: 'Alle Kennzahlen' });
+  // 0.159.1 (Noah 14.10.2026 «a»): on a phone the table starts closed, one tap opens it
+  if (info.project.name === 'phone') {
+    await expect(all).toHaveAttribute('aria-expanded', 'false');
+    await all.click();
+  }
   await expect(all).toHaveAttribute('aria-expanded', 'true');
   await expect(card.getByRole('rowheader', { name: 'Touren' })).toBeVisible();
   await expect(card.getByRole('rowheader', { name: 'Distanz' })).toBeVisible();

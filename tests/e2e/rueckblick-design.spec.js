@@ -115,10 +115,15 @@ test('Rückblick (T17, SN2): the missing debrief on top, 12 months and the compa
   await page.goto('./#/debrief');
   await expect(page.locator('[data-open-debrief]')).toBeVisible();
   await expect(page.locator('section.period .rv-tiles')).toBeVisible();
+  // 0.159.1 (UI-Regeln Teil 2): on a phone the lower sections are closed lines; one tap opens them
+  const phone = info.project.name === 'phone';
+  const openLine = async (name) => phone && (await page.getByRole('button', { name: new RegExp(`^${T(name)}`) }).click());
+  await openLine('Trips compared');
   await expect(page.locator('#compare table.st')).toBeVisible();
+  await openLine('Last ride');
   await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
   await expect(page.locator('.lastride .rv-tiles')).toBeVisible();
-  await expect(page.locator('.below section.sub')).toBeVisible();
+  await expect(page.locator(phone ? '.below [data-group="rv-pace"]' : '.below section.sub')).toBeVisible();
   await twoColumns(page, info, 'section.period', '.below');
   await targets(page);
   await fits(page, info);
