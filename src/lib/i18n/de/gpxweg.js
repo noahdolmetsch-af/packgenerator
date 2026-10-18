@@ -11,7 +11,7 @@ export default {
   'Check and save': 'Prüfen und speichern',
   'you see km, climbing, riding time and pauses, and where it is saved.': 'du siehst km, Höhenmeter, Fahrzeit und Pausen, und wo sie gespeichert wird.',
   'The app learns': 'Die App lernt',
-  'the ride shows up in Look back, counts for your pace and suggests learnings.': 'die Fahrt steht im Rückblick, zählt für dein Tempo und schlägt Learnings vor.',
+  'the ride shows up in Look back, counts for your pace and suggests learnings.': 'die Fahrt steht im Rückblick, zählt für dein Tempo und schlägt Erkenntnisse vor.',
   'Planned route, not a ride': 'Geplante Route, keine Fahrt',
   '«{file}» has no times. It is a route you want to ride, not a ride you rode. For your pace the app needs the recording of your bike computer.': '«{file}» hat keine Uhrzeiten. Das ist eine Route, die du fahren willst, keine gefahrene Fahrt. Für dein Tempo braucht die App die Aufzeichnung vom Velocomputer.',
   'Use as route for a trip': 'Als Route für eine Tour nutzen',
@@ -40,10 +40,10 @@ export default {
   'Your pace: {n} of {min}': 'Dein Tempo: {n} von {min}',
   '{n} more ride from 20 km, then every trip guesses with your pace.': 'noch {n} Fahrt ab 20 km, dann rechnet jede Tour mit deinem Tempo.',
   '{n} more rides from 20 km, then every trip guesses with your pace.': 'noch {n} Fahrten ab 20 km, dann rechnet jede Tour mit deinem Tempo.',
-  '{n} learning is waiting': '{n} Learning wartet',
-  '{n} learnings are waiting': '{n} Learnings warten',
+  '{n} learning is waiting': '{n} Erkenntnis wartet',
+  '{n} learnings are waiting': '{n} Erkenntnisse warten',
   'below. Remember or No, both are fine.': 'unten. Merken oder Nein, beides ist ok.',
-  'See learnings': 'Learnings ansehen',
+  'See learnings': 'Erkenntnisse ansehen',
   'Upload next ride': 'Nächste Fahrt hochladen',
   'To your pace': 'Zu Dein Tempo',
   'To Look back': 'Zum Rückblick',
@@ -73,7 +73,7 @@ export default {
   'Look back › Upload ride': 'Rückblick › Fahrt hochladen',
   // R3 (Noah 15.10.2026 «5a»): one way for GPX, TCX and CSV
   'A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.':
-    'Eine aufgezeichnete Fahrt als GPX oder TCX: Pausen, geplant gegen echt, Learnings. Eine CSV-Liste von Strava oder Garmin: die km deiner Touren. Wird auf diesem Gerät gelesen.',
+    'Eine aufgezeichnete Fahrt als GPX oder TCX: Pausen, geplant gegen echt, Erkenntnisse. Eine CSV-Liste von Strava oder Garmin: die km deiner Touren. Wird auf diesem Gerät gelesen.',
   'Choose a ride file': 'Fahrt-Datei wählen',
   'GPX, TCX or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.':
     'GPX, TCX oder CSV. Garmin, Wahoo, Strava oder Komoot: eine Fahrt → GPX exportieren. Am Android-Handy kannst du die Datei auch an Pack Generator teilen.',

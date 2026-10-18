@@ -40,5 +40,5 @@ export default {
   '{n} entries': '{n} Einträge',
   'of {n}': 'von {n}',
   // Gelernt
-  '{n} learnings in {k} topics': '{n} Learnings in {k} Themen',
+  '{n} learnings in {k} topics': '{n} Erkenntnisse in {k} Themen',
 };

@@ -1,6 +1,6 @@
 // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3): the window for a new trip.
 export default {
-  'Conditions|newtrip': 'Rahmenbedingungen',
+  'Conditions|newtrip': 'Neue Tour',
   Sport: 'Sportart',
   'Cycling|sport': 'Fahrrad',
   'Other|sport': 'Andere',
@@ -33,7 +33,7 @@ export default {
   'Plus {n} item on the body ({names}), counted apart.': 'Dazu {n} Teil am Körper ({names}), es zählt separat.',
   'Plus {n} items on the body ({names}), counted apart.': 'Dazu {n} Teile am Körper ({names}), sie zählen separat.',
   'Clothing|group': 'Kleider',
-  'Gear|group': 'Ausrüstung',
+  'Gear|group': 'Material',
   'Extra warm': 'Extra warm',
   'Comes along: down to {n}°': 'Kommt dazu: bis {n}° kalt',
   'Hut tour': 'Hüttentour',
