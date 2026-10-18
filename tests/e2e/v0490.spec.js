@@ -178,7 +178,9 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau']) await expect(ride).toContainText(v);
   // SN2x: the days of a multi-day trip are a table under «Strecke»; the other groups fold open
   for (const v of ['Tag 1', 'Tag 2']) await expect(main.locator('[data-day-table]')).toContainText(v);
-  for (const key of ['pack', 'next']) await main.locator(`section[data-group="${key}"] button.gb`).click();
+  // Impeccable Runde 2: «Weiter» is open from the start
+  await expect(main.locator('section[data-group="next"] button.gb')).toHaveAttribute('aria-expanded', 'true');
+  await main.locator('section[data-group="pack"] button.gb').click();
   const pvr = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
   await expect(pvr).toContainText('142 km');
   await expect(pvr).toContainText('zu deinen Gunsten');

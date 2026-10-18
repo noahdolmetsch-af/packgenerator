@@ -13,4 +13,12 @@ export default {
   'Short: all good': 'Kurz: Alles gut',
   'Saved: {title}, all good.': 'Gespeichert: {title}, alles gut.',
   'Nothing learned yet. It comes from every debrief, «Write the debrief» above is the next one.': 'Noch nichts gelernt. Es kommt aus jedem Rückblick, «Rückblick schreiben» oben ist der nächste.',
+
+  // Rückblick einer Tour 2: «Fertig» once, the saved line in «Fertig. Gute Tour!»
+  'Saved on {date}': 'Gespeichert am {date}',
+  '{n} change taken over': '{n} Änderung übernommen',
+  '{n} changes taken over': '{n} Änderungen übernommen',
+  // Rückblick einer Tour 3: «Weiter» open, one clear button at its end
+  'To the next trip: {name}': 'Zur nächsten Tour: {name}',
+  'Plan the next trip': 'Nächste Tour planen',
 };

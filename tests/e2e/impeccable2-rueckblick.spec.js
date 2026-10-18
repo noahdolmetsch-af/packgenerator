@@ -99,3 +99,26 @@ test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
+
+test('Rückblick einer Tour: «Fertig» once with the saved line, «Weiter» open with one button to the next trip', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, '2026-10-12T10:00:00+02:00');
+  await page.goto('./#/debrief/test_data_gtp_trip01');
+  await page.reload();
+  // no card «Gespeichert» any more; its line sits in «Fertig. Gute Tour!»
+  await expect(page.getByRole('heading', { name: T('Done. Good trip!') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toHaveCount(0);
+  await expect(page.locator('[data-saved]')).toContainText(T('Saved on {date}', { date: '' }).trim());
+  // «Weiter» is open and ends with one clear button
+  const next = page.locator('section[data-group="next"]');
+  await expect(next.locator('button[aria-expanded]').first()).toHaveAttribute('aria-expanded', 'true');
+  const go = next.locator('[data-go-next]').locator('a, button');
+  await expect(go).toHaveCount(1);
+  await expect(go).toHaveText(new RegExp(`^(${esc(T('To the next trip: {name}', { name: '' }))}.+|${esc(T('Plan the next trip'))})$`));
+  // the tile row without the ways the page has already
+  const row = page.locator('[data-sk="debrief"]');
+  for (const id of ['logbook', 'pace', 'learnings', 'past']) await expect(row.locator(`[data-sk-tile="${id}"]`)).toHaveCount(0);
+  expect(await wide(page)).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});
