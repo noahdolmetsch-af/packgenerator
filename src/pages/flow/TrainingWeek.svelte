@@ -173,7 +173,7 @@
       </div>
     </Sec>
 
-    <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')}>
+    <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')} more={{ href: '#/flow/review', label: t('Week in review') }}>
       <div class="card back" data-section="look-back">
         <ol class="bars" aria-label={t('Hours per week, last six weeks')}>
           {#each weeks as w (w.m)}

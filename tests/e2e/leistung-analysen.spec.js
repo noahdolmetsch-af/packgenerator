@@ -1,11 +1,20 @@
 // TR7a/TR7b/TR7f «Analysen auf der Aktivität» (Noah 14.10.2026 «TR5–TR7 freigegeben»): Anstiege,
 // Abschnitte (tap shows the section in Verlauf), Verlauf with its tooltip, Puls mal Leistung, the two
-// halves, similar rides (a dot opens that ride) and best values, in German, on the fictional ride 3001.
+// halves, similar rides (a dot opens that ride) and best values, in German, on the fictional ride 3001;
+// «Mehr Inhalt» T2 hard pieces (a tap shades the piece in Verlauf) and T5 the home loop over time.
 // Hiding via «…» › Ausblenden with Rückgängig, and a switch in «Analysen anpassen». Fictional data only;
 // everything outside the preview server is blocked.
 import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
-import { P, GEAR, ZONES, day, routeStrava, seedActivities } from './leistung-data.js';
+import { P, GEAR, ZONES, day, routeStrava, seedActivities, activities, detail } from './leistung-data.js';
+import { ftpEstimate } from '../../src/lib/training.js';
+import { ANALYSES } from '../../src/lib/training/analyses.js';
+import { hardPieces, piecesSummary } from '../../src/lib/training/inhalt/inhalt-fahrt.js';
+
+// «Mehr Inhalt» T2: what the app should find on the main ride, from the same fictional data and the app's own rules
+const FTP = ftpEstimate(activities().map((a) => ({ day: a.startLocal.slice(0, 10), w20: a.wDevice ? detail(a.id).w20 : null })), day(0));
+const PIECES = hardPieces(detail('3001').prof, FTP);
+const SUM = piecesSummary(PIECES, FTP, detail('3001').prof.breaks);
 
 const shot = async (page, info, name) => {
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
@@ -46,6 +55,8 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   page.on('pageerror', (e) => errors.push(e.message));
   await open(page, context, baseURL);
   const card = (k) => page.locator(`[data-ana="${k}"]`);
+  // every analysis of the activity is on, counted from the app's own list
+  await expect(page.locator('[data-section="analyses"] .anh .num')).toContainText(`${ANALYSES.act.length} von ${ANALYSES.act.length} ·`);
 
   // TR7f: the climbs of this ride with VAM
   const climbs = card('climbs');
@@ -87,6 +98,50 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   await sec.getByRole('button', { name: 'km 10–15 im Verlauf zeigen' }).click();
   await expect(tl.locator('[data-focus]')).toHaveCount(0);
 
+  // «Mehr Inhalt» T2: the hard pieces of this ride, one summary line and a table; a tapped piece is shaded in the course
+  const iv = card('intervals');
+  await expect(iv.getByRole('heading', { name: 'Harte Stücke dieser Fahrt' })).toBeVisible();
+  await expect(iv).toContainText('ab 90 % deiner FTP, mindestens 3 Minuten');
+  expect(SUM).toMatchObject({ same: true, n: 4, mins: 5, zone: 4, pause: 3 });
+  await expect(iv.locator('[data-pieces-summary]')).toHaveText(`4 × 5 Min in Z4, Ø ${SUM.w} W, Pause Ø 3 Min`);
+  await expect(iv.getByRole('columnheader')).toHaveText(['Start', 'Dauer', 'Ø W', 'Ø Puls', 'Zone']);
+  await expect(iv.locator('tbody tr')).toHaveCount(PIECES.length);
+  await expect(iv.locator('tbody tr').first()).toContainText('Min 66');
+  await expect(iv.locator('tbody tr').first()).toContainText('5:00');
+  await expect(iv.locator('tbody tr').first()).toContainText(`${PIECES[0].w}`);
+  await expect(iv.locator('tbody tr').first()).toContainText('Z4');
+  await expect(iv).toContainText(`Hart = ab 90 % deiner geschätzten FTP (${FTP} W), mindestens 3 Minuten am Stück.`);
+  const pieceBtn = iv.getByRole('button', { name: 'Hartes Stück ab Minute 74 im Verlauf zeigen' });
+  await pieceBtn.click();
+  await expect(pieceBtn).toHaveAttribute('aria-pressed', 'true');
+  await expect(tl.locator('[data-focus]')).toHaveCount(1);
+  await expect(tl).toContainText('Markiert: das harte Stück ab Minute 74. Nochmals antippen hebt es auf.');
+  await expect(sec.getByRole('button', { pressed: true })).toHaveCount(0);
+  await shot(page, info, 'inhalt-harte-stuecke');
+  await pieceBtn.click();
+  await expect(pieceBtn).toHaveAttribute('aria-pressed', 'false');
+  await expect(tl.locator('[data-focus]')).toHaveCount(0);
+
+  // «Mehr Inhalt» T5: the same route over time, this ride marked, one calm sentence
+  const hl = card('homeloop');
+  await expect(hl.getByRole('heading', { name: 'Deine Hausrunde über die Zeit' })).toBeVisible();
+  await expect(hl).toContainText('4 Fahrten auf dieser Strecke');
+  await expect(hl.locator('[data-homeloop-sentence]')).toHaveText('Auf dieser Strecke warst du diesmal 1:20 schneller als im Schnitt, bei 4 Schlägen weniger Puls.');
+  await expect(hl.getByRole('columnheader')).toHaveText(['Datum', 'Zeit', 'km/h', 'Ø W', 'Ø Puls', 'W/Schlag']);
+  await expect(hl.locator('tbody tr')).toHaveCount(4);
+  const meRow = hl.locator('[data-loop-row="3001"]');
+  await expect(meRow).toHaveAttribute('aria-current', 'true');
+  await expect(hl.locator('tbody tr').last()).toHaveAttribute('data-loop-row', '3001'); // oldest first, this ride is the newest
+  await expect(meRow).toContainText('diese Fahrt');
+  await expect(meRow).toContainText('1:36:00');
+  await expect(meRow).toContainText('188');
+  await expect(meRow).toContainText('1.36'); // 188 W ÷ 138 beats
+  await expect(hl.getByRole('img')).toHaveAttribute('aria-label', 'Ø Tempo auf 4 Fahrten dieser Strecke; diese Fahrt ist der grössere Punkt.');
+  await expect(hl).toContainText('Gleicher Name und km ±10 %.');
+  expect(await hl.locator('table').evaluate((el) => el.scrollWidth <= el.parentElement.clientWidth + 1)).toBe(true); // every column fits, also on the phone
+  await expect(hl.locator('a[href="#/flow/training/a/3801"]')).toHaveCount(1);
+  await shot(page, info, 'inhalt-hausrunde');
+
   // TR7a: heart rate by power, a real table, Z1 Erholung … Z5 Maximal by Z1 … Z7
   const grid = card('grid');
   await expect(grid.getByRole('heading', { name: 'Puls mal Leistung' })).toBeVisible();
@@ -124,7 +179,7 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   // no page wider than the screen
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await shot(page, info, 'leistung-analysen-2');
-  if (process.env.SHOTS) for (const k of ['climbs', 'sections', 'timeline', 'grid', 'halves', 'similar', 'best']) await card(k).screenshot({ path: `${process.env.SHOTS}/ana-${k}-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  if (process.env.SHOTS) for (const k of ['climbs', 'sections', 'timeline', 'grid', 'halves', 'similar', 'best', 'intervals', 'homeloop']) await card(k).screenshot({ path: `${process.env.SHOTS}/ana-${k}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 
   // TR7c: «…» › Ausblenden, then Rückgängig
   await grid.getByRole('button', { name: 'Mehr zu Puls mal Leistung' }).click();
@@ -179,6 +234,7 @@ test('Analysen auf der Aktivität: a ride without a power meter shows heart rate
   await expect(page.locator('[data-ana="grid"]')).toHaveCount(0);
   await expect(page.locator('[data-ana="best"]')).toHaveCount(0);
   await expect(page.locator('[data-ana="climbs"]')).toHaveCount(0); // only the main ride has climbs
+  await expect(page.locator('[data-ana="intervals"]')).toHaveCount(0); // no power meter, no hard pieces
   const hv = page.locator('[data-ana="halves"]');
   await expect(hv.getByRole('rowheader')).toHaveText(['Ø Puls']);
   await expect(hv.locator('[data-halves-sentence]')).toHaveText('In der zweiten Hälfte 4 % mehr Puls.');

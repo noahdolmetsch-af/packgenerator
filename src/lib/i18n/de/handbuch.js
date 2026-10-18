@@ -412,4 +412,9 @@ export default {
   'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
   'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
   'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
+  // Wochenrückblick (W1–W6)
+  'Open Aktiv › Week and tap «Week in review», or Training › Look back.': 'Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.',
+  'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.': 'Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.',
+  'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.': 'Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.',
+  'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».': 'Beispiel: 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».',
 };

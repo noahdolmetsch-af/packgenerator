@@ -127,6 +127,7 @@ export const HOWTO = {
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
   // v0.148.0 «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
+  'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
 };
 

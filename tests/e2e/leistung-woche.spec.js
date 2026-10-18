@@ -1,10 +1,12 @@
 // TR7d–TR7f «Analysen über die Wochen» (Noah 14.10.2026 «TR5–TR7 freigegeben»): under the look back of
 // Aktiv › Training › Woche the six week cards (form, load per week, power curve, efficiency, month against
 // month, year against year) in German, readable at 390 px; one hidden and back with «Rückgängig», one
-// switched in «Analysen anpassen». Fictional activities only (leistung-data.js), nothing leaves the device.
+// switched in «Analysen anpassen». «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T1 plan kept, T3 endurance check,
+// T4 FTP over the months, and their quiet lines without data. Fictional activities only (leistung-data.js),
+// nothing leaves the device.
 import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
-import { seedActivities, zurichToday } from './leistung-data.js';
+import { seedActivities, zurichToday, planSessions, activities, day } from './leistung-data.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ANALYSES } from '../../src/lib/training/analyses.js';
 
@@ -23,7 +25,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   });
   await page.goto('./');
   await ready(page);
-  await seedActivities(page);
+  await seedActivities(page, { plan: planSessions(), weight: { entries: [{ day: day(-200), kg: 72.4 }, { day: day(-20), kg: 71.2 }] } });
   await page.goto('./#/flow/training');
   await page.reload();
   await ready(page);
@@ -71,12 +73,31 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   await expect(card('year')).toContainText('Gleicher Zeitraum: 1. Januar bis heute.');
   await expect(card('year')).toContainText(/\d{4} bis \d+\. \w+/);
   await expect(card('year').locator('.rn', { hasText: /^Aktivitäten$/ })).toBeVisible();
+  // T1 plan kept: this week as rows (today still open), one bar per week for six weeks
+  await expect(card('plan').locator(`[data-plan-row="p9"]`)).toContainText('60 Min Z2');
+  await expect(card('plan').locator(`[data-plan-row="p9"]`)).toContainText('noch offen');
+  await expect(card('plan').locator('[data-plan-week]')).toHaveCount(6);
+  await expect(card('plan').locator('[data-plan-week]').last()).toContainText('Diese Woche');
+  await expect(card('plan')).toContainText(/\d von \d wie geplant/);
+  await expect(card('plan').locator(`[data-plan-week]`).filter({ hasText: /, 1 fast$/ })).toHaveCount(1);
+  for (const l of ['wie geplant', 'eine Zone daneben', 'andere Zone', 'nicht gemacht']) await expect(card('plan').locator('.pk-leg')).toContainText(l);
+  // T3 endurance check: a dot per long calm ride, a trend, one neutral sentence
+  expect(await card('decouple').locator('circle').count()).toBeGreaterThanOrEqual(3);
+  await expect(card('decouple').locator('[data-decouple-sentence]')).toHaveText(/^Auf langen ruhigen Fahrten (steigt dein Puls im Schnitt um \d+\.\d %|bleibt dein Puls im Schnitt gleich bei gleicher Leistung \(-?\d+\.\d %\)).* Unter 5 % gilt als gute Ausdauer\.$/);
+  await expect(card('decouple').getByRole('img')).toHaveAttribute('aria-label', /^\d+ lange ruhige Fahrten, im Schnitt -?\d+\.\d %$/);
+  await expect(card('decouple')).toContainText(/\d+ Fahrten ab 1 Std\., meist Z1–Z2/);
+  // T4 FTP over the months: a line over 12 months, today in W and W/kg, no hint (hard 20 minutes in the last 6 weeks)
+  await expect(card('ftp').getByRole('img')).toHaveAttribute('aria-label', /^Geschätzte FTP über 12 Monate, heute \d+ W · \d\.\d W\/kg$/);
+  await expect(card('ftp').locator('[data-ftp-now]')).toHaveText(/^Heute\s*\d+ W · \d\.\d W\/kg$/);
+  await expect(card('ftp').locator('[data-ftp-hint]')).toHaveCount(0);
+  await expect(card('ftp')).toContainText('95 % der besten 20 Minuten aus den 90 Tagen bis Monatsende');
   // German only, no English left over
   expect(await sec.innerText()).not.toMatch(/\b(Wk|Fatigue|Load|Hours|best of|against|Trend from|Same period|days|year)\b/);
   // readable at 390: no page scroll sideways
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await card('form').scrollIntoViewIfNeeded();
   await shot(page, info, 'leistung-woche');
+  if (process.env.SHOTS) for (const k of ['plan', 'decouple', 'ftp']) await card(k).screenshot({ path: `${process.env.SHOTS}/ana-${k}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 
   // hide «Belastung pro Woche» and bring it back with «Rückgängig»
   await card('wload').getByRole('button', { name: `Mehr zu ${T('Load per week')}` }).click();
@@ -105,3 +126,29 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   expect(errors).toEqual([]);
 });
 
+
+test('Training › Woche: plan kept, endurance check and FTP say quietly why nothing shows', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  await page.goto('./');
+  await ready(page);
+  // only the run: no plan, no ride with a power meter
+  await seedActivities(page, { acts: activities().filter((a) => a.type === 'Run') });
+  await page.goto('./#/flow/training');
+  await page.reload();
+  await ready(page);
+  const card = (k) => page.locator(`[data-section="week-analyses"] [data-ana="${k}"]`);
+  await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Oben unter «Woche planen» planen.');
+  await expect(card('plan').getByRole('link', { name: 'Oben unter «Woche planen» planen.' })).toHaveAttribute('href', '#/flow/training');
+  await expect(card('decouple').locator('[data-decouple-none]')).toContainText('Noch keine lange ruhige Fahrt in den letzten 6 Monaten');
+  await expect(card('ftp').locator('[data-ftp-none]')).toContainText('Noch keine Fahrt mit Leistungsmesser');
+  // the link goes to the plan just above on this page
+  await card('plan').getByRole('link').click();
+  await expect(page.locator('[data-section="week-plan"]')).toBeInViewport();
+  expect(errors).toEqual([]);
+});
