@@ -1,0 +1,132 @@
+# Projektstand und Plan
+
+Stand: **18. Oktober 2026, abends**. Live ist **Version 0.144.0** (seit 15.10.2026).
+
+Diese Seite ist der Einstieg: was die App ist, was heute online ist, was fertig gebaut auf die Veröffentlichung wartet, in welcher Reihenfolge es kommt und was danach geplant ist. Wie das Projekt bis hierhin gewachsen ist, steht in der [Geschichte](geschichte.md). Einzelheiten stehen in den Dokumenten, die unten verlinkt sind.
+
+Grundlage: `main` auf GitHub, die offenen Pull Requests und die Paket-Notizen der Claude-Sitzungen (Stand 18.10.2026, 19:45 UTC). Was dort nur geplant ist, ist hier als «geplant» oder «gebaut, nicht live» markiert. Versionsnummern noch nicht veröffentlichter Pakete sind vorläufig.
+
+## 1. Worum es geht
+
+Der Pack Generator ist Noahs persönliche Web-App (PWA). Sie läuft im Browser am Computer und am Handy, auch offline. Alle Daten liegen nur auf dem Gerät (IndexedDB), es gibt kein Konto.
+
+**Leitsatz (seit 13.10.2026):** «Eine App, die mich im Alltag unterstützt.»
+
+Angefangen hat sie als Packliste für Bikepacking-Touren. Heute deckt sie den ganzen Ablauf einer Tour ab (planen, packen, unterwegs, Rückblick), dazu Velopflege und Training, Aktivitäten und Meditation, Rechnungen und Notizen.
+
+**Die vier Ziele** (aus [vorhaben.md](vorhaben.md)):
+
+1. **Schneller packen:** Vorschläge statt leerer Listen.
+2. **Das Velo im Griff haben:** km, Verschleiss und Pflege pro Velo.
+3. **Von der Haustür bis zurück:** eine Startseite, die zur Phase der Tour passt.
+4. **Aus jeder Tour lernen:** Rückblick und Learnings, die beim nächsten Packen wieder auftauchen.
+
+**Grundsätze, die immer gelten:** Alles ist ein Vorschlag, nie Pflicht, immer änderbar. Private Daten bleiben auf dem Gerät und nie im öffentlichen Repository. Es entstehen keine Kosten (nur Gratis-Dienste). Wo eine eigene, schlanke Lösung reicht, kommt kein fremder Dienst dazu.
+
+## 2. Was heute online ist (0.144.0)
+
+Die App hat **fünf Orte**. Am Computer stehen sie in der Seitenleiste, am Handy in der Leiste unten. Oben rechts ist «Ich».
+
+| Ort | Was dort ist |
+|---|---|
+| **Heute** | Gruss, «Wi gaht's?», Tour-Karte nach Phase (planen, packen, unterwegs, Rückblick), Kachel-Wand zum Anpassen, «Diese Woche», fällige Velopflege, Schnellstart für eine Tour heute, «Was ist neu» |
+| **Touren** | Übersicht mit Zuständen (geplant, abgeschlossen, bewertet), neue Tour mit Rahmenbedingungen (Sportart, Wetter, Vorlage), Planen mit Karte, Packen Tasche für Tasche, Unterwegs, Rückblick mit Learnings, Tempo und Logbuch, Vorlagen |
+| **Material** | Liste aller Teile mit Gewicht, Kleiderschrank nach Schichten, Bausteine (z. B. Biwak, Kochen, Regen), Einkauf |
+| **Velos** | Übersicht pro Velo, Pflege mit «Jetzt fällig», Fahrten-Buch (Strava-Verbindung und Datei-Import), Velo-Blätter (Velo-Pass, Service-Plan, Werkstatt-Auftrag), Werkstatt und Belege, Ausstattung, Setup |
+| **Aktiv** | Aktiv heute mit Woche, Erholung und Sporttasche, Meditation mit Timer, Training aus Strava, Ziele, Aktivitäten, Meilensteine und Trophäen |
+| **Ich** | Daten und Backup, Darstellung (Schriften, Farbwelten, hell/dunkel), Was ist neu, Handbuch, Kleine Apps, Listen und Typen, Bezahlen (QR-Rechnung, «Zu zahlen»), KI-Helfer (ab Werk aus), Inspiration, Notizen und Eingang, Ausprobieren (Spielwiese) |
+
+Die zuletzt veröffentlichten Versionen (alle am 14. und 15.10.2026):
+
+| Version | Inhalt |
+|---|---|
+| 0.144.0 | **Regeln einheitlich:** eine Regen-Grenze für die ganze App, «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo |
+| 0.136.0 | **Paket 2b «Sortieren, wie du willst»:** Pfeile und Ziehen in allen sortierbaren Listen, «Gilt für» bei Kategorien, eine Kachelreihe auf Aktiv › Heute |
+| 0.135.0 | **Paket 2 «Ruhe, Training und Rechnungen»:** Meditation und Timer, Tipp des Tages, eine Zahl pro Sache, Training mit Pulszonen, QR-Rechnung mit TWINT |
+| 0.134.0 | **Paket 1 «Doku und Ich»:** Handbuch und Kleine Apps unter Ich, Inspiration sammeln, Listen und Typen, leere App ohne Start-Taschen |
+| 0.133.0 | **Design-Refresh:** Begrüssung, «Wi gaht's?», ruhigere Seiten, Kacheln antippbar |
+| 0.131.0 bis 0.132.2 | Daten einmal bereinigt, Tagespaket 14.10. (Velo-Setup, Kluge Suche, App-Wartung, Bezahlen vorbereitet), Kamera-Knopf, drei kleine Fehlerbehebungen |
+
+Die vollständige Liste aller Versionen steht in `src/lib/whatsnew.js` (in der App unter Ich › Was ist neu) und kurz in der [Geschichte](geschichte.md).
+
+**Technik:** Svelte 5, Vite, Dexie (Datenbank-Stufe 11 auf `main`). Die App liegt auf GitHub Pages. Ein kleiner Server auf Vercel (Ordner `api/`, Vercel-Projekt «packgen») holt Strava-Daten, prüft Links, betreibt den KI-Helfer und bereitet das Bezahlen vor. Jeder Pull Request bekommt eine Vorschau auf Vercel (Projekt «packgenerator»). Daten zwischen Handy und Computer gehen heute über eine Sicherungsdatei.
+
+## 3. Fertig gebaut, noch nicht online
+
+Vom 15. bis 18.10.2026 wurde viel gebaut, aber wenig veröffentlicht. Am 18.10.2026 (19:37 UTC, Noah «1a 2b 3b 4a») wurde alles neu gebündelt: **statt 13 kleiner Pakete gibt es jetzt sechs grosse**, jedes mit einer eigenen Version. Ein Thread («Mein Überblick») fügt die Teile zusammen und veröffentlicht sie der Reihe nach.
+
+| Reihenfolge | Paket | Version (vorläufig) | Inhalt | Stand 18.10. |
+|---|---|---|---|---|
+| 1 | **P3 Navigation und Standard-Velo** | 0.145.0 | Navigation ohne Springen, Standard-Velo mit ★ und Reihenfolge, lange Listen klappen zu, Schnellstart und «Wie letzte Tour» wieder da, vier Anzeigefehler | PR #182 offen, Noah hat «ok» gegeben; wird nach grünem Test zusammengeführt |
+| 2 | **A Daten sicher und Bedienung** | 0.146.0 | Browser behält die Daten fest, Abgleich Handy–Computer über eine Sicherung, «Alle Daten ersetzen» fragt zweimal und macht vorher ein Backup, neuer Ort «Dokumente» (Pass, Versicherung als PDF, Datenbank-Stufe 12); einheitliche Bedienregeln (siehe Abschnitt 5); Kamera-Knopf überall; Hinweistexte und mehr Inhalt in der App | gebaut, wird gebündelt |
+| 3 | **B Server** | ab 0.147.0 | Training mit Leistung und Wochenrückblick, Fitbit verbinden (Stufe 13), Dokument fotografieren als PDF (Stufe 14), Google Kalender und Aufgaben lesen (Stufe 15), KI-Helfer mit Monatsdeckel und Assistent «Frag die App», Termine buchen, Shop, automatischer Abgleich Handy–Computer, Erinnerungen aufs Handy (Web-Push) | fast alles gebaut; automatischer Abgleich und Push noch im Bau |
+| 4 | **D Touren und Unterwegs** | danach | Strava-Fahrten auf der Touren-Seite, Höhenprofil, ein Weg «Fahrt hochladen» (GPX, TCX, CSV), Planungs-Notizen im Tour-Entwurf, kürzere Handy-Seiten, Fehlerbehebungen, Chronik | gebaut |
+| 5 | **E Material, Velos, Merken** | danach | Dateneingabe W1–W6 (Kette messen, Reifendruck), mehr Bausteine, Bezahl-Erinnerung nur unter Ich › Bezahlen, Garmin-Seiten pro Velo, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, eigene Listen, Ort «Ausrüstung», Skitour-Saisonstart, Gipfelbuch | gebaut |
+| 6 | **C Heute und Aktiv** | danach | Heute neu geordnet (HN4, PR #177; Bausteine mehr, PR #176), Tages-Check mit Morgen-Check und Abend-Rückblick, grosser Balance-Ring mit 9 Bereichen statt der drei Im-Flow-Ringe, Routine «Das tut mir gut», Paket Aktiv (Ziel-Prognose, Erholung, Trainingsplan) | gebaut; Balance-Ring und Routine im Bau. Braucht B |
+| 7 | **F Woche** | danach | eigener Ort «Woche» (am Handy statt «Material» in der Leiste), Sonntags-Planung, Ferien mit Folgen, Google Kalender und Aufgaben in der Woche, Rundgang für den Einstieg | Woche gebaut; braucht Google aus B |
+
+**Abhängigkeiten:** A kommt vor B, weil die Datenbank-Stufen aufeinander aufbauen (12 Dokumente → 13 Fitbit → 14 Dokument-PDF → 15 Google). C braucht B (Aktiv nutzt Fitbit und Training). D und E hängen nicht an B. Neue Arbeit darf parallel weiterlaufen.
+
+**Offene Pull Requests (18.10.2026):** #182 (P3), #176 und #177 (Teile von C, eingefroren bis C dran ist), #181 (nur Tests, optional, derselbe Fix steckt in #176/#177).
+
+## 4. Danach geplant oder nur als Idee
+
+Diese Ideen sind besprochen, aber in keinem der sechs Pakete:
+
+- **Neuland:** nach jeder Tour «Was war neu?», Kantonskarte, Bingo. Noah nannte es «das eigentliche Ziel».
+- **Mehr selbst einstellen:** Grenzen wie «Packen ab 2 Tagen», «Backup alle 14 Tage», «Velo-Check alle 1000 km», «kalt ab 10 °C» änderbar machen. Gebaut, aber noch keinem Paket zugeteilt.
+- **Links nach aussen** (komoot, SBB, MeteoSchweiz und weitere): beschrieben in [links-nach-aussen.md](links-nach-aussen.md), noch nicht gebaut.
+- **Kleinere Vorschläge** zu jedem Paket (je bis zu drei), zum Beispiel Sicherung mit Passwort, Packliste als PDF, Wetter-Warnung am Tourtag, «Dein Jahr» als Rückblick im Dezember, Pflege-Zähler für Schuhe und Felle, Privat-Zone beim Teilen einer GPX. Sie sind Vorschläge und brauchen Noahs Ja.
+- **Weitere Ideen** ohne Paket: Packliste vorlesen, Querformat am Lenker, kleine Experimente «Was tut dir gut», Wiedereinstieg nach langer Pause, Werkzeugkasten unterwegs.
+
+**Bewusst nicht** (von Noah abgelehnt oder geparkt): keine native App, keine Konten für andere, keine fremden Einbettungen und Werkzeuge, keine Foto-KI für Material, kein Umzug der App auf Vercel, keine Mails an eine App-Adresse, kein Excel als Hauptliste. Fotoalbum und die Design-Pakete D2/D4 bleiben geparkt.
+
+## 5. Wichtige Entscheide seit dem 15.10.2026
+
+Ausführlich mit Datum im [Entscheidungslog](decisions.md#1510-bis-18102026-pakete-bedienregeln-neue-bündelung).
+
+- **Pakete statt Einzel-PRs:** fertige Teile werden zu Paketen gebündelt, jedes Paket ist ein Release.
+- **Sechs grosse Pakete** in der Reihenfolge P3 → A → B → D → E → C → F (18.10.).
+- **Bedienregeln für die ganze App** (15.10., sechs Fragerunden): ein Fenster schliessen behält das Getippte, nur «Verwerfen» löscht · die zuletzt gewählte Tour und das zuletzt gewählte Velo bleiben überall gewählt (eine neue Tour nimmt aber immer das Standard-Velo, 18.10.) · am Handy kommen Fenster von unten · «Rückgängig» überall 4 Sekunden · langes Wischen fragt zuerst · eine Tour mit vergangenem Datum: Heute fragt «Bist du gefahren?» · nur der Schalter «Testtour» versteckt eine Tour · Rot steht in «Heute wichtig» zuoberst · ein Weg «Fahrt hochladen» · Zurück-Weg als Pfad «Ich › …».
+- **Orte:** «Woche» wird ein eigener Ort und ersetzt am Handy «Material» in der Leiste; Velos und Ausrüstung teilen sich am Handy einen Platz mit Umschalter.
+- **Rechnungs-Erinnerungen** stehen nur unter Ich › Bezahlen, nicht auf Heute.
+- **Automatischer Abgleich Handy–Computer** mit einer Gratis-Datenbank auf Vercel (Google Drive als Ersatz); bei einem Konflikt fragt die App. Kommt mit dem Server-Paket.
+- **Erinnerungen aufs Handy** (Web-Push) mit einem Gratis-Wecker (cron-job.org).
+- **Tages-Check:** Morgen-Check und Abend-Rückblick wieder als eigene Seiten, Kachel «Deine 15 Fragen», grosser Balance-Ring auf Heute.
+- **Veröffentlichen (Regel seit 15.10., bestätigt 18.10.):** Claude führt ein Paket für Noah zusammen, aber erst, wenn Noah die Bilder dieses Pakets gesehen und dafür «ok» geschrieben hat, alle Tests grün sind und `main` sich nicht bewegt hat.
+
+## 6. Was Noah noch tun muss
+
+Mit Klick-Anleitung, wenn es so weit ist:
+
+- **Nach dem Server-Paket (B):** im Vercel-Projekt «packgen» einmal mit GitHub verbinden, `main` veröffentlichen, warten bis «Ready», wieder trennen.
+- **Google vor dem Livegang:** Anmeldung testen, das Client-Secret erneuern, die Testanmeldung löschen, eine Datenschutzseite anlegen; Kalender und Aufgaben in der Google Cloud Console einschalten.
+- **KI-Helfer:** der Schlüssel läuft am 10.11.2026 ab (eine Erinnerung ist eingerichtet).
+- **Echte Nutzung:** eine echte Tour mit der App packen und die Lücken melden (Prüffrage 5 im Kurs-Check).
+
+## 7. Wie wir arbeiten (Stand 18.10.2026)
+
+Kurzfassung. Ausführlich in [arbeitsweise.md](arbeitsweise.md#stand-18102026-regeln-die-heute-gelten).
+
+- Claude baut zuerst und zeigt dann **Bilder der fertigen App** (Handy 390 px und Computer 1440 px, hell) zusammen mit der Vorschau. Es gibt keine Mockups mehr vor dem Bau (seit 14.10.2026).
+- Fragen an Noah: höchstens 5 pro Runde, a/b ausgeschrieben, **ohne ★-Vorauswahl**. Claude fragt und wartet.
+- Jeder Release-PR hat den Abschnitt **«Was fällt weg oder rutscht tiefer»**.
+- Alles wird im Projekt besprochen, **nicht mehr in Trello**.
+- **Null Kosten** und **privat**: das Repository ist öffentlich, private Daten bleiben ausserhalb.
+- Heute folgt dem freigegebenen Aufbau **HN4**; andere Änderungen an Heute brauchen Noahs ausdrückliches Ja.
+- Sortieren geht überall mit Pfeilen **und** Ziehen. Wo man sich verlieren könnte, erklärt ein kurzer Text die Seite.
+
+## 8. Wo was steht
+
+| Frage | Dokument |
+|---|---|
+| Wie ist das Projekt gewachsen? | [Geschichte](geschichte.md) |
+| Was ist geplant und warum, sind wir auf Kurs? | [Geplante Vorhaben](vorhaben.md) |
+| Was kam in welcher Version? | [Projektstand im Detail](status.md) und `src/lib/whatsnew.js` |
+| Was wurde wann entschieden? | [Entscheidungslog](decisions.md) |
+| Wie arbeiten wir zusammen? | [Arbeitsweise](arbeitsweise.md) |
+| Schnappschuss vom 14.10.2026 für Aussenstehende | [Zwischenstand](zwischenstand/README.md) |
+| Wie nutze ich jede Funktion? | [Benutzerhandbuch](handbuch.md) |
+| Alle Dokumente | [Projektdokumentation](README.md) |
+
+**Pflege:** Diese Seite wird bei jedem Paket nachgeführt (Abschnitte 2, 3 und 5). Was hier steht, gilt vor älteren Angaben in anderen Dokumenten.
