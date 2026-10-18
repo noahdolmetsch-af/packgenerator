@@ -144,9 +144,10 @@
   const band = $derived(packBand(plan, $tripsQ ?? [], current));
   const bandRow = $derived(band.state === 'draft' ? band.row : null);
   const PLAN_SHORT = 3;
-  // Paket D: on a phone «Geplant» shows the next two first, so Touren stays within three screens (Handy kurz)
-  // with «Schnell starten» (WS2) and the count line with its period (B1) above it
-  const planShort = $derived(phone.matches ? 2 : PLAN_SHORT);
+  // Paket D (Noah 18.10.2026 «1b»): on a phone «Schnell starten» is one line in the head of «Geplant» (where «New trip»
+  // sits on a computer); a tap opens its buttons. So Touren stays within three phone screens (Handy kurz).
+  let quickOpen = $state(false);
+  const quickShown = $derived(!phone.matches || quickOpen);
   let planAll = $state(false);
   const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
   const go = (r) => switchTrip(r.tripId, r.go.href);
@@ -382,12 +383,13 @@
             {#if tours.band === 'hidden'}<button type="button" class="btn btn-link" onclick={() => saveTours({ band: null })} data-band-show><Backpack size={16} aria-hidden="true" />{t('Show the pack mode band')}</button>{/if}
             <!-- FE1: on a phone «New trip» sits at the bottom, in reach of the thumb -->
             <span class="daumen"><button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button></span>
+            {#if phone.matches && (hasRidden || recentTpls.length)}<button type="button" class="btn btn-link qopen" aria-expanded={quickOpen} aria-controls="trips-quick" onclick={() => (quickOpen = !quickOpen)} data-quick-open>{t('Start quickly')}<ChevronDown size={16} aria-hidden="true" /></button>{/if}
           </div>
         </div>
         <!-- v0.143.0 WS3a (Release-Analyse F5, Noah 14.10.2026 «ws1-ws7 freigeben»), Paket 3 on the SN4g layout:
              «Schnell starten» right under the head of «Geplant», next to «New trip» -->
-        {#if hasRidden || recentTpls.length}
-          <div class="quick" role="group" aria-label={t('Start quickly')} data-quick>
+        {#if (hasRidden || recentTpls.length) && quickShown}
+          <div class="quick" id="trips-quick" role="group" aria-label={t('Start quickly')} data-quick>
             <span class="ql">{t('Start quickly:')}</span>
             {#if hasRidden}<button type="button" class="btn sm" onclick={() => newTrip('last')}>{t('Like the last trip')}</button>{/if}
             {#each recentTpls as r (r.tp.id)}<button type="button" class="btn sm" onclick={() => newTrip(r.tp.id)}>{r.tp.name}</button>{/each}
@@ -396,7 +398,7 @@
         {/if}
         {#if plan.length}
           <ul class="pcards">
-            {#each planAll ? plan : plan.slice(0, planShort) as r (r.id)}
+            {#each planAll ? plan : plan.slice(0, PLAN_SHORT) as r (r.id)}
               {@const ents = byId[r.tripId]?.entries ?? []}
               {@const packed = ents.filter((e) => e.packed).length}
               {@const p = r.kind === 'trip' && ents.length ? Math.round((100 * packed) / ents.length) : r.kind === 'ride' ? pct(r.state) : null}
@@ -426,7 +428,7 @@
               </li>
             {/each}
           </ul>
-          {#if plan.length > planShort}<button type="button" class="btn btn-link more" aria-expanded={planAll} onclick={() => (planAll = !planAll)}>{planAll ? t('Fewer|list') : tn(plan.length, 'All {n} planned trip', 'All {n} planned trips')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
+          {#if plan.length > PLAN_SHORT}<button type="button" class="btn btn-link more" aria-expanded={planAll} onclick={() => (planAll = !planAll)}>{planAll ? t('Fewer|list') : tn(plan.length, 'All {n} planned trip', 'All {n} planned trips')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
         {:else}
           <p class="noplan" data-no-plan><Calendar size={16} aria-hidden="true" />{t('No trip planned.')} <button type="button" class="btn btn-link" onclick={() => openNew('list')}>{t('New trip')}<ChevronRight size={14} aria-hidden="true" /></button></p>
         {/if}
@@ -1102,6 +1104,23 @@
     align-items: center;
     gap: 8px;
     margin: 12px 0 16px;
+  }
+  /* Paket D «1b»: on a phone the head of «Geplant» stays one line with «Schnell starten» on its right */
+  @media (max-width: 599px) {
+    .sh {
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    .sh > div:first-child {
+      min-width: 0;
+    }
+    .qopen {
+      flex: none;
+      min-height: 44px;
+    }
+    .qopen[aria-expanded='true'] :global(svg) {
+      transform: rotate(180deg);
+    }
   }
   .quick .ql {
     font-weight: 600;
