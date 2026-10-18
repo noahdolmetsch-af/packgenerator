@@ -91,6 +91,7 @@ export function keepTyped(node, key) {
   let k = key;
   let first = null; // the fields as the window opened (before the kept text came back)
   let saved = false;
+  let typed = false;
   let restoring = false;
   let bar = null;
   let opened = false;
@@ -131,11 +132,12 @@ export function keepTyped(node, key) {
     if (opened) return;
     opened = true;
     saved = false;
-    first = null;
+    typed = false;
+    first = valuesOf(fieldsOf(node)); // so a very quick first key is kept too
     clearTimeout(timer);
     // the window draws its fields first (some fill them in an effect when they open)
     timer = setTimeout(() => {
-      if (!isOpen()) return;
+      if (!isOpen() || typed) return; // typing already: nothing comes back over it
       const list = fieldsOf(node);
       first = valuesOf(list);
       const kept = read(k);
@@ -159,6 +161,7 @@ export function keepTyped(node, key) {
   const isOpen = () => (node.tagName === 'DIALOG' ? node.open : node.isConnected);
   const onInput = () => {
     if (restoring || !isOpen() || !first) return;
+    typed = true;
     saved = false; // typed again after a main button that did not close the window
     const now = valuesOf(fieldsOf(node));
     if (sameAs(now, first) && sameAs(first, now)) drop(k);
