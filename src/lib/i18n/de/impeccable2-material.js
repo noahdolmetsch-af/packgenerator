@@ -16,4 +16,8 @@ export default {
   'Enter shop link': 'Shop-Link eintragen',
   'Change shop link': 'Shop-Link ändern',
   'Your own link to the shop': 'Dein eigener Link zum Shop',
+  // Bausteine 2: «zu prüfen» with a number, as a link; the button says what it checks
+  '{n} building block to check': '{n} Baustein zu prüfen',
+  '{n} building blocks to check': '{n} Bausteine zu prüfen',
+  'One building block after the other: keep, out or elsewhere': 'Ein Baustein nach dem anderen: behalten, raus oder woandershin',
 };
