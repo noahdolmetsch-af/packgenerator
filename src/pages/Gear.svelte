@@ -343,11 +343,16 @@
   const shownAs = $derived(selecting ? 'list' : display);
   // v0.102.0 Design-Refresh P3 (M1): the chosen item shows on the right in the list too (computer)
   const showPanel = $derived(wideQ.current && !mode);
-  const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? sorted[0] ?? null) : null);
+  // Impeccable runde 2 (18.10.2026, Material 2): nothing chosen, nothing shown: a calm card says what a tap shows
+  // (it was the first item of the order, e.g. a passport, which looked random)
+  const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? null) : null);
   function pickCard(item) {
-    if (showPanel && picked1 !== item.id && selItem?.id !== item.id) return (picked1 = item.id);
+    if (showPanel && selItem?.id !== item.id) return (picked1 = item.id);
     open(item);
   }
+  // Einkauf in the right column: the price and why it is on the list (the price is its own row)
+  const priceOf = (item) => (typeof item?.priceChf === 'number' && item.priceChf > 0 ? `CHF ${item.priceChf.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '');
+  const whyOf = (item) => (reasonsOf[item.id] ?? []).filter((r) => !r.startsWith('CHF '));
   async function leaveAtHome(item) {
     await markHome(item);
   }
@@ -654,10 +659,18 @@
           </details>
         </div>
         </ListBar>
-        <!-- one quiet line: how it is sorted, list or cards, select -->
+        <!-- one quiet line: how it is sorted, list or cards, select.
+             Impeccable runde 2 (Material 3): «Compact | With bag» joins this line; on a phone both toggles live in
+             «Sort and filter» under «Display» (one tap more), so the first categories come up a screen earlier -->
         <div class="metaline">
           <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
           {@render showAs()}
+          {#if !phone.matches && tab === 'inventory' && shownAs === 'list'}
+            <span class="seg bagseg" role="group" aria-label={t('Show the bag')}>
+              <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
+              <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
+            </span>
+          {/if}
         </div>
 
         {#if fill}
@@ -684,21 +697,24 @@
             <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
             <p class="vs">{VIEW_TEXT[view]}</p>
           </div>
+          <!-- Impeccable runde 2 (Material 3): under «All» the head line has these numbers already; the tiles show
+               only in a filtered view, where they count something else -->
+          {#if view !== 'all'}
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
             <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.g)}</dd></div>
             {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
+          {/if}
         </section>
         {/if}
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
         {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={18} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
 
-        {#if toWeigh && !selecting && !searching}
+        {#if toWeigh && !selecting && !searching && !(shownAs === 'list' && tab === 'inventory')}
           <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
-          <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
-          <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button></p>
+          <p class="weighrow">{@render weighLink()}</p>
         {/if}
         {#if shownAs === 'cards'}
           {#if sorted.length}
@@ -722,10 +738,8 @@
               {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
               {#if view === 'fav'}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
             </p>
-            <span class="seg" role="group" aria-label={t('Show the bag')}>
-              <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
-              <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
-            </span>
+            <!-- Impeccable runde 2 (Material 3): «60 without weight · weigh now» on the count line (one row less) -->
+            {#if toWeigh && !selecting && !searching}<span class="weighin">{@render weighLink()}</span>{/if}
           </div>
           <!-- SL2 (answer 2a): the jump bar, on a phone as chips -->
           {#if !searching}<div class="jump-ph"><ListNav groups={catJumps} active={activeCat} onjump={jump} /></div>{/if}
@@ -778,7 +792,7 @@
                     {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
                   {:else}
                     <FavStar {item} describedby="gn-{item.id}" />
-                    <button type="button" class:wl={item.ownership === 'wishlist'} onclick={() => open(item)}>
+                    <button type="button" class:wl={item.ownership === 'wishlist'} class:picked={showPanel && selItem?.id === item.id} onclick={() => openRow(item)}>
                       <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
                       <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                       <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
@@ -819,6 +833,13 @@
       <!-- v0.102.0 Design-Refresh P3 (M1): the right column: the chosen item, then the views as one card
            (on a phone and a narrow window both come under the list) -->
       <div class="rcol">
+        {#if showPanel && !selItem}
+          <!-- Impeccable runde 2 (Material 2): no choice yet, a calm card instead of a random item -->
+          <aside class="detail dnone" aria-labelledby="det-none-h" data-detail-none>
+            <h2 id="det-none-h" class="title">{t('Tap an item')}</h2>
+            <p class="dnt">{view === 'wish' ? t('On the right you see its price, why it is on the list and «Bought».') : t('On the right you see how often it was along, its year on tour and lighter alternatives.')}</p>
+          </aside>
+        {/if}
         {#if showPanel && selItem}
           <!-- v0.47.2 (Noah 8a): the chosen item in detail; "Open and edit" opens the item window -->
           <aside class="detail" aria-labelledby="det-h">
@@ -828,12 +849,24 @@
             </div>
             <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : '', proven(selItem) ? `★ ${t('Proven')}` : ''].filter(Boolean).join(' · ')}</p>
             <div class="dcard">
+              {#if view === 'wish' && (selItem.ownership === 'wishlist' || selItem.ownership === 'to-buy')}
+                <!-- Impeccable runde 2 (Material 2): a wish says its price and why it is on the list, not its year on tour -->
+                <dl class="dwish">
+                  <div><dt>{t('Price')}</dt><dd class="num" class:muted={!priceOf(selItem)}>{priceOf(selItem) || t('no price yet')}</dd></div>
+                  <div><dt>{t('Why on the list')}</dt><dd>{whyOf(selItem).length ? whyOf(selItem).join(' · ') : t('You put it on the list yourself.')}</dd></div>
+                </dl>
+                <div class="dacts">
+                  <button type="button" class="btn hi" disabled={busy} onclick={() => bought(selItem)}><Check size={16} aria-hidden="true" />{t('Bought: to my gear')}</button>
+                  <button type="button" class="btn" onclick={() => open(selItem)} data-explain={t('Open and edit')}>{t('Open|item')}</button>
+                </div>
+              {:else}
               <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
               <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
               <div class="dacts">
                 <button type="button" class="btn hi" onclick={() => open(selItem)} data-explain={t('Open and edit')}>{t('Open|item')}</button>
                 <button type="button" class="btn" onclick={() => assignOne(selItem)}>{t('Assign …')}</button>
               </div>
+              {/if}
             </div>
           </aside>
         {/if}
@@ -853,8 +886,13 @@
   {/if}
 </div>
 
+{#snippet weighLink()}
+  <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
+  <button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh now', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button>
+{/snippet}
+
 {#snippet showAs()}
-  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>
+  {#if !phone.matches}<span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>{/if}
   <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
   <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
@@ -929,7 +967,7 @@
 {/snippet}
 
 {#if sheet}
-  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} total={base.length} cats={catOpts} bags={bagOpts} areas={areaOpts} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
+  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} total={base.length} cats={catOpts} bags={bagOpts} areas={areaOpts} look={phone.matches ? { display, showBag, bagOk: tab === 'inventory' && !selecting } : null} onlook={(p) => { if (p.display) setDisplay(p.display); if ('showBag' in p) setShowBag(p.showBag); }} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
 {/if}
 
 {#snippet nothing()}
@@ -1677,6 +1715,10 @@
   .wish .rows button:not(.btn) {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
+  /* Impeccable runde 2: the wish shown in the right column */
+  .wish .rows button.picked {
+    background: var(--paper-2);
+  }
   .wish .st {
     grid-row: 1 / span 2;
     align-self: center;
@@ -1968,8 +2010,51 @@
     margin: -4px 0 8px;
     font-size: var(--fs-small);
   }
-  .weighrow .link {
+  .weighrow .link,
+  .weighin .link {
     color: var(--ink-2);
+  }
+  .weighin {
+    font-size: var(--fs-small);
+  }
+  /* Impeccable runde 2 (Material 2): no item chosen yet: a quiet card, no numbers */
+  .dnone {
+    padding: 18px 20px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-card);
+  }
+  .dnone .title {
+    font-size: var(--fs-sub);
+    font-weight: 600;
+  }
+  .dnt {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  /* a wish in the right column: price and why, as two rows */
+  .dwish {
+    display: grid;
+    gap: 0;
+    margin: 0 0 14px;
+  }
+  .dwish div {
+    display: grid;
+    grid-template-columns: 9em minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dwish dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .dwish dd {
+    margin: 0;
+  }
+  .dwish dd.muted {
+    color: var(--ink-3);
   }
   .fillbar {
     margin-top: 4px;
@@ -2049,20 +2134,21 @@
       flex-basis: 100%;
     }
   }
-  .viewbar .seg {
+  .bagseg {
+    margin-left: auto;
     border: 0;
     padding: 3px;
     border-radius: 12px;
     background: var(--paper-2);
   }
-  .viewbar .seg button,
-  .viewbar .seg button + button {
+  .bagseg button,
+  .bagseg button + button {
     border: 0;
     border-radius: 9px;
     background: transparent;
     color: var(--ink-2);
   }
-  .viewbar .seg button[aria-pressed='true'] {
+  .bagseg button[aria-pressed='true'] {
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 1px 3px var(--shadow);

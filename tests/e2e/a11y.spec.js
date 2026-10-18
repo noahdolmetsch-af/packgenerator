@@ -5,6 +5,7 @@
 // 3. Every control on Today, Pack and Gear has a name a screen reader can read.
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { pickLook } from './gear-look.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -156,7 +157,7 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   // Item dialog from the gear list
   await view(page, '#/gear');
   // v0.47.2: on the computer a card first fills the detail column; the list opens the window directly
-  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
+  await pickLook(page, T('Show as'), T('List')); // Impeccable runde 2: on a phone in «Sort and filter»
   await expandAll(page);
   await dialogKeys(page, page.getByRole('button', { name: new RegExp(LONG) }), page.locator('dialog[open]'));
 
