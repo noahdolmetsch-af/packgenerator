@@ -39,4 +39,8 @@ export default {
 
   // Inspiration: the empty card says what a link brings
   'Keep a link to a rig, a packing list or a video. What you take over from it, the app shows you as a hint while packing.': 'Leg einen Link zu einem Rig, einer Packliste oder einem Video ab. Was du daraus übernimmst, zeigt dir die App beim Packen als Hinweis.',
+
+  // Handbuch: a search
+  'Search the handbook': 'Im Handbuch suchen',
+  'How do I …? e.g. «chain», «backup»': 'Wie geht …? z. B. «Kette», «Backup»',
 };
