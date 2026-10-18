@@ -23,6 +23,12 @@
   import RigPlan from './RigPlan.svelte';
   import RigLog from './RigLog.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  // Impeccable Runde 2 (18.10.2026, Setup 1-3; Ausstattung 2): an own head «‹ Velo › {bike} › Setup», the
+  // bike choice as one row to swipe on a phone, the trip of the weights named and changeable, the bag
+  // plan says what is outside the bags, the rarely used parts in one fold at the end.
+  import VeloHead from './VeloHead.svelte';
+  import BikeChips from './BikeChips.svelte';
+  import Fold from '../ui/Fold.svelte';
 
   let { bikeId = null, view = null, onbike } = $props();
 
@@ -64,13 +70,19 @@
   };
 
   /* ---------- weight and bag plan from the next (or last) trip on this bike ---------- */
-  const trip = $derived(bike ? planTrips(trips, bike.id, today, 1)[0] ?? null : null);
+  const tripChoices = $derived(bike ? planTrips(trips, bike.id, today, 6) : []);
+  let tripPick = $state(null); // a trip id chosen with «choose another trip»
+  let tripsOpen = $state(false);
+  const trip = $derived(tripChoices.find((x) => x.id === tripPick) ?? tripChoices[0] ?? null);
+  const tripWords = (x) => (x.startDate ? t('for {trip} on {date}', { trip: x.title, date: dateOf(x.startDate) }) : t('for {trip}', { trip: x.title }));
   const plan = $derived(trip ? bagPlan(trip, $itemsQ ?? [], $bagsQ ?? [], bike) : null);
   const split = $derived(plan ? weightSplit(plan.stats, bike) : null);
   const kg = (g) => num(Math.round(g / 100) / 10);
   const pct = (g) => (split?.totalG ? `${(g / split.totalG) * 100}%` : '0');
   const shares = $derived(plan ? sideShares(plan.sides) : null);
   const withLoad = $derived(links.filter((l) => l.kind !== 'race' && l.packKg));
+  // what the luggage weighs outside the bike's bags: things without a bag and what you wear
+  const outsideG = $derived(plan ? plan.loose.reduce((a, x) => a + (x.grams ?? 0), 0) + (plan.stats.wornG ?? 0) : 0);
 
   /* ---------- the setup log, newest three ---------- */
   const log = $derived(bike ? logView(bike, { trips, debriefs: $debriefsQ ?? [], kmBook: $kmQ ?? [], today }).slice(0, 3) : []);
@@ -105,25 +117,35 @@
   const saveLink = (l) => saveLinks(links.some((x) => x.id === l.id) ? links.map((x) => (x.id === l.id ? { ...x, ...l } : x)) : [...links, l]);
   const deleteLink = (l) => saveLinks(links.filter((x) => x.id !== l.id).map((x) => (x.raceId === l.id ? { ...x, raceId: null } : x)));
   const toggleStar = (l) => saveLinks(links.map((x) => (x.id === l.id ? { ...x, star: !x.star } : x)));
+  // the fold «Ideas and races» stands open once something is in it
+  let ideasOpen = $state(false);
+  let ideasSet = false;
+  $effect(() => {
+    if (ideasSet || $linksQ === undefined || !bike) return;
+    ideasSet = true;
+    ideasOpen = links.length > 0 || (bike.rigCompare ?? []).length > 0;
+  });
   const raceDays = (r) => [r.raceDate ? dateOf(r.raceDate) : '', r.raceEnd && r.raceEnd !== r.raceDate ? dateOf(r.raceEnd) : ''].filter(Boolean).join(' – ');
 </script>
 
 {#if !bikes.length && $bikesQ}
+  <h1 class="title">{t('Setup|tab')}</h1>
   <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
 {:else if bike && view === 'log'}
   <RigLog {bike} />
 {:else if bike}
-  {#if bikes.length > 1}
-    <div class="bchips" role="group" aria-label={t('Bike')}>
-      {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}><Bike size={16} aria-hidden="true" />{b.name}</button>{/each}
-    </div>
-  {/if}
-  <p class="lead">{t('Your setup for this bike: photos, weight, bags, changes and ideas from others.')}</p>
+  <VeloHead
+    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
+    here={t('Setup|tab')}
+    title={t('Setup|tab')}
+    sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
+  />
+  {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
   <section class="card blk" aria-labelledby="rg-photos">
-    <header class="bh"><h2 id="rg-photos">{t('My setup')}</h2><p>{t('your photos, only on this device')}</p></header>
+    <header class="bh"><h2 id="rg-photos">{t('Photos of the setup')}</h2><p>{t('your photos, only on this device')}</p></header>
     <div class="shots">
       {#each photos as p (p.id)}
         <figure><img src={p.src} alt={p.name} /><figcaption>{photoDate(p)}</figcaption></figure>
@@ -140,7 +162,17 @@
 
   <div class="two">
     <section class="card blk" aria-labelledby="rg-weight">
-      <header class="bh"><h2 id="rg-weight">{t('Total weight')}</h2>{#if trip}<p>{t('Packing list «{name}»', { name: trip.title })}</p>{/if}</header>
+      <header class="bh">
+        <h2 id="rg-weight">{t('Total weight')}</h2>
+        {#if trip}<p>{tripWords(trip)}{#if tripChoices.length > 1}{' · '}<button type="button" class="tpick" aria-expanded={tripsOpen} onclick={() => (tripsOpen = !tripsOpen)}>{t('choose another trip')}<ChevronRight size={14} aria-hidden="true" /></button>{/if}</p>{/if}
+      </header>
+      {#if tripsOpen && tripChoices.length > 1}
+        <ul class="tlist" aria-label={t('Trips with a packing list on this bike')}>
+          {#each tripChoices as x (x.id)}
+            <li><button type="button" class="trow" aria-pressed={x.id === trip?.id} onclick={() => ((tripPick = x.id), (tripsOpen = false))}><b>{x.title}</b>{#if x.startDate}<small>{dateOf(x.startDate)}</small>{/if}</button></li>
+          {/each}
+        </ul>
+      {/if}
       {#if split}
         <p class="tot"><b class="num">{kg(split.totalG)} kg</b> <span>{t('Bike + luggage + food and water')}</span></p>
         <div class="wbar" aria-hidden="true"><i class="w1" style:width={pct(split.bikeG)}></i><i class="w2" style:width={pct(split.packG)}></i><i class="w3" style:width={pct(split.eatG)}></i></div>
@@ -166,7 +198,7 @@
     </section>
 
     <section class="card blk" aria-labelledby="rg-bags">
-      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if plan}<p>{t('{kg} kg in {n} bags', { kg: kg(plan.totalG), n: plan.bags.length })}</p>{/if}</header>
+      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if plan}<p>{t('{kg} kg in {n} bags', { kg: kg(plan.totalG), n: plan.bags.length })}{#if outsideG > 0}{' · '}{t('{kg} kg outside the bags', { kg: kg(outsideG) })}{/if}</p>{/if}</header>
       {#if plan && plan.bags.length}
         <RigBike bags={plan.bags} label={t('Bike with {n} bags', { n: plan.bags.length })} />
         <div class="sides">
@@ -195,6 +227,9 @@
     <a class="more" href={bikesHash({ tab: 'rig', view: 'log', bike: bike.id })}>{t('Whole log')}<ChevronRight size={16} aria-hidden="true" /></a>
   </section>
 
+  <!-- Setup 3: «Your bike compared», «Your races» and «Ideas from others» in one fold at the end -->
+  <div class="ifold">
+  <Fold label={tn(links.length, 'Ideas and races · {n} link', 'Ideas and races · {n} links')} summary={t('Rigs of others, your races and what you want to compare')} bind:open={ideasOpen}>
   <section class="card blk" aria-labelledby="rg-cmp">
     <header class="bh"><h2 id="rg-cmp">{t('Your bike compared')}</h2><p>{t('{bike} · your own rows', { bike: bike.name })}</p></header>
     {#each rows as r (r.id)}
@@ -280,6 +315,8 @@
     {/if}
     <p class="foot">{t('Other pages only as a link, no text or photos from them in the app.')}</p>
   </section>
+  </Fold>
+  </div>
 {/if}
 
 {#if dialog}
@@ -287,33 +324,68 @@
 {/if}
 
 <style>
-  .bchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 12px;
-  }
-  .bchip {
+  .tpick {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
+    gap: 2px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
     font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
   }
-  .bchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+  .tpick::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
   }
-  .lead {
+  .tlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .tlist li + li {
+    border-top: 1px solid var(--line);
+  }
+  .trow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .trow b {
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .trow small {
     color: var(--ink-3);
-    margin: 0 0 16px;
+    font-size: var(--fs-small);
+  }
+  .trow[aria-pressed='true'] b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ifold {
+    margin: 8px 0 0;
   }
   .blk {
     display: flex;
