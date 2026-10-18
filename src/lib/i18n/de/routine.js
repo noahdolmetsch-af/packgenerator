@@ -39,8 +39,8 @@ export default {
   'Milestone: {left} more to «{name}: {goal} days in a row»': 'Meilenstein: noch {left} bis «{name}: {goal} Tage in Folge»',
   'Milestone: {goal} days in a row': 'Meilenstein: {goal} Tage in Folge',
   'Change list': 'Liste ändern',
-  // Noah 18.10.2026 (content approved): the hint on the tile
-  'Tick off what did you good today. No must: an empty day does not count against you.': 'Abhaken, was dir heute gutgetan hat. Kein Muss: ein leerer Tag zählt nicht gegen dich.',
+  // Noah 18.10.2026 (content approved, «6b» 20:10): the hint on the tile
+  'Tick off what did you good today. No must, everything is a suggestion.': 'Abhaken, was dir heute gutgetan hat. Kein Muss, alles ist ein Vorschlag.',
   // the page
   'Put what does you good on your list. It counts every day until you change it.': 'Nimm in deine Liste, was dir guttut. Sie gilt jeden Tag, bis du sie änderst.',
   'Your list': 'Deine Liste',

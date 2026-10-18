@@ -35,7 +35,7 @@ test('Heute: the routine on top, tick and take back, streak, weekday items, mile
   await expect(tile).toBeVisible();
   const shown = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
   expect(shown[shown.indexOf('routine') - 1]).toBe('important');
-  await expect(tile.locator('[data-routine-hint]')).toHaveText(T('Tick off what did you good today. No must: an empty day does not count against you.'));
+  await expect(tile.locator('[data-routine-hint]')).toHaveText(T('Tick off what did you good today. No must, everything is a suggestion.'));
   await expect(tile).toHaveAttribute('data-size', 'long');
   await expect(tile.getByRole('heading', { name: T('What does me good') })).toBeVisible();
   // Friday: six examples (yoga is for Thursday) and the Friday item; banana and meditation done
@@ -147,4 +147,26 @@ test('everything is a suggestion: the tile can leave the wall', async ({ page, c
   await page.getByRole('button', { name: T('Customise the start page') }).first().click();
   await page.getByRole('button', { name: T('Take {name} off the start page', { name: T('What does me good') }) }).click();
   await expect(page.locator('.wall [data-tile="routine"]')).toHaveCount(0);
+});
+
+// Noah 18.10.2026 «1a» (question 5): the tile starts under the HN4 head and can go to the very top, above the
+// meditation card, by the normal customising (‹ › and the handle to drag, Wall.svelte); it stays there.
+test('the tile moves to the very top with the arrows and stays first after a reload', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  const ids = () => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+  await expect(page.locator('.wall [data-tile="routine"]')).toBeVisible();
+  await page.getByRole('button', { name: T('Customise the start page') }).first().click();
+  // the handle to drag is there too (arrows AND drag)
+  await expect(page.getByRole('button', { name: T('Drag {name}', { name: T('What does me good') }) })).toBeVisible();
+  await page.locator('.wall [data-tile="routine"] .pick').click();
+  const earlier = page.locator('[data-tools="routine"]').getByRole('button', { name: T('One place earlier') });
+  for (let i = (await ids()).indexOf('routine'); i > 0; i--) {
+    await earlier.click();
+    await expect.poll(async () => (await ids()).indexOf('routine')).toBe(i - 1);
+  }
+  await expect(earlier).toBeDisabled();
+  await page.getByRole('button', { name: T('Done|customise') }).click();
+  await page.reload();
+  await expect.poll(async () => (await ids())[0]).toBe('routine');
+  expect((await ids()).slice(1, 3)).toEqual(['meditation', 'daycard']);
 });

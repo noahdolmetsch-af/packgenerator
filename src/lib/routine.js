@@ -122,31 +122,22 @@ export function countFor(routine, day, auto = {}) {
   return { n: list.filter((x) => isDone(routine, x, day, auto)).length, of: list.length };
 }
 
-/** Every day with at least one item done (by hand or by a link): the days that are not empty. */
-export function busyDays(routine, auto = {}) {
-  const out = new Set();
-  for (const item of routine.items) for (const d of doneDays(routine, item, auto)) out.add(d);
-  return out;
-}
-
 /**
  * Days in a row: the days the item is for, counted back from today, all done. Today not yet done
  * does not break it (the day is not over), it starts from the day before then. Days the item is not
- * for are skipped (a Thursday item counts Thursdays). An empty day (nothing ticked at all, Noah
- * 18.10.2026: «Kein Muss: ein leerer Tag zählt nicht gegen dich») is skipped too: it neither counts nor
- * breaks the row. → n
+ * for are skipped (a Thursday item counts Thursdays). Any other day not done breaks the row, an empty
+ * day too (Noah 18.10.2026 «6b»). → n
  */
-export function streakOf(routine, item, today, auto = {}, busy = busyDays(routine, auto)) {
+export function streakOf(routine, item, today, auto = {}) {
   const done = doneDays(routine, item, auto);
   if (!done.size) return 0;
-  const first = [...busy].sort()[0];
   let day = today;
   if (!done.has(day)) day = addDays(day, -1);
   let n = 0;
-  for (let i = 0; i < 800 && day >= first; i++) {
+  for (let i = 0; i < 800; i++) {
     if (isFor(item, day)) {
-      if (done.has(day)) n++;
-      else if (busy.has(day)) break;
+      if (!done.has(day)) break;
+      n++;
     }
     day = addDays(day, -1);
   }
@@ -161,9 +152,8 @@ export const SHOW_STREAK = 2;
  */
 export function nextMilestone(routine, today, auto = {}) {
   let best = null;
-  const busy = busyDays(routine, auto);
   for (const item of routine.items) {
-    const s = streakOf(routine, item, today, auto, busy);
+    const s = streakOf(routine, item, today, auto);
     if (s < 1) continue;
     const goal = STEPS.find((g) => g > s) ?? null;
     if (!goal) continue;

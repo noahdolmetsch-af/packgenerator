@@ -46,7 +46,7 @@
     <span class="rt-side num" data-routine-count>{t('{n} of {m}', { n: num(count.n), m: num(count.of) })} · {dayShort(weekdayOf(today))}</span>
   </div>
   <div class="rt-bar" role="progressbar" aria-label={t('What does me good')} aria-valuemin="0" aria-valuemax={count.of} aria-valuenow={count.n}><span style:width={`${count.of ? (100 * count.n) / count.of : 0}%`}></span></div>
-  <p class="rt-hint" data-routine-hint>{t('Tick off what did you good today. No must: an empty day does not count against you.')}</p>
+  <p class="rt-hint" data-routine-hint>{t('Tick off what did you good today. No must, everything is a suggestion.')}</p>
   {#if routine && !list.length}
     <p class="rt-empty">{t('Nothing on your list for today.')}</p>
   {/if}

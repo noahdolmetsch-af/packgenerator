@@ -101,11 +101,12 @@ describe('days in a row', () => {
     expect(streakOf(gap, walk(gap), THU)).toBe(1);
     expect(streakOf(r0(), walk(r0()), THU)).toBe(0);
   });
-  it('an empty day (nothing ticked at all) neither counts nor breaks the row (Noah 18.10.2026 «Kein Muss»)', () => {
+  it('an empty day (nothing ticked at all) breaks the row like any other day (Noah 18.10.2026 «6b»)', () => {
     const r = tickDays(r0(), 'walk', [THU, addDays(THU, -1), addDays(THU, -3), addDays(THU, -4)]);
-    expect(streakOf(r, walk(r), THU)).toBe(4);
-    // a meditation in Im Flow that day makes it a day with something done: the walk row breaks there
-    expect(streakOf(r, walk(r), THU, { meditation: new Set([addDays(THU, -2)]) })).toBe(2);
+    expect(streakOf(r, walk(r), THU)).toBe(2);
+    // today still open: not ticked yet, the row of the days before stays
+    const open = tickDays(r0(), 'walk', [addDays(THU, -1), addDays(THU, -2)]);
+    expect(streakOf(open, walk(open), THU)).toBe(2);
   });
   it('an item of one weekday counts its weekdays only', () => {
     const r = tickDays(r0(), 'yoga', [THU, addDays(THU, -7), addDays(THU, -14)]);
