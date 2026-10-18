@@ -67,3 +67,20 @@ test('Touren 1 + 2: the trip on the way leads the band; «no ride linked» is sa
   expect(errors).toEqual([]);
   await ctx.close();
 });
+
+test('Planen 3: the plan note is one line with the quiet link; the pill says «n weitere Touren offen»', async ({ browser }, info) => {
+  const { ctx, page, errors } = await open(browser, info, TRIP.event, '#/pack');
+  const note = page.locator('.trip-band .stn');
+  await expect(note).toHaveAttribute('data-state', 'plan');
+  await expect(note.locator('h2')).toHaveText(T('Everything stays changeable until you set off.'));
+  await expect(note.locator('p')).toHaveCount(0);
+  const tpl = note.getByRole('button', { name: T('Save as template') });
+  await expect(tpl).toHaveClass(/btn-link/);
+  // one calm line (on a phone the link may go under it): about half the old box (150 px on a phone)
+  expect((await note.boundingBox()).height).toBeLessThan(phone(info) ? 90 : 70);
+  await expect(page.locator('.trip-band .pill')).toHaveText(/^\d+ weitere Touren? offen$/);
+  const sw = await sideways(page);
+  expect(sw.sw).toBeLessThanOrEqual(sw.w);
+  expect(errors).toEqual([]);
+  await ctx.close();
+});

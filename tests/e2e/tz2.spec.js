@@ -58,7 +58,7 @@ test('Tour-Kopf: the band of each state, the fixed list, «Wieder öffnen» with
   // planned: everything stays changeable, «Als Vorlage speichern»
   await openTrip(page, PLAN.id);
   await expect(note).toHaveAttribute('data-state', 'plan');
-  await expect(note.locator('h2')).toHaveText(T('Planned: everything stays changeable.'));
+  await expect(note.locator('h2')).toHaveText(T('Everything stays changeable until you set off.')); // Impeccable Planen 3: one line
   await expect(note.getByRole('button', { name: T('Save as template') })).toBeVisible();
   if (info.project.name === 'desktop') await expect(page.locator('.add-mat')).toBeVisible(); // on a phone it is the + below
 
