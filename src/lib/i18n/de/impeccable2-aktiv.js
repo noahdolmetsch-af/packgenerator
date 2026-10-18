@@ -24,4 +24,10 @@ export default {
   'Change the order': 'Reihenfolge ändern',
   'Done|order': 'Fertig',
   'show|goal': 'zeigen',
+  // Aktivität: what the page is for, the own name on each tile, one suggestion first, the empty week
+  'Your favourite activities at a glance: streaks, bests and the next star.': 'Deine Lieblings-Aktivitäten auf einen Blick: Serien, Bestwerte und der nächste Stern.',
+  'Tap opens the activity. Under «Change tiles» you choose what each tile shows.': 'Antippen öffnet die Aktivität. Unter «Kacheln ändern» wählst du, was jede Kachel zeigt.',
+  'Another suggestion': 'Anderer Vorschlag',
+  'Small things to tick off': 'Kleine Dinge zum Abhaken',
+  'No active day this week yet. What you tick off shows here as a dot.': 'Noch kein aktiver Tag diese Woche. Was du abhakst, erscheint hier als Punkt.',
 };

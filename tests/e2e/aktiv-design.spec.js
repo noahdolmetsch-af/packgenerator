@@ -98,6 +98,9 @@ test('A7: «Vorschlag für heute» is a suggestion tile and any choice can becom
   await go(page, '#/flow/activity');
   const tile = main.locator('[data-suggest]');
   await expect(tile).toBeVisible();
+  // Impeccable runde 2 (distill): first the one suggestion; «Anderer Vorschlag ›» opens the alternatives
+  await expect(tile.getByRole('group', { name: T('Alternatives') })).toHaveCount(0);
+  await tile.getByRole('button', { name: T('Another suggestion') }).click();
   const chips = tile.getByRole('group', { name: T('Alternatives') }).locator('button[aria-pressed]');
   expect(await chips.count()).toBeGreaterThan(0);
   const pick = (await chips.first().textContent()).trim();

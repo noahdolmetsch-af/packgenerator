@@ -82,3 +82,30 @@ test('Ziele: calm states instead of «! heute offen» everywhere, the year goals
   await expect(yg.getByRole('switch')).toBeChecked();
   expect(errors).toEqual([]);
 });
+
+test('Aktivität: what the page is for, the own name on a renamed tile, «Kleine Dinge zum Abhaken»', async ({ page, context }) => {
+  const errors = await open(page, context);
+  const main = page.locator('main');
+  await go(page, '#/flow/activity');
+  await expect(main.locator('header.ph')).toContainText(T('Your favourite activities at a glance: streaks, bests and the next star.'));
+  await expect(main.locator('#tiles-h').locator('..')).toContainText(T('Tap opens the activity. Under «Change tiles» you choose what each tile shows.'));
+  // a tile whose playful name differs shows the activity's own name small above it; the same name stands once
+  const tiles = main.locator('a[data-tile]');
+  await expect(tiles.first()).toBeVisible();
+  for (const tile of await tiles.all()) {
+    const playful = (await tile.locator('.tn').textContent()).trim();
+    const own = tile.locator('[data-own-name]');
+    if (await own.count()) expect((await own.textContent()).trim()).not.toBe(playful);
+  }
+  expect(await main.locator('[data-own-name]').count()).toBeGreaterThan(0);
+  await expect(main.locator('section[aria-labelledby="more-h"]')).toContainText(T('Small things to tick off'));
+  await expect(main.locator('[data-week-empty]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Aktivität: an empty week says what will show', async ({ page, context }) => {
+  const errors = await open(page, context, null);
+  await go(page, '#/flow/activity');
+  await expect(page.locator('main [data-week-empty]')).toHaveText(T('No active day this week yet. What you tick off shows here as a dot.'));
+  expect(errors).toEqual([]);
+});
