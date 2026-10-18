@@ -13,6 +13,7 @@
    * the start sheet of «Heute abhaken» (lib/flow/hobby/medstart.js).
    */
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import Face from '../../lib/timer/Face.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
@@ -123,11 +124,12 @@
       <p class="hint">{t('This activity has no page of its own yet.')} <a href="#/flow/edit/{encodeURIComponent(actId)}?from=activity">{t('Open the activity')}</a></p>
     </section>
   {:else if data && act}
-    <header class="head">
+    <header class="head" class:intro={actId === 'meditation'}>
       <h1 class="h1" tabindex="-1" data-page-title>{actName(act)}</h1>
       <p class="sub">
         {t('Goal|flow')} {actGoalText(act, today)}{#if str.now}{' · '}{tn(str.now, 'streak {n} day', 'streak {n} days')}{/if}{' · '}{doneToday ? t('done today') : t('still open today')}{#if st?.resting}{' · '}{t('resting')}{/if}
       </p>
+      {#if actId === 'meditation'}<AreaIntro place="meditation" mini />{/if}
     </header>
 
     <div class="cols">
@@ -519,5 +521,12 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* «Einstieg» (Noah «4a»): the round «i» sits in the corner of the head */
+  .head.intro {
+    position: relative;
+  }
+  .head.intro h1 {
+    padding-right: 52px;
   }
 </style>

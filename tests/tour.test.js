@@ -4,7 +4,8 @@ import { TOURS, TOUR_NAMES, stepCount, stepAt, runOf, nextRun, backRun, navSelec
 import { PLACES } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
-const de = (k) => DE[k] ?? DE[k.replace(/\|[a-z]+$/, '')];
+// exactly as t() looks it up: a key with |suffix needs its own German entry
+const de = (k) => DE[k];
 
 describe('the tours', () => {
   it('the app tour: six places, then the end card', () => {
@@ -14,7 +15,7 @@ describe('the tours', () => {
     for (const s of TOURS.app.filter((x) => !x.end)) expect(places, s.href).toContain(s.place);
   });
   it('a small tour per place, short', () => {
-    for (const id of ['aktiv', 'touren', 'material']) {
+    for (const id of ['aktiv', 'touren', 'material', 'velos']) {
       expect(stepCount(id), id).toBeGreaterThanOrEqual(3);
       expect(stepCount(id), id).toBeLessThanOrEqual(5);
     }

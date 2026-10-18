@@ -247,6 +247,7 @@
       <h1 class="title">{t('Goals|flow')}</h1>
       <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
     </header>
+    <AreaIntro place="goals" />
     <div class="tools">
       <div class="seg" role="group" aria-label={t('Filter by ring')}>
         {#each RING_FILTER as r (r.key)}<button type="button" class="sg" aria-pressed={ringF === r.key} onclick={() => (ringF = r.key)}>{t(r.name)}</button>{/each}

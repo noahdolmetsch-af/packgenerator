@@ -6,8 +6,8 @@
  * navigation. A step whose part is missing (own data without a trip, say) still shows its card, in the
  * middle. Nothing is ever required: «End tour» stops at once and the tour does not come back by itself.
  *
- * TOURS.app is the tour through the whole app (six places and an end card); TOURS.aktiv, .touren and
- * .material are the small tours of one place (the «Einstieg» on top of the place offers them).
+ * TOURS.app is the tour through the whole app (six places and an end card); TOURS.aktiv, .touren,
+ * .material and .velos are the small tours of one place (the «Einstieg» on top of the place offers them).
  * The running tour lives in localStorage (RUN_KEY), so it carries over the reload that starts the
  * playground; a closed private tab simply has no tour. Texts are English keys for t() (German in
  * i18n/de/rundgang.js). Pure apart from the small storage helpers at the end; tested in tests/tour.test.js.
@@ -48,10 +48,16 @@ export const TOURS = {
     { href: '#/wardrobe', place: 'gear', target: ['main h1'], title: 'Clothes|tab', text: 'Clothes by temperature. The app suggests layers for the weather of the trip.' },
     { href: '#/blocks', place: 'gear', target: ['main h1'], title: 'Building blocks', text: 'A block is a ready package for a situation, like «Rain». One tap adds the whole package to a trip.' },
   ],
+  velos: [
+    { href: '#/bikes', place: 'bikes', target: ['section.draw', '.setup', 'main h1'], title: 'Your bike|intro', text: 'The drawing shows where each bag sits on the bike. Tap a place to change it.' },
+    { href: '#/bikes', place: 'bikes', target: ['section.std', '.setup'], title: 'Bags|tour', text: 'These bags come along on every new trip with this bike, with their weight.' },
+    { href: '#/bikes?tab=care', place: 'bikes', target: ['section[aria-labelledby="due-h"]', '.care', 'main h1'], title: 'Care|tab', text: 'What is due: chain, brakes, tyres. A tap enters what you did, the km start again.' },
+    { href: '#/bikes?tab=compare', place: 'bikes', target: ['main h1'], title: 'Equipment|intro', text: 'Every part of the bike in groups, with weight and date. «Compare» shows two bikes side by side.' },
+  ],
 };
 
 /** The tour's name for buttons and the Handbook. */
-export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear' };
+export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes' };
 
 /** How many steps a tour shows with «Step n of m» (the end card does not count). */
 export const stepCount = (id) => (TOURS[id] ?? []).filter((s) => !s.end).length;

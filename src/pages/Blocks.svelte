@@ -24,6 +24,7 @@
    * one tap takes the changes over (Undo), «nein» only forgets them.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown, knownWeight } from '../lib/gear.js';
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
@@ -303,6 +304,7 @@
     <Btn icon={ListChecks} label={t('Check|blocks')} explain={t('Check building blocks')} sub={toCheck ? t('to check|blocks') : ''} href="#/blocks/check" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
+  <AreaIntro place="blocks" />
   {#if adding}
     <form class="newset card" onsubmit={create}>
       <label><span class="lbl">{t('Name of the new building block')}</span><input id="new-block-name" class="inp" bind:value={newName} placeholder={t('e.g. Rain')} /></label>

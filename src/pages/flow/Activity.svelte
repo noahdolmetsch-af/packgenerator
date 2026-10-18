@@ -8,6 +8,7 @@
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
   import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Rows from '../../lib/flow/kit/Rows.svelte';
@@ -210,6 +211,7 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activity|tab')} />
     <PageHead title={t('Activity|tab')} text={t('Over all activities · each tile shows one line instead of a date')} />
   </header>
+  <AreaIntro place="activity" />
 
   {#if data}
     <div class="lay">

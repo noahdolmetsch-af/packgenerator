@@ -31,7 +31,7 @@
   const introQ = liveQuery(() => db.settings.get(INTRO_KEY));
   const introGone = $derived(hiddenCount($introQ?.value));
   const bringBack = () => putSetting(db, INTRO_KEY, showAll($introQ?.value));
-  const PLACE_TOURS = ['aktiv', 'touren', 'material'];
+  const PLACE_TOURS = ['aktiv', 'touren', 'material', 'velos'];
   $effect(() => {
     if (wantId) queueMicrotask(() => document.querySelector(`[data-hb="${CSS.escape(wantId)}"]`)?.scrollIntoView({ block: 'center' }));
   });

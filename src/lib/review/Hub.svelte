@@ -17,6 +17,7 @@
    * the name), the small charts and all columns folded; the last ride's details folded at the end.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../db.js';
   import { loadReview } from './load.js';
   import { tripFacts, periodStats, compareSet, planVsReal, ARTS } from './rueckblick.js';
@@ -231,6 +232,7 @@
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
     </div>
   </header>
+  <AreaIntro place="debrief" />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}

@@ -15,7 +15,10 @@ export const INTRO_KEY = 'intro';
 /** 1a: the phone shows it open on this many visits, then as one line. */
 export const OPEN_VISITS = 3;
 
-/** things: three rows { icon, title, text, href? }; tour: the key in TOURS (tour.js); page: the key in pageinfo PAGES. */
+/**
+ * things: three rows { icon, title, text, href? }; tour: the key in TOURS (tour.js), only on a place; page:
+ * true on a page below a place. The key is also the page key in pageinfo PAGES (the tips).
+ */
 export const INTROS = {
   aktiv: {
     name: 'Active|place',
@@ -38,6 +41,8 @@ export const INTROS = {
     ],
     expect: 'After two or three trips the lists get better by themselves, because what you never use gets quieter.',
     tour: 'touren',
+    // «Neue Tour» stays in reach (FE1 Daumen-Zone): here too the Einstieg starts as one line
+    folded: true,
   },
   material: {
     name: 'Gear|place',
@@ -51,6 +56,153 @@ export const INTROS = {
     tour: 'material',
     // Material keeps «list first» (Noah 11.10.2026, mockup E): here the Einstieg starts as one line
     folded: true,
+  },
+  velos: {
+    name: 'Bikes|place',
+    title: 'Every bike with its bags, km and care',
+    things: [
+      { icon: 'bike', title: 'Your bike|intro', text: 'The drawing shows where each bag sits. These bags come along on every new trip with this bike.' },
+      { icon: 'wrench', title: 'Care|tab', text: 'Chain, brakes, tyres: the app counts the km and tells you what is due.', href: '#/bikes?tab=care' },
+      { icon: 'list', title: 'Equipment|intro', text: 'Every part in groups, with weight and date. Two bikes side by side with «Compare».', href: '#/bikes?tab=compare' },
+    ],
+    expect: 'With the km from Strava or your trips the app gets to know each bike. After a few weeks you see what is due next and how far a part has come.',
+    tour: 'velos',
+  },
+  // Noah «4a»: the pages below a place get the same Einstieg, without a tour of their own («3»: a small
+  // tour per place). page: true says «This is …» instead of «Your area …».
+  meditation: {
+    page: true,
+    name: 'Meditation',
+    title: 'Sit, breathe, come back',
+    things: [
+      { icon: 'timer', title: 'Timer', text: 'Length, gongs and sound. A template starts it with one tap.', href: '#/flow/act/meditation/timer' },
+      { icon: 'list', title: 'Log|intro', text: 'Every session in a list, a calendar and a curve.', href: '#/flow/act/meditation/log' },
+      { icon: 'chart', title: 'Patterns|intro', text: 'When it goes deepest: by time of day, length and place.', href: '#/flow/act/meditation/muster' },
+    ],
+    expect: 'After a week you see your streak. After a few weeks the patterns show when meditation does you the most good.',
+    // «Meditation einfach»: the phone page stays about two screens, so the Einstieg starts as one line
+    folded: true,
+  },
+  training: {
+    page: true,
+    name: 'Training|tab',
+    title: 'Your training by heart rate zones',
+    things: [
+      { icon: 'calendar', title: 'Week|training', text: 'The time in each zone this week, at a glance.' },
+      { icon: 'list', title: 'Activities|intro', text: 'Every activity from Strava with its zones and heart rate.' },
+      { icon: 'heart', title: 'Zones|intro', text: 'They come from your maximum heart rate. You can change the limits.' },
+    ],
+    expect: 'With Strava connected each ride comes in by itself. After two or three weeks you see whether you train mostly easy or mostly hard.',
+  },
+  goals: {
+    page: true,
+    name: 'Goals|flow',
+    title: 'Goals that fit your week',
+    things: [
+      { icon: 'goal', title: 'One goal per activity', text: 'For example «cycling 2× a week» or «meditate 10 minutes a day».', href: '#/flow/new' },
+      { icon: 'check', title: 'Rolling window', text: 'It always counts the last days, whatever the weekday. A missed Monday is not a lost week.' },
+      { icon: 'moon', title: 'Pause and season', text: 'Pause a goal on holiday, or let it count only in summer or winter.' },
+    ],
+    expect: 'You see at once which goal is on track. After a month you know which goals fit your life and which you can let go.',
+  },
+  activity: {
+    page: true,
+    name: 'Activity|tab',
+    title: 'All activities at a glance',
+    things: [
+      { icon: 'star', title: 'Milestones', text: 'What you have reached and what is soon within reach.', href: '#/flow/milestones' },
+      { icon: 'chart', title: 'Three rings', text: 'Move, mindful and recovery over the last 7 days.' },
+      { icon: 'heart', title: 'Recovery and fun', text: 'A sauna or a walk counts too.' },
+    ],
+    expect: 'Each tile shows one line: how often, how long, since when. Over time the page becomes your own sports diary.',
+  },
+  rest: {
+    page: true,
+    name: 'Recovery|page',
+    title: 'The pause has its place too',
+    things: [
+      { icon: 'moon', title: 'Recovery this week', text: 'The ring fills with sauna, stretching, a walk or a rest day.' },
+      { icon: 'check', title: 'Tick off recovery', text: 'One tap is enough. Add your own kind of recovery below.' },
+      { icon: 'calendar', title: 'The last 14 days', text: 'Recovery and active days side by side, so you see the balance.' },
+    ],
+    expect: 'After two weeks you see whether hard days and rest days are in balance.',
+  },
+  bags: {
+    page: true,
+    name: 'Sport bag',
+    title: 'A short list per sport, so nothing is missing',
+    things: [
+      { icon: 'bag', title: 'One bag per sport', text: 'For tennis, the gym or swimming: only the few things you need.' },
+      { icon: 'check', title: 'All in the bag', text: 'Tick it off before you leave. Tomorrow it starts empty again.' },
+      { icon: 'calendar', title: 'Reminder the evening before', text: 'With a fixed date under «Week» Today reminds you the evening before.', href: '#/flow/week' },
+    ],
+    expect: 'After a few times the list is short and right. What you often forget is marked.',
+  },
+  week: {
+    page: true,
+    name: 'Week',
+    title: 'Plan your week, gently',
+    things: [
+      { icon: 'goal', title: 'Goals this week', text: 'What is still open from your goals, spread over the days.' },
+      { icon: 'calendar', title: 'Fixed dates', text: 'Yoga on Thursday 07:00? Enter it once, it comes back every week.' },
+      { icon: 'sun', title: 'Weather|intro', text: 'Dry days get the outdoor suggestions. Everything can be changed.' },
+    ],
+    expect: 'Every week starts with suggestions from your goals and dates. You plan what fits and leave out the rest.',
+  },
+  templates: {
+    page: true,
+    name: 'Templates',
+    title: 'The next trip starts packed',
+    things: [
+      { icon: 'copy', title: 'From a good trip', text: 'Save a trip that worked as a template, with its blocks and items.' },
+      { icon: 'blocks', title: 'Building blocks inside', text: 'A template is made of blocks plus single items. Change a block, every template gets it.', href: '#/blocks' },
+      { icon: 'map', title: 'Start a trip', text: 'A new trip from a template has its list ready. Leave out what you do not need.' },
+    ],
+    expect: 'With two or three templates most trips start with the right list in one tap.',
+  },
+  debrief: {
+    page: true,
+    name: 'Look back|page',
+    title: 'What the last trips taught you',
+    things: [
+      { icon: 'back', title: 'Rate a trip', text: 'What was too much, what was missing, how it felt. Two minutes are enough.' },
+      { icon: 'chart', title: 'Your pace', text: 'Km per hour and per day over all trips, for better planning.', href: '#/debrief/pace' },
+      { icon: 'list', title: 'Learned|review', text: 'Every lesson in one place, by topic.', href: '#/debrief/learnings' },
+    ],
+    expect: 'After each rated trip the next packing list gets a little better by itself.',
+  },
+  wardrobe: {
+    page: true,
+    name: 'Wardrobe',
+    title: 'Clothes by temperature, layer by layer',
+    things: [
+      { icon: 'shirt', title: 'Layers|intro', text: 'From the inside out: base layer, warm layer, rain jacket.' },
+      { icon: 'thermo', title: 'What do I wear today?', text: 'The app suggests layers for the weather of the day or the trip.' },
+      { icon: 'back', title: 'It learns|intro', text: 'If you were often cold or too warm, the debrief moves the suggestion a little.' },
+    ],
+    expect: 'Once your clothes have a temperature range, every trip gets a clothing list that fits the forecast.',
+  },
+  blocks: {
+    page: true,
+    name: 'Building blocks',
+    title: 'Packages for every situation',
+    things: [
+      { icon: 'blocks', title: 'A ready package', text: 'For example «Rain» or «Repair»: the things that always come along together.' },
+      { icon: 'sun', title: 'Depending on the situation', text: 'Some blocks come by themselves when the weather or the trip fits.' },
+      { icon: 'check', title: 'Check|blocks', text: 'One block after the other: keep, leave out or move each item. «Check» is on top of the page.' },
+    ],
+    expect: 'With a handful of blocks a new list is ready in a few taps, and changes reach every trip.',
+  },
+  past: {
+    page: true,
+    name: 'Past trips',
+    title: 'Every trip you have done',
+    things: [
+      { icon: 'map', title: 'Your year', text: 'Trips, km and metres climbed, by year or over 12 months.' },
+      { icon: 'back', title: 'Rate|intro', text: 'A trip without a debrief shows «Rate». The next list learns from it.' },
+      { icon: 'star', title: 'Upload ride', text: 'A ride from Strava or a GPX file joins the list.', href: '#/debrief/ride' },
+    ],
+    expect: 'Over the years this becomes your logbook: how far, how high, with which bike.',
   },
 };
 

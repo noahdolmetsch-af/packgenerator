@@ -20,6 +20,7 @@
    * its debrief («Bewerten»).
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { Archive, Plus, Backpack, Ellipsis, Tent, BedDouble, Bike, Mountain, Pencil, Copy, Trash2, Route, Undo2, Check, Star } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -182,6 +183,7 @@
       <!-- FE1: on a phone «New template» sits at the bottom, in reach of the thumb -->
       <span class="daumen"><Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} /></span>
     </PathHead>
+    <AreaIntro place="templates" />
 
     {#if showSwitch}
       <div class="areas">

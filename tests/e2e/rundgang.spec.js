@@ -76,7 +76,9 @@ test('Einstieg on top of Active: tip and source, × brings the tip line back, th
 
 test('The small tour of Trips from the Einstieg', async ({ page }) => {
   await page.goto('./#/trips');
-  const intro = page.locator('[data-intro="touren"]');
+  // Trips starts as one line («Neue Tour» stays in reach, FE1); a tap opens it, the tour is offered
+  await page.locator('[data-intro="touren"][data-open="false"]').click();
+  const intro = page.locator('[data-intro="touren"][data-open="true"]');
   await intro.locator('[data-offer]').getByRole('button', { name: T('Start ›|tour') }).click();
   await expect(page.locator('.tour')).toHaveAttribute('data-tour', 'touren');
   await expect(page.locator('#tour-h')).toHaveText(T(TOURS.touren[0].title));
@@ -88,4 +90,41 @@ test('The small tour of Trips from the Einstieg', async ({ page }) => {
   await page.goto('./#/flow');
   await page.goto('./#/trips');
   await expect(page.locator('[data-intro="touren"] [data-offer]')).toHaveCount(0);
+});
+
+// Noah «4a»: Bikes and the pages below the places get the same Einstieg; Bikes has its small tour.
+test('The small tour of Bikes, and the Einstieg on the pages below the places', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./#/bikes');
+  const intro = page.locator('[data-intro="velos"]');
+  await expect(intro).toContainText(T('Every bike with its bags, km and care'));
+  await intro.locator('[data-offer]').getByRole('button', { name: T('Start ›|tour') }).click();
+  await expect(page.locator('.tour')).toHaveAttribute('data-tour', 'velos');
+  for (let i = 1; i < TOURS.velos.length; i++) {
+    await page.locator('.tcard .btn.hi').click();
+    await expect(page.locator('#tour-h')).toHaveText(T(TOURS.velos[i].title));
+  }
+  await page.locator('.tcard .btn.hi').click();
+  await expect(page.locator('.tour')).toHaveCount(0);
+  // a page below a place: «This is …», no tour of its own, a «Did you know» with its source
+  for (const [hash, place, title] of [
+    ['#/flow/goals', 'goals', 'Goals that fit your week'],
+    ['#/flow/rest', 'rest', 'The pause has its place too'],
+    ['#/pack/templates', 'templates', 'The next trip starts packed'],
+    ['#/debrief', 'debrief', 'What the last trips taught you'],
+    ['#/wardrobe', 'wardrobe', 'Clothes by temperature, layer by layer'],
+  ]) {
+    await page.goto(`./${hash}`);
+    const box = page.locator(`[data-intro="${place}"]`);
+    await expect(box, place).toContainText(T(title));
+    await expect(box.locator('.kick'), place).toHaveText(new RegExp(`^${T('This is {place}', { place: '' })}`));
+    await expect(box.locator('[data-offer]'), place).toHaveCount(0);
+    await expect(box.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+  }
+  // Meditation stays a short page: folded, only a round «i» in the head; a tap opens the Einstieg
+  await page.goto('./#/flow/act/meditation');
+  await page.locator('.ai-mini[data-intro="meditation"]').click();
+  await expect(page.locator('[data-intro="meditation"][data-open="true"]')).toContainText(T('Sit, breathe, come back'));
+  expect(errors).toEqual([]);
 });

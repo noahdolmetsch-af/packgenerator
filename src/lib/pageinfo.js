@@ -88,6 +88,7 @@ export const PAGES = {
       { id: 'med-tpl', text: 'Templates keep the length, sound and place. One tap and it runs.' },
       { id: 'know-meditari', kind: 'know', text: 'The word «meditation» comes from the Latin «meditari»: to ponder or to practise.' },
       { id: 'know-after-ride', kind: 'know', text: 'Idea: try a session right after a ride, when the body calms down anyway.' },
+      { id: 'know-mbsr', kind: 'know', text: 'The well-known mindfulness course MBSR lasts eight weeks. It was developed in 1979 at a university clinic in Massachusetts.', source: 'UMass Chan Medical School, Center for Mindfulness' },
       ...TODAY_TIPS.filter((x) => x.when === 'sauna'),
     ],
     can: [
@@ -99,6 +100,124 @@ export const PAGES = {
     ],
   },
 };
+
+/**
+ * «Einstieg» for Bikes and the pages below the places (Noah 15.10.2026 «4a»): the tips of the Einstieg on
+ * top of each page (lib/intro.js). A «know» tip with a `source` is the «Did you know» of the page.
+ */
+Object.assign(PAGES, {
+  velos: {
+    tips: [
+      { id: 'velo-pressure', text: 'Check the tyre pressure once a week: tyres lose a little air even without a puncture.' },
+      { id: 'velo-chain', text: 'A clean, oiled chain runs quieter and lasts longer. Wipe it after a wet ride.' },
+      { id: 'velo-strava', text: 'With Strava connected every ride counts on the right bike by itself.', button: 'Care|tab', href: '#/bikes?tab=care' },
+      { id: 'velo-bags', text: 'Weigh your bags once: then every trip shows its weight on the bike.' },
+      { id: 'know-chain', kind: 'know', text: 'A chain is usually replaced at 0.5 % wear on 11- and 12-speed bikes and at 0.75 % on others. A chain checker shows it in seconds.', source: 'Park Tool, chain wear guide' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'long'),
+    ],
+    can: [],
+  },
+  training: {
+    tips: [
+      { id: 'tr-heart', text: 'Strava only sends a heart rate if your watch or bike computer recorded one.' },
+      { id: 'tr-easy-day', text: 'After a hard day an easy one: the body gets stronger in the rest, not in the effort.' },
+      { id: 'tr-max', text: 'Set your maximum heart rate once: then the zones fit you, not an average.' },
+      { id: 'know-who-vigorous', kind: 'know', text: '75 minutes of vigorous activity a week count about as much as 150 minutes of moderate activity.', source: 'World Health Organization (WHO), 2020' },
+      ...TODAY_TIPS.filter((x) => x.when === 'heat'),
+    ],
+    can: [],
+  },
+  goals: {
+    tips: [
+      { id: 'goal-small', text: 'Start smaller than you think: a goal you often reach carries you further than a big one you miss.' },
+      { id: 'goal-pause', text: 'Pause a goal on holiday instead of deleting it: it comes back with one tap.' },
+      { id: 'goal-season', text: 'A goal with a season, like skiing in winter, does not nag you in summer.' },
+      { id: 'know-if-then', kind: 'know', text: 'A plan like «If it is Tuesday 18:00, then I ride» makes it more likely that you really do it.', source: 'psychology research on «implementation intentions»' },
+    ],
+    can: [],
+  },
+  activity: {
+    tips: [
+      { id: 'act-new', text: 'Something new? «New activity» adds a tile, for example climbing or swimming.' },
+      { id: 'act-press', text: 'A long press on a tile under Active enters the duration or the place.' },
+      { id: 'act-fun', text: 'Recovery counts too: a sauna or a walk fills the recovery ring.' },
+      { id: 'know-steps', kind: 'know', text: 'The goal of 10,000 steps a day goes back to a Japanese step counter from 1965 called «manpo-kei», the «10,000-step meter».', source: 'Harvard Health Publishing' },
+    ],
+    can: [],
+  },
+  rest: {
+    tips: [
+      { id: 'rest-plan', text: 'Plan the rest day like a training day: then it is a choice, not a gap.' },
+      { id: 'rest-own', text: 'Your own kind of recovery, like reading in the park, can be added below.' },
+      { id: 'rest-after', text: 'After two hard days in a row an easy day usually does more good than a third hard one.' },
+      { id: 'know-sleep', kind: 'know', text: 'Adults should sleep 7 hours or more a night on a regular basis.', source: 'American Academy of Sleep Medicine' },
+      ...TODAY_TIPS.filter((x) => x.when === 'sauna'),
+    ],
+    can: [],
+  },
+  bags: {
+    tips: [
+      { id: 'bag-empty', text: 'Empty the bag right after training: wet things dry faster and smell less.' },
+      { id: 'bag-short', text: 'Keep the list short: only what you would really miss.' },
+      { id: 'bag-forgot', text: 'What you forget often is marked. Put it in the bag first.' },
+    ],
+    can: [],
+  },
+  week: {
+    tips: [
+      { id: 'week-sunday', text: 'Ten minutes on Sunday evening are enough to plan the week.' },
+      { id: 'week-ics', text: '«To my calendar» puts the planned days into your phone calendar.' },
+      { id: 'week-gap', text: 'Leave one day empty: then a rainy day does not move everything.' },
+      { id: 'know-iso-week', kind: 'know', text: 'In Switzerland and most of Europe the week starts on Monday, as the international standard says.', source: 'ISO 8601' },
+    ],
+    can: [],
+  },
+  templates: {
+    tips: [
+      { id: 'tpl-after', text: 'Save a template right after a good trip, while you still know what you missed.' },
+      { id: 'tpl-few', text: 'Two or three templates are enough for most trips: a day ride, a weekend, a long tour.' },
+      { id: 'tpl-blocks', text: 'Put things that always come together into a building block: the templates stay short.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'know-checklist', kind: 'know', text: 'Pilots fly with checklists since a test flight crash in 1935: the plane was too complex to remember every step.', source: 'Boeing, company history (Model 299)' },
+    ],
+    can: [],
+  },
+  debrief: {
+    tips: [
+      { id: 'deb-soon', text: 'Look back the day after: you still remember what was too much.' },
+      { id: 'deb-short', text: 'Three words are enough. The app learns from every tick.' },
+      { id: 'deb-pace', text: 'Your pace helps the next plan: how far you really ride in a day.', button: 'Your pace', href: '#/debrief/pace' },
+      { id: 'know-aar', kind: 'know', text: 'The army review after an exercise asks four questions: what was planned, what happened, why, and what we do next time.', source: 'US Army, «A Leader’s Guide to After-Action Reviews»' },
+    ],
+    can: [],
+  },
+  wardrobe: {
+    tips: [
+      { id: 'wd-onion', text: 'Several thin layers are warmer and more flexible than one thick jacket.' },
+      { id: 'wd-range', text: 'Give each piece a temperature range: then the suggestion fits the forecast.' },
+      { id: 'wd-start', text: 'Start a little cold: after ten minutes on the bike you are warm.' },
+      { id: 'know-merino', kind: 'know', text: 'Merino wool can take up about a third of its own weight in moisture before it feels wet.', source: 'The Woolmark Company' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'heat'),
+    ],
+    can: [],
+  },
+  blocks: {
+    tips: [
+      { id: 'blk-three', text: 'Three things that always come along together make a good building block.' },
+      { id: 'blk-check', text: 'Check your blocks after a season: what never came along can go.' },
+      { id: 'blk-rain', text: 'A block «Rain» comes by itself when the forecast says rain.' },
+    ],
+    can: [],
+  },
+  past: {
+    tips: [
+      { id: 'past-rate', text: 'Rate a trip with one tap on «Rate»: the next list learns from it.' },
+      { id: 'past-year', text: 'Switch to «Year» to compare your seasons.' },
+      { id: 'past-upload', text: 'A ride from Strava or a GPX file counts here too.', button: 'Upload ride', href: '#/debrief/ride' },
+      { id: 'know-earth', kind: 'know', text: 'Around the Earth at the equator it is about 40,075 km.', source: 'NASA' },
+    ],
+    can: [],
+  },
+});
 
 /** The stored state made whole. */
 export function infoOf(v) {
@@ -140,12 +259,14 @@ function dayTips(i, page, ctx = {}) {
  * The tip of the day (the same all day, the next one tomorrow); a fitting «Passt zu heute» comes first.
  * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, max } (contextOf).
  */
-export function tipOfDay(info, page, today, ctx = {}) {
+export function tipOfDay(info, page, today, ctx = {}, { sourced = true } = {}) {
   const i = infoOf(info);
   if (!i.tipsOn || i.gone[page] === today) return null;
   const { fit, rest } = dayTips(i, page, ctx);
   if (fit.length) return pick(fit, today);
-  return rest.length ? pick(rest, today) : null;
+  // the Einstieg (sourced: false) shows a tip with a source in its own «Did you know» box, not here
+  const xs = sourced ? rest : rest.filter((x) => !x.source).length ? rest.filter((x) => !x.source) : rest;
+  return xs.length ? pick(xs, today) : null;
 }
 /** Which number the tip of the day is among the tips that can come today (1-based), and how many there are. */
 export function tipPlace(info, page, today, ctx = {}) {

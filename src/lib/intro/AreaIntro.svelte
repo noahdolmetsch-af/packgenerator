@@ -5,7 +5,8 @@
    * button), one «Did you know» with its source, the small tour of the place and the Handbook. Phone: open
    * on the first 3 visits, then one line; computer: open until folded. × takes it away; then the page's
    * own tip line (the `hidden` snippet) shows as before. Words and rules: lib/intro.js.
-   * place: a key of INTROS (= the page key in pageinfo.js).
+   * mini: folded it is only a round «i» in the top corner of the page head (the head needs position: relative).
+   * place: a key of INTROS (= the page key in pageinfo.js); a page below a place (intro.page) has no tour.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -20,10 +21,10 @@
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
-  import { Check, Target, Moon, Map as MapIcon, Backpack, History, Scale, Boxes, ShoppingCart, Info, ChevronDown, ChevronUp, X, Lightbulb, ChevronRight } from '@lucide/svelte';
+  import { Check, Target, Moon, Map as MapIcon, Backpack, History, Scale, Boxes, ShoppingCart, Info, ChevronDown, ChevronUp, X, Lightbulb, ChevronRight, Bike, Wrench, ListChecks, Timer, ChartLine, CalendarDays, Heart, Star, ShoppingBag, Sun, Copy, Shirt, Thermometer } from '@lucide/svelte';
 
-  let { place, hidden: hiddenSnippet = null } = $props();
-  const ICON = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart };
+  let { place, hidden: hiddenSnippet = null, mini = false } = $props();
+  const ICON = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
   // svelte-ignore state_referenced_locally
   const intro = INTROS[place];
   const today = localDay();
@@ -55,7 +56,7 @@
   const gone = $derived(!!st.hidden[place]);
   const open = $derived(isOpen(raw, place, phone.matches, !!intro?.folded));
   const offer = $derived(offerTour(raw, place));
-  const tip = $derived(pi.loaded ? tipOfDay(pi.info, place, today, dc.ctx) : null);
+  const tip = $derived(pi.loaded ? tipOfDay(pi.info, place, today, dc.ctx, { sourced: false }) : null);
   const fact = $derived(pi.loaded ? factOfDay(pi.info, place, today, tip?.id) : null);
   const deg = $derived(tip?.when === 'heat' || tip?.when === 'cold' ? dc.ctx.max : null);
   const tipText = (x) => (x.own ? x.text : t(x.text));
@@ -72,6 +73,9 @@
 {#if intro && loaded}
   {#if gone}
     {@render hiddenSnippet?.()}
+  {:else if !open && mini}
+    <!-- a short page (Meditation): folded, only a round «i» in the corner of the head, no extra row -->
+    <button type="button" class="ai-mini" data-intro={place} data-open="false" aria-expanded="false" aria-label={t('How to use {place}', { place: name })} onclick={() => save((v) => setFold(v, place, false))}><Info size={20} aria-hidden="true" /></button>
   {:else if !open}
     <button type="button" class="card ai-line" data-intro={place} data-open="false" aria-expanded="false" onclick={() => save((v) => setFold(v, place, false))}>
       <span class="ic"><Info size={18} aria-hidden="true" /></span>
@@ -83,7 +87,7 @@
       <div class="main">
         <div class="head">
           <div>
-            <p class="kick">{t('Your area {place}', { place: name })}</p>
+            <p class="kick">{intro.page ? t('This is {place}', { place: name }) : t('Your area {place}', { place: name })}</p>
             <h2 id="ai-{place}">{t(intro.title)}</h2>
           </div>
           {#if phone.matches}<button type="button" class="x" aria-label={t('Hide the introduction')} onclick={() => save((v) => hide(v, place))}><X size={20} aria-hidden="true" /></button>{/if}
@@ -241,6 +245,13 @@
     display: grid;
     gap: 2px;
   }
+  /* the title link is a 44 px touch target without making the row taller */
+  .things b a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: -11px 0;
+  }
   .things small {
     color: var(--ink-2);
     font-size: var(--fs-small);
@@ -316,6 +327,24 @@
     font-weight: 700;
     color: var(--hi);
     margin-bottom: 6px;
+  }
+  .tacts .btn {
+    min-height: 44px;
+  }
+  .ai-mini {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .tacts {
     display: flex;
