@@ -241,8 +241,8 @@ export default {
   'Notes from the + button on every page. Put each one where it belongs.':
     'Notizen vom +-Knopf auf jeder Seite. Ordne jede dort ein, wo sie hingehört.',
   'All notes are sorted.': 'Alle Notizen sind eingeordnet.',
-  'No notes yet. Tap + at the bottom right on any page when something comes up.':
-    'Noch keine Notizen. Tippe auf jeder Seite unten rechts auf +, wenn dir etwas auffällt.',
+  'No notes yet. Tap + on any page when something comes up.':
+    'Noch keine Notizen. Tippe auf jeder Seite auf +, wenn dir etwas auffällt.',
   'Open photo': 'Foto öffnen',
   'Other places for this note': 'Andere Orte für diese Notiz',
   'Back to inbox': 'Zurück in die Inbox',

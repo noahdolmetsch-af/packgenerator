@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.34.0 (L4): the charge list as a sheet over Pack (#/pack?charge, and the ready-check point
    * "Devices charged"). The list itself is ChargeList.
@@ -26,7 +27,7 @@
     });
 </script>
 
-<dialog class="sheet chs" bind:this={dialog} onclose={onclose} aria-labelledby="charge-h">
+<dialog use:backClose class="sheet chs" bind:this={dialog} onclose={onclose} aria-labelledby="charge-h">
   <header class="hd">
     <div class="tt">
       <h2 id="charge-h">{t('Charge the evening before')}</h2>

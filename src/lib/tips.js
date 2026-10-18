@@ -52,7 +52,7 @@ export const GROUPS = [
  */
 export const TIPS = [
   // Plan
-  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Day ride in 1 tap', text: 'One tap plans a short ride like your last one, with the weather.', button: 'Plan a day ride', go: { run: 'dayRide' }, needs: 'pastTrip' },
+  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Quick start in 1 tap', text: 'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.', button: 'Quick start', go: { run: 'dayRide' }, needs: 'pastTrip' },
   { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
   { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'gpx', group: 'plan', icon: 'route', title: 'Load a route (GPX)', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },

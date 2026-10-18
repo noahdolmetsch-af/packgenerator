@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from './backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * A photo big, on the whole screen (Noah, 4.10.2026, answer 1a): swipe or the arrows for the
    * next one, Esc or Close to go back. list: [{ src, name, sub }]. actions: an optional snippet
@@ -38,7 +39,7 @@
   }
 </script>
 
-<dialog class="lb" bind:this={dialog} onclose={onclose} aria-label={t('Photo: {name}', { name: cur?.name ?? '' })}>
+<dialog use:backClose class="lb" bind:this={dialog} onclose={onclose} aria-label={t('Photo: {name}', { name: cur?.name ?? '' })}>
   {#if cur}
     <header class="top">
       <span class="nm"><b>{cur.name}</b>{#if cur.sub}<small>{cur.sub}</small>{/if}</span>

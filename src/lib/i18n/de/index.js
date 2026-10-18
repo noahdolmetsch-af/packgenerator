@@ -162,10 +162,12 @@ import pageinfo from './pageinfo.js';
 
 // Kamera-Knopf: one tap opens the camera, always for receipts
 import kamera from './kamera.js';
-// RE «Regeln einheitlich»: one rain limit, the debrief with nothing ticked, «Pflege für …»
-import einheitlich from './einheitlich.js';
-// SN3h–SN3j «Bausteine mehr»: nine new blocks, the stages, the groups of the Gesamtliste, «Baden» in Planen
-import bausteinemehr from './bausteinemehr.js';
+// Regeln der App: one rule per page (A a nothing jumps, C b a tap opens to edit)
+import regeln from './regeln.js';
+// Start-Karten: «Heute unterwegs» and «Letzter Abend» on Today instead of the jump
+import startkarten from './startkarten.js';
+// Standard-Velo VS1–VS4: star, order with arrows, the one question at the first trip
+import standardvelo from './standardvelo.js';
 
 // «Inspiration» UC2-1, UC2-2, UC2-4: your own links, «Aus der Notiz wird …», the packing hint
 import inspiration from './inspiration.js';
@@ -190,4 +192,28 @@ import training from './training.js';
 // Ich › Bezahlen › Rechnungen: QR bill and TWINT (mockups QR1–QR9)
 import rechnungen from './rechnungen.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...einheitlich, ...bausteinemehr };
+// SL «Scrollen und Listen»: groups, jump bar, «Nach oben»
+import listen from './listen.js';
+
+// WS2: «Schnellstart» in Neu, Suche und Tipps
+import ws2schnellstart from './ws2schnellstart.js';
+
+// WS5: Velo-Kosten im Kopf, Strava neben «Fahrten importieren»
+import ws5velokosten from './ws5velokosten.js';
+
+// WS6: was zur Erholung zählt, unter den Ringen
+import ws6erholung from './ws6erholung.js';
+
+// RE «Regeln einheitlich»: one rain limit, the debrief with nothing ticked, «Pflege für …»
+import einheitlich from './einheitlich.js';
+
+// v0.143.0 «Wieder sichtbar» (WS2–WS7)
+import wiedersichtbar from './wiedersichtbar.js';
+
+// Paket 3 (0.145.0): the fixes from the pictures of 0.136.0
+import paket3 from './paket3.js';
+
+// SN3h–SN3j «Bausteine mehr»: nine new blocks, the stages, the groups of the Gesamtliste, «Baden» in Planen
+import bausteinemehr from './bausteinemehr.js';
+
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...bausteinemehr };

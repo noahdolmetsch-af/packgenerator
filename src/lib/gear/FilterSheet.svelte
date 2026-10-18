@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.47.2 «Material-Ansichten» (Noah 6a): sort and filter in one sheet. Sort (most along, weight,
    * last along, name), category, bag or building block, area and "Comes along". Every tap applies at
@@ -36,7 +37,7 @@
   const active = $derived([value.category, value.bag, value.domain, value.role].filter(Boolean).length);
 </script>
 
-<dialog class="sheet fsheet" class:phone={phone.matches} bind:this={dlg} onclose={() => onclose?.()} aria-labelledby="fs-h">
+<dialog use:backClose class="sheet fsheet" class:phone={phone.matches} bind:this={dlg} onclose={() => onclose?.()} aria-labelledby="fs-h">
   <div class="fh">
     <div class="fht">
       <h2 id="fs-h" class="title">{t('Sort and filter')}</h2>

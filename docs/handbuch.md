@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 105 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 106 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -716,6 +716,17 @@ Deine Setup-Fotos, das Gesamtgewicht, deine Race-Rig-Links und Rennen, und dein 
 2. Füge Fotos hinzu, prüfe das Gesamtgewicht, füge Race-Rig-Links mit eigenen Stichworten hinzu.
 
 **Beispiel:** Link zu einem Race-Rig mit Stichworten «Rahmentasche, 2 Flaschen» → eine Karte mit gezeichnetem Bild.
+
+### Standard-Velo und Reihenfolge
+
+Das erste Velo ist dein Standard-Velo (★); Pfeile setzen die Reihenfolge, und du wählst, was eine neue Tour bringt.
+
+**Aufschalten:** Braucht mindestens zwei Velos.
+
+1. Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».
+2. Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.
+
+**Beispiel:** Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.
 
 ### Taschen-Plan
 

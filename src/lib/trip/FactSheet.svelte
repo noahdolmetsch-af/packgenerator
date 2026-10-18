@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.47.1 (Noah a): one fact of the trip band (date, duration, weather, bike) changed in place: a small
    * sheet with only that field. Every tap goes through the page's change logic (Pack.svelte change /
@@ -39,7 +40,7 @@
   }
 </script>
 
-<dialog class="fact-sheet" bind:this={el} onclose={onclose} aria-labelledby="fact-h">
+<dialog use:backClose class="fact-sheet" bind:this={el} onclose={onclose} aria-labelledby="fact-h">
   <header>
     <div class="tt"><h2 id="fact-h">{t(TITLES[field])}</h2><p class="sub">{t('What the suggestions are based on. Every change can be undone.')}</p></div>
     <button type="button" class="x" aria-label={t('Close')} onclick={close}><X size={20} aria-hidden="true" /></button>

@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Save the open trip as a template (Noah, 4.10.2026). The name can be changed right away.
    * When the trip came from a template, "Update" overwrites that template (answer 7a).
@@ -33,7 +34,7 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="tpl-h">
+<dialog use:backClose class="sheet" bind:this={dialog} {onclose} aria-labelledby="tpl-h">
   <form onsubmit={(e) => (e.preventDefault(), store(!source))} novalidate>
     <h2 id="tpl-h" class="title">{source ? t('Template') : t('Save as template')}</h2>
     <label class="field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={name} placeholder={t('e.g. Daily commute')} /></label>
