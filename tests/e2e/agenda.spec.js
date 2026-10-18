@@ -12,7 +12,15 @@ const de = (en) => DE[en] ?? en;
 const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${zurichToday()}T12:00:00Z`));
 const shot = async (page, info, name) => {
-  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+  if (!process.env.SHOTS) return;
+  // The whole page in one picture: a viewport as tall as the page, so the fixed bottom bar sits at the end
+  // like after scrolling down, not across the middle of the picture.
+  const size = page.viewportSize();
+  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewportSize({ width: size.width, height: Math.max(size.height, tall) });
+  await page.waitForTimeout(150);
+  await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await page.setViewportSize(size);
 };
 const ev = (id, d, over = {}) => ({ id: `cal1|${id}`, gid: id, cal: 'cal1', title: id, where: '', note: '', allDay: false, day: d, lastDay: d, start: `${d}T08:30:00+02:00`, end: `${d}T09:15:00+02:00`, link: 'https://calendar.example.test/x', busy: true, ...over });
 

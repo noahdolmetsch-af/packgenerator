@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.168.0 «Google Mail» (GM, Noah 15.10.2026 12:04 «emails versenden in der app, email eingang», 12:16
+    // «4a» read and send together; built without mockups «vorerst ohne mockup», 18.10. «ohne mockup»)
+    version: '0.168.0',
+    date: '2026-10-18',
+    title: 'Mail in the app ✉️',
+    lead: 'Your Gmail under Me › Mail: read, search, answer and write. A mail goes out only after your tap on «Send».',
+    points: [
+      { text: 'Inbox and search in Gmail, one tap opens the mail with its attachments', href: '#/me/mail' },
+      { text: 'Answer or write a new mail, with your signature', href: '#/me/mail' },
+      { text: 'Appointments: «Mails to it» finds the mails about an appointment', href: '#/me/agenda' },
+    ],
+    small: [{ box: 'new', text: 'Me › «Mail»' }],
+    test: [
+      'Open Me › Mail, tap «Connect with Google» and allow mail.',
+      'Open a mail, tap «Answer», write a line and tap «Send»: the answer is in Gmail under «Sent».',
+      'Open an appointment under Appointments and tasks and tap «Mails to it».',
+    ],
+  },
+  {
     // v0.167.0 «Google Kalender und Aufgaben» (GA, Noah 15.10.2026 12:16 «3 beides» and 21:11 «3b»: the
     // calendar comes with «Woche planen»; built without mockups «vorerst ohne mockup»)
     version: '0.167.0',

@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 100 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 101 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1027,6 +1027,18 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Mail aus Gmail
+
+Deine Gmail in der App: Posteingang lesen, suchen, antworten und neue Mails schreiben. Unter einem Termin findet «Mails dazu» die passenden Mails.
+
+**Aufschalten:** Einmal verbinden unter Ich › Mail (braucht Strava auf diesem Gerät).
+
+1. Öffne Ich › Mail und tippe «Mit Google verbinden».
+2. Tippe eine Mail an, um sie zu lesen; «Antworten» oder «Neue Mail» schreibt eine.
+3. Unter einem Termin findet «Mails dazu» die Mails dazu.
+
+**Beispiel:** Termin «Velo-Service» → «Mails dazu» zeigt die Bestätigung der Werkstatt.
 
 ### Google Kalender und Aufgaben
 

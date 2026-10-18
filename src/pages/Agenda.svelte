@@ -12,11 +12,14 @@
   import { byDay, taskGroups, timeOf, addDays, SHOW_DAYS } from '../lib/agenda.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff } from '@lucide/svelte';
+  import { mail, loadPrefs as loadMailPrefs } from '../lib/mail/client.svelte.js';
+  import { eventQuery, MAIL_HASH } from '../lib/mail.js';
+  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail } from '@lucide/svelte';
   import '../lib/ich/ich.css';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   const hasKey = readKey();
+  loadMailPrefs();
   const today = localDay();
   const p = $derived(agenda.prefs);
   const on = $derived(p.calendar || p.tasks);
@@ -202,6 +205,7 @@
                           {#if e.note}<p class="note-t">{e.note}</p>{/if}
                           <div class="btns">
                             {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
+                            {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
                             {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
                               <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
                               <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>

@@ -12,6 +12,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 18.10.2026 (v0.168.0, vorläufig):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
+
 **Nachtrag 15.10.2026 (v0.167.0, vorläufig):** «Kalender und Aufgaben von Google» (Noah 15.10.2026 12:16 «3 beides»: Aufgaben und Kalender in einem Paket; 12:17 «vorerst ohne mockup»; 21:11 «3b» im Thread «Woche planen»: der Google Kalender kommt gleich mit «Woche planen»; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19): Google Teil 2 (GA), vorgezogen für «Woche planen». Danach GM (Mail), DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
 
 **Nachtrag 15.10.2026 (v0.166.0, vorläufig):** «Papier wird PDF» (Noahs Idee 15.10.2026 08:42 UTC; Antworten «1b 2a 3 beides 4a 5a» 12:00 und «1a 2a 3 beides 4a 5 alle» 12:16, «vorerst ohne mockup» 12:17; Bau «1a» 12:52; Bilder der fertigen App statt Mockup, Regel «b» vom 14.10.2026 22:19): Google Teil 1 (DP). Danach folgen GA (Aufgaben + Kalender), GM (Mail), DF (Dateiarten inkl. .pkpass), GX (Auswertungen).

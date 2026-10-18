@@ -462,6 +462,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).', 'Photograph page by page or choose photos; check the corners, then «Save as PDF».', 'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).'],
     example: 'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.',
   },
+  'f.mail': {
+    on: 'Connect once under Me › Mail (needs Strava connected on this device).',
+    steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+    example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
+  },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],

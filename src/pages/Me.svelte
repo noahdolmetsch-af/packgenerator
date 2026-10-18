@@ -27,7 +27,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, FileText, CalendarCheck } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, FileText, CalendarCheck, Mail } from '@lucide/svelte';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { agenda } from '../lib/agenda/client.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
@@ -130,6 +130,14 @@
             <a class="ich-row" href="#/me/agenda">
               <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Appointments and tasks')}</b><small>{agendaOn ? t('from your Google calendar and Google Tasks') : t('Connect Google Calendar and Google Tasks')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Google Mail (GM): the Gmail inbox, read and send -->
+            <a class="ich-row" href="#/me/mail">
+              <span class="ich-ib"><Mail size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Mail')}</b><small>{t('Your Gmail: read, search, answer, write')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

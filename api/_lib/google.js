@@ -26,10 +26,18 @@
  *                                                   (open ones and the ones done in the last 30 days)
  *                           POST ?step=task-save    Bearer, { list, id?, title?, notes?, due?, done? } → { task }
  *                           POST ?step=task-delete  Bearer, { list, id } → { ok }
+ *                           GET  ?step=mail-list    Bearer, &q=… (Gmail search; default the inbox) &page=token
+ *                                                   → { mails: [googlemail.js mailRow], next }
+ *                           GET  ?step=mail-get     Bearer, &id=… → { mail: { …mailRow, text, files } }
+ *                           POST ?step=mail-send    Bearer, { to, cc?, subject, text, replyTo? (message id) }
+ *                                                   → { id } (sent only after Noah's tap on «Senden»)
  *
  * Google Kalender und Aufgaben (package GA, Noah 15.10.2026 «3 beides», 21:11 «3b» with «Woche planen»):
  * scopes calendar.events (read and write events) + calendar.calendarlist.readonly (which calendars) and
  * tasks; asked for with { services: ['calendar', 'tasks'] }. The server keeps no event and no task.
+ *
+ * Google Mail (package GM, Noah 15.10.2026 «4a»: read and send together): scopes gmail.readonly and
+ * gmail.send (services: ['mail']); the app keeps no mail on the device either, it fetches what a page shows.
  *
  * Google Drive (package «Dokumente-PDF», Noah 15.10.2026 «1b»: the imported PDFs also in his Drive,
  * «2a» every group its own subfolder): only the scope drive.file, so the app sees nothing in Drive but
@@ -46,6 +54,7 @@
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
+import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow } from './googleplan.js';
 
 export const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -76,6 +85,7 @@ export function scopesFor(services) {
     ...(list.includes('drive') ? [DRIVE_SCOPE] : []),
     ...(list.includes('calendar') ? CALENDAR_SCOPES : []),
     ...(list.includes('tasks') ? [TASKS_SCOPE] : []),
+    ...(list.includes('mail') ? MAIL_SCOPES : []),
   ];
   return out.length ? out : SCOPES;
 }
@@ -182,6 +192,8 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
   const NO_TASKS = ['tasks_not_allowed', 'Google Tasks is not allowed yet: connect it in the app.'];
   const cal = (token, path, init) => gapi(token, `${CALENDAR_API}/${path}`, init, NO_CAL);
   const tasks = (token, path, init) => gapi(token, `${TASKS_API}/${path}`, init, NO_TASKS);
+  const NO_MAIL = ['mail_not_allowed', 'Google Mail is not allowed yet: connect it in the app.'];
+  const gmail = (token, path, init) => gapi(token, `${GMAIL_API}/${path}`, init, NO_MAIL);
   const sendJson = (method, body) => ({ method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const enc = encodeURIComponent;
   /** A calendar, list or item id as Google makes them (letters, digits, @ . _ - and #). */
@@ -233,7 +245,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
-    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, ...MAIL_SCOPES].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
     return backToApp(st.returnTo, { google: 'connected' });
   };
@@ -251,7 +263,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const raw = await store.get('google:tokens');
           const scopes = raw ? JSON.parse(raw).scope ?? '' : '';
           const has = scopes.split(' ');
-          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE) });
+          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE), mail: MAIL_SCOPES.every((x) => has.includes(x)) });
         }
         if (step === 'cal-list') {
           const token = await accessToken(cfg, store);
@@ -274,6 +286,27 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           }
           events.sort((a, b) => (a.day + (a.allDay ? '' : a.start)).localeCompare(b.day + (b.allDay ? '' : b.start)));
           return json(request, 200, { ok: true, from, to, events });
+        }
+        if (step === 'mail-list') {
+          const q = String(url.searchParams.get('q') ?? '').slice(0, 500).trim();
+          const page = url.searchParams.get('page');
+          if (page && !/^\d{1,40}$/.test(page)) throw new ApiError(400, 'bad_request', 'Bad page.');
+          const token = await accessToken(cfg, store);
+          const list = await gmail(token, `messages?${new URLSearchParams({ maxResults: String(MAIL_PAGE), q: q || 'in:inbox', ...(page ? { pageToken: page } : {}) })}`);
+          const ids = (list.messages ?? []).map((m) => m.id).filter(goodId);
+          // A few at a time: Google allows only a few requests at once.
+          const mails = [];
+          for (let i = 0; i < ids.length; i += 5) {
+            const part = await Promise.all(ids.slice(i, i + 5).map((id) => gmail(token, `messages/${enc(id)}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Message-ID&metadataHeaders=References`)));
+            mails.push(...part.map(mailRow).filter(Boolean));
+          }
+          return json(request, 200, { ok: true, mails, next: list.nextPageToken ?? null });
+        }
+        if (step === 'mail-get') {
+          const id = needId(url.searchParams.get('id'), 'id');
+          const token = await accessToken(cfg, store);
+          const m = await gmail(token, `messages/${enc(id)}?format=full`);
+          return json(request, 200, { ok: true, mail: { ...mailRow(m), ...bodyOf(m.payload) } });
         }
         if (step === 'task-lists') {
           const token = await accessToken(cfg, store);
@@ -392,6 +425,24 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           }
           const made = await cal(token, `calendars/${enc(c)}/events${gid ? `/${enc(gid)}` : ''}`, sendJson(gid ? 'PATCH' : 'POST', send));
           return json(request, 200, { ok: true, event: eventRow(made, c) });
+        }
+        if (step === 'mail-send') {
+          setUp(cfg);
+          const body = await jsonBody(request, 120_000);
+          let reply = null;
+          const token = await accessToken(cfg, store);
+          if (body.replyTo) {
+            const m = await gmail(token, `messages/${enc(needId(body.replyTo, 'replyTo'))}?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References&metadataHeaders=Subject`);
+            reply = mailRow(m);
+          }
+          let raw;
+          try {
+            raw = rawMail({ ...body, inReplyTo: reply?.msgId || undefined, references: reply?.refs || undefined });
+          } catch (err) {
+            throw new ApiError(400, 'bad_request', `Bad ${err.message}.`);
+          }
+          const sent = await gmail(token, 'messages/send', sendJson('POST', { raw, ...(reply ? { threadId: reply.thread } : {}) }));
+          return json(request, 200, { ok: true, id: sent.id ?? null });
         }
         if (step === 'task-save' || step === 'task-delete') {
           setUp(cfg);
