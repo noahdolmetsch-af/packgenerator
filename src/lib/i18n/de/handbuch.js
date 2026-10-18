@@ -397,4 +397,9 @@ export default {
   'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
   'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
   'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
+  // 0.157.0 Fitbit-Verbindung
+  'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
+  'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
+  'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
 };

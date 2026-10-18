@@ -255,7 +255,7 @@ describe('suggestions, ideas, connections', () => {
 
 describe('the database: version 8', () => {
   it('only adds the three tables, which go into the backup', () => {
-    expect(SCHEMA_VERSION).toBe(12); // AB adds abAnswers (version 9), «Training» the activities (10), «Timer» the timer log (11), P3b the documents (12)
+    expect(SCHEMA_VERSION).toBe(13); // AB adds abAnswers (version 9), «Training» the activities (10), «Timer» the timer log (11), P3b the documents (12), Fitbit healthDays (13)
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowSessions', 'flowTemplates', 'flowStars']));
   });
   it('the upgrade from version 7 keeps the old data', async () => {

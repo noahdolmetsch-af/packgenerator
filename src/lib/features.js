@@ -159,6 +159,8 @@ const OWN = [
   { id: 'f.sync', group: 'data', title: 'Phone and computer', text: 'Send the backup file to the other device; it says which is newer and suggests what to do, with a copy of before.', href: '#/me/data', words: 'abgleich handy computer synchron sync teilen backup neuer älter zusammenführen' },
   // P3b Teil 3 «Kamera überall»: the camera wherever a photo is added, a receipt with several pages
   { id: 'f.camera', group: 'data', title: 'Camera everywhere', text: 'On the phone the camera opens with one tap for a note, an item, a bike, a setup and a problem; a receipt can have several pages.', href: '#/bikes?tab=shop', words: 'kamera foto fotografieren beleg quittung seite galerie bild' },
+  // 0.157.0 «Fitbit verbinden» (G1–G2)
+  { id: 'f.fitbit', group: 'data', title: 'Fitbit connection', text: 'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.', href: '#/me/fitbit', words: 'fitbit google gesundheit schlaf ruhepuls hrv schritte aktivzonen uhr' },
   { id: 'f.autobackup', group: 'data', title: 'Auto backup into a folder', text: 'Writes after every change into a folder you choose (computer only).', run: 'data', seen: 'folder', words: 'auto backup ordner' },
   // v0.139.0 «Rechnungen ohne Gebühren» (mockups QR1–QR9, Noah 14.10.2026 04:00 and 05:10 «a»)
   { id: 'f.invoices', group: 'data', title: 'Invoices with QR bill and TWINT', text: 'A Swiss QR bill from your account with TWINT; see who paid by hand, by amount, from the bank statement or the pay link.', href: '#/me/pay/invoices', words: 'rechnung qr-rechnung twint bezahlt kontoauszug camt geld erhalten zahl-link' },

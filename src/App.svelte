@@ -39,6 +39,7 @@
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
   import Docs from './pages/Docs.svelte';
+  import Fitbit from './pages/Fitbit.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
@@ -394,6 +395,9 @@
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<Docs />{/key}
+  {:else if page === 'fitbit'}
+    <!-- Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit -->
+    <Fitbit />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}

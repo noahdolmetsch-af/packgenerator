@@ -508,6 +508,10 @@ export const HANDBOOK = {
     on: 'On a phone or tablet; a computer shows the file dialog.',
     steps: ['Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.', 'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.', 'A receipt with more pages: «Another page» after the first photo.'],
     example: 'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.',
+  'f.fitbit': {
+    on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
+    steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],
+    example: 'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.',
   },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',

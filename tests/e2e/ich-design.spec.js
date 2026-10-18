@@ -60,9 +60,10 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   await onePage(page, T('Data and backup'));
   const panel = page.locator('.datapanel');
   await expect(panel.getByRole('heading', { name: T('Everything in order?') })).toBeVisible();
-  // one light each for the backup, the folder and the storage; each says its state in words too
-  await expect(panel.locator('li.light')).toHaveCount(3);
-  await expect(panel.locator('li.light .dot')).toHaveCount(3);
+  // one light each for the backup, the folder, the storage and Fitbit (mockup G2); each says its state in words too
+  await expect(panel.locator('li.light')).toHaveCount(4);
+  await expect(panel.locator('li.light .dot')).toHaveCount(4);
+  await expect(panel.locator('li.light').filter({ hasText: 'Fitbit' })).toContainText(T('not connected|fitbit'));
   await expect(panel.getByRole('button', { name: T('Export backup') })).toBeVisible();
   await expect(panel.getByText(T('Import backup'), { exact: true })).toBeVisible();
   await expect(panel.getByRole('heading', { name: T('Other data') })).toBeVisible();

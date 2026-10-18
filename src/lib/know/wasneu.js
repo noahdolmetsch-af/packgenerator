@@ -48,6 +48,8 @@ export const SINCE = {
   'f.standardbike': '0.145.0', 'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0', 'f.tripstate': '0.132.0', 'f.yeargoals': '0.132.0', 'f.velosetup': '0.132.0', 'f.bagplan': '0.132.0', 'f.setuplog': '0.132.0', 'f.abfragen': '0.133.0', 'f.komoot': '0.133.0', 'f.inspiration': '0.134.0', 'f.lists': '0.134.0', 'f.medreview': '0.135.0', 'f.timer': '0.135.0', 'f.pagetips': '0.135.0', 'f.training': '0.135.0', 'f.invoices': '0.135.0', 'f.bills': '0.135.0',
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
+  // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
+  'f.fitbit': '0.147.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

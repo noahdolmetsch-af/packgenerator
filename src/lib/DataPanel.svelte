@@ -21,6 +21,8 @@
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
+  import HealthCard from './health/HealthCard.svelte';
+  import { health } from './health/client.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
   const counts = liveQuery(async () => {
@@ -39,7 +41,7 @@
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
-    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks',
+    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days',
   };
 
   async function refreshFolder() {
@@ -101,6 +103,11 @@
       out.push({ key: 'storage', name: 'Storage', state: pct < 80 ? 'ok' : 'warn', line: t('{pct} % used · {mb} MB', { pct, mb: mb(storage.used) }) });
     }
     if (keep !== 'unknown') out.push({ key: 'keep', name: 'Kept by the browser', state: keep === 'kept' ? 'ok' : 'warn', line: keep === 'kept' ? t('Your data stays, even when the device runs low on space.') : t('When space runs low, the browser may delete it without asking.') });
+    // Fitbit (mockup G2): grey while not connected (a suggestion, never a must), yellow when the last fetch failed.
+    if (health.prefs.connected) {
+      const sync = health.prefs.lastSync;
+      out.push({ key: 'fitbit', name: 'Fitbit', state: ['google_login_needed', 'not_connected'].includes(health.error) ? 'warn' : 'ok', line: sync ? t('connected · as of {when}', { when: when(sync) }) : t('connected|fitbit') });
+    } else out.push({ key: 'fitbit', name: 'Fitbit', state: 'off', line: t('not connected|fitbit') });
     return out;
   });
   const greens = $derived(lights.filter((l) => l.state === 'ok').length);
@@ -309,6 +316,7 @@
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
             {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Now|do')}</button>
+            {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>{/if}
           </li>
@@ -476,6 +484,8 @@
   </div>
 
   <div class="ich-side">
+    <!-- Fitbit über Google (mockup G2): how current each value is, fetch, choose values, disconnect -->
+    <HealthCard />
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}

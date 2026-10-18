@@ -7,6 +7,9 @@
  *   api/google/index.js     POST ?step=start      Bearer <device key>, { returnTo } → { url }
  *                           GET  ?step=status     Bearer → { connected, scopes }
  *                           GET  ?step=data       Bearer, &type=<one of TYPES>&pageToken=… → { points, next }
+ *                           GET  ?step=days       Bearer, &from=YYYY-MM-DD&to=YYYY-MM-DD (≤ 90 days)
+ *                                                 → { days: [{ date, restingHr, hrvMs, sleep, steps, azm }] }
+ *                                                 (googledays.js; the app keeps them, the server keeps none)
  *                           POST ?step=disconnect Bearer → { ok } (Google access withdrawn)
  *   api/google/callback.js  GET  (Google sends the browser back here; the redirect URI configured in
  *                           Google Cloud is https://packgen-three.vercel.app/api/google/callback)
@@ -18,6 +21,7 @@
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
+import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
 
 export const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -30,7 +34,9 @@ export const SCOPES = [
   'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
 ];
 /** The data types tested with Noah's account on 12.10.2026 (all 200 OK). */
-export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability'];
+export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability', 'active-zone-minutes'];
+/** Pages per list call in the days step (a night or a day is one point; 90 days fit in one page). */
+const MAX_PAGES = 5;
 
 export function googleEnv(e = process.env) {
   return { clientId: pick('GOOGLE_CLIENT_ID', e), clientSecret: pick('GOOGLE_CLIENT_SECRET', e), ...redisEnv(e) };
@@ -71,6 +77,37 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     return fresh.access_token;
   }
 
+  /** One call to the Health API; Google's errors become the app's error codes. */
+  async function healthCall(token, path, init = {}) {
+    let res;
+    try {
+      res = await doFetch(`${API}/${path}`, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.body ? { 'Content-Type': 'application/json' } : {}) } });
+    } catch {
+      throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
+    }
+    if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
+    if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
+    if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    return res.json().catch(() => ({}));
+  }
+
+  /** Every data point of one type for the days from..to (a few pages at most). */
+  async function listAll(token, type, from, to) {
+    const out = [];
+    let pageToken = '';
+    for (let i = 0; i < MAX_PAGES; i++) {
+      const q = new URLSearchParams({ filter: listFilter(type, from, to), pageSize: '200', ...(pageToken ? { pageToken } : {}) });
+      const body = await healthCall(token, `dataTypes/${type}/dataPoints?${q}`);
+      out.push(...(body.dataPoints ?? []));
+      pageToken = body.nextPageToken ?? '';
+      if (!pageToken) break;
+    }
+    return out;
+  }
+
+  const rollUp = async (token, type, from, to) =>
+    (await healthCall(token, `dataTypes/${type}/dataPoints:dailyRollUp`, { method: 'POST', body: JSON.stringify(rollUpBody(from, to)) })).rollupDataPoints ?? [];
+
   const callback = async (request) => {
     const url = new URL(request.url);
     const cfg = env();
@@ -105,17 +142,22 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const pageToken = url.searchParams.get('pageToken');
           if (pageToken && !/^[\w.~-]{1,2000}$/.test(pageToken)) throw new ApiError(400, 'bad_request', 'Bad pageToken.');
           const token = await accessToken(cfg, store);
-          let res;
-          try {
-            res = await doFetch(`${API}/dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`, { headers: { Authorization: `Bearer ${token}` } });
-          } catch {
-            throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
-          }
-          if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
-          if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
-          if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
-          const body = await res.json().catch(() => ({}));
+          const body = await healthCall(token, `dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`);
           return json(request, 200, { ok: true, type, points: body.dataPoints ?? [], next: body.nextPageToken ?? null });
+        }
+        if (step === 'days') {
+          const from = url.searchParams.get('from');
+          const to = url.searchParams.get('to');
+          const n = spanDays(from, to);
+          if (!n || n > MAX_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_DAYS} days apart.`);
+          const token = await accessToken(cfg, store);
+          // One after the other: Google allows only a few requests at once.
+          const steps = await rollUp(token, 'steps', from, to);
+          const azm = await rollUp(token, 'active-zone-minutes', from, to);
+          const sleep = await listAll(token, 'sleep', from, to);
+          const rhr = await listAll(token, 'daily-resting-heart-rate', from, to);
+          const hrv = await listAll(token, 'daily-heart-rate-variability', from, to);
+          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv }, from, to) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },
