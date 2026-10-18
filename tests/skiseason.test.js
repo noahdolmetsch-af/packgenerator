@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { SKI_SEASON_ITEMS, skiSeasonOf, skiSeasonState, showSkiSeason, skiSeasonCount, toggleSkiSeason } from '../src/lib/skiseason.js';
+import { skiSeasonOf, skiSeasonState, showSkiSeason, seasonStartTasks, seasonStartDone, seasonStartCount } from '../src/lib/skiseason.js';
+import { CARE_TASKS, careEntry } from '../src/lib/ski.js';
 
 describe('Saisonstart-Check (v0.162.0)', () => {
   it('a day belongs to the winter that starts in its year from July on', () => {
@@ -13,21 +14,19 @@ describe('Saisonstart-Check (v0.162.0)', () => {
     expect(showSkiSeason(null, '2026-11-30')).toBe(true);
     expect(showSkiSeason(null, '2026-09-30')).toBe(false);
     expect(showSkiSeason(null, '2026-12-01')).toBe(false);
-    expect(showSkiSeason({ season: '2026/27', done: {}, hidden: true }, '2026-10-20')).toBe(false);
-    expect(showSkiSeason({ season: '2025/26', done: {}, hidden: true }, '2026-10-20')).toBe(true);
+    expect(showSkiSeason({ season: '2026/27', hidden: true }, '2026-10-20')).toBe(false);
+    expect(showSkiSeason({ season: '2025/26', hidden: true }, '2026-10-20')).toBe(true);
+    expect(skiSeasonState({ season: '2025/26', hidden: true }, '2026-10-02').hidden).toBe(false);
   });
-  it('a new season starts empty, the same season keeps its ticks', () => {
-    const old = { season: '2025/26', done: { lvs: '2025-10-03' }, hidden: false };
-    expect(skiSeasonState(old, '2026-10-02').done).toEqual({});
-    expect(skiSeasonState(old, '2025-11-02').done).toEqual({ lvs: '2025-10-03' });
-  });
-  it('a tick keeps its date, a second tap takes it away; the count follows', () => {
-    let s = skiSeasonState(null, '2026-10-15');
-    s = toggleSkiSeason(s, 'lvs', '2026-10-15');
-    s = toggleSkiSeason(s, 'skins', '2026-10-16');
-    expect(s.done).toEqual({ lvs: '2026-10-15', skins: '2026-10-16' });
-    expect(skiSeasonCount(s)).toEqual({ done: 2, total: SKI_SEASON_ITEMS.length });
-    s = toggleSkiSeason(s, 'lvs', '2026-10-17');
-    expect(s.done).toEqual({ skins: '2026-10-16' });
+  it('the things are the start tasks of the season care: one list, a tick counts on both pages', () => {
+    const tasks = seasonStartTasks(null);
+    expect(tasks.map((x) => x.id)).toEqual(CARE_TASKS.filter((x) => x.phase === 'start').map((x) => x.id));
+    expect(tasks.map((x) => x.id)).toContain('contact');
+    expect(seasonStartTasks({ hidden: ['boots'], own: [{ id: 'own1', phase: 'start', task: 'Test-Ding' }] }).map((x) => x.id)).toEqual([...tasks.map((x) => x.id).filter((x) => x !== 'boots'), 'own1']);
+    const lvs = tasks.find((x) => x.id === 'lvs');
+    const entries = [careEntry(lvs, '2026-10-15', 0, 1), { ...careEntry(tasks[1], '2025-10-20', 0, 2) }];
+    expect(seasonStartDone(lvs, entries, '2026-10-16').day).toBe('2026-10-15');
+    expect(seasonStartDone(tasks[1], entries, '2026-10-16')).toBeNull(); // last season's tick does not count
+    expect(seasonStartCount(tasks, entries, '2026-10-16')).toEqual({ done: 1, total: tasks.length });
   });
 });
