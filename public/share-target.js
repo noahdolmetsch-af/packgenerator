@@ -15,11 +15,20 @@
  * times (or a TCX) stays a ride, as before. What was shared with the file (title, text, a link) is kept
  * with it (header X-Share-Text), so the komoot link comes along. The rule is the same as
  * src/lib/komoot.js sharedKind (tests/komoot.test.js runs this worker against it).
+ *
+ * «Aus TWINT teilen» (mockup QR6, Noah 14.10.2026 approved 04:00 «a»): a picture (the screenshot of a
+ * received TWINT payment) is kept in the Cache "pg-shared-pay" (key "shared-pay"); the app opens
+ * #/me/pay/invoices?shared=pay, reads it on the phone and suggests the paid invoice. The names must
+ * match src/lib/pay/twintshot.js (SHOT_CACHE, SHOT_KEY); tests/pay-share.test.js runs this worker.
  */
 const SHARE_CACHE = 'pg-shared-ride';
 const SHARE_KEY = 'shared-ride';
 // SN1b: the same limit as the ride upload (gpx.js RIDE_MAX_MB): a bigger file goes to the upload, which says why
 const ROUTE_CHECK_MB = 40;
+const SHOT_CACHE = 'pg-shared-pay';
+const SHOT_KEY = 'shared-pay';
+// a phone screenshot is far smaller; anything bigger is not a TWINT screenshot
+const SHOT_MAX_MB = 15;
 
 /** SN1b: a GPX whose track has fewer than two points with a time: a planned route, not a ride. */
 function plannedRoute(text) {
@@ -46,6 +55,12 @@ self.addEventListener('fetch', (event) => {
         form = await req.formData();
       } catch {
         return go(`${base}#/inbox`);
+      }
+      const shot = form.getAll('pay').find((f) => f && typeof f === 'object' && f.size > 0 && /^image\//.test(f.type || ''));
+      if (shot && shot.size <= SHOT_MAX_MB * 1024 * 1024) {
+        const cache = await caches.open(SHOT_CACHE);
+        await cache.put(`${base}${SHOT_KEY}`, new Response(shot, { headers: { 'Content-Type': shot.type, 'X-File-Name': encodeURIComponent(shot.name || 'twint.png') } }));
+        return go(`${base}#/me/pay/invoices?shared=pay`);
       }
       const file = form.getAll('ride').find((f) => f && typeof f === 'object' && f.size > 0);
       if (file) {

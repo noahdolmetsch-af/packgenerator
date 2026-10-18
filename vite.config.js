@@ -62,7 +62,11 @@ export default defineConfig({
             title: 'title',
             text: 'text',
             url: 'url',
-            files: [{ name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] }],
+            // QR6 «Aus TWINT teilen»: a picture (TWINT screenshot) goes to Rechnungen, read on the phone
+            files: [
+              { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
+              { name: 'pay', accept: ['image/png', 'image/jpeg', 'image/webp', '.png', '.jpg', '.jpeg', '.webp'] },
+            ],
           },
         },
       },
