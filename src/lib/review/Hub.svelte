@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.49.0 R1 «Rückblick ruhig» (Noah 4a-7a): ONE page «Rückblick» (#/debrief) instead of five.
    * 1. The last ride: profile, km, Hm, time, pace, weather, plan against real, its learnings, and the
@@ -112,7 +113,7 @@
     await db.trips.update(r.trip.id, { skipped: true, updatedAt: new Date().toISOString() });
     clearTimeout(undoTimer);
     undo = { before, text: t('Not ridden: {title}.', { title: r.title }) };
-    undoTimer = setTimeout(() => (undo = null), 10000);
+    undoTimer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function undoSkip() {
     const u = undo;

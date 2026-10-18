@@ -1,4 +1,5 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
   /**
    * v0.39.0 (AP28, Noah 1a): a new template in 3 steps, #/pack/templates/new?area=…
    *   1 Building blocks: name, area (preselected from the list's switch), the blocks to tick
@@ -132,7 +133,7 @@
 </script>
 
 <div class="tn">
-  <p class="back"><a href="#/pack/templates">← {t('Templates')}</a></p>
+  <Crumbs crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Templates'), href: '#/pack/templates' }]} here={t('New template')} />
   <h1 class="title big">{t('New template')}</h1>
   <ol class="steps" aria-label={t('Steps')}>
     {#each STEPS as name, n (n)}

@@ -1,4 +1,5 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
   /**
    * One template (Noah, 4.10.2026, templates answer 7b), v0.39.0 (AP28, "Vorlagen neu"):
    *   - the name with a pencil to rename, ••• with Duplicate, Archive and Delete;
@@ -194,7 +195,7 @@
 
 <div class="te">
   {#if !tpl}
-    <p class="back"><a href="#/pack/templates">← {t('Templates')}</a></p>
+    <Crumbs crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Templates'), href: '#/pack/templates' }]} here={t('Template')} />
     <p class="empty">{list.length || $tplQ ? t('This template no longer exists.') : ''}</p>
   {:else}
     <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Templates'), href: '#/pack/templates' }]} here={tpl.name} title={tpl.name} heading={renaming ? renameField : null} extra={headExtra}>

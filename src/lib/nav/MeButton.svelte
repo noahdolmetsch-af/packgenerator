@@ -5,6 +5,8 @@
    * It opens #/me.
    * v0.98.0 Design-Refresh R2 (G4/G5 A★): light, a soft round face; in the sidebar a card at the bottom
    * («Ich · Daten, Eingang, Hilfe»).
+   * P3b «Bedienregeln», Ü3a (Noah 15.10.2026 «3a»): the number of notes in the Inbox shows, like the
+   * number of due jobs at «Velos» (no longer only a dot).
    */
   import { UserRound } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -13,7 +15,7 @@
 </script>
 
 <a class="me" class:mecard={card} href="#/me" aria-current={current ? 'page' : undefined} aria-keyshortcuts="i" aria-label={inbox ? t('Me, Inbox: {n} to sort', { n: inbox }) : t('Me|place')}>
-  <span class="face"><UserRound size={20} strokeWidth={2.2} aria-hidden="true" />{#if inbox}<span class="dot" aria-hidden="true"></span>{/if}</span>
+  <span class="face"><UserRound size={20} strokeWidth={2.2} aria-hidden="true" />{#if inbox}<span class="dot num" data-inbox-count aria-hidden="true">{inbox > 99 ? '99+' : inbox}</span>{/if}</span>
   {#if card}<span class="tx" aria-hidden="true"><b>{t('Me|place')}</b><small>{t('Data, Inbox, Help')}</small></span>{/if}
 </a>
 
@@ -47,12 +49,20 @@
   }
   .dot {
     position: absolute;
-    top: -1px;
-    right: -1px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 9px;
     background: var(--hi);
+    color: var(--hi-ink);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--fs-small);
+    line-height: 18px;
+    text-align: center;
     box-shadow: 0 0 0 2px var(--paper);
   }
   /* the sidebar: a card at the bottom */

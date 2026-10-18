@@ -4,7 +4,7 @@
  * / searches, n opens «Neu», i opens «Ich», ? shows the list. Letters only when no field is active
  * and no dialog is open, never with Ctrl, Alt or Cmd (App.svelte asks typing() first).
  */
-import { PLACES } from '../nav.js';
+import { PLACES, placeHref } from '../nav.js';
 
 /** How long «g» waits for its letter (ms). */
 export const G_WAIT = 1500;
@@ -12,11 +12,13 @@ export const G_WAIT = 1500;
 /**
  * What a key does: { go: href } | { act: 'search' | 'new' | 'me' | 'help' } | { wait: true } (a «g»
  * that waits for the letter) | null. afterG: the key before was «g» (within G_WAIT).
+ * P3b «Bedienregeln», Ü1a (Noah 15.10.2026 «1a»): «g + letter» opens the tab opened last there, the
+ * same as the bar (on the place you are on: its first tab). current: the place you are on.
  */
-export function shortcutOf(key, afterG = false) {
+export function shortcutOf(key, afterG = false, current = null) {
   if (afterG) {
     const p = PLACES.find((x) => x.letter === key);
-    if (p) return { go: p.href };
+    if (p) return { go: placeHref(p, current) };
   }
   if (key === 'g') return { wait: true };
   if (key === '/') return { act: 'search' };

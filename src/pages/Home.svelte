@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -399,7 +400,6 @@
   /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
   let quick = $state(null);
   let quickTimer;
-  const UNDO_MS = 8000;
   async function allGood(of = lead) {
     const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
@@ -537,7 +537,7 @@
     if (undo) say(yes ? t('Saved: you rode {trip}. The list is fixed now.', { trip: trip.title }) : t('{trip}: marked as not ridden.', { trip: trip.title }), undo);
   }
   const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
-  const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && !x.id.startsWith('demo') && onTripDay(x, today)));
+  const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && onTripDay(x, today)));
   const prep = $derived.by(() => {
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
     return p?.total && p.status === 'open' ? p : null;
@@ -679,7 +679,7 @@
   function say(text, undo) {
     clearTimeout(noticeTimer);
     notice = { text, undo };
-    noticeTimer = setTimeout(() => (notice = null), 10000);
+    noticeTimer = setTimeout(() => (notice = null), undo ? UNDO_MS : 10000);
   }
   $effect(() => () => clearTimeout(noticeTimer));
   async function act(row) {
@@ -786,7 +786,7 @@
   // v0.67.0 (U22b): on the evening of a trip's last day the interstitial «Tour beendet» opens by itself,
   // once (the app does not end the trip: «Weiter zum Rückblick» or «Doch noch unterwegs» decide).
   // Not for a trip made today (as the ride day, Noah 6a): Today's «Review today» row is its place.
-  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
+  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
   $effect(() => {
     if (!lastEve) return;
     const key = 'between.evening';

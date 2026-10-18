@@ -50,6 +50,7 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
+  import { undoSteps, keepUndoSteps } from '../lib/pack/undostack.js';
   import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
@@ -433,7 +434,9 @@
   // v0.22.1 (Noah 4b): the Excel preparation only for events.
   const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
-  let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
+  // T2a: the steps stay until another trip is chosen (undostack.js keeps them while the page is closed)
+  let undo = $state.raw(undoSteps()); // raw: plain copies, IndexedDB cannot store proxies
+  $effect(() => keepUndoSteps(undo, trip?.id));
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
   // v0.29.0 (Noah 4b): the last change of the trip's context (weather, hours, days) is applied by itself;
   // the rows it changed show it with an Undo of their own, and one Undo takes back the whole change.

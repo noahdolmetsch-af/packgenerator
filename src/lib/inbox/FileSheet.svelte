@@ -182,7 +182,7 @@
       </div>
       {#if !note.photo}
         <p class="lbl">{t('Photo of the receipt')}</p>
-        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
+        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" big />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
       {/if}
       <p class="name"><ReceiptText size={16} aria-hidden="true" /><span>{t('Name')}: {t('Receipt|target')} {receiptName(shop, date)}</span></p>
     {:else if kind === 'material' || kind === 'wish'}

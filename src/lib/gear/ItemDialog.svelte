@@ -1,4 +1,5 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
   import { backClose } from '../ui/backclose.js';
@@ -361,6 +362,7 @@
     <div class="wide iphoto">
       {#if draft.photo}<img src={draft.photo} alt={t('Photo of {name}', { name: draft.name })} />{/if}
       <span class="pacts">
+        <CameraButton onchange={pickPhoto} disabled={reading} />
         <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Add photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
         {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
       </span>
