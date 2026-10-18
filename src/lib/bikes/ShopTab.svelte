@@ -5,6 +5,8 @@
    * the visits by month with their receipt photo, the cost per year. A receipt filed in the Eingang
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
+  import PageMore from '../pageinfo/PageMore.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
@@ -63,6 +65,9 @@
     title={t('Workshop & receipts')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}`}
   />
+
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   {#if bikes.length > 1}
     <div class="fchips" role="group" aria-label={t('Bike')}>
@@ -128,6 +133,7 @@
       <p class="tip"><Lightbulb size={16} aria-hidden="true" />{t('A photo of a receipt in the Inbox becomes a visit with «File as … Receipt».')}</p>
     </aside>
   </div>
+  <PageMore page="workshop" name={t('Workshop & receipts')} />
 </section>
 {#if shown}
   <VisitDialog visit={shown} bike={bikes.find((b) => b.id === shown.bikeId)} onclose={() => (open = null)} />

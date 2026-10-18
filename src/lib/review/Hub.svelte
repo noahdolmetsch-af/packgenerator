@@ -16,6 +16,7 @@
    * under «Alle Kennzahlen» (answer 2b, it can be folded); «Touren im Vergleich» with a column Zustand (on a phone the pill under
    * the name), the small charts and all columns folded; the last ride's details folded at the end.
    */
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { loadReview } from './load.js';
@@ -231,6 +232,8 @@
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
     </div>
   </header>
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day under the title -->
+  <TipLine page="debrief" name={t('Look back|page')} />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}

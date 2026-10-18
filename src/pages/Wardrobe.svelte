@@ -9,6 +9,8 @@
    * with "Add to wishlist", the learned offset in the header with "Reset", a photo per piece,
    * "Save as kit …" (selected pieces or today's suggestion) and Alltag-only clothes only under Alltag.
    */
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
@@ -296,6 +298,9 @@
     {/if}
   </header>
 
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the example «Was trage ich bei wie viel Grad?» -->
+  <TipLine page="wardrobe" name={t('Wardrobe')} />
+
   {#if trip}
     <!-- v0.59.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
     <section class="tband" aria-labelledby="tband-h">
@@ -513,6 +518,7 @@
       {/if}
     </div>
   </div>
+  <PageMore page="wardrobe" name={t('Wardrobe')} />
 </div>
 
 {#snippet body()}

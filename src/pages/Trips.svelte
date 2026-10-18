@@ -22,6 +22,8 @@
    * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
    * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
@@ -259,6 +261,8 @@
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
       </Empty>
     {:else}
+      <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
+      <TipLine page="trips" name={t('Trips|place')} />
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
         <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
@@ -374,6 +378,7 @@
         <InZahlen tours {rows} {facts} {vals} {mode} {today} {scope} {states} {bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} view={izView} onview={saveIz} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => openRow(facts.find((x) => x.id === id) ?? {})} />
       {/if}
 
+      <PageMore page="trips" name={t('Trips|place')} />
       <TourTiles {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
     {/if}
   {:else}

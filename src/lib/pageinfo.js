@@ -8,18 +8,23 @@
  * one tile row at the page end, with links outside and own links, so they are not here twice.
  * «Wusstest du» WD1 + WD3 (Noah 14.10.2026, mockups approved 18:34 «wd1-wd3 freigegeben», «1a»): a tip has a
  * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
- * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold
+ * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold, rain, wind
  * or long; such a tip comes first on its day).
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
-import { meteoUrl, schweizMobilUrl, safeUrl } from './sk/links.js';
+import { meteoUrl, schweizMobilUrl, sbbUrl, safeUrl } from './sk/links.js';
+import { PAGE_TEXTS } from './pagetexts.js';
 
 export const PAGEINFO_KEY = 'pageInfo';
 /** Heat from this many °C, cold below this many °C, a long tour from this many km (WD3). */
 export const HEAT_C = 28;
 export const COLD_C = 5;
 export const LONG_KM = 100;
+/** «Passt zu heute» on Packen and Unterwegs (Noah 15.10.2026 «4a»): rain from this many mm or this % chance, wind from gusts of this many km/h. */
+export const RAIN_MM = 2;
+export const RAIN_PCT = 60;
+export const WIND_KMH = 50;
 
 /** «Passt zu heute» (WD3): each only on a day that fits; `note` says when, in the list «All tips». */
 export const TODAY_TIPS = [
@@ -72,6 +77,8 @@ export const PAGES = {
       { id: 'more', title: 'Quotes and own links', sub: 'under More', href: '{base}/mehr' },
     ],
   },
+  // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): ten more places, see pagetexts.js
+  ...PAGE_TEXTS,
 };
 
 /** The stored state made whole. */
@@ -110,7 +117,7 @@ function dayTips(i, page, ctx = {}) {
 }
 /**
  * The tip of the day (the same all day, the next one tomorrow); a fitting «Passt zu heute» comes first.
- * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, max } (contextOf).
+ * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, rain, wind, max } (contextOf).
  */
 export function tipOfDay(info, page, today, ctx = {}) {
   const i = infoOf(info);
@@ -131,7 +138,7 @@ export function tipPlace(info, page, today, ctx = {}) {
 /**
  * What kind of day it is (WD3), from today's home forecast day ({ min, max, rainMm, windDir, gust }), the
  * activity log of today ([{ actId }]) and the trips ([{ startDate, route: { km } }]). Föhn: dry (under
- * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more.
+ * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more. Rain (4a): 2 mm or a 60 % chance; wind: gusts from 50 km/h.
  */
 export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
   const max = typeof day?.max === 'number' ? day.max : null;
@@ -147,20 +154,27 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
     foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,
     sauna: list(log).some((x) => x?.day === today && /sauna/i.test(String(x.actId ?? ''))),
     long: list(trips).some((x) => soon.includes(x?.startDate) && Number(x?.route?.km) > LONG_KM),
+    rain: (day?.rainMm ?? 0) >= RAIN_MM || (day?.rainPct ?? 0) >= RAIN_PCT,
+    wind: (day?.gust ?? 0) >= WIND_KMH,
   };
 }
 
 /**
  * «Links nach aussen» at a tip (Noah 15.10.2026 «5a»): a tip may carry `link`, a free site that helps
- * further: 'meteo', 'schweizmobil' or an https address. Only a link, opened in a new tab; nothing is sent
+ * further: 'meteo', 'schweizmobil', 'sbb' (the timetable) or an https address. Only a link, opened in a new tab; nothing is sent
  * or fetched. { href, domain } or null (also for own tips and unsafe addresses).
  */
 export function tipLink(tip, lang = 'de') {
   const l = tip?.own ? null : tip?.link;
-  const href = l === 'meteo' ? meteoUrl(lang) : l === 'schweizmobil' ? schweizMobilUrl(lang) : l ? safeUrl(l) : null;
+  const href = l === 'meteo' ? meteoUrl(lang) : l === 'schweizmobil' ? schweizMobilUrl(lang) : l === 'sbb' ? sbbUrl(null, null, lang) : l ? safeUrl(l) : null;
   if (!href || !href.startsWith('https://')) return null;
   return { href, domain: new URL(href).hostname.replace(/^www\./, '') };
 }
+
+/** «Beispiele zum Übernehmen» (3a): { id, title, lines } of a page; a tap saves one as an own note (exampleNote). */
+export const examplesOf = (page) => list(PAGES[page]?.examples);
+/** The note an example becomes: its title and one checklist row per line, in the words of the language (tr = t). */
+export const exampleNote = (ex, tr = (x) => x) => ({ text: tr(ex.title), checklist: ex.lines.map((x) => ({ text: tr(x), done: false })) });
 
 /** The rows of «Das kann die App hier» with the page's address filled in. */
 export const canRows = (page, base = '') => list(PAGES[page]?.can).map((r) => ({ ...r, href: r.href.replace('{base}', base) }));

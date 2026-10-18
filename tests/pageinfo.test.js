@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink } from '../src/lib/pageinfo.js';
+import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -118,5 +118,35 @@ describe('links at a tip (5a)', () => {
   });
   it('every built-in link is https', () => {
     for (const p of Object.values(PAGES)) for (const x of p.tips) if (x.link) expect(tipLink(x)?.href, x.id).toMatch(/^https:\/\//);
+  });
+});
+
+describe('«Mehr Inhalt» on ten more places (1a–5a)', () => {
+  const PLACES = ['trips', 'pack', 'ride', 'debrief', 'gear', 'wardrobe', 'care', 'workshop', 'meditation', 'me'];
+  it('every place has about six tips, each id once in the whole app', () => {
+    for (const p of PLACES) expect(PAGES[p].tips.filter((x) => x.kind !== 'today').length, p).toBeGreaterThanOrEqual(6);
+    const ids = Object.values(PAGES).flatMap((p) => p.tips.map((x) => x.id));
+    const shared = new Set(PAGES.meditation.tips.filter((x) => x.kind === 'today').map((x) => x.id)); // the sauna tip is shared with Aktiv
+    expect(ids.filter((id) => !shared.has(id)).length).toBe(new Set(ids.filter((id) => !shared.has(id))).size);
+  });
+  it('the examples and the today notes have German too', () => {
+    for (const p of Object.keys(PAGES)) for (const ex of examplesOf(p)) for (const s of [ex.title, ...ex.lines]) expect(DE[s], s).toBeTruthy();
+    for (const p of Object.values(PAGES)) for (const x of p.tips) if (x.note) expect(DE[x.note], x.note).toBeTruthy();
+  });
+  it('an example becomes a note with its title and one unticked row per line', () => {
+    const ex = examplesOf('debrief')[0];
+    expect(exampleNote(ex)).toEqual({ text: ex.title, checklist: ex.lines.map((text) => ({ text, done: false })) });
+    expect(exampleNote(ex, (x) => DE[x]).text).toBe('Nächstes Mal anders');
+  });
+  it('rain and wind (4a): from 2 mm or 60 % and from gusts of 50 km/h; then packing says it first', () => {
+    const at = (day) => contextOf({ day }, '2026-10-15');
+    expect(at({ rainMm: 2 }).rain).toBe(true);
+    expect(at({ rainMm: 1, rainPct: 60 }).rain).toBe(true);
+    expect(at({ rainMm: 1, rainPct: 40 }).rain).toBe(false);
+    expect(at({ gust: 50 }).wind).toBe(true);
+    expect(at({ gust: 49 }).wind).toBe(false);
+    expect(tipOfDay(undefined, 'pack', '2026-10-15', at({ rainMm: 5 })).id).toBe('pack-rain');
+    expect(tipOfDay(undefined, 'ride', '2026-10-15', at({ gust: 60 })).id).toBe('ride-wind');
+    expect(tipOfDay(undefined, 'pack', '2026-10-15', at({})).kind).not.toBe('today');
   });
 });

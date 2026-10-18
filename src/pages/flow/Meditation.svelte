@@ -12,6 +12,8 @@
    * Everything is a suggestion. A session runs in the full view (B7, FlowLayer); the start is shared with
    * the start sheet of «Heute abhaken» (lib/flow/hobby/medstart.js).
    */
+  import PageMore from '../../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../../lib/pageinfo/TipLine.svelte';
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
   import Face from '../../lib/timer/Face.svelte';
   import { db } from '../../lib/db.js';
@@ -130,6 +132,8 @@
       </p>
     </header>
 
+    <!-- IF2 (Noah 14.10.2026, approved 04:32) on the central meditation page: the tip of the day, at the end the fold -->
+    <TipLine page="meditation" name={actName(act)} />
     <div class="cols">
       <section class="surf pad tcard" aria-labelledby="m-timer">
         <div class="hl"><h2 id="m-timer" class="h2">{t('Timer')}</h2>{#if main?.name}<p>{t('Template «{name}»', { name: main.name })}</p>{/if}</div>
@@ -214,6 +218,7 @@
         </a>
       </div>
     </div>
+    <PageMore page="meditation" name={actName(act)} {base} />
   {/if}
 </div>
 

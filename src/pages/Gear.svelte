@@ -1,4 +1,6 @@
 <script>
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -535,6 +537,9 @@
     </div>
   </header>
 
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
+
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
@@ -761,6 +766,7 @@
         </section>
       </div>
     </div>
+    {#if !selecting}<PageMore page="gear" name={t('Gear|page')} />{/if}
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}

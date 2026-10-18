@@ -18,6 +18,8 @@
    * short intro of the start page again (lib/home/IntroKT.svelte).
    * «Inspiration» (UC2-1): a row under Notes, #/inspiration (on a phone the only way there).
    */
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { LAST_BACKUP, backupDue } from '../lib/backup.js';
@@ -101,6 +103,9 @@
       <a class="btn hi" href="#/me/data">{t('Make a backup')}</a>
     </section>
   {/if}
+
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <TipLine page="me" name={t('Me|place')} />
 
   <div class="ich-cols">
     <div class="ich-main">
@@ -303,6 +308,7 @@
     </div>
   </div>
 
+  <PageMore page="me" name={t('Me|place')} />
   {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
   {#if playOpen}<PlaySheet running={!!$waitQ?.demo} onclose={() => (playOpen = false)} />{/if}
   {#if placeOpen}<HomePlaceSheet current={$waitQ?.home || null} onclose={() => (placeOpen = false)} />{/if}
