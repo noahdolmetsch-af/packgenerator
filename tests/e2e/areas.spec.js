@@ -122,11 +122,12 @@ for (const lang of ['en', 'de']) {
     // 7. No "On the way" (v0.67.0 «Übergänge 1»): «Packen abschliessen» (a day trip: no «Gepackt»,
     // Ü5a), then on the Pack tab the one orange button ends the trip. Before the planned end of the day
     // (the real clock runs here) it asks first (U004). «Tour beendet» → the whole debrief.
+    // Regeln der App A a (14.10.2026): no jump to Today any more; Pack says «All packed» with «To Today».
     await expect(go).toContainText(T('Finish packing'));
     await fits('Pack, weekend packed');
     await go.click();
-    await expect(page).toHaveURL(/#\/$/);
-    await page.goto('./#/pack?day');
+    await expect(page.locator('.packed-toast')).toContainText(T('All packed. Have a good trip!'));
+    await expect(page).toHaveURL(/#\/pack\?day/);
     await expect(go).toContainText(T('Finish the trip'));
     await go.click();
     const sheet = page.locator('dialog.endsheet');

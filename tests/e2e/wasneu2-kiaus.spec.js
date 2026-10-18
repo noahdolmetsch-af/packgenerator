@@ -15,7 +15,6 @@ import { closeDialog } from './settle.js';
 
 const PLACES = [...readFileSync(new URL('../../src/lib/helper/places.js', import.meta.url), 'utf8').matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
 const CODE = 'test_data_gtp_code';
-const month = (e) => e.date.slice(0, 7);
 
 async function shot(page, info, name, full = false) {
   if (!process.env.SHOTS) return;
@@ -51,12 +50,13 @@ test('W1: after an update a banner names the versions since the last visit, View
   await shot(page, info, 'W1-neu-banner');
   await banner.getByRole('link', { name: T('View|news') }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
-  // the page holds every version open, newest first
-  for (const e of since) await expect(page.locator(`article[data-version="${e.version}"]`).first()).toBeAttached();
+  // the page holds the newest on top and the versions since then in the open group (SL1: rows by day)
+  await expect(page.locator(`article[data-version="${since[0].version}"]`).first()).toBeAttached();
+  for (const e of since.slice(1)) await expect(page.locator(`[data-row="${e.version}"], article[data-version="${e.version}"]`).first()).toBeAttached();
   expect(errors).toEqual([]);
 });
 
-test('W2: Ich, Was ist neu: the newest on top, one row to all functions, every version open by month with its boxes', async ({ page, context }, info) => {
+test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, the versions by day, a row opens with its boxes', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
@@ -69,34 +69,52 @@ test('W2: Ich, Was ist neu: the newest on top, one row to all functions, every v
   await expect(top.getByRole('link', { name: T('Try it') })).toBeVisible();
   await expect(page.locator('a.wn-allrow')).toHaveAttribute('href', '#/me/news?all&sort=new');
 
-  // every version after the newest, open, grouped by month; the months newest first
-  const months = [...new Set(WHATS_NEW.slice(1).map(month))];
+  // SL1 (changed on purpose, Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): every version after
+  // the newest by day, the five newest days a group each, older days one group; only the newest open
+  const days = [...new Set(WHATS_NEW.slice(1).map((e) => e.date))];
   const vers = page.locator('.wn-vers');
-  await expect(vers.getByText(T('each with its own text, all open, by month'))).toBeVisible();
-  expect(await vers.locator('.wn-month').evaluateAll((els) => els.map((x) => x.dataset.month))).toEqual(months);
-  const inMonth = WHATS_NEW.filter((e) => month(e) === months[0]).length;
-  await expect(vers.locator('.wn-month').first().locator('.wn-mh')).toContainText(T('{n} updates', { n: inMonth }));
-  await expect(vers.locator('article[data-version]')).toHaveCount(WHATS_NEW.length - 1);
-  await expect(vers.locator('details')).toHaveCount(0);
-  // every small thing sits in one of the four boxes, «Fixed» tinted
-  const smalls = WHATS_NEW.slice(1).flatMap((e) => e.small ?? []);
-  await expect(vers.locator('.vn-small li')).toHaveCount(smalls.length);
+  await expect(vers.getByText(T('by day, the newest open'))).toBeVisible();
+  const groups = vers.locator('[data-group]');
+  await expect(groups).toHaveCount(Math.min(days.length, 6));
+  expect(await groups.evaluateAll((els) => els.map((x) => x.dataset.group))).toEqual(days.length > 5 ? [...days.slice(0, 5), 'older'] : days);
+  await expect(groups.first()).toHaveClass(/open/);
+  await expect(vers.locator('[data-group].open')).toHaveCount(1);
+  const inDay = WHATS_NEW.slice(1).filter((e) => e.date === days[0]).length;
+  await expect(groups.first().locator('.ls-gh')).toContainText(inDay === 1 ? T('{n} update', { n: 1 }) : T('{n} updates', { n: inDay }));
+  await expect(groups.first().locator('[data-row]')).toHaveCount(inDay <= 6 ? inDay : 5);
+  // a row opens to its points and its small things in their boxes, «Fixed» tinted
+  const e = WHATS_NEW.slice(1).find((x) => x.date === days[0]);
+  await vers.locator(`[data-row="${e.version}"]`).click();
+  const card = vers.locator(`article[data-version="${e.version}"]`);
+  await expect(card.locator('.vn-pts li')).toHaveCount(e.points.length);
+  await expect(card.locator('.vn-small li')).toHaveCount(e.small?.length ?? 0);
   for (const b of BOXES) {
-    const n = smalls.filter((s) => s.box === b.key).length;
-    await expect(vers.locator(`.vn-small li[data-box="${b.key}"] .vn-kt`)).toHaveCount(n);
-    if (n) await expect(vers.locator(`.vn-small li[data-box="${b.key}"] .vn-kt`).first()).toHaveText(T(b.label));
+    const n = (e.small ?? []).filter((s) => s.box === b.key).length;
+    if (n) await expect(card.locator(`.vn-small li[data-box="${b.key}"] .vn-kt`).first()).toHaveText(T(b.label));
   }
-  await expect(vers.locator('.vn-small li[data-box="fixed"] .vn-kt.fix').first()).toBeVisible();
-  // the very first version is there too, without a place to go
-  await expect(vers.locator('article[data-version="0.1.0"] a')).toHaveCount(0);
+  // the older group opens on a tap; the very first version is in it
+  await groups.last().locator('.ls-gh').click();
+  await expect(groups.last()).toHaveClass(/open/);
+  if (days.length > 5) {
+    const more = groups.last().locator('.ls-more');
+    await more.click();
+    await expect(groups.last().locator('[data-row="0.1.0"]')).toBeAttached();
+  }
+  // the search keeps what fits and opens every group with a find
+  await page.getByRole('searchbox', { name: T('Find an update') }).fill(e.version);
+  await expect(vers.locator('[data-row]')).toHaveCount(1);
+  await page.getByRole('searchbox', { name: T('Find an update') }).fill('');
   await noSideways(page);
   await page.evaluate(() => window.scrollTo(0, 0));
   await shot(page, info, 'W2-alle-versionen');
 
-  // a line of a card leads to its place
-  const e = WHATS_NEW[1];
-  await vers.locator(`article[data-version="${e.version}"] .vn-pts a`).first().click();
-  await expect.poll(() => new URL(page.url()).hash).toBe(e.points.find((p) => p.href).href);
+  // a line of an open row leads to its place
+  const withHref = WHATS_NEW.slice(1).find((x) => x.date === days[0] && x.points.some((p) => p.href));
+  if (withHref) {
+    if (withHref.version !== e.version) await vers.locator(`[data-row="${withHref.version}"]`).click();
+    await vers.locator(`article[data-version="${withHref.version}"] .vn-pts a`).first().click();
+    await expect.poll(() => new URL(page.url()).hash).toBe(withHref.points.find((p) => p.href).href);
+  }
   expect(errors).toEqual([]);
 });
 

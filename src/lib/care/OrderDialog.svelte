@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Workshop order (v0.19.3, N15, answer 8a): everything the bike needs before the next trip as
    * one order, with a price from the receipts where one is known. Tick what the shop should do,
@@ -72,7 +73,7 @@
 
 <!-- Design-Refresh P7 (V11, Noah 12.10.2026 «v11-v14 freigegeben»): the workshop order as a window of the
      bike pages: the jobs with their prices in a soft panel, the message, «Print · Close · Send or copy» right. -->
-<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="order-h">
+<dialog use:backClose class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="order-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="order-h" class="title">{trip?.startDate ? t('Before {trip}', { trip: trip.title }) : t('Due now')}</h2>

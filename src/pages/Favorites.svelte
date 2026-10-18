@@ -46,8 +46,9 @@
     e.preventDefault();
     switchTrip(trip.id, '#/pack');
   };
-  const gearHref = (i) => `#/gear?q=${encodeURIComponent(i.name)}`;
   const wish = (i) => i.ownership === 'wishlist' || i.ownership === 'to-buy';
+  // Regeln der App (14.10.2026): a wishlist item opens in the wishlist view, else «All» finds nothing
+  const gearHref = (i) => `#/gear?q=${encodeURIComponent(i.name)}${wish(i) ? '&view=wish' : ''}`;
   const subOf = (i) => [CATEGORY[i.category] ? t(CATEGORY[i.category].name) : '', i.brand, i.model, wish(i) ? t('wishlist') : ''].filter(Boolean).join(' · ');
 
   /* SN5: «…» of an item: open it in Gear, change why it is a favourite, take the star away (with Undo) */

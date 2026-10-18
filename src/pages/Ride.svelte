@@ -26,7 +26,8 @@
   import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
-  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START } from '../lib/ride.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
+  import { RIDE_SEEN_KEY, rideSeen } from '../lib/home/startkarten.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
   import { homeOf } from '../lib/dayride.js';
@@ -72,6 +73,15 @@
     }
   })();
   const trip = $derived(trips.find((t) => t.id === chosen && t.startDate) ?? nextTrip(trips, today) ?? trips.find((t) => t.id === chosen) ?? null);
+  // Start-Karten 3b (Noah 14.10.2026): once On the way showed today's trip, the card «Heute unterwegs» on Today goes away
+  $effect(() => {
+    if (!trip || !onTripDay(trip, today)) return;
+    try {
+      localStorage.setItem(RIDE_SEEN_KEY, rideSeen(trip.id, today));
+    } catch {
+      /* private mode: the card stays the whole day */
+    }
+  });
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);

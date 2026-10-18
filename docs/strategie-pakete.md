@@ -1,5 +1,7 @@
 # Arbeitspakete aus der Strategie (Runden 1 und 2)
 
+> **Verlauf (Stand 9.10.2026).** Die heutige Planung steht im [Projektstand](projektstand.md) und in [vorhaben.md](vorhaben.md).
+
 Stand 9.10.2026. Noah hat alle 119 Fragen im Strategie-Dokument «Pack Generator: Strategie, Design und Nutzen» beantwortet (Runde 2: alle a). Daraus folgen die Pakete unten. Die Fragenummern stehen jeweils in Klammern.
 
 Reihenfolge laut Strategie (57): **Design, dann Im Flow (Aktiv), dann Strava und Server, dann Neuland.** Vor jedem Paket kommt ein Design-Audit mit Mockups ([Regel](design-audit.md)); die Korrekturen erscheinen zuerst als Design-Release. Das Tempo bleibt wie bisher (56b). Echte Nutzung ist der Taktgeber: Eine grössere Version kommt erst, wenn die letzte einmal im Alltag oder auf einer Tour benutzt wurde (58).

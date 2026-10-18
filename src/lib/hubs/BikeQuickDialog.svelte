@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.25.1 (Noah 2b, 3a): the small dialogs behind the Bikes tile on Today.
    * - 'problem': what is wrong with a bike (+ photo) → an open repair in Bike care, written exactly as
@@ -135,7 +136,7 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
+<dialog use:backClose class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
   <form onsubmit={save} use:weiter>
     <h2 id="bq-h" class="title">{t(TITLE[kind])}</h2>
     {#if kind === 'idea'}<p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>{/if}

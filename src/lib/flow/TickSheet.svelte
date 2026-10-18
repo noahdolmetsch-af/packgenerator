@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.51.0 «Im Flow»: the sheet of a long press on an activity, only when needed: where (Yoga
    * Studio / Zuhause), how many (Liegestütze +10 / +20 / own number), how long (optional), a commute,
@@ -46,7 +47,7 @@
   }
 </script>
 
-<dialog class="sheet from-below aksheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="tick-h">
+<dialog use:backClose class="sheet from-below aksheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="tick-h">
   {#if a}
     <div class="hd">
       <div class="ht"><h2 id="tick-h">{t('Tick {name}', { name: actName(a) })}</h2><p class="muted">{t('long press · only when needed')}</p></div>

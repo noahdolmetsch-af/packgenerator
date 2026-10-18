@@ -24,9 +24,8 @@ export default {
   'Your data|tips': 'Daten',
 
   /* ---------- Plan ---------- */
-  'Day ride in 1 tap': 'Tagestour in 1 Tipp',
-  'One tap plans a short ride like your last one, with the weather.': 'Ein Tipp plant eine kurze Fahrt wie deine letzte, mit dem Wetter.',
-  'Plan a day ride': 'Tagestour planen',
+  'Quick start in 1 tap': 'Schnellstart in 1 Tipp',
+  'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.': 'Ein Tipp plant eine Tour für heute: 2,5 Std., zuletzt gefahrenes Velo, mit dem Wetter.',
   'New trip with building blocks': 'Neue Tour mit Bausteinen',
   'Building blocks such as sleep, cook or rain bring their items into a new trip.': 'Bausteine wie Schlafen, Kochen oder Regen bringen ihre Teile in eine neue Tour.',
   'Show building blocks': 'Bausteine zeigen',

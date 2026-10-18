@@ -55,11 +55,12 @@ const table = (page, name) =>
     };
   }), name);
 
-/** A day ride from Today. v0.38.0 (Noah 13a): "Day ride now" is in "New" (+), once. */
+/** A day ride from Today. v0.38.0 (Noah 13a): "Day ride now" is in "New" (+), once.
+ * WS2 (Noah 14.10.2026): it is «Quick start» now, by the rules of Today (the bike ridden last, a time stamp as name). */
 async function dayRideFromToday(page) {
   await page.goto('./#/');
   await (await newButton(page, T('New'))).click();
-  await page.getByRole('dialog').getByRole('button', { name: new RegExp(`^${T('Day ride now')}`) }).click();
+  await page.getByRole('dialog').getByRole('button', { name: new RegExp(`^${T('Quick start')}`) }).click();
   await expect(page.locator('.made-card')).toBeVisible();
 }
 
@@ -79,25 +80,27 @@ test('E5, E6: the day ride takes the bike of the last trip; every day ride is li
   expect(made).toHaveLength(1);
   expect(made[0].bikeId).toBe(BIKE_B.id);
   const title = made[0].title;
-  expect(title).toContain('test_data_gtp_ Rennvelo');
+  expect(title).toMatch(/^\d{12}$/); // WS2: the time stamp, as the Quick start on Today
 
   // A second day ride: a trip of its own, with a name of its own.
   await dayRideFromToday(page);
   made = (await table(page, 'trips')).filter((x) => !x.id.startsWith('gtp-'));
   expect(made).toHaveLength(2);
-  expect(made.map((x) => x.title).sort()).toEqual([title, `${title} (2)`]);
+  // the same minute gives « (2)», the next minute a stamp of its own: two names either way
+  const second = made.map((x) => x.title).find((x) => x !== title);
+  expect(second).toMatch(/^\d{12}( \(2\))?$/);
 
   // Today lists both: v0.46.0 the trip card with its "+N more trips" list (In progress).
   await page.goto('./#/');
   await page.locator('section.trip button.pill').click();
   const list = page.getByRole('dialog', { name: new RegExp(T('In progress')) });
-  await expect(list).toContainText(`${title} (2)`);
-  expect(((await list.textContent()) ?? '').split(title).length - 1).toBeGreaterThanOrEqual(2);
+  await expect(list).toContainText(second);
+  await expect(list).toContainText(title);
   await page.keyboard.press('Escape');
   // In Pack's trip chooser too.
   await page.goto('./#/pack');
   const names = await page.locator('.list-menu select option').allTextContents();
-  expect(names).toEqual(expect.arrayContaining([title, `${title} (2)`, 'test_data_gtp_ Gestern', 'test_data_gtp_ Später']));
+  expect(names).toEqual(expect.arrayContaining([title, second, 'test_data_gtp_ Gestern', 'test_data_gtp_ Später']));
   expect(errors).toEqual([]);
 });
 
@@ -248,7 +251,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte Tour»); templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.114.0, v0.143.0: New trip offers the last ridden trip apart from the templates; templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -283,8 +286,12 @@ test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte 
   const starts = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');
   await expect(starts.first()).toContainText(T('Standard'));
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(dlg.getByText(T('Last trip'), { exact: true })).toHaveCount(0);
-  await expect(dlg.getByText('test_data_gtp_ Letzte')).toHaveCount(0);
+  // v0.143.0 WS3 (Noah 14.10.2026 «ws1-ws7 freigeben», 1a): the trip ridden two days ago is offered again above
+  // the templates as «Wie letzte Tour», not chosen by itself (Standard stays the start).
+  const like = dlg.getByRole('group', { name: T('Like the last trip') }).getByRole('button');
+  await expect(like).toHaveCount(1);
+  await expect(like).toContainText('test_data_gtp_ Letzte');
+  await expect(like).toHaveAttribute('aria-pressed', 'false');
   const card = starts.filter({ hasText: 'test_data_gtp_ Regenrunde' });
   await card.click();
   await expect(card).toHaveAttribute('aria-pressed', 'true');

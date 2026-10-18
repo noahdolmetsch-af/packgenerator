@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * «Bugfix Dateneingabe» D2–D4 (Noah 13.10.2026, «1a 2a 3b 4b 5a», «D1–D4 freigegeben»): «Enter values»,
    * every value of one bike on one page, in groups (valuefields.js). Each field saves as soon as it is
@@ -139,7 +140,7 @@
 </div>
 
 {#if choosing}
-  <dialog class="sheet" bind:this={chooseDlg} onclose={() => (choosing = false)} aria-labelledby="vp-ch-h">
+  <dialog use:backClose class="sheet" bind:this={chooseDlg} onclose={() => (choosing = false)} aria-labelledby="vp-ch-h">
     <p class="meta">{t('For all bikes')}</p>
     <h2 id="vp-ch-h" class="title">{t('Choose fields')}</h2>
     <p class="quiet">{t('{shown} shown · {hidden} hidden. For all bikes and only here when entering. Bike pass, Pick-up check and Equipment still show everything. The values stay saved.', { shown: shownN, hidden: hiddenN })}</p>
@@ -165,7 +166,7 @@
 {/if}
 
 {#if own}
-  <dialog class="sheet" bind:this={ownDlg} onclose={() => (own = null)} aria-labelledby="vp-own-h">
+  <dialog use:backClose class="sheet" bind:this={ownDlg} onclose={() => (own = null)} aria-labelledby="vp-own-h">
     <p class="meta">{t('For all bikes')}</p>
     <h2 id="vp-own-h" class="title">{t('Own field')}</h2>
     <p class="quiet">{t('A value the app does not know yet. Every bike gets the field empty, you fill it where it fits.')}</p>

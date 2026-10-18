@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Which bike for this trip? (v0.19.3, N13): the bikes side by side. "Use for this trip" moves
    * the trip to that bike and its bags, like changing the bike under Edit.
@@ -24,7 +25,7 @@
   const chf = (n) => `CHF ${num(Math.round(n))}`;
 </script>
 
-<dialog class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
+<dialog use:backClose class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
   <p class="meta">{trip.title}</p>
   <h2 id="choice-h" class="title">{t('Which bike?')}</h2>
   <div class="grid">

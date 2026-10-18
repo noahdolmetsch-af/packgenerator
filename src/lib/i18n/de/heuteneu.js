@@ -69,7 +69,6 @@ export default {
   'What to wear': 'Was anziehen',
   'Nothing in the wardrobe yet: add clothes, then a suggestion shows here.': 'Noch nichts im Kleiderschrank: Kleider erfassen, dann steht hier ein Vorschlag.',
   // WS2: the tip «Day ride in 1 tap» is called «Schnellstart» now, like the button on Heute
-  'Quick start: a day ride in 1 tap': 'Schnellstart: Tagestour in 1 Tipp',
   'Tap «Quick start».': 'Tippe auf «Schnellstart».',
   // «Im Flow + Balance» (Noah 15.10.2026 «1-5a»): one card; the tip as today's goal
   'In the flow + balance': 'Im Flow + Balance',
