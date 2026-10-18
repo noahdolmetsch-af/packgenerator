@@ -96,6 +96,16 @@ test('B4: the building blocks as big buttons in Packen; one tap switches a block
   const errors = await start(page, context, info);
   const card = page.getByRole('region', { name: T('Building blocks') });
   await expect(card).toBeVisible();
+  // Impeccable Packen 1: with a block on the trip (Charging) the card is one line; «Bausteine ändern» opens it
+  await expect(card).toHaveAttribute('data-blocks-folded', '');
+  const line = card.locator('.fon');
+  await expect(line).toContainText(T('Building blocks on the trip:'));
+  await expect(line).toContainText(T('Charging|block'));
+  await expect(card.getByRole('button', { name: /test_data_gtp_ Rain/ })).toHaveCount(0);
+  expect(await noSideways(page)).toBe(0);
+  await shot(page, info, 'B4-bausteine-zu', card);
+  await tap(card.getByRole('button', { name: T('Change building blocks') }), info);
+  await expect(card).not.toHaveAttribute('data-blocks-folded', '');
   const on = card.getByRole('group', { name: T('On the trip|blocks') });
   const add = card.getByRole('group', { name: T('Add|blocks') });
   // Charging comes by itself; Repair (16 parts, off) and the own rain block are dashed suggestions
@@ -133,12 +143,18 @@ test('B4: the building blocks as big buttons in Packen; one tap switches a block
   await tap(card.getByRole('button', { name: T('Undo'), exact: true }), info);
   await expect(on.getByRole('button', { name: new RegExp(`^${T('Charging|block')}`) })).toHaveAttribute('aria-pressed', 'true');
   expect((await tripNow(page)).sets.charge).not.toBe(false);
+  // «Zuklappen» folds the card to its one line again
+  await tap(card.getByRole('button', { name: T('Fold up|blocks') }), info);
+  await expect(card).toHaveAttribute('data-blocks-folded', '');
+  await expect(card.getByRole('button', { name: T('Change building blocks') })).toBeFocused();
   expect(errors).toEqual([]);
 });
 
 test('B5: Reparatur unterwegs suggests 8 of 16 parts, at most 8, takes them over and Undo puts them back', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
+  // Impeccable Packen 1: Charging is on, so the card is one line until «Bausteine ändern»
   const card = page.getByRole('region', { name: T('Building blocks') });
+  await tap(card.getByRole('button', { name: T('Change building blocks') }), info);
   await tap(card.getByRole('button', { name: new RegExp(`^${T('Suggestion: {n} of {all} for the ride', { n: 8, all: 16 })}`) }), info);
   const dlg = page.getByRole('dialog', { name: T('Repair on the way') });
   await expect(dlg).toBeVisible();

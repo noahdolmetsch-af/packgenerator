@@ -26,6 +26,15 @@ const T = (en, vars) => {
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
+// Impeccable Packen 1: with a block on the trip the card in Packen is one line; «Bausteine ändern» opens it
+async function openBlocks(page, info) {
+  const card = page.getByRole('region', { name: T('Building blocks') });
+  await expect(card).toBeVisible();
+  const change = card.getByRole('button', { name: T('Change building blocks') });
+  if (await change.count()) await tap(change, info);
+  await expect(card.getByRole('button', { name: T('Change building blocks') })).toHaveCount(0);
+  return card;
+}
 const TRIP = 'test_data_gtp_bruenig';
 // a few fictional items in the blocks Kälte, Pass & Höhenmeter, Ausland and Zug (Hitze and Lange Fahrt stay empty)
 const ITEMS = [
@@ -158,8 +167,7 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
 
 test('Packen: a fitting block is dashed with its reason; one tap adds it, Undo takes it back; nothing comes by itself', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  const card = page.getByRole('region', { name: T('Building blocks') });
-  await expect(card).toBeVisible();
+  const card = await openBlocks(page, info);
   const on = card.getByRole('group', { name: T('On the trip|blocks') });
   const add = card.getByRole('group', { name: T('Add|blocks') });
   const cold = add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: 3 }))} ${NAME('cold')}`) });
@@ -217,7 +225,7 @@ test('Planen: «Pass», «Land» and «Anreise» are stored on the trip and brin
   await expect.poll(async () => (await tripNow(page)).arrival).toBe('train');
 
   await page.goto('./#/pack?day');
-  const add = page.getByRole('region', { name: T('Building blocks') }).getByRole('group', { name: T('Add|blocks') });
+  const add = (await openBlocks(page, info)).getByRole('group', { name: T('Add|blocks') });
   await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: travel by train'))} ${NAME('train')}`) })).toBeVisible();
   await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: trip in {country}', { country: 'Frankreich' }))} ${NAME('abroad')}`) })).toBeVisible();
   await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: a pass'))} ${esc(NAME('climb'))}`) })).toBeVisible();
