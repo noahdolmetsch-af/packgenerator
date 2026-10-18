@@ -36,8 +36,10 @@
   import { overviewCounts, weatherWindow, packBand, tileRows } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { switchTrip, openNew, openTrip } from '../lib/nav.js';
+  import { switchTrip, openNew, openTrip, newTrip } from '../lib/nav.js';
   import KomootSign from '../lib/komoot/KomootSign.svelte'; // SN1d (answer 3b)
+  import { TEMPLATES_KEY, templateUse } from '../lib/templates.js';
+  import { riddenTrips } from '../lib/trips.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -66,8 +68,20 @@
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
+  // v0.143.0 WS3a (Release-Analyse F5, Noah 14.10.2026 «ws1-ws7 freigeben»): start quickly again, like the last
+  // trip ridden or from the two templates used last; «All templates» leads on.
+  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
+  const hasRidden = $derived(riddenTrips($tripsQ ?? [], today).some((x) => x.bikeId));
+  const recentTpls = $derived(
+    ($tplQ?.value ?? [])
+      .filter((x) => !x.archivedAt)
+      .map((tp) => ({ tp, use: templateUse(tp, $tripsQ ?? [], today) }))
+      .filter((r) => r.use.n)
+      .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? ''))
+      .slice(0, 2),
+  );
   const rides = $derived($ridesQ ?? []);
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
   const counts = $derived(overviewCounts(view));
@@ -277,6 +291,16 @@
             <span class="daumen"><button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button></span>
           </div>
         </div>
+        <!-- v0.143.0 WS3a (Release-Analyse F5, Noah 14.10.2026 «ws1-ws7 freigeben»), Paket 3 on the SN4g layout:
+             «Schnell starten» right under the head of «Geplant», next to «New trip» -->
+        {#if hasRidden || recentTpls.length}
+          <div class="quick" role="group" aria-label={t('Start quickly')} data-quick>
+            <span class="ql">{t('Start quickly:')}</span>
+            {#if hasRidden}<button type="button" class="btn sm" onclick={() => newTrip('last')}>{t('Like the last trip')}</button>{/if}
+            {#each recentTpls as r (r.tp.id)}<button type="button" class="btn sm" onclick={() => newTrip(r.tp.id)}>{r.tp.name}</button>{/each}
+            <a class="qa" href="#/pack/templates">{t('All templates')}<ChevronRight size={16} aria-hidden="true" /></a>
+          </div>
+        {/if}
         {#if plan.length}
           <ul class="pcards">
             {#each planAll ? plan : plan.slice(0, PLAN_SHORT) as r (r.id)}
@@ -870,5 +894,24 @@
       justify-content: center;
       width: 100%;
     }
+  }
+  /* v0.143.0 WS3a: start quickly */
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+  .quick .ql {
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .quick .qa {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-left: 4px;
   }
 </style>

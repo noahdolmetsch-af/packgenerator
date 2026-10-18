@@ -2,6 +2,7 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { SLOTS, renameBike } from '../bikes.js';
+  import { withNewBike, saveOrder } from '../tourbike.svelte.js';
   import { shrinkImage } from '../photo.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
@@ -74,7 +75,10 @@
     if (!name) return (error = t('Give the bike a name.'));
     if (isNew) {
       const id = newId(name);
-      await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo, surface: draft.surface || null });
+      const rec = { id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo, surface: draft.surface || null };
+      await db.bikes.put(rec);
+      // VS4: a new bike stands last in the order (the first one ever is the standard bike)
+      await saveOrder(db, bikes, withNewBike(bikes, rec));
       oncreated?.(id);
     } else {
       await db.bikes.update(bike.id, { type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo, surface: draft.surface || null });

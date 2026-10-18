@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 «Velos vergleichen» (Noah: «bei allen Bikes alle diese Werte pflegen und vergleichen»):
    * one table, the parts and their attributes as rows, the bikes as columns. The key values on top
@@ -197,7 +198,7 @@
 </div>
 
 {#if edit}
-  <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="cmp-h">
+  <dialog use:backClose class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="cmp-h">
     <p class="meta">{edit.bikeName}</p>
     <h2 id="cmp-h" class="title">{cellLabel(edit.row)}</h2>
     <form method="dialog" onsubmit={(e) => (e.preventDefault(), save())}>

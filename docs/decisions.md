@@ -1352,16 +1352,6 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
 
-## 14.10.2026: Regeln einheitlich (0.144.0)
-
-- **Eine Regen-Grenze** (Noah «1a 2a», Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC): Die Grenze des Bausteins Regen (Material › Bausteine › Regen, Standard 30 %) gilt für die ganze App: Regen-Baustein, Regenkleidung, Was anziehen, Packwetter aus der Prognose («Schauer» ab 1 mm oder ab der Grenze), Wetter-Satz und Vorschlag des Tages auf Heute, Plan unterwegs und Fahrt-Seite, Wochenvorschläge in Aktiv. Ersetzt die festen 50 % (Heute, Plan unterwegs, Packwetter) und 60 % (Woche). Millimeter-Grenzen bleiben. Über der Grenze kommt die Regenkleidung von selbst auf die Liste (abwählbar), der Baustein Regen bleibt ein Vorschlag.
-- **«Nie gebraucht» ab 3 Touren** (Noah «2a» der Regel-Runde): eine Zahl (`NEVER_USED_MIN`) für Material, Jahresrückblick («Ballast», vorher ab 2), Ballast-Karte und Abzeichen in Packen (vorher 2× in Folge) und Rückblick («zuhause lassen»).
-- **Rückblick: nichts vorangekreuzt** (Noah «3a»): Die Vorschläge nach dem Rückblick starten ohne Häkchen; der eine Knopf heisst «Fertig · N von M übernehmen» (ohne Häkchen «Fertig · nichts übernehmen»). «Ja, merken» oben bleibt wie bisher.
-- **Eine Tagesuhr** (Noah «4a» der Regel-Runde): Morgen 06–11, Tag 11–18, Abend 18–22, Nacht 22–06. Der Gruss wechselt neu um 06:00 (vorher 05:00) auf «Guete Morge»; die festen Runden von «Wi gaht's?» ordnen Fragen vor 11:00 dem Morgen zu (vorher 12:00). Die Abendrunde 20:30 bleibt.
-- **Pflege pro Velo** (Noah «4a 5a»): eigene Karte «Pflege für …» über der Teile-Liste; pro Pflege an/aus, Abstand in km und/oder Tagen (was zuerst kommt, gilt), Warn- und Ersetzen-Grenze, Notiz. Die heutigen Zahlen bleiben der Standard. Gespeichert auf den Teilen des Velos (`everyKm`, `everyDays`, `warnAt`, `limit`; fehlt = Standard, null = aus), der km-Check als `bike.checkKm`, Notizen als `bike.careNotes`; alte Daten bleiben gültig, keine Migration.
-- **Bleibt bewusst im Code** (Noah 14.10.2026 20:23 UTC «Diesen Code explizit lassen»): R88 `orderFunctions`, R107 `flowcheck` Vorschlag/`checkHref`, R75 `learnedRule`.
-- **Selbst entschieden:** Die Erinnerung an die Sporttasche kommt ab 18:00 (Abend der Tagesuhr, vorher 17:00). «Für morgen ab 14:00» bei Tagestour und Was anziehen ist keine Tageszeit und bleibt. Gabel und Dämpfer erscheinen in «Pflege für …» nur an Velos mit Federung (wie die Fälligkeiten). Der km-Check hat nur km. Ein Pflege-Blatt pro Pflege (die Kette hat zwei Zeilen: Wachsen und Messen). Die Zeile in der Packliste ist ein Knopf, darum steht «Regel ändern» im Hinweis bei den Bausteinen, nicht in der Zeile. Die Kopie der letzten Tour nimmt die zuletzt benutzte Tour (gleiche Regel wie die Velo-Vorauswahl, `tripUsedAt`).
-
 ## 14.10.2026: Eine Zahl pro Sache (0.137.0, Durchklick DK1–DK3)
 
 - **Fällig (Noah 14.10.2026 «1-5 freigeben», Antwort 1a):** fällig ist ein Service, der fällig ist, oder ein Problem, das vor der nächsten Fahrt behoben sein muss (Status «braucht Arbeit», «Vor der nächsten Fahrt» oder Datum heute oder früher). Velopflege, Velos, Heute und die Zahl im Menü zählen dieselben Punkte.
@@ -1433,6 +1423,53 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
   - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
   - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).
+## 15.10.2026: 0.140.0 «Regeln der App»
+
+- (Regeln freigegeben: «a a, b a, c b, freigabe» 14.10.2026; Mockups C1 C2 A1 «C1 C2 A1 freigegeben» 14.10.2026 20:29 UTC; App-Start 1b aus «1b 2b 3b 4a 5a» 19:59 UTC). Grundlage: `notes/navigation-analyse/regeln-der-app.md` im Projektordner (alle Regeln pro Seite mit Datei:Zeile).
+- **A a, nichts springt von selbst:** Nach einer Aktion bleibt die Seite; wo es weitergeht, steht eine Meldung mit Link. Hier: Tagestour ohne Velo nach dem Packen. Die Sprünge auf Heute am Tourtag und am letzten Abend folgen mit 0.140.1 (Karten ST1/ST2).
+- **C b, ein Tipp öffnet zum Ändern:** Teil am Handy direkt bearbeitbar; der Velo-Stift öffnet die Velodetails. Das eigene Blatt «Velo umbenennen» mit Rückgängig fällt dafür weg (der Name steht in den Velodetails).
+- **App-Start 1b:** Ein Tab mit einer alten Seite startet nach einer Pause (30 Min ohne die App) auf der Startseite; nur Neuladen (F5) und ein Link kurz nach der Benutzung bleiben. Geteilte Listen, geteilte Texte und die Strava-Rückkehr gewinnen immer.
+- **B a (ein Wort pro Sache)** baut der Thread «Durchklick».
+- **Selbst entschieden:** Pause = 30 Minuten; die Meldung «Alles gepackt» bleibt 8 s; «n weitere fällig» öffnet das Velo der nächsten fälligen Zeile; kleine Apps merken sich nicht als «letzter Ort» der ganzen App.
+
+## 15.10.2026: 0.140.1 «Start-Karten»
+
+- (Mockups ST1–ST2 freigegeben: «1a 2a 3b ST1–ST2 freigegeben» 14.10.2026 21:18 UTC; Platz bei der Tourkarte nach HN4 «1a 2a 3a 4b HN4 freigegeben» 21:51 UTC).
+- **1a:** eigene Karte am Tourtag statt des Sprungs zu Unterwegs. **2a:** Karte am letzten Abend mit «Tour abschliessen». **3b:** die Tourtag-Karte bleibt, bis Unterwegs an diesem Tag einmal offen war.
+- **Platz:** die Karte gehört zur Tourkarte und wandert mit ihr (HN4); Reihenfolge oben auf Heute: Meditation, Tageskarte, dann Tourkarte mit Start-Karte.
+- **Selbst entschieden:** am letzten Abend gewinnt die Abend-Karte; die Karte fehlt für eine heute erstellte Tour (wie bisher der Sprung, Noah 6a).
+
+## 14.10.2026: Regeln einheitlich (0.144.0)
+
+- **Eine Regen-Grenze** (Noah «1a 2a», Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC): Die Grenze des Bausteins Regen (Material › Bausteine › Regen, Standard 30 %) gilt für die ganze App: Regen-Baustein, Regenkleidung, Was anziehen, Packwetter aus der Prognose («Schauer» ab 1 mm oder ab der Grenze), Wetter-Satz und Vorschlag des Tages auf Heute, Plan unterwegs und Fahrt-Seite, Wochenvorschläge in Aktiv. Ersetzt die festen 50 % (Heute, Plan unterwegs, Packwetter) und 60 % (Woche). Millimeter-Grenzen bleiben. Über der Grenze kommt die Regenkleidung von selbst auf die Liste (abwählbar), der Baustein Regen bleibt ein Vorschlag.
+- **«Nie gebraucht» ab 3 Touren** (Noah «2a» der Regel-Runde): eine Zahl (`NEVER_USED_MIN`) für Material, Jahresrückblick («Ballast», vorher ab 2), Ballast-Karte und Abzeichen in Packen (vorher 2× in Folge) und Rückblick («zuhause lassen»).
+- **Rückblick: nichts vorangekreuzt** (Noah «3a»): Die Vorschläge nach dem Rückblick starten ohne Häkchen; der eine Knopf heisst «Fertig · N von M übernehmen» (ohne Häkchen «Fertig · nichts übernehmen»). «Ja, merken» oben bleibt wie bisher.
+- **Eine Tagesuhr** (Noah «4a» der Regel-Runde): Morgen 06–11, Tag 11–18, Abend 18–22, Nacht 22–06. Der Gruss wechselt neu um 06:00 (vorher 05:00) auf «Guete Morge»; die festen Runden von «Wi gaht's?» ordnen Fragen vor 11:00 dem Morgen zu (vorher 12:00). Die Abendrunde 20:30 bleibt.
+- **Pflege pro Velo** (Noah «4a 5a»): eigene Karte «Pflege für …» über der Teile-Liste; pro Pflege an/aus, Abstand in km und/oder Tagen (was zuerst kommt, gilt), Warn- und Ersetzen-Grenze, Notiz. Die heutigen Zahlen bleiben der Standard. Gespeichert auf den Teilen des Velos (`everyKm`, `everyDays`, `warnAt`, `limit`; fehlt = Standard, null = aus), der km-Check als `bike.checkKm`, Notizen als `bike.careNotes`; alte Daten bleiben gültig, keine Migration.
+- **Bleibt bewusst im Code** (Noah 14.10.2026 20:23 UTC «Diesen Code explizit lassen»): R88 `orderFunctions`, R107 `flowcheck` Vorschlag/`checkHref`, R75 `learnedRule`.
+- **Selbst entschieden:** Die Erinnerung an die Sporttasche kommt ab 18:00 (Abend der Tagesuhr, vorher 17:00). «Für morgen ab 14:00» bei Tagestour und Was anziehen ist keine Tageszeit und bleibt. Gabel und Dämpfer erscheinen in «Pflege für …» nur an Velos mit Federung (wie die Fälligkeiten). Der km-Check hat nur km. Ein Pflege-Blatt pro Pflege (die Kette hat zwei Zeilen: Wachsen und Messen). Die Zeile in der Packliste ist ein Knopf, darum steht «Regel ändern» im Hinweis bei den Bausteinen, nicht in der Zeile. Die Kopie der letzten Tour nimmt die zuletzt benutzte Tour (gleiche Regel wie die Velo-Vorauswahl, `tripUsedAt`).
+
+## 15.10.2026: Paket 3 als Release 0.145.0
+
+- **Ein Release statt fünf (Thread «Mein Überblick» bündelt, Reihenfolge vom Koordinator):** Navigation «Regeln der App» 0.140.0 + Start-Karten ST1–ST2 0.140.1, Standard-Velo VS1–VS4 (0.145.0), Scrollen und Listen SL1–SL4 (0.141.0), WS2, WS5, WS6, Regeln einheitlich RE (#175, 0.144.0; zuerst Kopf 689993bb, dann der neue Kopf 4fec4e9 mit main 0.136.0), WS3 «Wie letzte Tour» (0.143.0) und vier Fehler aus den Bildern von 0.136.0. Je ein echter Merge-Commit pro Teil; RE ist inzwischen selbst als 0.144.0 auf main (#175, Merge von origin/main 2aba540d); die Arbeitsnummern 0.140.0–0.143.0 fallen weg; «Was ist neu» hat einen Eintrag 0.145.0 «Klare Regeln, dein Standard-Velo». Die Entscheide der Teile stehen in ihren Abschnitten oben.
+- **Selbst entschieden:**
+  - Velopflege «Jetzt fällig»: DK1 (eine fällige Reparatur ist eine Karte) bleibt; dazu Navigations `next` («n weitere fällig» öffnet das Velo der nächsten Karte).
+  - «Letzte Tour»: `lastTripOn` von RE (die zuletzt benutzte Tour, `tripUsedAt`) bleibt die eine Regel. WS3 filtert davor mit `riddenTrips` (nur wirklich gefahrene Touren: vor heute oder heute beendet, nicht «Fahre nicht», keine Idee, mit Liste). So zeigt «Wie letzte Tour» nie eine geplante Tour, und die Reihenfolge ist dieselbe wie bei der Velo-Vorwahl.
+  - WS3 auf Touren: die Zeile «Schnell starten» sitzt im SN4g-Layout direkt unter dem Kopf «Geplant», neben «Neue Tour» (das alte Layout mit Filter-Chips und Gruppen gibt es nicht mehr).
+  - Velo-Kopf (SetupBand): beide Props, `cost` (WS5) und `onorder` (Standard-Velo); der Stift öffnet die Velodetails (Navigation, kein Umbenennen-Fenster mehr).
+  - Hinweistexte HT1–HT2 (0.142.0) sind nicht dabei: der HT-Thread baut sie selbst, sie kommen in ein späteres Paket (Koordinator 15.10.2026).
+  - Fehler 1: die Kachel «Fahrten-Buch» zählt den Monat wie «Velo in diesem Monat» (hochgeladene Fahrten, gezählte Strava-Fahrten, Strava-Fahrten aus «Training» ohne Eintrag); eine Fahrt «Zum Prüfen» zählt erst nach «Passt».
+  - Fehler 5 (kein Augen-Knopf auf den Handy-Kategorien) bleibt: das ist seit «Pfeile und Ziehen» (0.136.0) so gewollt, Ausblenden steht im Fenster des Eintrags, und die Seite sagt das.
+  - Nummer 0.145.0 statt 0.137.0: Regeln einheitlich (#175) kam vorher selbst als 0.144.0 auf main; Paket 3 enthält RE nur als Grundlage, sein «Was ist neu»-Eintrag 0.144.0 bleibt wie auf main, und Paket 3 nennt die Regen-Grenze nicht noch einmal.
+  - `f.standardbike` ist «seit 0.145.0»; docs/handbuch.md zählt 106 Funktionen.
+  - Material: ein neu erfasster Artikel klappt seine Kategorie auf und bleibt im Blick (U8, wie im Patch von Paket aktiv), weil die Kategorien seit SL zugeklappt starten.
+- **Was fällt weg oder rutscht tiefer:**
+  - Das Fenster «Velo umbenennen» (mit Rückgängig) fällt weg. Neu: der Stift neben dem Namen öffnet «Velodetails» (Name, Typ, Einsatz, Foto in einem Fenster).
+  - Kein Sprung mehr nach «Fertig gepackt» und keine automatischen Sprünge zu Unterwegs oder «Tour beendet». Neu: eine Meldung mit Link bzw. die Karten «Heute unterwegs» und «Letzter Abend» auf Heute.
+  - Ein alter Tab nach einer Pause (30 Min) öffnet die Startseite statt der alten Seite; Neuladen bleibt auf der Seite.
+  - Material: die Kategorien starten zugeklappt, «Alle zeigen» fällt weg. Neu: fünf Zeilen pro Kategorie und die Sprungleiste.
+  - Fahrten-Buch: «Alle zeigen» fällt weg. Neu: nach Monaten gruppiert. «Was ist neu» ist nicht mehr «alle offen», sondern nach Tagen.
+  - Eine neue Tour nimmt das Standard-Velo statt automatisch das zuletzt gefahrene (Heute und Schnellstart behalten das zuletzt gefahrene, Noah «1b»; bei der ersten Tour fragt die App einmal).
 
 ## 15.10. bis 18.10.2026: Pakete, Bedienregeln, neue Bündelung
 

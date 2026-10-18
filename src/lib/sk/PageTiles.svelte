@@ -23,6 +23,7 @@
   import SkToast from './SkToast.svelte';
   import { newTrip } from '../nav.js';
   import { localDay } from '../localday.js';
+  import { bikeActs } from '../kmbook.js';
   import { phone } from '../media.svelte.js';
   import { t, lang } from '../i18n.svelte.js';
 
@@ -33,7 +34,8 @@
   const stateQ = liveQuery(() => db.settings.get(skKey(page)));
   // svelte-ignore state_referenced_locally
   const needs = SK_NEEDS[page] ?? [];
-  const dataQ = liveQuery(async () => Object.fromEntries(await Promise.all(needs.map(async (n) => [n, await db[n].toArray()]))));
+  // Paket 3: with the ride ledger also the Strava rides of «Training» (bikeActs), for the month's km
+  const dataQ = liveQuery(async () => ({ ...Object.fromEntries(await Promise.all(needs.map(async (n) => [n, await db[n].toArray()]))), ...(needs.includes('kmBook') ? { acts: await bikeActs(db) } : {}) }));
   const cur = $derived(normState($stateQ?.value));
   const hints = $derived($dataQ ? hintsFor(page, $dataQ, today) : {});
   const arr = $derived(arrange(SK_PAGES[page] ?? [], cur, hints, today));

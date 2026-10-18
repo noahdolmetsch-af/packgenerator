@@ -139,10 +139,14 @@ export function mainStep(trip, today, tab, opts = {}) {
   return { kind: 'go', label: 'Continue to Pack', href: tabHref('pack', trip) };
 }
 
-/** Where «Finish packing» leads: the interstitial «Gepackt», or for a day ride straight on (Ü5a). */
+/**
+ * Where «Finish packing» leads: the interstitial «Gepackt», or for a day ride straight on (Ü5a).
+ * Regeln der App A a (Noah 14.10.2026, mockup A1): a day trip without a bike stays on Pack (null);
+ * Pack says «All packed» with a link to Today instead of jumping there.
+ */
 export function afterPacking(trip, today) {
   if (!isDayTrip(trip)) return betweenHref(trip, 'packed');
-  return hasBike(trip) ? tabHref('ride', trip) : '#/';
+  return hasBike(trip) ? tabHref('ride', trip) : null;
 }
 
 /**

@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.59.0 «Tauschen» (OP2a, Noah a): the sheet a tap on a worn piece opens. The alternatives of the
    * same zone and layer from the wardrobe: first those that fit the trip's weather (the best one with
@@ -48,7 +49,7 @@
   }
 </script>
 
-<dialog class="calm-sheet swap-sheet" bind:this={el} onclose={onclose} aria-labelledby="swap-h">
+<dialog use:backClose class="calm-sheet swap-sheet" bind:this={el} onclose={onclose} aria-labelledby="swap-h">
   <!-- v0.106.0 Design-Refresh P5 (T7, approved 12.10.2026): «{piece} tauschen», the zone and the trip
        weather in one line, «Jetzt auf der Liste», «Aus deinem Kleiderschrank» with «Tauschen» per row,
        a hint box and the quiet actions at the bottom right. -->

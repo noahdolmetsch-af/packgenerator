@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.37.1 "Zusammenlegen": merge one item into its counterpart(s). Comes up from below on a phone,
    * centred on a computer. The app proposes up to 3 counterparts (gearimport.js counterparts, badge
@@ -77,7 +78,7 @@
 {/snippet}
 
 <!-- v0.102.0 Design-Refresh P3 (M5): «Merge» as the title, the item in the line below, suggestions in a soft box -->
-<dialog class="sheet merge" bind:this={dialog} onclose={onclose} aria-labelledby="merge-h merge-n">
+<dialog use:backClose class="sheet merge" bind:this={dialog} onclose={onclose} aria-labelledby="merge-h merge-n">
   <span class="grab" aria-hidden="true"></span>
   <div class="mh">
     <h2 id="merge-h">{t('Merge|items')}</h2>

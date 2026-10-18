@@ -10,25 +10,34 @@
    * v0.118.0 «Was ist neu 2» (mockup W2, Noah 13.10.2026 «w1-w3 freigeben», answers 2a 4a): every version in
    * its own words (know/VersionNews.svelte): the newest as the card on top, then one row «All functions»
    * to the whole list (unchanged, #/me/news?all), then all versions open, grouped by month, as cards.
+   * SL1/SL4 «Scrollen und Listen» (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): the versions
+   * by day (the five newest days each a group, older days one group), only the newest group open, a group
+   * shows five rows and «Show n more», a row opens to its points; a search and «New for you» stay on top
+   * with the group you are in; a jump bar (phone: chips, computer: beside the page); «Back to top».
    */
   import { liveQuery } from 'dexie';
-  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
+  import { WHATS_NEW, shortVersion, compareVersions, itemsOf } from '../lib/whatsnew.js';
   import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { isUsed } from '../lib/tips.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
   import { goFeature } from '../lib/know/featureRun.js';
-  import { SORTS, sortKey, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth, messageOn, BANNER_DAYS, PLANNED, LIST_ROWS, NEWS_HREF } from '../lib/know/wasneu.js';
+  import { SORTS, sortKey, rowsOf, sortRows, searchRows, newSince, neverTried, messageOn, BANNER_DAYS, PLANNED, LIST_ROWS, NEWS_HREF } from '../lib/know/wasneu.js';
   import { readUses, readUpdate, writeUpdate, readMute, writeMute, readTested, writeTested } from '../lib/know/wasneuStore.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
   import { openData } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, Star, Lightbulb, Activity, Route, ListOrdered, Tags, MapPin, ListFilter } from '@lucide/svelte';
+  import { Check, ChevronRight, ChevronDown, ChevronUp, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, Star, Lightbulb, Activity, Route, ListOrdered, Tags, MapPin, ListFilter } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import VersionNews from '../lib/know/VersionNews.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+  import ListBar from '../lib/list/ListBar.svelte';
+  import ListGroup from '../lib/list/ListGroup.svelte';
+  import ListNav from '../lib/list/ListNav.svelte';
+  import TopButton from '../lib/list/TopButton.svelte';
+  import { byDay } from '../lib/list/listen.js';
   import '../lib/bikes/velo-dlg.css';
   import '../lib/ich/ich.css';
 
@@ -103,11 +112,41 @@
     testEl?.querySelector('input')?.focus({ preventScroll: true });
   }
 
-  // v0.118.0 (answer 4a): all versions open, grouped by month; the newest is the card on top
-  const months = byMonth(WHATS_NEW.slice(1));
-  const monthN = Object.fromEntries(byMonth().map((m) => [m.key, m.entries.length]));
   const day = (iso, o = { day: 'numeric', month: 'short', year: 'numeric' }) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), o);
-  const monthName = (key) => day(`${key}-15`, { month: 'long', year: 'numeric' });
+
+  // SL1: the versions by day (the newest is the card on top), a search, «New for you», one row opens
+  let vq = $state('');
+  let only = $state('all');
+  let openV = $state(null);
+  let active = $state(null);
+  const today = localDay();
+  const forYou = $derived(update?.from ? WHATS_NEW.filter((e) => compareVersions(e.version, update.from) > 0 && compareVersions(e.version, current) <= 0) : []);
+  const hayOf = (e) => [e.version, e.title, t(e.title), e.lead ?? '', e.lead ? t(e.lead) : '', ...itemsOf(e).flatMap((p) => [p.text, t(p.text)])].join(' ').toLowerCase();
+  const verFound = $derived.by(() => {
+    const words = vq.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const pool = only === 'you' ? forYou : WHATS_NEW.slice(1);
+    return words.length ? pool.filter((e) => ((h) => words.every((w) => h.includes(w)))(hayOf(e))) : pool;
+  });
+  const searching = $derived(!!vq.trim() || only !== 'all');
+  const days = $derived(byDay(verFound, today));
+  const dayLabel = (g) => {
+    if (g.older) return g.from === g.to ? t('Older: {d}', { d: day(g.to, { day: 'numeric', month: 'short' }) }) : t('Older: {from} – {to}', { from: day(g.from, { day: 'numeric', month: 'short' }), to: day(g.to, { day: 'numeric', month: 'short' }) });
+    const d = day(g.to, { day: 'numeric', month: 'short' });
+    if (g.ago === 0) return t('Today, {d}', { d });
+    if (g.ago === 1) return t('Yesterday, {d}', { d });
+    return day(g.to, { weekday: 'long', day: 'numeric', month: 'short' });
+  };
+  const chipLabel = (g) => (g.older ? t('Older|group') : g.ago === 0 ? t('Today') : g.ago === 1 ? t('Yesterday') : day(g.to, { day: 'numeric', month: 'short' }));
+  const nUp = (n) => tn(n, '{n} update', '{n} updates');
+  // the newest day is open (answer: only the newest open); a search opens every group it found
+  let opened = $state({});
+  const isOpen = (g, i) => opened[g.key] ?? (searching || i === 0);
+  const jumps = $derived(days.map((g) => ({ id: g.key, label: chipLabel(g), n: g.entries.length })));
+  const cur = $derived(days.find((g) => g.key === active));
+  function jump(id) {
+    opened = { ...opened, [id]: true };
+    requestAnimationFrame(() => document.getElementById(`g-${id}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  }
   const tryP = (e) => e.points.find((p) => p.href || p.action) ?? null;
   function tryIt(ev) {
     if (tryP(newest)?.action !== 'data') return;
@@ -220,18 +259,42 @@
       {/if}
 
       {#if !all}
-        <!-- W2 (answer 4a): all versions open, grouped by month, each in its own words -->
+        <!-- SL1 (answers 1a 4a): the versions by day, only the newest open, five rows and «Show n more» -->
         <section class="ich-sec wn-vers" aria-labelledby="wn-ver-h">
-          <div class="ich-h"><div><h2 id="wn-ver-h">{t('All versions')}</h2><p class="ich-hs">{t('each with its own text, all open, by month')}</p></div></div>
-          {#each months as m (m.key)}
-            <div class="wn-month" data-month={m.key}>
-              <h3 class="wn-mh">{monthName(m.key)} <small>{tn(monthN[m.key], '{n} update', '{n} updates')}</small></h3>
-              <div class="wn-cards">
-                {#each m.entries as e (e.version)}<VersionNews {e} card level={4} />{/each}
+          <div class="ich-h"><div><h2 id="wn-ver-h">{t('All versions')}</h2><p class="ich-hs">{t('by day, the newest open')}</p></div></div>
+          <!-- SL4 (answer 5a): the search and the group you are in stay on top -->
+          <ListBar bind:active current={cur ? dayLabel(cur) : ''} count={cur ? nUp(cur.entries.length) : ''}>
+            <label class="wn-find wn-vfind">
+              <Search size={18} aria-hidden="true" />
+              <input type="search" bind:value={vq} placeholder={t('Find an update')} aria-label={t('Find an update')} autocomplete="off" />
+            </label>
+            {#if forYou.length}
+              <div class="wn-sort" role="group" aria-label={t('Show')}>
+                <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All')} <span class="num">{WHATS_NEW.length - 1}</span></button>
+                <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'you'} data-only="you" onclick={() => (only = 'you')}>{t('New for you')} <span class="num">{forYou.length}</span></button>
               </div>
-            </div>
-          {/each}
+            {/if}
+          </ListBar>
+          <!-- SL1 (answer 2a): the jump bar, on a phone as chips -->
+          <div class="wn-jump-ph"><ListNav groups={jumps} {active} onjump={jump} /></div>
+          <div class="wn-days">
+            {#each days as g, i (g.key)}
+              <ListGroup id={g.key} title={dayLabel(g)} count={nUp(g.entries.length)} peek={g.older ? t('back to the first version 0.1') : g.entries.slice(0, 3).map((e) => t(e.title)).join(' · ')} bind:open={() => isOpen(g, i), (v) => (opened = { ...opened, [g.key]: v })} rows={g.entries} more={(n) => t('Show {n} more|list', { n })}>
+                {#snippet row(e)}
+                  <button type="button" class="wn-vr" aria-expanded={openV === e.version} data-row={e.version} onclick={() => (openV = openV === e.version ? null : e.version)}>
+                    <span class="wn-vb num">{shortVersion(e.version)}</span>
+                    <span class="wn-vm"><b>{t(e.title)}</b>{#if e.lead}<small>{t(e.lead)}</small>{/if}</span>
+                    {#if openV === e.version}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+                  </button>
+                  {#if openV === e.version}<div class="wn-vopen"><VersionNews {e} level={4} /></div>{/if}
+                {/snippet}
+              </ListGroup>
+            {/each}
+            {#if !days.length}<p class="wn-none" role="status">{t('No update found for «{q}».', { q: vq.trim() })}</p>{/if}
+          </div>
+          {#if !searching}<p class="wn-end"><Check size={16} aria-hidden="true" />{t('That is all: {n} updates on {d} days.', { n: WHATS_NEW.length, d: new Set(WHATS_NEW.map((e) => e.date)).size })}</p>{/if}
         </section>
+        <TopButton />
       {/if}
     </div>
 
@@ -317,6 +380,8 @@
             {/each}
           </ul>
         </section>
+        <!-- SL1 (answer 2a): the jump bar beside the page on a computer, it stays in view -->
+        <div class="wn-jump-dt"><ListNav groups={jumps} {active} onjump={jump} mode="toc" /></div>
       {/if}
     </div>
   </div>
@@ -554,26 +619,117 @@
       grid-area: third;
     }
   }
-  /* the versions: by month, every version a card, all open */
-  .wn-mh {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin: 18px 2px 8px;
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  /* SL1: the versions by day; a row opens to its points */
+  .wn-vfind {
+    margin: 0;
   }
-  .wn-month:first-of-type .wn-mh {
-    margin-top: 0;
+  .wn-vers .wn-sort {
+    margin: 0;
   }
-  .wn-mh small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    font-weight: 400;
+  .wn-jump-ph {
+    margin: 0 0 14px;
   }
-  .wn-cards {
+  .wn-days {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+  }
+  .wn-vr {
+    display: flex;
+    align-items: flex-start;
     gap: 12px;
+    width: 100%;
+    min-height: 52px;
+    padding: 11px 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .wn-vr:focus-visible {
+    outline: var(--focus-ring);
+  }
+  .wn-vr > :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .wn-vb {
+    flex: none;
+    min-width: 44px;
+    margin-top: 2px;
+    padding: 0 7px;
+    border-radius: 7px;
+    background: var(--hi-soft);
+    color: var(--ink);
+    font: 600 var(--fs-tiny) / 1.6 var(--font-body);
+    text-align: center;
+  }
+  .wn-vm {
+    flex: 1;
+    min-width: 0;
+  }
+  .wn-vm b {
+    display: block;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .wn-vm small {
+    display: block;
+    margin-top: 1px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wn-vr[aria-expanded='true'] small {
+    white-space: normal;
+  }
+  .wn-vopen {
+    padding: 0 0 12px 56px;
+  }
+  .wn-vopen :global(.vn) {
+    padding: 0;
+    border: 0;
+  }
+  .wn-vopen :global(.vn-h),
+  .wn-vopen :global(.vn-t),
+  .wn-vopen :global(.vn-ld) {
+    display: none;
+  }
+  .wn-end {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 2px 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .wn-jump-dt {
+    display: none;
+  }
+  @media (min-width: 1000px) {
+    .wn .ich-side {
+      align-self: stretch;
+    }
+    .wn-jump-dt {
+      display: block;
+      position: sticky;
+      top: 16px;
+    }
+    .wn-jump-ph {
+      display: none;
+    }
+  }
+  @media (max-width: 419px) {
+    .wn-vopen {
+      padding-left: 0;
+    }
   }
   /* the side column */
   .ich-side .card {

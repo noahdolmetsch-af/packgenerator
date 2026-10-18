@@ -1,0 +1,78 @@
+/* Standard-Velo (VS1–VS4, Noah 14.10.2026 «1a 2b 3a»): the star, the choices and the order rows. */
+.sv-star {
+  flex: none;
+  color: var(--warn);
+  fill: currentColor;
+}
+.sv-opts {
+  display: grid;
+  gap: 10px;
+}
+.sv-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sv-opt[aria-pressed='true'] {
+  border-color: var(--ink-2);
+  background: var(--paper-2);
+}
+.sv-oi {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+.sv-ot {
+  flex: 1;
+  min-width: 0;
+}
+.sv-ot b {
+  display: block;
+  font-weight: 600;
+}
+.sv-ot small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.sv-om {
+  flex: none;
+  width: 22px;
+}
+.sv-hint {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 12px 2px 0;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+.sv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font: 600 var(--fs-tiny) / 1.4 var(--font-body);
+  white-space: nowrap;
+}

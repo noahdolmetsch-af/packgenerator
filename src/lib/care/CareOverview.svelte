@@ -108,7 +108,8 @@
               <li class="skw"><Woanders context={[d.row.name, short(d.bike.name)].join(' · ')} links={[...(d.row.kind !== 'part' ? [{ kind: 'x15', slot: slotOf('x15'), icon: 'calendarcheck', sub: t('Online booking') }] : []), { kind: 'x5', href: PARKTOOL_URL, icon: 'wrench', sub: t('{what} · in English', { what: d.row.name }) }]} /></li>
             {/each}
           </ul>
-          {#if due.total > due.cards.length}<p class="more">{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</p>{/if}
+          <!-- Regeln der App (14.10.2026): the line says «open the bike», so a tap opens the bike of the next due card -->
+          {#if due.total > due.cards.length}<p class="more">{#if due.next}<button type="button" class="linkbtn" onclick={() => onopen(due.next.id)}>{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</button>{:else}{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}{/if}</p>{/if}
         {:else}
           <p class="card quiet">{t('Nothing due now on any bike.')}</p>
         {/if}
@@ -317,6 +318,16 @@
     margin: 8px 2px 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .more .linkbtn {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent, var(--ink));
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .quiet {
     color: var(--ink-3);
