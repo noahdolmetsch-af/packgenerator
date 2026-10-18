@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.36.0 (Noah 1a, 2a, 3b): "Import prüfen" (#/gear/import). The reviewed gear list waits here
    * before anything goes into Gear: three folded groups (Schon da, Neu, Unsicher), then the app items
@@ -227,7 +228,7 @@
     picked.delete(snap.merge.oldId);
     merged = { snap };
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => (merged = null), 10000);
+    toastTimer = setTimeout(() => (merged = null), UNDO_MS);
   }
   const unmerge = () =>
     run(async () => {

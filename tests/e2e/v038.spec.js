@@ -62,9 +62,9 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   await page.goto('./#/');
   const me = page.locator('a.me');
   await expect(me).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
-  // v0.47.1 (Noah): only a dot on the button, no number (the count stays in the label).
+  // P3b Ü3a (Noah 15.10.2026 «3a»): the number shows on the button, like at «Velos» (it was only a dot)
   await expect(me.locator('.dot')).toBeVisible();
-  await expect(me).not.toContainText('2');
+  await expect(me.locator('.dot')).toHaveText('2');
   // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await expect(page.locator('dialog.more')).toHaveCount(0);

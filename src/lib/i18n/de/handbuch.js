@@ -1,9 +1,10 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
   // v0.136.0 «Inhalte Flow» + «Wusstest du»
-  'Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.': 'Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
-  'At the end of the page: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
-  'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
+  'Open Packen, Unterwegs or another place: under the title is the tip of the day; «All tips ›» shows them all, each with a switch.': 'Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
+  'At the page end: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
+  'Some places show an example: «Save as note» keeps it under Me › Notes.': 'Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Ich › Notizen ab.',
+  'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem Regentag sagt Packen zuerst, die Regenjacke nach oben zu legen; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
   'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
@@ -390,4 +391,19 @@ export default {
   'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
   'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
   'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
+  // P3b «Daten sicher»: Dokumente, Handy und Computer
+  'Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).': 'Öffne Ich › Dokumente und tippe «PDF hinzufügen» (ein PDF oder ein Foto vom Papier).',
+  'Choose the group and «valid until»; the reminder comes 6 months before by itself.': 'Wähle die Gruppe und «gültig bis»; die Erinnerung kommt von selbst 6 Monate vorher.',
+  'Switch on «In the packing list»: every trip asks «ID and cash with you?».': 'Schalte «In die Packliste» ein: Jede Tour fragt «ID und Cash dabei?».',
+  'Example: identity card valid until 03.2027 → from 09.2026 «Renew identity card» under Reminders.': 'Beispiel: Identitätskarte gültig bis 03.2027 → ab 09.2026 «Identitätskarte erneuern» unter Erinnerungen.',
+  'On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).': 'Auf dem Gerät mit dem neueren Stand: Ich › Daten und Backup › «An Handy senden» (oder «An Computer senden»).',
+  'On the other device: tap the file › Share › Pack Generator, or «Open backup».': 'Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder «Backup öffnen».',
+  'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».': 'Die App sagt, was neuer ist, und schlägt vor: ersetzen, zusammenführen oder nichts; eine Kopie von vorher bleibt unter «Vor Updates».',
+  'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.': 'Beispiel: Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.',
+  // P3b Teil 3 «Kamera überall»
+  'On a phone or tablet; a computer shows the file dialog.': 'Am Handy oder Tablet; am Computer kommt die Dateiauswahl.',
+  'Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.': 'Tippe «Foto machen», wo ein Foto dazukommt (Notiz, Material, Velo, Setup, Problem); «Galerie» nimmt ein vorhandenes.',
+  'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
+  'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
+  'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
 };

@@ -8,7 +8,7 @@
  * one tile row at the page end, with links outside and own links, so they are not here twice.
  * «Wusstest du» WD1 + WD3 (Noah 14.10.2026, mockups approved 18:34 «wd1-wd3 freigegeben», «1a»): a tip has a
  * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
- * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold
+ * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold, rain, wind
  * or long; such a tip comes first on its day).
  * «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a», lib/intro.js): a tip may carry `months` (a «Passt zu heute» that
  * fits in those months, e.g. the ski season), `button` + `href` (one step that starts it) and `source` (a
@@ -16,18 +16,25 @@
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
+import { meteoUrl, schweizMobilUrl, sbbUrl, safeUrl } from './sk/links.js';
+import { PAGE_TEXTS } from './pagetexts.js';
+
 export const PAGEINFO_KEY = 'pageInfo';
 /** Heat from this many °C, cold below this many °C, a long tour from this many km (WD3). */
 export const HEAT_C = 28;
 export const COLD_C = 5;
 export const LONG_KM = 100;
+/** «Passt zu heute» on Packen and Unterwegs (Noah 15.10.2026 «4a»): rain from this many mm or this % chance, wind from gusts of this many km/h. */
+export const RAIN_MM = 2;
+export const RAIN_PCT = 60;
+export const WIND_KMH = 50;
 
 /** «Passt zu heute» (WD3): each only on a day that fits; `note` says when, in the list «All tips». */
 export const TODAY_TIPS = [
-  { id: 'today-heat', kind: 'today', when: 'heat', note: 'only from 28 °C', text: 'In the heat plan about half a litre of water per hour. A fountain on the way is lighter than the third bottle.' },
-  { id: 'today-foehn', kind: 'today', when: 'foehn', note: 'only on a föhn day', text: 'Föhn today: warm, dry wind from the south. Against the wind the way home can take longer than the way out.' },
+  { id: 'today-heat', kind: 'today', when: 'heat', note: 'only from 28 °C', text: 'In the heat plan about half a litre of water per hour. A fountain on the way is lighter than the third bottle.', link: 'meteo' },
+  { id: 'today-foehn', kind: 'today', when: 'foehn', note: 'only on a föhn day', text: 'Föhn today: warm, dry wind from the south. Against the wind the way home can take longer than the way out.', link: 'meteo' },
   { id: 'today-sauna', kind: 'today', when: 'sauna', note: 'only on a day with sauna', text: 'Finland has about 3 million saunas for about 5.5 million people.' },
-  { id: 'today-cold', kind: 'today', when: 'cold', note: 'only below 5 °C', text: 'Below 5 °C fingers and toes get cold first. Gloves and overshoes make the ride much nicer.' },
+  { id: 'today-cold', kind: 'today', when: 'cold', note: 'only below 5 °C', text: 'Below 5 °C fingers and toes get cold first. Gloves and overshoes make the ride much nicer.', link: 'meteo' },
   { id: 'today-long', kind: 'today', when: 'long', note: 'only before a tour over 100 km', text: 'A long tour is coming: a spare tube, a pump and food for the whole day belong in the bag.' },
 ];
 
@@ -43,7 +50,7 @@ export const PAGES = {
       { id: 'aktiv-one-ring', text: 'Move, Mindful, Recovery: if you only fill one ring, you see it here first.' },
       { id: 'aktiv-amount', text: 'A long press enters another amount, for example 25 push-ups instead of 10.' },
       { id: 'aktiv-strava', text: 'Rides from Strava and trip days count on «Cycling outdoors» by themselves.' },
-      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.', source: 'Federal Office of Sport (BASPO)' },
+      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.', source: 'Federal Office of Sport (BASPO)', link: 'https://www.hepa.ch/' },
       { id: 'know-who-strength', kind: 'know', text: 'Adults should also strengthen their muscles on two or more days a week.', source: 'World Health Organization (WHO), 2020' },
       { id: 'aktiv-ski', kind: 'today', when: 'month', months: [10, 11], note: 'only in October and November', text: 'The ski season is coming. Set a goal «ski tour once a week» now, then it counts from the first snow.', button: 'Set a goal', href: '#/flow/goals' },
       { id: 'aktiv-spring', kind: 'today', when: 'month', months: [3, 4], note: 'only in March and April', text: 'The cycling season starts. A goal «cycling twice a week» brings you into it gently.', button: 'Set a goal', href: '#/flow/goals' },
@@ -99,6 +106,8 @@ export const PAGES = {
       { id: 'more', title: 'Quotes and own links', sub: 'under More', href: '{base}/mehr' },
     ],
   },
+  // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): ten more places, see pagetexts.js
+  ...PAGE_TEXTS,
 };
 
 /**
@@ -112,7 +121,7 @@ Object.assign(PAGES, {
       { id: 'velo-chain', text: 'A clean, oiled chain runs quieter and lasts longer. Wipe it after a wet ride.' },
       { id: 'velo-strava', text: 'With Strava connected every ride counts on the right bike by itself.', button: 'Care|tab', href: '#/bikes?tab=care' },
       { id: 'velo-bags', text: 'Weigh your bags once: then every trip shows its weight on the bike.' },
-      { id: 'know-chain', kind: 'know', text: 'A chain is usually replaced at 0.5 % wear on 11- and 12-speed bikes and at 0.75 % on others. A chain checker shows it in seconds.', source: 'Park Tool, chain wear guide' },
+      { id: 'know-chain-wear', kind: 'know', text: 'A chain is usually replaced at 0.5 % wear on 11- and 12-speed bikes and at 0.75 % on others. A chain checker shows it in seconds.', source: 'Park Tool, chain wear guide' },
       ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'long'),
     ],
     can: [],
@@ -181,24 +190,24 @@ Object.assign(PAGES, {
     ],
     can: [],
   },
+  // debrief and wardrobe come with «Mehr Inhalt» (PAGE_TEXTS, Paket A): the Einstieg adds its tips there
+  // instead of replacing them (tips, «Das kann die App hier» and the examples stay)
   debrief: {
+    ...PAGES.debrief,
     tips: [
-      { id: 'deb-soon', text: 'Look back the day after: you still remember what was too much.' },
-      { id: 'deb-short', text: 'Three words are enough. The app learns from every tick.' },
+      ...PAGES.debrief.tips,
       { id: 'deb-pace', text: 'Your pace helps the next plan: how far you really ride in a day.', button: 'Your pace', href: '#/debrief/pace' },
       { id: 'know-aar', kind: 'know', text: 'The army review after an exercise asks four questions: what was planned, what happened, why, and what we do next time.', source: 'US Army, «A Leader’s Guide to After-Action Reviews»' },
     ],
-    can: [],
   },
   wardrobe: {
+    ...PAGES.wardrobe,
     tips: [
-      { id: 'wd-onion', text: 'Several thin layers are warmer and more flexible than one thick jacket.' },
+      ...PAGES.wardrobe.tips.filter((x) => x.id !== 'know-merino'),
       { id: 'wd-range', text: 'Give each piece a temperature range: then the suggestion fits the forecast.' },
-      { id: 'wd-start', text: 'Start a little cold: after ten minutes on the bike you are warm.' },
       { id: 'know-merino', kind: 'know', text: 'Merino wool can take up about a third of its own weight in moisture before it feels wet.', source: 'The Woolmark Company' },
       ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'heat'),
     ],
-    can: [],
   },
   blocks: {
     tips: [
@@ -221,9 +230,9 @@ Object.assign(PAGES, {
   werkstatt: {
     tips: [
       { id: 'shop-list', text: 'Write the list for the workshop at home: at the counter you forget half.' },
-      { id: 'shop-receipt', text: 'Keep the receipt with the visit: for the warranty you need the date of purchase.' },
-      { id: 'shop-km', text: 'Note the km at the visit: later you know how long a part lasted.' },
-      { id: 'know-warranty', kind: 'know', text: 'In Switzerland claims for defects in new goods are usually time-barred two years after delivery.', source: 'Swiss Code of Obligations, Art. 210' },
+      { id: 'wk-receipt', text: 'Keep the receipt with the visit: for the warranty you need the date of purchase.' },
+      { id: 'wk-km', text: 'Note the km at the visit: later you know how long a part lasted.' },
+      { id: 'know-warranty-or', kind: 'know', text: 'In Switzerland claims for defects in new goods are usually time-barred two years after delivery.', source: 'Swiss Code of Obligations, Art. 210' },
     ],
     can: [],
   },
@@ -276,6 +285,7 @@ export function infoOf(v) {
     own: obj(o.own),
     gone: obj(o.gone),
     canOff: obj(o.canOff),
+    hintOff: obj(o.hintOff),
   };
 }
 
@@ -303,7 +313,7 @@ function dayTips(i, page, ctx = {}) {
 }
 /**
  * The tip of the day (the same all day, the next one tomorrow); a fitting «Passt zu heute» comes first.
- * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, max } (contextOf).
+ * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, rain, wind, max } (contextOf).
  */
 export function tipOfDay(info, page, today, ctx = {}, { sourced = true } = {}) {
   const i = infoOf(info);
@@ -338,7 +348,7 @@ export function factOfDay(info, page, today, skip = null) {
 /**
  * What kind of day it is (WD3), from today's home forecast day ({ min, max, rainMm, windDir, gust }), the
  * activity log of today ([{ actId }]) and the trips ([{ startDate, route: { km } }]). Föhn: dry (under
- * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more.
+ * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more. Rain (4a): 2 mm or a 60 % chance; wind: gusts from 50 km/h.
  */
 export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
   const max = typeof day?.max === 'number' ? day.max : null;
@@ -355,8 +365,27 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
     foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,
     sauna: list(log).some((x) => x?.day === today && /sauna/i.test(String(x.actId ?? ''))),
     long: list(trips).some((x) => soon.includes(x?.startDate) && Number(x?.route?.km) > LONG_KM),
+    rain: (day?.rainMm ?? 0) >= RAIN_MM || (day?.rainPct ?? 0) >= RAIN_PCT,
+    wind: (day?.gust ?? 0) >= WIND_KMH,
   };
 }
+
+/**
+ * «Links nach aussen» at a tip (Noah 15.10.2026 «5a»): a tip may carry `link`, a free site that helps
+ * further: 'meteo', 'schweizmobil', 'sbb' (the timetable) or an https address. Only a link, opened in a new tab; nothing is sent
+ * or fetched. { href, domain } or null (also for own tips and unsafe addresses).
+ */
+export function tipLink(tip, lang = 'de') {
+  const l = tip?.own ? null : tip?.link;
+  const href = l === 'meteo' ? meteoUrl(lang) : l === 'schweizmobil' ? schweizMobilUrl(lang) : l === 'sbb' ? sbbUrl(null, null, lang) : l ? safeUrl(l) : null;
+  if (!href || !href.startsWith('https://')) return null;
+  return { href, domain: new URL(href).hostname.replace(/^www\./, '') };
+}
+
+/** «Beispiele zum Übernehmen» (3a): { id, title, lines } of a page; a tap saves one as an own note (exampleNote). */
+export const examplesOf = (page) => list(PAGES[page]?.examples);
+/** The note an example becomes: its title and one checklist row per line, in the words of the language (tr = t). */
+export const exampleNote = (ex, tr = (x) => x) => ({ text: tr(ex.title), checklist: ex.lines.map((x) => ({ text: tr(x), done: false })) });
 
 /** The rows of «Das kann die App hier» with the page's address filled in. */
 export const canRows = (page, base = '') => list(PAGES[page]?.can).map((r) => ({ ...r, href: r.href.replace('{base}', base) }));
@@ -390,6 +419,12 @@ export const setCan = (info, page, on) => {
   return { ...i, canOff: { ...i.canOff, [page]: !on } };
 };
 export const canShown = (info, page) => !infoOf(info).canOff[page];
+/** HT1–HT2 (1a): × folds a page's hint card to the line «Was hier steht ›», which opens it again. */
+export const setHint = (info, page, on) => {
+  const i = infoOf(info);
+  return { ...i, hintOff: { ...i.hintOff, [page]: !on } };
+};
+export const hintShown = (info, page) => !infoOf(info).hintOff[page];
 
 /* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
 export const EARTH_KM = 40075;

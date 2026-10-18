@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.49.0 R1 «Rückblick ruhig» (Noah 4a-7a): ONE page «Rückblick» (#/debrief) instead of five.
    * 1. The last ride: profile, km, Hm, time, pace, weather, plan against real, its learnings, and the
@@ -16,6 +17,8 @@
    * under «Alle Kennzahlen» (answer 2b, it can be folded); «Touren im Vergleich» with a column Zustand (on a phone the pill under
    * the name), the small charts and all columns folded; the last ride's details folded at the end.
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../db.js';
@@ -113,7 +116,7 @@
     await db.trips.update(r.trip.id, { skipped: true, updatedAt: new Date().toISOString() });
     clearTimeout(undoTimer);
     undo = { before, text: t('Not ridden: {title}.', { title: r.title }) };
-    undoTimer = setTimeout(() => (undo = null), 10000);
+    undoTimer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function undoSkip() {
     const u = undo;
@@ -235,6 +238,9 @@
     </div>
   </header>
   <AreaIntro place="debrief" />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day under the title -->
+  <HintCard page="debrief" />
+  <TipLine page="debrief" name={t('Look back|page')} />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}

@@ -11,6 +11,7 @@
    */
   import { X } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
+  import { keepTyped } from '../ui/keeptyped.js'; // P3b rule 3a: closing keeps what was typed
   import { t, num } from '../i18n.svelte.js';
   import { PART } from '../care.js';
   import { CARE_ITEM, careChange, checkCare } from './plan.js';
@@ -66,7 +67,7 @@
   }
 </script>
 
-<dialog class="sheet from-below csheet" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="cs-h" data-care-sheet>
+<dialog use:keepTyped={'care:' + (bike?.id ?? '') + ':' + r.key} class="sheet from-below csheet" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="cs-h" data-care-sheet>
   <form onsubmit={save} novalidate>
     <div class="head">
       <div>

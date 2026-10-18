@@ -8,6 +8,7 @@
    * LI3 «Gilt für» (Noah «2b» 15.10.2026): the trip areas the category applies to. All chosen (the
    * Standard) stores nothing; when packing, the app suggests the items only on trips of these areas.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { ICON_CHOICES } from '../gear/caticon.js';
   import { TRIP_DOMAINS } from '../domains.js';
@@ -50,7 +51,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg les" bind:this={dialog} use:backClose {onclose} aria-labelledby="les-h">
+<dialog use:keepTyped={'listentry:' + (entry?.id ?? entry?.key ?? 'new')} class="sheet vdlg les" bind:this={dialog} use:backClose {onclose} aria-labelledby="les-h">
   <div class="vd-head">
     <div class="vd-t"><h2 id="les-h">{entry ? t('Edit category') : t('Own category')}</h2></div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>

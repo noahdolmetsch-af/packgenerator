@@ -9,6 +9,7 @@
  * - newVisit: a workshop visit typed in by hand, in the shape workshop.js reads.
  */
 import { isOver, tripEnd } from './debrief.js';
+import { chosenBike } from './lastchoice.js';
 
 /**
  * The finished trips (ended, or ended early on the ride day), newest first. Skipped trips
@@ -70,7 +71,8 @@ export function pastTripList(trips = [], debriefs = [], today) {
 /** The bike a quick action starts with: the next trip's bike, else the first bike (bikes sorted). */
 export function hubBike(next, bikes = []) {
   const own = next?.bikeId ? bikes.find((b) => b.id === next.bikeId) : null;
-  return (own ?? bikes[0] ?? null)?.id ?? null;
+  // P3b 4a: else the bike chosen last
+  return (own ?? bikes.find((b) => b.id === chosenBike(bikes)) ?? bikes[0] ?? null)?.id ?? null;
 }
 
 /* ---------- ideas per bike ("Was geil wäre") ---------- */
@@ -114,7 +116,7 @@ export function parseChf(text) {
  * The jobs (parts) stay empty: a visit typed in by hand only knows the total; the receipt photo
  * shows the rest. km and cost may be unknown (null).
  */
-export function newVisit({ bikeId, date, shop, km = null, chf = null, photo = null }, { id }) {
+export function newVisit({ bikeId, date, shop, km = null, chf = null, photo = null, photos = null }, { id }) {
   return {
     id,
     bikeId,
@@ -124,7 +126,7 @@ export function newVisit({ bikeId, date, shop, km = null, chf = null, photo = nu
     km: typeof km === 'number' ? km : null,
     totalChf: typeof chf === 'number' ? chf : null,
     parts: [],
-    photos: photo ? [photo] : [],
+    photos: photos?.length ? [...photos] : photo ? [photo] : [], // P3b Teil 3: several pages of a receipt
     source: 'Today',
   };
 }

@@ -23,6 +23,7 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -312,6 +313,7 @@
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
       <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): it carries the tip of the day; the tip line only when it is taken away -->
       <AreaIntro place="aktiv">{#snippet hidden()}<TipLine page="aktiv" name={t('Active|place')} />{/snippet}</AreaIntro>
+      <HintCard page="aktiv" />
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">

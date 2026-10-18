@@ -441,8 +441,8 @@ export const HANDBOOK = {
     },
   'f.pagetips': {
     on: null,
-    steps: ['Open Aktiv › Heute: under the title is the tip of the day; «All tips ›» shows them all with a switch each.', 'At the end of the page: «What the app can do here»; each row opens its place.'],
-    example: 'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.',
+    steps: ['Open Packen, Unterwegs or another place: under the title is the tip of the day; «All tips ›» shows them all, each with a switch.', 'At the page end: «What the app can do here»; each row opens its place.', 'Some places show an example: «Save as note» keeps it under Me › Notes.'],
+    example: 'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
     on: 'Needs a goal under Active › Goals.',
@@ -498,6 +498,21 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
+  },
+  'f.docs': {
+    on: null,
+    steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
+    example: 'Example: identity card valid until 03.2027 → from 09.2026 «Renew identity card» under Reminders.',
+  },
+  'f.sync': {
+    on: null,
+    steps: ['On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).', 'On the other device: tap the file › Share › Pack Generator, or «Open backup».', 'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».'],
+    example: 'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.',
+  },
+  'f.camera': {
+    on: 'On a phone or tablet; a computer shows the file dialog.',
+    steps: ['Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.', 'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.', 'A receipt with more pages: «Another page» after the first photo.'],
+    example: 'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.',
   },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',

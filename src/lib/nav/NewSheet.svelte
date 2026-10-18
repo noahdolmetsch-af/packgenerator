@@ -1,4 +1,5 @@
 <script>
+  import { lastBikeChoice } from '../lastchoice.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   /**
@@ -26,13 +27,7 @@
 
   let { mode = $bindable(null), onnote } = $props();
   let visitOpen = $state(false);
-  const lastBike = () => {
-    try {
-      return localStorage.getItem('problem.lastBike');
-    } catch {
-      return null;
-    }
-  };
+  const lastBike = lastBikeChoice; // P3b 4a
   function visitSaved({ bikeId, id }) {
     location.hash = bikesHash({ tab: 'shop', bike: bikeId });
     offerDone(t('Workshop visit saved.'), id ? () => db.visits.delete(id) : null);
@@ -123,7 +118,7 @@
   {/if}
 </dialog>
 {#if visitOpen}
-  <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} onsaved={visitSaved} onclose={() => (visitOpen = false)} />
+  <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} cameraFirst onsaved={visitSaved} onclose={() => (visitOpen = false)} />
 {/if}
 
 <style>

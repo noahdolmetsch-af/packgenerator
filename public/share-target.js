@@ -18,6 +18,8 @@
  */
 const SHARE_CACHE = 'pg-shared-ride';
 const SHARE_KEY = 'shared-ride';
+const SHARE_BACKUP_CACHE = 'pg-shared-backup';
+const SHARE_BACKUP_KEY = 'shared-backup';
 // SN1b: the same limit as the ride upload (gpx.js RIDE_MAX_MB): a bigger file goes to the upload, which says why
 const ROUTE_CHECK_MB = 40;
 
@@ -46,6 +48,14 @@ self.addEventListener('fetch', (event) => {
         form = await req.formData();
       } catch {
         return go(`${base}#/inbox`);
+      }
+      // P3b «Abgleich Handy–Computer» (Noah 15.10.2026): a backup file (.json) waits in its own cache and
+      // opens Ich › Daten und Backup, which shows «Check import» (src/lib/sharebackup.js, same names).
+      const backup = form.getAll('backup').find((f) => f && typeof f === 'object' && f.size > 0);
+      if (backup) {
+        const cache = await caches.open(SHARE_BACKUP_CACHE);
+        await cache.put(`${base}${SHARE_BACKUP_KEY}`, new Response(backup, { headers: { 'Content-Type': 'application/json', 'X-File-Name': encodeURIComponent(backup.name || 'backup.json') } }));
+        return go(`${base}#/me/data?shared=backup`);
       }
       const file = form.getAll('ride').find((f) => f && typeof f === 'object' && f.size > 0);
       if (file) {

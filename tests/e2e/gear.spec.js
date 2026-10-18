@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, foldPageInfo } from './settle.js';
 import { openMore } from './bike-more.js';
 
 const FIXTURE = fileURLToPath(new URL('./gear-fixture.json', import.meta.url));
@@ -65,6 +65,9 @@ for (const lang of ['en', 'de']) {
     page.on('pageerror', (e) => errors.push(e.message));
     const T = await start(page, context, lang);
     await page.goto('./#/gear');
+    // Paket A (HT1–HT2, changed on purpose): «Was hier steht» and the tip come first; once read and folded,
+    // the list is first again
+    await foldPageInfo(page);
 
     // The analyses are folded shut below the list.
     const analysis = page.locator('details.analysis');

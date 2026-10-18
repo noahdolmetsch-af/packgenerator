@@ -19,6 +19,7 @@
    * settings 'pastView'). On a phone each trip is a card with these values. Under the table «In Zahlen»: 10
    * blocks in 4 groups that follow the period and filters (review/InZahlen.svelte).
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { homeTrips } from '../lib/home/heute.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
@@ -187,6 +188,8 @@
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
   <AreaIntro place="past" />
+  <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
+  <HintCard page="past" />
 
   {#if $dataQ && !facts.length}
     <!-- v0.127.0 A-U2: the one empty building block -->

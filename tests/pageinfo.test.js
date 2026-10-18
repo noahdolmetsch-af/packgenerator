@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown } from '../src/lib/pageinfo.js';
+import { PAGES, TODAY_TIPS, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -43,7 +43,7 @@ describe('the tip of the day', () => {
     expect(allTips(removeTip(i, 'aktiv', own.id), 'aktiv').some((x) => x.own)).toBe(false);
   });
   it('a broken stored value falls back to the defaults', () => {
-    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {} });
+    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {}, hintOff: {} });
     expect(tipOfDay({ off: 'no', own: [] }, 'aktiv', '2026-10-14')).toBeTruthy();
   });
 });
@@ -100,5 +100,55 @@ describe('«Wusstest du» WD1–WD3', () => {
     });
     expect(farOf(50000, 0).earth).toMatchObject({ x: 1.2, next: 2, left: 30150 });
     expect(farOf(null, null)).toEqual({ earth: null, everest: null });
+  });
+});
+
+describe('links at a tip (5a)', () => {
+  const tip = (id) => Object.values(PAGES).flatMap((p) => p.tips).find((x) => x.id === id);
+  it('a tip with a link opens a free site; the address follows the language', () => {
+    expect(tipLink(tip('today-heat'), 'de')).toEqual({ href: 'https://www.meteoschweiz.admin.ch/', domain: 'meteoschweiz.admin.ch' });
+    expect(tipLink(tip('today-heat'), 'en').domain).toBe('meteoswiss.admin.ch');
+    expect(tipLink(tip('know-baspo')).domain).toBe('hepa.ch');
+  });
+  it('no link for a tip without one, an own tip or an unsafe address', () => {
+    expect(tipLink(tip('aktiv-rolling'))).toBeNull();
+    expect(tipLink({ own: true, link: 'meteo' })).toBeNull();
+    expect(tipLink({ link: 'javascript:alert(1)' })).toBeNull();
+    expect(tipLink({ link: 'http://example.org' })).toBeNull();
+  });
+  it('every built-in link is https', () => {
+    for (const p of Object.values(PAGES)) for (const x of p.tips) if (x.link) expect(tipLink(x)?.href, x.id).toMatch(/^https:\/\//);
+  });
+});
+
+describe('«Mehr Inhalt» on ten more places (1a–5a)', () => {
+  const PLACES = ['trips', 'pack', 'ride', 'debrief', 'gear', 'wardrobe', 'care', 'workshop', 'meditation', 'me'];
+  it('every place has about six tips, each id once in the whole app', () => {
+    for (const p of PLACES) expect(PAGES[p].tips.filter((x) => x.kind !== 'today').length, p).toBeGreaterThanOrEqual(6);
+    const ids = Object.values(PAGES).flatMap((p) => p.tips.map((x) => x.id));
+    // a «Passt zu heute» of TODAY_TIPS is shared on purpose (the sauna tip with Aktiv; the Einstieg of Paket F
+    // brings heat, cold and long tours onto Touren, Material, Velos, Pflege, Training and the wardrobe)
+    const shared = new Set([...PAGES.meditation.tips, ...TODAY_TIPS].filter((x) => x.kind === 'today').map((x) => x.id));
+    expect(ids.filter((id) => !shared.has(id)).length).toBe(new Set(ids.filter((id) => !shared.has(id))).size);
+  });
+  it('the examples and the today notes have German too', () => {
+    for (const p of Object.keys(PAGES)) for (const ex of examplesOf(p)) for (const s of [ex.title, ...ex.lines]) expect(DE[s], s).toBeTruthy();
+    for (const p of Object.values(PAGES)) for (const x of p.tips) if (x.note) expect(DE[x.note], x.note).toBeTruthy();
+  });
+  it('an example becomes a note with its title and one unticked row per line', () => {
+    const ex = examplesOf('debrief')[0];
+    expect(exampleNote(ex)).toEqual({ text: ex.title, checklist: ex.lines.map((text) => ({ text, done: false })) });
+    expect(exampleNote(ex, (x) => DE[x]).text).toBe('Nächstes Mal anders');
+  });
+  it('rain and wind (4a): from 2 mm or 60 % and from gusts of 50 km/h; then packing says it first', () => {
+    const at = (day) => contextOf({ day }, '2026-10-15');
+    expect(at({ rainMm: 2 }).rain).toBe(true);
+    expect(at({ rainMm: 1, rainPct: 60 }).rain).toBe(true);
+    expect(at({ rainMm: 1, rainPct: 40 }).rain).toBe(false);
+    expect(at({ gust: 50 }).wind).toBe(true);
+    expect(at({ gust: 49 }).wind).toBe(false);
+    expect(tipOfDay(undefined, 'pack', '2026-10-15', at({ rainMm: 5 })).id).toBe('pack-rain');
+    expect(tipOfDay(undefined, 'ride', '2026-10-15', at({ gust: 60 })).id).toBe('ride-wind');
+    expect(tipOfDay(undefined, 'pack', '2026-10-15', at({})).kind).not.toBe('today');
   });
 });

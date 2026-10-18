@@ -23,8 +23,8 @@ export function openTodos({ bikes = [], items = [], pace = null, debriefs = [], 
   const check = inv.filter((i) => !i.reviewedAt).length;
   if (check) rows.push({ key: 'check', n: check, href: '#/gear?tab=check' });
   if (inv.length && !inv.some((i) => i.favorite)) rows.push({ key: 'favourites', n: 0, action: 'data' });
-  // A real trip: not a demo trip, debrief saved.
-  const real = new Set(trips.filter((t) => !String(t.id).startsWith('demo')).map((t) => t.id));
+  // A trip with a saved debrief. P3b «Bedienregeln», H2b (Noah 15.10.2026 «3b»): demo trips count like real ones.
+  const real = new Set(trips.map((t) => t.id));
   if (!debriefs.some((d) => d.status === 'done' && real.has(d.tripId))) rows.push({ key: 'trip', n: 0, action: 'newlist' });
   return rows;
 }

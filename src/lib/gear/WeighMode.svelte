@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.43.0 "Wiege-Modus" (Noah): one thing per screen, like standing at the scale. A big grams
    * field (numeric keyboard), "Save & next", "Skip" and "Done"; a line "5 of 23"; Undo for the last
@@ -92,7 +93,7 @@
   function offer(text, snap, key) {
     clearTimeout(timer);
     last = { text, snap, key };
-    timer = setTimeout(() => (last = null), 10_000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
   }
   async function undo() {
     if (!last) return;

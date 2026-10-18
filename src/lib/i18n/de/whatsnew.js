@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.146.0 Paket A «Daten sicher und Bedienung»
+  'Safe data, calm hands': 'Sichere Daten, ruhige Hände',
+  'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.': 'Deine Daten bleiben und reisen zwischen Handy und Computer, Fenster behalten dein Getipptes, und jede Seite sagt, wofür sie da ist.',
+  'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire': 'Ich › Dokumente: Pass, Versicherung und Notfallblatt als PDF oder Foto, mit Erinnerung, bevor sie ablaufen',
+  '«Phone and computer»: send the backup to the other device; the app says which is newer, and «Replace all data» asks twice and keeps a copy': '«Handy und Computer»: Schick das Backup ans andere Gerät; die App sagt, was neuer ist, und «Alle Daten ersetzen» fragt zweimal und behält eine Kopie',
+  '«What is here» on top of 14 pages, tips and examples to keep as a note on ten more places': '«Was hier steht» oben auf 14 Seiten, Tipps und Beispiele zum Übernehmen als Notiz an zehn weiteren Orten',
+  'The camera opens with one tap for a note, an item, a bike and a problem; a receipt can have several pages': 'Die Kamera öffnet mit einem Tipp bei Notiz, Material, Velo und Problem; ein Beleg kann mehrere Seiten haben',
+  'Closing a window keeps what you typed; only «Discard» deletes it. «Undo» stays 4 seconds everywhere': 'Ein Fenster schliessen behält dein Getipptes; nur «Verwerfen» löscht es. «Rückgängig» bleibt überall 4 Sekunden',
+  'The bike chosen last stays chosen in Bikes, Report a problem and quick jobs; a new tour still brings your standard bike': 'Das zuletzt gewählte Velo bleibt gewählt in Velos, Problem melden und Schnellerfassung; eine neue Tour bringt weiter dein Standard-Velo',
+  'Open Me › Documents, tap «Add PDF», choose a PDF or a photo, set «valid until» and switch on «In the packing list».': 'Öffne Ich › Dokumente, tippe «PDF hinzufügen», wähle ein PDF oder ein Foto, setz «gültig bis» und schalte «In die Packliste» ein.',
+  'Open a window with a text field (for example a bag), type something and close it with ✕: open it again, the text is back.': 'Öffne ein Fenster mit einem Textfeld (zum Beispiel eine Tasche), tipp etwas und schliess es mit ✕: Öffne es wieder, der Text ist da.',
+  'Open Bike care: the card «What is here» is on top; × folds it to one line.': 'Öffne Velopflege: Die Karte «Was hier steht» ist oben; × klappt sie zu einer Zeile.',
   // 0.145.0 «Paket 3»
   'Clear rules, your standard bike': 'Klare Regeln, dein Standard-Velo',
   'Nothing jumps on its own, long lists fold, and a new trip brings your standard bike.': 'Nichts springt mehr von selbst, lange Listen klappen sich zusammen, und eine neue Tour bringt dein Standard-Velo.',

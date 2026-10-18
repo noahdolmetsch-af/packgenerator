@@ -1,4 +1,6 @@
 <script>
+  import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.42.0 (Noah, picture draft A, answer 1): the wardrobe (#/wardrobe), reached by More → Gear →
    * Wardrobe and by "Wardrobe →" on the Gear page. Every piece of clothing by LAYER (base, mid, outer,
@@ -9,6 +11,9 @@
    * with "Add to wishlist", the learned offset in the header with "Reset", a photo per piece,
    * "Save as kit …" (selected pieces or today's suggestion) and Alltag-only clothes only under Alltag.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../lib/db.js';
@@ -121,7 +126,7 @@
   function offer(text, snap, fn = null) {
     clearTimeout(timer);
     last = { text, snap, fn };
-    timer = setTimeout(() => (last = null), 10000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
   }
   // v0.47.0 (Noah: "a to-do list empties itself"): a piece that has its layer and zone leaves "To sort"
   // at once (a short calm exit), the next one moves up and gets the focus; the toast says where it
@@ -285,7 +290,7 @@
 <div class="ward">
   <header class="whead">
     <div class="ht">
-      <p class="back"><a href="#/gear"><ChevronLeft size={16} aria-hidden="true" />{t('Gear|place')}</a></p>
+      <Crumbs crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} here={t('Wardrobe')} />
       <h1 class="title">{t('Wardrobe')}</h1>
       <p class="page-sub">{tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
@@ -299,6 +304,10 @@
     {/if}
   </header>
   {#if !trip}<AreaIntro place="wardrobe" />{/if}
+
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the example «Was trage ich bei wie viel Grad?» -->
+  <HintCard page="wardrobe" />
+  <TipLine page="wardrobe" name={t('Wardrobe')} />
 
   {#if trip}
     <!-- v0.59.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
@@ -518,6 +527,7 @@
       {/if}
     </div>
   </div>
+  <PageMore page="wardrobe" name={t('Wardrobe')} />
 </div>
 
 {#snippet body()}

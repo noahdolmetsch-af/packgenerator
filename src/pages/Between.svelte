@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.67.0 «Übergänge 1» (rule U2, Noah Ü3a–Ü5a, U21–U26; mockups Zwischen-*): the calm page after a
    * finished step of a trip, each with its own address so reload, back and a link from Today land here:
@@ -103,7 +104,7 @@
     const u = takeUndo(id);
     if (u) {
       undo = u;
-      undoTimer = setTimeout(() => (undo = null), 10000);
+      undoTimer = setTimeout(() => (undo = null), UNDO_MS);
     }
     return () => clearTimeout(undoTimer);
   });

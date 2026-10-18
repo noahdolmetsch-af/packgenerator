@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.35.0 (AP29, Noah, variant B): the small pill "{n} more ▾" on the kicker line of the dark trip
    * band. It lists the other trips and debriefs still in progress (drafts.js inProgress); a phone
@@ -70,7 +71,7 @@
     else await db.trips.update(row.tripId, { ...actionChanges(action, localDay()), updatedAt: new Date().toISOString() });
     clearTimeout(undoTimer);
     undo = { before, text: t(action === 'skip' && !row.bike ? 'Not going: {title}.' : DONE[action], { title: row.title }) };
-    undoTimer = setTimeout(() => (undo = null), 10000);
+    undoTimer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function undoAct() {
     const u = undo;
