@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { localDay } from '../localday.js';
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
@@ -391,6 +392,7 @@
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
+    <AreaIntro place="pflege" />
   {/if}
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->

@@ -114,6 +114,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     ['#/pack/templates', 'templates', 'The next trip starts packed'],
     ['#/debrief', 'debrief', 'What the last trips taught you'],
     ['#/wardrobe', 'wardrobe', 'Clothes by temperature, layer by layer'],
+    ['#/bikes?tab=shop', 'werkstatt', 'What waits for the bike shop, and every visit'],
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
@@ -121,6 +122,15 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     await expect(box.locator('.kick'), place).toHaveText(new RegExp(`^${T('This is {place}', { place: '' })}`));
     await expect(box.locator('[data-offer]'), place).toHaveCount(0);
     await expect(box.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+  }
+  // Care and the wishlist start as one line (what is due / the list first); a tap opens them
+  for (const [hash, place, title] of [
+    ['#/bikes?tab=care', 'pflege', 'Keep every bike ready to ride'],
+    ['#/gear?view=wish', 'einkauf', 'Your wish list, with prices'],
+  ]) {
+    await page.goto(`./${hash}`);
+    await page.locator(`[data-intro="${place}"][data-open="false"]`).click();
+    await expect(page.locator(`[data-intro="${place}"][data-open="true"]`), place).toContainText(T(title));
   }
   // Meditation stays a short page: folded, only a round «i» in the head; a tap opens the Einstieg
   await page.goto('./#/flow/act/meditation');
