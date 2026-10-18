@@ -437,4 +437,10 @@ export default {
   'Ask the app: type a question or tap an example; the answer comes from your data, with a link.': 'Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.',
   'Help me plan: answer four short questions, check the plan, «Create the trip».': 'Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».',
   'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».': 'Beispiel: «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».',
+  // v0.153.0 Termine buchen
+  'Needs the booking server; online payment only in test mode.': 'Braucht den Buchungs-Server; online bezahlen nur im Testmodus.',
+  'Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.': 'Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.',
+  'Tap + on a day to open a free time, then send the link by WhatsApp.': 'Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.',
+  'New bookings show on Today; tap a time to see who comes or to cancel it.': 'Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.',
+  'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».': 'Beispiel: Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».',
 };

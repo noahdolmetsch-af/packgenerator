@@ -31,7 +31,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -305,6 +305,14 @@
             <a class="ich-row" href="#/debrief/learnings">
               <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What the app has learned')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Termine buchen (mockup BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
+            <a class="ich-row" href="#/me/offers">
+              <span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Offers')} <span class="pill warn">{t('Test|offers')}</span></b><small>{t('People book your free times: tennis, tours, bike service')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

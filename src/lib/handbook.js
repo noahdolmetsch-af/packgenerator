@@ -437,6 +437,12 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
+  // v0.153.0
+  'f.offers': {
+    on: 'Needs the booking server; online payment only in test mode.',
+    steps: ['Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.', 'Tap + on a day to open a free time, then send the link by WhatsApp.', 'New bookings show on Today; tap a time to see who comes or to cancel it.'],
+    example: 'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».',
+  },
   // v0.133.0
   'f.abfragen': {
     on: null,

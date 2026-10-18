@@ -60,6 +60,8 @@ const CASES = [
   { id: 'me-lists', hash: '#/me/lists' },
   { id: 'me-lists-categories', hash: '#/me/lists?categories' },
   { id: 'me-lists-entry', hash: '#/me/lists?categories', act: async (page, T) => tap(page.locator('main li[data-id]').first().getByRole('button', { name: new RegExp(`^${T('Edit: {name}', { name: '' })}`) })) },
+  // v0.153.0 Termine buchen (BU5): Ich › Angebote
+  { id: 'me-offers', hash: '#/me/offers' },
   { id: 'features', hash: '#/features' },
   // «Inspiration» UC2-1: your own links (empty in the big data set) and «Link hinzufügen» with a recognised link (UC2-4)
   { id: 'inspiration', hash: '#/inspiration' },

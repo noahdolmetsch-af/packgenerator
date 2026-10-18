@@ -68,6 +68,7 @@
   import Bills from './pages/Bills.svelte';
   import PayLink from './pages/PayLink.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
+  import Offers from './pages/Offers.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -427,6 +428,9 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <MiniApps />
+  {:else if page === 'offers'}
+    <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
+    {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
     <Abfragen />

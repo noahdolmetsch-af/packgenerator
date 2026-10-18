@@ -108,6 +108,7 @@ export const HOWTO = {
   'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
+  'f.offers': ['Open Me › Offers and start an offer.', 'Tap + on a day to open a free time.', 'Send the link; new bookings show on Today.'],
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
