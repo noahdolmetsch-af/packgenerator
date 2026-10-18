@@ -4,14 +4,16 @@
    * (#/me/push). 5a: one main switch and one switch per kind; 2b: everything off until switched on one by
    * one. Turning the main switch on asks Chrome once for notifications and signs this phone up; then the
    * app sends the server its next reminders (push/client.js), and the server sends them at their time.
+   * Paket B (anleitung.md Teil 7): «Adresse für cron-job.org kopieren» fetches the tick address (with the
+   * code the server made itself) and copies it; when the clipboard refuses, the address is shown to select.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t, tn } from '../lib/i18n.svelte.js';
   import { KINDS, PUSH_KEY, pushOf } from '../lib/push/schedule.js';
-  import { supported, permission, syncNow, off, testNow } from '../lib/push/client.js';
+  import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
-  import { BellRing, Send, Info } from '@lucide/svelte';
+  import { BellRing, Send, Info, Copy, Check } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const pushQ = liveQuery(() => db.settings.get(PUSH_KEY));
@@ -67,6 +69,30 @@
       fail(e);
     }
   }
+  // cron-job.org wakes the server every minute (Noah «2b»): the address to paste there, set up once
+  let cron = $state({ busy: false, done: false, shown: '', msg: '' });
+  const CRON_WHY = {
+    no_owner: 'First connect Strava or enter the helper code on this device.',
+    unauthorized: 'First connect Strava or enter the helper code on this device.',
+    storage_not_set_up: 'The server is not set up for this yet.',
+  };
+  async function copyCron() {
+    cron = { busy: true, done: false, shown: '', msg: '' };
+    let url;
+    try {
+      url = await cronUrl();
+    } catch (e) {
+      cron = { busy: false, done: false, shown: '', msg: t(CRON_WHY[e?.code] ?? 'The server could not be reached. Try again later.') };
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      cron = { busy: false, done: true, shown: '', msg: '' };
+    } catch {
+      cron = { busy: false, done: false, shown: url, msg: '' }; // the clipboard refused: select it by hand
+    }
+  }
+
   const status = $derived(!can ? t(WHY.unsupported) : p.on ? (planned != null ? tn(planned, 'On. {n} reminder is planned.', 'On. {n} reminders are planned.') : t('On.')) : permission() === 'denied' ? t(WHY.denied) : t('Off. Nothing goes to the phone.'));
 </script>
 
@@ -95,6 +121,23 @@
   </section>
 
   {#if p.on}<p class="ps-acts"><button type="button" class="btn" onclick={test} data-push-test><Send size={16} aria-hidden="true" />{t('Send a test')}</button></p>{/if}
+  <section class="ps-sec" aria-labelledby="ps-cron-h" data-push-cron>
+    <h2 id="ps-cron-h">{t('Wake-up call for the server')}</h2>
+    <div class="card ps-card">
+      <p class="ps-txt">{t('Set up once: cron-job.org calls our free server every minute, so the reminders come on time. Copy the address and paste it there as the URL.')}</p>
+      <p class="ps-acts ps-cron-acts">
+        <button type="button" class="btn" onclick={copyCron} disabled={cron.busy} data-push-cron-copy><Copy size={16} aria-hidden="true" />{t('Copy the address for cron-job.org')}</button>
+      </p>
+      {#if cron.done}<p class="ps-ok" role="status"><Check size={16} aria-hidden="true" />{t('Address copied. In cron-job.org, paste it as the URL.')}</p>{/if}
+      {#if cron.shown}
+        <label class="ps-txt" for="ps-cron-url">{t('Copying did not work. Select the address and copy it:')}</label>
+        <input id="ps-cron-url" class="inp ps-url" type="text" readonly value={cron.shown} onfocus={(e) => e.currentTarget.select()} />
+      {/if}
+      {#if cron.msg}<p class="ps-msg" role="alert">{cron.msg}</p>{/if}
+      <p class="ps-txt ps-small">{t('Keep the address to yourself: with it, anyone can wake the server.')}</p>
+    </div>
+  </section>
+
   <p class="ps-note"><Info size={16} aria-hidden="true" /><span>{t('The reminders come through our free server, on the minute. It only gets the words of the reminders you switched on and forgets them once they are sent.')}</span></p>
 </div>
 
@@ -207,6 +250,30 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+  }
+  .ps-txt {
+    margin: 12px 0 0;
+    color: var(--ink);
+  }
+  .ps-small {
+    margin-bottom: 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ps-cron-acts {
+    margin-top: 12px;
+  }
+  .ps-ok {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+    color: var(--ok, var(--ink));
+    font-size: var(--fs-small);
+  }
+  .ps-url {
+    width: 100%;
+    margin-top: 6px;
   }
   .ps-note {
     display: flex;

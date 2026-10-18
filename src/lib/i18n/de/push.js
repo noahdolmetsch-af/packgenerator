@@ -49,4 +49,12 @@ export default {
   'Birthdays, plants, the evening before, the tour weather, the workshop and the backup as a message on the phone; each one switched on by itself.': 'Geburtstage, Pflanzen, Vorabend, Tourwetter, Werkstatt und Backup als Nachricht aufs Handy; jede einzeln eingeschaltet.',
   'Switch on «On the phone»; Chrome asks once.': 'Schalte «Aufs Handy» ein; Chrome fragt einmal.',
   'Switch on one reminder and tap «Send a test».': 'Schalte eine Erinnerung ein und tippe «Test senden».',
+  // Paket B «Server» (anleitung.md Teil 7): the address for cron-job.org, made by the server itself
+  'Wake-up call for the server': 'Weckruf für den Server',
+  'Set up once: cron-job.org calls our free server every minute, so the reminders come on time. Copy the address and paste it there as the URL.': 'Einmal einrichten: cron-job.org ruft unseren kostenlosen Server jede Minute auf, damit die Erinnerungen pünktlich kommen. Kopiere die Adresse und füge sie dort als URL ein.',
+  'Copy the address for cron-job.org': 'Adresse für cron-job.org kopieren',
+  'Address copied. In cron-job.org, paste it as the URL.': 'Adresse kopiert. Füge sie in cron-job.org als URL ein.',
+  'Copying did not work. Select the address and copy it:': 'Kopieren ging nicht. Markiere die Adresse und kopiere sie:',
+  'Keep the address to yourself: with it, anyone can wake the server.': 'Behalte die Adresse für dich: Wer sie hat, kann den Server wecken.',
+  'First connect Strava or enter the helper code on this device.': 'Verbinde zuerst Strava oder trage auf diesem Gerät den Helfer-Code ein.',
 };

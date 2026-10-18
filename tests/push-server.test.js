@@ -4,7 +4,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { createECDH, createDecipheriv, createPublicKey, hkdfSync, randomBytes, verify } from 'node:crypto';
 import { newVapidKeys, vapidOk, vapidHeader, encrypt } from '../api/_lib/webpush.js';
 import { cleanList, split, weatherReasons, weatherMessage, devKey, nextAt, STALE_MS } from '../api/_lib/push.js';
-import { makeHandler, sameToken } from '../api/push.js';
+import { makeHandler, sameToken, VAPID_KEY, TICK_KEY, LAST_TICK, DEFAULT_SUBJECT, pushEnv } from '../api/push.js';
+import { hash, KEYS } from '../api/_lib/oauth.js';
 
 const REDIS = 'https://redis.example.test';
 const ENDPOINT = 'https://push.example.test/send/abc';
@@ -40,7 +41,11 @@ function world({ pushStatus = 201, forecast = null } = {}) {
     if (url === REDIS) {
       const [cmd, k, ...rest] = JSON.parse(init.body);
       if (cmd === 'GET') return Response.json({ result: store[k] ?? null });
-      if (cmd === 'SET') return Response.json({ result: (store[k] = rest[0]) && 'OK' });
+      if (cmd === 'SET') {
+        if (rest.includes('NX') && k in store) return Response.json({ result: null });
+        return Response.json({ result: (store[k] = rest[0]) && 'OK' });
+      }
+      if (cmd === 'SISMEMBER') return Response.json({ result: sets[k]?.has(rest[0]) ? 1 : 0 });
       if (cmd === 'DEL') return Response.json({ result: delete store[k] ? 1 : 0 });
       if (cmd === 'SADD') return Response.json({ result: (sets[k] ??= new Set()).add(rest[0]).size });
       if (cmd === 'SREM') return Response.json({ result: sets[k]?.delete(rest[0]) ? 1 : 0 });
@@ -110,12 +115,52 @@ describe('/api/push', () => {
     expect(await (await makeHandler({ env: env(), doFetch: w.doFetch })(get('a=key'))).json()).toEqual({ publicKey: vapid.publicKey, ready: true });
     expect(await (await makeHandler({ env: env({ redisUrl: '' }), doFetch: w.doFetch })(get('a=key'))).json()).toMatchObject({ ready: false });
   });
-  it('makes a key pair for the setup only while none is set', async () => {
+  it('makes its own key pair on first use, keeps it in Upstash and reuses it (Noah copies nothing)', async () => {
     const w = world();
-    const fresh = await (await makeHandler({ env: env({ vapid: { publicKey: '', privateKey: '', subject: '' } }), doFetch: w.doFetch })(get('a=keys'))).json();
-    expect(vapidOk({ publicKey: fresh.VAPID_PUBLIC_KEY, privateKey: fresh.VAPID_PRIVATE_KEY, subject: 'mailto:a@b.c' })).toBe(true);
-    expect(fresh.PUSH_TICK_KEY.length).toBeGreaterThan(20);
-    expect((await makeHandler({ env: env(), doFetch: w.doFetch })(get('a=keys'))).status).toBe(409);
+    const make = vi.fn(newVapidKeys);
+    const h = makeHandler({ env: env({ vapid: { publicKey: '', privateKey: '', subject: DEFAULT_SUBJECT }, tickKey: '' }), doFetch: w.doFetch, makeKeys: make });
+    const first = await (await h(get('a=key'))).json();
+    expect(first.ready).toBe(true);
+    expect(JSON.parse(w.store[VAPID_KEY]).publicKey).toBe(first.publicKey);
+    const second = await (await h(get('a=key'))).json();
+    expect(second.publicKey).toBe(first.publicKey);
+    expect(make).toHaveBeenCalledTimes(1);
+    // the private half is never answered
+    expect(JSON.stringify(first)).not.toContain(JSON.parse(w.store[VAPID_KEY]).privateKey);
+    // the old setup help is gone
+    expect((await h(get('a=keys'))).status).toBe(400);
+  });
+  it('a pair set in Vercel wins over the stored one; the subject defaults to the app address', async () => {
+    const w = world();
+    const h = makeHandler({ env: env(), doFetch: w.doFetch });
+    expect((await (await h(get('a=key'))).json()).publicKey).toBe(vapid.publicKey);
+    expect(w.store[VAPID_KEY]).toBeUndefined();
+    expect(pushEnv({}).vapid.subject).toBe('https://noahdolmetsch-af.github.io/packgenerator/');
+    expect(vapidOk({ ...vapid, subject: DEFAULT_SUBJECT })).toBe(true);
+  });
+  it('gives the tick address only to a device of this server or the Helfer-Code, with a code made once', async () => {
+    const w = world();
+    w.sets[KEYS] = new Set([hash('test-device-key')]);
+    const h = makeHandler({ env: env({ tickKey: '', helperToken: 'test-helper-code' }), doFetch: w.doFetch, now: () => T0 });
+    expect((await h(get('a=cron'))).status).toBe(401);
+    expect((await h(get('a=cron', { authorization: 'Bearer wrong' }))).status).toBe(401);
+    const a = await (await h(get('a=cron', { authorization: 'Bearer test-device-key' }))).json();
+    const b = await (await h(get('a=cron', { authorization: 'Bearer test-helper-code' }))).json();
+    expect(a.url).toBe(b.url);
+    const code = w.store[TICK_KEY];
+    expect(code.length).toBeGreaterThan(20);
+    expect(a.url).toBe(`https://packgen-three.vercel.app/api/push?a=tick&key=${code}`);
+    // the tick takes that code, refuses a wrong one and notes its time
+    expect((await h(get('a=tick&key=wrong'))).status).toBe(401);
+    expect(w.store[LAST_TICK]).toBeUndefined();
+    expect(await (await h(get(`a=tick&key=${code}`))).json()).toMatchObject({ ok: true, sent: 0 });
+    expect(w.store[LAST_TICK]).toBe(String(T0));
+  });
+  it('no tick code yet: every tick is refused', async () => {
+    const w = world();
+    const h = makeHandler({ env: env({ tickKey: '' }), doFetch: w.doFetch });
+    expect((await h(get('a=tick&key='))).status).toBe(401);
+    expect((await h(get('a=tick&key=undefined'))).status).toBe(401);
   });
   it('saves the phone, sends a due reminder on the tick (readable only by the phone) and then forgets it', async () => {
     const w = world();
@@ -172,8 +217,8 @@ describe('/api/push', () => {
     const h = makeHandler({ env: env(), doFetch: w.doFetch });
     expect((await h(post({ a: 'save', token: 'short' }))).status).toBe(400);
     expect((await h(post({ a: 'save', token: TOKEN, sub: { endpoint: 'http://x' } }))).status).toBe(400);
-    const off = makeHandler({ env: env({ vapid: { publicKey: '', privateKey: '', subject: '' } }), doFetch: w.doFetch });
-    expect(await (await off(post({ a: 'save', token: TOKEN, sub: phone().sub }))).json()).toMatchObject({ code: 'not_set_up' });
+    const off = makeHandler({ env: env({ redisUrl: '' }), doFetch: w.doFetch });
+    expect(await (await off(post({ a: 'save', token: TOKEN, sub: phone().sub }))).json()).toMatchObject({ code: 'storage_not_set_up' });
   });
   it('sends a test message to a signed-up phone', async () => {
     const w = world();

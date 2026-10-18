@@ -3,8 +3,10 @@
  * sending one push message without a library, with node:crypto only.
  *
  * - VAPID (RFC 8292): a short ES256 token that tells the push service (Google for Chrome on Android)
- *   that the message comes from this server. The key pair lives only in the Vercel environment
- *   (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, base64url like the browser's PushManager wants it).
+ *   that the message comes from this server. Paket B: the server makes the key pair itself and keeps
+ *   it in Upstash (api/push.js vapidKeys; VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY in Vercel only as an
+ *   override), base64url like the browser's PushManager wants it. The subject is an https address
+ *   (RFC 8292 allows it), so no e-mail address is needed in the public repo.
  * - The message is encrypted for the one phone (RFC 8291, «aes128gcm»): only that browser can read it,
  *   the push service only passes it on.
  */

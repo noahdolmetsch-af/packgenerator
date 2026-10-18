@@ -2,21 +2,28 @@
  * /api/push: Erinnerungen aufs Handy (Web-Push; Noah 15.10.2026 «1a 2b 3a 4b 5a», 18.10.2026 «2b»).
  *
  *   GET  ?a=key            → { publicKey, ready }  the key the phone subscribes with
- *   GET  ?a=keys           → a new key pair and tick code for the setup, only while none is set
+ *   GET  ?a=cron           Bearer <device key or Helfer-Code> → { url }  the tick address for cron-job.org
  *   POST { a: 'save', token, sub, items, weather, texts, hotC }  → { ok, next }  the phone's next reminders
  *   POST { a: 'test', token }   → sends «So kommen deine Erinnerungen» now
  *   POST { a: 'off', token }    → forgets the phone
- *   GET|POST ?a=tick&key=<PUSH_TICK_KEY>  → sends what is due (cron-job.org every minute, Noah «2b»)
+ *   GET|POST ?a=tick&key=<tick code>  → sends what is due (cron-job.org every minute, Noah «2b»)
  *
  * token: a random code the app makes once per phone (never the subscription itself). The texts come
  * from the app in its language; the server keeps them only until they are sent. Free: Upstash Redis
  * (free tier), Open-Meteo (free) and Vercel Hobby.
  *
- * Environment (Vercel «packgen», never in the code): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY,
- * VAPID_SUBJECT (mailto: or https:), PUSH_TICK_KEY, and the Upstash KV_REST_API_URL / _TOKEN.
+ * Paket B «Server» (Noah 18.10.2026 20:34 «1a …», notes/server-einrichten/anleitung.md): Noah copies no
+ * key. On first use the server makes its own VAPID key pair (push:vapid) and its tick code
+ * (push:tickkey) and keeps them in Upstash. The app fetches the tick address with «Adresse für
+ * cron-job.org kopieren» (?a=cron); only a device of this server (the key from the Strava login,
+ * api/_lib/oauth.js) or the Helfer-Code (HELPER_TOKEN) gets it.
+ * Optional overrides in Vercel «packgen» (never needed): VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY,
+ * VAPID_SUBJECT (mailto: or https:, default the app's address), PUSH_TICK_KEY.
+ * Storage: the Upstash KV_REST_API_URL / _TOKEN. Every tick notes its time in push:lasttick (api/health).
  */
 import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
-import { route, json, ApiError, pick, redis, redisEnv, NO_STORAGE } from './_lib/core.js';
+import { route, json, ApiError, pick, redis, redisEnv, NO_STORAGE, API_BASE, APP_ORIGIN } from './_lib/core.js';
+import { KEYS, hash, bearer as bearerOf } from './_lib/oauth.js';
 import { newVapidKeys, vapidOk, sendPush } from './_lib/webpush.js';
 import { devKey, cleanSub, cleanList, nextAt, split, weatherReasons, forecastUrl, weatherMessage, KEEP_S } from './_lib/push.js';
 
@@ -29,20 +36,64 @@ export function sameToken(given, want) {
 
 export function pushEnv(e = process.env) {
   return {
-    vapid: { publicKey: pick('VAPID_PUBLIC_KEY', e), privateKey: pick('VAPID_PRIVATE_KEY', e), subject: pick('VAPID_SUBJECT', e) || 'mailto:packgenerator@example.org' },
+    vapid: { publicKey: pick('VAPID_PUBLIC_KEY', e), privateKey: pick('VAPID_PRIVATE_KEY', e), subject: pick('VAPID_SUBJECT', e) || DEFAULT_SUBJECT },
     tickKey: pick('PUSH_TICK_KEY', e),
+    helperToken: pick('HELPER_TOKEN', e),
     ...redisEnv(e),
   };
 }
 
-const DEVS = 'push:devs';
+export const DEFAULT_SUBJECT = `${APP_ORIGIN}/packgenerator/`;
+export const VAPID_KEY = 'push:vapid';
+export const TICK_KEY = 'push:tickkey';
+export const LAST_TICK = 'push:lasttick';
+export const DEVS = 'push:devs';
 const NEXT = 'push:next';
+const LAST_TICK_S = 7 * 24 * 3600;
+
+/**
+ * The VAPID key pair: the one from Vercel when both halves are set there, else the server's own,
+ * made on first use and kept in Upstash (SET NX: two first calls at the same time keep one pair).
+ */
+export async function vapidKeys(cfg, store, make = newVapidKeys) {
+  if (cfg.vapid.publicKey && cfg.vapid.privateKey) return cfg.vapid;
+  if (!store) return { publicKey: '', privateKey: '', subject: cfg.vapid.subject };
+  let raw = await store.get(VAPID_KEY);
+  if (!raw) {
+    const k = make();
+    await store.cmd('SET', VAPID_KEY, JSON.stringify({ publicKey: k.publicKey, privateKey: k.privateKey }), 'NX');
+    raw = await store.get(VAPID_KEY);
+  }
+  const k = JSON.parse(raw);
+  return { publicKey: k.publicKey, privateKey: k.privateKey, subject: cfg.vapid.subject };
+}
+
+/** The tick code: PUSH_TICK_KEY when set, else the server's own (made only when `create`). */
+export async function tickKey(cfg, store, create = false) {
+  if (cfg.tickKey) return cfg.tickKey;
+  if (!store) return '';
+  const cur = await store.get(TICK_KEY);
+  if (cur || !create) return cur ?? '';
+  await store.cmd('SET', TICK_KEY, randomBytes(24).toString('base64url'), 'NX');
+  return (await store.get(TICK_KEY)) ?? '';
+}
+
+export const tickUrl = (code) => `${API_BASE}/api/push?a=tick&key=${encodeURIComponent(code)}`;
+
+/** Only a device of this server (Strava login key) or the Helfer-Code; else 401. */
+export async function needOwner(request, store, cfg) {
+  const key = bearerOf(request);
+  if (key && cfg.helperToken && sameToken(key, cfg.helperToken)) return;
+  if (key && Number(await store.cmd('SISMEMBER', KEYS, hash(key))) === 1) return;
+  throw new ApiError(401, 'unauthorized', key ? 'This device is not connected (any more).' : 'This device is not connected yet.');
+}
 const tokenOk = (t) => typeof t === 'string' && /^[A-Za-z0-9_-]{32,128}$/.test(t);
 
-export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now(), send = sendPush } = {}) {
-  function setup() {
-    const cfg = env();
-    const store = redis(cfg, doFetch);
+export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now(), send = sendPush, makeKeys = newVapidKeys } = {}) {
+  async function setup() {
+    const base = env();
+    const store = redis(base, doFetch);
+    const cfg = { ...base, vapid: await vapidKeys(base, store, makeKeys) };
     return { cfg, store, ready: vapidOk(cfg.vapid) && !!store };
   }
   const read = async (store, k) => {
@@ -115,13 +166,12 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
       GET: async (request) => {
         const q = new URL(request.url).searchParams;
         const a = q.get('a') ?? 'key';
-        const { cfg, store, ready } = setup();
+        const { cfg, store, ready } = await setup();
         if (a === 'key') return json(request, 200, { publicKey: cfg.vapid.publicKey || null, ready });
-        if (a === 'keys') {
-          // Setup help: a fresh pair to copy into Vercel, only while no pair is set (it is never stored here).
-          if (cfg.vapid.privateKey) throw new ApiError(409, 'already_set_up', 'The keys are set already.');
-          const k = newVapidKeys();
-          return json(request, 200, { VAPID_PUBLIC_KEY: k.publicKey, VAPID_PRIVATE_KEY: k.privateKey, PUSH_TICK_KEY: randomBytes(24).toString('base64url') });
+        if (a === 'cron') {
+          if (!store) throw NO_STORAGE();
+          await needOwner(request, store, cfg);
+          return json(request, 200, { ok: true, url: tickUrl(await tickKey(cfg, store, true)) });
         }
         if (a === 'tick') return doTick(request, q.get('key'), cfg, store, ready);
         throw new ApiError(400, 'unknown', 'Unknown action.');
@@ -129,12 +179,12 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
       POST: async (request) => {
         const q = new URL(request.url).searchParams;
         if (q.get('a') === 'tick') {
-          const { cfg, store, ready } = setup();
+          const { cfg, store, ready } = await setup();
           return doTick(request, q.get('key'), cfg, store, ready);
         }
         const body = await request.json().catch(() => null);
         if (!body || !tokenOk(body.token)) throw new ApiError(400, 'bad_request', 'Missing or wrong phone code.');
-        const { cfg, store, ready } = setup();
+        const { cfg, store, ready } = await setup();
         if (!store) throw NO_STORAGE();
         if (!ready) throw new ApiError(503, 'not_set_up', 'Push is not set up on the server yet.');
         const k = devKey(body.token);
@@ -167,9 +217,11 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
 
   async function doTick(request, key, cfg, store, ready) {
     const bearer = (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
-    if (!cfg.tickKey || !(sameToken(key ?? '', cfg.tickKey) || sameToken(bearer, cfg.tickKey))) throw new ApiError(401, 'unauthorized', 'Wrong or missing tick code.');
     if (!store) throw NO_STORAGE();
+    const want = await tickKey(cfg, store);
+    if (!want || !(sameToken(key ?? '', want) || sameToken(bearer, want))) throw new ApiError(401, 'unauthorized', 'Wrong or missing tick code.');
     if (!ready) throw new ApiError(503, 'not_set_up', 'Push is not set up on the server yet.');
+    await store.set(LAST_TICK, String(now()), LAST_TICK_S);
     return json(request, 200, { ok: true, ...(await tick(cfg, store)) });
   }
 
