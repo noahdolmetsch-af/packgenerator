@@ -170,7 +170,7 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   await page.goto('./#/me');
   // v0.118.0 (K4): the row «AI helper» says it is off and where to switch it on
   const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('AI helper')}`) });
-  await expect(row).toContainText(T('off · switch on under Me › AI helper'));
+  await expect(row).toContainText(T('off · suggestions from Claude, only if you want'));
   await row.click();
   await expect(page).toHaveURL(/#\/helper/);
 

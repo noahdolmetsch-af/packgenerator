@@ -133,7 +133,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   // Ich: the row says it is off and where to switch it on
   await page.goto('./#/me');
   const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('AI helper')}`) });
-  await expect(row).toContainText(T('off · switch on under Me › AI helper'));
+  await expect(row).toContainText(T('off · suggestions from Claude, only if you want'));
   await row.click();
   await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the AI helper in the app')) });

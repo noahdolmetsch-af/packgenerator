@@ -18,7 +18,7 @@ test.beforeEach(async ({ page, context }) => {
 test('Ich › Die App › Bezahlen opens the explaining page', async ({ page }) => {
   const row = page.locator('a.ich-row[href="#/me/pay"]');
   await expect(row).toContainText(T('Payments'));
-  await expect(row).toContainText(T('prepared|pay'));
+  await expect(row).toContainText(T('not active yet'));
   await expect(page.locator('section[aria-labelledby="me-app-h"]')).toContainText(T('Payments'));
   await row.click();
   await expect(page).toHaveURL(/#\/me\/pay$/);

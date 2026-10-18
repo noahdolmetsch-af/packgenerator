@@ -49,7 +49,8 @@ const row = (page, key) => page.locator(`main li[data-id="${key}"]`);
 test('LI1 + LI2 + LI3: rename, symbol, hide, own category and back to Standard reach Material', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/me');
-  await page.locator('main').getByRole('link', { name: new RegExp(T('Lists and types')) }).click();
+  // Impeccable Runde 2: on Ich one row «Lists and checks» leads here
+  await page.locator('main').getByRole('link', { name: new RegExp(T('Lists and checks')) }).click();
   await expect(page.getByRole('heading', { level: 1, name: T('Lists and types') })).toBeVisible();
   const catRow = page.locator('main').getByRole('link', { name: new RegExp(T('Categories')) });
   await expect(catRow).toContainText(T('Standard'));
