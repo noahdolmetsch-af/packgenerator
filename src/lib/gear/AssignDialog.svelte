@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.26.0 (Noah 2a, AP11): assign one or many items: into a building block (or a new one), out
    * of a building block, a default bag, into a template, onto a trip. Opened from "Select" in Gear
@@ -162,7 +163,7 @@
   }
 </script>
 
-<dialog class="sheet assign" bind:this={dialog} onclose={onclose} aria-labelledby="assign-h">
+<dialog use:backClose class="sheet assign" bind:this={dialog} onclose={onclose} aria-labelledby="assign-h">
   <form onsubmit={apply} novalidate>
     <!-- v0.102.0 Design-Refresh P3 (M4): the title with a close button, the chosen items named below -->
     <div class="ah">

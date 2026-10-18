@@ -60,6 +60,17 @@ export function standardEntries(items, setup, { overnight = true } = {}) {
 }
 
 /**
+ * v0.143.0 WS3 (Release-Analyse F5, Noah 14.10.2026 «1a»): the trips that were really ridden: started before
+ * today (or already finished today), not marked «Not riding» (skipped), not an idea, with a packing list.
+ * «Like the last trip» copies only from these, never a trip planned for later or for today and not ridden
+ * yet (the bug that took «Last trip» away in 0.114.0: it showed future and test trips).
+ * Paket 3: among these, lastTripOn (RE) picks the trip used last.
+ */
+export function riddenTrips(trips = [], today = localDay()) {
+  return trips.filter((t) => t.startDate && (t.startDate < today || (t.startDate === today && t.finished)) && !t.skipped && !t.idea && t.entries?.length);
+}
+
+/**
  * When a trip was last used: the later of when it was made and the end of its start day once that day
  * has come. A trip planned for later counts from when it was made, not from its start date.
  * (v0.30.1 Noah E5, the bike preselection; v0.144.0 RE: shared with the copy of the last trip.)

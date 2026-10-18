@@ -34,7 +34,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, Check, Search, Ellipsis } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
@@ -43,6 +43,10 @@
   import { leaveHome } from '../lib/blocks2026.js';
   import { leaveHomeFields } from '../lib/gear/comes.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte';
+  import ListBar from '../lib/list/ListBar.svelte';
+  import ListNav from '../lib/list/ListNav.svelte';
+  import TopButton from '../lib/list/TopButton.svelte';
+  import { shownRows } from '../lib/list/listen.js';
 
   // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
@@ -260,8 +264,39 @@
     const preset = { ...(filter.domain ? { domains: [filter.domain] } : {}), ...(filter.category ? { category: filter.category } : {}), ...(tab === 'wishlist' ? { ownership: 'wishlist' } : {}), ...extra };
     dialog = { item: null, preset };
   }
-  // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
-  let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
+  // Categories folded shut (10a). SL2 (Noah 14.10.2026, answer 3a): on the computer too; the category you
+  // opened last stays open (on this device), the first time none.
+  const LAST_OPEN = 'gear.lastOpen';
+  const lastOpen = (() => {
+    try {
+      return localStorage.getItem(LAST_OPEN) ?? '';
+    } catch {
+      return '';
+    }
+  })();
+  let folded = $state(Object.fromEntries([...CATEGORIES, UNKNOWN_CATEGORY].map((c) => [c.key, c.key !== lastOpen])));
+  function keepOpen(key) {
+    try {
+      localStorage.setItem(LAST_OPEN, key);
+    } catch {
+      /* private window: it just starts closed */
+    }
+  }
+  // A new item is never hidden in a closed category (U8 «nothing gets lost»): when the new-item sheet closes,
+  // the category of the item it made opens and stays the last opened one. (Same fix as «Paket Aktiv», a67379c5.)
+  let before = $state(null); // the item ids when the new-item sheet opened
+  $effect(() => {
+    if (dialog && !dialog.item && !before && $itemsQuery) before = new Set($itemsQuery.map((i) => i.id));
+  });
+  $effect(() => {
+    if (dialog || !before) return;
+    const made = items.find((i) => !before.has(i.id));
+    before = null;
+    if (!made) return;
+    const key = CATEGORY[made.category] ? made.category : UNKNOWN_CATEGORY.key;
+    folded[key] = false;
+    keepOpen(key);
+  });
 
   // v0.26.0 (Noah 2a): "+ Add items" on a building block opens Gear with ?fill=<key>: "Select" is on
   // and the list shows only the items not in that block yet; one button puts the ticked ones in.
@@ -335,20 +370,26 @@
   });
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
-  const toggle = (key) => (folded[key] = !folded[key]);
-  // v0.45.1 (G012): on the computer an open category first draws its first ROWS_FIRST rows, the rest
-  // with one tap ("Show all n"). 700 rows at once took 3–6 s. The phone starts folded and stays as it was.
-  const ROWS_FIRST = 12;
+  const toggle = (key) => {
+    folded[key] = !folded[key];
+    if (!folded[key]) keepOpen(key);
+  };
+  // v0.45.1 (G012): an open category first draws its first rows, the rest with one tap. SL2 (answer 4a):
+  // five rows and «Show n more», on the phone too; a search shows every row.
   let full = $state({});
-  const rowsOf = (g) => (phone.matches || searching || full[g.key] || g.items.length <= ROWS_FIRST + 5 ? g.items : g.items.slice(0, ROWS_FIRST));
+  const rowsOf = (g) => (searching || selecting ? g.items : shownRows(g.items, !!full[g.key]));
+  // SL2: the jump bar and the category you are in (ListBar tells it)
+  let activeCat = $state(null);
+  const catJumps = $derived(groups.map((g) => ({ id: g.key, label: t(g.name), n: g.items.length })));
+  const curCat = $derived(groups.find((g) => g.key === activeCat));
   const setAll = (shut) => (folded = Object.fromEntries([...CATEGORIES, UNKNOWN_CATEGORY].map((c) => [c.key, shut])));
 
   const pickCategory = (key) => (filter.category = filter.category === key ? '' : key);
   // Side column: jump to a category (and open it).
   function jump(key) {
     folded[key] = false;
-    full[key] = true;
-    queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    keepOpen(key);
+    queueMicrotask(() => document.getElementById(`g-${key}`)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }));
   }
   const open = (item) => (dialog = { item });
   // v0.102.0 Design-Refresh P3 (M1): a row of the list opens the item as before and becomes the chosen one
@@ -557,6 +598,8 @@
     <div class="mat" class:panel={showPanel}>
       <div class="center">
         <!-- v0.102.0 Design-Refresh P3 (M1): search, «Sort and filter» and «+ Item» in one row; the rest in ••• -->
+        <!-- SL2/SL4 (answer 5a): the search stays on top with the category you are in -->
+        <ListBar bind:active={activeCat} current={curCat && tab === 'inventory' && display === 'list' ? t(curCat.name) : ''} count={curCat && tab === 'inventory' && display === 'list' ? tn(curCat.items.length, '{n} item', '{n} items') : ''}>
         <div class="toolbar">
           <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
@@ -581,6 +624,7 @@
             </div>
           </details>
         </div>
+        </ListBar>
         <!-- one quiet line: how it is sorted, list or cards, select -->
         <div class="metaline">
           <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
@@ -650,10 +694,12 @@
               <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
             </span>
           </div>
+          <!-- SL2 (answer 2a): the jump bar, on a phone as chips -->
+          {#if !searching}<div class="jump-ph"><ListNav groups={catJumps} active={activeCat} onjump={jump} /></div>{/if}
           <div class="cats">
             {#each groups as g (g.key)}
               {@const GIcon = catIcon(g.key)}
-              <section class="cat" aria-labelledby="gh-{g.key}">
+              <section class="cat" aria-labelledby="gh-{g.key}" data-group={g.key} id="g-{g.key}">
                 <h2 id="gh-{g.key}" class="ch">
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
                     <span class="gic" aria-hidden="true"><GIcon size={18} /></span>
@@ -681,7 +727,7 @@
                     {/each}
                   </ul>
                   {#if rows.length < g.items.length}
-                    <button type="button" class="link tap allrows" aria-label={`${t(g.name)}: ${t('Show all {n}', { n: g.items.length })}`} onclick={() => (full[g.key] = true)}>{t('Show all {n}', { n: g.items.length })}</button>
+                    <button type="button" class="ls-more allrows" aria-label={`${t(g.name)}: ${t('Show {n} more|list', { n: g.items.length - rows.length })}`} onclick={() => (full[g.key] = true)}><ChevronDown size={16} aria-hidden="true" />{t('Show {n} more|list', { n: g.items.length - rows.length })}</button>
                   {/if}
                 {/if}
               </section>
@@ -762,8 +808,11 @@
           <h2 id="views-h" class="title">{t('Views')}</h2>
           {@render viewButtons('vrows')}
         </section>
+        <!-- SL2 (answer 2a): the jump bar beside the list on a computer, it stays in view -->
+        {#if tab === 'inventory' && display === 'list' && !searching}<div class="jump-dt"><ListNav groups={catJumps} active={activeCat} onjump={jump} mode="toc" /></div>{/if}
       </div>
     </div>
+    <TopButton />
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}
@@ -946,7 +995,8 @@
 <svelte:window onclick={(e) => { if (moreEl?.open && !moreEl.contains(e.target)) moreEl.open = false; if (gmoreEl?.open && !gmoreEl.contains(e.target)) gmoreEl.open = false; }} />
 
 {#if dialog}
-  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
+  <!-- Regeln der App C b (Noah 14.10.2026, mockup C1): a tap opens the item to edit, on the phone too -->
+  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} onclose={() => (dialog = null)} />
 {/if}
 
 <style>
@@ -1098,10 +1148,44 @@
     text-decoration: underline;
     cursor: pointer;
   }
+  /* SL2 (answer 4a): «Show n more», a quiet dashed button under the five rows */
   .allrows {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
     min-height: 44px;
-    padding: 0 8px;
+    margin: 4px 0;
+    border: 1px dashed var(--line);
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-body) var(--font-body);
+    cursor: pointer;
+  }
+  .allrows:focus-visible {
+    outline: var(--focus-ring);
+  }
+  /* SL2 (answer 2a): the jump bar: chips on a phone, beside the list on a computer */
+  .jump-ph {
+    margin: 0 0 12px;
+  }
+  .jump-dt {
+    display: none;
+  }
+  @media (min-width: 1200px) {
+    .jump-ph {
+      display: none;
+    }
+    .rcol {
+      align-self: stretch;
+    }
+    .jump-dt {
+      display: block;
+      position: sticky;
+      top: 16px;
+    }
   }
   /* v0.22.0 (AP05): the star button sits before the row's own button. */
   .rows .fr {

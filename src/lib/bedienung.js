@@ -63,14 +63,28 @@ export function lastOf(hash = '') {
   return h;
 }
 
+/* Regeln App-Start 1b (Noah 14.10.2026 19:59): a tab that opens again after a pause (a restored browser
+ * tab, a tab woken up the next day) starts at the start place like a plain start; only a reload (F5) or a
+ * fresh link right after using the app stays on its page. A pause is AWAY_MS without the app. */
+export const SEEN_KEY = 'ops.seen';
+export const AWAY_MS = 30 * 60 * 1000;
+
 /**
  * The address to open at the start, or null to stay. hash and search: the address the app was opened
- * with; start: the choice; last: the kept last place.
+ * with; start: the choice; last: the kept last place; nav: how the page was opened ('reload' | 'navigate'
+ * | 'back_forward', '' when the browser cannot tell: then no pause rule); seen and now: when the app was last used and now (ms), to tell a pause.
  */
-export function startHash({ start = DEFAULT_START, last = null, hash = '', search = '' } = {}) {
-  if (hash && hash !== '#/' && hash !== '#') return null; // a link to a page wins
+export function startHash({ start = DEFAULT_START, last = null, hash = '', search = '', nav = '', seen = null, now = Date.now() } = {}) {
   if (new URLSearchParams(search).toString()) return null; // shared text, a Strava return …
   const s = startOf(start);
   const to = s === 'last' ? lastOf(last) : START_PLACES.find((p) => p.key === s).href;
+  if (hash && hash !== '#/' && hash !== '#') {
+    // a link to a page wins, unless the tab comes back after a pause (1b); shared lists always win
+    const page = lastOf(hash);
+    const pause = !!nav && nav !== 'reload' && Number(seen) > 0 && now - Number(seen) > AWAY_MS;
+    if (!page || !pause) return null;
+    const back = to ?? '#/';
+    return back === page ? null : back;
+  }
   return to && to !== '#/' ? to : null;
 }

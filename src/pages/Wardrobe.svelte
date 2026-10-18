@@ -22,6 +22,8 @@
   import { formatWeight, itemWeight, isInventory } from '../lib/gear.js';
   import { t, tn, nameOf, locale, dateOf, num } from '../lib/i18n.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
+  // SL «Scrollen und Listen» (Noah 14.10.2026): the wardrobe keeps its layers and zones; «Back to top» after two screens
+  import TopButton from '../lib/list/TopButton.svelte';
   import TempBar from '../lib/ui/TempBar.svelte';
   import { tripRange, tripRain, unfitDuplicates } from '../lib/swap.js';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
@@ -457,6 +459,7 @@
         <div class="nowear"><Empty icon={Layers} title={t('No clothing yet')} text={t('No clothing here yet. Clothing is every item of the categories On-bike clothing, Rain & cold, Off-bike clothing and Shoes, and every item with a layer or a body zone.')} action={{ label: t('Add item'), onclick: () => addItem() }} /></div>
       {/if}
 
+      <TopButton />
       <!-- v0.47.0 (Noah 5b): the four layers side by side like a wardrobe on a computer, one below the other on a phone -->
       <div class="cols">
         {#each shownLayers as l (l.key)}

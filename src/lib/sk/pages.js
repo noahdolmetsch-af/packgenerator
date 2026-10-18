@@ -14,6 +14,8 @@ import { sortBikes } from '../bikes.js';
 import { checkOf } from '../flowcheck.js';
 import { isMedAct } from '../flow/hobby/medstart.js';
 import { daysBetween } from './tiles.js';
+import { withStravaRides } from '../kmbook.js';
+import { monthKm } from '../home/bausteine.js';
 
 const T = {
   velocare: { id: 'velocare', label: 'Bike care', icon: 'wrench', href: '#/bikes?tab=care' },
@@ -77,15 +79,14 @@ export { SK_BIG } from './tiles.js';
 export const SK_NEEDS = {
   past: ['trips', 'debriefs', 'bikes', 'maintenance', 'visits', 'flowLog', 'learnings'],
   debrief: ['trips', 'debriefs', 'learnings', 'settings', 'bikes', 'maintenance', 'visits'],
-  bikes: ['trips', 'bikes', 'visits', 'kmBook', 'maintenance'],
+  bikes: ['trips', 'bikes', 'visits', 'kmBook', 'maintenance', 'rides'],
   gear: ['items', 'trips', 'settings'],
-  flow: ['flowActs', 'flowLog', 'flowChecks', 'kmBook', 'trips', 'debriefs'],
+  flow: ['flowActs', 'flowLog', 'flowChecks', 'kmBook', 'trips', 'debriefs', 'rides'],
 };
 
 /** An outside tile's address (a few depend on the language). */
 export const tileUrl = (d, lang) => (d.url === 'meteo' ? meteoUrl(lang) : d.url === 'schweizmobil' ? schweizMobilUrl(lang) : d.url);
 
-const monthOf = (d) => d.slice(0, 7);
 
 /**
  * The live hint of every tile on a page: { id: { text } } or { id: { quiet } } when the tile has
@@ -137,9 +138,9 @@ export function hintsFor(page, data = {}, today) {
   h.packnext = next ? { text: nextLine } : { quiet: t('no trip planned') };
   h.pack = next ? { text: nextLine } : { quiet: t('no trip planned') };
   if (data.kmBook) {
-    const month = monthOf(today);
-    const rows = data.kmBook.filter((e) => e.state !== 'removed' && e.date && monthOf(e.date) === month && (e.kind ?? 'ride') === 'ride');
-    const km = Math.round(rows.reduce((s, e) => s + (Number(e.km) || 0), 0));
+    // Paket 3 (bug from the 0.136.0 pictures): the same km as «Velo in diesem Monat» on Aktiv: uploaded rides plus
+    // counted Strava rides and the Strava rides of «Training» (data.acts, bikeActs), not the ledger alone
+    const { km } = monthKm(withStravaRides(data.rides ?? [], data.kmBook, data.acts ?? []), today);
     h.kmbook = { text: km ? t('This month {km} km', { km: num(km) }) : t('No ride this month yet') };
     const check = data.kmBook.filter((e) => e.state === 'open').length;
     h.stravacheck = check ? { text: tn(check, '{n} ride to check', '{n} rides to check') } : { quiet: t('nothing to check') };

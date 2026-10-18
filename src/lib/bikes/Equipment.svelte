@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a; model: Canyon «Ausstattung · Alle Komponenten»):
    * the Bikes tab «Ausstattung». One bike at a time: Noah's four measurements on top as tiles (the
@@ -175,7 +176,7 @@
 </div>
 
 {#if edit}
-  <dialog class="sheet" bind:this={dialog} onclose={() => (edit = null)} aria-labelledby="eq-edit-h">
+  <dialog use:backClose class="sheet" bind:this={dialog} onclose={() => (edit = null)} aria-labelledby="eq-edit-h">
     <p class="meta">{bike?.name}</p>
     <h2 id="eq-edit-h" class="title">{edit.cat}</h2>
     <form method="dialog" onsubmit={(e) => (e.preventDefault(), save())}>

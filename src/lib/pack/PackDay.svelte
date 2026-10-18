@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * Pack (v0.29.0, Noah 2a, 6a): a normal page with the trip band and its tabs (was a full screen
    * of its own). The bags one under the other: the packed ones closed with a green ✓, the current one
@@ -413,7 +414,7 @@
   {/if}
 </div>
 
-<dialog class="sheet ask" bind:this={askEl} aria-labelledby="ask-h">
+<dialog use:backClose class="sheet ask" bind:this={askEl} aria-labelledby="ask-h">
   <h2 id="ask-h">{tn(missing, '{n} thing is not ticked yet. Go anyway?', '{n} things are not ticked yet. Go anyway?')}</h2>
   <p class="tp-muted">{t('Nothing is lost: you can come back to Pack any time.')}</p>
   <div class="askacts">

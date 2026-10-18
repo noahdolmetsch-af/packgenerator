@@ -27,6 +27,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
+  import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
   import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
@@ -89,6 +90,9 @@
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
   const sum = $derived(summary(states));
+  // WS6 (Noah 3a): what counts for «Erholung», folded open under the rings, with «zuletzt am»
+  const rest = $derived(restRows(states, data?.log ?? [], today));
+  const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const week = lastDays(today, 7);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
@@ -316,7 +320,20 @@
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
-            <div class="card ringc"><Rings {rings} size={phone.matches ? 112 : 140} quiet /></div>
+            <div class="card ringc">
+              <Rings {rings} size={phone.matches ? 112 : 140} quiet />
+              {#if rest.length}
+                <details class="restf" data-rest>
+                  <summary><span>{t('What counts for recovery')}</span><small class="num">{t('last 7 days')}</small></summary>
+                  <ul>
+                    {#each rest as r (r.act.id)}
+                      <li><span>{actName(r.act)}</span><small class="num">{lastLine(r)}</small></li>
+                    {/each}
+                  </ul>
+                  <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
+                </details>
+              {/if}
+            </div>
           </Sec>
           <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
             <a class="card kmc" href="#/debrief/ride" data-section="km">
@@ -446,6 +463,43 @@
   }
   .ringc {
     padding: var(--sp-4) var(--sp-5);
+  }
+  .restf {
+    margin-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+  }
+  .restf summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .restf small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .restf ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .restf li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .restf li small {
+    text-align: right;
+  }
+  .restf .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
   .kmc {
     display: flex;

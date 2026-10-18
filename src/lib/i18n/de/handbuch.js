@@ -5,7 +5,7 @@ export default {
   'At the end of the page: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
   'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
-  'Tap «New» › «Day ride now», or the day ride tile on Today.': 'Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.',
+  'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
   'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.': 'Beispiel: Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.',
   'Needs a few items under Gear first.': 'Braucht zuerst ein paar Teile unter Material.',
@@ -381,4 +381,8 @@ export default {
   'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
   'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
   'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
+  // Standard-Velo VS1–VS4
+  'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
+  'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
+  'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
 };

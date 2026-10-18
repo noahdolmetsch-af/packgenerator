@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.34.0 (L3, Noah 1a): the shopping list of the open trip. A quiet row in Plan (only with food
    * on the trip) and a sheet: one row per item with its amount, a tick per row, "Share" sends the
@@ -68,7 +69,7 @@
 {/if}
 
 {#if open}
-  <dialog class="calm-sheet shop-sheet" bind:this={el} onclose={() => ((open = false), (note = ''), (copyText = ''))} aria-labelledby="shop-h">
+  <dialog use:backClose class="calm-sheet shop-sheet" bind:this={el} onclose={() => ((open = false), (note = ''), (copyText = ''))} aria-labelledby="shop-h">
     <header><h2 id="shop-h">{t('Shopping list')}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('Close')}</button></header>
     {#if rows.length}
       <p class="sub">{t('{open} of {total} still to buy.', { open: count.open, total: count.total })}</p>
