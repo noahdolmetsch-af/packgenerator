@@ -109,6 +109,30 @@ test('Packen 2 + 3: the main button packs the next bag; one count and one name p
   await ctx.close();
 });
 
+test('Tour beendet (Heute 2 + 3): the bar as on every trip page; the way behind is ticked', async ({ browser }, info) => {
+  const { ctx, page, errors } = await open(browser, info, null, `#/trip/${encodeURIComponent(TRIP.runningDay)}/ended`);
+  await expect(page.getByRole('heading', { level: 1, name: T('Trip ended') })).toBeVisible();
+  // Heute 3: Packen and Unterwegs with ✓, Rückblick the open step
+  const steps = page.locator('.stepbar a');
+  await expect(steps.filter({ hasText: T('Pack|stage') })).toHaveClass(/done/);
+  await expect(steps.filter({ hasText: T('On the way') })).toHaveClass(/done/);
+  await expect(steps.filter({ hasText: T('Debrief') })).toHaveAttribute('aria-current', 'page');
+  // Heute 2: on a computer the step on the left, the quiet link, then the main button on one line
+  const bar = page.locator('main .mainbar');
+  const go = bar.locator('.btn.hi');
+  if (!phone(info)) {
+    await expect(bar.locator('.lead')).toContainText(T('Trip ended'));
+    const lead = await bar.locator('.lead').boundingBox();
+    const g = await go.boundingBox();
+    expect(lead.x).toBeLessThan(g.x);
+    const second = bar.locator('.second');
+    if (await second.count()) expect((await second.boundingBox()).x).toBeLessThan(g.x);
+    expect(g.height).toBeLessThan(60);
+  }
+  expect(errors).toEqual([]);
+  await ctx.close();
+});
+
 test('Vorlagen 1–3: «einzelne Teile» instead of «Extra»; «Neue Tour» small beside the name; ridden trips first', async ({ browser }, info) => {
   const { ctx, page, errors } = await open(browser, info, null, '#/pack/templates');
   const rows = page.locator('li.row[data-tpl]:not(.arch)');
