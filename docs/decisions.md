@@ -1433,3 +1433,10 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
   - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
   - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).
+
+## 15.10.2026: KI-Helfer Kosten (Paket B Server)
+
+- **Monatslimit CHF 2 (Noah «1b»):** Standard in App (`DEFAULT_CAP`) und Server (`DEFAULT_CAP_CHF`); ersetzt CHF 5 aus 7a vom 10.10.2026.
+- **Modell (Noah «2a, wobei nutzer dies ändern kann im frontend»):** Sonnet 5.5 bleibt Standard; die App kann Haiku 5.5 wählen. Der Server nimmt nur Modelle aus `MODEL_CHOICES`, sonst `HELPER_MODEL`.
+- **Infotext (Noah «3b», dann «erstelle selber einen vorschlag … dann ok»):** Klappe «Nutzung und Kosten» unter Ich › KI-Helfer › Einrichtung.
+- **Selbst entschieden:** Ein gespeichertes Limit von genau CHF 5 (alter Standard) zählt einmalig als CHF 2; jedes Speichern merkt `capV: 2`, ein später gewähltes Limit von 5 bleibt.

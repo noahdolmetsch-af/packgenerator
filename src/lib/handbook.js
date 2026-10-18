@@ -516,7 +516,7 @@ export const HANDBOOK = {
   },
   'f.helper': {
     on: 'Me › AI helper: switch on «Show the AI helper in the app» and save the code.',
-    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.'],
+    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.', 'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.'],
     example: 'Example: switched off again → it shows nowhere, the code stays stored.',
   },
   'f.shortcuts': {

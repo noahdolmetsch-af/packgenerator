@@ -297,6 +297,7 @@ export default {
   'Me › AI helper: switch on «Show the AI helper in the app» and save the code.': 'Ich › KI-Helfer: «KI-Helfer in der App zeigen» einschalten und Code speichern.',
   'Paste the helper code; it stays on this device.': 'Füge den Helfer-Code ein; er bleibt auf diesem Gerät.',
   'Before each request you see what goes to Claude; a monthly limit applies.': 'Vor jeder Anfrage siehst du, was an Claude geht; es gilt ein Monatslimit.',
+  'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.': 'Wähle das Modell: Sonnet 5.5 (Standard) oder das günstigere Haiku 5.5. «Nutzung und Kosten» sagt, was es kostet.',
   'Example: switched off again → it shows nowhere, the code stays stored.': 'Beispiel: wieder ausgeschaltet → er zeigt sich nirgends, der Code bleibt gespeichert.',
   'Computer with a keyboard.': 'Computer mit Tastatur.',
   'Press ? to see the list.': 'Drück ?, um die Liste zu sehen.',

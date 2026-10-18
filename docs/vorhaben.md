@@ -42,6 +42,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| Paket B | KI-Helfer kostet weniger (Noah 15.10.2026 «1b 2a, wobei nutzer dies ändern kann im frontend 3b», «freigabe für den ki helfer»): Monatslimit CHF 2 statt 5 in App und Server (ein altes gespeichertes Limit von genau 5 zählt einmalig als 2), Modellwahl Sonnet 5.5 (Standard) oder Haiku 5.5 unter Ich › KI-Helfer › Modell (Server prüft eine feste Liste), Infotext «Nutzung und Kosten» | fertig, im Bündel B Server |
 | 0.144.0 | **Regeln einheitlich** (RE) (Mockup-Freigabe: RE1–RE3 «RE1–RE3 freigegeben» Noah 14.10.2026 20:37 UTC, Antworten «1a 2a 3a 4a 5a»; die fünf Regeln «1-5 a» 20:20/20:22 UTC): eine Regen-Grenze für die ganze App, «nie gebraucht» ab 3 Touren, Rückblick ohne Vorab-Häkchen, eine Tagesuhr, Pflege pro Velo «Pflege für …»; Ziel 1, 2 und 4 | lokal gebaut, PR folgt |
 | 0.136.0 | **Paket 2b – Sortieren, wie du willst**: Pfeile + Ziehen in allen sortierbaren Listen, Kategorie «Gilt für» (LI3), Inspiration-Korrekturen, eine Kachelreihe auf Aktiv › Heute, neun Anzeigefehler; Ziele 1 (schneller packen) und 4 (Aktivitätsmosaik) | PR offen, Noah merged |
 | 0.135.0 | **Paket 2 – Ruhe, Training und Rechnungen**, ein Release aus fünf Teilen: (1) Meditation und Timer, (2) Inhalte Flow + Wusstest du (#173), (3) Eine Zahl pro Sache mit Heute H1/H2 (#170), (4) Training (#167), (5) Rechnungen ohne Gebühren (#169); Ziele 1 (Alltag) und 4 (aus jeder Tour lernen) | live (#179) |
