@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.145.0 «Paket 3»
+  'Clear rules, your standard bike': 'Klare Regeln, dein Standard-Velo',
+  'Nothing jumps on its own, long lists fold, and a new trip brings your standard bike.': 'Nichts springt mehr von selbst, lange Listen klappen sich zusammen, und eine neue Tour bringt dein Standard-Velo.',
+  'Nothing jumps on its own: a tap opens to change, and on a trip day a card on Today leads on': 'Nichts springt von selbst: ein Tipp öffnet zum Ändern, und am Tourentag führt eine Karte auf Heute weiter',
+  'Back again: the bike costs in the head, what counts for recovery, and quick start in New': 'Wieder da: die Velo-Kosten im Kopf, was zur Erholung zählt, und Schnellstart in Neu',
+  'Long lists fold by month and category with a jump bar; «What is new» by day': 'Lange Listen gruppiert nach Monat und Kategorie, mit Sprungleiste; «Was ist neu» nach Tagen',
+  'The tile «Ride log» counts Strava rides like «Bike this month»; «23 h · 2 days» with a separator': 'Die Kachel «Fahrten-Buch» zählt Strava-Fahrten wie «Velo in diesem Monat»; «23 h · 2 Tage» mit Trenner',
+  'Open Trips: under «Planned» tap «Like the last trip»: the new trip starts as a copy of the trip you last rode with that bike.': 'Öffne Touren: unter «Geplant» tippe «Wie letzte Tour»: die neue Tour startet als Kopie der Tour, die du zuletzt mit diesem Velo gefahren bist.',
   // 0.136.0 «Paket 2b» (Pfeile und Ziehen, Gilt für, Inspiration, Anzeigefehler)
   'Sort your way': 'Sortieren, wie du willst',
   'Drag a row or use the arrows in every list you can order, and a category can stay with some kinds of trips only.': 'Zieh eine Zeile oder nimm die Pfeile, in jeder Liste, die du ordnen kannst, und eine Kategorie gilt auf Wunsch nur für bestimmte Tourenarten.',
@@ -128,6 +136,49 @@ export default {
   'Open the timer page, tap the clock and choose another face; open «Log» and add a note.': 'Öffne die Timer-Seite, tippe auf die Uhr und wähle ein anderes Ziffernblatt; öffne «Log» und schreib eine Notiz dazu.',
   'Tap «Look back» on the Meditation page and switch between week, month and year.': 'Tippe auf der Meditationsseite «Rückblick» und wechsle zwischen Woche, Monat und Jahr.',
 
+  // 0.145.0 Standard-Velo (Stern, Reihenfolge, was eine neue Tour bringt)
+  'Your standard bike ★': 'Dein Standard-Velo ★',
+  'The first bike is your standard bike: a new trip brings it, and you set the order of your bikes.': 'Das erste Velo ist dein Standard-Velo: Eine neue Tour bringt es, und du legst die Reihenfolge deiner Velos fest.',
+  'A new trip brings your standard bike; a tap on another bike counts for that trip only': 'Eine neue Tour bringt dein Standard-Velo; ein Tipp auf ein anderes Velo gilt nur für diese Tour',
+  '«Standard bike and order» under Bikes: arrows, «Make standard» and what a new trip brings': '«Standard-Velo und Reihenfolge» unter Velos: Pfeile, «Als Standard» und was eine neue Tour bringt',
+  'A new bike asks once whether it becomes the standard bike': 'Ein neues Velo fragt einmal, ob es das Standard-Velo wird',
+  'At your very first trip the app asks once: the standard bike or the one ridden last': 'Bei deiner allerersten Tour fragt die App einmal: das Standard-Velo oder das zuletzt gefahrene',
+  'Open Bikes › Setup › «Standard bike and order» › «Change», tap «Make standard» on another bike, save: it stands first with ★.': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern», tippe bei einem anderen Velo «Als Standard», speichere: Es steht zuerst mit ★.',
+  'Tap «New» › «Plan a trip»: that bike is chosen with «Standard»; tap another bike, it counts for this trip only.': 'Tippe «Neu» › «Tour planen»: Dieses Velo ist mit «Standard» gewählt; tippe ein anderes Velo, es gilt nur für diese Tour.',
+  // 0.140.1 Start-Karten (eine Karte statt eines Sprungs)
+  'A card instead of a jump': 'Eine Karte statt eines Sprungs',
+  'On a trip day and on the last evening Today stays where it is; a card with your trip leads on.': 'Am Tourtag und am letzten Abend bleibt Heute, wo es ist; eine Karte bei deiner Tour führt weiter.',
+  'On a trip day the card «Heute unterwegs» with «Unterwegs öffnen», until you opened On the way once': 'Am Tourtag die Karte «Heute unterwegs» mit «Unterwegs öffnen», bis du Unterwegs einmal geöffnet hast',
+  'On the last evening the card «Letzter Abend» with «Tour abschliessen»': 'Am letzten Abend die Karte «Letzter Abend» mit «Tour abschliessen»',
+  'Today no longer opens On the way or «Tour beendet» by itself': 'Heute öffnet Unterwegs oder «Tour beendet» nicht mehr von selbst',
+  'On a trip day open the app: Today stays, on top of your trip stands «Heute unterwegs»; tap «Unterwegs öffnen», go back to Today: the card is gone.': 'Öffne die App an einem Tourtag: Heute bleibt, über deiner Tour steht «Heute unterwegs»; tippe «Unterwegs öffnen», geh zurück zu Heute: Die Karte ist weg.',
+  'On the last day of a trip after 18:00 open the app: the card «Letzter Abend» leads to «Tour beendet».': 'Öffne die App am letzten Tourtag nach 18 Uhr: Die Karte «Letzter Abend» führt zu «Tour beendet».',
+  // 0.140.0 Regeln der App (nichts springt von selbst, ein Tipp öffnet zum Ändern)
+  'Nothing jumps on its own': 'Nichts springt von selbst',
+  'A tap opens things to change them, and the app no longer jumps to another page by itself.': 'Ein Tipp öffnet Dinge zum Ändern, und die App springt nicht mehr von selbst auf eine andere Seite.',
+  'On the phone a tap on an item in Material opens it to change, like on the computer': 'Am Handy öffnet ein Tipp auf ein Teil in Material es zum Ändern, wie am Computer',
+  'The pencil next to the bike\'s name opens the bike details: name, type, use and photo in one window': 'Der Stift neben dem Velonamen öffnet die Velodetails: Name, Art, Einsatz und Foto in einem Fenster',
+  'A day trip without a bike stays on Pack after packing, with a link to Today': 'Eine Tagestour ohne Velo bleibt nach dem Packen auf Packen, mit einem Link zu Heute',
+  'A browser tab that opens again after a pause starts on your start page; a reload stays where you were': 'Ein Browser-Tab, der nach einer Pause wieder aufgeht, startet auf deiner Startseite; Neuladen bleibt, wo du warst',
+  'Back closes every window first, now in all of them': 'Zurück schliesst zuerst das Fenster, jetzt bei allen',
+  '«n more due: open the bike» opens the bike; the old link «12 months» lands at the right part; a wishlist favourite opens in the wishlist': '«n weitere fällig: Velo öffnen» öffnet das Velo; der alte Link «12 Monate» landet beim richtigen Teil; ein Favorit auf der Wunschliste öffnet sich in der Wunschliste',
+  'On the phone open Material, tap an item: the fields can be changed, «Save» at the bottom.': 'Öffne am Handy Material, tippe auf ein Teil: Die Felder lassen sich ändern, «Speichern» unten.',
+  'Open Bikes, tap the pencil next to the name: «Bike details» opens, change the name and save.': 'Öffne Velos, tippe auf den Stift neben dem Namen: «Velodetails» öffnet sich, ändere den Namen und speichere.',
+  'Plan a day hike without a bike for today, pack everything, tap «Finish packing»: you stay on Pack, «Zu Heute» leads to Today.': 'Plane für heute eine Wanderung ohne Velo, packe alles, tippe «Packen abschliessen»: Du bleibst auf Packen, «Zu Heute» führt zu Heute.',
+  'Open any window, e.g. «Sort and filter» in Material, press the phone\'s back: the window closes, the page stays.': 'Öffne ein Fenster, z. B. «Sortieren und filtern» in Material, drücke am Handy Zurück: Das Fenster geht zu, die Seite bleibt.',
+  // 0.144.0 Regeln einheitlich (eine Regen-Grenze, nie gebraucht ab 3, Rückblick ohne Häkchen, eine Tagesuhr, Pflege pro Velo)
+  'One set of rules for all': 'Überall die gleichen Regeln',
+  'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.': 'Regen, «nie gebraucht» und die Tageszeit heissen jetzt auf jeder Seite dasselbe, und die Velopflege stellst du selbst ein.',
+  'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out': 'Eine Regen-Grenze für die ganze App, eingestellt im Baustein Regen (30 %); darüber kommt die Regenjacke von selbst mit, und du kannst sie herausnehmen',
+  'Debrief: nothing is ticked to start with; «Done · 2 of 6 take over» says what happens': 'Rückblick: nichts ist vorangekreuzt; «Fertig · 2 von 6 übernehmen» sagt, was passiert',
+  'Care for your bike: choose what the app reminds you of, every … km and/or days, with a note': 'Pflege für dein Velo: wähle, woran die App dich erinnert, alle … km und/oder Tage, mit Notiz',
+  '«Never used» counts from 3 trips everywhere; one day clock: morning until 11, day until 18, evening until 22': '«Nie gebraucht» zählt überall ab 3 Touren; eine Tagesuhr: Morgen bis 11, Tag bis 18, Abend bis 22',
+  'A new trip copies the list of the trip you used last on this bike, like the bike that is picked': 'Eine neue Tour kopiert die Liste der Tour, die du auf diesem Velo zuletzt benutzt hast, wie beim vorgewählten Velo',
+  'Open Gear › Building blocks › Rain: the box says the limit counts everywhere; change 30 to 40 and save.': 'Öffne Material › Bausteine › Regen: Der Kasten sagt, dass die Grenze überall gilt; ändere 30 auf 40 und speichere.',
+  'Open a trip with 40 % rain in Pack: the block Rain is suggested, the rain jacket is on the list with «40 % rain · rain from 30 %».': 'Öffne eine Tour mit 40 % Regen in Packen: Der Baustein Regen ist vorgeschlagen, die Regenjacke steht auf der Liste mit «40 % Regen · Regen ab 30 %».',
+  'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».': 'Öffne einen Rückblick mit Vorschlägen: Nichts ist angehakt; hake zwei an, der Knopf sagt «Fertig · 2 von 6 übernehmen».',
+  'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.': 'Öffne Velos › Pflege › ein Velo: Die Karte «Pflege für …» steht über den Teilen; schalte eine Pflege aus, stelle die Dichtmilch auf 60 Tage, schreib eine Notiz.',
+
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',
@@ -144,6 +195,15 @@ export default {
   'On the phone open Trips and Material: the main button sits at the bottom.': 'Öffne am Handy Touren und Material: Der wichtigste Knopf sitzt unten.',
   'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
   'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
+  // 0.143.0 Wie letzte Tour
+  'Like last time, please': 'Wie letztes Mal, bitte',
+  'A new trip can start as a copy of the last trip you really rode with that bike again.': 'Eine neue Tour kann wieder als Kopie der letzten Tour starten, die du mit diesem Velo wirklich gefahren bist.',
+  'Trips: «Start quickly» with «Like the last trip», your two templates used last and «All templates»': 'Touren: «Schnell starten» mit «Wie letzte Tour», deinen zwei zuletzt benutzten Vorlagen und «Alle Vorlagen»',
+  'New trip › Choose a template: «Like the last trip» on top, with name, date and bike': 'Neue Tour › Vorlage wählen: «Wie letzte Tour» zuoberst, mit Name, Datum und Velo',
+  'Only trips really ridden count, never one planned for later (that was why it went away in 0.114)': 'Es zählen nur wirklich gefahrene Touren, nie eine geplante (deshalb war es seit 0.114 weg)',
+  'Trips: under «Continue» tap «Like the last trip»: the new trip window opens, «Choose a template» says «Like the last trip chosen».': 'Touren: Unter «Weitermachen» auf «Wie letzte Tour» tippen: Das Fenster «Neue Tour» öffnet sich, bei «Vorlage wählen» steht «Wie letzte Tour gewählt».',
+  'Open «Choose a template»: on top the last trip ridden with the chosen bike, with date and bike; a trip planned for later never shows.': 'Öffne «Vorlage wählen»: Zuoberst steht die letzte gefahrene Tour mit dem gewählten Velo, mit Datum und Velo; eine geplante Tour erscheint nie.',
+  "Tap another bike: «Like the last trip» switches to that bike's last ridden trip.": 'Tippe ein anderes Velo an: «Wie letzte Tour» wechselt zur letzten gefahrenen Tour dieses Velos.',
 
   // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
   'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',

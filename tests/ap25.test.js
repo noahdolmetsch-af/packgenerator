@@ -187,10 +187,11 @@ describe('weather items only count on trips with their weather', () => {
     expect(packBadges(next, ts, ds, {}, items).RAINP.map((x) => x.label)).toEqual(['3× not used']);
   });
   it('cold item: a warm trip is skipped in ballast', () => {
-    const ts = [trip(1, '2026-05-01', { min: 5, max: 9, rain: 'none' }), trip(2, '2026-06-01', { min: 18, max: 25, rain: 'none' }), trip(3, '2026-07-01', { min: 4, max: 9, rain: 'none' })];
-    const ds = [deb(1), deb(2, { ARMW: 'used' }), deb(3)];
+    // v0.144.0 RE: ballast only from 3 trips on, so three cold trips around the warm one
+    const ts = [trip(1, '2026-04-01', { min: 3, max: 8, rain: 'none' }), trip(2, '2026-05-01', { min: 5, max: 9, rain: 'none' }), trip(3, '2026-06-01', { min: 18, max: 25, rain: 'none' }), trip(4, '2026-07-01', { min: 4, max: 9, rain: 'none' })];
+    const ds = [deb(1), deb(2), deb(3, { ARMW: 'used' }), deb(4)];
     const next = { id: 'nx', startDate: '2026-10-20', entries: [{ itemId: 'ARMW', slot: 'seat', qty: 1 }] };
-    expect(ballast(next, items, ts, ds).rows.map((r) => r.n)).toEqual([2]);
+    expect(ballast(next, items, ts, ds).rows.map((r) => r.n)).toEqual([3]);
   });
 });
 

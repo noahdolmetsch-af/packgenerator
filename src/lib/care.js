@@ -130,6 +130,24 @@ export const attrsOf = (key) => PART[key]?.attrs ?? [];
 
 /** What the 1000 km check covers (Noah, 4.10.2026). */
 export const CHECK_KM = 1000;
+/**
+ * v0.144.0 RE «Pflege selbst einstellen» (Noah 14.10.2026, 4a 5a): the km of the check on this bike.
+ * bike.checkKm: a number (own interval), null (switched off: no reminder) or missing (the standard).
+ */
+export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (typeof bike.checkKm === 'number' && bike.checkKm > 0 ? bike.checkKm : null) : CHECK_KM);
+
+/**
+ * v0.144.0 RE (answer 5a «km und/oder Tage, was zuerst kommt, gilt»): one interval by km and/or by days.
+ * sinceKm / sinceDays: since the last time (null: unknown); everyKm / everyDays: the interval (null: not by that).
+ * → { due, by: 'km' | 'days' | null, kmLeft, daysLeft, frac } (frac: the larger used share, null when nothing is known).
+ */
+export function firstDue({ sinceKm = null, everyKm = null, sinceDays = null, everyDays = null } = {}) {
+  const fk = everyKm > 0 && sinceKm != null ? sinceKm / everyKm : null;
+  const fd = everyDays > 0 && sinceDays != null ? sinceDays / everyDays : null;
+  const frac = fk == null && fd == null ? null : Math.max(fk ?? -Infinity, fd ?? -Infinity);
+  const by = frac == null || frac < 1 ? null : (fk ?? -Infinity) >= (fd ?? -Infinity) ? 'km' : 'days';
+  return { due: by != null, by, kmLeft: fk == null ? null : everyKm - sinceKm, daysLeft: fd == null ? null : everyDays - sinceDays, frac };
+}
 export const CHECK_PARTS = ['padsF', 'padsR', 'chain', 'tyres', 'bolts', 'shifting', 'fork', 'shock', 'bearings'];
 
 /** Does this bike have suspension of this kind (full: shock and linkage, fork: suspension fork)? */
@@ -190,15 +208,20 @@ export function wear(part) {
 /** Open "work needed": the last entry says something has to be done. */
 export const needsWork = (part) => part.history?.at(-1)?.result === 'needed';
 
-/** 1000 km check: per part, km since it was last looked at; due when 1000 or more (km must be known). */
+/**
+ * 1000 km check: per part, km since it was last looked at; due when 1000 or more (km must be known).
+ * v0.144.0 RE: the km come from checkKmOf (own interval per bike); switched off → no rows (every: null).
+ */
 export function checkState(bike) {
+  const every = checkKmOf(bike);
+  if (every == null) return { rows: [], due: 0, unknown: 0, every: null };
   const rows = (bike.parts ?? [])
     .filter((p) => CHECK_PARTS.includes(p.key) && fits(bike, PART[p.key]))
     .map((p) => {
       const since = kmSince(bike, lastLook(p));
-      return { key: p.key, name: p.key === 'fork' || p.key === 'shock' ? tr('{part} lockout', { part: tr(PART[p.key].name) }) : tr(PART[p.key].name), since, due: since != null && since >= CHECK_KM, unknown: since == null };
+      return { key: p.key, name: p.key === 'fork' || p.key === 'shock' ? tr('{part} lockout', { part: tr(PART[p.key].name) }) : tr(PART[p.key].name), since, due: since != null && since >= every, unknown: since == null };
     });
-  return { rows, due: rows.filter((r) => r.due).length, unknown: rows.filter((r) => r.unknown).length };
+  return { rows, due: rows.filter((r) => r.due).length, unknown: rows.filter((r) => r.unknown).length, every };
 }
 
 /** Services with their own interval (wax the chain every 150 km) that are due. */
@@ -210,8 +233,11 @@ export function serviceDue(bike) {
     .filter((s) => s.since != null && s.since >= s.every);
 }
 
-/** The name of a service by km, e.g. "Waxed chain" (in the current language). */
-export const serviceName = (p) => tr(`${p.service} ${p.name.toLowerCase()}`);
+/**
+ * The name of a service by km, e.g. "Waxed chain" (in the current language). v0.144.0 RE: a part with
+ * an own km interval but no service word (fork, sealant) takes its time-service name («Fork service»).
+ */
+export const serviceName = (p) => (p.service ? tr(`${p.service} ${p.name.toLowerCase()}`) : tr(p.due ?? p.name));
 
 /**
  * Add a history entry to a part. result: 'ok' (checked, fine), 'needed' (replace or work needed),

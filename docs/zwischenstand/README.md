@@ -46,3 +46,7 @@ Seit dem Schnappschuss am Mittag hat sich Folgendes geändert:
 - Unverändert: Noah merged selbst, Abschnitt «Was fällt weg oder rutscht tiefer», Null Kosten.
 
 Wo Dokument 1, 3, 4 oder 5 noch «Tagespaket» oder «#151 offen» sagen, gilt dieser Nachtrag.
+
+## Nachtrag 18.10.2026
+
+Der aktuelle Stand steht nicht mehr hier, sondern im [Projektstand](../projektstand.md) (wird bei jedem Paket nachgeführt) und in der [Geschichte](../geschichte.md). Live ist 0.144.0. Seit 15.10.2026 werden fertige Teile zu Paketen gebündelt, seit 18.10.2026 in sechs grossen Paketen. Claude führt ein Paket zusammen, sobald Noah dafür «ok» geschrieben hat.

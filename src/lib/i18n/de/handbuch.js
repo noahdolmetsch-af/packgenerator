@@ -5,7 +5,7 @@ export default {
   'At the end of the page: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',
   'Example: on a hot day the tip about water comes first; «Only useful tips» keeps the «Did you know» sentences away.': 'Beispiel: An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.',
   'Needs a trip that has started or ended.': 'Braucht eine Tour, die begonnen hat oder vorbei ist.',
-  'Tap «New» › «Day ride now», or the day ride tile on Today.': 'Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.',
+  'Tap «New» › «Quick start», or «Quick start» on Today.': 'Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.',
   'Check the list; «Change» or «Undo» if it does not fit.': 'Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.',
   'Example: Sunday after last week’s 3 h loop → the same bike and list, with Sunday’s weather.': 'Beispiel: Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.',
   'Needs a few items under Gear first.': 'Braucht zuerst ein paar Teile unter Material.',
@@ -377,6 +377,10 @@ export default {
   'Photograph the bill or enter it by hand; check the due date.': 'Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.',
   'Pay in your e-banking with «Payment part», then tap «Paid».': 'Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».',
   'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.': 'Beispiel: Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.',
+  // Standard-Velo VS1–VS4
+  'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
+  'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
+  'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
   // «Woche planen» (f.weekplan)
   'Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.': 'Öffne Woche: Montag bis Sonntag mit Sport, Terminen, To-dos, Ferien und Velo-Service.',
   'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',

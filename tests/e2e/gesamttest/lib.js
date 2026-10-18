@@ -180,6 +180,15 @@ export const cutOff = (page) =>
   page.evaluate(() => {
     const out = [];
     const W = document.documentElement.clientWidth;
+    // Paket 3 (SL1–SL3, Noah «alle a»): a row of chips to swipe on purpose (the jump bar). A control in a
+    // row that scrolls sideways, whose own box ends on the screen, is reached by swiping: not cut off.
+    const swipe = (el) => {
+      for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+        const ox = getComputedStyle(p).overflowX;
+        if (ox === 'auto' || ox === 'scroll') return p.scrollWidth > p.clientWidth && p.getBoundingClientRect().right <= W + 1;
+      }
+      return false;
+    };
     for (const el of document.querySelectorAll('main *, header *, nav *, dialog[open] *')) {
       if (!el.getClientRects().length) continue;
       const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
@@ -195,7 +204,7 @@ export const cutOff = (page) =>
       // a folded row (summary, or a button that opens more) may end in "…": it opens to the full text
       const opens = !!el.closest('summary, [aria-expanded]');
       if (hides && el.scrollWidth > el.clientWidth + 2 && !told && !opens) out.push(`cut: ${el.tagName.toLowerCase()} "${el.textContent.trim().slice(0, 40)}" (${el.scrollWidth} > ${el.clientWidth})`);
-      else if (/^(BUTTON|A|LABEL|H1|H2|H3|SUMMARY)$/.test(el.tagName) && r.right > W + 1 && cs.position !== 'fixed') out.push(`off screen: ${el.tagName.toLowerCase()} "${el.textContent.trim().slice(0, 40)}"`);
+      else if (/^(BUTTON|A|LABEL|H1|H2|H3|SUMMARY)$/.test(el.tagName) && r.right > W + 1 && cs.position !== 'fixed' && !swipe(el)) out.push(`off screen: ${el.tagName.toLowerCase()} "${el.textContent.trim().slice(0, 40)}"`);
     }
     return [...new Set(out)].slice(0, 12);
   });

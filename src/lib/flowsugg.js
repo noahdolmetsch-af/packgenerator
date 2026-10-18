@@ -8,6 +8,7 @@
  * Pure functions; the words are English keys for t().
  */
 import { normAct, actState, addDays } from './flow.js';
+import { isEveningOn } from './dayclock.js';
 
 export const HIDDEN_KEY = 'flow.hiddenSugg';
 export const MAX_SUGG = 8;
@@ -87,7 +88,8 @@ export function suggestions({ acts = [], log = [], today, hour = 12, dry = null,
     const n = daysAgo('sauna');
     add('sauna', n == null ? 'not yet this season' : n === 0 ? 'done today' : 'last one {n} days ago', { n }, n == null || n >= 5 ? 7 : 3);
   }
-  add('breath', hour >= 18 ? 'before going to sleep' : 'for in between', {}, hour >= 18 ? 7 : 4);
+  // v0.144.0 RE: the evening of the one day clock
+  add('breath', isEveningOn(hour) ? 'before going to sleep' : 'for in between', {}, isEveningOn(hour) ? 7 : 4);
   add('miniworkout', moveOpen ? 'Move ring still open' : 'for a short break', {}, moveOpen ? 6 : 3);
   if (fav.has('pushups') || byId.has('pushups')) add('plank', 'goes well with push-ups', {}, 4);
   // the other activities without a tile: an open goal first

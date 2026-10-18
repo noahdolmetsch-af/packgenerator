@@ -46,7 +46,9 @@
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
   import Continue from '../lib/home/Continue.svelte';
-  import { stepOf, lastEvening, betweenHref } from '../lib/phase.js';
+  import { stepOf, lastEvening } from '../lib/phase.js';
+  import StartKarte from '../lib/home/StartKarte.svelte';
+  import { startCard, RIDE_SEEN_KEY } from '../lib/home/startkarten.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
@@ -80,6 +82,7 @@
   import NameAsk from '../lib/home/NameAsk.svelte'; // HG1b
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
+  import { isEveningOn } from '../lib/dayclock.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
@@ -172,7 +175,7 @@
   const today = $derived(localDay(now));
   // FE8 «Nachtruhe» (Noah 13.10.2026): 22–06 Today keeps its tips back (switch in Ich › Darstellung)
   const hush = $derived(quietHome(now));
-  const evening = $derived(dayPart(now.getHours()) === 'evening' && now.getHours() >= 18);
+  const evening = $derived(dayPart(now.getHours()) === 'evening' && isEveningOn(now.getHours()));
 
   /* ---------- v0.35.0: "New in the app" once after an update ---------- */
   // v0.110.0 Design-Refresh P10 (I11b, I11e): after a real update the device keeps it (wasneuStore:
@@ -779,40 +782,21 @@
   }
   const seriesParty = $derived(milestones.some((m) => m.key === 'series'));
 
-  // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
-  // v0.29.2 (Noah 6a): not on the day the trip was made: then Noah is still planning or packing.
+  // Ride day (answer 1a) and the last evening (v0.67.0 U22b): Start-Karten (Noah 14.10.2026, 2b/3b and
+  // ST1–ST2 «1a 2a 3b»): Today no longer jumps to On the way or «Tour beendet»; a card with the trip card
+  // says it (startkarten.js). Not on the day the trip was made (v0.29.2, Noah 6a), not for demo trips.
   const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
   const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
-  // v0.67.0 (U22b): on the evening of a trip's last day the interstitial «Tour beendet» opens by itself,
-  // once (the app does not end the trip: «Weiter zum Rückblick» or «Doch noch unterwegs» decide).
-  // Not for a trip made today (as the ride day, Noah 6a): Today's «Review today» row is its place.
   const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
-  $effect(() => {
-    if (!lastEve) return;
-    const key = 'between.evening';
+  const rideSeenNow = (() => {
     try {
-      if (localStorage.getItem(key) === `${lastEve.id}:${today}`) return;
-      localStorage.setItem(key, `${lastEve.id}:${today}`);
+      return localStorage.getItem(RIDE_SEEN_KEY);
     } catch {
-      return; // without storage it would open every time: better not at all
+      return null;
     }
-    openTrip(lastEve.id);
-    location.hash = betweenHref(lastEve, 'ended');
-  });
-  $effect(() => {
-    // on the last evening the interstitial wins (asked of this trip itself: lastEve may still load)
-    if (!riding || lastEve || lastEvening(next, today, now.getHours())) return;
-    const key = 'ride.autoOpened';
-    try {
-      if (localStorage.getItem(key) === `${next.id}:${today}`) return;
-      localStorage.setItem(key, `${next.id}:${today}`);
-    } catch {
-      return; // without storage it would open every time: better not at all
-    }
-    openTrip(next.id);
-    location.hash = '#/ride';
-  });
-  // v0.80.0 «Tests stabil»: <html data-today="n"> says Today has made the two decisions above with n
+  })();
+  const startKarte = $derived(startCard({ ride: riding && !lastEvening(next, today, now.getHours()) ? next : null, evening: lastEve, seen: rideSeenNow, today }));
+  // v0.80.0 «Tests stabil»: <html data-today="n"> says Today has made its decisions (since 0.140.1 the start card) with n
   // trips loaded (after them, in the same run). Nothing in the app reads it; the browser tests wait for it.
   $effect(() => {
     if (!loaded || !$debriefsQ) return;
@@ -879,7 +863,8 @@
           {:else if cd}
             <span class="sub">{isLead ? t('Next trip') : t('Later trip')}</span>
             <span class="cdn" class:near={cd.near} data-countdown>{cd.text}</span>
-            {#if Number(shown.days) > 1 && !cd.under}<span class="sub">{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
+            <!-- Paket 3 (bug from the 0.136.0 pictures): «noch 23 h · 2 Tage», with a separator -->
+            {#if Number(shown.days) > 1 && !cd.under}<span class="sub" data-trip-days>{'· '}{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
           {/if}
           <span class="kr">
             {#if cardTrips.length > 1}
@@ -1008,7 +993,8 @@
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
   {#if x.id === 'trip'}
-    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
+    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
+    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS()}
   {:else if x.id === 'flow'}<FlowCard {today} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1043,7 +1029,7 @@
   {@render greetingS()}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->

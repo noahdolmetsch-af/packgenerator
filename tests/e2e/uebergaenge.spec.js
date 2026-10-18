@@ -166,14 +166,18 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   await expect(main(page)).toHaveText(T('Continue to On the way'));
 });
 
-test('the last day: «Letzten Tag abschliessen» without a question in the evening; the evening opens «Tour beendet» once (U22 a+b)', async ({ page, context }, info) => {
+test('the last day: «Letzten Tag abschliessen» without a question in the evening; the evening card leads to «Tour beendet» (U22a, ST2)', async ({ page, context }, info) => {
   await open(page, context, info, [trip('Emmental', day(-2), { entries: entries(6, 6), packedAt: day(-3) })], { hour: 20, current: ID('Emmental') });
-  // U22b: on the last evening Today opens the interstitial by itself, once
+  // Start-Karten ST2 (Noah 14.10.2026 «2a», replaces U22b): Today stays, the card «Letzter Abend» leads there
+  await expect(page).toHaveURL(/#\/$/);
+  const card = page.locator('[data-startkarte="evening"]');
+  await expect(card).toContainText(T('Last evening'));
+  await card.click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Emmental')}/ended$`));
   await expect(page.getByRole('link', { name: T('Still on the way? Back to On the way') })).toBeVisible();
   await page.goto('./#/');
   await page.reload();
-  await expect(page.locator('[data-row="last"]')).toBeVisible();
+  await expect(card).toBeVisible();
   await expect(page).toHaveURL(/#\/$/);
   await go(page, '#/ride');
   await expect(main(page)).toHaveText(T('Finish the last day'));
@@ -298,11 +302,11 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await page.goBack();
   await expect(tripDlg).toBeHidden();
   expect(page.url()).toBe(at);
-  // Rename bike (v0.72.0: the one rename sheet): back keeps the new name
+  // Bike details (Regeln der App C b: the pencil opens it): back keeps the new name
   await page.goto('./#/');
   await page.goto('./#/bikes');
-  await page.getByRole('button', { name: T('Rename {name}', { name: base.tables.bikes[0].name }) }).click();
-  const bike = page.locator('dialog.rename');
+  await page.getByRole('button', { name: T('Edit {name}', { name: base.tables.bikes[0].name }) }).click();
+  const bike = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
   await expect(bike).toBeVisible();
   await bike.locator('input').first().fill('test_data_gtp_ Scale neu');
   await page.goBack();

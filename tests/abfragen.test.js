@@ -134,9 +134,12 @@ describe('WG: the two fixed rounds 07:00 and 20:30', () => {
     expect(c.since).toBe(`${d(-1)}T06:00`);
   });
 
-  it('the boundaries: before 12:00 the morning time, from 18:00 the evening time, 12:00–17:59 its own', () => {
+  // v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (the morning ends at 11:00, was 12:00)
+  it('the boundaries: before 11:00 the morning time, from 18:00 the evening time, 11:00-17:59 its own', () => {
     expect(roundTime('08:00', ROUNDS)).toBe('07:00');
-    expect(roundTime('11:59', ROUNDS)).toBe('07:00');
+    expect(roundTime('10:59', ROUNDS)).toBe('07:00');
+    expect(roundTime('11:00', ROUNDS)).toBe('11:00');
+    expect(roundTime('11:59', ROUNDS)).toBe('11:59');
     expect(roundTime('12:00', ROUNDS)).toBe('12:00');
     expect(roundTime('17:59', ROUNDS)).toBe('17:59');
     expect(roundTime('18:00', ROUNDS)).toBe('20:30');

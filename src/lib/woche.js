@@ -31,9 +31,7 @@ export const PLANNED_KEY = 'week.planned';
 /** The door for an outside calendar (Google Teil 2): a list of dates, read here, written there. */
 export const CAL_KEY = 'week.calendar';
 
-/** The kinds in the order of the filter chips; each has its colour (app.css --wk-*). */
-export const KINDS = ['sport', 'date', 'todo', 'away', 'bike'];
-export const KIND_NAMES = { sport: 'Sport and training plan', date: 'Dates|week', todo: 'To-dos', away: 'Holidays and trips', bike: 'Bike service' };
+export { KINDS, KIND_NAMES } from './woche/kinds.js';
 export const AWAY_TYPES = ['bike', 'off', 'ski'];
 export const AWAY_NAMES = { bike: 'Bike trip|away', off: 'Holidays without a bike', ski: 'Ski tour|away' };
 /** The quiet line under «Add»: sport is planned where it lives, the week only shows it. */

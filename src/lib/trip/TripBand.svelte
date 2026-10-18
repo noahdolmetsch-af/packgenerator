@@ -25,6 +25,8 @@
   import { db } from '../db.js';
   import { offerRename } from '../ui/rename.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { rainChance } from '../wardrobe.js';
+  import { wetPct } from '../rainlimit.svelte.js';
   import { tripStats, RAIN } from '../trips.js';
   import { hasBike, domainOf, domainName } from '../domains.js';
   import { layerSuggest, openRows } from '../layers.js';
@@ -120,7 +122,10 @@
   const allBikes = $derived($bikesQ ?? []);
   // G7: «Schritt 2 von 4» in the bar at the bottom
   const stepLine = $derived(tabs.includes(tab) ? t('Step {n} of {m}', { n: tabs.indexOf(tab) + 1, m: tabs.length }) : '');
-  const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
+  // v0.144.0 RE «Regen überall gleich»: «trocken» only while the rain chance stays under the one rain limit
+  const pctNow = $derived(rainChance(trip));
+  const rainWord = $derived((trip.wx?.rain ?? 'none') === 'none' && wetPct(pctNow) ? t('{n} % rain', { n: Math.round(pctNow) }) : t(RAIN[trip.wx?.rain ?? 'none']));
+  const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${rainWord}` : '');
 </script>
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>

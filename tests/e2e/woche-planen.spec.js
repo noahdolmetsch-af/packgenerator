@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { BAR_PLACES } from '../../src/lib/nav.js';
-import { KINDS } from '../../src/lib/woche.js';
+import { KINDS } from '../../src/lib/woche/kinds.js';
 
 /** The fixture with a week: training sessions (one today, one last Tuesday as «like last week»), a date, two to-dos. */
 function weekFixture() {

@@ -8,7 +8,7 @@
   import { TEMPLATES_KEY } from '../templates.js';
   import { commandActions, COMMAND_HREF } from '../search.js';
   import { ops } from '../bedienung.svelte.js';
-  import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
+  import { openTrip, addItem, openNew, openNote, quickRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
   import { countUse } from '../home/usage.js';
@@ -116,7 +116,7 @@
     q = '';
     open = false;
     if (cmd.kind === 'weigh') location.hash = '#/gear?tab=weigh';
-    else if (cmd.kind === 'dayride') dayRide(cmd.bikeId ?? null);
+    else if (cmd.kind === 'dayride') quickRide(cmd.bikeId ?? null);
     else if (cmd.kind === 'km') openNew('km');
     else if (cmd.kind === 'note') openNote(cmd.text ?? '');
     else if (cmd.kind === 'wear') openWear();
@@ -141,7 +141,7 @@
   });
 
   // v0.38.0 (Noah 13a): pages of "More" and the things of "New" are found too; an action does it.
-  const RUN = { trip: () => openNew('list'), dayride: dayRide, note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
+  const RUN = { trip: () => openNew('list'), dayride: () => quickRide(), note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
   function go(row) {
     remember(q);
     if (row.tripId) openTrip(row.tripId);

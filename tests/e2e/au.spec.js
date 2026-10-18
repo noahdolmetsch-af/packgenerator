@@ -217,8 +217,8 @@ test('A-U5: a new trip fills in hours and start, green with where from, changeab
   await expect(place).toHaveValue('test_data_gtp_ Heimort, Aargau, Switzerland');
   await expect(place).toHaveClass(/\bpre\b/);
   await expect(dlg.locator('#tn-placefrom')).toHaveText(T('from your home place · you can change it'));
-  // the bike of the open trip (Packen opens the window from it), said below the chips
-  await expect(dlg.getByText(T('the bike of the open trip · you can change it'))).toBeVisible();
+  // VS1 (Noah 14.10.2026): the standard bike comes (not the open trip's), said below the chips
+  await expect(dlg.locator('.std-pre')).toContainText(T('is chosen. A tap on another bike counts only for this trip.'));
   // the name: one that exists shows at the field, before saving, with a free one to take
   const name = dlg.getByLabel(T('Name'), { exact: true });
   await name.fill('test_data_gtp_ Jura');

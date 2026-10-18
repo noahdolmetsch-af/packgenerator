@@ -12,7 +12,7 @@
  *   nights outside (days − 1, not for trips in a hotel), km (the debrief's km, else the route's,
  *   else the linked rides'), climbing and moving time (uploaded rides, gpx.js).
  * - Packing: base weight per trip (trips.js tripStats, today's item weights), dead weight (taken on
- *   2 or more debriefed trips of the window and never used, insights.js), the most used items and
+ *   3 or more (v0.144.0 RE: NEVER_USED_MIN) debriefed trips of the window and never used, insights.js), the most used items and
  *   wishlist items bought (item.boughtAt, stored from 0.44.0 on when a wish becomes owned).
  * - Learning: learnings added, the debrief's clothing answer, the pace of the window against the
  *   one before (pace.js, from the rides in "Your pace").

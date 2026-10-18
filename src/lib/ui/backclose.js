@@ -16,8 +16,8 @@
  * `cancel` event (Android back, Escape) now runs onBack too, like NoteSheet's oncancel: back keeps.
  */
 let seq = 0;
-/** Tokens of the dialogs open now. An entry whose dialog closed is stale and may be reused. */
-const live = new Set();
+/** Tokens of the dialogs open now, with their <dialog>. An entry whose dialog closed is stale and may be reused. */
+const live = new Map();
 
 export function backClose(node, onBack = null) {
   let back = onBack;
@@ -29,12 +29,18 @@ export function backClose(node, onBack = null) {
     if (token) return;
     token = `d${++seq}`;
     url = location.href;
-    live.add(token);
     const state = { ...(history.state ?? {}), pgDialog: token };
     // one dialog closes and the next opens in the same tap («Neu» → «Tour planen»): the closed one's
-    // entry is still there (its history.back() waits), so this one takes it over instead of a second
-    if (history.state?.pgDialog && !live.has(history.state.pgDialog)) history.replaceState(state, '', url);
-    else history.pushState(state, '', url);
+    // entry is still there (its history.back() waits), so this one takes it over instead of a second.
+    // Paket 3: the closed one may still count as live, because its `close` event comes a task later
+    // («Neu» → «Werkstattbesuch»); a dialog that is no longer open gives its entry up too.
+    const cur = history.state?.pgDialog;
+    const owner = cur ? live.get(cur) : null;
+    if (cur && (!owner || !owner.open)) {
+      live.delete(cur);
+      history.replaceState(state, '', url);
+    } else history.pushState(state, '', url);
+    live.set(token, node);
   };
   const drop = () => {
     const mine = token;

@@ -205,6 +205,8 @@
 
   $effect(() => {
     if (spot === 'compare' && data) queueMicrotask(() => document.getElementById('compare')?.scrollIntoView());
+    // Regeln der App (14.10.2026): the old link «12 months» (#/review) lands at the period part
+    if (spot === 'period' && data) queueMicrotask(() => document.getElementById('per-h')?.closest('section')?.scrollIntoView());
   });
   const highest = (p) => (p?.length ? Math.max(...p.map((x) => x[1] ?? 0)) : null);
   const ARTNAME = Object.fromEntries(ARTS.map((a) => [a.key, a.name]));

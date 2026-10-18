@@ -8,7 +8,7 @@
   import { db } from '../db.js';
   import { downloadBackup } from '../backup.js';
   import { TIP, tapTip, updateTips } from '../tips.js';
-  import { dayRide, openNew, openNote, openData, openTrip } from '../nav.js';
+  import { quickRide, openNew, openNote, openData, openTrip } from '../nav.js';
   import { install } from '../install.js';
   import { localDay } from '../localday.js';
   import { t, lang, setLang } from '../i18n.svelte.js';
@@ -33,7 +33,7 @@
   async function run() {
     tap();
     const what = tip.go.run;
-    if (what === 'dayRide') dayRide();
+    if (what === 'dayRide') quickRide();
     else if (what === 'note') openNote('');
     else if (what === 'receipt') openNote(t('Workshop receipt: '));
     else if (what === 'km') openNew('km');

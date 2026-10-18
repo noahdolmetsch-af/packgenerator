@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.35.0 (AP29, Noah, variant B): the small pill "{n} more ▾" on the kicker line of the dark trip
    * band. It lists the other trips and debriefs still in progress (drafts.js inProgress); a phone
@@ -98,7 +99,7 @@
     {/if}
   </span>
 {/if}
-<dialog class="ip-sheet" bind:this={sheet} onclose={() => (open = false)} aria-labelledby="ip-h">
+<dialog use:backClose class="ip-sheet" bind:this={sheet} onclose={() => (open = false)} aria-labelledby="ip-h">
   {#if open && phone.matches}{@render body()}{/if}
 </dialog>
 

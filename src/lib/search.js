@@ -99,7 +99,7 @@ export const fold = (s) => norm(s).replace(/ä/g, 'ae').replace(/ö/g, 'oe').rep
  */
 export const COMMANDS = [
   { kind: 'weigh', say: ['wiegen', 'waegen', 'weigh', 'waage'], bike: 'none' },
-  { kind: 'dayride', say: ['tagestour', 'day ride', 'dayride', 'ausfahrt'], bike: 'optional' },
+  { kind: 'dayride', say: ['schnellstart', 'quick start', 'tagestour', 'day ride', 'dayride', 'ausfahrt'], bike: 'optional' },
   { kind: 'chain', say: ['kette geoelt', 'kette gewachst', 'kette geschmiert', 'geoelt', 'gewachst', 'chain lubed', 'chain waxed', 'chain oiled', 'lubed', 'oiled', 'waxed'], bike: 'required' },
   { kind: 'sealant', say: ['dichtmilch', 'sealant'], bike: 'required' },
   { kind: 'wash', say: ['velo gewaschen', 'gewaschen', 'bike washed', 'washed'], bike: 'required' },
@@ -134,7 +134,7 @@ function bikesNamed(words, bikes) {
 
 const CMD_TITLE = {
   weigh: () => t('Start weighing'),
-  dayride: (b) => (b ? t('Day ride with the {bike}', { bike: b.name }) : t('Day ride now')),
+  dayride: (b) => (b ? t('Quick start with the {bike}', { bike: b.name }) : t('Quick start')),
   chain: (b) => t('{bike}: chain lubed', { bike: b.name }),
   sealant: (b) => t('{bike}: sealant topped up', { bike: b.name }),
   wash: (b) => t('{bike}: washed|command', { bike: b.name }),
@@ -148,7 +148,7 @@ const CMD_TITLE = {
   bike: (b) => t('Open the {bike}', { bike: b.name }),
 };
 const SAVED = 'Saved with today’s date, with Undo';
-const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', quicknote: 'Into the Inbox', dayride: 'One tap, with Undo', backup: 'Me|place', settings: 'Me|place', bike: 'Bikes|place' };
+const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', quicknote: 'Into the Inbox', dayride: 'today, 2.5 h, the bike ridden last', backup: 'Me|place', settings: 'Me|place', bike: 'Bikes|place' };
 
 /**
  * The commands a search says: [{ id, kind, title, sub, cmd: { kind, bikeId?, text? } }], at most 4.
