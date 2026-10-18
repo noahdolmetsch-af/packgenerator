@@ -38,6 +38,7 @@
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
+  import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
@@ -527,6 +528,8 @@
         </div>
 
         <div class="rv-col">
+          <!-- Planungs-Notizen (IS 246–249): «Hat es geholfen?» -->
+          <DebriefPlanNotes {trip} />
           {#if freeNotes.length}
             <section class="rv-sec ridenotes" aria-labelledby="notes-h">
               <div class="rv-h"><div><h2 id="notes-h">{t('Notes on the way')}</h2><p class="rv-sub">{tn(freeNotes.length, '{n} · waiting here', '{n} · waiting here')}</p></div></div>
