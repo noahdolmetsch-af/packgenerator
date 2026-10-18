@@ -257,12 +257,15 @@ export function keepValues(bike) {
  * The text for the bike shop (in German, the bike shops speak German): the message of the order
  * (workshop.js orderText) with the km, the wishes and the values to keep after the list.
  */
-export function orderSheetText(rows, { bike, trip = null, wishes = '', keep = [] } = {}) {
+export function orderSheetText(rows, { bike, trip = null, wishes = '', keep = [], again = [], againDate = null } = {}) {
   const text = orderText(rows, { bike, trip });
   const extra = [];
   if (typeof bike?.km === 'number') extra.push(`Kilometerstand: ${bike.km.toLocaleString('de-CH')} km`);
   if (wishes.trim()) extra.push(`Wünsche: ${wishes.trim()}`);
-  if (keep.length) extra.push(`Bitte so lassen: ${keep.map((r) => `${r.de ?? r.label} ${r.value}`).join(', ')}`);
+  // «Werte messen» W2: the values of the last Pick-up check instead of «please leave as it is»
+  const list = (rs) => rs.map((r) => `${r.de ?? r.label} ${r.value}`).join(', ');
+  if (again.length) extra.push(`So soll es wieder sein${againDate ? ` (Abholen ${againDate.split('-').reverse().join('.')})` : ''}: ${list(again)}`);
+  else if (keep.length) extra.push(`Bitte so lassen: ${list(keep)}`);
   if (!extra.length) return text;
   const lines = text.split('\n');
   const listEnd = lines.findIndex((l, n) => n > 2 && l === '');

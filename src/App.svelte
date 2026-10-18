@@ -60,6 +60,9 @@
   import Bills from './pages/Bills.svelte';
   import PayLink from './pages/PayLink.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
+  import Reminders from './pages/Reminders.svelte';
+  import Merken from './pages/Merken.svelte';
+  import RemindCard from './lib/remind/RemindCard.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -435,6 +438,12 @@
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
     <InvoiceNew />
+  {:else if page === 'reminders'}
+    <!-- ER3 (Noah 14.10.2026 «1a 2a 3a 4a 5b er1-er3 freigabe»): Ich › Erinnerungen -->
+    <Reminders />
+  {:else if page === 'calendar'}
+    <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
+    <Merken />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -460,6 +469,8 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+<!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if page !== 'share'}<RemindCard />{/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}

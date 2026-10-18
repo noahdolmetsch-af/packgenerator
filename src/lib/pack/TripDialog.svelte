@@ -1,4 +1,5 @@
 <script>
+  import { offerTrip } from '../remind/ask.svelte.js';
   import DateInput from '../ui/DateInput.svelte';
   import { backClose } from '../ui/backclose.js';
   import '../trip/trip.css';
@@ -516,6 +517,7 @@
       await db.trips.put(touched(nt));
       rememberDomain(area);
       oncreated?.(nt.id);
+      offerTrip(nt); // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): «Soll ich dich vor der Tour erinnern?»
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
@@ -527,6 +529,7 @@
       await db.trips.put(touched($state.snapshot(withBlocks(nt))));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
+      offerTrip(nt); // ER2: «Soll ich dich vor der Tour erinnern?»
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
       if (draft.testTrip !== (trip.testTrip === true)) changes.testTrip = draft.testTrip; // 0.161.0 (Noah H3a)

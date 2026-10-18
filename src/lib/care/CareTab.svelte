@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import { offerCare } from '../remind/ask.svelte.js';
   import { localDay } from '../localday.js';
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
@@ -205,6 +206,8 @@
       } else item = await wish(view, key, e.model);
     }
     saved(view, [key], e, { bikeId: bike.id, prev, itemId: item?.id ?? null });
+    // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): after «Kette geölt» once «Wieder erinnern, wenn es fällig ist?»
+    if (key === 'chain' && e.action === 'service') offerCare(bike, 'chain');
   }
   async function undoSave() {
     const u = $state.snapshot(notice?.undo); // plain data: Dexie cannot store a state proxy

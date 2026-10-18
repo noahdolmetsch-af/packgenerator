@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 106 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 108 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -37,13 +37,13 @@ Drei Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startb
 
 ## Vor der Tour
 
-### Tagestour in 1 Tipp
+### Schnellstart in 1 Tipp
 
-Ein Tipp plant eine kurze Fahrt wie deine letzte, mit dem Wetter.
+Ein Tipp plant eine Tour für heute: 2,5 Std., zuletzt gefahrenes Velo, mit dem Wetter.
 
 **Aufschalten:** Braucht eine Tour, die begonnen hat oder vorbei ist.
 
-1. Tippe «Neu» › «Tagestour jetzt» oder die Tagestour-Kachel auf Heute.
+1. Tippe «Neu» › «Schnellstart» oder «Schnellstart» auf Heute.
 2. Liste prüfen; «Ändern» oder «Rückgängig», wenn es nicht passt.
 
 **Beispiel:** Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.
@@ -581,7 +581,7 @@ Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
 2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.
 3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Learnings merken.
 
-**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
+**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 Min Pausen.
 
 ### Vergangene Touren
 
@@ -739,6 +739,18 @@ Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.
 
 **Beispiel:** Hinweis «Hinten ist schwer» → den Kocher in die Rahmentasche verschieben.
 
+### Taschen-Setups pro Velo
+
+Mehrere Taschen-Setups pro Velo: welche Taschen und was wohin kommt, Gewichte, zwei oder alle vergleichen, beim Planen eins wählen.
+
+**Aufschalten:** Braucht zuerst ein Velo mit Taschen: Material › Taschen.
+
+1. Öffne Velos › Mein Setup und tippe «Neues Setup».
+2. Wähle im Setup die Taschen und lege deine Sachen hinein.
+3. Beim Planen einer Tour tippe «Setup: …», um ein anderes zu nehmen.
+
+**Beispiel:** «Bikepacking 3 Tage» 12.4 kg Basisgewicht, «Tagestour leicht» 10.9 kg.
+
 ### Setup-Logbuch
 
 Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.
@@ -749,6 +761,18 @@ Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach
 2. Notiere nach der nächsten Tour, wie es sich angefühlt hat.
 
 **Beispiel:** «Neue Reifen 45 mm» am 3. Mai → 420 km seither, «ruhiger auf Schotter».
+
+### Garmin-Seiten
+
+Muster-Datenseiten für den Edge 1040 und 540 pro Velo, mit dem Grund für jeden Wert.
+
+**Aufschalten:** Braucht zuerst ein Velo unter Velos.
+
+1. Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.
+2. Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.
+3. Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.
+
+**Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.
 
 ### Problem am Velo
 
@@ -904,7 +928,7 @@ Lange auf eine Aktivität drücken; sie läuft auf jeder Seite weiter.
 1. Unter Aktiv eine Aktivität lange drücken (Rechtsklick am Computer).
 2. Wähle Stoppuhr; sie läuft auf jeder Seite weiter.
 
-**Beispiel:** 15 min Countdown für Yoga → am Ende klingt die Klangschale.
+**Beispiel:** 15 Min Countdown für Yoga → am Ende klingt die Klangschale.
 
 ### Ziele und Tage
 
@@ -941,12 +965,12 @@ Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein V
 
 ### Tipps und «Wusstest du»
 
-Ein Tipp pro Tag, was die App auf der Seite kann, Kacheln zu den nächsten Orten und eigene Links; Erde und Everest in Vergangene Touren.
+Ein Tipp pro Tag und was die App auf der Seite kann; Erde und Everest in Vergangene Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
-2. Am Seitenende: «Das kann die App hier» und die Kacheln «Weiter», mit «+ Eigener Link».
+2. Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.
 
 **Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
 
@@ -982,7 +1006,7 @@ Starten wie letztes Mal oder aus einer Vorlage; Klänge und eine ruhige Uhr.
 1. Öffne Aktiv › Meditation.
 2. Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.
 
-**Beispiel:** 10 min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
+**Beispiel:** 10 Min, Gong am Anfang und Ende, ruhige Uhr auf dem Bildschirm.
 
 ### Meditations-Protokoll
 

@@ -171,6 +171,12 @@ export default {
   'Open Trips.': 'Öffne Touren.',
   'The «Best values» card shows your records; «All» shows more.': 'Die Karte «Bestwerte» zeigt deine Rekorde; «Alle» zeigt mehr.',
   'Example: longest day 148 km, most climbing 2600 m.': 'Beispiel: längster Tag 148 km, meiste Höhenmeter 2600 Hm.',
+  // 0.147.0 Taschen-Setups
+  'Needs a bike with bags first: Gear › Bags.': 'Braucht zuerst ein Velo mit Taschen: Material › Taschen.',
+  'Open Bikes › My setup and tap «New setup».': 'Öffne Velos › Mein Setup und tippe «Neues Setup».',
+  'In the setup choose the bags and put your things into them.': 'Wähle im Setup die Taschen und lege deine Sachen hinein.',
+  'When planning a trip, tap «Setup: …» to take another one.': 'Beim Planen einer Tour tippe «Setup: …», um ein anderes zu nehmen.',
+  'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.': 'Beispiel: «Bikepacking 3 Tage» 12.4 kg Basisgewicht, «Tagestour leicht» 10.9 kg.',
   'Needs a bike first: Bikes › «Add bike».': 'Braucht zuerst ein Velo: Velos › «Velo hinzufügen».',
   'Open Bikes and choose a bike.': 'Öffne Velos und wähle ein Velo.',
   'Under setup, put each bag on its place with its weight.': 'Setz im Setup jede Tasche an ihren Platz, mit Gewicht.',
@@ -381,4 +387,9 @@ export default {
   'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
   'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
+  // f.garmin (0.146.0 «Garmin-Seiten»)
+  'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
+  'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.',
+  'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
+  'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.',
 };

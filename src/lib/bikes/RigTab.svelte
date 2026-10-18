@@ -6,6 +6,9 @@
    * added yourself («Ideas from others»: big cards with a drawn picture, never a copied photo).
    * Everything is a suggestion: nothing has to be filled in, every link and row can be removed.
    * view: 'bags' opens the bag plan (UC3-2), 'log' the setup log (UC3-3).
+   * Taschen-Setups TS0–TS5 (Noah 14.10.2026 «TS0–TS5 freigegeben»): the tab is «Mein Setup», the bag
+   * setups come first (SetupList), the photo card is «Fotos», and the small weight and bag-plan cards
+   * show the last used setup (3b). view: 'setup' one setup (TS2), 'compare' two (TS3), 'table' all (TS4).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -15,16 +18,22 @@
   import { bikePhotos, shrinkImage } from '../photo.js';
   import { localDay } from '../localday.js';
   import { newNote } from '../notes.js';
-  import { planTrips, bagPlan, sideShares, weightSplit, compareLoad, filterLinks, linkYears, racesOf, domainOf, logView } from '../rig.js';
+  import { compareLoad, filterLinks, linkYears, racesOf, domainOf, logView } from '../rig.js';
+  import { setupOf, setupCalc, lastUsedId } from '../setups.js';
   import { Plus, Camera, ChevronRight, Star, ExternalLink, Flag, Bike, Pencil, X } from '@lucide/svelte';
   import RigBike from './RigBike.svelte';
   import RigArt from './RigArt.svelte';
   import RigLinkDialog from './RigLinkDialog.svelte';
   import RigPlan from './RigPlan.svelte';
   import RigLog from './RigLog.svelte';
+  import SetupList from './SetupList.svelte';
+  import SetupBar from './SetupBar.svelte';
+  import SetupDetail from './SetupDetail.svelte';
+  import SetupCompare from './SetupCompare.svelte';
+  import SetupTable from './SetupTable.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
 
-  let { bikeId = null, view = null, onbike } = $props();
+  let { bikeId = null, view = null, setupId = null, a = null, b = null, onbike } = $props();
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const photosQ = liveQuery(() => db.photos.toArray());
@@ -63,13 +72,14 @@
     return at ? dateOf(at.slice(0, 10)) : p.name;
   };
 
-  /* ---------- weight and bag plan from the next (or last) trip on this bike ---------- */
-  const trip = $derived(bike ? planTrips(trips, bike.id, today, 1)[0] ?? null : null);
-  const plan = $derived(trip ? bagPlan(trip, $itemsQ ?? [], $bagsQ ?? [], bike) : null);
-  const split = $derived(plan ? weightSplit(plan.stats, bike) : null);
+  /* ---------- weight and bag plan of the last used setup (TS 3b) ---------- */
+  const items = $derived($itemsQ ?? []);
+  const containers = $derived($bagsQ ?? []);
+  const setup = $derived(bike ? setupOf(bike, lastUsedId(bike, trips), trips) : null);
+  const calc = $derived(setup ? setupCalc(setup, bike, items, containers) : null);
+  const setupName = $derived(setup ? (setup.std ? t('Standard|setup') : setup.name) : '');
   const kg = (g) => num(Math.round(g / 100) / 10);
-  const pct = (g) => (split?.totalG ? `${(g / split.totalG) * 100}%` : '0');
-  const shares = $derived(plan ? sideShares(plan.sides) : null);
+  const shares = $derived(calc?.shares ?? null);
   const withLoad = $derived(links.filter((l) => l.kind !== 'race' && l.packKg));
 
   /* ---------- the setup log, newest three ---------- */
@@ -114,16 +124,24 @@
   <RigPlan {bike} />
 {:else if bike && view === 'log'}
   <RigLog {bike} />
+{:else if bike && view === 'setup'}
+  <SetupDetail {bike} {bikes} {setupId} {trips} {items} {containers} />
+{:else if bike && view === 'compare'}
+  <SetupCompare {bike} {a} {b} {trips} {items} {containers} />
+{:else if bike && view === 'table'}
+  <SetupTable {bike} {trips} {items} {containers} />
 {:else if bike}
   {#if bikes.length > 1}
     <div class="bchips" role="group" aria-label={t('Bike')}>
       {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}><Bike size={16} aria-hidden="true" />{b.name}</button>{/each}
     </div>
   {/if}
-  <p class="lead">{t('Your setup for this bike: photos, weight, bags, changes and ideas from others.')}</p>
+  <p class="lead">{t('Your bag setups for this bike, with photos, changes and ideas from others.')}</p>
+
+  <SetupList {bike} {bikes} {trips} {items} {containers} />
 
   <section class="card blk" aria-labelledby="rg-photos">
-    <header class="bh"><h2 id="rg-photos">{t('My setup')}</h2><p>{t('your photos, only on this device')}</p></header>
+    <header class="bh"><h2 id="rg-photos">{t('Photos')}</h2><p>{t('your photos, only on this device')}</p></header>
     <div class="shots">
       {#each photos as p (p.id)}
         <figure><img src={p.src} alt={p.name} /><figcaption>{photoDate(p)}</figcaption></figure>
@@ -140,20 +158,16 @@
 
   <div class="two">
     <section class="card blk" aria-labelledby="rg-weight">
-      <header class="bh"><h2 id="rg-weight">{t('Total weight')}</h2>{#if trip}<p>{t('Packing list «{name}»', { name: trip.title })}</p>{/if}</header>
-      {#if split}
-        <p class="tot"><b class="num">{kg(split.totalG)} kg</b> <span>{t('Bike + luggage + food and water')}</span></p>
-        <div class="wbar" aria-hidden="true"><i class="w1" style:width={pct(split.bikeG)}></i><i class="w2" style:width={pct(split.packG)}></i><i class="w3" style:width={pct(split.eatG)}></i></div>
-        <ul class="wl">
-          <li><i class="w1"></i>{t('Bike')} <span class="num">{kg(split.bikeG)} kg</span></li>
-          <li><i class="w2"></i>{t('Luggage')} <span class="num">{kg(split.packG)} kg</span></li>
-          <li><i class="w3"></i>{t('Food and water')} <span class="num">{kg(split.eatG)} kg</span></li>
-        </ul>
-        {#if split.missing}<p class="hint">{tn(split.missing, '{n} thing has no weight yet.', '{n} things have no weight yet.')}</p>{/if}
+      <header class="bh"><h2 id="rg-weight">{t('Total weight')}</h2>{#if calc}<p>{t('Setup «{name}»', { name: setupName })}</p>{/if}</header>
+      {#if calc && calc.list.length}
+        <p class="tot"><b class="num">{kg(calc.baseG)} kg</b> <span>{t('Base weight: bike + bags + gear')}</span></p>
+        <p class="hint">{t('With food and water: {kg}', { kg: `${kg(calc.totalG)} kg` })}</p>
+        <SetupBar {calc} legend />
+        {#if calc.missing}<p class="hint">{tn(calc.missing, '{n} thing has no weight yet.', '{n} things have no weight yet.')}</p>{/if}
         {#if withLoad.length}
           <ul class="cmpl" aria-label={t('Your saved rigs')}>
             {#each withLoad as l (l.id)}
-              {@const c = compareLoad(split.packG, l.packKg)}
+              {@const c = compareLoad(calc.bagsG + calc.contentG, l.packKg)}
               <li><span class="t">{l.title}</span><span class="num">{t('about {kg} kg', { kg: num(l.packKg) })}</span><span class="lt {c}">{c === 'lighter' ? t('you lighter') : c === 'heavier' ? t('you heavier') : t('about the same')}</span></li>
             {/each}
           </ul>
@@ -161,18 +175,19 @@
         <p class="hint">{t('Weights from Gear. Only a hint, not a goal. The luggage of a rig is what you type in its link.')}</p>
       {:else}
         <p class="tot"><b class="num">{bike.weightG == null ? t('not weighed') : `${kg(bike.weightG)} kg`}</b> <span>{t('Bike')}</span></p>
-        <p class="hint">{t('No packing list with this bike yet. Plan a trip with it and the total shows here.')}</p>
+        <p class="hint">{t('No bags in this setup yet. Open it and choose the bags: the total shows here.')}</p>
       {/if}
+      {#if setup}<a class="more" href={bikesHash({ tab: 'rig', view: 'setup', bike: bike.id, setup: setup.id })}>{t('Open setup')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
     </section>
 
     <section class="card blk" aria-labelledby="rg-bags">
-      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if plan}<p>{t('{kg} kg in {n} bags', { kg: kg(plan.totalG), n: plan.bags.length })}</p>{/if}</header>
-      {#if plan && plan.bags.length}
-        <RigBike bags={plan.bags} label={t('Bike with {n} bags', { n: plan.bags.length })} />
+      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if calc}<p>{t('{kg} kg in {n} bags', { kg: kg(calc.loadG), n: calc.list.length })}</p>{/if}</header>
+      {#if calc && calc.list.length}
+        <RigBike bags={calc.list} label={t('Bike with {n} bags', { n: calc.list.length })} />
         <div class="sides">
-          <div><b class="num">{kg(plan.sides.front)}</b><small>{t('kg front')}</small></div>
-          <div><b class="num">{kg(plan.sides.middle)}</b><small>{t('kg middle')}</small></div>
-          <div><b class="num">{kg(plan.sides.rear)}</b><small>{t('kg rear')}</small></div>
+          <div><b class="num">{kg(calc.sides.front)}</b><small>{t('kg front')}</small></div>
+          <div><b class="num">{kg(calc.sides.middle)}</b><small>{t('kg middle')}</small></div>
+          <div><b class="num">{kg(calc.sides.rear)}</b><small>{t('kg rear')}</small></div>
         </div>
         <span class="sr">{t('{f} % front, {m} % middle, {r} % rear', { f: shares.front, m: shares.middle, r: shares.rear })}</span>
       {:else}
@@ -413,42 +428,6 @@
   .tot b {
     font-size: var(--fs-title);
     color: var(--ink);
-  }
-  .wbar {
-    display: flex;
-    height: 14px;
-    border-radius: 99px;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .w1 {
-    background: var(--ink-2);
-  }
-  .w2 {
-    background: var(--warn);
-  }
-  .w3 {
-    background: var(--ok);
-  }
-  .wl {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-  }
-  .wl li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .wl i {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
   }
   .cmpl {
     list-style: none;
