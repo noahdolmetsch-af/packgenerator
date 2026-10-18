@@ -1433,3 +1433,33 @@ Antworten Noah 14.10.2026 04:25 UTC «1a 2a 3a 4a»:
 - **Noah 15.10.2026 «1 weiter auf andere geeignete seite integrieren 1a 2b»:**
   - 1a: die zweite Reihe «Weiter» auf Aktiv › Heute fällt weg. Was nur dort stand, lebt in den Seiten-Kacheln weiter (unter «Kacheln anpassen» › Dazunehmen): auf Aktiv Erholung, Woche, Trophäen-Vitrine und hepa.ch «Bewegung empfohlen»; auf Rückblick Trophäen-Vitrine und Meilensteine. Eigene Links gehen wie bisher mit «+» › Eigener Link. Ziele, Meilensteine, Fahrten-Buch und Strava standen schon in den Kacheln.
   - 2b: Fahrten auf einem Strava-Velo mit «Ignorieren» zählen nicht in Monat, Woche, Jahresziel und Balance (`notIgnored` in `kmbook.js`).
+
+## 15.10. bis 18.10.2026: Pakete, Bedienregeln, neue Bündelung
+
+Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heutige Gesamtstand steht im [Projektstand](projektstand.md).
+
+- **Pakete statt Einzel-PRs (15.10., «1a»):** fertige Teile werden zu Paketen gebündelt; ein Thread («Mein Überblick») fügt sie zusammen. Ersetzt «jeder PR bekommt sofort einen eigenen Link» vom 14.10.
+- **Paketplan P3 bis P13 (15.10., abends):** Datensicherheit gleich nach P3 (P3b), Bedienregeln als P3c, Server-Teile in einem Server-Paket (Vercel-Schritte nur einmal), ab P4 kleinere Pakete mit zwei bis drei Teilen. Am 18.10. ersetzt (siehe unten).
+- **Datenbank-Stufen (15.10., «1a»):** 12 = Dokumente (Paket A), 13 = Fitbit, 14 = Dokument als PDF, 15 = Google Aufgaben und Kalender (alle Paket B). Grund: die Stufen bauen aufeinander auf, darum kommt A vor B.
+- **Bedienregeln für die ganze App (15.10., sechs Fragerunden):**
+  - Ein Fenster schliessen (✕, Zurück, Escape) schliesst zuerst das Fenster; das Getippte bleibt, nur «Verwerfen» löscht.
+  - Zuletzt gewählte Tour und zuletzt gewähltes Velo bleiben überall gewählt.
+  - «Alle Daten ersetzen» fragt zweimal und macht vorher selbst ein Backup.
+  - Am Handy kommen alle Fenster von unten. «Rückgängig» bleibt überall 4 Sekunden, beim Packen bis zum Tourwechsel.
+  - Langes Wischen in Material fragt zuerst; langes Drücken auf ein Teil bietet «Kaputt» an.
+  - Eine neue Tour ohne Namen wird gespeichert, sobald etwas gewählt ist. Liegt das Datum einer Tour zurück, fragt Heute «Bist du gefahren?».
+  - Die Tourkachel zeigt am Starttag «Packen», bis fertig gepackt ist. Nur der Schalter «Testtour» versteckt eine Tour. In «Heute wichtig» steht Rot zuoberst. Demo-Touren zählen wie echte.
+  - Ein Weg «Fahrt hochladen» für GPX, TCX und CSV. Der Zurück-Weg ist überall ein Pfad («Ich › …»). Suche und Filter in Material sind bei jedem Öffnen leer.
+  - Ein Tipp auf die Meditations-Kachel hakt ab, langes Drücken startet.
+  - Kamera-Knopf grün mit Galerie, bei allen Fotos; Werkstattbesuch öffnet die Kamera sofort; «Weitere Seite» für mehrseitige Belege.
+- **Rechnungs-Erinnerungen (15.10., «4b»):** nur unter Ich › Bezahlen, nicht auf Heute.
+- **Ausrüstung (15.10.):** eigener Ort in der Navigation; am Handy teilen sich Velos und Ausrüstung einen Platz mit Umschalter. Fällige Pflege der Ausrüstung steht als Zeile auf Heute.
+- **Woche planen (15.10.):** eigener Ort «Woche», am Handy statt «Material» in der Leiste; Sonntags-Planung Schritt für Schritt; Google Kalender gleich dabei; Ferien schlagen Folgen vor, alles abwählbar.
+- **Ideen 1 bis 3 bauen (15.10., abends):** Planungs-Notizen im Tour-Entwurf, Routine «Das tut mir gut», Erinnerungen aufs Handy; dazu Geburtstage und Pflanzen sowie «Mehr selbst einstellen».
+- **Veröffentlichen (15.10., am 18.10. mit «1b» bestätigt):** Claude führt ein Paket für Noah zusammen, aber nur, wenn Noah die Bilder dieses Pakets gesehen und dafür «ok» geschrieben hat, die Prüfungen auf dem letzten Commit grün sind und `main` sich nicht bewegt hat. Eine blosse «Freigabe» ohne Paketnamen zählt nicht. Ersetzt «Noah merged jeden PR selbst» vom 10.10.
+- **Neue Tour nimmt immer das Standard-Velo (18.10., «1b»):** gilt nur für neue Touren; sonst bleibt die Regel «zuletzt gewählt bleibt gewählt».
+- **Automatischer Abgleich Handy–Computer (18.10., «1b und a möglich 2b 3b»):** über eine Gratis-Datenbank auf Vercel, Google Drive als Ersatz; bei einem Konflikt fragt die App. Kommt mit dem Server-Paket.
+- **Erinnerungen aufs Handy (18.10., «2b»):** ein Gratis-Wecker (cron-job.org) stösst den Server jede Minute an. Die Inhalte der Ideen 1 bis 3 sind so freigegeben, wie sie gebaut sind («1a»).
+- **Tages-Check (18.10.):** Morgen-Check und Abend-Rückblick werden wieder eigene Seiten (auch erreichbar aus «Wi gaht's?»); Kachel «Deine 15 Fragen» mit eigener Seite; ein grosser Balance-Ring mit 9 Bereichen ersetzt auf Heute die drei Im-Flow-Ringe.
+- **Neu bündeln in sechs Pakete (18.10., 19:37 UTC, «1a 2b 3b 4a»):** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. Neue Arbeit darf parallel weiterlaufen; Skitour bleibt in E. Versionen: P3 0.145.0, A 0.146.0, danach ein Schritt pro Paket. Ersetzt den Paketplan P3 bis P13.
+- **Doku (18.10.):** neuer Einstieg [projektstand.md](projektstand.md) und [geschichte.md](geschichte.md); der Projektstand wird bei jedem Paket nachgeführt.
