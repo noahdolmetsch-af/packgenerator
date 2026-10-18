@@ -12,7 +12,6 @@
  * The rules are pure functions (tests/dayride.test.js); only fetchHomeForecast talks to the network.
  */
 import { newTrip, WX_PRESETS } from './trips.js';
-import { chosenBike } from './lastchoice.js';
 import { tripFromTemplate } from './templates.js';
 import { contextTrip } from './context.js';
 import { hasBike } from './domains.js';
@@ -97,9 +96,6 @@ const usedAt = (trip, today) => {
  * It was the trip with the latest start date, so a trip planned weeks ahead on another bike won.
  */
 export function lastBikeId(trips = [], bikes = [], today = localDay()) {
-  // P3b 4a: the bike chosen last (anywhere in the app) comes first
-  const picked = chosenBike(bikes);
-  if (picked) return picked;
   const known = new Set(bikes.map((b) => b.id));
   const last = [...trips]
     .filter((x) => hasBike(x) && !x.skipped && known.has(x.bikeId))

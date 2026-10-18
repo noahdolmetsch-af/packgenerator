@@ -39,11 +39,11 @@ describe('4a: the bike chosen last stays chosen', () => {
     localStorage.setItem('problem.lastBike', 'b-test-2');
     expect(chosenBike(bikes)).toBe('b-test-2');
   });
-  it('comes first for a new trip and a quick job', () => {
+  it('comes first for a quick job, but never for a new trip (Noah 18.10.2026 «1b»: a new trip takes the standard bike)', () => {
     const trips = [{ id: 't-test-1', bikeId: 'b-test-1', startDate: '2026-10-01', days: 1, createdAt: '2026-10-01' }];
     expect(lastBikeId(trips, bikes, '2026-10-15')).toBe('b-test-1');
     chooseBike('b-test-2');
-    expect(lastBikeId(trips, bikes, '2026-10-15')).toBe('b-test-2');
+    expect(lastBikeId(trips, bikes, '2026-10-15')).toBe('b-test-1');
     expect(hubBike(null, bikes)).toBe('b-test-2');
     expect(hubBike({ bikeId: 'b-test-1' }, bikes)).toBe('b-test-1'); // the next trip's bike still wins
   });
