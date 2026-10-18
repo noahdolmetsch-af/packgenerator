@@ -32,4 +32,8 @@ export default {
   // Favoriten 1: the suggestions on top; Favoriten 2: the bar said once
   '{n} suggestion: often with you, no star yet': '{n} Vorschlag: oft dabei, noch ohne Stern',
   '{n} suggestions: often with you, no star yet': '{n} Vorschläge: oft dabei, noch ohne Stern',
-  'Bar: the weight of the favourites against the heaviest kind': 'Balken: Gewicht der Favoriten im Vergleich zur schwersten Art',};
+  'Bar: the weight of the favourites against the heaviest kind': 'Balken: Gewicht der Favoriten im Vergleich zur schwersten Art',
+  // Import prüfen 1: the empty page in plain words, with where the file comes from
+  'Here a gear list comes into the app, for example one Claude built from your Excel list (a file ending in .json). You first see every item and decide what is taken over. Nothing goes into your gear before you confirm it.':
+    'Hier kommt eine Material-Liste in die App, zum Beispiel eine, die Claude aus deiner Excel-Liste gebaut hat (Datei mit der Endung .json). Du siehst zuerst jedes Teil und entscheidest, was übernommen wird. Nichts kommt in dein Material, bevor du es bestätigst.',
+  'Choose a gear list': 'Material-Liste wählen',};

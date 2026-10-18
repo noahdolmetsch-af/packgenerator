@@ -162,3 +162,19 @@ test('Kleider 1 and 2: the head follows the switch, the switch explained once; a
   }
   await noSideways(page);
 });
+
+test('Import prüfen 1: the empty page in plain words, choosing a gear list is the main button', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: materialFixture() });
+  await page.goto('./#/gear/import');
+  await expect(page.getByRole('heading', { level: 1, name: 'Import prüfen' })).toBeVisible();
+  const card = page.locator('.empty.card');
+  await expect(card).toContainText('zum Beispiel eine, die Claude aus deiner Excel-Liste gebaut hat (Datei mit der Endung .json)');
+  await expect(card).toContainText('Nichts kommt in dein Material, bevor du es bestätigst.');
+  await expect(card).not.toContainText('gear-import');
+  await expect(card).not.toContainText('Ausrüstung');
+  const pick = card.locator('label.btn', { hasText: 'Material-Liste wählen' });
+  await expect(pick).toHaveClass(/\bhi\b/);
+  expect((await pick.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(page.getByText('Noch kein Import.')).toBeVisible();
+  await noSideways(page);
+});
