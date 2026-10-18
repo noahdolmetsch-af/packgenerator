@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { trackSync } from './sync/track.js';
 
 /**
  * The app's database. It lives in IndexedDB, inside the browser on this device.
@@ -44,6 +45,19 @@ export const DATA_TABLES = [
   'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
   'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
 ];
+
+/**
+ * v0.45.1 (G015a) / v0.77.0: settings records that are the app's own memory on this device, not the
+ * user's data (tips shown, the Helfer-Code). They never go into a backup (backup.js) and the automatic
+ * sync (P8, sync/track.js) never sends them.
+ */
+export const DEVICE_SETTINGS = ['tips', 'helper'];
+
+/**
+ * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
+ * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
+ */
+export const syncLocal = (table, key) => table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'));
 
 /**
  * @typedef {Object} Item
@@ -176,6 +190,9 @@ export function createDb(name = 'pack-generator') {
   db.version(12).stores({
     docs: 'id, kind, group, createdAt',
   });
+  // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
+  // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.
+  trackSync(db, { tables: DATA_TABLES, skip: syncLocal });
   return db;
 }
 

@@ -392,4 +392,10 @@ export default {
   'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
   'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
   'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
+  // P8 «Automatischer Abgleich»
+  'Needs the internet now and then; it is free and the server cannot read your data.': 'Braucht ab und zu Internet; es ist gratis, und der Server kann deine Daten nicht lesen.',
+  'On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.': 'Am Computer: Ich › Daten und Backup › «Abgleich einschalten»; ein QR-Code und ein Code erscheinen.',
+  'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).': 'Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).',
+  'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.': 'Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.',
+  'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».': 'Beispiel: Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».',
 };
