@@ -156,4 +156,8 @@
     justify-self: start;
     padding: 4px 0;
   }
+  /* Paket A: «Save as note» is a tap target of 44 px on a computer too (small buttons are 32 px there) */
+  .keep {
+    min-height: 44px;
+  }
 </style>

@@ -4,7 +4,7 @@ import { expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, replaceAll } from './settle.js';
 
 export const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -73,7 +73,7 @@ export async function openHome(page, context, info, { lang = 'de', data = homeFi
   writeFileSync(file, JSON.stringify(data));
   const panel = await openData(page);
   await panel.getByLabel(T('Import backup')).setInputFiles(file);
-  await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await replaceAll(panel); // P3b 5a: a device with data (HG1f imports three times) asks a second time
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(panel.getByText(/importiert|Imported/)).toBeVisible();
   await page.goto('./#/');

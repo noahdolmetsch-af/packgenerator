@@ -229,7 +229,11 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   await expect(main.locator('[data-row="star"]')).toBeVisible();
   await expect(main.getByRole('heading', { name: T('This page can') })).toHaveCount(0);
   await expect(page.getByText(T('swipe for the next tab'))).toHaveCount(0);
+  // Paket A (HT1–HT2 and «Mehr Inhalt», changed on purpose): the card «Was hier steht», the tip and «Das kann
+  // die App hier» come on every page; the two screens are for Meditation's own content, measured without them
+  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can { display: none !important; }' });
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  await info0.evaluate((el) => el.remove());
   info.annotations.push({ type: 'height', description: `Meditation page ${page.viewportSize().width} px: ${height} px high` });
   if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(1800);
   await fits(page, 'B Meditation kurz');

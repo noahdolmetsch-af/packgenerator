@@ -112,3 +112,23 @@ export async function closeDialog(page) {
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
 }
+
+/**
+ * Paket A (HT1–HT2 «1a», «Mehr Inhalt»): the card «Was hier steht» and the tip line sit on top of a page;
+ * a person who has read them folds the card (×, it becomes one line) and hides today's tip (×).
+ * For specs that check what comes first on a page after that; only for pages that have the card.
+ */
+export async function foldPageInfo(page) {
+  // the card comes once the page's settings are read: wait for it (open, or folded to its line)
+  await expect(page.locator('main section.hint, main [data-hint-line]').first()).toBeVisible();
+  const fold = page.locator('main').getByRole('button', { name: either('Fold the explanation') });
+  if (await fold.count()) {
+    await fold.first().click();
+    await expect(page.locator('main [data-hint-line]')).toBeVisible();
+  }
+  const hide = page.locator('main').getByRole('button', { name: either('Hide the tip for today') });
+  if (await hide.count()) {
+    await hide.first().click();
+    await expect(hide).toHaveCount(0);
+  }
+}
