@@ -27,6 +27,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 - **Mockup check (since 10.10.2026 14:16):** before every release PR, check that Noah saw and commented on the mockups for this package (Trello comment or thread answer). Put the link under «Mockup-Prüfung» in the PR. This saves testing at the end and late front-end wishes.
 - Small decisions you take yourself go in the PR under «Selbst entschieden».
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
+- **Groups everywhere** (Noah, 18.10.2026 «grundsätzlich überall»): every group the user sees or chooses can be renamed and deleted. Deleting asks where the contents go, with «Ohne Gruppe» preselected, and then offers Undo. It never deletes the contents. Names the user typed never go through `t()`. A new kind of group comes with rename and delete and goes in `GROUP_PLACES` (`src/lib/groups.js`), which the guard test `tests/groups.test.js` checks. Use `src/lib/ui/GroupDeleteSheet.svelte` for the delete question.
 - **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order there; if not, ask Noah. Every release PR updates its «Stand heute» section. About every five releases, send Noah a short course check with a/b questions.
 
 ## Privacy (never break)

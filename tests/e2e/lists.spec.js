@@ -114,14 +114,18 @@ test('LI1 + LI2 + LI3: rename, symbol, hide, own category and back to Standard r
   await expect.poll(async () => (await overrides(page)).categories).toBeUndefined();
 });
 
+// «Gruppen überall» (Noah 18.10.2026): deleting asks where the items go, «Ohne Kategorie» first
 test('LI3: delete a Standard category, its items show under «Ohne Kategorie», the reset brings it back', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/me/lists?categories');
   await settle(page);
   await row(page, A.key).getByRole('button', { name: T('Edit: {name}', { name: T(A.name) }) }).click();
   const sheet = page.getByRole('dialog', { name: T('Edit category') });
-  await expect(sheet).toContainText(nOf(A.key) === 1 ? T('Delete: {n} item has this category. It then shows under «No category».', { n: 1 }) : T('Delete: {n} items have this category. They then show under «No category».', { n: nOf(A.key) }));
+  await expect(sheet).toContainText(nOf(A.key) === 1 ? T('Delete: {n} item has this category. The app then asks where it goes.', { n: 1 }) : T('Delete: {n} items have this category. The app then asks where they go.', { n: nOf(A.key) }));
   await sheet.getByRole('button', { name: T('Delete') }).click();
+  const ask = page.getByRole('dialog', { name: T('Delete category «{name}»?', { name: T(A.name) }) });
+  await expect(ask.getByRole('radio', { name: new RegExp(T('Without category')) })).toBeChecked();
+  await ask.getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(row(page, A.key)).toHaveCount(0);
   expect((await overrides(page)).categories.deleted).toEqual([A.key]);
 
@@ -177,4 +181,64 @@ test('LI3 Gilt fuer: a category for some trip areas only, all again stores nothi
   await page.getByRole('dialog', { name: T('Edit category') }).getByRole('button', { name: T('Save') }).click();
   await expect(row(page, A.key)).not.toContainText(T('Only {areas}', { areas: T(AREA_NAMES[0]) }));
   await expect.poll(async () => (await overrides(page)).categories).toBeUndefined();
+});
+
+test('Gruppen ueberall: a category goes with its items into another one, Undo brings both back', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/me/lists?categories');
+  await settle(page);
+  await row(page, A.key).getByRole('button', { name: T('Edit: {name}', { name: T(A.name) }) }).click();
+  await page.getByRole('dialog', { name: T('Edit category') }).getByRole('button', { name: T('Delete') }).click();
+  const ask = page.getByRole('dialog', { name: T('Delete category «{name}»?', { name: T(A.name) }) });
+  await ask.getByRole('radio', { name: T(B.name), exact: true }).check();
+  await ask.getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row(page, A.key)).toHaveCount(0);
+  await expect(row(page, B.key)).toContainText(T('{n} items', { n: nOf(A.key) + nOf(B.key) }));
+  await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+  await expect(row(page, A.key)).toHaveCount(1);
+  await expect(row(page, A.key)).toContainText(nOf(A.key) === 1 ? T('{n} item', { n: 1 }) : T('{n} items', { n: nOf(A.key) }));
+  await expect.poll(async () => (await overrides(page)).categories).toBeUndefined();
+});
+
+test('Gruppen ueberall: note topics and the groups of the bike values can be renamed and deleted', async ({ page, context }) => {
+  await start(page, context);
+  // the overview shows the two new lists
+  await page.goto('./#/me/lists');
+  await settle(page);
+  await expect(page.locator('main').getByRole('link', { name: new RegExp(T('Note topics')) })).toBeVisible();
+  await expect(page.locator('main').getByRole('link', { name: new RegExp(T('Groups of the bike values')) })).toBeVisible();
+
+  // note topics: rename «Training», delete «Trip ideas» (empty or not, the window asks)
+  await page.goto('./#/me/lists?noteTopics');
+  await settle(page);
+  await row(page, 'training').getByRole('button', { name: T('Edit: {name}', { name: T('Training') }) }).click();
+  const ed = page.getByRole('dialog', { name: T('Edit topic') });
+  await ed.getByLabel(T('Name')).fill('test_data_gtp_ Fitness');
+  await ed.getByRole('button', { name: T('Save') }).click();
+  await expect(row(page, 'training')).toContainText('test_data_gtp_ Fitness');
+  await row(page, 'trips').getByRole('button', { name: T('Edit: {name}', { name: T('Trip ideas') }) }).click();
+  await page.getByRole('dialog', { name: T('Edit topic') }).getByRole('button', { name: T('Delete') }).click();
+  await page.getByRole('dialog', { name: T('Delete topic «{name}»?', { name: T('Trip ideas') }) }).getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row(page, 'trips')).toHaveCount(0);
+  expect((await overrides(page)).noteTopics).toMatchObject({ names: { training: 'test_data_gtp_ Fitness' }, deleted: ['trips'] });
+  // the Notes page shows the new name and no longer the deleted topic
+  await page.goto('./#/notes');
+  await settle(page);
+  const topics = page.getByRole('group', { name: T('Filter') });
+  await expect(topics).toContainText('test_data_gtp_ Fitness');
+  await expect(topics).not.toContainText(T('Trip ideas'));
+
+  // groups of the bike values: delete «Measurements», its fields go to «Tyres and pressure»
+  await page.goto('./#/me/lists?valueGroups');
+  await settle(page);
+  const nIn = async (key) => Number((await row(page, key).locator('small').first().innerText()).match(/(\d+)\D*$/)[1]);
+  const sum = (await nIn('fit')) + (await nIn('tyres'));
+  await row(page, 'fit').getByRole('button', { name: T('Edit: {name}', { name: T('Measurements') }) }).click();
+  await page.getByRole('dialog', { name: T('Edit group') }).getByRole('button', { name: T('Delete') }).click();
+  const ask = page.getByRole('dialog', { name: T('Delete group «{name}»?', { name: T('Measurements') }) });
+  await expect(ask.getByRole('radio', { name: new RegExp(T('No group')) })).toBeChecked();
+  await ask.getByRole('radio', { name: T('Tyres and pressure'), exact: true }).check();
+  await ask.getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row(page, 'fit')).toHaveCount(0);
+  await expect(row(page, 'tyres')).toContainText(T('{n} fields', { n: sum }));
 });
