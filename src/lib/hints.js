@@ -108,6 +108,33 @@ export const HINTS = {
     ],
     jumps: [['Timer', 'm-timer'], ['Look back|page', 'm-review']],
   },
+  past: {
+    lead: ['Here are the trips you rode.', 'For the period you choose: how far, how high, how wet, and which still wait for a debrief.'],
+    uses: [
+      ['book', 'After a trip', 'a trip without a debrief is marked'],
+      ['chart', 'At the end of the year', 'your year in one line, with Earth and Everest'],
+      ['plus', 'Once more', 'a trip that was good becomes the start of the next'],
+    ],
+    jumps: [['In this period', 'sum-h']],
+  },
+  notes: {
+    lead: ['Here are the notes you keep.', 'With topics, checklists, photos and links; the pinned ones come first.'],
+    uses: [
+      ['note', 'An idea', 'write it down, the topic follows the text'],
+      ['check', 'A list', 'a checklist with ticks, also for packing'],
+      ['bag', 'Turn it into something', '«From a note becomes …» a packing rule or a wish'],
+    ],
+    jumps: [['Pinned', 'pin-h'], ['Topics', 'topics-h']],
+  },
+  inbox: {
+    lead: ['Here land the notes you caught on the way.', 'File each one where it belongs: a receipt, a note, a wish or a packing rule.'],
+    uses: [
+      ['note', 'On the way', 'quickly from + New, sorting comes later'],
+      ['camera', 'A receipt', 'a photo becomes a workshop visit'],
+      ['check', 'Done', 'filed notes move to «Recently filed»'],
+    ],
+    jumps: [['To file', 'tofile-h'], ['Recently filed', 'recent-h']],
+  },
 };
 
 /** The hint of a page, or null. */

@@ -7,6 +7,7 @@
    * A card opens the note (NoteSheet), with «Aus Notiz wird …». Notes are in the normal backup;
    * «Als Markdown exportieren» saves them as one text file.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { TOPICS, guessTopic, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
@@ -124,6 +125,8 @@
 <div class="notes ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Notes')} sub={`${t('Kept notes, topics and checklists')} · ${t('also in the normal backup')}`} />
 
+  <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
+  <HintCard page="notes" />
   <form class="cap card" onsubmit={(e) => (e.preventDefault(), save())}>
     <div class="caprow">
       <label class="capt"><span class="sr">{t('New note')}</span><textarea class="inp" rows={checkMode ? 4 : 1} bind:value={text} placeholder={t('Thought, link, photo …')}></textarea></label>

@@ -134,6 +134,13 @@ test('the tip line and the fold on the other places', async ({ page, context }, 
     await fits(page, key);
     await page.screenshot({ path: `qa/pagetexts-${key}-${test.info().project.name}.png`, fullPage: true });
   }
+  // HT 3a: the card alone on three more places
+  for (const [key, hash] of [['past', '#/pack/past'], ['notes', '#/notes'], ['inbox', '#/inbox']]) {
+    await page.goto(`./${hash}`);
+    await expect(page.locator(`main [data-hint="${key}"]`), key).toContainText(T(HINTS[key].lead[0]));
+    await fits(page, key);
+    await page.screenshot({ path: `qa/pagetexts-${key}-${test.info().project.name}.png`, fullPage: true });
+  }
   expect(errors).toEqual([]);
 });
 

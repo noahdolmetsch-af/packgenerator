@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HINTS, hintOf } from '../src/lib/hints.js';
-import { PAGES, setHint, hintShown, infoOf } from '../src/lib/pageinfo.js';
+import { setHint, hintShown, infoOf } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 const files = (dir) => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? files(join(dir, f)) : f.endsWith('.svelte') ? [join(dir, f)] : []));
@@ -18,9 +18,8 @@ describe('the hint cards', () => {
       for (const s of [...h.lead, ...h.uses.flatMap((u) => [u[1], u[2]]), ...h.jumps.map((j) => j[0])]) expect(DE[s], s).toBeTruthy();
     }
   });
-  it('every jump goes to an id that a page has; every hinted place also has its tips (3a)', () => {
+  it('every jump goes to an id that a page has', () => {
     for (const h of Object.values(HINTS)) for (const [, id] of h.jumps) expect(SOURCE.includes(`id="${id}"`), id).toBe(true);
-    for (const page of Object.keys(HINTS)) expect(PAGES[page], page).toBeTruthy();
     expect(hintOf('home')).toBeNull(); // HN0: Home has no hint
   });
   it('× folds a card to the line, the line opens it again (1a), per page', () => {
