@@ -46,6 +46,7 @@
   import Abfragen from './pages/Abfragen.svelte';
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
+  import Weight from './pages/Weight.svelte';
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
@@ -422,6 +423,9 @@
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
     <Auswertung />
+  {:else if page === 'weight'}
+    <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
+    <Weight />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />

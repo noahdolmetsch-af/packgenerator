@@ -26,12 +26,12 @@
   import { LAST_BACKUP, backupDue } from '../lib/backup.js';
   import { demoState } from '../lib/demo.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
+  import { t, tn, lang, setLang, num, locale } from '../lib/i18n.svelte.js';
   import { lookLine } from '../lib/theme.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -48,6 +48,8 @@
   import { dueCount } from '../lib/docs.js';
   // P3b (D3): how many documents expire soon (the yellow pill on «Documents»)
   const docDue = $derived(dueCount(docList.list, localDay()));
+  import { weight } from '../lib/weight.svelte.js';
+  import { latestOf } from '../lib/weight.js';
 
   // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
   const MOVED_KEY = 'aj1.problemMoved';
@@ -92,6 +94,12 @@
   const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
+  // TR6: the weight, voluntary, only for watts per kg
+  const weightLine = $derived.by(() => {
+    const w = latestOf(weight.entries);
+    const day = w ? new Date(`${w.day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' }) : '';
+    return w ? t('{kg} kg · {day} · only on this device', { kg: num(w.kg), day }) : t('Voluntary, for watts per kg · only on this device');
+  });
   const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
 </script>
 
@@ -170,6 +178,14 @@
             <a class="ich-row" href="#/inspiration">
               <span class="ich-ib"><Compass size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Inspiration')}</b><small>{t('Your own links, key words and notes')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- TR6/TR6b: Ich › Meine Daten › Gewicht -->
+            <a class="ich-row" href="#/me/weight" data-row="weight">
+              <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Weight|place')}</b><small>{weightLine}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
