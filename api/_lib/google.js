@@ -11,6 +11,15 @@
  *                                                 → { days: [{ date, restingHr, hrvMs, sleep, steps, azm }] }
  *                                                 (googledays.js; the app keeps them, the server keeps none)
  *                           POST ?step=disconnect Bearer → { ok } (Google access withdrawn)
+ *                           POST ?step=drive-upload Bearer, body = the PDF or JPEG (at most 4 MB),
+ *                                &name=…&root=pdf|photos&group=… → { id, link }
+ *                           POST ?step=drive-move   Bearer, { fileId, root, group } → { ok }
+ *                           POST ?step=drive-rename Bearer, { fileId, name } → { ok }
+ *
+ * Google Drive (package «Dokumente-PDF», Noah 15.10.2026 «1b»: the imported PDFs also in his Drive,
+ * «2a» every group its own subfolder): only the scope drive.file, so the app sees nothing in Drive but
+ * the folders and files it made itself. Start with { services: ['drive'] } asks for Drive in addition
+ * (include_granted_scopes keeps the Fitbit values). Folder ids are kept in Redis (google:drive:folders).
  *   api/google/callback.js  GET  (Google sends the browser back here; the redirect URI configured in
  *                           Google Cloud is https://packgen-three.vercel.app/api/google/callback)
  *
@@ -33,6 +42,29 @@ export const SCOPES = [
   'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
   'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
 ];
+/** Drive: only the files and folders this app made (no look into the rest of Noah's Drive). */
+export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+export const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+export const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+/** The two top folders in «Meine Ablage» (Noah 15.10.2026: «Importierte PDF»; photos kept as photos). */
+export const DRIVE_ROOTS = { pdf: 'Importierte PDF', photos: 'Importierte Fotos' };
+export const DRIVE_MAX_BYTES = 4 * 1024 * 1024;
+const FOLDER = 'application/vnd.google-apps.folder';
+const FOLDERS_KEY = 'google:drive:folders';
+
+/** The scopes to ask for: Fitbit values, Drive, or both (unknown names are ignored). */
+export function scopesFor(services) {
+  const list = Array.isArray(services) ? services : ['health'];
+  const out = [...(list.includes('health') ? SCOPES : []), ...(list.includes('drive') ? [DRIVE_SCOPE] : [])];
+  return out.length ? out : SCOPES;
+}
+
+/** A file or folder name Drive accepts: no line breaks or slashes, at most 120 characters. */
+export function cleanName(v, fallback = 'Dokument') {
+  const s = String(v ?? '').replace(/[\u0000-\u001f/\\]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+  return s || fallback;
+}
+
 /** The data types tested with Noah's account on 12.10.2026 (all 200 OK). */
 export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability', 'active-zone-minutes'];
 /** Pages per list call in the days step (a night or a day is one point; 90 days fit in one page). */
@@ -108,6 +140,41 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
   const rollUp = async (token, type, from, to) =>
     (await healthCall(token, `dataTypes/${type}/dataPoints:dailyRollUp`, { method: 'POST', body: JSON.stringify(rollUpBody(from, to)) })).rollupDataPoints ?? [];
 
+  /** One Drive call; Google's answer as JSON, or a clear error. */
+  async function drive(token, url, init = {}) {
+    let res;
+    try {
+      res = await doFetch(url, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) } });
+    } catch {
+      throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
+    }
+    if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
+    if (res.status === 403) throw new ApiError(403, 'drive_not_allowed', 'Google Drive is not allowed yet: connect Drive in the app.');
+    if (res.status === 404) throw new ApiError(404, 'drive_missing', 'The file or folder is no longer in Google Drive.');
+    if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
+    if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    return res.json().catch(() => ({}));
+  }
+
+  /** The id of a folder «name» in «parent» (made once, then kept in Redis). */
+  async function folder(token, store, name, parent) {
+    const known = JSON.parse((await store.get(FOLDERS_KEY)) ?? '{}');
+    const k = `${parent}/${name}`;
+    if (known[k]) return known[k];
+    const q = `name = '${name.replace(/['\\]/g, '\\$&')}' and mimeType = '${FOLDER}' and '${parent}' in parents and trashed = false`;
+    const found = await drive(token, `${DRIVE_API}?${new URLSearchParams({ q, fields: 'files(id)', pageSize: '1' })}`);
+    const id = found.files?.[0]?.id ?? (await drive(token, `${DRIVE_API}?fields=id`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, mimeType: FOLDER, parents: [parent] }) })).id;
+    await store.set(FOLDERS_KEY, JSON.stringify({ ...known, [k]: id }));
+    return id;
+  }
+
+  /** «Importierte PDF» (or «Importierte Fotos») in «Meine Ablage», and the group as its subfolder. */
+  async function folderFor(token, store, root, group) {
+    const top = await folder(token, store, DRIVE_ROOTS[root === 'photos' ? 'photos' : 'pdf'], 'root');
+    const g = cleanName(group, '');
+    return g && g !== DRIVE_ROOTS.pdf && g !== DRIVE_ROOTS.photos ? folder(token, store, g, top) : top;
+  }
+
   const callback = async (request) => {
     const url = new URL(request.url);
     const cfg = env();
@@ -118,7 +185,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
-    if (!SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    if (![...SCOPES, DRIVE_SCOPE].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
     return backToApp(st.returnTo, { google: 'connected' });
   };
@@ -134,7 +201,8 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
         setUp(cfg);
         if (step === 'status') {
           const raw = await store.get('google:tokens');
-          return json(request, 200, { ok: true, connected: !!raw, scopes: raw ? JSON.parse(raw).scope ?? '' : '' });
+          const scopes = raw ? JSON.parse(raw).scope ?? '' : '';
+          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: scopes.split(' ').includes(DRIVE_SCOPE) });
         }
         if (step === 'data') {
           const type = url.searchParams.get('type');
@@ -171,8 +239,41 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           setUp(cfg);
           const body = await jsonBody(request);
           const state = await saveState(store, 'google', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null });
-          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: SCOPES.join(' '), state });
+          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: scopesFor(body.services).join(' '), state });
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
+        }
+        if (step === 'drive-upload') {
+          setUp(cfg);
+          const url = new URL(request.url);
+          const type = (request.headers.get('content-type') ?? '').split(';')[0].trim();
+          if (type !== 'application/pdf' && type !== 'image/jpeg') throw new ApiError(415, 'bad_type', 'Send a PDF or a JPEG.');
+          const bytes = new Uint8Array(await request.arrayBuffer());
+          if (!bytes.length) throw new ApiError(400, 'bad_request', 'The file is empty.');
+          if (bytes.length > DRIVE_MAX_BYTES) throw new ApiError(413, 'too_big', 'The file is bigger than 4 MB.');
+          const token = await accessToken(cfg, store);
+          const parent = await folderFor(token, store, url.searchParams.get('root'), url.searchParams.get('group'));
+          const meta = { name: cleanName(url.searchParams.get('name')), parents: [parent], mimeType: type };
+          const boundary = `pg${now().toString(36)}`;
+          const head = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: ${type}\r\n\r\n`;
+          const body = new Blob([head, bytes, `\r\n--${boundary}--`]);
+          const made = await drive(token, `${DRIVE_UPLOAD}?uploadType=multipart&fields=id,webViewLink`, { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body });
+          return json(request, 200, { ok: true, id: made.id, link: made.webViewLink ?? null });
+        }
+        if (step === 'drive-move' || step === 'drive-rename') {
+          setUp(cfg);
+          const body = await jsonBody(request);
+          const fileId = String(body.fileId ?? '');
+          if (!/^[\w-]{5,200}$/.test(fileId)) throw new ApiError(400, 'bad_request', 'Bad fileId.');
+          const token = await accessToken(cfg, store);
+          if (step === 'drive-rename') {
+            await drive(token, `${DRIVE_API}/${fileId}?fields=id`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: cleanName(body.name) }) });
+          } else {
+            const parent = await folderFor(token, store, body.root, body.group);
+            const now0 = await drive(token, `${DRIVE_API}/${fileId}?fields=parents`);
+            const q = new URLSearchParams({ addParents: parent, removeParents: (now0.parents ?? []).filter((p) => p !== parent).join(','), fields: 'id' });
+            await drive(token, `${DRIVE_API}/${fileId}?${q}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+          }
+          return json(request, 200, { ok: true });
         }
         if (step === 'disconnect') {
           const raw = await store.get('google:tokens');
@@ -185,6 +286,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
             }
           }
           await store.del('google:tokens');
+          await store.del(FOLDERS_KEY);
           return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

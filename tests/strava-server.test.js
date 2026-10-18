@@ -2,7 +2,7 @@
 // a fake Strava and a fake Google. Fictional values only (no real id, key, token or secret).
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler as stravaHandler, trimActivity, AUTHORIZE_URL, TOKEN_URL, API, DEAUTH_URL, SCOPE } from '../api/strava.js';
-import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES } from '../api/_lib/google.js';
+import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES, DRIVE_SCOPE, DRIVE_API, DRIVE_UPLOAD, DRIVE_MAX_BYTES, cleanName } from '../api/_lib/google.js';
 import { safeReturn, hash, KEYS, APP_RETURN } from '../api/_lib/oauth.js';
 
 const REDIS = 'https://redis.example.test';
@@ -276,5 +276,102 @@ describe('Google Health', () => {
     for (const q of ['from=2026-10-13&to=2026-10-12', 'from=2026-01-01&to=2026-10-12', 'from=x&to=2026-10-12']) {
       expect((await t.main(get(`/api/google?step=days&${q}`, { key: t.key }))).status).toBe(400);
     }
+  });
+});
+
+describe('Google Drive (Dokumente-PDF)', () => {
+  const gToken = () => () => Response.json({ access_token: 'g-acc', refresh_token: 'g-ref', expires_in: 3600, scope: [...SCOPES, DRIVE_SCOPE].join(' ') });
+  // A tiny fake Drive: folders by name and parent, uploaded files with their parents.
+  function fakeDrive() {
+    const items = {};
+    let n = 0;
+    const handle = async (url, init = {}) => {
+      const u = new URL(url);
+      if (url.startsWith(DRIVE_UPLOAD)) {
+        const text = await new Response(init.body).text();
+        const meta = JSON.parse(text.split('\r\n\r\n')[1].split('\r\n')[0]);
+        const id = `file${++n}xx`;
+        items[id] = { ...meta, id };
+        return Response.json({ id, webViewLink: `https://drive.example.test/${id}` });
+      }
+      const id = u.pathname.split('/files/')[1];
+      if (!id && init.method === 'POST') {
+        const meta = JSON.parse(init.body);
+        const fid = `folder${++n}xx`;
+        items[fid] = { ...meta, id: fid };
+        return Response.json({ id: fid });
+      }
+      if (!id) {
+        const q = u.searchParams.get('q');
+        const [, name] = q.match(/name = '([^']+)'/);
+        const [, parent] = q.match(/'([^']+)' in parents/);
+        return Response.json({ files: Object.values(items).filter((f) => f.name === name && f.parents?.includes(parent) && f.mimeType?.includes('folder')) });
+      }
+      if (!items[id]) return new Response('{}', { status: 404 });
+      if (init.method === 'PATCH') {
+        Object.assign(items[id], JSON.parse(init.body || '{}'));
+        const add = u.searchParams.get('addParents');
+        if (add) items[id].parents = [add];
+        return Response.json({ id });
+      }
+      return Response.json({ parents: items[id].parents });
+    };
+    return { items, handle };
+  }
+  async function setup() {
+    const d = fakeDrive();
+    const w = world({ [TOKEN_URL]: stravaToken(), [G_TOKEN]: gToken(), [DRIVE_UPLOAD]: d.handle, [DRIVE_API]: d.handle });
+    const s = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(s, w)).get('key');
+    const { main, callback } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const start = await (await main(post('/api/google?step=start', { services: ['drive'] }, { key }))).json();
+    expect(new URL(start.url).searchParams.get('scope')).toBe(DRIVE_SCOPE);
+    await callback(get(`/api/google/callback?code=g-code&state=${new URL(start.url).searchParams.get('state')}`));
+    return { w, d, key, main };
+  }
+  const upload = (q, bytes, { key, type = 'application/pdf' } = {}) => new Request(`${BASE}/api/google?step=drive-upload&${q}`, { method: 'POST', headers: { origin: ORIGIN, 'content-type': type, ...(key ? { authorization: `Bearer ${key}` } : {}) }, body: bytes });
+
+  it('asks only for drive.file, and the status says Drive is allowed', async () => {
+    const t = await setup();
+    const st = await (await t.main(get('/api/google?step=status', { key: t.key }))).json();
+    expect(st).toMatchObject({ connected: true, drive: true });
+  });
+
+  it('puts a PDF in «Importierte PDF» and a group in its own subfolder, folders made once', async () => {
+    const t = await setup();
+    const a = await (await t.main(upload('name=Quittung%20Muster&root=pdf&group=', new Uint8Array([37, 80, 68, 70]), { key: t.key }))).json();
+    expect(a.ok).toBe(true);
+    const top = Object.values(t.d.items).find((f) => f.name === 'Importierte PDF');
+    expect(top.parents).toEqual(['root']);
+    expect(t.d.items[a.id]).toMatchObject({ name: 'Quittung Muster', parents: [top.id], mimeType: 'application/pdf' });
+    const b = await (await t.main(upload('name=Garantie&root=pdf&group=Garantien', new Uint8Array([1]), { key: t.key }))).json();
+    const sub = Object.values(t.d.items).find((f) => f.name === 'Garantien');
+    expect(sub.parents).toEqual([top.id]);
+    expect(t.d.items[b.id].parents).toEqual([sub.id]);
+    const c = await (await t.main(upload('name=Foto&root=photos&group=', new Uint8Array([1]), { key: t.key, type: 'image/jpeg' }))).json();
+    expect(t.d.items[t.d.items[c.id].parents[0]].name).toBe('Importierte Fotos');
+    expect(Object.values(t.d.items).filter((f) => f.name === 'Importierte PDF')).toHaveLength(1);
+  });
+
+  it('moves a file to another group and renames it', async () => {
+    const t = await setup();
+    const a = await (await t.main(upload('name=Brief&root=pdf', new Uint8Array([1]), { key: t.key }))).json();
+    expect((await t.main(post('/api/google?step=drive-move', { fileId: a.id, root: 'pdf', group: 'Versicherung' }, { key: t.key }))).status).toBe(200);
+    expect(t.d.items[t.d.items[a.id].parents[0]].name).toBe('Versicherung');
+    expect((await t.main(post('/api/google?step=drive-rename', { fileId: a.id, name: 'Brief Versicherung' }, { key: t.key }))).status).toBe(200);
+    expect(t.d.items[a.id].name).toBe('Brief Versicherung');
+    expect((await t.main(post('/api/google?step=drive-move', { fileId: '../x', group: 'a' }, { key: t.key }))).status).toBe(400);
+  });
+
+  it('refuses other devices, other types and files over 4 MB', async () => {
+    const t = await setup();
+    expect((await t.main(upload('name=a', new Uint8Array([1])))).status).toBe(401);
+    expect((await t.main(upload('name=a', new Uint8Array([1]), { key: t.key, type: 'text/html' }))).status).toBe(415);
+    expect((await t.main(upload('name=a', new Uint8Array(DRIVE_MAX_BYTES + 1), { key: t.key }))).status).toBe(413);
+  });
+
+  it('cleanName keeps names Drive accepts', () => {
+    expect(cleanName(' Brief/2026\nMuster ')).toBe('Brief 2026 Muster');
+    expect(cleanName('', 'Dokument')).toBe('Dokument');
   });
 });
