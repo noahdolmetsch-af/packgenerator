@@ -3,14 +3,16 @@
    * «Werte überall» WU3 (Noah 13.10.2026 «1-5a», mockups approved «ich gebe alle bild mockups frei»):
    * Aktiv › Goals: one year goal per value (km, metres climbed, active zone minutes), each with a
    * switch, a bar and a tick for the plan until today; the goal number can be changed. Below it the
-   * footprint of the year. The minutes come with Fitbit (bundle B); until then that row says so.
+   * footprint of the year. Noah 19.10.2026 «2b und kann manuell geleert werden. jahresziele im frontend
+   * bearbeitbar»: every goal number can be changed or emptied here (empty = no goal); the year sum of the
+   * active zone minutes is not counted yet, their week is on Aktiv.
    */
   import { liveQuery } from 'dexie';
-  import { Bike, Mountain, Timer, Leaf } from '@lucide/svelte';
+  import { Bike, Mountain, Timer, Leaf, Pencil } from '@lucide/svelte';
   import Sec from './kit/Sec.svelte';
   import { db } from '../db.js';
   import { withStravaRides, bikeActs } from '../kmbook.js';
-  import { GOALS, YEAR_GOALS_KEY, CO2_PER_KM, goalsOf, yearSums, goalRow, co2Saved } from './yeargoals.js';
+  import { GOALS, YEAR_GOALS_KEY, CO2_PER_KM, goalsOf, yearSums, goalRow, co2Saved, typedGoal } from './yeargoals.js';
   import { t, num } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -25,8 +27,12 @@
   const save = (key, change) => db.settings.put({ key: YEAR_GOALS_KEY, value: { ...goals, [key]: { ...goals[key], ...change } } });
   let editing = $state(null);
   function setOf(key, e) {
-    const v = Math.round(Number(String(e.currentTarget.value).replace(/[^\d]/g, '')));
-    if (v > 0) save(key, { of: v });
+    const v = typedGoal(e.currentTarget.value);
+    if (v !== undefined) save(key, { of: v });
+    editing = null;
+  }
+  function clear(key) {
+    save(key, { of: null });
     editing = null;
   }
   const unitText = (g, n) => (g.key === 'km' ? `${num(n)} km` : g.key === 'hm' ? t('{n} m climbed', { n: num(n) }) : t('{n} min', { n: num(n) }));
@@ -37,31 +43,36 @@
     {#each GOALS as g (g.key)}
       {@const I = ICON[g.key]}
       {@const s = goals[g.key]}
-      {@const r = g.fitbit ? null : goalRow(sums[g.key], s.of, today)}
+      {@const r = g.fitbit || s.of == null ? null : goalRow(sums[g.key], s.of, today)}
       <li class:off={!s.on} data-goal={g.key}>
         <div class="r">
           <span class="ib" aria-hidden="true"><I size={18} /></span>
           <span class="m">
             <b>{t(g.label)}</b>
             {#if editing === g.key}
-              <input class="inp sm num" type="text" inputmode="numeric" value={s.of} aria-label={t('Goal for {name}', { name: t(g.label) })} onchange={(e) => setOf(g.key, e)} onblur={() => (editing = null)} />
+              <span class="ed">
+                <!-- svelte-ignore a11y_autofocus -->
+                <input class="inp sm num" type="text" inputmode="numeric" value={s.of ?? ''} autofocus aria-label={t('Goal for {name}', { name: t(g.label) })} onchange={(e) => setOf(g.key, e)} onblur={() => (editing = null)} />
+                <button type="button" class="btn sm" data-clear onpointerdown={(e) => e.preventDefault()} onclick={() => clear(g.key)}>{t('Empty|goal')}</button>
+              </span>
             {:else}
-              <button type="button" class="ofb num" onclick={() => (editing = g.key)} aria-label={t('Change the goal for {name}', { name: t(g.label) })}>{r ? t('{have} of {of}', { have: unitText(g, r.have), of: num(s.of) }) : t('Goal {of}', { of: unitText(g, s.of) })}</button>
+              <button type="button" class="ofb num" onclick={() => (editing = g.key)} aria-label={t('Change the goal for {name}', { name: t(g.label) })}><Pencil size={12} aria-hidden="true" />{s.of == null ? t('No goal · set one') : r ? t('{have} of {of}', { have: unitText(g, r.have), of: num(s.of) }) : t('Goal {of}', { of: unitText(g, s.of) })}</button>
             {/if}
           </span>
           <label class="sw"><input type="checkbox" role="switch" checked={s.on} onchange={(e) => save(g.key, { on: e.currentTarget.checked })} /><span class="vh">{t('Show the goal for {name}', { name: t(g.label) })}</span></label>
         </div>
-        {#if s.on}
+        {#if s.on && s.of != null}
           {#if r}
             <span class="bar" role="img" aria-label="{Math.round(r.fill * 100)} %"><i style="width:{Math.max(2, Math.round(r.fill * 100))}%"></i><span class="mk" style="left:{Math.round(r.plan * 100)}%"></span></span>
             <small class="num">{r.ahead >= 0 ? t('{n} ahead of the plan', { n: unitText(g, r.ahead) }) : t('{n} behind the plan', { n: unitText(g, -r.ahead) })}</small>
           {:else}
-            <small class="soon">{t('Come with Fitbit: then the minutes of every activity count here.')}</small>
+            <small class="soon">{t('Not counted for the year yet. Your minutes of this week are on Aktiv.')}</small>
           {/if}
         {/if}
       </li>
     {/each}
   </ul>
+  <p class="hint">{t('Tap a goal to change it. Empty the field (or tap «Empty») for no goal.')}</p>
 </Sec>
 
 <Sec id="fp-h" title={t('Footprint {year}', { year })} sub={t('all rides')}>
@@ -123,8 +134,22 @@
     text-decoration: underline dotted;
     cursor: pointer;
   }
+  .ofb :global(svg) {
+    margin-right: 4px;
+    vertical-align: -1px;
+  }
+  .ed {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
   .inp.sm {
     max-width: 10ch;
+  }
+  .hint {
+    margin: 6px 2px 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .sw input {
     width: 20px;
