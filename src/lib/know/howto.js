@@ -192,6 +192,10 @@ export const HOWTO = {
   'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],
   'f.frei': ['Open Me › Free time.', 'Choose a page, for example «What am I up for?».', 'Tap what fits; your own entries stay on this device and in the backup.'],
   'f.impulse': ['Open Active › Impulses.', 'Tap an area, then «Try it».', 'Your own impulse: «Your own impulse» at the end of the list.'],
+  'f.shopping': ['Open Me › Everyday life › Shopping list.', 'Type a point and tap «Add»; tick it in the shop.', 'Groups: «Groups» at the end of the page.'],
+  'f.contracts': ['Open Me › Documents › Contracts and subscriptions.', 'Tap «New contract» and enter the end of the term and the notice period.', 'The reminder comes in Calendar › Remember, before the last day to cancel.'],
+  'f.people': ['Open Me › Everyday life › Not seen for a while.', 'Tap «Add a person» and choose how often.', 'After you met: «Seen today».'],
+  'f.abroad': ['Open a trip, Plan, and choose its country.', 'Below the country: emergency numbers, travel insurance and the currency.', 'Tap «Change» to set your own numbers for that country.'],
   'f.insights': ['Open Me › Insights.', 'Read the sentences: what goes together in your last 90 days.', 'Pairs with fewer than 14 days say «still collecting days».'],
   'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)

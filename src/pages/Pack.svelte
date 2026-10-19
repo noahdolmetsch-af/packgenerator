@@ -43,6 +43,7 @@
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
   import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
+  import AbroadCard from '../lib/alltag/AbroadCard.svelte'; // Paket V: emergency numbers, travel insurance, currency abroad
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
@@ -915,6 +916,7 @@
         </div>
         <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
         <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
+        {#if trip.country && trip.country !== HOME_COUNTRY}<AbroadCard country={trip.country} />{/if}
       </div>
     {/snippet}
 

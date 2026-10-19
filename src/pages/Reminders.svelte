@@ -10,7 +10,7 @@
    * delete there offers Undo for 4 s.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout, BellRing } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout, BellRing, FileText, Users } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
   import { MERKEN_KEY, updateTodo } from '../lib/merkendb.js';
@@ -25,6 +25,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import KindSheet from '../lib/merken/KindSheet.svelte';
+  import { syncReminders } from '../lib/alltagdb.js';
   import '../lib/ich/ich.css';
 
   const q = liveQuery(async () => {
@@ -33,10 +34,11 @@
   });
   const d = $derived($q ?? { todos: [], answers: {}, offer: true, ics: false, bikes: [], acts: [] });
   const reminders = $derived(d.todos.filter((x) => !x.doneAt && (x.remind || x.repeat || x.src || isKind(x))));
-  const ICON = { active: Activity, trips: Route, bike: Bike, own: ListTodo, birthday: Cake, plant: Sprout };
+  const ICON = { active: Activity, trips: Route, bike: Bike, own: ListTodo, birthday: Cake, plant: Sprout, contract: FileText, people: Users };
   const today = localDay();
   const hasIcs = $derived(reminders.some((x) => !x.off && ((x.due && x.remind && !x.kind) || (x.kind === 'birthday' && x.reminds?.length))));
   let editing = $state(null);
+  syncReminders().catch(() => {}); // Paket V: contracts and people bring their to-dos up to date
 
   const kmOf = (id) => d.bikes.find((b) => b.id === id)?.km ?? null;
   const bikeName = (id) => d.bikes.find((b) => b.id === id)?.name ?? '';

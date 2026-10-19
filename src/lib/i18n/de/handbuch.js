@@ -983,4 +983,17 @@ export default {
   'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
   // Noah 19.10.2026 «2a 3a 4a und b möglich»
   'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.': 'Auch Wetter, Kalendertermine und eigene Zahlen-Fragen werden verglichen; jede eigene Frage lässt sich ausschalten.',
+  // Paket V «Alltag»: f.shopping, f.contracts, f.people, f.abroad
+  'Open Me › Everyday life › Shopping list and type what you need.': 'Öffne Ich › Alltag › Einkaufsliste und schreib, was du brauchst.',
+  'Tick what is in the basket; groups sort the list like the shop and can be renamed, sorted and deleted.': 'Hak ab, was im Korb ist; Gruppen ordnen die Liste wie im Laden und lassen sich umbenennen, sortieren und löschen.',
+  'Example: switch on «Together with the trip shopping»: the gels and bars of your next trip stand below your everyday points.': 'Beispiel: schalt «Zusammen mit dem Tour-Einkauf» ein: die Gels und Riegel deiner nächsten Tour stehen unter deinen Alltags-Punkten.',
+  'Open Me › Documents › Contracts and subscriptions, or Me › Everyday life.': 'Öffne Ich › Dokumente › Verträge und Abos oder Ich › Alltag.',
+  'Enter the cost, the end of the term and the notice period: the app shows the last day to cancel and reminds you in Remember.': 'Trag die Kosten, das Ende der Laufzeit und die Kündigungsfrist ein: die App zeigt den letzten Tag zum Kündigen und erinnert dich in Merken.',
+  'Example: phone contract ends 31 March, 2 months notice → last day 31 January, reminder 14 days before.': 'Beispiel: Handy-Abo endet am 31. März, 2 Monate Frist → letzter Tag 31. Januar, Erinnerung 14 Tage vorher.',
+  'Open Me › Everyday life › Not seen for a while and add a person with «every 2 months».': 'Öffne Ich › Alltag › Lange nicht gesehen und trag eine Person mit «alle 2 Monate» ein.',
+  'After you met, tap «Seen today»; the quiet reminder in Remember starts again.': 'Nach dem Treffen tippst du «Heute gesehen»; die leise Erinnerung in Merken beginnt von vorn.',
+  'Example: Alex, every 6 weeks, last seen 1 September → a to-do in Remember on 13 October, no alarm.': 'Beispiel: Alex, alle 6 Wochen, zuletzt gesehen am 1. September → eine Aufgabe in Merken am 13. Oktober, ohne Alarm.',
+  'Give the trip a country under Plan › Pass, country, getting there.': 'Gib der Tour ein Land unter Planen › Pass, Land, Anreise.',
+  'Below it: the emergency numbers (change them per country), your travel insurance and «Convert» to the currency of the country.': 'Darunter: die Notfallnummern (je Land änderbar), deine Reiseversicherung und «umrechnen» in die Währung des Landes.',
+  'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».': 'Beispiel: Land Frankreich → 112 und 15, deine Versicherung mit ihrer Nummer, «EUR umrechnen».',
 };

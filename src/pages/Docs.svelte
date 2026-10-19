@@ -415,6 +415,11 @@
             </ul>
           {:else}<p class="ich-help">{t('Give a document «valid until»: the app reminds you here in time.')}</p>{/if}
         </section>
+        <!-- Paket V «Alltag» (Noah «4a»): contracts and subscriptions under Dokumente, with the deadline and a reminder -->
+        <section class="ich-sec" aria-labelledby="abo-h">
+          <div class="ich-h"><div><h2 id="abo-h">{t('Contracts and subscriptions')}</h2><p class="ich-hs">{t('cost, last day to cancel, reminder')}</p></div></div>
+          <ul class="card ich-list"><li><a class="ich-row" href="#/me/alltag/abos" data-docs-abos><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Contracts and subscriptions')}</b><small>{t('Phone, insurance, streaming: the app reminds you before the notice period ends.')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li></ul>
+        </section>
         <section class="ich-sec" aria-labelledby="nt-h">
           <div class="ich-h"><div><h2 id="nt-h">{t('For the next trip')}</h2><p class="ich-hs">{next ? next.title || t('Next trip') : t('No trip planned')}</p></div></div>
           {#if pack.length}
