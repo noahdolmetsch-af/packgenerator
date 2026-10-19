@@ -38,6 +38,7 @@
   } from '../lib/wohl.js';
   import { dailyValues } from '../lib/abauswertung.js';
   import '../lib/ich/ich.css';
+  import '../lib/ui/daumen.css';
 
   const today = localDay();
   const year = today.slice(0, 4);
@@ -130,7 +131,6 @@
     const list = ex?.neuland ?? [];
     await save(NEULAND_KEY, nlEdit?.id ? renameNeuland(list, nlEdit.id, clean) : addNeuland(list, clean, today));
     offerDone(nlEdit?.id ? t('Renamed to «{name}».', { name: clean }) : t('«{name}» added to your Neuland.', { name: clean }), () => save(NEULAND_KEY, list));
-    nlEdit = null;
   }
   async function delNeuland(x) {
     const list = ex?.neuland ?? [];
@@ -153,7 +153,6 @@
     const before = ex?.season ?? null;
     await setSeason(sEdit?.id ? renameSeasonItem(season, seasonPick, sEdit.id, clean) : addSeasonItem(season, seasonPick, clean));
     offerDone(sEdit?.id ? t('Renamed to «{name}».', { name: clean }) : t('«{name}» added.', { name: clean }), () => (before ? setSeason(before) : db.settings.delete(SEASON_KEY)));
-    sEdit = null;
   }
   async function delSeasonItem(i) {
     const before = ex?.season ?? null;
@@ -199,7 +198,6 @@
     const clean = String(name ?? '').trim();
     if (!clean) return t('Please a name.');
     await expSave((l) => renameExperiment(l, expEdit.id, clean), t('Renamed to «{name}».', { name: clean }));
-    expEdit = null;
   }
   const diffText = (s) => (s.diff == null ? t('Not enough days with a day score to compare yet.') : s.diff > 0 ? t('Day score {a} instead of {b} the days before: {d} more.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(s.diff) }) : s.diff < 0 ? t('Day score {a} instead of {b} the days before: {d} less.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(-s.diff) }) : t('Day score the same as the days before ({a}).', { a: f1(s.during.mean) }));
 
@@ -254,7 +252,11 @@
     kicker={t('How «What does me good» works')}
     title={t('Your good days, explained by your own data')}
     sub={t('The app compares days with a good day score (how happy you were with the day) to the others.')}
-    steps={[t('Answer the evening question «How happy are you with the day?» now and then.'), t('After about 10 days the first results show here.'), t('Tap «How does the app know?» under a result to see where it comes from.')]}
+    steps={[
+      { name: t('Answer|wohl'), text: t('Answer the evening question «How happy are you with the day?» now and then.') },
+      { name: t('Wait|wohl'), text: t('After about 10 days the first results show here.') },
+      { name: t('Look|wohl'), text: t('Tap «How does the app know?» under a result to see where it comes from.') },
+    ]}
     tip={t('Everything here is a suggestion. Nothing is mandatory and you can ignore every line.')}
     know={t('Observation only: the app counts your days, it does not judge and does not diagnose.')}
   />
@@ -274,7 +276,7 @@
               <p class="muted">{t('Day {d} of {n} · {k} done', { d: r.s.day, n: r.x.days, k: r.s.ticks })}</p>
               <label class="wl-switch"><input type="checkbox" checked={r.x.ticks.includes(today)} onchange={() => expSave((l) => tickExperiment(l, r.x.id, today))} /><span>{t('Done today')}</span></label>
               {#if r.x.fact}<p class="muted small">{t('The app also ticks a day by itself when it sees «{fact}».', { fact: fact(r.x.fact) })}</p>{/if}
-              <span class="rowacts">
+              <span class="wl-iacts">
                 <button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: expName(r.x) })} onclick={() => (expEdit = { id: r.x.id, name: expName(r.x) })}><Pencil size={16} aria-hidden="true" /></button>
                 <button type="button" class="btn" onclick={() => expSave((l) => stopExperiment(l, r.x.id), t('Experiment ended.'))}>{t('End now')}</button>
               </span>
@@ -481,7 +483,7 @@
               {@const done = sDone.includes(i.id)}
               <li class:done>
                 <label><input type="checkbox" checked={done} onchange={() => setSeason(tickSeason(season, seasonPick, year, i.id))} /><span>{itemName(i)}</span></label>
-                <span class="rowacts">
+                <span class="wl-iacts">
                   <button type="button" class="btn ic" disabled={idx === 0} aria-label={t('Move up')} onclick={() => setSeason(moveSeasonItem(season, seasonPick, i.id, -1))}><ChevronUp size={16} aria-hidden="true" /></button>
                   <button type="button" class="btn ic" disabled={idx === sList.items.length - 1} aria-label={t('Move down')} onclick={() => setSeason(moveSeasonItem(season, seasonPick, i.id, 1))}><ChevronDown size={16} aria-hidden="true" /></button>
                   <button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: itemName(i) })} onclick={() => (sEdit = { id: i.id, name: itemName(i) })}><Pencil size={16} aria-hidden="true" /></button>
@@ -504,7 +506,7 @@
     {#each CATS as c (c.key)}
       <label class="wl-slider"><span>{t(c.label)}</span><input type="range" min="0" max="100" step="10" bind:value={draft[c.key]} aria-label={t(c.label)} /><em class="num">{draft[c.key]}</em></label>
     {/each}
-    <div class="acts">
+    <div class="acts foot daumen-foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
       <button type="button" class="btn" onclick={() => wishDlg.close()}>{t('Cancel')}</button>
       {#if Object.keys(wish).length}<button type="button" class="btn end" onclick={clearWish}>{t('Remove wish')}</button>{/if}
@@ -515,10 +517,11 @@
 <dialog class="sheet" bind:this={expDlg} use:backClose aria-labelledby="wl-exp-h" data-exp-sheet>
   <form onsubmit={saveExp}>
     <div class="hd"><h2 id="wl-exp-h" class="title">{t('Small experiment')}</h2><span class="muted">{t('voluntary, you can end it any time')}</span></div>
-    <label class="wl-field"><span class="lbl">{t('What do you try?')}</span><input class="inp" type="text" maxlength="80" bind:value={expForm.what} list="wl-ideas" /></label>
-    <datalist id="wl-ideas">{#each EXP_IDEAS as i (i.what)}<option value={t(i.what)}></option>{/each}</datalist>
+    <label class="wl-field"><span class="lbl">{t('What do you try?')}</span><input class="inp" type="text" maxlength="80" bind:value={expForm.what} /></label>
+    <p class="muted small">{t('Or pick an idea:')}</p>
+    <div class="wl-ideas">{#each EXP_IDEAS.slice(0, 3) as i (i.what)}<button type="button" class="rv-chip" aria-pressed={expForm.what === t(i.what)} onclick={() => (expForm = { ...expForm, what: t(i.what), idea: i })}>{t(i.what)}</button>{/each}</div>
     <Seg full={false} small label={t('How long?')} value={expForm.days} onchange={(v) => (expForm.days = v)} options={EXP_DAYS.map((d) => ({ key: d, name: tn(d, '{n} day', '{n} days') }))} />
-    <div class="acts">
+    <div class="acts foot daumen-foot">
       <button type="submit" class="btn hi" disabled={!String(expForm.what ?? '').trim()}>{t('Start')}</button>
       <button type="button" class="btn" onclick={() => expDlg.close()}>{t('Cancel')}</button>
     </div>
@@ -539,7 +542,7 @@
         <p class="muted">{t('A suggestion of the app: only the name can change.')}</p>
       {/if}
       {#if phErr}<p class="err" role="alert">{phErr}</p>{/if}
-      <div class="acts">
+      <div class="acts foot daumen-foot">
         <button type="submit" class="btn hi">{t('Save')}</button>
         <button type="button" class="btn" onclick={() => phDlg.close()}>{t('Cancel')}</button>
       </div>
@@ -678,7 +681,7 @@
     gap: 10px;
     align-items: center;
     min-height: 44px;
-    flex: 1 1 200px;
+    flex: 1 1 160px;
   }
   .wl-season input {
     width: 20px;
@@ -687,6 +690,22 @@
   .wl-season li.done span {
     color: var(--ink-2);
     text-decoration: line-through;
+  }
+  .wl-iacts {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    flex: 0 0 auto;
+  }
+  .wl-iacts > .btn.ic {
+    flex: 0 0 auto;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  .wl-season label {
+    min-width: 0;
   }
   .wl-add {
     margin-top: 10px;
@@ -717,6 +736,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .wl-ideas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
   }
   .wl-field {
     display: grid;
