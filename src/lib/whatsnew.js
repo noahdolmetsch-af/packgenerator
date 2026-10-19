@@ -44,16 +44,16 @@ export const WHATS_NEW = [
     version: '0.153.0',
     date: '2026-10-19',
     title: 'Seven new parts at once',
-    lead: 'Your data comes by itself, a toolbox, dreams and goals, easier packing and help in the mountains.',
+    lead: 'Data by itself, a toolbox, dreams, easier packing, help in the mountains.',
     points: [
-      { text: 'Me › Connections: Strava, Fitbit and Google fill in the app by themselves; the weather alarm warns you before a tour', href: '#/me/connections' },
-      { text: 'Me › Toolbox and Tools and links: PDF, photos, currencies, trip costs, QR code and more, all on the device', href: '#/me/tools' },
-      { text: 'Trips › Dreams and Me › My compass: dream tours with their season, races with the sign-up date, goals in small steps', href: '#/trips/dreams' },
+      { text: 'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm', href: '#/me/connections' },
+      { text: 'Me › Toolbox: PDF, photos, currencies, trip costs, QR code', href: '#/me/tools' },
+      { text: 'Trips › Dreams: dream tours, races and goals in small steps', href: '#/trips/dreams' },
     ],
     small: [
-      { box: 'new', text: 'Packing: start from your earlier trips, Gear › Supplies and Lent out, lists as a table, the app reads the list aloud', href: '#/gear/supplies' },
-      { box: 'new', text: 'Mountains: freezing level and new snow, the swisstopo map, an emergency page with your position and an emergency QR code', href: '#/mountain' },
-      { box: 'nicer', text: 'Me › What is good for me, alerts and news, the tip of the week on Today, backup with a password', href: '#/me/wohl' },
+      { box: 'new', text: 'Packing: from earlier trips, Supplies, Lent out, lists as a table', href: '#/gear/supplies' },
+      { box: 'new', text: 'Mountains: freezing level, new snow, swisstopo map, emergency page', href: '#/mountain' },
+      { box: 'nicer', text: 'What is good for me, alerts, tip of the week, backup with a password', href: '#/me/wohl' },
     ],
     test: [
       'Open Me › Connections: every connection with its state and switches.',
