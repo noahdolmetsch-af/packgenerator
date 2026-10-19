@@ -109,6 +109,25 @@ export const SETS = {
   abroad: 'Abroad|block',
   train: 'Train|block',
   rain: 'Rain|block',
+  // v0.154.0 «Bausteine mehr» (SN3h–SN3j): nine more blocks with a rule (situation.js MORE_BLOCKS); they
+  // start with example parts (blocksmore.js)
+  sleepwell: 'Sleep well|block',
+  twonights: 'Two nights|block',
+  descent: 'Warm descent|block',
+  recovery: 'Recovery after|block',
+  icy: 'Slippery and wet|block',
+  swim: 'Quick swim|block',
+  sauna: 'Sauna and bath|block',
+  coldwater: 'Cold water|block',
+  drybag: 'Keep wet things dry|block',
+  // the stages (situation.js STAGE_OF, 4b): each its own suggestion, shown inside its parent block
+  coldHands: 'Cold: hands and feet|block',
+  coldLayers: 'Cold: layers|block',
+  coldEvening: 'Cold: warm in the evening|block',
+  cookWarm: 'Cook: warm food|block',
+  chargeLong: 'Charging: two days without power|block',
+  aidWinter: 'First aid: winter emergency|block',
+  hygieneCare: 'Hygiene: care on the way|block',
 };
 /** v0.66.0: the block keys before «Bausteine neu» (read only by the one-time update and older backups). */
 export const OLD_SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', light: 'Night: Light', lodging: 'Lodging' };

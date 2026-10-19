@@ -56,7 +56,8 @@
   const debrief = $derived(trip ? ($debriefsQ ?? []).find((d) => d.tripId === trip.id) ?? null : null);
   const stats = $derived(trip && $itemsQ && $bagsQ ? tripStats(trip, items, $bagsQ, bike, 0) : null);
   const tabs = $derived(trip ? tabsOf(trip) : []);
-  const status = $derived(trip ? tabStatus(trip, { open: 0, debrief, today, km: debrief?.km ?? trip.route?.km ?? null }) : {});
+  // Impeccable Heute 3: after «Tour beendet» the step bar shows Packen and Unterwegs as done
+  const status = $derived(trip ? tabStatus(trip, { open: 0, debrief, today, km: debrief?.km ?? trip.route?.km ?? null, ended: kind !== 'packed' }) : {});
   const current = $derived(kind === 'packed' ? (tabs.includes('ride') ? 'ride' : 'pack') : 'debrief');
   const pick = () => openTrip(trip.id);
   const kg = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -235,7 +236,7 @@
         {/if}
       </ul>
     </section>
-    <MainBar main={endedMain} second={endedSecond} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
+    <MainBar main={endedMain} second={endedSecond} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} hint={t('Trip ended')} />
     <div class="foot">
       {#if !day}<span>{t('With «Later», Today reminds you tomorrow.')}</span>{:else if !quickDone}<a class="tp-link" href="#/">{t('Later')}</a>{/if}
       {#if canReopen(trip, today) && !quickDone}<button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button>

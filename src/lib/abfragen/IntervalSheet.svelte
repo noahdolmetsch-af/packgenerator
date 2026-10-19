@@ -2,6 +2,7 @@
   /**
    * AB1 «Deine Abfragen»: tapping a question's interval opens this small choice (from below on a
    * phone): how often and when. «Speichern» keeps it, «Abbrechen» leaves it as it was.
+   * Impeccable Runde 2: «so far: …» (the earlier wording) lives here now, no longer under every question.
    */
   import { X } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
@@ -11,7 +12,7 @@
   import '../bikes/velo-dlg.css';
   import './ab.css';
 
-  let { title, every, onsave, onclose } = $props();
+  let { title, every, was = '', onsave, onclose } = $props();
   let dialog;
   // svelte-ignore state_referenced_locally
   let draft = $state(everyOf(every));
@@ -29,6 +30,7 @@
     <div class="vd-t">
       <h2 id="ivs-h">{t('How often to ask?')}</h2>
       <p class="vd-sub">{title}</p>
+      {#if was}<p class="vd-sub was">{t('so far: {q}', { q: t(was) })}</p>{/if}
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>

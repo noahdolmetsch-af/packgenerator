@@ -86,7 +86,7 @@ async function know(page, T) {
   return sec;
 }
 
-test('a fresh app: what is still open is a row of Important today, Tried it yet? offers one function', async ({ page, context }, info) => {
+test('a fresh app: what is still open is a row of Important today, no Tried it yet? on Today', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de', null);
   // the start-up may still be adding its items: wait for the to-do row
@@ -98,8 +98,8 @@ test('a fresh app: what is still open is a row of Important today, Tried it yet?
   await expect(k.locator('[data-row="todo"]').getByRole('link', { name: T('Do it now') })).toHaveCount(1);
   for (const gone of ['No learnings yet', 'Nothing to sort', 'No forecast loaded yet', 'Standard guess: 16 km/h', 'No backup yet'])
     await expect(page.getByText(T(gone))).toHaveCount(0);
-  const tryCard = page.getByRole('region', { name: T('Tried it yet?') });
-  await expect(tryCard.locator('.tryb')).toHaveCount(1);
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Tried it yet?» left Today (it stays in the catalog)
+  await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });

@@ -2,7 +2,7 @@
 export default {
   // The page (pages/GearImport.svelte)
   'Check import': 'Import prüfen',
-  'More for Gear': 'Mehr zum Material',
+  'More for Gear': 'Mehr zu Material',
   'No import is waiting. Choose a gear list (a JSON file of the kind "gear-import"); nothing goes into your gear before you check it here.':
     'Es wartet kein Import. Wähle eine Materialliste (eine JSON-Datei der Art «gear-import»); nichts kommt in dein Material, bevor du es hier geprüft hast.',
   'Choose file': 'Datei wählen',

@@ -1,4 +1,5 @@
 <script>
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
@@ -30,7 +31,7 @@
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
-  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY } from '../lib/situation.js';
+  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY, BATHE } from '../lib/situation.js';
   import { remindersFor } from '../lib/review/ganz.js';
   import { countryName } from '../lib/situationtext.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
@@ -41,6 +42,7 @@
   import ShopList from '../lib/pack/ShopList.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
+  import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
   import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
@@ -52,7 +54,7 @@
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
   import { undoSteps, keepUndoSteps } from '../lib/pack/undostack.js';
-  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car, Waves, Bath, Droplets, Hand } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -180,6 +182,14 @@
     beforeOpen = true;
     queueMicrotask(() => beforeEl?.scrollIntoView({ block: 'start' }));
   });
+  // Impeccable 18.10.2026 (Planen 1 + 2): «Aufgaben ↓» and the box «7 offen» open «Vor der Tour» and go there
+  function openBefore() {
+    beforeOpen = true;
+    queueMicrotask(() => {
+      beforeEl?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      beforeEl?.querySelector('summary')?.focus({ preventScroll: true });
+    });
+  }
   const prepBy = () => {
     try {
       return localStorage.getItem('care.by') ?? 'self';
@@ -447,7 +457,8 @@
     const visits = $visitsQ ?? [];
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
-  const useBike = (b) => change((t) => switchBike(t, b));
+  // Taschen-Setups TS5: the new bike's last used setup comes along.
+  const useBike = (b) => change((t) => switchBike(t, b, $tripsQ ?? []));
   // v0.25.1 (Noah 3a): Today's "Choose a bike for the trip" opens the comparison (#/pack?choose).
   $effect(() => {
     if (trip && location.hash.includes('choose')) {
@@ -789,7 +800,7 @@
     hours: (n) => changeContext(() => ({ hours: n })),
     days: (n) => changeContext(() => ({ days: Math.max(1, n) })),
     wx: setWx,
-    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b))),
+    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b), $tripsQ ?? [])),
     more: () => (dialog = { trip }),
     compare: () => (choosing = true),
     undo: undoLast,
@@ -879,7 +890,7 @@
       <!-- SN3+ «Bausteine je nach Lage» (answers 3b, 4b): a pass by hand, the country and how you get there.
            Only facts of the trip; the blocks Pass, Ausland and Zug come as a suggestion in Packen, never by themselves. -->
       <div class="lage" role="group" aria-labelledby="lage-h">
-        <span class="lbl" id="lage-h">{t('Pass, country and getting there')}</span>
+        <span class="lbl" id="lage-h">{t('Pass, country, getting there and bathing')}</span>
         <div class="lgrow">
           <OptionButton pressed={trip.pass === true} icon={Mountain} label={t('Pass|trip')} explain={t('A pass on the route')} onclick={() => change((cur) => ({ pass: cur.pass !== true }))} />
           <label class="lcountry"><span class="sub">{t('Country')}</span>
@@ -892,7 +903,13 @@
           <span class="sub">{t('Getting there')}</span>
           {#each ARRIVALS as a (a)}<OptionButton pressed={trip.arrival === a} icon={a === 'bike' ? BikeIc : a === 'train' ? TrainFront : Car} label={a === 'bike' ? t('Bike|arrival') : a === 'train' ? t('Train|arrival') : t('Car|arrival')} onclick={() => change((cur) => ({ arrival: cur.arrival === a ? null : a }))} />{/each}
         </div>
-        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train. Tap again to take it off.')}</p>
+        <!-- v0.154.0 «Bausteine mehr» (mockup SN3i-b): «Baden» by hand (trip.bathe), the same kind as «Pass» -->
+        <div class="lgrow" role="group" aria-label={t('Bathing|trip')}>
+          <span class="sub">{t('Bathing|trip')}</span>
+          {#each BATHE as b (b)}<OptionButton pressed={(trip.bathe ?? []).includes(b)} icon={b === 'lake' ? Waves : b === 'sauna' ? Bath : Droplets} label={b === 'lake' ? t('Lake or river') : b === 'sauna' ? t('Sauna or bath') : t('Cold water|trip')} onclick={() => change((cur) => { const have = Array.isArray(cur.bathe) ? cur.bathe : []; const next = have.includes(b) ? have.filter((x) => x !== b) : [...have, b]; return { bathe: next.length ? next : null }; })} />{/each}
+        </div>
+        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
+        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
       </div>
     {/snippet}
 
@@ -1000,13 +1017,13 @@
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
-  {/if}{/snippet}
+  {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -1084,6 +1101,8 @@
     {#snippet ballastContent()}<ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
+  <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
+  {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
   <PageMore page="pack" name={t('Pack')} />
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
@@ -1163,6 +1182,7 @@
   .lage { display: grid; gap: 10px; margin-top: 20px; }
   .lgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
   .lgrow .sub { font-size: var(--fs-small); color: var(--ink-2); }
+  .hchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border: 1px dashed var(--line-strong); border-radius: 999px; color: var(--ink-2); font-size: var(--fs-small); }
   .lcountry { display: flex; align-items: center; gap: 8px; }
   .lcountry .sel { max-width: 220px; }
   .hint { font-size: 14px; color: var(--ink-3); }

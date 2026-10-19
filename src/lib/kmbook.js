@@ -15,6 +15,7 @@
  * Pure functions, tested in tests/kmbook.test.js. The database side is kmbookdb.js.
  */
 import { localDay } from './localday.js';
+import { SKI_TYPES } from './ski.js';
 import { t, num, dateOf } from './i18n.svelte.js';
 
 /** Entry kinds: a ride, the start value, a new reading (difference), a correction with a reason. */
@@ -245,7 +246,8 @@ const VIRTUAL = /virtual|indoor|trainer/i;
 /**
  * The Strava export activities.csv (or Garmin Connect's CSV): every activity with its date, start
  * time (Strava: UTC → the Zurich day), km, name, type, the bike («Activity Gear») and the id.
- * Returns { rides, other } (other: activities that are no ride, e.g. runs).
+ * Returns { rides, other, ski } (other: activities that are no ride, e.g. runs; ski: v0.97.0, the ski
+ * tours among them with metres climbed and both durations, for «Nach der Tour»).
  */
 export function parseStravaCsv(text) {
   const lines = csvLines(String(text ?? ''));
@@ -259,9 +261,14 @@ export function parseStravaCsv(text) {
   const iType = col(/^(activity type|type|aktivitätstyp)$/);
   const iGear = col(/^(activity gear|gear|ausrüstung)$/);
   const iId = col(/^(activity id|id)$/);
+  // v0.97.0 «Skitouren»: Strava's first «Elapsed Time» and «Moving Time» are seconds, «Elevation Gain» metres
+  const iElapsed = col(/^elapsed time$/);
+  const iMoving = col(/^moving time$/);
+  const iGain = col(/^elevation gain$/);
   if (iDate < 0 || iDist < 0) throw new Error(t('Date or distance column not found. Use the CSV export of Strava or Garmin Connect.'));
   const metres = /\(m\)|meter/.test(head[iDist]);
   const rides = [];
+  const ski = [];
   let other = 0;
   for (const line of lines.slice(1)) {
     const c = cells(line, sep);
@@ -269,8 +276,16 @@ export function parseStravaCsv(text) {
     const time = stravaTime(raw);
     const date = time ? zurichDay(time) : isoDay(raw);
     const n = toNum(c[iDist]);
-    if (!date || !Number.isFinite(n)) continue;
     const type = iType >= 0 ? c[iType] ?? '' : '';
+    // v0.97.0: a ski tour (Backcountry Ski, Nordic Ski) is no ride; it is kept for «Nach der Tour»
+    if (date && SKI_TYPES.test(type)) {
+      const sec = (i) => (i >= 0 && Number.isFinite(toNum(c[i])) ? Math.round(toNum(c[i]) / 60) : null);
+      const gain = iGain >= 0 ? toNum(c[iGain]) : NaN;
+      ski.push({ date, time, type, name: iName >= 0 ? c[iName] ?? '' : '', hm: Number.isFinite(gain) ? Math.round(gain) : null, activeMin: sec(iMoving), elapsedMin: sec(iElapsed), stravaId: iId >= 0 && c[iId] ? String(c[iId]) : null });
+      other++;
+      continue;
+    }
+    if (!date || !Number.isFinite(n)) continue;
     const gear = iGear >= 0 ? c[iGear] ?? '' : '';
     if (type && (!CYCLING.test(type) || (VIRTUAL.test(type) && !gear))) {
       other++;
@@ -278,7 +293,7 @@ export function parseStravaCsv(text) {
     }
     rides.push({ source: 'csv', date, time, km: r1(metres ? n / 1000 : n), name: iName >= 0 ? c[iName] ?? '' : '', type, gear, stravaId: iId >= 0 && c[iId] ? String(c[iId]) : null, device: '', profile: '', sensors: [] });
   }
-  return { rides, other };
+  return { rides, other, ski };
 }
 
 /* FIT: Garmin's binary activity file. Only what the ledger needs: the unit (file_id), its connected
@@ -290,7 +305,7 @@ const BASE = {
   0x0a: [1, 'u8', 0], 0x8b: [2, 'u16', 0], 0x8c: [4, 'u32', 0], 0x0d: [1, 'u8', 0xff], 0x8e: [8, 's64', null], 0x8f: [8, 'u64', null], 0x90: [8, 'u64', null],
 };
 /** Garmin units by product number (the FIT profile), for a readable name. */
-export const GARMIN = { 2713: 'Edge 1030', 3121: 'Edge 530', 3122: 'Edge 830', 3570: 'Edge 1030 Plus', 3843: 'Edge 1040', 4061: 'Edge 540', 4062: 'Edge 840' };
+export const GARMIN = { 2713: 'Edge 1030', 3121: 'Edge 530', 3122: 'Edge 830', 3570: 'Edge 1030 Plus', 3843: 'Edge 1040', 4061: 'Edge 540', 4062: 'Edge 840', 4634: 'Edge 850' };
 /** ANT+ device types that belong to a bike (not the rider: no heart rate strap). */
 const BIKE_SENSOR = { 11: 'power', 121: 'speed', 122: 'cadence', 123: 'speed', 34: 'shifting', 40: 'radar', 35: 'light' };
 const SPORT_CYCLING = new Set([2, 21]); // cycling, e-biking

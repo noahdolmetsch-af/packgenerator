@@ -5,6 +5,7 @@
 // - «Im Kleiderschrank öffnen» shows the wardrobe with the trip band; unsuitable duplicates are hidden with a hint.
 // - Phone 390: no sideways scroll on the packing list, in the sheet and in the wardrobe.
 import { test, expect } from '@playwright/test';
+import { openLayers } from './wardrobe-open.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { tauschData, P, TRIP } from './v0520-fixture.js';
 import { openData, settle } from './settle.js';
@@ -111,6 +112,7 @@ test('the wardrobe for the trip: band, unsuitable duplicates hidden with a hint'
   const errors = await start(page, context, info);
   await tap(page.locator('.worn-card').getByRole('link', { name: 'Kleiderschrank' }), info);
   await expect(page).toHaveURL(/#\/wardrobe\/trip\//);
+  await openLayers(page); // Impeccable runde 2: a phone shows the layers closed
   const band = page.locator('.tband');
   await expect(band).toContainText('Für deine Tour');
   await expect(band).toContainText('10–16 °C');
@@ -140,6 +142,8 @@ test('phone 390: no sideways scroll on the list, in the sheet and in the wardrob
   expect(await noSideScroll(page)).toBe(true);
   expect(await sheet(page).evaluate((d) => d.scrollWidth <= d.clientWidth)).toBe(true);
   // every button in the sheet is a full 44 px target
+  // measured when the window has settled («Bewegung»: on a computer-size sheet it grows from 97 %)
+  await sheet(page).evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)));
   const small = await sheet(page).locator('button, a').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height < 44).map((e) => e.textContent));
   expect(small).toEqual([]);
   await page.goto(`./#/wardrobe/trip/${encodeURIComponent(TRIP)}`);

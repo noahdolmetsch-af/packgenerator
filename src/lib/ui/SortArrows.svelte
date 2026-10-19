@@ -44,7 +44,7 @@
       gap: 0;
     }
     .sort-ar {
-      width: 40px;
+      width: 44px; /* 44 px to hit (Wächter target) */
       height: 44px;
       border: 0;
       background: none;

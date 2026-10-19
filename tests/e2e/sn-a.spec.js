@@ -125,13 +125,14 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   await start(page, context, '2026-10-09T10:00:00+02:00');
   await page.goto('./#/features');
   await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
-  await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('Functions'));
+  await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('What the app can do|crumb')); // Impeccable Runde 2: the path like the title
   await expect(page.locator('.vhead .vsub')).toContainText(T('tap to go there'));
   // SN6+ (answer 1b, intended change): «Neu für dich» is replaced by «Neu seit deinem letzten Besuch»;
   // its debrief and playground tips stand in «Passt gerade» (at most three tips)
   await expect(page.getByRole('region', { name: T('New for you') })).toHaveCount(0);
   const tips = page.getByRole('region', { name: T('New since your last visit') });
-  await expect(tips).toBeVisible();
+  // Impeccable Runde 2 (on purpose): with nothing new since the last visit the block stays away
+  await expect(tips).toHaveCount(0);
   const n = await page.getByRole('region', { name: T('Fits right now') }).locator('[data-fit]').count();
   expect(n).toBeGreaterThan(0);
   expect(n).toBeLessThanOrEqual(3);
@@ -141,7 +142,9 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   for (const g of await groups.all()) expect(await g.locator('[data-feature]').count()).toBeLessThanOrEqual(3);
   await expect(page.locator('.fnever')).toHaveCount(0);
   await expect(page.locator('.fgo')).toHaveCount(0);
-  await expect(page.locator('.legend')).toContainText(T('Circle = never used, tick = used (moves down). Under «…»: try it in the playground.'));
+  // Impeccable Runde 2: the state in words in every row, no circle to guess
+  await expect(page.locator('.legend')).toContainText(T('Used ones move down. Under «…»: how it works, and try it in the playground.'));
+  for (const r of await page.locator('[data-feature]').all()) await expect(r.locator('.fstate')).toHaveText(new RegExp(`^(${T('used|features')}|${T('new for you')})$`));
   // the situation and page switch stays
   await page.getByRole('button', { name: T('By page'), exact: true }).click();
   await expect(groups).toHaveCount(5);

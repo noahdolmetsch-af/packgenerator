@@ -10,6 +10,7 @@
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
@@ -19,10 +20,14 @@
   import { parseActivitiesCsv } from '../lib/activities.js';
   import { isList, kmIntoDebrief, listToTrips, handToKmImport } from '../lib/ridelist.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import { rideOpen } from '../lib/review/state.js';
+  import UndoToast from '../lib/review/UndoToast.svelte';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
   import Profile from '../lib/ui/Profile.svelte';
-  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map } from '@lucide/svelte';
+  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../lib/ui/RenameSheet.svelte';
+  import { offerRename } from '../lib/ui/rename.svelte.js';
 
   let { sub = '' } = $props();
 
@@ -48,6 +53,25 @@
   const clock = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const firstBike = $derived(sortBikes($bikesQ ?? [])[0] ?? null);
   const tripOf = (r) => (r?.tripId ? trips.find((x) => x.id === r.tripId) ?? null : null);
+
+  /* ---------- Impeccable Runde 2 (Fahrten 2): «Kurz: Alles gut» for a ride without a trip, with Undo ---------- */
+  let okUndo = $state(null);
+  let okTimer;
+  async function allGood(r) {
+    const id = r.id;
+    const was = r.okAt;
+    await db.rides.update(id, { okAt: new Date().toISOString() });
+    clearTimeout(okTimer);
+    // undefined takes the field away again (Dexie update)
+    okUndo = { text: t('Saved: {title}, all good.', { title: r.name }), restore: () => db.rides.update(id, { okAt: was }) };
+    okTimer = setTimeout(() => (okUndo = null), 4000);
+  }
+  async function undoOk() {
+    const u = okUndo;
+    okUndo = null;
+    clearTimeout(okTimer);
+    if (u) await u.restore();
+  }
 
   /* ---------- upload: read the file, show it, save it ---------- */
   let draft = $state(null);
@@ -345,6 +369,15 @@
     });
     if (trip?.bikeId) await kmToTrip(trip, [ride]);
   }
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): a saved ride can be renamed (the name came from the file)
+  let renaming = $state(false);
+  async function rename(name) {
+    const was = ride.name;
+    if (!name || name === was) return;
+    const id = ride.id;
+    await db.rides.update(id, { name });
+    offerRename(name, () => db.rides.update(id, { name: was }));
+  }
   async function remove() {
     if ((await askDelete({ title: t('Delete this ride?'), text: t('Learnings you kept stay. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const now = new Date().toISOString();
@@ -399,7 +432,7 @@
      delete. -->
 <div class="rides rv-page">
   {#if rideId}
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief/ride">{t('Upload ride')}</a>{#if ride}<ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief/ride">{t('Rides|page')}</a>{#if ride}<ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
     {#if !$ridesQ}
       <Skeleton rows={3} />
     {:else if !ride}
@@ -409,7 +442,8 @@
       {@const parts = ['num', 'pz', rows.length ? 'cmp' : '', suggs.length ? 'lr' : ''].filter(Boolean)}
       {@const no = (k) => `${parts.indexOf(k) + 1} · `}
       {@const planP = planProfileOf(ride, trip)}
-      <h1 class="title">{ride.name}</h1>
+      <h1 class="title rtitle"><span>{ride.name}</span><button type="button" class="rn-btn" aria-label={t('Rename {name}', { name: ride.name })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" /></button></h1>
+      {#if renaming}<RenameSheet kicker={t('Ride')} title={t('Rename ride')} value={ride.name} onsave={rename} onclose={() => (renaming = false)} />{/if}
       <p class="page-sub">{[day(ride.date), t('Start {time}', { time: clock(ride.startAt) }), trip?.title].filter(Boolean).join(' · ')}</p>
       {#if rideMsg}<p class="okmsg" role="status">{rideMsg}</p>{/if}
       {#if justSaved}
@@ -531,9 +565,11 @@
       </div>
     {/if}
   {:else}
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Upload ride')}</span></nav>
-    <h1 class="title">{t('Upload ride')}</h1>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Rides|page')}</span></nav>
+    <!-- Impeccable Runde 2 (Fahrten 1): the page is the list of rides; uploading is the button in the card -->
+    <h1 class="title">{t('Rides|page')}</h1>
     <p class="page-sub">{t('A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
+    <HintCard page="rides" />
 
     <div class="rv-lay">
       <div class="rv-col">
@@ -632,12 +668,14 @@
             <ul class="rv-box" aria-labelledby="saved-h">
               {#each rides as r (r.id)}
                 {@const open = rideLearnings(r, r.plan, r.basis ?? pace).filter((s) => !r.answers?.[s.id]).length}
-                <li>
+                {@const due = rideOpen(r, tripOf(r))}
+                <li class="rl" data-ride={r.id} data-open={due ? '' : null}>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
                     <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
-                    <span class="rv-m"><span class="rv-t">{r.name}{#if note?.ids.includes(r.id)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>
+                    <span class="rv-m"><span class="rv-t">{r.name}{#if note?.ids.includes(r.id)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
                     <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
                   </a>
+                  {#if due}<button type="button" class="link okbtn" onclick={() => allGood(r)} aria-label="{t('Short: all good')}: {r.name}">{t('Short: all good')}</button>{/if}
                 </li>
               {/each}
             </ul>
@@ -667,6 +705,7 @@
     </div>
   {/if}
 </div>
+{#if okUndo}<UndoToast text={okUndo.text} onundo={undoOk} />{/if}
 
 <style>
   .crumb {
@@ -1009,6 +1048,36 @@
   .rv-tag.lt {
     margin-top: 4px;
   }
+  /* Impeccable Runde 2 (Fahrten 2): the row link and «Kurz: Alles gut» side by side */
+  .rl {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rl > a {
+    flex: 1;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+  }
+  .okbtn {
+    flex: none;
+    min-height: 44px;
+  }
+  @media (max-width: 479px) {
+    .rl {
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .rl > a {
+      flex-basis: 100%;
+    }
+    .okbtn {
+      margin: -8px 0 4px 42px;
+    }
+  }
   .tot .rv-t {
     font-weight: 600;
   }
@@ -1086,5 +1155,23 @@
   }
   .rprof {
     margin-top: 12px;
+  }
+  .rtitle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .rn-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
   }
 </style>

@@ -92,7 +92,7 @@
       <div class="col">
         <div class="card vals num" data-section="values">
           {#if act.movingS}<span data-val="moving"><b>{hmm(act.movingS)}</b><small>{t('Moving time|act')}</small></span>{/if}
-          {#if act.elapsedS}<span data-val="elapsed"><b>{hmm(act.elapsedS)}</b><small>{t('Elapsed time')}</small></span>{/if}
+          {#if act.elapsedS}<span data-val="elapsed"><b>{hmm(act.elapsedS)}</b><small>{t('Elapsed time|act')}</small></span>{/if}
           {#if act.km}<span data-val="km"><b>{num(act.km)} km</b><small>{t('Distance')}</small></span>{/if}
           {#if act.hm != null}<span data-val="hm"><b>{num(act.hm)} {t('Hm|short')}</b><small>{t('Metres climbed')}</small></span>{/if}
           {#if spdAvg != null}<span data-val="speed"><b>{num(spdAvg)}{act.spdMax ? ` / ${num(act.spdMax)}` : ''}</b><small>{act.spdMax ? t('Ø / max km/h') : t('Ø km/h')}</small></span>{/if}

@@ -82,4 +82,19 @@ test('upload a received QR bill, see the payment part, mark it paid; by hand wit
   await page.getByRole('button', { name: new RegExp(`^${T('Invoices')}`) }).click();
   await expect(page).toHaveURL(/#\/me\/pay\/invoices$/);
   await expect(page.getByRole('button', { name: new RegExp(`^${T('To pay')}`) })).toContainText('1');
+
+  // the reminder sits on Ich › Bezahlen only, not on Heute (Noah 15.10.2026 21:07 «4b»)
+  await page.goto('./#/me/pay');
+  await ready(page);
+  const card = page.getByTestId('bill-reminder');
+  await expect(card).toContainText(T('Bill due in {n} days', { n: 2 }));
+  await expect(card).toContainText('Tennisclub Beispiel');
+  await noSideways(page);
+  await page.goto('./#/');
+  await ready(page);
+  await expect(page.getByTestId('bill-reminder')).toHaveCount(0);
+  await page.goto('./#/me/pay');
+  await ready(page);
+  await page.getByTestId('bill-reminder').getByRole('button', { name: T('Later') }).click();
+  await expect(page.getByTestId('bill-reminder')).toHaveCount(0);
 });

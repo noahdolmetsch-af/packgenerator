@@ -3,8 +3,9 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
-// A Vercel preview (one per pull request, so Noah can test before he merges) serves it from the root.
-const vercel = !!process.env.VERCEL;
+// A test link (a Vercel preview per pull request, or a Cloudflare Pages preview, so Noah can test
+// before the merge) serves it from the root. Cloudflare Pages sets CF_PAGES=1 during its build.
+const vercel = !!process.env.VERCEL || !!process.env.CF_PAGES;
 const base = vercel ? '/' : '/packgenerator/';
 
 import pkg from './package.json' with { type: 'json' };
@@ -64,7 +65,8 @@ export default defineConfig({
             title: 'title',
             text: 'text',
             url: 'url',
-            // P3b «Abgleich Handy–Computer»: a backup file (.json) shared to the app opens «Check import»
+            // Noah 19.10.2026 «2b»: a shared picture always goes to «Dokumente» (field "doc"); a TWINT screenshot
+            // is chosen in Rechnungen instead («Choose a TWINT screenshot», QR6). P3b «Abgleich Handy–Computer»: a backup file (.json) shared to the app opens «Check import»
             files: [
               { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
               { name: 'backup', accept: ['.json', 'application/json'] },
