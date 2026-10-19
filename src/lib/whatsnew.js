@@ -16,6 +16,54 @@
 
 export const WHATS_NEW = [
   {
+    // v0.153.0 Paket G «Daten kommen von selbst»: Verbindungen, Strava hakt Aktiv ab, eigener Google Kalender,
+    // Notizen in Google Aufgaben, .ics, Zürichsee, Sterne aus Daten, alte Fitbit-Daten, Aktivzonenminuten,
+    // Wetter-Wecker, Licht-Wecker, Brunnen/Werkstätten an der Strecke, Ozon und Pollen, Regen unterwegs,
+    // Rückenwind, Sonnencreme, Termine heute im Morgen-Check. Built on F 0.151.0 and Tempo 0.152.0.
+    version: '0.153.0',
+    date: '2026-10-19',
+    title: 'Your data comes by itself',
+    lead: 'Strava, Fitbit, Google and the weather fill in the app for you, and the phone warns you before a tour.',
+    points: [
+      { text: 'Me › Connections: Strava, Fitbit, Google and the lake in one place; Strava ticks Aktiv by itself, or asks first', href: '#/me/connections' },
+      { text: 'Your tours in your own Google calendar «Packgenerator», notes in Google Tasks, tours as .ics', href: '#/me/connections' },
+      { text: 'Weather alarm: before a tour the phone tells you when the weather turns or a better day comes; also rain on the way, light after sunset, ozone and pollen', href: '#/me/push' },
+    ],
+    small: [
+      { box: 'new', text: 'Packing hints per tour: sun cream from UV 6, light when you ride into the dark, which way the wind helps; fountains and bike shops along the route', href: '#/pack' },
+      { box: 'new', text: 'Aktiv: active zone minutes of the week, the lake temperature, ozone and pollen, stars from your data; year goals can be changed', href: '#/flow' },
+      { box: 'nicer', text: 'The morning check shows today\'s fixed dates and Google appointments', href: '#/check/morning' },
+    ],
+    test: [
+      'Open Me › Connections: every connection with its state and switches.',
+      'Open Me › Reminders on the phone and switch on «Weather alarm» for a planned tour.',
+      'Open a trip with a GPX route in Pack › Plan and tap «Search fountains and workshops».',
+    ],
+  },
+  {
+    // v0.151.0 Paket F «Woche»: Woche planen WP1–WP4 + Mehr Inhalt, Rundgang und Einstieg (Teil 1–3), Einstieg in
+    // der Karte «Was hier steht» (Noah 19.10 «2a»), Google Kalender und Aufgaben in der Woche.
+    // Built on C 0.150.0 (which carries E 0.149.0).
+    version: '0.151.0',
+    date: '2026-10-19',
+    title: 'Your week, and a tour of the app',
+    lead: 'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.',
+    points: [
+      { text: 'The place «Week»: Monday to Sunday with your training, dates, Google calendar and tasks, holidays and bike service; on Sunday «Plan the week» suggests, you decide', href: '#/week' },
+      { text: 'Tour of the app: six short steps with an example trip or your own data, and a small tour per place', href: '#/me/handbook' },
+      { text: 'On top of every page one card says what it is for, with three things to do, what to expect and a «Did you know» with its source', href: '#/flow' },
+    ],
+    small: [
+      { box: 'new', text: 'Holidays once under Week › Holidays: the app suggests pausing the plan, servicing the bike before and a packing list', href: '#/week/away' },
+      { box: 'nicer', text: 'The card «This week» on Today shows a dot per day and what the plan says for today', href: '#/' },
+    ],
+    test: [
+      'Open Week: your week from Monday to Sunday; hide a kind with its chip.',
+      'Tap «Plan the week» and take or skip a suggestion in each of the four steps.',
+      'Open Me › Handbook › Tour and go through the six steps with the example trip.',
+    ],
+  },
+  {
     // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
     // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
     // Impeccable round 2 (Aktiv · Heute, timer and the other pages), Fenster, Erkenntnisse, Bewegung 4b and Tempo.

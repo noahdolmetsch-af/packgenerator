@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         project: [phone, desktop]
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/3
+      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/5
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs in its own job below
       # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).

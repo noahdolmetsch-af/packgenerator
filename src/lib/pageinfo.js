@@ -10,6 +10,9 @@
  * kind: 'tip' (Gut zu wissen), 'know' (Wusstest du: background, ideas, a smile; on unless the switch says
  * «only useful tips») or 'today' (Passt zu heute: only on a day that fits, `when` heat, foehn, sauna, cold, rain, wind
  * or long; such a tip comes first on its day).
+ * «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a», lib/intro.js): a tip may carry `months` (a «Passt zu heute» that
+ * fits in those months, e.g. the ski season), `button` + `href` (one step that starts it) and `source` (a
+ * «Good to know» with its source; factOfDay picks one). Pages «touren» and «material» are new.
  * Pure data and functions; the texts are English keys translated with t() at the call site (German in
  * i18n/de/pageinfo.js). The state lives in one setting (PAGEINFO_KEY), on the device and in the backup.
  */
@@ -47,7 +50,10 @@ export const PAGES = {
       { id: 'aktiv-one-ring', text: 'Move, Mindful, Recovery: if you only fill one ring, you see it here first.' },
       { id: 'aktiv-amount', text: 'A long press enters another amount, for example 25 push-ups instead of 10.' },
       { id: 'aktiv-strava', text: 'Rides from Strava and trip days count on «Cycling outdoors» by themselves.' },
-      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.', link: 'https://www.hepa.ch/' },
+      { id: 'know-baspo', kind: 'know', text: 'The Federal Office of Sport recommends at least 150 minutes of moderate exercise a week for adults.', source: 'Federal Office of Sport (BASPO)', link: 'https://www.hepa.ch/' },
+      { id: 'know-who-strength', kind: 'know', text: 'Adults should also strengthen their muscles on two or more days a week.', source: 'World Health Organization (WHO), 2020' },
+      { id: 'aktiv-ski', kind: 'today', when: 'month', months: [10, 11], note: 'only in October and November', text: 'The ski season is coming. Set a goal «ski tour once a week» now, then it counts from the first snow.', button: 'Set a goal', href: '#/flow/goals' },
+      { id: 'aktiv-spring', kind: 'today', when: 'month', months: [3, 4], note: 'only in March and April', text: 'The cycling season starts. A goal «cycling twice a week» brings you into it gently.', button: 'Set a goal', href: '#/flow/goals' },
       { id: 'know-strava', kind: 'know', text: 'The name Strava comes from the Swedish «sträva», which means «to strive».' },
       { id: 'know-star', kind: 'know', text: 'Every star was once a «just quickly».' },
       ...TODAY_TIPS,
@@ -67,6 +73,7 @@ export const PAGES = {
       { id: 'med-tpl', text: 'Templates keep the length, sound and place. One tap and it runs.' },
       { id: 'know-meditari', kind: 'know', text: 'The word «meditation» comes from the Latin «meditari»: to ponder or to practise.' },
       { id: 'know-after-ride', kind: 'know', text: 'Idea: try a session right after a ride, when the body calms down anyway.' },
+      { id: 'know-mbsr', kind: 'know', text: 'The well-known mindfulness course MBSR lasts eight weeks. It was developed in 1979 at a university clinic in Massachusetts.', source: 'UMass Chan Medical School, Center for Mindfulness' },
       ...TODAY_TIPS.filter((x) => x.when === 'sauna'),
     ],
     can: [
@@ -80,6 +87,192 @@ export const PAGES = {
   // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): ten more places, see pagetexts.js
   ...PAGE_TEXTS,
 };
+
+/**
+ * «Einstieg» for Bikes and the pages below the places (Noah 15.10.2026 «4a»): the tips of the Einstieg on
+ * top of each page (lib/intro.js). A «know» tip with a `source` is the «Did you know» of the page.
+ */
+Object.assign(PAGES, {
+  // Noah 19.10 «2a»: one card per page. Where the page has the card «Was hier steht» (Paket A) the Einstieg
+  // lives in it (HintCard intro=…) and its tips join the tips of that page: Touren → trips, Material and
+  // Einkauf → gear, Pflege → care (INTROS[…].tips). «A good trip becomes a template» was there twice: one row.
+  trips: {
+    ...PAGES.trips,
+    tips: [
+      ...PAGES.trips.tips.map((x) => (x.id === 'trips-template' ? { ...x, button: 'Templates', href: '#/pack/templates' } : x)),
+      { id: 'touren-weather', text: 'Fetch the weather about three days before: then the clothes on the list fit the forecast.' },
+      { id: 'touren-debrief', text: 'Look back the day after: what you did not use gets quieter on the next list.', button: 'Look back|page', href: '#/debrief' },
+      { id: 'touren-blocks', text: 'Building blocks like «Rain» add a whole package to a trip with one tap.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'know-veloland', kind: 'know', text: 'Switzerland has nine national cycle routes, signposted in red and white.', source: 'SwitzerlandMobility' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long' || x.when === 'cold' || x.when === 'heat'),
+    ],
+  },
+  gear: {
+    ...PAGES.gear,
+    tips: [
+      ...PAGES.gear.tips,
+      { id: 'material-weigh', text: 'Weigh the heavy things first: three items often make half of the base weight.' },
+      { id: 'material-bag', text: 'Give each item its usual bag. Packing then shows the weight per bag.' },
+      { id: 'material-block', text: 'Three items you always take together make a good building block.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'material-wish', text: 'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.', button: 'Shopping|tab', href: '#/gear?view=wish' },
+      { id: 'know-ultralight', kind: 'know', text: 'In bikepacking and hiking a base weight under 4.5 kg (10 lb) is usually called «ultralight».', source: 'common definition of the ultralight community' },
+      { id: 'wish-wait', text: 'Leave a wish on the list for a week: if you still want it then, it is a good buy.' },
+      { id: 'wish-weight', text: 'Enter the weight of a wish: you see what it would save against the old part.' },
+      { id: 'wish-debrief', text: 'If something was missing on a trip, the wish shows it as its reason.' },
+      { id: 'know-repair', kind: 'know', text: 'Repairing instead of buying new saves resources: the right to repair goods has been strengthened in the EU since 2024.', source: 'European Union, Right to Repair Directive (2024)' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold'),
+    ],
+  },
+  care: {
+    ...PAGES.care,
+    tips: [
+      ...PAGES.care.tips,
+      { id: 'care-wet', text: 'After a rainy ride wipe and oil the chain the same day: then it does not rust.' },
+      { id: 'care-trip', text: 'Check tyres, brakes and chain a few days before a long tour: then there is time for a spare part.' },
+      { id: 'care-strava', text: 'With Strava connected the km of every ride count by themselves.' },
+      { id: 'know-latex', kind: 'know', text: 'Latex inner tubes lose air faster than butyl tubes: they often need pumping every day or two.', source: 'Schwalbe, tube guide' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long'),
+    ],
+  },
+  velos: {
+    tips: [
+      { id: 'velo-pressure', text: 'Check the tyre pressure once a week: tyres lose a little air even without a puncture.' },
+      { id: 'velo-chain', text: 'A clean, oiled chain runs quieter and lasts longer. Wipe it after a wet ride.' },
+      { id: 'velo-strava', text: 'With Strava connected every ride counts on the right bike by itself.', button: 'Care|tab', href: '#/bikes?tab=care' },
+      { id: 'velo-bags', text: 'Weigh your bags once: then every trip shows its weight on the bike.' },
+      { id: 'know-chain-wear', kind: 'know', text: 'A chain is usually replaced at 0.5 % wear on 11- and 12-speed bikes and at 0.75 % on others. A chain checker shows it in seconds.', source: 'Park Tool, chain wear guide' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'long'),
+    ],
+    can: [],
+  },
+  training: {
+    tips: [
+      { id: 'tr-heart', text: 'Strava only sends a heart rate if your watch or bike computer recorded one.' },
+      { id: 'tr-easy-day', text: 'After a hard day an easy one: the body gets stronger in the rest, not in the effort.' },
+      { id: 'tr-max', text: 'Set your maximum heart rate once: then the zones fit you, not an average.' },
+      { id: 'know-who-vigorous', kind: 'know', text: '75 minutes of vigorous activity a week count about as much as 150 minutes of moderate activity.', source: 'World Health Organization (WHO), 2020' },
+      ...TODAY_TIPS.filter((x) => x.when === 'heat'),
+    ],
+    can: [],
+  },
+  goals: {
+    tips: [
+      { id: 'goal-small', text: 'Start smaller than you think: a goal you often reach carries you further than a big one you miss.' },
+      { id: 'goal-pause', text: 'Pause a goal on holiday instead of deleting it: it comes back with one tap.' },
+      { id: 'goal-season', text: 'A goal with a season, like skiing in winter, does not nag you in summer.' },
+      { id: 'know-if-then', kind: 'know', text: 'A plan like «If it is Tuesday 18:00, then I ride» makes it more likely that you really do it.', source: 'psychology research on «implementation intentions»' },
+    ],
+    can: [],
+  },
+  activity: {
+    tips: [
+      { id: 'act-new', text: 'Something new? «New activity» adds a tile, for example climbing or swimming.' },
+      { id: 'act-press', text: 'A long press on a tile under Active enters the duration or the place.' },
+      { id: 'act-fun', text: 'Recovery counts too: a sauna or a walk fills the recovery ring.' },
+      { id: 'know-steps', kind: 'know', text: 'The goal of 10,000 steps a day goes back to a Japanese step counter from 1965 called «manpo-kei», the «10,000-step meter».', source: 'Harvard Health Publishing' },
+    ],
+    can: [],
+  },
+  rest: {
+    tips: [
+      { id: 'rest-plan', text: 'Plan the rest day like a training day: then it is a choice, not a gap.' },
+      { id: 'rest-own', text: 'Your own kind of recovery, like reading in the park, can be added below.' },
+      { id: 'rest-after', text: 'After two hard days in a row an easy day usually does more good than a third hard one.' },
+      { id: 'know-sleep', kind: 'know', text: 'Adults should sleep 7 hours or more a night on a regular basis.', source: 'American Academy of Sleep Medicine' },
+      ...TODAY_TIPS.filter((x) => x.when === 'sauna'),
+    ],
+    can: [],
+  },
+  bags: {
+    tips: [
+      { id: 'bag-empty', text: 'Empty the bag right after training: wet things dry faster and smell less.' },
+      { id: 'bag-short', text: 'Keep the list short: only what you would really miss.' },
+      { id: 'bag-forgot', text: 'What you forget often is marked. Put it in the bag first.' },
+    ],
+    can: [],
+  },
+  week: {
+    tips: [
+      { id: 'week-sunday', text: 'Ten minutes on Sunday evening are enough to plan the week.' },
+      { id: 'week-ics', text: '«To my calendar» puts the planned days into your phone calendar.' },
+      { id: 'week-gap', text: 'Leave one day empty: then a rainy day does not move everything.' },
+      { id: 'know-iso-week', kind: 'know', text: 'In Switzerland and most of Europe the week starts on Monday, as the international standard says.', source: 'ISO 8601' },
+    ],
+    can: [],
+  },
+  templates: {
+    tips: [
+      { id: 'tpl-after', text: 'Save a template right after a good trip, while you still know what you missed.' },
+      { id: 'tpl-few', text: 'Two or three templates are enough for most trips: a day ride, a weekend, a long tour.' },
+      { id: 'tpl-blocks', text: 'Put things that always come together into a building block: the templates stay short.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'know-checklist', kind: 'know', text: 'Pilots fly with checklists since a test flight crash in 1935: the plane was too complex to remember every step.', source: 'Boeing, company history (Model 299)' },
+    ],
+    can: [],
+  },
+  // debrief and wardrobe come with «Mehr Inhalt» (PAGE_TEXTS, Paket A): the Einstieg adds its tips there
+  // instead of replacing them (tips, «Das kann die App hier» and the examples stay)
+  debrief: {
+    ...PAGES.debrief,
+    tips: [
+      ...PAGES.debrief.tips,
+      { id: 'deb-pace', text: 'Your pace helps the next plan: how far you really ride in a day.', button: 'Your pace', href: '#/debrief/pace' },
+      { id: 'know-aar', kind: 'know', text: 'The army review after an exercise asks four questions: what was planned, what happened, why, and what we do next time.', source: 'US Army, «A Leader’s Guide to After-Action Reviews»' },
+    ],
+  },
+  wardrobe: {
+    ...PAGES.wardrobe,
+    tips: [
+      ...PAGES.wardrobe.tips.filter((x) => x.id !== 'know-merino'),
+      { id: 'wd-range', text: 'Give each piece a temperature range: then the suggestion fits the forecast.' },
+      { id: 'know-merino', kind: 'know', text: 'Merino wool can take up about a third of its own weight in moisture before it feels wet.', source: 'The Woolmark Company' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold' || x.when === 'heat'),
+    ],
+  },
+  blocks: {
+    tips: [
+      { id: 'blk-three', text: 'Three things that always come along together make a good building block.' },
+      { id: 'blk-check', text: 'Check your blocks after a season: what never came along can go.' },
+      { id: 'blk-rain', text: 'A block «Rain» comes by itself when the forecast says rain.' },
+    ],
+    can: [],
+  },
+  // the Einstieg of Workshop & receipts uses the page of «Mehr Inhalt» (PAGE_TEXTS.workshop) and adds two tips
+  workshop: {
+    ...PAGES.workshop,
+    tips: [
+      ...PAGES.workshop.tips,
+      { id: 'shop-list', text: 'Write the list for the workshop at home: at the counter you forget half.' },
+      { id: 'know-warranty-or', kind: 'know', text: 'In Switzerland claims for defects in new goods are usually time-barred two years after delivery.', source: 'Swiss Code of Obligations, Art. 210' },
+    ],
+  },
+  ausstattung: {
+    tips: [
+      { id: 'eq-scale', text: 'Weigh small parts on a kitchen scale: it is precise enough.' },
+      { id: 'eq-frame', text: 'Note the frame number: it helps if the bike is ever stolen.' },
+      { id: 'eq-date', text: 'Enter the date of a new part: then care knows how old it is.' },
+      { id: 'know-uci', kind: 'know', text: 'In road races a bike must weigh at least 6.8 kg.', source: 'UCI technical regulations' },
+    ],
+    can: [],
+  },
+  past: {
+    tips: [
+      { id: 'past-rate', text: 'Rate a trip with one tap on «Rate»: the next list learns from it.' },
+      { id: 'past-year', text: 'Switch to «Year» to compare your seasons.' },
+      { id: 'past-upload', text: 'A ride from Strava or a GPX file counts here too.', button: 'Upload ride', href: '#/debrief/ride' },
+      { id: 'know-earth', kind: 'know', text: 'Around the Earth at the equator it is about 40,075 km.', source: 'NASA' },
+    ],
+    can: [],
+  },
+  weekplan: {
+    tips: [
+      { id: 'wp-sunday', text: 'Ten minutes on Sunday evening are enough: plan the whole week in four steps.', button: 'Plan the week', href: '#/week/plan' },
+      { id: 'wp-chips', text: 'Too full? Hide a kind with its chip, for example the to-dos, and see only your sport.' },
+      { id: 'wp-holiday', text: 'Enter your holidays early: the bike service is suggested before you leave.', button: 'Holidays|tab', href: '#/week/away' },
+      { id: 'know-holiday-ch', kind: 'know', text: 'In Switzerland only 1 August is a public holiday by federal law. The cantons set the other holidays.', source: 'Swiss Federal Constitution, Art. 110' },
+    ],
+    can: [],
+  },
+});
 
 /** The stored state made whole. */
 export function infoOf(v) {
@@ -113,19 +306,23 @@ const pick = (xs, day) => xs[((dayNo(day) % xs.length) + xs.length) % xs.length]
 /** The tips that can come today: switched on, «Wusstest du» only while knowOn, «Passt zu heute» only when ctx fits. */
 function dayTips(i, page, ctx = {}) {
   const on = allTips(i, page).filter((x) => x.on && (x.kind !== 'know' || i.knowOn));
-  const fit = on.filter((x) => x.kind === 'today' && ctx[x.when]);
+  // the day's weather (heat, föhn …) fits better than the month: a month tip only on a day without one
+  const day = on.filter((x) => x.kind === 'today' && x.when !== 'month' && ctx[x.when]);
+  const fit = day.length ? day : on.filter((x) => x.kind === 'today' && x.when === 'month' && (x.months ?? []).includes(ctx.month));
   return { fit, rest: on.filter((x) => x.kind !== 'today') };
 }
 /**
  * The tip of the day (the same all day, the next one tomorrow); a fitting «Passt zu heute» comes first.
  * null when tips are off, hidden today or none is on. ctx: { heat, foehn, sauna, cold, long, rain, wind, max } (contextOf).
  */
-export function tipOfDay(info, page, today, ctx = {}) {
+export function tipOfDay(info, page, today, ctx = {}, { sourced = true } = {}) {
   const i = infoOf(info);
   if (!i.tipsOn || i.gone[page] === today) return null;
   const { fit, rest } = dayTips(i, page, ctx);
   if (fit.length) return pick(fit, today);
-  return rest.length ? pick(rest, today) : null;
+  // the Einstieg (sourced: false) shows a tip with a source in its own «Did you know» box, not here
+  const xs = sourced ? rest : rest.filter((x) => !x.source).length ? rest.filter((x) => !x.source) : rest;
+  return xs.length ? pick(xs, today) : null;
 }
 /** Which number the tip of the day is among the tips that can come today (1-based), and how many there are. */
 export function tipPlace(info, page, today, ctx = {}) {
@@ -134,6 +331,18 @@ export function tipPlace(info, page, today, ctx = {}) {
   const { fit, rest } = dayTips(infoOf(info), page, ctx);
   const all = tip.kind === 'today' ? fit : rest;
   return { n: all.findIndex((x) => x.id === tip.id) + 1, of: all.length };
+}
+
+/**
+ * «Einstieg» 3a: one «Good to know» with its source (a built-in tip with `source`), the same all day; null
+ * when tips or «Wusstest du» are off or the page has none. `skip`: the id of the tip of the day (never twice).
+ */
+export function factOfDay(info, page, today, skip = null) {
+  const i = infoOf(info);
+  if (!i.tipsOn || !i.knowOn) return null;
+  const off = new Set(i.off);
+  const xs = list(PAGES[page]?.tips).filter((x) => x.source && !off.has(x.id) && x.id !== skip);
+  return xs.length ? { kind: 'know', ...pick(xs, today) } : null;
 }
 
 /**
@@ -150,6 +359,7 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
   const soon = [today, tomorrow.toISOString().slice(0, 10)];
   return {
     max,
+    month: Number(String(today ?? '').slice(5, 7)) || null,
     heat: max != null && max >= HEAT_C,
     cold: min != null && min < COLD_C,
     foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,

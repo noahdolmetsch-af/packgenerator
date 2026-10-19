@@ -2,6 +2,9 @@
   /**
    * v0.101.0 Design-Refresh P2 (H1): «This week» on Today: Monday to Sunday, a dot for each activity
    * ticked in Im Flow and for a ride (with its km), today framed. Reads the rides and the Im Flow log.
+   * «Woche planen» WP4 (Noah 15.10.2026 «5a, wenn mit 1a kombinierbar»): the same card in the same
+   * place, a little richer: under each day a dot per kind of the plan (lib/woche.js), the block «Today
+   * by the plan» and a line for tomorrow, and the link «To the week». Without a plan nothing changes.
    */
   import { Activity, Bike, Mountain, Timer } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
@@ -15,6 +18,12 @@
   import HeartLine from '../strava/HeartLine.svelte';
   import { azmWeek, addDays } from '../health.js';
   import { health } from '../health/client.svelte.js';
+  import { ChevronRight } from '@lucide/svelte';
+  import Entry from '../woche/Entry.svelte';
+  import { weekQuery } from '../woche/load.js';
+  import { buildWeek, dotsOf } from '../woche.js';
+  import { titleOf } from '../woche/words.js';
+  import { mondayOf, shiftDay } from '../training.js';
 
   let { today, rides = [], isnew = false } = $props();
   const q = $derived(flowQuery(today));
@@ -32,6 +41,15 @@
   // Noah 19.10.2026 «1a»: the active zone minutes of this week from Fitbit (healthDays) in the same line
   const azmQ = $derived(liveQuery(() => db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray()));
   const azm = $derived(azmWeek($azmQ ?? [], today));
+  // «Woche planen» WP4: the plan of this week (and Monday of the next one for «tomorrow» on a Sunday)
+  const wq = $derived(weekQuery(today));
+  const ws = $derived($wq);
+  const plan = $derived(ws ? buildWeek({ ...ws, monday: mondayOf(today), today, actName: (id) => actName(acts[id]) || id }) : null);
+  const planOf = (day) => plan?.days.find((d) => d.day === day) ?? null;
+  const todayPlan = $derived(planOf(today)?.entries ?? []);
+  const tomorrow = $derived(shiftDay(today, 1));
+  const tomorrowPlan = $derived(planOf(tomorrow)?.entries ?? []);
+  const hasPlan = $derived(!!plan?.days.some((d) => d.entries.length));
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
 
@@ -47,11 +65,23 @@
           {#if d.ride}<i class="ride"></i>{/if}
           {#each d.acts.slice(0, 3) as a (a)}<i class={acts[a]?.ring ?? 'move'}></i>{/each}
         </span>
+        {#if hasPlan && planOf(d.day)}<span class="pdots" aria-hidden="true" data-plan-dots>{#each dotsOf(planOf(d.day)) as k (k)}<i class="k-{k}"></i>{/each}</span>{/if}
         <!-- 0.136.0: one line per thing, a long word ends in «…» instead of breaking inside («Liegestütz/e») -->
         <small title={parts.join(', ')}>{#each parts as p, i (i)}<span class="it">{p}</span>{' '}{/each}</small>
       </li>
     {/each}
   </ol>
+  {#if hasPlan}
+    <div class="plan" data-today-plan>
+      <b>{t('Today by the plan')}</b>
+      {#if todayPlan.length}
+        <div class="ens">{#each todayPlan.slice(0, 4) as e (e.id)}<Entry {e} />{/each}</div>
+        {#if todayPlan.length > 4}<small>{t('and {n} more', { n: todayPlan.length - 4 })}</small>{/if}
+      {:else}<small>{t('Nothing planned today.')}</small>{/if}
+    </div>
+    {#if tomorrowPlan.length}<p class="tmr" data-tomorrow>{t('Tomorrow: {list}', { list: tomorrowPlan.slice(0, 3).map((e) => `${titleOf(e)}${e.time ? ` ${e.time}` : ''}`).join(' · ') })}</p>{/if}
+  {/if}
+  <a class="towk" href="#/week" data-to-week>{hasPlan ? t('To the week') : t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></a>
   <p class="vals" data-week-values>
     <span><Bike size={14} aria-hidden="true" /><b class="num">{num(tot.km)} km</b></span>
     {#if tot.hm}<span><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(tot.hm) })}</b></span>{/if}
@@ -73,6 +103,58 @@
   .sub {
     margin: 0;
     color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .pdots {
+    display: flex;
+    gap: 2px;
+    min-height: 6px;
+  }
+  .pdots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--wk-sport);
+  }
+  .pdots i.k-date {
+    background: var(--wk-date);
+  }
+  .pdots i.k-todo {
+    background: var(--wk-todo);
+  }
+  .pdots i.k-away {
+    background: var(--wk-away);
+  }
+  .pdots i.k-bike {
+    background: var(--wk-bike);
+  }
+  .plan {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--hi-soft);
+  }
+  .plan small,
+  .tmr {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ens {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .towk {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 2px;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 500;
     font-size: var(--fs-small);
   }
   .vals {

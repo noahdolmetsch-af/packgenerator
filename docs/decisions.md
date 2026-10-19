@@ -1603,6 +1603,21 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
 
+## 19.10.2026: Paket G Daten kommen von selbst (0.153.0)
+
+- **Freigaben:** Plan-Wünsche 19.10.2026 (Strava hakt selbst ab «1a», eigener Kalender «2a», See Messung + Vorschau «3a+b», Sterne nur Aktiv/Meilensteine «4a», Aufgaben beide Richtungen «5b»); Wetter-Wecker «beide umsetzen» (11:44); sechs Zusätze «1a 2a 3a» und «4-6 alle in G» (12:50); Aktivzonenminuten «1b 2b», Jahresziele bearbeitbar, «Diese Woche» mit AZM «1a» (13:25, 13:37). Geht selbst online (14:00 «1a»).
+- **Wetter «gut»** = trocken (unter 2 mm, unter 50 %), kein Gewitter, Böen unter 50 km/h, über 5 °C. Der Server meldet nur Neues (kippt, wieder gut, besserer Tag ±3).
+- **Regen unterwegs:** eine Meldung, dann 2 Stunden Ruhe; Orte alle 30 Minuten der Fahrt.
+- **Selbst entschieden:** alte Fitbit-Daten aus der Exportdatei (kein Server), erkannte Einträge in der Vorschau abgewählt; Strava-Vorschläge gelten 14 Tage, ein gelöschtes Häkchen kommt nicht zurück; Kalender-Abgleich höchstens alle 24 h ausser «Jetzt eintragen», eigene Termine ohne App-Kennung bleiben unberührt; .ics-Import schreibt in «Packgenerator»; Rückenwind nur bei Runden (Start und Ziel höchstens 1,5 km auseinander) ab 12 km/h; Termine heute im Morgen-Check unter «Heute im Blick» (nicht auf Heute selbst, HN4 bleibt).
+
+## 19.10.2026: Paket F Woche (0.151.0)
+
+- **Freigabe:** Noah «ok f» + «1b» (19.10.2026 10:36). F kommt nach E und C (Reihenfolge E → C → F). Teile: Woche planen WP1–WP4 + Mehr Inhalt (15.10. und 18.10.2026 «1a 2a 3b 4a 5a»), Rundgang und Einstieg Teil 1–3 (15.10. «1a … 5a», Einstieg «1a 2a 3a 4a», 18.10. «4a»), Google in der Woche (liest Paket B).
+- **Woche als Ort (1a):** am Handy steht Woche in der Leiste, Material ist über Ich und «Mehr» erreichbar. Ausrüstung (E) teilt weiter den Platz von Velos.
+- **Eine Karte pro Seite (Noah 19.10.2026 «2a»):** «Was hier steht» ist die eine Karte oben; der Einstieg zieht in sie ein. Einstieg-Tipps von Touren, Material, Einkauf und Pflege kommen zu den Tipps dieser Seiten, Doppeltes nur einmal. Am Handy und wo die Liste zuerst kommt, ist der Einstieg-Teil zugeklappt.
+- **Google:** gelesen wird nur, was unter Ich › Termine und Aufgaben eingeschaltet ist; eine übernommene Aufgabe ohne Datum wird ein eigenes To-do, Google bleibt unverändert.
+- **Selbst entschieden:** Der kleine Rundgang wird beim ersten Besuch nur angeboten. Ein Besuch zählt einmal pro Öffnen einer Seite. Ausstattung und Vorlagen (Karten aus E/C) bekommen ihren Einstieg in der Karte wie die anderen Seiten. Doppelte Tipp-Kennungen aus Paket A wurden umbenannt (`know-chain-wear`, `know-warranty-or`).
+
 ## 19.10.2026: Paket C Heute und Aktiv (0.150.0)
 
 - **Bündeln (Noah 18.10.2026 «1a 2b 3b 4a»):** C kommt nach E. Teile: HN4 (#177, f5ff19b), Bausteine mehr (#176, 309a0bc), Tages-Check als eigenes Fenster (j1z0kr c39b331b + ae3d24fe; Freigaben «T1, T2, T3b, T3c, T4 freigegeben» 18.10.2026 18:53 UTC und «1 a und b», «2b», «3 a und b»), Impeccable Runde 2 (fyi823 e43fe7d; Noah «ok» zum Testlink 19.10.2026 05:20), Routine «Das tut mir gut» (routine-d1 c9cdccdf; D1/D2 «d1-d5 freigeben»).

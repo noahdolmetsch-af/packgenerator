@@ -30,6 +30,7 @@
    * New parts of the update show as «+N neu» with Rückgängig (2a) for 14 days.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown, knownWeight } from '../lib/gear.js';
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel, deletedBuiltIns } from '../lib/sets.js';
@@ -377,6 +378,7 @@
     <Btn icon={ListChecks} label={t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
+  <AreaIntro place="blocks" />
   {#if adding}
     <form class="newset card" onsubmit={create}>
       <label><span class="lbl">{t('Name of the new building block')}</span><input id="new-block-name" class="inp" bind:value={newName} placeholder={t('e.g. Rain')} /></label>

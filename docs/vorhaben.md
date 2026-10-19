@@ -47,7 +47,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.148.0)
 
-Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.149.0, PR #194) wartet auf Noahs Merge, C (0.150.0) ist darauf gebaut und kommt danach. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
+Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.149.0, PR #194) wartet auf Noahs Merge, C (0.150.0) ist darauf gebaut und kommt danach, F (0.151.0) ist auf C gebaut (Noah «ok f» + «1b», 19.10.2026) und kommt zuletzt. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
 
 | Reihenfolge | Paket | Version (vorläufig) | Ziele | Stand |
 | --- | --- | --- | --- | --- |
@@ -57,7 +57,8 @@ Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.14
 | 4 | D Touren und Unterwegs (AT1, Höhenprofil, Fahrt hochladen, Planungs-Notizen, Handy kurz, Bugfixes, Deine Fahrten, Wörter, Bewegung, Formulare, Rückmeldungen) | 0.148.0 | 3, 4 | live seit 19.10.2026 (#192); Chronik später |
 | 5 | E Material, Velos, Merken (mit Skitour, Ausrüstung, Garmin 850, Impeccable Runde 1) | 0.149.0 | 1, 2 | PR #194, Noah merged |
 | 6 | C Heute und Aktiv (Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2) | 0.150.0 | 3, 4 | gebündelt (lokal, 19.10.2026) auf E; PR nach #194, Noah merged. Paket Aktiv selbst (Ziel-Prognose, Erholung, Blöcke) ist noch nicht auf den heutigen Stand übertragen und kommt später |
-| 7 | F Woche | danach | 3 | Woche gebaut, braucht Google aus B |
+| 7 | F Woche (Woche planen, Google in der Woche, Rundgang und Einstieg, eine Karte pro Seite) | 0.151.0 | 3 | gebündelt (lokal, 19.10.2026) auf C; PR nach C, Noah merged |
+| 9 | G Daten kommen von selbst (Verbindungen, Strava hakt ab, Google Kalender und Aufgaben, See, Sterne, Wetter-Wecker, Tour-Hinweise) | 0.153.0 | 2, 3, 4 | geht selbst online nach Tempo |
 
 Inhalt jedes Pakets: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online). Die Tabelle darunter ist der Stand vom 15.10.2026 und bleibt als Verlauf stehen.
 
@@ -314,7 +315,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Touren und Unterwegs** (Ziele 3 und 4): Strava-Fahrten auf Touren, Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Chronik → Paket D.
 - **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
-- **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F.
+- **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F (0.151.0, gebündelt auf C, 19.10.2026).
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge
