@@ -56,6 +56,7 @@
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
+  import Tools from './pages/Tools.svelte';
   import Inspiration from './pages/Inspiration.svelte';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
@@ -89,6 +90,7 @@
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
+  import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -441,6 +443,9 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <MiniApps />
+  {:else if page === 'tools'}
+    <!-- Paket L «Werkzeugkasten»: Ich › Werkzeugkasten and its tools (#/me/tools/<key>) -->
+    {#key toolKeyOf(hash)}<Tools tool={toolKeyOf(hash)} />{/key}
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}

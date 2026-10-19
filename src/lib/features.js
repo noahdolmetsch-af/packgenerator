@@ -164,6 +164,10 @@ const OWN = [
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
   // P3b «Daten sicher»: Ich › Dokumente (D3/D4) and the exchange between phone and computer
   { id: 'f.docs', group: 'data', title: 'Documents', text: 'Passport, insurance and emergency sheet as PDF or photo; a reminder before they expire and «ID and cash with you?» in the packing list.', href: '#/me/docs', words: 'dokumente pass ausweis id versicherung notfall pdf gültig ablauf erinnerung cash packliste' },
+  // Paket L «Werkzeugkasten» (Noah 19.10.2026): small helpers, all on the device
+  { id: 'f.tools', group: 'data', title: 'Toolbox', text: 'Calculator, units, time zones, compass and phrases abroad; works offline.', href: '#/me/tools', words: 'werkzeugkasten werkzeug rechner umrechnen einheiten masse zeitzone kompass sätze übersetzen sprache' },
+  { id: 'f.pdftools', group: 'data', title: 'PDF tools', text: 'Merge PDFs and photos into one PDF, make a PDF smaller, save or share it; nothing goes to a web page.', href: '#/me/tools/pdf', words: 'pdf zusammenfügen verkleinern komprimieren teilen' },
+  { id: 'f.phototools', group: 'data', title: 'Photo tools', text: 'Make a photo smaller, cut it to a shape, cut out the background.', href: '#/me/tools/photo', words: 'foto bild verkleinern zuschneiden freistellen hintergrund' },
   { id: 'f.sync', group: 'data', title: 'Phone and computer', text: 'Send the backup file to the other device; it says which is newer and suggests what to do, with a copy of before.', href: '#/me/data', words: 'abgleich handy computer synchron sync teilen backup neuer älter zusammenführen' },
   // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»)
   { id: 'f.autosync', group: 'data', title: 'Automatic sync', text: 'Phone and computer keep the same data by themselves, sealed with a code; when both changed the same entry, the app asks which version counts.', href: '#/me/data', words: 'abgleich automatisch synchron sync koppeln code handy computer server verschlüsselt konflikt beide geändert' },

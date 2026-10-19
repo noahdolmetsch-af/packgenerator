@@ -67,6 +67,8 @@ export const TILES = [
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
+  // Paket L «Werkzeugkasten» (Noah 19.10.2026 «zb auf home»): only from the tile catalog, not on the ready wall; the bundler sets «since» to the release
+  { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.148.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];

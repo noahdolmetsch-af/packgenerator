@@ -31,7 +31,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail } from '@lucide/svelte';
+  import { Wrench, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -204,6 +204,14 @@
             <a class="ich-row" href="#/me/weight" data-row="weight">
               <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Weight|place')}</b><small>{weightLine}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket L «Werkzeugkasten»: calculator, units, time zones, compass, phrases, PDF, photos -->
+            <a class="ich-row" href="#/me/tools" data-row="tools">
+              <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Toolbox')}</b><small>{t('Calculator, units, PDF, photos and more')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
