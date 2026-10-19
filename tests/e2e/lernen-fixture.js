@@ -2,7 +2,7 @@
 // rides, learnings and settings around a given «today» (YYYY-MM-DD, a calendar day in Europe/Zurich).
 // Used by tests/chronik.test.js, tests/gelernt.test.js, tests/jahrstory.test.js and tests/e2e/lernen.spec.js.
 // Dates are calendar-day arithmetic on the day string, never Date.now() + n * 864e5.
-export const P = 'test_lernen_';
+export const P = 'test_data_gtp_lern_'; // the fixture mark (testname.js FIXTURE_MARK): never taken for a test trip
 
 /** The calendar day n days from iso. */
 export const addDays = (iso, n) => {

@@ -90,7 +90,7 @@
   <div class="stage" onclick={tap} onpointerdown={down} onpointerup={up}>
     {#if s}
       {#key `${year}-${i}`}
-        <div class="slide {s.kind}" aria-live="polite" aria-label={t('Slide {n} of {k}', { n: i + 1, k: slides.length })}>
+        <div class="slide {s.kind}" class:bare={s.kind === 'trip' && !s.photo && !s.lines.length} aria-live="polite" aria-label={t('Slide {n} of {k}', { n: i + 1, k: slides.length })}>
           {#if s.kind === 'cover'}
             <p class="kick">{t('Your year as pictures')}</p>
             <h1>{t('Your year of trips {year}', { year: s.year })}</h1>
@@ -253,6 +253,9 @@
   }
   .trip {
     justify-content: flex-end;
+  }
+  .trip.bare {
+    justify-content: center;
   }
   .photo {
     position: absolute;
