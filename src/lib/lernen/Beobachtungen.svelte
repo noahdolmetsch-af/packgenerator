@@ -66,7 +66,7 @@
       case 'sleep-felt-more':
       case 'sleep-felt-less': return t('After a day on the bike you rated your sleep {a}, on the other nights {b} (1–10).', { a, b });
       case 'after-rhr-more':
-      case 'after-rhr-less': return t('In the 1–3 days after a long tour your resting heart rate was {a}, on normal days {b} bpm ({n} long tours).', { a, b, n: v.n });
+      case 'after-rhr-less': return t('In the 1–3 days after a long tour your resting heart rate was {a}, on normal days {b} bpm ({n} long tours).', { a: num(Math.round(v.a)), b: num(Math.round(v.b)), n: v.n });
       case 'after-sleep-more':
       case 'after-sleep-less': return t('In the 1–3 days after a long tour you slept {a}, on normal days {b} ({n} long tours).', { a: hm(v.a), b: hm(v.b), n: v.n });
       case 'after-mood-more':
@@ -86,7 +86,7 @@
     if (unit === 'min') return hm(v);
     if (unit === 'hours') return `${num(v)} h`;
     if (unit === 'km') return `${num(v)} km`;
-    if (unit === 'bpm') return `${num(v)}`;
+    if (unit === 'bpm') return `${num(Math.round(v))}`;
     if (unit === 'minutes') return v > 1 ? `${num(v)} min` : v ? '✓' : '–';
     return num(v);
   }

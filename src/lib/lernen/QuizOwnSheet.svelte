@@ -93,4 +93,37 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* the app's switch (as on «Gepackt», Between.svelte) */
+  .optrow input[role='switch'] {
+    flex: none;
+    width: 52px;
+    height: 30px;
+    margin: 0;
+    appearance: none;
+    border-radius: 99px;
+    background: var(--line-strong);
+    position: relative;
+    cursor: pointer;
+  }
+  .optrow input[role='switch']::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--paper);
+    transition: transform 0.15s;
+  }
+  .optrow input[role='switch']:checked {
+    background: var(--accent);
+  }
+  .optrow input[role='switch']:checked::after {
+    transform: translateX(22px);
+  }
+  .optrow input[role='switch']:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
 </style>

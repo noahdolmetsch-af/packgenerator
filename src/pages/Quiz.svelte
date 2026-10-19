@@ -42,9 +42,8 @@
   $effect(() => {
     if (!data || !trip) return;
     if (drawn?.tripId === trip.id) return;
-    drawn = { tripId: trip.id, list: buildQuiz($state.snapshot(trip), { items: data.items, containers: data.containers, bikes: data.bikes, trips: data.trips }, cfg, today) };
+    drawn = { tripId: trip.id, counts: counts(cfg.log, trip, today), list: buildQuiz($state.snapshot(trip), { items: data.items, containers: data.containers, bikes: data.bikes, trips: data.trips }, cfg, today) };
   });
-  const counting = $derived(trip ? counts(cfg.log, trip, today) : false);
   const done = $derived(todayResult(cfg.log, today));
   const streakN = $derived(data ? streak(data.trips, cfg.log, today) : 0);
   const results = $derived(data ? lastResults(data.trips, cfg.log, 5) : []);
@@ -54,8 +53,8 @@
     await db.settings.put({ key: QUIZ_KEY, value: $state.snapshot(next) });
   }
   const setOn = (on) => save({ ...cfg, on });
-  async function finish(r) {
-    if (counting) await save(logResult(cfg, { trip: $state.snapshot(trip), today, ...r }));
+  async function finish({ counts: c, ...r }) {
+    if (c) await save(logResult(cfg, { trip: $state.snapshot(trip), today, ...r }));
   }
   function pickTrip(id) {
     location.hash = id ? `#/quiz/${encodeURIComponent(id)}` : '#/quiz';
@@ -111,7 +110,7 @@
             <Empty icon={Brain} text={t('No trip ahead. Plan one, and its quiz is here.')} action={{ label: t('To the trips'), href: '#/trips' }} />
           {:else if drawn?.tripId === trip.id}
             {#key drawn}
-              <QuizCard questions={drawn.list} {streakN} counted={counting} onfinish={finish} />
+              <QuizCard questions={drawn.list} {streakN} counted={drawn.counts} onfinish={finish} />
             {/key}
           {/if}
         </section>
@@ -254,5 +253,38 @@
     .orow .rv-m {
       flex: 1 1 calc(100% - 60px);
     }
+  }
+  /* the app's switch (as on «Gepackt», Between.svelte) */
+  .qz :global(input[role='switch']) {
+    flex: none;
+    width: 52px;
+    height: 30px;
+    margin: 0;
+    appearance: none;
+    border-radius: 99px;
+    background: var(--line-strong);
+    position: relative;
+    cursor: pointer;
+  }
+  .qz :global(input[role='switch']::after) {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--paper);
+    transition: transform 0.15s;
+  }
+  .qz :global(input[role='switch']:checked) {
+    background: var(--accent);
+  }
+  .qz :global(input[role='switch']:checked::after) {
+    transform: translateX(22px);
+  }
+  .qz :global(input[role='switch']:focus-visible) {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
   }
 </style>

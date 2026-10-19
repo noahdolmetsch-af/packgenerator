@@ -12,7 +12,7 @@
   import { t } from '../i18n.svelte.js';
 
   let { trip, today, hour = new Date().getHours() } = $props();
-  const q = liveQuery(() => db.settings.get(QUIZ_KEY));
+  const q = liveQuery(async () => (await db.settings.get(QUIZ_KEY)) ?? null); // null: no record yet (undefined: still loading)
   const show = $derived($q !== undefined && trip ? showEveCard($q?.value, trip, { today, hour, eveningBefore }) : false);
   async function hide() {
     await db.settings.put({ key: QUIZ_KEY, value: hideCard(quizOf($q?.value), trip.id) });

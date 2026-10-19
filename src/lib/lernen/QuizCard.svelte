@@ -17,6 +17,8 @@
   let shown = $state(false); // the answer of a «Weisst du's?» card is shown
   let score = $state([]); // true / false per question
   let done = $state(false);
+  let rounds = $state(0); // «Nochmal»: a second round never counts
+  const counts = $derived(counted && rounds === 0);
 
   const q = $derived(questions[at] ?? null);
   const right = $derived(score.filter(Boolean).length);
@@ -35,7 +37,7 @@
       return;
     }
     done = true;
-    onfinish?.({ right, of: questions.length, ids: questions.map((x) => x.id) });
+    onfinish?.({ right, of: questions.length, ids: questions.map((x) => x.id), counts });
   }
   function again() {
     at = 0;
@@ -43,6 +45,7 @@
     shown = false;
     score = [];
     done = false;
+    rounds++;
   }
 </script>
 
@@ -51,8 +54,8 @@
     <p class="tp-muted" data-quiz-empty>{t('No questions yet: this trip needs a packing list, a route or questions of your own.')}</p>
   {:else if done}
     <div class="end" data-quiz-end>
-      <p class="res num"><b>{t('{n} of {m} right', { n: right, m: questions.length })}</b>{#if counted}<span class="streak"><Flame size={16} aria-hidden="true" />{tn(streakN, 'Streak: {n} trip', 'Streak: {n} trips')}</span>{/if}</p>
-      {#if !counted}<p class="tp-muted tp-small">{t('Only for fun: one quiz a day counts, for a trip still ahead.')}</p>{/if}
+      <p class="res num"><b>{t('{n} of {m} right', { n: right, m: questions.length })}</b>{#if counts}<span class="streak"><Flame size={16} aria-hidden="true" />{tn(streakN, 'Streak: {n} trip', 'Streak: {n} trips')}</span>{/if}</p>
+      {#if !counts}<p class="tp-muted tp-small">{t('Only for fun: one quiz a day counts, for a trip still ahead.')}</p>{/if}
       <button type="button" class="btn" onclick={again} data-quiz-again><RotateCcw size={16} aria-hidden="true" />{t('Again|quiz')}</button>
     </div>
   {:else if q}
