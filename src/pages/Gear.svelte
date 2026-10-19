@@ -8,6 +8,7 @@
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { LENDS_KEY, lentOut } from '../lib/lend.js';
   import { phone } from '../lib/media.svelte.js';
   import ListTable from '../lib/ui/ListTable.svelte'; // Paket H «3a und b»: the table and «Change for all»
   import { gearCols, saveItemRows } from '../lib/gear/tablecols.js';
@@ -65,6 +66,9 @@
   }
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
+  // Paket H «5 a und b»: what is lent out right now, shown in the row
+  const lendsQ = liveQuery(() => db.settings.get(LENDS_KEY));
+  const lentNow = $derived(lentOut(Array.isArray($lendsQ?.value) ? $lendsQ.value : []));
   const items = $derived($itemsQuery ?? []);
   const stats = $derived(gearStats(items));
   // v0.19.2 (Noah 6a, 7a): what the debriefs say about each item.
@@ -769,7 +773,7 @@
                   <ul class="rows">
                     {#each rows as item (item.id)}
                       {#if !selecting}
-                        <GearRow {item} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
+                        <GearRow {item} lent={lentNow[item.id] ?? null} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
                       {:else}
                         <li class="fr">{@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}</li>
                       {/if}

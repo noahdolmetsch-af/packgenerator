@@ -8,6 +8,8 @@ import { parseCell, applyToAll, sortRows, filterRows, bulkCols, TABLE_PLACES } f
 import { commandOf, readQueue, sayLine, nextIndex } from '../src/lib/readaloud.js';
 import { newLend, markBack, markOut, isOpen, lentOut, dueState, lendPayload, sortLends } from '../src/lib/lend.js';
 import { TRIP_DOMAINS } from '../src/lib/domains.js';
+import { suggestValues, applySuggestion, adds, deviceOf, DEVICES } from '../src/lib/gear/suggestvalues.js';
+import { BAG, CATEGORY } from '../src/lib/gear.js';
 
 const items = [
   { id: 'A', name: 'Helmet', ownership: 'owned', category: 'onbike' },
@@ -182,5 +184,38 @@ describe('reminders on the phone for Paket H', async () => {
     expect(by['lend:l:2026-10-25']).toBe(atMs('2026-10-25', '08:00'));
     expect(Object.keys(by).some((k) => k.startsWith('lend:m'))).toBe(false);
     expect(by['shop:t:2026-10-24']).toBe(atMs('2026-10-22', '08:00'));
+  });
+});
+
+describe('#348 suggested values for a new item', () => {
+  const items = [
+    { id: 'a', name: 'test_data_gtp_ Power bank 20000', category: 'elec', weightG: 350, defaultBag: 'frame', brand: 'Anker', chargeH: 6 },
+    { id: 'b', name: 'test_data_gtp_ Rain jacket', category: 'clothing', weightG: 220, defaultBag: 'seat' },
+  ];
+  it('takes the values of an own item with a similar name first', () => {
+    const s = suggestValues('Power bank klein', items);
+    expect(s.from).toBe('own');
+    expect(s.like.id).toBe('a');
+    expect(s.values).toEqual({ category: 'elec', grams: 350, defaultBag: 'frame', brand: 'Anker', chargeH: 6 });
+  });
+  it('else a typical device; nothing for an unknown name or a short one', () => {
+    expect(suggestValues('Stirnlampe', items)).toMatchObject({ from: 'device', values: { category: 'light', grams: 80, runH: 5 } });
+    expect(suggestValues('Zahnbürste', items)).toBeNull();
+    expect(suggestValues('ab', items)).toBeNull();
+    expect(deviceOf('Garmin Edge 850')?.category).toBe('elec');
+  });
+  it('every device has a real category and bag', () => {
+    for (const d of DEVICES) {
+      expect(CATEGORY[d.category], d.words[0]).toBeTruthy();
+      expect(BAG[d.bag], d.words[0]).toBeTruthy();
+    }
+  });
+  it('«Use» fills empty fields, sets category and bag, keeps what was typed', () => {
+    const draft = { name: 'Stirnlampe', category: '', grams: '95', defaultBag: 'top', brand: '', runH: '', chargeH: '' };
+    const v = suggestValues('Stirnlampe').values;
+    const next = applySuggestion(draft, v);
+    expect(next).toMatchObject({ category: 'light', grams: '95', defaultBag: 'frame', runH: 5, chargeH: 3 });
+    expect(adds(draft, v)).toBe(true);
+    expect(adds(next, v)).toBe(false);
   });
 });

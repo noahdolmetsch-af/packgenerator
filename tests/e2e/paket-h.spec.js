@@ -1,7 +1,8 @@
 // Paket H «Packen leichter» (Noah 19.10.2026 «1b und a 2b 3a und b … 4a und b möglich 5 a und b»), in German,
 // with the fictional data of home0460-fixture.js (clock on Friday 9 October 2026).
 // 1. Material › Vorrat: an item with too little stock is under «Nachkaufen»; «Gekauft» takes it off.
-// 2. Material › Ausgeliehen: a new lending list for a guest; «Alle zurück» closes it.
+// 2. Material › Ausgeliehen: a new lending list for a guest; Material shows «Ausgeliehen an …»; «Alle zurück» closes it.
+//    #348: a new item «Stirnlampe» gets usual values with «Übernehmen».
 // 3. Computer: Material as «Tabelle», two rows ticked, one field «Für alle setzen», «Rückgängig» takes it back.
 // 4. Packen (the Packen step): «Vorlesen» with «Nur Knopf»; the big button ticks the item off.
 import { test, expect } from '@playwright/test';
@@ -46,6 +47,19 @@ test('Paket H: supplies, lending, table, read aloud', async ({ page, context }, 
   const card = main.locator('article', { has: page.getByRole('heading', { name: 'test_data_gtp_ Gast' }) });
   await expect(card).toBeVisible();
   await expect(card.getByText(/Power bank/)).toBeVisible();
+  // Material shows who has it
+  await page.goto('./#/gear?q=Power%20bank');
+  await expect(main.getByText(T('Lent to {person}', { person: 'test_data_gtp_ Gast' })).first()).toBeVisible();
+  // #348: a new item named like a typical device gets usual values with one tap
+  await main.getByRole('button', { name: T('Add item') }).click();
+  const dlg0 = page.getByRole('dialog').last();
+  await dlg0.getByLabel(T('Name')).fill('Stirnlampe');
+  await expect(dlg0.getByText(T('Usual values:'))).toBeVisible();
+  await dlg0.getByRole('button', { name: T('Use|values') }).click();
+  await expect(dlg0.getByText(T('Usual values:'))).toHaveCount(0);
+  await expect(dlg0.getByLabel(T('Category'))).toHaveValue('light');
+  await page.keyboard.press('Escape');
+  await page.goto('./#/gear/lend');
   await card.getByRole('button', { name: T('All back') }).click();
   await expect(card).toHaveCount(0);
   await expect(main.locator('p.small')).toHaveText(T('{n} list is closed: everything is back.', { n: 1 }));

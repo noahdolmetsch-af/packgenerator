@@ -22,6 +22,7 @@
   import { DOMAINS, itemDomains, domainName, EVERYWHERE } from '../domains.js';
   import { isSupply, expiryState, daysUntil } from '../supplies.js'; // Paket H: supplies with an expiry date (answer 2b)
   import { CHARGE_CATEGORIES } from '../gear.js';
+  import { suggestValues, applySuggestion, adds } from './suggestvalues.js'; // Paket H #348: values while typing a new name
   import { SKI_GROUPS, SKI_GROUP, skiGroupOf } from '../ski.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
@@ -66,6 +67,14 @@
   // An existing item: a copy to edit; nothing is saved until "Save".
   // svelte-ignore state_referenced_locally
   let draft = $state(itemDraft(item, preset));
+  // Paket H #348: a new item gets suggested values from your own similar gear or a typical device
+  let sugOff = $state('');
+  const sug = $derived(isNew && !readOnly ? suggestValues(draft.name, items, draft.id) : null);
+  const sugShown = $derived(sug && sugOff !== draft.name.trim() && adds($state.snapshot(draft), sug.values) ? sug : null);
+  function useSug() {
+    Object.assign(draft, applySuggestion($state.snapshot(draft), sug.values));
+    sugOff = draft.name.trim();
+  }
   let error = $state('');
   let dialog;
   // v0.23.0 (AP08): a new item asks only for name, category, status and weight; everything else
@@ -772,6 +781,13 @@
   <Field id="it-name" class="wide" label={t('Name')} example={t('e.g. {x}', { x: t('Rain jacket') })} error={errors.name}>
     {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.name} enterkeyhint="done" />{/snippet}
   </Field>
+  {#if sugShown}
+    {@const v = sugShown.values}
+    <div class="wide sugv" role="status">
+      <p>{sugShown.from === 'own' ? t('Like «{name}»:', { name: nameOf(sugShown.like) }) : t('Usual values:')} {[v.category && t(CATEGORY[v.category]?.name ?? v.category), v.grams != null && formatWeight(v.grams), v.defaultBag && t(BAG[v.defaultBag] ?? v.defaultBag), v.brand, v.runH != null && t('runs {h} h', { h: v.runH }), v.chargeH != null && t('charges {h} h', { h: v.chargeH })].filter(Boolean).join(' · ')}</p>
+      <span><button type="button" class="btn sm" onclick={useSug}>{t('Use|values')}</button><button type="button" class="text-button" onclick={() => (sugOff = draft.name.trim())}>{t('No, thanks')}</button></span>
+    </div>
+  {/if}
 {/snippet}
 
 {#snippet categoryField()}
@@ -1561,4 +1577,8 @@
   .mainq {
     justify-self: start;
   }
+  /* Paket H #348: the suggested values under the name of a new item */
+  .sugv { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: -4px 0 4px; padding: 8px 12px; border-radius: 8px; background: var(--paper-2); }
+  .sugv p { flex: 1 1 220px; margin: 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  .sugv span { display: flex; align-items: center; gap: 8px; }
 </style>

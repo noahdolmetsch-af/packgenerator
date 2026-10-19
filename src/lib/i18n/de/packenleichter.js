@@ -262,4 +262,11 @@ export default {
   'Open Gear › Lent out.': 'Öffne Material › Ausgeliehen.',
   'Tap «New lending list», type the name and tick the things.': 'Tippe «Neue Leihliste», schreib den Namen und kreuze die Sachen an.',
   'Send it as a link or PDF; on the return day the app reminds you.': 'Schick sie als Link oder PDF; am Rückgabetag erinnert dich die App.',
+  // #348 suggested values for a new item; «lent to» in Material
+  'Like «{name}»:': 'Wie «{name}»:',
+  'Usual values:': 'Übliche Werte:',
+  'runs {h} h': 'läuft {h} h',
+  'charges {h} h': 'lädt {h} h',
+  'Use|values': 'Übernehmen',
+  'Lent to {person}': 'Ausgeliehen an {person}',
 };
