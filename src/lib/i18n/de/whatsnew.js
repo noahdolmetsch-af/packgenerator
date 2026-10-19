@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.152.0 Tempo «Seiten später laden»
+  'Lighter on the phone': 'Leichter auf dem Handy',
+  'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',
+  'Pages load when you open them; the most used ones load quietly in the background, and everything still works offline': 'Seiten laden beim Öffnen; die meistgenutzten laden still im Hintergrund vor, und alles funktioniert weiter offline',
+  'After an update a page that is missing reloads the app once by itself instead of showing an error': 'Fehlt nach einem Update eine Seite, lädt die App einmal von selbst neu statt einen Fehler zu zeigen',
+  'Open Gear, Pack and Trips one after the other: each page opens as before.': 'Öffne nacheinander Material, Packen und Touren: jede Seite öffnet wie bisher.',
+  'Turn on flight mode, close the app and open it again: Today and the other pages still open.': 'Schalte den Flugmodus ein, schliesse die App und öffne sie wieder: Heute und die anderen Seiten öffnen weiterhin.',
   // 0.151.0 Paket F «Woche»
   'Your week, and a tour of the app': 'Deine Woche und ein Rundgang durch die App',
   'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.': 'Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche, und ein kurzer Rundgang, der dir alles zeigt.',

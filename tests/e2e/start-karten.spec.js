@@ -29,6 +29,9 @@ test('ST1: on a trip day Today stays, the card leads to On the way and then goes
   expect(await card.evaluate((el) => !!el.nextElementSibling?.matches('[data-section="trip"]'))).toBe(true);
   await card.getByText(T('Open On the way')).click();
   await expect(page).toHaveURL(/#\/ride$/);
+  // Tempo (19.10.2026): On the way loads on its first visit; it notes the visit once it is there
+  await expect(page.locator('html')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
+  await expect(page.locator('main h1').first()).toBeVisible();
   await page.goto('./#/');
   await expect(page.locator('section[data-section="trip"]').first()).toBeVisible();
   await expect(card).toHaveCount(0);
