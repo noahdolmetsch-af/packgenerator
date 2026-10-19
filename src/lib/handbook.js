@@ -1127,6 +1127,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Appearance.', 'Choose font, colour world, text size and light or dark.'],
     example: 'Example: dark with larger text for the evening.',
   },
+  'f.uisize': {
+    on: null,
+    steps: ['Open Me › Appearance › Size and light.', 'Move the slider or tap − and +; the app changes when you let go.', 'Switch on «Compact» for less space between.'],
+    example: 'Example: 115 % on the phone for the way, 100 % on the computer.',
+  },
   'f.explain': {
     on: null,
     steps: ['Point at a button, or hold it on a phone: it says what it does.', '«…» lists the other buttons, each with one line.'],

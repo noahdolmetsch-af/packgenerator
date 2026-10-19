@@ -13,7 +13,7 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
-const bodySize = (page) => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs-body')));
+const zoomOf = (page) => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).zoom));
 
 test.beforeEach(async ({ context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -25,9 +25,9 @@ test('Ich › Darstellung: font, colour world, size and light, kept after a relo
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-palette', 'salbei');
   await expect(html).toHaveAttribute('data-font', 'inter');
-  await expect(html).toHaveAttribute('data-size', 'normal');
+  expect(await zoomOf(page)).toBe(1);
   const row = page.getByRole('link', { name: new RegExp(T('Appearance')) });
-  await expect(row).toContainText(`Inter · ${T('Sage|palette')} · ${T('Normal|size')}`);
+  await expect(row).toContainText(`Inter · ${T('Sage|palette')} · 100 %`);
   await row.click();
   await expect(page).toHaveURL(/#\/me\/look$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Appearance'));
@@ -48,11 +48,22 @@ test('Ich › Darstellung: font, colour world, size and light, kept after a relo
   await worlds.getByRole('button', { name: T('Rock|palette') }).click();
   await expect(html).toHaveAttribute('data-palette', 'fels');
 
-  // the size changes the whole type scale
-  const before = await bodySize(page);
-  await page.getByRole('group', { name: T('Text size') }).getByRole('button', { name: T('Large|size') }).click();
-  await expect(html).toHaveAttribute('data-size', 'large');
-  expect(await bodySize(page)).toBeGreaterThan(before);
+  // «Grösse» (Noah 1b 2b): one slider zooms the whole app; − and + go in steps of 5; «Kompakt» takes away space
+  const slider = page.getByRole('slider', { name: T('Size|scale') });
+  await expect(slider).toHaveValue('100');
+  await slider.fill('120');
+  await expect(page.locator('[data-scale-shown]')).toHaveText('120 %');
+  expect(await zoomOf(page)).toBeCloseTo(1.2);
+  await page.getByRole('button', { name: T('Smaller') }).click();
+  await expect(slider).toHaveValue('115');
+  expect(await zoomOf(page)).toBeCloseTo(1.15);
+  // vh and vw are divided back (scripts/viewport-zoom.mjs), so a sheet stays inside the screen while zoomed
+  expect(await page.evaluate(() => [...document.styleSheets].some((sh) => { try { return [...sh.cssRules].some((r) => r.cssText.includes('vh / var(--ui-zoom')); } catch { return false; } }))).toBe(true);
+  const gap = () => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sp-4')));
+  expect(await gap()).toBe(16);
+  await page.getByRole('switch', { name: new RegExp(T('Compact|size')) }).check();
+  await expect(html).toHaveAttribute('data-dense', '1');
+  expect(await gap()).toBeLessThan(16);
 
   // dark stays possible, also for the new worlds (Noah 1a)
   await page.getByRole('group', { name: T('Light or dark') }).getByRole('button', { name: T('Dark|theme') }).click();
@@ -65,11 +76,17 @@ test('Ich › Darstellung: font, colour world, size and light, kept after a relo
   await page.reload();
   await expect(html).toHaveAttribute('data-font', 'atkinson');
   await expect(html).toHaveAttribute('data-palette', 'fels');
-  await expect(html).toHaveAttribute('data-size', 'large');
+  expect(await zoomOf(page)).toBeCloseTo(1.15);
+  await expect(html).toHaveAttribute('data-dense', '1');
   await expect(html).toHaveAttribute('data-theme', 'dark');
   await noSideways(page);
   await page.goto('./#/me');
-  await expect(page.getByRole('link', { name: new RegExp(T('Appearance')) })).toContainText(`Atkinson Hyperlegible · ${T('Rock|palette')} · ${T('Large|size')}`);
+  await expect(page.getByRole('link', { name: new RegExp(T('Appearance')) })).toContainText(`Atkinson Hyperlegible · ${T('Rock|palette')} · 115 % · ${T('Compact|size')}`);
+  await noSideways(page);
+  // «Zurück auf 100 %» brings the normal size back
+  await page.goto('./#/me/look');
+  await page.getByRole('button', { name: T('Back to {n} %', { n: 100 }) }).click();
+  expect(await zoomOf(page)).toBe(1);
 });
 
 test('the old default Gletscher becomes Salbei once; chosen again, it stays', async ({ page }) => {

@@ -1050,4 +1050,9 @@ export default {
   'Open the Inbox: the mail stands there with its attachments and a tip.': 'Öffne den Eingang: Die Mail steht dort mit Anhängen und einem Tipp.',
   'Tap the button of an attachment (Documents, appointment, trip, bill) or «File as …».': 'Tippe den Knopf eines Anhangs (Dokumente, Termin, Tour, Rechnung) oder «Ablegen als …».',
   'Example: a hotel confirmation with a PDF → «Looks like a booking · for the trip «Jura»» → the PDF into Documents, the mail onto the trip.': 'Beispiel: eine Hotelbestätigung mit PDF → «Sieht aus wie eine Buchung · für die Tour «Jura»» → das PDF in Dokumente, die Mail an die Tour.',
+  // «Grösse» (19.10.2026)
+  'Open Me › Appearance › Size and light.': 'Öffne Ich › Darstellung › Grösse und Licht.',
+  'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
+  'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
+  'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
 };
