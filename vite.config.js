@@ -96,6 +96,12 @@ export default defineConfig({
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'google-fonts', expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
+          {
+            // Paket S «Reise-Spur»: OpenStreetMap tiles seen once stay for the tour map offline (swisstopo: Paket J's «swisstopo-tiles»).
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
       },
     }),

@@ -138,6 +138,12 @@ export const HOWTO = {
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
+  // Paket S «Reise-Spur»
+  'f.here': ['Open On the way during a tour.', 'Tap «I am here».', 'Add a sentence or a photo if you like, then «Save place».'],
+  'f.record': ['Open On the way and tap «Record».', 'Read the battery hint and tap «Start recording»; the screen stays on.', 'Tap «Stop» at the end; a Strava ride of the same time counts first.'],
+  'f.spurmap': ['Open a trip’s debrief and tap «Travel track».', 'Drag and pinch the map; tap a day or a dot.', 'Tick «Show Neuland» to see the land you rode for the first time.'],
+  'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
+  'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
 };
 
 /** The steps of a function, or [] when it has none. */

@@ -121,7 +121,7 @@ describe('Strava login', () => {
 });
 
 describe('Strava data', () => {
-  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, elapsed_time: 6300, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route' } };
+  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, elapsed_time: 6300, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route', summary_polyline: '_p~iF~ps|U' } };
 
   it('needs a device key', async () => {
     const w = world();
@@ -130,19 +130,29 @@ describe('Strava data', () => {
     expect((await h(get('/api/strava?step=activities', { key: 'made-up' }))).status).toBe(401);
   });
 
-  it('gives the rides trimmed (no route, no map) and pages through', async () => {
+  it('gives the rides trimmed (only the short line since Paket S «Reise-Spur», never the fine one) and pages through', async () => {
     const w = world({ [TOKEN_URL]: stravaToken(), [`${API}/athlete/activities`]: () => Response.json([activity]) });
     const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
     const key = fragment(await connect(h, w)).get('key');
     const body = await (await h(get('/api/strava?step=activities&after=1700000000&page=2', { key }))).json();
     expect(body).toMatchObject({ ok: true, page: 2, more: false });
-    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null, tempAvg: null, wNorm: null, kj: null, effort: null });
+    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null, tempAvg: null, wNorm: null, kj: null, effort: null, line: '_p~iF~ps|U' });
     expect(JSON.stringify(body)).not.toMatch(/secret-route/);
     const call = w.calls.find((c) => c.url.startsWith(`${API}/athlete/activities`));
     expect(call.url).toContain('page=2');
     expect(call.url).toContain('after=1700000000');
     expect(call.init.headers.Authorization).toBe('Bearer acc-1');
     expect((await h(get('/api/strava?step=activities&page=x', { key }))).status).toBe(400);
+  });
+
+  it('Paket S «Reise-Spur»: step=line gives one activity’s fine line, else the short one', async () => {
+    const w = world({ [TOKEN_URL]: stravaToken(), [`${API}/activities/111`]: () => Response.json(activity), [`${API}/activities/222`]: () => Response.json({ id: 222, map: { summary_polyline: 'abc' } }) });
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(h, w)).get('key');
+    expect(await (await h(get('/api/strava?step=line&id=111', { key }))).json()).toMatchObject({ ok: true, id: '111', line: 'secret-route' });
+    expect(await (await h(get('/api/strava?step=line&id=222', { key }))).json()).toMatchObject({ ok: true, line: 'abc' });
+    expect((await h(get('/api/strava?step=line&id=x', { key }))).status).toBe(400);
+    expect((await h(get('/api/strava?step=line&id=111'))).status).toBe(401);
   });
 
   it('refreshes an ended access token before asking Strava', async () => {

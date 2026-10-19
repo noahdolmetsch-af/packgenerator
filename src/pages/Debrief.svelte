@@ -22,6 +22,7 @@
   import { isOver } from '../lib/debrief.js';
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import SpurRow from '../lib/spur/SpurRow.svelte'; // Paket S «Reise-Spur»: the tour's map and days
   import { openTrip } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { endedTooEarly } from '../lib/tripstate.js';
@@ -444,6 +445,7 @@
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
       <TipLine page="debrief" name={t('Debrief')} />
+      <SpurRow {trip} />
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->

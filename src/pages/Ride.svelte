@@ -51,6 +51,7 @@
   import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
   import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
   import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
+  import SpurCard from '../lib/spur/SpurCard.svelte'; // Paket S «Reise-Spur»: «Hier bin ich», «Aufzeichnen», the tour map
   import { komootSport } from '../lib/komoot.js';
   import { domainOf } from '../lib/domains.js';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
@@ -637,6 +638,8 @@
           {/if}
         </div>
       </section>
+      <!-- Paket S «Reise-Spur» (Noah 19.10.2026 «1a und b»): a place by tap, the own recording, the tour map -->
+      {#if !ahead}<SpurCard {trip} />{/if}
 
       {#if eve?.charge.length}
         <!-- v0.105.0 P5 (T12): tonight's charging as its own list (was inside the evening fold) -->

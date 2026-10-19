@@ -157,6 +157,8 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/debrief/ride')) return 'rides'; // v0.41.0 (Noah 1): upload a ride, planned vs real
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
+  if (h.startsWith('#/spur-link/')) return 'spurlink'; // Paket S «Reise-Spur»: a tour's read link for the family
+  if (h.startsWith('#/spur/')) return 'spur'; // Paket S «Reise-Spur»: one tour's map, days, link and book
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
@@ -296,7 +298,7 @@ export function placeOf(page) {
   if (page === 'home') return 'today';
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
-  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
+  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'spur'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders') return 'me';

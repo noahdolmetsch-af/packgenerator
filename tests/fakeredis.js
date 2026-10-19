@@ -11,6 +11,9 @@ export function fakeRedis() {
     switch (cmd) {
       case 'GET':
         return kv.get(a[0]) ?? null;
+      case 'SET': // Paket S «Reise-Spur» (api/spur.js): SET k v [EX s]
+        kv.set(a[0], a[1]);
+        return 'OK';
       case 'INCR': {
         const v = Number(kv.get(a[0]) ?? 0) + 1;
         kv.set(a[0], String(v));

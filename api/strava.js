@@ -14,6 +14,8 @@
  *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs } (the heart rate per second as a
  *                           histogram { bpm: seconds }, a short curve [[minute, bpm]] and the best 20 minutes of
  *                           power from a power meter; never the route)
+ *   GET  ?step=line         Bearer, &id=<activity id> → { id, line } (Paket S «Reise-Spur»: the finer route line of one
+ *                           activity, encoded polyline; for rides fetched before the list carried the line)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
  *
  * BF8 «Gratis-Grenzen» (Noah 13.10.2026): every answer after a call to Strava carries `rate`, Strava's
@@ -62,6 +64,8 @@ export function trimActivity(a) {
     elapsedS: Number(a.elapsed_time) || 0,
     gearId: a.gear_id ?? null,
     device: a.device_name ?? '',
+    // Paket S «Reise-Spur» (Noah 19.10.2026 «1a»): the route as Strava's short line (encoded polyline), for the tour map
+    line: typeof a.map?.summary_polyline === 'string' && a.map.summary_polyline ? a.map.summary_polyline.slice(0, 60_000) : null,
     commute: !!a.commute,
     trainer: !!a.trainer,
     hrAvg: a.has_heartrate === false || !Number(a.average_heartrate) ? null : Math.round(Number(a.average_heartrate)),
@@ -481,6 +485,14 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const pm = !!one.device_watts;
           const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
           return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts) });
+        }
+        if (step === 'line') {
+          // Paket S «Reise-Spur»: one activity's line; Strava's finer line (map.polyline), else the short one
+          const id = url.searchParams.get('id') ?? '';
+          if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
+          const one = await stravaGet(cfg, store, `/activities/${id}`, ctx);
+          const line = [one?.map?.polyline, one?.map?.summary_polyline].find((x) => typeof x === 'string' && x) ?? null;
+          return json(request, 200, withRate({ ok: true, id, line: line ? line.slice(0, 200_000) : null }));
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

@@ -620,6 +620,32 @@ export const HANDBOOK = {
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],
     example: 'Example: after an update read the 3 new things in one minute.',
   },
+  // Paket S «Reise-Spur»
+  'f.here': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «I am here».', 'Add a sentence or a photo, then «Save place».'],
+    example: 'Example: «Lunch at the lake» with a photo; it sits on the tour map at that spot.',
+  },
+  'f.record': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «Record», then «Start recording».', 'Keep the phone on the handlebar with power; tap «Stop» at the end.'],
+    example: 'Example: a day without the Garmin: the app draws the line; screen off for 20 min leaves a gap.',
+  },
+  'f.spurmap': {
+    on: 'Needs Strava connected, a GPX ride, a recording or a place on the trip.',
+    steps: ['Open the trip’s debrief › «Travel track».', 'Move and zoom the map, tap a day or a dot.'],
+    example: 'Example: a 3-day tour shows three coloured lines, the lunch places and the photos.',
+  },
+  'f.spurlink': {
+    on: 'Needs the internet once to make the link.',
+    steps: ['«Travel track» › choose what goes in › «Make a link».', 'Send it; «Delete link» ends it at once.'],
+    example: 'Example: the family follows the tour without an account; photos stay on your phone.',
+  },
+  'f.travelbook': {
+    on: null,
+    steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
+    example: 'Example: a cover with the whole line, then one page per day with its photos.',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
