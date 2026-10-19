@@ -238,6 +238,14 @@
             </a>
           </li>
           <li>
+            <!-- Paket Q #148: weather warnings, avalanche danger, passes and news from your own sources -->
+            <a class="ich-row" href="#/me/hinweise" data-row="hinweise">
+              <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Alerts and news')}</b><small>{t('Weather warnings, avalanches, passes, news')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <button type="button" class="ich-row" aria-haspopup="dialog" onclick={() => (placeOpen = true)}>
               <span class="ich-ib"><House size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Home place')}</b><small>{$waitQ?.home || t('Not set yet: for the weather of a ride from home')}</small></span>

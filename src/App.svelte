@@ -38,6 +38,7 @@
   import { Plus, MessageCircle } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
+  import Hinweise from './pages/Hinweise.svelte';
   import Data from './pages/Data.svelte';
   import Docs from './pages/Docs.svelte';
   import Fitbit from './pages/Fitbit.svelte';
@@ -406,6 +407,9 @@
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
+  {:else if page === 'hinweise'}
+    <!-- Paket Q #148: Ich › Hinweise und News -->
+    <Hinweise />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <Look />

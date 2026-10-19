@@ -1,5 +1,6 @@
 <script>
   import { UNDO_MS } from '../lib/ui/undo.js';
+  import AlertLine from '../lib/clear/AlertLine.svelte';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -1075,6 +1076,8 @@
   {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
+  <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
+  {#if !editing}<AlertLine />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
   {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard && !maintHint && !hush}
     <p class="lphint" role="note" data-hint="longpress">
