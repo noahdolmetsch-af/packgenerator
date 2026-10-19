@@ -5,8 +5,8 @@ import { PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
-  it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs)', () => {
-    const max = { bikes: 5, active: 5 };
+  it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
+    const max = { bikes: 5, active: 5, trips: 5 };
     for (const p of PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
     for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);

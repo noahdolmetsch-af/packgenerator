@@ -150,6 +150,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
+  if (h.startsWith('#/trips/dreams')) return 'dreams'; // Paket N: Touren › Träume
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?')) return 'ski'; // v0.97.0 «Skitouren»
@@ -176,6 +177,8 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/mail')) return 'mail'; // GM: Ich › Mail (Gmail)
   if (h.startsWith('#/me/fitbit')) return 'fitbit'; // Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit
   if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
+  if (h.startsWith('#/me/compass')) return 'compass'; // Paket N: Ich › Mein Kompass
+  if (h.startsWith('#/me/next')) return 'next'; // Paket N #68: Ich › Was kommt
   if (h.startsWith('#/me/news')) return 'news'; // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu
   if (h.startsWith('#/me/phone')) return 'phone'; // Design-Refresh P9 (B35): Ich › Daten › Aufs Handy
   if (h.startsWith('#/zahlen/')) return 'paylink'; // the payer page of an invoice link (mockup QR5, Noah 14.10.2026 04:00)
@@ -286,9 +289,11 @@ export const PLACE_TABS = {
     { key: 'away', label: 'Holidays|tab', href: '#/week/away', match: (h) => h.startsWith('#/week/away') },
   ],
   trips: [
-    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') },
+    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
+    // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
+    { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
     { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') },
   ],
@@ -341,11 +346,11 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
-  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
-  if (page === 'me' || page === 'insights' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'compass' || page === 'next' || page === 'insights' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 

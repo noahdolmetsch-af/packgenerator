@@ -322,6 +322,9 @@
     Agenda: () => import('./pages/Agenda.svelte'),
     MailPage: () => import('./pages/Mail.svelte'),
     WasNeu: () => import('./pages/WasNeu.svelte'),
+    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68: Ich › Was kommt
+    Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
+    Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
     Push: () => import('./pages/Push.svelte'),
@@ -479,6 +482,12 @@
   {:else if page === 'mail'}
     <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
     {#key hash}<LazyPage load={PAGES.MailPage} />{/key}
+  {:else if page === 'compass'}
+    <LazyPage load={PAGES.Compass} />
+  {:else if page === 'dreams'}
+    <LazyPage load={PAGES.Dreams} />
+  {:else if page === 'next'}
+    <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}

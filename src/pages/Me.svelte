@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2 } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, CalendarClock, Target } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
@@ -277,6 +277,14 @@
             </a>
           </li>
           <li>
+            <!-- Paket N (Noah 19.10.2026 «4b»): Ich › Mein Kompass, goals in steps and the boxes -->
+            <a class="ich-row" href="#/me/compass" data-row="compass">
+              <span class="ich-ib"><Target size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('My compass')}</b><small>{t('Goals in steps, resolutions, dreams, ideas')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- «Inspiration» UC2-1: on a phone Ich › Inspiration (on a computer also in the sidebar) -->
             <a class="ich-row" href="#/inspiration">
               <span class="ich-ib"><Compass size={18} aria-hidden="true" /></span>
@@ -378,6 +386,14 @@
             <a class="ich-row" href="#/me/news">
               <span class="ich-ib"><Star size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What is new')}</b><small>{t('New in {version}', { version: shortVersion(WHATS_NEW[0].version) })}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket N #68 (19.10.2026): Ich › Was kommt, the plan package by package -->
+            <a class="ich-row" href="#/me/next" data-row="next">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What comes next')}</b><small>{t('The plan of the app, package by package')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

@@ -581,6 +581,37 @@ export const HANDBOOK = {
     steps: ['Open Me › Inbox.', 'Tap «File as …» and choose one of the 7 targets.'],
     example: 'Example: a receipt photo → «File as workshop visit».',
   },
+  // Paket N (19.10.2026)
+  'f.notelinks': {
+    on: 'Needs at least two notes.',
+    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
+    example: 'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.',
+  },
+  'f.dreams': {
+    on: null,
+    steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
+    example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
+  },
+  'f.races': {
+    on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
+    steps: ['Open Trips › Dreams › Races to plan.', 'Tap «Plan as a trip» and add the registration deadline.', 'Tick «Signed up» once you are registered.'],
+    example: 'Example: a gravel race on 7 November → a trip with the race block, deadline 30 October.',
+  },
+  'f.compass': {
+    on: null,
+    steps: ['Open Me › My compass and add a goal with a day.', 'Type the steps, one per line: the app spreads the dates.', 'Once a week answer «How is it going?»; boxes keep ideas and resolutions.'],
+    example: 'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.',
+  },
+  'f.noteformats': {
+    on: null,
+    steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],
+    example: 'Example: a rest stop with place, two photos and a sketch of the route; shared to Keep.',
+  },
+  'f.next': {
+    on: null,
+    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
+    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+  },
   'f.notes': {
     on: null,
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],

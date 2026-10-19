@@ -22,6 +22,7 @@
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
+  import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
   let { params = new URLSearchParams() } = $props();
@@ -120,6 +121,8 @@
       {#if nextHref}<a class="wstep" href={nextHref} aria-label={t('Week after')} data-week-next><ChevronRight size={18} aria-hidden="true" /></a>{:else}<span class="wstep off" aria-hidden="true"><ChevronRight size={18} /></span>{/if}
     </nav>
   </header>
+
+  {#if !nextHref}<GoalCheck link />{/if}
 
   {#if data}
     {#if !any}
