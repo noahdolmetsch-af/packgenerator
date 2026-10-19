@@ -57,6 +57,8 @@ const view = async (page, hash) => {
   await page.goto(`./${hash}`);
   await page.reload();
   await expect(page.locator('main')).toBeVisible();
+  // Tempo (19.10.2026): a page loads on its first visit; <html data-ready> comes back once it is there
+  await expect(page.locator('html')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
 };
 
 /** Opens every gear category (a phone starts with them folded, a desktop open). */

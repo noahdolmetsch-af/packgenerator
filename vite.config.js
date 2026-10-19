@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
+import { sizeGuard } from './scripts/size-guard.mjs';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
 // A Vercel preview (one per pull request, so Noah can test before he merges) serves it from the root.
@@ -20,7 +21,7 @@ export default defineConfig({
   // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest
   // (public/apps/<key>/), so the phone installs it with its own icon; same bundle, same data.
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       input: {
         main: 'index.html',
         meditation: 'apps/meditation/index.html',
@@ -29,10 +30,17 @@ export default defineConfig({
         // Termine buchen (BU2 + BU3): the page the people who book open, without the app
         buchen: 'buchen/index.html',
       },
+      output: {
+        // Tempo «Seiten später laden» (19.10.2026): pages load on their first visit (App.svelte PAGES), the rest
+        // is split automatically. Only the icons go into one file, else each icon would be its own small file.
+        codeSplitting: { groups: [{ name: 'icons', test: /node_modules[\\/]@lucide/ }] },
+      },
     },
   },
   plugins: [
     svelte(),
+    // Wächter: no JavaScript file over 3 MB (the offline store keeps up to 6 MiB per file)
+    sizeGuard(),
     VitePWA({
       registerType: 'autoUpdate', // a new version replaces the old one on the next start
       includeAssets: ['icons/*.svg', 'icons/*.png'],
