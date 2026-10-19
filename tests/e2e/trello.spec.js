@@ -1,7 +1,7 @@
 // Trello (Noah 19.10.2026 «1a 2a 3b 4a 5a», «1a 2a»): Kalender › Merken connects Trello, the to-dos go to the
 // list «To-dos» on the board «Packgenerator», a Trello list comes in as an own list, a new to-do goes to Trello,
 // a due card stands in «Heute wichtig», and a list can choose «Auch in Trello».
-// The server (packgen-three.vercel.app/api/trello) and Trello's permission page are answered by the test with a
+// The server (packgen-three.vercel.app/api/google?svc=trello) and Trello's permission page are answered by the test with a
 // small board in memory; everything else outside the preview server is blocked. Fictional entries only.
 import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
@@ -19,7 +19,7 @@ test('Trello: connect, sync both ways, due card on Heute, a list also in Trello'
   const applied = [];
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
-  await context.route(/packgen-three\.vercel\.app\/api\/trello/, async (route) => {
+  await context.route(/packgen-three\.vercel\.app\/api\/google\?svc=trello/, async (route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
     const step = new URL(req.url()).searchParams.get('step');

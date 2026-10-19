@@ -1,4 +1,4 @@
-// Trello on the server (api/trello.js, api/_lib/trello.js) with a fake Redis and a fake Trello.
+// Trello on the server (api/google/index.js ?svc=trello, api/_lib/trello.js) with a fake Redis and a fake Trello.
 // Fictional key, token and ids only.
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler, dueOf, dayOf, backPage, BOARD_NAME } from '../api/_lib/trello.js';
@@ -48,7 +48,7 @@ function world({ orgs = [{ id: ORG, displayName: 'Packgenerator' }], boards = []
   return { store, calls, h };
 }
 const req = (step, { method = 'GET', body, key = DEVICE } = {}) =>
-  new Request(`https://packgen-three.vercel.app/api/trello?step=${step}`, { method, headers: { ...(key ? { Authorization: `Bearer ${key}` } : {}), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  new Request(`https://packgen-three.vercel.app/api/google?svc=trello&step=${step}`, { method, headers: { ...(key ? { Authorization: `Bearer ${key}` } : {}), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
 
 describe('Trello server', () => {
   it('days and Trello due times in Zurich', () => {
@@ -128,5 +128,14 @@ describe('Trello server', () => {
     await w.h.main(req('disconnect', { method: 'POST', body: {} }));
     expect(w.store['trello:token']).toBeUndefined();
     expect(w.calls.some((c) => c.method === 'DELETE' && c.path === `tokens/${TOKEN}`)).toBe(true);
+  });
+});
+
+describe('Trello rides in /api/google (Vercel function limit)', () => {
+  it('?svc=trello reaches the Trello steps, the return page posts back to the same address', async () => {
+    const { GET } = await import('../api/google/index.js');
+    const res = await GET(new Request('https://packgen-three.vercel.app/api/google?svc=trello&step=back&state=s1'));
+    expect(res.headers.get('content-type')).toContain('text/html');
+    expect(await res.text()).toContain("fetch('?svc=trello&step=finish'");
   });
 });

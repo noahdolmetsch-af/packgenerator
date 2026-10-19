@@ -7,7 +7,7 @@
  * small page posts it to ?step=finish with the login state; the server checks the token with Trello and
  * keeps it in Redis (trello:token). The app never sees it.
  *
- * One function file (api/trello.js), steps:
+ * No function file of its own (Vercel Hobby limit): api/google/index.js hands ?svc=trello here. Steps:
  *   POST ?step=start      Bearer <device key>, { returnTo } → { url } (Trello's authorize page)
  *   GET  ?step=back       (Trello sends the browser here) → a tiny page that posts the token to finish
  *   POST ?step=finish     { state, token } → { to } (back into the app)
@@ -27,7 +27,7 @@ import { needDevice, saveState, takeState, safeReturn, jsonBody } from './oauth.
 
 export const TRELLO_API = 'https://api.trello.com/1';
 export const AUTHORIZE = 'https://trello.com/1/authorize';
-export const BACK = `${API_BASE}/api/trello?step=back`;
+export const BACK = `${API_BASE}/api/google?svc=trello&step=back`;
 export const BOARD_NAME = 'Packgenerator';
 export const WORKSPACE_NAME = 'Packgenerator';
 export const MAX_OPS = 60;
@@ -80,7 +80,7 @@ export function backPage(state) {
   history.replaceState(null, '', location.pathname + location.search);
   let to = '';
   try {
-    const r = await fetch('?step=finish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: ${s}, token }) });
+    const r = await fetch('?svc=trello&step=finish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: ${s}, token }) });
     to = (await r.json()).to || '';
   } catch (e) {}
   if (to) location.replace(to); else document.getElementById('m').textContent = 'Das hat nicht geklappt. Schliesse diese Seite und versuche es in der App noch einmal.';

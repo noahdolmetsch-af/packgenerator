@@ -2,7 +2,7 @@
  * Trello (Noah 19.10.2026 «1a 2a 3b 4a 5a», «1a 2a»): the live state and the sync of the app with the board
  * «Packgenerator» (rules of the merge: src/lib/trello.js).
  *
- * - The login runs on the server (api/trello.js); the device key from Strava proves it is Noah's device.
+ * - The login runs on the server (api/google?svc=trello, api/_lib/trello.js); the device key from Strava proves it is Noah's device.
  * - Automatic: when the app opens or comes back, at most every 15 minutes (as Google and Fitbit), and a
  *   short while after a change in a Trello list. «Jetzt abgleichen» does it at once.
  * - What lives where: db.settings 'trello' = { on, board, todos: { sync, link }, reg, lastSync }, each own
@@ -18,7 +18,7 @@ import { newTodo, tick } from '../merken.js';
 import { t } from '../i18n.svelte.js';
 import { TRELLO_KEY, TODOS_KEY, reconcile, bindIds, opParts, withIds } from '../trello.js';
 
-export const TRELLO_URL = 'https://packgen-three.vercel.app/api/trello';
+export const TRELLO_URL = 'https://packgen-three.vercel.app/api/google?svc=trello';
 export const MERKEN_HASH = '#/calendar';
 export const TRY_KEY = 'trello.try';
 export const AUTO_EVERY_MS = 15 * 60 * 1000;
@@ -37,7 +37,7 @@ export async function call(step, { method = 'GET', body = null, key = readKey(),
   if (body) headers['Content-Type'] = 'application/json';
   let res;
   try {
-    res = await doFetch(`${TRELLO_URL}?step=${encodeURIComponent(step)}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    res = await doFetch(`${TRELLO_URL}&step=${encodeURIComponent(step)}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   } catch {
     throw new TrelloError('network');
   }
