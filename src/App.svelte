@@ -158,6 +158,14 @@
     const q = new URLSearchParams(location.search);
     if (['title', 'text', 'url'].some((k) => q.get(k))) {
       notePrefill = ['title', 'text', 'url'].map((k) => q.get(k)?.trim()).filter(Boolean).join('\n');
+      // «Mail in die App» round 4 «1a»: the Mac bookmark «In den Eingang» (…?title=…&url=…&to=inbox) keeps the page
+      // straight away as an Eingang entry, without a window (sorted there like everything else)
+      if (q.get('to') === 'inbox') {
+        db.notes.put({ id: `web-${Date.now().toString(36)}`, at: new Date().toISOString(), text: notePrefill.slice(0, 4000), photo: null, page: 'web', tripId: null, bikeId: null, status: 'open', to: null, sortedAt: null }).catch(() => {});
+        history.replaceState(null, '', `${location.pathname}#/inbox`);
+        hash = '#/inbox';
+        return;
+      }
       // «Inspiration» UC2-4: a shared link (browser «Teilen» › Pack Generator) opens «Link hinzufügen» on
       // the Inspiration page; its window offers «Into the Inbox instead». Text without a link: Inbox as before.
       const shared = linkFrom(notePrefill);

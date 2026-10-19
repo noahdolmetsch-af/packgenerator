@@ -285,7 +285,6 @@ export default {
   'Type a command; it is entered right away.': 'Tippe einen Befehl; er wird sofort eingetragen.',
   'Example: «kette geölt gravel» → chain oiled on the gravel bike, today.': 'Beispiel: «kette geölt gravel» → Kette am Gravelbike heute geölt.',
   'Open Me › Inbox.': 'Öffne Ich › Eingang.',
-  'Tap «File as …» and choose one of the 7 targets.': 'Tippe «Ablegen als …» und wähle eines der 7 Ziele.',
   'Example: a receipt photo → «File as workshop visit».': 'Beispiel: ein Quittungsfoto → «Ablegen als Werkstattbesuch».',
   'Open Me › Notes.': 'Öffne Ich › Notizen.',
   'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.': 'Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.',
@@ -794,4 +793,11 @@ export default {
   "Tap «Save for the way»: the newest weather of the trip, the alerts and your news go onto the device.": "Tippe «Für unterwegs speichern»: das neuste Wetter der Tour, die Hinweise und deine News kommen aufs Gerät.",
   "The line says what is saved and since when; the packing list is on the device anyway.": "Die Zeile sagt, was gespeichert ist und seit wann; die Packliste ist sowieso auf dem Gerät.",
   "Example: the evening before a tour in the mountains, tap once; up there the weather is still there.": "Beispiel: am Abend vor einer Bergtour einmal tippen; oben ist das Wetter trotzdem da.",
+  // «Mail in die App» (19.10.2026)
+  'Tap «File as …» and choose a target, or make a new place.': 'Tippe «Ablegen als …» und wähle ein Ziel oder mach eine neue Ablage.',
+  'Gmail connected under Me › Mail. For the label: one Gmail filter, set up once (the clicks are on Me › Mail).': 'Gmail unter Ich › Mail verbunden. Fürs Label: ein Gmail-Filter, einmal eingerichtet (die Klicks stehen unter Ich › Mail).',
+  'Open a mail under Me › Mail and tap «Into the app»; or give it the Gmail label «Packgenerator».': 'Öffne eine Mail unter Ich › Mail und tippe «In die App übernehmen»; oder gib ihr das Gmail-Label «Packgenerator».',
+  'Open the Inbox: the mail stands there with its attachments and a tip.': 'Öffne den Eingang: Die Mail steht dort mit Anhängen und einem Tipp.',
+  'Tap the button of an attachment (Documents, appointment, trip, bill) or «File as …».': 'Tippe den Knopf eines Anhangs (Dokumente, Termin, Tour, Rechnung) oder «Ablegen als …».',
+  'Example: a hotel confirmation with a PDF → «Looks like a booking · for the trip «Jura»» → the PDF into Documents, the mail onto the trip.': 'Beispiel: eine Hotelbestätigung mit PDF → «Sieht aus wie eine Buchung · für die Tour «Jura»» → das PDF in Dokumente, die Mail an die Tour.',
 };

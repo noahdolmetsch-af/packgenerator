@@ -9,6 +9,21 @@ import { nextNumber } from './notes.js';
 import { nextId } from './gear.js';
 import { addRideNote } from './ride.js';
 import { addIdea } from './hubs.js';
+import { localDay } from './localday.js';
+import { SENDERS_KEY, learnSender } from './mailin.js';
+
+/** «Mail in die App»: the six new targets and the planning note live in inbox/filemore.js (loaded when used). */
+const MORE = ['newtrip', 'bill', 'event', 'task', 'doc', 'list'];
+const MORE_MADE = ['docs', 'bill', 'gEvent', 'gTask', 'listpoint', 'trips', 'plan'];
+
+/** 4a: remember how a mail's sender was filed. */
+async function learn(note, kind) {
+  if (!note?.mail?.from) return;
+  await db.transaction('rw', db.settings, async () => {
+    const old = (await db.settings.get(SENDERS_KEY))?.value ?? {};
+    await db.settings.put({ key: SENDERS_KEY, value: learnSender(old, note, kind) });
+  });
+}
 
 const stamp = () => Date.now().toString(36);
 
@@ -18,6 +33,15 @@ const stamp = () => Date.now().toString(36);
  * Returns the stored note.
  */
 export async function fileTo(note, kind, opts = {}) {
+  const stored = await fileOne(note, kind, opts);
+  await learn(note, kind).catch(() => {});
+  return stored;
+}
+
+async function fileOne(note, kind, opts) {
+  if (MORE.includes(kind)) return (await import('./inbox/filemore.js')).fileMore(note, kind, opts);
+  // «Tour» on a trip that has not started: a planning note on it (a booking mail before the trip)
+  if (kind === 'tour' && opts.trip?.startDate && opts.trip.startDate > localDay()) return (await import('./inbox/filemore.js')).fileToPlan(note, opts.trip);
   const now = new Date().toISOString();
   let stored = null;
   await db.transaction('rw', db.notes, db.maintenance, db.items, db.bikes, db.visits, db.debriefs, db.trips, async () => {
@@ -54,6 +78,8 @@ export async function fileTo(note, kind, opts = {}) {
 
 /** Take a filed entry back: what it wrote goes, the entry is open again. */
 export async function unfile(note) {
+  const more = (note.to?.made ?? []).filter((m) => MORE_MADE.includes(m[0]));
+  if (more.length) await (await import('./inbox/filemore.js')).undoMore(more);
   await db.transaction('rw', db.notes, db.maintenance, db.items, db.bikes, db.visits, db.debriefs, async () => {
     for (const m of note.to?.made ?? []) {
       if (m[0] === 'idea') {
@@ -66,7 +92,9 @@ export async function unfile(note) {
         await db.table(m[0]).delete(m[1]);
       }
     }
+    // the attachments filed with the entry (a bill's PDF, «Dokument») are open again; the ones filed one by one stay
+    const files = (note.files ?? []).map(({ byEntry, ...f }) => (byEntry ? { ...f, done: null } : f));
     const { topic: _topic, ...rest } = note;
-    await db.notes.put({ ...rest, ...(note.to?.kind === 'keep' ? {} : note.topic ? { topic: note.topic } : {}), status: 'open', to: null, sortedAt: null });
+    await db.notes.put({ ...rest, ...(note.to?.kind === 'keep' ? {} : note.topic ? { topic: note.topic } : {}), ...(note.files ? { files } : {}), status: 'open', to: null, sortedAt: null });
   });
 }

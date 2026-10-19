@@ -49,6 +49,12 @@
   import Btn from '../lib/ui/Btn.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import { explain } from '../lib/ui/explain.js';
+  // «Mail in die App» (Noah 19.10.2026): mails, Google tasks and #pack appointments come into the Eingang; the
+  // attachments of a mail each get their own button (Dokumente, Termin, Tour, Rechnung, Kontakt)
+  import { Mail, Paperclip, RefreshCw, ListTodo, CalendarDays, Bookmark, FileText, Copy } from '@lucide/svelte';
+  import { fetchOutside, intake } from '../lib/mail/intake.svelte.js';
+  import { fileAction, tipOf, SENDERS_KEY } from '../lib/mailin.js';
+  import { onMount } from 'svelte';
 
   let { onnew } = $props();
 
@@ -58,6 +64,52 @@
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
+  const rulesQ = liveQuery(async () => (await db.settings.get(SENDERS_KEY))?.value ?? {});
+  const rules = $derived($rulesQ ?? {});
+  onMount(() => {
+    fetchOutside().catch(() => {});
+  });
+  async function fetchNow() {
+    msg = '';
+    const n = await fetchOutside({ force: true });
+    msg = intake.error && !n ? t('Gmail could not be reached. Connect it under Me › Mail.') : n ? tn(n, '{n} new entry came in.', '{n} new entries came in.') : t('Nothing new.');
+  }
+  /** One attachment's button: what it becomes. */
+  const FILE_BTN = { doc: 'Into Documents', event: 'As appointment', route: 'As trip or ride', bill: 'As bill to pay', contact: 'Into the note' };
+  const FILE_DONE = { doc: 'In Documents', event: 'In the calendar', route: 'Opened', bill: 'In «To pay»', contact: 'In the note' };
+  let fileBusy = $state('');
+  async function fileFile(n, f) {
+    const act = fileAction(f, n.text);
+    if (act === 'bill') return ((start = 'bill'), fileSheet(n, true));
+    msg = '';
+    fileBusy = `${n.id}:${f.id}`;
+    try {
+      const m = await import('../lib/inbox/filemore.js');
+      const note = $state.snapshot(n);
+      if (act === 'doc') await m.fileToDoc(note, f.id);
+      else if (act === 'event') await m.fileIcs(note, f.id);
+      else if (act === 'contact') await m.fileContact(note, f.id);
+      else if (act === 'route') location.hash = await m.routeOf(note, f.id);
+    } catch (err) {
+      msg = t(err.message) || t('This could not be saved.');
+    } finally {
+      fileBusy = '';
+    }
+  }
+  const SOURCE = { mail: Mail, tasks: ListTodo, calendar: CalendarDays, web: Bookmark, docs: FileText };
+  // round 4 «1a»: the Mac bookmark: one click sends the open web page (title and address) into the Eingang
+  const appBase = `${location.origin}${location.pathname}`;
+  const bookmarklet = `javascript:(()=>{window.open('${appBase}?to=inbox&title='+encodeURIComponent(document.title)+'&url='+encodeURIComponent(location.href),'_blank')})()`;
+  let copied = $state(false);
+  async function copyBookmark() {
+    try {
+      await navigator.clipboard.writeText(bookmarklet);
+      copied = true;
+    } catch {
+      msg = t('Copying did not work here. Drag the button into the bookmarks bar instead.');
+    }
+  }
+  let start = $state(null);
 
   const today = localDay();
   const notes = $derived($notesQ ?? []);
@@ -90,8 +142,20 @@
   let filing = $state(null); // the entry whose «Ablegen als …» sheet is open
   let direct = $state(false); // true: the sheet opens on the suggested target's form, the 7 targets folded
   /** Impeccable: the row's button names the suggestion (German in de/impeccable-ich.js, pflege.js). */
-  const BTN = { receipt: 'File as receipt', problem: 'File as bike problem', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'To the trip note', keep: 'Just keep' };
+  const BTN = { receipt: 'File as receipt', problem: 'File as bike problem', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'To the trip note', newtrip: 'Make a trip of it', bill: 'As bill to pay', event: 'As appointment', task: 'As task', doc: 'Into Documents', list: 'Onto a list', keep: 'Just keep' };
+  /** 3a: the tip in the row («Sieht aus wie eine Rechnung»); never moves anything. */
+  function tipLine(n) {
+    const tip = tipOf(n, { trips, rules });
+    if (!tip) return '';
+    const d = (x) => (x ? x.split('-').reverse().join('.') : '');
+    if (tip.kind === 'booking') return `${t('Looks like a booking')}${tip.booking.day ? ` · ${d(tip.booking.day)}` : ''}${tip.trip ? ` · ${t('for the trip «{name}»', { name: tip.trip.title })}` : ''}`;
+    if (tip.kind === 'bill') return `${t('Looks like a bill')}${tip.deadline?.day ? ` · ${t('due {day}', { day: d(tip.deadline.day) })}` : ''}`;
+    if (tip.kind === 'deadline') return t('Deadline: {day}', { day: d(tip.deadline.day) });
+    if (tip.kind === 'sender') return t('You filed this sender like this twice.');
+    return '';
+  }
   const fileSheet = (n, straight) => ((direct = straight), (filing = n));
+  const closeSheet = () => ((filing = null), (start = null));
   /** «Einfach behalten» needs no form: it becomes a note with the guessed topic, Undo in the toast. */
   async function keep(n) {
     msg = '';
@@ -175,8 +239,9 @@
           {#snippet rows(g)}
             <ul class="card ich-list list" aria-label={t(g.name)}>
               {#each g.rows as n (n.id)}
-                {@const sug = guessTarget(n)}
-                {@const Icon = ICONS[sug] ?? ICONS.keep}
+                {@const sug = guessTarget(n, { trips, rules })}
+                {@const Icon = SOURCE[n.page] ?? ICONS[sug] ?? ICONS.keep}
+                {@const tip = n.mail || n.page === 'tasks' ? tipLine(n) : ''}
                 <li data-note-id={n.id} animate:flip={{ duration: MOVE }}>
                   <div class="ich-row ich-wrap nrow">
                     {#if n.photo}
@@ -185,14 +250,33 @@
                       <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                     {/if}
                     <span class="ich-m">
-                      <b>{n.text}</b>
-                      <small>{when(n.at)}{where(n)}</small>
+                      {#if n.mail}
+                        <b>{n.mail.subject || n.text}</b>
+                        <small>{t('Mail from {name}', { name: n.mail.fromName || n.mail.from })} · {when(n.mail.date ?? n.at)}</small>
+                      {:else}
+                        <b>{n.text}</b>
+                        <small>{when(n.at)}{where(n)}</small>
+                      {/if}
+                      {#if tip}<small class="tipl">{tip}</small>{/if}
+                      {#if n.files?.length}
+                        <span class="files" role="group" aria-label={t('Attachments')}>
+                          {#each n.files as f (f.id)}
+                            {@const act = fileAction(f, n.text)}
+                            {#if f.done}
+                              <span class="fchip done"><Check size={14} aria-hidden="true" />{f.name} · {t(FILE_DONE[f.done] ?? 'Done|filed')}</span>
+                            {:else if act}
+                              <button type="button" class="fchip" disabled={fileBusy === `${n.id}:${f.id}`} onclick={() => fileFile(n, f)}><Paperclip size={14} aria-hidden="true" /><span class="fn">{f.name}</span><b>{t(FILE_BTN[act])}</b></button>
+                            {/if}
+                          {/each}
+                        </span>
+                      {/if}
+                      {#if n.mail?.skipped?.length}<small>{t('Still only in Gmail (too big): {names}', { names: n.mail.skipped.join(', ') })}</small>{/if}
                     </span>
                     <!-- Impeccable: the button names the suggestion and goes straight to its form; ••• › «File elsewhere …» -->
                     <span class="acts rowacts">
                       <Btn label={t(BTN[sug])} explain={sug === 'keep' ? t('Becomes a note in «Notes», with one tap') : t(LANDS[sug])} sub={t('Suggestion of the app')} class="sm go" data-target={sug} onclick={() => (sug === 'keep' ? keep(n) : fileSheet(n, true))} />
                       <MoreActions small title={n.text} label={t('More for this note')} actions={[
-                        { name: t('File elsewhere …'), explain: t('Choose one of the 7 targets yourself'), icon: Shuffle, run: () => fileSheet(n, false) },
+                        { name: t('File elsewhere …'), explain: t('Choose another target yourself'), icon: Shuffle, run: () => fileSheet(n, false) },
                         { name: t('Delete'), explain: explain('Delete'), icon: Trash2, run: () => remove(n) },
                       ]} />
                     </span>
@@ -240,6 +324,18 @@
           </section>
         {/if}
         <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Tap + on any page when something comes up.')}</span></p>
+        <!-- «Mail in die App»: where else entries come from, and «Jetzt holen» -->
+        <section class="ich-sec" aria-labelledby="outside-h">
+          <div class="ich-h"><div><h2 id="outside-h">{t('From outside')}</h2><p class="ich-hs">{t('comes in by itself when this page opens')}</p></div>
+            <button type="button" class="ib" aria-label={t('Fetch now')} disabled={!!intake.busy} onclick={fetchNow}><RefreshCw size={16} aria-hidden="true" /></button></div>
+          <ul class="card ich-list">
+            <li><a class="ich-row" href="#/me/mail"><span class="ich-ib"><Mail size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gmail label «Packgenerator»')}</b><small>{t('Give a mail this label, or forward it to your +pack address')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+            <li><div class="ich-row"><span class="ich-ib"><ListTodo size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google task list «Packgenerator»')}</b><small>{t('Open tasks there come in, e.g. said to the phone')}</small></span></div></li>
+            <li><div class="ich-row"><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Appointments with #pack')}</b><small>{t('An appointment with «#pack» in the title becomes a trip suggestion')}</small></span></div></li>
+            <li><div class="ich-row ich-wrap"><span class="ich-ib"><Bookmark size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bookmark «Into the Inbox» (computer)')}</b><small>{t('Drag the button into the bookmarks bar of Chrome. A click on it sends the open page here.')}</small>
+              <span class="bm"><!-- svelte-ignore a11y_invalid_attribute --><a class="btn sm" href={bookmarklet} onclick={(e) => e.preventDefault()} draggable="true">{t('Into the Inbox')}</a><button type="button" class="btn sm" onclick={copyBookmark}><Copy size={14} aria-hidden="true" />{copied ? t('Copied') : t('Copy as address')}</button></span></span></div></li>
+          </ul>
+        </section>
       </div>
     </div>
   {:else}
@@ -282,7 +378,7 @@
 </div>
 
 {#if filing}
-  <FileSheet note={filing} {direct} {bikes} {trips} visits={ctx.visits} onclose={() => (filing = null)} onfiled={filedNow} />
+  <FileSheet note={filing} {direct} {bikes} {trips} {rules} {start} visits={ctx.visits} onclose={closeSheet} onfiled={filedNow} />
 {/if}
 
 {#if last}
@@ -441,6 +537,50 @@
       min-width: 0;
       justify-content: flex-start;
     }
+  }
+  .bm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .tipl {
+    color: var(--ok);
+  }
+  .files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 2px;
+  }
+  .fchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 4px 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 var(--fs-small) / 1.25 var(--font-body);
+    cursor: pointer;
+  }
+  .fchip .fn {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 14em;
+    color: var(--ink-2);
+  }
+  .fchip.done {
+    border-color: transparent;
+    background: var(--accent-soft);
+    color: var(--ok);
+    cursor: default;
   }
   .filed .t {
     color: var(--ink-2);

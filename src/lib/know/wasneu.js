@@ -66,6 +66,8 @@ export const SINCE = {
   'f.snow': '0.153.0', 'f.swissmap': '0.153.0', 'f.sos': '0.153.0', 'f.sosqr': '0.153.0', 'f.scales': '0.153.0',
   // Paket L «Werkzeugkasten» (v0.153.0)
   'f.tools': '0.153.0', 'f.pdftools': '0.153.0', 'f.phototools': '0.153.0', 'f.money': '0.153.0', 'f.tripcosts': '0.153.0', 'f.ablage': '0.153.0',
+  // «Mail in die App» (Paket 4+U)
+  'f.mailin': '0.157.0',
   'f.weblinks': '0.153.0', 'f.chains': '0.153.0', 'f.convert': '0.153.0', 'f.video': '0.153.0', 'f.qr': '0.153.0', 'f.mapmeasure': '0.153.0', 'f.gears': '0.153.0', 'f.level': '0.153.0', 'f.barcode': '0.153.0', 'f.light': '0.153.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';

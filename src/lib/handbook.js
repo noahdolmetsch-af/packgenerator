@@ -609,7 +609,7 @@ export const HANDBOOK = {
   },
   'f.inbox': {
     on: null,
-    steps: ['Open Me › Inbox.', 'Tap «File as …» and choose one of the 7 targets.'],
+    steps: ['Open Me › Inbox.', 'Tap «File as …» and choose a target, or make a new place.'],
     example: 'Example: a receipt photo → «File as workshop visit».',
   },
   // Paket N (19.10.2026)
@@ -792,6 +792,11 @@ export const HANDBOOK = {
     on: 'Connect once under Me › Mail (needs Strava connected on this device).',
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
+  },
+  'f.mailin': {
+    on: 'Gmail connected under Me › Mail. For the label: one Gmail filter, set up once (the clicks are on Me › Mail).',
+    steps: ['Open a mail under Me › Mail and tap «Into the app»; or give it the Gmail label «Packgenerator».', 'Open the Inbox: the mail stands there with its attachments and a tip.', 'Tap the button of an attachment (Documents, appointment, trip, bill) or «File as …».'],
+    example: 'Example: a hotel confirmation with a PDF → «Looks like a booking · for the trip «Jura»» → the PDF into Documents, the mail onto the trip.',
   },
   'f.connections': {
     on: 'Nothing to switch on: Me › Connections shows what is connected.',

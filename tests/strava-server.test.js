@@ -494,7 +494,7 @@ describe('Google Mail (GM)', () => {
   const gToken = () => () => Response.json({ access_token: 'g-acc', refresh_token: 'g-ref', expires_in: 3600, scope: MAIL_SCOPES.join(' ') });
   const b64 = (s) => Buffer.from(s, 'utf8').toString('base64url');
   const msgs = {
-    m1: { id: 'm1', threadId: 'th1', labelIds: ['INBOX', 'UNREAD'], snippet: 'Dein Velo ist bereit', internalDate: String(Date.parse('2026-10-12T08:00:00Z')), payload: { headers: [{ name: 'From', value: 'Veloladen Muster <info@veloladen.example.test>' }, { name: 'Subject', value: 'Velo-Service fertig' }, { name: 'Message-ID', value: '<abc@example.test>' }], mimeType: 'multipart/mixed', parts: [{ mimeType: 'text/plain', body: { data: b64('Grüezi\nDein Velo ist bereit.') } }, { filename: 'Rechnung.pdf', mimeType: 'application/pdf', body: { size: 12000 } }] } },
+    m1: { id: 'm1', threadId: 'th1', labelIds: ['INBOX', 'UNREAD'], snippet: 'Dein Velo ist bereit', internalDate: String(Date.parse('2026-10-12T08:00:00Z')), payload: { headers: [{ name: 'From', value: 'Veloladen Muster <info@veloladen.example.test>' }, { name: 'Subject', value: 'Velo-Service fertig' }, { name: 'Message-ID', value: '<abc@example.test>' }], mimeType: 'multipart/mixed', parts: [{ mimeType: 'text/plain', body: { data: b64('Grüezi\nDein Velo ist bereit.') } }, { filename: 'Rechnung.pdf', mimeType: 'application/pdf', body: { size: 12000, attachmentId: 'att-1' } }] } },
     m2: { id: 'm2', threadId: 'th2', labelIds: ['INBOX'], snippet: 'Lektion morgen', internalDate: String(Date.parse('2026-10-11T08:00:00Z')), payload: { headers: [{ name: 'From', value: 'tennis@example.test' }, { name: 'Subject', value: 'Tennis' }], mimeType: 'text/html', body: { data: b64('<p>Lektion&nbsp;morgen</p><style>x{}</style>') } } },
   };
   function fakeGmail() {
@@ -504,6 +504,9 @@ describe('Google Mail (GM)', () => {
       seen.push({ method: init.method ?? 'GET', path: u.pathname, q: Object.fromEntries(u.searchParams), body: init.body ? JSON.parse(init.body) : null });
       if (u.pathname.endsWith('/messages/send')) return Response.json({ id: 'sent1' });
       if (u.pathname.endsWith('/messages')) return Response.json({ messages: [{ id: 'm1' }, { id: 'm2' }], nextPageToken: '12345' });
+      // «Mail in die App»: one attachment (base64url, as Gmail sends it); «att-big» is over the limit
+      if (u.pathname.endsWith('/attachments/att-1')) return Response.json({ size: 7, data: Buffer.from('%PDF-1?').toString('base64url') });
+      if (u.pathname.endsWith('/attachments/att-big')) return Response.json({ size: 5 * 1024 * 1024, data: 'AAAA' });
       const id = u.pathname.split('/').pop();
       return msgs[id] ? Response.json(msgs[id]) : new Response('{}', { status: 404 });
     };
@@ -539,7 +542,7 @@ describe('Google Mail (GM)', () => {
   it('reads one mail as text, with its attachments by name', async () => {
     const t = await setup();
     const a = (await (await t.main(get('/api/google?step=mail-get&id=m1', { key: t.key }))).json()).mail;
-    expect(a).toMatchObject({ subject: 'Velo-Service fertig', text: 'Grüezi\nDein Velo ist bereit.', files: [{ name: 'Rechnung.pdf', size: 12000 }] });
+    expect(a).toMatchObject({ subject: 'Velo-Service fertig', text: 'Grüezi\nDein Velo ist bereit.', files: [{ name: 'Rechnung.pdf', size: 12000, type: 'application/pdf', att: 'att-1' }] });
     expect((await (await t.main(get('/api/google?step=mail-get&id=m2', { key: t.key }))).json()).mail.text).toBe('Lektion morgen');
     expect((await t.main(get('/api/google?step=mail-get&id=../x', { key: t.key }))).status).toBe(400);
   });
@@ -555,6 +558,29 @@ describe('Google Mail (GM)', () => {
     const last = t.f.seen.at(-1);
     expect(last.body.threadId).toBe('th1');
     expect(fromB64url(last.body.raw)).toContain('In-Reply-To: <abc@example.test>');
+  });
+
+  it('«Mail in die App»: fetches one attachment as base64, refuses a too big one and bad ids', async () => {
+    const t = await setup();
+    const res = await (await t.main(get('/api/google?step=mail-file&id=m1&att=att-1', { key: t.key }))).json();
+    expect(Buffer.from(res.data, 'base64').toString()).toBe('%PDF-1?');
+    expect(res.size).toBe(7);
+    expect((await t.main(get('/api/google?step=mail-file&id=m1&att=att-big', { key: t.key }))).status).toBe(413);
+    expect((await t.main(get('/api/google?step=mail-file&id=m1&att=a%2Fb', { key: t.key }))).status).toBe(400);
+    expect((await t.main(get('/api/google?step=mail-file&id=m1&att=att-1'))).status).toBe(401);
+  });
+
+  it('«Aus der App mailen»: a mail with a PDF attached; too many or broken files are refused', async () => {
+    const t = await setup();
+    const pdf = Buffer.from('%PDF-1.4 Packliste').toString('base64');
+    await t.main(post('/api/google?step=mail-send', { to: 'a@example.test', subject: 'Packliste', text: 'Anbei', files: [{ name: 'Jura "Tour".pdf', type: 'application/pdf', data: pdf }] }, { key: t.key }));
+    const raw = fromB64url(t.f.seen.at(-1).body.raw);
+    expect(raw).toMatch(/Content-Type: multipart\/mixed; boundary="pg-/);
+    expect(raw).toContain('Content-Disposition: attachment; filename="Jura Tour.pdf"');
+    expect(raw).toContain(pdf);
+    const send = (files) => t.main(post('/api/google?step=mail-send', { to: 'a@example.test', text: 'x', files }, { key: t.key }));
+    expect((await send([1, 2, 3, 4].map(() => ({ name: 'a.pdf', data: pdf })))).status).toBe(400);
+    expect((await send([{ name: 'a.pdf', data: 'nicht base64!' }])).status).toBe(400);
   });
 
   it('refuses wrong addresses, an empty text, header tricks and other devices', async () => {
