@@ -40,6 +40,8 @@
   });
   const LOAD = {
     plan: () => import('./Plan.svelte'),
+    map: () => import('./RaceMap.svelte'),
+    climbs: () => import('./Climbs.svelte'),
     strategy: () => import('./Strategie.svelte'),
     prepare: () => import('./Prepare.svelte'),
     route: () => import('./AlongRoute.svelte'),

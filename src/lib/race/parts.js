@@ -4,6 +4,8 @@
  */
 export const PARTS = [
   { key: 'plan', title: 'Plan|race', sub: 'The whole race on one page: summary, day plan, ways, scenarios, the 40 cases' },
+  { key: 'map', title: 'Map|race', sub: 'The route with its sectors, stops, your own points, the weather and the profile below' },
+  { key: 'climbs', title: 'Climbs|race', sub: 'Every climb on its own: length, height, gradient per 100 m and when you are there' },
   { key: 'strategy', title: 'Strategy', sub: 'Hotel, mixed or tent side by side; every assumption yours' },
   { key: 'prepare', title: 'Prepare', sub: 'Route, stops, countdown, training, rules, kit and paperwork' },
   { key: 'route', title: 'Along the route', sub: 'Food, water, beds, trains, weather, light and climbs' },
