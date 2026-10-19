@@ -467,4 +467,12 @@ export default {
   'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
   'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
   'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
+  // Paket N «Pläne und Träume» (19.10.2026)
+  'Needs at least two notes.': 'Braucht mindestens zwei Notizen.',
+  'Open a note and tap «Link a note», or take one from «Maybe related».': 'Öffne eine Notiz und tippe «Notiz verknüpfen» oder nimm eine aus «Passt vielleicht dazu».',
+  'On the Notes page, «At a glance» shows tags and open points; a #tag searches.': 'Auf der Seite Notizen zeigt «Auf einen Blick» Stichworte und offene Punkte; ein #Stichwort sucht.',
+  'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.': 'Beispiel: Notiz «Jura-Wochenende» mit «Packliste Herbst» verknüpft → ein Tipp öffnet die andere.',
+  'Open Me › What comes next.': 'Öffne Ich › Was kommt.',
+  'See what is live, what is being built and what comes later.': 'Sieh, was live ist, was gebaut wird und was später kommt.',
+  'Example: «Plans and dreams» under «Being built now» → a test link follows.': 'Beispiel: «Pläne und Träume» unter «Wird gerade gebaut» → ein Testlink folgt.',
 };

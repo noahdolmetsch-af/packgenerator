@@ -515,6 +515,17 @@ export const HANDBOOK = {
     steps: ['Open Me › Inbox.', 'Tap «File as …» and choose one of the 7 targets.'],
     example: 'Example: a receipt photo → «File as workshop visit».',
   },
+  // Paket N (19.10.2026)
+  'f.notelinks': {
+    on: 'Needs at least two notes.',
+    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
+    example: 'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.',
+  },
+  'f.next': {
+    on: null,
+    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
+    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+  },
   'f.notes': {
     on: null,
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],

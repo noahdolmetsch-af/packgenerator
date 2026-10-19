@@ -31,7 +31,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays, CalendarClock, BellRing, Mail } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -292,6 +292,14 @@
             <a class="ich-row" href="#/me/news">
               <span class="ich-ib"><Star size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What is new')}</b><small>{t('New in {version}', { version: shortVersion(WHATS_NEW[0].version) })}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket N #68 (19.10.2026): Ich › Was kommt, the plan package by package -->
+            <a class="ich-row" href="#/me/next" data-row="next">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What comes next')}</b><small>{t('The plan of the app, package by package')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

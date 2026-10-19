@@ -45,6 +45,7 @@
   import Agenda from './pages/Agenda.svelte';
   import MailPage from './pages/Mail.svelte';
   import WasNeu from './pages/WasNeu.svelte';
+  import WasKommt from './pages/WasKommt.svelte'; // Paket N #68: Ich › Was kommt
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
   import Push from './pages/Push.svelte';
@@ -423,6 +424,8 @@
   {:else if page === 'mail'}
     <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
     {#key hash}<MailPage />{/key}
+  {:else if page === 'next'}
+    <WasKommt />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}

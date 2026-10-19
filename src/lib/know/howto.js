@@ -89,6 +89,8 @@ export const HOWTO = {
   demo: ['Open Me › Your data.', 'Load a demo file.', 'Your own data waits aside until you end the demo.'],
   'f.search': ['Press / or tap the search.', 'Type a command, e.g. «kette geölt gravel».', 'It is entered right away; «notiz …» writes a note.'],
   'f.inbox': ['Open the Inbox.', 'Your notes stand by day.', 'Tap «File as …» and choose a target.'],
+  'f.notelinks': ['Open a note.', 'Tap «Link a note» and choose one.', 'The other note shows the link too.'],
+  'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
   'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],
   'f.sync': ['Send the backup from the newer device.', 'On the other device open it with Share › Pack Generator or «Open backup».', 'Follow the suggestion; a copy of before stays.'],

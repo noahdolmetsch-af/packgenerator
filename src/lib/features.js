@@ -161,6 +161,9 @@ const OWN = [
   // Data and app
   { id: 'f.search', group: 'data', title: 'Search commands', text: '«kette geölt gravel» enters it right away; «notiz …» writes a note.', run: 'search', words: 'suche befehl befehle' },
   { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes by day; «File as …» with 7 targets; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
+  // Paket N (19.10.2026): notes linked with each other, and the plan of the app
+  { id: 'f.notelinks', group: 'data', title: 'Linked notes|f', text: 'Link notes with each other; see at a glance what your notes hold, a #tag finds them all.', href: '#/notes', words: 'notizen verknüpfen verknuepfen verbinden auswerten stichwort tags überblick' },
+  { id: 'f.next', group: 'data', title: 'What comes next', text: 'The plan of the app package by package: live, being built, later.', href: '#/me/next', words: 'was kommt plan pakete projekt stand roadmap wünsche' },
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
   // P3b «Daten sicher»: Ich › Dokumente (D3/D4) and the exchange between phone and computer
   { id: 'f.docs', group: 'data', title: 'Documents', text: 'Passport, insurance and emergency sheet as PDF or photo; a reminder before they expire and «ID and cash with you?» in the packing list.', href: '#/me/docs', words: 'dokumente pass ausweis id versicherung notfall pdf gültig ablauf erinnerung cash packliste' },
