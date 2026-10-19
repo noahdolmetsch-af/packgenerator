@@ -539,4 +539,4 @@ export const GUIDE_TIPS = {
 };
 
 /** Pages that come with Paket 2/3: their guide is ready here, the page adds the line on its branch. */
-export const GUIDE_LATER = ["chronik","neuland","quiz","spur","sports","frei"];
+export const GUIDE_LATER = ["spur"]; // the travel track page needs a trip with a track; the guide follows with U

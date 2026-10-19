@@ -9,6 +9,7 @@
   import LazyPage from '../lib/nav/LazyPage.svelte';
   import { PAGES as FREI_PAGES, freiPart, pageHref } from '../lib/frei.js';
   import { t } from '../lib/i18n.svelte.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import '../lib/frei/frei.css';
 
   let { hash = '' } = $props();
@@ -35,6 +36,7 @@
     <Crumb path={[{ href: '#/me', label: t('Me|place') }]} here={t('Free time')} />
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Free time')}</h1>
     <p class="fz-intro">{t('Ideas for the hours between trips: small adventures, good evenings, things worth keeping. Everything is a suggestion; change it, hide it or add your own.')}</p>
+    <AreaIntro place="frei" />
     <ul class="fz-box fz-list" aria-label={t('Free time')}>
       {#each FREI_PAGES as p (p.key)}
         {@const Icon = ICONS[p.icon]}

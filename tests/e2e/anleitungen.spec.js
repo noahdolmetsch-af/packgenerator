@@ -31,6 +31,11 @@ const WHERE = {
   alerts: '#/me/hinweise',
   checks: '#/me/checks',
   equipment: '#/equipment',
+  chronik: '#/chronik',
+  neuland: '#/neuland',
+  quiz: '#/quiz',
+  sports: '#/flow/sports',
+  frei: '#/me/frei',
 };
 
 test.beforeEach(async ({ context }) => {

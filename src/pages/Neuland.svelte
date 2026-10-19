@@ -33,6 +33,7 @@
   import { dayLong } from '../lib/review/fmt.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { Check, Circle, Search, Plus, SlidersHorizontal, Info, Eye, Compass } from '@lucide/svelte';
   import '../lib/review/review.css';
 
@@ -228,6 +229,7 @@
   <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself.')}>
     <button type="button" class="btn" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
   </PathHead>
+  <AreaIntro place="neuland" />
 
   {#if failed}
     <Empty icon={Info} text={t("The maps couldn't be loaded. Reload the page; your ticks are safe.")} />
