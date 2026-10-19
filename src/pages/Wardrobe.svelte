@@ -334,9 +334,10 @@
       <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={18} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
     {/if}
   </header>
-
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the example «Was trage ich bei wie viel Grad?» -->
-  <HintCard page="wardrobe" />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, the tip of the day, at the end the example «Was trage ich bei wie viel Grad?».
+    Without an open trip the Einstieg carries the tip of the day (as on Aktiv), the tip line only when it is taken away. -->
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="wardrobe" intro={trip ? null : 'wardrobe'} />
   <TipLine page="wardrobe" name={t('Wardrobe')} />
 
   {#if trip}

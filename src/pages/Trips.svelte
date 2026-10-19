@@ -89,6 +89,7 @@
   import { strava } from '../lib/strava/client.svelte.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
 
   import OldTripsSports from '../lib/trip/OldTripsSports.svelte';
   import '../lib/sports.css';
@@ -390,6 +391,8 @@
   {/if}
   {#if view}
     {#if view.empty}
+      <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+      <AreaIntro place="touren" />
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
@@ -398,7 +401,7 @@
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
       <!-- Paket D (Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line and the tip of the day
            waits behind the line «In Zahlen · Weiter» -->
-      <HintCard page="trips" foldedOnPhone only={phone.matches ? 'card' : ''} />
+      <HintCard page="trips" intro="touren" foldedOnPhone only={phone.matches ? 'card' : ''} />
       {#if !phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
