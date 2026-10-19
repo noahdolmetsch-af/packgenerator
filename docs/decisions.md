@@ -1603,6 +1603,11 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
 
+## 19.10.2026: Tempo «Seiten später laden» (0.152.0)
+
+- **Noah «1b» (#1045), «1a» 14:00:** eigenes Release direkt nach F, vor G. Alle Seiten ausser Heute laden beim ersten Öffnen (`PAGES` in `src/App.svelte`, `LazyPage`), grosse Werkzeuge erst bei Bedarf. Der Build bricht ab, wenn eine JS-Datei grösser als 3 MB ist (`scripts/size-guard.mjs`); die Offline-Grenze bleibt 6 MiB.
+- **Gemessen:** grösste JS-Datei 5,2 MB → rund 1 MB. Der Start ist nicht schneller (bei 4× gebremster CPU eher 0,1 s langsamer); der Gewinn ist, dass die App sicher offline speicherbar bleibt.
+- **Selbst entschieden:** häufige Seiten (Material, Packen, Touren, Velos, Ich, Ablauf, Rückblick) laden im Hintergrund vor; graue Platzhalter erst nach 0,3 s; fehlt nach einem Update ein Teil, lädt die App höchstens einmal pro Minute neu. Nur die Icons sind eine eigene Datei, der Rest teilt sich automatisch.
 ## 19.10.2026: Paket F Woche (0.151.0)
 
 - **Freigabe:** Noah «ok f» + «1b» (19.10.2026 10:36). F kommt nach E und C (Reihenfolge E → C → F). Teile: Woche planen WP1–WP4 + Mehr Inhalt (15.10. und 18.10.2026 «1a 2a 3b 4a 5a»), Rundgang und Einstieg Teil 1–3 (15.10. «1a … 5a», Einstieg «1a 2a 3a 4a», 18.10. «4a»), Google in der Woche (liest Paket B).

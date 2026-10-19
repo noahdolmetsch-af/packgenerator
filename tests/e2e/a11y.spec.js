@@ -34,6 +34,10 @@ function fixture(path) {
   });
   data.tables.trips.push(trip(TRIP, 'test_data_gtp_ Jura Runde mit einem recht langen Tournamen', tomorrow()));
   data.tables.trips.push(trip('trip-test_data_gtp_past', 'test_data_gtp_ Emmental', '2026-09-20'));
+  // the evening window of Heute (src/lib/home/windows.js, key homeWindows) would open from 17:00 for the trip tomorrow
+  // and take the focus; it is done for today here, the window itself is tested in its own spec
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+  data.tables.settings.push({ key: 'homeWindows', value: { eve: { done: today }, week: { done: today } } });
   data.tables.notes.push({ id: 'note-test_data_gtp_1', at: '2026-10-05T08:00:00.000Z', text: 'test_data_gtp_ Bremse quietscht', photo: null, page: 'home', tripId: null, bikeId: bike.id, status: 'open', to: null, sortedAt: null });
   writeFileSync(path, JSON.stringify(data));
 }
@@ -58,6 +62,8 @@ const view = async (page, hash) => {
   await page.goto(`./${hash}`);
   await page.reload();
   await expect(page.locator('main')).toBeVisible();
+  // Tempo (19.10.2026): a page loads on its first visit; <html data-ready> comes back once it is there
+  await expect(page.locator('html')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
 };
 
 /** Opens every gear category (a phone starts with them folded, a desktop open). */

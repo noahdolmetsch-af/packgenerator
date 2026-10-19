@@ -58,6 +58,7 @@ Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.14
 | 5 | E Material, Velos, Merken (mit Skitour, Ausrüstung, Garmin 850, Impeccable Runde 1) | 0.149.0 | 1, 2 | PR #194, Noah merged |
 | 6 | C Heute und Aktiv (Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2) | 0.150.0 | 3, 4 | gebündelt (lokal, 19.10.2026) auf E; PR nach #194, Noah merged. Paket Aktiv selbst (Ziel-Prognose, Erholung, Blöcke) ist noch nicht auf den heutigen Stand übertragen und kommt später |
 | 7 | F Woche (Woche planen, Google in der Woche, Rundgang und Einstieg, eine Karte pro Seite) | 0.151.0 | 3 | gebündelt (lokal, 19.10.2026) auf C; PR nach C, Noah merged |
+| 7b | Tempo: Seiten später laden (#1045) | 0.152.0 | 1 | nach F, vor G; eigenes Release (Noah «1a») |
 
 Inhalt jedes Pakets: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online). Die Tabelle darunter ist der Stand vom 15.10.2026 und bleibt als Verlauf stehen.
 

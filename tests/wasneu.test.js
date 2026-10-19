@@ -34,7 +34,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.yeargoals']).toBe('0.132.0'); // «Werte überall»
     expect(SINCE['f.velosetup']).toBe('0.132.0'); // v0.132.0 «Velo-Setup»
     expect(SINCE['f.bagsetups']).toBe('0.149.0'); // «Taschen-Setups», released with Paket E
-    expect(SINCE['f.routine']).toBe('0.150.0'); // Routine «Das tut mir gut», Paket C
+    expect(SINCE['f.routine']).toBe('0.150.0'); // Routine «Das tut mir gut», Paket C (0.152.0 Tempo brings no new function)
     expect(SINCE['f.abfragen']).toBe('0.133.0'); // v0.133.0 «Wi gaht's?»
     expect(SINCE['f.inspiration']).toBe('0.134.0'); // v0.134.0 «Inspiration»
     expect(SINCE['f.lists']).toBe('0.134.0'); // v0.134.0 «Listen und Typen»
@@ -103,9 +103,8 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.velosetup').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.bagsetups').state).toBe('never'); // 0.149.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.routine').state).toBe('never'); // 0.150.0 (Paket C), older than this version
-    expect(rowsOf().find((r) => r.id === 'f.weekplan').state).toBe('new'); // new in this version (Paket F)
-    expect(rowsOf(undefined, undefined, '0.150.0').find((r) => r.id === 'f.routine').state).toBe('new'); // new in its version
+    expect(rowsOf(undefined, undefined, '0.150.0').find((r) => r.id === 'f.routine').state).toBe('new'); // new in its version (pinned to 0.150.0)
+    expect(rowsOf(undefined, undefined, '0.151.0').find((r) => r.id === 'f.weekplan').state).toBe('new'); // new in its version (pinned to 0.151.0; 0.152.0 brings no new function)
     expect(rowsOf().find((r) => r.id === 'f.abfragen').state).toBe('never'); // 0.133.0, older than this version
     expect(rowsOf(undefined, undefined, '0.133.0').find((r) => r.id === 'f.abfragen').state).toBe('new'); // new in its version (pinned to 0.133.0)
     expect(rowsOf(undefined, undefined, '0.134.0').find((r) => r.id === 'f.inspiration').state).toBe('new'); // new in its version

@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
+    // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
+    version: '0.152.0',
+    date: '2026-10-19',
+    title: 'Lighter on the phone',
+    lead: 'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.',
+    points: [
+      { text: 'Pages load when you open them; the most used ones load quietly in the background, and everything still works offline', href: '#/gear' },
+    ],
+    small: [
+      { box: 'faster', text: 'After an update a page that is missing reloads the app once by itself instead of showing an error', href: '#/' },
+    ],
+    test: [
+      'Open Gear, Pack and Trips one after the other: each page opens as before.',
+      'Turn on flight mode, close the app and open it again: Today and the other pages still open.',
+    ],
+  },
+  {
     // v0.151.0 Paket F «Woche»: Woche planen WP1–WP4 + Mehr Inhalt, Rundgang und Einstieg (Teil 1–3), Einstieg in
     // der Karte «Was hier steht» (Noah 19.10 «2a»), Google Kalender und Aufgaben in der Woche.
     // Built on C 0.150.0 (which carries E 0.149.0).
