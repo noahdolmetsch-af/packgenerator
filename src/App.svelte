@@ -340,6 +340,7 @@
     Tools: () => import('./pages/Tools.svelte'), // Paket L «Werkzeugkasten»
     WebLinks: () => import('./pages/WebLinks.svelte'), // Paket L «Werkzeuge und Links»
     Hinweise: () => import('./pages/Hinweise.svelte'), // Paket Q #148: Ich › Hinweise und News
+    Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
@@ -437,7 +438,8 @@
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <LazyPage load={PAGES.PastTrips} />
   {:else if page === 'ride'}
-    <LazyPage load={PAGES.Ride} />
+    <!-- Paket K #87 «Blatt Vor der Abfahrt»: #/ride/abfahrt, loaded only when opened -->
+    {#if param === 'abfahrt'}<LazyPage load={PAGES.Abfahrt} />{:else}<LazyPage load={PAGES.Ride} />{/if}
   {:else if page === 'share'}
     {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
   {:else if page === 'blockcheck'}

@@ -45,6 +45,7 @@
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
+  import '../lib/unterwegs/unterwegs.css';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { tick } from 'svelte';
@@ -53,6 +54,10 @@
   import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
   import { komootSport } from '../lib/komoot.js';
   import { domainOf } from '../lib/domains.js';
+  // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
+  import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
+  import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog } from '@lucide/svelte';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -450,6 +455,32 @@
   let how = $state(false);
   const goNote = () => document.getElementById('note-h')?.scrollIntoView({ block: 'center' });
 
+  /* ---------- Paket K «Unterwegs» (Noah 19.10.2026 «1a und b 2 a und b 3 5a b 4a 5a und b») ---------- */
+  let homeOpen = $state(false);
+  let lenkerOpen = $state(false);
+  let eatNext = $state(null);
+  const tripDay = $derived(!!trip && !trip.finished && onTripDay(trip, today));
+  // #285: the glove mode switches itself on below 5 °C or on a ski tour day (changeable by hand)
+  $effect(() => {
+    if (!trip) return;
+    const hrs = (saved?.places ?? []).flatMap((p) => rideHours(p.hours ?? [], st?.startAt, st?.endAt)).map((x) => x.temp).filter(Number.isFinite);
+    const temp = nowB?.temp?.lo ?? (hrs.length ? Math.min(...hrs) : null);
+    setGloveAuto(tripDay ? autoGlove({ temp, ski: domainOf(trip) === 'ski' }) : { on: false });
+  });
+  const lenkerCtx = $derived(st ? { startAt: st.startAt, km: st.km ?? null, gainM: st.gainM ?? null, kmh: st.km && st.hours ? st.km / st.hours : null, arrive: st.arrive, sunset, temp: nowB?.temp?.lo ?? null, nextEat: eatNext } : {});
+  const untilMs = $derived(st?.endAt ? new Date(`${st.endAt}:00`).getTime() : null);
+  // #322: the riding hours of each day, hot or not
+  const waterDays = $derived.by(() => {
+    if (!trip) return [];
+    return Array.from({ length: days }, (_, n) => {
+      const s = stage(trip, n, pace, { today });
+      const wx = s?.date ? trip.rideWx?.[s.date]?.places?.[0]?.hours ?? [] : [];
+      const temps = wx.map((x) => x.temp).filter(Number.isFinite);
+      return { label: dayLabel(n), hours: s?.hours ?? 0, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
+    });
+  });
+  const bottlesL = $derived(onTrip.reduce((sum, x) => sum + (x.item.waterL || 0) * (x.qty || 1), 0));
+  const foodList = $derived(onTrip.filter((x) => x.item.perHours && !x.item.waterL).map((x) => ({ id: x.item.id, name: nameOf(x.item), perHours: x.item.perHours, qty: x.qty })));
   // Keep the screen on while the page is open (where the browser allows it).
   $effect(() => {
     let lock = null;
@@ -514,6 +545,8 @@
       <!-- Impeccable (Noah 18.10.2026): from day 2 of a running trip the open base check
            is one quiet line, so the days and «Jetzt» come into the first screen. -->
       {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
+      <!-- Paket K #280 + #206 «Bereit für heute?» with the listening tip, on the tour day -->
+      {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{/await}{/if}
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}
@@ -613,6 +646,19 @@
     </div>
 
     <div class="col">
+      <!-- Paket K «Unterwegs»: the helpers for the day on the bike, big buttons (also with gloves) -->
+      <section class="uwh" aria-labelledby="uwh-h" data-uw-helpers>
+        <h2 id="uwh-h" class="sh">{t('Helpers on the way')}</h2>
+        <p class="ssub">{t('Home, handlebar view, the sheet for the start')}</p>
+        <div class="uw-helpers">
+          <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
+          <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
+          <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
+        </div>
+      </section>
+      <!-- Paket K #286 «Ess-Erinnerung» -->
+      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} />{/await}{/if}
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
       <section class="notesec" aria-labelledby="note-h">
         <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>
@@ -731,6 +777,21 @@
             </ul>
           </details>
         {/if}
+        <!-- Paket K #322 «Wasser- und Essen-Rechner», #99 «Sonne, Mond und Orte», #312 «Umwandeln» -->
+        <details class="tp-fold" data-fold="water">
+          <summary><span class="ib" aria-hidden="true"><Droplets size={18} /></span><span class="tw"><b>{t('Water and food')}</b><small>{t('for each day and the whole tour')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <div class="in">{#await import('../lib/unterwegs/Wasser.svelte') then m}<m.default days={waterDays} bottles={bottlesL} food={foodList} />{/await}</div>
+        </details>
+        <details class="tp-fold" data-fold="sky">
+          <summary><span class="ib" aria-hidden="true"><Sparkles size={18} /></span><span class="tw"><b>{t('Sun, moon and places')}</b><small>{t('light, dark, and short texts about places on the way')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <div class="in">{#await import('../lib/unterwegs/Himmel.svelte') then m}<m.default {trip} date={st?.date ?? today} place={sunPlace} />{/await}</div>
+        </details>
+        <details class="tp-fold" data-fold="convert">
+          <summary><span class="ib" aria-hidden="true"><FileCog size={18} /></span><span class="tw"><b>{t('Route for other devices')}</b><small>{t('GPX to FIT (Garmin) or KML')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <div class="in">{#await import('../lib/unterwegs/Umwandeln.svelte') then m}<m.default route={trip.route ?? null} />{/await}</div>
+        </details>
+        <!-- Paket K #1052: this trip's tour in komoot, one tap -->
+        <div class="kmrow">{#await import('../lib/unterwegs/KomootTour.svelte') then m}<m.default {trip} />{/await}</div>
         <!-- SN1b (answer 1a): «Tour aus komoot», a quiet last row; the location only when tapped -->
         <div class="kmrow"><KomootRow sport={komootSport(domainOf(trip), bike?.type)} hint={false} /></div>
 
@@ -741,6 +802,8 @@
   </div>
   <PageMore page="ride" name={t('On the way')} />
 </div>
+{#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}
+{#if lenkerOpen}{#await import('../lib/unterwegs/Lenker.svelte') then m}<m.default ctx={lenkerCtx} onclose={() => (lenkerOpen = false)} />{/await}{/if}
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
 
@@ -748,6 +811,10 @@
   /* v0.106.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
      font size is a type-scale token. */
   .col { min-width: 0; }
+  /* Paket K: the helpers card */
+  .uw-glove { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 2px; }
+  .uw-glove .gl { display: inline-flex; align-items: center; gap: 6px; }
+  .uw-glove small { color: var(--ink-2); }
   .col > section { margin: 0 0 24px; }
   .sh { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }

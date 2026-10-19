@@ -1,0 +1,22 @@
+/* Paket K #285 «Handschuh-Modus»: with data-glove="on" on <html> (handschuh.svelte.js) every button,
+   link button, chip and switch gets a bigger target and the text grows a little, so a gloved finger hits. */
+html[data-glove='on'] {
+  --fs-glove: 112.5%;
+  font-size: var(--fs-glove);
+}
+html[data-glove='on'] :is(button, .btn, a.btn, .tp-chip, .chip, select, input:not([type='checkbox']):not([type='radio'])) {
+  min-height: 56px;
+}
+html[data-glove='on'] :is(button, .btn, a.btn, .tp-chip, .chip) {
+  min-width: 56px;
+  padding-inline: max(14px, 1em);
+}
+html[data-glove='on'] input:is([type='checkbox'], [type='radio']) {
+  width: 32px;
+  height: 32px;
+}
+html[data-glove='on'] .tp-link {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+}

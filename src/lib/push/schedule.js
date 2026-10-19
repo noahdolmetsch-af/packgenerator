@@ -18,6 +18,7 @@ import { localDay } from '../localday.js';
 import { ridesIntoDark, sunTimes, offsetFor } from '../blockplan.js';
 import { stage, stageCount, pointAt } from '../ride.js';
 import { airPrefs, POLLEN_NAMES } from '../air.js';
+import { eatPushItems } from '../unterwegs/essen.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -56,6 +57,8 @@ export const KINDS = [
   { key: 'supply', label: 'Supplies expire', hint: '2 weeks before the best-before date, at 08:00.' },
   { key: 'lend', label: 'Lent things come back', hint: 'On the return day at 08:00.' },
   { key: 'shop', label: 'Shopping before a trip', hint: '2 days before a trip, when its shopping list or charging still has open rows.' },
+  // Paket K #286 «Ess-Erinnerung» (Noah 19.10.2026 «5a b möglich»): also when the app is closed
+  { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -99,7 +102,7 @@ function plantNext(p) {
 }
 
 /**
- * The next reminders. data: { trips, repairs, bikes, settings: { push, ownValues, merken, homePlace },
+ * The next reminders. data: { trips, repairs, bikes, settings: { push, ownValues, merken, homePlace, eatRemind },
  * lastBackup (ISO or null), now (Date) }. → { items: [{ key, at, title, body, url }], weather: [...], texts, hotC }
  */
 export function buildList(data) {
@@ -226,6 +229,7 @@ export function buildList(data) {
       const at = atMs(addDays(tr.startDate, -SHOP_BEFORE), DAY_AT);
       add({ key: `shop:${tr.id}:${tr.startDate}`, at, title: t('Before your trip'), body: t('{trip} in 2 days: time to shop and charge.', { trip: tourName(tr) }), url: '#/pack?shop' });
     }
+  if (on('eat')) for (const x of eatPushItems(data.settings?.eatRemind, { title: t('Time to eat'), body: t('A bite now keeps the strength up.') }, ms)) add(x);
   const merken = Array.isArray(data.settings?.merken) ? data.settings.merken : [];
   for (const td of merken) {
     if (!td || td.off || td.doneAt) continue;

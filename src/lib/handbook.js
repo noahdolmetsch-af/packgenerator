@@ -381,6 +381,62 @@ export const HANDBOOK = {
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
   },
+  // Paket K «Unterwegs» (Noah 19.10.2026)
+  'f.trainhome': {
+    on: 'Set your home place in Me › Settings.',
+    steps: ['On On the way tap «Home»; the location is read only then.', 'Read the next 3 trains, or open the way in Google Maps.'],
+    example: 'Example: a flat tyre in the Jura → «Home» → the train at 17:04 from the station 800 m away.',
+  },
+  'f.handlebar': {
+    on: null,
+    steps: ['On On the way tap «Handlebar view»; the phone turns sideways where it can.', '«Choose numbers»: up to 6, with arrows or by dragging.'],
+    example: 'Example: time, km, metres up and next meal big on the bar mount.',
+  },
+  'f.glove': {
+    on: null,
+    steps: ['Automatic switches on below 5 °C or on a ski tour day.', 'Set On or Off by hand in Me › Look or on On the way.'],
+    example: 'Example: −2 °C in the morning → buttons grow by themselves, gloves stay on.',
+  },
+  'f.eatremind': {
+    on: null,
+    steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
+    example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
+  },
+  'f.departsheet': {
+    on: null,
+    steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
+    example: 'Example: the train ticket from Dokumente, Rega 1414 and a friend’s number on one page.',
+  },
+  'f.komoottour': {
+    on: null,
+    steps: ['On On the way under «More» tap «Open the tour in komoot».', 'No link yet: «Add the komoot link of this tour».'],
+    example: 'Example: the gravel loop shared from komoot opens again with one tap at the start.',
+  },
+  'f.convert': {
+    on: null,
+    steps: ['On On the way › More open «Route for other devices» and choose the GPX.', 'Save FIT for Garmin or KML for maps.'],
+    example: 'Example: a GPX from a club mail → FIT → copied to the Edge as a course.',
+  },
+  'f.waterfood': {
+    on: null,
+    steps: ['On On the way › More open «Water and food».', 'Food with «one per N hours» shows needed against packed.'],
+    example: 'Example: 6 h at 28 °C → 4.5 L, 3 refills with 1.5 L bottles, 1500 kcal.',
+  },
+  'f.ready': {
+    on: 'Connect Fitbit (Me › Data) or Strava.',
+    steps: ['Open On the way on the tour day, or the trip in Pack.', 'Read the line and the signs behind it; you decide.'],
+    example: 'Example: 5.2 h sleep and HRV lower than usual → «maybe a shorter round today?».',
+  },
+  'f.listentip': {
+    on: null,
+    steps: ['In «Ready for today?» add a link for this kind of tour.', 'Rename or delete it with the pencil and the bin.'],
+    example: 'Example: «Morning playlist» for bike tours, a mountain podcast for ski tours.',
+  },
+  'f.skyplaces': {
+    on: null,
+    steps: ['On On the way › More open «Sun, moon and places».', '«Load places» asks Wikipedia about start, middle and finish.'],
+    example: 'Example: dark from 18:52, full moon on Friday, and a few lines about the castle on the way.',
+  },
   // v0.134.0 «Inspiration»
   'f.inspiration': {
     on: null,

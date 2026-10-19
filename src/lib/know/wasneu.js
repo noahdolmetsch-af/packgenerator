@@ -36,6 +36,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Paket K «Unterwegs»: placeholder, the bundler sets the release version
+  'f.trainhome': '0.148.0', 'f.handlebar': '0.148.0', 'f.glove': '0.148.0', 'f.eatremind': '0.148.0', 'f.departsheet': '0.148.0', 'f.komoottour': '0.148.0', 'f.convert': '0.148.0', 'f.waterfood': '0.148.0', 'f.ready': '0.148.0', 'f.listentip': '0.148.0', 'f.skyplaces': '0.148.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
   'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.gearimport': '0.36.0',
