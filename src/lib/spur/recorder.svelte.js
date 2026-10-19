@@ -45,6 +45,7 @@ export async function addFix(pos, db = appDb) {
   if (!rec.on || !row) return false;
   const fix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, at: pos.timestamp || Date.now() };
   rec.acc = Number.isFinite(fix.acc) ? Math.round(fix.acc) : null;
+  rec.error = ''; // a fix came: the old «no GPS» line goes
   // Live-Karte (Paket U3): the latest position, every fix, so the live map reads the same GPS.
   rec.here = { lat: fix.lat, lon: fix.lon, acc: fix.acc ?? null, at: fix.at, speed: pos.coords.speed ?? null, alt: pos.coords.altitude ?? null };
   if (!keepFix(last, fix)) return false;

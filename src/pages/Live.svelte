@@ -158,7 +158,8 @@
   const fmtKm = (k) => (k == null ? '–' : k >= 100 ? num(Math.round(k)) : num(Math.round(k * 10) / 10));
   const kindName = (k) => t(POI_KIND[k]?.name ?? 'Other stop');
   const openLine = (s) => {
-    if (!s.open || s.open.open == null) return t('Opening hours unknown');
+    // water, beds and stations have no shop hours: say nothing rather than «unknown»
+    if (!s.open || s.open.open == null) return ['shop', 'food', 'fuel', 'bike'].includes(s.kind) ? t('Opening hours unknown') : '';
     if (s.open.open) return s.open.closes ? t('Open until {at}', { at: s.open.closes }) : t('Open|hours');
     return s.open.opens ? t('Closed then, opens {at}', { at: s.open.opens }) : t('Closed then');
   };
@@ -502,7 +503,7 @@
             <li class="rc-row lv-srow" data-live-stop-row={s.kind}>
               <span class="rc-row-main">
                 <b>{s.name || kindName(s.kind)}</b>
-                <small>{kindName(s.kind)} · <span data-live-dist>{t('{d} km', { d: fmtKm(s.distKm) })}</span>{s.along ? '' : ` ${t('as the crow flies')}`} · {t('there about {at}', { at: when(s.eta) })} · <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span></small>
+                <small>{kindName(s.kind)} · <span data-live-dist>{t('{d} km', { d: fmtKm(s.distKm) })}</span>{s.along ? '' : ` ${t('as the crow flies')}`} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)} · <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span>{/if}</small>
               </span>
               <details class="lv-nav">
                 <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
@@ -617,6 +618,7 @@
     flex-direction: column;
     gap: var(--sp-4);
     min-width: 0;
+    padding-bottom: 72px; /* the SOS button never covers the last button */
     max-width: 960px;
   }
   .lv-go {
