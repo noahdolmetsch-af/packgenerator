@@ -1205,6 +1205,15 @@
     font-weight: 600;
     cursor: pointer;
   }
+  .lvf-fold > summary::after {
+    content: '›';
+    margin-left: auto;
+    color: var(--ink-3);
+    transition: transform 0.15s var(--ease-out);
+  }
+  .lvf-fold[open] > summary::after {
+    transform: rotate(90deg);
+  }
   .lvf-follow {
     position: absolute;
     right: 10px;

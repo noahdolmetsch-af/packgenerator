@@ -245,7 +245,7 @@
 
   <div class="pp-fold">
     <button type="button" class="pp-fh" aria-expanded={savedOpen} onclick={() => (savedOpen = !savedOpen)} data-poi-saved-toggle>
-      <span>{t('Saved places|poi')} <span class="num">{num(savedCount)}</span></span><ChevronDown size={18} aria-hidden="true" class={savedOpen ? 'pp-up' : ''} />
+      <span>{t('Saved places|poi')} {#if savedCount}<span class="num">{num(savedCount)}</span>{/if}</span><ChevronDown size={18} aria-hidden="true" class={savedOpen ? 'pp-up' : ''} />
     </button>
     {#if savedOpen}
       {#if !savedCount}
