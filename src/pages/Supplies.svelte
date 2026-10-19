@@ -162,6 +162,8 @@
 <style>
   .sup {
     display: grid;
+    /* a long item name in the table or the select must not widen the page at 320 px */
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
   .intro {
@@ -171,11 +173,12 @@
   }
   .cols {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
   @media (min-width: 900px) {
     .cols {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
   }
   .box {
@@ -236,6 +239,7 @@
   }
   .all {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
   .quick {
@@ -248,11 +252,16 @@
     gap: 10px;
   }
   .add label {
+    flex: 1 1 200px;
+    min-width: 0;
+    max-width: 100%;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
     font-size: var(--fs-small);
   }
   .add select {
+    width: 100%;
     min-height: 44px;
     border: 1px solid var(--line);
     border-radius: var(--r-ctl);
