@@ -25,11 +25,11 @@ export const WHATS_NEW = [
     lead: 'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.',
     points: [
       { text: 'Trips: all your Strava rides with filters, your own filters and the values in the Packmode; on the phone the page stays short', href: '#/trips' },
-      { text: '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review, with its elevation profile', href: '#/debrief/ride' },
+      { text: '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review with its elevation profile; «Your rides» in Pace show the five newest first', href: '#/debrief/ride' },
       { text: 'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job', href: '#/pack' },
     ],
     small: [
-      { box: 'nicer', text: '«Your rides» in Pace: compact rows, the five newest first, a switch «counts»', href: '#/debrief/pace' },
+      { box: 'fixed', text: 'Pairing now shows «Syncing …» and on the first sync asks only once which device has the right state', href: '#/me/data' },
       { box: 'nicer', text: 'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens' },
       { box: 'nicer', text: 'Forms say «optional» and show a mistake right at the field; deleting always asks in a window of the app, with 4 seconds Undo' },
     ],
