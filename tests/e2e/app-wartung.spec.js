@@ -9,6 +9,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ready, settle } from './settle.js';
 import { put } from './aktiv-fixture.js';
 import { SEEN_KEY } from '../../src/lib/whatsnew.js';
+import { INTRO_KEY } from '../../src/lib/home/introkt.js';
 // src/lib/maintenance/snapshots.js (SNAP_DB, VERSION_KEY): not imported, it pulls in the app's Svelte state
 const SNAP_DB = 'pack-generator-snapshots';
 const VERSION_KEY = 'version';
@@ -46,7 +47,8 @@ const itemIds = (page) =>
 
 test('a copy before an update, the line in the news banner, and back to the state before', async ({ page, context }) => {
   const errors = await open(page, context);
-  await put(page, { items: [item('test_EL01', 'Test lamp'), item('test_EL02', 'Test charger')] });
+  // the short intro of Heute comes once after an update and dims the page (tested in kacheln-antippbar.spec.js); off here
+  await put(page, { items: [item('test_EL01', 'Test lamp'), item('test_EL02', 'Test charger')], settings: [{ key: INTRO_KEY, value: true }] });
   // simulate an update: this device last started an older version
   await page.evaluate(
     ({ name, key, seen }) =>
