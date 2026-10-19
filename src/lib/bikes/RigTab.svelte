@@ -14,6 +14,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import Empty from '../ui/Empty.svelte';
+  import HintCard from '../pageinfo/HintCard.svelte';
   import { wantBike } from '../nav.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { bikePhotos, shrinkImage } from '../photo.js';
@@ -138,6 +139,7 @@
     </div>
   {/if}
   <p class="lead">{t('Your bag setups for this bike, with photos, changes and ideas from others.')}</p>
+  <HintCard page="rig" />
 
   <SetupList {bike} {bikes} {trips} {items} {containers} />
 
