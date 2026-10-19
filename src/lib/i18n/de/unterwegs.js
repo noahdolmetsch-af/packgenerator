@@ -194,7 +194,7 @@ export default {
   'Open On the way and tap «Start eat reminder».': 'Öffne Unterwegs und tippe auf «Ess-Erinnerung starten».',
   'When it rings tap «Eaten» or «In 10 minutes».': 'Wenn es klingelt, tippe auf «Gegessen» oder «In 10 Minuten».',
   'For a closed app switch on «Eat on the ride» in Reminders on the phone.': 'Für die geschlossene App «Essen unterwegs» bei Erinnerungen aufs Handy einschalten.',
-  'Before you leave': 'Vor der Abfahrt',
+  'Before you leave|sheet': 'Vor der Abfahrt',
   'One page for the tour day: route, start, tickets, emergency numbers and contacts, the way home; offline and as a PDF.': 'Eine Seite für den Tourtag: Strecke, Start, Tickets, Notfallnummern und -kontakte, der Heimweg; offline und als PDF.',
   'Open On the way and tap «Before you leave».': 'Öffne Unterwegs und tippe auf «Vor der Abfahrt».',
   'Add your emergency contacts once.': 'Füge einmal deine Notfallkontakte hinzu.',

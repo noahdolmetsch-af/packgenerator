@@ -259,7 +259,7 @@ describe('Handschuh-Modus (#285)', () => {
 });
 
 describe('Paket K in the catalogue', () => {
-  const ids = ['f.trainhome', 'f.handlebar', 'f.glove', 'f.eatremind', 'f.departsheet', 'f.komoottour', 'f.convert', 'f.waterfood', 'f.ready', 'f.listentip', 'f.skyplaces'];
+  const ids = ['f.trainhome', 'f.handlebar', 'f.glove', 'f.eatremind', 'f.departsheet', 'f.komoottour', 'f.routeconvert', 'f.waterfood', 'f.ready', 'f.listentip', 'f.skyplaces'];
   it('has every helper with a handbook entry, «So geht\'s» and German texts', () => {
     for (const id of ids) {
       const f = FEATURES.find((x) => x.id === id);

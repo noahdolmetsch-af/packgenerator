@@ -412,7 +412,7 @@ export const HANDBOOK = {
     steps: ['On On the way under «More» tap «Open the tour in komoot».', 'No link yet: «Add the komoot link of this tour».'],
     example: 'Example: the gravel loop shared from komoot opens again with one tap at the start.',
   },
-  'f.convert': {
+  'f.routeconvert': {
     on: null,
     steps: ['On On the way › More open «Route for other devices» and choose the GPX.', 'Save FIT for Garmin or KML for maps.'],
     example: 'Example: a GPX from a club mail → FIT → copied to the Edge as a course.',
