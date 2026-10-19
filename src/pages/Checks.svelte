@@ -10,6 +10,7 @@
    * on a phone the list of the other types is left out (the chips on top choose them), a computer keeps it.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { TRIP_DOMAINS, DOMAIN, domainName, lastDomain } from '../lib/domains.js';
   import { checkKey, freshCheck, checkStats, lastWithOwn, missedBefore, addCheck, asStandard } from '../lib/checks.js';
@@ -55,6 +56,7 @@
 
 <div class="ckpage ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Checks per trip type')} sub={t('Every trip type has its own evening-before and after-trip check. New trips start with it. Adjust it here or right in the trip.')} />
+  <AreaIntro place="checks" />
 
   <div class="types">
     <Seg chips full={false} label={t('Trip type')} value={sel} onchange={(k) => (sel = k)} options={TRIP_DOMAINS.map((d) => ({ key: d.key, name: t(d.name), n: listOf('eve', d.key).length }))} />

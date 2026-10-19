@@ -1,7 +1,6 @@
 /** «Erkenntnisse» (Noah 19.10.2026 «4b» + «zusätzlich eine eigene Seite»). */
 export default {
   // Paket C 0.150.0: the function f.insights (features, handbook, howto)
-  'What goes together in your data: sleep, battery, mood, rides, meditation and resting pulse; the strongest three in the analysis.': 'Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation und Ruhepuls; die stärksten drei in der Auswertung.',
   'Open Me › Insights.': 'Öffne Ich › Erkenntnisse.',
   'Read the sentences: what goes together in your last 90 days.': 'Lies die Sätze: was in deinen letzten 90 Tagen zusammenhängt.',
   'Pairs with fewer than 14 days say «still collecting days».': 'Paare mit weniger als 14 Tagen sagen «Sammelt noch Tage».',
@@ -37,6 +36,26 @@ export default {
   '{n} of {m} days': '{n} von {m} Tagen',
   'Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.': 'Zusammenhang ist keine Ursache. Nur zum Anschauen, nie eine Diagnose. Alles bleibt auf dem Gerät.',
   'All insights': 'Alle Erkenntnisse',
-  'Your answers, Fitbit, Strava and meditation side by side: what goes together, in one sentence each.': 'Deine Antworten, Fitbit, Strava und Meditation nebeneinander: was zusammenhängt, je in einem Satz.',
-  'What goes together: sleep, battery, rides, resting pulse': 'Was zusammenhängt: Schlaf, Akku, Fahrten, Ruhepuls',
+  'Your answers, Fitbit, Strava, meditation, weather and calendar side by side: what goes together, in one sentence each.': 'Deine Antworten, Fitbit, Strava, Meditation, Wetter und Kalender nebeneinander: was zusammenhängt, je in einem Satz.',
+  'What goes together: sleep, battery, rides, weather, appointments': 'Was zusammenhängt: Schlaf, Akku, Fahrten, Wetter, Termine',
+  // Noah 19.10.2026 «2a 3a 4a und b möglich»: weather, daylight, appointments, own questions
+  'more than {v} h of sunshine': 'mehr als {v} h Sonne',
+  sunshine: 'Sonne',
+  'more than {v} h of daylight': 'mehr als {v} h Tageslicht',
+  'more than {v} mm of rain': 'mehr als {v} mm Regen',
+  rain: 'Regen',
+  'more than {v} appointments': 'mehr als {v} Terminen',
+  appointments: 'Terminen',
+  '«{name}» above {v}': '«{name}» über {v}',
+  'your sleep felt|insight': 'dein Schlafgefühl',
+  Sunshine: 'Sonne',
+  Daylight: 'Tageslicht',
+  Rain: 'Regen',
+  Appointments: 'Termine',
+  'Also compared': 'Ebenfalls verglichen',
+  'The weather and daylight of each day at your home place, and how many appointments your Google calendar had. Both are kept quietly on this device.': 'Das Wetter und das Tageslicht jedes Tages an deinem Heimatort und wie viele Termine dein Google Kalender hatte. Beides wird still auf diesem Gerät gespeichert.',
+  'No home place yet: set it under Me › Settings › Home place, then the weather is compared too.': 'Noch keine Heimat eingetragen: unter Ich › Einstellungen › Heimat eintragen, dann wird auch das Wetter verglichen.',
+  'Your own questions': 'Deine eigenen Fragen',
+  'Every own question with a number or a scale is compared with your mood and battery. Switch one off if it does not belong here.': 'Jede eigene Frage mit Zahl oder Skala wird mit Stimmung und Akku verglichen. Schalte eine aus, wenn sie nicht hierher gehört.',
+  'What goes together in your data: sleep, battery, mood, rides, meditation, resting pulse, weather, appointments and your own questions; the strongest three in the analysis.': 'Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation, Ruhepuls, Wetter, Termine und deine eigenen Fragen; die stärksten drei in der Auswertung.',
 };

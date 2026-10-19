@@ -88,3 +88,16 @@ Der Code bleibt nur auf diesem Gerät. Er kommt nie in ein Backup, einen Export 
 ## Was an Claude geht
 
 Pro Anfrage nur, was die Aufgabe braucht: Namen, Kategorien und Gewichte deiner Sachen, Bausteine, Temperaturbereiche, die Bedingungen der Tour, deine Learnings und Notizen, und für die Velopflege die Teile mit km, Intervallen und letzten Service-Daten. Nie Fotos, Belege, Geldbeträge, Werkstattnamen, Dokumente, Gesundheitsdaten oder den Helfer-Code. Der Server speichert nichts ausser dem Monatszähler (`helper:spend:JJJJ-MM`) und schreibt keine Anfragen ins Log.
+
+## Gemini gratis in der App (seit 19.10.2026)
+
+Unter einer Antwort steht «Gemini hier fragen (gratis)». Gemini ist die KI von Google; die Gratis-Stufe kostet nichts, hat aber ein Tageslimit, und Google darf die Fragen zum Lernen verwenden. Die App schickt nur die Frage, und deine passende Ausrüstung und Erkenntnisse nur, wenn du das Häkchen setzt. Gemini braucht denselben Helfer-Code wie oben (Schritt 3 und 6), aber kein Guthaben bei Anthropic.
+
+1. Öffne https://aistudio.google.com/apikey und melde dich mit deinem Google-Konto an.
+2. **Create API key** → ein Projekt wählen (oder neu) → den Schlüssel kopieren. Keine Zahlungsart eintragen: ohne bleibt es gratis.
+3. In Vercel im Projekt **packgen** → **Settings** → **Environment Variables**:
+   - **Key:** `GEMINI_API_KEY`, **Value:** der Schlüssel, **Environments:** Production, **Sensitive** → **Save**.
+   - Freiwillig: `GEMINI_DAILY` = Antworten pro Tag (ohne Eintrag: 200), `GEMINI_MODEL` (ohne Eintrag: `gemini-flash-latest`).
+4. Neu veröffentlichen wie in Schritt 5. Wenn die Variable vor dem Merge der Diktat-Version da ist, baut packgen von selbst neu, weil sich `api` ändert.
+
+Ausschalten: Ich › Darstellung › Bedienung › «Gemini in der App».

@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.155.0 Paket 3+4
+  'Free time and everyday life': 'Freie Zeit und Alltag',
+  'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',
+  'Me › Free time: collections, ideas and travel wishes; Impulses in Active': 'Ich › Freie Zeit: Sammlungen, Ideen und Reise-Wünsche; Impulse in Aktiv',
+  'Me › Everyday life: shopping list, contracts, people you miss': 'Ich › Alltag: Einkaufsliste, Verträge, Menschen, die dir fehlen',
+  'Dictate until you tap stop; the app answers questions': 'Diktieren, bis du auf Stopp tippst; die App beantwortet Fragen',
+  'Before you leave: house check, flat-sitter list, «Ready for tomorrow?»': 'Vor der Abfahrt: Haus-Check, Liste für die Wohnungs-Hüter, «Bereit für morgen?»',
+  'Power budget, travel links and a guide on every page': 'Strombudget, Reise-Links und eine Anleitung auf jeder Seite',
+  'Open Me › Free time and start a collection.': 'Öffne Ich › Freie Zeit und beginne eine Sammlung.',
+  'Open Me › Everyday life and add something to the shopping list.': 'Öffne Ich › Alltag und setz etwas auf die Einkaufsliste.',
   // 0.154.0 Paket 2
   'Riding, learning and your bikes': 'Unterwegs, lernen und deine Velos',
   'On the road, after the tour and in the workshop.': 'Unterwegs, nach der Tour und in der Werkstatt.',

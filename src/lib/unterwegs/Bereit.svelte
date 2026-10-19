@@ -11,6 +11,8 @@
   import { localDay } from '../localday.js';
   import { domainOf, domainName } from '../domains.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
+  import { startsTomorrow } from './morgen.js';
+  import Morgen from './Morgen.svelte';
   import { readiness, kmByDay, LEVEL_TEXT, LISTEN_KEY, tipsOf, tipsFor, addTip, renameTip, dropTip } from './bereit.js';
   import { HeartPulse, Headphones, ExternalLink, Plus, Pencil, Trash2, Check } from '@lucide/svelte';
   import './unterwegs.css';
@@ -29,6 +31,8 @@
 
   const r = $derived(readiness({ health: $healthQ ?? [], km: kmByDay($actQ ?? [], ($ridesQ ?? []).filter((x) => (x.date ?? '') >= from)), today }));
   const domain = $derived(domainOf(trip));
+  // Paket 4 «Bereit für morgen?»: on the evening before, the card asks about tomorrow and adds hints
+  const tomorrow = $derived(startsTomorrow(trip, today));
   const all = $derived(tipsOf($tipsQ?.value));
   const tips = $derived(tipsFor(all, domain));
   const save = (list) => db.settings.put({ key: LISTEN_KEY, value: list });
@@ -63,7 +67,7 @@
   <div class="uw-row">
     <span class="ib" aria-hidden="true"><HeartPulse size={20} /></span>
     <div class="grow">
-      <h2 id="ready-h-{trip.id}" class="sh">{title || t('Ready for today?')}</h2>
+      <h2 id="ready-h-{trip.id}" class="sh">{tomorrow ? t('Ready for tomorrow?') : title || t('Ready for today?')}</h2>
       <p class="line">{t(LEVEL_TEXT[r.level])}</p>
     </div>
   </div>
@@ -71,6 +75,7 @@
     <ul class="signs">{#each r.signs as s (s.key)}<li>{t(s.text, s.vars)}</li>{/each}</ul>
   {/if}
   {#if r.data}<p class="uw-fine">{t('Only an observation from your data; you decide.')}</p>{/if}
+  {#if tomorrow}<Morgen {trip} />{/if}
 
   <div class="listen">
     <h3 class="uw-h3"><Headphones size={18} aria-hidden="true" /> {t('Listening tip for {kind}', { kind: t(domainName(domain)) })}</h3>

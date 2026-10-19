@@ -24,6 +24,8 @@ export const AREAS = [
   { key: 'own', label: 'Own|reminders' },
   { key: 'birthday', label: 'Birthdays' },
   { key: 'plant', label: 'Plants' },
+  { key: 'contract', label: 'Contracts|reminders' }, // Paket V «Alltag»: before the last day to cancel
+  { key: 'people', label: 'People|reminders' }, // Paket V «Alltag»: «Not seen for a while», quiet
 ];
 export const areaOf = (todo) => (AREAS.some((a) => a.key === todo.area) ? todo.area : 'own');
 

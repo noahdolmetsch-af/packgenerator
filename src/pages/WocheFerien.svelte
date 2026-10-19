@@ -7,6 +7,7 @@
    * built (no reminders yet). Holidays show as a bar in the week. Rules: lib/woche.js (cleanAway, applyAway).
    */
   import { Palmtree, ChevronRight, Plus } from '@lucide/svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
@@ -54,6 +55,7 @@
 
 <div class="wfe">
   <PageHead title={t('Holidays and time away')} text={t('Enter them once, the week follows.')} />
+  <AreaIntro place="away" />
 
   <div class="lay">
     <section class="card wc" aria-labelledby="fe-form-h">

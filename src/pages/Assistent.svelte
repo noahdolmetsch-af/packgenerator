@@ -18,6 +18,9 @@
   import SearchAnswer from '../lib/helper/SearchAnswer.svelte';
   import { isOn } from '../lib/helper/client.svelte.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import AskElsewhere from '../lib/assistent/AskElsewhere.svelte';
+  import SpeakButton from '../lib/ui/SpeakButton.svelte';
+  import { appendSpoken } from '../lib/speak.js';
 
   let { hash = '' } = $props();
   // Noah 15.10.2026 «spezifisch sollen diese beispiele in der app als beispiele angezeigt werden»: examples
@@ -27,6 +30,17 @@
   const plan = $derived(hash.startsWith('#/assistent/plan'));
   let q = $state('');
   let asked = $state('');
+  // «Diktat» (Noah 19.10.2026): a question from a dictated note comes as #/assistent?q=…
+  let fromHash = '';
+  $effect(() => {
+    const m = /[?&]q=([^&]*)/.exec(hash);
+    const v = m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+    if (v && v !== fromHash) (fromHash = v), (q = v), (asked = v);
+  });
+  function spoken(w) {
+    q = appendSpoken(q, w);
+    asked = q.trim();
+  }
   let kh = $state();
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
@@ -59,6 +73,7 @@
         <input class="inp" type="search" bind:value={q} oninput={() => (asked = '')} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
         <button type="submit" class="btn hi">{t('Ask')}</button>
       </form>
+      <p class="as-spk"><SpeakButton onsaid={spoken} /></p>
       <div class="as-ex" aria-label={t('Examples')}>
         {#each EXAMPLES as e (e)}<button type="button" class="chip" onclick={() => example(t(e))}>{t(e)}</button>{/each}
       </div>
@@ -67,6 +82,7 @@
           <AskAnswer q={asked} />
           {#if isOn()}<SearchAnswer bind:this={kh} q={asked} items={$all?.items ?? []} />{/if}
           <SearchFree q={asked} data={$all} />
+          <AskElsewhere q={asked} />
         </div>
       {/if}
     </section>
@@ -130,6 +146,13 @@
   .as-row {
     display: flex;
     gap: 8px;
+  }
+  .as-spk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
   }
   .as-row .inp {
     flex: 1;

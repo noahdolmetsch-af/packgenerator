@@ -302,6 +302,8 @@
     Debrief: () => import('./pages/Debrief.svelte'),
     Share: () => import('./pages/Share.svelte'),
     Ride: () => import('./pages/Ride.svelte'),
+    Abfahrt: () => import('./pages/Abfahrt.svelte'),
+    Hueter: () => import('./pages/Hueter.svelte'),
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
     Favorites: () => import('./pages/Favorites.svelte'),
@@ -326,6 +328,7 @@
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
+    AiProjects: () => import('./pages/AiProjects.svelte'),
     Data: () => import('./pages/Data.svelte'),
     Docs: () => import('./pages/Docs.svelte'),
     Fitbit: () => import('./pages/Fitbit.svelte'),
@@ -358,10 +361,12 @@
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
+    Power: () => import('./pages/Power.svelte'), // Strombudget (Noah 19.10.2026 «2a»): Material › Strom
     Pay: () => import('./pages/Pay.svelte'),
     Handbook: () => import('./pages/Handbook.svelte'),
     MiniApps: () => import('./pages/MiniApps.svelte'),
     Inspiration: () => import('./pages/Inspiration.svelte'),
+    TravelLinks: () => import('./pages/TravelLinksPage.svelte'),
     Lists: () => import('./pages/Lists.svelte'),
     Equipment: () => import('./pages/Equipment.svelte'),
     Ski: () => import('./pages/Ski.svelte'),
@@ -382,6 +387,8 @@
     Offers: () => import('./pages/Offers.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
+    Frei: () => import('./pages/Frei.svelte'),
+    Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -414,7 +421,7 @@
 <OfflineLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -460,7 +467,9 @@
     <!-- Paket K #87 «Blatt Vor der Abfahrt»: #/ride/abfahrt, loaded only when opened -->
     {#if param === 'abfahrt'}<LazyPage load={PAGES.Abfahrt} />{:else}<LazyPage load={PAGES.Ride} />{/if}
   {:else if page === 'share'}
-    {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
+    <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
+    {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
+    {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
   {:else if page === 'spur'}
     <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
     {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}
@@ -482,6 +491,9 @@
   {:else if page === 'lend'}
     <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
     <LazyPage load={PAGES.Lend} />
+  {:else if page === 'power'}
+    <!-- Strombudget (Noah 19.10.2026 «2a»): Material › Strom, loaded only when opened -->
+    <LazyPage load={PAGES.Power} />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <LazyPage load={PAGES.Favorites} />
@@ -501,6 +513,12 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
     {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'frei' || page === 'impulse'}
+    <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
+    <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'alltag'}
+    <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
+    <LazyPage load={PAGES.Alltag} {hash} />
   {:else if page === 'routine'}
     <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
     <LazyPage load={PAGES.Routine} />
@@ -510,6 +528,9 @@
   {:else if page === 'hinweise'}
     <!-- Paket Q #148: Ich › Hinweise und News -->
     <LazyPage load={PAGES.Hinweise} />
+  {:else if page === 'aiprojects'}
+    <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): Ich › own links to AI projects and chats -->
+    <LazyPage load={PAGES.AiProjects} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />
@@ -594,6 +615,9 @@
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <LazyPage load={PAGES.Pay} />
+  {:else if page === 'travel'}
+    <!-- «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): Touren › Reise-Links -->
+    <LazyPage load={PAGES.TravelLinks} />
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <LazyPage load={PAGES.Inspiration} />

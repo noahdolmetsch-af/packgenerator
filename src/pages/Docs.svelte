@@ -1,5 +1,6 @@
 <script>
   import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   /**
    * Ich › Dokumente (P3b «Daten sicher», Noah 15.10.2026 «1a»; mockups D3 and D4 approved 12.10.2026
    * «d1-d5 freigeben», round 2 answers «4a» reminder 6 months before, «5a» «ID und Cash dabei?» as a
@@ -346,6 +347,7 @@
   {:else}
     <!-- D3: the documents -->
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Documents')} title={t('Documents')} sub={docs.prefs.drive ? t('Passport, insurance, emergency and travel in one place. Also in your Google Drive.') : t('Passport, insurance, emergency and travel in one place. Only on your device.')} />
+    <AreaIntro place="docs" />
     {#if msg}<p class="msg" role="status">{msg}</p>{/if}
     {#if undo}<p class="msg undo" role="status">{t('Deleted «{name}».', { name: undo.row?.name ?? '' })} <button type="button" class="link" onclick={undoDelete}>{t('Undo')}</button></p>{/if}
     {#if groupUndo}<p class="msg undo" role="status" data-group-undo>{groupUndo.text} <button type="button" class="link" onclick={undoGroupChange}>{t('Undo')}</button></p>{/if}
@@ -414,6 +416,11 @@
               {/each}
             </ul>
           {:else}<p class="ich-help">{t('Give a document «valid until»: the app reminds you here in time.')}</p>{/if}
+        </section>
+        <!-- Paket V «Alltag» (Noah «4a»): contracts and subscriptions under Dokumente, with the deadline and a reminder -->
+        <section class="ich-sec" aria-labelledby="abo-h">
+          <div class="ich-h"><div><h2 id="abo-h">{t('Contracts and subscriptions')}</h2><p class="ich-hs">{t('cost, last day to cancel, reminder')}</p></div></div>
+          <ul class="card ich-list"><li><a class="ich-row" href="#/me/alltag/abos" data-docs-abos><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Contracts and subscriptions')}</b><small>{t('Phone, insurance, streaming: the app reminds you before the notice period ends.')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li></ul>
         </section>
         <section class="ich-sec" aria-labelledby="nt-h">
           <div class="ich-h"><div><h2 id="nt-h">{t('For the next trip')}</h2><p class="ich-hs">{next ? next.title || t('Next trip') : t('No trip planned')}</p></div></div>

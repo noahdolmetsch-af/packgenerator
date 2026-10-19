@@ -17,6 +17,7 @@
   import { localDay } from '../lib/localday.js';
   import { dates, monthLong, monthShort } from '../lib/review/fmt.js';
   import { t, tn, num } from '../lib/i18n.svelte.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import '../lib/review/review.css';
 
   let { month: start = null } = $props();
@@ -78,6 +79,7 @@
 
 <div class="rv-page chronik">
   <PageHead title={t('Chronicle')} text={t('Everything on one time line: trips, rides, bike care, meditation and notes, one page per month.')} />
+  <AreaIntro place="chronik" />
 
   {#if data}
     <div class="karte"><ChronikKarte trips={data.trips} debriefs={data.debriefs} rides={data.rides} activities={data.activities} {today} frame="tile" size="l" more={false} /></div>

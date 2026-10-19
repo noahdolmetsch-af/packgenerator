@@ -329,7 +329,7 @@ export function parseGrams(text) {
  * Paket H «Packen leichter»: where it is at home (#372), supplies (answer 2b: expiry date, stock, buy
  * again below) and how long a battery lasts and charges (#346). Typed as text in the window.
  */
-const storeFields = (src) => ({ homeSpot: src.homeSpot ?? '', expires: src.expires ?? '', stock: src.stock ?? '', minStock: src.minStock ?? '', runH: src.runH ?? '', chargeH: src.chargeH ?? '' });
+const storeFields = (src) => ({ homeSpot: src.homeSpot ?? '', expires: src.expires ?? '', stock: src.stock ?? '', minStock: src.minStock ?? '', runH: src.runH ?? '', chargeH: src.chargeH ?? '', mah: src.mah ?? '', ports: src.ports ?? '' });
 
 export function itemDraft(item, preset = {}) {
   const layerFields = (src) => ({ ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' });
@@ -351,7 +351,7 @@ const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFini
 export function itemRecord(draft, { item = null, items = [], weightG = null, now = new Date().toISOString() } = {}) {
   // Data cleanup 14.10.2026 (Noah 3a): the old fields role standard / optional, always and kits are
   // not written again; what they said goes into the blocks (blocks2026.js oldFieldsPatch).
-  const { grams, always, kits, homeSpot, expires, stock, minStock, runH, chargeH, ...old } = draft;
+  const { grams, always, kits, homeSpot, expires, stock, minStock, runH, chargeH, mah, ports, ...old } = draft;
   const rest = { ...old, ...oldFieldsPatch(draft) };
   return {
     ...rest,
@@ -387,6 +387,9 @@ function storeRecord(d, item) {
     minStock: numOrNull(d.minStock),
     runH: numOrNull(d.runH),
     chargeH: numOrNull(d.chargeH),
+    // Strombudget (Noah 19.10.2026 «2a»): battery size and the sockets of a charger or power bank
+    mah: numOrNull(d.mah),
+    ports: numOrNull(d.ports),
   };
   const out = {};
   for (const [k, x] of Object.entries(v)) if (x != null || (item && k in item)) out[k] = x;

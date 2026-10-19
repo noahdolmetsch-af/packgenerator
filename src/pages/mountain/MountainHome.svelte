@@ -6,6 +6,7 @@
    * each one can be hidden and all come back with «Show hidden again».
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Anleitungen überall» (lib/guides.js)
   import { Siren, Phone, Map as MapIcon, QrCode, Signpost, Compass, ChevronRight, ChevronLeft, ExternalLink, X, MountainSnow } from '@lucide/svelte';
   import { db } from '../../lib/db.js';
   import { CALLS, telOf, mountainLinks, LINK_SPORTS, LINKS_OFF_KEY, CARD_KEY, hasCard } from '../../lib/mountain/sos.js';
@@ -98,6 +99,8 @@
       </section>
     </div>
   </div>
+  <!-- «Anleitungen überall»: the guide at the end, so «Emergency» stays the first thing on the page -->
+  <AreaIntro place="mountain" />
 </div>
 
 <style>

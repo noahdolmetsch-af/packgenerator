@@ -8,7 +8,15 @@
  * it is shown, as «on days with more x, y was … on average, otherwise …» (the days above the median of x
  * against the others). Observation only: going together is not a cause, nothing is a diagnosis.
  * Pure rules: no database, no clock (days 'YYYY-MM-DD').
+ *
+ * Noah 19.10.2026 «2a 3a 4a und b möglich»: also the weather and daylight of the day (daydata.js, Open-Meteo),
+ * the appointments per day (the Google calendar) and every own number question (scale or number) — each own
+ * question on by itself and switchable off one by one (setting OWN_OFF_KEY).
  */
+import { numberOf } from './abfragen.js';
+
+/** The own questions switched off for the insights: a list of ids (settings). */
+export const OWN_OFF_KEY = 'insightsOwnOff';
 
 export const WINDOW_DAYS = 90;
 export const MIN_DAYS = 14;
@@ -48,7 +56,7 @@ function perDay(rows, qid) {
  * health: the Fitbit days (healthDays); log: the Aktiv ticks (flowLog). `days`: the days where a missing
  * ride or meditation counts as 0 (only days where the app was used at all).
  */
-export function seriesOf({ rows = [], health = [], log = [], days = [] } = {}) {
+export function seriesOf({ rows = [], health = [], log = [], days = [], weather = {}, events = {}, own = [] } = {}) {
   const used = new Set(days);
   const km = {};
   for (const r of rows) if (r?.kind === 'ride' && r.day && num(r.value) != null) km[r.day] = (km[r.day] ?? 0) + r.value;
@@ -72,8 +80,47 @@ export function seriesOf({ rows = [], health = [], log = [], days = [] } = {}) {
     rhr: h('restingHr'),
     azm: h('azm'),
     steps: h('steps'),
+    ...weatherSeries(weather),
+    evts: events && typeof events === 'object' ? Object.fromEntries(Object.entries(events).filter(([, v]) => num(v) != null)) : {},
+    ...ownSeries(rows, own),
   };
 }
+
+/** The weather days { day: { tmax, rainMm, sunH, lightH } } as four series. */
+function weatherSeries(weather) {
+  const out = { sunH: {}, lightH: {}, rainMm: {}, tmax: {} };
+  for (const [day, w] of Object.entries(weather ?? {})) for (const k of Object.keys(out)) if (num(w?.[k]) != null) out[k][day] = w[k];
+  return out;
+}
+
+/** The own questions that count as numbers (scale or number) and are not switched off. */
+export function ownNumberQuestions(own = [], off = []) {
+  const no = new Set(Array.isArray(off) ? off : []);
+  return (own ?? []).filter((q) => q?.id && (q.form?.kind === 'scale' || q.form?.kind === 'number') && !no.has(q.id));
+}
+
+/** One series per own question, key `own:<id>` (the mean when answered more than once a day). */
+export function ownSeries(rows = [], own = []) {
+  const out = {};
+  for (const q of own ?? []) {
+    if (!q?.id) continue;
+    const acc = {};
+    for (const r of rows) {
+      if (r?.qid !== q.id || !r.day) continue;
+      const v = numberOf(q.form, r.value);
+      if (num(v) != null) (acc[r.day] ??= []).push(v);
+    }
+    out[`own:${q.id}`] = Object.fromEntries(Object.entries(acc).map(([d, l]) => [d, mean(l)]));
+  }
+  return out;
+}
+
+/** The pairs of the own questions: each with mood and battery the same day. name: the user's text (never t()). */
+export const ownPairs = (own = []) =>
+  (own ?? []).flatMap((q) => [
+    { id: `own-${q.id}-mood`, x: `own:${q.id}`, y: 'mood', lag: 0, own: q.id, name: q.text ?? q.name ?? '' },
+    { id: `own-${q.id}-battery`, x: `own:${q.id}`, y: 'battery', lag: 0, own: q.id, name: q.text ?? q.name ?? '' },
+  ]);
 
 /**
  * The pairs looked at: x on a day, y on the same day (lag 0) or the day after (lag 1).
@@ -91,6 +138,16 @@ export const PAIRS = [
   { id: 'azm-rhr', x: 'azm', y: 'rhr', lag: 1 },
   { id: 'azm-sleep', x: 'azm', y: 'sleepH', lag: 1 },
   { id: 'km-rhr', x: 'km', y: 'rhr', lag: 1 },
+  // weather and daylight (2a): the day's sun, daylight, rain
+  { id: 'sun-mood', x: 'sunH', y: 'mood', lag: 0 },
+  { id: 'sun-battery', x: 'sunH', y: 'battery', lag: 0 },
+  { id: 'light-mood', x: 'lightH', y: 'mood', lag: 0 },
+  { id: 'rain-mood', x: 'rainMm', y: 'mood', lag: 0 },
+  // appointments (3a): the day itself, and the night after it (felt sleep and Fitbit sleep are of the next date)
+  { id: 'evts-battery', x: 'evts', y: 'battery', lag: 0 },
+  { id: 'evts-mood', x: 'evts', y: 'mood', lag: 0 },
+  { id: 'evts-sleepfelt', x: 'evts', y: 'sleepFelt', lag: 1 },
+  { id: 'evts-sleep', x: 'evts', y: 'sleepH', lag: 1 },
 ];
 
 /** Ranks with ties shared (1-based). */
@@ -153,7 +210,13 @@ export function look(pair, series, days, { minDays = MIN_DAYS, minRho = MIN_RHO 
   if (!base.ready) return base;
   const rho = spearman(xs, ys);
   if (rho == null) return base;
-  const cut = median(xs);
+  // the split at the median; when no day lies above it (few distinct values, e.g. 1 or 6 appointments),
+  // the next lower value splits instead, so «more than» stays true and both groups have days
+  let cut = median(xs);
+  if (!xs.some((x) => x > cut)) {
+    const lower = xs.filter((x) => x < cut);
+    if (lower.length) cut = Math.max(...lower);
+  }
   const hiY = ys.filter((_, i) => xs[i] > cut);
   const loY = ys.filter((_, i) => xs[i] <= cut);
   const hi = hiY.length ? { mean: round1(mean(hiY)), n: hiY.length } : null;
@@ -163,9 +226,9 @@ export function look(pair, series, days, { minDays = MIN_DAYS, minRho = MIN_RHO 
 }
 
 /** All pairs for «today», the strongest first; `shown` ones are the insights, the others wait or show nothing. */
-export function insights(series, today, { days = WINDOW_DAYS, ...opt } = {}) {
+export function insights(series, today, { days = WINDOW_DAYS, own = [], ...opt } = {}) {
   const span = lastDays(today, days);
-  const all = PAIRS.map((p) => look(p, series, span, opt));
+  const all = [...PAIRS, ...ownPairs(own)].map((p) => look(p, series, span, opt));
   return all.sort((a, b) => Number(b.shown) - Number(a.shown) || Math.abs(b.rho ?? 0) - Math.abs(a.rho ?? 0) || b.n - a.n);
 }
 

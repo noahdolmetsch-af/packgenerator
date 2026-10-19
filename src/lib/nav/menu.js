@@ -24,6 +24,8 @@ export const PAGE_GROUPS = [
       { id: 'pace', title: 'Your pace', href: '#/debrief/pace', icon: 'gauge', words: 'pace tempo speed geschwindigkeit gpx riding time fahrzeit' },
       // v0.97.0 «Skitouren»: Touren › Skitouren (next tour, backpack check, start check, care, after the tour)
       { id: 'ski', title: 'Ski tours', href: '#/ski', icon: 'route', words: 'ski tours skitouren skitour ski touring skitouren rucksack-check backpack check start-check lvs lawine avalanche bulletin umkehrzeit turnaround saison-pflege season care felle skins wachsen wax gipfel peak höhenmeter' },
+      // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): stay, flights, getting there, abroad
+      { id: 'travel', title: 'Travel links', href: '#/travel', icon: 'link', words: 'travel links reise-links reiselinks booking booking.com airbnb hostelworld hotel unterkunft übernachten flight flug flightradar flightradar24 google flights flugnummer auto car google maps rome2rio anreise ausland abroad eda reisehinweise wikivoyage warmshowers hütte hut sac tracking' },
     ],
   },
   {
@@ -39,6 +41,8 @@ export const PAGE_GROUPS = [
       // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»): supplies with expiry and what is lent out
       { id: 'supplies', title: 'Supplies', href: '#/gear/supplies', icon: 'calendar', words: 'supplies vorrat vorräte ablauf ablaufdatum haltbar mindesthaltbar best before expiry bestand stock nachkaufen buy again einkauf einkaufsliste shopping list' },
       { id: 'lend', title: 'Lent out', href: '#/gear/lend', icon: 'user', words: 'lent out ausgeliehen ausleihen leihen leihliste lend borrow gast gäste guests rückgabe return wer hat was' },
+      // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
+      { id: 'power', title: 'Power|electric', href: '#/gear/power', icon: 'zap', words: 'power strom strombudget akku batterie battery power bank powerbank laden charge charging stecker charger ladegerät reicht der akku energie wh mah' },
       { id: 'wardrobe', title: 'Wardrobe', href: '#/wardrobe', icon: 'shirt', words: 'wardrobe clothing clothes layers onion kleiderschrank kleider kleidung schicht schichten zwiebel' },
     ],
   },
@@ -71,6 +75,8 @@ export const PAGE_GROUPS = [
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
       { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
+      // «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects, threads and chats.
+      { id: 'aiprojects', title: 'My AI projects', href: '#/me/ki-projekte', icon: 'sparkles', words: 'ai projects ki projekte claude chatgpt gemini perplexity chats threads links projekt' },
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.
       { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
       // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte.

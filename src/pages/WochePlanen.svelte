@@ -8,6 +8,7 @@
    * into the week's own list; nothing is kept twice.
    */
   import { Check, X, ArrowRight, Plus, Palmtree, Info } from '@lucide/svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import PageHead from '../lib/ui/PageHead.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
@@ -103,6 +104,7 @@
 
 <div class="wpl">
   <PageHead title={t('Plan the week')} text={t('Week of {from}–{to} · about 10 minutes · the app suggests, you decide', { from: shortDate(monday), to: shortDate(shiftDay(monday, 6)) })} />
+  <AreaIntro place="planweek" />
 
   {#if finished}
     <section class="card wc fin" data-plan-done>
