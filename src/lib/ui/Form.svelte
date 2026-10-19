@@ -11,7 +11,7 @@
    * - «Save» is always pressable (3a). It checks first; wrong fields show their message at the field only
    *   now (4b), a line above the buttons counts them («2 entries are missing …») and the cursor jumps to
    *   the first one. From then on a message goes away as soon as its field is right.
-   * - While saving, «Save» is locked (no double entries). When saving fails, a message stands at the top
+   * - While saving, a second press is ignored (no double entries, nothing greyed out, 3a). When saving fails, a message stands at the top
    *   and what was typed stays (thread «Rückmeldungen beim Speichern», F6 and F7).
    * - Enter in a field saves (a real form); Escape and back close the window (its own backClose/keepTyped).
    * - The buttons sit at the bottom: «Cancel» quiet on the left, «Save» as the one main button on the right,
@@ -75,7 +75,7 @@
   {#if tried && count}<p class="form-sum" role="alert">{tn(count, '{n} entry is missing or wrong. It is marked in red.', '{n} entries are missing or wrong. They are marked in red.')}</p>{/if}
   <div class="form-foot daumen-foot">
     {#if oncancel}<Btn kind="quiet" icon={cancelIcon} label={cancelLabel || t('Cancel')} onclick={oncancel} data-keeps />{/if}
-    <Btn kind="hi" type="submit" icon={saveIcon} label={saveLabel || t('Save')} disabled={busy} aria-busy={busy || undefined} />
+    <Btn kind="hi" type="submit" icon={saveIcon} label={saveLabel || t('Save')} aria-busy={busy || undefined} />
   </div>
 </form>
 
