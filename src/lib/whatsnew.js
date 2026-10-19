@@ -29,6 +29,9 @@ export const WHATS_NEW = [
     test: [
       'Open Trips › Food and water and choose a trip with a GPX route.',
       'Search the places along the route, then switch to «My products».',
+    ],
+  },
+  {
     // Paket U «Bikepacking und Ultra-Rennen» (Noah 19.10.2026, ideas 1–40): Touren › Rennen with Plan, Strategie,
     // Vorbereiten, Strecke, Unterwegs, Danach, the sample race and the countdown on Heute («3b»).
     // Paket 7.

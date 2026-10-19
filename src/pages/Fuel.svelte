@@ -5,7 +5,10 @@
    * places to buy food: carbohydrates (your g per hour), water (1–2 l per hour by temperature and
    * climbing), what to carry, and warnings for long gaps, bottles that are too small and shops closed
    * when you get there. Your values and products are yours to change, sort and delete. The rule:
-   * src/lib/fuel.js. The places along the route come from the route search (route/RoutePois.svelte).
+   * src/lib/fuel.js. The places along the route come from the place search of the live map (Paket 7, map/poisearch.js
+   * keepAlong: water, shops, bakeries, petrol stations, restaurants … with opening hours, race/outside.js
+   * openAt); every kind can be shown and filtered on the live map (#/live/<tripId>). Without them the
+   * fountains of the route card (route/pois.js) still count.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -15,9 +18,13 @@
   import { nextTrip } from '../lib/debrief.js';
   import { hoursOf } from '../lib/situation.js';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
-  import { cacheKey, fitsRoute } from '../lib/route/pois.js';
+  import { cacheKey, fitsRoute, lineHash } from '../lib/route/pois.js';
+  import { keepAlong, cacheKeyOf, labelOf } from '../lib/map/poisearch.js';
+  import { placeStore } from '../lib/map/poiprefs.js';
+  import { lineKm, snap } from '../lib/race/race.js';
+  import { openAt } from '../lib/race/outside.js';
   import {
-    FUEL_KEY, LIMITS, ROUTE_KINDS, valuesOf, withValue, withStandardValues, fuelPlan, packOf, moveProduct, productId,
+    FUEL_KEY, LIMITS, ROUTE_KINDS, PLACE_KINDS, valuesOf, withValue, withStandardValues, fuelPlan, packOf, moveProduct, productId,
     climbAlong, hoursAlong, etaAlong, tempFromTrip, dayStartMs,
   } from '../lib/fuel.js';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -25,7 +32,6 @@
   import Fold from '../lib/ui/Fold.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
-  import RoutePois from '../lib/route/RoutePois.svelte';
   import { sortable } from '../lib/ui/sortable.js';
   import { askDelete, deleteWithUndo, saveFailed } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -49,9 +55,19 @@
   const trip = $derived(trips.find((x) => x.id === chosenId) ?? null);
 
   // the places along the route (fountains today; shops and opening hours come with the race search)
+  // 1. the places of every kind kept along the route (live map search), 2. else the route card's fountains
+  const placesQ = $derived(trip?.id ? liveQuery(() => db.meta.get(cacheKeyOf('route', trip.id))) : null);
+  const kept = $derived(placesQ ? $placesQ?.value ?? null : null);
+  const keptFits = $derived(!!trip?.route?.line && kept?.hash === lineHash(trip.route.line) && Array.isArray(kept.list));
   const poisQ = $derived(trip?.id ? liveQuery(() => db.meta.get(cacheKey(trip.id))) : null);
   const poiCache = $derived(poisQ ? $poisQ?.value ?? null : null);
-  const pois = $derived(trip && fitsRoute(poiCache, trip) ? poiCache.items : []);
+  const source = $derived.by(() => {
+    if (keptFits) {
+      const pts = lineKm({ line: trip.route.line, km: trip.route.km });
+      return { kinds: PLACE_KINDS, pois: kept.list.map((p) => ({ ...p, km: snap(pts, p).km })), full: true, count: kept.list.length };
+    }
+    return { kinds: ROUTE_KINDS, pois: trip && fitsRoute(poiCache, trip) ? poiCache.items : [], full: false, count: 0 };
+  });
 
   const route = $derived(trip?.route ?? null);
   const days = $derived(Math.max(1, Number(trip?.days) || 1));
@@ -63,7 +79,7 @@
     const climbTo = climbAlong(route.profile, totalKm, route.gainM);
     const hoursTo = hoursAlong(pace, climbTo);
     const eta = etaAlong({ startMs: dayStartMs(trip.startDate), startHour: v.startHour, rideH, hoursTo });
-    return fuelPlan({ totalKm, gainM: route.gainM, profile: route.profile, pois, values: v, hoursTo, eta, tempAt: (ms) => tempFromTrip(trip, ms), kinds: ROUTE_KINDS });
+    return fuelPlan({ totalKm, gainM: route.gainM, profile: route.profile, values: v, hoursTo, eta, tempAt: (ms) => tempFromTrip(trip, ms), kinds: source.kinds, pois: source.pois, openAt: source.full ? openAt : null });
   });
   // without a route: the riding hours of the trip only
   const plain = $derived(trip && !totalKm ? { hours: Math.round(rideH * days * 10) / 10 } : null);
@@ -130,7 +146,23 @@
   const h = (x) => t('{n} h', { n: num(x) });
   const g = (x) => t('{n} g', { n: num(x) });
   const when = (ms) => (Number.isFinite(ms) ? new Date(ms).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '');
-  const placeName = (p, end) => (p ? p.name || t('a shop|fuel') : end ? t('Finish') : t('Start'));
+  const placeName = (p, end) => (p ? p.name || t(labelOf(p)) : end ? t('Finish') : t('Start'));
+  const shopName = (p) => p.name || t(labelOf(p));
+
+  /* ---------- keep the places along the route (the live map's search, all kinds) ---------- */
+  let keeping = $state(null);
+  let keepFailed = $state(false);
+  async function keepPlaces() {
+    if (keeping || !trip?.route?.line) return;
+    keepFailed = false;
+    keeping = { done: 0, total: 0 };
+    try {
+      const r = await keepAlong($state.snapshot(trip.route.line), trip.id, { store: placeStore, onProgress: (p) => (keeping = p) });
+      keepFailed = !r.count && !(r.chunks && r.failed < r.chunks);
+    } finally {
+      keeping = null;
+    }
+  }
   const packText = (carbs) => {
     const p = packOf(carbs, products);
     return p.items.length ? `${p.items.map((x) => `${x.n} × ${nameOf(x.product)}`).join(', ')} (${g(p.carbs)})` : t('No products in use: add one below.');
@@ -188,7 +220,7 @@
             <li class="sec" data-fuel-section={s.n} class:warn={s.warn.length}>
               <div class="fu-head">
                 <b class="num">km {kmOf(s.fromKm)} → {kmOf(s.toKm)}</b>
-                <span>{placeName(s.from, false)} → {placeName(s.to, true)}</span>
+                <span>{placeName(s.from, false)} → {placeName(s.to, true)}{#if s.to?.state?.closes} <small>({t('open until {time}', { time: s.to.state.closes })})</small>{/if}</span>
                 <small class="num">{h(s.hours)}{#if s.leaveMs} · {when(s.leaveMs)} → {when(s.arriveMs)}{/if}{#if s.temp != null} · {s.temp} °C{/if}</small>
               </div>
               <p class="line"><Cookie size={16} aria-hidden="true" /><span>{t('Eat: {what}', { what: carbsText(s.carbs) })}</span></p>
@@ -199,7 +231,7 @@
                   {#if s.warn.includes('noshop')}<li data-warn="noshop"><TriangleAlert size={16} aria-hidden="true" />{t('The app knows no shop along this route yet: carry everything, or search the places along the route below.')}</li>{/if}
                   {#if s.warn.includes('long')}<li data-warn="long"><TriangleAlert size={16} aria-hidden="true" />{t('Long gap: {n} without an open shop.', { n: h(s.hours) })}</li>{/if}
                   {#each s.closed as c (c.id ?? `${c.km}-${c.name}`)}
-                    <li data-warn="closed"><TriangleAlert size={16} aria-hidden="true" />{c.opens ? t('{name} (km {km}) is closed when you get there, opens {opens}. Buy enough before it, up to km {to}: {what}.', { name: c.name || t('a shop|fuel'), km: kmOf(c.km), opens: c.opens, to: kmOf(s.toKm), what: carbsText(s.carbs) }) : t('{name} (km {km}) is closed when you get there. Buy enough before it, up to km {to}: {what}.', { name: c.name || t('a shop|fuel'), km: kmOf(c.km), to: kmOf(s.toKm), what: carbsText(s.carbs) })}</li>
+                    <li data-warn="closed"><TriangleAlert size={16} aria-hidden="true" />{c.opens ? t('{name} (km {km}) is closed when you get there, opens {opens}. Buy enough before it, up to km {to}: {what}.', { name: shopName(c), km: kmOf(c.km), opens: c.opens, to: kmOf(s.toKm), what: carbsText(s.carbs) }) : t('{name} (km {km}) is closed when you get there. Buy enough before it, up to km {to}: {what}.', { name: shopName(c), km: kmOf(c.km), to: kmOf(s.toKm), what: carbsText(s.carbs) })}</li>
                   {/each}
                   {#if s.warn.includes('unknown')}<li data-warn="unknown"><TriangleAlert size={16} aria-hidden="true" />{t('Opening hours of {name} unknown: check on the spot.', { name: placeName(s.to, true) })}</li>{/if}
                   {#if s.warn.includes('night')}<li data-warn="night"><TriangleAlert size={16} aria-hidden="true" />{t('A night lies in this section: buy breakfast and food for the morning too.')}</li>{/if}
@@ -214,8 +246,21 @@
     {#if route?.line?.length > 1}
       <section class="box" aria-labelledby="fu-poi">
         <h2 id="fu-poi" class="title">{t('Places along the route')}</h2>
-        <p class="note">{t('The plan uses the places found here. Search once; afterwards they are there offline too.')}</p>
-        <RoutePois {trip} />
+        {#if source.full}
+          <p class="note" data-fuel-places={source.count}>{tn(source.count, '{n} place along the route is kept: shops, petrol stations, restaurants and water count, with their opening hours.', '{n} places along the route are kept: shops, petrol stations, restaurants and water count, with their opening hours.', { n: num(source.count) })}</p>
+        {:else}
+          <p class="note">{t('Search once for shops, bakeries, petrol stations, restaurants and water along the whole route; afterwards they are there offline too.')}</p>
+        {/if}
+        {#if keeping}
+          <p class="note" aria-live="polite">{keeping.total ? t('Keeping places along the route: part {done} of {total} …|poi', keeping) : t('Keeping places along the route …|poi')}</p>
+        {:else}
+          <div class="acts">
+            <button type="button" class="btn" onclick={keepPlaces} data-fuel-keep>{source.full ? t('Load again') : t('Search places along the route')}</button>
+            <a class="btn" href={`#/live/${encodeURIComponent(trip.id)}`}>{t('Show all kinds on the map')}</a>
+          </div>
+        {/if}
+        {#if keepFailed}<p class="err" role="alert">{t('The places along the route could not be kept now (OpenStreetMap busy). Keep the strip again later.|poi')}</p>{/if}
+        <p class="note">{t('On the map you choose every kind: camping, hotels, stations, WC, bike shops and more.')}</p>
       </section>
     {/if}
   {/if}
@@ -472,6 +517,11 @@
   .add input[type='text'] {
     flex: 1 1 160px;
     width: auto;
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .text-button {
     justify-self: start;

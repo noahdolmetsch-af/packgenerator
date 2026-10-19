@@ -1,6 +1,6 @@
 // Verpflegung (Noah 19.10.2026 «1a 2a 3a und b 4a 5a»): Touren › Verpflegung for the fictional trip «Event Jura
 // 300» (135 km, 1100 m up, 8 h a day). Without shops the route is one section with a warning; the places along
-// the route (Overpass mocked, fictional answer) add a water stop; your values change the grams; «Meine
+// the route (the live map's search, Overpass mocked, fictional answer) add a shop and a water stop; your values change the grams; «Meine
 // Produkte» shows bars and gels; a product can be added and deleted (own window, Undo). Nothing leaves the test.
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,12 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const ID = 'test_data_gtp_trip26';
-const ANSWER = { elements: [{ type: 'node', id: 9101, lat: 47.27, lon: 7.6, tags: { amenity: 'drinking_water', name: 'test_data_gtp_ Brunnen Mitte' } }] };
+const ANSWER = {
+  elements: [
+    { type: 'node', id: 9101, lat: 47.26, lon: 7.59, tags: { amenity: 'drinking_water', name: 'test_data_gtp_ Brunnen Mitte' } },
+    { type: 'node', id: 9102, lat: 47.288, lon: 7.632, tags: { shop: 'supermarket', name: 'test_data_gtp_ Dorfladen', opening_hours: 'Mo-Su 00:00-24:00' } },
+  ],
+};
 
 test('Verpflegung: sections, water stops, own values, products', async ({ page, context }) => {
   test.setTimeout(120_000);
@@ -36,14 +41,18 @@ test('Verpflegung: sections, water stops, own values, products', async ({ page, 
   await expect(main.locator('[data-fuel-section]')).toHaveCount(1);
   await expect(main.locator('[data-warn="noshop"]')).toBeVisible();
   const grams = async () => Number((await res.locator('.sum b').nth(1).innerText()).replace(/\D/g, ''));
-  const before = await grams();
-  expect(before).toBeGreaterThan(300);
+  expect(await grams()).toBeGreaterThan(300);
 
-  // 2. the places along the route: a fountain on the way
-  await main.getByRole('button', { name: T('Search fountains and workshops') }).click();
-  await expect(main.locator('[data-fuel-section]').first()).toContainText(T('Carry {c} to the first of {n} water stop on the way.', { c: 'X', n: 1 }).split('X')[0]);
+  // 2. the places along the route (all kinds, the live map's search): a shop splits the route, a fountain refills
+  await main.locator('[data-fuel-keep]').click();
+  await expect(main.locator('[data-fuel-places]')).toBeVisible({ timeout: 60_000 });
+  await expect(main.locator('[data-fuel-section]')).toHaveCount(2);
+  await expect(main.locator('[data-fuel-section="1"]')).toContainText('test_data_gtp_ Dorfladen');
+  await expect(main.locator('[data-fuel-section="1"]')).toContainText(T('Carry {c} to the first of {n} water stop on the way.', { c: 'X', n: 1 }).split('X')[0]);
+  await expect(main.getByRole('link', { name: T('Show all kinds on the map') })).toHaveAttribute('href', `#/live/${ID}`);
 
   // 3. your values: 90 g per hour gives more grams
+  const before = await grams();
   await main.getByText(T('Eat and drink'), { exact: true }).click();
   const carbs = main.locator('[data-fuel-val="carbsGh"]');
   await carbs.fill('90');
@@ -73,7 +82,7 @@ test('Verpflegung: sections, water stops, own values, products', async ({ page, 
 
   // no sideways scrolling
   await page.goto(`./#/trips/fuel?trip=${ID}`);
-  await expect(main.locator('[data-fuel-section]')).toHaveCount(1);
+  await expect(main.locator('[data-fuel-section]')).toHaveCount(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

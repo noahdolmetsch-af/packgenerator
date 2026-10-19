@@ -53,8 +53,9 @@ export const STANDARD_PRODUCTS = [
 
 /** Which kinds of places give water and food. The places of a trip (route/pois.js) know only fountains. */
 export const ROUTE_KINDS = { water: ['water'], food: [] };
-/** The places of a race (Paket U, race/outside.js): shops, petrol stations, restaurants, water. */
-export const RACE_KINDS = { water: ['water', 'shop', 'fuel', 'food'], food: ['shop', 'fuel', 'food'] };
+/** The places of the live map search (map/poisearch.js CATEGORIES): shops (with bakeries), petrol stations, restaurants, water. */
+export const PLACE_KINDS = { water: ['water', 'shop', 'fuel', 'food'], food: ['shop', 'fuel', 'food'] };
+export const RACE_KINDS = PLACE_KINDS;
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const clamp = (v, [lo, hi]) => Math.min(hi, Math.max(lo, v));
@@ -188,7 +189,7 @@ export function fuelPlan({ totalKm, gainM = 0, profile = [], pois = [], values, 
     const at = eta(p.km);
     if (!openAt || !fin(at) || !p.hours) return { open: null, opens: null, at };
     const s = openAt(p.hours, new Date(at)) ?? {};
-    return { open: s.open ?? null, opens: s.opens ?? null, inDays: s.inDays ?? 0, at };
+    return { open: s.open ?? null, opens: s.opens ?? null, closes: s.closes ?? null, inDays: s.inDays ?? 0, at };
   };
   const places = (pois ?? [])
     .filter((p) => p && fin(p.km) && p.km >= 0 && p.km <= total + 0.5)

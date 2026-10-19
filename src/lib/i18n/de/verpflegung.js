@@ -16,7 +16,6 @@ export default {
   water: 'Wasser',
   '{n} l': '{n} l',
   '{n} g': '{n} g',
-  'a shop|fuel': 'ein Laden',
   'In all: {list}': 'Insgesamt: {list}',
   'No products in use: add one below.': 'Kein Produkt ausgewählt: Füge unten eines hinzu.',
   '{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.':
@@ -44,7 +43,14 @@ export default {
   'Opening hours of {name} unknown: check on the spot.': 'Öffnungszeiten von {name} unbekannt: Vor Ort prüfen.',
   'A night lies in this section: buy breakfast and food for the morning too.': 'In diesem Abschnitt liegt eine Nacht: Kauf auch Frühstück und Essen für den Morgen.',
   'Places along the route': 'Orte an der Strecke',
-  'The plan uses the places found here. Search once; afterwards they are there offline too.': 'Der Plan nutzt die Orte, die hier gefunden werden. Einmal suchen; danach sind sie auch offline da.',
+  'Search once for shops, bakeries, petrol stations, restaurants and water along the whole route; afterwards they are there offline too.':
+    'Suche einmal Läden, Bäckereien, Tankstellen, Restaurants und Wasser entlang der ganzen Strecke; danach sind sie auch offline da.',
+  'Search places along the route': 'Orte an der Strecke suchen',
+  'open until {time}': 'offen bis {time}',
+  'Show all kinds on the map': 'Alle Arten auf der Karte zeigen',
+  'On the map you choose every kind: camping, hotels, stations, WC, bike shops and more.': 'Auf der Karte wählst du jede Art: Camping, Hotels, Bahnhöfe, WC, Velo-Läden und mehr.',
+  '{n} place along the route is kept: shops, petrol stations, restaurants and water count, with their opening hours.': '{n} Ort an der Strecke ist gespeichert: Läden, Tankstellen, Restaurants und Wasser zählen, mit ihren Öffnungszeiten.',
+  '{n} places along the route are kept: shops, petrol stations, restaurants and water count, with their opening hours.': '{n} Orte an der Strecke sind gespeichert: Läden, Tankstellen, Restaurants und Wasser zählen, mit ihren Öffnungszeiten.',
   'Your values': 'Deine Werte',
   'Eat and drink': 'Essen und Trinken',
   '{g} per hour · {a}–{b} l per hour': '{g} pro Stunde · {a}–{b} l pro Stunde',
