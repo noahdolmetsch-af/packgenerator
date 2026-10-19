@@ -521,6 +521,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
+  'f.frei': {
+    on: null,
+    steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],
+    example: 'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.',
+  },
+  'f.impulse': {
+    on: null,
+    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
+  },
   'f.timer': {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],

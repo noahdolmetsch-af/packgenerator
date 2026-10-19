@@ -531,4 +531,11 @@ export default {
   'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // Paket T «Freie Zeit»: f.frei and f.impulse
+  'Open Me › Free time and choose one of the eight pages.': 'Öffne Ich › Freie Zeit und wähl eine der acht Seiten.',
+  'Everything is a suggestion: change, sort, hide or delete it, and add your own.': 'Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.',
+  'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
+  'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Ich › Freie Zeit › Impulse.',
+  'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
+  'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
 };

@@ -22,6 +22,8 @@ export const GROUP_PLACES = [
   { name: 'Building blocks', file: 'src/pages/Blocks.svelte' },
   { name: 'Learnings by topic', file: 'src/lib/review/Learned.svelte' },
   { name: 'Document groups', file: 'src/pages/Docs.svelte' },
+  { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
+  { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
