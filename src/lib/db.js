@@ -17,6 +17,8 @@ import { trackSync } from './sync/track.js';
 export const SCHEMA_VERSION = 15; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none)
 
 /** Tables that belong to the user's data and go into every backup file. */
+/** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
+export const NOT_IN_BACKUP = ['gEvents', 'gTasks'];
 export const DATA_TABLES = [
   'items', // gear inventory and wishlist
   'kits', // named setups, e.g. "Training ride"
@@ -202,7 +204,7 @@ export function createDb(name = 'pack-generator') {
   db.version(13).stores({
     healthDays: 'date',
   });
-  // Version 15 (Google Kalender und Aufgaben, GA): a copy of Google's events and tasks on this device.
+  // Version 15 (Google Kalender und Aufgaben, GA): a copy of Google's events and tasks on this device (NOT_IN_BACKUP).
   // Not in DATA_TABLES: Google keeps the truth, a backup would only carry an old copy. 14 is a gap
   // (Dokumente-PDF needs no version of its own, A's 12 has the documents); Dexie allows it.
   db.version(15).stores({
