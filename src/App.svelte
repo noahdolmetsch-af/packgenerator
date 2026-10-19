@@ -332,6 +332,7 @@
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
+    Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
     Pay: () => import('./pages/Pay.svelte'),
     Handbook: () => import('./pages/Handbook.svelte'),
     MiniApps: () => import('./pages/MiniApps.svelte'),
@@ -524,6 +525,9 @@
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
     <LazyPage load={PAGES.Weight} />
+  {:else if page === 'wohl'}
+    <!-- Paket P «Was mir gut tut»: Ich › Was mir gut tut -->
+    <LazyPage load={PAGES.Wohl} />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <LazyPage load={PAGES.Pay} />

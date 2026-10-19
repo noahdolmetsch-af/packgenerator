@@ -617,4 +617,10 @@ export default {
   "Search once while online; the list then stays on this device, also offline.": "Suche einmal online; danach bleibt die Liste auf diesem Gerät, auch offline.",
   "After changing the route, search again; «Load again» refreshes the list.": "Nach einer Streckenänderung neu suchen; «Neu laden» frischt die Liste auf.",
   "Example: km 23 · Fountain · Village fountain, 80 m beside the route.": "Beispiel: km 23 · Brunnen · Dorfbrunnen, 80 m neben der Strecke.",
+  // Paket P «Was mir gut tut»
+  'Nothing to switch on; results show after about 10 days with a day score.': 'Nichts einzuschalten; Ergebnisse erscheinen nach etwa 10 Tagen mit Tagesbewertung.',
+  'Open Me › What is good for me.': 'Öffne Ich › Was mir gut tut.',
+  'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.': 'Lies dein Rezept, was dir gut tut und die guten Kombinationen; «Wie kommt die App darauf?» zeigt die Tage hinter jeder Zeile.',
+  'Start a small experiment, set your wished mix, add Neuland, phases or season points.': 'Starte ein kleines Experiment, leg deine Wunsch-Mischung fest, füge Neuland, Phasen oder Saisonpunkte hinzu.',
+  'Example: «Days with at least 30 min outside: 8 instead of 6».': 'Beispiel: «Tage mit mind. 30 Min draussen: 8 statt 6».',
 };

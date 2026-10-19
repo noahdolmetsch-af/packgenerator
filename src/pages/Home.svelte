@@ -137,6 +137,8 @@
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
   import { stampOf } from '../lib/abfragen.js';
+  import DataWidget from '../lib/wohl/DataWidget.svelte'; // Paket P «Daten-Widget» (Noah «2 beides»)
+  import PhotoGreeting from '../lib/wohl/PhotoGreeting.svelte'; // Paket P «Fotoalbum» (Noah «3a»): own photo on top
   import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
@@ -1078,6 +1080,7 @@
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
+  {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
@@ -1096,6 +1099,8 @@
   {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
+  <!-- Paket P «Fotoalbum» (Noah 19.10.2026 «3a»): an own photo on top, only with photos in the album -->
+  {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
