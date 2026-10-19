@@ -196,6 +196,10 @@ test('the evening: review of the day and charging first; a phone swipes to the n
   data.tables.trips.push(trip('Abendrunde', D0, { entries: entries(3, 3), createdAt: `${D0}T06:00:00.000Z` }));
   const T = await openHome(page, context, info, { data, hour: 19 });
   await expect(page.locator('#hello-h')).toHaveText(greetFor(19, '')); // HG1
+  // Noah 19.10.2026 «1a» (changed on purpose): Herbstrunde starts tomorrow and is not packed, so the evening
+  // brings its window; «Später» puts it away and Heute is as before
+  await page.locator('dialog[data-window="eve"] [data-window-later]').click();
+  await expect(page.locator('dialog[data-window]')).toBeHidden();
   const rows = page.getByRole('region', { name: T('Important today') }).locator('li');
   await expect(rows.nth(0)).toContainText(T('Review today: {trip}', { trip: 'test_data_gtp_ Abendrunde' }));
   // the fixture packs a few devices already (lamp, GPS …): the count is whatever needs charging

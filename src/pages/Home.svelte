@@ -119,6 +119,8 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
+  import { stampOf } from '../lib/abfragen.js';
+  import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
@@ -1071,6 +1073,7 @@
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
   {#if !editing && ready}<AbCard {today} />{/if}
+  {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
   {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
