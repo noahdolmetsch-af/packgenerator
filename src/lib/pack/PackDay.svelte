@@ -290,7 +290,7 @@
 <!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Zur Startseite», under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
-{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next>{t('Pack {bag} ({done} of {n})', { bag: nextBag.title, done: nextBag.done, n: nextBag.entries.length })}<ArrowRight size={20} aria-hidden="true" /></button>
+{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next>{t('Pack {bag}|next', { bag: nextBag.title })}<span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
@@ -525,4 +525,6 @@
   .all { display: flex; flex-wrap: wrap; gap: 0 16px; margin: -12px 0 0; }
   .ask h2 { margin: 0 0 8px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  /* a phone held sideways keeps the trip band compact: the count is in the steps already */
+  @media (max-height: 500px) { .gocnt { display: none; } }
 </style>

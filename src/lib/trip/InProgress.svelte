@@ -93,7 +93,7 @@
 {#if others > 0 || open || undo}
   <span class="ipw">
     <button type="button" class="pill" class:light bind:this={pill} aria-haspopup="dialog" aria-expanded={open} onclick={() => (open = !open)}>
-      <span class="num">{label ? label(others) : tn(others, '{n} more trip open', '{n} more trips open')}</span><ChevronDown size={16} aria-hidden="true" />
+      {#if label}<span class="num">{label(others)}</span>{:else}<span class="num">{t('{n} more|progress', { n: others })}<span class="long">{' '}{tn(others, 'trip open|pill', 'trips open|pill')}</span></span>{/if}<ChevronDown size={16} aria-hidden="true" />
     </button>
     {#if open && !phone.matches}
       <div class="pop" bind:this={pop} role="dialog" aria-labelledby="ip-h">{@render body()}</div>
@@ -125,6 +125,8 @@
     cursor: pointer;
     white-space: nowrap;
   }
+  /* a phone held sideways keeps the trip band compact: only «8 weitere» there */
+  @media (max-height: 500px) { .long { display: none; } }
   .pill.light {
     min-height: 36px;
     padding: 4px 12px 4px 14px;

@@ -8,8 +8,11 @@ export default {
   'Everything stays changeable until you leave.': 'Alles bleibt änderbar, bis du losgehst.',
   '{n} more trip open': '{n} weitere Tour offen',
   '{n} more trips open': '{n} weitere Touren offen',
+  'trip open|pill': 'Tour offen',
+  'trips open|pill': 'Touren offen',
   // Packen 2: the main button packs while less than half is packed
-  'Pack {bag} ({done} of {n})': '{bag} packen ({done} von {n})',
+  'Pack {bag}|next': '{bag} packen',
+  '({done} of {n})|next': '({done} von {n})',
   // Packen 3: one count, one name per bag
   '{items} and {checks} still missing': '{items} und {checks} fehlen noch',
   '{n} check': '{n} Check',

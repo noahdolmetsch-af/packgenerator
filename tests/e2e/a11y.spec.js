@@ -171,7 +171,9 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
 
   // v0.29.0: Pack is a page now; its dialog is "{n} things are not ticked yet. Go anyway?" on the one orange button.
   await view(page, '#/pack?day');
-  await dialogKeys(page, page.locator('.trip-band .go'), page.locator('dialog.ask'));
+  // Impeccable Packen 2 (changed on purpose): while less than half is packed, the orange button packs the next bag;
+  // «Packen abschliessen» is the quiet link at the end of the bags, and it asks the same question
+  await dialogKeys(page, page.locator('[data-finish-quiet]'), page.locator('dialog.ask'));
 });
 
 test('every control on Today, Pack and Gear has a name', async ({ page, context }, info) => {
