@@ -889,6 +889,14 @@ test('PF15: core screens at 320 and 390 px, keyboard, labels and status texts', 
   }
   // Keyboard: Tab reaches "New", Enter opens it, Escape closes it; the focus is visible.
   await page.goto('./#/');
+  // Paket C: when questions are due, the Tages-Check comes as a window on Heute first (focus stays inside it);
+  // Escape is its «Später», after that the page itself takes the Tab
+  const round = page.locator('dialog[data-section="abfragen"]');
+  await round.waitFor({ state: 'attached', timeout: 3000 }).catch(() => {});
+  if (await round.evaluate((d) => d.open).catch(() => false)) {
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+  }
   let found = false;
   for (let n = 0; n < 80 && !found; n++) {
     await page.keyboard.press('Tab');

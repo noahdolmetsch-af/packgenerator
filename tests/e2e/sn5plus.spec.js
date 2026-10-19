@@ -102,6 +102,8 @@ test('SN5+ Favoriten: bar, zuletzt dabei, Oft dabei, Als Baustein and the hint o
   await expect(page.getByText(T('Bar: the weight of the favourites against the heaviest kind'))).toBeVisible();
   expect(await bike.locator('.fbar').evaluate((b) => b.getBoundingClientRect().height)).toBe(4);
   await line.click();
+  // Handy kurz: on a phone «Oft dabei» is a closed line of its own once the suggestions are open
+  await openShort(page);
   const often = page.locator('[data-sec="often"]');
   await expect(often.locator('li')).toHaveCount(2);
   await expect(often.locator('li').first()).toContainText('Bike computer');

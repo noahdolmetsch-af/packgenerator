@@ -226,6 +226,10 @@ test('Gruppen ueberall: note topics and the groups of the bike values can be ren
   // the Notes page shows the new name and no longer the deleted topic
   await page.goto('./#/notes');
   await settle(page);
+  // Impeccable round 2: the topic chips show once there is a note, and only topics that find one; a training note
+  const capture = page.locator('main').getByRole('textbox', { name: T('New note') });
+  await capture.fill('test_data_gtp_ Intervall am Berg');
+  await page.locator('main').getByRole('button', { name: T('Save'), exact: true }).first().click();
   const topics = page.getByRole('group', { name: T('Filter') });
   await expect(topics).toContainText('test_data_gtp_ Fitness');
   await expect(topics).not.toContainText(T('Trip ideas'));

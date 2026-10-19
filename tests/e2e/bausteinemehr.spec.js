@@ -96,6 +96,14 @@ async function shot(page, info, name, el = null) {
   await (el ? el.screenshot({ path }) : page.screenshot({ path, fullPage: true }));
 }
 
+
+// Impeccable (Paket E): with blocks on the trip the card starts as one line; «Bausteine ändern» shows every block
+async function unfold(card, info) {
+  await expect(card).toBeVisible();
+  const change = card.getByRole('button', { name: T('Change building blocks') });
+  if (await change.count()) await tap(change, info);
+  await expect(card.getByRole('group', { name: T('Add|blocks') })).toBeVisible();
+}
 test('Bausteine: the five groups of the Gesamtliste, example parts in the new blocks, +N neu with Rueckgaengig and Undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info, './#/blocks');
   const main = page.locator('main');
@@ -196,6 +204,7 @@ test('Planen: Baden by hand; Packen suggests Kurz ins Wasser and Nasses trocken 
 
   await page.goto('./#/pack?day');
   const card = page.getByRole('region', { name: T('Building blocks') });
+  await unfold(card, info);
   const add = card.getByRole('group', { name: T('Add|blocks') });
   const swim = add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: highest {c} °C', { c: 26 }))} ${esc(NAME('swim'))}`) });
   await expect(swim).toHaveClass(/sug/);
@@ -212,6 +221,7 @@ test('Planen: Baden by hand; Packen suggests Kurz ins Wasser and Nasses trocken 
 test('Packen: Zwei Naechte and Abfahrt warm are dashed suggestions; without a tap they stay out', async ({ page, context }, info) => {
   const errors = await start(page, context, info, './#/pack?day');
   const card = page.getByRole('region', { name: T('Building blocks') });
+  await unfold(card, info);
   const add = card.getByRole('group', { name: T('Add|blocks') });
   const SUG = T('Suggestion: {what}', { what: '' });
   const two = add.getByRole('button', { name: new RegExp(`^${esc(SUG)}.*${esc(NAME('twonights'))}`) });
@@ -236,6 +246,7 @@ test('Packen: Zwei Naechte and Abfahrt warm are dashed suggestions; without a ta
 test('Packen 4b: cold brings one suggestion per stage', async ({ page, context }, info) => {
   const errors = await start(page, context, info, './#/pack?day', { wx: { min: -2, max: 4, rain: 'none' } });
   const card = page.getByRole('region', { name: T('Building blocks') });
+  await unfold(card, info);
   const add = card.getByRole('group', { name: T('Add|blocks') });
   for (const k of ['coldHands', 'coldLayers', 'coldEvening']) {
     const b = add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: -2 }))} ${esc(NAME(k))}`) });

@@ -53,7 +53,10 @@ test('Stelle 1: a full bag moves on, its row lights up, the next bag comes up, a
 
 test('Stelle 2: a window slides up on a phone and grows in on a computer', async ({ page, context }, info) => {
   await packDay(page, context, info);
-  await page.locator('.trip-band .mainbar .go').click();
+  // Impeccable round 2 «Packen 2»: while little is packed the main button packs the next bag; «Packen abschliessen»
+  // sits quietly at the end of the bags and asks in its window
+  const quiet = page.locator('[data-finish-quiet]');
+  await ((await quiet.count()) ? quiet : page.locator('.trip-band .mainbar .go')).click();
   const ask = page.locator('dialog.ask');
   await expect(ask).toBeVisible();
   expect(await css(ask, 'animationName')).toBe(info.project.use.isMobile ? 'mv-up' : 'mv-pop');

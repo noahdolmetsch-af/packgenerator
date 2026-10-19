@@ -70,6 +70,15 @@ test('Sunday from 18:00: the Wochenrueckblick as a window, its button opens the 
   await expect(page.locator('dialog[data-window]')).toHaveCount(0);
   await at(page, '2026-10-11T18:10');
   const win = page.locator('dialog[data-window="week"]');
+  // Paket C: never two windows at once. When the Tages-Check window is open (questions due), it comes first and the
+  // Wochenrückblick waits until it is closed.
+  const check = page.locator('dialog[data-section="abfragen"][open]');
+  await expect(check.or(win)).toBeVisible();
+  if (await check.count()) {
+    await expect(page.locator('dialog[data-window]')).toHaveCount(0);
+    await check.locator('[data-ab-today]').click();
+    await expect(check).toHaveCount(0);
+  }
   await expect(win).toHaveJSProperty('open', true);
   await shot(page, info, 'fenster-wochenrueckblick');
   await win.locator('[data-window-go]').click();
