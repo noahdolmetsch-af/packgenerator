@@ -102,4 +102,8 @@ export default {
   '{n} entries are different on the two devices. The answer counts for all of them.': '{n} Einträge sind auf den beiden Geräten verschieden. Die Antwort gilt für alle.',
   'The other device': 'Das andere Gerät',
   'Decide one by one': 'Einzeln entscheiden',
+  // Noah 19.10.2026 «1a»: Ich › «Wartet auf dich», solange der Abgleich aus ist
+  'Sync phone and computer: off': 'Abgleich Handy und Computer: aus',
+  'New entries stay on this device': 'Neue Einträge bleiben auf diesem Gerät',
+  'Only one device': 'Nur ein Gerät',
 };

@@ -1693,3 +1693,7 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Selbst entschieden (Bündler):** Dexie-Nummern in Merge-Reihenfolge: 16 tracks (S), 17 sportItems (O), 18 inspections (Inspektion). Backup-Test ohne Verlust.
 - **Selbst entschieden (Bündler):** gleiche englische Texte mit verschiedenem Deutsch bekommen einen Zusatz: «Count|tick» (Zählen), «Level|bubble» (Gerade), «Watch|inspect» (Beobachten); «Goggles» heisst überall «Brille», «Torch» überall «Taschenlampe», «Add|row» überall «Dazu». K's Funktion «Route umwandeln» heisst f.routeconvert (L hat f.convert).
 - **Selbst entschieden (Bündler):** der Familien-Link (#/spurlink) zeigt auch keine Rückkehr- und Jahres-Fenster und keinen Tour-Start (wie «share»).
+
+## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
+- Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
+- Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.

@@ -67,6 +67,7 @@
   const docDue = $derived(dueCount(docList.list, localDay()));
   import { weight } from '../lib/weight.svelte.js';
   import { latestOf } from '../lib/weight.js';
+  import { SYNC_WISH, NUDGE_KEY, needsNudge } from '../lib/sync/nudge.js';
 
   // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
   const MOVED_KEY = 'aj1.problemMoved';
@@ -88,11 +89,12 @@
 
   const waitQ = liveQuery(async () => {
     const [notes, file, folder, n, demo, place, bikes, maint, bills] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count(), db.settings.get(MAINT_KEY), listBills(db)]);
+    const [cfg, nudge] = await Promise.all([db.meta.get('syncCfg'), db.meta.get(NUDGE_KEY)]);
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
     const due = backupDue(last);
     // Impeccable: what waits on top: the keys that run out within 30 days, the open bills
     const keys = keyRows(maintOf(maint?.value).keys, localDay()).filter((k) => k.due);
-    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, last, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes, keys, bills: billsSummary(bills) };
+    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, last, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes, keys, bills: billsSummary(bills), sync: needsNudge({ items: n, demo: !!demo, cfg, nudge }) };
   });
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
@@ -130,8 +132,19 @@
     if (w.inbox) out.push({ key: 'inbox', icon: Inbox, text: tn(w.inbox, 'Inbox: {n} note to file', 'Inbox: {n} notes to file'), sub: t('Notes from on the way'), label: t('File'), href: '#/inbox' });
     if (w.bills.count) out.push({ key: 'bills', icon: CreditCard, text: tn(w.bills.count, 'Bills: {n} open', 'Bills: {n} open'), sub: `${formatAmount(w.bills.sum)} CHF${w.bills.next ? ` · ${t('due {date}', { date: dateShort(w.bills.next) })}` : ''}`, label: t('Open'), href: '#/me/pay/bills' });
     for (const k of w.keys) out.push({ key: `key-${k.id}`, icon: KeyRound, text: k.days < 0 ? t('{name} ran out', { name: t(k.name) }) : tn(k.days, '{name} runs out in {n} day', '{name} runs out in {n} days', { name: t(k.name) }), sub: t('until {date}', { date: dateShort(k.until) }), label: t('Look|maint'), onclick: showMaint });
+    // Noah 19.10.2026 «1a»: while the sync is off, a line with «Switch on» (it opens Data and backup at «Phone and computer»)
+    if (w.sync) out.push({ key: 'sync', icon: Link2, text: t('Sync phone and computer: off'), sub: t('New entries stay on this device'), label: t('Switch on'), onclick: openSync, skip: { label: t('Only one device'), onclick: hideSync } });
     return out;
   });
+  function openSync() {
+    try {
+      localStorage.setItem(SYNC_WISH, '1');
+    } catch {
+      /* private mode: the page opens at the top */
+    }
+    location.hash = '#/me/data';
+  }
+  const hideSync = () => db.meta.put({ key: NUDGE_KEY, off: true, at: new Date().toISOString() });
   const lastLine = $derived($waitQ?.days != null ? ($waitQ.days === 0 ? t('Last backup today.') : tn($waitQ.days, 'Last backup {n} day ago.', 'Last backup {n} days ago.')) : '');
   // TR6: the weight, voluntary, only for watts per kg
   const weightLine = $derived.by(() => {
@@ -160,6 +173,7 @@
               <span class="ich-ib"><w.icon size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{w.text}</b><small>{w.sub}</small></span>
               <Btn kind={i === 0 ? 'hi' : 'normal'} class="sm" label={w.label} href={w.href} onclick={w.onclick} />
+              {#if w.skip}<Btn kind="quiet" class="sm" label={w.skip.label} onclick={w.skip.onclick} data-wait-skip />{/if}
             </li>
           {/each}
         </ul>
