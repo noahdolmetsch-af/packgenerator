@@ -884,6 +884,22 @@ export const HANDBOOK = {
     steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
     example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
   },
+  // Paket R
+  'f.account': {
+    on: 'Needs the internet for the sign-in. The server keeps no e-mail and no name.',
+    steps: ['Me › Data and backup › «Sign in with Google» (or «Switch on sync» for the way without an account).', 'Choose your Google account; the app comes back and switches on the sync.', 'On the other device: the same, «Sign in with Google». Both then keep the same data.'],
+    example: 'Example: new phone → open the app → «Sign in with Google» → your gear and trips arrive.',
+  },
+  'f.privacy': {
+    on: null,
+    steps: ['Me › «Privacy and terms».', 'Read what stays on your device and what the server keeps when you switch it on.'],
+    example: 'Example: before you switch on the sync, look at what the server keeps.',
+  },
+  'f.pros': {
+    on: null,
+    steps: ['Me › «Bike mechanic and guide» › «Add contact»: name, what they do, mail, booking page or phone.', '«Request»: choose the bike and the days that suit you, then «Write the mail» or «Open their booking page».', 'Change, delete and the order with the arrows or the handle.'],
+    example: 'Example: your bike shop → «Request» → bike «Gravel» → «Tue or Thu morning» → «Write the mail».',
+  },
   'f.camera': {
     on: 'On a phone or tablet; a computer shows the file dialog.',
     steps: ['Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.', 'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.', 'A receipt with more pages: «Another page» after the first photo.'],

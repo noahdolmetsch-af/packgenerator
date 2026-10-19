@@ -15,6 +15,7 @@
 import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody } from './_lib/oauth.js';
 import { makeSpurHandler } from './_lib/spur.js';
+import { makeAccount } from './_lib/account.js';
 import { isToken, spaceOf, keysOf, readPush, readPushAnswer, readStored, PUSH_LUA, SPACE_TTL_S, PULL_MAX, PULL_BYTES, BODY_MAX } from './_lib/sync.js';
 
 export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(...a) } = {}) {
@@ -85,7 +86,18 @@ export function makeDispatch({ sync = makeHandler(), spur = makeSpurHandler() } 
   return (request) => (new URL(request.url).searchParams.get('action') === 'spur' ? spur(request) : sync(request));
 }
 
-const handler = makeDispatch();
+
+/**
+ * Paket R: «Mit Google anmelden» lives here too, as ?area=account&step=… (api/_lib/account.js), because
+ * the Vercel Hobby plan allows only 12 functions.
+ */
+export function withAccount(sync, account) {
+  return (request) => (new URL(request.url).searchParams.get('area') === 'account' ? account(request) : sync(request));
+}
+
+
+// One function for the sync, the spur read link (?action=spur) and the sign-in (?area=account).
+const handler = withAccount(makeDispatch(), makeAccount().main);
 export const GET = handler;
 export const POST = handler;
 export const OPTIONS = handler;

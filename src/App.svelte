@@ -380,6 +380,8 @@
     ShopBuy: () => import('./pages/ShopBuy.svelte'),
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
+    Privacy: () => import('./pages/Privacy.svelte'),
+    Pros: () => import('./pages/Pros.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -565,6 +567,12 @@
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
+  {:else if page === 'privacy'}
+    <!-- Paket R: Ich › Datenschutz und Nutzung -->
+    <LazyPage load={PAGES.Privacy} />
+  {:else if page === 'pros'}
+    <!-- Paket R (Noah 19.10.2026 «4a»): Ich › Velomech und Guide -->
+    <LazyPage load={PAGES.Pros} />
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
     <LazyPage load={PAGES.Abfragen} />

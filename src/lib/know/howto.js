@@ -124,6 +124,10 @@ export const HOWTO = {
   'f.sitpos': ['Open the bike › Sitting position, or Toolbox › Sitting position.', 'Choose photo or video and take it from the side.', 'Read the angles, type the saddle height, «Save with the bike».'],
   'f.sync': ['Send the backup from the newer device.', 'On the other device open it with Share › Pack Generator or «Open backup».', 'Follow the suggestion; a copy of before stays.'],
   'f.autosync': ['Me › Data and backup › «Switch on sync».', 'On the other device: scan the QR code, «Pair».', 'Both changed the same entry: choose which version counts.'],
+  // Paket R
+  'f.account': ['Me › Data and backup › «Sign in with Google».', 'Choose your Google account; the sync switches on.', 'On the other device: «Sign in with Google» too.'],
+  'f.privacy': ['Open Me › «Privacy and terms».', 'Read what stays on your device.', 'See what the server keeps and what it costs.'],
+  'f.pros': ['Open Me › «Bike mechanic and guide».', '«Add contact» with mail or booking page.', '«Request» › «Write the mail».'],
   'f.camera': ['Tap «Take photo» where a photo is added.', 'New › Workshop visit: the camera opens first.', '«Another page» adds a page to a receipt.'],
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file is written there.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],

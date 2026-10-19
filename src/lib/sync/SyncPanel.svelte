@@ -20,10 +20,14 @@
   import { startSync, stopSync, readCfg, resolveAll, ASK } from './engine.js';
   import { sync, syncUi, runSync, setAskPrefs } from './auto.svelte.js';
   import { snapDb, takeSnapshot, hasDataIn } from '../maintenance/snapshots.js';
+  import { ACCOUNT, startSignIn, readReturn, finishSignIn, signOut } from './account.js';
+  import { askDelete } from '../ui/ask.js';
   import { liveQuery } from 'dexie';
 
   const cfgQ = liveQuery(() => readCfg(db));
   const demoQ = liveQuery(() => db.meta.get('demo'));
+  // Paket R (Noah 19.10.2026 «2a oder b»): signed in with Google on this device, or null
+  const acctQ = liveQuery(() => db.meta.get(ACCOUNT));
   let view = $state(''); // '' | 'enter' | 'pair' | 'off' | 'link' | 'first'
   let typed = $state('');
   let linkCode = $state('');
@@ -38,6 +42,10 @@
     offline: () => t('No network right now. The sync catches up later.'),
     not_ready: () => t('The sync is not ready on the server yet.'),
     storage_not_set_up: () => t('The sync is not ready on the server yet.'),
+    not_set_up: () => t('Signing in with Google is not ready on the server yet. The code or the invite link works.'),
+    expired: () => t('The sign-in took too long. Sign in again.'),
+    denied: () => t('Google sign-in was cancelled. Nothing has changed.'),
+    daily_cap: () => t('The server has done enough for today (free limit). It works again tomorrow.'),
   };
   const errText = (code) => (ERR[code] ?? (() => t('The server answered with an error. The app tries again.')))();
 
@@ -52,11 +60,68 @@
       view = 'link';
     }
   }
+  // Paket R: back from Google with #/me/data?konto=<ticket> (or konto=error)
+  async function takeSignIn() {
+    const r = readReturn(location.hash);
+    if (!r) return;
+    history.replaceState(null, '', r.rest);
+    if (r.error) return (message = errText(r.error));
+    busy = true;
+    message = '';
+    try {
+      const cfg = await readCfg(db);
+      const mine = cfg?.on ? cfg.code : newCode();
+      const got = await finishSignIn(db, r.ticket, mine);
+      busy = false;
+      if (cfg?.on && got.code === cfg.code) return (message = t('Signed in with Google. On your other device, simply sign in with Google too.'));
+      if (cfg?.on) await stopSync(db, { forget: false });
+      if (got.known) await pairWith(got.code);
+      else {
+        await begin(got.code);
+        const err = await lastError();
+        message = err ? errText(err) : t('Signed in with Google. Sync is on: on your other device, simply sign in with Google too.');
+      }
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
+  }
+  async function google() {
+    busy = true;
+    message = '';
+    try {
+      location.href = await startSignIn();
+    } catch (e) {
+      message = errText(e?.code);
+      busy = false;
+    }
+  }
+  async function leaveAccount(forget) {
+    if (forget) {
+      const ok = await askDelete({ title: t('Remove the Google sign-in?'), text: t('The server forgets the code of your Google account. Sync stays on with the code; your data stays on your devices.'), label: t('Remove') });
+      if (ok !== 'delete') return;
+    }
+    busy = true;
+    try {
+      await signOut(db, { forget });
+      message = forget ? t('The server has forgotten your Google sign-in.') : t('Signed out of Google on this device. Sync stays on.');
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
+  }
   // also when the link opens while this page is already shown
   onMount(() => {
     takeLink();
-    window.addEventListener('hashchange', takeLink);
-    return () => window.removeEventListener('hashchange', takeLink);
+    takeSignIn();
+    const onHash = () => {
+      takeLink();
+      takeSignIn();
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
   });
 
   async function begin(code) {
@@ -134,6 +199,7 @@
     busy = true;
     try {
       await stopSync(db, { forget });
+      await signOut(db).catch(() => {}); // Paket R: the Google sign-in of this device ends with the sync
       message = forget ? t('Switched off, and the data on the server is deleted.') : t('Switched off. Your data stays on this device.');
     } catch {
       message = t('Switched off here. The server could not be reached; its sealed copy is removed by itself after a year.');
@@ -186,10 +252,17 @@
         <button type="button" class="btn hi" disabled={busy || !typed.trim()} onclick={() => pairWith(typed)}>{t('Pair')}</button>
       </div>
     {:else}
+      <!-- Paket R (Noah 19.10.2026 «2a oder b»): two ways, you choose; without either, all stays on this device -->
+      <p class="way" data-sync-way="code"><b>{t('Without an account')}</b> {t('with a code or an invite link for your other device.')}</p>
       <div class="ich-acts">
         <button type="button" class="btn hi" disabled={busy || !!$demoQ} onclick={switchOn}>{t('Switch on sync')}</button>
         <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={() => (view = 'enter')}>{t('I have a code')}</button>
       </div>
+      <p class="way" data-sync-way="google"><b>{t('Or with your Google account')}</b> {t('Google keeps the code for you: on the next device, simply sign in.')}</p>
+      <div class="ich-acts">
+        <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button>
+      </div>
+      <p class="small">{t('Without sync everything stays on this device.')} <a href="#/me/privacy">{t('Privacy and terms')}</a></p>
       {#if $demoQ}<p class="small">{t('Off while the demo runs')}</p>{/if}
     {/if}
   {:else}
@@ -256,6 +329,16 @@
         <button type="button" class="btn" onclick={() => (view = 'pair')}>{t('Pair another device')}</button>
         <button type="button" class="btn" onclick={() => (view = 'off')}>{t('Switch off|sync')}</button>
       </div>
+      <!-- Paket R: the Google sign-in of this device -->
+      {#if $acctQ}
+        <p class="way" data-sync-account>{t('Signed in with Google: {email}', { email: $acctQ.email || '…' })}</p>
+        <div class="ich-acts">
+          <button type="button" class="btn sm" disabled={busy} onclick={() => leaveAccount(false)}>{t('Sign out of Google')}</button>
+          <button type="button" class="btn sm" disabled={busy} onclick={() => leaveAccount(true)}>{t('Remove the Google sign-in')}</button>
+        </div>
+      {:else}
+        <p class="small">{t('Sign in with Google too, then the next device needs no code.')} <button type="button" class="linkbtn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button></p>
+      {/if}
     {/if}
   {/if}
   {#if pairing && !(sync.running && $cfgQ?.on && view !== 'link')}<p class="busyline" role="status" data-sync-busy>{t('Syncing …')}</p>{/if}
@@ -271,6 +354,24 @@
     margin: 0 0 6px;
     font-size: var(--fs-body);
     font-weight: 700;
+  }
+  .way {
+    margin: 10px 0 6px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .way b {
+    color: var(--ink);
+  }
+  .linkbtn {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent, var(--ink));
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .sh.file {
     margin-top: 18px;
