@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.155.0 Paket 3 (Noah 19.10.2026): T «Freie Zeit» (eight pages, Impulse in Aktiv) and «Daten in der App»
+    // (weather, daylight, appointments and own number questions in Insights).
+    version: '0.155.0',
+    date: '2026-10-19',
+    title: 'Your free time',
+    lead: 'Ideas for free hours, your collections and more that goes together in your data.',
+    points: [
+      { text: 'Me › Free time: eight new pages, from collections and «What am I up for?» to travel wishes and a first night', href: '#/me/frei' },
+      { text: 'Active › Impulses: 30 small ideas in ten areas; Today shows one when there is no ride idea', href: '#/flow/impulse' },
+      { text: 'Recipes: put the ingredients on the shopping list', href: '#/me/frei' },
+    ],
+    small: [
+      { box: 'new', text: 'Me › Insights: weather, daylight, appointments and your own number questions next to sleep and mood', href: '#/me/insights' },
+    ],
+    test: [
+      'Open Me › Free time and start a collection.',
+      'Open Active › Impulses and hide one idea.',
+    ],
+  },
+  {
     // v0.154.0 Paket 2 (Noah 19.10.2026 15:14 «1a»): K «Unterwegs», M «Aus Touren lernen» + «Neuland», S «Reise-Spur»,
     // O «Sportarten», I «Velo im Griff» + «Velo-Inspektion», L2 «Bilderkennung», R «Andere Menschen», Trello, «Strava-Fahrten».
     version: '0.154.0',

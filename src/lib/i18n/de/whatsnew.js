@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.155.0 Paket 3
+  'Your free time': 'Deine freie Zeit',
+  'Ideas for free hours, your collections and more that goes together in your data.': 'Ideen für freie Stunden, deine Sammlungen und mehr Zusammenhänge in deinen Daten.',
+  'Me › Free time: eight new pages, from collections and «What am I up for?» to travel wishes and a first night': 'Ich › Freie Zeit: acht neue Seiten, von Sammlungen und «Worauf hab ich Lust?» bis zu Reise-Wünschen und der ersten Nacht',
+  'Active › Impulses: 30 small ideas in ten areas; Today shows one when there is no ride idea': 'Aktiv › Impulse: 30 kleine Ideen in zehn Bereichen; Heute zeigt eine, wenn es keine Velo-Idee gibt',
+  'Recipes: put the ingredients on the shopping list': 'Rezepte: die Zutaten auf die Einkaufsliste setzen',
+  'Me › Insights: weather, daylight, appointments and your own number questions next to sleep and mood': 'Ich › Erkenntnisse: Wetter, Tageslicht, Termine und deine eigenen Zahlen-Fragen neben Schlaf und Stimmung',
+  'Open Me › Free time and start a collection.': 'Öffne Ich › Freie Zeit und beginne eine Sammlung.',
+  'Open Active › Impulses and hide one idea.': 'Öffne Aktiv › Impulse und blende eine Idee aus.',
   // 0.154.0 Paket 2
   'Riding, learning and your bikes': 'Unterwegs, lernen und deine Velos',
   'On the road, after the tour and in the workshop: the second big part of the day.': 'Unterwegs, nach der Tour und in der Werkstatt: der zweite grosse Teil des Tages.',
