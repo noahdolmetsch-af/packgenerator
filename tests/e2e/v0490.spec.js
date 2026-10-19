@@ -53,8 +53,11 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   const hero = main.locator('[data-open-debrief]');
   await expect(hero.getByText('Abendrunde Hügel', { exact: true })).toBeVisible();
   await expect(main.locator('.btn.hi')).toHaveCount(1);
-  await expect(hero.getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
+  // Impeccable Rückblick 2: one word for it, «Rückblick schreiben»
+  await expect(hero.getByRole('link', { name: 'Rückblick schreiben: Abendrunde Hügel' })).toBeVisible();
   // the last ride's numbers are folded at the end
+  // 0.159.1 (UI-Regeln Teil 2): on a phone «Letzte Fahrt» is a closed line first
+  if (info.project.name === 'phone') await main.locator('[data-group="rv-last"] .ls-gh').click();
   await main.getByRole('button', { name: 'Zahlen der letzten Fahrt' }).click();
   const last = main.locator('.lastride');
   await expect(last).toContainText('42');
@@ -69,6 +72,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (open under «Alle Kennzahlen», answer 2b); switch to Alle
   const per = main.locator('section.period');
   await expect(per.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
+  // 0.159.1 (Noah 14.10.2026 «a»): on a phone the table starts closed, one tap opens it
+  if (info.project.name === 'phone') await per.getByRole('button', { name: 'Alle Kennzahlen' }).click();
   await expect(per.getByRole('button', { name: 'Alle Kennzahlen' })).toHaveAttribute('aria-expanded', 'true');
   const km = per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Distanz' }) });
   await expect(km).toContainText('1’541');
@@ -79,6 +84,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(per.getByRole('columnheader', { name: 'Vorjahr' })).toHaveCount(0);
   // 3. trips compared: a table of the last 10 with their state; 7 small charts folded; «Gleiche Art» keeps the day rides
   const cmp = main.locator('#compare');
+  const phone = info.project.name === 'phone';
+  if (phone) await main.locator('[data-group="rv-compare"] .ls-gh').click(); // 0.159.1: a closed line on a phone
   await expect(cmp.locator('table.st tbody tr')).toHaveCount(10);
   await expect(cmp.locator('table.st tbody tr [data-state]').first()).toBeAttached();
   await cmp.getByRole('button', { name: 'Diagramme und alle Spalten' }).click();
@@ -87,7 +94,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(cmp.locator('table.st tbody tr')).toHaveCount(5);
   await expect(cmp).toContainText('Tagestour');
   // 4. one level below
-  for (const [name, url] of [['Dein Tempo', /#\/debrief\/pace$/], ['Alle Erkenntnisse', /#\/debrief\/learnings$/], ['Logbuch', /#\/debrief\/logbook$/]]) {
+  for (const [name, url, line] of [['Dein Tempo', /#\/debrief\/pace$/, 'rv-pace'], ['Alle Erkenntnisse', /#\/debrief\/learnings$/, 'rv-learned'], ['Logbuch', /#\/debrief\/logbook$/, null]]) {
+    if (phone && line) await main.locator(`[data-group="${line}"] .ls-gh`).click();
     await main.locator('.below').getByRole('link', { name, exact: true }).click();
     await expect(page).toHaveURL(url);
     await expect(main.locator('h1')).toBeVisible();
@@ -177,7 +185,9 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau']) await expect(ride).toContainText(v);
   // SN2x: the days of a multi-day trip are a table under «Strecke»; the other groups fold open
   for (const v of ['Tag 1', 'Tag 2']) await expect(main.locator('[data-day-table]')).toContainText(v);
-  for (const key of ['pack', 'next']) await main.locator(`section[data-group="${key}"] button.gb`).click();
+  // Impeccable Runde 2: «Weiter» is open from the start
+  await expect(main.locator('section[data-group="next"] button.gb')).toHaveAttribute('aria-expanded', 'true');
+  await main.locator('section[data-group="pack"] button.gb').click();
   const pvr = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
   await expect(pvr).toContainText('142 km');
   await expect(pvr).toContainText('zu deinen Gunsten');

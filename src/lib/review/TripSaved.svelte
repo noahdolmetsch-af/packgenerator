@@ -22,7 +22,8 @@
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints } from './rueckblick.js';
   import { n0, n1, hours, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
-  import { openTrip } from '../nav.js';
+  import { openTrip, newTrip } from '../nav.js';
+  import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
   import { WEATHER, AMOUNT } from '../debrief.js';
@@ -30,6 +31,7 @@
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
   // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
   import { liveQuery } from 'dexie';
+  import { tick } from 'svelte';
   import { db } from '../db.js';
   import { updateTemplate } from '../templates.js';
   import { loadGanz } from './actdata.js';
@@ -52,7 +54,7 @@
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
   import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
-  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null, notes = [], onpatch = null } = $props();
+  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], openSugg = [], ontake = null, onno = null, onreopen = null, offer = null, notes = [], onpatch = null } = $props();
   // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
   const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
   const stravaId = $derived(($stravaQ ?? []).find((e) => e.stravaId && e.state !== 'removed')?.stravaId ?? null);
@@ -72,6 +74,7 @@
   const totalN = $derived(trip.entries.filter((e) => byId[e.itemId]).length);
   const wOf = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
   const savedOn = $derived(d.doneAt ? dayLong(d.doneAt.slice(0, 10)) : null);
+  const savedLine = $derived([savedOn ? t('Saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change taken over', '{n} changes taken over') : ''].filter(Boolean).join(' · '));
 
   /* plan against real: two thin bars per row, drawn to the larger of both */
   const LABEL = { km: 'Distance', gainM: 'Climbing|hm', movingH: 'Moving', kmh: 'Pace|speed' };
@@ -254,7 +257,22 @@
   }
   const DAYKIND = { unused: 'Packed again for {trip}, not used this time', missing: 'Was missing', broken: 'Broke: check it before the next trip', note: 'Your sentence for next time' };
   const WEAR = { chain: 'Chain', tyres: 'Tyres', pads: 'Brake pads' };
+
+  // Impeccable: «N Vorschläge ansehen ↓» (the page's button) opens «Die Tour» and scrolls to the suggestions
+  async function showSugg() {
+    if (day != null) day = null;
+    if (!open.tour) toggle('tour', true);
+    await tick();
+    const el = document.getElementById('rv-suggestions');
+    el?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el?.focus({ preventScroll: true });
+  }
+  $effect(() => {
+    window.addEventListener('rv-suggestions', showSugg);
+    return () => window.removeEventListener('rv-suggestions', showSugg);
+  });
 </script>
+
 
 {#snippet rainIcon(rain)}
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
@@ -271,7 +289,6 @@
 
 <!-- v0.109.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026); SN2x: five groups -->
 <div class="saved">
-  <section class="status saved-card" aria-labelledby="saved-h"><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span><h2 id="saved-h">{t('Saved')}</h2><small role="status">{[savedOn ? t('Debrief saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change made', '{n} changes made') : ''].filter(Boolean).join(' · ')}</small></span></section>
   <!-- SN2x: the template question right after saving stays on top, outside the folding groups -->
   {#if offer}<TemplateOffer {trip} name={offer} />{/if}
 
@@ -309,6 +326,8 @@
               </ul>
             {:else}
               <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
+              <!-- Impeccable Runde 2 (Rückblick einer Tour 2): the card «Gespeichert» is gone; its line lives here -->
+              <p class="savedline" role="status" data-saved>{savedLine}</p>
               <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
@@ -324,9 +343,29 @@
                 {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
               </ul>
               {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
-              {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
             {/if}
           </section>
+
+          <!-- Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the open suggestions in sight, right under
+               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (4 s «Rückgängig», Debrief.svelte) -->
+          {#if openSugg.length}
+            <section class="rv-sec sugs" id="rv-suggestions" aria-labelledby="sg-h" data-suggestions tabindex="-1">
+              <div class="rv-h"><div><h2 id="sg-h">{tn(openSugg.length, '{n} suggestion from this trip', '{n} suggestions from this trip')}</h2><p class="rv-sub">{t('Take over what helps next time; the rest stays as it is.')}</p></div></div>
+              <ul class="rv-box">
+                {#each openSugg as x (x.id)}
+                  <li class="rv-row sg">
+                    <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
+                    <span class="rv-m"><span class="rv-t">{x.label}</span>{#if x.detail}<span class="rv-s">{x.detail}</span>{/if}</span>
+                    <span class="yn">
+                      <button type="button" class="btn sm" onclick={() => ontake?.(x)}>{t('Take over')}</button>
+                      <button type="button" class="btn sm btn-link" onclick={() => onno?.(x)}>{t('No, thanks')}</button>
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+              {#if onreopen}<p class="rv-note sgmore"><button type="button" class="tp-link" onclick={onreopen}>{t('Change answers')}</button></p>{/if}
+            </section>
+          {/if}
 
           <!-- SN2x: Strecke, map and profile with the numbers of the timeline -->
           {#if line.length || profile}
@@ -623,9 +662,13 @@
               {:else}
                 <li class="rv-row empty">{t('Nothing to change: the trip went as planned.')}</li>
               {/each}
-              {#if next}<li><a class="rv-row" href="#/pack" onclick={() => openTrip(next.id)}><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t('Packing list {trip}', { trip: next.title })}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
             </ul>
           </section>
+          <!-- Impeccable Runde 2 (Rückblick einer Tour 3): «Weiter» ends with one clear button (was the row «Packliste {Tour}») -->
+          <p class="goon" data-go-next>
+            {#if next}<Btn label={t('To the next trip: {name}', { name: next.title })} href="#/pack" onclick={() => openTrip(next.id)} />
+            {:else}<Btn label={t('Plan the next trip')} onclick={() => newTrip('last')} />{/if}
+          </p>
         </div>
         <div class="rv-col">
           <!-- SN2x (answer 4): the comparison only inside one of five groups, km and Hm each ±20 % -->
@@ -659,26 +702,6 @@
 <style>
   .saved {
     margin-top: 6px;
-  }
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0 0 16px;
-    padding: 10px 14px;
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
-  }
-  .status h2 {
-    margin: 0;
-    font-size: var(--fs-body);
-  }
-  .status small {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   /* SN2x: the day switch and the groups */
   .dayswitch {
@@ -994,6 +1017,25 @@
     padding: 4px 0;
     color: var(--ink-2);
   }
+  .goon {
+    display: flex;
+    justify-content: flex-end;
+    margin: 16px 0 0;
+    min-width: 0;
+  }
+  /* a long trip name wraps instead of widening the page */
+  .goon :global(.btn) {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: break-word;
+  }
+  @media (max-width: 719px) {
+    .goon :global(.btn) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
   .hero {
     display: flex;
     align-items: center;
@@ -1003,6 +1045,12 @@
     margin: 0;
     font: 600 var(--fs-sub) / 1.3 var(--font-body);
     overflow-wrap: break-word;
+  }
+  .savedline {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
   }
   .kick {
     margin: 6px 0 0;
@@ -1052,10 +1100,34 @@
     flex: none;
     color: var(--hi);
   }
-  .open {
-    margin: 12px 0 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+  /* Impeccable: the open suggestions, one row each, the two answers on the right (below on the phone) */
+  .sugs {
+    scroll-margin-top: 80px;
+  }
+  .sugs:focus {
+    outline: none;
+  }
+  .sg {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .sg .rv-m {
+    flex: 1 1 14em;
+  }
+  .sg .rv-ic {
+    align-self: flex-start;
+  }
+  .yn {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .yn .btn {
+    min-height: 44px;
+  }
+  .sgmore {
+    justify-content: flex-end;
   }
   .legend {
     display: flex;

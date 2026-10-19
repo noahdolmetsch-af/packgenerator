@@ -7,7 +7,7 @@
    * Everything is a suggestion: names, favourites, lines, suggestions and ideas can be changed, hidden or
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
-  import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link } from '@lucide/svelte';
+  import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link, Mountain } from '@lucide/svelte';
   import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -26,6 +26,7 @@
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
+  import { GB_KEY, bookOf, placeRows } from '../../lib/gipfelbuch.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
   import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
   import { favActs, moveFav, moveFavTo, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
@@ -138,6 +139,8 @@
      the rest folded under «Mehr» */
   // v0.121.0 (Noah «1a»): the counted Strava rides count too
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  // 0.165.0 «Gipfelbuch für alle»: the row under the milestones with the number of places
+  const gbQ = liveQuery(async () => placeRows(bookOf((await db.settings.get(GB_KEY))?.value)).length);
   const actQ = liveQuery(() => bikeActs(db));
   const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? [], $actQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');
@@ -199,8 +202,9 @@
   const soonN = $derived(shown.filter((r) => r.soon).length);
   const moreRows = $derived([
     { key: 'ms', icon: Star, title: t('Milestones'), sub: soonN ? tn(soonN, '{n} soon within reach', '{n} soon within reach') : t('over all activities'), href: '#/flow/milestones' },
+    { key: 'gb', icon: Mountain, title: t('Summit book'), sub: $gbQ ? tn($gbQ, '{n} place', '{n} places') : t('Passes, summits and trails of every sport'), href: '#/flow/gipfelbuch' },
     { key: 'rings', icon: Pulse, title: t('Three rings'), sub: [t('Move|ring'), t('Mindful|ring'), t('Recovery|ring')].join(', '), onclick: () => toggle('rings'), expanded: openRow === 'rings' },
-    { key: 'sugg', icon: Lightbulb, title: t('More actions without their own page'), sub: tn(sugg.length, '{n} suggestion', '{n} suggestions'), onclick: () => toggle('sugg'), expanded: openRow === 'sugg' },
+    { key: 'sugg', icon: Lightbulb, title: t('Small things to tick off'), sub: tn(sugg.length, '{n} suggestion', '{n} suggestions'), onclick: () => toggle('sugg'), expanded: openRow === 'sugg' },
     { key: 'fun', icon: Heart, title: t('Recovery and fun'), sub: always.map((a) => actName(a)).slice(0, 3).join(', '), onclick: () => toggle('fun'), expanded: openRow === 'fun' },
     ...(conns.length ? [{ key: 'conn', icon: Link, title: t('Connections'), sub: conns.map((c) => (c.id === 'ics' || c.id === 'weather' ? t(c.name) : c.name)).join(', '), onclick: () => toggle('conn'), expanded: openRow === 'conn' }] : []),
   ]);
@@ -209,14 +213,15 @@
 <div class="hob">
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activity|tab')} />
-    <PageHead title={t('Activity|tab')} text={t('Over all activities · each tile shows one line instead of a date')} />
+    <!-- Impeccable runde 2 (clarify): what the page is for, next to «Heute» (tick off) and «Ziele» (the stand) -->
+    <PageHead title={t('Activity|tab')} text={t('Your favourite activities at a glance: streaks, bests and the next star.')} />
   </header>
   <AreaIntro place="activity" />
 
   {#if data}
     <div class="lay">
       <div class="col">
-        <Sec id="tiles-h" title={t('Your tiles')} sub={t('Tap opens · line: milestone, history, week, nudge, streak or best')} more={{ label: editing ? t('Done') : t('Change tiles'), onclick: () => (editing = !editing), expanded: editing }}>
+        <Sec id="tiles-h" title={t('Your tiles')} sub={t('Tap opens the activity. Under «Change tiles» you choose what each tile shows.')} more={{ label: editing ? t('Done') : t('Change tiles'), onclick: () => (editing = !editing), expanded: editing }}>
           {#if editing}
             <section class="card ted" aria-labelledby="tiles-ed-h">
               <h3 id="tiles-ed-h" class="sh">{t('Tiles: order, line, favourites')}</h3>
@@ -250,14 +255,14 @@
         </Sec>
 
         <Sec id="week-h" title={t('This week')} sub={t('Monday to Sunday · today framed')}>
-          <div class="card"><WeekStrip days={weekStrip} acts={data.acts} {today} label={t('This week: {n} active days', { n: activeCount(weekStrip) })} /></div>
+          <div class="card"><WeekStrip days={weekStrip} acts={data.acts} {today} label={t('This week: {n} active days', { n: activeCount(weekStrip) })} />{#if !activeCount(weekStrip)}<p class="hint wkn" data-week-empty>{t('No active day this week yet. What you tick off shows here as a dot.')}</p>{/if}</div>
         </Sec>
       </div>
 
       <aside class="col">
         {#if sugg.length || sg.own.length}
           <Sec id="sg-h" title={t('Suggestion for today')} sub={t('by day, weather and rings')}>
-            <SuggestTile icon={Lightbulb} id="sg-aktiv" title={sgPick ?? ''} sub={sgReason} options={sgOptions} pick={sgPick} done={sgDone} {challenge} {reached} onpick={(o) => saveSg({ ...sg, pick: o })} onadd={addOwnSg} ontick={tickSg} onchallenge={() => (sheet = true)} />
+            <SuggestTile icon={Lightbulb} id="sg-aktiv" title={sgPick ?? ''} sub={sgReason} options={sgOptions} pick={sgPick} done={sgDone} {challenge} {reached} onpick={(o) => saveSg({ ...sg, pick: o })} onadd={addOwnSg} ontick={tickSg} onchallenge={() => (sheet = true)} fold />
           </Sec>
         {/if}
         <Sec id="more-h" title={t('More|item')}>
@@ -376,6 +381,10 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .hint.wkn {
+    margin-top: var(--sp-2);
+    color: var(--ink-2);
   }
   .tiles + .hint {
     margin-top: var(--sp-2);

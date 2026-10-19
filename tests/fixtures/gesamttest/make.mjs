@@ -670,7 +670,7 @@ export function build(today = DEFAULT_TODAY) {
     { key: 'templates', value: templates },
     { key: 'homePlace', value: { name: `${P} Home`, lat: 47.39, lon: 8.04 } },
     { key: 'riderG', value: 72000 },
-    ...['layers2026', 'readyClean2026', 'dailyCommuteTemplate', 'stravaKm2026', 'lodgingSet2026', 'kitTemplates2026', 'toolsAlways2026', 'firstAid2026', 'blocks2026'].map((k) => ({ key: `update.${k}`, value: at(D(-100)) })),
+    ...['layers2026', 'readyClean2026', 'dailyCommuteTemplate', 'stravaKm2026', 'lodgingSet2026', 'kitTemplates2026', 'toolsAlways2026', 'firstAid2026', 'blocks2026', 'blocksMore2026'].map((k) => ({ key: `update.${k}`, value: at(D(-100)) })),
   ];
 
   const data = {

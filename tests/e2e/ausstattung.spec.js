@@ -43,11 +43,17 @@ async function start(page, context, info) {
 test('Ausstattung: groups with name, weight and price; a part gets its price in the sheet', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${SPARK}`);
-  // Design-Refresh P7 (V14): the bike's name is in the page title «Ausstattung …» now.
-  await expect(page.getByRole('heading', { level: 1, name: `Ausstattung ${P} Scott Spark 960` })).toBeVisible();
+  // Impeccable Runde 2 (Ausstattung 2): the short title «Ausstattung», the bike's name first in the line below.
+  await expect(page.getByRole('heading', { level: 1, name: 'Ausstattung', exact: true })).toBeVisible();
+  await expect(page.locator('header.vhead .vsub')).toContainText(`${P} Scott Spark 960 · `);
   // The place tab is called «Ausstattung» (A1a).
   await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Ausstattung' })).toHaveAttribute('aria-current', /page|true/);
   // Noah's four measurements on top, the rest behind «+ n weitere Masse».
+  // Impeccable Runde 2 (Ausstattung 1): no measure yet is one sentence and «Masse eintragen», which opens the first one
+  await expect(page.getByText('Noch keine Masse.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Masse eintragen' }).click();
+  await expect(page.getByRole('textbox', { name: 'Sitzhöhe' })).toBeFocused();
+  await page.getByRole('textbox', { name: 'Sitzhöhe' }).press('Escape');
   await expect(page.getByRole('button', { name: /^Sitzhöhe:/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Sattelversatz:/ })).toHaveCount(0);
   await page.getByRole('button', { name: /weitere Masse/ }).click();
@@ -80,8 +86,12 @@ test('Ausstattung: groups with name, weight and price; a part gets its price in 
 test('Ausstattung: another bike, a bike without parts, the area filter', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${GOAT}`);
-  await expect(page.getByRole('heading', { level: 1, name: `Ausstattung ${P} Bergziege 29` })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Ausstattung', exact: true })).toBeVisible();
+  await expect(page.locator('header.vhead .vsub')).toContainText(`${P} Bergziege 29`);
   await expect(page.getByText('0 Teile erfasst')).toBeVisible();
+  // Impeccable Runde 2 (Ausstattung 1): no part weight yet is one sentence, not six «–» bars
+  await expect(page.getByRole('region', { name: 'Gewicht pro Bereich' })).toContainText('Noch keine Teilgewichte.');
+  await expect(page.getByRole('region', { name: 'Gewicht pro Bereich' }).locator('.bar')).toHaveCount(0);
   await expect(page.getByText('Noch keine Preise. Tippe auf ein Teil, um den Preis einzutragen.')).toBeVisible();
   // The area filter shows one group.
   await page.getByRole('group', { name: 'Bereich' }).getByRole('button', { name: 'Bremsen' }).click();

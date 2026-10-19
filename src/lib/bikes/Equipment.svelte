@@ -1,6 +1,5 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
-  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   /**
    * v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a; model: Canyon «Ausstattung · Alle Komponenten»):
    * the Bikes tab «Ausstattung». One bike at a time: Noah's four measurements on top as tiles (the
@@ -18,12 +17,17 @@
   import { equipmentGroups, equipmentTotals, setPartBasics } from '../equipment.js';
   import { readValue } from '../bikespecs.js';
   import { formatWeight } from '../gear.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { t } from '../i18n.svelte.js';
   import FitCard from './FitCard.svelte';
   import Seg from '../ui/Seg.svelte';
   import { Columns3, ChevronRight, ChevronDown, PencilLine, Bike as BikeIcon } from '@lucide/svelte';
   import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
+  import HintCard from '../pageinfo/HintCard.svelte';
+  // Impeccable Runde 2 (18.10.2026, Ausstattung 1+2, Werkstatt 2): the bike choice as one row to swipe on a
+  // phone, the short title «Ausstattung», empty measures and weights as a sentence, CHF one way.
+  import BikeChips from './BikeChips.svelte';
+  import { chfText } from '../money.js';
 
   let { bikeId = null, onbike } = $props();
 
@@ -43,7 +47,7 @@
     openEmpty = s;
   };
 
-  const chf = (n) => `CHF ${num(Math.round(n))}`;
+  const chf = (n) => chfText(n);
   const kg = (g) => formatWeight(g);
   const maxArea = $derived(Math.max(1, ...groups.map((g) => g.weightG)));
 
@@ -82,24 +86,21 @@
     <VeloHead
       crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
       here={t('Equipment|tab')}
-      title={t('Equipment {bike}', { bike: bike.name })}
-      sub={[bike.type ? t(bikeTypeName(bike.type)) : '', t('{n} parts recorded', { n: totals.count }), totals.weightG ? `${kg(totals.weightG)} ${t('parts|weight')}` : '', totals.priceChf ? `${chf(totals.priceChf)} ${t('purchase value')}` : ''].filter(Boolean).join(' · ')}
+      title={t('Equipment|tab')}
+      sub={[bike.name, bike.type ? t(bikeTypeName(bike.type)) : '', t('{n} parts recorded', { n: totals.count }), totals.weightG ? `${kg(totals.weightG)} ${t('parts|weight')}` : '', totals.priceChf ? `${chf(totals.priceChf)} ${t('purchase value')}` : ''].filter(Boolean).join(' · ')}
     >
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
-    <AreaIntro place="ausstattung" />
-    {#if bikes.length > 1}
-      <div class="bchips" role="group" aria-label={t('Bike')}>
-        {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}>{b.name}</button>{/each}
-      </div>
-    {/if}
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
+    <HintCard page="equipment" intro="ausstattung" />
+    {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}
 
     <div class="cols">
       <div class="parts">
-        <h2 class="sh">{t('Components')}</h2>
+        <h2 class="sh" id="eq-parts">{t('Components')}</h2>
         <Seg full={false} label={t('Part area|filter')} options={[{ key: 'all', name: t('All') }, ...groups.map((g) => ({ key: g.area, name: t(g.name) }))]} value={area} onchange={(k) => (area = k)} />
         {#each shown as g (g.area)}
           <section class="grp" aria-labelledby="eq-{g.area}">
@@ -149,6 +150,9 @@
       <aside class="side">
         <section class="box" aria-labelledby="eq-w">
           <h3 id="eq-w">{t('Weight per area')}</h3>
+          {#if !totals.weightG}
+            <p class="quiet">{typeof bike.weightG === 'number' ? t('No part weights yet. The bike weighs {kg} measured. Tap a part to enter its weight.', { kg: kg(bike.weightG) }) : t('No part weights yet. Tap a part to enter its weight.')}</p>
+          {:else}
           {#each groups as g (g.area)}
             <div class="bar">
               <span>{t(g.name)}</span>
@@ -157,8 +161,9 @@
             </div>
           {/each}
           <p class="tot">
-            {t('Parts total')} <b>{totals.weightG ? kg(totals.weightG) : '–'}</b>{#if typeof bike.weightG === 'number'}{' · '}{t('bike weighed')} <b>{kg(bike.weightG)}</b>{/if}
+            {t('Parts total')} <b>{kg(totals.weightG)}</b>{#if typeof bike.weightG === 'number'}{' · '}{t('bike weighed')} <b>{kg(bike.weightG)}</b>{/if}
           </p>
+          {/if}
         </section>
         <section class="box" aria-labelledby="eq-p">
           <h3 id="eq-p">{t('Most expensive parts')}</h3>
@@ -212,29 +217,19 @@
     gap: 6px;
     text-decoration: none;
   }
-  .bchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: -4px 0 16px;
-  }
-  .bchip {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
-  }
-  .bchip:hover {
-    background: var(--paper-2);
-  }
-  .bchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+  /* Impeccable Runde 2 (Ausstattung 2): on a phone the two buttons stand side by side */
+  @media (max-width: 599px) {
+    .cmplink {
+      flex: 1 1 0;
+      min-width: 0;
+      padding-left: 10px;
+      padding-right: 10px;
+      white-space: normal;
+      text-align: center;
+    }
+    .cmplink :global(svg) {
+      display: none;
+    }
   }
   .cols {
     display: grid;

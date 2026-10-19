@@ -8,6 +8,7 @@ import { db } from '../db.js';
 import { quickLog } from '../quickcare.js';
 import { localDay } from '../localday.js';
 import { t } from '../i18n.svelte.js';
+import { offerCare } from '../remind/ask.svelte.js';
 
 /** The kinds a tap can record here. */
 export const CARE_KINDS = ['chain', 'sealant', 'wash'];
@@ -28,6 +29,7 @@ export async function recordCare(bikeId, kind, today = localDay()) {
     const text = kind === 'chain' ? t('{bike}: chain lubed.', { bike }) : kind === 'sealant' ? t('{bike}: sealant topped up.', { bike }) : t('{bike}: washed.', { bike });
     out = { text, undo: { bikeId, prev } };
   });
+  if (out && kind === 'chain') offerCare(await db.bikes.get(bikeId), 'chain'); // ER2: «Wieder erinnern, wenn es fällig ist?»
   return out;
 }
 

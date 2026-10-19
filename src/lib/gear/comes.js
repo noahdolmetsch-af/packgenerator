@@ -18,7 +18,7 @@
  */
 import { NIGHT_BLOCKS, RIDE_BLOCKS } from '../context.js';
 import { STANDARD, inStandard, isWorn, leaveHome } from '../blocks2026.js';
-import { isSituation } from '../situation.js';
+import { isSituation, MORE_BLOCKS, STAGE_BLOCKS } from '../situation.js';
 
 const withStd = (d) => (d?.sets?.includes(STANDARD) ? [...d.sets] : [...(d?.sets ?? []), STANDARD]);
 const withoutStd = (d) => (d?.sets ?? []).filter((k) => k !== STANDARD);
@@ -56,8 +56,9 @@ export const leaveHomeFields = (d) => ({ role: '', leaveHome: true, sets: withou
  * The kinds of building blocks: 'always' (Standard), 'night' (come with the night), 'ride' (v0.66.0:
  * suggested on the ride, deselectable per trip: repair, charge, lights, race) or 'add'.
  */
-// SN3+: the seven blocks «je nach Lage» (situation.js) are their own kind.
-export const blockKind = (key) => (key === STANDARD ? 'always' : NIGHT_BLOCKS.includes(key) ? 'night' : RIDE_BLOCKS.includes(key) ? 'ride' : isSituation(key) ? 'situation' : 'add');
+// SN3+: the seven blocks «je nach Lage» (situation.js) are their own kind. v0.154.0: the nine new blocks with a
+// rule too ('situation'); a stage (Kälte: Hände und Füsse …) is the kind 'stage' (shown inside its parent).
+export const blockKind = (key) => (key === STANDARD ? 'always' : NIGHT_BLOCKS.includes(key) ? 'night' : RIDE_BLOCKS.includes(key) ? 'ride' : isSituation(key) || MORE_BLOCKS.includes(key) ? 'situation' : STAGE_BLOCKS.includes(key) ? 'stage' : 'add');
 
 /** The items of the block "Standard" (with the ones On me), in the order given. */
 export const standardItems = (items) => items.filter((i) => comesOf(i).standard);

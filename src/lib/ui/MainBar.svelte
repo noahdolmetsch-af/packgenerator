@@ -176,7 +176,10 @@
       background: var(--paper);
       border-top: 1px solid var(--line);
     }
+    /* Impeccable 18.10.2026 (Heute 2): also a bar of a page («Tour beendet», «Gepackt»): the step on the
+       left, not squeezed in after the button */
     .lead,
+    .page .lead,
     .band .lead {
       flex: 1;
       flex-basis: auto;
@@ -200,6 +203,7 @@
       order: 2;
       min-width: 0;
       min-height: 48px;
+      white-space: nowrap;
     }
     .band :global(.btn.hi) {
       min-width: 0;

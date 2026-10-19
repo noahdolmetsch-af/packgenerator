@@ -3,7 +3,6 @@ export default {
   // the list "In progress" in the trip band (drafts.js, trip/InProgress.svelte, trip/ProgressRows.svelte)
   'In progress': 'In Bearbeitung',
   '{n} more|progress': '{n} weitere',
-  Planning: 'Planen',
   'Nothing on the list yet': 'Noch leer',
   'Packing {done}/{total}': 'Packen {done}/{total}',
   'Ready check {done}/{total}': 'Startcheck {done}/{total}',

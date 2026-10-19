@@ -9,16 +9,18 @@
    * search; the chosen place is a soft pill behind the icon, the label in bold.
    * «Woche planen» (Noah 15.10.2026 «1a»): Heute, Woche, Touren, Velos, Aktiv; Material under Ich.
    */
-  import { BAR_PLACES, placeHref } from '../nav.js';
+  import { BAR_PLACES, placeHref, barPlace } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
 
   let { place = null, hash = '#/', due = 0 } = $props();
+  // AU1 «1b»: Velos and Ausrüstung share one slot; the switch on top of both pages changes between them
+  const slot = $derived(barPlace(place));
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>
   {#each BAR_PLACES as p (p.key)}
-    <a href={placeHref(p, place, hash)} data-place={p.key} aria-current={place === p.key ? 'page' : undefined}>
+    <a href={placeHref(p, slot, hash)} data-place={p.key} aria-current={slot === p.key ? 'page' : undefined}>
       <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
       <span class="pn">{t(p.label)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
     </a>

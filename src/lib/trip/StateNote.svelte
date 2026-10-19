@@ -5,6 +5,8 @@
    * the band under the step bar of a trip says what its state means here and offers the next step,
    * in the colour of the state (tokens --st-*), always with icon and words:
    *   plan   «Geplant: alles bleibt änderbar.» · Als Vorlage speichern (Plan only)
+   *          Impeccable 18.10.2026 (Planen 3): one line «Alles bleibt änderbar, bis du losfährst.» with the
+   *          quiet link «Als Vorlage speichern» on the right
    *   done   «Abgeschlossen am 1. Okt.: so bist du gefahren.» the list is fixed · Rückblick ausfüllen · Wieder öffnen
    *          the date passed, never ended: «Datum vorbei. Bist du gefahren?» · Ja · Nicht gefahren
    *   rated  «Bewertet: Rückblick gespeichert am 6. Sept.» · Als Vorlage speichern · Rückblick ändern
@@ -54,12 +56,11 @@
 </script>
 
 {#if shown}
-  <section class="stn {info.state}" data-state={info.state} data-ask={ask ? '' : undefined} aria-labelledby="stn-h">
+  <section class="stn {info.state}" class:one={info.state === 'plan'} data-state={info.state} data-ask={ask ? '' : undefined} aria-labelledby="stn-h">
     <span class="ic" aria-hidden="true"><Icon size={22} fill={info.state === 'rated' ? 'currentColor' : 'none'} /></span>
     <div class="tx">
       {#if info.state === 'plan'}
-        <h2 id="stn-h">{t('Planned: everything stays changeable.')}</h2>
-        <p>{bike ? t('You can change the packing list, date, bike and weather any time.') : t('You can change the packing list, date and weather any time.')}{#if ontemplate}{' '}{t('You can make a template from this trip.')}{/if}</p>
+        <h2 id="stn-h">{bike ? t('Everything stays changeable until you set off.') : t('Everything stays changeable until you leave.')}</h2>
       {:else if ask}
         <h2 id="stn-h">{bike ? t('Date passed. Did you ride?') : t('Date passed. Did you go?')}</h2>
         <p>{bike ? t('«Yes» ends the trip and fixes its packing list, then the debrief comes. «Not ridden» takes it out of your trips.') : t('«Yes» ends the trip and fixes its packing list, then the debrief comes. «Did not happen» takes it out of your trips.')}</p>
@@ -74,7 +75,7 @@
     </div>
     <div class="rowacts">
       {#if info.state === 'plan'}
-        {#if ontemplate}<Btn label={t('Save as template')} onclick={ontemplate} />{/if}
+        {#if ontemplate}<button type="button" class="btn btn-link tpl" onclick={ontemplate}>{t('Save as template')}</button>{/if}
       {:else if ask}
         <Btn label={t('Yes|rode')} onclick={() => answer(true)} />
         <Btn label={bike ? t('Not ridden|answer') : t('Did not happen')} onclick={() => answer(false)} />
@@ -117,6 +118,33 @@
     --st-soft: var(--st-rated-soft);
     --st-line: var(--st-rated-line);
   }
+  /* Planen 3: the plan note is one calm line, the link on the right (also on a phone) */
+  .stn.one {
+    gap: 0 var(--sp-3);
+    padding-block: var(--sp-1);
+  }
+  /* the words keep a readable width; on a very small phone the link goes under them */
+  .stn.one .tx {
+    flex: 1 1 120px;
+  }
+  .stn.one .ic {
+    align-self: center;
+    margin-top: 0;
+  }
+  .stn.one h2 {
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+  .stn.one .rowacts {
+    flex: none;
+    width: auto;
+    margin-left: auto;
+  }
+  .tpl {
+    min-height: 44px;
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
   .ic {
     display: grid;
     flex: none;
@@ -150,7 +178,7 @@
   /* the buttons: the kit's .rowacts (app.css): right on a computer, under the words on a phone;
      there the icon stays beside the words */
   @media (max-width: 719px) {
-    .stn {
+    .stn:not(.one) {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
       align-items: start;

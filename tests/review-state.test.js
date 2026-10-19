@@ -2,7 +2,7 @@
 // from the one rule of tripstate.js. Fictional data only.
 import { describe, it, expect } from 'vitest';
 import { tripFacts } from '../src/lib/review/rueckblick.js';
-import { factStates, factCounts, matchesState } from '../src/lib/review/state.js';
+import { factStates, factCounts, matchesState, rideOpen } from '../src/lib/review/state.js';
 
 const TODAY = '2026-10-13';
 const trip = (id, startDate, extra = {}) => ({ id, title: `test_data_gtp_ ${id}`, startDate, days: 1, bikeId: 'b1', entries: [{ itemId: 'x', packed: true }], ...extra });
@@ -22,10 +22,21 @@ describe('factStates', () => {
     expect(states.nolist).toMatchObject({ state: 'done', open: false });
   });
 
-  it('an uploaded ride on its own is Completed with «GPX» (rating it comes with TZ-3)', () => {
+  it('an uploaded ride on its own is Completed with «GPX»; Rated after «Kurz: Alles gut» (Impeccable Fahrten 2)', () => {
     expect(states.solo).toEqual({ state: 'done', extra: { key: 'gpx' }, open: false });
     const strava = factStates([{ id: 's', kind: 'ride', rides: [{ id: 's', source: 'strava' }] }]);
     expect(strava.s.extra).toEqual({ key: 'strava' });
+    const ok = factStates([{ id: 'k', kind: 'ride', rides: [{ id: 'k', source: 'gpx', okAt: '2026-10-13T08:00:00.000Z' }] }]);
+    expect(ok.k).toEqual({ state: 'rated', extra: { key: 'gpx' }, open: false });
+  });
+
+  it('rideOpen: a ride without a trip waits for «Kurz: Alles gut» or an answered learning', () => {
+    expect(rideOpen({ id: 'r' })).toBe(true);
+    expect(rideOpen({ id: 'r', okAt: '2026-10-13T08:00:00.000Z' })).toBe(false);
+    expect(rideOpen({ id: 'r', answers: { l1: { yes: false } } })).toBe(false);
+    expect(rideOpen({ id: 'r', answers: {} })).toBe(true);
+    expect(rideOpen({ id: 'r', tripId: 't' }, { id: 't' })).toBe(false);
+    expect(rideOpen(null)).toBe(false);
   });
 
   it('counts and filters by state; rows without a state show only under «Alle»', () => {

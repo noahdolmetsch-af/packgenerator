@@ -4,7 +4,7 @@
  */
 export default {
   // The wardrobe (#/wardrobe)
-  Wardrobe: 'Kleiderschrank',
+  Wardrobe: 'Kleider',
   'Base|layer': 'Basis',
   'Mid|layer': 'Mitte',
   'Outer|layer': 'Aussen',

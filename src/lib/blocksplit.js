@@ -225,5 +225,17 @@ export function settle(review, ids, { key = null, list = null } = {}) {
   };
 }
 
+/**
+ * Impeccable runde 2 (Bausteine 2): how many building blocks «Bausteine prüfen» still asks about: each block with
+ * open suggestions, the cold rules (the block Cold) and the items still to assign (old Lodging) count once each.
+ */
+export function reviewBlocks(review) {
+  if (!review) return 0;
+  const keys = new Set(Object.entries(review.suggested ?? {}).filter(([, l]) => l?.length).map(([k]) => k));
+  if (review.cold?.length) keys.add('cold');
+  if (review.unassigned?.length) keys.add('unassigned');
+  return keys.size;
+}
+
 /** Is anything left to check? */
 export const reviewOpen = (review) => !!review && ((review.cold?.length ?? 0) + (review.unassigned?.length ?? 0) + Object.values(review.suggested ?? {}).reduce((n, l) => n + l.length, 0)) > 0;

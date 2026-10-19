@@ -3,7 +3,10 @@
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js). Phone and desktop.
 // V038_SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
+import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';
+import { SIDE_PLACES, BAR_PLACES } from '../../src/lib/nav.js';
+import DE from '../../src/lib/i18n/de/index.js';
 
 const db = (page, table, id) =>
   page.evaluate(
@@ -68,8 +71,10 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await expect(page.locator('dialog.more')).toHaveCount(0);
-  // «Woche planen» (Noah 15.10.2026 «1a»): Woche next to Heute; on a phone it takes Material's place in the bar
-  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText(info.project.name === 'phone' ? [/Heute/, /Woche/, /Touren/, /Velos/, /Aktiv/] : [/Heute/, /Woche/, /Touren/, /Material/, /Velos/, /Aktiv/]);
+  // AU1 «1b» (Paket E, changed on purpose): the sidebar has «Ausrüstung» under Velos. «Woche planen» (Noah 15.10.2026
+  // «1a»): Woche next to Heute; on a phone it takes Material's place in the bar (BAR_PLACES). Read from nav.js.
+  const side = await page.locator('.side li.pl').first().isVisible();
+  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => new RegExp(DE[p.label] ?? p.label.replace(/\|[a-z]+$/, ''))));
   await me.click();
   await expect(page).toHaveURL(/#\/me$/);
   const main = page.locator('main');
@@ -107,13 +112,14 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
   const rows = page.locator('li.gr');
   await expect(rows.first()).toBeVisible();
   await expect(page.locator('li.gr .bg')).toHaveCount(0);
-  const seg = page.getByRole('group', { name: 'Tasche zeigen' });
-  await expect(seg.getByRole('button', { name: 'Kompakt' })).toHaveAttribute('aria-pressed', 'true');
-  await seg.getByRole('button', { name: 'Mit Tasche' }).click();
+  // Impeccable runde 2 (Material 3): «Kompakt | Mit Tasche» in the line above the list; on a phone in «Sortieren und filtern»
+  await expect(await lookButton(page, 'Tasche zeigen', 'Kompakt')).toHaveAttribute('aria-pressed', 'true');
+  await pickLook(page, 'Tasche zeigen', 'Mit Tasche');
   await expect(page.locator('li.gr .bg').first()).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('group', { name: 'Tasche zeigen' }).getByRole('button', { name: 'Mit Tasche' })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('group', { name: 'Tasche zeigen' }).getByRole('button', { name: 'Kompakt' }).click();
+  await expect(await lookButton(page, 'Tasche zeigen', 'Mit Tasche')).toHaveAttribute('aria-pressed', 'true');
+  await (await lookButton(page, 'Tasche zeigen', 'Kompakt')).click();
+  await closeLook(page);
   await noSideways(page);
 
   // ••• on a used item: Archive, never Delete (that is the red button in the item).

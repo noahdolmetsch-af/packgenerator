@@ -24,7 +24,7 @@ const ROUTES = [
   ['#/pack/past', 'Vergangene Touren'],
   ['#/ride', 'Unterwegs'],
   ['#/debrief', 'Rückblick'],
-  ['#/debrief/ride', 'Fahrt hochladen'],
+  ['#/debrief/ride', 'Fahrten'],
   // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
   ['#/debrief/learnings', 'Gelernt'],
   ['#/debrief/pace', 'Tempo'],
@@ -86,6 +86,7 @@ const ROUTES = [
   ['#/timer', 'Timer'],
   ['#/timer/faces', 'Zifferblatt'],
   ['#/timer/log', 'Timer-Log'],
+  ['#/routine', 'Das tut mir gut'], // Routine «Das tut mir gut» (mockup D2)
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],
@@ -105,6 +106,15 @@ const ROUTES = [
   // v0.134.0 «Listen und Typen» (LI1, LI2): the overview and the list Kategorien, strict like their files
   ['#/me/lists', 'Listen und Typen'],
   ['#/me/lists?categories', 'Kategorien'],
+  // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte, strict like its file
+  ['#/me/werte', 'Eigene Werte'],
+  // v0.97.0 «Skitouren»: Touren › Skitouren and its four pages, strict like their files (the fixture has no
+  // ski tour: the empty states; tests/e2e/ski.spec.js checks them filled)
+  ['#/ski', 'Skitouren'],
+  ['#/ski/check', 'Rucksack-Check'],
+  ['#/ski/start', 'Start-Check'],
+  ['#/ski/care', 'Saison-Pflege'],
+  ['#/ski/after', 'Nach der Tour'],
   // P3b «Daten sicher» (D3): Ich › Dokumente, strict like its file
   ['#/me/docs', 'Dokumente'],
 ];

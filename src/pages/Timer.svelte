@@ -23,6 +23,10 @@
   import { artName } from '../lib/flow/hobby/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
+  import { phone } from '../lib/media.svelte.js';
+  import { flowQuery } from '../lib/flow/data.svelte.js';
+  import { flowStates } from '../lib/flow.js';
+  import { tickWith, actName } from '../lib/flow/ui.svelte.js';
 
   const today = localDay();
   const MODE_ICON = { up: ArrowUp, down: ArrowDown, interval: Repeat, pomodoro: TimerIcon, until: Clock };
@@ -67,6 +71,8 @@
     const s = shownSetup;
     const parts = [run?.label || t(modeOf(s.mode).label)];
     if (!run?.label && s.mode !== 'up') parts[0] += ` ${w(setupWords(s))}`;
+    // Impeccable runde 2: a phone hides the kinds' second line; the chosen kind says it here when the setup does not
+    if (!run && phone.matches && (s.mode === 'up' || s.mode === 'down')) parts.push(t(modeOf(s.mode).sub));
     if (pos && pos.rounds > 1) parts.push(t('round {n} of {m}', { n: pos.round, m: pos.rounds }));
     if (pos?.kind === 'rest') parts.push(t('Break'));
     return parts.join(' · ');
@@ -146,6 +152,31 @@
     keepNote(true);
     if (s) start(s, label);
   }
+  /* Impeccable runde 2 (Noah «alle Vorschläge angenommen»): a finished timer can tick an Aktiv activity
+     too, never by itself: «Auch in Aktiv abhaken ›» lists today's activities (not resting), the one chosen
+     last time first and chosen; one tap on «Abhaken» ticks it with the minutes of the timer. */
+  const flowQ = flowQuery(today);
+  const flowData = $derived($flowQ);
+  const aktivActs = $derived(flowData ? flowStates(flowData.acts, flowData.log, today, flowData.tripDays).filter((s) => !s.resting).map((s) => s.act) : []);
+  let aktivOpen = $state(false);
+  let aktivPick = $state(null);
+  let aktivDone = $state(null);
+  const aktivChosen = $derived(aktivPick ?? (aktivActs.some((a) => a.id === timer.prefs.aktiv) ? timer.prefs.aktiv : (aktivActs[0]?.id ?? null)));
+  $effect(() => {
+    // a new finished timer starts closed
+    void timer.done?.id;
+    aktivOpen = false;
+    aktivPick = null;
+    aktivDone = null;
+  });
+  async function tickAktiv() {
+    const a = aktivActs.find((x) => x.id === aktivChosen);
+    const d = timer.done;
+    if (!a || !d) return;
+    await tickWith(a, { day: today, min: Math.max(1, Math.round(d.sec / 60)), via: 'timer' });
+    aktivDone = a.id;
+    await savePrefs({ aktiv: a.id });
+  }
   const addWord = (x) => (note = note.trim() ? `${note.trim()}, ${x}` : x);
   const setNum = (k, v, mul = 1) => {
     const n = Math.round(Number(v) * mul);
@@ -156,7 +187,7 @@
 <div class="tmr">
   <Crumb path={[{ href: '#/', label: t('Today|place') }]} here={t('Timer')} />
   <h1 class="h1" tabindex="-1" data-page-title>{t('Timer')}</h1>
-  <p class="sub">{t('Timer, countdown, interval, Pomodoro or until a time. All optional.')}</p>
+  <p class="sub">{t('Stopwatch, countdown, interval, Pomodoro or until a time. All optional.')}</p>
 
   {#if timer.done}
     {@const d = timer.done}
@@ -174,6 +205,22 @@
         <button type="button" class="btn" onclick={again}><RotateCcw size={18} aria-hidden="true" />{t('Again')}</button>
         <button type="button" class="btn" onclick={() => ((note = ''), closeDone())} data-act="skip">{t('Without a note')}</button>
       </div>
+      {#if aktivActs.length}
+        <!-- Impeccable runde 2: «Auch in Aktiv abhaken ›», optional, never by itself -->
+        {#if aktivDone}
+          <p class="aktok" role="status" data-aktiv-done><Check size={16} aria-hidden="true" />{t('Ticked in Aktiv: {name}', { name: actName(aktivActs.find((a) => a.id === aktivDone)) })}</p>
+        {:else}
+          <button type="button" class="aktl" aria-expanded={aktivOpen} aria-controls="t-aktiv" onclick={() => (aktivOpen = !aktivOpen)} data-aktiv-open>{t('Also tick off in Aktiv')}<ChevronRight size={16} aria-hidden="true" /></button>
+          {#if aktivOpen}
+            <div class="aktw" id="t-aktiv">
+              <div class="chips" role="radiogroup" aria-label={t('Which activity?')}>
+                {#each aktivActs as a (a.id)}<button type="button" role="radio" class="ch" class:on={aktivChosen === a.id} aria-checked={aktivChosen === a.id} onclick={() => (aktivPick = a.id)} data-aktiv={a.id}>{actName(a)}</button>{/each}
+              </div>
+              <button type="button" class="btn hi sm" onclick={tickAktiv} disabled={!aktivChosen} data-aktiv-tick><Check size={16} aria-hidden="true" />{t('Tick off · {n} min', { n: Math.max(1, Math.round(d.sec / 60)) })}</button>
+            </div>
+          {/if}
+        {/if}
+      {/if}
     </section>
   {/if}
 
@@ -244,7 +291,7 @@
 
     <aside class="side">
       <section aria-labelledby="t-blocks">
-        <div class="sh"><h2 id="t-blocks" class="h2">{t('Building blocks')}</h2></div>
+        <div class="sh"><h2 id="t-blocks" class="h2">{t('Quick starts')}</h2></div>
         <p class="sm">{t('A tap starts at once')}</p>
         <div class="surf pad blocks">
           {#each blocks as b (b.id)}
@@ -257,12 +304,12 @@
           {/each}
           {#if ownOpen}
             <form class="own" onsubmit={saveOwn}>
-              <input class="inp" bind:value={ownName} maxlength="40" placeholder={t('Name, e.g. Eggs')} aria-label={t('Name of the building block')} />
+              <input class="inp" bind:value={ownName} maxlength="40" placeholder={t('Name, e.g. Eggs')} aria-label={t('Name of the quick start')} />
               <button type="submit" class="btn sm hi">{t('Save')}</button>
               <p class="sm">{t('Keeps the timer set on the left: {what}', { what: `${t(modeOf(cur.mode).label)} ${w(setupWords(cur))}` })}</p>
             </form>
           {:else}
-            <button type="button" class="blk new" onclick={() => (ownOpen = true)} data-block="new"><Plus size={18} aria-hidden="true" />{t('Own building block')}</button>
+            <button type="button" class="blk new" onclick={() => (ownOpen = true)} data-block="new"><Plus size={18} aria-hidden="true" />{t('Own quick start')}</button>
           {/if}
         </div>
       </section>
@@ -388,6 +435,29 @@
   .mode:disabled {
     opacity: 0.45;
     cursor: default;
+  }
+  /* Impeccable runde 2 (layout): on a phone the five kinds are one wrapping row of small chips without
+     their second line, so the clock, Start and the typed time are on the first screen */
+  @media (max-width: 719px) {
+    .modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .mode {
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+    }
+    .mode.on {
+      padding: 0 13px;
+    }
+    .mode small {
+      display: none;
+    }
   }
   .clock {
     display: flex;
@@ -642,6 +712,39 @@
     align-items: center;
     gap: 8px;
     text-align: center;
+  }
+  /* Impeccable runde 2: «Auch in Aktiv abhaken ›», a quiet link under the actions */
+  .aktl {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .aktl[aria-expanded='true'] :global(svg) {
+    transform: rotate(90deg);
+  }
+  .aktw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .aktw .chips {
+    justify-content: center;
+  }
+  .aktok {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ok);
+    font-size: var(--fs-small);
   }
   .ok {
     display: grid;

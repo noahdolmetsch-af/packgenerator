@@ -16,9 +16,10 @@
 
 /** The five kinds (Z2), in their order. label/sub: English keys for t(). */
 export const MODES = [
-  { id: 'up', label: 'Timer', sub: 'counts up' },
+  // Impeccable runde 2: the kind that counts up is «Stoppuhr» as in Aktiv (it was «Timer», like the whole page)
+  { id: 'up', label: 'Stopwatch', sub: 'counts up' },
   { id: 'down', label: 'Countdown', sub: 'counts down' },
-  { id: 'interval', label: 'Interval', sub: 'e.g. Tabata 20/10' },
+  { id: 'interval', label: 'Interval|timer', sub: 'e.g. Tabata 20/10' },
   { id: 'pomodoro', label: 'Pomodoro', sub: '25/5 or 52/17' },
   { id: 'until', label: 'Until|timer', sub: 'e.g. until 17:30' },
 ];
@@ -91,6 +92,8 @@ export function prefsOf(v) {
     fmt: FORMATS.some((f) => f.id === o.fmt) ? o.fmt : 'hms',
     blocks: Array.isArray(o.blocks) ? o.blocks.filter((b) => b && b.id && b.label && setupOk(b.setup)).map((b) => ({ id: String(b.id), label: String(b.label).slice(0, 40), icon: 'timer', own: true, setup: setupOk(b.setup) })) : [],
     last: setupOk(o.last) ?? DEFAULTS.down,
+    // Impeccable runde 2: the Aktiv activity chosen last time under «Auch in Aktiv abhaken ›»
+    aktiv: typeof o.aktiv === 'string' && o.aktiv ? o.aktiv.slice(0, 80) : null,
   };
 }
 

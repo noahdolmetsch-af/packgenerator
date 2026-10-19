@@ -36,6 +36,54 @@ export const WHATS_NEW = [
       'Open Week: your week from Monday to Sunday; hide a kind with its chip.',
       'Tap «Plan the week» and take or skip a suggestion in each of the four steps.',
       'Open Me › Handbook › Tour and go through the six steps with the example trip.',
+    // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
+    // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
+    // Impeccable round 2 (Aktiv · Heute, timer and the other pages), Fenster, Erkenntnisse, Bewegung 4b and Tempo.
+    // Paket Aktiv itself comes later. Three small boxes at most: Insights and the blocks share one, Tempo is one.
+    version: '0.150.0',
+    date: '2026-10-19',
+    title: 'Today in a calm order',
+    lead: 'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.',
+    points: [
+      { text: '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak', href: '#/routine' },
+      { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care; below it Aktiv with sleep, last activity and next fixed date', href: '#/' },
+      { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
+    ],
+    small: [
+      { box: 'new', text: 'Me › Insights: what goes together in your data; and nine new building blocks', href: '#/me/insights' },
+      { box: 'nicer', text: 'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list', href: '#/pack' },
+      { box: 'faster', text: 'Gear search reacts at once (first 5 hits per group); Trips shows 20 trips first', href: '#/gear' },
+    ],
+    test: [
+      'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',
+      'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.',
+      'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.',
+      'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.',
+    ],
+  },
+  {
+    // v0.149.0 Paket E «Material, Velos, Merken»: P4/P5 (Werte messen W1–W6, Bausteine, Bezahl-Erinnerung, Garmin-Seiten
+    // with the Edge 850, Taschen-Setups, Erinnerungen ER1–ER3, Merken PL3), Geburtstage + Pflanzen, Eigene Werte,
+    // Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Touren › Skitouren), Sportart SA1–SA3, Eigene Listen,
+    // UI-Regeln, Impeccable round 1 (12 pages), «Was hier steht» on 5 more pages, TWINT-Bildschirmfoto in Rechnungen (Noah 19.10 «2b»).
+    version: '0.149.0',
+    date: '2026-10-19',
+    title: 'Remember, set up, sport by sport',
+    lead: 'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.',
+    points: [
+      { text: 'Calendar › Remember: your own to-dos and lists; after a ride or before a trip the app asks whether it should remind you', href: '#/calendar' },
+      { text: 'Bikes: several bag setups per bike, the Garmin pages for the Edge 1040 and 850, and the main equipment such as skis with its care', href: '#/equipment' },
+      { text: 'Every trip has a sport, a bike sport brings its standard bike; ski tours have their own page with the backpack check and the season care', href: '#/ski' },
+    ],
+    small: [
+      { box: 'new', text: 'Deleting a bike always works: the window asks which bike gets its trips; learnings, problems, rides, ideas and the logbook can be renamed and deleted', href: '#/bikes' },
+      { box: 'new', text: 'Me › Own values and Lists and types: your own numbers, sports, places on the bike and care parts', href: '#/me/werte' },
+      { box: 'new', text: 'Bills › Choose a TWINT screenshot: the app marks the right bill paid', href: '#/me/pay/invoices' },
+    ],
+    test: [
+      'Open Calendar › Remember and add a to-do; tick it off and take it back.',
+      'Open Bikes › Equipment and add a piece of equipment from Material; log a use.',
+      'Plan a new trip and choose Gravel: the trip takes your standard bike for that sport. Then open Trips › Ski tours: the backpack check is there.',
     ],
   },
   {

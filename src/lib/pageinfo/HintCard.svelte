@@ -21,7 +21,7 @@
    * only: '' draws both states here; 'line' only the folded line, as a small chip «Was hier steht ›» (for a page
    * head); 'card' only the open card. A page may place the two in different spots (Trips on a phone).
    */
-  import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell } from '@lucide/svelte';
+  import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell, Upload, Link2, Flag } from '@lucide/svelte';
   import { pageInfo } from './store.svelte.js';
   import { hintOf } from '../hints.js';
   import { canRows, canShown, setHint, hintShown, hintShownFolded } from '../pageinfo.js';
@@ -72,7 +72,7 @@
     saveIntro((v) => setOffered(v, introKey));
     startTour(intro.tour);
   }
-  const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell };
+  const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell, upload: Upload, link: Link2, flag: Flag };
   const pi = pageInfo();
   const hint = $derived(hintOf(page));
   const open = $derived(pi.loaded && (foldedOnPhone && phone.matches ? hintShownFolded(pi.info, page) : hintShown(pi.info, page)));

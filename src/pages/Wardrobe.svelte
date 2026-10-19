@@ -33,8 +33,10 @@
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { wearItems, undoBulk } from '../lib/gear/bulk.js';
   import { SvelteSet } from 'svelte/reactivity';
-  import { ChevronDown, ChevronLeft, MoreHorizontal, Undo2, Check, Thermometer, Sparkles, Heart, Layers, X } from '@lucide/svelte';
+  import { ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Undo2, Check, Thermometer, Sparkles, Heart, Layers, X } from '@lucide/svelte';
+  import { phone } from '../lib/media.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import ShareBar from '../lib/ui/ShareBar.svelte';
   import { addItem } from '../lib/nav.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -66,6 +68,31 @@
 
   const items = $derived($itemsQ ?? []);
 
+  // Impeccable runde 2 (Kleider 2): what «Velo · Alltag · Alle» mean, once, under the switch; × hides it for good
+  const USE_HELP = 'wardrobe.useHelp';
+  let useHelp = $state(
+    (() => {
+      try {
+        return localStorage.getItem(USE_HELP) !== 'off';
+      } catch {
+        return true;
+      }
+    })(),
+  );
+  function hideUseHelp() {
+    useHelp = false;
+    try {
+      localStorage.setItem(USE_HELP, 'off');
+    } catch {
+      /* private mode: only this visit */
+    }
+  }
+  // Impeccable runde 2 (Kleider 1): on a phone every layer is one closed line; a tap opens it (the others stay as
+  // they are), another tap closes it. A layer or zone picked on the onion opens what it shows.
+  let openLayers = $state({});
+  const layerShut = (key) => phone.matches && !fLayer && !fZone && !openLayers[key];
+  const toggleLayer = (key) => (openLayers[key] = !openLayers[key]);
+
   /* ---------- v0.59.0 «Tauschen» (OP2a, Noah a): the wardrobe for a trip (#/wardrobe/trip/<id>) ---------- */
   // From the packing list («Open in the wardrobe»): a band with the trip's range and dry / rain / any;
   // «Fits the trip» hides a piece that does not fit when its place has one that does (a hint says how
@@ -95,6 +122,8 @@
   // v0.45.0 (decision 2): the gaps are about riding, so not under Alltag.
   const gaps = $derived(use === 'everyday' ? [] : wardrobeGaps(items, { offset }));
   const w = $derived(wardrobe(items, use, { gaps }));
+  const LAYER_COLOR = { base: 'var(--l1)', mid: 'var(--l2)', outer: 'var(--l3)', accessory: 'var(--l4)' };
+  const layerParts = $derived(w.layers.map((l) => ({ key: l.key, label: t(LAYERS.find((x) => x.key === l.key).name), g: l.g || 0, color: LAYER_COLOR[l.key] })));
   // v0.45.0 (decision 8): the learned offset in words, with "Reset".
   const offLine = $derived(offsetLine(offset));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} kg`;
@@ -291,7 +320,10 @@
     <div class="ht">
       <Crumbs crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} here={t('Wardrobe')} />
       <h1 class="title">{t('Wardrobe')}</h1>
-      <p class="page-sub">{tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
+      <!-- Impeccable runde 2 (Kleider 2): the head line follows the switch (118 for cycling, as in «Velo 118») -->
+      <p class="page-sub">{use === 'velo' ? tn(w.n, '{n} piece of clothing for cycling', '{n} pieces of clothing for cycling') : use === 'everyday' ? tn(w.n, '{n} piece of clothing for everyday', '{n} pieces of clothing for everyday') : tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
+      <!-- 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): the weight per layer as one thin bar -->
+      <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
       {#if offLine}
         <p class="offset"><Thermometer size={15} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
@@ -327,7 +359,7 @@
       {#if w.n}
         <!-- v0.47.0 (Noah 1a, 6a): the onion figure with zone pins; a tap on a pin or a layer filters. -->
         <section class="surf onion" aria-labelledby="onion-h">
-          <p class="zlabel cap" id="onion-h"><span>{t('Your onion')}</span><span class="tip">{t('Tap to filter')}</span></p>
+          <p class="zlabel cap" id="onion-h"><span>{t('Your onion')}</span>{#if !phone.matches}<span class="tip">{t('Tap to filter')}</span>{/if}</p>
           <div class="fig-wrap">
             <svg class="fig" viewBox="0 0 160 210" aria-hidden="true">
               <circle cx="80" cy="102" r="78" class="halo" />
@@ -448,6 +480,10 @@
         {/if}
       </div>
 
+      {#if useHelp && !trip}
+        <p class="usehelp" data-use-help><span>{t('Cycling: what you wear on the bike. Everyday: everything else. All: both together.')}</span><button type="button" class="ux" aria-label={t('Hide this note')} onclick={hideUseHelp}><X size={16} aria-hidden="true" /></button></p>
+      {/if}
+
       {#if fLayer || fZone}
         <p class="filt" role="status">
           <span>{t('Only {what}', { what: [fLayer ? layerName(fLayer) : null, fZone ? zoneName(fZone) : null].filter(Boolean).join(' · ') })}</span>
@@ -468,14 +504,28 @@
       {/if}
 
       <TopButton />
+      {#if phone.matches && w.n && shownLayers.length > 1}<p class="ltip">{t('Tap a layer or a body zone to see only these clothes.')}</p>{/if}
       <!-- v0.47.0 (Noah 5b): the four layers side by side like a wardrobe on a computer, one below the other on a phone -->
       <div class="cols">
         {#each shownLayers as l (l.key)}
-          <section class="surf layer" style="--lc: var(--l{LN[l.key]}); --ls: var(--l{LN[l.key]}-soft)" aria-labelledby="l-{l.key}">
+          {@const shut = layerShut(l.key)}
+          <section class="surf layer" class:shut style="--lc: var(--l{LN[l.key]}); --ls: var(--l{LN[l.key]}-soft)" aria-labelledby="l-{l.key}" data-layer={l.key}>
+            {#if phone.matches}
+              <!-- Impeccable runde 2 (Kleider 1): «Basis · direkt auf der Haut · 33 · 5.32 kg ›», a tap opens it -->
+              <h2 class="lh lbar" id="l-{l.key}">
+                <button type="button" class="ltog" aria-expanded={!shut} onclick={() => toggleLayer(l.key)}>
+                  <span class="lt2"><b>{layerName(l.key)}</b> <small>{layerSub(l.key)}</small></span>
+                  <span class="ln2 num">{l.n} · {formatWeight(l.g)}</span>
+                  <ChevronRight class={shut ? 'lchev' : 'lchev down'} size={18} aria-hidden="true" />
+                </button>
+              </h2>
+            {:else}
             <div class="lhead">
               <h2 class="lh" id="l-{l.key}"><b>{layerName(l.key)}</b> <small>{layerSub(l.key)}</small></h2>
               <p class="lnum num"><span class="bignum">{l.n}</span><small>{formatWeight(l.g)}</small></p>
             </div>
+            {/if}
+            {#if !shut}
             {#each l.zones as z (z.key)}
               <h3 class="zh zlabel">{zoneName(z.key)}</h3>
               {#if z.items.length}
@@ -517,6 +567,7 @@
                 </p>
               {/if}
             {/each}
+            {/if}
           </section>
         {/each}
       </div>
@@ -636,6 +687,10 @@
     color: var(--ink);
     text-decoration: underline;
   }
+  .wshare {
+    margin: 10px 0 0;
+    max-width: 560px;
+  }
   .page-sub {
     margin: 6px 0 8px;
   }
@@ -724,7 +779,11 @@
     .filt {
       order: 4;
     }
+    .usehelp {
+      order: 1;
+    }
     .nowear,
+    .ltip,
     .cols {
       order: 5;
     }
@@ -1250,16 +1309,138 @@
   @media (min-width: 1360px) {
     .cols {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
     }
     /* four narrow columns: the zone label says the zone, so no icon per row (P2) */
     .cols .row > .zi {
       display: none;
+    }
+    /* Impeccable runde 2 (Kleider 3): the narrow columns get the room back. The side column is narrower, the
+       card padding smaller, the «…» sits in the corner of the row instead of a column of its own, and the
+       temperature bar, °C and the weight share one line under the name (weight right, tabular). */
+    .wgrid {
+      grid-template-columns: 264px minmax(0, 1fr);
+    }
+    .cols .layer {
+      padding: 12px 12px 6px;
+    }
+    .cols .row {
+      align-items: flex-start;
+      padding: 6px 0;
+    }
+    .cols .mid {
+      padding-right: 26px;
+    }
+    .cols .dots {
+      position: absolute;
+      top: 0;
+      right: -6px;
+      width: 32px;
+      height: 36px;
+      margin: 0;
+    }
+    .cols .tl {
+      flex-wrap: nowrap;
+      gap: 0 6px;
+      margin-right: -26px;
+    }
+    .cols .tl .tbar {
+      width: 40px;
     }
   }
   .layer {
     padding: 14px 14px 8px;
     border-top: 4px solid var(--lc);
     min-width: 0;
+  }
+  /* Impeccable runde 2 (Kleider 2): what the three words of the switch mean, once */
+  .usehelp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .usehelp > span {
+    flex: 1;
+    min-width: 0;
+  }
+  .ux {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px -8px -8px 0;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .ux:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  /* Impeccable runde 2 (Kleider 1): a phone shows each layer as one line; a tap opens it */
+  .ltip {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .layer:not(.shut) .lh.lbar {
+    margin: -14px -14px 0;
+  }
+  .layer.shut {
+    padding: 0;
+  }
+  .ltog {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lt2 {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--fs-body);
+  }
+  .lt2 b {
+    font-weight: 600;
+  }
+  .lt2 small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ln2 {
+    flex: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .ltog :global(.lchev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 150ms ease-out;
+  }
+  .ltog :global(.lchev.down) {
+    transform: rotate(90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ltog :global(.lchev) {
+      transition: none;
+    }
   }
   .lhead {
     display: flex;

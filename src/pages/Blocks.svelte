@@ -23,6 +23,11 @@
    * SN5+ F4 (Noah 13.10.2026 answer 3a): a block saved from the favourites is a copy; when the stars of its
    * trip kind change later, its row says so quietly («n Favoriten haben sich geändert · übernehmen?»):
    * one tap takes the changes over (Undo), «nein» only forgets them.
+   * v0.154.0 «Bausteine mehr» (mockup SN3h; Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a): the
+   * groups of the Gesamtliste (blocksmore.js BLOCK_GROUPS): Übernachtung, Auf jeder Fahrt (Standard first), Je nach
+   * Lage (12, open), Baden (new, open), Zum Dazunehmen. Nine new blocks with their rule; the stages of Kälte,
+   * Kochen, Laden, Erste Hilfe and Hygiene as chips inside their block (each its own rule and suggestion, 4b).
+   * New parts of the update show as «+N neu» with Rückgängig (2a) for 14 days.
    */
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
@@ -31,21 +36,24 @@
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel, deletedBuiltIns } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
-  import { NIGHT_BLOCKS, RIDE_BLOCKS, OUTDOOR_BLOCKS } from '../lib/context.js';
-  import { REVIEW_KEY, reviewOpen } from '../lib/blocksplit.js';
+  import { OUTDOOR_BLOCKS } from '../lib/context.js';
+  import { localDay } from '../lib/localday.js';
+  import { REVIEW_KEY, reviewOpen, reviewBlocks } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet, restoreSetIn } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star } from '@lucide/svelte';
+  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star, CalendarDays, Waves, Sparkles } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
+  import ShareBar from '../lib/ui/ShareBar.svelte';
   import Section from '../lib/ui/Section.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import { blockIcon, blockTone } from '../lib/blockicons.js';
   import { RAIN_WORDS } from '../lib/packblocks.js';
-  import { SITUATION_BLOCKS, rulesOf, setRule } from '../lib/situation.js';
-  import { ruleLine, hitBadge } from '../lib/situationtext.js';
+  import { rulesOf, setRule, hasRule, stagesOf, STAGE_BLOCKS, MORE_BLOCKS } from '../lib/situation.js';
+  import { ruleLine, hitBadge, byHand } from '../lib/situationtext.js';
+  import { BLOCK_GROUPS, OPEN_GROUPS, FIXED_WHEN, MORE_KEY, newParts, undoMore } from '../lib/blocksmore.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import RuleSheet from '../lib/gear/RuleSheet.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
@@ -59,20 +67,41 @@
   const items = $derived($itemsQ ?? []);
   const sets = $derived(allSets($setsQ?.value));
   const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items), kind: blockKind(s.key) })));
-  // With the night in the order the overnight stay brings them; to add: Light first, then your own.
-  const nightCards = $derived(NIGHT_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
-  const rideCards = $derived(RIDE_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  // v0.154.0: the groups of the Gesamtliste, in their order (Standard is its own row in «Auf jeder Fahrt»)
+  const cardsOf = (keys) => keys.map((k) => cards.find((c) => c.key === k)).filter(Boolean);
+  const nightCards = $derived(cardsOf(BLOCK_GROUPS.night));
+  const everyCards = $derived(cardsOf(BLOCK_GROUPS.every));
+  const bathCards = $derived(cardsOf(BLOCK_GROUPS.bathing));
+  // v0.154.0 (2a): what the update «Bausteine mehr» put in, for «+N neu» and Rückgängig
+  const moreQ = liveQuery(() => db.settings.get(MORE_KEY));
+  const today = localDay();
+  const newOf = (key) => newParts($moreQ?.value, key, items, today);
+  /** The new parts of a group (the stages and extensions of its blocks; a new block is «neu» as a whole), for the line of a folded group. */
+  const groupNew = (list) => list.flatMap((c) => [c.key, ...stagesOf(c.key)]).filter((k) => !MORE_BLOCKS.includes(k)).reduce((n, k) => n + newOf(k).length, 0);
+  /** A stage's own words inside its block: «Kälte: Hände und Füsse» → «Hände und Füsse». */
+  const stageName = (g) => blockLabel(g).replace(/^[^:]+:\s*/, '');
+  const isNewBlock = (key) => (MORE_BLOCKS.includes(key) || STAGE_BLOCKS.includes(key)) && newOf(key).length > 0;
+  async function takeBack(key) {
+    const snap = await undoMore(db, key);
+    if (!snap?.n) return;
+    const s = cards.find((c) => c.key === key);
+    offer(tn(snap.n, '{block}: {n} new item taken back.', '{block}: {n} new items taken back.', { block: s ? blockLabel(s) : key }), snap);
+  }
   // v0.66.0: «Bausteine prüfen» says when something from the update is still to check.
   const reviewQ = liveQuery(() => db.settings.get(REVIEW_KEY));
   const toCheck = $derived(reviewOpen($reviewQ?.value));
+  // Impeccable runde 2 (Bausteine 2): the chip says how many blocks wait, and leads there
+  const checkN = $derived(reviewBlocks($reviewQ?.value));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
-  // SN3+: the seven blocks «je nach Lage», their rules, an own rain block that follows the rule Regen
-  const sitCards = $derived(SITUATION_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  // SN3+: the blocks «je nach Lage» (v0.154.0: twelve, with Licht and Rennen), their rules, an own rain block that follows the rule Regen
+  const sitCards = $derived(cardsOf(BLOCK_GROUPS.situation));
+  // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
+  const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
   const rules = $derived(rulesOf($setsQ?.value));
   const ownRain = $derived(addCards.filter((c) => !c.builtIn && RAIN_WORDS.test(c.name)));
   const sample = $derived(sitCards.find((c) => c.key === 'cold') ?? null);
   /** A folded group's line: what it does · its first three names … */
-  const groupSub = (what, list) => [what, list.slice(0, 3).map(blockLabel).join(', ') + (list.length > 3 ? ' …' : '')].filter(Boolean).join(' · ');
+  const groupSub = (what, list) => [what, list.slice(0, 3).map(blockLabel).join(', ') + (list.length > 3 ? ' …' : ''), groupNew(list) ? tn(groupNew(list), '+{n} new item', '+{n} new items') : ''].filter(Boolean).join(' · ');
   let ruling = $state(null); // the key of the block whose rule sheet is open
   const rulingCard = $derived(ruling ? cards.find((c) => c.key === ruling) ?? null : null);
   // Save the rule (on the block's record) and take out the items crossed out in the sheet; one Undo.
@@ -95,6 +124,15 @@
     const { g, missing } = sumKnown(its.map(itemWeight));
     return { items: its, g, missing };
   });
+  // 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): where the weight of the blocks sits, one bar under the head.
+  const gOf = (kind) => cards.filter((c) => c.kind === kind).reduce((s, c) => s + (c.g || 0), 0);
+  const weightParts = $derived([
+    { key: 'always', label: t('Always with you'), g: standard.g || 0, color: 'var(--accent)' },
+    { key: 'situation', label: t('Depending on the situation'), g: gOf('situation'), color: 'var(--l2)' },
+    { key: 'ride', label: t('On the ride'), g: gOf('ride'), color: 'var(--l3)' },
+    { key: 'night', label: t('With the night'), g: gOf('night'), color: 'var(--l4)' },
+    { key: 'add', label: t('To add'), g: gOf('add'), color: 'var(--ink-3)' },
+  ]);
   const NAMES_SHOWN = 5;
   // v0.40.0: the blocks an Outdoor night brings get the quiet word "outdoor" (the head says "with the night").
   const OUTDOOR = OUTDOOR_BLOCKS;
@@ -112,6 +150,8 @@
     clearTimeout(timer);
     undo = null;
     if (snap) await undoBulk(db, snap);
+    // v0.154.0: the Undo of «Rückgängig» also puts the list of new parts back
+    if (snap?.more) await db.settings.put(snap.more);
   }
   $effect(() => () => clearTimeout(timer));
   const errText = (code, name) => (code === 'taken' ? t('There is already a building block "{name}".', { name }) : t('Give the building block a name.'));
@@ -216,6 +256,7 @@
     <span class="sm">
       <b><span class="nm" {id}>{name}</span>{#if s && (typeof s.minC === 'number' || typeof s.maxC === 'number')}{' '}<small class="quiet num">{tempRange(s.minC, s.maxC, t)}</small>{/if}{#if s && OUTDOOR.includes(s.key)}{' '}<small class="quiet">{t('outdoor|block')}</small>{/if}{#if s && !s.builtIn}{' '}<i class="nbadge">{t('own|block')}</i>{/if}</b>
       <small>{#if list.length}{namesOf(list, s).join(', ')}{:else}{t('still empty')}{/if}</small>
+      {#if s && FIXED_WHEN[s.key]}<span class="rchip"><Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{t(FIXED_WHEN[s.key])}</b></span>{/if}
     </span>
     <!-- Count and weight right in one column; an unknown weight is the scale, never 0 g. -->
     <span class="sv num" aria-hidden="true">{#if list.length}{list.length}{' · '}{#if sum.missing === list.length}<Scale size={15} class="scale" />{:else}{sum.missing ? '~' : ''}{formatWeight(sum.g)}{/if}{:else}–{/if}</span>
@@ -228,19 +269,42 @@
   {@const Icon = blockIcon(s.key, s.name)}
   {@const r = rules[s.key]}
   <!-- SN3+: one row per block «je nach Lage»: icon, names, when it comes; a tap opens its rule -->
-  <li class="blk" aria-labelledby="blk-{s.key}">
+  <!-- Impeccable (18.10.2026): an empty block says what it does not do and offers «+ Items» right there -->
+  <li class="blk" class:empty={!s.inventory.length} aria-labelledby="blk-{s.key}">
     <button type="button" class="srow sitrow" aria-haspopup="dialog" onclick={() => (ruling = s.key)}>
       <span class="sib tone-{blockTone(s.key, s.name)}" aria-hidden="true"><Icon size={18} /></span>
       <span class="sm">
-        <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span></b>
-        <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty')}{/if}</small>
-        <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>
+        <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span>{#if isNewBlock(s.key)}{' '}<i class="nbadge">{t('new|block')}</i>{/if}</b>
+        <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty: suggests nothing when packing')}{/if}</small>
+        <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>{#if byHand(s.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}
       </span>
-      <span class="sv num" aria-hidden="true">{#if s.inventory.length}{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}{:else}–{/if}</span>
+      {#if s.inventory.length}<span class="sv num" aria-hidden="true">{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}</span>{/if}
       <span class="sr">{tn(s.inventory.length, '{n} item', '{n} items')}</span>
       <ChevronRight class="schev" size={18} aria-hidden="true" />
     </button>
+    {#if !s.inventory.length}<a class="btn sm addp" href={fillHref(s)} aria-label={t('Add items to {block}', { block: blockLabel(s) })}><Plus size={16} aria-hidden="true" />{t('Items|add')}</a>{/if}
+    {@render extras(s)}
   </li>
+{/snippet}
+
+{#snippet extras(s)}
+  <!-- v0.154.0: the stages of a block (4b: each its own rule and suggestion), then «+N neu» with Rückgängig (2a) -->
+  {@const st = cardsOf(stagesOf(s.key))}
+  {#if st.length}
+    <ul class="stages" aria-label={t('Stages of {block}', { block: blockLabel(s) })}>
+      {#each st as g (g.key)}
+        {@const r = rules[g.key]}
+        <li><button type="button" class="stchip" class:off={!r.on} aria-haspopup="dialog" aria-label={blockLabel(g)} onclick={() => (ruling = g.key)}>{#if r.on}<Plus size={14} aria-hidden="true" />{:else}<ZapOff size={14} aria-hidden="true" />{/if}<span><b>{ruleLine(g.key, r)}</b>: {stageName(g)} · {tn(g.inventory.length, '{n} item', '{n} items')}{#if !r.on} · {t('Suggestion off')}{/if}</span></button></li>
+      {/each}
+    </ul>
+  {/if}
+  {#each [s, ...st] as g (g.key)}
+    {@const nw = newOf(g.key)}
+    {#if nw.length}
+      <p class="newl" data-new={g.key}><Sparkles size={14} aria-hidden="true" /><span>{#if MORE_BLOCKS.includes(g.key)}{tn(nw.length, '{n} example item', '{n} example items')}{:else}<b>{tn(nw.length, '+{n} new item', '+{n} new items')}</b>{#if g.key !== s.key}{' '}({stageName(g)}){/if}: {nw.map(nameOf).join(', ')}{/if}</span>
+        <button type="button" class="dlink" onclick={() => takeBack(g.key)} aria-label={t('Take back the new items of {block}', { block: blockLabel(g) })}>{t('Undo')}</button></p>
+    {/if}
+  {/each}
 {/snippet}
 
 {#snippet blockCard(s)}
@@ -303,13 +367,15 @@
         </p>
       {/if}
     {/if}
+    {@render extras(s)}
   </li>
 {/snippet}
 
 <div class="blocks">
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Building blocks')} extra={headSub}>
     <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere; SN3: a normal button -->
-    <Btn icon={ListChecks} label={t('Check|blocks')} explain={t('Check building blocks')} sub={toCheck ? t('to check|blocks') : ''} href="#/blocks/check" />
+    <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
+    <Btn icon={ListChecks} label={t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
   <AreaIntro place="blocks" />
@@ -327,7 +393,15 @@
        Right on a computer (under it on a phone): where the app knows the situation from, and the look in Packen. -->
   <div class="groups">
     <div class="gcol">
-      <Section fold title={t('Always with you')} sub={`${t('in every new trip')} · ${t('Standard|block')}`} count={1} id="g-always">
+      <!-- v0.154.0 (Gesamtliste, mockup SN3h): Übernachtung first; folded like before -->
+      <Section fold={!OPEN_GROUPS.includes('night')} title={t('Overnight|group')} sub={groupSub(t('come with the night'), nightCards)} count={nightCards.length} id="g-night">
+        <ul class="card slist">
+          {#each nightCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
+        </ul>
+      </Section>
+
+      <!-- 3a: «Standard» (before «Immer dabei») is the first row of «Auf jeder Fahrt» -->
+      <Section fold={!OPEN_GROUPS.includes('every')} title={t('On every ride')} sub={groupSub(`${t('come on every trip, you can take them off')} · ${t('Standard|block')}`, everyCards)} count={everyCards.length + 1} id="g-every">
         <ul class="card slist">
           <li class="blk std" aria-labelledby="blk-standard">
             <details class="edit">
@@ -350,27 +424,25 @@
               </div>
             </details>
           </li>
+          {#each everyCards as s (s.key)}{@render blockCard(s)}{/each}
         </ul>
       </Section>
 
       <Section title={t('Depending on the situation')} sub={`${t('come as a suggestion when the trip fits')} · ${tn(sitCards.length, '{n} building block', '{n} building blocks')}`} id="g-situation">
+        {#if sitEmpty}<p class="shint emptyhint"><Info size={15} aria-hidden="true" /><span>{tn(sitEmpty, '{n} building block is still empty. Put in the items that should come along, for example in cold, heat or rain.', '{n} building blocks are still empty. Put in the items that should come along, for example in cold, heat or rain.')}</span></p>{/if}
         <ul class="card slist">
-          {#each sitCards as s (s.key)}{@render sitRow(s)}{/each}
+          {#each sitCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
         </ul>
         {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
         <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Tap a block to change its rule, limit and items, or to switch the suggestion off. Never a must: in Pack it is dashed and can be left out.')}</span></p>
       </Section>
 
-      <Section fold title={t('On the ride')} sub={groupSub(t('suggested, you can take it off'), rideCards)} count={rideCards.length} id="g-ride">
+      <!-- v0.154.0: «Baden», a new group, open (5a) -->
+      <Section title={t('Bathing|group')} sub={`${t('come as a suggestion when the trip fits')} · ${tn(bathCards.length, '{n} building block', '{n} building blocks')}`} id="g-bathing">
         <ul class="card slist">
-          {#each rideCards as s (s.key)}{@render blockCard(s)}{/each}
+          {#each bathCards as s (s.key)}{@render sitRow(s)}{/each}
         </ul>
-      </Section>
-
-      <Section fold title={t('With the night')} sub={groupSub(t('come by themselves'), nightCards)} count={nightCards.length} id="g-night">
-        <ul class="card slist">
-          {#each nightCards as s (s.key)}{@render blockCard(s)}{/each}
-        </ul>
+        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Lakes, rivers, saunas and the water temperature are not known to the app yet: until there is a source, you tap them in Plan («still by hand»).')}</span></p>
       </Section>
 
       <Section fold title={t('To add')} sub={groupSub(t('one tap when you make a trip'), addCards)} count={addCards.length} id="g-add" bind:open={addOpen}>
@@ -399,6 +471,9 @@
           <li class="srow"><span class="sib info" aria-hidden="true"><CloudSun size={18} /></span><span class="sm"><b>{t('Weather in Plan')}</b><small>{t('Cold, Heat, Rain · lowest and highest forecast over the days of the trip')}</small></span></li>
           <li class="srow"><span class="sib" aria-hidden="true"><Route size={18} /></span><span class="sm"><b>{t('Route (GPX)')}</b><small>{t('Pass & climbing, Long ride · climbing, highest point, riding time')}</small></span></li>
           <li class="srow"><span class="sib" aria-hidden="true"><MapPin size={18} /></span><span class="sm"><b>{t('Three buttons in Plan')}</b><small>{t('Pass, Abroad, Train · «Pass», the country, «Getting there: bike · train · car»')}</small></span></li>
+          <!-- v0.154.0: two more sources -->
+          <li class="srow"><span class="sib" aria-hidden="true"><CalendarDays size={18} /></span><span class="sm"><b>{t('Days and night of the trip')}</b><small>{t('Two nights, Sleep well · number of nights, tent or bivouac')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><Waves size={18} /></span><span class="sm"><b>{t('Bathing in Plan')} <span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span></b><small>{t('Quick swim, Sauna and bath, Cold water · «Lake or river», «Sauna or bath», «Cold water»')}</small></span></li>
         </ul>
       </Section>
       {#if sample}
@@ -417,13 +492,14 @@
 
 {#snippet headSub()}
   <!-- v0.40.0 (design check, Noah 7a): one line instead of four, the rest behind "?" -->
-  <p class="bsub">{tn(cards.length + 1, '{n} building block', '{n} building blocks')} · {t('groups of items that come along together')}
+  <p class="bsub">{tn(cards.filter((c) => c.kind !== 'stage').length + 1, '{n} building block', '{n} building blocks')} · {t('groups of items that come along together')}
     <Help label={t('Building blocks')}>
       <p>{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
       <p>{t('Tools are never called "not needed" in the debrief.')}</p>
     </Help>
-    {#if toCheck}<i class="nbadge">{t('to check|blocks')}</i>{/if}
+    {#if toCheck}<a class="nbadge chk tap" href="#/blocks/check">{tn(checkN, '{n} building block to check', '{n} building blocks to check')} ›</a>{/if}
   </p>
+  <div class="bshare"><ShareBar label={t('Weight by group')} parts={weightParts} /></div>
 {/snippet}
 
 {#if selBlock}
@@ -494,6 +570,10 @@
   .blocks {
     max-width: 1240px;
   }
+  .bshare {
+    margin: 12px 0 0;
+    max-width: 640px;
+  }
   .bsub {
     display: flex;
     flex-wrap: wrap;
@@ -532,6 +612,38 @@
     text-align: left;
     cursor: pointer;
   }
+  /* Impeccable (18.10.2026): an empty block row with its «+ Items» on the right */
+  .blk.empty {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .blk.empty .sitrow {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* .btn.sm also carries the class «sm» of the row text (Section): keep the button its own size */
+  .blk.empty .addp {
+    flex: none;
+    gap: 4px;
+  }
+  /* on a phone the button goes under the text, in line with it (no squeezed row) */
+  @media (max-width: 559px) {
+    .blk.empty {
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .blk.empty .sitrow {
+      flex-basis: 100%;
+      flex-wrap: nowrap;
+    }
+    .blk.empty .addp {
+      margin: -4px 0 12px 48px;
+    }
+  }
+  .emptyhint {
+    margin: 0 2px 10px;
+  }
   .sitrow .sib.tone-blue {
     background: var(--info-soft);
   }
@@ -558,6 +670,85 @@
     display: inline;
     font-weight: 600;
     color: var(--ink);
+  }
+  .srow .sm .rchip b {
+    display: inline;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* v0.154.0: «noch von Hand», the stages of a block, «+N neu» with Rückgängig */
+  .hchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 6px;
+    padding: 1px 8px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  .stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: -4px 0 10px 48px;
+    padding: 0;
+  }
+  .stchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    max-width: 100%;
+    padding: 2px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: break-word;
+  }
+  .stchip b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .stchip.off {
+    border-style: dashed;
+    background: transparent;
+  }
+  .newl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+    margin: -4px 0 8px 48px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .newl > span {
+    flex: 1 1 200px;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .newl b {
+    color: var(--ink);
+  }
+  @media (max-width: 479px) {
+    .stages,
+    .newl {
+      margin-left: 12px;
+    }
+  }
+  @media (pointer: coarse) {
+    .stchip {
+      min-height: 44px;
+    }
   }
   .rchip.off {
     border: 1px dashed var(--line-strong);
