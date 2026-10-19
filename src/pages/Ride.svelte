@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -319,19 +320,34 @@
   }
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
   async function dropNote(n) {
-    if (!confirm(t('Delete this note?'))) return;
-    if (n.noteId) {
-      const rec = ($notesQ ?? []).find((x) => x.id === n.noteId);
-      return db.transaction('rw', db.notes, db.debriefs, async () => {
-        await db.notes.delete(n.noteId);
-        const d = rec?.debrief ? await db.debriefs.get(trip.id) : null;
-        if (d) await db.debriefs.put(dropNoteFromDebrief(d, rec));
-      });
-    }
-    const d = $state.snapshot(debrief);
-    const i = Number(n.key.slice(5));
-    d.rideNotes = d.rideNotes.filter((_, k) => k !== i);
-    await db.debriefs.put(d);
+    if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const name = String(n.text ?? '').slice(0, 40);
+    const tripId = trip.id;
+    await deleteWithUndo({
+      run: () =>
+        db.transaction('rw', db.notes, db.debriefs, async () => {
+          const before = await db.debriefs.get(tripId);
+          if (n.noteId) {
+            const rec = await db.notes.get(n.noteId);
+            await db.notes.delete(n.noteId);
+            const d = rec?.debrief && before ? before : null;
+            if (d) await db.debriefs.put(dropNoteFromDebrief(d, rec));
+            return { rec, before };
+          }
+          const d = $state.snapshot(debrief);
+          const i = Number(n.key.slice(5));
+          d.rideNotes = d.rideNotes.filter((_, k) => k !== i);
+          await db.debriefs.put(d);
+          return { rec: null, before };
+        }),
+      undo: ({ rec, before }) =>
+        db.transaction('rw', db.notes, db.debriefs, async () => {
+          if (rec) await db.notes.put(rec);
+          if (before) await db.debriefs.put(before);
+        }),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
   }
   const time = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 

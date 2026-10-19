@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   /**
    * v0.41.0 "GPX → Learning" (Noah 1-5). #/debrief/ride: upload a recorded ride (GPX or TCX), see
    * moving time and pauses, save it to a trip of that day, as a ride on its own, or as a new past
@@ -345,13 +346,27 @@
     if (trip?.bikeId) await kmToTrip(trip, [ride]);
   }
   async function remove() {
-    if (!confirm(t('Delete this ride? Learnings you kept stay.'))) return;
+    if ((await askDelete({ title: t('Delete this ride?'), text: t('Learnings you kept stay. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const now = new Date().toISOString();
-    await db.transaction('rw', [db.rides, db.settings], async () => {
-      if (inPace(ride)) await db.settings.put({ key: PACE_KEY, value: dropFromPace(paceSetting, ride.id, now) });
-      await db.rides.delete(ride.id);
+    const name = ride.name || ride.date || t('Ride');
+    const ok = await deleteWithUndo({
+      run: () =>
+        db.transaction('rw', [db.rides, db.settings], async () => {
+          const rec = await db.rides.get(ride.id);
+          const pace = await db.settings.get(PACE_KEY);
+          if (inPace(ride)) await db.settings.put({ key: PACE_KEY, value: dropFromPace(paceSetting, ride.id, now) });
+          await db.rides.delete(ride.id);
+          return { rec, pace };
+        }),
+      undo: ({ rec, pace }) =>
+        db.transaction('rw', [db.rides, db.settings], async () => {
+          if (rec) await db.rides.put(rec);
+          if (pace) await db.settings.put(pace);
+        }),
+      text: t('"{name}" deleted.', { name }),
+      name,
     });
-    location.hash = '#/debrief/ride';
+    if (ok) location.hash = '#/debrief/ride';
   }
 </script>
 

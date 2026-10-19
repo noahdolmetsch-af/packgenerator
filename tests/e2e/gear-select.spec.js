@@ -109,12 +109,16 @@ for (const lang of ['de', 'en']) {
     // v0.43.0: Delete sits under ••• in the bar, on every screen.
     await click(page.getByRole('region', { name: T('Selected items') }).getByLabel(T('More actions')));
     await click(page.getByRole('region', { name: T('Selected items') }).getByRole('button', { name: T('Delete'), exact: true }));
-    clicks++; // the OK in the confirm (accepted by the test)
+    // «Rückmeldungen» 19.10.2026: the app's own question (not the browser's confirm), «Archive» offered first
+    const ask = page.getByTestId('ask-delete');
+    await expect(ask).toContainText(T('Delete {n} items from your gear?', { n: 3 }));
+    await expect(ask).toContainText('test_data_gtp_ Seife');
+    await expect(ask).toContainText(T('{n} of them are on a trip or template; they disappear from there too.', { n: 2 }));
+    await expect(ask.getByRole('button', { name: T('Archive') })).toBeFocused();
+    await click(ask.getByRole('button', { name: T('Delete'), exact: true }));
     await expect(page.getByText(T('{n} items deleted.', { n: 3 }))).toBeVisible();
     expect(clicks, 'search, then 5 clicks').toBe(5);
-    expect(confirms[0]).toContain(T('Delete {n} items from your gear?', { n: 3 }));
-    expect(confirms[0]).toContain('test_data_gtp_ Seife');
-    expect(confirms[0]).toContain(T('{n} of them are on a trip or template; they disappear from there too.', { n: 2 }));
+    expect(confirms).toEqual([]);
 
     const left = (await table(page, 'items')).map((i) => i.id);
     expect(left.filter((id) => TEST_IDS.includes(id))).toEqual([]);
