@@ -432,6 +432,26 @@ export const HANDBOOK = {
     steps: ['Open Bikes › Care.', 'The card «before the trip» lists what the workshop still has to do.'],
     example: 'Example: trip in 10 days → «new brake pads» goes to the workshop order.',
   },
+  'f.sportpage': {
+    on: null,
+    steps: ['Open Active › Sports and tap a sport.', '«Adjust blocks»: switch blocks off, rename them, move them or add your own.', 'Choose a colour for the sport there too.'],
+    example: 'Example: Tennis without «Weather», with «Lessons» and «Matches» on top.',
+  },
+  'f.progress': {
+    on: null,
+    steps: ['Open a sport › History and progress.', 'Take a suggested measure or add your own, e.g. Leg press in kg.', 'The last values are filled in; + and − change them, «Save» keeps them.'],
+    example: 'Example: «Leg press +10 kg in 6 weeks», the best value with a star.',
+  },
+  'f.mosaic': {
+    on: null,
+    steps: ['Open Active › Sports.', 'Each row is a sport, each square a day; the colour is the sport.', 'A goal shows how often you reached it.'],
+    example: 'Example: Gym 3 of 2 times in 7 days, the row is ticked.',
+  },
+  'f.sportextras': {
+    on: null,
+    steps: ['Open a sport › «Adjust blocks».', 'Under «Add a block» choose e.g. Training plans, Lessons or Loops from home.', 'Its lines can be renamed, ticked and deleted.'],
+    example: 'Example: Gravel › «Water and gravel on the route» shows fountains and the gravel share of a route.',
+  },
   'f.tick': {
     on: null,
     steps: ['Open Active, or the Active card on Today.', 'One tap ticks an activity; «Undo» takes it back.'],

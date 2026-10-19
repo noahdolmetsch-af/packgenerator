@@ -293,7 +293,7 @@ export const PLACE_TABS = {
     { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/training(\/|\?|$)/.test(h) },
     { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
-    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
+    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|sports?(\/|\?|$)|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
   ],
 };
 

@@ -14,7 +14,7 @@ import { trackSync } from './sync/track.js';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 15; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none)
+export const SCHEMA_VERSION = 16; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Paket O «Sportarten» (sportItems)
 
 /** Tables that belong to the user's data and go into every backup file. */
 /** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
@@ -47,6 +47,7 @@ export const DATA_TABLES = [
   'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
   'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
   'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
+  'sportItems', // Paket O «Sportarten»: measures and values, notes, lessons, matches, loops, plans per sport (sportsdb.js)
 ];
 
 /**
@@ -208,6 +209,11 @@ export function createDb(name = 'pack-generator') {
   db.version(15).stores({
     gEvents: 'id, day, cal',
     gTasks: 'id, list, due, done',
+  });
+  // Version 16 (Paket O «Sportarten») only adds the entries of the sport pages, so existing data stays as it is:
+  // own measures and their values, «Fürs nächste Mal», lessons, matches, loops, plans (sportsdb.js).
+  db.version(16).stores({
+    sportItems: 'id, sport, kind, day',
   });
   // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
   // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.
