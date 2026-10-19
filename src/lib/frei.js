@@ -377,7 +377,7 @@ export const MOODS = [
 export const ENERGY = [
   { key: 'low', name: 'Running low' },
   { key: 'mid', name: 'Okay' },
-  { key: 'high', name: 'Full' },
+  { key: 'high', name: 'Full|energy' },
 ];
 export const AFTER = [
   { key: 'company', name: 'Company' },

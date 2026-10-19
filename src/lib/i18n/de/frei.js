@@ -285,7 +285,7 @@ export default {
   Quiet: 'Ruhe',
   'Running low': 'Auf Reserve',
   Okay: 'Geht so',
-  Full: 'Voll',
+  'Full|energy': 'Voll',
   'Go all out': 'Voll Gas',
   Practise: 'Üben',
   'Easy does it': 'Gemütlich',
