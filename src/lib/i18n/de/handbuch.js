@@ -298,6 +298,7 @@ export default {
   'Me › AI helper: switch on «Show the AI helper in the app» and save the code.': 'Ich › KI-Helfer: «KI-Helfer in der App zeigen» einschalten und Code speichern.',
   'Paste the helper code; it stays on this device.': 'Füge den Helfer-Code ein; er bleibt auf diesem Gerät.',
   'Before each request you see what goes to Claude; a monthly limit applies.': 'Vor jeder Anfrage siehst du, was an Claude geht; es gilt ein Monatslimit.',
+  'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.': 'Wähle das Modell: Sonnet 5.5 (Standard) oder das günstigere Haiku 5.5. «Nutzung und Kosten» sagt, was es kostet.',
   'Example: switched off again → it shows nowhere, the code stays stored.': 'Beispiel: wieder ausgeschaltet → er zeigt sich nirgends, der Code bleibt gespeichert.',
   'Computer with a keyboard.': 'Computer mit Tastatur.',
   'Press ? to see the list.': 'Drück ?, um die Liste zu sehen.',
@@ -343,6 +344,16 @@ export default {
   'Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.': 'Öffne Aktiv › Ziele: «Jahresziele» mit km, Höhenmetern und Minuten.',
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.': 'Beispiel: Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.',
+  // TR5–TR7 «Leistung und Analysen» and TR6 «Gewicht» (0.147.0)
+  'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.': 'Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.',
+  'Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.',
+  'Open Training › Week: the analyses over the weeks under the look back.': 'Öffne Training › Woche: die Analysen über die Wochen unter dem Rückblick.',
+  'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben; «Analysen anpassen» zeigt alle.',
+  'Example: «First against second half» shows 4 % more heart rate in the second half at the same power.': 'Beispiel: «Erste gegen zweite Hälfte» zeigt 4 % mehr Puls in der zweiten Hälfte bei gleicher Leistung.',
+  'Nothing to switch on; it is voluntary.': 'Nichts einzuschalten; es ist freiwillig.',
+  'Open Me › Weight and tap «Enter weight».': 'Öffne Ich › Gewicht und tippe «Gewicht eintragen».',
+  'Type your weight and save; the curve shows from the second entry.': 'Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.',
+  'Example: 72 kg entered → the ride shows 2.6 W/kg.': 'Beispiel: 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.',
   // v0.133.0 «Wi gaht's?» and «Tour aus komoot»
   'Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.': 'Öffne Ich › «Wi gaht\'s?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.',
   'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.',
@@ -397,4 +408,63 @@ export default {
   'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.': 'Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.',
   'A receipt with more pages: «Another page» after the first photo.': 'Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.',
   'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.': 'Beispiel: eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.',
+  // 0.147.0 Fitbit-Verbindung
+  'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).': 'Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).',
+  'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.': 'Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.',
+  'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.': 'Beispiel: Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.',
+  // Google Mail (GM)
+  'Connect once under Me › Mail (needs Strava connected on this device).': 'Einmal verbinden unter Ich › Mail (braucht Strava auf diesem Gerät).',
+  'Open Me › Mail and tap «Connect with Google».': 'Öffne Ich › Mail und tippe «Mit Google verbinden».',
+  'Tap a mail to read it; «Answer» or «New mail» writes one.': 'Tippe eine Mail an, um sie zu lesen; «Antworten» oder «Neue Mail» schreibt eine.',
+  'Under an appointment, «Mails to it» finds the mails about it.': 'Unter einem Termin findet «Mails dazu» die Mails dazu.',
+  'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.': 'Beispiel: Termin «Velo-Service» → «Mails dazu» zeigt die Bestätigung der Werkstatt.',
+  // Google Kalender und Aufgaben (GA)
+  'Connect once under Me › Appointments and tasks (needs Strava connected on this device).': 'Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).',
+  'Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».': 'Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».',
+  'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.': 'Die nächsten 14 Tage und deine offenen Aufgaben erscheinen; hake eine Aufgabe ab oder trag eine neue ein, das ändert sich auch in Google.',
+  '«New appointment» enters it in your Google calendar.': '«Termin eintragen» trägt ihn in deinen Google Kalender ein.',
+  'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.': 'Beispiel: «Kette messen» fällig am Donnerstag → steht unter «Nächste 7 Tage»; in der App abgehakt, ist sie auch in Google Aufgaben erledigt.',
+  // Dokumente-PDF
+  'Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).',
+  'Photograph page by page or choose photos; check the corners, then «Save as PDF».': 'Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».',
+  'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» (braucht Strava auf diesem Gerät).',
+  'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.': 'Beispiel: eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.',
+  'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
+  // Wochenrückblick (W1–W6)
+  'Open Aktiv › Week and tap «Week in review», or Training › Look back.': 'Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.',
+  'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.': 'Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.',
+  'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.': 'Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.',
+  'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».': 'Beispiel: 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».',
+  // Paket B: Dokumente als PDF (f.docscan)
+  'For Google Drive: «Connect Google Drive» once under Me › Documents (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» unter Ich › Dokumente (braucht Strava auf diesem Gerät).',
+  'Open the new document: set the group, «valid until» and «In the packing list».': 'Das neue Dokument öffnet sich: Wähle Gruppe, «gültig bis» und «In die Packliste».',
+  // «Assistent» (15.10.2026)
+  'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.': 'Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.',
+  'Ask the app: type a question or tap an example; the answer comes from your data, with a link.': 'Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.',
+  'Help me plan: answer four short questions, check the plan, «Create the trip».': 'Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».',
+  'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».': 'Beispiel: «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».',
+  // v0.147.0 Termine buchen
+  'Needs the booking server; online payment only in test mode.': 'Braucht den Buchungs-Server; online bezahlen nur im Testmodus.',
+  'Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.': 'Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.',
+  'Tap + on a day to open a free time, then send the link by WhatsApp.': 'Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.',
+  'New bookings show on Today; tap a time to see who comes or to cancel it.': 'Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.',
+  'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».': 'Beispiel: Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».',
+  // P8 «Automatischer Abgleich»
+  'Needs the internet now and then; it is free and the server cannot read your data.': 'Braucht ab und zu Internet; es ist gratis, und der Server kann deine Daten nicht lesen.',
+  'On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.': 'Am Computer: Ich › Daten und Backup › «Abgleich einschalten»; ein QR-Code und ein Code erscheinen.',
+  'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).': 'Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).',
+  'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.': 'Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.',
+  'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».': 'Beispiel: Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».',
+  // Erinnerungen aufs Handy (Web-Push)
+  'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.': 'Braucht Chrome auf dem Handy. Einmal: auf dieser Seite «Adresse für cron-job.org kopieren» und in cron-job.org einfügen.',
+  'Open Me › Reminders on the phone.': 'Öffne Ich › Erinnerungen aufs Handy.',
+  'Switch on «On the phone» and allow notifications.': 'Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.',
+  'Switch on the reminders you want, one by one.': 'Schalte die gewünschten Erinnerungen einzeln ein.',
+  'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»': 'Beispiel: am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»',
+  // v0.147.0 Shop ohne Gebühren
+  'Nothing to switch on; the orders wait on the server until the app fetches them.': 'Nichts einzuschalten; die Bestellungen warten auf dem Server, bis die App sie abholt.',
+  'Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.': 'Öffne Ich › Bezahlen › Shop und erfasse ein Produkt: einen Download, einen Code oder etwas zum Verschicken mit Porto und Vorrat.',
+  'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
+  'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
+  'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
 };

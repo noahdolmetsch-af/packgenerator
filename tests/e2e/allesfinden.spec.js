@@ -5,6 +5,20 @@
 // Fictional data (home0460-fixture.js, test_data_gtp_), German UI, nothing leaves the preview.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { readFileSync } from 'node:fs';
+import DE from '../../src/lib/i18n/de/index.js';
+
+// the functions a word finds, read from the app source like findFeatures() does (title, text, words, in English
+// and German); features.js itself loads the language store, which needs the browser
+const norm = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const FEATURE_SRC = readFileSync(new URL('../../src/lib/features.js', import.meta.url), 'utf8');
+const featuresFinding = (word) =>
+  FEATURE_SRC.split(/\{ id: '/).slice(1).filter((c) => /^f\./.test(c)).map((c) => {
+    const id = c.slice(0, c.indexOf("'"));
+    const title = c.match(/title: '((?:[^'\\]|\\.)*)'/)?.[1] ?? '';
+    const text = c.match(/text: '((?:[^'\\]|\\.)*)'/)?.[1] ?? '';
+    return { id, hay: norm([c.slice(0, c.indexOf('},')), DE[title], DE[text]].join(' ')) };
+  }).filter((f) => f.hay.includes(norm(word))).map((f) => f.id);
 
 const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -48,7 +62,10 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
   await page.getByLabel(T('Find a function')).fill('garantie');
   const row = page.locator('[data-feature="f.warranty"]');
   await expect(row).toBeVisible();
-  await expect(page.locator('[data-feature]')).toHaveCount(1);
+  // every function the word finds, read from the app source (0.147.0: «Dokumente als PDF» knows «garantie» too)
+  const found = featuresFinding('garantie');
+  expect(found).toContain('f.warranty');
+  expect(await page.locator('[data-feature]').evaluateAll((els) => els.map((e) => e.dataset.feature).sort())).toEqual([...found].sort());
   await row.locator('.fmain').click(); // SN6: the row itself takes you there
   await expect(page).toHaveURL(/#\/bikes\?bike=test_data_gtp_[^&]+&sheet=warranty/);
 

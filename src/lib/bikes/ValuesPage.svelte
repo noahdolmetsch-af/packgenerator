@@ -11,7 +11,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
-  import { FIELDS_KEY, VALUE_GROUPS, valueGroups, valueOf, setValue, toggleField, showAll, addOwnField, renameOwnField, removeOwnField, fieldsOf } from '../valuefields.js';
+  import { FIELDS_KEY, GROUP_LIST, valueGroups, valueOf, setValue, toggleField, showAll, addOwnField, renameOwnField, removeOwnField, fieldsOf } from '../valuefields.js';
   import { t, num } from '../i18n.svelte.js';
   import Help from '../ui/Help.svelte'; // FE14
   import { FIELD_HELP } from '../daumen.js';
@@ -108,8 +108,8 @@
     {#key bike.id}
       <div class="grid">
         {#each page.groups as g (g.key)}
-          <section class="card grp" aria-labelledby="vp-{g.key}">
-            <h2 id="vp-{g.key}">{t(g.name)}<small>{t('{n} of {all}|filled', { n: g.filled, all: g.total })}</small></h2>
+          <section class="card grp" aria-labelledby="vp-{g.key || 'none'}">
+            <h2 id="vp-{g.key || 'none'}">{g.raw ? g.name : t(g.name)}<small>{t('{n} of {all}|filled', { n: g.filled, all: g.total })}</small></h2>
             {#each g.rows as r (r.id)}
               <div class="row">
                 <!-- FE14: a difficult value gets a «?» next to its label (outside it, so the field keeps its name) -->
@@ -146,7 +146,7 @@
     <h2 id="vp-ch-h" class="title">{t('Choose fields')}</h2>
     <p class="quiet">{t('{shown} shown · {hidden} hidden. For all bikes and only here when entering. Bike pass, Pick-up check and Equipment still show everything. The values stay saved.', { shown: shownN, hidden: hiddenN })}</p>
     {#each all.groups as g (g.key)}
-      <h3 class="gh">{t(g.name)}</h3>
+      <h3 class="gh">{g.raw ? g.name : t(g.name)}</h3>
       {#each g.rows as r (r.id)}
         <div class="srow">
           {#if r.own}
@@ -159,6 +159,7 @@
         </div>
       {/each}
     {/each}
+    <p class="quiet"><a class="grpedit" href="#/me/lists?valueGroups">{t('Rename or delete groups')}</a></p>
     <div class="acts sticky">
       <button type="button" class="btn hi" onclick={() => chooseDlg.close()}>{t('Done')}</button>
       <button type="button" class="btn" disabled={!hiddenN} onclick={() => saveFields(showAll(stored))}>{t('Show all')}</button>
@@ -188,7 +189,7 @@
       </div>
       <p class="lbl">{t('Group')}</p>
       <div class="chips" role="group" aria-label={t('Group')}>
-        {#each VALUE_GROUPS as g (g.key)}<button type="button" class="chip" aria-pressed={own.group === g.key} onclick={() => (own.group = g.key)}>{t(g.name)}</button>{/each}
+        {#each GROUP_LIST as g (g.key)}<button type="button" class="chip" aria-pressed={own.group === g.key} onclick={() => (own.group = g.key)}>{g.raw ? g.name : t(g.name)}</button>{/each}
       </div>
       {#if ownErr}<p class="err" role="alert">{ownErr}</p>{/if}
       <div class="acts">
@@ -201,6 +202,16 @@
 {/if}
 
 <style>
+  /* «Gruppen überall»: the way to rename and delete the groups (Listen und Typen) */
+  .grpedit {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
   .bchips {
     display: flex;
     flex-wrap: wrap;

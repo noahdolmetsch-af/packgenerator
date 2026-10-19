@@ -7,7 +7,42 @@
  *   api/google/index.js     POST ?step=start      Bearer <device key>, { returnTo } → { url }
  *                           GET  ?step=status     Bearer → { connected, scopes }
  *                           GET  ?step=data       Bearer, &type=<one of TYPES>&pageToken=… → { points, next }
+ *                           GET  ?step=days       Bearer, &from=YYYY-MM-DD&to=YYYY-MM-DD (≤ 90 days)
+ *                                                 → { days: [{ date, restingHr, hrvMs, sleep, steps, azm }] }
+ *                                                 (googledays.js; the app keeps them, the server keeps none)
  *                           POST ?step=disconnect Bearer → { ok } (Google access withdrawn)
+ *                           POST ?step=drive-upload Bearer, body = the PDF or JPEG (at most 4 MB),
+ *                                &name=…&root=pdf|photos&group=… → { id, link }
+ *                           POST ?step=drive-move   Bearer, { fileId, root, group } → { ok }
+ *                           POST ?step=drive-rename Bearer, { fileId, name } → { ok }
+ *                           GET  ?step=cal-list     Bearer → { calendars: [{ id, name, color, primary, write }] }
+ *                           GET  ?step=cal-events   Bearer, &from&to (≤ 92 days) &cal=id,id (default primary)
+ *                                                   → { events: [googleplan.js eventRow] }
+ *                           POST ?step=cal-save     Bearer, { cal, gid?, title, day, lastDay?, allDay, from?, to?,
+ *                                                   where?, note? } → { event } (new without gid, else changed)
+ *                           POST ?step=cal-delete   Bearer, { cal, gid } → { ok }
+ *                           GET  ?step=task-lists   Bearer → { lists: [{ id, title }] }
+ *                           GET  ?step=tasks        Bearer, &list=id (default: every list) → { tasks: [taskRow] }
+ *                                                   (open ones and the ones done in the last 30 days)
+ *                           POST ?step=task-save    Bearer, { list, id?, title?, notes?, due?, done? } → { task }
+ *                           POST ?step=task-delete  Bearer, { list, id } → { ok }
+ *                           GET  ?step=mail-list    Bearer, &q=… (Gmail search; default the inbox) &page=token
+ *                                                   → { mails: [googlemail.js mailRow], next }
+ *                           GET  ?step=mail-get     Bearer, &id=… → { mail: { …mailRow, text, files } }
+ *                           POST ?step=mail-send    Bearer, { to, cc?, subject, text, replyTo? (message id) }
+ *                                                   → { id } (sent only after Noah's tap on «Senden»)
+ *
+ * Google Kalender und Aufgaben (package GA, Noah 15.10.2026 «3 beides», 21:11 «3b» with «Woche planen»):
+ * scopes calendar.events (read and write events) + calendar.calendarlist.readonly (which calendars) and
+ * tasks; asked for with { services: ['calendar', 'tasks'] }. The server keeps no event and no task.
+ *
+ * Google Mail (package GM, Noah 15.10.2026 «4a»: read and send together): scopes gmail.readonly and
+ * gmail.send (services: ['mail']); the app keeps no mail on the device either, it fetches what a page shows.
+ *
+ * Google Drive (package «Dokumente-PDF», Noah 15.10.2026 «1b»: the imported PDFs also in his Drive,
+ * «2a» every group its own subfolder): only the scope drive.file, so the app sees nothing in Drive but
+ * the folders and files it made itself. Start with { services: ['drive'] } asks for Drive in addition
+ * (include_granted_scopes keeps the Fitbit values). Folder ids are kept in Redis (google:drive:folders).
  *   api/google/callback.js  GET  (Google sends the browser back here; the redirect URI configured in
  *                           Google Cloud is https://packgen-three.vercel.app/api/google/callback)
  *
@@ -18,6 +53,9 @@
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
+import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
+import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, mailRow, bodyOf, rawMail } from './googlemail.js';
+import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow } from './googleplan.js';
 
 export const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -29,8 +67,39 @@ export const SCOPES = [
   'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
   'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
 ];
+/** Drive: only the files and folders this app made (no look into the rest of Noah's Drive). */
+export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+export const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+export const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+/** The two top folders in «Meine Ablage» (Noah 15.10.2026: «Importierte PDF»; photos kept as photos). */
+export const DRIVE_ROOTS = { pdf: 'Importierte PDF', photos: 'Importierte Fotos' };
+export const DRIVE_MAX_BYTES = 4 * 1024 * 1024;
+const FOLDER = 'application/vnd.google-apps.folder';
+const FOLDERS_KEY = 'google:drive:folders';
+
+/** The scopes to ask for: Fitbit values, Drive, or both (unknown names are ignored). */
+export function scopesFor(services) {
+  const list = Array.isArray(services) ? services : ['health'];
+  const out = [
+    ...(list.includes('health') ? SCOPES : []),
+    ...(list.includes('drive') ? [DRIVE_SCOPE] : []),
+    ...(list.includes('calendar') ? CALENDAR_SCOPES : []),
+    ...(list.includes('tasks') ? [TASKS_SCOPE] : []),
+    ...(list.includes('mail') ? MAIL_SCOPES : []),
+  ];
+  return out.length ? out : SCOPES;
+}
+
+/** A file or folder name Drive accepts: no line breaks or slashes, at most 120 characters. */
+export function cleanName(v, fallback = 'Dokument') {
+  const s = String(v ?? '').replace(/[\u0000-\u001f/\\]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+  return s || fallback;
+}
+
 /** The data types tested with Noah's account on 12.10.2026 (all 200 OK). */
-export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability'];
+export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability', 'active-zone-minutes'];
+/** Pages per list call in the days step (a night or a day is one point; 90 days fit in one page). */
+const MAX_PAGES = 5;
 
 export function googleEnv(e = process.env) {
   return { clientId: pick('GOOGLE_CLIENT_ID', e), clientSecret: pick('GOOGLE_CLIENT_SECRET', e), ...redisEnv(e) };
@@ -71,6 +140,101 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     return fresh.access_token;
   }
 
+  /** One call to the Health API; Google's errors become the app's error codes. */
+  async function healthCall(token, path, init = {}) {
+    let res;
+    try {
+      res = await doFetch(`${API}/${path}`, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.body ? { 'Content-Type': 'application/json' } : {}) } });
+    } catch {
+      throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
+    }
+    if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
+    if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
+    if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    return res.json().catch(() => ({}));
+  }
+
+  /** Every data point of one type for the days from..to (a few pages at most). */
+  async function listAll(token, type, from, to) {
+    const out = [];
+    let pageToken = '';
+    for (let i = 0; i < MAX_PAGES; i++) {
+      const q = new URLSearchParams({ filter: listFilter(type, from, to), pageSize: '200', ...(pageToken ? { pageToken } : {}) });
+      const body = await healthCall(token, `dataTypes/${type}/dataPoints?${q}`);
+      out.push(...(body.dataPoints ?? []));
+      pageToken = body.nextPageToken ?? '';
+      if (!pageToken) break;
+    }
+    return out;
+  }
+
+  const rollUp = async (token, type, from, to) =>
+    (await healthCall(token, `dataTypes/${type}/dataPoints:dailyRollUp`, { method: 'POST', body: JSON.stringify(rollUpBody(from, to)) })).rollupDataPoints ?? [];
+
+  /** One Drive, Calendar or Tasks call; Google's answer as JSON, or a clear error. */
+  async function gapi(token, url, init = {}, forbidden = ['drive_not_allowed', 'Google Drive is not allowed yet: connect Drive in the app.']) {
+    let res;
+    try {
+      res = await doFetch(url, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) } });
+    } catch {
+      throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
+    }
+    if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
+    if (res.status === 403) throw new ApiError(403, ...forbidden);
+    if (res.status === 404 || res.status === 410) throw new ApiError(404, forbidden[0] === 'drive_not_allowed' ? 'drive_missing' : 'google_missing', 'It is no longer in Google.');
+    if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
+    if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    if (res.status === 204) return {};
+    return res.json().catch(() => ({}));
+  }
+  const drive = (token, url, init) => gapi(token, url, init);
+  const NO_CAL = ['calendar_not_allowed', 'Google Calendar is not allowed yet: connect it in the app.'];
+  const NO_TASKS = ['tasks_not_allowed', 'Google Tasks is not allowed yet: connect it in the app.'];
+  const cal = (token, path, init) => gapi(token, `${CALENDAR_API}/${path}`, init, NO_CAL);
+  const tasks = (token, path, init) => gapi(token, `${TASKS_API}/${path}`, init, NO_TASKS);
+  const NO_MAIL = ['mail_not_allowed', 'Google Mail is not allowed yet: connect it in the app.'];
+  const gmail = (token, path, init) => gapi(token, `${GMAIL_API}/${path}`, init, NO_MAIL);
+  const sendJson = (method, body) => ({ method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const enc = encodeURIComponent;
+  /** A calendar, list or item id as Google makes them (letters, digits, @ . _ - and #). */
+  const goodId = (v) => typeof v === 'string' && /^[\w@.#+-]{1,300}$/.test(v);
+  const needId = (v, what) => {
+    if (!goodId(v)) throw new ApiError(400, 'bad_request', `Bad ${what}.`);
+    return v;
+  };
+
+  /** Every page of a Google list call (at most five). */
+  async function pages(get, path, params, key) {
+    const out = [];
+    let pageToken = '';
+    for (let i = 0; i < MAX_PAGES; i++) {
+      const body = await get(`${path}?${new URLSearchParams({ ...params, ...(pageToken ? { pageToken } : {}) })}`);
+      out.push(...(body[key] ?? []));
+      pageToken = body.nextPageToken ?? '';
+      if (!pageToken) break;
+    }
+    return out;
+  }
+
+  /** The id of a folder «name» in «parent» (made once, then kept in Redis). */
+  async function folder(token, store, name, parent) {
+    const known = JSON.parse((await store.get(FOLDERS_KEY)) ?? '{}');
+    const k = `${parent}/${name}`;
+    if (known[k]) return known[k];
+    const q = `name = '${name.replace(/['\\]/g, '\\$&')}' and mimeType = '${FOLDER}' and '${parent}' in parents and trashed = false`;
+    const found = await drive(token, `${DRIVE_API}?${new URLSearchParams({ q, fields: 'files(id)', pageSize: '1' })}`);
+    const id = found.files?.[0]?.id ?? (await drive(token, `${DRIVE_API}?fields=id`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, mimeType: FOLDER, parents: [parent] }) })).id;
+    await store.set(FOLDERS_KEY, JSON.stringify({ ...known, [k]: id }));
+    return id;
+  }
+
+  /** «Importierte PDF» (or «Importierte Fotos») in «Meine Ablage», and the group as its subfolder. */
+  async function folderFor(token, store, root, group) {
+    const top = await folder(token, store, DRIVE_ROOTS[root === 'photos' ? 'photos' : 'pdf'], 'root');
+    const g = cleanName(group, '');
+    return g && g !== DRIVE_ROOTS.pdf && g !== DRIVE_ROOTS.photos ? folder(token, store, g, top) : top;
+  }
+
   const callback = async (request) => {
     const url = new URL(request.url);
     const cfg = env();
@@ -81,7 +245,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
-    if (!SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, ...MAIL_SCOPES].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
     return backToApp(st.returnTo, { google: 'connected' });
   };
@@ -97,7 +261,77 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
         setUp(cfg);
         if (step === 'status') {
           const raw = await store.get('google:tokens');
-          return json(request, 200, { ok: true, connected: !!raw, scopes: raw ? JSON.parse(raw).scope ?? '' : '' });
+          const scopes = raw ? JSON.parse(raw).scope ?? '' : '';
+          const has = scopes.split(' ');
+          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE), mail: MAIL_SCOPES.every((x) => has.includes(x)) });
+        }
+        if (step === 'cal-list') {
+          const token = await accessToken(cfg, store);
+          const list = await pages((p) => cal(token, p), 'users/me/calendarList', { minAccessRole: 'reader', maxResults: '100' }, 'items');
+          return json(request, 200, { ok: true, calendars: list.map(calRow).filter(Boolean) });
+        }
+        if (step === 'cal-events') {
+          const from = url.searchParams.get('from');
+          const to = url.searchParams.get('to');
+          const n = spanOf(from, to);
+          if (!n || n > MAX_EVENT_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_EVENT_DAYS} days.`);
+          const cals = (url.searchParams.get('cal') || 'primary').split(',').filter(Boolean).slice(0, MAX_CALS);
+          cals.forEach((c) => needId(c, 'cal'));
+          const token = await accessToken(cfg, store);
+          const events = [];
+          // One calendar after the other: Google allows only a few requests at once.
+          for (const c of cals) {
+            const items = await pages((p) => cal(token, p), `calendars/${enc(c)}/events`, { timeMin: dayStart(from), timeMax: dayEnd(to), singleEvents: 'true', orderBy: 'startTime', maxResults: '250', timeZone: 'Europe/Zurich' }, 'items');
+            events.push(...items.map((e) => eventRow(e, c)).filter(Boolean));
+          }
+          events.sort((a, b) => (a.day + (a.allDay ? '' : a.start)).localeCompare(b.day + (b.allDay ? '' : b.start)));
+          return json(request, 200, { ok: true, from, to, events });
+        }
+        if (step === 'mail-list') {
+          const q = String(url.searchParams.get('q') ?? '').slice(0, 500).trim();
+          const page = url.searchParams.get('page');
+          if (page && !/^\d{1,40}$/.test(page)) throw new ApiError(400, 'bad_request', 'Bad page.');
+          const token = await accessToken(cfg, store);
+          const list = await gmail(token, `messages?${new URLSearchParams({ maxResults: String(MAIL_PAGE), q: q || 'in:inbox', ...(page ? { pageToken: page } : {}) })}`);
+          const ids = (list.messages ?? []).map((m) => m.id).filter(goodId);
+          // A few at a time: Google allows only a few requests at once.
+          const mails = [];
+          for (let i = 0; i < ids.length; i += 5) {
+            const part = await Promise.all(ids.slice(i, i + 5).map((id) => gmail(token, `messages/${enc(id)}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Message-ID&metadataHeaders=References`)));
+            mails.push(...part.map(mailRow).filter(Boolean));
+          }
+          return json(request, 200, { ok: true, mails, next: list.nextPageToken ?? null });
+        }
+        if (step === 'mail-get') {
+          const id = needId(url.searchParams.get('id'), 'id');
+          const token = await accessToken(cfg, store);
+          const m = await gmail(token, `messages/${enc(id)}?format=full`);
+          return json(request, 200, { ok: true, mail: { ...mailRow(m), ...bodyOf(m.payload) } });
+        }
+        if (step === 'task-lists') {
+          const token = await accessToken(cfg, store);
+          const lists = await pages((p) => tasks(token, p), 'users/@me/lists', { maxResults: '100' }, 'items');
+          return json(request, 200, { ok: true, lists: lists.map(listRow).filter(Boolean) });
+        }
+        if (step === 'tasks') {
+          const one = url.searchParams.get('list');
+          if (one) needId(one, 'list');
+          const token = await accessToken(cfg, store);
+          const lists = one ? [one] : (await pages((p) => tasks(token, p), 'users/@me/lists', { maxResults: '100' }, 'items')).map((l) => l.id).filter(goodId).slice(0, 20);
+          const since = new Date(now() - 30 * 864e5).toISOString();
+          const out = [];
+          for (const l of lists) {
+            const items = await pages((p) => tasks(token, p), `lists/${enc(l)}/tasks`, { showCompleted: 'true', showHidden: 'true', completedMin: since, maxResults: '100' }, 'items');
+            const open = await pages((p) => tasks(token, p), `lists/${enc(l)}/tasks`, { showCompleted: 'false', maxResults: '100' }, 'items');
+            const seen = new Set();
+            for (const t of [...open, ...items]) {
+              if (seen.has(t.id)) continue;
+              seen.add(t.id);
+              const r = taskRow(t, l);
+              if (r) out.push(r);
+            }
+          }
+          return json(request, 200, { ok: true, tasks: out });
         }
         if (step === 'data') {
           const type = url.searchParams.get('type');
@@ -105,17 +339,22 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const pageToken = url.searchParams.get('pageToken');
           if (pageToken && !/^[\w.~-]{1,2000}$/.test(pageToken)) throw new ApiError(400, 'bad_request', 'Bad pageToken.');
           const token = await accessToken(cfg, store);
-          let res;
-          try {
-            res = await doFetch(`${API}/dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`, { headers: { Authorization: `Bearer ${token}` } });
-          } catch {
-            throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
-          }
-          if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
-          if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
-          if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
-          const body = await res.json().catch(() => ({}));
+          const body = await healthCall(token, `dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`);
           return json(request, 200, { ok: true, type, points: body.dataPoints ?? [], next: body.nextPageToken ?? null });
+        }
+        if (step === 'days') {
+          const from = url.searchParams.get('from');
+          const to = url.searchParams.get('to');
+          const n = spanDays(from, to);
+          if (!n || n > MAX_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_DAYS} days apart.`);
+          const token = await accessToken(cfg, store);
+          // One after the other: Google allows only a few requests at once.
+          const steps = await rollUp(token, 'steps', from, to);
+          const azm = await rollUp(token, 'active-zone-minutes', from, to);
+          const sleep = await listAll(token, 'sleep', from, to);
+          const rhr = await listAll(token, 'daily-resting-heart-rate', from, to);
+          const hrv = await listAll(token, 'daily-heart-rate-variability', from, to);
+          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv }, from, to) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },
@@ -129,8 +368,104 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           setUp(cfg);
           const body = await jsonBody(request);
           const state = await saveState(store, 'google', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null });
-          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: SCOPES.join(' '), state });
+          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: scopesFor(body.services).join(' '), state });
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
+        }
+        if (step === 'drive-upload') {
+          setUp(cfg);
+          const url = new URL(request.url);
+          const type = (request.headers.get('content-type') ?? '').split(';')[0].trim();
+          if (type !== 'application/pdf' && type !== 'image/jpeg') throw new ApiError(415, 'bad_type', 'Send a PDF or a JPEG.');
+          const bytes = new Uint8Array(await request.arrayBuffer());
+          if (!bytes.length) throw new ApiError(400, 'bad_request', 'The file is empty.');
+          if (bytes.length > DRIVE_MAX_BYTES) throw new ApiError(413, 'too_big', 'The file is bigger than 4 MB.');
+          const token = await accessToken(cfg, store);
+          const parent = await folderFor(token, store, url.searchParams.get('root'), url.searchParams.get('group'));
+          const meta = { name: cleanName(url.searchParams.get('name')), parents: [parent], mimeType: type };
+          const boundary = `pg${now().toString(36)}`;
+          const head = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: ${type}\r\n\r\n`;
+          const body = new Blob([head, bytes, `\r\n--${boundary}--`]);
+          const made = await drive(token, `${DRIVE_UPLOAD}?uploadType=multipart&fields=id,webViewLink`, { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body });
+          return json(request, 200, { ok: true, id: made.id, link: made.webViewLink ?? null });
+        }
+        if (step === 'drive-move' || step === 'drive-rename') {
+          setUp(cfg);
+          const body = await jsonBody(request);
+          const fileId = String(body.fileId ?? '');
+          if (!/^[\w-]{5,200}$/.test(fileId)) throw new ApiError(400, 'bad_request', 'Bad fileId.');
+          const token = await accessToken(cfg, store);
+          if (step === 'drive-rename') {
+            await drive(token, `${DRIVE_API}/${fileId}?fields=id`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: cleanName(body.name) }) });
+          } else {
+            const parent = await folderFor(token, store, body.root, body.group);
+            const now0 = await drive(token, `${DRIVE_API}/${fileId}?fields=parents`);
+            const q = new URLSearchParams({ addParents: parent, removeParents: (now0.parents ?? []).filter((p) => p !== parent).join(','), fields: 'id' });
+            await drive(token, `${DRIVE_API}/${fileId}?${q}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+          }
+          return json(request, 200, { ok: true });
+        }
+        if (step === 'cal-save' || step === 'cal-delete') {
+          setUp(cfg);
+          const body = await jsonBody(request);
+          const c = needId(body.cal || 'primary', 'cal');
+          const gid = body.gid ? needId(body.gid, 'gid') : null;
+          if (step === 'cal-delete' && !gid) throw new ApiError(400, 'bad_request', 'Bad gid.');
+          let send = null;
+          if (step === 'cal-save') {
+            try {
+              send = eventBody(body);
+            } catch (err) {
+              throw new ApiError(400, 'bad_request', `Bad ${err.message}.`);
+            }
+          }
+          const token = await accessToken(cfg, store);
+          if (step === 'cal-delete') {
+            await cal(token, `calendars/${enc(c)}/events/${enc(gid)}`, { method: 'DELETE' });
+            return json(request, 200, { ok: true });
+          }
+          const made = await cal(token, `calendars/${enc(c)}/events${gid ? `/${enc(gid)}` : ''}`, sendJson(gid ? 'PATCH' : 'POST', send));
+          return json(request, 200, { ok: true, event: eventRow(made, c) });
+        }
+        if (step === 'mail-send') {
+          setUp(cfg);
+          const body = await jsonBody(request, 120_000);
+          let reply = null;
+          const token = await accessToken(cfg, store);
+          if (body.replyTo) {
+            const m = await gmail(token, `messages/${enc(needId(body.replyTo, 'replyTo'))}?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References&metadataHeaders=Subject`);
+            reply = mailRow(m);
+          }
+          let raw;
+          try {
+            raw = rawMail({ ...body, inReplyTo: reply?.msgId || undefined, references: reply?.refs || undefined });
+          } catch (err) {
+            throw new ApiError(400, 'bad_request', `Bad ${err.message}.`);
+          }
+          const sent = await gmail(token, 'messages/send', sendJson('POST', { raw, ...(reply ? { threadId: reply.thread } : {}) }));
+          return json(request, 200, { ok: true, id: sent.id ?? null });
+        }
+        if (step === 'task-save' || step === 'task-delete') {
+          setUp(cfg);
+          const body = await jsonBody(request);
+          const l = needId(body.list || '@default', 'list');
+          const id = body.id ? needId(body.id, 'id') : null;
+          if (step === 'task-delete' && !id) throw new ApiError(400, 'bad_request', 'Bad id.');
+          let send = null;
+          if (step === 'task-save') {
+            try {
+              send = taskBody(body);
+            } catch (err) {
+              throw new ApiError(400, 'bad_request', `Bad ${err.message}.`);
+            }
+            if (!id && !send.title) throw new ApiError(400, 'bad_request', 'Bad title.');
+          }
+          const token = await accessToken(cfg, store);
+          if (step === 'task-delete') {
+            await tasks(token, `lists/${enc(l)}/tasks/${enc(id)}`, { method: 'DELETE' });
+            return json(request, 200, { ok: true });
+          }
+          const made = await tasks(token, `lists/${enc(l)}/tasks${id ? `/${enc(id)}` : ''}`, sendJson(id ? 'PATCH' : 'POST', send));
+          return json(request, 200, { ok: true, task: taskRow(made, l) });
         }
         if (step === 'disconnect') {
           const raw = await store.get('google:tokens');
@@ -143,6 +478,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
             }
           }
           await store.del('google:tokens');
+          await store.del(FOLDERS_KEY);
           return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

@@ -14,6 +14,21 @@
 import { TOPICS, guessTopic } from './inbox.js';
 
 export { TOPICS, guessTopic };
+
+/**
+ * «Gruppen überall» (Noah 18.10.2026): a note's topic as shown. A note without a topic counts as
+ * «General» (as before); a topic the person deleted (or «General» deleted) shows as «Ohne Thema» ('').
+ */
+export const NO_TOPIC = '';
+export function noteTopic(n) {
+  const k = n?.topic ?? 'general';
+  return TOPICS.some((x) => x.key === k) ? k : NO_TOPIC;
+}
+/** A topic as shown: a typed name as it is (never through t()), a Standard name translated; '' is «No topic». */
+export function topicText(k, tr) {
+  const x = TOPICS.find((y) => y.key === k);
+  return !x ? tr('No topic') : x.raw ? x.name : tr(x.name);
+}
 export const MAX_PINNED = 3;
 
 /** Is this a kept note (the Notes page), not an open inbox entry or one filed elsewhere? */
@@ -93,16 +108,28 @@ export function togglePin(notes, id) {
   return { ok: true, pinned: true };
 }
 
-/** The filters of the side list with their counts. */
-export const FILTERS = [
+/**
+ * The filters of the side list with their counts. The topic filters follow the person's topics
+ * (setTopics rebuilds them in place); «Ohne Thema» (key 'topic:') counts the notes of deleted topics.
+ */
+export const FILTERS = [];
+const buildFilters = () => [
   { key: 'all', name: 'All notes', test: () => true },
   { key: 'pinned', name: 'Pinned', test: (n) => !!n.pinned },
-  ...TOPICS.map((x) => ({ key: `topic:${x.key}`, name: x.name, topic: x.key, test: (n) => (n.topic ?? 'general') === x.key })),
+  ...TOPICS.map((x) => ({ key: `topic:${x.key}`, name: x.name, raw: !!x.raw, topic: x.key, test: (n) => noteTopic(n) === x.key })),
+  { key: `topic:${NO_TOPIC}`, name: 'No topic', topic: NO_TOPIC, none: true, test: (n) => noteTopic(n) === NO_TOPIC },
   { key: 'check', name: 'Checklist', has: true, test: (n) => (n.checklist ?? []).length > 0 },
   { key: 'link', name: 'Link', has: true, test: (n) => !!n.link?.url },
   { key: 'photo', name: 'Photo', has: true, test: (n) => !!n.photo },
   { key: 'linked', name: 'Linked', has: true, test: (n) => !!n.bikeId || (n.links ?? []).length > 0 },
 ];
+FILTERS.push(...buildFilters());
+
+/** Puts the person's topics in place: [{ key, name, raw? }] (lists.js, from «Listen und Typen»). */
+export function setTopics(list) {
+  TOPICS.splice(0, TOPICS.length, ...list.map((x) => ({ key: x.key, name: x.name, ...(x.raw ? { raw: true } : {}) })));
+  FILTERS.splice(0, FILTERS.length, ...buildFilters());
+}
 
 /** Kept notes matching a filter and a search (text, title, link, checklist, tags), newest first. */
 export function noteList(notes, { filter = 'all', query = '' } = {}) {
@@ -142,8 +169,8 @@ export function todayNotes(notes, max = 2) {
 export function notesMarkdown(notes, { topicName = (k) => k, bikeName = () => '', today = '' } = {}) {
   const kept = notes.filter(isKept).sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''));
   const out = [`# ${topicName('__title')}${today ? ` (${today})` : ''}`, ''];
-  for (const x of TOPICS) {
-    const rows = kept.filter((n) => (n.topic ?? 'general') === x.key);
+  for (const x of [...TOPICS, { key: NO_TOPIC }]) {
+    const rows = kept.filter((n) => noteTopic(n) === x.key);
     if (!rows.length) continue;
     out.push(`## ${topicName(x.key)}`, '');
     for (const n of rows) {

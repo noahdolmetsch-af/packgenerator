@@ -17,6 +17,8 @@
   import { PLAN_KEY, GOAL_KEY, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
+  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
 
   let { acts = [] } = $props();
 
@@ -171,7 +173,7 @@
       </div>
     </Sec>
 
-    <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')}>
+    <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')} more={{ href: '#/flow/review', label: t('Week in review') }}>
       <div class="card back" data-section="look-back">
         <ol class="bars" aria-label={t('Hours per week, last six weeks')}>
           {#each weeks as w (w.m)}
@@ -193,7 +195,10 @@
       </div>
     </Sec>
   </div>
+
+  <WeekAnalyses {acts} {today} />
 </div>
+<AnaSheet />
 
 <style>
   .wk {

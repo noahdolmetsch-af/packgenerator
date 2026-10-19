@@ -6,6 +6,7 @@
    * Read only: no buttons that pay or switch anything on.
    * Rechnungen (Noah 14.10.2026 03:39 «1a», mockups QR1–QR8 approved 04:00): the one row on top
    * leads to the invoices without a provider (QR bill + TWINT).
+   * Shop (mockups SHOP1–SHOP4b, Noah 14.10.2026 04:00 «a»): the row below leads to the own shop.
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -13,13 +14,20 @@
   import { Info, Star, Volleyball, Route, Wrench, FileText, Gift, CreditCard, KeyRound, ShoppingBag, CalendarDays, Users, Check } from '@lucide/svelte';
   import { listInvoices, openSummary } from '../lib/pay/invoices.js';
   import { formatAmount } from '../lib/pay/qrbill.js';
-  import { ChevronRight, ReceiptText } from '@lucide/svelte';
+  import { ChevronRight, ReceiptText, Store } from '@lucide/svelte';
+  import { listOrders, ordersSummary, listProducts } from '../lib/pay/myshop.js';
   import '../lib/ich/ich.css';
 
   let invLine = $state('');
   listInvoices().then((list) => {
     const s = openSummary(list);
     invLine = list.length ? `${tn(s.count, '{n} open', '{n} open')} · ${t('{amount} CHF outstanding', { amount: formatAmount(s.sum) })}` : t('QR bill and TWINT, free');
+  });
+
+  let shopLine = $state('');
+  Promise.all([listProducts(), listOrders()]).then(([products, orders]) => {
+    const s = ordersSummary(orders);
+    shopLine = s.todo || s.open ? `${tn(s.todo, '{n} to send', '{n} to send')} · ${tn(s.open, '{n} waits for payment', '{n} wait for payment')}` : products.length ? tn(products.length, '{n} product', '{n} products') : '';
   });
 
   const ICONS = { star: Star, tennis: Volleyball, route: Route, wrench: Wrench, file: FileText, gift: Gift, card: CreditCard, key: KeyRound, bag: ShoppingBag, cal: CalendarDays, users: Users };
@@ -36,6 +44,11 @@
   <a class="card ich-row pay-inv" href="#/me/pay/invoices">
     <span class="ich-ib"><ReceiptText size={18} aria-hidden="true" /></span>
     <span class="ich-m"><b>{t('Invoices')}</b><small>{invLine || t('QR bill and TWINT, free')}</small></span>
+    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+  </a>
+  <a class="card ich-row pay-shop" href="#/me/shop">
+    <span class="ich-ib"><Store size={18} aria-hidden="true" /></span>
+    <span class="ich-m"><b>{t('Shop')}</b><small>{shopLine || t('Digital and real things, free')}</small></span>
     <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
   </a>
 
@@ -188,6 +201,12 @@
     margin-top: 14px;
   }
   .pay-inv {
+    margin: 0 0 20px;
+  }
+  .pay-inv:has(+ .pay-shop) {
+    margin-bottom: 10px;
+  }
+  .pay-shop {
     margin: 0 0 20px;
   }
   .pay-miss {

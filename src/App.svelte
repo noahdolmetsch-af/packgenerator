@@ -16,6 +16,7 @@
   import BlockCheck from './pages/BlockCheck.svelte';
   import Features from './pages/Features.svelte';
   import Helper from './pages/Helper.svelte';
+  import Assistent from './pages/Assistent.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
@@ -34,17 +35,24 @@
   import { db } from './lib/db.js';
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { wide } from './lib/media.svelte.js';
-  import { Plus } from '@lucide/svelte';
+  import { Plus, MessageCircle } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
   import Docs from './pages/Docs.svelte';
+  import Fitbit from './pages/Fitbit.svelte';
+  import DocScan from './pages/DocScan.svelte';
+  import Agenda from './pages/Agenda.svelte';
+  import MailPage from './pages/Mail.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
+  import Push from './pages/Push.svelte';
+  import { startPushSync } from './lib/push/client.js';
   import Abfragen from './pages/Abfragen.svelte';
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
+  import Weight from './pages/Weight.svelte';
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
@@ -57,10 +65,15 @@
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
+  import CreditNotice from './lib/helper/CreditNotice.svelte';
   import Invoices from './pages/Invoices.svelte';
   import Bills from './pages/Bills.svelte';
   import PayLink from './pages/PayLink.svelte';
+  import Shop from './pages/Shop.svelte';
+  import ShopOrders from './pages/ShopOrders.svelte';
+  import ShopBuy from './pages/ShopBuy.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
+  import Offers from './pages/Offers.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -251,6 +264,8 @@
     noteBike = bikeId;
     noteOpen = true;
   };
+  // Erinnerungen aufs Handy (Web-Push): the next reminders go to the server when the app opens and when it goes to the background.
+  $effect(() => startPushSync());
   // v0.20.0: the page language for screen readers and the browser.
   $effect(() => {
     document.documentElement.lang = lang.v;
@@ -322,6 +337,8 @@
   <header class="top">
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
+      <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
+      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
       <Search compact />
       {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
@@ -394,12 +411,27 @@
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<Docs />{/key}
+  {:else if page === 'fitbit'}
+    <!-- Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit -->
+    <Fitbit />
+  {:else if page === 'docscan'}
+    <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
+    <DocScan />
+  {:else if page === 'agenda'}
+    <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
+    <Agenda />
+  {:else if page === 'mail'}
+    <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
+    {#key hash}<MailPage />{/key}
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <Phone />
+  {:else if page === 'push'}
+    <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
+    <Push />
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
@@ -409,6 +441,9 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <MiniApps />
+  {:else if page === 'offers'}
+    <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
+    {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
     <Abfragen />
@@ -418,6 +453,9 @@
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
     <Auswertung />
+  {:else if page === 'weight'}
+    <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
+    <Weight />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
@@ -433,12 +471,24 @@
   {:else if page === 'paylink'}
     <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
     <PayLink part={param} />
+  {:else if page === 'shop'}
+    <!-- Ich › Bezahlen › Shop (mockup SHOP1, Noah 14.10.2026 04:00 «a») -->
+    <Shop />
+  {:else if page === 'shoporders'}
+    <!-- Ich › Bezahlen › Shop › Bestellungen (mockup SHOP3a) -->
+    <ShopOrders />
+  {:else if page === 'shopbuy'}
+    <!-- the shop link: buy without app or account (mockups SHOP2a + SHOP2b) -->
+    {#key param}<ShopBuy part={param} />{/key}
   {:else if page === 'bills'}
     <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
     <Bills />
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
     <InvoiceNew />
+  {:else if page === 'assistent'}
+    <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
+    <Assistent {hash} />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
@@ -467,6 +517,8 @@
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
+<!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
+{#if page !== 'share'}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
@@ -546,6 +598,15 @@
   }
   .plus:hover {
     background: var(--hi-hover);
+  }
+  .asst-ic {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--ink);
   }
   .tools {
     display: flex;

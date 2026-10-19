@@ -39,7 +39,7 @@ jobs:
   # v0.30.0 (Noah 1a): phone and desktop run side by side, so a check takes about half as long.
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:

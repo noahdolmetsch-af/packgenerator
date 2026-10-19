@@ -40,7 +40,7 @@ describe('BF4 copies before an update', () => {
   it('keeps the newest 3 update copies and 1 restore copy', () => {
     const list = [1, 2, 3, 4, 5].map((id) => ({ id, kind: 'update', at: `2026-10-0${id}T10:00:00Z` })).concat([{ id: 6, kind: 'restore', at: '2026-10-01T00:00:00Z' }, { id: 7, kind: 'restore', at: '2026-10-02T00:00:00Z' }]);
     expect(pruneIds(list).sort()).toEqual([1, 2, 6]);
-    expect(KEEP).toEqual({ update: 3, restore: 1, import: 3 }); // P3b (rule 5a): also 3 copies before an import
+    expect(KEEP).toEqual({ update: 3, restore: 1, import: 3, sync: 1 }); // P3b (rule 5a): also 3 copies before an import; P8: one before the first sync
   });
 
   it('a first install keeps nothing and notes the version', async () => {

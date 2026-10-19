@@ -209,7 +209,7 @@ test('c) Dein Tempo: per bike and surface from 5 rides, planned and ridden, the 
   await zones.getByRole('button', { name: T('Save') }).click();
   await expect(zones).toContainText(T('entered by you'));
   await expect(zones).toContainText(T('up to {n} bpm', { n: 117 }));
-  expect((await setting(page, 'hrZones')).bounds).toEqual([117, 137, 153, 168]);
+  expect((await setting(page, 'training.zones')).own).toEqual([118, 138, 154, 169]);
   await zones.scrollIntoViewIfNeeded();
   await shot(page, info, 'SN2i-tempo-monate');
 

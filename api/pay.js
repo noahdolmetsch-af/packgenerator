@@ -16,6 +16,10 @@
  *   POST ?step=report  { box, no, way }      → { ok } a payer says «paid» for invoice no (no personal data)
  *   POST ?step=reports { key }               → { reports: [{ id, no, way, at }] } for the key's box, newest last
  *   POST ?step=forget  { key, ids }          → { ok } the app handled these reports
+ * Shop without fees (SHOP1–SHOP4b; only the Redis store is needed, see _lib/shoporder.js):
+ *   POST ?step=shop-order  { box, way, buyer, lines } → { no, total } the buyer orders from the shop link
+ *   POST ?step=shop-orders { key }           → { orders } waiting in the key's box, oldest first
+ *   POST ?step=shop-forget { key, ids }      → { ok } the app has these orders now
  *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
  *   PAY_MODE=test (anything else = off), STRIPE_SECRET_KEY (sk_test_… only; a live key is refused),
@@ -27,6 +31,7 @@ import { route, json, redis, redisEnv, needStore, ApiError } from './_lib/core.j
 import { jsonBody, safeReturn, hash } from './_lib/oauth.js';
 import { PLANS, CURRENCY, payEnv, isTestKey, makeLicence, readLicence, readCode, codeExpiry, checkoutForm } from './_lib/pay.js';
 import { readReport, isKey, boxOf, boxKey, newReport, parseReports, REPORT_TTL_S, REPORT_MAX } from './_lib/report.js';
+import { readShopOrder, newShopOrder, parseShopOrders, shopKey, shopNoKey, SHOP_TTL_S, SHOP_MAX, SHOP_FIRST_NO } from './_lib/shoporder.js';
 import { CATALOG, shopEnv, publicCatalog, checkOrder, orderForm, readNote, grantFor, readGrant } from './_lib/shop.js';
 
 export const STRIPE = 'https://api.stripe.com/v1';
@@ -119,7 +124,7 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...shopEnv(), ...redis
       POST: async (request) => {
         const step = new URL(request.url).searchParams.get('step');
         const cfg = env();
-        const body = await jsonBody(request, 4000);
+        const body = await jsonBody(request, step === 'shop-order' ? 12000 : 4000);
 
         if (step === 'checkout') {
           needStripe(cfg);
@@ -169,6 +174,31 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...shopEnv(), ...redis
           await store.del(k);
           for (const x of keep) await store.cmd('RPUSH', k, JSON.stringify(x));
           if (keep.length) await store.expire(k, REPORT_TTL_S);
+          return json(request, 200, { ok: true });
+        }
+
+        if (step === 'shop-order') {
+          const o = readShopOrder(body);
+          if (!o) throw new ApiError(400, 'bad_request', 'This order is not complete.');
+          const store = needStore(cfg, doFetch);
+          const k = shopKey(o.box);
+          if ((await store.cmd('LLEN', k)) >= SHOP_MAX) throw new ApiError(429, 'shop_full', 'This shop takes no more orders right now.');
+          const no = SHOP_FIRST_NO + Number(await store.cmd('INCR', shopNoKey(o.box)));
+          const row = newShopOrder(o, no, nowS());
+          await store.cmd('RPUSH', k, row);
+          await store.expire(k, SHOP_TTL_S);
+          return json(request, 200, { no, total: JSON.parse(row).total });
+        }
+
+        if (step === 'shop-orders' || step === 'shop-forget') {
+          if (!isKey(body.key)) throw new ApiError(400, 'bad_request', 'Unknown key.');
+          const store = needStore(cfg, doFetch);
+          const k = shopKey(boxOf(body.key));
+          const rows = await store.cmd('LRANGE', k, 0, -1);
+          if (step === 'shop-orders') return json(request, 200, { orders: parseShopOrders(rows) });
+          // remove exactly the fetched rows, so an order that came in meanwhile stays
+          const ids = Array.isArray(body.ids) ? body.ids.map(String) : [];
+          for (const row of Array.isArray(rows) ? rows : []) if (parseShopOrders([row]).some((x) => ids.includes(x.id))) await store.cmd('LREM', k, 1, row);
           return json(request, 200, { ok: true });
         }
 

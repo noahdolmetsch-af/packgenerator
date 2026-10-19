@@ -32,6 +32,7 @@
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
+  import { PLAN_KEY, readPlan } from '../assistent/plan.js';
   import OptionButton from '../ui/OptionButton.svelte';
   import KomootRow from '../komoot/KomootRow.svelte'; // SN1b (answer 4a): «Tour aus komoot» next to the templates
   import { komootSport } from '../komoot.js';
@@ -441,6 +442,17 @@
   const LENGTHS = [{ n: 1, name: 'Day ride' }, { n: 2, name: '2 days' }, { n: 3, name: 'More' }];
   // "More" chosen (the field stays while typing 2 or 1), or 3 and more days (also from a template).
   let moreWanted = $state(false);
+  // «Hilf mir planen» (Assistent, Noah 15.10.2026 «1 beides»): the plan's answers come into a new trip once.
+  // svelte-ignore state_referenced_locally
+  const planPrefill = isNew ? readPlan(take(PLAN_KEY)) : null;
+  if (planPrefill) {
+    draft.startDate = planPrefill.startDate;
+    draft.days = Math.max(1, Number(planPrefill.days) || 1);
+    moreWanted = draft.days >= 3;
+    if (planPrefill.bikeId && bikes.some((b) => b.id === planPrefill.bikeId)) draft.bikeId = planPrefill.bikeId;
+    if (DOMAIN[planPrefill.area]) area = planPrefill.area;
+    if (draft.days > 1 && planPrefill.night) pickNight(planPrefill.night);
+  }
   const moreDays = $derived(moreWanted || days >= 3);
   async function pickLength(n) {
     draft.days = n < 3 ? n : Math.max(3, days);

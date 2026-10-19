@@ -1,4 +1,4 @@
-import { DATA_TABLES, SCHEMA_VERSION } from './db.js';
+import { DATA_TABLES, SCHEMA_VERSION, DEVICE_SETTINGS } from './db.js';
 import { t } from './i18n.svelte.js';
 
 /**
@@ -19,7 +19,7 @@ export const APP_ID = 'pack-generator';
  * v0.77.0 (KI-Helfer): "helper" (the Helfer-Code, the switch and the monthly limit) stays on this
  * device: the code is a key and never travels in an export, a backup file or the folder backup.
  */
-export const DEVICE_SETTINGS = ['tips', 'helper'];
+export { DEVICE_SETTINGS }; // the list lives in db.js (P8: the automatic sync skips these rows too)
 const deviceOnly = (name, row) => name === 'settings' && DEVICE_SETTINGS.includes(row?.key);
 
 /** Read every data table and build the backup object. */
@@ -57,7 +57,7 @@ export function countRows(data) {
 }
 
 /** The field that identifies a record in each table (see db.js); "id" when not listed. */
-export const KEY_OF = { debriefs: 'tripId', settings: 'key', flowChecks: 'day' };
+export const KEY_OF = { debriefs: 'tripId', settings: 'key', flowChecks: 'day', healthDays: 'date' };
 
 /**
  * v0.27.0 (Noah 1a, AP22): what an import would do, shown BEFORE it runs.

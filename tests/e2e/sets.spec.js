@@ -223,7 +223,7 @@ test('New trip window: Standard in 3 clicks, no building blocks in it, the live 
   expect(errors).toEqual([]);
 });
 
-test('building blocks page on a 320 px phone: gone item greyed, amount, rename built-in, delete own with undo', async ({ page, context }, info) => {
+test('building blocks page on a 320 px phone: gone item greyed, amount, rename built-in, delete own and built-in with undo', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'phone only');
   const T = tr('de');
   await start(page, context, info, 'de', { block: true }, { width: 320, height: 640 });
@@ -251,14 +251,29 @@ test('building blocks page on a 320 px phone: gone item greyed, amount, rename b
   await expect(rn).toHaveCount(0);
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Küche' })).toBeVisible();
   expect((await table(page, 'settings')).find((s) => s.key === 'sets').value).toContainEqual({ key: 'cook', name: 'test_data_gtp_ Küche' });
-  // Built-in blocks have no Delete; own ones do, with Undo.
-  await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Küche' }).getByRole('button', { name: T('Delete') })).toHaveCount(0);
+  // «Gruppen überall» (Noah 18.10.2026): every block can be deleted, built-in ones too. The window asks
+  // where the items go; the first choice «In keinem Baustein» is chosen. Then Undo.
   await card.getByRole('button', { name: T('Delete') }).click();
+  const del = page.getByRole('dialog', { name: T('Delete the building block "{name}"?', { name: 'test_data_gtp_ Regen' }) });
+  await expect(del.getByRole('radio', { name: new RegExp(T('In no building block')) })).toBeChecked();
+  expect(await wide(page)).toBe(0);
+  await del.getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Regen' })).toHaveCount(0);
   expect((await table(page, 'items')).find((i) => i.id === 'RG91').sets).toEqual([]);
   await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Regen' })).toBeVisible();
   expect((await table(page, 'items')).find((i) => i.id === 'RG91').sets).toEqual(['u-test-data-gtp-regen']);
+  // the built-in block (renamed «Küche»): its items go into «Regen»; it waits under «Gelöschte Bausteine»
+  const kitchen = page.getByRole('listitem', { name: 'test_data_gtp_ Küche' });
+  await kitchen.getByRole('button', { name: T('Delete') }).click();
+  const del2 = page.getByRole('dialog', { name: T('Delete the building block "{name}"?', { name: 'test_data_gtp_ Küche' }) });
+  if (await del2.getByRole('radio').count()) await del2.getByRole('radio', { name: 'test_data_gtp_ Regen' }).check();
+  await del2.getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(kitchen).toHaveCount(0);
+  expect((await table(page, 'settings')).find((s) => s.key === 'sets').value).toContainEqual({ key: 'cook', deleted: true });
+  await page.locator('h2#g-gone').click();
+  await page.getByRole('button', { name: T('Bring back {name}', { name: T('Night: Cook') }) }).click();
+  await expect(page.getByRole('listitem', { name: T('Night: Cook').replace(/^[^:]+: /, ''), exact: true })).toHaveCount(1);
   expect(await wide(page)).toBe(0);
 });
 

@@ -8,11 +8,20 @@
 import { PACE_KEY } from '../pace.js';
 import { TEMPLATES_KEY } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
-import { standardZones, validBounds, tempoRides, paceGrid } from './werte.js';
+import { standardZones, tempoRides, paceGrid } from './werte.js';
+import { ZONES_KEY as STRAVA_ZONES_KEY, OWN_ZONES_KEY, ownOf, boundsOfStrava, validBounds as trainingBounds } from '../training.js';
 
-/** settings key: your own zone bounds { bounds: [Z1–Z4 upper bpm], at } (exported with the backup). */
-// SN2+: wire to training.js when the Training PR lands (zones from src/lib/strava/zones.svelte.js)
+/**
+ * The older settings key of your own zone bounds { bounds: [Z1–Z4 upper bpm], at }. Still read; saving now goes
+ * to Training's key (training.js OWN_ZONES_KEY), so Rückblick, Tempo and Training show one set of zones.
+ */
 export const ZONES_KEY = 'hrZones';
+
+/** The three zone settings in one go: { own (Training), strava (fetched), legacy ('hrZones') }. */
+export async function zoneValues(db) {
+  const [own, strava, legacy] = await Promise.all([db.settings.get(OWN_ZONES_KEY), db.settings.get(STRAVA_ZONES_KEY), db.settings.get(ZONES_KEY)]);
+  return { own: own?.value ?? null, strava: strava?.value ?? null, legacy: legacy?.value ?? null };
+}
 
 /** Does this database have the activities table yet? */
 export const hasActivities = (db) => db.tables.some((t) => t.name === 'activities');
@@ -35,12 +44,17 @@ export function maxHeart(entries = [], acts = []) {
 }
 
 /**
- * The zone bounds to draw with: { bounds, source: 'own' | 'standard', max } or null (no heart rate known).
- * setting: the 'hrZones' value.
+ * The zone bounds to draw with (top of Z1–Z4): { bounds, source: 'own' | 'strava' | 'standard', max } or null
+ * (no heart rate known). zv: zoneValues(), or an older 'hrZones' value { bounds }. Own zones (from Training or
+ * from here) come first, then Strava's, then the standard from the highest heart rate. Training keeps the first
+ * beat of the next zone, so its bounds are one beat lower here.
  */
-// SN2+: wire to training.js when the Training PR lands (zones from Strava come first)
-export function zonesOf(setting, entries = [], acts = []) {
-  if (validBounds(setting?.bounds)) return { bounds: setting.bounds, source: 'own', max: null };
+export function zonesOf(zv, entries = [], acts = []) {
+  const v = zv && 'bounds' in zv ? { legacy: zv } : (zv ?? {});
+  const own = ownOf(v.own, v.legacy);
+  if (own) return { bounds: own.own.map((b) => b - 1), source: 'own', max: null };
+  const s = boundsOfStrava(v.strava);
+  if (s) return { bounds: s.map((b) => b - 1), source: 'strava', max: null };
   const max = maxHeart(entries, acts);
   const bounds = standardZones(max);
   return bounds ? { bounds, source: 'standard', max } : null;
@@ -52,18 +66,31 @@ export async function loadWerte(db) {
     loadActs(db),
     db.kmBook.toArray(),
     db.settings.get(PACE_KEY),
-    db.settings.get(ZONES_KEY),
+    zoneValues(db),
     db.bikes.toArray(),
     db.trips.toArray(),
     db.settings.get(TEMPLATES_KEY),
   ]);
-  const zs = zonesOf(zones?.value ?? null, entries, acts);
+  const zs = zonesOf(zones, entries, acts);
   const rides = tempoRides({ acts, entries, paceRides: pace?.value?.rides ?? [], trips });
-  return { acts, entries, pace: pace?.value ?? null, zoneSetting: zones?.value ?? null, zones: zs, bikes, trips, rides, grid: paceGrid(rides, bikes), templates: templates?.value ?? [] };
+  return { acts, entries, pace: pace?.value ?? null, zoneSetting: zones, zones: zs, bikes, trips, rides, grid: paceGrid(rides, bikes), templates: templates?.value ?? [] };
 }
 
-/** Your own zones saved, or back to the standard (null). */
-export const saveZones = (db, bounds) => (bounds ? db.settings.put({ key: ZONES_KEY, value: { bounds: bounds.map(Number), at: new Date().toISOString() } }) : db.settings.delete(ZONES_KEY));
+/**
+ * Your own zones (top of Z1–Z4) saved for the whole app, or null: back to Strava's or the standard. Saved as
+ * Training's bounds (one beat more); false when they do not fit there (whole numbers, 59–229).
+ */
+export async function saveZones(db, bounds) {
+  if (!bounds) {
+    await Promise.all([db.settings.delete(OWN_ZONES_KEY), db.settings.delete(ZONES_KEY)]);
+    return true;
+  }
+  const own = bounds.map((b) => Number(b) + 1);
+  if (!trainingBounds(own)) return false;
+  await db.settings.put({ key: OWN_ZONES_KEY, value: { own } });
+  await db.settings.delete(ZONES_KEY);
+  return true;
+}
 
 /* ---------- SN4+ «SN4 plus»: the columns of «Vergangene Touren» ---------- */
 
@@ -103,13 +130,23 @@ export function actOf(a) {
 export const loadPastActs = async (db) => (await loadActs(db)).map(actOf);
 
 /**
- * SN4+ «Kommentar laden»: fetch the comment of these activities once from Strava. Until the Training PR
- * lands there is nothing to fetch it with: it gives false and the row keeps «Kommentar laden».
+ * SN4+ «Kommentar laden»: fetch these activities once from Strava (Training's loadDetail brings the comment with
+ * the details). true when at least one came; false without the table, without ids or when Strava is not
+ * reachable (not connected, offline): the row then keeps «Kommentar laden». load: for tests.
  */
-// SN4+: wire to training.js when the Training PR lands (loadDetail(db, id) for each id)
-export async function loadComments(db, ids = []) {
+export async function loadComments(db, ids = [], { load } = {}) {
   if (!hasActivities(db) || !ids.length) return false;
-  return false;
+  const fn = load ?? (await import('../strava/client.svelte.js')).loadDetail;
+  let ok = false;
+  for (const id of ids) {
+    try {
+      await fn(db, id);
+      ok = true;
+    } catch {
+      /* stays «Kommentar laden» */
+    }
+  }
+  return ok;
 }
 
 /* ---------- SN2x «SN2 extra»: the whole Rückblick of one trip ---------- */
@@ -135,11 +172,11 @@ export async function loadGanz(db) {
   const [acts, entries, zs, tpl, sets, w, checks] = await Promise.all([
     loadActs(db),
     db.kmBook.toArray(),
-    db.settings.get(ZONES_KEY),
+    zoneValues(db),
     db.settings.get(TEMPLATES_KEY),
     db.settings.get(SETS_KEY),
     db.settings.get(WEIGHT_KEY),
     db.flowChecks.toArray().catch(() => []),
   ]);
-  return { acts, entries, zones: zonesOf(zs?.value ?? null, entries, acts), templates: tpl?.value ?? [], sets: sets?.value ?? [], kg: kgOf(w?.value), checks };
+  return { acts, entries, zones: zonesOf(zs, entries, acts), templates: tpl?.value ?? [], sets: sets?.value ?? [], kg: kgOf(w?.value), checks };
 }
