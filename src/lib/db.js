@@ -60,14 +60,12 @@ export const DEVICE_SETTINGS = ['tips', 'helper'];
  * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
  * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
  */
-export const syncLocal = (table, key) => (table === 'settings' && (DEVICE_SETTINGS.includes(key) || SYNC_DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'))) || SYNC_DEVICE_TABLES.includes(table);
-/**
- * Paket B: copies of Google that every device fetches by itself every 15 minutes (Fitbit days and the
- * Fitbit and calendar connection with its «last fetch»). Synced, both devices would write them at the
- * same time and the window «Changed on both devices» would ask about them. They stay in the backup.
+export const syncLocal = (table, key) => table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'));
+/*
+ * Paket B (Noah 19.10.2026 «1b»): the Fitbit days (healthDays) and the Fitbit and calendar connection
+ * (settings 'health' and 'agenda') sync like everything else. Both devices fetch the same data from Google,
+ * so the sync engine settles those copies by itself and never asks about them (sync/engine.js autoPick).
  */
-export const SYNC_DEVICE_TABLES = ['healthDays'];
-export const SYNC_DEVICE_SETTINGS = ['health', 'agenda'];
 
 /**
  * @typedef {Object} Item

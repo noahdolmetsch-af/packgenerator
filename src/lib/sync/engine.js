@@ -127,6 +127,35 @@ export async function resolve(db, key, choice) {
   });
 }
 
+/*
+ * Paket B (Noah 19.10.2026 «1b»): copies of Google that both devices fetch by themselves. A Fitbit day
+ * carries when this device fetched it (at, src); the Fitbit and calendar settings carry the last fetch
+ * (lastSync, until). These marks alone never make a question; when the values differ, the copy fetched
+ * later wins without asking, because both come from the same source.
+ */
+export const FETCHED = {
+  healthDays: { marks: ['at', 'src'], when: (r) => r?.at ?? '' },
+  'settings:health': { marks: ['lastSync', 'until'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
+  'settings:agenda': { marks: ['lastSync'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
+};
+const fetchedRule = (t, id) => FETCHED[t] ?? FETCHED[`${t}:${id}`] ?? null;
+const withoutMarks = (r, rule) => {
+  if (!r || typeof r !== 'object') return r;
+  if (!rule.inValue) return Object.fromEntries(Object.entries(r).filter(([k]) => !rule.marks.includes(k)));
+  const v = r.value && typeof r.value === 'object' ? Object.fromEntries(Object.entries(r.value).filter(([k]) => !rule.marks.includes(k))) : r.value;
+  return { ...r, value: v };
+};
+/**
+ * For a record changed on both devices: 'same' (only the fetch marks differ), 'theirs' or 'mine' (the copy
+ * fetched later), or null (not a copy of Google, or a delete: the person is asked as before).
+ */
+export function autoPick(t, id, mine, theirs) {
+  const rule = fetchedRule(t, id);
+  if (!rule || mine == null || theirs == null) return null;
+  if (same(withoutMarks(mine, rule), withoutMarks(theirs, rule))) return 'same';
+  return String(rule.when(theirs)) > String(rule.when(mine)) ? 'theirs' : 'mine';
+}
+
 /** One remote record: take it, note it as the same, or ask. */
 async function applyRemote(db, p, s) {
   const { t, id } = p;
@@ -140,8 +169,19 @@ async function applyRemote(db, p, s) {
       await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
       return 'taken';
     }
-    if (same(local, theirs)) {
+    const pick = same(local, theirs) ? 'same' : autoPick(t, id, local, theirs);
+    if (pick === 'same') {
       await db.meta.put({ ...note, dirty: 0, base: s, del: !!p.del });
+      await db.meta.delete(askKey(t, id));
+      return 'same';
+    }
+    if (pick === 'theirs') {
+      await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
+      return 'taken';
+    }
+    if (pick === 'mine') {
+      // this device fetched later: it stays and goes to the server on the push of this round
+      await db.meta.put({ ...note, dirty: 1, base: s });
       await db.meta.delete(askKey(t, id));
       return 'same';
     }

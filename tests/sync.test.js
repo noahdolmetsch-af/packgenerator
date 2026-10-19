@@ -9,7 +9,7 @@ import net from 'node:net';
 import { createDb, syncLocal, DATA_TABLES } from '../src/lib/db.js';
 import { noteKey } from '../src/lib/sync/track.js';
 import { newCode, readCode, keysOf, seal, unseal, recName } from '../src/lib/sync/code.js';
-import { startSync, stopSync, syncNow, resolve, openQuestions, readCfg, stable, CFG } from '../src/lib/sync/engine.js';
+import { startSync, stopSync, syncNow, resolve, openQuestions, readCfg, stable, CFG, autoPick } from '../src/lib/sync/engine.js';
 import { makeHandler } from '../api/sync.js';
 import { spaceOf, readPush } from '../api/_lib/sync.js';
 import { fakeRedis } from './fakeredis.js';
@@ -337,15 +337,70 @@ describe('the question shows only what differs (show.js)', () => {
   });
 });
 
-// Paket B: what every device fetches from Google by itself stays on the device (no «Changed on both devices»)
-describe('device-only rows with Fitbit and Google (Paket B)', () => {
-  it('keeps the Fitbit days and the Fitbit and calendar connection on this device, still in the backup', () => {
-    expect(syncLocal('healthDays', '2026-10-01')).toBe(true);
-    expect(syncLocal('settings', 'health')).toBe(true);
-    expect(syncLocal('settings', 'agenda')).toBe(true);
+// Paket B (Noah 19.10.2026 «1b», changed on purpose): the Fitbit days and the Fitbit and calendar
+// connection sync too; both devices fetch them from Google, so the engine settles them without a question
+describe('Fitbit and Google copies sync without a question (Paket B, Noah 19.10 «1b»)', () => {
+  it('syncs the Fitbit days and the Fitbit and calendar settings; device rows stay', () => {
+    expect(syncLocal('healthDays', '2026-10-01')).toBe(false);
+    expect(syncLocal('settings', 'health')).toBe(false);
+    expect(syncLocal('settings', 'agenda')).toBe(false);
     expect(DATA_TABLES).toContain('healthDays');
-    expect(syncLocal('settings', 'docs')).toBe(false);
-    expect(syncLocal('docs', 'doc-1')).toBe(false);
-    expect(syncLocal('items', 'EL01')).toBe(false);
+    expect(syncLocal('settings', 'tips')).toBe(true);
+    expect(syncLocal('settings', 'update.kitTemplates2026')).toBe(true);
+  });
+  it('autoPick: only the fetch marks differ → same; values differ → the copy fetched later; anything else → ask', () => {
+    const day = (at, steps) => ({ date: '2026-10-18', steps, restingHr: 52, src: 'google', at });
+    expect(autoPick('healthDays', '2026-10-18', day('2026-10-19T05:00:00Z', 8000), day('2026-10-19T05:15:00Z', 8000))).toBe('same');
+    expect(autoPick('healthDays', '2026-10-18', day('2026-10-19T05:00:00Z', 8000), day('2026-10-19T05:15:00Z', 8400))).toBe('theirs');
+    expect(autoPick('healthDays', '2026-10-18', day('2026-10-19T05:30:00Z', 8600), day('2026-10-19T05:15:00Z', 8400))).toBe('mine');
+    const health = (lastSync, values) => ({ key: 'health', value: { connected: true, values, lastSync, until: '2026-10-18' } });
+    expect(autoPick('settings', 'health', health('2026-10-19T05:00:00Z', ['steps']), health('2026-10-19T05:15:00Z', ['steps']))).toBe('same');
+    expect(autoPick('settings', 'health', health('2026-10-19T05:00:00Z', ['steps']), health('2026-10-19T05:15:00Z', ['steps', 'sleep']))).toBe('theirs');
+    expect(autoPick('settings', 'agenda', { key: 'agenda', value: { on: true, lastSync: 'b' } }, { key: 'agenda', value: { on: true, lastSync: 'a' } })).toBe('same');
+    // not a copy of Google, or a delete: the person decides, as before
+    expect(autoPick('items', 'EL01', { id: 'EL01', name: 'a' }, { id: 'EL01', name: 'b' })).toBe(null);
+    expect(autoPick('settings', 'docs', { key: 'docs', value: 1 }, { key: 'docs', value: 2 })).toBe(null);
+    expect(autoPick('healthDays', '2026-10-18', day('x', 1), null)).toBe(null);
+  });
+  it('two devices fetch the same day: no question; a later fetch with new values wins on both', async () => {
+    const { api } = fakeServer();
+    const phone = fresh();
+    const computer = fresh();
+    const code = newCode();
+    const run = (db, dev) => syncNow(db, { api, dev });
+    await startSync(computer, code);
+    await run(computer, 'computer');
+    await startSync(phone, code);
+    await run(phone, 'phone');
+    // both fetch 18 October from Google at different times: identical values, own fetch marks
+    await computer.healthDays.put({ date: '2026-10-18', steps: 8000, src: 'google', at: '2026-10-19T05:00:00Z' });
+    await phone.healthDays.put({ date: '2026-10-18', steps: 8000, src: 'google', at: '2026-10-19T05:10:00Z' });
+    await computer.settings.put({ key: 'health', value: { connected: true, lastSync: '2026-10-19T05:00:00Z' } });
+    await phone.settings.put({ key: 'health', value: { connected: true, lastSync: '2026-10-19T05:10:00Z' } });
+    await run(computer, 'computer');
+    expect(await run(phone, 'phone')).toMatchObject({ asks: 0 });
+    expect(await openQuestions(phone)).toEqual([]);
+    // later the phone fetches again and Google has more steps; the computer still has the old copy changed
+    await phone.healthDays.put({ date: '2026-10-18', steps: 9100, src: 'google', at: '2026-10-19T09:00:00Z' });
+    await computer.healthDays.put({ date: '2026-10-18', steps: 8000, src: 'google', at: '2026-10-19T08:00:00Z' });
+    await run(phone, 'phone');
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    expect((await computer.healthDays.get('2026-10-18')).steps).toBe(9100);
+    // the other way round: the computer fetched later, so its copy stays and reaches the phone
+    await phone.healthDays.put({ date: '2026-10-18', steps: 9100, src: 'google', at: '2026-10-19T10:00:00Z' });
+    await computer.healthDays.put({ date: '2026-10-18', steps: 9300, src: 'google', at: '2026-10-19T11:00:00Z' });
+    await run(phone, 'phone');
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    expect((await computer.healthDays.get('2026-10-18')).steps).toBe(9300);
+    expect(await run(phone, 'phone')).toMatchObject({ asks: 0 });
+    expect((await phone.healthDays.get('2026-10-18')).steps).toBe(9300);
+    // a real change of your own on both devices is still a question
+    await phone.items.put({ id: 'EL01', name: 'test_data_gtp_ a' });
+    await run(phone, 'phone');
+    await run(computer, 'computer');
+    await phone.items.update('EL01', { weightG: 1 });
+    await computer.items.update('EL01', { weightG: 2 });
+    await run(phone, 'phone');
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
   });
 });
