@@ -13,7 +13,7 @@ export default {
   'The days come from the trip. A night in a hotel or hut counts as a night with a socket, a bivouac without.': 'Die Tage kommen von der Tour. Eine Nacht im Hotel oder in der Hütte zählt mit Steckdose, ein Biwak ohne.',
   'Use the values from the trip': 'Werte der Tour nehmen',
   'Below 5 °C a power bank gives about 10 % less; that is counted.': 'Unter 5 °C gibt eine Powerbank etwa 10 % weniger, das ist eingerechnet.',
-  Result: 'Ergebnis',
+  Result: 'Resultat',
   'This trip has no devices to charge yet.': 'Auf dieser Tour sind noch keine Geräte zum Laden.',
   'No devices yet. Items in Electronics and Lights count as devices.': 'Noch keine Geräte. Teile in Elektronik und Licht zählen als Geräte.',
   'Your devices use about {wh} a day.': 'Deine Geräte brauchen etwa {wh} pro Tag.',
