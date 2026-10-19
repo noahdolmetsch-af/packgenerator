@@ -191,7 +191,9 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/push')) return 'push'; // Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»)
   if (h.startsWith('#/me/checks')) return 'checks'; // v0.111.0 (mockup V4): Ich › Checks pro Reiseart
   if (h.startsWith('#/me/weight')) return 'weight'; // TR6/TR6b: Ich › Meine Daten › Gewicht
-  if (h.startsWith('#/me/abfragen') || /^#\/check(\/|\?|$)/.test(h)) return 'abfragen'; // AB1/AB5: Ich › Deine Abfragen; WG: the old check pages lead there (redirectOf)
+  // Tages-Check back (Noah 18.10.2026 «1 a und b»): the morning check, the evening review and the questions are pages of Heute again
+  if (CHECK_PAGES.some((x) => h === x || h.startsWith(`${x}/`))) return 'check';
+  if (h.startsWith('#/me/abfragen') || /^#\/check(\/|\?|$)/.test(h)) return 'abfragen'; // AB1/AB5: Ich › Deine Abfragen; WG: any other #/check address leads there (redirectOf)
   if (h.startsWith('#/me/history')) return 'history'; // AB4: Ich › Daten › Verlauf
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
   if (h.startsWith('#/me/werte')) return 'werte'; // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte
@@ -209,8 +211,11 @@ export function pageOf(hash = '', careTab = false) {
  * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
  */
-/** WG: the addresses of the old daily check (v0.127.0), now «Wi gaht's?» (#/me/abfragen). */
-export const OLD_CHECK = ['#/check/morning', '#/check/evening', '#/check/questions'];
+/**
+ * The pages of the daily check (v0.127.0). WG had sent them to «Wi gaht's?»; since 18.10.2026 (Noah «1 a und b»)
+ * they are pages of Heute again, and their answers stay in «Wi gaht's?» (its history reads them).
+ */
+export const CHECK_PAGES = ['#/check/morning', '#/check/evening', '#/check/questions'];
 export function redirectOf(hash = '') {
   const [h, query = ''] = (hash || '').split('?');
   if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period', old: '#/review' };
@@ -222,8 +227,8 @@ export function redirectOf(hash = '') {
     const rest = q.toString();
     return { hash: `#/bikes?tab=care${rest ? `&${rest}` : ''}`, spot: '', old: '#/care' };
   }
-  // WG «Wi gaht's?» takes over the daily check: the old pages lead there (quietly)
-  if (OLD_CHECK.includes(h) || /^#\/check(\/|$)/.test(h)) return { hash: '#/me/abfragen', spot: '', old: null };
+  // WG «Wi gaht's?»: any other #/check address leads there (quietly)
+  if (!CHECK_PAGES.includes(h) && /^#\/check(\/|$)/.test(h)) return { hash: '#/me/abfragen', spot: '', old: null };
   return null;
 }
 
@@ -315,6 +320,7 @@ export function tabOf(place, hash = '') {
 export function placeOf(page) {
   if (page === 'home') return 'today';
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
+  if (page === 'check') return 'today'; // Tages-Check (Noah 18.10.2026): pages of Heute
   if (page === 'flow') return 'active';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';

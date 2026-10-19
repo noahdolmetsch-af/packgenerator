@@ -8,6 +8,7 @@
    * WG «Wi gaht's?» takes over the daily check: the row shows today's sleep, energy and mood (answered in
    * «Wi gaht's?», mirrored into the day's check) and leads to «Wi gaht's?» (#/me/abfragen); from the
    * evening round time the evening round with the satisfaction of «Wi gaht's?».
+   * Tages-Check back (Noah 18.10.2026 «1 a und b»): the row leads to the Morgen-Check or Abend-Rückblick page again.
    * 0.155.0 HN4 (release analysis D3, «Morgen-Runde» three times on Heute): with the day card on the wall the
    * round lives there only; round={false} leaves the row out here. Without the day card it is here as before.
    * 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 21:46 «1-5a»): 4a with `aside` (the balance) one card with
@@ -28,7 +29,9 @@
   import { t } from '../i18n.svelte.js';
   import { onMount } from 'svelte';
 
-  let { today, round = true, aside = null } = $props();
+  // Tages-Check T3b (Noah 18.10.2026 «2b»): with the balance on Heute the big balance ring takes the place of the
+  // 3 small rings (rings={false}); joined, the balance comes first (asideFirst)
+  let { today, round = true, aside = null, rings: showRings = true, asideFirst = false } = $props();
   // 3a: the help line «Tippen hakt ab …» the first 5 times, then it has done its job
   const HELP_KEY = 'flowTickHelpSeen';
   const HELP_TIMES = 5;
@@ -77,9 +80,9 @@
            waits below, so this one is a tap shortcut only (no second link of the same name) -->
       <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')} data-head-go><ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" /></a>
     </div>
-    <div class="jn"><div class="main">
+    <div class="jn" class:af={asideFirst}>{#if aside && asideFirst}<div class="aside first">{@render aside()}</div>{/if}<div class="main">
     <div class="body">
-      <div class="rg"><Rings {rings} size={phone.matches ? 104 : 120} compact /></div>
+      {#if showRings}<div class="rg"><Rings {rings} size={phone.matches ? 104 : 120} compact /></div>{/if}
       <div class="now">
         {#if openToday.length}
           <p class="kick">{t('Still today')}</p>
@@ -92,7 +95,7 @@
           <div class="crow" class:done={sat != null} data-check-entry="evening">
             <Moon size={20} aria-hidden="true" />
             <span class="ct"><b>{t('Evening round')}</b><small>{sat != null ? t('Satisfaction {n} of 10', { n: sat }) : t('How was your day? · about 30 seconds')}</small></span>
-            <a class="btn start" href="#/me/abfragen">{sat != null ? t('Change') : t('Start|check')}</a>
+            <a class="btn start" href="#/check/evening">{sat != null ? t('Change') : t('Start|check')}</a>
           </div>
         {:else if known}
           <!-- WG: today's sleep, energy and mood from «Wi gaht's?» (through the day's check) -->
@@ -101,13 +104,13 @@
             <ul class="nums">
               {#each FIXED as f (f.key)}<li data-val={f.key}><b class="num">{check[f.key] ?? '–'}</b><small>{t(f.short)}</small></li>{/each}
             </ul>
-            <a class="btn start" href="#/me/abfragen">{t('Change')}</a>
+            <a class="btn start" href="#/check/morning">{t('Change')}</a>
           </div>
         {:else}
           <div class="crow" data-check-entry="morning">
             <Sun size={20} aria-hidden="true" />
             <span class="ct"><b>{t('Morning round')}</b><small>{t('a few questions · one tap each')}</small></span>
-            <a class="btn start" href="#/me/abfragen">{t('Start|check')}</a>
+            <a class="btn start" href="#/check/morning">{t('Start|check')}</a>
           </div>
         {/if}
       </div>
@@ -123,7 +126,7 @@
         {/if}
       {/if}
     </div>
-    </div>{#if aside}<div class="aside">{@render aside()}</div>{/if}</div>
+    </div>{#if aside && !asideFirst}<div class="aside">{@render aside()}</div>{/if}</div>
   </section>
 {/if}
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
@@ -169,6 +172,12 @@
     padding-top: 14px;
     border-top: 1px solid var(--line);
   }
+  /* T3b: the big ring first, Im Flow under it */
+  .aside.first {
+    padding: 0 0 14px;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+  }
   /* 4a: side by side once the card is wide (a whole row on a computer) */
   @container (min-width: 900px) {
     .jn {
@@ -182,6 +191,15 @@
       padding: 0 0 0 22px;
       border-top: 0;
       border-left: 1px solid var(--line);
+    }
+    .af .aside.first {
+      padding: 0 22px 0 0;
+      border-bottom: 0;
+      border-left: 0;
+      border-right: 1px solid var(--line);
+    }
+    .af .main {
+      padding: 0 0 0 22px;
     }
   }
   .hd {

@@ -1,15 +1,17 @@
 // v0.127.0 «Tages-Check» 1 + 2 (mockups T1–T4, Noah 13.10.2026) and WG «Wi gaht's?» takes over the daily
 // check (Noah 14.10.2026 «a) ja, alle drei übernehmen», «ok. freigabe»): on a phone and a computer, in
-// German, with a fixed clock in Europe/Zurich. The old pages #/check/morning, …/evening and …/questions
-// are gone; the tests that covered them are adapted to what took their place:
+// German, with a fixed clock in Europe/Zurich. Back with Noah 18.10.2026 «1 a und b», «2b», «3 a und b»: the
+// pages #/check/morning, …/evening and …/questions are there again (tests in tages-check-seiten.spec.js), the
+// round on Heute leads to them, the big ring takes the place of the three Im-Flow rings, «Deine 15 Fragen» is
+// back on Heute. The tests below:
 // 1. WG morning (07:52, was «the morning check»): the Im Flow row and the round tile «Morgen-Runde» lead
 //    to «Wi gaht's?»; the morning round asks sleep, battery, mood (moved from 08:00 to 07:00) and the goal
 //    on Heute; saved, the tile shows when, the goal and the three numbers, Im Flow shows them too and the
 //    day's check has them (the mirror). No sideways scroll, no page errors.
 // 2. WG evening (21:00, was «the evening review»): «Abend-Runde», the satisfaction from «Wi gaht's?».
-// 3. WG old links (was «Sprechen»): the three old addresses lead to «Wi gaht's?».
-// 4. Step 2 (T3): the balance ring from the meditation and the answers of «Wi gaht's?», the round tile,
-//    no more «Deine 15 Fragen»; «Feste Runden» (was the catalogue of the 15 questions); the Sunday
+// 3. Check links: the three check pages open again, other #/check addresses lead to «Wi gaht's?».
+// 4. Step 2 (T3): the big balance ring from the meditation and the answers of «Wi gaht's?», the round tile,
+//    «Deine 15 Fragen» back; «Feste Runden» (was the catalogue of the 15 questions); the Sunday
 //    question in the evening round (was question 15); the tip about the long press and the long press.
 // Fictional data only.
 import { test, expect } from '@playwright/test';
@@ -104,9 +106,28 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   const entry = page.locator('[data-daycard] [data-section="morningcheck"]');
   await expect(entry).toContainText(T('Morning round'));
   await expect(entry).toContainText(T('Start|check'));
+  // Noah 19.10.2026 (changed on purpose): the due questions come as a window first; «Später» puts it away
+  await page.locator('[data-section="abfragen"] [data-ab-later]').click();
   await entry.click();
-  await expect(page).toHaveURL(/#\/me\/abfragen$/);
-  await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
+  // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
+  await expect(page).toHaveURL(/#\/check\/morning$/);
+  await expect(page.getByRole('heading', { level: 1, name: T('Good morning') })).toBeVisible();
+  // «Später» undone (as if the hour had passed), so the window shows again on Heute
+  await page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+          const g = st.get('abfragen.snooze');
+          g.onsuccess = () => {
+            const v = { ...(g.result?.value ?? {}) };
+            delete v._later;
+            st.put({ key: 'abfragen.snooze', value: v }).onsuccess = () => (res(), r.result.close());
+          };
+        };
+      }),
+  );
   await page.goto('./#/');
   await ready(page);
   const mc = page.locator('[data-section="morningcheck"]');
@@ -167,7 +188,8 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   await expect(mc).toContainText(T('Start|check'));
   // v0.155.0 (D3, changed on purpose): the round once on Heute, in the day card's evening; it opens «Wi gaht's?»
   await expect(page.locator('[data-check-entry]')).toHaveCount(0);
-  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/me/abfragen');
+  // Noah 18.10.2026 «1 a und b» (changed on purpose): it opens the evening page again
+  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/check/evening');
 
   // the evening round on Heute: the satisfaction at 20:30
   const card = page.locator('[data-section="abfragen"]');
@@ -182,9 +204,14 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   expect(errors).toEqual([]);
 });
 
-test('WG old links (was «Sprechen»): the old check pages lead to «Wi gaht\'s?»', async ({ page, context }) => {
+test('check links: the three check pages are back (Noah 1ab, 3ab); other check addresses lead to Wi gahts', async ({ page, context }) => {
   await open(page, context, '21:00');
-  for (const h of ['#/check/morning', '#/check/evening', '#/check/questions']) {
+  for (const [h, name] of [['#/check/morning', 'Good morning'], ['#/check/evening', 'How was your day?'], ['#/check/questions', 'Your 15 questions']]) {
+    await page.goto(`./${h}`);
+    await expect(page).toHaveURL(new RegExp(`${h.replace(/\//g, '\\/')}$`));
+    await expect(page.getByRole('heading', { level: 1, name: T(name) })).toBeVisible();
+  }
+  for (const h of ['#/check', '#/check/other']) {
     await page.goto(`./${h}`);
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
@@ -205,7 +232,7 @@ const setting = (page, key) =>
     key,
   );
 
-test('Heute: «Deine Balance» ring from the meditation and the answers of «Wi gaht\'s?», the round tile, no more «Deine 15 Fragen»', async ({ page, context }) => {
+test('Heute: the big balance ring from the meditation and the answers of Wi gahts, the round tile, Deine 15 Fragen', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
   const y = addDays(DAY, -1);
   const ab = (qid, area, kind, value) => ({ id: `test_ab_${qid}`, qid, area, day: y, at: `${y}T20:35`, slot: `${y}T20:30`, kind, value, note: null, unit: null, src: 'hand' });
@@ -218,26 +245,29 @@ test('Heute: «Deine Balance» ring from the meditation and the answers of «Wi 
   await expect(ring.getByRole('heading', { name: T('Your balance') })).toBeVisible();
   // v0.155.0 HN4b-1 (changed on purpose): the compact balance says «last 7 days» in its head
   await expect(ring.locator('.hd')).toContainText(T('last 7 days'));
+  // Noah 18.10.2026 «2b» (T3b, changed on purpose): the big ring with the names around it
+  await expect(ring.locator('[data-balance-big]')).toBeVisible();
   // meditation on 6 of the last 7 days: Achtsamkeit full; nothing about visions: empty, never invented
-  await expect(ring.locator('[data-cat="mind"] em')).toHaveText('100');
-  await expect(ring.locator('[data-cat="vision"] em')).toHaveText('–');
+  await expect(ring.locator('[data-cat="mind"] .lv')).toHaveText('100');
+  await expect(ring.locator('[data-cat="vision"] .lv')).toHaveText('–');
   // WG: the answers of «Wi gaht's?» count: Freunde 100; Natur: two old highlights «Natur» (1, 1), fresh
   // air 10 (1) and 30–90 min outside (2/3) → 92
-  await expect(ring.locator('[data-cat="friends"] em')).toHaveText('100');
-  await expect(ring.locator('[data-cat="nature"] em')).toHaveText('92');
-  // one segment per category with a value, the least one with a gentle suggestion
-  const known = await ring.locator('.lg em').evaluateAll((els) => els.filter((e) => e.textContent !== '–').length);
+  await expect(ring.locator('[data-cat="friends"] .lv')).toHaveText('100');
+  await expect(ring.locator('[data-cat="nature"] .lv')).toHaveText('92');
+  // one segment per category with a value; the strongest and the weakest beside the ring
+  const known = await ring.locator('[data-cat] .lv').evaluateAll((els) => els.filter((e) => e.textContent !== '–').length);
   await expect(ring.locator('path[data-seg]')).toHaveCount(known);
-  await expect(ring.locator('[data-least]')).toContainText(T('Least:'));
+  await expect(ring.locator('[data-least]')).toContainText(T('the weakest|balance'));
+  await expect(ring.locator('[data-most]')).toContainText(T('the strongest|balance'));
   await expect(ring.getByRole('img')).toHaveAttribute('aria-label', new RegExp(T('Friends|cat') + ' 100'));
 
-  // the round tile: «Morgen-Runde», not yet today; the old tiles are gone
+  // the round tile: «Morgen-Runde», not yet today; «Deine 15 Fragen» is back (Noah «3 a und b»)
   const mc = page.locator('[data-section="morningcheck"]');
   await expect(mc).toHaveAttribute('data-done', 'false');
   await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
-  await expect(page.locator('[data-section="questions"]')).toHaveCount(0);
+  await expect(page.locator('[data-section="questions"]')).toHaveCount(1);
   await mc.click();
-  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  await expect(page).toHaveURL(/#\/check\/morning$/);
   expect(errors).toEqual([]);
 });
 

@@ -5,14 +5,21 @@
    * can be skipped; «Speichern» puts the answers into the history under Daten, «Jetzt nicht» hides the
    * card until the next question time, «Anpassen» leads to Ich › Deine Abfragen.
    * The weight is the same as the body weight under Ich › Meine Daten (abdb.js saveAnswers).
+   *
+   * Noah 19.10.2026 «Tagescheck und Abendcheck als eigene Maske»: Heute no longer starts with the open
+   * questions. They come as their own window (Morgen-Check / Abend-Check) with «Später» (the window comes
+   * back in one hour), «Heute nicht» (put away until the next question time, as «Jetzt nicht» before) and
+   * «Speichern». ✕, Escape and back count as «Später». The full page of the round is one tap away.
    */
-  import { ClipboardList } from '@lucide/svelte';
+  import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
+  import { backClose } from '../ui/backclose.js';
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf } from '../abfragen.js';
+  import { dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { t } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
   import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
+  import '../bikes/velo-dlg.css';
   import './ab.css';
 
   let { today } = $props();
@@ -61,15 +68,35 @@
       saving = false;
     }
   }
-  const later = () => saveSnooze(snoozeAll(data?.snooze, shown));
+  // «Heute nicht»: every shown question put away until its next time (was «Jetzt nicht»)
+  const notToday = () => saveSnooze(snoozeAll(data?.snooze, shown));
+  // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
+  const later = () => saveSnooze({ ...(data?.snooze ?? {}), [LATER_KEY]: laterStamp(now) });
+  const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
+  const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
+  const open = $derived(shown.length > 0 && !waiting);
+
+  let dialog = $state();
+  $effect(() => {
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    else if (!open && dialog.open) dialog.close();
+  });
+  // ✕, Escape and back: «Später», nothing is lost
+  function away() {
+    if (open) later();
+  }
 </script>
 
 {#if shown.length}
-  <section class="card abc" aria-labelledby="abc-h" data-section="abfragen">
-    <div class="hd">
+  <dialog class="sheet vdlg from-below abm" bind:this={dialog} use:backClose={away} onclose={away} aria-labelledby="abc-h" data-section="abfragen" data-round={evening ? 'evening' : 'morning'}>
+    <div class="vd-head">
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
-      <span class="m"><b id="abc-h">{t('Your questions')}</b><small>{t('{n} due now', { n: shown.length })} · {t('one tap each, all can be skipped')}</small></span>
-      <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>
+      <div class="vd-t">
+        <h2 id="abc-h">{evening ? t('Evening check') : t('Morning check')}</h2>
+        <p class="vd-sub">{t('{n} due now', { n: shown.length })} · {t('one tap each, all can be skipped')}</p>
+      </div>
+      <button type="button" class="vd-x" aria-label={t('Later|mask')} onclick={later}><X size={20} aria-hidden="true" /></button>
     </div>
     {#each shown as d, i (d.q.id)}
       {@const qid = `abc-q-${i}`}
@@ -87,26 +114,24 @@
         {/if}
       </div>
     {/each}
-    <div class="ft">
+    <div class="lks">
+      <a class="ab-lnk" href={evening ? '#/check/evening' : '#/check/morning'} data-ab-page>{evening ? t('Whole evening review') : t('Whole morning check')}<ChevronRight size={14} aria-hidden="true" /></a>
+      <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>
       <a class="ab-lnk" href="#/me/history">{t('History under Data')}</a>
-      <span class="btns">
-        <button type="button" class="btn" onclick={later} data-ab-later>{t('Not now')}</button>
-        <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
-      </span>
     </div>
-  </section>
+    <div class="ft">
+      <button type="button" class="btn" onclick={notToday} data-ab-today>{t('Not today|mask')}</button>
+      <button type="button" class="btn" onclick={later} data-ab-later>{t('Later|mask')}</button>
+      <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
+    </div>
+    <small class="hint">{t('«Later» brings this window back in one hour. «Not today» puts these questions away until their next time.')}</small>
+  </dialog>
 {/if}
 
 <style>
-  .abc {
-    margin: 0 0 18px;
-    padding: 14px 16px;
-    min-width: 0;
-  }
-  .hd {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .abm {
+    max-height: min(88vh, 900px);
+    overflow-y: auto;
   }
   .ib {
     flex: none;
@@ -117,18 +142,6 @@
     border-radius: var(--r-ctl);
     background: var(--paper-2);
     color: var(--ink-2);
-  }
-  .m {
-    flex: 1;
-    min-width: 0;
-    display: grid;
-  }
-  .m b {
-    font-weight: 600;
-  }
-  .m small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .dq {
     margin-top: 12px;
@@ -164,26 +177,36 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  .lks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 14px;
+  }
+  .lks .ab-lnk {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
   .ft {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 14px;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
     padding-top: 12px;
     border-top: 1px solid var(--line);
   }
-  .btns {
-    display: flex;
-    gap: 8px;
+  .hint {
+    display: block;
+    margin-top: 8px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    overflow-wrap: break-word;
   }
   @media (max-width: 719px) {
-    .btns {
-      flex: 1 0 100%;
-    }
-    .btns .btn {
-      flex: 1;
+    .ft .btn {
+      flex: 1 1 30%;
       min-height: 48px;
     }
   }

@@ -146,7 +146,8 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   const card = dk.locator('[data-section="morningcheck"]');
   await expect(card).toContainText(T('Start|check'));
   await card.click();
-  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
+  await expect(page).toHaveURL(/#\/check\/morning$/);
   // «Wi gaht's?» started yesterday evening (fictional): the morning round is due on Today
   await page.evaluate(
     () =>
@@ -164,6 +165,9 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   await ab.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '7', exact: true }).click();
   await ab.locator('[data-q="erholung.akku"]').getByRole('button', { name: '6', exact: true }).click();
   await ab.locator('[data-ab-save]').click();
+  // Noah 19.10.2026: the window of the round; what is still due waits with «Später»
+  if (await ab.count()) await ab.locator('[data-ab-later]').click();
+  await expect(ab).toBeHidden();
   await dk.locator('[data-clock="morning"]').click();
   await expect(card.locator('[data-val]')).toHaveCount(3);
   await expect(card.locator('[data-val="sleep"]')).toContainText('7');

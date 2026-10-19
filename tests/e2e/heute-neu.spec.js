@@ -52,11 +52,12 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
     await more.click();
   }
 
-  // release analysis D3: «Morgen-Runde» / «Wi gaht's?» only once on Heute (in the day card); its start goes to «Wi gaht's?»
+  // release analysis D3: «Morgen-Runde» / «Wi gaht's?» only once on Heute (in the day card); its start goes to the
+  // morning page (Noah 18.10.2026 «1 a und b», changed on purpose)
   await expect(page.locator('[data-section="morningcheck"]')).toHaveCount(1);
   await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveCount(1);
   await expect(page.locator('[data-check-entry]')).toHaveCount(0);
-  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/me/abfragen');
+  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/check/morning');
   await expect(page.locator('main').getByText(/Morgen-Runde|Morning round/)).toHaveCount(1);
 
   // release analysis D8: no answers yet: no ring with «–», one quiet line
@@ -79,7 +80,8 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
     const f = await fb.locator('.main').boundingBox();
     const b = await fb.locator('.aside').boundingBox();
     expect(Math.abs(f.y - b.y)).toBeLessThan(2);
-    expect(b.x).toBeGreaterThan(f.x + f.width - 2);
+    // Noah 18.10.2026 «2b» (T3b, changed on purpose): the big ring comes first, Im Flow beside it
+    expect(f.x).toBeGreaterThan(b.x + b.width - 2);
   }
 
   // Aktiv over the whole row, without resting pulse and zone minutes (HN4b 3a); the shortcuts lead into Aktiv
@@ -149,7 +151,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   const old = ['trip', 'important', 'flow', 'balance', 'morningcheck', 'suggest', 'week', 'news', 'try', 'meditation', 'fn:dayride', 'fn:weigh', 'year'];
   data.tables.settings.push({ key: 'homeWall', value: { v: 4, tiles: old.map((id) => ({ id, size: id === 'news' ? 'w' : id === 'trip' || id === 'year' || id === 'important' ? (id === 'important' ? 'l' : 'long') : id === 'meditation' || id.startsWith('fn:') ? 's' : 'l' })) } });
   await openHome(page, context, info, { data, hour: 13 });
-  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'flow', 'balance', 'week', 'suggest', 'trip', 'aktiv', 'news', 'fn:weigh', 'year']);
+  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'news', 'fn:weigh', 'year']);
   // put «New» wide (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 5, tiles: READY.map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {
@@ -183,10 +185,19 @@ test('Im Flow + Balance (1-5a): full names, the tip as today\'s goal and back, t
   const bal = page.locator('[data-section="balance"]');
   await expect(bal.locator('svg.ring')).toBeVisible();
 
-  // 1a: every name of the 9 areas in full (also on a phone)
-  const names = bal.locator('.lg li span');
+  // 1a: every name of the 9 areas in full (also on a phone); Noah 18.10.2026 «2b» (T3b, changed on purpose): around
+  // the big ring, each name inside the picture; the three small Im-Flow rings make room for it
+  await expect(bal.locator('[data-balance-big]')).toBeVisible();
+  await expect(page.locator('[data-section="flow"] .rg')).toHaveCount(0);
+  const names = bal.locator('[data-cat] .lb');
   await expect(names).toHaveCount(9);
-  for (const el of await names.all()) expect(await el.evaluate((x) => x.scrollWidth <= x.clientWidth + 1)).toBe(true);
+  const box = await bal.locator('svg.ring').boundingBox();
+  for (const el of await names.all()) {
+    const b = await el.boundingBox();
+    expect(b.x).toBeGreaterThanOrEqual(box.x - 0.5);
+    expect(b.x + b.width).toBeLessThanOrEqual(box.x + box.width + 0.5);
+  }
+  await shot(page, info, 'heute-ring-gross');
 
   // 5a: a tap on the tip takes it as today's goal («Wi gaht's?»), a second tap takes it back
   const tip = bal.locator('[data-tip-goal]');
