@@ -1,4 +1,5 @@
 <script>
+  import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
   import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.26.0 (Noah 2a/2b, AP10): building blocks (code: item sets) on their own page, #/blocks.
@@ -144,7 +145,8 @@
   async function remove(s) {
     const n = s.items.length;
     const tn2 = inTemplates(s.key);
-    if (!confirm([t('Delete the building block "{name}"?', { name: s.name }), tn(n, 'Its {n} item stays in your gear; only the building block goes.', 'Its {n} items stay in your gear; only the building block goes.'), ...(tn2 ? [tn(tn2, 'The template that holds it keeps its items as extras.', 'The {n} templates that hold it keep its items as extras.')] : []), t('You can undo this for a few seconds.')].join('\n\n'))) return;
+    const text = [tn(n, 'Its {n} item stays in your gear; only the building block goes.', 'Its {n} items stay in your gear; only the building block goes.'), ...(tn2 ? [tn(tn2, 'The template that holds it keeps its items as extras.', 'The {n} templates that hold it keep its items as extras.')] : []), t('You can bring it back for 4 seconds afterwards.')].join(' ');
+    if ((await askDelete({ title: t('Delete the building block "{name}"?', { name: s.name }), text })) !== 'delete') return;
     const res = await deleteSet(db, s.key);
     if (res.error) return;
     offer(t('Building block "{name}" deleted.', { name: s.name }), res.snap);
