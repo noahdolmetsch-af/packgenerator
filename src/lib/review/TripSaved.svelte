@@ -578,7 +578,7 @@
             <section class="rv-sec" aria-labelledby="bk-h" data-bike-after>
               <div class="rv-h"><div><h2 id="bk-h">{t('Bike after the trip')}</h2></div></div>
               <div class="rv-box">
-                {#if left != null}<a class="rv-row" href="#/bikes"><span class="rv-ic" aria-hidden="true"><Wrench size={18} /></span><span class="rv-m"><span class="rv-t">{left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')}</span><span class="rv-s">{[bike?.name ?? '', d.kmApplied ? t('{km} km added', { km: num(d.kmApplied) }) : '', bike?.km != null ? t('now {km} km', { km: num(bike.km) }) : '', t('Bike care')].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+                {#if left != null}<a class="rv-row" href="#/bikes?tab=care"><span class="rv-ic" aria-hidden="true"><Wrench size={18} /></span><span class="rv-m"><span class="rv-t">{left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')}</span><span class="rv-s">{[bike?.name ?? '', d.kmApplied ? t('{km} km added', { km: num(d.kmApplied) }) : '', bike?.km != null ? t('now {km} km', { km: num(bike.km) }) : '', t('Bike care')].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
                 {:else}<p class="rv-row"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}</span>{#if bike?.km != null}<span class="rv-s">{t('now {km} km', { km: num(bike.km) })}</span>{/if}</span></p>{/if}
               </div>
             </section>
@@ -586,7 +586,7 @@
           <!-- SN2x U2: what the trip added to the parts -->
           {#if wear.length}
             <section class="rv-sec" aria-labelledby="wr-h" data-wear>
-              <div class="rv-h"><div><h2 id="wr-h">{t('Wear|parts')}</h2><p class="rv-sub">{t('{bike} · added with this trip', { bike: bike?.name ?? '' })}</p></div><a class="rv-more" href="#/bikes">{t('Bike care')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+              <div class="rv-h"><div><h2 id="wr-h">{t('Wear|parts')}</h2><p class="rv-sub">{t('{bike} · added with this trip', { bike: bike?.name ?? '' })}</p></div><a class="rv-more" href="#/bikes?tab=care">{t('Bike care')}<ChevronRight size={16} aria-hidden="true" /></a></div>
               <ul class="rv-box">
                 {#each wear as x (x.key)}
                   <li class="rv-row" data-wear-part={x.key}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t(WEAR[x.key])}</span>{#if x.nowKm != null}<span class="rv-s">{t('now {km} km', { km: num(x.nowKm) })}</span>{/if}</span><span class="rv-v num">{x.addKm != null ? `+${num(x.addKm)} km` : `+${num(x.addHm)} Hm`}</span></li>

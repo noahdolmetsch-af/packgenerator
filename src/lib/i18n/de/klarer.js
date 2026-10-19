@@ -159,4 +159,9 @@ export default {
   "Come back after three weeks away.": "Komm nach drei Wochen Pause zurück.",
   "Read «Welcome back».": "Lies «Willkommen zurück».",
   "Tap a line to go there.": "Tippe auf eine Zeile, um dorthin zu gehen.",
+  // #77/#78 Knöpfe im Ablauf
+  "Back home": "Wieder zu Hause",
+  "Clean, oil, what is due": "Putzen, ölen, was fällig ist",
+  "So the trip is safe on your other device too": "Damit die Tour auch auf deinem anderen Gerät sicher ist",
+  "All your trips in one list": "Alle deine Touren in einer Liste",
 };
