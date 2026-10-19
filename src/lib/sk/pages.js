@@ -58,13 +58,14 @@ const T = {
   rest: { id: 'rest', label: 'Recovery|page', icon: 'moon', href: '#/flow/rest' },
   week: { id: 'week', label: 'Week', icon: 'calendar', href: '#/flow/week' },
   trophies: { id: 'trophies', label: 'Trophy showcase', icon: 'trophy', href: '#/flow/trophies' },
+  travel: { id: 'travel', label: 'Travel links', icon: 'link', href: '#/travel' },
   hepa: { id: 'hepa', label: 'Exercise recommended', icon: 'heart', url: 'https://www.hepa.ch/' },
 };
 const ex = (d) => ({ ...d, extra: true });
 
 /** The pages with a tile row and their tiles, in the order of the mockups (SK1–SK5, SKX4). */
 export const SK_PAGES = {
-  past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
+  past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12), ex(T.travel)],
   // Impeccable Runde 2 (18.10.2026, Rückblick 1, ★ a): Logbook, Pace, Learnings and Past trips are a section or a row
   // of the debrief already; as tiles only after «Add a tile»
   debrief: [T.tpl, T.packnext, ex(T.logbook), ex(T.pace), ex(T.learnings), ex(T.past), ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],

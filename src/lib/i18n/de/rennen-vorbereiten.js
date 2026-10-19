@@ -179,7 +179,6 @@ export default {
   '{n} nights in a hotel in the plan': '{n} Nächte im Hotel im Plan',
   'To my reminders': 'Zu meinen Erinnerungen',
   'To my reminders: {name}': 'Zu meinen Erinnerungen: {name}',
-  'Added to your to-dos.': 'Zu deinen To-dos hinzugefügt.',
   Registration: 'Anmeldung',
   'Pay the entry fee': 'Startgeld zahlen',
   'Licence or day licence': 'Lizenz oder Tageslizenz',

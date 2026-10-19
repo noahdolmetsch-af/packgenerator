@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 234 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 193 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -511,6 +511,17 @@ Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zu
 2. Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.
 
 **Beispiel:** Baustein «Zug-Sachen» mit dem Velobillett → bei jeder Tour mit dem Zug vorgeschlagen.
+
+### Strombudget
+
+Reicht der Strom für die Tour? Die App zählt zusammen, was deine Geräte pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen.
+
+**Aufschalten:** Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.
+
+1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».
+2. Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.
+
+**Beispiel:** 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».
 
 ### Strecke messen
 
@@ -1910,14 +1921,37 @@ Eine kurze Liste für jeden Tag auf Heute: abhaken, Tage in Folge sehen; Meditat
 
 ### Erkenntnisse
 
-Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation und Ruhepuls; die stärksten drei in der Auswertung.
+Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation, Ruhepuls, Wetter, Termine und deine eigenen Fragen; die stärksten drei in der Auswertung.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.
 2. Ich › Wi gaht's? › Auswertung zeigt die stärksten drei und führt zu allen.
+3. Auch Wetter, Kalendertermine und eigene Zahlen-Fragen werden verglichen; jede eigene Frage lässt sich ausschalten.
 
 **Beispiel:** An Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.
+
+### Freie Zeit
+
+Sammlungen, «Worauf hab ich Lust?», dein Abend, was dir wesentlich ist, Reise-Wünsche, eine erste Nacht und was du nächstes Mal packst.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Freie Zeit und wähl eine der acht Seiten.
+2. Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.
+
+**Beispiel:** Ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.
+
+### Impulse
+
+30 kleine Ideen in zehn Bereichen, auch auf Heute, wenn es keine Velo-Idee gibt; ausblenden, ändern oder Eigene dazu.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Impulse oder Ich › Freie Zeit › Impulse.
+2. Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.
+
+**Beispiel:** «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.
 
 ### Timer
 

@@ -38,6 +38,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
+  // Paket 4 zu K: Haus-Check, Wohnungs-Hüter, «Bereit für morgen?» (v0.155.0)
+  'f.housecheck': '0.155.0', 'f.flatsitter': '0.155.0', 'f.readytomorrow': '0.155.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
   'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.gearimport': '0.36.0',
@@ -70,6 +72,7 @@ export const SINCE = {
   'f.connections': '0.153.0', 'f.owncal': '0.153.0', 'f.notestasks': '0.153.0', 'f.fitbitold': '0.153.0', 'f.stravaticks': '0.153.0', 'f.lake': '0.153.0', 'f.datastars': '0.153.0', 'f.wxwatch': '0.153.0', 'f.tourhints': '0.153.0', 'f.rainsoon': '0.153.0', 'f.air': '0.153.0', 'f.routepois': '0.153.0',
   // Paket H «Packen leichter» (v0.153.0)
   'f.starters': '0.153.0', 'f.supplies': '0.153.0', 'f.table': '0.153.0', 'f.readaloud': '0.153.0', 'f.lend': '0.153.0', 'f.ownrules': '0.153.0', 'f.startfresh': '0.153.0',
+  'f.power': '0.155.0', // Strombudget (Noah 19.10.2026 «2a»), Paket 3+4
   // Paket J «Berg, Schnee und Notfall» (v0.153.0)
   'f.snow': '0.153.0', 'f.swissmap': '0.153.0', 'f.sos': '0.153.0', 'f.sosqr': '0.153.0', 'f.scales': '0.153.0',
   // Paket L «Werkzeugkasten» (v0.153.0)
@@ -85,6 +88,14 @@ export const SINCE = {
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
   // Paket U «Rennen» (provisional version, the bundler renumbers)
   'f.race': '0.158.0', 'f.racesample': '0.158.0', 'f.racemap': '0.158.0', 'f.climbs': '0.158.0', 'f.mapoffline': '0.158.0', 'f.live': '0.158.0',
+  // Paket T «Freie Zeit» (v0.155.0)
+  'f.frei': '0.155.0', 'f.impulse': '0.155.0',
+  // Paket V «Alltag» (v0.155.0)
+  'f.shopping': '0.155.0', 'f.contracts': '0.155.0', 'f.people': '0.155.0', 'f.abroad': '0.155.0',
+  // «Reise-Links» (v0.155.0)
+  'f.travel': '0.155.0',
+  // «Diktat und Fragen» (v0.155.0)
+  'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

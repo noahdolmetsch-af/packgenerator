@@ -51,7 +51,8 @@ describe('FE10 speak instead of type', () => {
     expect(heard([])).toBe('');
     expect(appendSpoken('', 'Sattel knarzt')).toBe('Sattel knarzt');
     expect(appendSpoken('Notiz:', 'Sattel knarzt')).toBe('Notiz: Sattel knarzt');
-    expect(appendSpoken('Erste Zeile\n', 'zweite')).toBe('Erste Zeile\nzweite');
+    // «Diktat» 19.10.2026 (changed on purpose): after a new line a sentence starts with a capital
+    expect(appendSpoken('Erste Zeile\n', 'zweite')).toBe('Erste Zeile\nZweite');
     expect(appendSpoken('Text', '  ')).toBe('Text');
   });
 });

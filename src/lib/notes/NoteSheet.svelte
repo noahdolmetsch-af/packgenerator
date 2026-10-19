@@ -269,7 +269,7 @@
       {/if}
     </div>
     <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
-    <p class="spk"><SpeakButton onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></p>
+    <div class="spk"><SpeakButton answer onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></div>
     {#each linksOf(draft) as l, i (i)}
       <p class="lk" data-note-link><Link2 size={16} aria-hidden="true" /><span><b>{l.title}</b><a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></span><button type="button" class="rm" aria-label={t('Remove {name}', { name: l.title })} onclick={() => (draft = removeLinkAt($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></p>
     {/each}

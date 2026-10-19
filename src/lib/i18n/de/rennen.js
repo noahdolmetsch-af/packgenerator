@@ -86,7 +86,6 @@ export default {
   '{n} min every 100 km': '{n} Min. alle 100 km',
   '{n} % faster (minus = slower)': '{n} % schneller (minus = langsamer)',
   '1 bad … 5 good': '1 schlecht … 5 gut',
-  'Please give it a name.': 'Bitte gib einen Namen ein.',
   'Change assumption': 'Annahme ändern',
   'My own assumption': 'Eigene Annahme',
   'My own assumptions': 'Eigene Annahmen',

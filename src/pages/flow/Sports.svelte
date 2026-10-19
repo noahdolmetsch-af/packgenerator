@@ -23,6 +23,7 @@
   import { localDay } from '../../lib/localday.js';
   import { phone } from '../../lib/media.svelte.js';
   import { t, tn, locale } from '../../lib/i18n.svelte.js';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import '../../lib/sportpage/sport.css';
 
   const today = localDay();
@@ -60,6 +61,7 @@
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Sports|page')} />
     <PageHead title={t('Sports|page')} text={t('Every sport with the same blocks: equipment, packing list, history and progress, goals, care, weather and «For next time». Switch off what you do not need.')} />
+    <AreaIntro place="sports" />
   </header>
 
   {#if data}

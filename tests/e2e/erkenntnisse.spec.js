@@ -81,3 +81,40 @@ test('without data: one calm line, no sentence', async ({ page, context }) => {
   await expect(sec.locator('[data-insights-none]')).toBeVisible();
   await expect(sec.locator('[data-insight]')).toHaveCount(0);
 });
+
+// Noah 19.10.2026 «2a 3a 4a und b möglich»: weather and daylight (Open-Meteo, here a fixed answer), appointments
+// per day and own number questions, each own question switchable off. Fictional data only.
+test('weather, appointments and an own question are compared; the own question can be switched off', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const days = lastDays(DAY, 30);
+  const before = days.slice(0, -1);
+  await context.route(/^https:\/\/api\.open-meteo\.com\//, (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ daily: { time: days, temperature_2m_max: days.map(() => 12), precipitation_sum: days.map(() => 0), sunshine_duration: days.map((_, i) => (i % 2 ? 8 : 1) * 3600), daylight_duration: days.map(() => 11 * 3600) } }),
+    }),
+  );
+  const mood = before.map((day, i) => ({ id: `test_data_gtp_mood_${i}`, qid: 'spass.stimmung', area: 'spass', day, at: `${day}T20:10`, slot: `${day}T20:00`, kind: 'scale', value: i % 2 ? 8 : 5, note: null, unit: null, src: 'hand' }));
+  const own = before.map((day, i) => ({ id: `test_data_gtp_own_${i}`, qid: 'own-test', area: 'eigene', day, at: `${day}T20:10`, slot: `${day}T20:00`, kind: 'number', value: i % 2 ? 3 : 0, note: null, unit: 'cups', src: 'hand' }));
+  const cfg = { since: `${days[0]}T00:00`, q: { 'own-test': { on: true, since: `${days[0]}T00:00` } }, own: [{ id: 'own-test', area: 'eigene', text: 'Testtassen', form: { kind: 'number', unit: 'cups' }, every: { kind: 'daily', time: '20:00' } }] };
+  await put(page, {
+    abAnswers: [...mood, ...own],
+    settings: [{ key: 'homePlace', value: { name: 'Testdorf', lat: 46.9, lon: 7.4 } }, { key: 'abfragen', value: cfg }],
+    meta: [{ key: 'dayEvents', days: Object.fromEntries(before.map((d, i) => [d, i % 2 ? 1 : 6])) }],
+  });
+  await page.goto('./#/me/insights');
+  const sec = page.locator('[data-section="insights"]');
+  await expect(sec.locator('[data-insight="sun-mood"]')).toContainText(T('your mood|insight'));
+  await expect(sec.locator('[data-insight="evts-mood"]')).toBeVisible();
+  const ownIns = sec.locator('[data-insight="own-own-test-mood"]');
+  await expect(ownIns).toContainText('Testtassen');
+  await expect(sec.locator('[data-insights-sources]')).toContainText(T('Also compared'));
+  await expect(sec.locator('[data-insights-noplace]')).toHaveCount(0);
+  expect(await noScroll(page)).toBe(true);
+  await shot(page, info, 'erkenntnisse-quellen');
+  await sec.locator('[data-insights-own="own-test"] input').click();
+  await expect(ownIns).toHaveCount(0);
+  await sec.locator('[data-insights-own="own-test"] input').click();
+  await expect(ownIns).toBeVisible();
+  expect(errors).toEqual([]);
+});

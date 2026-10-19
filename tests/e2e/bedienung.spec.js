@@ -145,10 +145,14 @@ test('start place: «Packen» opens the packing list after a reload; a link to a
 });
 
 test('speak instead of type: the microphone in the quick note appends what was said; switched off it is gone', async ({ page, context }) => {
-  // a fictional speech recognition: it «hears» one sentence right after the start
+  // a fictional speech recognition: it «hears» one sentence right after the first start. «Diktat» 19.10.2026
+  // (changed on purpose): the app starts it again after an end until you tap stop, so later starts hear nothing.
   await context.addInitScript(() => {
+    let first = true;
     window.SpeechRecognition = class {
       start() {
+        if (!first) return;
+        first = false;
         setTimeout(() => {
           this.onresult?.({ results: [[{ transcript: 'Sattel knarzt' }]] });
           this.onend?.();

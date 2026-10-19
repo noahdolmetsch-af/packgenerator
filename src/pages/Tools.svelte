@@ -5,6 +5,7 @@
    * On top «Passt gerade» (big idea 1): up to 3 tools that fit the trip now; only here, not on Heute
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -69,6 +70,7 @@
     <div class="tools-view" data-tool={cur.key}><View /></div>
   {:else}
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
+    <AreaIntro place="toolbox" />
     {#if fits.length && !q.trim() && !sorting}
       <section class="tools-fit" aria-labelledby="tools-fit-h">
         <h2 id="tools-fit-h"><Sparkles size={16} aria-hidden="true" /> {t('Fits right now')}</h2>

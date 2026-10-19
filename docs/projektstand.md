@@ -10,10 +10,10 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | --- | --- | --- | --- | --- |
 | ✓ | E, C, F, Tempo | 0.149.0–0.152.0 | Material, Velos, Woche, Seiten laden beim Öffnen | live |
 | 1 | Paket 1 | 0.153.0 | G Daten von selbst, L Werkzeugkasten, P Was mir gut tut, N Pläne und Träume, Q App klarer, H Packen leichter, J Berg, Schnee und Notfall | PR #200 |
-| 2 | Paket 2 | 0.154.0 | K Haus und Alltag, M Tour-Tagebuch, S Reise-Spur, O/I Teile pro Velo und Inspektion, L2 Packliste vom Foto, R App für alle, Trello, Strava-Fahrten auf Touren | dieser PR |
-| 3 | Paket 3 | 0.155.0 | Freie Zeit, Daten in der App | gebaut, kommt allein |
-| 4 | Paket 4 + U1 | 0.156.0 | Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Anleitungen überall, U1 Rennen (Strategie-Rechner, Muster-Rennen, «Rennen in X Tagen») | im Bau; Ton-Aufnahmen gestrichen (Noah 19.10.2026) |
-| 5 | danach | – | U2 Renn-Karte und Anstiege, U3 Karte offline, Andere Apps einbinden (Seite «Reise-Links») | geplant |
+| 2 | Paket 2 | 0.154.0 | K Haus und Alltag, M Tour-Tagebuch, S Reise-Spur, O/I Teile pro Velo und Inspektion, L2 Packliste vom Foto, R App für alle, Trello, Strava-Fahrten auf Touren | PR #201 |
+| 3 | Paket 3+4 | 0.155.0 | Freie Zeit, Daten in der App, V Alltag (Einkauf, Verträge, Menschen, Ausland, Flug), Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI | dieser PR; Paket 3 und 4 verbunden (Noah 19.10.2026) |
+| 4 | Paket 5 | 0.156.0 | U Rennen (U1 Strategie-Rechner und Muster-Rennen, U2 Renn-Karte und Anstiege, Live-Karte), Mail in die App | im Bau; Ton-Aufnahmen gestrichen |
+| 5 | danach | – | U3 Karte offline | geplant |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
@@ -29,12 +29,13 @@ Der Pack Generator ist Noahs persönliche Web-App (PWA). Sie läuft im Browser a
 
 Angefangen hat sie als Packliste für Bikepacking-Touren. Heute deckt sie den ganzen Ablauf einer Tour ab (planen, packen, unterwegs, Rückblick), dazu Velopflege und Training, Aktivitäten und Meditation, Rechnungen und Notizen.
 
-**Die vier Ziele** (aus [vorhaben.md](vorhaben.md)):
+**Die fünf Ziele** (aus [vorhaben.md](vorhaben.md); «Alltag» kam am 19.10.2026 dazu, alle Vorhaben stehen in der [Liste](vorhaben-liste.md)):
 
 1. **Schneller packen:** Vorschläge statt leerer Listen.
 2. **Das Velo im Griff haben:** km, Verschleiss und Pflege pro Velo.
 3. **Von der Haustür bis zurück:** eine Startseite, die zur Phase der Tour passt.
 4. **Aus jeder Tour lernen:** Rückblick und Learnings, die beim nächsten Packen wieder auftauchen.
+5. **Alltag:** Woche, Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause.
 
 **Grundsätze, die immer gelten:** Alles ist ein Vorschlag, nie Pflicht, immer änderbar. Private Daten bleiben auf dem Gerät und nie im öffentlichen Repository. Es entstehen keine Kosten (nur Gratis-Dienste). Wo eine eigene, schlanke Lösung reicht, kommt kein fremder Dienst dazu.
 

@@ -193,7 +193,7 @@ describe('link builders send only the place and the date', () => {
     expect(linkOn(['x10'], 'x10')).toBe(false);
     expect(linkOn(['x10'], 'x3s')).toBe(true);
     expect(slotOf('x9', 'bike-1')).toBe('x9:bike-1');
-    expect(Object.keys(LINKS).filter((k) => LINKS[k].own).sort()).toEqual(['x1', 'x14', 'x15', 'x7', 'x8', 'x9']);
+    expect(Object.keys(LINKS).filter((k) => LINKS[k].own).sort()).toEqual(['x1', 'x14', 'x15', 'x7', 'x8', 'x9', 'xtrk']);
   });
 });
 

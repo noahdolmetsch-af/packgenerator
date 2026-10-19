@@ -23,6 +23,7 @@
   import { homeTrips } from '../lib/home/heute.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import '../lib/review/review.css';
   import '../lib/trip/trip.css';
 
@@ -85,6 +86,7 @@
 
 <div class="rv-page qz">
   <PageHead title={t('Quiz the evening before')} text={t('Three questions about the gear and the route of your next trip, from your own data. The evening before a trip it waits on «Packed». Only for fun: you can switch it off.')} />
+  <AreaIntro place="quiz" />
 
   {#if !data}
     <Skeleton rows={3} />
