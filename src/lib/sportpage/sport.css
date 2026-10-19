@@ -415,3 +415,19 @@
     grid-template-columns: minmax(70px, 100px) 1fr auto;
   }
 }
+/* phone: a block row wraps, its buttons go on a second line instead of past the edge */
+@media (max-width: 719px) {
+  .sp .bedit li {
+    flex-wrap: wrap;
+  }
+  .sp .bedit li .t {
+    flex: 1 1 calc(100% - 60px);
+  }
+  .sp .bedit li .add {
+    flex: 1 1 100%;
+  }
+  .sp .bedit .switch {
+    min-width: 0;
+    margin-left: auto;
+  }
+}
