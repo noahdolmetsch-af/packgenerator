@@ -46,6 +46,7 @@
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
+  import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
@@ -419,6 +420,7 @@
 <div class="col">
 <DemoBar />
 <OfflineLine />
+<DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
