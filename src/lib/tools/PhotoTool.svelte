@@ -26,7 +26,7 @@
   let modelHere = $state(false);
   let error = $state('');
   let result = $state(null); // { blob, name }
-  let frame; // the shown picture (for the drag)
+  let frame = $state(); // the shown picture (for the drag)
   cutoutReady().then((v) => (modelHere = v));
 
   async function choose(e) {

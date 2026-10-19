@@ -535,6 +535,21 @@ export const HANDBOOK = {
     steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
     example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
   },
+  'f.money': {
+    on: 'The rates need the internet once a day; offline the last ones count.',
+    steps: ['Open Me › Toolbox › Currencies.', 'Type the amount and choose its currency.', 'See it in Franken and the other main currencies.'],
+    example: 'Example: 24.50 EUR → about 23 CHF.',
+  },
+  'f.tripcosts': {
+    on: 'For «Request by TWINT», add your TWINT number once under Me › Pay › Invoices.',
+    steps: ['Open Me › Toolbox › Trip costs and choose the trip.', 'Add who was there, then each expense with who paid it; a receipt photo fills in amount and date.', 'Under «Who owes whom» tap «Request by TWINT».'],
+    example: 'Example: you paid the hotel 180 CHF for three → Anna and Ben each pay you 60 CHF.',
+  },
+  'f.ablage': {
+    on: null,
+    steps: ['Open Me › Documents or Me › Toolbox › Links and files.', 'Tap «Add link» or «Add file» (up to 5 MB).', 'Move, rename or delete an entry with its buttons.'],
+    example: 'Example: the timetable link and the train ticket as PDF, both in one place.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],

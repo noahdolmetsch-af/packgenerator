@@ -210,3 +210,110 @@ describe('toolbox page', () => {
     }
   });
 });
+
+describe('links and small files (Ablage)', async () => {
+  const { cleanUrl, titleOf, moved, addLink, addFile, readLinks, readFiles, removeFile, restoreFile, fileData, FILE_MAX } = await import('../src/lib/tools/ablage.js');
+  it('makes a typed address usable and gives a title', () => {
+    expect(cleanUrl('sbb.ch')).toBe('https://sbb.ch/');
+    expect(cleanUrl('https://www.example.org/a?b=1')).toBe('https://www.example.org/a?b=1');
+    expect(cleanUrl('mailto:a@example.org')).toBe('mailto:a@example.org');
+    expect(cleanUrl('javascript:alert(1)')).toBeNull();
+    expect(cleanUrl('hallo')).toBeNull();
+    expect(cleanUrl('')).toBeNull();
+    expect(titleOf('https://www.example.org/x')).toBe('example.org');
+  });
+  it('moves an entry and leaves the list as it is for a wrong place', () => {
+    expect(moved(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
+    expect(moved(['a', 'b'], 0, 5)).toEqual(['a', 'b']);
+  });
+  it('keeps links and files in the settings and brings a deleted file back', async () => {
+    const rows = new Map();
+    const settings = { get: async (k) => rows.get(k), put: async (r) => void rows.set(r.key, r), delete: async (k) => void rows.delete(k) };
+    const db = { settings, transaction: async (_m, _t, fn) => fn() };
+    expect(await addLink({ url: 'nope' }, db)).toBeNull();
+    const l = await addLink({ url: 'example.org', title: '' }, db);
+    expect(l.title).toBe('example.org');
+    expect((await readLinks(db)).length).toBe(1);
+    expect(await addFile({ name: 'x.txt', type: 'text/plain', size: FILE_MAX + 1, data: '' }, db)).toBe('big');
+    const f = await addFile({ name: 'ticket.txt', type: 'text/plain', size: 5, data: 'data:text/plain;base64,aGFsbG8=' }, db);
+    expect(await fileData(f.id, db)).toBe('data:text/plain;base64,aGFsbG8=');
+    const gone = await removeFile(f.id, db);
+    expect(await readFiles(db)).toEqual([]);
+    expect(await fileData(f.id, db)).toBeNull();
+    await restoreFile(gone, db);
+    expect((await readFiles(db)).map((x) => x.name)).toEqual(['ticket.txt']);
+  });
+});
+
+describe('trip costs and currencies', async () => {
+  const { ME, cleanCosts, totalChf, balances, settle, defaultTrip, readReceipt } = await import('../src/lib/tools/costs.js');
+  const { parseAmount, convertMoney, fresh, loadRates, currenciesOf, fmtMoney } = await import('../src/lib/tools/money.js');
+  const people = [{ id: ME, name: '' }, { id: 'a', name: 'Anna' }, { id: 'b', name: 'Ben' }];
+  it('reads typed amounts the Swiss and the other ways', () => {
+    expect(parseAmount('12,50')).toBe(12.5);
+    expect(parseAmount("1'234.50")).toBe(1234.5);
+    expect(parseAmount('1.234,50')).toBe(1234.5);
+    expect(parseAmount('12.–')).toBe(12);
+    expect(parseAmount('')).toBeNull();
+    expect(parseAmount('zwölf')).toBeNull();
+    expect(fmtMoney(1234.5)).toBe('1’234.50');
+  });
+  it('converts with «1 CHF = x» rates, across two currencies too', () => {
+    const rates = { EUR: 1.05, USD: 1.25 };
+    expect(convertMoney(105, 'EUR', 'CHF', rates)).toBeCloseTo(100);
+    expect(convertMoney(100, 'CHF', 'USD', rates)).toBeCloseTo(125);
+    expect(convertMoney(105, 'EUR', 'USD', rates)).toBeCloseTo(125);
+    expect(convertMoney(1, 'XYZ', 'CHF', rates)).toBeNull();
+    expect(currenciesOf({ AUD: 1, EUR: 1 })).toEqual(['CHF', 'EUR', 'AUD']);
+  });
+  it('fetches the rates once a day and keeps the old ones offline', async () => {
+    const rows = new Map();
+    const db = { meta: { get: async (k) => rows.get(k), put: async (r) => void rows.set(r.key, r) } };
+    let calls = 0;
+    const doFetch = async () => (calls++, { ok: true, json: async () => ({ date: '2026-10-16', rates: { EUR: 1.07 } }) });
+    const a = await loadRates(db, { doFetch, today: '2026-10-19' });
+    expect(a.rates.EUR).toBe(1.07);
+    await loadRates(db, { doFetch, today: '2026-10-19' });
+    expect(calls).toBe(1);
+    const off = await loadRates(db, { doFetch, today: '2026-10-20', online: false });
+    expect(off.day).toBe('2026-10-19');
+    expect(fresh(off, '2026-10-20')).toBe(false);
+    const broken = await loadRates(db, { doFetch: async () => ({ ok: false }), today: '2026-10-21' });
+    expect(broken.rates.EUR).toBe(1.07);
+  });
+  it('splits evenly, also for some only, and keeps the Rappen exact', () => {
+    const items = [
+      { id: '1', what: 'Hotel', chf: 90, paidBy: ME, for: [] },
+      { id: '2', what: 'Znacht', chf: 30, paidBy: 'a', for: [ME, 'a'] },
+      { id: '3', what: 'Kaffee', chf: 10, paidBy: 'b', for: [] },
+    ];
+    const b = balances(people, items);
+    expect(totalChf(items)).toBe(130);
+    expect(b[ME]).toEqual({ paid: 9000, share: 3000 + 1500 + 334, diff: 4166 });
+    expect(Object.values(b).reduce((s, v) => s + v.diff, 0)).toBe(0);
+    const pays = settle(b);
+    expect(pays.every((p) => p.to === ME)).toBe(true);
+    expect(pays.reduce((s, p) => s + p.cents, 0)).toBe(4166);
+  });
+  it('a broken record is made safe; a deleted payer counts as you', () => {
+    const c = cleanCosts({ people: [{ id: 'a', name: 'Anna' }], items: [{ id: 'x', chf: 5, paidBy: 'gone', for: ['gone', 'a'] }, { id: 'y' }] });
+    expect(c.people[0].id).toBe(ME);
+    expect(c.items).toHaveLength(1);
+    expect(c.items[0].paidBy).toBe(ME);
+    expect(c.items[0].for).toEqual(['a']);
+  });
+  it('shows today’s trip first, else the next, else the last', () => {
+    const trips = [{ id: 'old', startDate: '2026-09-01', days: 2 }, { id: 'now', startDate: '2026-10-18', days: 3 }, { id: 'next', startDate: '2026-11-01', days: 1 }];
+    expect(defaultTrip(trips, '2026-10-19').id).toBe('now');
+    expect(defaultTrip(trips, '2026-10-25').id).toBe('next');
+    expect(defaultTrip(trips, '2026-12-01').id).toBe('next');
+    expect(defaultTrip([trips[0]], '2026-12-01').id).toBe('old');
+    expect(defaultTrip([], '2026-12-01')).toBeNull();
+  });
+  it('reads amount, date and currency from the text of a receipt (made-up shop)', () => {
+    const text = 'Beispiel Laden AG\nBrot 4.20\nKäse 12.80\nTOTAL CHF 17.00\nBar 20.00\n14.10.2026 12:31';
+    expect(readReceipt(text)).toEqual({ amount: 17, date: '2026-10-14', cur: 'CHF' });
+    expect(readReceipt('Café Muster\n2 x Espresso 5,40 €\nSumme 5,40\n03.08.2026')).toEqual({ amount: 5.4, date: '2026-08-03', cur: 'EUR' });
+    expect(readReceipt('nothing here')).toEqual({ amount: null, date: null, cur: null });
+  });
+});

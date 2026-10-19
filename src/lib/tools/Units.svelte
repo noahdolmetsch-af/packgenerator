@@ -33,7 +33,7 @@
       <span>{t('Value')}</span>
       <input class="tool-input" inputmode="decimal" autocomplete="off" bind:value placeholder="0" />
     </label>
-    <Seg small label={t('Unit')} value={from} options={k.units.map(([u]) => ({ key: u, name: u }))} onchange={setFrom} />
+    <Seg small label={t('Unit|measure')} value={from} options={k.units.map(([u]) => ({ key: u, name: u }))} onchange={setFrom} />
   </div>
   <ul class="tool-list" aria-live="polite">
     {#each k.units.filter(([u]) => u !== from) as [u] (u)}

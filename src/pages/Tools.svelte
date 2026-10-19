@@ -3,7 +3,7 @@
    * Paket L «Werkzeugkasten» (Noah 19.10.2026 «1 eigene neue Seite»): Ich › Werkzeugkasten (#/me/tools)
    * lists the small helpers; each opens on #/me/tools/<key>. Everything runs on the device.
    */
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, ChevronRight } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { TOOLS, TOOLS_HASH, toolOf } from '../lib/tools/tools.js';
   import Calc from '../lib/tools/Calc.svelte';
@@ -13,13 +13,16 @@
   import Phrases from '../lib/tools/Phrases.svelte';
   import PdfTool from '../lib/tools/PdfTool.svelte';
   import PhotoTool from '../lib/tools/PhotoTool.svelte';
+  import Ablage from '../lib/tools/Ablage.svelte';
+  import Money from '../lib/tools/Money.svelte';
+  import Costs from '../lib/tools/Costs.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
   import '../lib/tools/tools.css';
 
   let { tool = '' } = $props();
-  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image };
-  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool };
+  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet };
+  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs };
   const cur = $derived(toolOf(tool));
 </script>
 

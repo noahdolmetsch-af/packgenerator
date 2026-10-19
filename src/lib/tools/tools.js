@@ -9,9 +9,12 @@ export const TOOLS_HASH = '#/me/tools';
 export const TOOLS = [
   { key: 'calc', icon: 'calculator', title: 'Calculator', sub: 'Plus, minus, times, divided, percent' },
   { key: 'units', icon: 'ruler', title: 'Convert units', sub: 'km, kg, °C, tyre pressure; works offline' },
+  { key: 'money', icon: 'coins', title: 'Currencies', sub: 'What it costs in Franken; rates once a day' },
+  { key: 'costs', icon: 'wallet', title: 'Trip costs', sub: 'Who paid what, who owes whom' },
   { key: 'zones', icon: 'clock', title: 'Time zones', sub: 'The time in other places' },
   { key: 'compass', icon: 'compass', title: 'Compass', sub: 'North and your direction, from the phone' },
   { key: 'phrases', icon: 'languages', title: 'Phrases abroad', sub: 'Important sentences, offline' },
+  { key: 'ablage', icon: 'paperclip', title: 'Links and files', sub: 'Important links and small files' },
   { key: 'pdf', icon: 'file', title: 'PDF', sub: 'Merge, make smaller, share' },
   { key: 'photo', icon: 'image', title: 'Photos', sub: 'Make smaller, cut, cut out' },
 ];

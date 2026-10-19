@@ -21,8 +21,9 @@
   let input;
 
   async function choose(e) {
+    const el = e.currentTarget;
     error = '';
-    for (const f of e.currentTarget.files ?? []) {
+    for (const f of [...(el.files ?? [])]) {
       const bytes = new Uint8Array(await f.arrayBuffer());
       const kind = isPdf(bytes, f.name, f.type) ? 'pdf' : /png/i.test(f.type) ? 'png' : /jpe?g/i.test(f.type) || /\.jpe?g$/i.test(f.name) ? 'jpg' : null;
       if (!kind) {
@@ -31,7 +32,7 @@
       }
       files = [...files, { id: `${Date.now()}-${files.length}`, name: f.name, size: f.size, bytes, kind }];
     }
-    e.currentTarget.value = '';
+    el.value = '';
     result = null;
   }
   function move(from, to) {
