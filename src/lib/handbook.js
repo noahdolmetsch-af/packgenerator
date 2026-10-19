@@ -306,6 +306,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
     example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
   },
+  'f.weekplan': {
+    on: null,
+    steps: ['Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.', 'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.', 'Enter holidays once under Woche › Holidays; the training plan pauses if you want.'],
+    example: 'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.',
+  },
   'f.analyses': {
     on: 'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.',
     steps: ['Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.', 'Open Training › Week: the analyses over the weeks under the look back.', 'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.'],
@@ -506,6 +511,16 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Aktivität › «Summit book».', 'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.'],
     example: 'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.',
   },
+  'f.routine': {
+    on: null,
+    steps: ['Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.', '«Change list» adds, renames, sorts or deletes items, with their days and a time.'],
+    example: 'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.',
+  },
+  'f.insights': {
+    on: null,
+    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
+    example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
+  },
   'f.timer': {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],
@@ -635,6 +650,11 @@ export const HANDBOOK = {
     on: 'Only shows when something has «test» in its name.',
     steps: ['Open Me › Clean up test data.', 'Archive it all; «Undo» brings it back.'],
     example: 'Example: «Test trip 2» and «test bike» go to the archive.',
+  },
+  'f.tour': {
+    on: null,
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
   'f.playground': {
     on: null,

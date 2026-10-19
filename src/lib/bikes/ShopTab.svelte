@@ -1,7 +1,7 @@
 <script>
   /**
    * v0.48.0 «Werkstatt & Belege» (Noah 9a: no own filing page; everything for the workshop lives
-   * under Bikes, and per bike in Care): what waits for the bike shop (open problems marked «Velomech»),
+   * under Bikes, and per bike in Care): the order for the bike shop (the same as in Care, care/orders.js),
    * the visits by month with their receipt photo, the cost per year. A receipt filed in the Eingang
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
@@ -18,6 +18,13 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks, Plus, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
+  import OrderDialog from '../care/OrderDialog.svelte';
+  import BikeChips from './BikeChips.svelte';
+  // Impeccable Runde 2 (18.10.2026, Werkstatt 1-3): the same «Auftrag für den Velomech» as in Care,
+  // amounts written one way, the year's sum of the chosen bike in the head line.
+  import { shopOrders } from '../care/orders.js';
+  import { chfText } from '../money.js';
+  import { localDay } from '../localday.js';
   import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, visitId = null, onbike } = $props();
@@ -25,12 +32,17 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
+  const tripsQ = liveQuery(() => db.trips.toArray());
 
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const names = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const pick = $derived(bikeId && names[bikeId] ? bikeId : null);
   const visits = $derived(($visitsQ ?? []).filter((v) => !pick || v.bikeId === pick).sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')));
-  const orders = $derived(($tasksQ ?? []).filter((x) => x.area === 'Bike' && x.fix === 'shop' && !['done', 'gone'].includes(x.status) && (!pick || x.bikeId === pick)));
+  const today = localDay();
+  const allOrders = $derived(shopOrders(bikes, $tripsQ ?? [], $tasksQ ?? [], $visitsQ ?? [], today));
+  const orders = $derived(allOrders.filter((c) => !pick || c.bike.id === pick));
+  let orderOpen = $state(null); // bike id
+  const shownOrder = $derived(allOrders.find((c) => c.bike.id === orderOpen) ?? null);
   const months = $derived.by(() => {
     const by = new Map();
     for (const v of visits) {
@@ -40,7 +52,7 @@
     }
     return [...by].map(([key, rows]) => ({ key, rows }));
   });
-  const year = new Date().getFullYear();
+  const year = today.slice(0, 4);
   const yearCost = $derived(visits.filter((v) => (v.date ?? '').startsWith(String(year))).reduce((s, v) => s + (visitTotal(v) ?? 0), 0));
 
   // svelte-ignore state_referenced_locally
@@ -50,7 +62,6 @@
 
   const monthName = (k) => (k ? new Date(`${k}-15T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : t('No date'));
   const dayName = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }) : '');
-  const chf = (n) => (n == null ? '' : n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
   const choose = (id) => {
     onbike?.(id);
     history.replaceState(null, '', bikesHash({ tab: 'shop', bike: id }));
@@ -64,37 +75,46 @@
   <VeloHead
     crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: pick }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care', bike: pick, open: !!pick }) }]}
     title={t('Workshop & receipts')}
-    sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}`}
+    sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
-
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-  <HintCard page="workshop" />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of
+    the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="workshop" intro="workshop" />
   <TipLine page="workshop" name={t('Workshop & receipts')} />
 
-  {#if bikes.length > 1}
-    <div class="fchips" role="group" aria-label={t('Bike')}>
-      <button type="button" class="fchip" aria-pressed={!pick} onclick={() => choose(null)}>{t('All bikes')}</button>
-      {#each bikes as b (b.id)}<button type="button" class="fchip" aria-pressed={pick === b.id} onclick={() => choose(b.id)}>{b.name}</button>{/each}
-    </div>
-  {/if}
+  <!-- Impeccable Runde 2 (Ausstattung 2): the same bike choice as on every Velo page, one row to swipe on a phone -->
+  {#if bikes.length > 1}<BikeChips {bikes} current={pick} all={t('All bikes')} onpick={choose} />{/if}
 
   <div class="scols">
     <div class="smain">
       <section class="ssec" aria-labelledby="forshop-h">
-        <h2 id="forshop-h" class="sh">{t('For the bike shop')}</h2>
-        {#if pick || orders.length}
+        <div class="shead">
+          <h2 id="forshop-h" class="sh">{t('Order for the bike shop')}</h2>
+          {#if orders.length}<button type="button" class="sh-a" onclick={() => (orderOpen = orders[0].bike.id)}>{t('Share the order')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
+        </div>
+        {#if orders.length}
           <ul class="card srows">
-            {#if pick}
-              <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
-              <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><span class="ic"><ClipboardList size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Workshop order|sheet')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-              <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><span class="ic"><ListChecks size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Pick-up check')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            {/if}
-            {#each orders as o (o.id)}
-              <li><a class="lrow" href={bikesHash({ tab: 'care', bike: o.bikeId, open: true })}><span class="ic"><Wrench size={18} aria-hidden="true" /></span><span class="m"><span class="t">{o.task}</span><span class="s">{names[o.bikeId] ?? ''}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            {#each orders as c (c.bike.id)}
+              <li>
+                <button type="button" class="lrow" onclick={() => (orderOpen = c.bike.id)}>
+                  <span class="ic"><Wrench size={18} aria-hidden="true" /></span>
+                  <span class="m"><span class="t">{t('Order for {bike}', { bike: c.bike.name })}</span><span class="s">{c.order.rows.slice(0, 3).map((r) => r.name).join(', ')}{c.order.rows.length > 3 ? ` + ${c.order.rows.length - 3}` : ''}</span></span>
+                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                </button>
+              </li>
             {/each}
           </ul>
+        {:else}
+          <p class="quiet">{t('No order for the bike shop right now. Due work and problems marked «bike shop» come here by themselves.')}</p>
         {/if}
-        {#if !orders.length}<p class="quiet">{t('Nothing waits for the bike shop. A problem marked «bike shop» in Care shows here.')}</p>{/if}
+        {#if pick}
+          <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
+          <ul class="card srows sheets">
+            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><span class="ic"><ClipboardList size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Workshop order|sheet')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><span class="ic"><ListChecks size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Pick-up check')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+          </ul>
+        {/if}
       </section>
 
       <section class="ssec" aria-labelledby="visits-h">
@@ -110,7 +130,7 @@
                   <button type="button" class="lrow" data-visit-id={v.id} onclick={() => (open = v.id)}>
                     {#if v.photos?.[0]}<img class="rc" src={v.photos[0]} alt="" loading="lazy" />{:else}<span class="ic"><ReceiptText size={18} aria-hidden="true" /></span>{/if}
                     <span class="m"><span class="t">{v.shop || t('Workshop')}</span><span class="s">{dayName(v.date)}{pick ? '' : ` · ${names[v.bikeId] ?? ''}`}{v.km != null ? ` · ${v.km.toLocaleString('de-CH')} km` : ''}{(v.parts ?? []).length ? ` · ${tn(v.parts.length, '{n} job', '{n} jobs')}` : ''}</span></span>
-                    <span class="v">{visitTotal(v) == null ? '' : chf(visitTotal(v))}</span>
+                    <span class="v num">{chfText(visitTotal(v))}</span>
                     <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </button>
                 </li>
@@ -140,6 +160,9 @@
 {#if shown}
   <VisitDialog visit={shown} bike={bikes.find((b) => b.id === shown.bikeId)} onclose={() => (open = null)} />
 {/if}
+{#if shownOrder}
+  <OrderDialog order={shownOrder.order} bike={shownOrder.bike} trip={shownOrder.orderTrip} bikeNames={names} onclose={() => (orderOpen = null)} />
+{/if}
 {#if adding}
   <BikeQuickDialog kind="visit" {bikes} bikeId={pick ?? bikes[0]?.id ?? null} onclose={() => (adding = false)} />
 {/if}
@@ -168,6 +191,37 @@
     margin: 0 2px 10px;
     font: 600 var(--fs-sub) / 1.25 var(--font-body);
   }
+  .shead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0 2px 10px;
+  }
+  .shead .sh {
+    min-width: 0;
+    margin: 0;
+  }
+  .sh-a {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
+  }
+  .sh-a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .srows.sheets {
+    margin-top: 12px;
+  }
   .srows {
     list-style: none;
     margin: 0;
@@ -189,30 +243,6 @@
   }
   .srows .mon + li {
     border-top: 0;
-  }
-  .fchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 20px;
-  }
-  .fchip {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
-  }
-  .fchip:hover {
-    background: var(--paper-2);
-  }
-  .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
   }
   .addv {
     margin: 0 0 20px;

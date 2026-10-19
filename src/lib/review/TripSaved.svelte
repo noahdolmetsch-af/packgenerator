@@ -22,7 +22,8 @@
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints } from './rueckblick.js';
   import { n0, n1, hours, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
-  import { openTrip } from '../nav.js';
+  import { openTrip, newTrip } from '../nav.js';
+  import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
   import { WEATHER, AMOUNT } from '../debrief.js';
@@ -73,6 +74,7 @@
   const totalN = $derived(trip.entries.filter((e) => byId[e.itemId]).length);
   const wOf = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
   const savedOn = $derived(d.doneAt ? dayLong(d.doneAt.slice(0, 10)) : null);
+  const savedLine = $derived([savedOn ? t('Saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change taken over', '{n} changes taken over') : ''].filter(Boolean).join(' · '));
 
   /* plan against real: two thin bars per row, drawn to the larger of both */
   const LABEL = { km: 'Distance', gainM: 'Climbing|hm', movingH: 'Moving', kmh: 'Pace|speed' };
@@ -287,7 +289,6 @@
 
 <!-- v0.109.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026); SN2x: five groups -->
 <div class="saved">
-  <section class="status saved-card" aria-labelledby="saved-h"><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span><h2 id="saved-h">{t('Saved')}</h2><small role="status">{[savedOn ? t('Debrief saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change made', '{n} changes made') : ''].filter(Boolean).join(' · ')}</small></span></section>
   <!-- SN2x: the template question right after saving stays on top, outside the folding groups -->
   {#if offer}<TemplateOffer {trip} name={offer} />{/if}
 
@@ -325,6 +326,8 @@
               </ul>
             {:else}
               <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
+              <!-- Impeccable Runde 2 (Rückblick einer Tour 2): the card «Gespeichert» is gone; its line lives here -->
+              <p class="savedline" role="status" data-saved>{savedLine}</p>
               <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
@@ -659,9 +662,13 @@
               {:else}
                 <li class="rv-row empty">{t('Nothing to change: the trip went as planned.')}</li>
               {/each}
-              {#if next}<li><a class="rv-row" href="#/pack" onclick={() => openTrip(next.id)}><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t('Packing list {trip}', { trip: next.title })}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
             </ul>
           </section>
+          <!-- Impeccable Runde 2 (Rückblick einer Tour 3): «Weiter» ends with one clear button (was the row «Packliste {Tour}») -->
+          <p class="goon" data-go-next>
+            {#if next}<Btn label={t('To the next trip: {name}', { name: next.title })} href="#/pack" onclick={() => openTrip(next.id)} />
+            {:else}<Btn label={t('Plan the next trip')} onclick={() => newTrip('last')} />{/if}
+          </p>
         </div>
         <div class="rv-col">
           <!-- SN2x (answer 4): the comparison only inside one of five groups, km and Hm each ±20 % -->
@@ -695,26 +702,6 @@
 <style>
   .saved {
     margin-top: 6px;
-  }
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0 0 16px;
-    padding: 10px 14px;
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
-  }
-  .status h2 {
-    margin: 0;
-    font-size: var(--fs-body);
-  }
-  .status small {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   /* SN2x: the day switch and the groups */
   .dayswitch {
@@ -1030,6 +1017,25 @@
     padding: 4px 0;
     color: var(--ink-2);
   }
+  .goon {
+    display: flex;
+    justify-content: flex-end;
+    margin: 16px 0 0;
+    min-width: 0;
+  }
+  /* a long trip name wraps instead of widening the page */
+  .goon :global(.btn) {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: break-word;
+  }
+  @media (max-width: 719px) {
+    .goon :global(.btn) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
   .hero {
     display: flex;
     align-items: center;
@@ -1039,6 +1045,12 @@
     margin: 0;
     font: 600 var(--fs-sub) / 1.3 var(--font-body);
     overflow-wrap: break-word;
+  }
+  .savedline {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
   }
   .kick {
     margin: 6px 0 0;

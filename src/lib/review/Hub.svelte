@@ -42,6 +42,7 @@
   import Profile from '../ui/Profile.svelte';
   import Btn from '../ui/Btn.svelte';
   import { factStates, factCounts, PERIOD_KEY } from './state.js';
+  import { quickDebrief } from '../debrief.js';
   import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
   import ListGroup from '../list/ListGroup.svelte';
@@ -125,15 +126,38 @@
     if (!before) return;
     await db.trips.update(r.trip.id, { skipped: true, updatedAt: new Date().toISOString() });
     clearTimeout(undoTimer);
-    undo = { before, text: t('Not ridden: {title}.', { title: r.title }) };
+    undo = { text: t('Not ridden: {title}.', { title: r.title }), restore: () => db.trips.put($state.snapshot(before)) };
+    undoTimer = setTimeout(() => (undo = null), UNDO_MS);
+  }
+  // Impeccable Rückblick 2: the short way is «Kurz: Alles gut» everywhere (as on Today and «Tour beendet»)
+  async function allGood(r) {
+    const trip = await db.trips.get(r.trip.id);
+    if (!trip) return;
+    const prev = (await db.debriefs.get(trip.id)) ?? null;
+    await db.transaction('rw', db.debriefs, db.trips, async () => {
+      await db.debriefs.put(quickDebrief(trip, prev ? structuredClone(prev) : null));
+      await db.trips.update(trip.id, { status: 'done' });
+    });
+    clearTimeout(undoTimer);
+    undo = {
+      text: t('Saved: {title}, all good.', { title: r.title }),
+      restore: () =>
+        db.transaction('rw', db.debriefs, db.trips, async () => {
+          if (prev) await db.debriefs.put(prev);
+          else await db.debriefs.delete(trip.id);
+          await db.trips.update(trip.id, { status: trip.status ?? 'planned' });
+        }),
+    };
     undoTimer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function undoSkip() {
     const u = undo;
     undo = null;
     clearTimeout(undoTimer);
-    if (u) await db.trips.put($state.snapshot(u.before));
+    if (u) await u.restore();
   }
+  // Impeccable Rückblick 2: one word for «Rückblick machen»: «Rückblick schreiben», a started one «weiterschreiben»
+  const writeLabel = (r) => (r.debrief === 'draft' ? t('Continue the debrief') : t('Write the debrief'));
   const wxLine = (r) => [rainText(r.rain, r.days), temps(r.tmin, r.tmax)].filter((x) => x !== DASH).join(', ');
   const periodName = $derived(mode === 'year' ? year : mode === 'all' ? t('All years') : t('Last 12 months'));
   const rangeText = $derived(stats ? (stats.period.from ? `${dayLong(stats.period.from)} – ${dayLong(stats.period.to)}` : t('since {date}', { date: dayLong(facts.at(-1)?.start) })) : '');
@@ -250,8 +274,10 @@
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
     </div>
   </header>
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day under the title -->
-  <HintCard page="debrief" />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card «Was hier steht» under the title; the Einstieg carries
+    the tip of the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="debrief" intro="debrief" />
   <TipLine page="debrief" name={t('Look back|page')} />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
@@ -273,14 +299,15 @@
         </span>
         <span class="rowacts">
           {#if r.trip}<Btn kind="quiet" label={t('Not ridden')} explain={t('It was not ridden: it leaves every count. You can undo it.')} onclick={() => notRidden(r)} />{/if}
-          <Btn kind="hi" icon={Star} label={r.debrief === 'draft' ? t('Continue|debrief') : t('Rate|debrief')} href="#/debrief/{encodeURIComponent(r.id)}" onclick={() => openTrip(r.id)} aria="{t('Rate|debrief')}: {r.title}" />
+          {#if r.trip}<Btn label={t('Short: all good')} explain={t('"All good": every item counts as used and nothing else changes.')} aria="{t('Short: all good')}: {r.title}" onclick={() => allGood(r)} />{/if}
+          <Btn kind="hi" icon={Star} label={writeLabel(r)} href="#/debrief/{encodeURIComponent(r.id)}" onclick={() => openTrip(r.id)} aria="{writeLabel(r)}: {r.title}" />
         </span>
         {#if openList.length > 1}
           <ul class="more-open">
             {#each phone.matches && !moreOpen ? openList.slice(1, 2) : openList.slice(1) as o (o.id)}
               <li>
                 <span class="rv-m"><span class="rv-t">{o.title}</span><span class="rv-s">{[dates(o.start, o.end), extraOf(o.id)].filter(Boolean).join(' · ')}</span></span>
-                <Btn label={t('Rate|debrief')} href="#/debrief/{encodeURIComponent(o.id)}" onclick={() => openTrip(o.id)} aria="{t('Rate|debrief')}: {o.title}" />
+                <Btn label={writeLabel(o)} href="#/debrief/{encodeURIComponent(o.id)}" onclick={() => openTrip(o.id)} aria="{writeLabel(o)}: {o.title}" />
               </li>
             {/each}
           </ul>
@@ -495,7 +522,7 @@
                     <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
                   {/if}
                   <div class="acts">
-                    <Btn href={last.href} onclick={() => last.trip && openTrip(last.trip.id)} label={last.kind === 'ride' ? t('Open the ride') : last.debrief === 'open' || last.debrief === 'draft' ? t('Rate|debrief') : t('Open its debrief')} />
+                    <Btn href={last.href} onclick={() => last.trip && openTrip(last.trip.id)} label={last.kind === 'ride' ? t('Open the ride') : last.debrief === 'open' || last.debrief === 'draft' ? writeLabel(last) : t('Open its debrief')} />
                   </div>
                 </div>
               {/if}
@@ -511,7 +538,7 @@
 {#snippet learnBody()}
           <ul class="rv-box">
             {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{l.source === 'import' ? t('From the import') : l.source}</span>{/if}</span></li>
-            {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Rate» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
+            {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Write the debrief» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
           </ul>
 {/snippet}
 
@@ -951,6 +978,20 @@
   .hm small {
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* Impeccable Runde 2: three actions on a phone: the main button full width on top, the two quiet ones below */
+  @media (max-width: 719px) {
+    .hero .rowacts {
+      flex-wrap: wrap;
+    }
+    .hero .rowacts > :global(.btn.hi) {
+      order: -1;
+      flex: 1 1 100%;
+    }
+  }
+  .more-open .rv-m {
+    flex: 1 1 220px;
+    min-width: 0;
   }
   .more-open {
     flex: 1 1 100%;

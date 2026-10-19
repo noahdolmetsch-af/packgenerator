@@ -7,6 +7,10 @@
    * a side list of filters (topics, what a note holds), a search; the cards newest first.
    * A card opens the note (NoteSheet), with «Aus Notiz wird …». Notes are in the normal backup;
    * «Als Markdown exportieren» saves them as one text file.
+   * Impeccable Runde 2: with no note yet the search and the chips stay away; the empty card says what lands here
+   * and leads to the Inbox when notes wait there. A chip shows only when it finds at least one note (the chosen
+   * one stays). On a phone «Save» sits right in the tool row, «Dictate» is the microphone alone (named for
+   * screen readers).
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
@@ -34,6 +38,8 @@
   let filter = $state('all');
   let query = $state('');
   const list = $derived(noteList(notes, { filter, query }));
+  // Impeccable Runde 2: only chips that find something (and the chosen one, so it can be switched back)
+  const shows = (f) => f.key === 'all' || f.key === filter || counts[f.key] > 0;
   const pinned = $derived(filter === 'all' && !query ? list.filter((n) => n.pinned) : []);
   const rest = $derived(filter === 'all' && !query ? list.filter((n) => !n.pinned) : list);
 
@@ -136,8 +142,8 @@
         <label class="tb" aria-label={t('Add a photo')}><ImageIcon size={18} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
         <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={18} aria-hidden="true" /></button>
         <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={18} aria-hidden="true" /></button>
-        {#if SR}<button type="button" class="btn" aria-pressed={listening} onclick={dictate}><Mic size={16} aria-hidden="true" />{listening ? t('Stop dictation') : t('Dictate')}</button>{/if}
-        <button type="submit" class="btn hi">{t('Save')}</button>
+        {#if SR}<button type="button" class="tb" aria-pressed={listening} aria-label={listening ? t('Stop dictation') : t('Dictate')} title={listening ? t('Stop dictation') : t('Dictate')} onclick={dictate}><Mic size={18} aria-hidden="true" /></button>{/if}
+        <button type="submit" class="btn hi save">{t('Save')}</button>
       </div>
     </div>
     {#if linkOpen}
@@ -170,8 +176,14 @@
   <div class="ich-cols">
     <div class="ich-main">
       {#if $notesQ && !counts.all}
-        <!-- v0.127.0 A-U2: the one empty building block -->
-        <div class="nonote"><Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty></div>
+        <!-- v0.127.0 A-U2: the one empty building block; Impeccable Runde 2: the way to the Inbox when notes wait there -->
+        <div class="nonote">
+          {#if inboxN}
+            <Empty icon={NotebookPen} text={`${t('No notes yet. What you want to keep lands here.')} ${tn(inboxN, '{n} note is waiting in the Inbox.', '{n} notes are waiting in the Inbox.')}`} action={{ label: t('To the Inbox ({n})', { n: inboxN }), href: '#/inbox' }} />
+          {:else}
+            <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
+          {/if}
+        </div>
       {/if}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
@@ -189,6 +201,7 @@
       {/if}
     </div>
 
+    {#if counts.all}
     <div class="ich-side">
       <div class="card ich-body srch">
         <label class="search">
@@ -201,11 +214,11 @@
       <section class="ich-sec" aria-labelledby="topics-h">
         <div class="ich-h"><div><h2 id="topics-h">{t('Topics')}</h2><p class="ich-hs">{t('The topic follows the text')}</p></div><a class="ich-edit" href="#/me/lists?noteTopics"><Pencil size={14} aria-hidden="true" />{t('Edit topics')}</a></div>
         <div class="card ich-body fl" role="group" aria-label={t('Filter')}>
-          {#each FILTERS.filter((f) => !f.has && (!f.none || counts[f.key])) as f (f.key)}
+          {#each FILTERS.filter((f) => !f.has && (!f.none || counts[f.key]) && shows(f)) as f (f.key)}
             <button type="button" class="fchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{#if f.topic}<i class="dot t-{f.topic}" aria-hidden="true"></i>{/if}{f.raw ? f.name : t(f.name)} · <span class="num">{counts[f.key]}</span></button>
           {/each}
-          <p class="fh">{t('Holds')}</p>
-          {#each FILTERS.filter((f) => f.has) as f (f.key)}
+          {#if FILTERS.some((f) => f.has && shows(f))}<p class="fh">{t('Holds')}</p>{/if}
+          {#each FILTERS.filter((f) => f.has && shows(f)) as f (f.key)}
             <button type="button" class="fchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)} · <span class="num">{counts[f.key]}</span></button>
           {/each}
         </div>
@@ -219,6 +232,7 @@
         </ul>
       </section>
     </div>
+    {/if}
   </div>
 </div>
 
@@ -278,6 +292,15 @@
   .tb[aria-pressed='true'] {
     border-color: var(--ink);
     background: var(--paper-2);
+  }
+  /* Impeccable Runde 2: on a phone the tools are one row under the text, «Save» on its right end */
+  @media (max-width: 719px) {
+    .caprow > .tools {
+      flex: 1 1 100%;
+    }
+    .caprow > .tools > .save {
+      margin-left: auto;
+    }
   }
   .hintrow {
     margin: 4px 2px 0;

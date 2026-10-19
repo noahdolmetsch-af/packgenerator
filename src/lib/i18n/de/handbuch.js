@@ -399,6 +399,15 @@ export default {
   'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
   'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
+  // «Woche planen» (f.weekplan)
+  'Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.': 'Öffne Woche: Montag bis Sonntag mit Sport, Terminen, To-dos, Ferien und Velo-Service.',
+  'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',
+  'Enter holidays once under Woche › Holidays; the training plan pauses if you want.': 'Trag Ferien einmal unter Woche › Ferien ein; der Trainingsplan pausiert, wenn du willst.',
+  'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.': 'Beispiel: Freitag bis Sonntag Jura-Wochenende → die lange Ausfahrt fällt weg, «Kette messen» kommt als Vorschlag auf Mittwoch.',
+  // «Rundgang» (f.tour)
+  'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
+  'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
+  'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
   // f.garmin (0.146.0 «Garmin-Seiten»)
   'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
   'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.',
@@ -514,6 +523,14 @@ export default {
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Routine «Das tut mir gut» (D1 + D2)
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
+  'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
+  // Paket C 0.150.0: f.insights «Erkenntnisse»
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
+  'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
   // Paket Q «App klarer»
   "Type your region and tick your passes; weather and avalanche switch on or off.": "Tippe deine Region ein und hake deine Pässe an; Wetter und Lawinen schaltest du an oder aus.",
   "Under «Your sources» add, change or delete news sites with a feed.": "Unter «Deine Quellen» fügst du News-Seiten mit Feed hinzu, änderst oder löschst sie.",

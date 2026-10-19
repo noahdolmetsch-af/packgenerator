@@ -43,6 +43,7 @@ export default {
   'Backup due.': 'Backup fällig.',
   'The folder backup needs your OK.': 'Das Ordner-Backup braucht dein OK.',
   'The storage is almost full.': 'Der Speicher ist fast voll.',
+  'The browser does not keep your data for sure yet.': 'Der Browser behält deine Daten noch nicht sicher.',
   'Everything is in order.': 'Alles ist in Ordnung.',
   'Everything else is in order.': 'Alles andere ist in Ordnung.',
 };

@@ -7,6 +7,7 @@
    * The rules are pure and tested (lib/flowbag.js); the fixed dates come from «Woche» (flowweek.js).
    */
   import { Plus, Check, X, Bell, ShoppingBag } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -104,6 +105,7 @@
     <MoreAktiv items={pages} on="bags" />
     <PageHead title={t('Sport bag')} text={t('A short packing list for each sport, so nothing is missing in everyday life')} />
   </header>
+  <AreaIntro place="bags" />
 
   {#if sets}
     <div class="lay">

@@ -33,16 +33,18 @@ const daysBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.pa
  * open: suggestions still open in Plan (layers.js openRows); debrief: the trip's debrief record or null;
  * km: the km of the trip when known (debrief km, else the route).
  */
-export function tabStatus(trip, { open = 0, debrief = null, today, km = null } = {}) {
+export function tabStatus(trip, { open = 0, debrief = null, today, km = null, ended = false } = {}) {
   const entries = trip?.entries ?? [];
   const packed = entries.filter((e) => e.packed).length;
   const ready = trip?.ready ?? [];
   const readyAll = ready.every((r) => readyDone(r, trip));
-  const over = isOver(trip, today);
+  // Impeccable 18.10.2026 (Heute 3): on «Tour beendet» (ended) the way behind is done too, also on the
+  // evening of the last day: Packen ✓ and Unterwegs ✓ with the km, the debrief is the open step
+  const over = ended || isOver(trip, today);
   const out = {};
   // v0.40.0 (design check): after the trip, planning is over: only ✓ (no "6 open" on a finished trip).
   out.plan = over && entries.length ? { text: '', done: true } : !entries.length ? { text: t('empty'), done: false } : open ? { text: tn(open, '{n} open', '{n} open'), done: false } : { text: t('ready'), done: true };
-  out.pack = entries.length ? { text: `${packed}/${entries.length}`, done: packed === entries.length && readyAll } : { text: '', done: false };
+  out.pack = entries.length ? { text: `${packed}/${entries.length}`, done: over || (packed === entries.length && readyAll) } : { text: '', done: false };
   const start = trip?.startDate;
   if (over) out.ride = { text: km ? `${num(Math.round(km))} km` : t('done|step'), done: true };
   else if (start && start <= today && tripEnd(trip) >= today) out.ride = { text: t('Day {n}', { n: daysBetween(start, today) + 1 }), done: false };

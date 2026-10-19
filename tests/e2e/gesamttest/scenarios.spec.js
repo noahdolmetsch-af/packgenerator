@@ -79,7 +79,9 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   await page.goto('./#/');
   // v0.46.0: "Day ride" is the first button of "What do you want to do?"; v0.94.0: a small tile on the wall
   // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip and Today stays, with a green card
-  await page.locator('.wall [data-fn="dayride"]').click();
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Quick start» is in the day card (part «Tag»)
+  await page.locator('[data-daycard] [data-clock="day"]').click();
+  await page.locator('[data-daycard] [data-daycard-quick]').click();
   await expect(page.locator('[data-quick-made]')).toBeVisible();
   await expect(page).toHaveURL(/#\/$/);
   await expect.poll(async () => (await table(page, 'trips')).length).toBe(before.length + 1);
@@ -286,7 +288,7 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   // weigh: skip to the new item, 245 g
   await page.goto('./#/gear');
   await page.reload();
-  await page.getByRole('button', { name: new RegExp(esc(T('{n} without weight · weigh', { n: 'X' })).replace('X', '\\d+')) }).click();
+  await page.getByRole('button', { name: new RegExp(esc(T('{n} without weight · weigh now', { n: 'X' })).replace('X', '\\d+')) }).click();
   const weigh = page.locator('section.weigh');
   const name = weigh.locator('.name');
   await expect(name).toBeVisible();
@@ -711,8 +713,8 @@ test('S11 Setup: the chosen bike chip is fully in view; no chip is cut at the ed
   const { summary } = fixture();
   for (const id of summary.bikeIds) {
     await page.goto(`./#/bikes?bike=${id}`);
-    // v0.105.0 Design-Refresh P7 (V1): the bikes are light chips that wrap in their row (no sideways
-    // scroll, so nothing to fade): the chosen chip lies fully inside the row
+    // v0.105.0 Design-Refresh P7 (V1): the bikes are light chips that wrap in their row; since Impeccable
+    // Runde 2 a phone shows one row to swipe with the chosen bike first: the chosen chip lies fully inside
     const row = page.locator('.tabsrow');
     const sel = row.locator('[role="tablist"] [aria-selected="true"]');
     await expect(sel).toBeVisible();
@@ -722,8 +724,12 @@ test('S11 Setup: the chosen bike chip is fully in view; no chip is cut at the ed
         return a.x >= b.x - 1 && a.x + a.width <= b.x + b.width + 1;
       }, { message: `${id}: chosen tab inside the row` })
       .toBe(true);
-    const st = await row.evaluate((el) => ({ sw: el.scrollWidth, w: el.clientWidth }));
-    expect(st.sw, `${id}: no chip cut at the edge`).toBeLessThanOrEqual(st.w + 1);
+    const st = await row.evaluate((el) => ({ sw: el.scrollWidth, w: el.clientWidth, ox: getComputedStyle(el).overflowX }));
+    if (st.ox === 'auto') {
+      // Impeccable Runde 2 (Ausstattung 2): on a phone one row to swipe sideways, the chosen bike first
+      const first = await row.locator('[role="tab"], button').evaluateAll((els) => els.reduce((m, e) => (e.getBoundingClientRect().left < m.getBoundingClientRect().left ? e : m)).getAttribute('aria-selected'));
+      expect(first, `${id}: the chosen bike stands first`).toBe('true');
+    } else expect(st.sw, `${id}: no chip cut at the edge`).toBeLessThanOrEqual(st.w + 1);
   }
   expect(errors).toEqual([]);
 });

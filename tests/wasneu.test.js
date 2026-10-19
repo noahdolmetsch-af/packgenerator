@@ -15,8 +15,8 @@ afterEach(() => (lang.v = 'en'));
 const ids = (rows) => rows.map((r) => r.id);
 // Paket Q «App klarer»: its functions are the newest (the bundler gives them the release version)
 const Q_IDS = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.offlinesave', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.tripalert', 'f.comeback'];
-// until the bundler gives Q its release version, Q shares 0.149.0 with Paket E (same version: mixed by name)
-const NEW_0149 = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.offlinesave', 'f.ownvalues', 'f.sports', 'f.yearcheck', 'f.suggestoff', 'f.gipfelbuch', 'f.tipweek', 'f.tripalert', 'f.comeback'];
+// until the bundler gives Q its release version, Q shares 0.151.0 with Paket F (same version: mixed by name)
+const NEW_TOP = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.weekplan', 'f.offlinesave', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.tour', 'f.tripalert', 'f.comeback'];
 
 describe('every function has a version it came with', () => {
   it('known for every function, never newer than this version, all real versions of the list', () => {
@@ -37,7 +37,8 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.tripstate']).toBe('0.132.0'); // TZ-1 «Zustand sichtbar»
     expect(SINCE['f.yeargoals']).toBe('0.132.0'); // «Werte überall»
     expect(SINCE['f.velosetup']).toBe('0.132.0'); // v0.132.0 «Velo-Setup»
-    expect(SINCE['f.bagsetups']).toBe(WHATS_NEW[0].version); // v0.147.0 «Taschen-Setups»
+    expect(SINCE['f.bagsetups']).toBe('0.149.0'); // «Taschen-Setups», released with Paket E
+    expect(SINCE['f.routine']).toBe('0.150.0'); // Routine «Das tut mir gut», Paket C
     expect(SINCE['f.abfragen']).toBe('0.133.0'); // v0.133.0 «Wi gaht's?»
     expect(SINCE['f.inspiration']).toBe('0.134.0'); // v0.134.0 «Inspiration»
     expect(SINCE['f.lists']).toBe('0.134.0'); // v0.134.0 «Listen und Typen»
@@ -50,6 +51,8 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.standardbike']).toBe('0.145.0'); // v0.145.0 «Paket 3»: Standard-Velo VS1–VS4 (0.144.0 RE brought no new function)
     expect(SINCE['f.docs']).toBe(SINCE['f.sync']); // P3b «Daten sicher»: Dokumente and the exchange come together
     expect(SINCE['f.camera']).toBe(SINCE['f.docs']); // P3c «Kamera überall» ships with them in 0.146.0
+    // Paket F «Woche»: Woche planen and the tour of the app (0.151.0, after E and C)
+    for (const id of ['f.weekplan', 'f.tour']) expect(SINCE[id], id).toBe('0.151.0');
     // v0.147.0 Paket B «Server»: every new function of the server package comes with this version
     for (const id of ['f.fitbit', 'f.analyses', 'f.weight', 'f.weekreview', 'f.docscan', 'f.agenda', 'f.assistent', 'f.offers', 'f.autosync', 'f.push', 'f.webshop', 'f.mail']) expect(SINCE[id], id).toBe('0.147.0');
   });
@@ -103,7 +106,10 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.packblocks').state).toBe('never'); // 0.124.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.velosetup').state).toBe('never'); // 0.132.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.bagsetups').state).toBe('new'); // new in this version
+    expect(rowsOf().find((r) => r.id === 'f.bagsetups').state).toBe('never'); // 0.149.0, older than this version
+    expect(rowsOf().find((r) => r.id === 'f.routine').state).toBe('never'); // 0.150.0 (Paket C), older than this version
+    expect(rowsOf().find((r) => r.id === 'f.weekplan').state).toBe('new'); // new in this version (Paket F)
+    expect(rowsOf(undefined, undefined, '0.150.0').find((r) => r.id === 'f.routine').state).toBe('new'); // new in its version
     expect(rowsOf().find((r) => r.id === 'f.abfragen').state).toBe('never'); // 0.133.0, older than this version
     expect(rowsOf(undefined, undefined, '0.133.0').find((r) => r.id === 'f.abfragen').state).toBe('new'); // new in its version (pinned to 0.133.0)
     expect(rowsOf(undefined, undefined, '0.134.0').find((r) => r.id === 'f.inspiration').state).toBe('new'); // new in its version
@@ -133,7 +139,8 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 32 + Q_IDS.length))).toEqual([...NEW_0149, 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips']);
+    // Paket F 0.151.0: Woche planen and the tour of the app come first; Paket C 0.150.0: Erkenntnisse (f.insights) and Routine «Das tut mir gut» (f.routine) are the newest functions
+    expect(ids(newest.slice(0, 36 + Q_IDS.length))).toEqual([...NEW_TOP, 'f.insights', 'f.routine', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.ownvalues', 'f.sports', 'f.gipfelbuch', 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -160,11 +167,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual([...NEW_0149, 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual([...NEW_0149, 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual([...NEW_0149, 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual([...NEW_TOP, 'f.insights', 'f.routine', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.ownvalues', 'f.sports', 'f.gipfelbuch', 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual([...NEW_TOP, 'f.insights', 'f.routine', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.ownvalues', 'f.sports', 'f.gipfelbuch', 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual([...NEW_TOP, 'f.insights', 'f.routine', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.ownvalues', 'f.sports', 'f.gipfelbuch', 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual([...NEW_0149, 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual([...NEW_TOP, 'f.insights', 'f.routine', 'f.bagsetups', 'f.birthdays', 'f.editall', 'f.garmin', 'f.skiequipment', 'f.measure', 'f.remember', 'f.reminders', 'f.ownvalues', 'f.sports', 'f.gipfelbuch', 'f.assistent', 'f.autosync', 'f.docscan', 'f.fitbit', 'f.agenda', 'f.mail', 'f.offers', 'f.analyses', 'f.push', 'f.webshop', 'f.weekreview', 'f.weight', 'f.camera', 'f.docs', 'f.sync', 'f.standardbike', 'f.bills', 'f.invoices', 'f.medreview', 'f.timer', 'f.pagetips', 'f.training', 'f.inspiration', 'f.lists', 'f.komoot', 'f.abfragen', 'f.bagplan', 'f.velosetup', 'f.setuplog', 'f.tripstate', 'f.yeargoals', 'f.packblocks', 'f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();

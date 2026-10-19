@@ -14,7 +14,7 @@
   const ftp = $derived(hasMeter(act) ? ftpEstimate(all, today) : null);
   const load = $derived(act && ftp ? powerLoad(act, ftp) : null);
   const effort = $derived(act?.effort != null ? act.effort : null);
-  const spanLabel = (n, unit) => (unit === 's' ? t('{n} s', { n }) : t('{n} min', { n }));
+  const spanLabel = (n, unit) => (unit === 's' ? t('{n} s|span', { n }) : t('{n} min', { n }));
 
   // the curve: x on a log scale of the seconds, y in watts; the width follows the card
   let w = $state(0);

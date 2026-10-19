@@ -1,6 +1,6 @@
 // v0.102.0 Design-Refresh P4 «Touren» (T1, T3): the pure helpers of the Touren pages, fictional data.
 import { describe, it, expect } from 'vitest';
-import { overviewCounts, weatherWindow, daysTo, weightByPlace } from '../src/lib/touren.js';
+import { overviewCounts, weatherWindow, daysTo, weightByPlace, rideBand } from '../src/lib/touren.js';
 import { tripStats } from '../src/lib/trips.js';
 
 describe('touren', () => {
@@ -54,5 +54,24 @@ describe('touren', () => {
     expect(w.missing).toBe(stats.packMissing);
     expect(w.rows.at(-1)).toEqual({ key: 'food', g: 400, missing: 0 });
     expect(weightByPlace({ zones: [], wornBagsG: 250, wornBagsMissing: 0 }, {}).rows).toEqual([{ key: 'body', g: 250, missing: 0 }]);
+  });
+
+  it('Impeccable Touren 1: a trip on the way leads the band, day by calendar day', () => {
+    const trips = [
+      { id: 'a', startDate: '2026-05-10', days: 3 },
+      { id: 'b', startDate: '2026-05-14', days: 1 },
+    ];
+    const rows = [
+      { kind: 'trip', tripId: 'b', title: 'Day ride' },
+      { kind: 'trip', tripId: 'a', title: 'Three days' },
+    ];
+    expect(rideBand(rows, trips, '2026-05-11')).toMatchObject({ state: 'ride', tripId: 'a', title: 'Three days', day: 2, total: 3 });
+    expect(rideBand(rows, trips, '2026-05-12')).toMatchObject({ tripId: 'a', day: 3 });
+    expect(rideBand(rows, trips, '2026-05-13')).toBeNull();
+    expect(rideBand(rows, trips, '2026-05-09')).toBeNull();
+    // the start day stays the packing day until packing is finished
+    expect(rideBand(rows, trips, '2026-05-10')).toBeNull();
+    expect(rideBand(rows, [{ ...trips[0], packedAt: '2026-05-10' }, trips[1]], '2026-05-10')).toMatchObject({ tripId: 'a', day: 1 });
+    expect(rideBand([{ kind: 'replan', tripId: 'a' }], trips, '2026-05-11')).toBeNull();
   });
 });

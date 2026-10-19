@@ -8,13 +8,8 @@
   import { backClose } from '../ui/backclose.js';
   import TipWeek from '../clear/TipWeek.svelte';
   import { plainError } from '../clear/errors.js'; // Paket Q #127: plain words instead of technical text
-  import { db } from '../db.js';
-  import { startDemo, setClock } from '../demo.js';
-  import { tidyData } from '../tidy.js';
-  import { settling } from '../settled.js';
-  import { playFile, playDay, KINDS, DAYS } from '../play.js';
-  import { localDay } from '../localday.js';
-  import { openTrip } from '../nav.js';
+  import { KINDS, DAYS } from '../play.js';
+  import { startPlayground } from '../tour/run.js';
   import { t } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
   import { ArrowRight } from '@lucide/svelte';
@@ -36,15 +31,7 @@
   async function start() {
     busy = true;
     try {
-      const today = localDay();
-      await settling(async () => {
-        await startDemo(db, playFile(kind, today));
-        await tidyData(db);
-      });
-      setClock(playDay(kind, day, today));
-      if (kind !== 'empty') openTrip('play-trip');
-      location.hash = kind === 'empty' || day === 'today' ? '#/' : day === 'after' ? '#/debrief/play-trip' : day === 'ride' ? '#/ride' : '#/pack';
-      location.reload();
+      await startPlayground(kind, day, kind === 'empty' || day === 'today' ? '#/' : day === 'after' ? '#/debrief/play-trip' : day === 'ride' ? '#/ride' : '#/pack');
     } catch (err) {
       msg = `${t('The playground did not start, nothing was changed.')} ${t(plainError(err))}`;
       busy = false;

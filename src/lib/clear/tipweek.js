@@ -24,19 +24,19 @@ export const partOf = (hour) => (hour >= 5 && hour < 11 ? 'morning' : hour >= 17
 
 /** Tiles that fit a part of the day, most fitting first. */
 export const TIME_TILES = {
-  morning: ['morningcheck', 'meditation', 'suggest', 'tipweek'],
-  evening: ['morningcheck', 'trip', 'week'],
+  morning: ['questions', 'suggest', 'tipweek'],
+  evening: ['questions', 'trip', 'week'],
 };
 
 /** Tiles that stay on top when they lead the wall. */
-export const KEEP_TOP = ['trip', 'important', 'flow'];
+export const KEEP_TOP = ['meditation', 'daycard', 'important', 'routine', 'trip', 'flow']; // HN4: its head stays as it is
 
 /** The wall for this hour: the fitting tiles that are on it move to the front, in this order. */
 export function byTime(tiles = [], hour = 12, on = true) {
   const want = on ? (TIME_TILES[partOf(hour)] ?? []) : [];
   if (!want.length) return tiles;
-  // the top of Today keeps its place (Noah 2b and mockup A: the next trip, «Important today» and
-  // Im Flow in the first screen); the fitting tiles move up right below it
+  // the top of Today keeps its place (HN4: meditation, day card, «Important today», the routine, and the next
+  // trip when it moved up; Im Flow right after); the fitting tiles move up right below it
   const head = [];
   for (const x of tiles) if (KEEP_TOP.includes(x.id) && head.length === tiles.indexOf(x)) head.push(x);
   const front = want.map((id) => tiles.find((x) => x.id === id)).filter((x) => x && !head.includes(x));

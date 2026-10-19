@@ -53,7 +53,10 @@ test('Stelle 1: a full bag moves on, its row lights up, the next bag comes up, a
 
 test('Stelle 2: a window slides up on a phone and grows in on a computer', async ({ page, context }, info) => {
   await packDay(page, context, info);
-  await page.locator('.trip-band .mainbar .go').click();
+  // Impeccable round 2 «Packen 2»: while little is packed the main button packs the next bag; «Packen abschliessen»
+  // sits quietly at the end of the bags and asks in its window
+  const quiet = page.locator('[data-finish-quiet]');
+  await ((await quiet.count()) ? quiet : page.locator('.trip-band .mainbar .go')).click();
   const ask = page.locator('dialog.ask');
   await expect(ask).toBeVisible();
   expect(await css(ask, 'animationName')).toBe(info.project.use.isMobile ? 'mv-up' : 'mv-pop');
@@ -93,4 +96,18 @@ test('Reduced motion on Pack: the bag does not move, the green row still shows',
   expect(await css(open, 'transitionDuration')).toBe('0s');
   await open.getByRole('button', { name: T('Whole bag packed') }).click();
   await expect(page.locator('.pd li.brow.pbag.flash')).toHaveCount(1);
+});
+
+test('4b: a ticked item slides down to the packed ones, but only a moment after the last tap', async ({ page, context }, info) => {
+  await packDay(page, context, info);
+  const items = page.locator('.pd section.pbag.cur button.it');
+  const name = (await items.first().locator('.nm').textContent()).trim();
+  await items.first().click();
+  // right after the tap the row stays under the finger
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(items.first().locator('.nm')).toHaveText(name);
+  // a moment later it has moved down below the open items
+  await expect(items.last()).toHaveAttribute('aria-pressed', 'true', { timeout: 4000 });
+  await expect(items.last().locator('.nm')).toHaveText(name);
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'false');
 });

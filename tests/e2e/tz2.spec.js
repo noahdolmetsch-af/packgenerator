@@ -58,7 +58,7 @@ test('Tour-Kopf: the band of each state, the fixed list, «Wieder öffnen» with
   // planned: everything stays changeable, «Als Vorlage speichern»
   await openTrip(page, PLAN.id);
   await expect(note).toHaveAttribute('data-state', 'plan');
-  await expect(note.locator('h2')).toHaveText(T('Planned: everything stays changeable.'));
+  await expect(note.locator('h2')).toHaveText(T('Everything stays changeable until you set off.')); // Impeccable Planen 3: one line
   await expect(note.getByRole('button', { name: T('Save as template') })).toBeVisible();
   if (info.project.name === 'desktop') await expect(page.locator('.add-mat')).toBeVisible(); // on a phone it is the + below
 
@@ -154,7 +154,9 @@ test('Heute: «Rückblick ausfüllen» and «Bist du gefahren?» with Ja · Nich
   await settle(page);
   const imp = page.locator('section.imp');
   const more = imp.getByRole('button', { name: new RegExp(esc(T('Show all {n}', { n: 'X' })).replace('X', '\\d+')) });
-  if (await more.count()) await more.click();
+  // v0.155.0 «Heute neu geordnet» (2a, changed on purpose): one line with two rows; «Show all» opens the rest
+  await expect(more).toBeVisible();
+  await more.click();
   // the open debrief: «… (date): Rückblick ausfüllen · 2 Min.» with «Rückblick»; «Alles gut» stays beside it
   const deb = imp.locator('li[data-row="debrief"]');
   await expect(deb).toHaveCount(1);

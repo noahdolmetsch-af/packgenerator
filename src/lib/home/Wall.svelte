@@ -10,6 +10,7 @@
    * rest meanwhile (inert). Every change goes to onchange(tiles) at once.
    *
    * tiles: [{ id, size }]; body: snippet (tile) → the tile's content; editing; onedit(); onchange; onadd.
+   * A tile may hold another one (Im Flow + Balance, 0.155.0): its inner `data-tile` is the one a long press picks.
    */
   import { GripVertical, X, ChevronLeft, ChevronRight, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
@@ -87,7 +88,7 @@
 
 <div class="wall" class:editing bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
   {#each shown as x, i (x.id)}
-    <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+    <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
       <div class="body" inert={editing}>{@render body(x)}</div>
       {#if editing}
         <button type="button" class="pick" aria-pressed={picked === x.id} aria-label={t('{name}: move or change the size', { name: name(x.id) })} onclick={() => (picked = picked === x.id ? null : x.id)}></button>
