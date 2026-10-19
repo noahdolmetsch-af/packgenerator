@@ -67,7 +67,7 @@ test('Unterwegs: the lamps behind one line, the newest 3 notes, «Entfernen» in
   await expect(ask.getByRole('heading')).toHaveText(T('Delete this note?'));
   await ask.getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(sec.locator('.notes')).not.toContainText('test_data_gtp_ Notiz 4');
-  const toast = page.locator('.toast');
+  const toast = page.locator('.rtoast'); // the app-wide delete toast of deleteWithUndo
   await expect(toast).toContainText(T('"{name}" deleted.', { name: 'test_data_gtp_ Notiz 4' }));
   await toast.getByRole('button', { name: T('Undo') }).click();
   await expect(sec.locator('.notes')).toContainText('test_data_gtp_ Notiz 4');

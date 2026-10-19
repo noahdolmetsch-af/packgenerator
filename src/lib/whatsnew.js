@@ -30,9 +30,9 @@ export const WHATS_NEW = [
       { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
     ],
     small: [
-      { box: 'new', text: 'Me › Insights: what goes together in your data, such as sleep and battery; and nine new building blocks for sleep, winter and bathing in five groups', href: '#/me/insights' },
+      { box: 'new', text: 'Me › Insights: what goes together in your data; and nine new building blocks', href: '#/me/insights' },
       { box: 'nicer', text: 'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list', href: '#/pack' },
-      { box: 'faster', text: 'The search in Gear reacts at once (first 5 hits per group); the trip list shows the first 20 trips', href: '#/gear' },
+      { box: 'faster', text: 'Gear search reacts at once (first 5 hits per group); Trips shows 20 trips first', href: '#/gear' },
     ],
     test: [
       'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',
