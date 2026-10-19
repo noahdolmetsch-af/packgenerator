@@ -30,9 +30,9 @@
   // new questions: the window by itself (setting) or the hint (default)
   const fresh = $derived(sync.asks > syncUi.seen);
   $effect(() => {
-    if (fresh && sync.autoOpen) syncUi.open = true;
+    if (fresh && sync.autoOpen && !syncUi.first) syncUi.open = true;
   });
-  const hint = $derived(fresh && !syncUi.open && !sync.autoOpen && list.length > 0);
+  const hint = $derived(fresh && !syncUi.open && !sync.autoOpen && !syncUi.first && list.length > 0);
   $effect(() => {
     if (!dialog) return;
     if (syncUi.open && q && !dialog.open) dialog.showModal();

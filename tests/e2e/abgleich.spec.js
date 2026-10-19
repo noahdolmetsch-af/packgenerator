@@ -107,9 +107,17 @@ test('Changed on both devices: the window asks, one question after the other or 
   await importAndSettle(a.page, fixture);
   await a.page.goto(`./#/me/data?koppeln=${code}`);
   await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
-  // 1a (Noah 18.10.2026 20:07): the window opens by itself
+  // the first round after pairing asks once (Noah 19.10.2026 06:29); «one by one» opens the window
   const hint = a.page.locator('[data-sync-hint]');
   const dlg = a.page.getByRole('dialog', { name: T('Changed on both devices') });
+  const first = syncBox(a.page).getByRole('group', { name: T('Which device has the right state?') });
+  await expect(first).toContainText(T('{n} entries are different on the two devices. The answer counts for all of them.').replace('{n}', '2'));
+  await expect(dlg).toBeHidden();
+  await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
+  await first.scrollIntoViewIfNeeded();
+  await shot(a.page, `A5-erste-frage-${size}`);
+  await first.getByRole('button', { name: T('Decide one by one') }).click();
+  // 1a (Noah 18.10.2026 20:07): later the window opens by itself
   await expect(dlg).toBeVisible();
   await expect(hint).toHaveCount(0);
   // 2a: one after the other
@@ -166,6 +174,70 @@ test('Changed on both devices: the window asks, one question after the other or 
     item.id,
   );
   expect(stored).toMatchObject({ name: theirs.name, weightG: theirs.weightG });
+  expect(a.errors).toEqual([]);
+  await a.context.close();
+});
+
+test('Pairing: «Syncing …» while it runs, one answer for all on the first round, and an error shows in every view', async ({ browser }, info) => {
+  const server = syncServer();
+  const code = '3H7P-K2QM-9WXA-F4TR-6DNB-C8EJ-Y5VS-2GKZ';
+  const keys = await keysOf(code);
+  const theirs = { ...item, weightG: (item.weightG ?? 0) + 40 };
+  const theirs2 = { ...item2, weightG: (item2.weightG ?? 0) + 15 };
+  const sealed = async (v, at) => ({ k: await recName(keys, 'items', v.id), base: 0, e: await seal(keys, { t: 'items', id: v.id, v, del: false, at, dev: 'phone' }) });
+  await server.call('push', { token: keys.token, items: [await sealed(theirs, '2026-10-19T04:20:00.000Z'), await sealed(theirs2, '2026-10-19T04:21:00.000Z')] });
+
+  const a = await device(browser, info, server);
+  // a slow server: the line shows while it pairs
+  await a.context.route(/packgen-three\.vercel\.app\/api\/sync/, async (route) => {
+    await new Promise((ok) => setTimeout(ok, 700));
+    await route.fallback();
+  });
+  await a.page.goto('./');
+  await importAndSettle(a.page, fixture);
+  await a.page.goto(`./#/me/data?koppeln=${code}`);
+  await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
+  await expect(syncBox(a.page).getByText(T('Syncing …'))).toBeVisible();
+  const first = syncBox(a.page).getByRole('group', { name: T('Which device has the right state?') });
+  await expect(first).toBeVisible();
+  await expect(a.page.getByRole('dialog', { name: T('Changed on both devices') })).toBeHidden();
+  // «the other device»: both questions answered at once, no window
+  await first.getByRole('button', { name: T('The other device') }).click();
+  await expect(first).toBeHidden();
+  await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
+  await expect(syncBox(a.page).locator('.msg')).toHaveText(T('Paired. From now on both devices keep the same data.'));
+  await expect(a.page.getByRole('dialog', { name: T('Changed on both devices') })).toBeHidden();
+  const stored = await a.page.evaluate(
+    (ids) =>
+      new Promise((ok, fail) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = fail;
+        r.onsuccess = () => {
+          const st = r.result.transaction('items').objectStore('items');
+          const out = [];
+          ids.forEach((id, i) => {
+            const g = st.get(id);
+            g.onsuccess = () => {
+              out[i] = g.result.weightG;
+              if (out.filter((x) => x !== undefined).length === ids.length) ok(out);
+            };
+            g.onerror = fail;
+          });
+        };
+      }),
+    [item.id, item2.id],
+  );
+  expect(stored).toEqual([theirs.weightG, theirs2.weightG]);
+
+  // switched off, and pairing again while the server cannot be reached: the panel says so
+  await syncBox(a.page).getByRole('button', { name: T('Switch off|sync') }).click();
+  await syncBox(a.page).getByRole('group', { name: T('Switch off sync?') }).getByRole('button', { name: T('Only switch off') }).click();
+  await a.context.unrouteAll({ behavior: 'ignoreErrors' });
+  await a.context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await syncBox(a.page).getByRole('button', { name: T('I have a code') }).click();
+  await syncBox(a.page).getByLabel(T('Code from the other device')).fill(code);
+  await syncBox(a.page).getByRole('button', { name: T('Pair') }).click();
+  await expect(syncBox(a.page).locator('.msg')).toHaveText(T('No network right now. The sync catches up later.'));
   expect(a.errors).toEqual([]);
   await a.context.close();
 });

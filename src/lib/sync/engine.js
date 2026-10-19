@@ -127,6 +127,16 @@ export async function resolve(db, key, choice) {
   });
 }
 
+/**
+ * The first round after pairing (Noah 19.10.2026 06:29): one answer for every open question at once,
+ * 'mine' (this device has the right state) or 'theirs' (the other one). Returns how many it answered.
+ */
+export async function resolveAll(db, choice) {
+  const keys = await db.meta.where('key').startsWith(ASK).primaryKeys();
+  for (const k of keys) await resolve(db, k, choice);
+  return keys.length;
+}
+
 /*
  * Paket B (Noah 19.10.2026 «1b»): copies of Google that both devices fetch by themselves. A Fitbit day
  * carries when this device fetched it (at, src); the Fitbit and calendar settings carry the last fetch
