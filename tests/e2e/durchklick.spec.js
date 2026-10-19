@@ -28,7 +28,10 @@ test('DK6, DK7b: the look back page says Erkenntnisse, no internal code, the km 
   await page.goto('./#/debrief');
   const main = page.locator('main');
   await main.waitFor();
-  await expect(main.getByText(T('Learnings'), { exact: true }).first()).toBeVisible();
+  const word = main.getByText(T('Learnings'), { exact: true }).first();
+  // UI-Regeln Teil 2 (Noah «a»): on a phone the Rückblick lines start closed; open the line that holds the word
+  if (!(await word.isVisible())) await word.locator('xpath=ancestor::*[@data-group][1]').locator('.ls-gh').first().click();
+  await expect(word).toBeVisible();
   await expect(main).not.toContainText('Learnings');
   await expect(main).not.toContainText('S1');
   const ax = main.locator('.bars .ax').first();

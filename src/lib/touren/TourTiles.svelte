@@ -275,7 +275,7 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 2px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
   .ot small {
     display: flex;

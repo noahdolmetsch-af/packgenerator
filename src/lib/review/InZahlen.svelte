@@ -815,7 +815,7 @@
     /* Durchklick DK7a: a long trip name without spaces wraps */
     min-width: 0;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
   .kv b,
   .top b {
@@ -831,7 +831,7 @@
     color: var(--ink);
     min-width: 0;
     font-weight: 500;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
   .sh {
     margin: 12px 0 0;

@@ -93,7 +93,9 @@
   }
   .bt b {
     font: 600 var(--fs-body) / 1.3 var(--font-body);
-    overflow-wrap: anywhere;
+    /* style lint «breakword»: whole words wrap; a long name without spaces still breaks (min-width: 0) */
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .whole {
     color: var(--ink);

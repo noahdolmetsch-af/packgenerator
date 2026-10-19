@@ -640,7 +640,7 @@
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
   .whole::after {
     content: '';
@@ -842,7 +842,7 @@
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
   /* the whole row opens the trip */
   .rn::after {

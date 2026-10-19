@@ -19,7 +19,7 @@
 
 <span class="sum">
   {#if missing}
-    <span class="kn">{parts[0]}</span><b class="num">{value}</b>{#if parts[1]}<span class="kn">{parts[1]}</span>{/if}
+    {#if parts[0]}<span class="kn">{parts[0]}</span>{/if}<b class="num">{value}</b>{#if parts[1]}<span class="kn">{parts[1]}</span>{/if}
     <small class="miss">{miss || t('{n} not weighed', { n: missing })}</small>
   {:else}
     <b class="num">{value}</b>

@@ -6,7 +6,7 @@
 // - Planen 2: «Bis zum Start» shows «2 überfällig» under the open box; a tap opens «Vor der Tour».
 // German UI, Europe/Zurich, service workers blocked.
 import { test, expect } from '@playwright/test';
-import { settle } from './settle.js';
+import { settle, foldPageInfo } from './settle.js';
 import { fixture, prepare, importBackup, view, tr, sideways } from './gesamttest/lib.js';
 
 const T = tr('de');
@@ -50,7 +50,9 @@ test('Packen 1: the chosen blocks are one line; «Bausteine ändern» opens the 
   await expect(card.locator('.fon')).toContainText(T('Building blocks on the trip:'));
   await expect(card.locator('.fon')).toContainText(/\d+ weitere zur Wahl/);
   await expect(card.getByRole('group')).toHaveCount(0);
-  // the first bag is on the first screen (above the bar at the thumb on a phone)
+  // Paket A (HT1–HT2, changed on purpose): «Was hier steht» comes first; once read and folded, the first bag
+  // is on the first screen (above the bar at the thumb on a phone)
+  await foldPageInfo(page);
   const bag = page.locator('#bags-h');
   const box = await bag.boundingBox();
   expect(box.y + box.height).toBeLessThan(info.project.use.viewport.height - (phone(info) ? 140 : 80));
