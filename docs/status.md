@@ -56,13 +56,24 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 1. **P3 Navigation und Standard-Velo (0.145.0):** PR #182, Noah «ok»; wird nach grünem Test zusammengeführt.
 2. **A Daten sicher und Bedienung (0.146.0):** Speicher fest, Abgleich über Sicherung, Dokumente (Datenbank-Stufe 12), Bedienregeln, Kamera überall, dazu «Mehr Inhalt» und Hinweistexte HT1–HT2; gebündelt (lokal, 18.10.2026), PR nach #182.
 3. **B Server (0.147.0):** Training TR5–TR7, Fitbit, Dokument als PDF, Google Kalender und Aufgaben, KI-Deckel, Assistent, Termine buchen, Shop, automatischer Abgleich, Selbstwartung und Web-Push; gebündelt (lokal, 18.10.2026), PR nach A (#184).
-4. **D Touren und Unterwegs:** Strava-Fahrten auf Touren, Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, Chronik; gebaut.
+4. **D Touren und Unterwegs (0.148.0):** Strava-Fahrten auf Touren (AT1), Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung, Einheitliche Formulare (Pilot); gebündelt (lokal, 19.10.2026), PR nach B (#186). Die Chronik ist noch nicht gebaut.
 5. **E Material, Velos, Merken:** Dateneingabe W1–W6, Bausteine, Garmin, Taschen-Setups, Erinnerungen, Geburtstage und Pflanzen, Sportarten, Listen, Ausrüstung, Skitour, Gipfelbuch; gebaut.
 6. **C Heute und Aktiv:** HN4 (#177), Bausteine mehr (#176), Tages-Check, Balance-Ring, Routine, Paket Aktiv; Balance-Ring und Routine im Bau.
 7. **F Woche:** Woche planen, Google Teil 2, Rundgang; Woche gebaut.
 
 Ausführlich: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online).
 
+- **v0.148.0 «Paket D – Touren und Unterwegs» (19.10.2026, auf Paket B 0.147.0, je ein Merge pro Teil):**
+  - **AT1 Touren-Seite:** alle Strava-Aktivitäten unter «Geplant» (`touren/Activities.svelte`, `aktivitaeten.js`), Filter nach Art und eigene Filter (`ActFilterSheet`, `actfilter.js`), der Packmodus mit eigenem Filter und seinen Werten.
+  - **Höhenprofil HP1–HP5:** Strecke und Fahrt, geplant und gefahren (`hoehenprofil.js`).
+  - **GPX-Weg R3a:** ein Weg «Fahrt hochladen» für GPX, TCX und CSV (`#/debrief/ride`), die Fahrt bleibt im Rückblick; der eigene Upload auf «Dein Tempo» und der eigene Strava/Garmin-Eingang im Rückblick fallen weg.
+  - **Planungs-Notizen (IS 246–249):** im Tour-Entwurf (`pack/PlanNotesCard.svelte`, `plannotes.js`), «Daraus wird …» eine Aufgabe, ein Teil oder ein Werkstatt-Auftrag; im Rückblick `DebriefPlanNotes`.
+  - **Handy kurz:** Touren, Favoriten und Was ist neu am Handy höchstens 3 Bildschirme (`touren/kurz.js`, `MAX_SCREENS`, `PHONE_ROWS`). Noah 18.10 «1b»: «Geplant» 3 Karten, «Schnell starten» als Knopf im Kopf von «Geplant». Noah 19.10 «1a»: am Handy startet «Was hier steht» auf Touren zu, als leise Zeile «Was hier steht ›» im Kopf neben «Fahrt hochladen»; der Tipp des Tages steht hinter «In Zahlen · Weiter».
+  - **Bugfixes 0.132.2 + H3a:** überall dieselbe Zahl, Favoriten zählen nur eigene, nur der Schalter «Testtour» versteckt eine Tour (`testname.js`).
+  - **W1 «Deine Fahrten»** (Rückblick › Tempo): kompakte Zeilen, Untergrund-Chip, Schalter «zählt mit», zuerst die 5 neuesten. **Wörter DK6/DK7:** einfache Wörter, lange Namen brechen um.
+  - **Bewegung:** Fenster gleiten herein, Aufgeklapptes blendet ein (`app.css`, `--ease-out`, `--ease-drawer`), beim Packen leuchtet eine volle Tasche kurz grün (`PackDay.svelte`).
+  - **Einheitliche Formulare (Pilot):** `ui/Form.svelte`, `Field.svelte`, `ChipChoice.svelte`, `formchecks.js`; zuerst in «Aus Notiz wird …» (`NoteSheet`): freiwillige Felder sagen «freiwillig», Fehler stehen am Feld, Speichern lässt sich immer drücken, ein zweites Drücken während des Speicherns zählt nicht.
+  - Keine neue Funktion in `features.js` (kein neuer SINCE-Wert). Ein Eintrag «Was ist neu» 0.148.0 «Jede Fahrt an ihrem Platz». Entscheide: [decisions.md](decisions.md) «19.10.2026: Paket D Touren und Unterwegs (0.148.0)».
 - **v0.147.0 «Paket B – Server» (18.10.2026, auf Paket A 0.146.0, neun Teile als je ein Merge):**
   - **Training:** Leistung, Belastung, Leistungskurve und Analysen auf der Aktivität (TR5, T2 «Harte Stücke», T5 «Hausrunde»), Analysen über die Wochen (T1 «Plan erfüllt?», T3 «Ausdauer-Check», T4 «FTP über die Monate»), Ich › Gewicht (`riderWeightG` aus dem neusten Eintrag), Wochenrückblick `#/flow/review` (W1–W6).
   - **Fitbit:** `api/google?step=days`, Tabelle `healthDays` (Dexie 13), Ich › Daten und Backup › Fitbit, Karte «Gesundheitsdaten».

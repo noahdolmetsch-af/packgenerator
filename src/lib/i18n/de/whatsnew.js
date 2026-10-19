@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.148.0 Paket D «Touren und Unterwegs»
+  'Every ride in its place': 'Jede Fahrt an ihrem Platz',
+  'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.': 'Deine Strava-Fahrten stehen bei Touren, ein Weg lädt eine Fahrt hoch, und jede Tour zeigt ihre Steigungen.',
+  'Trips: all your Strava rides with filters, your own filters and the values in the Packmode; on the phone the page stays short': 'Touren: alle Strava-Fahrten mit Filtern, eigenen Filtern und den Werten im Packmodus; am Handy bleibt die Seite kurz',
+  '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review, with its elevation profile': '«Fahrt hochladen» nimmt GPX, TCX und CSV und behält die Fahrt im Rückblick, mit ihrem Höhenprofil',
+  'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job': 'Planungs-Notizen im Tour-Entwurf: aus einem Gedanken wird eine Aufgabe, ein Teil oder ein Werkstatt-Auftrag',
+  '«Your rides» in Pace: compact rows, the five newest first, a switch «counts»': '«Deine Fahrten» bei Tempo: kompakte Zeilen, zuerst die fünf neuesten, ein Schalter «zählt mit»',
+  'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens': 'Fenster gleiten herein, Aufgeklapptes blendet ein, und beim Packen leuchtet eine volle Tasche kurz grün, bevor die nächste aufgeht',
+  'Forms say «optional» at the optional fields, show a mistake right at the field, and Save can always be pressed': 'Formulare sagen bei freiwilligen Feldern «freiwillig», zeigen einen Fehler direkt am Feld, und Speichern lässt sich immer drücken',
+  'Open Trips: below «Planned» stand your Strava rides; filter them by kind.': 'Öffne Touren: unter «Geplant» stehen deine Strava-Fahrten; filtere sie nach Art.',
+  'Open Review › Upload ride and choose a GPX file: the ride is saved with its elevation profile.': 'Öffne Rückblick › Fahrt hochladen und wähle eine GPX-Datei: die Fahrt wird mit ihrem Höhenprofil gespeichert.',
+  'Open a trip draft and write a planning note; tap «Turn into …» and choose a task.': 'Öffne einen Tour-Entwurf und schreib eine Planungs-Notiz; tippe «Daraus wird …» und wähle eine Aufgabe.',
   // 0.147.0 Paket B «Server»
   'Connected, and it looks after itself': 'Verbunden, und sie schaut selbst nach sich',
   'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.': 'Deine Uhr, dein Google-Kalender und deine Fahrten reden mit der App, Handy und Computer gleichen sich selbst ab, und der Server prüft sich jeden Tag.',

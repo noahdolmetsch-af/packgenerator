@@ -86,6 +86,8 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
+**Nachtrag 19.10.2026 (v0.148.0 «Paket D – Touren und Unterwegs»):** AT1 Touren-Seite, Höhenprofil HP1–HP5, GPX-Weg R3a, Planungs-Notizen, Handy kurz (Noah «1b» 18.10., «1a» 19.10.), Bugfixes 0.132.2 + H3a, W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung und Einheitliche Formulare (Pilot) als ein Release auf Paket B. Offen danach: Chronik, E Material/Velos/Merken, C Heute und Aktiv, F Woche; weitere Formulare auf Form/Field.
+
 **Nachtrag 18.10.2026 (v0.147.0 «Paket B – Server»):** Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit (Dexie 13), Dokument als PDF (auf A's Dokumente, ohne eigene Version), Google Kalender und Aufgaben (Dexie 15), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop, automatischer Abgleich, Selbstwartung (Wächter, Dependabot) und Web-Push als ein Release auf Paket A. Offen danach: D Touren und Unterwegs, E Material/Velos/Merken, C Heute und Aktiv (braucht Fitbit und Training aus B), F Woche (liest Google aus B).
 
 **Nachtrag 18.10.2026 (v0.146.0 «Paket A – Daten sicher und Bedienung»):** P3b (Speicher behalten, Abgleich Handy–Computer, Kopie vor jedem Import, Ich › Dokumente, Regeln 3a/5a), P3c (Bedienregeln, Kamera überall) und «Mehr Inhalt» mit Hinweistexten HT1–HT2 als ein Release auf Paket 3 (0.145.0). Offen danach: Dokumente-PDF DP (Kamera, Texterkennung, Drive; baut auf der Dokumente-Seite auf, Dexie 14), Fitbit (Dexie 13), Hinweis-Karte auf weiteren Orten (Bausteine, Vorlagen, Setup …), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
@@ -96,6 +98,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, v0.148.0 «Paket D»:** Touren und Unterwegs als ein Release: Strava-Fahrten auf Touren, Höhenprofil, ein Weg «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, «Deine Fahrten», einfache Wörter, Bewegung, Formulare-Pilot.
 **18.10.2026, v0.147.0 «Paket B»:** alle Server-Teile (Training, Fitbit, PDF, Google, KI, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push) als ein Release. Dazu Pulszonen eins (eine Zonenquelle für Tempo, Vergangene Touren und Training, «Kommentar laden»), Mail in der App und «Gruppen überall» (jede Gruppe umbenennen und löschen, auch Ich › Dokumente).
 **18.10.2026, v0.146.0 «Paket A»:** P3b Daten sicher, P3c Bedienregeln und Kamera, Mehr Inhalt und Hinweistexte HT1–HT2 als ein Release.
 **15.10.2026, v0.145.0 «Paket 3»:** Regeln der App, Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar als ein Release; die Einträge zu 0.140.0–0.143.0 und 0.145.0 (Standard-Velo) sind Teile davon; Regeln einheitlich ist 0.144.0 für sich (#175).
