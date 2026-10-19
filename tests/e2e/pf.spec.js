@@ -893,13 +893,15 @@ test('PF15: core screens at 320 and 390 px, keyboard, labels and status texts', 
   // Escape is its «Später», after that the page itself takes the Tab
   const round = page.locator('dialog[data-section="abfragen"]');
   await round.waitFor({ state: 'attached', timeout: 3000 }).catch(() => {});
-  if (await round.evaluate((d) => d.open).catch(() => false)) {
+  if ((await round.count()) && (await round.evaluate((d) => d.open))) {
     await page.keyboard.press('Escape');
     await expect(page.locator('dialog[open]')).toHaveCount(0);
   }
   let found = false;
+  // Paket C: the walk starts in the page content (after the header), and Heute now holds more than 80 stops (day card,
+  // routine, balance …); the header with «New» sits right before the content, so Shift+Tab reaches it in a few steps
   for (let n = 0; n < 80 && !found; n++) {
-    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
     found = await page.evaluate((name) => document.activeElement?.getAttribute('aria-label') === name || document.activeElement?.textContent?.trim() === name, T('New'));
   }
   await rec.check('keyboard: Tab reaches "New"', () => expect(found).toBe(true));
