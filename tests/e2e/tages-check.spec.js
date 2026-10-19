@@ -98,10 +98,13 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await page.reload();
   await ready(page);
 
-  // the Im Flow row and the round tile lead to «Wi gaht's?»
-  const entry = page.locator('[data-check-entry="morning"]');
+  // the round tile leads to «Wi gaht's?»; v0.155.0 «Heute neu geordnet» (release analysis D3, changed on
+  // purpose): the round shows once on Heute, in the day card; Im Flow leaves its row out there
+  await expect(page.locator('[data-check-entry]')).toHaveCount(0);
+  const entry = page.locator('[data-daycard] [data-section="morningcheck"]');
   await expect(entry).toContainText(T('Morning round'));
-  await entry.getByRole('link', { name: T('Start|check') }).click();
+  await expect(entry).toContainText(T('Start|check'));
+  await entry.click();
   await expect(page).toHaveURL(/#\/me\/abfragen$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
   await page.goto('./#/');
@@ -132,9 +135,7 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect(mc.locator('[data-val="energy"] b')).toHaveText('5');
   await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
   await expect(mc).toContainText(T('From {time} the evening round comes here.', { time: '20:30' }));
-  // Im Flow: the three numbers, through the day's check (the mirror)
-  await expect(entry.locator('.nums li')).toHaveCount(3);
-  await expect(entry.locator('[data-val="mood"]')).toContainText('7');
+  // the day's check (the mirror) has the three numbers
   await expect.poll(async () => (await row(page))?.mood).toBe(7);
   expect(await row(page)).toMatchObject({ sleep: 6, energy: 5, mood: 7 });
   expect((await answers(page)).map((a) => a.qid).sort()).toEqual(['erholung.akku', 'erholung.schlaf', 'spass.stimmung', 'ziele.ziel']);
@@ -164,10 +165,9 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   await expect(mc.getByRole('heading', { name: T('Evening round') })).toBeVisible();
   await expect(mc).toHaveAttribute('data-done', 'false');
   await expect(mc).toContainText(T('Start|check'));
-  const entry = page.locator('[data-check-entry="evening"]');
-  await expect(entry).toContainText(T('Evening round'));
-  await expect(entry).toContainText(T('How was your day? · about 30 seconds'));
-  await expect(entry.getByRole('link', { name: T('Start|check') })).toHaveAttribute('href', '#/me/abfragen');
+  // v0.155.0 (D3, changed on purpose): the round once on Heute, in the day card's evening; it opens «Wi gaht's?»
+  await expect(page.locator('[data-check-entry]')).toHaveCount(0);
+  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/me/abfragen');
 
   // the evening round on Heute: the satisfaction at 20:30
   const card = page.locator('[data-section="abfragen"]');
@@ -178,8 +178,6 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   await expect(mc.locator('[data-sat]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
   await expect(mc).toContainText(T('Goal: {goal}', { goal: 'Fiktive Runde' }));
   await expect(mc.locator('[data-val="sleep"] b')).toHaveText('6');
-  await expect(entry).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
-  await expect(entry.getByRole('link', { name: T('Change') })).toBeVisible();
   expect(await noScroll(page)).toBe(true);
   expect(errors).toEqual([]);
 });
@@ -218,7 +216,8 @@ test('Heute: «Deine Balance» ring from the meditation and the answers of «Wi 
 
   const ring = page.locator('[data-section="balance"]');
   await expect(ring.getByRole('heading', { name: T('Your balance') })).toBeVisible();
-  await expect(ring).toContainText(T('last 7 days · from questions and your data'));
+  // v0.155.0 HN4b-1 (changed on purpose): the compact balance says «last 7 days» in its head
+  await expect(ring.locator('.hd')).toContainText(T('last 7 days'));
   // meditation on 6 of the last 7 days: Achtsamkeit full; nothing about visions: empty, never invented
   await expect(ring.locator('[data-cat="mind"] em')).toHaveText('100');
   await expect(ring.locator('[data-cat="vision"] em')).toHaveText('–');
@@ -353,7 +352,8 @@ test('the tip about the long press closes for good; a long press shows the sizes
   // a short tap is still a tap: no customising
   await page.getByRole('button', { name: T('Done|customise') }).click();
   await expect(page.locator('[data-tools]')).toHaveCount(0);
-  const mc = page.locator('.wall [data-tile="morningcheck"]');
+  // v0.155.0: the round tile left the wall (it is in the day card); «This week» takes the short tap
+  const mc = page.locator('.wall [data-tile="week"]');
   const m = await mc.boundingBox();
   await mc.dispatchEvent('pointerdown', { ...ev, clientX: m.x + 20, clientY: m.y + 20 });
   await mc.dispatchEvent('pointerup', { ...ev, clientX: m.x + 20, clientY: m.y + 20 });

@@ -552,6 +552,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 15.10.2026 (v0.155.0 «Heute neu geordnet», HN4 + HN4b) (Mockup-Freigabe: HN4 «1a 2a 3a 4b HN4 freigegeben» Noah 14.10.2026 21:51, Thread cmsg_018WAR7H251KvEyztXFE5y9Q6xUXvUCqyKZov5xuzzXKZP; HN4b «3a» 22:12 und «HN4b freigegeben» 22:13, Thread cmsg_018WAR7H251KvEyztXFE5y9Q9VEbuzJpjHgYuQkNdpEk6E):** Heute in neuer Reihenfolge mit Meditation-Karte, Tageskarte nach Tagesteil, «Heute wichtig» als Zeile, Balance kompakt neben Im Flow, Tourkarte am Vortag oben (4b), Aktiv als ganze Zeile, «Strava verbinden» unten; zehn Kacheln weg von Heute. Baut auf 0.154.0 auf. Nächste Schritte aus «Heute neu»: Buchungs-Zeilen in «Heute wichtig», «Mehr Ideen» (0.158.0).
+
 **Nachtrag 14.10.2026 (v0.154.0 «Bausteine mehr», SN3h–SN3j) (Mockup-Freigabe: SN3h–SN3j «SN3h–SN3j freigegeben» Noah 14.10.2026 21:31:37 UTC, Antworten «1a 2a 3a 4b 5a»):** neun neue Bausteine mit Beispiel-Teilen, neue Teile in bestehenden Bausteinen mit «+N neu» und Rückgängig, Kälte und andere Erweiterungen als Stufen (je ein Vorschlag), Gruppen nach der Gesamtliste mit neuer Gruppe Baden, Baden von Hand in Planen. Baut auf 0.144.0 «Regeln einheitlich» auf.
 **Nachtrag 13.10.2026 (v0.138.0):** «Training» TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen mit Ziel und Rückblick. Feste Termine aus AK1 Woche kommen mit «Aktiv ausweiten». Ziel «Eine App, die mich im Alltag unterstützt».
 

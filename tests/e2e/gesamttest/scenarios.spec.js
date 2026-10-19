@@ -79,7 +79,9 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   await page.goto('./#/');
   // v0.46.0: "Day ride" is the first button of "What do you want to do?"; v0.94.0: a small tile on the wall
   // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip and Today stays, with a green card
-  await page.locator('.wall [data-fn="dayride"]').click();
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Quick start» is in the day card (part «Tag»)
+  await page.locator('[data-daycard] [data-clock="day"]').click();
+  await page.locator('[data-daycard] [data-daycard-quick]').click();
   await expect(page.locator('[data-quick-made]')).toBeVisible();
   await expect(page).toHaveURL(/#\/$/);
   await expect.poll(async () => (await table(page, 'trips')).length).toBe(before.length + 1);
