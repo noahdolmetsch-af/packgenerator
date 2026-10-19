@@ -1044,4 +1044,9 @@ export default {
   'Paste the address of a project or chat and give it a name.': 'Füge die Adresse eines Projekts oder Chats ein und gib ihr einen Namen.',
   'Rename, delete or reorder it with the arrows or by dragging.': 'Umbenennen, löschen oder mit den Pfeilen oder durch Ziehen umsortieren.',
   'Example: «Pack Generator» → your project on claude.ai.': 'Beispiel: «Pack Generator» → dein Projekt auf claude.ai.',
+  // «Grösse» (19.10.2026)
+  'Open Me › Appearance › Size and light.': 'Öffne Ich › Darstellung › Grösse und Licht.',
+  'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
+  'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
+  'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
 };

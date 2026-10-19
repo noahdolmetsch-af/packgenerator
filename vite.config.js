@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
 import { sizeGuard } from './scripts/size-guard.mjs';
+import { viewportZoom } from './scripts/viewport-zoom.mjs';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
 // A test link (a Vercel preview per pull request, or a Cloudflare Pages preview, so Noah can test
@@ -19,6 +20,8 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
   test: { include: ['tests/*.test.js'] },
+  // «Grösse» (19.10.2026): vh and vw stay the screen size while the app is zoomed (scripts/viewport-zoom.mjs)
+  css: { postcss: { plugins: [viewportZoom()] } },
   // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest
   // (public/apps/<key>/), so the phone installs it with its own icon; same bundle, same data.
   build: {

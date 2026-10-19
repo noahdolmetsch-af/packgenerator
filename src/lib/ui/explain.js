@@ -22,6 +22,7 @@
  * The texts of N4 live in ui/explaintexts.js (EXPLAIN, keyed by the button's English label key) and are translated
  * through t() at the call site: `data-explain={explain('Done|task')}`.
  */
+import { uiZoom, unzoomRect } from '../uizoom.js';
 import { t } from '../i18n.svelte.js';
 import { EXPLAIN } from './explaintexts.js';
 
@@ -121,7 +122,8 @@ function show(el, touch) {
   }
   b.classList.add('on');
   const narrow = window.innerWidth < 720;
-  const p = place(el.getBoundingClientRect(), b.getBoundingClientRect(), document.documentElement.clientWidth, window.innerHeight, narrow || touch);
+  const z = uiZoom(); // «Grösse»: in the page's own pixels
+  const p = place(unzoomRect(el.getBoundingClientRect(), z), unzoomRect(b.getBoundingClientRect(), z), document.documentElement.clientWidth, window.innerHeight / z, narrow || touch);
   b.style.left = `${p.left}px`;
   b.style.top = `${p.top}px`;
   b.style.setProperty('--ax', `${p.arrow}px`);

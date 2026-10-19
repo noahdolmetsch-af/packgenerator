@@ -9,6 +9,7 @@
  * given once, on letting go (onmove(from, to), indices in the list as shown). Escape or a cancelled
  * pointer puts everything back.
  */
+import { uiZoom } from '../uizoom.js'; // «Grösse»: moves in the page's own pixels
 
 /** The new place of row `from` when its middle sits at `y`: how many of the other rows have their middle above it. */
 export function dropIndex(mids, from, y) {
@@ -52,7 +53,7 @@ export function sortable(node, opts = {}) {
     grip.setPointerCapture?.(e.pointerId);
     const boxes = rows.map((r) => r.getBoundingClientRect());
     const from = rows.indexOf(row);
-    st = { rows, row, from, to: from, y0: e.clientY, h: boxes[from].height, mids: boxes.map((b) => b.top + b.height / 2) };
+    st = { rows, row, from, to: from, y0: e.clientY, h: boxes[from].height, z: uiZoom(), mids: boxes.map((b) => b.top + b.height / 2) };
     row.classList.add('sort-moving');
     node.classList.add('sort-active');
   }
@@ -61,10 +62,10 @@ export function sortable(node, opts = {}) {
     const dy = e.clientY - st.y0;
     st.to = dropIndex(st.mids, st.from, st.mids[st.from] + dy);
     st.rows.forEach((r, i) => {
-      if (i === st.from) r.style.transform = `translateY(${dy}px)`;
+      if (i === st.from) r.style.transform = `translateY(${dy / st.z}px)`;
       else {
         r.style.transition = 'transform 120ms ease';
-        r.style.transform = `translateY(${shiftOf(i, st.from, st.to) * st.h}px)`;
+        r.style.transform = `translateY(${(shiftOf(i, st.from, st.to) * st.h) / st.z}px)`;
       }
     });
   }
