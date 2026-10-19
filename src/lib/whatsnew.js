@@ -18,7 +18,8 @@ export const WHATS_NEW = [
   {
     // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
     // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
-    // Impeccable round 2 (Aktiv · Heute, timer and the other pages). Paket Aktiv itself comes later.
+    // Impeccable round 2 (Aktiv · Heute, timer and the other pages), Fenster, Erkenntnisse, Bewegung 4b and Tempo.
+    // Paket Aktiv itself comes later. Three small boxes at most: Insights and the blocks share one, Tempo is one.
     version: '0.150.0',
     date: '2026-10-19',
     title: 'Today in a calm order',
@@ -29,9 +30,9 @@ export const WHATS_NEW = [
       { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
     ],
     small: [
-      { box: 'new', text: 'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups', href: '#/blocks' },
+      { box: 'new', text: 'Me › Insights: what goes together in your data, such as sleep and battery; and nine new building blocks for sleep, winter and bathing in five groups', href: '#/me/insights' },
       { box: 'nicer', text: 'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list', href: '#/pack' },
-      { box: 'new', text: 'Me › Insights: what goes together in your data, such as sleep and battery; the strongest three also in the analysis', href: '#/me/insights' },
+      { box: 'faster', text: 'The search in Gear reacts at once (first 5 hits per group); the trip list shows the first 20 trips', href: '#/gear' },
     ],
     test: [
       'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',
