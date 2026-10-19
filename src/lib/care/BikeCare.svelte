@@ -330,6 +330,18 @@
                 ]} />
               </span></span>
             </li>
+          {:else if x.d.kind === 'service'}
+            <!-- «Velo im Griff» #193: the whole-bike service (no part of its own) -->
+            <li class="pt due" data-due-service>
+              <span class="pn"><span class="part-btn">{x.d.name}</span></span>
+              <span class="st">{@render badge('due')}</span>
+              <span class="last"><span class="lt">{x.d.detail}</span></span>
+              <span class="next late">–</span>
+              <span class="wear"></span>
+              <span class="act"><span class="rowacts">
+                <Btn icon={Check} label={t('Service done')} explain={t('Record the bike service as done today')} sub={x.d.name} onclick={() => ondone(x.d)} />
+              </span></span>
+            </li>
           {/if}
         {/each}
         {#each hcards as h (h.key)}
@@ -360,6 +372,8 @@
       {/if}
       {#if filter === 'all'}
         <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
+        <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
+        {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
         {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
       {:else}

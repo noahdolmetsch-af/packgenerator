@@ -63,7 +63,7 @@
     const { bike, row } = d;
     const ctx = [row.name, t('today|done'), bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ');
     const open = { name: t('Open the bike'), explain: t('All parts of {bike}', { bike: short(bike.name) }), icon: Bike, run: () => onopen(bike.id) };
-    if (row.kind === 'time' || row.kind === 'km')
+    if (row.kind === 'time' || row.kind === 'km' || row.kind === 'service')
       return [
         { kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row) },
         ...(row.part

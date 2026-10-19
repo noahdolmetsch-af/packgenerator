@@ -36,6 +36,7 @@
   import { rainLimitOf, setRainLimit } from './lib/rainlimit.svelte.js';
   import { db } from './lib/db.js';
   import { watchTourBike } from './lib/tourbike.svelte.js';
+  import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { wide } from './lib/media.svelte.js';
   import { Plus, MessageCircle } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
@@ -304,6 +305,8 @@
   });
   // VS2 (Noah 14.10.2026): which bike a new trip brings, read once and kept up to date
   watchTourBike(db);
+  // «Velo im Griff»: the part templates per bike kind and the riding hours, live for the care rules
+  watchVeloImGriff(db);
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
   // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
   const rainQ = liveQuery(() => db.settings.get('sets'));
