@@ -5,7 +5,10 @@
    * the way to fix it (route: myself, with a guide, bike shop, part needed). The priority is a button
    * in the row (v0.46.1), Done and the other answers as before (••• menu).
    */
-  import { Check, ChevronDown, Flag, Wrench, X as XIcon } from '@lucide/svelte';
+  import { Check, ChevronDown, Flag, Wrench, X as XIcon, Pencil, Trash2 } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
+  import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import Btn from '../ui/Btn.svelte';
   import { explain } from '../ui/explain.js';
   import MoreMenu from './MoreMenu.svelte';
@@ -37,6 +40,33 @@
     if (task.priority !== p) await db.maintenance.update(task.id, { priority: p });
     prioSaved = { id: task.id, text: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }) };
   }
+
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): a problem's text can be changed and the problem deleted
+  // (was: only Done or «Not needed any more»). Rename: the one rename sheet; delete: ask, then 4 s Undo.
+  let renaming = $state(null); // the task
+  async function rename(task, text) {
+    const was = task.task;
+    if (!text || text === was) return;
+    await db.maintenance.update(task.id, { task: text });
+    offerRename(text, () => db.maintenance.update(task.id, { task: was }));
+  }
+  async function remove(task) {
+    if ((await askDelete({ title: t('Delete the problem "{name}"?', { name: task.task }), text: t('It is gone from the list and from Bike care. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    await deleteWithUndo({
+      run: async () => {
+        const rec = await db.maintenance.get(task.id);
+        await db.maintenance.delete(task.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.maintenance.put(rec),
+      text: t('"{name}" deleted.', { name: task.task }),
+      name: task.task,
+    });
+  }
+  const editActions = (task) => [
+    { name: t('Rename'), explain: t('Change the text of the problem'), icon: Pencil, run: () => (renaming = task) },
+    { name: t('Delete'), explain: t('Remove the problem for good'), icon: Trash2, run: () => remove(task) },
+  ];
 </script>
 
 {#if list.length || (filterable && repairs.length)}
@@ -77,8 +107,8 @@
               { name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => onrepair(task, 'done'), current: true },
               ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), explain: explain('Priority|task'), icon: Flag, run: () => setPriority(task, p) })),
               ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), explain: t('Who fixes it and how'), icon: Wrench, run: () => setFix(task, f, bike) })),
-              { name: t('Work needed'), explain: explain('Work needed'), icon: Wrench, run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), explain: t('Close the problem, nothing to do'), icon: XIcon, run: () => onrepair(task, 'gone') }]} />
-          </span>{/if}
+              { name: t('Work needed'), explain: explain('Work needed'), icon: Wrench, run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), explain: t('Close the problem, nothing to do'), icon: XIcon, run: () => onrepair(task, 'gone') }, ...editActions(task)]} />
+          </span>{:else}<span class="acts rowacts"><MoreMenu label={task.task} actions={editActions(task)} /></span>{/if}
           {#if prioOpen === task.id}
             <div class="extra" id="prio-{task.id}">
               <span class="seg" role="group" aria-label={t('Priority: {task}|repair', { task: task.task })}>
@@ -92,6 +122,9 @@
       {/each}
     </ul>
   </section>
+{/if}
+{#if renaming}
+  <RenameSheet kicker={t('Problems')} title={t('Rename problem')} value={renaming.task} onsave={(name) => rename(renaming, name)} onclose={() => (renaming = null)} />
 {/if}
 
 <style>

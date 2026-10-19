@@ -22,6 +22,8 @@
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
   import Between from './pages/Between.svelte';
+  import Ski from './pages/Ski.svelte';
+  import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
@@ -61,6 +63,7 @@
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
   import Lists from './pages/Lists.svelte';
+  import OwnValues from './pages/OwnValues.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
@@ -74,6 +77,10 @@
   import ShopOrders from './pages/ShopOrders.svelte';
   import ShopBuy from './pages/ShopBuy.svelte';
   import InvoiceNew from './pages/InvoiceNew.svelte';
+  import Reminders from './pages/Reminders.svelte';
+  import Merken from './pages/Merken.svelte';
+  import ListPage from './pages/ListPage.svelte';
+  import RemindCard from './lib/remind/RemindCard.svelte';
   import Offers from './pages/Offers.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -85,8 +92,12 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
+  import { OWN_KEY } from './lib/ownvalues.js';
+  import { useOwn } from './lib/ownlive.svelte.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
+  import Equipment from './pages/Equipment.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
@@ -301,9 +312,13 @@
   // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
   const rainQ = liveQuery(() => db.settings.get('sets'));
   $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
-  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
+  // «Mehr selbst einstellen» (IS 254–255): Ich › Eigene Werte, live for every page (ownlive.svelte.js).
+  const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
+  $effect(() => useOwn($ownQ?.value));
+  // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
-    const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
+    const [bikes, tasks, visits, ownRec] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray(), db.settings.get(OWN_KEY)]);
+    useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
     return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
@@ -356,6 +371,10 @@
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
+  {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
+  <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
+  {#if page !== 'share' && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -368,6 +387,9 @@
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <Bikes />
+  {:else if page === 'equipment'}
+    <!-- AU1 «Ausrüstung» (Noah 15.10.2026 «5b», «1-5a»): the main equipment of each sport -->
+    <Equipment />
   {:else if page === 'templates'}
     <Templates />
   {:else if page === 'between'}
@@ -377,6 +399,9 @@
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
     <Trips />
+  {:else if page === 'ski'}
+    <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
+    <Ski sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <PastTrips />
@@ -471,6 +496,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <Inspiration />
+  {:else if page === 'werte'}
+    <!-- «Mehr selbst einstellen» (IS 254–258): Ich › Einstellungen › Eigene Werte -->
+    <OwnValues />
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
     {#key hash}<Lists />{/key}
@@ -495,6 +523,15 @@
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
     <InvoiceNew />
+  {:else if page === 'reminders'}
+    <!-- ER3 (Noah 14.10.2026 «1a 2a 3a 4a 5b er1-er3 freigabe»): Ich › Erinnerungen -->
+    <Reminders />
+  {:else if page === 'calendar'}
+    <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
+    <Merken />
+  {:else if page === 'list'}
+    <!-- Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list in Kalender › Merken -->
+    {#key hash}<ListPage id={hash.split('/')[3] ?? ''} />{/key}
   {:else if page === 'assistent'}
     <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
     <Assistent {hash} />
@@ -523,6 +560,8 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+{#if page !== 'share'}<SkiTurn />{/if}
+<!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}

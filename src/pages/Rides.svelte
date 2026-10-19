@@ -10,6 +10,7 @@
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
@@ -22,7 +23,9 @@
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
   import Profile from '../lib/ui/Profile.svelte';
-  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map } from '@lucide/svelte';
+  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../lib/ui/RenameSheet.svelte';
+  import { offerRename } from '../lib/ui/rename.svelte.js';
 
   let { sub = '' } = $props();
 
@@ -345,6 +348,15 @@
     });
     if (trip?.bikeId) await kmToTrip(trip, [ride]);
   }
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): a saved ride can be renamed (the name came from the file)
+  let renaming = $state(false);
+  async function rename(name) {
+    const was = ride.name;
+    if (!name || name === was) return;
+    const id = ride.id;
+    await db.rides.update(id, { name });
+    offerRename(name, () => db.rides.update(id, { name: was }));
+  }
   async function remove() {
     if ((await askDelete({ title: t('Delete this ride?'), text: t('Learnings you kept stay. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const now = new Date().toISOString();
@@ -409,7 +421,8 @@
       {@const parts = ['num', 'pz', rows.length ? 'cmp' : '', suggs.length ? 'lr' : ''].filter(Boolean)}
       {@const no = (k) => `${parts.indexOf(k) + 1} · `}
       {@const planP = planProfileOf(ride, trip)}
-      <h1 class="title">{ride.name}</h1>
+      <h1 class="title rtitle"><span>{ride.name}</span><button type="button" class="rn-btn" aria-label={t('Rename {name}', { name: ride.name })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" /></button></h1>
+      {#if renaming}<RenameSheet kicker={t('Ride')} title={t('Rename ride')} value={ride.name} onsave={rename} onclose={() => (renaming = false)} />{/if}
       <p class="page-sub">{[day(ride.date), t('Start {time}', { time: clock(ride.startAt) }), trip?.title].filter(Boolean).join(' · ')}</p>
       {#if rideMsg}<p class="okmsg" role="status">{rideMsg}</p>{/if}
       {#if justSaved}
@@ -534,6 +547,7 @@
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Upload ride')}</span></nav>
     <h1 class="title">{t('Upload ride')}</h1>
     <p class="page-sub">{t('A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
+    <HintCard page="rides" />
 
     <div class="rv-lay">
       <div class="rv-col">
@@ -1086,5 +1100,23 @@
   }
   .rprof {
     margin-top: 12px;
+  }
+  .rtitle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .rn-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
   }
 </style>

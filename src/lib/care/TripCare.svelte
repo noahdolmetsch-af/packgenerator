@@ -10,14 +10,16 @@
   import { explain } from '../ui/explain.js';
   import { Check, ListChecks, Wrench } from '@lucide/svelte';
   import { prepSummary, isEvent } from '../care.js';
-  import { t, locale, dateOf } from '../i18n.svelte.js';
+  import { t, tn, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
   // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
   // two named scopes with their own count. focus: opened from a link to this trip's preparation.
-  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo, onevent, onall = null } = $props();
+  // soon (Impeccable 18.10.2026, Velopflege 1): the days until a trip in the next 7 days; the row then
+  // stands on top of the page with «Vor {trip} · in n Tagen», what to check and «Check before the ride».
+  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, soon = null, onorder, onresult, onundo, onevent, onall = null } = $props();
 
   const sum = $derived(prepSummary(rows));
   const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
@@ -28,16 +30,26 @@
   });
   // What the row counts: the bike's rows (due now, before and on the trip) and the open preparation tasks.
   const count = $derived(bikeRows.length + (isEvent(trip) ? sum.open : 0));
+  const whenSoon = (n) => (n <= 0 ? t('today|when') : n === 1 ? t('tomorrow|when') : tn(n, 'in {n} day', 'in {n} days'));
   const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 </script>
 
 <!-- v0.31.0 (Velopflege redesign): one folded row "Before Jura event · 18 Oct 2026 · 5 due ›". -->
-<details class="block" id="before-{trip.id}" bind:open>
+<details class="block" class:soon={soon != null} id="before-{trip.id}" bind:open>
+  {#if soon != null}
+    <!-- Impeccable (18.10.2026, Velopflege 1): a trip in the next 7 days stands on top of the page. -->
+    <summary>
+      <Flag size={18} aria-hidden="true" />
+      <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} · {whenSoon(soon)} <small class="soon-s">{#if !care}{bikeName ?? t('no bike')}{:else if count}{tn(count, '{bike} · {n} point to check before the ride', '{bike} · {n} points to check before the ride', { bike: bikeName })}{:else}{t('Your bike is ready for {trip}', { trip: trip.title })} <Check size={14} class="ok" aria-hidden="true" />{/if}</small></h2>
+      <span class="r">{#if count}<span class="btn go">{t('Check before the ride')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+    </summary>
+  {:else}
   <summary>
     <Flag size={18} aria-hidden="true" />
     <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small><span class="num">{dateOf(trip.startDate)}</span> · {bikeName ?? t('no bike')}</small></h2>
     <span class="r">{#if count}<span class="badge">{t('{n} due', { n: count })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
   </summary>
+  {/if}
   {#if open}
   <div class="in">
   {#if care}
@@ -323,5 +335,40 @@
   }
   .shop .rn {
     font-weight: 500;
+  }
+  /* Impeccable (18.10.2026, Velopflege 1): the trip of the next 7 days, on top of the page. */
+  .block.soon {
+    margin-bottom: 24px;
+    border-color: var(--line-strong);
+    border-radius: var(--radius-card);
+  }
+  .block.soon > summary {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 10px 14px;
+  }
+  .block.soon .title {
+    flex: 1 1 14em;
+  }
+  .soon-s {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .soon-s :global(.ok) {
+    flex: none;
+    color: var(--ok, var(--accent));
+  }
+  .go {
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .block.soon > summary:hover .go {
+    background: var(--paper-2);
+  }
+  @media (max-width: 480px) {
+    .block.soon .r {
+      margin-left: 30px;
+    }
   }
 </style>

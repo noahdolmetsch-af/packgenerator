@@ -1,6 +1,6 @@
 # Pack Generator: geplante Vorhaben
 
-Stand 10.10.2026, nachgeführt am 18.10.2026 (Abschnitte «Stand heute» und «Reihenfolge»). Der kürzeste Überblick über den heutigen Stand steht im [Projektstand](projektstand.md). Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
+Stand 10.10.2026, nachgeführt am 19.10.2026 (Abschnitte «Stand heute» und «Reihenfolge»). Der kürzeste Überblick über den heutigen Stand steht im [Projektstand](projektstand.md). Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
 
 ## Kurs-Check: sind wir auf dem richtigen Weg?
 
@@ -45,9 +45,9 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (18.10.2026, live 0.144.0)
+## Stand heute (19.10.2026, live 0.147.0)
 
-Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026). Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
+Live ist 0.147.0 «Paket B – Server» (seit 19.10.2026); D (0.148.0, PR #192) und E (0.149.0) warten auf Noahs Merge. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
 
 | Reihenfolge | Paket | Version (vorläufig) | Ziele | Stand |
 | --- | --- | --- | --- | --- |
@@ -55,7 +55,7 @@ Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026). Was gebaut ist und no
 | 2 | A Daten sicher und Bedienung (P3b, P3c, Mehr Inhalt + HT1–HT2) | 0.146.0 | 1, 3 | gebündelt (lokal, 18.10.2026), PR nach #182, Noah merged |
 | 3 | B Server (Training, Pulszonen eins, Fitbit, Dokument als PDF, Google mit Mail, KI-Deckel, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push, Gruppen überall) | 0.147.0 | 2, 3, 4 | gebündelt (lokal, 18.10.2026), PR nach A (#184), Noah merged |
 | 4 | D Touren und Unterwegs (AT1, Höhenprofil, Fahrt hochladen, Planungs-Notizen, Handy kurz, Bugfixes, Deine Fahrten, Wörter, Bewegung, Formulare, Rückmeldungen) | 0.148.0 | 3, 4 | gebündelt (lokal, 19.10.2026), PR nach B (#186), Noah merged; Chronik später |
-| 5 | E Material, Velos, Merken (mit Skitour und Ausrüstung) | danach | 1, 2 | gebaut |
+| 5 | E Material, Velos, Merken (mit Skitour, Ausrüstung, Garmin 850, Impeccable Runde 1) | 0.149.0 | 1, 2 | gebündelt (lokal, 19.10.2026), PR nach D (#192), Noah merged |
 | 6 | C Heute und Aktiv | danach | 3, 4 | gebaut; Balance-Ring und Routine im Bau |
 | 7 | F Woche | danach | 3 | Woche gebaut, braucht Google aus B |
 

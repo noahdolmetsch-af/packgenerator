@@ -5,18 +5,21 @@
    * numbers this device saw), then the monthly check (links n/m, the keys with their end, the Strava
    * connection) with «Check now», then the switch for the line on Today. Offline a part says «not
    * checked», never an error. Every key can be changed or removed; nothing here is a must.
+   * Impeccable (18.10.2026): `fold` makes the head a folded line «App maintenance · all in order» (or
+   * «· 1 hint», yellow); one tap opens the card as before. `open` is bindable (Ich › «Waiting for you»).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { RATE_KEY, rateBars, HOT } from './rate.js';
-  import { CHECK_KEY, keyRows, linkSummary } from './check.js';
+  import { CHECK_KEY, keyRows, linkSummary, attention } from './check.js';
   import { MAINT_KEY, maintOf, saveMaint } from './settings.js';
   import { checkNow } from './run.js';
   import { localDay } from '../localday.js';
   import { t, tn, locale } from '../i18n.svelte.js';
-  import { Activity, Link2, KeyRound, Bike, Plus, X } from '@lucide/svelte';
+  import { Activity, Link2, KeyRound, Bike, Plus, X, ChevronDown } from '@lucide/svelte';
   import './maint.css';
 
+  let { fold = false, open = $bindable(false) } = $props();
   const dataQ = liveQuery(async () => {
     const [rate, check, set] = await Promise.all([db.meta.get(RATE_KEY), db.meta.get(CHECK_KEY), db.settings.get(MAINT_KEY)]);
     return { rate: rate ?? null, check: check ?? null, set: maintOf(set?.value) };
@@ -28,6 +31,8 @@
   const keys = $derived(keyRows(d?.set.keys ?? [], today));
   const checked = $derived(d?.check && !d.check.first ? d.check : null);
   const links = $derived(checked?.links ? linkSummary(checked.links) : null);
+  // what the folded head counts: the same things the card shows yellow (a key within 30 days counts at once)
+  const hints = $derived(d ? attention({ check: checked ?? {}, keys: d.set.keys ?? [], rate: d.rate, today, now }).length : 0);
   let busy = $state(false);
   let editing = $state(false);
 
@@ -53,8 +58,7 @@
   const addKey = () => saveKeys([...(d?.set.keys ?? []), { id: `key-${Date.now().toString(36)}`, name: t('New key'), until: today }]);
 </script>
 
-<section class="ich-sec" aria-labelledby="mt-h" data-section="maintenance">
-  <div class="ich-h"><div><h2 id="mt-h">{t('App maintenance')}</h2><p class="ich-hs">{t('Free limits and a check once a month')}</p></div></div>
+{#snippet body()}
   <ul class="card ich-list mt">
     <li class="ich-row ich-wrap" data-maint="rate">
       <span class="ich-ib"><Activity size={18} aria-hidden="true" /></span>
@@ -120,9 +124,49 @@
       </label>
     </li>
   </ul>
-</section>
+{/snippet}
+
+{#if fold}
+  <details class="ich-sec mfold" data-section="maintenance" bind:open>
+    <summary class="ich-h msum">
+      <div><h2 id="mt-h">{t('App maintenance')}</h2><p class="ich-hs">{#if hints}<span class="pill warn">{tn(hints, '{n} hint', '{n} hints')}</span>{:else}{t('all in order')}{/if}</p></div>
+      <ChevronDown class="mchev" size={20} aria-hidden="true" />
+    </summary>
+    {@render body()}
+  </details>
+{:else}
+  <section class="ich-sec" aria-labelledby="mt-h" data-section="maintenance">
+    <div class="ich-h"><div><h2 id="mt-h">{t('App maintenance')}</h2><p class="ich-hs">{t('Free limits and a check once a month')}</p></div></div>
+    {@render body()}
+  </section>
+{/if}
 
 <style>
+  .msum {
+    min-height: 44px;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+  }
+  .msum::-webkit-details-marker {
+    display: none;
+  }
+  .msum :global(.mchev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.18s ease-out;
+  }
+  .mfold[open] .msum :global(.mchev) {
+    transform: rotate(180deg);
+  }
+  .mfold:not([open]) {
+    margin-bottom: 16px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .msum :global(.mchev) {
+      transition: none;
+    }
+  }
   .bars {
     flex: 1 1 100%;
     display: grid;

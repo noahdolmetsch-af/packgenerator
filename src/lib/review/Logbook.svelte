@@ -35,6 +35,11 @@
   import { paceOf } from '../pace.js';
   import { chipCounts, logBikeOf } from './werte.js';
   import { Bike, Tag, X } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import MoreActions from '../ui/MoreActions.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
+  import { askDelete, deleteWithUndo } from '../ui/ask.js';
+  import { Pencil, Trash2 } from '@lucide/svelte';
   import './review.css';
 
   const today = localDay();
@@ -78,6 +83,33 @@
       e.movingH ? `${hours(e.movingH)} h` : '',
       e.tmin != null || e.tmax != null ? temps(e.tmin, e.tmax) : '',
     ].filter(Boolean);
+
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): an old logbook entry (from the import) can be renamed and deleted
+  let renamingEv = $state(null); // the db.events record
+  async function renameEv(ev, name) {
+    const was = ev.name ?? '';
+    if (!name || name === was) return;
+    await db.events.update(ev.id, { name });
+    offerRename(name, () => db.events.update(ev.id, { name: was }));
+  }
+  async function removeEv(ev) {
+    const name = ev.name || t('Entry');
+    if ((await askDelete({ title: t('Delete the entry "{name}"?', { name }), text: t('It is gone from the logbook. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    await deleteWithUndo({
+      run: async () => {
+        const rec = await db.events.get(ev.id);
+        await db.events.delete(ev.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.events.put(rec),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
+  }
+  const evActions = (ev) => [
+    { name: t('Rename'), icon: Pencil, run: () => (renamingEv = ev) },
+    { name: t('Delete'), icon: Trash2, run: () => removeEv(ev) },
+  ];
 </script>
 
 <!-- v0.109.0 Design-Refresh P6 (T20 «Logbuch», approved 12.10.2026): two columns on a computer. Left the search,
@@ -144,6 +176,7 @@
                     <span class="facts num"><span class="when ld">{evDate(e.ev)}</span></span>
                     {#each e.notes as n (n)}<span class="note ln">{n}</span>{/each}
                   </span>
+                  <span class="evmore"><MoreActions title={e.title} label={t('More for {name}', { name: e.title || t('Entry') })} actions={evActions(e.ev)} /></span>
                 </div>
               {:else}
                 <details class="row ev">
@@ -155,6 +188,7 @@
                     {#if e.ev.learnings}<dt>{t('Learnings')}</dt><dd>{e.ev.learnings}</dd>{/if}
                     {#if e.ev.note}<dt>{t('Note')}</dt><dd>{e.ev.note}</dd>{/if}
                   </dl>
+                  <p class="evacts"><button type="button" class="btn sm" onclick={() => (renamingEv = e.ev)}><Pencil size={14} aria-hidden="true" />{t('Rename')}</button><button type="button" class="btn sm del" onclick={() => removeEv(e.ev)}><Trash2 size={14} aria-hidden="true" />{t('Delete')}</button></p>
                 </details>
               {/if}
             </li>
@@ -188,6 +222,8 @@
     {/if}
   </div>
 </div>
+
+{#if renamingEv}<RenameSheet kicker={t('Logbook')} title={t('Rename entry')} value={renamingEv.name ?? ''} onsave={(v) => renameEv(renamingEv, v)} onclose={() => (renamingEv = null)} />{/if}
 
 <style>
   /* SN2: the search and the year toggle in one line, then the state chips and the area */
@@ -420,5 +456,18 @@
     color: var(--ink);
     font-size: var(--fs-body);
     font-weight: 600;
+  }
+  .evmore {
+    flex: none;
+    margin-left: auto;
+  }
+  .evacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 0;
+  }
+  .evacts .del {
+    color: var(--bad);
   }
 </style>

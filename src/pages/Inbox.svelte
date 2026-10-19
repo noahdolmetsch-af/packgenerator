@@ -18,13 +18,16 @@
    * went and «Undo» until midnight) and the tip about «+». The same functions as before.
    * SL «Scrollen und Listen» (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): «Filed» by month, the
    * newest open, five rows and «Show n more»; the search and the chips stay on top; «Back to top».
+   * Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the row's button names the suggestion («Als Problem am
+   * Velo ablegen», «Auf die Wunschliste», «Einfach behalten» …) and opens that target's form straight away;
+   * «Einfach behalten» files with one tap (toast with «Rückgängig»). The 7 targets: ••• › «Woanders ablegen …».
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { PAGE_NAMES } from '../lib/notes.js';
-  import { TARGET, guessTarget, inboxGroups, filedRows, filedToday, FILED_FILTERS, targetHref } from '../lib/inbox.js';
-  import { unfile } from '../lib/inboxdb.js';
+  import { TARGET, LANDS, guessTarget, guessTopic, inboxGroups, filedRows, filedToday, FILED_FILTERS, targetHref } from '../lib/inbox.js';
+  import { unfile, fileTo } from '../lib/inboxdb.js';
   import { ICONS } from '../lib/inbox/icons.js';
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
@@ -34,7 +37,7 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
-  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight, Search, Shuffle, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import ListBar from '../lib/list/ListBar.svelte';
@@ -79,6 +82,19 @@
   const curMonth = $derived(filedMonths.find((m) => m.key === activeMonth));
 
   let filing = $state(null); // the entry whose «Ablegen als …» sheet is open
+  let direct = $state(false); // true: the sheet opens on the suggested target's form, the 7 targets folded
+  /** Impeccable: the row's button names the suggestion (German in de/impeccable-ich.js, pflege.js). */
+  const BTN = { receipt: 'File as receipt', problem: 'File as bike problem', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'To the trip note', keep: 'Just keep' };
+  const fileSheet = (n, straight) => ((direct = straight), (filing = n));
+  /** «Einfach behalten» needs no form: it becomes a note with the guessed topic, Undo in the toast. */
+  async function keep(n) {
+    msg = '';
+    try {
+      filedNow(await fileTo($state.snapshot(n), 'keep', { topic: guessTopic(n.text ?? '') }));
+    } catch (err) {
+      msg = t(err.message) || t('This note could not be sorted.');
+    }
+  }
   let shown = $state(null); // photo src
   let msg = $state('');
 
@@ -112,7 +128,7 @@
   /** «Pflege · Spark», «Beleg · Scale», «Wunschliste»: the target chip of a filed entry. */
   function chipText(n) {
     const to = n.to ?? {};
-    const base = to.kind === 'receipt' ? t('Receipt|chip') : to.kind === 'problem' ? t('Bike care') : TARGET[to.kind] ? t(TARGET[to.kind].name) : t(OLD[to.kind] ?? 'Filed');
+    const base = to.kind === 'receipt' ? t('Receipt|chip') : to.kind === 'problem' ? t('Bike care') : to.kind === 'keep' ? t('Notes') : TARGET[to.kind] ? t(TARGET[to.kind].name) : t(OLD[to.kind] ?? 'Filed');
     const bike = names[to.bikeId ?? (to.kind === 'repair' ? ctx.tasks.find((x) => x.id === to.ref)?.bikeId : null)];
     return bike ? `${base} · ${bike}` : base;
   }
@@ -143,10 +159,10 @@
     <div class="ich-cols">
       <div class="ich-main">
         <section class="ich-sec" aria-labelledby="tofile-h">
-          <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('A suggestion is with each · tap «File»')}</p></div></div>
+          <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('The button names the suggestion · ••• for other targets')}</p></div></div>
           {#if $notesQ && !notes.length}
             <!-- v0.127.0 A-U2: the one empty building block -->
-            <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + on any page when something comes up.')} action={{ label: t('Quick note'), onclick: onnew }} />
+            <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + at the top › Note when something comes up on the way.')} action={{ label: t('Write a note'), onclick: onnew }} />
           {:else if $notesQ && !openN}
             <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
           {/if}
@@ -166,13 +182,12 @@
                     <span class="ich-m">
                       <b>{n.text}</b>
                       <small>{when(n.at)}{where(n)}</small>
-                      <small class="sug"><Sparkles size={13} aria-hidden="true" />{t('Suggestion: {what}', { what: t(TARGET[sug].name) })}</small>
                     </span>
-                    <!-- v0.117.0 «Knöpfe neu» (N3): «Ablegen» + «…» with its explanations; right-aligned, on a phone under the text -->
+                    <!-- Impeccable: the button names the suggestion and goes straight to its form; ••• › «File elsewhere …» -->
                     <span class="acts rowacts">
-                      <Btn label={t('File')} explain={t('Put it where it belongs: a bike, a trip or your gear')} sub={t('Suggestion: {what}', { what: t(TARGET[sug].name) })} class="sm" onclick={() => (filing = n)} />
+                      <Btn label={t(BTN[sug])} explain={sug === 'keep' ? t('Becomes a note in «Notes», with one tap') : t(LANDS[sug])} sub={t('Suggestion of the app')} class="sm go" data-target={sug} onclick={() => (sug === 'keep' ? keep(n) : fileSheet(n, true))} />
                       <MoreActions small title={n.text} label={t('More for this note')} actions={[
-                        { name: t('File'), explain: t('Put it where it belongs: a bike, a trip or your gear'), icon: Check, run: () => (filing = n), current: true },
+                        { name: t('File elsewhere …'), explain: t('Choose one of the 7 targets yourself'), icon: Shuffle, run: () => fileSheet(n, false) },
                         { name: t('Delete'), explain: explain('Delete'), icon: Trash2, run: () => remove(n) },
                       ]} />
                     </span>
@@ -250,7 +265,7 @@
 </div>
 
 {#if filing}
-  <FileSheet note={filing} {bikes} {trips} visits={ctx.visits} onclose={() => (filing = null)} onfiled={filedNow} />
+  <FileSheet note={filing} {direct} {bikes} {trips} visits={ctx.visits} onclose={() => (filing = null)} onfiled={filedNow} />
 {/if}
 
 {#if last}
@@ -367,10 +382,15 @@
     border-radius: var(--radius);
     border: 1px solid var(--line);
   }
-  .sug {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  /* Impeccable: the button that names the suggestion: about 200 px on a computer, text left on a phone */
+  .list .nrow :global(.rowacts > .btn.go) {
+    min-width: 200px;
+  }
+  @media (max-width: 719px) {
+    .list .nrow :global(.rowacts > .btn.go) {
+      min-width: 0;
+      justify-content: flex-start;
+    }
   }
   .filed .t {
     color: var(--ink-2);

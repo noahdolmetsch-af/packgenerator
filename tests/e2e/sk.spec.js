@@ -181,8 +181,9 @@ test('«Kacheln anpassen»: move pins the tile, switch off and «Wieder zeigen»
 });
 
 test('«+» with all 7 places full asks first which tile goes', async ({ page, context }, info) => {
-  const errors = await start(page, context, info, HREF.gear);
-  const row = page.locator('[data-sk="gear"]');
+  // Impeccable (18.10.2026): Material has 4 own tiles now; «Vergangene Touren» still fills all 7 places
+  const errors = await start(page, context, info, HREF.past);
+  const row = page.locator('[data-sk="past"]');
   await expect(row).toBeVisible();
   await expect.poll(async () => (await tileIds(row)).length).toBe(7);
   const before = await tileIds(row);
@@ -190,17 +191,17 @@ test('«+» with all 7 places full asks first which tile goes', async ({ page, c
   const sheet = page.locator('dialog[open][data-sk-sheet]');
   await expect(sheet.getByText(T('{n} of {n} places taken. If you add a tile, the app first asks which one should make room.', { n: 7 }))).toBeVisible();
   await shot(page, info, 'SK8-plus', sheet);
-  await tap(sheet.locator('[data-sk-add="lighter"]'), info);
+  await tap(sheet.locator('[data-sk-add="learnings"]'), info);
   await expect(sheet.getByRole('heading', { name: T('Which tile makes room?') })).toBeVisible();
   await expect(sheet.locator('[data-sk-choose]')).toBeVisible();
   // nothing changed yet
   expect(await tileIds(row)).toEqual(before);
   await tap(sheet.locator(`[data-sk-goes="${before[3]}"]`), info);
   await expect(sheet.getByRole('heading', { name: T('Adjust tiles') })).toBeVisible();
-  await expect.poll(async () => (await tileIds(row)).sort()).toEqual([...before.filter((x) => x !== before[3]), 'lighter'].sort());
-  const st = await setting(page, 'sk.page.gear');
+  await expect.poll(async () => (await tileIds(row)).sort()).toEqual([...before.filter((x) => x !== before[3]), 'learnings'].sort());
+  const st = await setting(page, 'sk.page.past');
   expect(st.hidden).toEqual([before[3]]);
-  expect(st.added).toEqual(['lighter']);
+  expect(st.added).toEqual(['learnings']);
   expect(errors).toEqual([]);
 });
 

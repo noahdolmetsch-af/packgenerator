@@ -69,6 +69,8 @@ export const TILES = [
   // Paket Q #74 (Noah 19.10.2026 «4a»): one tip of «Good to know» per week
   { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l'], size: 'w', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
+  // v0.97.0 «Skitouren»: Touren › Skitouren (home/SkiTile.svelte; in season November–May, quiet outside it)
+  { id: 'ski', area: 'trips', label: 'Ski tour', icon: 'bag', sizes: ['s', 'w'], size: 's', since: '0.97.0', pitch: 'Your next ski tour with its backpack check, November to May.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];

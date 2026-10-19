@@ -117,6 +117,8 @@ test('after an update the intro shows once: three steps, «Überspringen» ends 
 
   // Me › «Show the start page intro again»: back on Today it comes once more; «Fertig» on the last step, Esc ends it too
   await page.goto('./#/me');
+  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
   await press(page.getByRole('button', { name: T('Show the start page intro again') }), info);
   await expect(page).toHaveURL(/#\/$/);
   await expect(bub).toBeVisible();

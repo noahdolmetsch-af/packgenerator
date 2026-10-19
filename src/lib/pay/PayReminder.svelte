@@ -3,7 +3,7 @@
    * The Sunday card (mockup QR8, Noah 14.10.2026 04:00 «a», way D): from Sunday 18:00, while invoices
    * are open and no bank statement was checked since, a quiet card asks to check the payments.
    * «Später» hides it for today; the switch lives under Ich › Bezahlen › Rechnungen.
-   * Shown nowhere when nothing is due, so it can sit on Heute without taking room.
+   * Hidden when nothing is due; otherwise it sits on top of Ich › Bezahlen (not on Heute, Noah 15.10.2026 21:07 «4b»).
    */
   import { t, tn } from '../i18n.svelte.js';
   import { Bell, Landmark } from '@lucide/svelte';

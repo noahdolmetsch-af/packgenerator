@@ -9,7 +9,7 @@
   let { items = [], on = '' } = $props();
 </script>
 
-<nav class="ma" aria-label={t('More in Active')}>
+<nav class="ma" class:four={items.length === 4} aria-label={t('More in Active')}>
   {#each items as x (x.key)}
     {@const Icon = x.icon}
     <a class="card" href={x.href} data-more={x.key} aria-current={x.key === on ? 'page' : undefined}>
@@ -24,6 +24,9 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--sp-3);
+  }
+  .ma.four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   a {
     display: flex;
@@ -60,6 +63,9 @@
   @media (max-width: 640px) {
     .ma {
       gap: var(--sp-2);
+    }
+    .ma.four {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     a {
       flex-direction: column;

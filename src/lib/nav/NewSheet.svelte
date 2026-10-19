@@ -10,6 +10,8 @@
    * v0.125.0 A-J1 (mockup, Noah «aj-aj5 ok», answer 1a): «Workshop visit» opens the real visit window
    * (BikeQuickDialog 'visit', km and last workshop filled in), no note any more. After saving: the bike's
    * «Workshop & receipts» with «Workshop visit saved. · Undo».
+   * Eigene Listen (Noah 14.10.2026 «1a und b», «3a 5a»): «Merken» first, with a to-do and a new list (PL1), and
+   * the quick field on top: type first, the app suggests To-do, Liste or Notiz (merken/quick.js), one tap each.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -23,10 +25,40 @@
   import { startBike } from '../problems.js';
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ScanLine } from '@lucide/svelte';
+  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine } from '@lucide/svelte';
+  import TodoSheet from '../merken/TodoSheet.svelte';
+  import ListSheet from '../merken/ListSheet.svelte';
+  import { suggestKind, listFrom } from '../merken/quick.js';
 
   let { mode = $bindable(null), onnote } = $props();
   let visitOpen = $state(false);
+  let todoOpen = $state(false);
+  let listOpen = $state(false);
+  let quick = $state('');
+  let todoText = $state('');
+  let listStart = $state({ name: '', points: [] });
+  const kind = $derived(suggestKind(quick));
+  function take(k = kind) {
+    const tx = quick.trim();
+    if (!k) return;
+    quick = '';
+    if (k === 'todo') run(() => ((todoText = tx), (todoOpen = true)));
+    else if (k === 'list') run(() => ((listStart = listFrom(tx)), (listOpen = true)));
+    else run(() => onnote(tx));
+  }
+  const QUICK = [
+    ['todo', 'To-do'],
+    ['list', 'List'],
+    ['note', 'Note|group'],
+  ];
+  function todoSaved(r) {
+    if (r?.undo) offerDone(t('Saved in Calendar › Remember.'), r.undo);
+  }
+  function listMade(r) {
+    if (!r?.list) return;
+    location.hash = `#/calendar/list/${r.list.id}`;
+    offerDone(t('List «{name}» created.', { name: r.list.name }), r.undo);
+  }
   const lastBike = lastBikeChoice; // P3b 4a
   function visitSaved({ bikeId, id }) {
     location.hash = bikesHash({ tab: 'shop', bike: bikeId });
@@ -91,6 +123,21 @@
       <p class="small">{t('Or import your rides in Debrief: the km of a trip are added to its bike.')}</p>
     </form>
   {:else}
+    <!-- PL1 (Noah «3a»): the quick field, the app suggests what it is -->
+    <form class="quick" onsubmit={(e) => (e.preventDefault(), take())}>
+      <input class="inp" bind:value={quick} maxlength="160" enterkeyhint="done" placeholder={t('Type what you want to keep …')} aria-label={t('Quick field')} />
+      {#if kind}
+        <div class="qk" role="group" aria-label={t('What is it?')}>
+          {#each QUICK as [k, label] (k)}<button type="button" class="qchip" aria-pressed={kind === k} onclick={() => take(k)}>{t(label)}{#if kind === k}{' · '}{t('suggested')}{/if}</button>{/each}
+        </div>
+      {/if}
+    </form>
+    <!-- PL1 (Noah «5a»): «Merken» first -->
+    <h3 class="ngrp">{t('Remember')}</h3>
+    <ul class="opts">
+      <li><button type="button" class="opt" onclick={() => run(() => ((todoText = ''), (todoOpen = true)))}><span class="ic" aria-hidden="true"><ListTodo size={20} /></span><span class="tx"><b>{t('To-do')}</b><span>{t('With a date and a reminder if you like')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => ((listStart = { name: '', points: [] }), (listOpen = true)))}><span class="ic" aria-hidden="true"><ListChecks size={20} /></span><span class="tx"><b>{t('List')}</b><span>{t('Any list, to tick or as notes')}</span></span></button></li>
+    </ul>
     <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
     <h3 class="ngrp">{t('Trips|place')}</h3>
     <ul class="opts">
@@ -119,11 +166,38 @@
     </ul>
   {/if}
 </dialog>
+{#if todoOpen}<TodoSheet text={todoText} onclose={() => (todoOpen = false)} ondone={todoSaved} />{/if}
+{#if listOpen}<ListSheet start={listStart.name} points={listStart.points} onclose={() => (listOpen = false)} ondone={listMade} />{/if}
 {#if visitOpen}
   <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} cameraFirst onsaved={visitSaved} onclose={() => (visitOpen = false)} />
 {/if}
 
 <style>
+  .quick {
+    display: grid;
+    gap: 8px;
+    margin: 4px 0 8px;
+  }
+  .qk {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .qchip {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .qchip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
   .new {
     width: min(760px, calc(100vw - 24px));
   }

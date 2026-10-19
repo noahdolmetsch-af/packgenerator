@@ -1,0 +1,24 @@
+// Skitour «Planen und Unterwegs» (SKB1–SKB3, SKB5, SKB6): letztes Mal hier, letzter Zug, Tageslicht, Entscheidungspunkte
+export default {
+  'Add|point': 'Hinzufügen',
+  'Decision points (optional)': 'Entscheidungspunkte (freiwillig)',
+  'Last time here: {day}': 'Letztes Mal hier: {day}',
+  'Last train back': 'Letzter Zug zurück',
+  'Light from {rise} to {set}': 'Hell von {rise} bis {set}',
+  'Light from {rise} to {set} (roughly, in Switzerland)': 'Hell von {rise} bis {set} (ungefähr, für die Schweiz)',
+  'New decision point': 'Neuer Entscheidungspunkt',
+  'No turnaround time set.': 'Keine Umkehrzeit gesetzt.',
+  'Suggestion: turn at {time}': 'Vorschlag: um {time} umkehren',
+  'Train {train} minus the way down {down} and 30 minutes buffer. Only a suggestion.': 'Zug {train} minus Abstieg {down} und 30 Minuten Reserve. Nur ein Vorschlag.',
+  'Turnaround {time}': 'Umkehr {time}',
+  'Turnaround {time} was {left} ago': 'Umkehr {time} war vor {left}',
+  'Way down to the train': 'Abstieg bis zum Zug',
+  'Where you decide again on the way. On the tour you tick each one; its time goes into «After the tour».': 'Wo du unterwegs neu entscheidest. Auf der Tour hakst du jeden ab; die Uhrzeit kommt in «Nach der Tour».',
+  'not reached': 'nicht erreicht',
+  'reached at {time}': 'erreicht um {time}',
+  '{left} to the turnaround ({time})': 'Noch {left} bis zur Umkehr ({time})',
+  '{time} moving': '{time} unterwegs',
+  // the Saisonstart-Check and the Saison-Pflege share one list
+  'Someone at home knows your route and your return': 'Jemand zuhause kennt Route und Rückkehr',
+  'All of the season care': 'Ganze Saison-Pflege',
+};

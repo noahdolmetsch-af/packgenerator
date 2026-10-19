@@ -9,13 +9,14 @@
    * title: «Delete category "Food"?»; count: how many things are in the group; what(n): «3 items»;
    * none: the word for «no group» on this page («No category»); noneHint: what «none» means there;
    * targets: the other groups [{ id, name }] (name already translated); onconfirm(targetId | null).
+ * empty: the line when nothing is in it (default «The group is empty.»; a bike: «No trip uses it.»).
    */
   import { backClose } from './backclose.js';
   import { t } from '../i18n.svelte.js';
   import { X, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', onconfirm, onclose } = $props();
+  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', empty = '', onconfirm, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -50,7 +51,7 @@
       {/each}
     </fieldset>
   {:else}
-    <p class="empty">{t('The group is empty.')}</p>
+    <p class="empty">{empty || t('The group is empty.')}</p>
   {/if}
   {#if note}<p class="hint">{note}</p>{/if}
   <p class="hint">{t('You can undo this for a few seconds.')}</p>

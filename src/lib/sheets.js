@@ -12,7 +12,7 @@
  * with pickup = { date, jobs: [{ key, name, detail, part, action, taskId }], ticks: { id: true }, applied: date | null }.
  * Pure functions, tested in tests/sheets.test.js.
  */
-import { PART, CHECK_PARTS, ensureParts, logPart, kmSince, partInfo, fits, upcomingTrips } from './care.js';
+import { PART, CHECK_PARTS, ensureParts, logPart, kmSince, partInfo, partStd, fits, upcomingTrips } from './care.js';
 import { FIT_KEY, fitValue, hasSuspension, specValue } from './bikespecs.js';
 import { lastWork, partStatus, isDueState, shopSkip } from './care/last.js';
 import { orderText, withVisits, tyreSetup, timeDue, workshopOrder } from './workshop.js';
@@ -194,8 +194,8 @@ const daysBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.pa
 
 /** The rule of a part in words: «every 150 km · replace at 0.5 %», «yearly», «every 3 months». */
 export function intervalText(key) {
-  const p = PART[key];
-  if (!p) return '';
+  if (!PART[key]) return '';
+  const p = { ...PART[key], ...partStd(key) }; // «Eigene Werte»: the own standard interval
   const out = [];
   if (p.everyKm) out.push(t('every {km} km', { km: num(p.everyKm) }));
   if (p.everyDays) out.push(p.everyDays >= 365 ? t('yearly') : t('every {n} months', { n: Math.round(p.everyDays / 30.4) }));
@@ -257,12 +257,15 @@ export function keepValues(bike) {
  * The text for the bike shop (in German, the bike shops speak German): the message of the order
  * (workshop.js orderText) with the km, the wishes and the values to keep after the list.
  */
-export function orderSheetText(rows, { bike, trip = null, wishes = '', keep = [] } = {}) {
+export function orderSheetText(rows, { bike, trip = null, wishes = '', keep = [], again = [], againDate = null } = {}) {
   const text = orderText(rows, { bike, trip });
   const extra = [];
   if (typeof bike?.km === 'number') extra.push(`Kilometerstand: ${bike.km.toLocaleString('de-CH')} km`);
   if (wishes.trim()) extra.push(`Wünsche: ${wishes.trim()}`);
-  if (keep.length) extra.push(`Bitte so lassen: ${keep.map((r) => `${r.de ?? r.label} ${r.value}`).join(', ')}`);
+  // «Werte messen» W2: the values of the last Pick-up check instead of «please leave as it is»
+  const list = (rs) => rs.map((r) => `${r.de ?? r.label} ${r.value}`).join(', ');
+  if (again.length) extra.push(`So soll es wieder sein${againDate ? ` (Abholen ${againDate.split('-').reverse().join('.')})` : ''}: ${list(again)}`);
+  else if (keep.length) extra.push(`Bitte so lassen: ${list(keep)}`);
   if (!extra.length) return text;
   const lines = text.split('\n');
   const listEnd = lines.findIndex((l, n) => n > 2 && l === '');

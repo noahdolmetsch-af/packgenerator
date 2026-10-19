@@ -108,6 +108,61 @@ test('Rückblick gespeichert (T16): «Fertig. Gute Tour!» with four number tile
   await fits(page, info);
 });
 
+// Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the open suggestions in sight under «Fertig. Gute Tour!»,
+// each with «Übernehmen» and «Nein, danke» and 4 s «Rückgängig»; the page's button leads down to them.
+test('Rückblick gespeichert: open suggestions in sight, «Übernehmen» and «Nein, danke» with Undo', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context);
+  await page.goto(`./#/debrief/${SAVED}`);
+  const sugs = page.locator('[data-suggestions]');
+  const rows = sugs.locator('li.sg');
+  const stored = () => page.evaluate((id) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const q = r.result.transaction('debriefs').objectStore('debriefs').getAll();
+      q.onsuccess = () => ok(q.result.find((d) => d.tripId === id) ?? null);
+    };
+  }), SAVED);
+  await expect(rows.first()).toBeVisible();
+  const n = await rows.count();
+  const plural = (one, many, k) => T(k === 1 ? one : many, { n: k });
+  await expect(sugs.getByRole('heading', { level: 2 })).toHaveText(plural('{n} suggestion from this trip', '{n} suggestions from this trip', n));
+  // the page's button names the suggestions and leads down to them; «Antworten ändern» stays reachable there
+  const go = page.locator('.trip-band .go');
+  await expect(go).toHaveText(plural('See {n} suggestion', 'See {n} suggestions', n));
+  await go.click();
+  await expect(sugs).toBeFocused();
+  await expect(sugs.getByRole('button', { name: T('Change answers') })).toBeVisible();
+  await targets(page);
+  await fits(page, info);
+  // «Nein, danke», then «Rückgängig»: the row comes back
+  const first = (await rows.first().locator('.rv-t').textContent()).trim();
+  await rows.first().getByRole('button', { name: T('No, thanks') }).click();
+  await expect(rows).toHaveCount(n - 1);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(rows).toHaveCount(n);
+  await expect(rows.first().locator('.rv-t')).toHaveText(first);
+  const before = (await stored())?.applied?.length ?? 0;
+  // «Übernehmen»: the row leaves at once, after 4 s it is applied on the debrief
+  await rows.first().getByRole('button', { name: T('Take over') }).click();
+  await expect(rows).toHaveCount(n - 1);
+  await expect(page.getByRole('status').filter({ hasText: T('Taken over: {label}', { label: first }) })).toBeVisible();
+  await expect.poll(async () => (await stored())?.applied?.length ?? 0, { timeout: 8000 }).toBe(before + 1);
+  if (n > 1) {
+    // «Nein, danke» stays after a reload
+    await rows.first().getByRole('button', { name: T('No, thanks') }).click();
+    await expect.poll(async () => (await stored())?.dismissed?.length ?? 0, { timeout: 8000 }).toBe(1);
+    await page.reload();
+    await expect(rows).toHaveCount(n - 2);
+  } else {
+    // nothing open any more: the section goes and the button is «Antworten ändern» again
+    await expect(sugs).toHaveCount(0);
+    await expect(go).toHaveText(T('Change answers'));
+  }
+  expect(errors).toEqual([]);
+});
+
 // SN2 «Seiten neu» (mockup approved 13.10.2026): the trip whose debrief is missing on top, the period as
 // tiles (the long table folded), the comparison with its state column; the last ride's numbers folded.
 test('Rückblick (T17, SN2): the missing debrief on top, 12 months and the comparison left, pace and «Mehr» right', async ({ page, context }, info) => {
@@ -115,10 +170,15 @@ test('Rückblick (T17, SN2): the missing debrief on top, 12 months and the compa
   await page.goto('./#/debrief');
   await expect(page.locator('[data-open-debrief]')).toBeVisible();
   await expect(page.locator('section.period .rv-tiles')).toBeVisible();
+  // 0.159.1 (UI-Regeln Teil 2): on a phone the lower sections are closed lines; one tap opens them
+  const phone = info.project.name === 'phone';
+  const openLine = async (name) => phone && (await page.getByRole('button', { name: new RegExp(`^${T(name)}`) }).click());
+  await openLine('Trips compared');
   await expect(page.locator('#compare table.st')).toBeVisible();
+  await openLine('Last ride');
   await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
   await expect(page.locator('.lastride .rv-tiles')).toBeVisible();
-  await expect(page.locator('.below section.sub')).toBeVisible();
+  await expect(page.locator(phone ? '.below [data-group="rv-pace"]' : '.below section.sub')).toBeVisible();
   await twoColumns(page, info, 'section.period', '.below');
   await targets(page);
   await fits(page, info);
