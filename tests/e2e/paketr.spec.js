@@ -25,13 +25,13 @@ async function fakeServer(context) {
   const r = fakeRedis();
   const sync = makeHandler({ env: () => ({ redisUrl: 'https://redis.test', redisToken: 'r' }), doFetch: async (url, init) => Response.json({ result: r.run(...((a) => [a[0], a.slice(1)])(JSON.parse(init.body))) }) });
   const steps = [];
-  await context.route(/^https?:\/\/(?!localhost[:/])(?!packgen-three\.vercel\.app\/api\/(sync|account))/, (route) => route.abort());
+  await context.route(/^https?:\/\/(?!localhost[:/])(?!packgen-three\.vercel\.app\/api\/sync)/, (route) => route.abort());
   await context.route(/packgen-three\.vercel\.app\/api\/sync/, async (route) => {
     const req = route.request();
     const res = await sync(new Request(req.url(), { method: req.method(), body: req.method() === 'POST' ? req.postData() : undefined, headers: { origin: new URL(req.frame().url()).origin, 'content-type': 'application/json' } }));
     await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: res.status === 204 ? '' : await res.text() });
   });
-  await context.route(/packgen-three\.vercel\.app\/api\/account/, async (route) => {
+  await context.route(/packgen-three\.vercel\.app\/api\/sync\?area=account/, async (route) => {
     const req = route.request();
     const step = new URL(req.url()).searchParams.get('step');
     const body = JSON.parse(req.postData() || '{}');

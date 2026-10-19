@@ -6,7 +6,8 @@
  * On this device only (meta table, never in a backup, never synced): 'syncAccount' { kind: 'google',
  * email, session, at }. The e-mail is only shown here; the server keeps none.
  */
-export const ACCOUNT_URL = 'https://packgen-three.vercel.app/api/account';
+/** Served by /api/sync (?area=account), so the server stays within 12 functions. */
+export const ACCOUNT_URL = 'https://packgen-three.vercel.app/api/sync?area=account';
 export const ACCOUNT = 'syncAccount';
 /** The page Google brings you back to. */
 export const RETURN_HASH = '#/me/data';
@@ -15,7 +16,7 @@ export function accountApi(url = ACCOUNT_URL, doFetch = (...a) => fetch(...a)) {
   return async (step, body) => {
     let res;
     try {
-      res = await doFetch(`${url}?step=${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
+      res = await doFetch(`${url}${url.includes('?') ? '&' : '?'}step=${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
     } catch {
       throw Object.assign(new Error('offline'), { code: 'offline' });
     }

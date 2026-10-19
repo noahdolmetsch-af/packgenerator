@@ -13,6 +13,7 @@
  */
 import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody } from './_lib/oauth.js';
+import { makeAccount } from './_lib/account.js';
 import { isToken, spaceOf, keysOf, readPush, readPushAnswer, readStored, PUSH_LUA, SPACE_TTL_S, PULL_MAX, PULL_BYTES, BODY_MAX } from './_lib/sync.js';
 
 export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(...a) } = {}) {
@@ -78,6 +79,14 @@ export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(
   );
 }
 
-const handler = makeHandler();
+/**
+ * Paket R: «Mit Google anmelden» lives here too, as ?area=account&step=… (api/_lib/account.js), because
+ * the Vercel Hobby plan allows only 12 functions.
+ */
+export function withAccount(sync, account) {
+  return (request) => (new URL(request.url).searchParams.get('area') === 'account' ? account(request) : sync(request));
+}
+
+const handler = withAccount(makeHandler(), makeAccount().main);
 export const POST = handler;
 export const OPTIONS = handler;

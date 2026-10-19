@@ -9,6 +9,7 @@
  * Only the sign-in itself (scopes «openid email»): no calendar, no mail, no Fitbit. Those stay the
  * owner's server connections (google.js, behind the device key).
  *
+ * Served by api/sync.js as /api/sync?area=account&step=… (the Hobby plan allows only 12 functions).
  *   POST ?step=start   { returnTo }          → { url } (Google's sign-in page)
  *   (Google sends the browser to /api/google/callback; google.js hands a state of kind 'account' here)
  *                                            → back to the app with #…?konto=<ticket> (5 minutes, once)

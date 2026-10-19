@@ -37,7 +37,7 @@ function world({ sub = 'google-sub-1', email = 'velo@example.test' } = {}) {
   const acct = makeAccount({ env: () => accountEnv(ENV), doFetch });
   const g = makeGoogle({ env: () => ({ clientId: 'g', clientSecret: 'gs', redisUrl: REDIS, redisToken: 'r' }), doFetch, account: acct });
   const call = async (step, body) => {
-    const res = await acct.main(new Request(`https://packgen-three.vercel.app/api/account?step=${step}`, { method: 'POST', body: JSON.stringify(body) }));
+    const res = await acct.main(new Request(`https://packgen-three.vercel.app/api/sync?area=account&step=${step}`, { method: 'POST', body: JSON.stringify(body) }));
     return { status: res.status, body: await res.json() };
   };
   /** The whole sign-in: start → Google → callback → the ticket in the app address. */
@@ -73,7 +73,7 @@ describe('the sealed code', () => {
   });
 });
 
-describe('/api/account', () => {
+describe('/api/sync?area=account', () => {
   it('first device: keeps its code; second device: gets the same code back', async () => {
     const w = world();
     const t1 = await w.signIn();
@@ -110,7 +110,7 @@ describe('/api/account', () => {
   });
   it('without ACCOUNT_SECRET: not_set_up, and a denied sign-in goes back with konto=error', async () => {
     const acct = makeAccount({ env: () => accountEnv({ ...ENV, ACCOUNT_SECRET: '' }), doFetch: async () => Response.json({ result: null }) });
-    const res = await acct.main(new Request('https://packgen-three.vercel.app/api/account?step=start', { method: 'POST', body: '{}' }));
+    const res = await acct.main(new Request('https://packgen-three.vercel.app/api/sync?area=account&step=start', { method: 'POST', body: '{}' }));
     expect((await res.json()).code).toBe('not_set_up');
     const w = world();
     const { body } = await w.call('start', { returnTo: APP });
@@ -122,5 +122,14 @@ describe('/api/account', () => {
     const w = world();
     const res = await w.g.callback(new Request('https://packgen-three.vercel.app/api/google/callback?code=c&state=unknown'));
     expect(res.headers.get('location')).toContain('google=error');
+  });
+});
+
+describe('one function for sync and sign-in (Vercel Hobby: 12 functions)', () => {
+  it('api/sync.js hands ?area=account to the sign-in, everything else to the sync', async () => {
+    const { withAccount } = await import('../api/sync.js');
+    const h = withAccount(async () => new Response('sync'), async () => new Response('account'));
+    expect(await (await h(new Request('https://packgen.test/api/sync?area=account&step=start', { method: 'POST' }))).text()).toBe('account');
+    expect(await (await h(new Request('https://packgen.test/api/sync?step=pull', { method: 'POST' }))).text()).toBe('sync');
   });
 });
