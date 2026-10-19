@@ -601,6 +601,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
   },
+  'f.trello': {
+    on: 'Connect once under Calendar › Remember › Trello (needs Strava connected on this device and a workspace «Packgenerator» in Trello).',
+    steps: ['Open Calendar › Remember and tap «Connect Trello»; allow it on Trello\'s page.', 'Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.', 'In a list\'s settings choose «Also in Trello»: the list and its points appear on the board.'],
+    example: 'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.',
+  },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],

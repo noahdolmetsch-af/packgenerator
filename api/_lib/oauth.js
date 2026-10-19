@@ -52,7 +52,7 @@ export function safeReturn(url) {
     const u = new URL(String(url ?? ''));
     const ok = u.href.startsWith(APP_URL) || /^https:\/\/packgen(?:-[a-z0-9-]+)?\.vercel\.app$/.test(u.origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(u.origin);
     if (!ok) return APP_RETURN;
-    const frag = u.hash.replace(/[?&](strava|google|key|error)=.*$/, '');
+    const frag = u.hash.replace(/[?&](strava|google|trello|key|error)=.*$/, '');
     return `${u.origin}${u.pathname}${u.search}${frag || '#/bikes?tab=care&view=strava'}`;
   } catch {
     return APP_RETURN;

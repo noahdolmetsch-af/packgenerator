@@ -514,4 +514,10 @@ export default {
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Trello (19.10.2026)
+  'Connect once under Calendar › Remember › Trello (needs Strava connected on this device and a workspace «Packgenerator» in Trello).': 'Einmal verbinden unter Kalender › Merken › Trello (braucht Strava auf diesem Gerät und einen Arbeitsbereich «Packgenerator» in Trello).',
+  "Open Calendar › Remember and tap «Connect Trello»; allow it on Trello's page.": 'Öffne Kalender › Merken und tippe auf «Trello verbinden»; erlaube es auf der Seite von Trello.',
+  "Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.": 'Deine To-dos kommen in die Liste «To-dos» auf dem Board «Packgenerator»; dort kannst du das auch ausschalten.',
+  "In a list's settings choose «Also in Trello»: the list and its points appear on the board.": 'In den Einstellungen einer Liste wählst du «Auch in Trello»: Die Liste und ihre Punkte erscheinen auf dem Board.',
+  'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.': 'Beispiel: «Licht prüfen», heute fällig, in Trello geschrieben → steht in Merken und «Heute wichtig»; hier abgehakt, dort erledigt.',
 };
