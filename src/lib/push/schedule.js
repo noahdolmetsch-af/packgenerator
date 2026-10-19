@@ -13,7 +13,7 @@
  *   it is there (the shapes of src/lib/merken.js and merken/kinds.js).
  * Times are the device's own clock (the phone is in Zurich); 14 days ahead at most.
  */
-import { t } from '../i18n.svelte.js';
+import { t, locale } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 
 export const PUSH_KEY = 'push';
@@ -24,6 +24,9 @@ export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
 export const HOT_STD = 30;
 export const BACKUP_STD = 14;
+/* Wetter-Wecker (Paket G): tours up to 10 days ahead, from tomorrow; first look at 07:00 or 18:00. */
+export const WATCH_AHEAD = 10;
+export const WATCH_AT = ['07:00', '18:00'];
 
 /** The kinds, in the order of the switches (English keys for t()). */
 export const KINDS = [
@@ -31,6 +34,7 @@ export const KINDS = [
   { key: 'plant', label: 'Water the plants', hint: 'On the day a plant needs water.' },
   { key: 'eve', label: 'Evening before a trip', hint: 'The evening-before check, at the time of «Eigene Werte».' },
   { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat or a thunderstorm.' },
+  { key: 'wxwatch', label: 'Weather alarm', hint: 'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
@@ -105,6 +109,18 @@ export function buildList(data) {
       if (at > ms) weather.push({ key: `wx:${tr.id}:${tr.startDate}`, at, date: tr.startDate, lat: place.lat, lon: place.lon, title: tourName(tr), url: '#/pack' });
     }
   }
+  const watch = [];
+  if (on('wxwatch')) {
+    const home = data.settings?.homePlace;
+    const tomorrow = addDays(today, 1);
+    const first = [today, tomorrow].flatMap((d) => WATCH_AT.map((h) => atMs(d, h))).find((x) => x > ms);
+    for (const tr of upcoming) {
+      if (tr.startDate < tomorrow || tr.startDate > addDays(today, WATCH_AHEAD)) continue;
+      const place = tr.route?.start ?? (home && Number.isFinite(home.lat) ? home : null);
+      if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lon)) continue;
+      watch.push({ key: `ww:${tr.id}:${tr.startDate}`, at: first, date: tr.startDate, days: Math.min(Math.max(Number(tr.days) || 1, 1), 5), lat: place.lat, lon: place.lon, title: tourName(tr), url: '#/pack' });
+    }
+  }
   if (on('workshop')) {
     const bikes = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));
     for (const r of data.repairs ?? [])
@@ -145,6 +161,13 @@ export function buildList(data) {
     thunder: t('Thunderstorms are possible today. Have a look at the weather.'),
     storm: t('Strong gusts are expected today. Have a look at the weather.'),
     heat: t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }),
+    wtitle: t('Weather alarm'),
+    bad: t('The weather for {trip} looks bad.', { trip: '{trip}' }),
+    turn: t('The weather for {trip} turns: it looks bad now.', { trip: '{trip}' }),
+    good: t('Good weather window: {trip} looks good now.', { trip: '{trip}' }),
+    window: t('For {trip}, {day} looks better.', { trip: '{trip}', day: '{day}' }),
+    better: t('From {day} it looks better.', { day: '{day}' }),
+    wdays: [4, 5, 6, 7, 8, 9, 10].map((d) => new Date(Date.UTC(2026, 0, d, 12)).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' })), // Sun … Sat
   };
-  return { items, weather, texts, hotC };
+  return { items, weather, watch, texts, hotC };
 }

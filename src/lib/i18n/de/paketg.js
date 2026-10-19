@@ -105,4 +105,16 @@ export default {
   "Set from how many degrees it is warm enough for you.": "Stell ein, ab wie vielen Grad es dir warm genug ist.",
   "Connect Strava or Fitbit.": "Verbinde Strava oder Fitbit.",
   "The new stars stand under Bike, Fitbit and Everyday.": "Die neuen Sterne stehen unter Velo, Fitbit und Alltag.",
+  // Wetter-Wecker (Noah 19.10.2026 «beide umsetzen»)
+  'Weather alarm': 'Wetter-Wecker',
+  'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.': 'Vor einer geplanten Tour: wenn ein gutes Wetterfenster kommt oder das Wetter kippt. Zweimal am Tag, bis 10 Tage voraus.',
+  'The weather for {trip} looks bad.': 'Das Wetter für {trip} sieht schlecht aus.',
+  'The weather for {trip} turns: it looks bad now.': 'Das Wetter für {trip} kippt: es sieht jetzt schlecht aus.',
+  'Good weather window: {trip} looks good now.': 'Gutes Wetterfenster: für {trip} sieht es jetzt gut aus.',
+  'For {trip}, {day} looks better.': 'Für {trip} sieht {day} besser aus.',
+  'From {day} it looks better.': 'Ab {day} sieht es besser aus.',
+  'Before a planned tour the phone tells you by itself when a good weather window comes or the weather turns, so you can move the tour or pack in time.': 'Vor einer geplanten Tour meldet sich das Handy von selbst, wenn ein gutes Wetterfenster kommt oder das Wetter kippt. So kannst du rechtzeitig verschieben oder packen.',
+  'Open Me › Reminders on the phone and switch on «Weather alarm».': 'Öffne Ich › Erinnerungen aufs Handy und schalte «Wetter-Wecker» ein.',
+  'Plan a tour with a start place, or set your home place.': 'Plane eine Tour mit Startort, oder stell deinen Heimort ein.',
+  'Up to 10 days before, the phone tells you when the weather turns or a better day comes.': 'Bis 10 Tage vorher meldet das Handy, wenn das Wetter kippt oder ein besserer Tag kommt.',
 };

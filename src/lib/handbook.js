@@ -575,6 +575,11 @@ export const HANDBOOK = {
     steps: ['Export only «Fitbit» at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the .zip or its files.', 'Check the preview, change which Fitbit type counts for which activity, then «Take over».'],
     example: 'Example: 3 years of tennis from Fitbit → the tennis history and its stars are complete.',
   },
+  'f.wxwatch': {
+    on: 'Switch on «Weather alarm» under Me › Reminders on the phone (push must be set up once).',
+    steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
+    example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
+  },
   'f.lake': {
     on: 'Nothing to switch on; the card on Aktiv fetches the value.',
     steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],

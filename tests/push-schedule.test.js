@@ -99,3 +99,21 @@ describe('workshop, backup and Merken', () => {
     expect(Math.max(...ats)).toBeLessThanOrEqual(now.getTime() + 14 * 864e5);
   });
 });
+
+describe('Wetter-Wecker (Paket G): planned tours from tomorrow up to 10 days ahead', () => {
+  it('watches each tour with a place, first look at the next 07:00 or 18:00', () => {
+    const trips = [trip('a', '2026-10-24', { days: 2, route: { start: { lat: 46.5, lon: 9.8 } } }), trip('b', '2026-10-20'), trip('c', '2026-10-31'), trip('d', '2026-10-22')];
+    const l = buildList(base({ trips, settings: { push: { on: true, kinds: { wxwatch: true } }, homePlace: { lat: 47.1, lon: 8.2 } } }));
+    expect(l.watch).toEqual([
+      expect.objectContaining({ key: 'ww:a:2026-10-24', at: atMs('2026-10-20', '18:00'), date: '2026-10-24', days: 2, lat: 46.5, lon: 9.8 }),
+      expect.objectContaining({ key: 'ww:d:2026-10-22', days: 1, lat: 47.1, lon: 8.2 }),
+    ]);
+    expect(l.texts.turn).toContain('{trip}');
+    expect(l.texts.better).toContain('{day}');
+    expect(l.texts.wdays).toHaveLength(7);
+  });
+  it('switched off: no watch', () => {
+    const l = buildList(base({ trips: [trip('a', '2026-10-24')], settings: { push: { on: true, kinds: { weather: true } }, homePlace: { lat: 47, lon: 8 } } }));
+    expect(l.watch).toEqual([]);
+  });
+});

@@ -503,4 +503,9 @@ export default {
   "Open Aktiv › Milestones.": "Öffne Aktiv › Meilensteine.",
   "The new stars stand under Bike, Fitbit and Everyday; switch off single ones.": "Die neuen Sterne stehen unter Velo, Fitbit und Alltag; einzelne lassen sich ausschalten.",
   "Example: 1000 km by bike this year → the second bike star.": "Beispiel: 1000 km Velo in diesem Jahr → der zweite Velo-Stern.",
+  "Switch on «Weather alarm» under Me › Reminders on the phone (push must be set up once).": "Schalte «Wetter-Wecker» unter Ich › Erinnerungen aufs Handy ein (Push muss einmal eingerichtet sein).",
+  "Plan a tour; its start place, or else your home place, is where the weather is looked at.": "Plane eine Tour; das Wetter wird an ihrem Startort angeschaut, sonst an deinem Heimort.",
+  "Twice a day, from 10 days before up to the day before, the server compares the forecast.": "Zweimal am Tag, von 10 Tagen vorher bis zum Vortag, vergleicht der Server die Vorhersage.",
+  "A message comes only when something changes: the weather turns, gets good again, or a better day shows up.": "Eine Meldung kommt nur, wenn sich etwas ändert: das Wetter kippt, wird wieder gut, oder ein besserer Tag taucht auf.",
+  "Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»": "Beispiel: Tour am Samstag, am Donnerstag ist Regen vorhergesagt → «Das Wetter für Testtour kippt. Ab So 25.10. sieht es besser aus.»",
 };

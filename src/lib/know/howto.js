@@ -135,6 +135,7 @@ export const HOWTO = {
   'f.owncal': ['Open Me › Connections and switch on the calendar «Packgenerator».', 'Tap «Allow in Google» once.', 'Your tours appear in the calendar, with a reminder two days before.'],
   'f.notestasks': ['Open Me › Connections and switch on «Open notes as tasks».', 'Your open notes appear in Google Tasks.', 'Tick one there: it is done in the app too.'],
   'f.fitbitold': ['Export your Fitbit data at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the file.', 'Check the preview and tap «Take over».'],
+  'f.wxwatch': ['Open Me › Reminders on the phone and switch on «Weather alarm».', 'Plan a tour with a start place, or set your home place.', 'Up to 10 days before, the phone tells you when the weather turns or a better day comes.'],
   'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
   'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
