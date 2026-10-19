@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.159.0 «Paket 7» (19.10.2026, nach 0.158.0):** Touren › Rennen (Plan, Strategie, Vorbereiten, Strecke, Unterwegs, Danach, Muster-Rennen), Renn-Karte mit feinem Höhenprofil (ein Punkt alle 100 m, nach Steigung gefärbt, zoombar, Karte zeigt dieselbe Strecke), Anstiege, Karte offline (swisstopo und OpenFreeMap), Live-Karte für jede Fahrt (#/live: Vollbild, oben bis 6 Zahlen, du als Pfeil, Stopps als Symbole, Panel unten, SOS im «⋯»-Menü), Orte auf der Karte (16 Arten, Umkreis 2–20 km, «Hier suchen», entlang der Strecke, offline mitgespeichert, Abstecher, Teilen), Wetter-Zeitleiste entlang der Strecke, GPX auf der Live-Karte, Kachel «Ausfahrt starten» und Kurzbefehl am App-Symbol.
+
 **0.157.0 «Paket 6» (19.10.2026, nach Paket 5):** Trainingspläne unter Aktiv › Training (vier Musterpläne rückwärts ab dem Renntag, gefühlte Anstrengung 1–10 nach jeder Fahrt, Zonen in Puls, Watt und Gefühl). Velo-FAQ unter Velos › Pflege (48 Fragen in 9 Themen zu Pflege, Pannen, Verschleiss, Bikepacking und Mythen, mit Augenzwinkern, Frage des Tages, eigene Fragen). Bei «Abgeschlossene Touren» öffnet die ganze Zeile die Fahrt.
 
 **0.156.0 «Paket 5» (19.10.2026, nach Paket 3+4):** Mail in die App (Ich › Mail «In die App übernehmen», Gmail-Label «Packgenerator», Eingang mit Tipps und Knopf pro Anhang, «Ablegen als …»), Grösse (Ich › Darstellung: ein Schieber 80–130 % statt drei Knöpfe, «Kompakt») und unter Ich ein Hinweis, solange Handy und Computer nicht abgleichen. U «Rennen» folgt als Paket 7 (0.158.0), die Velo-FAQ als Paket 6 (0.157.0).

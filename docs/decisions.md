@@ -1750,3 +1750,11 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
 - Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
 - Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.
+
+## 19.10.2026: Paket 7 (0.159.0) Rennen und Live-Karte
+- Noah «1a 2a 3a und b möglich»: U2 im Paket, Anstiege eigene Seite, offline swisstopo (CH) und OpenFreeMap. OSM/OpenTopoMap nie offline (Nutzungsregeln).
+- Live-Karte für alle Fahrten; Warnung neben der Strecke, Sprachansagen, Essens-Erinnerung, Akku sparen: alle wählbar, aus als Start.
+- Noah «1a und b 2b 3b 4b 5a»: Vollbild, oben 3 Zahlen (bis 6 wählbar), Norden oben, erste Ansicht die nächsten 20 km, ich als Pfeil, Gefahrenes blass, Panel unten, SOS im «⋯»-Menü, Stopps als Symbole, quer: Karte links, Zahlen rechts.
+- Noah «detailierteres profil … zoombar … analog komoot»: `route.profileFine` (Höhe alle 0.05–1 km je Länge, als Differenzen, etwa 26 KB bei 1000 km).
+- Noah «1a 2a 3a 4a 5a»: Orte entlang der Strecke offline automatisch mit dem Kartenstreifen, Wetter-Zeitleiste, Abstecher in km und Hm, GPX auf der Live-Karte, Orte teilen.
+- Selbst entschieden: Orte mit access=private/no fallen weg; Hütten zählen als Hotel; die geöffnete GPX ist eine normale Einstellung (`live-route`, im Backup und Abgleich); `offline-strips` bleibt nur auf dem Gerät; kein neuer Server-Teil, keine neue Dexie-Version.
