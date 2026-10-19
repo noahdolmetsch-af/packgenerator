@@ -44,6 +44,9 @@ test.describe('Handy kurz', () => {
     test.skip(info.project.name !== 'phone', 'the phone view');
     await start(page, context, info, { data: data() });
     await open(page, '#/trips');
+    // Paket D (Noah 19.10.2026 «1a»): «Was hier steht ›» is one quiet line in the head, the card starts folded
+    await expect(page.locator('main header [data-hint-line="trips"]')).toHaveText(T('What is here'));
+    await expect(page.locator('main [data-hint="trips"]')).toHaveCount(0);
     const acts = page.locator('section[data-activities]');
     await expect(acts.locator('[data-act-row]')).toHaveCount(PHONE_ROWS);
     await expect(acts.locator('[data-act-values], [data-act-zones]')).toHaveCount(0);
@@ -63,10 +66,12 @@ test.describe('Handy kurz', () => {
     await expect(pm.locator('[data-pack-line]').first()).toContainText(T('Weather'));
     await pm.locator('[data-pack-phone-more]').click();
     expect(await pm.locator('[data-row]').count()).toBeGreaterThan(PHONE_ROWS);
-    // «In Zahlen · Weiter» behind one line
+    // «In Zahlen · Weiter» behind one line; Paket D (Noah 19.10.2026 «1a»): the tip of the day waits there too
     await expect(page.locator('[data-in-numbers]')).toHaveCount(0);
+    await expect(page.locator('main [data-tip]')).toHaveCount(0);
     await page.locator('[data-trips-extras]').click();
     await expect(page.locator('[data-in-numbers]')).toBeVisible();
+    await expect(page.locator('main [data-tip]')).toHaveCount(1);
     await expect(page.locator('[data-tour-tiles]')).toBeVisible();
   });
 
