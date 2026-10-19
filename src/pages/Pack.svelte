@@ -1003,19 +1003,18 @@
       </div>
     </div>
   {/if}{/snippet}
+  <!-- Paket H «4a und b»: «Read aloud» sits in the Packen step, right under the band -->
+  {#snippet dayTop()}{@render blocksCard()}{#if trip.entries.some((e) => !e.packed)}<div class="ra-row"><button type="button" class="btn" onclick={() => (reading = true)}><Volume2 size={18} aria-hidden="true" /> {t('Read aloud')}</button><small>{t('The app reads, you say «ok» or tap the big button.')}</small></div>{/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
-  {#if !fixed && trip.entries.some((e) => !e.packed)}
-    <div class="ra-row"><button type="button" class="btn" onclick={() => (reading = true)}><Volume2 size={18} aria-hidden="true" /> {t('Read aloud')}</button><small>{t('The app reads, you say «ok» or tap the big button.')}</small></div>
-  {/if}
   {#if reading}
     {#await import('../lib/pack/ReadAloud.svelte') then m}
       <m.default groups={stats.zones.map((z) => ({ key: z.key, name: z.key === 'body' ? t('On me') : trip.purpose?.[z.key] || zoneName(z), entries: z.entries }))} {itemsById} ontick={(id) => change((x) => ({ entries: x.entries.map((e) => (e.itemId === id ? { ...e, packed: true } : e)) }))} onclose={() => (reading = false)} />
     {/await}
   {/if}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : dayTop} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{

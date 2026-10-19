@@ -50,6 +50,8 @@ export const SINCE = {
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
+  // Paket H «Packen leichter» (the bundler sets the release version)
+  'f.starters': '0.148.0', 'f.supplies': '0.148.0', 'f.table': '0.148.0', 'f.readaloud': '0.148.0', 'f.lend': '0.148.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

@@ -41,7 +41,7 @@ test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a
   await expect(main).not.toBeChecked();
   await expect(box.getByRole('status')).toHaveText(T('Off. Nothing goes to the phone.'));
   const kinds = box.locator('[data-push-kind] input[role="switch"]');
-  await expect(kinds).toHaveCount(7);
+  await expect(kinds).toHaveCount(10); // Paket H added supplies, lending and «before your trip» (KINDS in push/schedule.js)
   for (const s of await kinds.all()) await expect(s).not.toBeChecked();
   await box.getByRole('switch', { name: T('Birthdays') }).check();
   await expect.poll(() => stored(page, 'push')).toMatchObject({ kinds: { birthday: true } });

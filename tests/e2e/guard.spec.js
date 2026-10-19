@@ -33,6 +33,8 @@ const ROUTES = [
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],
   ['#/gear/import', 'Import prüfen'],
+  ['#/gear/supplies', 'Vorrat'], // Paket H
+  ['#/gear/lend', 'Ausgeliehen'], // Paket H
   ['#/favorites', 'Favoriten'],
   ['#/blocks', 'Bausteine'],
   ['#/wardrobe', 'Kleiderschrank'],

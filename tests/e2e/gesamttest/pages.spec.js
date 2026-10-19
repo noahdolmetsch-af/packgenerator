@@ -113,6 +113,9 @@ const CASES = [
     },
   },
   { id: 'gear-import', hash: '#/gear/import' },
+  // Paket H «Packen leichter»: supplies and what is lent out
+  { id: 'gear-supplies', hash: '#/gear/supplies' },
+  { id: 'gear-lend', hash: '#/gear/lend' },
   { id: 'favorites', hash: '#/favorites' },
   { id: 'wardrobe', hash: '#/wardrobe' },
   { id: 'blocks', hash: '#/blocks' },

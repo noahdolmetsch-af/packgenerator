@@ -520,6 +520,31 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.starters': {
+    on: 'Needs at least two ridden trips of the same sport for «From your trips».',
+    steps: ['Plan a new trip and tap «From your trips».', 'In Pack open «Suggestion list» and tick what you take; «Not needed» hides a line.'],
+    example: 'Example: three ski tours → the new ski tour starts with skins, avalanche kit and thermos.',
+  },
+  'f.supplies': {
+    on: 'Set an expiry date or a stock count on an item (window › «At home and supply»), or food counts by itself.',
+    steps: ['Open Gear › Supplies and set what you have.', 'Two weeks before an item expires the app reminds you; what runs low is under «Buy again».'],
+    example: 'Example: 2 of at least 6 energy gels → «Buy again: 4 energy gels».',
+  },
+  'f.table': {
+    on: 'Works on a wide screen (computer); on the phone the list gets checkboxes.',
+    steps: ['Switch the list to «Table» and edit in the cells.', 'Tick rows, choose a field and «Set for all»; «Undo» brings the old values back.'],
+    example: 'Example: 12 items ticked → bag «Seat bag» for all in one step.',
+  },
+  'f.readaloud': {
+    on: 'Saying «ok» needs a microphone and the internet (Chrome listens over Google); the big button works always.',
+    steps: ['Open a trip in Pack and tap «Read aloud».', 'Choose «Say «ok»» or «Button only»; the app reads one item after the other.'],
+    example: 'Example: «Into frame bag: tyre levers» → «ok» → next item.',
+  },
+  'f.lend': {
+    on: null,
+    steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],
+    example: 'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],

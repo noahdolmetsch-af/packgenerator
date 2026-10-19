@@ -326,6 +326,13 @@
   td.number input {
     text-align: right;
   }
+  /* the first column is the name: wide enough to read it; the table scrolls sideways when needed */
+  tbody td:nth-child(2) input[type='text'] {
+    min-width: 12em;
+  }
+  td select {
+    min-width: 8em;
+  }
   .cb {
     width: 36px;
     text-align: center;
