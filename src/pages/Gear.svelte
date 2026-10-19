@@ -1112,7 +1112,9 @@
 
 {#if dialog}
   <!-- Regeln der App C b (Noah 14.10.2026, mockup C1): a tap opens the item to edit, on the phone too -->
-  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} onclose={() => (dialog = null)} />
+  <!-- Paket E CI: one window per item; when another item opens before the last close has run through (search
+       hit, ?item=), the window starts fresh instead of keeping the last item's draft -->
+  {#key dialog.item?.id ?? 'new'}<ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} onclose={() => (dialog = null)} />{/key}
 {/if}
 
 <style>

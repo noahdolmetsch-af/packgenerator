@@ -95,7 +95,10 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   await shot(page, info, 'tempo-5');
   // the Rückblick says it too
   await page.goto('./#/debrief');
-  await expect(page.locator('main section.sub', { hasText: 'Dein Tempo' })).toContainText('Die Fahrzeit rechnet mit deiner Regel (aus 5 Fahrten).');
+  // UI-Regeln Teil 2 (Noah 14.10.2026 «a», on purpose): on a phone «Dein Tempo» is a closed line, one tap opens it
+  const phone = info.project.name === 'phone';
+  if (phone) await page.getByRole('button', { name: /^Dein Tempo/ }).click();
+  await expect(phone ? page.locator('main [data-group="rv-pace"]') : page.locator('main section.sub', { hasText: 'Dein Tempo' })).toContainText('Die Fahrzeit rechnet mit deiner Regel (aus 5 Fahrten).');
 
   // one tap back to the standard rule, stored; and back to your rule
   await page.goto('./#/debrief/pace');

@@ -120,7 +120,9 @@
     const warns = lights.filter((l) => l.state === 'warn');
     if (!warns.length) return t('Everything is in order.');
     const rest = lights.some((l) => l.state === 'ok') ? ` ${t('Everything else is in order.')}` : '';
-    return `${warns.map((l) => WARN[l.key]?.() ?? t(l.name)).join(' ')}${rest}`;
+    // Paket E CI: a light without its own sentence (the sync and Fitbit lights from Paket D) says its name and line,
+    // so a yellow light never breaks the page
+    return `${warns.map((l) => WARN[l.key]?.() ?? `${t(l.name)}: ${l.line}`).join(' ')}${rest}`;
   });
   let fileEl = $state();
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
