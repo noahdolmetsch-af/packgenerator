@@ -1729,3 +1729,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Tipp in der Zeile: Buchung (mit Tag und passender Tour), Rechnung, Frist; ein Absender, zweimal gleich abgelegt, wird so vorgeschlagen. Eine Buchung vor der Tour wird eine Planungs-Notiz der Tour.
 - Mailen aus der App: Packliste und Plan einer Tour (PDF) oder ein Dokument anhängen, höchstens 3, zusammen 3 MB.
 - Keine neue Server-Datei: Schritt `mail-file` und Anhänge bei `mail-send` in `api/_lib/google.js`. Keine neue Dexie-Version: Einträge bekommen die Felder `mail`, `files`, `plan`.
+## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
+- Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
+- Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.
