@@ -1657,7 +1657,16 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Neu bearbeitbar:** Probleme (umbenennen, löschen), Learnings (hinzufügen, ändern, löschen), hochgeladene Fahrten (umbenennen), Velo-Ideen (umbenennen), alte Logbuch-Einträge (umbenennen, löschen).
 - **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
 - **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
+## 19.10.2026: Vorgehen für alle Vorhaben (Thread «Überblick und Vorgehen»)
 
+Noah, 19.10.2026 09:57 UTC: «1a 2a und b 3a und dann b 4a 5a».
+
+- **Ziele:** die vier Tour-Ziele bleiben, «Alltag» kommt als fünftes Ziel dazu.
+- **Eine Liste:** alle Vorhaben stehen in [vorhaben-liste.md](vorhaben-liste.md) und zusätzlich auf der Seite «Mein Überblick».
+- **Ergänzen:** zuerst schlägt Claude pro Ziel Lücken vor und Noah wählt, danach erzählt Noah frei, was noch fehlt.
+- **Wann:** jetzt, parallel zu den Paketen E, C und F.
+- **Pakete nach F:** kleiner, ein Ziel oder Bereich pro Paket, damit öfter ein Testlink kommt.
+- **Lücken-Runde 1 «Alltag»** (Noah 18:08 «3a oder b 4a 5a»): Alltags-Einkaufsliste mit Schalter «zusammen mit dem Tour-Einkauf» oder getrennt (selbst entschieden, da «a oder b»), Verträge und Abos mit Kündigungsfrist, «Lange nicht gesehen». Geplant als Paket V «Alltag» nach Paket 4 und U.
 
 ## 19.10.2026 · Paket J «Berg, Schnee und Notfall» (Noah «1a und b … 2a 3a 4a, 5 nicht»)
 

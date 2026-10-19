@@ -202,6 +202,7 @@
 <style>
   .pwr {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
   .intro {
@@ -211,6 +212,8 @@
   }
   .box {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 10px;
     align-content: start;
     padding: 16px;
@@ -236,6 +239,7 @@
   }
   .fld {
     display: grid;
+    min-width: 0;
     gap: 4px;
     font-size: var(--fs-small);
   }
@@ -248,6 +252,8 @@
     color: var(--ink);
     font: inherit;
     padding: 0 8px;
+    width: 100%;
+    min-width: 0;
     max-width: 100%;
   }
   .big {
