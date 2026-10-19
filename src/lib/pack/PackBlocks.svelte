@@ -115,7 +115,9 @@
   .phead :global(.pfold) { margin-left: auto; }
   /* Impeccable Packen 1: the folded card, one line on a computer; on a phone the names over the count and
      the button. The hints below start under the names, not under the icon. */
-  .folded { padding-top: 12px; padding-bottom: 12px; }
+  /* one line now: the bags follow a little closer (Paket E: with «Was hier steht» above, the first bag stays on
+     the first screen of a phone) */
+  .folded { padding-top: 12px; padding-bottom: 12px; margin-bottom: var(--sp-4); }
   .fline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-width: 0; }
   .ficon { display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--paper-2); color: var(--ink-2); }
   .fon { flex: 1 1 260px; min-width: 0; margin: 0; color: var(--ink); overflow-wrap: break-word; }
