@@ -6,6 +6,7 @@
    * everything is exactly as before. Backups are off meanwhile. Back closes only this sheet.
    */
   import { backClose } from '../ui/backclose.js';
+  import { plainError } from '../clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { db } from '../db.js';
   import { startDemo, setClock } from '../demo.js';
   import { tidyData } from '../tidy.js';
@@ -44,7 +45,7 @@
       location.hash = kind === 'empty' || day === 'today' ? '#/' : day === 'after' ? '#/debrief/play-trip' : day === 'ride' ? '#/ride' : '#/pack';
       location.reload();
     } catch (err) {
-      msg = `${t('The playground did not start, nothing was changed.')} ${err.message ?? ''}`;
+      msg = `${t('The playground did not start, nothing was changed.')} ${t(plainError(err))}`;
       busy = false;
     }
   }

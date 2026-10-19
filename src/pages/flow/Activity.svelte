@@ -28,7 +28,9 @@
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
   import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
   import { favActs, moveFav, moveFavTo, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
+  import { suggest, watchSuggest } from '../../lib/clear/suggest.svelte.js';
   import { suggestions, openIdeas, actFromTemplate, connections, ALWAYS, HIDDEN_KEY } from '../../lib/flowsugg.js';
+  watchSuggest();
   import { saveStars, putSetting, putActs, deleteAct } from '../../lib/flowdb.js';
   import { tickWith, toast, actName } from '../../lib/flow/ui.svelte.js';
   import { tileName } from '../../lib/flow/hobby/words.js';
@@ -102,7 +104,8 @@
 
 
   /* more actions, suggested by itself (H18a) */
-  const sugg = $derived(data ? suggestions({ acts: data.acts, log: data.log, today, hour: zurichHour(new Date().toISOString()) ?? 12, dry: data.weather ? data.weather.rain === 'none' : null, rings, favs: favs.map((a) => a.id), hidden: data.hidden, tripDays: data.tripDays }) : []);
+  // Paket Q #361: «Ideas in Active» can be switched off under Me › Appearance
+  const sugg = $derived(data && suggest.on.active ? suggestions({ acts: data.acts, log: data.log, today, hour: zurichHour(new Date().toISOString()) ?? 12, dry: data.weather ? data.weather.rain === 'none' : null, rings, favs: favs.map((a) => a.id), hidden: data.hidden, tripDays: data.tripDays }) : []);
   const suggName = (s) => (s.act ? tileName(s.act) : lang.v === 'de' ? s.tpl.nameDe : s.tpl.name);
   async function doSugg(s) {
     let a = s.act;
@@ -117,7 +120,7 @@
 
   /* recovery and fun (H19a) */
   const always = $derived((data?.acts ?? []).filter((a) => !a.paused && (ALWAYS.includes(a.id) || a.fromIdea)));
-  const ideas = $derived(openIdeas(data?.acts ?? []));
+  const ideas = $derived(suggest.on.active ? openIdeas(data?.acts ?? []) : []);
   const ideaName = (i) => (lang.v === 'de' ? i.nameDe : i.name);
   async function addIdea(i) {
     const a = actFromTemplate(i, data.acts);
@@ -281,7 +284,7 @@
         </li>
       {/each}
     </ul>
-    {#if !sugg.length}<p class="hint">{t('No suggestion right now.')}</p>{/if}
+    {#if !suggest.on.active}<p class="hint" data-suggest-off>{t('Suggestions are switched off. Switch them on under Me › Appearance.')}</p>{:else if !sugg.length}<p class="hint">{t('No suggestion right now.')}</p>{/if}
     <p class="hint">{t('Suggested by itself by day, weather and rings.')}<Sugg />{#if data.hidden.length}{' · '}<button type="button" class="lnk" onclick={unhide}>{tn(data.hidden.length, 'show {n} hidden again', 'show {n} hidden again')}</button>{/if}</p>
   {:else if r.key === 'fun'}
     <p class="cap">{t('Always there')}</p>

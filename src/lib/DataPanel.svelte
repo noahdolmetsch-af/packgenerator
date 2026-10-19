@@ -1,5 +1,8 @@
 <script>
   import { tidyData } from './tidy.js';
+  import { plainError } from './clear/errors.js'; // Paket Q #127: plain words instead of technical text
+  import { isLocked, unlockBackup, lockPassword } from './backupcrypt.js';
+  import BackupLock from './clear/BackupLock.svelte';
   import { settling } from './settled.js';
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
@@ -69,7 +72,7 @@
       const how = await shareBackup(db);
       if (how !== 'cancelled') message = how === 'shared' ? t('Backup file sent. On the other device: Import backup.') : t('Backup file downloaded. Send it to the other device and import it there.');
     } catch (err) {
-      message = `${t('The backup file could not be made.')} ${err.message}`;
+      message = `${t('The backup file could not be made.')} ${t(plainError(err))}`;
     } finally {
       sending = false;
     }
@@ -142,9 +145,31 @@
     })();
   });
 
+  // Paket Q #135: a locked backup asks for its password first (the one of this device is tried by itself)
+  let locked = $state(null);
+  async function openLocked(e) {
+    e.preventDefault();
+    const data = await unlockBackup(locked.file, locked.pw);
+    if (!data) return (locked.wrong = true);
+    const name = locked.name;
+    locked = null;
+    await readFile(new File([JSON.stringify(data)], name, { type: 'application/json' }));
+  }
+
   async function readFile(file) {
     try {
-      const data = JSON.parse(await file.text());
+      let data = JSON.parse(await file.text());
+      if (isLocked(data)) {
+        const mine = await lockPassword(db);
+        const open = mine ? await unlockBackup(data, mine) : null;
+        if (!open) {
+          pending = null;
+          message = '';
+          locked = { file: data, name: file.name, pw: '', wrong: false };
+          return;
+        }
+        data = open;
+      }
       // v0.36.0 (Noah 1a): the reviewed gear list is no backup either. It waits on "Import prüfen"
       // (#/gear/import); nothing goes into the gear before it is checked there.
       if (isGearImportFile(data)) {
@@ -211,7 +236,7 @@
       message = t('Demo started: {name}. "End demo" in the yellow bar puts your data back.', { name: pending.data.demo.name });
       pending = null;
     } catch (err) {
-      message = `${t('The demo did not start, nothing was changed.')} ${err.message}`;
+      message = `${t('The demo did not start, nothing was changed.')} ${t(plainError(err))}`;
     }
   }
 
@@ -230,7 +255,7 @@
       message = t('Favourites applied: {stars} items got a star, {adds} new items, template "{name}".', { stars: pending.fav.updates.length, adds: pending.fav.adds.length, name: pending.data.list?.name });
       pending = null;
     } catch (err) {
-      message = `${t('Nothing was changed.')} ${err.message}`;
+      message = `${t('Nothing was changed.')} ${t(plainError(err))}`;
     }
   }
 
@@ -252,7 +277,7 @@
       message = tn(n, 'Spec sheet imported: {n} value.', 'Spec sheet imported: {n} values.');
       pending = null;
     } catch (err) {
-      message = `${t('Import failed, nothing was changed.')} ${err.message}`;
+      message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
     }
   }
   function toggleAllow(id, on) {
@@ -289,7 +314,7 @@
       message = (mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name })) + (copied ? ` ${t('The state before is kept as a copy under «Before updates».')}` : '');
       pending = null;
     } catch (err) {
-      message = `${t('Import failed, nothing was changed.')} ${err.message}`;
+      message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
     }
   }
 
@@ -343,6 +368,14 @@
 
         {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
+        {#if locked}
+          <form class="confirm" aria-label={t('Password for the backup')} onsubmit={openLocked} data-unlock>
+            <p><strong>{locked.name}</strong>: {t('this backup is locked with a password.')}</p>
+            <label class="unl">{t('Password')}<input type="password" autocomplete="current-password" bind:value={locked.pw} data-unlock-pw /></label>
+            {#if locked.wrong}<p class="msg" role="alert">{t('Wrong password. Try again; nothing was changed.')}</p>{/if}
+            <div class="ich-acts"><button type="button" class="btn" onclick={() => (locked = null)}>{t('Cancel')}</button><button type="submit" class="btn hi">{t('Open')}</button></div>
+          </form>
+        {/if}
         {#if pending?.gear}
           <!-- v0.36.0 (Noah 1a): the gear list goes to the staging page first. -->
           <div class="confirm" role="dialog" aria-label={t('Check import')}>
@@ -445,6 +478,8 @@
         {#if message}<p class="msg" role="status">{message}</p>{/if}
       </div>
     </section>
+
+    <BackupLock />
 
     <!-- P3b «Abgleich Handy–Computer» (Noah 15.10.2026 «1a»): free, no server. The newer device sends its
          backup file, the other one opens it; the app says which is newer and suggests what to do. -->
@@ -613,6 +648,10 @@
   dd {
     margin: 0;
     font-weight: 600;
+  }
+  .unl {
+    display: grid;
+    gap: 4px;
   }
   .confirm {
     margin-top: 16px;

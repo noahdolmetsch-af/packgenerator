@@ -7,6 +7,7 @@
    * only the address, never data. Right: when the last backup file was made.
    */
   import { liveQuery } from 'dexie';
+  import { plainError } from '../lib/clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { db } from '../lib/db.js';
   import { shareBackup, LAST_BACKUP } from '../lib/backup.js';
   import { demoState } from '../lib/demo.js';
@@ -30,7 +31,7 @@
       const how = await shareBackup(db);
       if (how !== 'cancelled') message = how === 'shared' ? t('Backup file sent. On the other device: Import backup.') : t('Backup file downloaded. Send it to the other device and import it there.');
     } catch (err) {
-      message = `${t('The backup file could not be made.')} ${err.message}`;
+      message = `${t('The backup file could not be made.')} ${t(plainError(err))}`;
     } finally {
       sending = false;
     }

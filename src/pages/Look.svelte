@@ -16,6 +16,9 @@
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
+  import { SUGGEST_AREAS } from '../lib/clear/suggest.js';
+  import { suggest, setArea, watchSuggest } from '../lib/clear/suggest.svelte.js';
+  watchSuggest();
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -85,6 +88,21 @@
               <label class="op">
                 <span class="nm"><span>{t(o.name)}</span><small>{t(o.text)}</small></span>
                 <input type="checkbox" role="switch" class="opsw" data-op={o.key} checked={ops[o.key]} onchange={(e) => setOp(o.key, e.currentTarget.checked)} />
+              </label>
+            </li>
+          {/each}
+        </ul>
+      </section>
+      <!-- Paket Q #361: every area where the app suggests by itself can be switched off (all on at the start) -->
+      <section aria-labelledby="look-sugg" data-suggest-areas>
+        <h2 id="look-sugg">{t('Suggestions')}</h2>
+        <p class="note">{t('What the app suggests by itself; switch off what you do not want. Saved with your data.')}</p>
+        <ul class="ops">
+          {#each SUGGEST_AREAS as a (a.key)}
+            <li>
+              <label class="op">
+                <span class="nm"><span>{t(a.label)}</span><small>{t(a.text)}</small></span>
+                <input type="checkbox" role="switch" class="opsw" data-suggest={a.key} checked={suggest.on[a.key]} onchange={(e) => setArea(a.key, e.currentTarget.checked)} />
               </label>
             </li>
           {/each}

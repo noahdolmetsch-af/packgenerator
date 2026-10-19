@@ -20,6 +20,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
 
   const notesQ = liveQuery(() => db.notes.toArray());
@@ -170,7 +171,7 @@
     <div class="ich-main">
       {#if $notesQ && !counts.all}
         <!-- v0.127.0 A-U2: the one empty building block -->
-        <div class="nonote"><Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')} /></div>
+        <div class="nonote"><Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty></div>
       {/if}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
