@@ -641,6 +641,26 @@ export const HANDBOOK = {
     steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
     example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
   },
+  'f.tourhints': {
+    on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
+    steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
+    example: 'Example: loop of 60 km, wind from the west at 20 km/h → «Ride the round the other way».',
+  },
+  'f.rainsoon': {
+    on: 'Switch on «Rain on the way» under Me › Reminders on the phone.',
+    steps: ['The app sends the server where you should be every 30 minutes of the ride.', 'Every 15 minutes the server looks at the rain of the next 45 minutes there.', 'One message, then 2 hours quiet for that tour.'],
+    example: 'Example: dry now, rain in 30 minutes near the pass → a message to keep the rain jacket at hand.',
+  },
+  'f.air': {
+    on: 'Set your home place once; switch on «Ozone and pollen» for the tour morning message.',
+    steps: ['The card on Aktiv shows today and tomorrow.', 'Strong pollen after the Swiss classes, ozone from 180 µg/m³.', 'Under «Which values count» switch off the pollen that do not bother you.'],
+    example: 'Example: grasses strong tomorrow → «Strong pollen: Grasses.» on the card and in the morning message.',
+  },
+  'f.routepois': {
+    on: 'Plan of a trip with a GPX route, in the route card under the map.',
+    steps: ['Add a GPX route to the trip.', 'Search once while online; the list then stays on this device, also offline.', 'After changing the route, search again; «Load again» refreshes the list.'],
+    example: 'Example: km 23 · Fountain · Village fountain, 80 m beside the route.',
+  },
   'f.lake': {
     on: 'Nothing to switch on; the card on Aktiv fetches the value.',
     steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],

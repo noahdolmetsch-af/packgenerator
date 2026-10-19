@@ -71,6 +71,7 @@
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import TickSuggest from '../lib/strava/TickSuggest.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
+  import AirCard from '../lib/air/AirCard.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
@@ -408,6 +409,7 @@
           </Sec>
           <!-- package G #9: the lake temperature (Mythenquai) with the Eawag preview -->
           <LakeCard headingLevel={2} />
+          <AirCard headingLevel={2} />
           <Sec id="more-h" title={t('More|item')}>
             <Rows rows={moreRows} open={seasonList} />
           </Sec>
