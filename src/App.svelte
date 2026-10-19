@@ -454,6 +454,9 @@
   {:else if page === 'docscan'}
     <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
     <DocScan />
+  {:else if page === 'connections'}
+    <!-- package G #155: Ich › Verbindungen, loaded only when opened (main.js stays small) -->
+    {#await import('./pages/Connections.svelte') then m}<m.default />{/await}
   {:else if page === 'agenda'}
     <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
     <Agenda />

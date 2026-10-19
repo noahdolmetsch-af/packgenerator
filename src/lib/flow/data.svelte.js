@@ -18,6 +18,8 @@ import { SEED2_KEY } from '../flowtiles.js';
 import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { toWx } from '../weather.js';
 import { withStravaRides, notIgnored } from '../kmbook.js';
+import { msExtra } from './msdata.js';
+import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
@@ -60,22 +62,33 @@ export async function seedIfNeeded(data) {
  * The milestones need the WHOLE history (not the 70 days above): activities, the full log, the session
  * details, the stars kept, the settings of the hobby pages, the wishlist (rewards), the uploaded rides
  * (record wall) and today's home weather from the saved forecast (never fetched here).
+ * Package G (#231–#233): plus the sources of the data milestones as `extra` (flow/msdata.js): the ride
+ * ledger and Strava rides, the Fitbit days, the daily checks and answers, the debriefs and the bikes.
  */
 export function hobbyQuery(today) {
   return liveQuery(async () => {
-    const [acts, log, sessions, stars, trips, sets, wish, rides, place, forecast] = await Promise.all([
+    const [acts, log, sessions, stars, trips, sets, wish, rides, place, forecast, book, stravaActs, health, checks, answers, debriefs, bikes] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.toArray(),
       db.flowSessions.toArray(),
       db.flowStars.toArray(),
       db.trips.toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded']).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava']).toArray(),
       db.items.where('ownership').equals('wishlist').toArray(),
       db.rides.toArray(),
       db.settings.get(HOME_PLACE),
       db.meta.get(HOME_FORECAST),
+      // package G (#231–#233): the sources of the data milestones (flow/msdata.js)
+      db.kmBook.toArray(),
+      db.activities ? db.activities.where('kind').equals('bike').toArray() : [],
+      db.healthDays ? db.healthDays.toArray() : [],
+      db.flowChecks.toArray(),
+      db.abAnswers ? db.abAnswers.toArray() : [],
+      db.debriefs.toArray(),
+      db.bikes.toArray(),
     ]);
     const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
+    const extra = msExtra({ book, acts: stravaActs, ignore: set.strava?.ignore, health, checks, answers, trips, debriefs, bikes });
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
     return {
@@ -92,6 +105,7 @@ export function hobbyQuery(today) {
       weather: wx ? { max: wx.max, rain: wx.rain } : null,
       seeded: !!set.flowSeeded || acts.length > 0,
       seeded2: !!set[SEED2_KEY],
+      extra, // package G: msContext({ extra }) on Aktiv, Meilensteine and the Vitrine (never on Heute)
     };
   });
 }
@@ -209,7 +223,7 @@ export function checkQuery(today) {
 export function balanceQuery(today) {
   const from = addDays(today, -6);
   return liveQuery(async () => {
-    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs] = await Promise.all([
+    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs, bagsRec, packsRec] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(from).toArray(),
       db.flowChecks.where('day').aboveOrEqual(from).toArray(),
@@ -220,6 +234,8 @@ export function balanceQuery(today) {
       db.abAnswers.where('day').aboveOrEqual(from).toArray(), // WG: the «Wi gaht's?» answers count in the ring
       db.activities ? db.activities.where('day').aboveOrEqual(from).toArray() : [], // 0.136.0: Strava rides before a bike's start point
       db.settings.get('strava'), // «2b»: rides on an ignored Strava bike do not count
+      db.settings.get(BAGS_KEY), // package G #222: a sport bag packed in full counts as movement
+      db.settings.get(PACK_KEY),
     ]);
     const bikeActs = notIgnored(stravaActs, stravaPrefs?.value?.ignore);
     return {
@@ -230,6 +246,7 @@ export function balanceQuery(today) {
       rides: withStravaRides(rides, book, bikeActs).filter((r) => r.date <= today).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null })),
       pool: poolOf(pool?.value),
       off: offOf(off?.value),
+      bagDays: packedDays(bagsOf(bagsRec?.value), packsOf(packsRec?.value)).filter((d) => d >= from && d <= today),
     };
   });
 }

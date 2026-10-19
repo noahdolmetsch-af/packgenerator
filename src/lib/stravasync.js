@@ -15,7 +15,7 @@ export const typeName = (t) => String(t ?? '').replace(/^E(?=[A-Z])/, 'E-').repl
  * activities: the server's trimmed list; bikes: the server's gear list ({ id, name }).
  * Returns { rides, other } like parseStravaCsv: rides of the bike kind, other = how many were no ride.
  */
-export function toRides(activities, bikes = []) {
+export function toRides(activities, bikes = [], { indoor = false } = {}) {
   const names = Object.fromEntries((bikes ?? []).map((b) => [b.id, b.name]));
   const rides = [];
   let other = 0;
@@ -24,11 +24,13 @@ export function toRides(activities, bikes = []) {
     const gear = a.gearId ? names[a.gearId] ?? '' : '';
     const date = a.start ? zurichDay(a.start) : null;
     if (!date || !Number.isFinite(a.km)) continue;
-    if (!CYCLING.test(type) || ((VIRTUAL.test(type) || a.trainer) && !gear)) {
+    const inside = VIRTUAL.test(type) || !!a.trainer;
+    // #202 (package G): an indoor ride without a bike counts only when a bike for indoor rides is chosen
+    if (!CYCLING.test(type) || (inside && !gear && !indoor)) {
       other++;
       continue;
     }
-    rides.push({ source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null });
+    rides.push({ ...(inside && !gear ? { indoor: true } : {}), source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null });
   }
   return { rides, other };
 }
@@ -91,8 +93,9 @@ export function recheckFrom(from) {
  * noBike: 'check' (default) or 'auto'; ignore: Strava gear ids that do not count; checkFrom: the first
  * day looked at again for a changed bike (null: none).
  */
-export function planSync({ activities = [], gear = [], bikes = [], rules = [], entries = [], noBike = 'check', ignore = [], checkFrom = null, importId = null }, now = new Date()) {
-  const { rides, other } = toRides(activities, gear);
+export function planSync({ activities = [], gear = [], bikes = [], rules = [], entries = [], noBike = 'check', ignore = [], checkFrom = null, importId = null, indoorBike = null }, now = new Date()) {
+  const indoorTo = indoorBike && bikes.some((b) => b.id === indoorBike) ? indoorBike : null;
+  const { rides, other } = toRides(activities, gear, { indoor: !!indoorTo });
   const skip = new Set((ignore ?? []).map(String));
   const ctx = { bikes, rules };
   const byId = new Map(entries.filter((e) => e.stravaId).map((e) => [String(e.stravaId), e]));
@@ -153,6 +156,16 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
       counts0.known++;
       const old = entries.find((e) => e.id === row.of);
       if (old && !old.stravaId && !old.span) updates.push({ id: old.id, changes: { stravaId: row.ride.stravaId, ...(row.ride.hrAvg != null ? { hrAvg: row.ride.hrAvg, hrMax: row.ride.hrMax } : {}), ...(row.ride.hm != null ? { hm: row.ride.hm } : {}) } });
+      continue;
+    }
+    if (!row.ride.gear && row.ride.indoor && indoorTo) {
+      // #202: an indoor ride without a bike in Strava goes to the bike chosen for indoor rides
+      if (dupOf(plan, row, { bikeId: indoorTo })) {
+        counts0.inStart++;
+        continue;
+      }
+      counts0.assigned++;
+      add(row, { bikeId: indoorTo, by: 'indoor', sure: 'likely', state: 'counted' });
       continue;
     }
     if (!row.ride.gear) {

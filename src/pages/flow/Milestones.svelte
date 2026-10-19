@@ -29,7 +29,7 @@
   import { msContext, allMilestones, newStars, nextPerAct, soonList, recentStars, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
   import { favActs } from '../../lib/flowtiles.js';
   import { saveStars, putSetting } from '../../lib/flowdb.js';
-  import { tileName, msName, starLine, val, dayWord } from '../../lib/flow/hobby/words.js';
+  import { tileName, msName, starLine, val, dayWord, areaWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
 
@@ -41,7 +41,7 @@
     seedHobby(data);
   });
 
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   $effect(() => {
@@ -67,7 +67,7 @@
     const by = nextPerAct(shown);
     return chipActs.map((a) => ({ a, r: by.get(a.id) })).filter((x) => x.r);
   });
-  const label = (r) => (r.m.actId && filter !== r.m.actId ? tileName(data?.acts.find((a) => a.id === r.m.actId)) : '');
+  const label = (r) => (r.m.actId && filter !== r.m.actId ? tileName(data?.acts.find((a) => a.id === r.m.actId)) : r.m.area ? areaWord(r.m.area) : '');
   const recs = $derived(ctx ? recordsOf(ctx, data.rides) : []);
   const saveReward = (v) => putSetting(db, REWARD_KEY, v);
 
@@ -134,7 +134,7 @@
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
-            <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={label(r)} />{/each}</div>
+            <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}
@@ -167,7 +167,7 @@
       <ul class="tl">
         {#each tuneList as r (r.id)}
           <li data-tune={r.m.key}>
-            <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{tileName(data.acts.find((a) => a.id === r.m.actId))}</small>{/if}</span>
+            <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{tileName(data.acts.find((a) => a.id === r.m.actId))}</small>{:else if r.m.area}<small>{areaWord(r.m.area)}</small>{/if}</span>
             <label class="ti"><span class="sr">{t('Thresholds of {name}', { name: msName(r.m) })}</span>
               <input class="inp" inputmode="decimal" value={stepsText(r)} onchange={(e) => setSteps(r, e.currentTarget.value)} />
             </label>

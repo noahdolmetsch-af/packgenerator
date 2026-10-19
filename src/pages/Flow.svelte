@@ -69,6 +69,8 @@
   import Bags from './flow/Bags.svelte';
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
+  import TickSuggest from '../lib/strava/TickSuggest.svelte';
+  import LakeCard from '../lib/lake/LakeCard.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
@@ -359,6 +361,8 @@
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
+          <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
+          <TickSuggest />
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
             <div class="card ringc">
               <Rings {rings} size={phone.matches ? 112 : 140} quiet />
@@ -402,6 +406,8 @@
           <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
             <div class="card">{@render checkRow()}</div>
           </Sec>
+          <!-- package G #9: the lake temperature (Mythenquai) with the Eawag preview -->
+          <LakeCard headingLevel={2} />
           <Sec id="more-h" title={t('More|item')}>
             <Rows rows={moreRows} open={seasonList} />
           </Sec>

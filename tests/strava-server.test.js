@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { makeHandler as stravaHandler, trimActivity, AUTHORIZE_URL, TOKEN_URL, API, DEAUTH_URL, SCOPE } from '../api/strava.js';
 import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES, DRIVE_SCOPE, DRIVE_API, DRIVE_UPLOAD, DRIVE_MAX_BYTES, cleanName } from '../api/_lib/google.js';
 import { safeReturn, hash, KEYS, APP_RETURN } from '../api/_lib/oauth.js';
-import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API } from '../api/_lib/googleplan.js';
+import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, OWN_CAL_SCOPE } from '../api/_lib/googleplan.js';
 import { MAIL_SCOPES, GMAIL_API, fromB64url } from '../api/_lib/googlemail.js';
 
 const REDIS = 'https://redis.example.test';
@@ -566,5 +566,111 @@ describe('Google Mail (GM)', () => {
     await send({ to: 'a@example.test', subject: 'Hallo\r\nBcc: b@example.test', text: 'x' });
     expect(fromB64url(t.f.seen.at(-1).body.raw)).not.toMatch(/\r\nBcc:/);
     expect((await t.main(post('/api/google?step=mail-send', { to: 'a@example.test', text: 'x' }))).status).toBe(401);
+  });
+});
+
+describe('Package G: own calendar «Packgenerator» and own task list', () => {
+  const gToken = () => () => Response.json({ access_token: 'g-acc', refresh_token: 'g-ref', expires_in: 3600, scope: [...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE].join(' ') });
+  // A tiny fake Google: one own calendar with events, task lists. Fictional entries only.
+  function fakeOwn() {
+    const cals = {};
+    const events = {};
+    const lists = [{ id: 'list-a', title: 'Meine Aufgaben' }];
+    const seen = [];
+    let n = 0;
+    const handle = async (url, init = {}) => {
+      const u = new URL(url);
+      const method = init.method ?? 'GET';
+      const body = init.body ? JSON.parse(init.body) : null;
+      seen.push({ method, path: u.pathname, body });
+      const p = u.pathname;
+      if (p.endsWith('/calendars') && method === 'POST') {
+        const id = `own${++n}@group.example.test`;
+        cals[id] = body;
+        events[id] = [];
+        return Response.json({ id, ...body });
+      }
+      let m = p.match(/\/calendars\/([^/]+)$/);
+      if (m) return cals[decodeURIComponent(m[1])] ? Response.json({ id: decodeURIComponent(m[1]) }) : new Response('{}', { status: 404 });
+      m = p.match(/\/calendars\/([^/]+)\/events(?:\/([^/]+))?$/);
+      if (m) {
+        const list = events[decodeURIComponent(m[1])];
+        if (method === 'POST') {
+          const e = { id: `e${++n}`, ...body };
+          list.push(e);
+          return Response.json(e);
+        }
+        const i = list.findIndex((e) => e.id === m[2]);
+        if (method === 'PATCH') return Object.assign(list[i], body), Response.json(list[i]);
+        if (method === 'DELETE') return list.splice(i, 1), new Response(null, { status: 204 });
+        return Response.json({ items: list });
+      }
+      if (p.endsWith('/users/@me/lists')) {
+        if (method === 'POST') {
+          const l = { id: `list-${++n}`, ...body };
+          lists.push(l);
+          return Response.json(l);
+        }
+        return Response.json({ items: lists });
+      }
+      return new Response('{}', { status: 404 });
+    };
+    return { handle, seen, cals, events, lists };
+  }
+  async function setup() {
+    const f = fakeOwn();
+    const w = world({ [TOKEN_URL]: stravaToken(), [G_TOKEN]: gToken(), [CALENDAR_API]: f.handle, [TASKS_API]: f.handle });
+    const s = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(s, w)).get('key');
+    const { main, callback } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const start = await (await main(post('/api/google?step=start', { services: ['calendar', 'tasks', 'owncal'] }, { key }))).json();
+    expect(new URL(start.url).searchParams.get('scope').split(' ')).toEqual([...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE]);
+    await callback(get(`/api/google/callback?code=g-code&state=${new URL(start.url).searchParams.get('state')}`));
+    return { f, w, key, main };
+  }
+  const tour = (over = {}) => ({ key: 'trip:t1', title: 'Tour: Jura', day: '2026-10-24', lastDay: '2026-10-25', allDay: true, note: 'Packen zwei Tage vorher', remind: [1800], ...over });
+
+  it('says the own calendar is allowed', async () => {
+    const t = await setup();
+    expect(await (await t.main(get('/api/google?step=status', { key: t.key }))).json()).toMatchObject({ calendar: true, tasks: true, owncal: true });
+  });
+
+  it('makes the calendar once, then adds, leaves, changes and removes its events', async () => {
+    const t = await setup();
+    const one = await (await t.main(post('/api/google?step=own-sync', { items: [tour()] }, { key: t.key }))).json();
+    expect(one).toMatchObject({ ok: true, made: 1, changed: 0, removed: 0 });
+    expect(t.f.cals[one.cal].summary).toBe('Packgenerator');
+    const ev = t.f.events[one.cal][0];
+    expect(ev).toMatchObject({ summary: 'Tour: Jura', start: { date: '2026-10-24' }, end: { date: '2026-10-26' }, reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 1800 }] }, extendedProperties: { private: { pgKey: 'trip:t1' } } });
+    // an event Noah made himself in that calendar stays
+    t.f.events[one.cal].push({ id: 'mine', summary: 'Eigenes' });
+    const same = await (await t.main(post('/api/google?step=own-sync', { items: [tour()] }, { key: t.key }))).json();
+    expect(same).toMatchObject({ cal: one.cal, made: 0, changed: 0, removed: 0 });
+    const moved = await (await t.main(post('/api/google?step=own-sync', { items: [tour({ day: '2026-10-31', lastDay: '2026-11-01' }), tour({ key: 'trip:t2', title: 'Tour: Alpen' })] }, { key: t.key }))).json();
+    expect(moved).toMatchObject({ made: 1, changed: 1, removed: 0 });
+    const gone = await (await t.main(post('/api/google?step=own-sync', { items: [] }, { key: t.key }))).json();
+    expect(gone).toMatchObject({ removed: 2 });
+    expect(t.f.events[one.cal].map((e) => e.id)).toEqual(['mine']);
+    expect(t.f.seen.filter((x) => x.method === 'POST' && x.path.endsWith('/calendars')).length).toBe(1);
+  });
+
+  it('makes the calendar again when it was deleted in Google, and refuses bad items', async () => {
+    const t = await setup();
+    const one = await (await t.main(post('/api/google?step=own-sync', { items: [] }, { key: t.key }))).json();
+    delete t.f.cals[one.cal];
+    const two = await (await t.main(post('/api/google?step=own-sync', { items: [] }, { key: t.key }))).json();
+    expect(two.cal).not.toBe(one.cal);
+    expect((await t.main(post('/api/google?step=own-sync', { items: [tour({ key: 'bad key!' })] }, { key: t.key }))).status).toBe(400);
+    expect((await t.main(post('/api/google?step=own-sync', { items: [tour({ title: '' })] }, { key: t.key }))).status).toBe(400);
+    expect((await t.main(post('/api/google?step=own-sync', {}, { key: t.key }))).status).toBe(400);
+  });
+
+  it('finds or makes the task list «Packgenerator Notizen»', async () => {
+    const t = await setup();
+    const a = await (await t.main(post('/api/google?step=own-list', {}, { key: t.key }))).json();
+    expect(a.list.title).toBe('Packgenerator Notizen');
+    const b = await (await t.main(post('/api/google?step=own-list', {}, { key: t.key }))).json();
+    expect(b.list.id).toBe(a.list.id);
+    expect(t.f.lists.length).toBe(2);
   });
 });

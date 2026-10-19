@@ -16,6 +16,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
+import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
@@ -44,6 +45,8 @@ export const prefsOf = (v) => ({
   gear: Array.isArray(v?.gear) ? v.gear : [],
   lastSync: typeof v?.lastSync === 'string' ? v.lastSync : null,
   athlete: typeof v?.athlete === 'string' ? v.athlete : '',
+  // #202 (package G): the bike indoor rides without a Strava bike count for (null: they do not count)
+  indoorBike: typeof v?.indoorBike === 'string' && v.indoorBike ? v.indoorBike : null,
 });
 
 /* ---------- the device key (localStorage, try/catch: a private window may refuse it) ---------- */
@@ -140,7 +143,7 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
   const importId = `strava-${now.getTime().toString(36)}`;
-  const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
+  const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, indoorBike: prefs.indoorBike, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
   if (plan.entries.length) {
     const text = t('Just taken over: {rides} from {files}.', { rides: tn(plan.entries.length, '{n} ride', '{n} rides'), files: 'Strava' });
     await applyImport(db, { entries: plan.entries, importId, files: ['Strava'], text });
@@ -151,6 +154,8 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
     await db.settings.put({ key: CHANGES_KEY, value: mergeChanges(old, plan.changes) });
   }
   await keepActivities(db, activities);
+  // #156 (package G): Strava ticks the matching Aktiv activity (or suggests it first)
+  await applyTicks(db, { now }).catch(() => null);
   await fetchTraining(db, c, now);
   const last = { at: now.toISOString(), first, counts: plan.counts, perBike: plan.perBike, km: plan.km, n: plan.entries.length, assigned: plan.counts.assigned, check: plan.counts.check, changes: plan.changes.length };
   await db.settings.put({ key: LAST_KEY, value: last });
