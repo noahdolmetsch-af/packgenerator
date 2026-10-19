@@ -38,6 +38,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
+  // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
+  'f.velofaq': '0.155.0', // bundler: 0.157.0 with Paket 6
   // Paket 4 zu K: Haus-Check, Wohnungs-Hüter, «Bereit für morgen?» (v0.155.0)
   'f.housecheck': '0.155.0', 'f.flatsitter': '0.155.0', 'f.readytomorrow': '0.155.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',

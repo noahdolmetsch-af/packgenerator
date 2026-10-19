@@ -99,6 +99,9 @@
   {:else if route.tab === 'care' && route.view === 'spick'}
     <!-- «Velo im Griff» #327: the workshop cheat sheet (torque, breakdowns); loaded only when opened -->
     {#await import('../lib/care/SpickPage.svelte') then m}<m.default bikeId={route.bike} />{/await}
+  {:else if route.tab === 'care' && route.view === 'faq'}
+    <!-- «Velo-FAQ» (Noah 19.10.2026): questions and answers with a wink; loaded only when opened -->
+    {#await import('../lib/care/FaqPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'templates'}
     <!-- «Velo im Griff» #1009: the part template per bike kind; loaded only when opened -->
     {#await import('../lib/care/TemplatePage.svelte') then m}<m.default bikeId={route.bike} />{/await}
