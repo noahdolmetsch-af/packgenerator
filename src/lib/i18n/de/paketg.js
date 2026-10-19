@@ -107,6 +107,8 @@ export default {
   "The new stars stand under Bike, Fitbit and Everyday.": "Die neuen Sterne stehen unter Velo, Fitbit und Alltag.",
   // Wetter-Wecker (Noah 19.10.2026 «beide umsetzen»)
   'Weather alarm': 'Wetter-Wecker',
+  'Which tours it watches:': 'Welche Touren er beobachtet:',
+  'No planned tour in the next 10 days yet.': 'Noch keine geplante Tour in den nächsten 10 Tagen.',
   'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.': 'Vor einer geplanten Tour: wenn ein gutes Wetterfenster kommt oder das Wetter kippt. Zweimal am Tag, bis 10 Tage voraus.',
   'The weather for {trip} looks bad.': 'Das Wetter für {trip} sieht schlecht aus.',
   'The weather for {trip} turns: it looks bad now.': 'Das Wetter für {trip} kippt: es sieht jetzt schlecht aus.',

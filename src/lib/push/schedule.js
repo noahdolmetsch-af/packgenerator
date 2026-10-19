@@ -27,6 +27,10 @@ export const BACKUP_STD = 14;
 /* Wetter-Wecker (Paket G): tours up to 10 days ahead, from tomorrow; first look at 07:00 or 18:00. */
 export const WATCH_AHEAD = 10;
 export const WATCH_AT = ['07:00', '18:00'];
+/** The tours the Wetter-Wecker can watch (for the switch per tour). */
+export const watchable = (trips = [], today) =>
+  trips.filter((tr) => tr.status === 'planned' && !tr.skipped && DAY_RE.test(tr.startDate ?? '') && tr.startDate > today && tr.startDate <= addDays(today, WATCH_AHEAD)).sort((a, b) => a.startDate.localeCompare(b.startDate));
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** The kinds, in the order of the switches (English keys for t()). */
 export const KINDS = [
@@ -43,7 +47,9 @@ export const KINDS = [
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
   const kinds = Object.fromEntries(KINDS.map((k) => [k.key, value?.kinds?.[k.key] === true]));
-  return { on: value?.on === true, kinds };
+  // Wetter-Wecker: single tours switched off (trip ids), everything is a suggestion
+  const wxOff = (Array.isArray(value?.wxOff) ? value.wxOff : []).filter((x) => typeof x === 'string').slice(0, 200);
+  return { on: value?.on === true, kinds, wxOff };
 }
 export const anyOn = (p) => p.on && Object.values(p.kinds).some(Boolean);
 
@@ -115,7 +121,7 @@ export function buildList(data) {
     const tomorrow = addDays(today, 1);
     const first = [today, tomorrow].flatMap((d) => WATCH_AT.map((h) => atMs(d, h))).find((x) => x > ms);
     for (const tr of upcoming) {
-      if (tr.startDate < tomorrow || tr.startDate > addDays(today, WATCH_AHEAD)) continue;
+      if (tr.startDate < tomorrow || tr.startDate > addDays(today, WATCH_AHEAD) || p.wxOff.includes(tr.id)) continue;
       const place = tr.route?.start ?? (home && Number.isFinite(home.lat) ? home : null);
       if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lon)) continue;
       watch.push({ key: `ww:${tr.id}:${tr.startDate}`, at: first, date: tr.startDate, days: Math.min(Math.max(Number(tr.days) || 1, 1), 5), lat: place.lat, lon: place.lon, title: tourName(tr), url: '#/pack' });

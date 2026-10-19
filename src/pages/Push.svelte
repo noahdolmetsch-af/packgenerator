@@ -10,7 +10,9 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t, tn } from '../lib/i18n.svelte.js';
-  import { KINDS, PUSH_KEY, pushOf } from '../lib/push/schedule.js';
+  import { KINDS, PUSH_KEY, pushOf, watchable } from '../lib/push/schedule.js';
+  import { localDay } from '../lib/localday.js';
+  import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { BellRing, Send, Info, Copy, Check } from '@lucide/svelte';
@@ -18,6 +20,8 @@
 
   const pushQ = liveQuery(() => db.settings.get(PUSH_KEY));
   const p = $derived(pushOf($pushQ?.value));
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const watchTrips = $derived(watchable($tripsQ ?? [], localDay()));
   const can = supported();
   let busy = $state(false);
   let msg = $state('');
@@ -58,6 +62,10 @@
   }
   async function setKind(key, on) {
     await save({ ...p, kinds: { ...p.kinds, [key]: on } });
+    if (p.on) await sync();
+  }
+  async function setTour(id, on) {
+    await save({ ...p, wxOff: on ? p.wxOff.filter((x) => x !== id) : [...p.wxOff, id] });
     if (p.on) await sync();
   }
   async function test() {
@@ -116,6 +124,23 @@
           <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
           <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
         </li>
+        {#if k.key === 'wxwatch' && p.kinds.wxwatch}
+          <li class="ps-row ps-sub" data-push-tours>
+            {#if watchTrips.length}
+              <span class="ps-m"><small>{t('Which tours it watches:')}</small></span>
+              <ul class="ps-tours">
+                {#each watchTrips as tr (tr.id)}
+                  <li data-push-tour={tr.id}>
+                    <span class="ps-m"><b id="ps-tr-{tr.id}">{tr.title || t('Your trip')}</b><small>{dayShort(tr.startDate)}</small></span>
+                    <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-tr-{tr.id}" checked={!p.wxOff.includes(tr.id)} disabled={busy} onchange={(e) => setTour(tr.id, e.currentTarget.checked)} />
+                  </li>
+                {/each}
+              </ul>
+            {:else}
+              <span class="ps-m"><small>{t('No planned tour in the next 10 days yet.')}</small></span>
+            {/if}
+          </li>
+        {/if}
       {/each}
     </ul>
   </section>
@@ -175,6 +200,24 @@
     border-radius: 8px;
     background: var(--hi-soft);
     color: var(--hi);
+  }
+  .ps-sub {
+    display: grid;
+    gap: 6px;
+    padding-left: var(--s4, 16px);
+  }
+  .ps-tours {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .ps-tours li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
   }
   .ps-m {
     flex: 1;

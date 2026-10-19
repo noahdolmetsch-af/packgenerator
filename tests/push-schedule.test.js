@@ -1,7 +1,7 @@
 // Erinnerungen aufs Handy (Web-Push): the list of the next reminders (src/lib/push/schedule.js).
 // Fictional data only. Times are compared with atMs (the device's own clock), days on the calendar.
 import { describe, it, expect } from 'vitest';
-import { buildList, pushOf, anyOn, KINDS, atMs, addDays } from '../src/lib/push/schedule.js';
+import { buildList, pushOf, anyOn, KINDS, atMs, addDays, watchable } from '../src/lib/push/schedule.js';
 import de from '../src/lib/i18n/de/index.js';
 
 const now = new Date(2026, 9, 20, 10, 0); // Tuesday 20 Oct 2026, 10:00 on this device
@@ -111,6 +111,13 @@ describe('Wetter-Wecker (Paket G): planned tours from tomorrow up to 10 days ahe
     expect(l.texts.turn).toContain('{trip}');
     expect(l.texts.better).toContain('{day}');
     expect(l.texts.wdays).toHaveLength(7);
+  });
+  it('a single tour can be switched off (everything is a suggestion)', () => {
+    const trips = [trip('a', '2026-10-24'), trip('b', '2026-10-25')];
+    const l = buildList(base({ trips, settings: { push: { on: true, kinds: { wxwatch: true }, wxOff: ['a'] }, homePlace: { lat: 47, lon: 8 } } }));
+    expect(l.watch.map((w) => w.key)).toEqual(['ww:b:2026-10-25']);
+    expect(pushOf({ on: true, wxOff: ['a', 3] }).wxOff).toEqual(['a']);
+    expect(watchable([...trips, trip('c', '2026-10-20'), trip('d', '2026-11-20')], '2026-10-20').map((x) => x.id)).toEqual(['a', 'b']);
   });
   it('switched off: no watch', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-24')], settings: { push: { on: true, kinds: { weather: true } }, homePlace: { lat: 47, lon: 8 } } }));
