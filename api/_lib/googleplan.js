@@ -137,3 +137,35 @@ export function taskBody(v) {
 
 export const calRow = (c) => (c?.id ? { id: c.id, name: text(c.summaryOverride ?? c.summary, 120) || c.id, color: c.backgroundColor ?? null, primary: !!c.primary, write: c.accessRole === 'owner' || c.accessRole === 'writer' } : null);
 export const listRow = (l) => (l?.id ? { id: l.id, title: text(l.title, 120) || 'Aufgaben' } : null);
+
+/* ---------- package G (Noah 19.10.2026 «2a»): the app's own calendar «Packgenerator» ---------- */
+/** Make secondary calendars and manage only those (the other calendars stay untouched). */
+export const OWN_CAL_SCOPE = 'https://www.googleapis.com/auth/calendar.app.created';
+export const OWN_CAL_NAME = 'Packgenerator';
+/** The app's own task list for the notes (#1003). */
+export const OWN_LIST_NAME = 'Packgenerator Notizen';
+/** At most this many entries in one sync. */
+export const MAX_OWN_ITEMS = 300;
+/** Where an item of the app keeps its key in Google (so a second sync changes instead of adding). */
+export const KEY_PROP = 'pgKey';
+
+/**
+ * One item of the app → Google's body: eventBody plus the key and the reminders.
+ * item: { key, title, day, lastDay?, allDay?, from?, to?, note?, remind?: [minutes before] }
+ */
+export function ownBody(item) {
+  const key = String(item?.key ?? '');
+  if (!/^[\w:.-]{1,120}$/.test(key)) throw new Error('key');
+  const body = eventBody({ ...item, where: item.where ?? '', note: item.note ?? '' });
+  const remind = (Array.isArray(item.remind) ? item.remind : []).map(Number).filter((m) => Number.isFinite(m) && m >= 0 && m <= 40320).slice(0, 5);
+  body.reminders = remind.length ? { useDefault: false, overrides: remind.map((minutes) => ({ method: 'popup', minutes: Math.round(minutes) })) } : { useDefault: false, overrides: [] };
+  body.extendedProperties = { private: { [KEY_PROP]: key } };
+  return body;
+}
+
+const pickTime = (x) => (x ? x.date ?? `${String(x.dateTime ?? '').slice(0, 16)}` : '');
+const overrides = (r) => JSON.stringify((r?.overrides ?? []).map((o) => o.minutes).sort((a, b) => a - b));
+/** Does Google's event already say what the body says? (then the sync leaves it) */
+export function sameEvent(e, body) {
+  return (e?.summary ?? '') === body.summary && (e?.description ?? '') === (body.description ?? '') && (e?.location ?? '') === (body.location ?? '') && pickTime(e?.start) === pickTime(body.start) && pickTime(e?.end) === pickTime(body.end) && overrides(e?.reminders) === overrides(body.reminders);
+}

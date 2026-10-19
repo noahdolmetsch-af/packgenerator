@@ -145,6 +145,18 @@ export const HOWTO = {
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
   'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+  'f.connections': ['Open Me › Connections.', 'Each connection shows its state and when data last came.', 'Switch on or off what the app may do with it.'],
+  'f.stravaticks': ['Open Me › Connections.', 'Under «Strava ticks Aktiv» choose «Tick by itself» or «Suggest first».', 'Change which Strava sport counts for which activity.'],
+  'f.owncal': ['Open Me › Connections and switch on the calendar «Packgenerator».', 'Tap «Allow in Google» once.', 'Your tours appear in the calendar, with a reminder two days before.'],
+  'f.notestasks': ['Open Me › Connections and switch on «Open notes as tasks».', 'Your open notes appear in Google Tasks.', 'Tick one there: it is done in the app too.'],
+  'f.fitbitold': ['Export your Fitbit data at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the file.', 'Check the preview and tap «Take over».'],
+  'f.wxwatch': ['Open Me › Reminders on the phone and switch on «Weather alarm».', 'Plan a tour with a start place, or set your home place.', 'Up to 10 days before, the phone tells you when the weather turns or a better day comes.'],
+  'f.tourhints': ['Open a planned tour on Pack.', 'Under the list, the hints show when they apply: dark, UV or wind.', 'Tap «Add» for an item, or «×» to hide a hint for this tour.'],
+  'f.rainsoon': ['Open Me › Reminders on the phone and switch on «Rain on the way».', 'Plan the tour with a route and a start time.', 'While you ride, the phone tells you before the rain comes.'],
+  'f.air': ['Set your home place.', 'Look at the card «Ozone and pollen» on Aktiv.', 'Under «Which values count» choose your pollen.'],
+  'f.routepois': ['Open the trip in Packen › Plan; the route card needs a GPX route.', 'Tap «Search fountains and workshops» under the map.', 'Filter with Water, Workshop, Pump; a tap on a row opens the place in OpenStreetMap.'],
+  'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
+  'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],
   'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],

@@ -5,11 +5,13 @@
    * height profile, and one line «184 km · 2 Nächte · Biel → Chasseral → Delémont». «GPX ersetzen» or,
    * without a route, «GPX-Strecke hinzufügen» reads a file on the device (route.js), as in the trip
    * conditions; nothing is sent anywhere. onchange(fn): the trip change of Pack (with Undo).
+   * Under the map: «Brunnen und Velo-Werkstätten an der Strecke» (route/RoutePois.svelte), only on a tap.
    */
   import { readGpxFile } from '../route.js';
   import { stagePlan, hasStages } from '../stages.js';
   import StaticMap from '../ui/StaticMap.svelte';
   import Profile from '../ui/Profile.svelte';
+  import RoutePois from '../route/RoutePois.svelte';
   import { t, tn, num } from '../i18n.svelte.js';
   import { ChevronRight, Upload } from '@lucide/svelte';
 
@@ -59,6 +61,7 @@
       <StaticMap line={route.line} {marks} label={t('Map of {name}', { name: route.name || trip.title })} />
       {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       {#if foot}<p class="foot">{foot}</p>{/if}
+      <RoutePois {trip} />
     {:else if route}
       {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       <p class="foot">{foot}</p>

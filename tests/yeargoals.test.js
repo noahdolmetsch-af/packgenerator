@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { goalsOf, yearShare, yearSums, goalRow, co2Saved, GOALS } from '../src/lib/flow/yeargoals.js';
+import { goalsOf, yearShare, yearSums, goalRow, co2Saved, typedGoal, GOALS } from '../src/lib/flow/yeargoals.js';
 
 describe('«Werte überall» WU3 year goals', () => {
   it('starts with a goal for every value, all on', () => {
@@ -27,5 +27,13 @@ describe('«Werte überall» WU3 year goals', () => {
   });
   it('estimates the CO₂ saved', () => {
     expect(co2Saved(2760)).toBe(414);
+  });
+  it('a goal can be emptied by hand and stays empty (Noah 19.10.2026)', () => {
+    const g = goalsOf({ azm: { on: true, of: null }, km: { of: 0 } });
+    expect(g.azm).toEqual({ on: true, of: null });
+    expect(g.km.of).toBe(5000);
+    expect(typedGoal('')).toBe(null);
+    expect(typedGoal(" 6'000 ")).toBe(6000);
+    expect(typedGoal('abc')).toBe(undefined);
   });
 });

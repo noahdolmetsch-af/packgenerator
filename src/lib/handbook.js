@@ -616,6 +616,66 @@ export const HANDBOOK = {
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
   },
+  'f.connections': {
+    on: 'Nothing to switch on: Me › Connections shows what is connected.',
+    steps: ['Open Me › Connections.', 'Tap a connection to open its page.', 'The switches below say what the app may do with the data.'],
+    example: 'Example: «Strava: last fetch today 07:12» → your morning run is already ticked on Aktiv.',
+  },
+  'f.stravaticks': {
+    on: 'On by itself once Strava is connected; switch it to «Suggest first» or «Off» under Me › Connections.',
+    steps: ['Do your activity with Strava as always.', 'The next fetch ticks the matching Aktiv activity, or puts it under «From Strava» on Aktiv.', 'Under Me › Connections choose which Strava sport counts for which activity, and a bike for indoor rides.'],
+    example: 'Example: a ski tour on Saturday → «Skitour» is ticked on Saturday; delete the tick and it does not come back.',
+  },
+  'f.owncal': {
+    on: 'Switch on the calendar «Packgenerator» under Me › Connections and allow it once in Google (needs Google Calendar connected).',
+    steps: ['Switch on «Enter tours in the calendar «Packgenerator»».', 'Tap «Allow in Google» once.', 'Every tour appears as an all-day appointment; two days before at 18:00 your phone reminds you to pack.'],
+    example: 'Example: a tour from Saturday to Sunday → Thursday 18:00 the reminder «Tour: Jura».',
+  },
+  'f.notestasks': {
+    on: 'Switch on «Open notes as tasks» under Me › Connections (needs Google Tasks connected).',
+    steps: ['Write a note as always.', 'It appears in the list «Packgenerator Notizen» in Google Tasks.', 'Tick it there or here: it is done on both sides.'],
+    example: 'Example: the note «Kettenöl kaufen» → ticked in Google Tasks on the phone → done in the app.',
+  },
+  'f.fitbitold': {
+    on: 'Once: the Fitbit export from takeout.google.com.',
+    steps: ['Export only «Fitbit» at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the .zip or its files.', 'Check the preview, change which Fitbit type counts for which activity, then «Take over».'],
+    example: 'Example: 3 years of tennis from Fitbit → the tennis history and its stars are complete.',
+  },
+  'f.wxwatch': {
+    on: 'Switch on «Weather alarm» under Me › Reminders on the phone (push must be set up once).',
+    steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
+    example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
+  },
+  'f.tourhints': {
+    on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
+    steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
+    example: 'Example: loop of 60 km, wind from the west at 20 km/h → «Ride the round the other way».',
+  },
+  'f.rainsoon': {
+    on: 'Switch on «Rain on the way» under Me › Reminders on the phone.',
+    steps: ['The app sends the server where you should be every 30 minutes of the ride.', 'Every 15 minutes the server looks at the rain of the next 45 minutes there.', 'One message, then 2 hours quiet for that tour.'],
+    example: 'Example: dry now, rain in 30 minutes near the pass → a message to keep the rain jacket at hand.',
+  },
+  'f.air': {
+    on: 'Set your home place once; switch on «Ozone and pollen» for the tour morning message.',
+    steps: ['The card on Aktiv shows today and tomorrow.', 'Strong pollen after the Swiss classes, ozone from 180 µg/m³.', 'Under «Which values count» switch off the pollen that do not bother you.'],
+    example: 'Example: grasses strong tomorrow → «Strong pollen: Grasses.» on the card and in the morning message.',
+  },
+  'f.routepois': {
+    on: 'Plan of a trip with a GPX route, in the route card under the map.',
+    steps: ['Add a GPX route to the trip.', 'Search once while online; the list then stays on this device, also offline.', 'After changing the route, search again; «Load again» refreshes the list.'],
+    example: 'Example: km 23 · Fountain · Village fountain, 80 m beside the route.',
+  },
+  'f.lake': {
+    on: 'Nothing to switch on; the card on Aktiv fetches the value.',
+    steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],
+    example: 'Example: 21.4 °C at Mythenquai, preview 22 °C on Saturday → a swim after the ride.',
+  },
+  'f.datastars': {
+    on: 'Nothing to switch on; the stars come once there is data.',
+    steps: ['Connect Strava or Fitbit, or answer the daily check.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday; switch off single ones.'],
+    example: 'Example: 1000 km by bike this year → the second bike star.',
+  },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],

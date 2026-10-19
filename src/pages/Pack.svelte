@@ -43,6 +43,7 @@
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
+  import TourSky from '../lib/pack/TourSky.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
   import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
@@ -1039,7 +1040,7 @@
       reopen: () => askReopen(trip),
     }}>
     {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{/snippet}
-    {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
+    {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
         {#if bikeTrip}{@render layers()}<h3>{t('Building blocks')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}
