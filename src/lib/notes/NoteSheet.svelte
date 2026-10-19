@@ -13,7 +13,7 @@
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkedNotes, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -22,10 +22,10 @@
   import { t } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import { appendSpoken } from '../speak.js';
-  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft } from '@lucide/svelte';
+  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { note, bikes = [], pinnedCount = 0, onclose, onmade } = $props();
+  let { note, bikes = [], pinnedCount = 0, notes = [], onclose, onmade, onopen } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -128,6 +128,29 @@
       errors = {};
     }
   }
+  // Paket N #10: links between notes (kept once, shown on both notes), a picker with a search, and up
+  // to 3 notes that may belong here (shared #tag or the same bike).
+  const others = $derived(notes.map((n) => (n.id === draft.id ? { ...n, ...draft } : n)));
+  const linked = $derived(linkedNotes(draft, others));
+  const related = $derived(maybeRelated(draft, others));
+  let picking = $state(false);
+  let pickQ = $state('');
+  const picks = $derived(picking ? pickNotes(draft, others, pickQ).filter((x) => !linked.some((l) => l.id === x.id)) : []);
+  function linkTo(id) {
+    const other = notes.find((n) => n.id === id);
+    if (other) draft = linkNote($state.snapshot(draft), other);
+    picking = false;
+    pickQ = '';
+  }
+  async function unlink(l) {
+    if (l.own) return (draft = unlinkNote($state.snapshot(draft), l.id));
+    const other = await db.notes.get(l.id);
+    if (other) await db.notes.put(unlinkNote(other, draft.id));
+  }
+  async function openOther(id) {
+    await saveAndClose();
+    onopen?.(id);
+  }
   const LINK_ICON = { trip: Route, wish: Heart, problem: Wrench };
   const linkHref = (l) => (l.kind === 'trip' ? '#/pack' : l.kind === 'wish' ? `#/gear?item=${encodeURIComponent(l.ref)}` : `#/bikes?tab=care&bike=${encodeURIComponent(l.bikeId ?? '')}&open=1`);
   const LINK_NAME = { trip: 'Trip idea', wish: 'Wish', problem: 'Problem' };
@@ -179,10 +202,36 @@
       {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={noteTopic(draft) === x.key} onclick={() => (draft.topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
     </div>
 
-    {#if (draft.links ?? []).length}
+    <p class="lbl">{t('Linked notes')}</p>
+    <div class="nlinks" data-note-links>
+      {#if linked.length}
+        <ul class="nl">
+          {#each linked as l (l.id)}
+            <li>
+              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{l.title || t('Note')}{#if !l.own}<small> · {t('links here')}</small>{/if}</button>
+              <button type="button" class="rm" aria-label={t('Remove the link to {name}', { name: l.title })} onclick={() => unlink(l)}><Unlink size={16} aria-hidden="true" /></button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if picking}
+        <input class="inp" type="search" bind:value={pickQ} placeholder={t('Search a note to link')} aria-label={t('Search a note to link')} />
+        {#if picks.length}
+          <ul class="nl">{#each picks as x (x.id)}<li><button type="button" class="lchip" onclick={() => linkTo(x.id)}><Plus size={14} aria-hidden="true" />{x.title || t('Note')}</button></li>{/each}</ul>
+        {:else}<p class="q">{t('No other note found.')}</p>{/if}
+      {:else}
+        <button type="button" class="btn" onclick={() => (picking = true)}><Link2 size={16} aria-hidden="true" />{t('Link a note')}</button>
+      {/if}
+      {#if related.length && !picking}
+        <p class="q">{t('Maybe related')}</p>
+        <ul class="nl">{#each related as x (x.id)}<li><button type="button" class="lchip" onclick={() => linkTo(x.id)}><Plus size={14} aria-hidden="true" />{x.title || t('Note')}<small> · {x.why === 'tag' ? `#${x.tag}` : t('same bike')}</small></button></li>{/each}</ul>
+      {/if}
+    </div>
+
+    {#if (draft.links ?? []).some((l) => l.kind !== 'note')}
       <p class="lbl">{t('Linked')}</p>
       <div class="vd-chips">
-        {#each draft.links as l, i (i)}{@const I = LINK_ICON[l.kind] ?? Link2}<a class="lchip" href={linkHref(l)} onclick={(e) => { if (l.kind === 'trip') { e.preventDefault(); switchTrip(l.ref, '#/pack'); } }}><I size={14} aria-hidden="true" />{l.label} · {t(LINK_NAME[l.kind] ?? 'Linked')}</a>{/each}
+        {#each (draft.links ?? []).filter((l) => l.kind !== 'note') as l, i (i)}{@const I = LINK_ICON[l.kind] ?? Link2}<a class="lchip" href={linkHref(l)} onclick={(e) => { if (l.kind === 'trip') { e.preventDefault(); switchTrip(l.ref, '#/pack'); } }}><I size={14} aria-hidden="true" />{l.label} · {t(LINK_NAME[l.kind] ?? 'Linked')}</a>{/each}
       </div>
     {/if}
 
@@ -233,6 +282,28 @@
 </dialog>
 
 <style>
+  .nlinks {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+  }
+  .nl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nl li {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .nlinks .inp {
+    width: 100%;
+    box-sizing: border-box;
+  }
   .spk {
     display: flex;
     flex-wrap: wrap;
@@ -354,6 +425,12 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     text-decoration: none;
+  }
+  button.lchip {
+    background: none;
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
   }
   .turn {
     margin: 12px 0 0;

@@ -11,14 +11,14 @@
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
+  import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED, noteStats } from '../lib/notebook.js';
   import { sortBikes } from '../lib/bikes.js';
   import { shrinkImage } from '../lib/photo.js';
   import { localDay } from '../lib/localday.js';
   import NoteSheet from '../lib/notes/NoteSheet.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil } from '@lucide/svelte';
+  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import '../lib/ich/ich.css';
 
@@ -28,6 +28,7 @@
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const names = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const counts = $derived(filterCounts(notes));
+  const stats = $derived(noteStats(notes, localDay())); // Paket N #10: the small evaluation
   const inboxN = $derived(notes.filter((n) => n.status === 'open').length);
 
   let filter = $state('all');
@@ -210,6 +211,21 @@
         </div>
       </section>
 
+      {#if counts.all}
+        <!-- Paket N #10 (19.10.2026): what the notes hold, at a glance; a #tag searches for it -->
+        <section class="ich-sec" aria-labelledby="nstat-h" data-note-stats>
+          <div class="ich-h"><div><h2 id="nstat-h"><ChartColumn size={16} aria-hidden="true" /> {t('At a glance|notes')}</h2><p class="ich-hs">{t('A tap on a #tag searches for it')}</p></div></div>
+          <div class="card ich-body nst">
+            <p>{tn(stats.month, '{n} note this month', '{n} notes this month')} · {tn(stats.total, '{n} in total', '{n} in total')}</p>
+            {#if stats.openLists}<p>{t('{points} open points in {lists} checklists', { points: stats.openPoints, lists: stats.openLists })}{#if stats.oldestOpen} · <button type="button" class="btn-link" onclick={() => (open = stats.oldestOpen.id)}>{t('oldest: {name}', { name: stats.oldestOpen.title || t('Note') })}</button>{/if}</p>{/if}
+            {#if stats.linked}<p>{tn(stats.linked, '{n} note linked with others', '{n} notes linked with others')}</p>{/if}
+            {#if stats.topTags.length}
+              <div class="fl">{#each stats.topTags as x (x.tag)}<button type="button" class="fchip" aria-pressed={query === `#${x.tag}`} onclick={() => (query = query === `#${x.tag}` ? '' : `#${x.tag}`)}>#{x.tag} · <span class="num">{x.n}</span></button>{/each}</div>
+            {:else}<p class="fh">{t('Write #word in a note to group notes by it.')}</p>{/if}
+          </div>
+        </section>
+      {/if}
+
       <section class="ich-sec" aria-labelledby="nmore-h">
         <div class="ich-h"><div><h2 id="nmore-h">{t('More')}</h2></div></div>
         <ul class="card ich-list">
@@ -222,7 +238,7 @@
 </div>
 
 {#if openNote}
-  <NoteSheet note={openNote} {bikes} pinnedCount={counts.pinned} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />
+  {#key open}<NoteSheet note={openNote} {bikes} {notes} pinnedCount={counts.pinned} onopen={(id) => (open = id)} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />{/key}
 {/if}
 {#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
 
@@ -324,6 +340,15 @@
   }
   .search .inp {
     padding-left: 38px;
+  }
+  .nst {
+    display: grid;
+    gap: 6px;
+  }
+  .nst p {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .fl {
     display: flex;

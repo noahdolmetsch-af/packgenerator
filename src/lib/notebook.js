@@ -187,3 +187,78 @@ export function notesMarkdown(notes, { topicName = (k) => k, bikeName = () => ''
 
 /** A note with one more link to what it became («Aus Notiz wird …»). */
 export const addLink = (note, link, now = new Date().toISOString()) => ({ ...note, links: [...(note.links ?? []), link], editedAt: now });
+
+/*
+ * Paket N #10 «Notizen suchen, verknüpfen, auswerten» (19.10.2026): a note can link to other notes.
+ * The link is kept once, on the note where it was made ({ kind: 'note', ref, label }); the other note
+ * shows it as well («links here»). Pure functions; the sheet writes the records.
+ */
+
+/** The notes linked with a note, both ways: [{ id, title, own }] (own: the link is kept on this note). */
+export function linkedNotes(note, notes = []) {
+  if (!note) return [];
+  const byId = new Map(notes.filter(isKept).map((n) => [n.id, n]));
+  const out = new Map();
+  for (const l of note.links ?? []) if (l.kind === 'note' && byId.has(l.ref) && l.ref !== note.id) out.set(l.ref, { id: l.ref, title: noteTitle(byId.get(l.ref)), own: true });
+  for (const n of byId.values()) {
+    if (n.id === note.id || out.has(n.id)) continue;
+    if ((n.links ?? []).some((l) => l.kind === 'note' && l.ref === note.id)) out.set(n.id, { id: n.id, title: noteTitle(n), own: false });
+  }
+  return [...out.values()];
+}
+
+/** The note with a link to another note (once; never to itself). */
+export function linkNote(note, other, now = new Date().toISOString()) {
+  if (!other || other.id === note.id || (note.links ?? []).some((l) => l.kind === 'note' && l.ref === other.id)) return note;
+  return addLink(note, { kind: 'note', ref: other.id, label: noteTitle(other).slice(0, 60) }, now);
+}
+
+/** The note without its link to another note. */
+export const unlinkNote = (note, otherId, now = new Date().toISOString()) => ({ ...note, links: (note.links ?? []).filter((l) => !(l.kind === 'note' && l.ref === otherId)), editedAt: now });
+
+/**
+ * Notes that may belong to this one (shared #tags or the same bike), not linked yet, at most `max`.
+ * → [{ id, title, why: 'tag' | 'bike', tag? }]
+ */
+export function maybeRelated(note, notes = [], max = 3) {
+  if (!note) return [];
+  const linked = new Set(linkedNotes(note, notes).map((x) => x.id));
+  const mine = new Set(tagsOf(`${note.title ?? ''} ${note.text ?? ''}`));
+  const out = [];
+  for (const n of notes.filter(isKept).sort((a, b) => (b.editedAt ?? b.at ?? '').localeCompare(a.editedAt ?? a.at ?? ''))) {
+    if (n.id === note.id || linked.has(n.id)) continue;
+    const tag = tagsOf(`${n.title ?? ''} ${n.text ?? ''}`).find((x) => mine.has(x));
+    if (tag) out.push({ id: n.id, title: noteTitle(n), why: 'tag', tag });
+    else if (note.bikeId && n.bikeId === note.bikeId) out.push({ id: n.id, title: noteTitle(n), why: 'bike' });
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/** Kept notes found by a search for the link picker (title and text), without the note itself, at most `max`. */
+export function pickNotes(note, notes = [], query = '', max = 6) {
+  return noteList(notes, { query }).filter((n) => n.id !== note?.id).slice(0, max).map((n) => ({ id: n.id, title: noteTitle(n) }));
+}
+
+/**
+ * The small evaluation on the Notes page: { total, month, topTags: [{ tag, n }], openPoints,
+ * openLists, linked, oldestOpen: { id, title, at } | null }. today: 'YYYY-MM-DD' (localDay()).
+ */
+export function noteStats(notes = [], today = '') {
+  const kept = notes.filter(isKept);
+  const month = today.slice(0, 7);
+  const tags = new Map();
+  for (const n of kept) for (const tg of tagsOf(`${n.title ?? ''} ${n.text ?? ''}`)) tags.set(tg, (tags.get(tg) ?? 0) + 1);
+  const open = kept.filter((n) => progress(n).total > progress(n).done).sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
+  const linkedIds = new Set();
+  for (const n of kept) for (const l of n.links ?? []) if (l.kind === 'note') (linkedIds.add(n.id), linkedIds.add(l.ref));
+  return {
+    total: kept.length,
+    month: month ? kept.filter((n) => (n.at ?? '').slice(0, 7) === month).length : 0,
+    topTags: [...tags].map(([tag, n]) => ({ tag, n })).sort((a, b) => b.n - a.n || a.tag.localeCompare(b.tag)).slice(0, 5),
+    openPoints: open.reduce((a, n) => a + progress(n).total - progress(n).done, 0),
+    openLists: open.length,
+    linked: kept.filter((n) => linkedIds.has(n.id)).length,
+    oldestOpen: open[0] ? { id: open[0].id, title: noteTitle(open[0]), at: open[0].at } : null,
+  };
+}
