@@ -184,6 +184,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/pay/invoices')) return 'invoices'; // Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00)
   if (h.startsWith('#/me/handbook')) return 'handbook'; // Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben»)
   if (h.startsWith('#/me/tools')) return 'tools'; // Paket L «Werkzeugkasten»: Ich › Werkzeugkasten
+  if (h.startsWith('#/me/links')) return 'weblinks'; // Paket L «Werkzeuge und Links» (Noah «1b»)
   if (h.startsWith('#/me/apps')) return 'miniapps'; // Ich › Kleine Apps (mockup HB2)
   if (h.startsWith('#/me/offers')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
@@ -300,7 +301,7 @@ export function placeOf(page) {
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'tools' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'tools' || page === 'weblinks' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders') return 'me';
   return null;
 }
 

@@ -15,6 +15,7 @@ import { haversine, lineLength, distText, gpxOf } from '../src/lib/tools/geo.js'
 import { cleanCode, checkDigitOk, itemsWithCode } from '../src/lib/tools/barcode.js';
 import { isHeic, convertedName, TARGETS } from '../src/lib/tools/convert.js';
 import { VIDEO_SIZES, videoPlan, videoGuess, recType } from '../src/lib/tools/video.js';
+import { SUGGESTED, WEB_GROUPS, cleanWeb, groupName, linkTrip, webLinks, linksIn, moveLink, deleteWebGroup, mapsUrl, calendarUrl } from '../src/lib/tools/weblinks.js';
 import { STEPS, DEFAULT_CHAINS, brokenStep, cleanChains, kindOfFiles, runChain, chainName } from '../src/lib/tools/chains.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import { TILES } from '../src/lib/home/tiles.js';
@@ -475,5 +476,59 @@ describe('the toolbox list: own order and «Fits right now»', () => {
     expect(suggestTools([{ startDate: '2026-10-14', days: 2 }], today)).toEqual([{ key: 'costs', why: 'Your trip is over: who owes whom?' }]);
     expect(suggestTools([{ startDate: '2026-10-20', idea: true, country: 'IT' }], today)).toEqual([]);
     for (const w of ['For your trip abroad', 'For the mountains', 'To plan your trip', 'Share the costs of the trip', 'Your trip is over: who owes whom?']) expect(de[w], w).toBeTruthy();
+  });
+});
+
+describe('page «Werkzeuge und Links»', () => {
+  const trip = { id: 't', title: 'Testtour Jura', startDate: '2026-10-24', days: 2, place: { name: 'Delémont', lat: 47.3649, lon: 7.3445 } };
+  it('starts with the suggested groups and links, every one with German', () => {
+    const st = cleanWeb(null);
+    expect(st.groups.map((g) => g.id)).toEqual(WEB_GROUPS.map((g) => g.id));
+    for (const g of WEB_GROUPS) expect(de[g.label], g.label).toBeTruthy();
+    for (const x of SUGGESTED) {
+      expect(de[x.sub], x.sub).toBeTruthy();
+      expect(st.groups.some((g) => g.id === x.group), x.id).toBe(true);
+      expect(x.url({}).startsWith('https://'), x.id).toBe(true);
+    }
+    expect(de['Tools and links']).toBe('Werkzeuge und Links');
+    expect(pageOf('#/me/links')).toBe('weblinks');
+    expect(placeOf('weblinks')).toBe('me');
+  });
+  it('links carry the next trip (place and day), only links with the pin', () => {
+    expect(linkTrip([trip, { startDate: '2026-12-01' }], '2026-10-19')).toBe(trip);
+    expect(linkTrip([{ startDate: '2026-11-20' }], '2026-10-19')).toBeNull();
+    const ls = webLinks(cleanWeb(null), [], { trip, place: trip.place, lang: 'de' });
+    const sbb = ls.find((l) => l.id === 'sbb');
+    expect(sbb.href).toContain('nach=Del%C3%A9mont');
+    expect(sbb.href).toContain('datum=24.10.2026');
+    expect(sbb.trip).toBe(true);
+    expect(ls.find((l) => l.id === 'trello').trip).toBe(false);
+    expect(mapsUrl(trip.place)).toBe('https://www.google.com/maps/dir/?api=1&destination=47.365,7.345&travelmode=bicycling');
+    expect(calendarUrl(trip)).toBe('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Testtour%20Jura&dates=20261024/20261026');
+    expect(calendarUrl(null)).toBe('https://calendar.google.com/');
+  });
+  it('own links from «Links und Dateien» in their group; switched-off suggestions left out; own order', () => {
+    const own = [{ id: 'a', title: 'Testseite', url: 'https://example.org/', group: 'everyday' }, { id: 'b', title: 'Ohne', url: 'https://example.com/' }];
+    const st = { ...cleanWeb(null), hidden: ['trello'] };
+    let ls = webLinks(st, own);
+    expect(ls.some((l) => l.id === 'trello')).toBe(false);
+    expect(linksIn(ls, 'everyday').map((l) => l.key)).toContain('o:a');
+    expect(linksIn(ls, '').map((l) => l.key)).toEqual(['o:b']);
+    const order = moveLink(ls, 'everyday', linksIn(ls, 'everyday').length - 1, 0);
+    ls = webLinks({ ...st, order }, own);
+    expect(linksIn(ls, 'everyday')[0].key).toBe('o:a');
+  });
+  it('deleting a group keeps its links: to «Ohne Gruppe» or another group; typed names never through t()', () => {
+    const own = [{ id: 'a', title: 'X', url: 'https://example.org/', group: 'files' }];
+    const r = deleteWebGroup(cleanWeb(null), own, 'files', '');
+    expect(r.state.groups.some((g) => g.id === 'files')).toBe(false);
+    expect(r.own[0].group).toBe('');
+    const ls = webLinks(r.state, r.own);
+    expect(linksIn(ls, '').map((l) => l.id)).toEqual(['tinywow', 'ilovepdf', 'squoosh', 'a']);
+    const r2 = deleteWebGroup(cleanWeb(null), own, 'files', 'bike');
+    expect(linksIn(webLinks(r2.state, r2.own), 'bike').map((l) => l.id)).toContain('squoosh');
+    expect(groupName({ id: 'g1', name: 'Meine Gruppe' }, () => 'T')).toBe('Meine Gruppe');
+    expect(groupName({ id: 'bike', label: 'Bike|links' }, (x) => `T:${x}`)).toBe('T:Bike|links');
+    expect(cleanWeb({ groups: [{ id: 'g1', name: 'Eigene' }], hidden: ['nope', 'sbb'] })).toMatchObject({ groups: [{ id: 'g1', name: 'Eigene' }], hidden: ['sbb'] });
   });
 });

@@ -57,6 +57,7 @@
   import Handbook from './pages/Handbook.svelte';
   import MiniApps from './pages/MiniApps.svelte';
   import Tools from './pages/Tools.svelte';
+  import WebLinks from './pages/WebLinks.svelte';
   import Inspiration from './pages/Inspiration.svelte';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
@@ -446,6 +447,9 @@
   {:else if page === 'tools'}
     <!-- Paket L «Werkzeugkasten»: Ich › Werkzeugkasten and its tools (#/me/tools/<key>) -->
     {#key toolKeyOf(hash)}<Tools tool={toolKeyOf(hash)} />{/key}
+  {:else if page === 'weblinks'}
+    <!-- Paket L «Werkzeuge und Links» (Noah 19.10.2026 «1b»): links to other apps and pages -->
+    <WebLinks />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}

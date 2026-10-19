@@ -550,6 +550,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Documents or Me › Toolbox › Links and files.', 'Tap «Add link» or «Add file» (up to 5 MB).', 'Move, rename or delete an entry with its buttons.'],
     example: 'Example: the timetable link and the train ticket as PDF, both in one place.',
   },
+  'f.weblinks': {
+    on: null,
+    steps: ['Open Me › Tools and links.', 'Tap a link; it opens in a new tab. The eye switches a suggestion off.', '«Order» moves links and changes their group; groups can be renamed and deleted.'],
+    example: 'Example: SBB opens the timetable to the start of your next trip, on its day.',
+  },
   'f.chains': {
     on: null,
     steps: ['Open Me › Toolbox › Tool chains.', 'Use a ready chain or tap «New chain» and add steps.', 'Tap «Start» and choose the files; the steps run one after the other.'],

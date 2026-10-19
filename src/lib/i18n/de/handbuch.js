@@ -551,4 +551,10 @@ export default {
   "Tap «Magnifier and light» and allow the camera.": "Tippe «Lupe und Taschenlampe» und erlaube die Kamera.",
   "Zoom, «Hold picture», or switch the light on.": "Zoome, tippe «Bild anhalten» oder schalte das Licht ein.",
   "Example: read the tyre size 40-622 on a dark sidewall.": "Beispiel: die Reifengrösse 40-622 auf einer dunklen Flanke lesen.",
+  // Paket L: Seite «Werkzeuge und Links»
+  "Tools and links": "Werkzeuge und Links",
+  "Open Me › Tools and links.": "Öffne Ich › Werkzeuge und Links.",
+  "Tap a link; it opens in a new tab. The eye switches a suggestion off.": "Tippe einen Link an; er öffnet sich in einem neuen Tab. Das Auge schaltet einen Vorschlag ab.",
+  "«Order» moves links and changes their group; groups can be renamed and deleted.": "«Anordnen» verschiebt Links und ändert ihre Gruppe; Gruppen lassen sich umbenennen und löschen.",
+  "Example: SBB opens the timetable to the start of your next trip, on its day.": "Beispiel: SBB öffnet den Fahrplan zum Start deiner nächsten Tour, an ihrem Tag.",
 };

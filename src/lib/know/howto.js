@@ -97,6 +97,7 @@ export const HOWTO = {
   'f.money': ['Open Toolbox › Currencies.', 'Type the amount and choose the currency.', 'Read it in Franken.'],
   'f.tripcosts': ['Open Toolbox › Trip costs.', 'Add the people and each expense.', '«Who owes whom»: request it by TWINT.'],
   'f.ablage': ['Open Documents or Toolbox › Links and files.', 'Tap «Add link» or «Add file».', 'Find it there again.'],
+  'f.weblinks': ['Open Me › Tools and links.', 'Tap a link.', 'Switch off or add your own.'],
   'f.chains': ['Open Toolbox › Tool chains.', 'Choose or build a chain.', '«Start» and choose the files.'],
   'f.convert': ['Open Toolbox › Picture format.', 'Choose JPG or PNG.', 'Choose the pictures, then save.'],
   'f.video': ['Open Toolbox › Make video smaller.', 'Choose the size and the video.', 'Wait, then save or share.'],

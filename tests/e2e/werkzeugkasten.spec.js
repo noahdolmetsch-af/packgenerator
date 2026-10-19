@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOOLS } from '../../src/lib/tools/tools.js';
+import { renameGroupVia, deleteGroupVia } from './groups.js';
 
 const de = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const shot = async (page, info, name) => {
@@ -313,5 +314,63 @@ test('Werkzeugkasten: fits right now, search and order, gears, QR, bar code, map
     await page.goto(`#/me/tools/${k}`);
     await expect(page.locator(`.tools-view[data-tool="${k}"]`)).toBeVisible();
   }
+  expect(errors).toEqual([]);
+});
+
+test('Werkzeuge und Links: suggestions with the trip, switch off and back, own link, groups', async ({ page }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('#/me');
+  await ready(page);
+  const start = await page.evaluate(() => {
+    const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich' }).format(new Date()).split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d + 4)).toISOString().slice(0, 10);
+  });
+  await putRow(page, 'trips', { id: 'test_data_trip_jura', title: 'Testtour Jura', startDate: start, days: 2, place: { name: 'Delemont', lat: 47.36, lon: 7.34 }, status: 'planned', entries: [] });
+  await page.reload();
+  await ready(page);
+  await page.locator('[data-row="weblinks"]').click();
+  await expect(page.getByRole('heading', { level: 1, name: de('Tools and links') })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: de('On the way|links') })).toBeVisible();
+  await expect(page.locator('[data-trip-line]')).toContainText('Testtour Jura');
+  // SBB carries the place and the day of the trip
+  const sbb = page.locator('[data-link="s:sbb"] a');
+  await expect(sbb).toHaveAttribute('href', /nach=Delemont/);
+  await expect(sbb).toHaveAttribute('href', new RegExp(`datum=${start.slice(8, 10)}\\.${start.slice(5, 7)}\\.${start.slice(0, 4)}`));
+  await expect(sbb).toHaveAttribute('target', '_blank');
+  await shot(page, info, 'L7-links');
+
+  // switch off Trello, then bring it back
+  await page.getByRole('button', { name: de('Do not suggest «{name}» any more').replace('{name}', 'Trello') }).click();
+  await expect(page.locator('[data-link="s:trello"]')).toHaveCount(0);
+  await page.locator('.wl-off summary').click();
+  await page.locator('[data-off="trello"]').getByRole('button', { name: de('Show again') }).click();
+  await expect(page.locator('[data-link="s:trello"]')).toHaveCount(1);
+
+  // an own link in «Alltag»: it is also under Toolbox › Links and files (one store)
+  await page.getByRole('button', { name: de('Add own link') }).click();
+  await page.locator('.wl-add').getByLabel(de('Name on the button')).fill('Testseite Muster');
+  await page.locator('.wl-add').getByLabel(de('Address')).fill('example.org/test');
+  await page.locator('.wl-add').getByLabel(de('Group')).selectOption('everyday');
+  await page.locator('.wl-add').getByRole('button', { name: de('Add'), exact: true }).click();
+  await expect(page.locator('[data-wl-group="everyday"]').getByText('Testseite Muster')).toBeVisible();
+
+  // a new group, renamed; then «Alltag» deleted: its links go to «Ohne Gruppe», Undo brings it back
+  await page.getByRole('button', { name: de('New group') }).click();
+  await page.getByLabel(de('Name of the new group')).fill('Testgruppe');
+  await page.locator('.wl-newg').getByRole('button', { name: de('Add'), exact: true }).click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Testgruppe' })).toBeVisible();
+  await renameGroupVia(page, 'Testgruppe', 'Testgruppe Neu');
+  await expect(page.getByRole('heading', { level: 2, name: 'Testgruppe Neu' })).toBeVisible();
+  await deleteGroupVia(page, de('Everyday|links'));
+  await page.locator('dialog.gds[open]').getByRole('button', { name: de('Delete'), exact: true }).click();
+  await expect(page.getByRole('heading', { level: 2, name: de('Everyday|links') })).toHaveCount(0);
+  await expect(page.locator('[data-wl-group="none"]').getByText('Testseite Muster')).toBeVisible();
+  await page.getByRole('button', { name: de('Undo') }).first().click();
+  await expect(page.getByRole('heading', { level: 2, name: de('Everyday|links') })).toBeVisible();
+  await expect(page.locator('[data-wl-group="everyday"]').getByText('Testseite Muster')).toBeVisible();
+
+  await page.goto('#/me/tools/ablage');
+  await expect(page.getByText('Testseite Muster')).toBeVisible();
   expect(errors).toEqual([]);
 });

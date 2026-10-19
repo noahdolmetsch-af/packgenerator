@@ -52,7 +52,7 @@ export const SINCE = {
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // Paket L «Werkzeugkasten» (the bundler sets the release version here and on the tile)
   'f.tools': '0.148.0', 'f.pdftools': '0.148.0', 'f.phototools': '0.148.0', 'f.money': '0.148.0', 'f.tripcosts': '0.148.0', 'f.ablage': '0.148.0',
-  'f.chains': '0.148.0', 'f.convert': '0.148.0', 'f.video': '0.148.0', 'f.qr': '0.148.0', 'f.mapmeasure': '0.148.0', 'f.gears': '0.148.0', 'f.level': '0.148.0', 'f.barcode': '0.148.0', 'f.light': '0.148.0',
+  'f.weblinks': '0.148.0', 'f.chains': '0.148.0', 'f.convert': '0.148.0', 'f.video': '0.148.0', 'f.qr': '0.148.0', 'f.mapmeasure': '0.148.0', 'f.gears': '0.148.0', 'f.level': '0.148.0', 'f.barcode': '0.148.0', 'f.light': '0.148.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

@@ -3,7 +3,8 @@
  * «4 a und b»): one place for links and small files, shown in Ich › Dokumente and in the Werkzeugkasten.
  *
  * Where it lives (no new table, no schema change; both go into the backup and the sync):
- * - settings 'ablage.links' = [{ id, title, url, note, addedAt }] in the user's order;
+ * - settings 'ablage.links' = [{ id, title, url, note, addedAt, group? }] in the user's order (group: the
+ *   group on the page «Werkzeuge und Links», weblinks.js);
  * - settings 'ablage.files' = [{ id, name, type, size, addedAt }] in the user's order, and the file
  *   itself in settings 'ablage.file.<id>' = data URL.
  * Names are the user's own: never through t(). The pure parts are tested in tests/werkzeugkasten.test.js.
@@ -64,10 +65,10 @@ export const saveLinks = (list, db = appDb) => db.settings.put({ key: LINKS_KEY,
 export const saveFiles = (list, db = appDb) => db.settings.put({ key: FILES_KEY, value: JSON.parse(JSON.stringify(list)) });
 
 /** Adds a link (at the end). → the new entry, or null when the address is not usable. */
-export async function addLink({ title = '', url, note = '' }, db = appDb) {
+export async function addLink({ title = '', url, note = '', group = null }, db = appDb) {
   const href = cleanUrl(url);
   if (!href) return null;
-  const e = { id: newId(), title: String(title).trim().slice(0, 80) || titleOf(href), url: href, note: String(note).trim().slice(0, 200), addedAt: new Date().toISOString() };
+  const e = { id: newId(), title: String(title).trim().slice(0, 80) || titleOf(href), url: href, note: String(note).trim().slice(0, 200), addedAt: new Date().toISOString(), ...(group != null ? { group } : {}) };
   await saveLinks([...(await readLinks(db)), e], db);
   return e;
 }
