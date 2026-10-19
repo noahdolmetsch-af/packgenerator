@@ -1,7 +1,7 @@
 // Paket N: Touren › Träume — dream tours, the year band with season windows (suggested by kind, 2b),
 // kinds as groups (add, rename, delete), races from Inspiration and the calendar as event trips. Fictional data.
 import { describe, it, expect } from 'vitest';
-import { KINDS, storeOf, guessKind, monthsOf, toggleMonth, resetMonths, suggested, newDream, yearBand, nextWindow, suggestStart, daysUntil, moveDream, dreamList, plannableRaces, raceDays, raceEvent, deadlines, addKind, renameKind, deleteKind, kindName } from '../src/lib/dreams.js';
+import { KINDS, seasonText, storeOf, guessKind, monthsOf, toggleMonth, resetMonths, suggested, newDream, yearBand, nextWindow, suggestStart, daysUntil, moveDream, dreamList, plannableRaces, raceDays, raceEvent, deadlines, addKind, renameKind, deleteKind, kindName } from '../src/lib/dreams.js';
 
 const P = 'test_data_gtp_';
 const today = '2026-10-19';
@@ -99,5 +99,16 @@ describe('races as event trips', () => {
       { id: 'd', title: 'D', event: { signupBy: '2026-10-25', signedUp: true } },
     ];
     expect(deadlines(trips, today)).toEqual([{ tripId: 'b', title: 'B', signupBy: '2026-10-21', days: 2 }, { tripId: 'a', title: 'A', signupBy: '2026-10-30', days: 11 }]);
+  });
+});
+
+describe('seasonText', () => {
+  it('writes months as short ranges, also over the new year', () => {
+    const n = (m) => String(m);
+    expect(seasonText([7, 8, 9], n)).toBe('7–9');
+    expect(seasonText([10, 11, 12, 1, 2], n)).toBe('10–2');
+    expect(seasonText([5, 7], n)).toBe('5, 7');
+    expect(seasonText([], n)).toBe('');
+    expect(seasonText([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], n)).toBe('1–12');
   });
 });

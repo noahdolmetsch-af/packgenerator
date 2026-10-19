@@ -32,7 +32,26 @@ export const KINDS = [
 export const KIND = Object.fromEntries(KINDS.map((k) => [k.key, k]));
 
 /** Month names for the band (English keys for t(); German: Jan … Dez). */
-export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export const MONTHS = ['Jan|month', 'Feb|month', 'Mar|month', 'Apr|month', 'May|month', 'Jun|month', 'Jul|month', 'Aug|month', 'Sep|month', 'Oct|month', 'Nov|month', 'Dec|month'];
+
+/**
+ * Months as short ranges for one line: [7, 8, 9] → «Jul–Sep», [10, 11, 12, 1, 2] → «Oct–Feb» (over the
+ * new year), [5, 7] → «May, Jul». name(m) gives the shown name of month m.
+ */
+export function seasonText(months = [], name = (m) => String(m)) {
+  const set = new Set(months);
+  if (!set.size) return '';
+  if (set.size === 12) return `${name(1)}–${name(12)}`;
+  // start each run at a month whose month before is not in the set
+  const starts = [...set].filter((m) => !set.has(m === 1 ? 12 : m - 1)).sort((a, b) => a - b);
+  return starts
+    .map((s) => {
+      let e = s;
+      while (set.has(e === 12 ? 1 : e + 1) && (e === 12 ? 1 : e + 1) !== s) e = e === 12 ? 1 : e + 1;
+      return e === s ? name(s) : `${name(s)}–${name(e)}`;
+    })
+    .join(', ');
+}
 
 /** The store made safe: { dreams: [], kinds: [] } (kinds: yours, else the Standard ones). */
 export function storeOf(value) {

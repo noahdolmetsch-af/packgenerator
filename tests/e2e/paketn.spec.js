@@ -68,3 +68,60 @@ test('Ich › Was kommt shows the packages', async ({ page, context }) => {
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });
+
+test('Touren › Träume: a dream with its season in the year band', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/trips/dreams');
+  await ready(page);
+  const root = page.locator('[data-page="dreams"]');
+  await root.locator('form.cap input').fill('test_data_gtp_ Furka Pass');
+  await root.locator('form.cap button[type="submit"]').click();
+  await expect(root.locator('[data-dream]')).toHaveCount(1);
+  await expect(root.locator('[data-dream]')).toContainText(T('Alpine passes'));
+  // July fits, January does not
+  await expect(root.locator('[data-month="7"] .num')).toHaveText('1');
+  await expect(root.locator('[data-month="1"] .num')).toHaveText('0');
+  await noSideScroll(page);
+
+  await root.locator('[data-dream] button.open').click();
+  const sheet = page.locator('dialog.dsheet');
+  await sheet.locator('[data-months] button').nth(5).click(); // June on
+  await expect(sheet).toContainText(T('chosen by you'));
+  await sheet.getByRole('button', { name: T('Done') }).click();
+  await expect(root.locator('[data-month="6"] .num')).toHaveText('1');
+  await root.locator('[data-month="6"]').click();
+  await expect(root.locator('#dr-list')).toContainText(T('Dreams in {month}').replace('{month}', T('Jun|month')));
+  await expect(root.locator('[data-races]')).toBeVisible();
+  await root.locator('[data-kinds] summary').click();
+  await expect(root.locator('[data-kinds]')).toContainText(T('Jura and foothills'));
+  expect(errors).toEqual([]);
+});
+
+test('Ich › Mein Kompass: a goal gets steps with dates, «Wie läuft\'s?», an idea becomes a goal', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/me');
+  await ready(page);
+  await page.locator('a[data-row="compass"]').click();
+  await expect(page).toHaveURL(/#\/me\/compass$/);
+  const root = page.locator('[data-page="compass"]');
+  await root.locator('[data-goals] form.cap input[type="text"]').first().fill('test_data_gtp_ Alpenbrevet');
+  await root.locator('[data-goals] form.cap button[type="submit"]').click();
+  const goal = root.locator('article[data-goal]');
+  await expect(goal).toHaveCount(1);
+  await goal.locator('textarea').fill('Route zeichnen\nTraining planen');
+  await goal.getByRole('button', { name: T('Add steps') }).click();
+  await expect(goal.locator('.steps li')).toHaveCount(2);
+  await expect(goal.locator('[data-ai-steps]')).toHaveCount(0); // AI helper not set up here
+  await expect(root.locator('[data-goal-check]')).toBeVisible();
+  await root.locator('[data-goal-check]').getByRole('button', { name: T('Going well') }).click();
+  await expect(root.locator('[data-goal-check]')).toHaveCount(0);
+
+  const ideas = root.locator('[data-box="ideas"]');
+  await ideas.locator('form.addrow input').fill('test_data_gtp_ Ostsee umrunden');
+  await ideas.locator('form.addrow button').click();
+  await expect(ideas.locator('[data-entry]')).toHaveCount(1);
+  await ideas.getByRole('button', { name: T('Make a goal') }).click();
+  await expect(root.locator('article[data-goal]')).toHaveCount(2);
+  await noSideScroll(page);
+  expect(errors).toEqual([]);
+});

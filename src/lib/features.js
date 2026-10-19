@@ -163,6 +163,9 @@ const OWN = [
   { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes by day; «File as …» with 7 targets; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
   // Paket N (19.10.2026): notes linked with each other, and the plan of the app
   { id: 'f.notelinks', group: 'data', title: 'Linked notes|f', text: 'Link notes with each other; see at a glance what your notes hold, a #tag finds them all.', href: '#/notes', words: 'notizen verknüpfen verknuepfen verbinden auswerten stichwort tags überblick' },
+  { id: 'f.dreams', group: 'before', title: 'Dream tours', text: 'Your dream tours with the months they fit; the year band shows what fits when, one tap makes a trip.', href: '#/trips/dreams', words: 'träume traum wunschliste wunsch tour jahresplan saison monate abenteuer kompass' },
+  { id: 'f.races', group: 'before', title: 'Race as an event trip', text: 'A race from Inspiration or your Google calendar becomes a planned trip with the race block and the registration deadline.', href: '#/trips/dreams', words: 'rennen race event anmeldung anmeldeschluss kalender gran fondo marathon' },
+  { id: 'f.compass', group: 'data', title: 'My compass', text: 'Goals become steps with dates; once a week «How is it going?»; boxes for resolutions, dreams, things to remember and ideas.', href: '#/me/compass', words: 'kompass ziele ziel schritte vorsätze träume nicht vergessen ideen ordnen planen hilf mir planen' },
   { id: 'f.next', group: 'data', title: 'What comes next', text: 'The plan of the app package by package: live, being built, later.', href: '#/me/next', words: 'was kommt plan pakete projekt stand roadmap wünsche' },
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
   // P3b «Daten sicher»: Ich › Dokumente (D3/D4) and the exchange between phone and computer
