@@ -396,6 +396,9 @@
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <Ski sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'mountain'}
+    <!-- Paket J «Berg, Schnee und Notfall»: #/mountain, /sos, /qr, /map, /scales; loads only when opened -->
+    {#await import('./pages/Mountain.svelte') then m}<m.default sub={hash.split('/').slice(2).join('/')} />{/await}
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <PastTrips />

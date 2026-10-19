@@ -118,3 +118,11 @@ export async function keepStrava(list) {
     await db.settings.put({ key: STRAVA_KEY, value: mergeStrava(rec?.value ?? [], list) });
   });
 }
+
+/** Paket J: merge fields into the trip itself (the saved snow and freezing level, trip.snow). */
+export async function setTripFields(tripId, fields) {
+  await db.transaction('rw', db.trips, async () => {
+    const trip = await db.trips.get(tripId);
+    if (trip) await db.trips.update(tripId, fields);
+  });
+}

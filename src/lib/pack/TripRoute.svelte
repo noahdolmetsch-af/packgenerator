@@ -25,6 +25,9 @@
   import Woanders from '../sk/Woanders.svelte'; // SK X3, X6, X10, X12 (SKX2, SKX4)
   import { swisstopoUrl, meteoUrl, sbbUrl, schweizMobilUrl, slfUrl } from '../sk/links.js';
   import { domainOf, hasBike } from '../domains.js';
+  import SnowBox from '../mountain/SnowBox.svelte'; // Paket J #160: freezing level and fresh snow
+  import { isMountain } from '../mountain/snow.js';
+  import { Map as MapIcon, Siren } from '@lucide/svelte';
 
   let { trip, onchange } = $props();
 
@@ -211,6 +214,17 @@
       <Woanders context={trip.place.name} links={[{ kind: 'x3m', href: meteoUrl(lang.v), icon: 'cloudsun', sub: t('Forecast map') }, { kind: 'x3s', href: sbbUrl(trip.place, trip.startDate, lang.v), icon: 'train', sub: [t('to {place}', { place: trip.place.name }), trip.startDate ? longDay(trip.startDate) : ''].filter(Boolean).join(' · ') }]} />
     {/if}
   </div>
+
+  {#if isMountain(trip)}
+    <!-- Paket J (Noah 19.10.2026 «1a und b», «2a», «3a»): every ski tour and mountain tour -->
+    <div class="part" data-mountain>
+      <SnowBox {trip} save={(f) => db.trips.update(trip.id, f)} />
+      <p class="acts">
+        <a class="btn sm" href="#/mountain/map?trip={encodeURIComponent(trip.id)}" data-to="map"><MapIcon size={16} aria-hidden="true" />{t('Map with steep slopes')}</a>
+        <a class="btn sm" href="#/mountain/sos" data-to="sos"><Siren size={16} aria-hidden="true" />{t('Emergency')}</a>
+      </p>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -308,5 +322,10 @@
   .link:disabled {
     color: var(--ink-3);
     cursor: default;
+  }
+  .acts .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 </style>
