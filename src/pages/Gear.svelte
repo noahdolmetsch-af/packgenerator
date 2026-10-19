@@ -943,7 +943,8 @@
 
 {#snippet showAs()}
   <!-- Paket H «3a und b» (Noah 19.10.2026): the third choice «Table» on a computer (shared ui/ListTable) -->
-  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }, ...(phone.matches ? [] : [{ key: 'table', name: t('Table') }])]} value={display === 'table' && phone.matches ? 'list' : display} onchange={setDisplay} /></span>
+  <!-- on a phone «Show as» lives in the filter sheet (Impeccable 2, Material 3) -->
+  {#if !phone.matches}<span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }, { key: 'table', name: t('Table') }]} value={display} onchange={setDisplay} /></span>{/if}
   <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
 
