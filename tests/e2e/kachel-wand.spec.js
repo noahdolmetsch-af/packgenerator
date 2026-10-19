@@ -6,12 +6,13 @@
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo
 // mocked; SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
-import { D0, openHome } from './home0460-fixture.js';
+import { D0, openHome, atHour } from './home0460-fixture.js';
 import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off (v0.118.0)
-const SHOWN = tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true);
+// Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
+const SHOWN = atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9);
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
