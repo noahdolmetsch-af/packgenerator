@@ -71,7 +71,7 @@ export default {
   'Check the bike point by point, with tools, steps and when the bike shop is better.': 'Prüfe das Velo Punkt für Punkt, mit Werkzeug, Schritten und wann die Werkstatt besser ist.',
   'Rain on {date}: dry and lube the chain, wipe the stanchions.': 'Regen am {date}: Kette trocknen und ölen, Standrohre abwischen.',
   'Quick check': 'Kurzcheck',
-  'Rain counts once your home place is set (Me › Home place). It is the rain at home, an estimate.': 'Regen zählt mit, sobald dein Wohnort eingetragen ist (Ich › Wohnort). Es ist der Regen am Wohnort, also geschätzt.',
+  'Rain counts once your home place is set (Me › Home place). Strava rides count the rain where they started, other rides the rain at home: an estimate.': 'Regen zählt mit, sobald dein Wohnort eingetragen ist (Ich › Wohnort). Strava-Fahrten zählen den Regen dort, wo sie gestartet sind, andere Fahrten den Regen am Wohnort: eine Schätzung.',
   'More for the inspection': 'Mehr zur Inspektion',
   'History with photos, checklist, intervals': 'Verlauf mit Fotos, Checkliste, Abstände',
   // Checkliste bearbeiten
@@ -298,4 +298,19 @@ export default {
   'Cages, computer mount, bags': 'Flaschenhalter, Velocomputer-Halter, Taschen',
   'Bottle cages, computer mount and bag straps tight.': 'Flaschenhalter, Velocomputer-Halter und Taschenriemen fest.',
   'Check rub spots from bags on the frame.': 'Scheuerstellen von Taschen am Rahmen prüfen.',
+  // Noah 19.10.2026 «1 … 2a 3a»
+  'Quick check before the tour': 'Kurzcheck vor der Tour',
+  '2 minutes: axles, brakes, tyre pressure, chain.': '2 Minuten: Achsen, Bremsen, Reifendruck, Kette.',
+  'Before a tour': 'Vor einer Tour',
+  'Suggest the quick check before a tour': 'Kurzcheck vor einer Tour vorschlagen',
+  'From two days before the start, the tour preparation and the bike care show «Quick check before the tour». For all bikes.': 'Ab zwei Tagen vor dem Start zeigen die Tour-Vorbereitung und die Velopflege «Kurzcheck vor der Tour». Gilt für alle Velos.',
+  'Worn parts on the wishlist': 'Abgenutzte Teile auf die Wunschliste',
+  'Chain, brake pads or rotor soon worn: the part goes on the wishlist, with about how many km are left.': 'Kette, Bremsbeläge oder Bremsscheibe bald abgenutzt: Das Teil kommt auf die Wunschliste, mit ungefähr den km, die noch bleiben.',
+  'goes on the wishlist': 'kommt auf die Wunschliste',
+  '{n} part is on the wishlist.': '{n} Teil steht auf der Wunschliste.',
+  '{n} parts are on the wishlist.': '{n} Teile stehen auf der Wunschliste.',
+  'From the inspection: worn, replace it now.': 'Aus der Inspektion: abgenutzt, jetzt ersetzen.',
+  'From the inspection: soon worn.': 'Aus der Inspektion: bald abgenutzt.',
+  'From the inspection: about {km} km left, needed around {date}.': 'Aus der Inspektion: noch etwa {km} km, gebraucht etwa am {date}.',
+  'From the inspection: about {km} km left.': 'Aus der Inspektion: noch etwa {km} km.',
 };

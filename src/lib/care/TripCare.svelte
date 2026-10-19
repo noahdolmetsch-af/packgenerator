@@ -12,6 +12,7 @@
   import { prepSummary, isEvent } from '../care.js';
   import { t, tn, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
+  import { bikesHash } from '../bikes.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
@@ -56,7 +57,7 @@
     <div class="shop">
       <span class="lbl">{bikeCareLine(care)}</span>
       {#if bikeRows.length}
-        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn" data-sign={r.late ? signFor('warn') : null}>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
+        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn" data-sign={r.late ? signFor('warn') : null}>{#if r.kind === 'inspect'}<a href={bikesHash({ tab: 'care', view: 'inspect', bike: care.bikeId, level: r.level ?? 'full' })} data-trip-inspect={r.level ?? 'full'}>{r.name}</a>{:else}{r.name}{/if}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
       {:else if care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}

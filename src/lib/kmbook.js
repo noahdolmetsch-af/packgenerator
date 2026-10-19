@@ -111,6 +111,8 @@ export function makeEntry(fields, now = new Date()) {
     hrAvg: fields.hrAvg ?? null,
     hrMax: fields.hrMax ?? null,
     hm: Number.isFinite(fields.hm) ? fields.hm : null,
+    // «Velo-Inspektion» 3a: the start cell of a Strava ride ('47.4,8.5'), only when known
+    ...(fields.spot ? { spot: fields.spot } : {}),
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
     state: fields.state ?? 'counted',

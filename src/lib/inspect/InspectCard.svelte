@@ -62,7 +62,7 @@
     <div class="st"><b>{levelName('quick')}</b><small>{t(LEVELS[0].text)}</small></div>
     <a class="btn ibtn" href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'quick' })} data-inspect-start="quick"><Play size={16} aria-hidden="true" />{st?.draft?.level === 'quick' ? t('Continue') : t('Start')}</a>
   </div>
-  {#if !insp.rain}<p class="hint">{t('Rain counts once your home place is set (Me › Home place). It is the rain at home, an estimate.')} <a href="#/me">{t('Set home place')}</a></p>{/if}
+  {#if !insp.rain}<p class="hint">{t('Rain counts once your home place is set (Me › Home place). Strava rides count the rain where they started, other rides the rain at home: an estimate.')} <a href="#/me">{t('Set home place')}</a></p>{/if}
 
   {#if !page}
     <nav class="links" aria-label={t('More for the inspection')}>

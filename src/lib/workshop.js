@@ -14,6 +14,7 @@ import { vig } from './veloimgriff.svelte.js';
 import { hoursSince, hoursText } from './bikehours.js';
 import { serviceState } from './bikeservice.js';
 import { insp } from './inspect/live.svelte.js';
+import { quickBeforeTrip } from './inspect/inspect.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -245,6 +246,11 @@ export function bikeDue(bike, trip, setup, today, end) {
   const full = insp.byBike[bike.id]?.full ?? null;
   if (full?.due) rows.push({ key: 'inspect', name: tr('Full inspection'), when: 'now', late: true, inspect: true, detail: inspectWhy(full) });
   else if (full && !full.never && !full.off && full.next && full.next <= end && trip.startDate > today) rows.push({ key: 'inspect', name: tr('Full inspection'), when: full.next < trip.startDate ? 'now' : 'during', inspect: true, detail: tr('due {date}, before the start', { date: full.next }) });
+  // Noah 19.10.2026 «1»: the Kurzcheck before a tour (a real trip, from two days before the start; setting INSPECT_TRIP)
+  const st = insp.byBike[bike.id] ?? null;
+  if (insp.beforeTrip && trip.id && st && !st.full?.off && quickBeforeTrip(trip.startDate, st.lastDone, today)) {
+    rows.push({ key: 'inspectQuick', name: tr('Quick check before the tour'), when: 'now', inspect: true, level: 'quick', detail: tr('2 minutes: axles, brakes, tyre pressure, chain.') });
+  }
   // The 1000 km check: due now, or reached on the way.
   const check = checkState(bike);
   if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(check.every) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });

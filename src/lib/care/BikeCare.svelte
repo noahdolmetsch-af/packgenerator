@@ -351,7 +351,7 @@
               <span class="next late">–</span>
               <span class="wear"></span>
               <span class="act"><span class="rowacts">
-                <Btn icon={ListChecks} label={t('Start the inspection')} explain={t('Point by point, with guides')} sub={x.d.name} href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'full' })} />
+                <Btn icon={ListChecks} label={t('Start the inspection')} explain={t('Point by point, with guides')} sub={x.d.name} href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: x.d.level ?? 'full' })} />
               </span></span>
             </li>
           {/if}

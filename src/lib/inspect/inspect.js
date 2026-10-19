@@ -22,6 +22,8 @@ import { ITEMS, ITEM, AREAS, LEVEL, LEVEL_RANK } from './items.js';
 /** Keys: the person's checklist (settings), the rain days at the home place (meta, rain.js). */
 export const INSPECT_LIST = 'inspectList';
 export const INSPECT_RAIN = 'inspectRain';
+/** Noah 19.10.2026 «1 check möglich als einstellung»: suggest the Kurzcheck before a tour (settings, on unless switched off). */
+export const INSPECT_TRIP = 'inspectBeforeTrip';
 
 /** The weights (3a). */
 export const FACTOR = { wet: 1.5, trail: 1.3, gravel: 1.15 };
@@ -38,6 +40,11 @@ export const daysBetween = (a, b) => Math.round((ms(b) - ms(a)) / MS);
 const arr = (x) => (Array.isArray(x) ? x : []);
 const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
 const str = (x) => (typeof x === 'string' ? x : '');
+/**
+ * Was this ride wet? wetDays: a Set of rainy days (at home), or a function (ride) → boolean
+ * (Noah 19.10.2026 «3a»: the rain where the Strava ride started, rain.js wetOf).
+ */
+export const isWet = (wetDays, e) => (typeof wetDays === 'function' ? !!wetDays(e) : !!wetDays?.has?.(e?.date));
 
 /** The stored record as a whole object (anything broken is left out). */
 export function normList(raw) {
@@ -233,7 +240,7 @@ export function moveArea(raw, from, to) {
 
 /* ---------- (2) when is an inspection due ---------- */
 
-/** The bike's own settings: { every: { monthly: { km, days }, full: { km, days } }, factors, off }. */
+/** The bike's own settings: { every: { monthly: { km, days }, full: { km, days } }, factors, off, buy (soon worn parts on the wishlist) }. */
 export function bikeSettings(bike) {
   const s = obj(bike?.inspect);
   const num = (v, d) => (v === null ? null : typeof v === 'number' && v > 0 ? v : d);
@@ -242,7 +249,7 @@ export function bikeSettings(bike) {
     const own = obj(obj(s.every)[level]);
     return { km: num(own.km, std.km), days: num(own.days, std.days) };
   };
-  return { every: { monthly: every('monthly'), full: every('full') }, factors: s.factors !== false, off: s.off === true };
+  return { every: { monthly: every('monthly'), full: every('full') }, factors: s.factors !== false, off: s.off === true, buy: s.buy !== false };
 }
 
 /** The kind of one ride for the weights: 'trail', 'gravel' or '' (Strava/FIT type; else the bike's kind). */
@@ -265,7 +272,7 @@ export function loadSince(entries, bikeId, since, { wetDays = new Set(), factors
     if (since && !(e.date > since)) continue;
     const km = Number(e.km) || 0;
     if (km <= 0) continue;
-    const wet = wetDays.has(e.date);
+    const wet = isWet(wetDays, e);
     const rk = rideKind(e, kind);
     let f = 1;
     if (factors && wet) f *= FACTOR.wet;
@@ -335,7 +342,7 @@ export function levelState(bike, level, { inspections = [], entries = [], wetDay
 export function afterRain(bike, { inspections = [], entries = [], wetDays = new Set(), today } = {}) {
   const last = lastOf(inspections, bike?.id, 'quick');
   const from = addDays(today, -3);
-  const rides = (entries ?? []).filter((e) => e?.bikeId === bike?.id && e.state === 'counted' && (!e.kind || e.kind === 'ride') && e.date >= from && e.date <= today && wetDays.has(e.date) && (!last || e.date >= last.date) && !(last && last.date === e.date && last.done));
+  const rides = (entries ?? []).filter((e) => e?.bikeId === bike?.id && e.state === 'counted' && (!e.kind || e.kind === 'ride') && e.date >= from && e.date <= today && isWet(wetDays, e) && (!last || e.date >= last.date) && !(last && last.date === e.date && last.done));
   return rides.length ? { day: rides.map((e) => e.date).sort().at(-1), n: rides.length } : null;
 }
 
@@ -345,8 +352,18 @@ export function inspectState(bike, ctx) {
     monthly: levelState(bike, 'monthly', ctx),
     full: levelState(bike, 'full', ctx),
     rain: bikeSettings(bike).off ? null : afterRain(bike, ctx),
+    lastDone: (ctx.inspections ?? []).filter((x) => x?.bikeId === bike?.id && x.done).map((x) => String(x.date)).sort().at(-1) ?? null,
     draft: (ctx.inspections ?? []).filter((x) => x?.bikeId === bike?.id && !x.done).sort((a, b) => String(b.date).localeCompare(String(a.date)))[0] ?? null,
   };
+}
+
+/**
+ * Noah 19.10.2026 «1»: the Kurzcheck before a tour, from two days before the start to the start day,
+ * unless an inspection (any level) was done in the three days before the start.
+ */
+export function quickBeforeTrip(start, lastDone, today) {
+  if (!start || !today || today > start || today < addDays(start, -2)) return false;
+  return !(lastDone && lastDone >= addDays(start, -3));
 }
 
 /* ---------- (3) values ---------- */
@@ -371,20 +388,41 @@ export function valueState(measure, value) {
  * → { kmLeft, perKkm } (about how many km until the limit; % per 1000 km), or null with too few values.
  */
 export function chainTrend(part, limit = 0.5) {
+  return wearTrend(part, { limit: limit ?? 0.5 });
+}
+
+/**
+ * The wear trend of any measured part: growing values (chain %) or shrinking ones (low: pads, rotor mm).
+ * extra: [{ km, value }] values not in the history yet (the inspection being finished).
+ * → { kmLeft, perKkm } or null with too few values (two measurements at least 50 km apart).
+ */
+export function wearTrend(part, { limit, low = false, extra = [] } = {}) {
+  if (limit == null) return null;
   const hist = part?.history ?? [];
   const lastRep = hist.map((h) => h.action).lastIndexOf('replace');
-  const pts = hist
-    .slice(lastRep + 1)
-    .filter((h) => h.action === 'check' && typeof h.value === 'number' && typeof h.km === 'number')
+  const pts = [...hist.slice(lastRep + 1).filter((h) => h.action === 'check'), ...extra]
+    .filter((h) => typeof h.value === 'number' && typeof h.km === 'number')
     .sort((a, b) => a.km - b.km);
   if (pts.length < 2) return null;
   const a = pts[0];
   const b = pts.at(-1);
-  if (b.km - a.km < 50 || b.value <= a.value) return null;
-  const rate = (b.value - a.value) / (b.km - a.km);
-  const kmLeft = Math.max(0, Math.round(((limit ?? 0.5) - b.value) / rate / 10) * 10);
+  const worn = low ? a.value - b.value : b.value - a.value;
+  if (b.km - a.km < 50 || worn <= 0) return null;
+  const rate = worn / (b.km - a.km);
+  const rest = low ? b.value - limit : limit - b.value;
+  const kmLeft = Math.max(0, Math.round(rest / rate / 10) * 10);
   return { kmLeft, perKkm: Math.round(rate * 1000 * 100) / 100 };
 }
+
+/** About how many km a bike rides per day (the last 60 days of its counted rides), or null. */
+export function kmPerDay(entries, bikeId, today, days = 60) {
+  const from = addDays(today, -days);
+  const km = (entries ?? []).filter((e) => e?.bikeId === bikeId && e.state === 'counted' && (!e.kind || e.kind === 'ride') && e.date > from && e.date <= today).reduce((s, e) => s + (Number(e.km) || 0), 0);
+  return km > 0 ? km / days : null;
+}
+
+/** About when km run out: a date (never before tomorrow), or null without riding. */
+export const kmToDate = (kmLeft, perDay, today) => (kmLeft == null || !perDay ? null : addDays(today, Math.max(1, Math.round(kmLeft / perDay))));
 
 /* ---------- (4) a finished inspection ---------- */
 
@@ -405,6 +443,7 @@ export function finishPlan(insp, points, { partUnit = () => '', name = (p) => p.
   const byId = Object.fromEntries((points ?? []).map((p) => [p.id, p]));
   const parts = [];
   const problems = [];
+  const buy = [];
   for (const r of insp?.results ?? []) {
     const p = byId[r.id];
     if (!p || !r.state || r.state === 'skip') continue;
@@ -424,9 +463,12 @@ export function finishPlan(insp, points, { partUnit = () => '', name = (p) => p.
         },
       });
     }
+    // Noah 19.10.2026 «2a»: a measured part that is soon or already worn goes on the wishlist (inspectdb.js)
+    const vs = p.part && p.measure ? valueState(p.measure, r.value) : null;
+    if (vs === 'warn' || vs === 'worn') buy.push({ part: p.part, pointId: p.id, state: vs, value: r.value, measure: p.measure });
     if (r.state === 'fix' || r.state === 'shop') problems.push({ text: r.note ? `${label}: ${r.note}` : label, fix: r.state === 'shop' ? 'shop' : 'self', part: p.part ?? null, photo: r.photos?.[0] ?? null, pointId: p.id });
   }
-  return { parts, problems };
+  return { parts, problems, buy: buy.filter((b, i) => buy.findIndex((x) => x.part === b.part) === i) };
 }
 
 /** How far an inspection is: { done, total } (done: points with a state). */

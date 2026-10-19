@@ -20,7 +20,7 @@
   import PhotoPick from '../ui/PhotoPick.svelte';
   import VeloHead from '../bikes/VeloHead.svelte';
   import { LEVEL, WHO } from './items.js';
-  import { checklist, progress, setResult, readValue, valueState, STATES } from './inspect.js';
+  import { checklist, progress, setResult, readValue, valueState, STATES, bikeSettings } from './inspect.js';
   import { draftFor, saveDraft, finishInspection, undoFinish } from './inspectdb.js';
   import { pointName, areaName, levelName } from './names.js';
   import HowTo from './HowTo.svelte';
@@ -33,6 +33,8 @@
   // a fork part is on every bike (spec), but its suspension points only fit a suspension fork, unless the bike shows it itself
   const hasPart = (k) => parts.some((p) => p.key === k) && partOnBike(bike, k) && (!PART[k]?.suspension || fits(bike, PART[k]) || bikePartOn(bike, k) === true);
   const groups = $derived(checklist(list, level, kind, hasPart));
+  // «2a»: soon or worn measured parts go on the wishlist when finished (switchable per bike)
+  const buy = $derived(bikeSettings(bike).buy);
   const points = $derived(groups.flatMap((g) => g.points));
 
   let insp = $state(null);
@@ -87,10 +89,9 @@
     try {
       const snap = await finishInspection(db, $state.snapshot(insp), $state.snapshot(points), { name: pointName, prefix: t(LEVEL[level].name) });
       const n = snap.tasks.length;
-      offerDone(
-        n ? tn(n, '{level} saved. {n} point is now in the problems.', '{level} saved. {n} points are now in the problems.', { level: levelName(level) }) : t('{level} saved. Everything noted.', { level: levelName(level) }),
-        () => undoFinish(db, snap),
-      );
+      const w = snap.wishes?.length ?? 0;
+      const said = n ? tn(n, '{level} saved. {n} point is now in the problems.', '{level} saved. {n} points are now in the problems.', { level: levelName(level) }) : t('{level} saved. Everything noted.', { level: levelName(level) });
+      offerDone(w ? `${said} ${tn(w, '{n} part is on the wishlist.', '{n} parts are on the wishlist.')}` : said, () => undoFinish(db, snap));
       onfinished?.();
     } catch (e) {
       console.error(e);
@@ -141,8 +142,8 @@
                 <input class="inp num" type="text" inputmode="decimal" value={r?.valueText ?? (r?.value != null ? fmt(r.value) : '')} aria-label={t('Value for {name} in {unit}', { name: pointName(p), unit: p.measure.unit })} onchange={(e) => setValue(p, e.currentTarget.value)} data-point-value />
                 <span class="unit">{p.measure.unit}</span>
                 {#if r?.bad}<span class="vs bad" role="alert">{t('Type a number, e.g. 0,4')}</span>
-                {:else if vs === 'worn'}<span class="vs bad">{t('worn: replace')}</span>
-                {:else if vs === 'warn'}<span class="vs warn">{t('soon')}</span>
+                {:else if vs === 'worn'}<span class="vs bad">{t('worn: replace')}</span>{#if buy && p.part}<span class="vs" data-point-wish>{t('goes on the wishlist')}</span>{/if}
+                {:else if vs === 'warn'}<span class="vs warn">{t('soon')}</span>{#if buy && p.part}<span class="vs" data-point-wish>{t('goes on the wishlist')}</span>{/if}
                 {:else if vs === 'ok'}<span class="vs ok">{t('OK|inspect')}</span>{/if}
               </label>
             {/if}

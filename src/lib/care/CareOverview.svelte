@@ -76,7 +76,7 @@
       ];
     // «Velo-Inspektion»: the full inspection is started, not ticked off.
     if (row.kind === 'inspect')
-      return [{ kind: 'hi', name: t('Start the inspection'), explain: t('Point by point, with guides'), sub: row.name, icon: Check, run: () => (location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'full' })) }, open];
+      return [{ kind: 'hi', name: t('Start the inspection'), explain: t('Point by point, with guides'), sub: row.name, icon: Check, run: () => (location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: row.level ?? 'full' })) }, open];
     // v0.137.0 (DK1): a problem due before the next ride: Done closes it, as in the problem list.
     if (row.kind === 'repair' && row.task)
       return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: row.name, icon: Check, run: () => onrepair(row.task, 'done') }, open];

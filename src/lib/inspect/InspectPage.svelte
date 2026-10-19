@@ -15,7 +15,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import VeloHead from '../bikes/VeloHead.svelte';
   import { LEVEL } from './items.js';
-  import { allPoints, bikeSettings, readValue, FACTOR } from './inspect.js';
+  import { allPoints, bikeSettings, readValue, FACTOR, INSPECT_TRIP } from './inspect.js';
   import { insp } from './live.svelte.js';
   import { deleteInspection, restoreInspection } from './inspectdb.js';
   import { pointName, levelName } from './names.js';
@@ -48,6 +48,10 @@
     const next = { ...(bike.inspect ?? {}), ...patch };
     await db.bikes.update(bike.id, { inspect: next });
     offerDone(t('Saved.'), () => db.bikes.update(bike.id, { inspect: before ?? {} }));
+  }
+  async function setTrip(on) {
+    await db.settings.put({ key: INSPECT_TRIP, value: on });
+    offerDone(t('Saved.'), () => db.settings.put({ key: INSPECT_TRIP, value: !on }));
   }
   function setEvery(lv, field, text) {
     const v = text.trim() === '' ? null : readValue(text);
@@ -131,6 +135,18 @@
       <label class="swr">
         <input type="checkbox" checked={!set.off} onchange={(e) => setBike({ off: !e.currentTarget.checked })} data-inspect-remind />
         <span><b>{t('Remind me')}</b><small>{t('Off: no inspection is shown as due for this bike.')}</small></span>
+      </label>
+      <label class="swr">
+        <input type="checkbox" checked={set.buy} onchange={(e) => setBike({ buy: e.currentTarget.checked })} data-inspect-buy />
+        <span><b>{t('Worn parts on the wishlist')}</b><small>{t('Chain, brake pads or rotor soon worn: the part goes on the wishlist, with about how many km are left.')}</small></span>
+      </label>
+    </section>
+
+    <section class="box" aria-labelledby="it-h" data-inspect-trip>
+      <h2 id="it-h">{t('Before a tour')}</h2>
+      <label class="swr">
+        <input type="checkbox" checked={insp.beforeTrip} onchange={(e) => setTrip(e.currentTarget.checked)} data-inspect-beforetrip />
+        <span><b>{t('Suggest the quick check before a tour')}</b><small>{t('From two days before the start, the tour preparation and the bike care show «Quick check before the tour». For all bikes.')}</small></span>
       </label>
     </section>
 

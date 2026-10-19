@@ -121,7 +121,7 @@ describe('Strava login', () => {
 });
 
 describe('Strava data', () => {
-  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, elapsed_time: 6300, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route' } };
+  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, elapsed_time: 6300, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route' }, start_latlng: [46.98765, 7.45678], end_latlng: [46.91234, 7.41234] };
 
   it('needs a device key', async () => {
     const w = world();
@@ -136,8 +136,10 @@ describe('Strava data', () => {
     const key = fragment(await connect(h, w)).get('key');
     const body = await (await h(get('/api/strava?step=activities&after=1700000000&page=2', { key }))).json();
     expect(body).toMatchObject({ ok: true, page: 2, more: false });
-    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null, tempAvg: null, wNorm: null, kj: null, effort: null });
+    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null, tempAvg: null, wNorm: null, kj: null, effort: null, spot: '47.0,7.5' });
     expect(JSON.stringify(body)).not.toMatch(/secret-route/);
+    // «Velo-Inspektion» 3a: only the start to about 10 km, never the exact point or the end
+    expect(JSON.stringify(body)).not.toMatch(/46\.98|7\.45|46\.91|7\.41/);
     const call = w.calls.find((c) => c.url.startsWith(`${API}/athlete/activities`));
     expect(call.url).toContain('page=2');
     expect(call.url).toContain('after=1700000000');

@@ -35,7 +35,8 @@ export const repairDue = (x, today = localDay()) => x.status === 'needed' || !!x
 
 /**
  * The kind of a bike row: 'time' (sealant, fork, shock), 'km' (wax the chain), 'check' (1000 km), 'part' (worn or work needed),
- * 'service' («Velo im Griff»: the service of the whole bike; it has no part), 'inspect' (the full inspection, no part).
+ * 'service' («Velo im Griff»: the service of the whole bike; it has no part), 'inspect' (an inspection, no part:
+ * the full one, or the Kurzcheck before a tour with level 'quick').
  */
 const kindOf = (r) => (r.worn ? 'part' : r.inspect ? 'inspect' : r.service ? 'service' : r.key === 'check' ? 'check' : PART[r.key]?.everyKm ? 'km' : 'time');
 const partOf = (r) => (r.service || r.inspect ? null : r.key);
@@ -53,7 +54,7 @@ export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = l
   const setup = tyreSetup(bike, visits);
   const rows = bikeDue(bike, { startDate: today, days: 1 }, setup, today, today)
     .rows.filter((r) => r.late || r.worn)
-    .map((r) => ({ key: `${kindOf(r)}:${r.key}`, kind: kindOf(r), part: partOf(r), name: r.name, detail: r.detail, late: true }));
+    .map((r) => ({ key: `${kindOf(r)}:${r.key}`, kind: kindOf(r), part: partOf(r), name: r.name, detail: r.detail, late: true, ...(r.level ? { level: r.level } : {}) }));
   for (const x of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed') && repairDue(x, today))) {
     const detail = x.status === 'needed' ? t('work needed') : x.beforeRide && !x.dueDate ? t('Before the next ride') : t('open repair');
     rows.push({ key: `repair:${x.id}`, kind: 'repair', part: null, name: x.task, detail, late: x.status === 'needed', task: x });
@@ -62,7 +63,7 @@ export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = l
   const soon = trip && trip.bikeId === bike.id
     ? (beforeTrip(bike, trip, setup, today)?.rows ?? [])
         .filter((r) => !now.has(r.key))
-        .map((r) => ({ key: `${kindOf(r)}:${r.key}:${r.when}`, kind: kindOf(r), part: partOf(r), name: r.name, detail: r.detail, late: false, when: r.when }))
+        .map((r) => ({ key: `${kindOf(r)}:${r.key}:${r.when}`, kind: kindOf(r), part: partOf(r), name: r.name, detail: r.detail, late: false, when: r.when, ...(r.level ? { level: r.level } : {}) }))
     : [];
   const check = checkState(bike);
   const time = timeDue(bike, setup, today);

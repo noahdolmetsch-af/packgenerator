@@ -249,3 +249,150 @@ describe('parts hidden on a bike (Paket I)', () => {
     expect(ids).not.toContain('sag');
   });
 });
+
+// Noah 19.10.2026 «1 check möglich als einstellung … 2a 3a»
+import { quickBeforeTrip, wearTrend, kmPerDay, kmToDate, isWet } from '../src/lib/inspect/inspect.js';
+import { wetOf, spotsToFetch, spotPlace, refreshRain } from '../src/lib/inspect/rain.js';
+import { buyNote, wearOf } from '../src/lib/inspect/inspectdb.js';
+import { spotOf } from '../api/strava.js';
+import { toRides, planSync } from '../src/lib/stravasync.js';
+import { makeEntry } from '../src/lib/kmbook.js';
+
+describe('the quick check before a tour (1)', () => {
+  it('shows from two days before the start to the start day, unless just inspected', () => {
+    const start = addDays(TODAY, 2);
+    expect(quickBeforeTrip(start, null, TODAY)).toBe(true);
+    expect(quickBeforeTrip(start, null, addDays(TODAY, -1))).toBe(false);
+    expect(quickBeforeTrip(start, null, start)).toBe(true);
+    expect(quickBeforeTrip(start, null, addDays(start, 1))).toBe(false);
+    expect(quickBeforeTrip(start, addDays(start, -3), TODAY)).toBe(false);
+    expect(quickBeforeTrip(start, addDays(start, -4), TODAY)).toBe(true);
+    expect(quickBeforeTrip(null, null, TODAY)).toBe(false);
+  });
+  it('the state knows the last done inspection of the bike', () => {
+    const bike = { id: 'test_data_b1', km: 1000 };
+    const inspections = [
+      { id: 'a', bikeId: 'test_data_b1', date: addDays(TODAY, -9), level: 'quick', done: true },
+      { id: 'b', bikeId: 'test_data_b1', date: addDays(TODAY, -2), level: 'quick', done: false },
+      { id: 'c', bikeId: 'test_data_other', date: TODAY, level: 'full', done: true },
+    ];
+    expect(inspectState(bike, { inspections, entries: [], today: TODAY }).lastDone).toBe(addDays(TODAY, -9));
+  });
+});
+
+describe('worn parts on the wishlist (2a)', () => {
+  it('the trend works both ways: growing chain %, shrinking pads mm', () => {
+    expect(wearTrend(null, { limit: 0.5, extra: [{ km: 1000, value: 0.2 }, { km: 2000, value: 0.3 }] })).toEqual({ kmLeft: 2000, perKkm: 0.1 });
+    expect(wearTrend(null, { limit: 1, low: true, extra: [{ km: 1000, value: 3 }, { km: 2000, value: 2 }] })).toEqual({ kmLeft: 1000, perKkm: 1 });
+    expect(wearTrend(null, { limit: 1, low: true, extra: [{ km: 1000, value: 2 }, { km: 1010, value: 1.5 }] })).toBe(null);
+    expect(wearTrend(null, { limit: null, extra: [] })).toBe(null);
+  });
+  it('km per day and the date they run out', () => {
+    const entries = [10, 20, 30].map((d) => makeEntry({ id: `test_data_r${d}`, bikeId: 'test_data_b1', date: addDays(TODAY, -d), km: 40, kind: 'ride', state: 'counted' }));
+    expect(kmPerDay(entries, 'test_data_b1', TODAY)).toBe(2);
+    expect(kmPerDay(entries, 'test_data_none', TODAY)).toBe(null);
+    expect(kmToDate(100, 2, TODAY)).toBe(addDays(TODAY, 50));
+    expect(kmToDate(0, 2, TODAY)).toBe(addDays(TODAY, 1));
+    expect(kmToDate(100, null, TODAY)).toBe(null);
+  });
+  it('finishing lists soon and worn measured parts once each', () => {
+    const points = allPoints(null);
+    const insp = { id: 'test_data_i', date: TODAY, km: 2000, results: [{ id: 'chainwear', state: 'watch', value: 0.45 }, { id: 'padsF', state: 'fix', value: 0.8 }, { id: 'padsR', state: 'ok', value: 3 }] };
+    const plan = finishPlan(insp, points, {});
+    expect(plan.buy.map((b) => [b.part, b.state])).toEqual([['chain', 'warn'], ['padsF', 'worn']]);
+  });
+  it('the note says about when the part is needed; the trend uses earlier inspections', () => {
+    const b = { part: 'padsF', pointId: 'padsF', state: 'warn', measure: ITEM.padsF.measure };
+    const earlier = [{ bikeId: 'test_data_b1', done: true, km: 1000, results: [{ id: 'padsF', value: 3 }] }];
+    const trend = wearOf([], earlier, 'test_data_b1', b, { km: 2000, results: [{ id: 'padsF', value: 2 }] });
+    expect(trend.kmLeft).toBeGreaterThan(0);
+    expect(buyNote(b, trend, 2, TODAY)).toContain(String(trend.kmLeft));
+    expect(buyNote({ ...b, state: 'worn' }, null, 2, TODAY)).not.toContain('km');
+  });
+  it('the switch per bike, on by standard', () => {
+    expect(bikeSettings({}).buy).toBe(true);
+    expect(bikeSettings({ inspect: { buy: false } }).buy).toBe(false);
+  });
+});
+
+describe('rain where the ride started (3a)', () => {
+  it('Strava gives the start only to about 10 km', () => {
+    expect(spotOf([47.3769, 8.5417])).toBe('47.4,8.5');
+    expect(spotOf([0, 0])).toBe(null);
+    expect(spotOf(null)).toBe(null);
+    expect(spotPlace('47.4,8.5')).toEqual({ lat: 47.4, lon: 8.5 });
+    expect(spotPlace('nonsense')).toBe(null);
+  });
+  it('the cell travels from the activity into the ride and onto a known ride', () => {
+    const acts = [{ id: 7, type: 'GravelRide', start: '2026-10-18T08:00:00Z', km: 40, gearId: 'g1', spot: '46.5,7.9' }];
+    expect(toRides(acts, [{ id: 'g1', name: 'Test bike' }]).rides[0].spot).toBe('46.5,7.9');
+    const old = makeEntry({ id: 'test_data_e', bikeId: 'test_data_b1', date: '2026-10-18', km: 40, kind: 'ride', source: 'strava', stravaId: '7', gear: 'Test bike' });
+    expect(old.spot).toBeUndefined();
+    const p = planSync({ activities: acts, gear: [{ id: 'g1', name: 'Test bike' }], bikes: [{ id: 'test_data_b1', name: 'Test bike' }], entries: [old] });
+    expect(p.updates).toEqual([{ id: 'test_data_e', changes: { spot: '46.5,7.9' } }]);
+  });
+  it('a ride with a cell counts the rain there, the others the rain at home', () => {
+    const rec = { days: { [TODAY]: 5 }, spots: { '46.5,7.9': { days: { [TODAY]: 0, [addDays(TODAY, -1)]: 8 } } } };
+    const wet = wetOf(rec);
+    expect(wet({ date: TODAY })).toBe(true);
+    expect(wet({ date: TODAY, spot: '46.5,7.9' })).toBe(false);
+    expect(wet({ date: addDays(TODAY, -1), spot: '46.5,7.9' })).toBe(true);
+    expect(wet({ date: TODAY, spot: '45.0,7.0' })).toBe(true); // a cell without rain data: home
+    expect(isWet(wet, { date: TODAY })).toBe(true);
+    expect(isWet(new Set([TODAY]), { date: TODAY })).toBe(true);
+    const entries = [makeEntry({ id: 'test_data_w', bikeId: 'test_data_b1', date: addDays(TODAY, -1), km: 10, kind: 'ride', state: 'counted', spot: '46.5,7.9' })];
+    expect(loadSince(entries, 'test_data_b1', addDays(TODAY, -5), { wetDays: wet }).wet).toBe(1);
+  });
+  it('the most ridden cells of the last 92 days, at most six', () => {
+    const e = (spot, d) => ({ spot, date: addDays(TODAY, -d), state: 'counted' });
+    const entries = [e('1.0,1.0', 1), e('1.0,1.0', 2), e('2.0,2.0', 3), e('3.0,3.0', 100), { ...e('4.0,4.0', 1), state: 'removed' }];
+    expect(spotsToFetch(entries, TODAY)).toEqual(['1.0,1.0', '2.0,2.0']);
+    const many = Array.from({ length: 9 }, (_, i) => e(`${i}.0,1.0`, 1));
+    expect(spotsToFetch(many, TODAY)).toHaveLength(6);
+  });
+  it('refreshRain fetches home and the ride cells, and keeps them', async () => {
+    const store = { settings: { homePlace: { value: { name: 'Test', lat: 47.1, lon: 8.5 } } }, meta: {} };
+    const rides = [{ spot: '46.5,7.9', date: TODAY, state: 'counted' }];
+    const db = {
+      settings: { get: async (k) => store.settings[k] },
+      meta: { get: async (k) => store.meta[k], put: async (r) => (store.meta[r.key] = r) },
+      kmBook: { where: () => ({ aboveOrEqual: () => ({ toArray: async () => rides }) }) },
+    };
+    const urls = [];
+    const fetcher = async (url) => (urls.push(url), { ok: true, json: async () => ({ daily: { time: [TODAY], precipitation_sum: [url.includes('46.5') ? 0 : 4] } }) });
+    const rec = await refreshRain(db, { fetcher, today: TODAY, now: Date.parse(`${TODAY}T10:00:00Z`), online: true });
+    expect(urls).toHaveLength(2);
+    expect(rec.days[TODAY]).toBe(4);
+    expect(rec.spots['46.5,7.9'].days[TODAY]).toBe(0);
+    urls.length = 0;
+    await refreshRain(db, { fetcher, today: TODAY, now: Date.parse(`${TODAY}T11:00:00Z`), online: true });
+    expect(urls).toHaveLength(0);
+  });
+});
+
+import { insp, useInspect } from '../src/lib/inspect/live.svelte.js';
+import { bikeDue } from '../src/lib/workshop.js';
+import { bikeCare } from '../src/lib/readiness.js';
+
+describe('the quick check in the tour preparation (1)', () => {
+  const bike = { id: 'test_data_qb', name: 'Test bike', km: 1000, parts: [] };
+  const trip = { id: 'test_data_t', title: 'Test tour', bikeId: bike.id, startDate: addDays(TODAY, 1), days: 2 };
+  const setup = { front: null, rear: null };
+  it('a real trip two days ahead gets the row with level quick; the setting turns it off', () => {
+    useInspect({ [bike.id]: { full: { off: false, never: true }, lastDone: null } });
+    insp.beforeTrip = true;
+    const end = addDays(trip.startDate, 1);
+    const row = bikeDue(bike, trip, setup, TODAY, end).rows.find((r) => r.key === 'inspectQuick');
+    expect(row).toMatchObject({ inspect: true, level: 'quick', when: 'now' });
+    // not in the workshop order, and not for «now» without a trip
+    expect(bikeDue(bike, { startDate: TODAY, days: 1 }, setup, TODAY, TODAY).rows.some((r) => r.key === 'inspectQuick')).toBe(false);
+    const care = bikeCare(bike, { trip, today: TODAY });
+    expect(care.soon.find((r) => r.kind === 'inspect')).toMatchObject({ level: 'quick' });
+    insp.beforeTrip = false;
+    expect(bikeDue(bike, trip, setup, TODAY, end).rows.some((r) => r.key === 'inspectQuick')).toBe(false);
+    insp.beforeTrip = true;
+    useInspect({ [bike.id]: { full: { off: false, never: true }, lastDone: TODAY } });
+    expect(bikeDue(bike, trip, setup, TODAY, end).rows.some((r) => r.key === 'inspectQuick')).toBe(false);
+    useInspect({});
+  });
+});
