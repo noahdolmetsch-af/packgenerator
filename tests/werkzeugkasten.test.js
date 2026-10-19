@@ -8,7 +8,14 @@ import { headingOf, directionOf, norm, DIRECTIONS } from '../src/lib/tools/compa
 import { fitSize, centerCrop, clampCrop, dragCrop, outName, SIZES, SHAPES } from '../src/lib/tools/phototools.js';
 import { isPdf, sizeText, fitOnA4, mergeParts, shrinkPdf, pagesOf } from '../src/lib/tools/pdftools.js';
 import { PHRASES, PHRASE_LANGS, PHRASE_GROUPS, findPhrases } from '../src/lib/tools/phrases.js';
-import { TOOLS, toolKeyOf, TOOLS_HASH } from '../src/lib/tools/tools.js';
+import { TOOLS, toolKeyOf, TOOLS_HASH, orderTools, suggestTools } from '../src/lib/tools/tools.js';
+import { tiltOf, isEdge, angleOf, bubbleOf, isLevel, slopePct } from '../src/lib/tools/level.js';
+import { WHEELS, circumference, teethOf, gear, gearTable, rangePct } from '../src/lib/tools/gears.js';
+import { haversine, lineLength, distText, gpxOf } from '../src/lib/tools/geo.js';
+import { cleanCode, checkDigitOk, itemsWithCode } from '../src/lib/tools/barcode.js';
+import { isHeic, convertedName, TARGETS } from '../src/lib/tools/convert.js';
+import { VIDEO_SIZES, videoPlan, videoGuess, recType } from '../src/lib/tools/video.js';
+import { STEPS, DEFAULT_CHAINS, brokenStep, cleanChains, kindOfFiles, runChain, chainName } from '../src/lib/tools/chains.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import { TILES } from '../src/lib/home/tiles.js';
 import { FEATURES } from '../src/lib/features.js';
@@ -204,6 +211,7 @@ describe('toolbox page', () => {
     for (const id of ['f.tools', 'f.pdftools', 'f.phototools']) expect(FEATURES.some((f) => f.id === id), id).toBe(true);
   });
   it('the heavy parts load only when used (the start bundle stays small)', () => {
+    expect(readFileSync('src/lib/tools/MapMeasure.svelte', 'utf8')).not.toMatch(/^\s*import .*leaflet/m);
     for (const f of ['pdftools.js', 'phototools.js']) {
       const s = readFileSync(`src/lib/tools/${f}`, 'utf8');
       expect(s).not.toMatch(/^import .*(pdf-lib|transformers)/m);
@@ -315,5 +323,157 @@ describe('trip costs and currencies', async () => {
     expect(readReceipt(text)).toEqual({ amount: 17, date: '2026-10-14', cur: 'CHF' });
     expect(readReceipt('Café Muster\n2 x Espresso 5,40 €\nSumme 5,40\n03.08.2026')).toEqual({ amount: 5.4, date: '2026-08-03', cur: 'EUR' });
     expect(readReceipt('nothing here')).toEqual({ amount: null, date: null, cur: null });
+  });
+});
+
+describe('spirit level', () => {
+  it('reads the sensor, flat both ways, on the edge one angle', () => {
+    expect(tiltOf({ beta: null, gamma: 1 })).toBeNull();
+    const flat = tiltOf({ beta: 1.2, gamma: -3.4 });
+    expect(isEdge(flat)).toBe(false);
+    expect(angleOf(flat)).toBe(-3.4);
+    const edge = { x: 2.04, y: 88 };
+    expect(isEdge(edge)).toBe(true);
+    expect(angleOf(edge)).toBe(2);
+    expect(bubbleOf({ x: 20, y: -5 })).toEqual({ x: 1, y: -0.5 });
+  });
+  it('a zero offset for a crooked case, level within half a degree, slope in percent', () => {
+    expect(angleOf({ x: 1.5, y: 0.2 }, { x: 1.5, y: 0.2 })).toBe(0);
+    expect(isLevel(0.4)).toBe(true);
+    expect(isLevel(-0.6)).toBe(false);
+    expect(slopePct(5.71)).toBe(10);
+    expect(slopePct(null)).toBeNull();
+  });
+});
+
+describe('gear ratios', () => {
+  it('teeth as typed, wheel circumference and one gear', () => {
+    expect(teethOf('11-13, 15 13 99 3')).toEqual([11, 13, 15]);
+    expect(circumference(622, 28)).toBe(2130);
+    const w = WHEELS.find((x) => x.key === '700x40');
+    const g = gear(40, 40, circumference(w.bead, w.width), 90);
+    expect(g.ratio).toBe(1);
+    expect(g.dev).toBe(2.21);
+    expect(g.kmh).toBe(11.9);
+    expect(gear(0, 11, 2100)).toBeNull();
+  });
+  it('the table: every ring with every cog, and the range', () => {
+    const tbl = gearTable([50, 34], [11, 34], 2100);
+    expect(tbl.map((r) => r.ring)).toEqual([50, 34]);
+    expect(tbl[0].gears.map((x) => x.cog)).toEqual([11, 34]);
+    expect(rangePct([10, 52])).toBe(520);
+    expect(rangePct([11])).toBeNull();
+  });
+});
+
+describe('measure a route', () => {
+  it('distance between points and along a line', () => {
+    expect(Math.round(haversine([47, 8], [48, 8]))).toBe(111195);
+    expect(lineLength([[47, 8]])).toBe(0);
+    expect(Math.round(lineLength([[47, 8], [47.01, 8], [47.02, 8]]))).toBe(2224);
+    expect(distText(850.4)).toBe('850 m');
+    expect(distText(12400)).toBe('12.4 km');
+  });
+  it('a GPX file with the points and an escaped name', () => {
+    const g = gpxOf([[47.1, 8.2], [47.2, 8.3]], 'Weg <See>');
+    expect(g).toContain('<name>Weg &lt;See&gt;</name>');
+    expect(g.match(/<trkpt /g)).toHaveLength(2);
+    expect(g).toContain('lat="47.100000" lon="8.200000"');
+  });
+});
+
+describe('bar code → gear', () => {
+  it('cleans the code and checks EAN digits', () => {
+    expect(cleanCode(' 4 006381 333931 ')).toBe('4006381333931');
+    expect(checkDigitOk('4006381333931')).toBe(true);
+    expect(checkDigitOk('4006381333932')).toBe(false);
+    expect(checkDigitOk('96385074')).toBe(true);
+    expect(checkDigitOk('ABC-123')).toBe(true);
+  });
+  it('finds the items with the code', () => {
+    const items = [{ id: 'a', barcode: '4006381333931' }, { id: 'b' }, { id: 'c', barcode: '' }];
+    expect(itemsWithCode(items, '4006 3813 33931').map((i) => i.id)).toEqual(['a']);
+    expect(itemsWithCode(items, '1')).toEqual([]);
+  });
+});
+
+describe('picture format and video', () => {
+  it('knows HEIC by type or name and names the result', () => {
+    expect(isHeic({ type: 'image/heic', name: 'x' })).toBe(true);
+    expect(isHeic({ type: '', name: 'IMG_1.HEIF' })).toBe(true);
+    expect(isHeic({ type: 'image/webp', name: 'a.webp' })).toBe(false);
+    expect(convertedName('IMG_0042.HEIC', 'jpg')).toBe('IMG_0042.jpg');
+    expect(TARGETS.map((x) => x.key)).toEqual(['jpg', 'png']);
+  });
+  it('video: the short side to the chosen size, even numbers, a size guess and the recording type', () => {
+    const small = VIDEO_SIZES.find((x) => x.key === '480');
+    expect(videoPlan(1920, 1080, small)).toMatchObject({ w: 854, h: 480 });
+    expect(videoPlan(1080, 1920, small)).toMatchObject({ w: 480, h: 854 });
+    expect(videoPlan(640, 360, small)).toMatchObject({ w: 640, h: 360 });
+    expect(videoGuess(60, 1_200_000)).toBe(9_960_000);
+    expect(recType((x) => x === 'video/webm')).toBe('video/webm');
+    expect(recType((x) => x.startsWith('video/mp4'))).toBe('video/mp4;codecs=avc1,mp4a.40.2');
+    expect(recType(() => false)).toBe('');
+  });
+});
+
+describe('tool chains', () => {
+  it('two ready chains whose steps fit, every step and chain has German', () => {
+    expect(cleanChains(null).map((c) => c.id)).toEqual(DEFAULT_CHAINS.map((c) => c.id));
+    for (const c of DEFAULT_CHAINS) {
+      expect(brokenStep(c.steps, 'img')).toBe(-1);
+      expect(de[c.name], c.name).toBeTruthy();
+    }
+    for (const s of STEPS) expect(de[s.label], s.label).toBeTruthy();
+    expect(chainName({ name: 'Receipts as one PDF', builtin: true }, (x) => `T:${x}`)).toBe('T:Receipts as one PDF');
+    expect(chainName({ name: 'Meine Kette', builtin: false }, (x) => `T:${x}`)).toBe('Meine Kette');
+  });
+  it('finds the step that does not fit what comes to it', () => {
+    expect(brokenStep([{ kind: 'shrink' }], 'img')).toBe(0);
+    expect(brokenStep([{ kind: 'pdf' }, { kind: 'resize' }], 'img')).toBe(1);
+    expect(brokenStep([{ kind: 'shrink' }, { kind: 'share' }], 'pdf')).toBe(-1);
+    expect(brokenStep([{ kind: 'nope' }])).toBe(0);
+    expect(kindOfFiles([{ type: 'image/jpeg', name: 'a.jpg' }, { type: 'application/pdf', name: 'b.pdf' }])).toBe('any');
+    expect(kindOfFiles([{ type: 'text/plain', name: 'a.txt' }])).toBe('other');
+    expect(kindOfFiles([])).toBe('');
+  });
+  it('cleans what comes from the settings: unknown steps go, typed names stay', () => {
+    const l = cleanChains([{ id: 1, name: 'Belege', steps: [{ id: 2, kind: 'pdf' }, { id: 3, kind: 'xx' }] }, { nope: true }]);
+    expect(l).toEqual([{ id: '1', name: 'Belege', builtin: false, steps: [{ id: '2', kind: 'pdf' }] }]);
+  });
+  it('runs the steps in order with the files', async () => {
+    const log = [];
+    const ops = {
+      resize: async (f, px) => (log.push(`resize ${f.name} ${px}`), { ...f, name: `s-${f.name}` }),
+      pdf: async (fs) => (log.push(`pdf ${fs.length}`), { name: 'all.pdf', type: 'application/pdf' }),
+      shrink: async (f) => (log.push(`shrink ${f.name}`), f),
+      ablage: async (f) => log.push(`ablage ${f.name}`),
+      share: async (fs) => log.push(`share ${fs.map((f) => f.name)}`),
+    };
+    const steps = [];
+    const out = await runChain(DEFAULT_CHAINS[0], [{ name: 'a.jpg' }, { name: 'b.jpg' }], ops, (i) => steps.push(i));
+    expect(log).toEqual(['resize a.jpg 1600', 'resize b.jpg 1600', 'pdf 2', 'shrink all.pdf', 'share all.pdf']);
+    expect(steps).toEqual([0, 1, 2, 3, 4]);
+    expect(out.map((f) => f.name)).toEqual(['all.pdf']);
+  });
+});
+
+describe('the toolbox list: own order and «Fits right now»', () => {
+  it('keeps the own order, drops unknown keys, new tools at the end', () => {
+    const l = orderTools(['map', 'nope', 'calc', 'map']);
+    expect(l.slice(0, 2).map((x) => x.key)).toEqual(['map', 'calc']);
+    expect(l).toHaveLength(TOOLS.length);
+    expect(orderTools(null).map((x) => x.key)).toEqual(TOOLS.map((x) => x.key));
+  });
+  it('a trip abroad soon: currencies and phrases; mountains: compass; at most 3; nothing without a trip', () => {
+    const today = '2026-10-19';
+    expect(suggestTools([], today)).toEqual([]);
+    expect(suggestTools([{ startDate: '2026-12-01', country: 'FR' }], today)).toEqual([]);
+    const abroad = suggestTools([{ startDate: '2026-10-25', days: 3, country: 'FR', domain: 'bikepacking' }], today);
+    expect(abroad.map((x) => x.key)).toEqual(['money', 'phrases', 'map']);
+    expect(suggestTools([{ startDate: '2026-10-20', domain: 'ski' }], today).map((x) => x.key)).toEqual(['compass', 'costs']);
+    expect(suggestTools([{ startDate: '2026-10-14', days: 2 }], today)).toEqual([{ key: 'costs', why: 'Your trip is over: who owes whom?' }]);
+    expect(suggestTools([{ startDate: '2026-10-20', idea: true, country: 'IT' }], today)).toEqual([]);
+    for (const w of ['For your trip abroad', 'For the mountains', 'To plan your trip', 'Share the costs of the trip', 'Your trip is over: who owes whom?']) expect(de[w], w).toBeTruthy();
   });
 });

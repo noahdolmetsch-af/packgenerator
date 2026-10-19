@@ -522,7 +522,7 @@ export const HANDBOOK = {
   },
   'f.tools': {
     on: null,
-    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool: calculator, units, time zones, compass or phrases.', 'Everything works without the internet.'],
+    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet.'],
     example: 'Example: 3.2 bar → 46.4 psi for the tyre pump abroad.',
   },
   'f.pdftools': {
@@ -549,6 +549,51 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Documents or Me › Toolbox › Links and files.', 'Tap «Add link» or «Add file» (up to 5 MB).', 'Move, rename or delete an entry with its buttons.'],
     example: 'Example: the timetable link and the train ticket as PDF, both in one place.',
+  },
+  'f.chains': {
+    on: null,
+    steps: ['Open Me › Toolbox › Tool chains.', 'Use a ready chain or tap «New chain» and add steps.', 'Tap «Start» and choose the files; the steps run one after the other.'],
+    example: 'Example: «Receipts as one PDF» turns 4 receipt photos into one small PDF to share.',
+  },
+  'f.convert': {
+    on: 'HEIC needs the internet once; after that it works offline.',
+    steps: ['Open Me › Toolbox › Picture format.', 'Choose JPG or PNG, then the pictures.', 'Tap «Save» on each, or «Save all».'],
+    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form.',
+  },
+  'f.video': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make video smaller.', 'Choose the size, then the video.', 'Keep the page open until it is done, then «Save or share».'],
+    example: 'Example: a 90 MB phone video → about 10 MB with «Small».',
+  },
+  'f.qr': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make a QR code.', 'Type a text or link, or the WLAN name and password.', 'Show the code, or tap «Save as picture».'],
+    example: 'Example: the guest WLAN as a code for friends at home.',
+  },
+  'f.mapmeasure': {
+    on: 'The map needs the internet; the line stays on the device.',
+    steps: ['Open Me › Toolbox › Measure a route.', 'Tap along the road, point by point; the length shows on top.', 'Tap «Save as GPX» to use it in a trip or on the Garmin.'],
+    example: 'Example: the way to the lake, 12.4 km, as GPX.',
+  },
+  'f.gears': {
+    on: null,
+    steps: ['Open Me › Toolbox › Gear ratios.', 'Type the chainrings and the cassette, choose the wheel.', 'Read km/h, metres per turn or the ratio in the table.'],
+    example: 'Example: 40 × 42 at 90 rpm → about 6 km/h for a steep climb.',
+  },
+  'f.level': {
+    on: 'On a computer there is no motion sensor; use the phone.',
+    steps: ['Open Me › Toolbox › Spirit level.', 'Lay the phone flat on the surface or stand it on its edge.', 'Read the degrees and the slope in percent.'],
+    example: 'Example: saddle 2.5° nose down.',
+  },
+  'f.barcode': {
+    on: 'The camera scan needs Chrome on the phone; typing the number works everywhere.',
+    steps: ['Open Me › Toolbox › Bar code → gear.', 'Tap «Scan bar code» or type the number.', 'A known code opens its item; a new one: type a name, «Add to gear».'],
+    example: 'Example: scan the tube box → the spare tube opens in Material.',
+  },
+  'f.light': {
+    on: null,
+    steps: ['Open Me › Toolbox › Magnifier and light.', 'Tap «Magnifier and light» and allow the camera.', 'Zoom, «Hold picture», or switch the light on.'],
+    example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
   'f.docs': {
     on: null,

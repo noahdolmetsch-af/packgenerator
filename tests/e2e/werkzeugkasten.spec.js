@@ -169,3 +169,149 @@ test('Werkzeugkasten: trip costs, PDF, photos, links also in Dokumente', async (
   await shot(page, info, 'L8-dokumente');
   expect(errors).toEqual([]);
 });
+
+/** Puts a record into a table of the app's database (fictional data only). */
+const putRow = (page, table, row) =>
+  page.evaluate(
+    ([table, row]) =>
+      new Promise((ok, no) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(table, 'readwrite');
+          tx.objectStore(table).put(row);
+          tx.oncomplete = () => (r.result.close(), ok());
+          tx.onerror = () => no(tx.error);
+        };
+      }),
+    [table, row],
+  );
+const readAll = (page, table) =>
+  page.evaluate(
+    (table) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const q = r.result.transaction(table).objectStore(table).getAll();
+          q.onsuccess = () => (r.result.close(), ok(q.result));
+        };
+      }),
+    table,
+  );
+
+test('Werkzeugkasten: fits right now, search and order, gears, QR, bar code, map, chains, picture format', async ({ page }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('#/me');
+  await ready(page);
+  // a made-up trip to France in 5 days (calendar days in Zurich)
+  const start = await page.evaluate(() => {
+    const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich' }).format(new Date()).split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d + 5)).toISOString().slice(0, 10);
+  });
+  await putRow(page, 'trips', { id: 'test_data_trip_fr', title: 'Testtour Provence', startDate: start, days: 3, country: 'FR', domain: 'bikepacking', status: 'planned', entries: [] });
+  await page.goto('#/me/tools');
+  await page.reload();
+  await ready(page);
+
+  // «Passt gerade»: currencies, phrases and the map for the trip abroad
+  await expect(page.getByRole('heading', { level: 2, name: de('Fits right now') })).toBeVisible();
+  await expect(page.locator('a[data-fit]')).toHaveCount(3);
+  await expect(page.locator('a[data-fit="money"]')).toContainText(de('For your trip abroad'));
+  await shot(page, info, 'L3-passt-gerade');
+
+  // search, then the own order with the arrows (it stays after a reload)
+  await page.getByLabel(de('Search tools')).fill('wasser');
+  await expect(page.locator('a[data-tool]')).toHaveCount(1);
+  await expect(page.locator('a[data-tool="level"]')).toBeVisible();
+  await page.getByLabel(de('Search tools')).fill('');
+  await page.getByRole('button', { name: de('Order|sort') }).click();
+  const second = DE[TOOLS[1].title] ?? TOOLS[1].title;
+  await page.locator(`li[data-sort-id="${TOOLS[1].key}"]`).getByRole('button', { name: de('Move {name} up').replace('{name}', second), exact: true }).click();
+  await page.getByRole('button', { name: de('Done') }).click();
+  await expect(page.locator('a[data-tool]').first()).toHaveAttribute('data-tool', TOOLS[1].key);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('a[data-tool]').first()).toHaveAttribute('data-tool', TOOLS[1].key);
+
+  // gear ratios: 40 × 40 on 700 × 40C at 90 rpm
+  await page.locator('a[data-tool="gears"]').click();
+  await page.getByLabel(de('Chainrings (teeth)')).fill('40');
+  await page.getByLabel(de('Cassette (teeth)')).fill('11-40');
+  await expect(page.locator('.g-table tbody tr')).toHaveCount(2);
+  await expect(page.locator('.g-table tbody tr').nth(1)).toContainText('11.9');
+  await shot(page, info, 'L4-uebersetzung');
+
+  // QR code from a text
+  await page.goto('#/me/tools/qr');
+  await page.getByLabel(de('Text or link'), { exact: true }).last().fill('https://example.org/test');
+  await expect(page.locator('.q-box svg')).toBeVisible();
+
+  // bar code typed: new → an item in Material with the code; then the same code finds it
+  await page.goto('#/me/tools/barcode');
+  await page.getByLabel(de('Number under the bars')).fill('4006381333931');
+  await page.getByRole('button', { name: de('Look up') }).click();
+  await page.getByLabel(de('Name|item')).fill('Testschlauch Muster');
+  await page.getByRole('button', { name: de('Add to gear') }).click();
+  await expect(page).toHaveURL(/#\/gear\?item=/);
+  await expect.poll(async () => (await readAll(page, 'items')).find((i) => i.barcode === '4006381333931')?.name).toBe('Testschlauch Muster');
+  await page.goto('#/me/tools/barcode');
+  await page.getByLabel(de('Number under the bars')).fill('4006381333931');
+  await page.getByRole('button', { name: de('Look up') }).click();
+  await expect(page.getByRole('link', { name: 'Testschlauch Muster' })).toBeVisible();
+
+  // map: two taps, a length; the tiles are blocked in the test, the line still counts
+  await page.goto('#/me/tools/map');
+  const map = page.locator('.mm-map');
+  await expect(map.locator('.leaflet-pane').first()).toBeAttached();
+  const box = await map.boundingBox();
+  await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.5);
+  await page.mouse.click(box.x + box.width * 0.7, box.y + box.height * 0.5);
+  await expect.poll(async () => Number(await page.locator('[data-m]').getAttribute('data-m'))).toBeGreaterThan(1000);
+  const gpx = page.waitForEvent('download');
+  await page.getByRole('button', { name: de('Save as GPX') }).click();
+  expect((await gpx).suggestedFilename()).toBe('strecke.gpx');
+  await shot(page, info, 'L5-strecke');
+
+  // chains: «Receipts as one PDF» with two made-up photos ends with one PDF
+  await page.goto('#/me/tools/chains');
+  const chain = page.locator('[data-chain="c-belege"]');
+  await expect(chain).toContainText(de('Receipts as one PDF'));
+  const pdf = page.waitForEvent('download');
+  const pick = page.waitForEvent('filechooser');
+  await chain.getByRole('button', { name: de('Start|chain') }).click();
+  await (await pick).setFiles([
+    { name: 'beleg-1.jpg', mimeType: 'image/jpeg', buffer: await photo(page, 1200, 900) },
+    { name: 'beleg-2.jpg', mimeType: 'image/jpeg', buffer: await photo(page, 900, 1200) },
+  ]);
+  expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
+  await expect(chain.getByText(de('Done.'))).toBeVisible();
+  // a new chain with one step, renamed, then deleted with Undo
+  await page.getByRole('button', { name: de('New chain') }).click();
+  await page.locator('dialog[open] #rn-in').fill('Meine Testkette');
+  await page.locator('dialog[open]').getByRole('button', { name: de('Save'), exact: true }).click();
+  await expect(page.locator('li[data-chain]').last()).toContainText('Meine Testkette');
+  await page.locator('li[data-chain]').last().getByLabel(de('Add step')).selectOption('share');
+  await expect(page.locator('li[data-chain]').last().locator('[data-step="share"]')).toHaveCount(1);
+  await shot(page, info, 'L6-ketten');
+
+  // picture format: a PNG becomes a JPG
+  await page.goto('#/me/tools/convert');
+  const png = Buffer.from(await page.evaluate(() => {
+    const c = document.createElement('canvas');
+    c.width = 40;
+    c.height = 30;
+    c.getContext('2d').fillRect(0, 0, 20, 30);
+    return c.toDataURL('image/png').split(',')[1];
+  }), 'base64');
+  const pick2 = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: de('Choose pictures') }).click();
+  await (await pick2).setFiles([{ name: 'test-bild.png', mimeType: 'image/png', buffer: png }]);
+  await expect(page.locator('li[data-state="done"]')).toContainText('test-bild.jpg');
+
+  // the other new tools open without errors (sensors and camera are not there in the test)
+  for (const k of ['level', 'light', 'video']) {
+    await page.goto(`#/me/tools/${k}`);
+    await expect(page.locator(`.tools-view[data-tool="${k}"]`)).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});

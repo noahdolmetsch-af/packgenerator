@@ -4,7 +4,7 @@
  */
 import { db } from '../db.js';
 
-export const TOOL_KEYS = { calc: 'tools.calc', zones: 'tools.zones', units: 'tools.units', phrases: 'tools.phrases', money: 'tools.money' };
+export const TOOL_KEYS = { calc: 'tools.calc', zones: 'tools.zones', units: 'tools.units', phrases: 'tools.phrases', money: 'tools.money', level: 'tools.level', gears: 'tools.gears', qr: 'tools.qr', chains: 'tools.chains', map: 'tools.map' };
 
 export async function loadTool(name, fallback) {
   try {

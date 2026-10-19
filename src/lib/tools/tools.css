@@ -82,3 +82,21 @@
 .tool-status.err {
   color: var(--bad);
 }
+/* a choice as a round chip (radio inside) */
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: var(--fs-small);
+}
+.tool-cam {
+  width: 100%;
+  max-height: 55vh;
+  border-radius: var(--radius-card);
+  background: var(--ink);
+  object-fit: cover;
+}

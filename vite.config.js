@@ -93,8 +93,9 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Paket L «Werkzeugkasten»: «Freistellen» loads its reader once from jsdelivr (the model itself is
-            // kept by transformers.js in its own cache); kept here so it works offline afterwards.
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/(@huggingface\/transformers|onnxruntime-web|onnxruntime-common)@/,
+            // kept by transformers.js in its own cache), «Bildformat» its HEIC reader; kept here so both work
+            // offline afterwards.
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/(@huggingface\/transformers|onnxruntime-web|onnxruntime-common|heic2any)@/,
             handler: 'CacheFirst',
             options: { cacheName: 'pg-cutout-lib', expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
