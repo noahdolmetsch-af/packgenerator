@@ -12,8 +12,10 @@
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
+   *   #/flow/ideen       «Meine Ideen» (HN4c, Noah «4 ok»): tips for the balance and the own ideas list (pages/flow/Ideas.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
+   *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
    *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
@@ -24,8 +26,11 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
+  import Ideas from './flow/Ideas.svelte';
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { inSeason } from '../lib/ski.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -59,6 +64,7 @@
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
+  import Gipfelbuch from './flow/Gipfelbuch.svelte';
   import Week from './flow/Week.svelte';
   import WeekReview from './flow/WeekReview.svelte';
   import Bags from './flow/Bags.svelte';
@@ -225,6 +231,8 @@
   <Milestones {params} />
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'gipfelbuch'}
+  <Gipfelbuch />
 {:else if route[0] === 'week'}
   <Week />
 {:else if route[0] === 'review'}
@@ -233,6 +241,8 @@
   <Bags {params} />
 {:else if route[0] === 'rest'}
   <Rest />
+{:else if route[0] === 'ideen'}
+  <Ideas />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -311,6 +321,8 @@
     <header class="ph">
       <h1 class="title">{t('Active|place')}</h1>
       <p class="sub">{t('Today, {date}', { date: fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }) })}{#if season?.since}{' · '}{season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}{/if}</p>
+      <!-- «Skitouren»: in season (November–May) one small row to Touren › Skitouren -->
+      {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
     </header>
 
     {#if data && !states.length}
@@ -388,6 +400,7 @@
       </div>
       <PageMore page="aktiv" name={t('Active|place')} />
       <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PinnedLists place="active" />
       <PageTiles page="flow" />
     {/if}
   </div>
@@ -748,5 +761,15 @@
   .note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .skl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
   }
 </style>

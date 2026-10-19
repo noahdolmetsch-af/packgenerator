@@ -830,7 +830,9 @@
 :root[data-place='gear'] {
   --pc: var(--pc-gear);
 }
-:root[data-place='bikes'] {
+:root[data-place='bikes'],
+:root[data-place='equipment'] {
+  /* AU1: Ausrüstung shares the colour of Velos (one slot in the bottom bar) */
   --pc: var(--pc-bikes);
 }
 :root[data-place='active'] {

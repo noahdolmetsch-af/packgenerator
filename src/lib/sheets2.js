@@ -30,6 +30,7 @@ import { itemWeight, nextId } from './gear.js';
 import { slotFor } from './trips.js';
 import { sheetsOf, sheetText, bikeLine, isShown, firstServiceDone, NEW_KM } from './sheets.js';
 import { t, tn, num, dateOf, locale, nameOf } from './i18n.svelte.js';
+import { changeLines, newChain } from './abholwerte.js';
 
 /* ---------- days ---------- */
 
@@ -352,8 +353,10 @@ export const kitType = (bike, trip = null) => sheetsOf(bike).kit?.type ?? (trip 
  * toTrip }. row = { key, label, hint, items: [{ id, name, g }], g, missing, wish, packed, onTrip }.
  * trip: the next trip on this bike (its packing list); toTrip: the items not on it yet.
  */
-export function repairKit(bike, { items = [], tyres = null, type = 'day', trip = null }) {
+export function repairKit(bike, { items = [], tyres = null, type = 'day', trip = null, today = null }) {
   const b = { ...bike, parts: ensureParts(bike ?? {}) };
+  // «Werte messen» W3: a chain replaced in the last 60 days asks whether the quick link still fits
+  const chainNew = today ? newChain(bike, today) : null;
   const ticks = sheetsOf(bike).kit?.ticks?.[type] ?? {};
   const on = new Set((trip?.entries ?? []).map((e) => e.itemId));
   const sections = KIT.map((s) => {
@@ -366,6 +369,7 @@ export function repairKit(bike, { items = [], tyres = null, type = 'day', trip =
         let hint = r.hint ? t(r.hint) : '';
         if (r.key === 'pump' && hasSuspension(b, 'shock') && type !== 'multi') hint = t('the shock pump stays at home');
         if (r.key === 'tube' && tubeless(tyres)) hint = t('Backup for the tubeless tyres');
+        if (r.key === 'link' && chainNew) hint = t('New chain since {date}: does the quick link still fit?', { date: dateOf(chainNew) });
         return {
           key: r.key,
           label: kitLabel(r, b),
@@ -493,14 +497,19 @@ export function warranty(bike, { visits = [], today }) {
   const mine = visits.filter((v) => v.bikeId === bike?.id).sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
   const seen = new Set();
   const replaced = [];
-  for (const v of mine) {
-    if (!v.date || (bought && v.date <= bought)) continue;
-    for (const l of v.parts ?? []) {
-      if (l.action !== 'replace' || !l.part || seen.has(l.part)) continue;
-      seen.add(l.part);
-      const r = warrantyRow({ key: `v:${v.id}:${l.part}`, label: t('{part} (replaced)', { part: PART[l.part] ? t(PART[l.part].name) : l.what || l.part }), years: 2, from: v.date, today, edit: false });
-      if (r.left >= 0) replaced.push(r);
-    }
+  // the replacements of the workshop visits and, «Werte messen» W3, the ones of the Pick-up check or
+  // typed in Care (the part's own history; a visit's job is in the list once, from the visit)
+  const reps = [
+    ...mine.flatMap((v) => (v.parts ?? []).filter((l) => l.action === 'replace' && l.part).map((l) => ({ date: v.date, part: l.part, what: l.what, key: `v:${v.id}:${l.part}` }))),
+    ...(bike?.parts ?? []).flatMap((p) => (p.history ?? []).filter((h) => h.action === 'replace' && !h.visitId).map((h, n) => ({ date: h.date, part: p.key, what: '', key: `p:${p.key}:${n}` }))),
+  ]
+    .filter((x) => x.date && (!bought || x.date > bought))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  for (const x of reps) {
+    if (seen.has(x.part)) continue;
+    seen.add(x.part);
+    const r = warrantyRow({ key: x.key, label: t('{part} (replaced)', { part: PART[x.part] ? t(PART[x.part].name) : x.what || x.part }), years: 2, from: x.date, today, edit: false });
+    if (r.left >= 0) replaced.push(r);
   }
   const receipts = mine.map((v) => ({
     id: v.id,
@@ -610,7 +619,14 @@ export function theftSheet(bike, { photos = [], gallery = [], visits = [] } = {}
     { id: 'weight', label: t('Weight'), value: b.weightG ? `${num(Math.round(b.weightG / 100) / 10)} kg${kind === 'measured' ? ` ${t('measured')}` : ''}` : null, edit: bikesHash({ tab: 'setup', bike: b.id }) },
     { id: 'price', label: t('Purchase price'), value: chf(typeof w.price === 'number' ? w.price : null), edit: bikesHash({ tab: 'setup', bike: b.id, sheet: 'warranty' }), href: buy ? { href: bikesHash({ tab: 'shop', bike: b.id, visit: buy.id }), label: t('Receipt') } : null },
   ];
+  // «Werte messen» W3: the replaced parts come by themselves under «Different from the factory»
   const marks = ['marks', 'changes', 'sensor', 'hidden'].map(row);
+  const auto = changeLines(b, { dateOf });
+  if (auto.length) {
+    const ch = marks.find((r) => r.id === 'changes');
+    ch.value = [ch.value, ...auto].filter(Boolean).join('\n');
+    ch.auto = auto.length;
+  }
   const insurance = ['insurer', 'policy', 'sum', 'deductible', 'report'].map(row);
   const own = photos.filter((p) => p.bikeId === b.id && p.theft);
   // the side view: a photo added for it, else the bike's main photo (never one added for another tile)
@@ -766,7 +782,7 @@ export function moreData(bike, base, { visits = [], items = [], photos = [], gal
   const view = base.view;
   return {
     breakin: breakIn(view, { tyres: base.tyres, today, visits }),
-    kit: repairKit(view, { items, tyres: base.tyres, type: type ?? kitType(bike, base.trip), trip: base.trip }),
+    kit: repairKit(view, { items, tyres: base.tyres, type: type ?? kitType(bike, base.trip), trip: base.trip, today }),
     warranty: warranty(view, { visits, today }),
     theft: theftSheet(view, { photos, gallery, visits }),
   };

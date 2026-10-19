@@ -1,6 +1,6 @@
 // v0.47.2 «Material-Ansichten»: fictional gear with eight debriefed trips, so every view of the Gear
 // page has a known count. The clock stands on 9 October 2026 (home0460-fixture.js openHome).
-//   Alle 24 · Meist genutzt 3 · Bewährt 2 · Lieblingssachen 2 · Nie gebraucht 3 · Ungewogen 2 · Wunschliste 2
+//   Alle 24 · Meist genutzt 3 · Bewährt 2 · Favoriten 2 · Nie gebraucht 3 · Ungewogen 2 · Wunschliste 2
 import { base } from './home0460-fixture.js';
 
 export const COUNTS = { all: 24, most: 3, proven: 2, fav: 2, never: 3, unweighed: 2, wish: 2 };

@@ -7,7 +7,7 @@
    * Everything is a suggestion: names, favourites, lines, suggestions and ideas can be changed, hidden or
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
-  import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link } from '@lucide/svelte';
+  import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Rows from '../../lib/flow/kit/Rows.svelte';
@@ -25,6 +25,7 @@
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
+  import { GB_KEY, bookOf, placeRows } from '../../lib/gipfelbuch.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
   import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
   import { favActs, moveFav, moveFavTo, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
@@ -137,6 +138,8 @@
      the rest folded under «Mehr» */
   // v0.121.0 (Noah «1a»): the counted Strava rides count too
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  // 0.165.0 «Gipfelbuch für alle»: the row under the milestones with the number of places
+  const gbQ = liveQuery(async () => placeRows(bookOf((await db.settings.get(GB_KEY))?.value)).length);
   const actQ = liveQuery(() => bikeActs(db));
   const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? [], $actQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');
@@ -198,6 +201,7 @@
   const soonN = $derived(shown.filter((r) => r.soon).length);
   const moreRows = $derived([
     { key: 'ms', icon: Star, title: t('Milestones'), sub: soonN ? tn(soonN, '{n} soon within reach', '{n} soon within reach') : t('over all activities'), href: '#/flow/milestones' },
+    { key: 'gb', icon: Mountain, title: t('Summit book'), sub: $gbQ ? tn($gbQ, '{n} place', '{n} places') : t('Passes, summits and trails of every sport'), href: '#/flow/gipfelbuch' },
     { key: 'rings', icon: Pulse, title: t('Three rings'), sub: [t('Move|ring'), t('Mindful|ring'), t('Recovery|ring')].join(', '), onclick: () => toggle('rings'), expanded: openRow === 'rings' },
     { key: 'sugg', icon: Lightbulb, title: t('More actions without their own page'), sub: tn(sugg.length, '{n} suggestion', '{n} suggestions'), onclick: () => toggle('sugg'), expanded: openRow === 'sugg' },
     { key: 'fun', icon: Heart, title: t('Recovery and fun'), sub: always.map((a) => actName(a)).slice(0, 3).join(', '), onclick: () => toggle('fun'), expanded: openRow === 'fun' },

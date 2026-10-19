@@ -17,6 +17,9 @@
    * KT «Kacheln antippbar» (Noah 14.10.2026, 3a): under «Help and keyboard shortcuts» a row shows the
    * short intro of the start page again (lib/home/IntroKT.svelte).
    * «Inspiration» (UC2-1): a row under Notes, #/inspiration (on a phone the only way there).
+   * Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): on top the card «Waiting for you» (backup, inbox, bills,
+   * a key that runs out), each line with its button; nothing open: one calm line. «Help» folds the handbook,
+   * the shortcuts and the intro; «App maintenance» and «More» are folded heads (one tap opens them as before).
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
@@ -31,7 +34,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Link2 } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Link2 } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -43,6 +46,12 @@
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
+  import { MAINT_KEY, maintOf } from '../lib/maintenance/settings.js';
+  import { keyRows } from '../lib/maintenance/check.js';
+  import { listBills, billsSummary } from '../lib/pay/bills.js';
+  import { formatAmount } from '../lib/pay/qrbill.js';
+  import Btn from '../lib/ui/Btn.svelte';
+  import { tick } from 'svelte';
   import '../lib/ich/ich.css';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { dueCount } from '../lib/docs.js';
@@ -71,10 +80,12 @@
   })();
 
   const waitQ = liveQuery(async () => {
-    const [notes, file, folder, n, demo, place, bikes] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count()]);
+    const [notes, file, folder, n, demo, place, bikes, maint, bills] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count(), db.settings.get(MAINT_KEY), listBills(db)]);
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
     const due = backupDue(last);
-    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes };
+    // Impeccable: what waits on top: the keys that run out within 30 days, the open bills
+    const keys = keyRows(maintOf(maint?.value).keys, localDay()).filter((k) => k.due);
+    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, last, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes, keys, bills: billsSummary(bills) };
   });
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
@@ -95,6 +106,26 @@
   const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : noCredit() ? t('credit used up · hidden|helper') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
+  // Impeccable: «Waiting for you»: at most one line per kind, each with the button that does it
+  let maintOpen = $state(false);
+  let moreOpen = $state(false);
+  async function showMaint() {
+    maintOpen = true;
+    await tick();
+    document.querySelector('[data-section="maintenance"]')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  const dateShort = (day) => new Date(`${day}T12:00:00`).toLocaleDateString(lang.v === 'de' ? 'de-CH' : 'en-GB', { day: 'numeric', month: 'short' });
+  const waits = $derived.by(() => {
+    const w = $waitQ;
+    if (!w) return [];
+    const out = [];
+    if (w.backup) out.push({ key: 'backup', icon: Database, text: w.days != null ? tn(w.days, 'Backup: the last one {n} day ago', 'Backup: the last one {n} days ago') : t('Backup: none yet'), sub: t('everything is only on this device'), label: t('Make a backup'), href: '#/me/data' });
+    if (w.inbox) out.push({ key: 'inbox', icon: Inbox, text: tn(w.inbox, 'Inbox: {n} note to file', 'Inbox: {n} notes to file'), sub: t('Notes from on the way'), label: t('File'), href: '#/inbox' });
+    if (w.bills.count) out.push({ key: 'bills', icon: CreditCard, text: tn(w.bills.count, 'Bills: {n} open', 'Bills: {n} open'), sub: `${formatAmount(w.bills.sum)} CHF${w.bills.next ? ` · ${t('due {date}', { date: dateShort(w.bills.next) })}` : ''}`, label: t('Open'), href: '#/me/pay/bills' });
+    for (const k of w.keys) out.push({ key: `key-${k.id}`, icon: KeyRound, text: k.days < 0 ? t('{name} ran out', { name: t(k.name) }) : tn(k.days, '{name} runs out in {n} day', '{name} runs out in {n} days', { name: t(k.name) }), sub: t('until {date}', { date: dateShort(k.until) }), label: t('Look|maint'), onclick: showMaint });
+    return out;
+  });
+  const lastLine = $derived($waitQ?.days != null ? ($waitQ.days === 0 ? t('Last backup today.') : tn($waitQ.days, 'Last backup {n} day ago.', 'Last backup {n} days ago.')) : '');
   // TR6: the weight, voluntary, only for watts per kg
   const weightLine = $derived.by(() => {
     const w = latestOf(weight.entries);
@@ -108,15 +139,24 @@
 <div class="mepage ich-page">
   <VeloHead title={t('Me|place')} {sub} />
 
-  {#if $waitQ?.backup}
-    <!-- I1: on top only what is due -->
-    <section class="ich-due" aria-labelledby="due-h">
-      <div>
-        <h2 id="due-h">{t('Backup due')}</h2>
-        <p>{$waitQ.days != null ? tn($waitQ.days, 'last backup {n} day ago', 'last backup {n} days ago') : t('no backup yet')} · {t('everything is only on this device')}</p>
-      </div>
-      <a class="btn hi" href="#/me/data">{t('Make a backup')}</a>
-    </section>
+  {#if $waitQ}
+    <!-- I1, Impeccable: on top what waits, each line with its button; nothing open: one calm line -->
+    {#if waits.length}
+      <section class="ich-due waits" aria-labelledby="due-h" data-section="waiting">
+        <h2 id="due-h">{t('Waiting for you')}</h2>
+        <ul class="wl">
+          {#each waits as w, i (w.key)}
+            <li data-wait={w.key}>
+              <span class="ich-ib"><w.icon size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{w.text}</b><small>{w.sub}</small></span>
+              <Btn kind={i === 0 ? 'hi' : 'normal'} class="sm" label={w.label} href={w.href} onclick={w.onclick} />
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {:else}
+      <p class="card alldone" data-section="waiting"><Check size={18} aria-hidden="true" /><span>{t('All done.')}{lastLine ? ` ${lastLine}` : ''}</span></p>
+    {/if}
   {/if}
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
@@ -132,7 +172,6 @@
             <a class="ich-row" href="#/me/data">
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
-              {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -193,6 +232,14 @@
             </a>
           </li>
           <li>
+            <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
+            <a class="ich-row" href="#/calendar">
+              <span class="ich-ib"><ListTodo size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Calendar › Remember')}</b><small>{t('Your to-dos and reminders')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <a class="ich-row" href="#/notes">
               <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Notes')}</b><small>{t('Kept notes, topics and checklists')}</small></span>
@@ -238,10 +285,26 @@
             </a>
           </li>
           <li>
+            <!-- ER3 (Noah 14.10.2026 «er1-er3 freigabe», 4a): every reminder on one page -->
+            <a class="ich-row" href="#/me/reminders">
+              <span class="ich-ib"><Bell size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Reminders')}</b><small>{t('What the app reminds you of, and when it asks')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- Erinnerungen aufs Handy (Web-Push): one main switch and one per kind, all off at the start -->
             <a class="ich-row" href="#/me/push">
               <span class="ich-ib"><BellRing size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Reminders on the phone')}</b><small>{t('Birthdays, plants, the evening before, the weather')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- «Mehr selbst einstellen» (IS 254–258): the numbers of the app and the suggestions on or off -->
+            <a class="ich-row" href="#/me/werte">
+              <span class="ich-ib"><SlidersHorizontal size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Own values')}</b><small>{t('Packing step, backup reminder, bike check, care, cold')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -273,14 +336,6 @@
             </a>
           </li>
           <li>
-            <!-- Handbuch + Kleine Apps (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben») -->
-            <a class="ich-row" href="#/me/handbook">
-              <span class="ich-ib"><BookOpen size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
             <a class="ich-row" href="#/me/apps">
               <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
@@ -304,19 +359,39 @@
             </a>
           </li>
           <li>
-            <button type="button" class="ich-row" onclick={keys} aria-haspopup="dialog">
-              <span class="ich-ib"><Keyboard size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Help and keyboard shortcuts')}</b></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </button>
-          </li>
-          <li>
-            <!-- KT (3a): the short intro of the start page once more -->
-            <button type="button" class="ich-row" onclick={introAgain} data-intro-again>
-              <span class="ich-ib"><Hand size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Show the start page intro again')}</b></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </button>
+            <!-- Impeccable: one row «Help»; the handbook, the shortcuts and the intro one tap deeper -->
+            <details class="hfold">
+              <summary class="ich-row">
+                <span class="ich-ib"><CircleHelp size={18} aria-hidden="true" /></span>
+                <span class="ich-m"><b>{t('Help|me')}</b><small>{t('Handbook, keyboard shortcuts, show the intro again')}</small></span>
+                <ChevronDown class="ich-chev fchev" size={18} aria-hidden="true" />
+              </summary>
+              <ul class="ich-list sub">
+                <li>
+                  <!-- Handbuch + Kleine Apps (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben») -->
+                  <a class="ich-row" href="#/me/handbook">
+                    <span class="ich-ib"><BookOpen size={18} aria-hidden="true" /></span>
+                    <span class="ich-m"><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span>
+                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <button type="button" class="ich-row" onclick={keys} aria-haspopup="dialog">
+                    <span class="ich-ib"><Keyboard size={18} aria-hidden="true" /></span>
+                    <span class="ich-m"><b>{t('Help and keyboard shortcuts')}</b></span>
+                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                  </button>
+                </li>
+                <li>
+                  <!-- KT (3a): the short intro of the start page once more -->
+                  <button type="button" class="ich-row" onclick={introAgain} data-intro-again>
+                    <span class="ich-ib"><Hand size={18} aria-hidden="true" /></span>
+                    <span class="ich-m"><b>{t('Show the start page intro again')}</b></span>
+                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                  </button>
+                </li>
+              </ul>
+            </details>
           </li>
           <li>
             <a class="ich-row" href="#/helper">
@@ -351,10 +426,11 @@
       </section>
 
       <!-- «App-Wartung» (Noah 13.10.2026, BF7 BF8): Strava's free limits and the monthly check -->
-      <MaintenanceCard />
+      <MaintenanceCard fold bind:open={maintOpen} />
 
-      <section class="ich-sec" aria-labelledby="me-more-h">
-        <div class="ich-h"><div><h2 id="me-more-h">{t('More')}</h2></div></div>
+      <!-- Impeccable: «More» folded; its head says what is inside -->
+      <details class="ich-sec fold" bind:open={moreOpen}>
+        <summary class="ich-h fsum"><div><h2 id="me-more-h">{t('More')}</h2><p class="ich-hs">{t('Try it out, clean up test data')}</p></div><ChevronDown class="fchev" size={20} aria-hidden="true" /></summary>
         <ul class="card ich-list">
           <li>
             <button type="button" class="ich-row" onclick={() => (playOpen = true)} aria-haspopup="dialog">
@@ -372,11 +448,11 @@
             </button>
           </li>
         </ul>
-        <!-- v0.125.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now -->
-        {#if $waitQ?.bikes && moved.show}
-          <p class="moved" role="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Looking for «Report a problem»? It is now under + New and at the bike:')} <a href="#/bikes?tab=care">{t('Bike care')}</a></span></p>
-        {/if}
-      </section>
+      </details>
+      <!-- v0.125.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now (outside the fold) -->
+      {#if $waitQ?.bikes && moved.show}
+        <p class="moved" role="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Looking for «Report a problem»? It is now under + New and at the bike:')} <a href="#/bikes?tab=care">{t('Bike care')}</a></span></p>
+      {/if}
     </div>
   </div>
 
@@ -391,7 +467,7 @@
     display: flex;
     gap: 8px;
     align-items: flex-start;
-    margin: 8px 4px 0;
+    margin: 0 4px 24px;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
@@ -405,10 +481,108 @@
   .lang {
     min-height: 60px;
   }
-  /* on a narrow phone the band on top already says it; the row keeps its words whole */
+  /* Impeccable «Waiting for you»: the lines one under the other on a phone, side by side on a computer */
+  .waits {
+    display: block;
+  }
+  .waits h2 {
+    margin: 0 0 8px;
+  }
+  .wl {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .wl li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-width: 0;
+    padding: 10px 0;
+  }
+  .wl li + li {
+    border-top: 1px solid var(--line);
+  }
+  .wl .ich-ib {
+    background: var(--paper);
+  }
+  .wl .ich-m small {
+    color: var(--ink-2);
+  }
+  .wl li > :global(.btn) {
+    flex: none;
+    min-width: 128px;
+  }
+  @media (max-width: 719px) {
+    .wl li > :global(.btn) {
+      min-width: 112px;
+    }
+  }
+  @media (min-width: 1000px) {
+    .wl {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0 24px;
+    }
+    .wl li {
+      align-content: space-between;
+    }
+    .wl li + li {
+      border-top: 0;
+    }
+  }
+  .alldone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 24px;
+    padding: 14px 18px;
+    color: var(--ink-2);
+  }
+  .alldone :global(svg) {
+    flex: none;
+    color: var(--ok);
+  }
+  /* Impeccable: folded heads («More») and the row «Help»: one tap opens them, the chevron turns */
+  .fold > .fsum {
+    min-height: 44px;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+  }
+  .fold > .fsum::-webkit-details-marker {
+    display: none;
+  }
+  .fold > .fsum :global(.fchev),
+  .hfold :global(.fchev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.18s ease-out;
+  }
+  .fold[open] > .fsum :global(.fchev),
+  .hfold[open] :global(.fchev) {
+    transform: rotate(180deg);
+  }
+  .fold:not([open]) {
+    margin-bottom: 16px;
+  }
+  .hfold .sub {
+    padding: 0 0 0 46px;
+  }
+  .hfold .sub > li {
+    border-top: 1px solid var(--line);
+  }
   @media (max-width: 419px) {
-    .duepill {
-      display: none;
+    .hfold .sub {
+      padding-left: 12px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fold > .fsum :global(.fchev),
+    .hfold :global(.fchev) {
+      transition: none;
     }
   }
   /* A phone: the language choice under its name, the whole width. */

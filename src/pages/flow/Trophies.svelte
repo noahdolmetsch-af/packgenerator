@@ -18,6 +18,8 @@
   import { saveStars } from '../../lib/flowdb.js';
   import { tileName, msName, stageName, val, monthWord, areaWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
+  import { liveQuery } from 'dexie';
+  import { GB_KEY, bookOf, gbStars } from '../../lib/gipfelbuch.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
 
   let { params = new URLSearchParams() } = $props();
@@ -46,7 +48,14 @@
     { href: '#/flow/trophies', label: t('All'), on: !year && !area },
     ...all.years.map((y) => ({ href: `#/flow/trophies?y=${y.year}`, label: y.year, on: year === y.year && !area })),
     ...all.groups.map((g) => ({ href: `#/flow/trophies?area=${encodeURIComponent(g.key)}`, label: areaName(g.key), on: area === g.key && !year })),
+    ...(gbAll.length ? [{ href: '#/flow/trophies?area=gipfelbuch', label: t('Summit book'), on: area === 'gipfelbuch' && !year }] : []),
   ]);
+  // 0.165.0 «Gipfelbuch für alle» (Noah 4a): the stars of the summit book as their own area
+  const gbQ = liveQuery(async () => gbStars(bookOf((await db.settings.get(GB_KEY))?.value)));
+  const gbAll = $derived($gbQ ?? []);
+  const gb = $derived(year ? gbAll.filter((s) => s.day.startsWith(year)) : gbAll);
+  const gbShow = $derived(gb.length > 0 && (!area || area === 'gipfelbuch'));
+  const gbName = (s) => (s.kind === 'pass2000' ? t('First pass over 2000 m') : s.kind === 'passes' ? t('{n} passes by bike', { n: s.n }) : s.kind === 'top' ? t('Highest point {year}', { year: s.year }) : t('5 new places in {year}', { year: s.year }));
   const when = (x) => `${stageName(x.star)} · ${monthWord(x.day)} ${x.day.slice(0, 4)}`;
   const left = (r) => t('{n} of {m}', { n: val(r.value, r.m.unit), m: val(r.target, r.m.unit) });
 </script>
@@ -81,8 +90,19 @@
             </ul>
           </section>
         {:else}
-          <p class="card none">{t('No stars here yet. The next ones are under «Milestones».')}</p>
+          {#if !gbShow}<p class="card none">{t('No stars here yet. The next ones are under «Milestones».')}</p>{/if}
         {/each}
+        {#if gbShow}
+          <section class="grp" data-area="gipfelbuch" aria-labelledby="tv-gipfelbuch">
+            <h2 id="tv-gipfelbuch">{t('Summit book')}</h2>
+            <p class="sub">{tn(gb.length, '{n} star', '{n} stars')}{year ? ` · ${year}` : ''} · <a href="#/flow/gipfelbuch">{t('Open the summit book')}</a></p>
+            <ul class="card badges">
+              {#each [...gb].reverse() as x (x.id)}
+                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{gbName(x)}</b><small>{x.name} · {monthWord(x.day)} {x.day.slice(0, 4)}</small></li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
         {#if !area && sc.waiting.length}<p class="wait" data-waiting>{t('No star yet: {list}', { list: sc.waiting.map(areaName).join(', ') })}</p>{/if}
       </div>
 
