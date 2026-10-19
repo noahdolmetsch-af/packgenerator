@@ -32,7 +32,7 @@
         {#each list as m (m.fromId)}
           <li>
             <p class="zkh-t">«{m.text}»</p>
-            <p class="tp-muted tp-small">{t('Sincerely, you · after «{trip}», {when}', { trip: m.title || t('a trip'), when: when(m.at) })}</p>
+            <p class="tp-muted tp-small">{t('Sincerely, you · after «{trip}», {when}', { trip: m.title || t('a trip|after'), when: when(m.at) })}</p>
             <button type="button" class="btn k" onclick={() => read(m.fromId)}><Check size={16} aria-hidden="true" /><span class="kl">{t('Read|message')}</span></button>
           </li>
         {/each}

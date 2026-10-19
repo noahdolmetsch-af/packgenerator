@@ -24,7 +24,7 @@
     try {
       const notes = await db.notes.where('status').equals('kept').toArray();
       const target = pickTarget(todoTargets({ notes, prefs: agenda.prefs, tripId: trip.id }), cfg.target);
-      const ok = await sendTodo(target, note.text, { db, saveTask, tripId: trip.id, title: t('To-dos after «{trip}»', { trip: trip.title || t('the trip') }) });
+      const ok = await sendTodo(target, note.text, { db, saveTask, tripId: trip.id, title: t('To-dos after «{trip}»', { trip: trip.title || t('the trip|after') }) });
       if (!ok) failed = true;
       else {
         const fresh = todoConfig((await db.settings.get(TODO_KEY))?.value);
