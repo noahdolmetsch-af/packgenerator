@@ -308,6 +308,7 @@
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
     Race: () => import('./pages/Race.svelte'),
+    Live: () => import('./pages/Live.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
     Check: () => import('./pages/Check.svelte'),
@@ -465,6 +466,9 @@
     {#if param === 'abfahrt'}<LazyPage load={PAGES.Abfahrt} />{:else}<LazyPage load={PAGES.Ride} />{/if}
   {:else if page === 'share'}
     {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
+  {:else if page === 'live'}
+    <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->
+    {#key param}<LazyPage load={PAGES.Live} id={decodeURIComponent((param ?? '').split('?')[0])} />{/key}
   {:else if page === 'spur'}
     <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
     {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}

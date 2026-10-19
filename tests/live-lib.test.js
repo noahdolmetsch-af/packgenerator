@@ -137,3 +137,66 @@ describe('live map: warnings and links', () => {
     expect(distKm({ lat: 47, lon: 8 }, { lat: 47.1, lon: 8 })).toBeCloseTo(11.12, 1);
   });
 });
+
+describe('live page (Paket U3)', () => {
+  it('turns a recording into fixes and a pace', async () => {
+    const { fixesOf, paceOf } = await import('../src/lib/live/live-lib.js');
+    expect(fixesOf({ startAt: 1000, pts: [[46, 7, 0], [46.01, 7, 60]] })).toEqual([{ lat: 46, lon: 7, at: 1000 }, { lat: 46.01, lon: 7, at: 61000 }]);
+    expect(paceOf({ km: 2, movingS: 3600 })).toBe(18);
+    expect(paceOf({ km: 25, movingS: 3600 })).toBe(25);
+    expect(paceOf({ km: 200, movingS: 3600 })).toBe(40);
+  });
+  it('knows when the plan runs', async () => {
+    const { planRunning } = await import('../src/lib/live/live-lib.js');
+    expect(planRunning({ start: NOW, end: NOW + 864e5 }, NOW + 36e5)).toBe(true);
+    expect(planRunning({ start: NOW, end: NOW + 864e5 }, NOW - 30 * 864e5)).toBe(false);
+    expect(planRunning(null, NOW)).toBe(false);
+  });
+  it('recalculates tonight\'s bed', async () => {
+    const { bedTonight } = await import('../src/lib/live/live-lib.js');
+    const beds = [
+      { id: 'a', kind: 'sleep', name: 'A', km: 420 },
+      { id: 'b', kind: 'sleep', name: 'B', km: 460 },
+      { id: 'c', kind: 'sleep', name: 'C', km: 600 },
+    ];
+    const plan = { stages: [{ fromKm: 300, toKm: 470, arrive: NOW + 4 * 36e5, place: { name: 'Plan bed' } }] };
+    const r = bedTonight({ plan, pois: beds, km: 412, now: NOW, pace: { kmh: 20, climbMh: 600 } });
+    expect(r.planned).toEqual({ km: 470, name: 'Plan bed', at: NOW + 4 * 36e5 });
+    expect(r.best.name).toBe('B');
+    // too late for any: the first one ahead
+    const late = bedTonight({ plan: { stages: [{ fromKm: 0, toKm: 470, arrive: NOW + 60e3 }] }, pois: beds, km: 412, now: NOW });
+    expect(late.best.name).toBe('A');
+    // without a plan: before sunset
+    const sun = bedTonight({ pois: beds, km: 412, now: NOW, pace: { kmh: 20 }, light: { set: NOW + 3 * 36e5 } });
+    expect(sun.planned).toBeNull();
+    expect(sun.best.name).toBe('B');
+    expect(bedTonight({ pois: [], km: 1 })).toBeNull();
+  });
+  it('asks for storms where you are in the next 2 h and reads the answer', async () => {
+    const { stormPoints, stormUrl, stormAhead } = await import('../src/lib/live/live-lib.js');
+    const p = stormPoints({ pts, km: 412, kmh: 20 });
+    expect(p.length).toBe(5);
+    expect(p[0].km).toBe(412);
+    expect(p.at(-1).km).toBe(452);
+    expect(stormPoints({ here: { lat: 46.51234, lon: 7.1 } })).toEqual([{ lat: 46.512, lon: 7.1, km: null }]);
+    expect(stormUrl(p)).toContain('hourly=weather_code%2Ccape');
+    const h = (code, cape) => ({ hourly: { time: [NOW / 1000, NOW / 1000 + 3600, NOW / 1000 + 7200], weather_code: code, cape } });
+    expect(stormAhead([h([1, 2, 3], [0, 0, 0])], p, NOW)).toBeNull();
+    expect(stormAhead([h([1, 2, 3], [0, 0, 0]), h([1, 95, 3], [0, 0, 0])], p, NOW)).toEqual({ km: p[1].km, at: NOW + 36e5, sure: true });
+    expect(stormAhead([h([1, 2, 3], [0, 1500, 0])], p, NOW).sure).toBe(false);
+    // later than 2 h does not count
+    expect(stormAhead([{ hourly: { time: [NOW / 1000 + 4 * 3600], weather_code: [96], cape: [0] } }], p, NOW)).toBeNull();
+  });
+  it('builds the «around you» query and keeps its answer while you stay near', async () => {
+    const { aroundQuery, aroundFresh, due } = await import('../src/lib/live/live-lib.js');
+    const q = aroundQuery({ lat: 46.5, lon: 7.25 });
+    expect(q).toContain('(around:4000,46.5000,7.2500)');
+    expect(q).toContain('railway');
+    const cache = { center: { lat: 46.5, lon: 7.25 }, at: new Date(NOW).toISOString() };
+    expect(aroundFresh(cache, { lat: 46.52, lon: 7.25 }, NOW + 36e5)).toBe(true);
+    expect(aroundFresh(cache, { lat: 46.7, lon: 7.25 }, NOW + 36e5)).toBe(false);
+    expect(aroundFresh(cache, { lat: 46.5, lon: 7.25 }, NOW + 8 * 864e5)).toBe(false);
+    expect(due(0, NOW, 10000)).toBe(true);
+    expect(due(NOW - 5000, NOW, 10000)).toBe(false);
+  });
+});

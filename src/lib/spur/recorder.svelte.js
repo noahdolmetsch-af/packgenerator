@@ -13,7 +13,7 @@ import { localDay } from '../localday.js';
 import { keepFix, zurichDay } from './spur.js';
 import { distKm } from './polyline.js';
 
-export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false });
+export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null });
 
 let watch = null;
 let lock = null;
@@ -45,6 +45,8 @@ export async function addFix(pos, db = appDb) {
   if (!rec.on || !row) return false;
   const fix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, at: pos.timestamp || Date.now() };
   rec.acc = Number.isFinite(fix.acc) ? Math.round(fix.acc) : null;
+  // Live-Karte (Paket U3): the latest position, every fix, so the live map reads the same GPS.
+  rec.here = { lat: fix.lat, lon: fix.lon, acc: fix.acc ?? null, at: fix.at, speed: pos.coords.speed ?? null, alt: pos.coords.altitude ?? null };
   if (!keepFix(last, fix)) return false;
   const sec = Math.max(0, Math.round((fix.at - row.startAt) / 1000));
   const p = [r6(fix.lat), r6(fix.lon), sec];
@@ -65,7 +67,7 @@ export async function addFix(pos, db = appDb) {
  * Start (or continue) recording for a trip. Returns '' or an error key for t().
  * cont: an open recording to continue (openRecording()).
  */
-export async function startRecording(trip, { db = appDb, cont = null, now = Date.now() } = {}) {
+export async function startRecording(trip, { db = appDb, cont = null, now = Date.now(), saver = false } = {}) {
   if (rec.on) return '';
   if (!navigator.geolocation) return 'This device cannot tell where it is.';
   rec.error = '';
@@ -87,7 +89,8 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
     (err) => {
       rec.error = err?.code === 1 ? 'Location is not allowed. Allow it for this site in the browser settings.' : 'No GPS signal right now. Recording goes on as soon as there is one.';
     },
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
+    // saver (Live-Karte battery saver): no high accuracy, older fixes allowed → less GPS.
+    saver ? { enableHighAccuracy: false, maximumAge: 30_000, timeout: 60_000 } : { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
   );
   return '';
 }
@@ -108,7 +111,7 @@ export async function stopRecording(db = appDb) {
   const done = row ? { ...row, pts: row.pts.slice(), open: false, day: row.pts.length ? zurichDay(row.startAt + row.pts[0][2] * 1000) : row.day } : null;
   row = null;
   last = null;
-  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false });
+  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false, here: null });
   if (!done) return null;
   if (done.pts.length < 2) {
     await db.tracks.delete(done.id);

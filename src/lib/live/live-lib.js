@@ -238,3 +238,125 @@ export function liveKmCounts(ride, activities = []) {
 
 /** The point on the route at km (for the «you are here» on the profile). */
 export const atKm = (pts, km) => (pts?.length && Number.isFinite(km) ? pointAt(pts, km) : null);
+
+/* ---------- Paket U3: the live page (Live.svelte) ---------- */
+
+/** The points of a recording row (recorder.svelte.js: pts [[lat, lon, sec]], startAt) as fixes { lat, lon, at }. */
+export const fixesOf = (row) => (Array.isArray(row?.pts) ? row.pts.map((p) => ({ lat: p[0], lon: p[1], at: (row.startAt || 0) + (p[2] || 0) * 1000 })) : []);
+
+/** Your speed while moving (km/h) from the recording, or the fallback until there is enough of it (5 km, 10 min). */
+export function paceOf({ km = 0, movingS = 0 } = {}, fallback = 18) {
+  if (!(km >= 5) || !(movingS >= 600)) return fallback;
+  return Math.round(Math.max(6, Math.min(40, km / (movingS / 3600))) * 10) / 10;
+}
+
+/** Does the plan run now (from 6 h before its start to 12 h after its end)? Else plan vs reality says nothing. */
+export const planRunning = (plan, now = Date.now()) => !!plan && Number.isFinite(plan.start) && now >= plan.start - 6 * 36e5 && now <= (plan.end ?? plan.start) + 12 * 36e5;
+
+/**
+ * Tonight's bed (Noah «1a … das Bett für heute Abend neu berechnet»):
+ * - planned: the end of the plan's stage you are on (stages of the Strategie) or the next sleep block;
+ * - best: the last place to sleep ahead (pois kind 'sleep') you reach before the planned bedtime, else
+ *   before sunset (light.set), each only when it is within the next 24 h; none in reach → the first one ahead.
+ * → { planned: { km, name, at } | null, best: { ...poi, distKm, eta } | null } or null without anything.
+ */
+export function bedTonight({ plan = null, pois = [], km, now = Date.now(), pace = {}, profile = [], light = null }) {
+  if (!Number.isFinite(km)) return null;
+  let planned = null;
+  if (plan?.stages?.length) {
+    const s = plan.stages.find((d) => km < d.toKm) ?? null;
+    if (s) planned = { km: s.toKm, name: s.place?.name ?? '', at: s.arrive ?? null };
+  } else if (plan?.blocks?.length && plan.kmAt) {
+    const b = plan.blocks.find((x) => x.kind === 'sleep' && x.from > now);
+    if (b) planned = { km: Math.round(plan.kmAt(b.from)), name: '', at: b.from };
+  }
+  // only a bedtime within the next 24 h counts (a plan for another day says nothing about tonight)
+  const soon = (x) => Number.isFinite(x) && x > now && x - now < 24 * 36e5;
+  const until = soon(planned?.at) ? planned.at : soon(light?.set) ? light.set : null;
+  const ahead = pois
+    .filter((p) => p.kind === 'sleep' && Number.isFinite(p.km) && p.km > km + 0.5)
+    .sort((a, b) => a.km - b.km)
+    .map((p) => {
+      const d = p.km - km;
+      return { ...p, distKm: Math.round(d * 10) / 10, eta: Math.round(now + rideH(d, gainBetween(profile, km, p.km), pace) * 36e5) };
+    });
+  const reach = until ? ahead.filter((p) => p.eta <= until) : [];
+  const best = reach.at(-1) ?? ahead[0] ?? null;
+  if (!planned && !best) return null;
+  return { planned, best };
+}
+
+/**
+ * Where to ask for thunderstorms: on the route the km you reach in the next `hours` (every ~10 km, at most
+ * 5 points), without a route only here. → [{ lat, lon, km }]
+ */
+export function stormPoints({ pts = [], km = null, here = null, kmh = 18, hours = 2 }) {
+  if (pts.length && Number.isFinite(km)) {
+    const end = Math.min(pts.at(-1).km, km + kmh * hours);
+    const n = Math.max(1, Math.min(5, Math.ceil((end - km) / 10) + 1));
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const k = n === 1 ? km : km + ((end - km) * i) / (n - 1);
+      const p = pointAt(pts, k);
+      out.push({ lat: Math.round(p.lat * 1000) / 1000, lon: Math.round(p.lon * 1000) / 1000, km: Math.round(k) });
+    }
+    return out;
+  }
+  return here ? [{ lat: Math.round(here.lat * 1000) / 1000, lon: Math.round(here.lon * 1000) / 1000, km: null }] : [];
+}
+
+/** The Open-Meteo request for the storm check (free, no key): weather code and CAPE per hour, today and tomorrow. */
+export function stormUrl(points) {
+  const q = new URLSearchParams({ latitude: points.map((p) => p.lat).join(','), longitude: points.map((p) => p.lon).join(','), hourly: 'weather_code,cape', forecast_days: '2', timezone: 'UTC', timeformat: 'unixtime' });
+  return `https://api.open-meteo.com/v1/forecast?${q}`;
+}
+
+/** CAPE from which a thunderstorm is likely (J/kg). */
+export const STORM_CAPE = 1000;
+
+/**
+ * A thunderstorm in the next `hours` at the points ahead (Open-Meteo weather_code 95–99 = thunderstorm, or a
+ * high CAPE). series: the answer (one object per point, or an array). → { km, at, sure } (the first) or null.
+ */
+export function stormAhead(series, points = [], now = Date.now(), hours = 2) {
+  const list = Array.isArray(series) ? series : series ? [series] : [];
+  let first = null;
+  list.forEach((s, i) => {
+    const time = s?.hourly?.time ?? [];
+    const code = s?.hourly?.weather_code ?? [];
+    const cape = s?.hourly?.cape ?? [];
+    for (let j = 0; j < time.length; j++) {
+      const at = time[j] * 1000;
+      if (at + 36e5 <= now || at > now + hours * 36e5) continue;
+      const sure = code[j] >= 95 && code[j] <= 99;
+      if (sure || cape[j] >= STORM_CAPE) {
+        if (!first || at < first.at || (at === first.at && sure && !first.sure)) first = { km: points[i]?.km ?? null, at: Math.max(at, now), sure };
+        break;
+      }
+    }
+  });
+  return first;
+}
+
+/** The Overpass query for the stops around you (a ride without a route): shops, food, water, beds, stations, bike shops. */
+export function aroundQuery(here, m = 4000) {
+  const a = `(around:${m},${here.lat.toFixed(4)},${here.lon.toFixed(4)})`;
+  const w = `(around:${Math.round(m * 2)},${here.lat.toFixed(4)},${here.lon.toFixed(4)})`;
+  return `[out:json][timeout:30];(
+node["shop"~"^(supermarket|convenience|bakery|kiosk|general|deli)$"]${a};
+node["amenity"~"^(restaurant|fast_food|cafe)$"]${a};
+node["amenity"="drinking_water"]${a};
+node["amenity"="fountain"]["drinking_water"="yes"]${a};
+node["man_made"="water_tap"]["drinking_water"!="no"]${a};
+node["shop"="bicycle"]${w};
+node["railway"="station"]${w};
+node["tourism"~"^(hotel|guest_house|hostel|camp_site|alpine_hut|motel)$"]${w};
+);out center tags;`;
+}
+
+/** Is the kept «around you» answer still good here? (less than maxKm away and younger than maxDays) */
+export const aroundFresh = (cache, here, now = Date.now(), maxKm = 8, maxDays = 7) =>
+  !!cache?.center && !!here && distKm(cache.center, here) <= maxKm && now - Date.parse(cache.at ?? 0) < maxDays * 864e5;
+
+/** Has enough time passed since the last time (ms)? For the battery saver: fewer redraws. */
+export const due = (lastAt, now, everyMs) => !lastAt || now - lastAt >= everyMs;
