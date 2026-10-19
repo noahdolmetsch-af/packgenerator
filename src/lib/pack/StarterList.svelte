@@ -64,9 +64,9 @@
             </label>
           {:else}
             <span class="nm miss"><b>{t(r.line.name)}</b><small>{t('Nothing of yours fits yet')}</small></span>
-            {#if !off}<button type="button" class="text-button" onclick={() => (wish = r.line)}>{t('On the wishlist')}</button>{/if}
+            {#if !off}<button type="button" class="text-button" onclick={() => (wish = r.line)}>{t('On the wishlist|add')}</button>{/if}
           {/if}
-          {#if !r.onTrip}<button type="button" class="text-button skip" aria-pressed={off} onclick={() => setSkip(r.line.name, !off)}>{off ? t('Show again') : t('Not needed')}</button>{/if}
+          {#if !r.onTrip}<button type="button" class="text-button skip" aria-pressed={off} onclick={() => setSkip(r.line.name, !off)}>{off ? t('Show again') : t('Not needed|starter')}</button>{/if}
         </li>
       {/each}
     </ul>

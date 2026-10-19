@@ -63,7 +63,6 @@ export default {
   '"{name}" is now a supply.': '«{name}» ist jetzt ein Vorrat.',
   'Where at home': 'Ort zu Hause',
   'Best before': 'Ablaufdatum',
-  'At home': 'Zu Hause',
   'Buy below': 'Nachkaufen unter',
   'On the list': 'Auf der Liste',
   // the item window
@@ -98,10 +97,8 @@ export default {
   'Please enter who borrows the things.': 'Bitte eingeben, wer die Sachen ausleiht.',
   'Please choose at least one thing.': 'Bitte mindestens eine Sache wählen.',
   'Lending list for {person} saved.': 'Leihliste für {person} gespeichert.',
-  '"{name}" is back.': '«{name}» ist zurück.',
   'Everything from {person} is back.': 'Alles von {person} ist zurück.',
   'Open again.': 'Wieder offen.',
-  'Open again': 'Wieder öffnen',
   'Delete the list for {person}?': 'Liste für {person} löschen?',
   'Only the list goes; your things stay in Gear.': 'Nur die Liste geht weg, deine Sachen bleiben im Material.',
   'List for {person} deleted.': 'Liste für {person} gelöscht.',
@@ -138,8 +135,8 @@ export default {
   'Suggestion list {sport}': 'Vorschlagsliste {sport}',
   'What usually belongs on this kind of trip. Tick what you take: it goes on your packing list. Only a suggestion.': 'Was meist auf diese Art Tour gehört. Hake an, was du mitnimmst: Es kommt auf deine Packliste. Nur ein Vorschlag.',
   'Nothing of yours fits yet': 'Noch nichts von dir passt',
-  'On the wishlist': 'Auf die Wunschliste',
-  'Not needed': 'Brauche ich nicht',
+  'On the wishlist|add': 'Auf die Wunschliste',
+  'Not needed|starter': 'Brauche ich nicht',
   'Show again': 'Wieder zeigen',
   Helmet: 'Helm',
   'Bike computer': 'Velocomputer',
@@ -217,7 +214,6 @@ export default {
   'Not listening right now': 'Hört gerade nicht zu',
   'Read through. {n} item is still open.': 'Durchgelesen. {n} Teil ist noch offen.',
   'Read through. {n} items are still open.': 'Durchgelesen. {n} Teile sind noch offen.',
-  'Everything packed.': 'Alles eingepackt.',
 
   // Essen für mehrere (#365)
   'For how many people': 'Für wie viele Personen',
