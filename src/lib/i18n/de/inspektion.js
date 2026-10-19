@@ -33,7 +33,7 @@ export default {
   'Continue later': 'Später weitermachen',
   'Done · save {done} of {total}': 'Fertig · {done} von {total} speichern',
   '«Fix myself» and «Bike shop» become problems of the bike; the bike shop ones go into the workshop order. Values go into the part history.': '«Selbst richten» und «Werkstatt» werden Probleme am Velo; die Werkstatt-Punkte kommen in den Werkstatt-Auftrag. Messwerte kommen in den Verlauf des Teils.',
-  Watch: 'Beobachten',
+  'Watch|inspect': 'Beobachten',
   'Fix myself': 'Selbst richten',
   // Übersicht und Verlauf
   'The values it wrote into the part history go too. Problems it made stay.': 'Die Werte, die sie in den Verlauf der Teile geschrieben hat, gehen mit. Probleme daraus bleiben.',

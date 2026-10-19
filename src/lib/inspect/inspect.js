@@ -429,7 +429,7 @@ export const kmToDate = (kmLeft, perDay, today) => (kmLeft == null || !perDay ? 
 /** The states of a point (4a: every point can carry a photo and a note). */
 export const STATES = [
   { key: 'ok', name: 'OK|inspect' },
-  { key: 'watch', name: 'Watch' },
+  { key: 'watch', name: 'Watch|inspect' },
   { key: 'fix', name: 'Fix myself' },
   { key: 'shop', name: 'Bike shop' },
 ];

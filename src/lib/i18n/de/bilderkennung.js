@@ -95,7 +95,7 @@ export default {
   Sweater: 'Pullover',
   Trousers: 'Hose',
   Jacket: 'Jacke',
-  Torch: 'Lampe',
+  Torch: 'Taschenlampe',
   Lighter: 'Feuerzeug',
   'Sun cream': 'Sonnencreme',
   'Toilet paper': 'Toilettenpapier',

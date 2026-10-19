@@ -34,7 +34,7 @@
   const set = $derived(bike ? bikeSettings(bike) : null);
   let openId = $state(null);
 
-  const STATE_NAME = { ok: 'OK|inspect', watch: 'Watch', fix: 'Fix myself', shop: 'Bike shop' };
+  const STATE_NAME = { ok: 'OK|inspect', watch: 'Watch|inspect', fix: 'Fix myself', shop: 'Bike shop' };
   const count = (x, s) => (x.results ?? []).filter((r) => r.state === s).length;
 
   async function remove(x) {
