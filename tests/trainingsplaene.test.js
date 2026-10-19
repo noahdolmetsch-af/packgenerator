@@ -122,3 +122,22 @@ describe('felt effort', () => {
     expect(zoneWays(2, DEFAULT_BOUNDS, null).w).toBe(null);
   });
 });
+
+import { raceChoices, raceMoved } from '../src/lib/training/plans.js';
+describe('coupled to a race', () => {
+  const trips = [
+    { id: 't1', title: 'Beispiel 1000', startDate: '2027-06-12' },
+    { id: 't2', title: 'Wochenende', startDate: '2027-05-01' },
+    { id: 't3', title: 'Brevet', startDate: '2027-04-10', event: true },
+    { id: 't4', title: 'Vorbei', startDate: '2026-09-01', event: true },
+  ];
+  it('lists the races ahead, soonest first: from Rennen or marked as race', () => {
+    expect(raceChoices(trips, { races: { t1: {} } }, '2026-10-21').map((r) => r.id)).toEqual(['t3', 't1']);
+    expect(raceChoices(trips, null, '2026-10-21').map((r) => r.id)).toEqual(['t3']);
+  });
+  it('notices when the race moved', () => {
+    expect(raceMoved({ mode: 'race', date: '2027-06-12', tripId: 't1' }, trips)).toBe(null);
+    expect(raceMoved({ mode: 'race', date: '2027-06-05', tripId: 't1' }, trips)).toBe('2027-06-12');
+    expect(raceMoved({ mode: 'start', date: '2027-06-05', tripId: 't1' }, trips)).toBe(null);
+  });
+});

@@ -104,4 +104,13 @@ export default {
   'Open Active › Training after a ride.': 'Öffne nach einer Fahrt Aktiv › Training.',
   'Tap a number from 1 to 10 under «How hard was your ride?».': 'Tipp unter «Wie anstrengend war deine Fahrt?» eine Zahl von 1 bis 10.',
   'Change it later on the page of the ride.': 'Ändern kannst du sie später auf der Seite der Fahrt.',
+  // coupled to a race (Noah «1a»)
+  'Race without a name': 'Rennen ohne Namen',
+  'Plan moved to the new race day.': 'Plan auf den neuen Renntag verschoben.',
+  'Another day': 'Anderer Tag',
+  Race: 'Rennen',
+  'Tip: mark a trip as race (or open it under «Rennen»), then you can pick it here and the plan follows its day.': 'Tipp: Markiere eine Tour als Rennen (oder öffne sie unter «Rennen»), dann kannst du sie hier wählen und der Plan folgt ihrem Tag.',
+  'For: {race}': 'Für: {race}',
+  'The race now starts on {date}.': 'Das Rennen beginnt jetzt am {date}.',
+  'Move the plan along': 'Plan mitschieben',
 };

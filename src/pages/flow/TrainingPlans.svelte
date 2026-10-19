@@ -20,7 +20,7 @@
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { PLAN_KEY, GOAL_KEY, planOf, goalOf, prunePlan, cleanSession, ftpEstimate, mondayOf, shiftDay, hmm, ZONE_NAMES } from '../../lib/training.js';
   import { sessionStates } from '../../lib/training/inhalt/inhalt-woche.js';
-  import { TPL_KEY, OWN_KEY, HIDE_KEY, allPlans, planById, ownOf, cleanOwn, midHours, firstMonday, buildPlan, longestOf, applyPlan, removePlan, weeksGone, zoneWays, moveSuggestions, WEEKS_MIN, WEEKS_MAX } from '../../lib/training/plans.js';
+  import { TPL_KEY, OWN_KEY, HIDE_KEY, allPlans, planById, ownOf, cleanOwn, midHours, firstMonday, buildPlan, longestOf, applyPlan, removePlan, weeksGone, zoneWays, moveSuggestions, raceChoices, raceMoved, RACES_KEY, WEEKS_MIN, WEEKS_MAX } from '../../lib/training/plans.js';
   import { askDelete, deleteWithUndo, once } from '../../lib/ui/ask.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -35,6 +35,8 @@
   const hideQ = setting(HIDE_KEY);
   const planQ = setting(PLAN_KEY);
   const goalQ = setting(GOAL_KEY);
+  const racesQ = setting(RACES_KEY); // Paket U «Rennen», read only
+  const tripsQ = liveQuery(() => db.trips.toArray());
   const actsQ = liveQuery(() => db.activities.toArray());
 
   const own = $derived(ownOf($ownQ));
@@ -47,6 +49,12 @@
   const activePlan = $derived(active ? planById(active.id, own) : null);
   const plan = $derived(id ? planById(id, own) : null);
   const goal = $derived(goalOf($goalQ));
+  // coupled to a race (Noah «1a»): the trips ahead that are races
+  const trips = $derived($tripsQ ?? []);
+  const races = $derived(raceChoices(trips, $racesQ, today));
+  const raceTitle = (r) => r?.title || t('Race without a name');
+  const activeRace = $derived(active?.tripId ? (trips.find((x) => x.id === active.tripId) ?? null) : null);
+  const movedTo = $derived(raceMoved(active, trips));
 
   const nameOf = (p) => (p.own ? p.name : t(p.name)); // own names are the user's text, never through t()
   const fmt = (d, o = { day: 'numeric', month: 'short' }) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
@@ -82,17 +90,23 @@
 
   /* ---------- one plan: the start and the hours ---------- */
   const raceParam = $derived(params.get('race') ?? '');
+  const tripParam = $derived(params.get('trip') ?? '');
   let mode = $state('race');
   let date = $state('');
+  let tripId = $state('');
   let hrs = $state(0);
   let shownFor = '';
   $effect(() => {
     if (!plan || shownFor === plan.id) return;
+    if ($tripsQ === undefined || $racesQ === undefined || $tplQ === undefined || $goalQ === undefined) return; // wait for the data
     shownFor = plan.id;
     const mine = active?.id === plan.id ? active : null;
-    const raceDay = /^\d{4}-\d{2}-\d{2}$/.test(raceParam) ? raceParam : goal?.until && goal.until > today ? goal.until : '';
+    // the race day: from the address, a race of «Rennen» (asked for, or the soonest), or the training goal's day
+    const pick = races.find((r) => r.id === tripParam) ?? (/^\d{4}-\d{2}-\d{2}$/.test(raceParam) ? null : races[0]) ?? null;
+    const raceDay = /^\d{4}-\d{2}-\d{2}$/.test(raceParam) ? raceParam : pick ? pick.day : goal?.until && goal.until > today ? goal.until : '';
     mode = mine?.mode ?? (raceDay ? 'race' : 'start');
     date = mine?.date ?? (mode === 'race' ? raceDay : nextMonday);
+    tripId = mine ? (mine.tripId ?? '') : mode === 'race' && pick && raceDay === pick.day ? pick.id : '';
     hrs = mine?.hours ?? midHours(plan);
   });
   const first = $derived(plan ? firstMonday(plan, mode, date) : null);
@@ -105,9 +119,18 @@
   const tryIt = once(async () => {
     if (!ready) return;
     await savePlan(applyPlan(sessions, weeks, plan.id, today, t));
-    await db.settings.put({ key: TPL_KEY, value: { id: plan.id, mode, date, hours: hrs, first } });
+    await db.settings.put({ key: TPL_KEY, value: { id: plan.id, mode, date, hours: hrs, first, ...(mode === 'race' && tripId ? { tripId } : {}) } });
     offerDone(t('Plan «{name}» is in your week plan. Strava ticks the sessions.', { name: nameOf(plan) }));
     location.hash = '#/flow/training';
+  });
+
+  // the race moved: the plan follows it (same plan and hours, new race day)
+  const follow = once(async () => {
+    if (!activePlan || !movedTo) return;
+    const f = firstMonday(activePlan, 'race', movedTo);
+    await savePlan(applyPlan(sessions, buildPlan(activePlan, { first: f, hours: active.hours, race: movedTo }), activePlan.id, today, t));
+    await db.settings.put({ key: TPL_KEY, value: { ...active, date: movedTo, first: f } });
+    offerDone(t('Plan moved to the new race day.'));
   });
 
   /* ---------- own plans and hidden samples ---------- */
@@ -187,8 +210,18 @@
 
     <Sec id="start-h" title={t('When and how much')} sub={t('The plan ends in the race week, or starts in the week you choose.')}>
       <div class="card st" data-section="plan-start">
-        <Seg label={t('Start')} value={mode} onchange={(k) => ((mode = k), (date = k === 'race' ? (goal?.until && goal.until > today ? goal.until : '') : nextMonday))} options={[{ key: 'race', name: t('Back from the race day') }, { key: 'start', name: t('From a day') }]} />
-        <label class="lab">{mode === 'race' ? t('Race day') : t('Start in the week of')}<input class="inp" type="date" bind:value={date} data-plan-date /></label>
+        <Seg label={t('Start')} value={mode} onchange={(k) => ((mode = k), (tripId = k === 'race' && races[0] ? races[0].id : ''), (date = k === 'race' ? (races[0]?.day ?? (goal?.until && goal.until > today ? goal.until : '')) : nextMonday))} options={[{ key: 'race', name: t('Back from the race day') }, { key: 'start', name: t('From a day') }]} />
+        {#if mode === 'race' && races.length}
+          <label class="lab">{t('Race')}
+            <select class="sel" value={tripId} onchange={(e) => ((tripId = e.currentTarget.value), tripId && (date = races.find((r) => r.id === tripId)?.day ?? date))} data-plan-race>
+              {#each races as r (r.id)}<option value={r.id}>{raceTitle(r)} · {fmt(r.day, { day: 'numeric', month: 'short', year: 'numeric' })}</option>{/each}
+              <option value="">{t('Another day')}</option>
+            </select>
+          </label>
+        {:else if mode === 'race'}
+          <p class="hint">{t('Tip: mark a trip as race (or open it under «Rennen»), then you can pick it here and the plan follows its day.')}</p>
+        {/if}
+        <label class="lab">{mode === 'race' ? t('Race day') : t('Start in the week of')}<input class="inp" type="date" bind:value={date} oninput={() => tripId && races.find((r) => r.id === tripId)?.day !== date && (tripId = '')} data-plan-date /></label>
         {#if dateErr}<p class="warn" role="alert">{dateErr}</p>{/if}
         <label class="lab">{t('Hours per week: {h}', { h: num(hrs) })}<input type="range" min={Math.max(1, plan.lo - 2)} max={plan.hi + 2} step="0.5" bind:value={hrs} data-plan-hours /></label>
         <p class="hint">{t('Suggested: {a} to {b} hours. The weeks rise from 80 % to 110 % of it, every fourth week is easier.', { a: num(plan.lo), b: num(plan.hi) })}</p>
@@ -243,6 +276,10 @@
         <span class="oi" aria-hidden="true"><CalendarRange size={22} /></span>
         <div class="oc">
           <h2 id="on-h" class="oh">{t('In use: {name}', { name: nameOf(activePlan) })}</h2>
+          {#if activeRace}<p data-plan-for>{t('For: {race}', { race: activeRace.title || t('Race without a name') })}</p>{/if}
+          {#if movedTo}
+            <p class="warn" data-plan-moved>{t('The race now starts on {date}.', { date: fmt(movedTo, { day: 'numeric', month: 'long', year: 'numeric' }) })} <button type="button" class="btn sm" onclick={follow} data-plan-follow>{t('Move the plan along')}</button></p>
+          {/if}
           <p class="num">{active.mode === 'race' ? t('Race day {date} · {h} h per week', { date: fmt(active.date, { day: 'numeric', month: 'long', year: 'numeric' }), h: num(active.hours) }) : t('From {date} · {h} h per week', { date: fmt(active.first), h: num(active.hours) })}</p>
           {#if moves.length}
             <ul class="mv" data-section="plan-missed">
