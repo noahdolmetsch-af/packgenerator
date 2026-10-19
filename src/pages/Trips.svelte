@@ -78,6 +78,10 @@
   import PackBand from '../lib/touren/PackBand.svelte';
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
   import { saveActFilter } from '../lib/touren/actfilter.js';
+  import { TOUR_GROUPS_KEY, TOUR_PAGE_KEY, pageOpts, linesOf as tourLines, tourHref } from '../lib/touren/tour.js';
+  import { joinTour, restoreGroups, setHidden } from '../lib/touren/touredit.js';
+  import RenameSheet from '../lib/ui/RenameSheet.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
   import TourTiles from '../lib/touren/TourTiles.svelte';
   // AT1: the Strava activities
   import Activities from '../lib/touren/Activities.svelte';
@@ -193,7 +197,27 @@
   const actsQ = liveQuery(() => loadActs(db));
   const acts = $derived($actsQ ?? []);
   const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
-  const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
+  // Tour-Seite (Noah 19.10.2026 «4 beides 5a»): joined tours, hidden ones (shown on demand), the list view, the lines
+  const groupsQ = liveQuery(() => db.settings.get(TOUR_GROUPS_KEY));
+  const tourGroups = $derived(Array.isArray($groupsQ?.value) ? $groupsQ.value : []);
+  const pageQ = liveQuery(() => db.settings.get(TOUR_PAGE_KEY));
+  const tourOpts = $derived(pageOpts($pageQ?.value));
+  const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today), groups: tourGroups, showHidden: true }));
+  const actById = $derived(new Map(acts.map((a) => [String(a.id), a])));
+  const lineOfRow = (r) => tourLines(r.actIds.map((id) => actById.get(String(id))).filter(Boolean));
+  let joining = $state(null); // the rows to join (5a), while the name is asked
+  async function join(name) {
+    const ids = joining.flatMap((r) => r.actIds);
+    const { before } = await joinTour(db, ids, name);
+    offerDone(t('Joined into «{name}».', { name }), () => restoreGroups(db, before));
+  }
+  async function hideRows(list, hidden = true) {
+    const before = list.map((r) => ({ r, was: !!r.hidden }));
+    for (const r of list) await setHidden(db, { kind: r.grp ? 'g' : 'a', id: r.grp ? r.grp.id : r.actIds[0] }, hidden);
+    offerDone(hidden ? tn(list.length, '{n} hidden.', '{n} hidden.') : tn(list.length, '{n} shown again.', '{n} shown again.'), async () => {
+      for (const { r, was } of before) await setHidden(db, { kind: r.grp ? 'g' : 'a', id: r.grp ? r.grp.id : r.actIds[0] }, was);
+    });
+  }
   const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '', list: [] });
 
   let mode = $state('12m');
@@ -253,6 +277,8 @@
   const what = (r) => (r.kind === 'ride' ? t(KIND_NAME.ride) : r.days > 1 ? tn(r.days, '{n} day', '{n} days') : t(KIND_NAME[kindOf(r)] ?? 'Day ride|art'));
   const rowBike = (r) => r.bike ?? bikeName[vals[r.id]?.bikeId] ?? null;
   const openRow = (r) => r.trip && openTrip(r.trip.id);
+  // Tour-Seite (Noah 19.10.2026 «1a»): a trip of the Packmodus opens its page «Tour»; its Rückblick is a part of it
+  const rowHref = (r) => (r.kind === 'trip' && r.trip ? tourHref(`t:${r.trip.id}`) : r.href);
   // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
   const secs = (s) => hours(s ? s / 3600 : null);
@@ -488,7 +514,7 @@
       </section>
 
       <!-- AT1: «Abgeschlossene Touren», every Strava activity (answers 1a 2a 3b 4b) -->
-      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} />{/if}
+      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} view={tourOpts.list} onview={(v) => db.settings.put({ key: TOUR_PAGE_KEY, value: { ...tourOpts, list: v } })} lineOf={lineOfRow} onjoin={(list) => (joining = list)} onhide={(list) => hideRows(list, true)} onshow={(list) => hideRows(list, false)} />{/if}
 
       <!-- AT1: «Packmodus» (was «App-Touren»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a) -->
       {#if phone.matches && !packOpen}
@@ -547,7 +573,7 @@
                   <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
                     <div class="rm">
-                      <div class="rt"><a class="rn" href={r.href} onclick={() => openRow(r)}>{r.title}</a><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
+                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
                       {#if !linesOf(r).length && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
                     </div>
@@ -602,6 +628,9 @@
   <OldTripsSports rows={shownRows} bikes={$bikesQ ?? []} onclose={(later) => ((shownRows = null), later && ((oldLater = true), (oldTripsLater.v = true)))} />
 {/if}
 
+{#if joining}
+  <RenameSheet kicker={t('Tour')} title={t('Join into one tour')} value={joining.find((r) => r.name)?.name ?? ''} hint={tn(joining.flatMap((r) => r.actIds).length, '{n} activity becomes one tour. You can take it apart again any time.', '{n} activities become one tour. You can take it apart again any time.')} empty="" onsave={join} onclose={() => (joining = null)} />
+{/if}
 {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
 {#if sheet}
   <FilterSheet {filter} {st} rows={inPeriod} {ctx} {states} {bikes} saved={tours.saved} onapply={(f, s) => ((filter = f), (st = s))} onsave={(name, f) => saveTours({ saved: saveFilter(tours.saved, name, f) })} ondrop={(id) => saveTours({ saved: dropFilter(tours.saved, id) })} onclose={() => (sheet = false)} />

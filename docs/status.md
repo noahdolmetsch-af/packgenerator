@@ -59,6 +59,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## In Arbeit
 
+**Tour-Seite (19.10.2026, Branch claude/touren-abgeschlossen-61zfat):** jede abgeschlossene Tour hat eine eigene Seite (Karte, Höhenprofil, Kennzahlen, Werte korrigieren, Tagebuch, Fotos, Bewertung, umbenennen, ausblenden, löschen). Liste als Zeilen, Kacheln, Karte, Kalender; Fahrten verbinden. Gebaut, geht über den Bündler online.
+
 **Stand 18.10.2026:** Was fertig gebaut ist, ist in sechs Pakete gebündelt (Noah 18.10.2026, «1a 2b 3b 4a»). Reihenfolge und Inhalt:
 
 1. **P3 Navigation und Standard-Velo (0.145.0):** PR #182, Noah «ok»; wird nach grünem Test zusammengeführt.

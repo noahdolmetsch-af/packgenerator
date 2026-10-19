@@ -173,9 +173,9 @@ test('b) every finished trip of the period by month with its values; grey rows k
   const n12 = await list(page).locator('li[data-row]').count();
   await page.locator('section[data-finished] .tools').getByRole('button', { name: T('All|period'), exact: true }).click();
   await expect.poll(() => list(page).locator('li[data-row]').count()).toBeGreaterThan(n12);
-  // a row opens its trip
+  // a row opens its trip, on the page «Tour» (Noah 19.10.2026 «1a»: the Rückblick is a part of it)
   await herbst.getByRole('link', { name: 'Herbsttour Hochland', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`#/debrief/${esc(encodeURIComponent(`${P}herbst`))}`));
+  await expect(page).toHaveURL(new RegExp(`#/tour/${esc(encodeURIComponent(`t:${P}herbst`))}`));
   await noSideways(page);
   expect(errors).toEqual([]);
 });

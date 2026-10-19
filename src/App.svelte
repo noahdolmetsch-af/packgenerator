@@ -356,6 +356,7 @@
     JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
     Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
     Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
+    Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
@@ -421,7 +422,7 @@
 <OfflineLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'tour'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -473,6 +474,9 @@
   {:else if page === 'spur'}
     <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
     {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}
+  {:else if page === 'tour'}
+    <!-- «Tour» (Noah 19.10.2026 «1a»): the page of one finished tour, #/tour/<a:…|g:…|t:…> -->
+    {#key param}<LazyPage load={PAGES.Tour} key={decodeURIComponent(param.split('?')[0])} />{/key}
   {:else if page === 'spurlink'}
     <!-- Paket S «Reise-Spur»: what the family sees behind the read link -->
     {#key hash}<LazyPage load={PAGES.SpurLink} {hash} />{/key}

@@ -82,7 +82,7 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'tempMin', 'tempMax', 'steep', 'noDetail'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).

@@ -170,6 +170,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
   if (h.startsWith('#/spur-link/')) return 'spurlink'; // Paket S «Reise-Spur»: a tour's read link for the family
+  if (h.startsWith('#/tour/')) return 'tour'; // «Tour» (19.10.2026): one finished tour
   if (h.startsWith('#/spur/')) return 'spur'; // Paket S «Reise-Spur»: one tour's map, days, link and book
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
@@ -373,7 +374,7 @@ export function placeOf(page) {
   if (page === 'frei') return 'me'; // Paket T: Ich › Freie Zeit
   if (page === 'alltag') return 'me'; // Paket V: Ich › Alltag
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'travel'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'tour', 'travel'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

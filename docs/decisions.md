@@ -1731,3 +1731,9 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+
+## 19.10.2026: Tour-Seite für abgeschlossene Touren
+
+- Noah 20:33 «abgeschlossene touren … weder anklicken noch etwas damit machen»: Fehler behoben, die ganze Zeile öffnet die Tour.
+- Noah 21:05 «1a 2 beides 3b 4 beides 5a»: eine neue Seite «Tour» für Strava- und Packmodus-Touren (Rückblick ist ein Teil davon); Reiter und Sprungleiste umschaltbar; Strava-Werte korrigierbar mit «geändert» und dem Strava-Wert daneben; Liste als Zeilen, Kacheln, Karte oder Kalender; mehrere Fahrten zu einer Tour verbinden (Mehrfachauswahl) und wieder trennen.
+- **Selbst entschieden:** Eigene Änderungen liegen bei der Fahrt (`own`), nie im Strava-Wert; gelöschte Strava-Fahrten kommen beim nächsten Abruf nicht wieder. Verbundene Touren liegen in den Einstellungen (`tourGroups`), keine neue Datenbank-Stufe. Die Sprungleiste bleibt am Computer oben stehen, am Handy nicht (dort liegt der App-Kopf oben).
