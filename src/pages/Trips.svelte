@@ -1150,10 +1150,18 @@
     flex: 1;
     gap: 2px;
   }
+  .phone-more.extras span {
+    min-width: 0;
+  }
   .phone-more.extras small {
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);
+    /* Paket E CI («Handy kurz», three screens with the SA3 band): the grey line stays one line; the line opens
+       what it names */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   @media (max-width: 719px) {
     .hide-phone {

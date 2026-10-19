@@ -153,9 +153,9 @@
    title with its arrow; the window it opens lists the old trips with their count. The computer keeps both lines. */
 @media (max-width: 719px) {
   .sa-band {
-    min-height: 48px;
-    padding: 8px 14px;
-    margin-bottom: 12px;
+    min-height: 44px;
+    padding: 6px 14px;
+    margin-bottom: 8px;
   }
   .sa-bt small {
     display: none;

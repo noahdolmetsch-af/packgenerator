@@ -142,6 +142,8 @@ test('phone 390: no sideways scroll on the list, in the sheet and in the wardrob
   expect(await noSideScroll(page)).toBe(true);
   expect(await sheet(page).evaluate((d) => d.scrollWidth <= d.clientWidth)).toBe(true);
   // every button in the sheet is a full 44 px target
+  // measured when the window has settled («Bewegung»: on a computer-size sheet it grows from 97 %)
+  await sheet(page).evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)));
   const small = await sheet(page).locator('button, a').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height < 44).map((e) => e.textContent));
   expect(small).toEqual([]);
   await page.goto(`./#/wardrobe/trip/${encodeURIComponent(TRIP)}`);
