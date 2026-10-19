@@ -289,7 +289,7 @@ export const CARE_PHASES = [
 /** The built-in tasks (English keys for t()). */
 export const CARE_TASKS = [
   { id: 'lvs', phase: 'start', task: 'Transceiver: new batteries + function test', hint: 'Send, receive, range' },
-  { id: 'skins', phase: 'start', task: 'Check the skin glue', hint: 'Does it still stick everywhere? Otherwise re-glue' },
+  { id: 'skins', phase: 'start', task: 'Check the skin glue|season', hint: 'Does it still stick everywhere? Otherwise re-glue' },
   { id: 'service', phase: 'start', task: 'Ski service: base and edges', hint: 'Workshop or yourself' },
   { id: 'binding', phase: 'start', task: 'Check the binding', hint: 'Pins, heel piece, setting fits the boot' },
   { id: 'boots', phase: 'start', task: 'Boots: buckles and soles', hint: 'The walk mode moves freely' },
@@ -298,7 +298,7 @@ export const CARE_TASKS = [
   { id: 'contact', phase: 'start', task: 'Emergency contact up to date', hint: 'Someone at home knows your route and your return' },
   { id: 'wax', phase: 'during', task: 'Wax the skis', hint: 'About every 5,000 m climbed' },
   { id: 'dry', phase: 'during', task: 'Dry the skins', hint: 'After every tour, not on the heater' },
-  { id: 'edges', phase: 'during', task: 'Sharpen the edges', hint: 'After rocky descents' },
+  { id: 'edges', phase: 'during', task: 'Sharpen the edges|season', hint: 'After rocky descents' },
   { id: 'store-skins', phase: 'end', task: 'Store the skins with protective foil', hint: 'Cool and dark' },
   { id: 'store-skis', phase: 'end', task: 'Store the skis with a layer of wax', hint: 'Summer wax, do not scrape it off' },
   { id: 'lvs-out', phase: 'end', task: 'Transceiver: batteries out', hint: 'Otherwise they leak' },

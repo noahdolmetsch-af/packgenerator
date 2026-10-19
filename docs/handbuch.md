@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 114 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 115 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -906,6 +906,17 @@ Ab 14 Tagen vor einer Tour: was die Werkstatt noch machen muss.
 2. Die Karte «vor der Tour» zeigt, was die Werkstatt noch machen muss.
 
 **Beispiel:** Tour in 10 Tagen → «neue Bremsbeläge» kommt in den Werkstattauftrag.
+
+### Hauptausrüstung
+
+Ski, Felle, LVS und mehr für jede Sportart: ein Zähler der Einsätze und die Pflege, fällig auch auf Heute.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Velos › Ausrüstung und tippe «Ausrüstung hinzufügen»; wähle ein Teil aus Material und seine Sportart.
+2. Tippe nach einer Tour «Einsatz eintragen»; die Pflege zeigt sich hier und auf Heute, wenn sie fällig ist.
+
+**Beispiel:** Tourenski alle 10 Einsätze wachsen → nach dem 10. Einsatz ist «Belag wachsen» fällig.
 
 ## Aktiv
 

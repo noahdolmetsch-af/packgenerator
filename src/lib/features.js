@@ -38,7 +38,7 @@ export const PAGE_GROUPS = [
 const PAGE_OF = [
   [/^#\/(pack|ride|debrief|trips)/, 'trips'],
   [/^#\/(gear|wardrobe|blocks)/, 'gear'],
-  [/^#\/bikes/, 'bikes'],
+  [/^#\/(bikes|equipment)/, 'bikes'],
   [/^#\/flow/, 'flow'],
 ];
 const RUN_PAGE = { quick: 'trips', trip: 'trips', wear: 'gear', problem: 'bikes', km: 'bikes', receipt: 'bikes' };
@@ -155,6 +155,8 @@ const OWN = [
   // v0.135.0 «Meditation und Timer» (ME3, Z1–Z5)
   { id: 'f.medreview', group: 'active', title: 'Meditation look back', text: 'Week, month or year: days, minutes, the calendar and what helps you.', href: '#/flow/act/meditation/rueckblick', words: 'rückblick woche monat jahr kalender' },
   { id: 'f.gipfelbuch', group: 'active', title: 'Summit book', text: 'Passes, summits, trails and halls you reached, for every sport; the app finds tops in your rides and you confirm; stars for new places.', href: '#/flow/gipfelbuch', words: 'gipfelbuch pass gipfel orte höchster punkt trail halle meilenstein' },
+  // Skitour AU1 «Ausrüstung» (Noah 15.10.2026 «5b»): own ID, f.equipment is the bike parts' data sheet
+  { id: 'f.skiequipment', group: 'bike', title: 'Main equipment', text: 'Skis, skins, transceiver and the like for each sport: a counter of uses and the care, due on Today too.', href: '#/equipment', words: 'ausrüstung hauptausrüstung ski felle lvs pflege zähler einsatz' },
   { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log' },
   { id: 'f.medmore', group: 'active', title: 'Meditation · more', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'klänge zitate links' },
   // Data and app

@@ -445,6 +445,11 @@ export const HANDBOOK = {
     example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
   },
   // v0.165.0
+  'f.skiequipment': {
+    on: null,
+    steps: ['Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.', 'Tap «Log a use» after a tour; the care shows here and on Today when it is due.'],
+    example: 'Example: touring skis waxed every 10 uses → after the 10th use «Wax the base» is due.',
+  },
   'f.gipfelbuch': {
     on: null,
     steps: ['Open Aktiv › Aktivität › «Summit book».', 'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.'],

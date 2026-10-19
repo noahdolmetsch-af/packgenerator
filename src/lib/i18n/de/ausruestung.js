@@ -74,4 +74,10 @@ export default {
   '{name}: {care}': '{name}: {care}',
   'Make it main equipment': 'Als Hauptausrüstung markieren',
   'Main equipment: counter and care': 'Hauptausrüstung: Zähler und Pflege',
+  // f.skiequipment (features, handbook, howto)
+  'Main equipment': 'Hauptausrüstung',
+  'Skis, skins, transceiver and the like for each sport: a counter of uses and the care, due on Today too.': 'Ski, Felle, LVS und mehr für jede Sportart: ein Zähler der Einsätze und die Pflege, fällig auch auf Heute.',
+  'Open Velos › Ausrüstung.': 'Öffne Velos › Ausrüstung.',
+  'Add a piece from Material and choose its sport.': 'Füge ein Teil aus Material hinzu und wähle seine Sportart.',
+  'Log a use or tick off its care when it is due.': 'Trag einen Einsatz ein oder hake die Pflege ab, wenn sie fällig ist.',
 };
