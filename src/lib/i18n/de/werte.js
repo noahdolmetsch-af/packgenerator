@@ -33,4 +33,18 @@ export default {
   // SV1 «Strava verbinden» on Today
   'Then every ride lands on the right bike by itself and counts in «This week».': 'Dann landet jede Fahrt von selbst beim richtigen Velo und zählt bei «Diese Woche» mit.',
   'Read only, disconnect at any time. Goes away once you are connected.': 'Nur lesen, jederzeit trennbar. Verschwindet, sobald du verbunden bist.',
+  // Aktivzonenminuten auf Aktiv (Noah 19.10.2026 «1b 2b und kann manuell geleert werden. jahresziele im frontend bearbeitbar»)
+  'this week · goal changeable': 'diese Woche · Ziel änderbar',
+  'of {n} min': 'von {n} Min',
+  'Weekly goal for the active zone minutes': 'Wochenziel für die Aktivzonenminuten',
+  'Change the weekly goal for the active zone minutes': 'Wochenziel für die Aktivzonenminuten ändern',
+  'Active zone minutes per day': 'Aktivzonenminuten pro Tag',
+  'From your Fitbit · observation only · tap the goal to change it': 'Von deiner Fitbit · nur Beobachtung · Ziel antippen zum Ändern',
+  'The active zone minutes are switched off on the page Fitbit.': 'Die Aktivzonenminuten sind auf der Seite Fitbit ausgeschaltet.',
+  'No active zone minutes this week yet. They come when the app fetches from Fitbit.': 'Diese Woche noch keine Aktivzonenminuten. Sie kommen, wenn die App bei Fitbit holt.',
+  'Connect Fitbit: then the minutes of every activity count here.': 'Fitbit verbinden: dann zählen hier die Minuten jeder Aktivität.',
+  'Not counted for the year yet. Your minutes of this week are on Aktiv.': 'Fürs Jahr noch nicht gezählt. Deine Minuten dieser Woche stehen auf Aktiv.',
+  'No goal · set one': 'Kein Ziel · eins setzen',
+  'Empty|goal': 'Leeren',
+  'Tap a goal to change it. Empty the field (or tap «Empty») for no goal.': 'Tippe auf ein Ziel, um es zu ändern. Feld leeren (oder «Leeren» tippen) heisst: kein Ziel.',
 };

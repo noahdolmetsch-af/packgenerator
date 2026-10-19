@@ -39,6 +39,7 @@
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
   import YearGoals from '../lib/flow/YearGoals.svelte';
+  import AzmWeek from '../lib/health/AzmWeek.svelte';
   import Rows from '../lib/flow/kit/Rows.svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
@@ -361,9 +362,9 @@
             </a>
             {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
           </Sec>
-          <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
-          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
-            <p class="card azm" data-section="azm"><Timer size={18} aria-hidden="true" /><span>{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
+          <!-- «Werte überall» WU2; Noah 19.10.2026 «1b»: the active zone minutes of this week from Fitbit, one bar per day -->
+          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('this week · goal changeable')}>
+            <AzmWeek {today} />
           </Sec>
         </div>
         <aside class="col">
@@ -528,13 +529,6 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-  }
-  .azm {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    margin: 0;
-    color: var(--ink-3);
   }
   .kmn {
     display: flex;
