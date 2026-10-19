@@ -416,7 +416,8 @@
       {/if}
 
       <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
-      {#if $dataQ}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
+      <!-- Handy kurz: on a phone the open debriefs stay in the folded tiles at the end («Packmodus» counts them) -->
+      {#if $dataQ && !phone.matches}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
       <section class="plan" aria-labelledby="trips-plan" data-planned>
@@ -589,7 +590,7 @@
       {/if}
 
       <PageMore page="trips" name={t('Trips|place')} />
-      <TourTiles skip={['o2']} {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
+      <TourTiles skip={phone.matches ? [] : ['o2']} {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
       {/if}
     {/if}
   {:else}

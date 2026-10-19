@@ -72,7 +72,7 @@ test.describe('Handy kurz', () => {
     await page.locator('[data-trips-extras]').click();
     await expect(page.locator('[data-in-numbers]')).toBeVisible();
     await expect(page.locator('main [data-tip]')).toHaveCount(1);
-    await expect(page.locator('[data-tour-tiles]')).toBeVisible();
+    await expect(page.locator('[data-tour-tiles=""]')).toBeVisible();
   });
 
   test('computer: Trips keeps the full rows', async ({ page, context }, info) => {

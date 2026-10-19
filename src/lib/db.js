@@ -47,7 +47,7 @@ export const DATA_TABLES = [
   'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
   'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
   'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
-  'tracks', // Paket S «Reise-Spur»: the app's own recordings (kind 'rec') and «Hier bin ich» places (kind 'place'), spur/spur.js
+  'tracks', // Paket S «Reise-Spur»: the app's own recordings (kind «rec») and «Hier bin ich» places (kind «place»), spur/spur.js
   'sportItems', // Paket O «Sportarten»: measures and values, notes, lessons, matches, loops, plans per sport (sportsdb.js)
   'inspections', // «Velo-Inspektion»: one row per inspection of a bike, with the result, value, note and photos of every point (inspect/)
   'frei', // Paket T «Freie Zeit»: collection entries with photos, «In this phase …», travel wishes, marks (freidb.js)

@@ -373,7 +373,8 @@
     const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
     if (b && !isShortRide(tr)) {
-      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
+      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike' && !r.key.startsWith('bike:inspectQuick:'));
+      // the Kurzcheck before a tour (Velo-Inspektion) stays on Velopflege; it is no workshop step on the trip card
       service = { n: rows.length, late: rows.some((r) => r.late), href: bikesHash({ tab: 'care', bike: b.id, open: true }) };
     }
     return {
