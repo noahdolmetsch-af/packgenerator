@@ -315,9 +315,14 @@
 {/if}
 
 <style>
+  /* a place or «Bivy on the way» fits as whole words; the tiles get a bit wider */
+  [data-race-summary] {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
   [data-race-summary] b {
-    font-size: var(--fs-section);
+    font-size: var(--fs-sub);
     overflow-wrap: break-word;
+    hyphens: auto;
   }
   .rc-h3 {
     margin: 8px 0 0;
