@@ -7,6 +7,7 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
    *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
+   *   #/flow/plans       «Trainingspläne»: sample plans for ultracycling, …/<id> one plan (pages/flow/TrainingPlans.svelte, lazy)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
  *   #/flow/sports      Paket O «Sportarten»: every sport, its colour and the mosaic (pages/flow/Sports.svelte, lazy);
  *                      #/flow/sport/<id> one sport with its blocks (pages/flow/Sport.svelte, lazy)
@@ -247,6 +248,9 @@
   {#key sub}<TrainingAct id={decodeURIComponent(route[2] ?? '')} />{/key}
 {:else if route[0] === 'training'}
   <Training {params} />
+{:else if route[0] === 'plans'}
+  <!-- «Trainingspläne» (Noah 19.10.2026): loaded only when opened -->
+  {#await import('./flow/TrainingPlans.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? '')} {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'sports'}
   <!-- Paket O «Sportarten»: loaded only when opened (main.js stays small) -->
   {#await import('./flow/Sports.svelte') then m}<m.default />{/await}

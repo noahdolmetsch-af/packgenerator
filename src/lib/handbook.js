@@ -670,6 +670,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.', 'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
+  'f.trainplans': {
+    on: null,
+    steps: ['Open Active › Training › Training plans and pick one of the four plans.', 'Set the start (back from the race day or from a day) and the hours per week, then «Try it».', 'Missed a session? The plan in use suggests a free day of this week.'],
+    example: 'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.',
+  },
+  'f.feel': {
+    on: null,
+    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+  },
   'f.frei': {
     on: null,
     steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],

@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.157.0 «Trainingspläne»
+  'Training plans to try': 'Trainingspläne zum Ausprobieren',
+  'Four sample plans for ultracycling, right into your week plan.': 'Vier Musterpläne fürs Ultracycling, direkt in deinen Wochenplan.',
+  'Active › Training › Training plans: four plans, back from your race day': 'Aktiv › Training › Trainingspläne: vier Pläne, rückwärts ab deinem Renntag',
+  'After each ride: how hard was it, 1 to 10': 'Nach jeder Fahrt: Wie anstrengend war es, 1 bis 10',
+  'Each zone in heart rate, watts and how it feels': 'Jede Zone in Puls, Watt und wie es sich anfühlt',
+  'Open Active › Training › Training plans and pick «Multi-day race».': 'Öffne Aktiv › Training › Trainingspläne und wähl «Mehrtagesrennen».',
+  'Set the race day and tap «Try it»: the sessions stand in your week plan.': 'Stell den Renntag ein und tipp «Ausprobieren»: Die Einheiten stehen in deinem Wochenplan.',
   // 0.155.0 Paket 3+4
   'Free time and everyday life': 'Freie Zeit und Alltag',
   'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',

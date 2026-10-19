@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.157.0 «Trainingspläne» (Noah 19.10.2026 «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»).
+    // Version is provisional: the bundler «Mein Überblick» sets the real one.
+    version: '0.157.0',
+    date: '2026-10-19',
+    title: 'Training plans to try',
+    lead: 'Four sample plans for ultracycling, right into your week plan.',
+    points: [
+      { text: 'Active › Training › Training plans: four plans, back from your race day', href: '#/flow/plans' },
+      { text: 'After each ride: how hard was it, 1 to 10', href: '#/flow/training' },
+    ],
+    small: [{ box: 'new', text: 'Each zone in heart rate, watts and how it feels', href: '#/flow/plans' }],
+    test: ['Open Active › Training › Training plans and pick «Multi-day race».', 'Set the race day and tap «Try it»: the sessions stand in your week plan.'],
+  },
+  {
     // v0.155.0 Paket 3+4 (Noah 19.10.2026 «paket 3 und 4 verbinden»): T «Freie Zeit», «Daten in der App», V «Alltag»,
     // K extras (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?»), H «Strombudget», «Reise-Links», «Anleitungen überall», «Diktat».
     version: '0.155.0',

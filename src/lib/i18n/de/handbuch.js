@@ -979,6 +979,14 @@ export default {
   'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.': 'Oben: Art, Arbeitsweg, Gerät, neue Bestzeiten, «Wie hart war es?» und dein Strava-Kommentar.',
   'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.': 'Weiter unten: Runden, Zeiten pro km und Segmentzeiten; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
   'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.': 'Beispiel: Samstagsfahrt → 3 Runden mit der Rundentaste, km 12 der langsamste, 2 neue Bestzeiten.',
+  // «Trainingspläne»: f.trainplans and f.feel
+  'Open Active › Training › Training plans and pick one of the four plans.': 'Öffne Aktiv › Training › Trainingspläne und wähl einen der vier Pläne.',
+  'Set the start (back from the race day or from a day) and the hours per week, then «Try it».': 'Stell den Beginn (rückwärts ab Renntag oder ab einem Tag) und die Stunden pro Woche ein, dann «Ausprobieren».',
+  'Missed a session? The plan in use suggests a free day of this week.': 'Eine Einheit verpasst? Der laufende Plan schlägt einen freien Tag dieser Woche vor.',
+  'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.': 'Beispiel: «Mehrtagesrennen», Renntag 12. Juni, 8 Std. → 12 Wochen ab 22. März, lange Wochenenden ab Mai.',
+  'After each ride Active › Training asks «How hard was your ride?» (1 to 10).': 'Nach jeder Fahrt fragt Aktiv › Training «Wie anstrengend war deine Fahrt?» (1 bis 10).',
+  'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
+  'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.': 'Beispiel: Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.',
   // Paket T «Freie Zeit»: f.frei and f.impulse
   'Open Me › Free time and choose one of the eight pages.': 'Öffne Ich › Freie Zeit und wähl eine der acht Seiten.',
   'Everything is a suggestion: change, sort, hide or delete it, and add your own.': 'Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.',
