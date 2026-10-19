@@ -1,5 +1,6 @@
 <script>
   import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   /**
    * Ich › Dokumente (P3b «Daten sicher», Noah 15.10.2026 «1a»; mockups D3 and D4 approved 12.10.2026
    * «d1-d5 freigeben», round 2 answers «4a» reminder 6 months before, «5a» «ID und Cash dabei?» as a
@@ -346,6 +347,7 @@
   {:else}
     <!-- D3: the documents -->
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Documents')} title={t('Documents')} sub={docs.prefs.drive ? t('Passport, insurance, emergency and travel in one place. Also in your Google Drive.') : t('Passport, insurance, emergency and travel in one place. Only on your device.')} />
+    <AreaIntro place="docs" />
     {#if msg}<p class="msg" role="status">{msg}</p>{/if}
     {#if undo}<p class="msg undo" role="status">{t('Deleted «{name}».', { name: undo.row?.name ?? '' })} <button type="button" class="link" onclick={undoDelete}>{t('Undo')}</button></p>{/if}
     {#if groupUndo}<p class="msg undo" role="status" data-group-undo>{groupUndo.text} <button type="button" class="link" onclick={undoGroupChange}>{t('Undo')}</button></p>{/if}

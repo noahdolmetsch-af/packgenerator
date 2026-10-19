@@ -13,6 +13,7 @@
    * (standard.js, lists.js) and travel in the backup.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList } from '../lib/standard.js';
   import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove, applyLists } from '../lib/lists.js';
@@ -213,6 +214,7 @@
   {#if !open}
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Lists and types')} sub={t('The choice lists of the app. You can rename, add your own, hide and change the order.')} />
     <p class="info card"><Lightbulb size={18} aria-hidden="true" /><span>{t('Standard = how the app comes. Adapted = you changed something. Every list can go back to Standard.')}</span></p>
+    <AreaIntro place="lists" />
 
     <div class="grid">
       {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts']], ['notes', 'Notes', ['noteTopics']]] as [area, head, keys] (area)}

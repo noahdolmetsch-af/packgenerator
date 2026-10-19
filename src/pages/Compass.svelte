@@ -10,6 +10,7 @@
    * Data: settings COMPASS_KEY (compass.js), in every backup.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { COMPASS_KEY, compassOf, boxName, addBox, renameBox, deleteBox, entriesOf, addEntry, editEntry, removeEntry, moveEntry, newGoal, entryToGoal } from '../lib/compass.js';
   import { isSetUp } from '../lib/helper/client.svelte.js';
@@ -86,6 +87,7 @@
 <div class="ich-page compass" data-page="compass">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('My compass')} sub={t('Goals in steps, resolutions, dreams, ideas')} />
   <p class="cp-intro">{t('A fixed place for what you want to reach and what is on your mind. A goal with a day becomes small steps; once a week the app asks how it is going.')}</p>
+  <AreaIntro place="compass" />
 
   <GoalCheck />
 

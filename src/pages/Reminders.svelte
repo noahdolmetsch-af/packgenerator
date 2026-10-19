@@ -10,6 +10,7 @@
    * delete there offers Undo for 4 s.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout, BellRing, FileText, Users } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
@@ -98,6 +99,7 @@
 <div class="ich-page rem">
   <p class="back"><a href="#/me"><ChevronLeft size={16} aria-hidden="true" />{t('Me|place')}</a></p>
   <PageHead title={t('Reminders')} text={t('Everything the app reminds you of. Everything can be changed, everything can be switched off.')} />
+  <AreaIntro place="reminders" />
 
   <div class="ich-cols">
     <div class="ich-main">

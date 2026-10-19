@@ -9,6 +9,7 @@
    * Everything is a suggestion: each part can be switched off, nothing is a must.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { Activity, HeartPulse, CalendarDays, Mail, Waves, ChevronRight, RefreshCw, Download, Upload, ListChecks, Bike } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -138,6 +139,7 @@
 
 <div class="conn">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Connections')} title={t('Connections')} sub={t('Where data comes into the app by itself, and what the app may do with it. Each one can be switched off.')} />
+  <AreaIntro place="connections" />
   <div class="ich-cols">
     <div class="ich-main">
       <section class="ich-sec" aria-labelledby="cn-all-h">

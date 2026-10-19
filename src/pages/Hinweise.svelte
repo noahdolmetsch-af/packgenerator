@@ -8,6 +8,7 @@
    * Everything comes through /api/news; offline the last answer stays, with its time.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { untrack } from 'svelte';
   import { RefreshCw, Plus, Pencil, Trash2, ExternalLink, TriangleAlert, Mountain, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
@@ -86,6 +87,7 @@
 <section class="hw" data-page="hinweise">
   <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Alerts and news')} />
   <PageHead title={t('Alerts and news')} text={t('What concerns you on the way, and news about velo and mountains. Everything is optional.')} />
+  <AreaIntro place="alerts" />
   <div class="hw-top">
     <button type="button" class="btn sm" onclick={refresh} disabled={news.busy} data-news-refresh><RefreshCw size={16} aria-hidden="true" />{t('Refresh')}</button>
     {#if news.alerts?.at}<small>{t('As of {when}', { when: when(news.alerts.at) })}</small>{/if}
