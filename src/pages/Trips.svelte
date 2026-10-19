@@ -46,6 +46,8 @@
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
+  import TripTable from '../lib/touren/TripTable.svelte';
+  import { savedView, saveView } from '../lib/listtable.js';
   import Empty from '../lib/ui/Empty.svelte';
   import { overviewCounts, weatherWindow, packBand, tileRows } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
@@ -90,6 +92,9 @@
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
   const tripsQ = liveQuery(() => db.trips.toArray());
+  // Paket H «3a und b»: the trips as an editable table, remembered on this device
+  let tableOn = $state(savedView('trips') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('trips', on ? 'table' : 'list'));
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -443,6 +448,8 @@
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
           </div>
           <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
+          <!-- Paket H «3a und b»: change several trips at once (shared table) -->
+          <button type="button" class="btn btn-link more" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-trip-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button>
         </div>
         <div class="tools">
           <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
@@ -457,7 +464,9 @@
         {/if}
         {@render activeRow()}
 
-        {#if !$dataQ}
+        {#if tableOn}
+          <TripTable trips={$tripsQ ?? []} onclose={() => setTable(false)} />
+        {:else if !$dataQ}
           <Skeleton rows={3} />
         {:else if !rows.length}
           <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>

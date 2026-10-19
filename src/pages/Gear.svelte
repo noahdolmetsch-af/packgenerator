@@ -8,6 +8,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
+  import ListTable from '../lib/ui/ListTable.svelte'; // Paket H «3a und b»: the table and «Change for all»
+  import { gearCols, saveItemRows } from '../lib/gear/tablecols.js';
   import { untrack } from 'svelte';
   import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
@@ -181,7 +183,8 @@
     (() => {
       try {
         // v0.102.0 Design-Refresh P3 (M1, Noah «5a Liste zuerst»): the list first; the cards stay a choice
-        return localStorage.getItem(DISPLAY) === 'cards' ? 'cards' : 'list';
+        const d = localStorage.getItem(DISPLAY);
+        return d === 'cards' || d === 'table' ? d : 'list';
       } catch {
         return 'list';
       }
@@ -334,7 +337,8 @@
   const altOf = (item) => (item.ownership === 'owned' || item.ownership === 'unclear' ? lighterAlt(item, items) : null);
   const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
   // Selecting works on the list (the rows have the boxes); the cards come back afterwards.
-  const shownAs = $derived(selecting ? 'list' : display);
+  // Paket H «3a»: the table only on a computer; a phone shows the list
+  const shownAs = $derived(selecting ? 'list' : display === 'table' && phone.matches ? 'list' : display);
   // v0.102.0 Design-Refresh P3 (M1): the chosen item shows on the right in the list too (computer)
   const showPanel = $derived(wideQ.current && !mode);
   const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? sorted[0] ?? null) : null);
@@ -673,7 +677,9 @@
           <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
           <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button></p>
         {/if}
-        {#if shownAs === 'cards'}
+        {#if shownAs === 'table' && sorted.length}
+          <ListTable rows={sorted} cols={gearCols()} nameOf={(i) => nameOf(i)} onsave={(pairs) => saveItemRows(db, pairs)} ondelete={(rows) => deleteItems(db, rows.map((r) => r.id))} onrestore={(snap) => undoBulk(db, snap)} onopen={open} label={t('Gear|page')} search={false} />
+        {:else if shownAs === 'cards'}
           {#if sorted.length}
             <div class="cards">
               {#each sorted.slice(0, limit) as item (item.id)}
@@ -826,8 +832,8 @@
 </div>
 
 {#snippet showAs()}
-  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>
-  <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
+  <!-- Paket H «3a und b» (Noah 19.10.2026): the third choice «Table» on a computer (shared ui/ListTable) -->
+  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }, ...(phone.matches ? [] : [{ key: 'table', name: t('Table') }])]} value={display === 'table' && phone.matches ? 'list' : display} onchange={setDisplay} /></span>
   <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
 

@@ -11,6 +11,10 @@
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import ListTable from '../lib/ui/ListTable.svelte';
+  import { savedView, saveView } from '../lib/listtable.js';
+  import { TOPICS } from '../lib/notebook.js';
+  import { phone } from '../lib/media.svelte.js';
   import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
   import { sortBikes } from '../lib/bikes.js';
   import { shrinkImage } from '../lib/photo.js';
@@ -30,6 +34,23 @@
   const counts = $derived(filterCounts(notes));
   const inboxN = $derived(notes.filter((n) => n.status === 'open').length);
 
+  // Paket H «3a und b»: the shared table (ListTable), remembered on this device
+  let tableOn = $state(savedView('notes') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('notes', on ? 'table' : 'list'));
+  const noteCols = $derived([
+    { key: 'title', label: t('Title'), type: 'text', bulk: false, get: (n) => noteTitle(n) },
+    { key: 'topic', label: t('Topic'), type: 'select', get: (n) => noteTopic(n), options: TOPICS.map((x) => ({ key: x.key, name: topicText(x.key, t) })) },
+    { key: 'pinned', label: t('Pinned'), type: 'check', width: '6em', readOnly: true }, // at most 3: pinned in the note itself
+    { key: 'created', label: t('Date'), type: 'text', readOnly: true, get: (n) => String(n.createdAt ?? '').slice(0, 10) },
+  ]);
+  async function delNotes(rows) {
+    const ids = rows.map((r) => r.id);
+    return db.transaction('rw', db.notes, async () => {
+      const before = (await db.notes.bulkGet(ids)).filter(Boolean);
+      await db.notes.bulkDelete(ids);
+      return before;
+    });
+  }
   let filter = $state('all');
   let query = $state('');
   const list = $derived(noteList(notes, { filter, query }));
@@ -172,6 +193,11 @@
         <!-- v0.127.0 A-U2: the one empty building block -->
         <div class="nonote"><Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')} /></div>
       {/if}
+      <!-- Paket H «3a und b»: the notes as an editable table; tick several to change the topic or delete them -->
+      {#if counts.all}<p class="tblrow"><button type="button" class="btn btn-link" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-note-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button></p>{/if}
+      {#if tableOn && counts.all}
+        <ListTable rows={list} cols={noteCols} nameOf={(n) => noteTitle(n) || t('Note')} onsave={(pairs) => db.notes.bulkPut(pairs.map((p) => ({ ...p.after, updatedAt: new Date().toISOString() })))} ondelete={delNotes} onrestore={(before) => db.notes.bulkPut(before)} onopen={(n) => (open = n.id)} label={t('Notes')} search={false} />
+      {:else}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
           <div class="ich-h"><div><h2 id="pin-h">{t('Pinned')} <small class="n num">{pinned.length}/{MAX_PINNED}</small></h2></div></div>
@@ -185,6 +211,7 @@
         </section>
       {:else if counts.all && !pinned.length}
         <div class="nonote"><Empty icon={Search} text={t('Nothing found.')} /></div>
+      {/if}
       {/if}
     </div>
 
