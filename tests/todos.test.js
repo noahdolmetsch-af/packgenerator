@@ -9,10 +9,10 @@ describe('open to-dos on the start page', () => {
     const rows = openTodos({ bikes, items, pace: { mine: false }, debriefs: [], trips: [{ id: 'demo-303' }] });
     expect(rows.map((r) => [r.key, r.n])).toEqual([['bikes', 2], ['pace', 0], ['check', 1], ['trip', 0]]);
   });
-  it('rows disappear once done; demo debriefs do not count', () => {
+  it('rows disappear once done; demo debriefs count like real ones (H2b)', () => {
     const done = openTodos({ bikes: [bikes[1]], items: [items[1]], pace: { mine: true }, trips: [{ id: 't1' }, { id: 'demo-1' }], debriefs: [{ tripId: 't1', status: 'done' }] });
     expect(done).toEqual([]);
-    expect(openTodos({ trips: [{ id: 'demo-1' }], debriefs: [{ tripId: 'demo-1', status: 'done' }], pace: { mine: true } }).map((r) => r.key)).toEqual(['trip']);
+    expect(openTodos({ trips: [{ id: 'demo-1' }], debriefs: [{ tripId: 'demo-1', status: 'done' }], pace: { mine: true } }).map((r) => r.key)).toEqual([]);
     expect(openTodos({ items: [{ id: 'x', ownership: 'owned', reviewedAt: 'x' }], pace: { mine: true }, trips: [{ id: 't' }], debriefs: [{ tripId: 't', status: 'done' }] }).map((r) => r.key)).toEqual(['favourites']);
   });
   it('a backup is due after a trip debrief newer than the last backup', () => {

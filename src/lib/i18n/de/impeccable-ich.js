@@ -38,6 +38,8 @@ export default {
   'Last backup: {when}': 'Letztes Backup: {when}',
   'last change {when}': 'letzte Änderung {when}',
   'Backup missing.': 'Backup fehlt.',
+  // Paket E × A: the fourth light «Vom Browser behalten» in the head line
+  'The browser does not keep the data for good yet.': 'Der Browser behält die Daten noch nicht fest.',
   'Backup due.': 'Backup fällig.',
   'The folder backup needs your OK.': 'Das Ordner-Backup braucht dein OK.',
   'The storage is almost full.': 'Der Speicher ist fast voll.',

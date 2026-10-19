@@ -116,7 +116,7 @@
 </span>
 {#if open && phone.matches}
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-  <dialog class="ma-sheet" id={uid} bind:this={sheet} aria-label={title || label} use:backClose onclose={() => (open = false)} onkeydown={keys} onclick={(e) => e.target === sheet && close()}>
+  <dialog data-backdrop="own" class="ma-sheet" id={uid} bind:this={sheet} aria-label={title || label} use:backClose onclose={() => (open = false)} onkeydown={keys} onclick={(e) => e.target === sheet && close()}>
     <span class="ma-grip" aria-hidden="true"></span>
     {#if title}<p class="ma-h">{title}</p>{/if}
     {#if howto}{@render how(20)}{/if}

@@ -52,8 +52,12 @@ test('Bikes › Workshop: the visit dialog offers the camera for the receipt', a
       .locator('input')
       .setInputFiles(PNG);
   }
-  await expect(dlg.getByRole('img', { name: T('Photo of the receipt') })).toBeVisible();
-  await expect(dlg.getByText(T('Other photo'))).toBeVisible();
+  // P3b Teil 3: a receipt can have several pages; after the first photo the camera says «Weitere Seite»
+  await expect(dlg.getByRole('img', { name: T('Receipt, page {n}').replace('{n}', '1') })).toBeVisible();
+  await expect(dlg.locator('label', { hasText: T('Another page') })).toBeVisible();
+  if (phone) await dlg.locator('label', { hasText: T('Another page') }).first().locator('input').setInputFiles(PNG);
+  else await dlg.locator('label', { hasText: T('Another page') }).locator('input').setInputFiles(PNG);
+  await expect(dlg.getByRole('img', { name: T('Receipt, page {n}').replace('{n}', '2') })).toBeVisible();
   await shot(page, `K2-mit-foto-${phone ? 390 : 1440}`);
   expect(errors).toEqual([]);
 });

@@ -2,7 +2,7 @@
  * v0.38.0 (Noah 3a, 4a): swiping a gear row on a phone. Pure, tested in tests/swipe.test.js.
  * - right: Favourite and Assign … show on the left;
  * - left: Delete (an item never on a trip) or Archive (an item already used on trips) shows on the
- *   right; a long swipe left does it at once, always with Undo. A real delete of a used item is only
+ *   right; a long swipe left asks first (P3b M1a), then does it, always with Undo. A real delete of a used item is only
  *   the red button in the item itself.
  * A row moves only when the finger goes clearly sideways: up and down stays the page's scroll.
  */

@@ -18,7 +18,7 @@
   });
 </script>
 
-<dialog class="sheet from-below pcols" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="pc-h" data-columns-sheet>
+<dialog data-backdrop="own" class="sheet from-below pcols" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="pc-h" data-columns-sheet>
   <div class="hd">
     <span class="hic" aria-hidden="true"><Columns3 size={20} /></span>
     <div class="hm">

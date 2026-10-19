@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { inflateRawSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData as openDataFold } from './settle.js';
+import { openData as openDataFold, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
 
 const tr = (lang) => (en, vars) => {
@@ -77,7 +77,8 @@ async function importFile(page, lang, file, button) {
     await expect(data.getByRole('dialog').or(data.getByRole('status'))).toBeVisible({ timeout: 2000 });
   }).toPass();
   if (button) {
-    await data.getByRole('button', { name: tr(lang)(button), exact: true }).press('Enter');
+    if (button === 'Replace all data') await replaceAll(data); // P3b 5a: a device with data asks a second time
+    else await data.getByRole('button', { name: tr(lang)(button), exact: true }).press('Enter');
     await expect(data.getByText(/importiert|Imported/)).toBeVisible();
   }
   return data;

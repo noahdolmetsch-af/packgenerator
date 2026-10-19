@@ -22,6 +22,7 @@
   import GarminPages from '../lib/bikes/GarminPages.svelte';
   import GarminPage from '../lib/bikes/GarminPage.svelte';
   import { t } from '../lib/i18n.svelte.js';
+  import { lastBikeChoice, chooseBike } from '../lib/lastchoice.js';
 
   let route = $state(parseBikesHash(location.hash));
   $effect(() => {
@@ -41,6 +42,15 @@
   function pickBike(id) {
     route = { ...route, bike: id, open: false };
   }
+  // P3b 4a: the bike chosen last stays chosen on every Velos tab (an address with a bike names it)
+  let lastBike = $state(lastBikeChoice());
+  $effect(() => {
+    if (route.bike) {
+      chooseBike(route.bike);
+      lastBike = route.bike;
+    }
+  });
+  const shownBike = $derived(route.bike ?? lastBike);
   const opened = () => (route = { ...route, open: false });
   // «Garmin-Seiten»: the Edge chosen on the pages list stays while you open a page and come back
   let garminDevice = $state('1040');
@@ -62,22 +72,22 @@
     <Compare bikeId={route.bike} target={route.edit ?? null} back={route.back ?? null} from={route.from ?? null} />
   {:else if route.tab === 'compare' && route.view === 'enter'}
     <!-- «Bugfix Dateneingabe» D2–D4: every value of one bike on one page, «Next» goes to the next field -->
-    <ValuesPage bikeId={route.bike} onbike={pickBike} />
+    <ValuesPage bikeId={shownBike} onbike={pickBike} />
   {:else if route.tab === 'compare'}
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
-    <Equipment bikeId={route.bike} onbike={pickBike} />
+    <Equipment bikeId={shownBike} onbike={pickBike} />
   {:else if route.tab === 'rig'}
     <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log;
          Taschen-Setups TS2–TS4: &view=setup one setup, &view=compare two side by side, &view=table all -->
-    <RigTab bikeId={route.bike} view={route.view ?? null} setupId={route.setup ?? null} a={route.a ?? null} b={route.b ?? null} onbike={pickBike} />
+    <RigTab bikeId={shownBike} view={route.view ?? null} setupId={route.setup ?? null} a={route.a ?? null} b={route.b ?? null} onbike={pickBike} />
   {:else if route.tab === 'garmin' && route.page}
     <!-- «Garmin-Seiten» GA-A3 (Noah 14.10.2026): one model page in detail -->
-    {#key route.page}<GarminPage bikeId={route.bike} profileId={route.view ?? null} pageId={route.page} />{/key}
+    {#key route.page}<GarminPage bikeId={shownBike} profileId={route.view ?? null} pageId={route.page} />{/key}
   {:else if route.tab === 'garmin'}
     <!-- «Garmin-Seiten» GA-A2 (Noah 14.10.2026): the model pages of one Garmin profile of a bike -->
-    <GarminPages bikeId={route.bike} profileId={route.view ?? null} bind:device={garminDevice} />
+    <GarminPages bikeId={shownBike} profileId={route.view ?? null} bind:device={garminDevice} />
   {:else if route.tab === 'shop'}
-    <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
+    <ShopTab bikeId={shownBike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'strava'}
     <!-- v0.116.0 «Strava-Verbindung» (S1–S3): connect, the first fetch, the settings -->
     <StravaPage bikeId={route.bike} />
@@ -90,7 +100,7 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
-    <SetupTab bikeId={route.bike} more={route.open} onbike={pickBike} onopened={opened} />
+    <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />
   {/if}

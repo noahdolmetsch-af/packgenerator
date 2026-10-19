@@ -1,4 +1,5 @@
 <script>
+  import { lastBikeChoice } from '../lastchoice.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   /**
@@ -58,13 +59,7 @@
     location.hash = `#/calendar/list/${r.list.id}`;
     offerDone(t('List «{name}» created.', { name: r.list.name }), r.undo);
   }
-  const lastBike = () => {
-    try {
-      return localStorage.getItem('problem.lastBike');
-    } catch {
-      return null;
-    }
-  };
+  const lastBike = lastBikeChoice; // P3b 4a
   function visitSaved({ bikeId, id }) {
     location.hash = bikesHash({ tab: 'shop', bike: bikeId });
     offerDone(t('Workshop visit saved.'), id ? () => db.visits.delete(id) : null);
@@ -172,7 +167,7 @@
 {#if todoOpen}<TodoSheet text={todoText} onclose={() => (todoOpen = false)} ondone={todoSaved} />{/if}
 {#if listOpen}<ListSheet start={listStart.name} points={listStart.points} onclose={() => (listOpen = false)} ondone={listMade} />{/if}
 {#if visitOpen}
-  <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} onsaved={visitSaved} onclose={() => (visitOpen = false)} />
+  <BikeQuickDialog kind="visit" {bikes} bikeId={startBike(bikes, { last: lastBike() })} cameraFirst onsaved={visitSaved} onclose={() => (visitOpen = false)} />
 {/if}
 
 <style>

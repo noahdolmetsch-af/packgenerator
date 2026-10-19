@@ -7,6 +7,7 @@
    * fields for all bikes, only on this page; «+ Own field» (D4) adds a field with name, unit, kind
    * and group. Reached from Equipment («Enter values») and from «Change values» on the sheets.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
@@ -169,7 +170,7 @@
 {/if}
 
 {#if own}
-  <dialog use:backClose class="sheet" bind:this={ownDlg} onclose={() => (own = null)} aria-labelledby="vp-own-h">
+  <dialog use:backClose use:keepTyped={'valuesown:' + (bikeId ?? '')} class="sheet" bind:this={ownDlg} onclose={() => (own = null)} aria-labelledby="vp-own-h">
     <p class="meta">{t('For all bikes')}</p>
     <h2 id="vp-own-h" class="title">{t('Own field')}</h2>
     <p class="quiet">{t('A value the app does not know yet. Every bike gets the field empty, you fill it where it fits.')}</p>

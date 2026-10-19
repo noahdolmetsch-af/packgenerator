@@ -29,6 +29,7 @@
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
   import { inSeason } from '../lib/ski.js';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -320,6 +321,7 @@
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
+      <HintCard page="aktiv" />
       <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">

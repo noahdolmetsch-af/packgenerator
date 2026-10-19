@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * TZ-2 «Fest nach der Fahrt» (mockup TZ2 Tour-Kopf, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»):
    * the band under the step bar of a trip says what its state means here and offers the next step,
@@ -38,7 +39,7 @@
   $effect(() => {
     if (!undoHere) return;
     clearTimeout(timer);
-    timer = setTimeout(() => (tz2.done = null), 10000);
+    timer = setTimeout(() => (tz2.done = null), UNDO_MS);
     return () => clearTimeout(timer);
   });
   async function answer(yes) {

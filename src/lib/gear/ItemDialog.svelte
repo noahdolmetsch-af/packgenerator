@@ -1,4 +1,6 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
+  import { closeKeep } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
@@ -362,6 +364,7 @@
     <div class="wide iphoto">
       {#if draft.photo}<img src={draft.photo} alt={t('Photo of {name}', { name: draft.name })} />{/if}
       <span class="pacts">
+        <CameraButton onchange={pickPhoto} disabled={reading} />
         <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Add photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
         {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
       </span>
@@ -681,7 +684,7 @@
     </p>
     <h2 id="item-h" class="title">{#if isNew}{t('Add item')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
     <!-- v0.102.0 Design-Refresh P3 (M2): close at the top right (after the title, so the focus starts at the name) -->
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => (isNew ? discard() : dialog.close())}><X size={20} aria-hidden="true" /></button>
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={20} aria-hidden="true" /></button>
 
     {#if isNew}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
@@ -710,7 +713,7 @@
     <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
     <div class="foot daumen-foot">
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
+      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Discard')}</button>{/if}
       <button type="submit" class="btn hi">{t('Save')}</button>
     </div>
   </form>

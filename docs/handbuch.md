@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 111 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 114 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -160,12 +160,12 @@ Ein Klick auf Heute plant eine Tour für heute: 2,5 Std., das zuletzt gefahrene 
 
 ### Tour planen
 
-Ein Fenster «Rahmenbedingungen»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.
+Ein Fenster «Neue Tour»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Tippe «Neu» › «Tour planen» oder «Neue Tour» unter Touren.
-2. Fülle «Rahmenbedingungen» aus: Sportart, wann, wie lang, Start-PLZ.
+2. Fülle «Neue Tour» aus: Sportart, wann, wie lang, Start-PLZ.
 3. Packliste in Gruppen prüfen und speichern.
 
 **Beispiel:** Gravel, Samstag, 2 Tage, Start 3000 → Liste mit Zelt, Kocher und Regensachen.
@@ -269,7 +269,7 @@ Ein paar Wörter werden ein Vorschlag für die Packliste (nur mit Helfer-Code).
 
 **Beispiel:** «2 Tage Gravel, eine Nacht Camping, Regen möglich» → ein Packlisten-Vorschlag.
 
-### Kleiderschrank
+### Kleider
 
 Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste.
 
@@ -585,24 +585,24 @@ Fehlendes schlägt ähnliche Teile vor oder kommt auf die Wunschliste.
 
 ### Fahrt hochladen (GPX)
 
-Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
+Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Erkenntnisse.
 
 **Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App oder die CSV-Liste von Strava oder Garmin.
 
 1. Tippe «Neu» › «Fahrt hochladen», oder Touren › Rückblick. Mehrere Dateien auf einmal gehen auch.
 2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.
-3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Learnings merken.
+3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Erkenntnisse merken.
 
-**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 Min Pausen.
+**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
 
 ### Vergangene Touren
 
-Eine Tabelle mit km, Höhenmetern, Zeit, Regen und dem Learning jeder Tour.
+Eine Tabelle mit km, Höhenmetern, Zeit, Regen und der Erkenntnis jeder Tour.
 
 **Aufschalten:** Braucht eine Tour, die begonnen hat oder vorbei ist.
 
 1. Öffne Touren › Rückblick › Vergangene Touren.
-2. Lies km, Höhenmeter, Zeit, Regen und das Learning pro Tour.
+2. Lies km, Höhenmeter, Zeit, Regen und die Erkenntnis pro Tour.
 
 **Beispiel:** «Jura 2 Tage · 160 km · 2100 Hm · Regen an Tag 2».
 
@@ -617,13 +617,13 @@ Ein Tagebuch aller Touren, auch alter; Filter nach Jahr und Art.
 
 **Beispiel:** Filter 2025 und «Rennen» → alle Rennen jenes Jahres.
 
-### Learnings
+### Erkenntnisse
 
-Alle Learnings nach Thema, mit Suche.
+Alle Erkenntnisse nach Thema, mit Suche.
 
 **Aufschalten:** Füllt sich mit jedem Rückblick und Fahrt-Upload.
 
-1. Öffne Touren › Rückblick › Learnings.
+1. Öffne Touren › Rückblick › Erkenntnisse.
 2. Lies sie nach Thema oder such ein Wort.
 
 **Beispiel:** Suche «Essen» → «bei langen Anstiegen alle 45 Minuten essen».
@@ -676,7 +676,7 @@ Ein Werkstattauftrag listet, was die Werkstatt machen soll, bereit zum Drucken.
 
 ### Quittung fotografieren
 
-Fotografiere die Werkstatt-Quittung; sie wartet in der Inbox.
+Fotografiere die Werkstatt-Quittung; sie wartet im Eingang.
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 
@@ -977,14 +977,15 @@ Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein V
 
 ### Tipps und «Wusstest du»
 
-Ein Tipp pro Tag und was die App auf der Seite kann; Erde und Everest in Vergangene Touren.
+Ein Tipp pro Tag an zwölf Orten, was die App dort kann und Beispiele, die du als Notiz behältst; Erde und Everest in Vergangene Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Heute: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
+1. Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
 2. Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.
+3. Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Ich › Notizen ab.
 
-**Beispiel:** An einem heissen Tag kommt zuerst der Tipp zum Wasser; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
+**Beispiel:** An einem Regentag sagt Packen zuerst, die Regenjacke nach oben zu legen; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
 
 ### Training mit Pulszonen
 
@@ -1153,6 +1154,42 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Dokumente
+
+Pass, Versicherung und Notfallblatt als PDF oder Foto; eine Erinnerung, bevor sie ablaufen, und «ID und Cash dabei?» in der Packliste.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Dokumente und tippe «PDF hinzufügen» (ein PDF oder ein Foto vom Papier).
+2. Wähle die Gruppe und «gültig bis»; die Erinnerung kommt von selbst 6 Monate vorher.
+3. Schalte «In die Packliste» ein: Jede Tour fragt «ID und Cash dabei?».
+
+**Beispiel:** Identitätskarte gültig bis 03.2027 → ab 09.2026 «Identitätskarte erneuern» unter Erinnerungen.
+
+### Handy und Computer
+
+Schick die Backup-Datei an das andere Gerät; es sagt, was neuer ist, und schlägt vor, was zu tun ist, mit einer Kopie von vorher.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Auf dem Gerät mit dem neueren Stand: Ich › Daten und Backup › «An Handy senden» (oder «An Computer senden»).
+2. Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder «Backup öffnen».
+3. Die App sagt, was neuer ist, und schlägt vor: ersetzen, zusammenführen oder nichts; eine Kopie von vorher bleibt unter «Vor Updates».
+
+**Beispiel:** Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.
+
+### Kamera überall
+
+Am Handy öffnet die Kamera mit einem Tipp: für Notiz, Material, Velo, Setup und Problem; ein Beleg kann mehrere Seiten haben.
+
+**Aufschalten:** Am Handy oder Tablet; am Computer kommt die Dateiauswahl.
+
+1. Tippe «Foto machen», wo ein Foto dazukommt (Notiz, Material, Velo, Setup, Problem); «Galerie» nimmt ein vorhandenes.
+2. Neu › Werkstattbesuch öffnet sofort die Kamera: zuerst den Beleg fotografieren, dann den Rest ausfüllen.
+3. Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.
+
+**Beispiel:** Eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.
 
 ### Auto-Backup in einen Ordner
 

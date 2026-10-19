@@ -411,7 +411,7 @@
 </section>
 
 {#if pick}
-  <dialog class="sheet from-below bsheet" bind:this={dlg} use:backClose onclose={() => (pick = false)} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="bs-h" data-blocks-sheet>
+  <dialog data-backdrop="own" class="sheet from-below bsheet" bind:this={dlg} use:backClose onclose={() => (pick = false)} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="bs-h" data-blocks-sheet>
     <div class="sh-h">
       <div><h2 id="bs-h">{t('Blocks')}</h2><p>{t('Which blocks «In numbers» shows. At first all are on.')}</p></div>
       <button type="button" class="x" aria-label={t('Close')} onclick={() => dlg.close()}><X size={20} aria-hidden="true" /></button>

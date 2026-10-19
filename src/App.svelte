@@ -40,6 +40,7 @@
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
+  import Docs from './pages/Docs.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
@@ -161,7 +162,7 @@
       // FE6 (Noah 13.10.2026): the shortcuts can be switched off in Ich › Darstellung › Bedienung
       if (!ops.keys || typing(e)) return;
       const afterG = Date.now() - gAt < G_WAIT;
-      const s = shortcutOf(e.key, afterG);
+      const s = shortcutOf(e.key, afterG, place);
       gAt = s?.wait ? Date.now() : 0;
       if (!s || s.wait) return;
       e.preventDefault();
@@ -415,6 +416,9 @@
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
     <Data />
+  {:else if page === 'docs'}
+    <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
+    {#key hash.split('?')[0]}<Docs />{/key}
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<WasNeu />{/key}

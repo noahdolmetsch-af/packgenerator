@@ -1,4 +1,6 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
+  import { lastBikeChoice, chooseBike } from '../lastchoice.js';
   /**
    * v0.45.2 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
    * per line (or quick buttons), an optional photo; each problem becomes an open repair in Bike care.
@@ -8,6 +10,7 @@
    * small labels, light chips (the chosen one dark), the photo as one quiet row «Photo (optional)» with
    * «Add», the buttons bottom right (Cancel, then the main one). The same steps as before.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -21,14 +24,8 @@
 
   let { bikes = [], ondone } = $props();
 
-  const LAST = 'problem.lastBike';
-  const readLast = () => {
-    try {
-      return localStorage.getItem(LAST);
-    } catch {
-      return null;
-    }
-  };
+  // P3b 4a: the bike chosen last anywhere (lastchoice.js; it read 'problem.lastBike' before)
+  const readLast = lastBikeChoice;
   const tripsQ = liveQuery(() => db.trips.toArray());
   const today = localDay();
 
@@ -90,11 +87,7 @@
         await db.maintenance.bulkPut(out.repairs);
         await db.notes.bulkPut(out.notes);
       });
-      try {
-        localStorage.setItem(LAST, bike.id);
-      } catch {
-        /* the next start just picks the first bike */
-      }
+      chooseBike(bike.id);
       saved = { count: list.length, name: bike.name, bike: $state.snapshot(bike), bikeId: bike.id, noteIds: out.notes.map((n) => n.id), repairIds: out.repairs.map((r) => r.id) };
       text = '';
       photo = null;
@@ -148,7 +141,7 @@
     </div>
   </div>
 {:else}
-  <form class="pf" onsubmit={save}>
+  <form class="pf" onsubmit={save} use:keepTyped={'problem'}>
     <fieldset class="bikes">
       <legend class="lbl">{t('Which bike?')}</legend>
       <div class="chips">
@@ -197,6 +190,7 @@
       {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} />{:else}<span class="pib"><ImageIcon size={18} aria-hidden="true" /></span>{/if}
       <span class="pm"><b>{t('Photo (optional)')}</b><small>{t('e.g. of the damage')}</small></span>
       {#if photo}<button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
+      <CameraButton onchange={addPhoto} disabled={reading} />
       <label class="btn">{reading ? t('Reading…') : photo ? t('Other photo') : t('Add')}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
     </div>
 

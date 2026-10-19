@@ -75,7 +75,7 @@
   };
 </script>
 
-<dialog class="sheet from-below cks" bind:this={dlg} use:backClose onclose={() => (next === 'edit' ? onedit?.() : onclose?.())} onclick={(e) => e.target === dlg && close()} aria-labelledby={hid} data-check-sheet={kind}>
+<dialog data-backdrop="own" class="sheet from-below cks" bind:this={dlg} use:backClose onclose={() => (next === 'edit' ? onedit?.() : onclose?.())} onclick={(e) => e.target === dlg && close()} aria-labelledby={hid} data-check-sheet={kind}>
   <header class="hd">
     <div class="tt">
       <h2 id={hid}>{kind === 'eve' ? t('Evening-before check') : t('After-trip check')}</h2>

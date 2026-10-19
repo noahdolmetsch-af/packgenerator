@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import { chosenBike, chooseBike } from '../lastchoice.js';
   /**
    * v0.25.1 (Noah 2b, 3a): the small dialogs behind the Bikes tile on Today.
    * - 'problem': what is wrong with a bike (+ photo) → an open repair in Bike care, written exactly as
@@ -11,6 +12,7 @@
    *   (km book) and the last workshop are filled in, on a green field with where they come from; one
    *   tap on a known shop or a job chip («What was done?», optional) fills the rest. All can be changed.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
@@ -28,13 +30,18 @@
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
-  let { kind, bikes = [], bikeId = null, tripId = null, onclose, onsaved } = $props();
+  let { kind, bikes = [], bikeId = null, tripId = null, cameraFirst = false, onclose, onsaved } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
-  let bike = $state(bikeId ?? bikes[0]?.id ?? '');
+  let bike = $state(bikeId ?? chosenBike(bikes) ?? bikes[0]?.id ?? ''); // P3b 4a: else the bike chosen last
+  $effect(() => {
+    if (bike && bike !== bikeId) chooseBike(bike);
+  });
   let text = $state('');
   let photo = $state(null);
+  // P3b Teil 3: a receipt of the visit can have several pages («Weitere Seite»)
+  let shots = $state([]);
   let reading = $state(false);
   let msg = $state('');
   let busy = $state(false);
@@ -73,7 +80,9 @@
     reading = true;
     msg = '';
     try {
-      photo = await shrinkImage(file, 1200, 0.8);
+      const small = await shrinkImage(file, 1200, 0.8);
+      if (kind === 'visit') shots = [...shots, small];
+      else photo = small;
     } catch (err) {
       msg = err.message || t('This photo could not be read.');
     } finally {
@@ -113,7 +122,7 @@
     if (Number.isNaN(cost)) return t('Type the cost in CHF, e.g. 120.50.');
     const id = `visit-${Date.now().toString(36)}`;
     const parts = jobs.map((j) => ({ part: j.part, action: j.action, what: '' }));
-    await db.visits.put({ ...newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photo }, { id }), parts });
+    await db.visits.put({ ...newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photos: $state.snapshot(shots) }, { id }), parts });
     savedId = id;
     return null;
   }
@@ -136,7 +145,7 @@
   }
 </script>
 
-<dialog use:backClose class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
+<dialog use:backClose use:keepTyped={'bikequick:' + kind + ':' + (bikeId ?? '') + ':' + (tripId ?? '')} class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="bq-h">
   <form onsubmit={save} use:weiter>
     <h2 id="bq-h" class="title">{t(TITLE[kind])}</h2>
     {#if kind === 'idea'}<p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>{/if}
@@ -148,6 +157,13 @@
     </label>
 
     {#if kind === 'visit'}
+      <!-- P3b Teil 3 «Kamera überall» (Noah 15.10.2026 «1-5 a»): the receipt first, a big green «Beleg
+           fotografieren» (from Neu › Werkstattbesuch the camera opens at once), then «Weitere Seite» -->
+      <div class="row shots">
+        <PhotoPick onfile={addPhoto} busy={reading} has={shots.length > 0} camera="Photograph the receipt" big pages first={cameraFirst} />
+        {#each shots as src, i (i)}<span class="shot"><img class="th" {src} alt={t('Receipt, page {n}', { n: i + 1 })} /><button type="button" class="link" onclick={() => (shots = shots.filter((_, k) => k !== i))}>{t('Remove photo')}</button></span>{/each}
+      </div>
+      {#if shots.length}<p class="hint">{t('{n} page(s) of the receipt. More pages: «Another page».', { n: shots.length })}</p>{/if}
       <div class="grid">
         <label class="field"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} max={today} /></label>
         <div class="field">
@@ -177,10 +193,10 @@
       </label>
     {/if}
 
-    {#if kind !== 'idea'}
+    {#if kind === 'problem'}
       <div class="row">
-        <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={kind === 'visit' ? 'Photograph the receipt' : 'Take photo'} />
-        {#if photo}<img class="th" src={photo} alt={kind === 'visit' ? t('Photo of the receipt') : t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
+        <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Take photo" />
+        {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
       </div>
     {/if}
     {#if kind === 'problem'}<p class="hint">{t('Lands in Bike care as an open repair.')}</p>{/if}
@@ -251,6 +267,12 @@
     gap: 10px;
     margin: 8px 0;
     flex-wrap: wrap;
+  }
+  .shot {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
   }
   .th {
     width: 56px;

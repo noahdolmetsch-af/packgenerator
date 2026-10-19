@@ -26,6 +26,7 @@
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
+  import { chooseBike } from '../lastchoice.js';
   import { selectAll } from '../ui/selectall.js';
   import { rideName, rideDate, freeTitle, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
@@ -99,6 +100,12 @@
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
         { title: '', startDate: rideDate(), days: 1, bikeId: openBike ? defaultBikeId : tourBikeId(trips, bikes) ?? bikes[0]?.id },
   );
+  // P3b 4a: a bike chosen here stays chosen everywhere (lastchoice.js)
+  // svelte-ignore state_referenced_locally
+  const openedBike = draft.bikeId;
+  $effect(() => {
+    if (draft.bikeId && draft.bikeId !== openedBike) chooseBike(draft.bikeId);
+  });
   // v0.25.1 (Noah 2a): the name is made from bike, date and days until Noah types in it.
   let autoName = $state(isNew);
   // v0.25.0 (M3): the trip's context. An older trip without an overnight value shows none chosen.
@@ -592,10 +599,24 @@
     dialog.close();
   }
 
+  /*
+   * P3b «Bedienregeln», T1a (Noah 15.10.2026 «4a»): a new trip is saved as soon as something is chosen
+   * here (date, days, bike, kind of ride, weather, a template …), not only after a typed name; the name
+   * the app made counts then. Only what a tap or a key changes counts (not the forecast filling in).
+   */
+  let chose = $state(false);
+  const madeOf = () => JSON.stringify($state.snapshot([draft.startDate, draft.days, draft.bikeId, ctx, start, picked, area, off, dark, extras, wxPlace]));
+  function watchChoice(e) {
+    if (!isNew || chose || ended || !e.isTrusted) return;
+    const before = madeOf();
+    setTimeout(() => {
+      if (!chose && !ended && madeOf() !== before) chose = true;
+    }, 0);
+  }
   /* ---------- v0.35.0 (AP29): the new trip is saved while it is typed ---------- */
   /** The new trip as the window would make it now, or null while it cannot be made (no name typed, no bike, hours wrong). */
   async function autoRecord() {
-    if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return null;
+    if (!autoKeep({ isNew, name: draft.title, changed: !autoName || chose })) return null;
     if (!byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
       return packTrip(readyStandard, autoNow);
@@ -621,15 +642,15 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, sport, autoName, off, dark, extras, wxPlace]); // what the trip is made of
-    if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return;
+    JSON.stringify([draft, ctx, start, picked, area, sport, autoName, chose, off, dark, extras, wxPlace]); // what the trip is made of
+    if (!autoKeep({ isNew, name: draft.title, changed: !autoName || chose })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
     return () => clearTimeout(autoTimer);
   });
   /** Closing (Escape, outside, Close) keeps what was typed: the last change is saved, Pack opens the trip. */
   async function closed() {
-    if (isNew && !ended && leaveWindow('close', { made: !!autoId, typed: autoKeep({ isNew, name: draft.title, changed: !autoName }) }) === 'keep') {
+    if (isNew && !ended && leaveWindow('close', { made: !!autoId, typed: autoKeep({ isNew, name: draft.title, changed: !autoName || chose }) }) === 'keep') {
       clearTimeout(autoTimer);
       await autoSave();
       if (autoId && !ended) {
@@ -820,7 +841,7 @@
   </section>
 {/snippet}
 
-<dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
+<dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} onclickcapture={watchChoice} oninputcapture={watchChoice} onchangecapture={watchChoice} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate use:weiter>
     <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
@@ -955,7 +976,7 @@
     <div class="foot daumen-foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
+      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Discard')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
       <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt" data-count-split>{` · ${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}</button>
     </div>

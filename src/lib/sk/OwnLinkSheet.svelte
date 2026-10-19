@@ -9,6 +9,7 @@
    * onsave({ url, name }) saves (url already checked); onoff: «Nicht mehr vorschlagen» (optional);
    * onremove: «Link löschen» for a link that is there (optional); onclose.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
   import { X, Lock, ExternalLink } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
@@ -44,7 +45,7 @@
   }
 </script>
 
-<dialog class="sheet from-below sk-own" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="sk-own-h" data-sk-own>
+<dialog use:keepTyped={'sklink:' + title} class="sheet from-below sk-own" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="sk-own-h" data-sk-own>
   <form onsubmit={save} novalidate>
     <div class="sk-head">
       <div>

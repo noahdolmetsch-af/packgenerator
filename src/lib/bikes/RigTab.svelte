@@ -1,4 +1,5 @@
 <script>
+  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Velos › Setup (UC3-1, Noah 14.10.2026 «1-5a», «UC3-1-UC3-3 freigeben»): one page per bike.
    * Your setup photos first (only on this device), then the total weight and a small bag plan,
@@ -146,6 +147,7 @@
       {#each photos as p (p.id)}
         <figure><img src={p.src} alt={p.name} /><figcaption>{photoDate(p)}</figcaption></figure>
       {/each}
+      <CameraButton onchange={addPhotos} />
       <label class="shot add">
         <input type="file" accept="image/*" multiple onchange={addPhotos} />
         <span class="addbox"><Camera size={26} aria-hidden="true" /></span>

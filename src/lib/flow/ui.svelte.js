@@ -3,6 +3,7 @@
  * countdown sheet and its small floating version, the daily check and the «Rückgängig» toast.
  * FlowLayer.svelte (in App.svelte) draws them, so the countdown keeps running when the page changes.
  */
+import { UNDO_MS } from '../ui/undo.js';
 import { db } from '../db.js';
 import { lang, t } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
@@ -30,7 +31,7 @@ let toastTimer = null;
 export function toast(text, undo = null, link = null) {
   clearTimeout(toastTimer);
   ui.toast = { text, undo, link, id: Date.now() };
-  if (!link) toastTimer = setTimeout(() => (ui.toast = null), 8000);
+  if (!link) toastTimer = setTimeout(() => (ui.toast = null), undo ? UNDO_MS : 8000);
 }
 export function closeToast() {
   clearTimeout(toastTimer);

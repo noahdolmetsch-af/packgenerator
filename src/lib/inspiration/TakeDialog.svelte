@@ -5,6 +5,7 @@
    * on a phone. The packing rule shows how it looks while packing («So sieht es beim Packen aus»).
    * link: the card's link; text: its note; make: the choice to start with ('rule' | 'wish' | 'note').
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { X, Quote } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
@@ -41,7 +42,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg from-below td" class:td-wide={choice === 'rule'} bind:this={dialog} use:backClose {onclose} aria-labelledby="td-h">
+<dialog use:keepTyped={'take:' + (link?.id ?? '') + ':' + make} class="sheet vdlg from-below td" class:td-wide={choice === 'rule'} bind:this={dialog} use:backClose {onclose} aria-labelledby="td-h">
   <form class="td-cols" onsubmit={take} novalidate>
     <div class="td-main">
       <div class="vd-head">

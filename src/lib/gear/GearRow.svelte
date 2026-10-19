@@ -62,6 +62,9 @@
     if (r.state === 'long') {
       offset = rest = 0;
       onswipe?.(null);
+      // P3b «Bedienregeln», M1a (Noah 15.10.2026 «3a»): a long swipe asks first (Undo stays as well)
+      const ask = used ? t('Archive "{name}"? It stays in the look back.', { name: nameOf(item) }) : t('Delete "{name}"?', { name: nameOf(item) });
+      if (!confirm(ask)) return;
       return used ? onarchive(item) : ondelete(item);
     }
     offset = rest = r.offset;

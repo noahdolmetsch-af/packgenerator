@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /** SK: «„Wetter und Anreise" ausgeblendet · Rückgängig» (SK6 b), for 8 s. note: { text, undo } or null. */
   import { Undo2 } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -6,7 +7,7 @@
   let { note = $bindable(null) } = $props();
   $effect(() => {
     if (!note) return;
-    const id = setTimeout(() => (note = null), 8000);
+    const id = setTimeout(() => (note = null), UNDO_MS);
     return () => clearTimeout(id);
   });
   function undo() {

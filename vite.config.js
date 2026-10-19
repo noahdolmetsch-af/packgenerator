@@ -62,9 +62,11 @@ export default defineConfig({
             title: 'title',
             text: 'text',
             url: 'url',
-            // QR6 «Aus TWINT teilen»: a picture (TWINT screenshot) goes to Rechnungen, read on the phone
+            // QR6 «Aus TWINT teilen»: a picture (TWINT screenshot) goes to Rechnungen, read on the phone;
+            // P3b «Abgleich Handy–Computer»: a backup file (.json) shared to the app opens «Check import»
             files: [
               { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
+              { name: 'backup', accept: ['.json', 'application/json'] },
               { name: 'pay', accept: ['image/png', 'image/jpeg', 'image/webp', '.png', '.jpg', '.jpeg', '.webp'] },
             ],
           },

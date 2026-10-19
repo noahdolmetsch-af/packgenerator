@@ -5,6 +5,7 @@
    * change it), the facts are your own words. A race has its dates; a rig can belong to one of your races.
    * link: the link to edit, or null. kind: 'rig' or 'race' for a new one. races: your races (for a rig).
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { X } from '@lucide/svelte';
   import './velo-dlg.css';
@@ -40,7 +41,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="rl-h">
+<dialog use:keepTyped={'riglink:' + kind + ':' + (link?.id ?? 'new')} class="sheet vdlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="rl-h">
   <form onsubmit={save} novalidate>
     <div class="vd-head">
       <div class="vd-t">

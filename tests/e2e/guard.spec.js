@@ -106,6 +106,8 @@ const ROUTES = [
   ['#/ski/start', 'Start-Check'],
   ['#/ski/care', 'Saison-Pflege'],
   ['#/ski/after', 'Nach der Tour'],
+  // P3b «Daten sicher» (D3): Ich › Dokumente, strict like its file
+  ['#/me/docs', 'Dokumente'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

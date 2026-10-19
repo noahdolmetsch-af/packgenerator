@@ -1,5 +1,6 @@
 <script>
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -52,6 +53,7 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
+  import { undoSteps, keepUndoSteps } from '../lib/pack/undostack.js';
   import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
@@ -467,7 +469,9 @@
   // v0.22.1 (Noah 4b): the Excel preparation only for events.
   const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
-  let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
+  // T2a: the steps stay until another trip is chosen (undostack.js keeps them while the page is closed)
+  let undo = $state.raw(undoSteps()); // raw: plain copies, IndexedDB cannot store proxies
+  $effect(() => keepUndoSteps(undo, trip?.id));
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
   // v0.29.0 (Noah 4b): the last change of the trip's context (weather, hours, days) is applied by itself;
   // the rows it changed show it with an Undo of their own, and one Undo takes back the whole change.
@@ -1009,6 +1013,7 @@
     </div>
   {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
@@ -1092,6 +1097,7 @@
   {/if}
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
   {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
+  <PageMore page="pack" name={t('Pack')} />
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
   {/if}

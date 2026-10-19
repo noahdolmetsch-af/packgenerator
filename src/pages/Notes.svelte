@@ -1,4 +1,5 @@
 <script>
+  import CameraButton from '../lib/ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Notizen (v0.48.0, Noah 12a-17a): the notes kept in the app; the Eingang is the other half
    * (the toggle top right). Quick capture with text, dictation (where the browser can), photo, link
@@ -7,6 +8,7 @@
    * A card opens the note (NoteSheet), with «Aus Notiz wird …». Notes are in the normal backup;
    * «Als Markdown exportieren» saves them as one text file.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { TOPICS, guessTopic, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
@@ -124,11 +126,14 @@
 <div class="notes ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Notes')} sub={`${t('Kept notes, topics and checklists')} · ${t('also in the normal backup')}`} />
 
+  <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
+  <HintCard page="notes" />
   <form class="cap card" onsubmit={(e) => (e.preventDefault(), save())}>
     <div class="caprow">
       <label class="capt"><span class="sr">{t('New note')}</span><textarea class="inp" rows={checkMode ? 4 : 1} bind:value={text} placeholder={t('Thought, link, photo …')}></textarea></label>
       <div class="tools">
-        <label class="tb" aria-label={t('Add a photo')}><Camera size={18} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
+        <CameraButton onchange={addPhoto} icon />
+        <label class="tb" aria-label={t('Add a photo')}><ImageIcon size={18} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
         <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={18} aria-hidden="true" /></button>
         <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={18} aria-hidden="true" /></button>
         {#if SR}<button type="button" class="btn" aria-pressed={listening} onclick={dictate}><Mic size={16} aria-hidden="true" />{listening ? t('Stop dictation') : t('Dictate')}</button>{/if}

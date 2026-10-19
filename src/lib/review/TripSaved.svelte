@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.49.0 R1 (drei «A» Tour-Rückblick): a trip's saved Rückblick tells what the trip was, instead of
    * four grey tiles: km, Hm, time and pace with the weather (and per day on a trip of several days),
@@ -241,7 +242,7 @@
     taken = { ...taken, [e.itemId]: { tplId: id, undo: out.undo } };
     clearTimeout(noteTimer);
     note = { itemId: e.itemId, text: t('{item} taken out of «{tpl}»', { item: nameOf(byId[e.itemId]), tpl: tpl.name }) };
-    noteTimer = setTimeout(() => (note = null), 8000);
+    noteTimer = setTimeout(() => (note = null), UNDO_MS);
   }
   async function undoTaken(itemId) {
     const x = $state.snapshot(taken[itemId]);

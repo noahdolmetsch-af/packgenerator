@@ -127,6 +127,10 @@ test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Ea
   await expect(line).toHaveAttribute('data-tip', 'today-heat');
   await expect(line.locator('[data-kind="today"]')).toHaveText(`${T('Fits today|tag')} · 31 °C`);
   await expect(line).toContainText(T('only from 28 °C'));
+  // 5a: the tip links to a free site, opened in a new tab
+  const link = line.locator('[data-tip-link="today-heat"]');
+  await expect(link).toHaveAttribute('href', 'https://www.meteoschweiz.admin.ch/');
+  await expect(link).toHaveAttribute('target', '_blank');
 
   // «Alle Tipps»: knowledge is on at first; «Nur nützliche Tipps» keeps the «Wusstest du» ones away
   await line.getByRole('button', { name: T('All tips ›') }).click();
@@ -135,6 +139,7 @@ test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Ea
   await expect(seg.getByRole('button', { name: T('Also knowledge and fun') })).toHaveAttribute('aria-pressed', 'true');
   await expect(sheet.locator('[data-tip-row="know-strava"] [data-kind="know"]')).toHaveText(T('Did you know|tag'));
   await expect(sheet.locator('[data-tip-row="today-cold"]')).toContainText(T('only below 5 °C'));
+  await expect(sheet.locator('[data-tip-row="know-baspo"] [data-tip-link]')).toHaveAttribute('href', 'https://www.hepa.ch/');
   await seg.getByRole('button', { name: T('Only useful tips') }).click();
   await expect(seg.getByRole('button', { name: T('Only useful tips') })).toHaveAttribute('aria-pressed', 'true');
   await fits(page, 'Alle Tipps mit Wissen');
