@@ -2183,6 +2183,7 @@
   /* «Rundgang»: the line on top of First steps */
   .tourline {
     display: flex;
+    flex-wrap: wrap; /* a long button («Muster-Rennen ansehen») goes below the text on a 320 px phone */
     align-items: center;
     gap: 12px;
     margin: 12px 0 4px;
@@ -2192,7 +2193,8 @@
     border: 2px solid var(--hi);
   }
   .tourline > span {
-    flex: 1;
+    flex: 1 1 10rem;
+    min-width: 0;
     display: grid;
     gap: 2px;
   }
