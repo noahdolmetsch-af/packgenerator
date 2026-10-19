@@ -12,7 +12,7 @@ export default {
   'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job': 'Planungs-Notizen im Tour-Entwurf: aus einem Gedanken wird eine Aufgabe, ein Teil oder ein Werkstatt-Auftrag',
   '«Your rides» in Pace: compact rows, the five newest first, a switch «counts»': '«Deine Fahrten» bei Tempo: kompakte Zeilen, zuerst die fünf neuesten, ein Schalter «zählt mit»',
   'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens': 'Fenster gleiten herein, Aufgeklapptes blendet ein, und beim Packen leuchtet eine volle Tasche kurz grün, bevor die nächste aufgeht',
-  'Forms say «optional» at the optional fields, show a mistake right at the field, and Save can always be pressed': 'Formulare sagen bei freiwilligen Feldern «freiwillig», zeigen einen Fehler direkt am Feld, und Speichern lässt sich immer drücken',
+  'Forms say «optional» and show a mistake right at the field; deleting always asks in a window of the app, with 4 seconds Undo': 'Formulare sagen «freiwillig» und zeigen einen Fehler direkt am Feld; Löschen fragt immer in einem Fenster der App, mit 4 Sekunden Rückgängig',
   'Open Trips: below «Planned» stand your Strava rides; filter them by kind.': 'Öffne Touren: unter «Geplant» stehen deine Strava-Fahrten; filtere sie nach Art.',
   'Open Review › Upload ride and choose a GPX file: the ride is saved with its elevation profile.': 'Öffne Rückblick › Fahrt hochladen und wähle eine GPX-Datei: die Fahrt wird mit ihrem Höhenprofil gespeichert.',
   'Open a trip draft and write a planning note; tap «Turn into …» and choose a task.': 'Öffne einen Tour-Entwurf und schreib eine Planungs-Notiz; tippe «Daraus wird …» und wähle eine Aufgabe.',

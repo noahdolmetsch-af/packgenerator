@@ -109,7 +109,8 @@ test('Formular: Teil bearbeiten, every message at its field, a folded row opens 
   const errors = await start(page, context, info);
   await page.goto('./#/gear');
   const name = `${P} Formular-Teil`;
-  await page.getByRole('searchbox', { name: 'Ausrüstung suchen' }).fill(name);
+  // DK6 (Wörter, in Paket D): «Material» everywhere, the search says «Material suchen»
+  await page.getByRole('searchbox', { name: 'Material suchen' }).fill(name);
   await page.getByRole('button', { name: `«${name}» als neues Material erfassen` }).click();
   const dlg = page.getByRole('dialog', { name: 'Teil hinzufügen' });
   // 2a: only optional fields are marked; the weight keeps its «?»
