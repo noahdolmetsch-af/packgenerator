@@ -22,6 +22,7 @@ export const GROUP_PLACES = [
   { name: 'Building blocks', file: 'src/pages/Blocks.svelte' },
   { name: 'Learnings by topic', file: 'src/lib/review/Learned.svelte' },
   { name: 'Document groups', file: 'src/pages/Docs.svelte' },
+  { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
