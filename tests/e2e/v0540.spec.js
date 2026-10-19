@@ -35,7 +35,8 @@ test('the top: name and one summary line; the rest folded, Gewicht first, one ro
   // every part is a row with a short summary, all folded at the start (building blocks too), in Noah's order
   await expect(openFolds(dlg)).toHaveCount(0);
   // v0.102.0 Design-Refresh P3 (M2): a last row «More» (rename, merge, delete)
-  expect(await dlg.locator('details.fold').evaluateAll((ds) => ds.map((d) => d.dataset.fold))).toEqual(['weight', 'where', 'blocks', 'rules', 'life', 'details', 'templates', 'more']);
+  // «History» (life) comes once trips and debriefs are read (liveQuery), so the list is polled
+  await expect.poll(() => dlg.locator('details.fold').evaluateAll((ds) => ds.map((d) => d.dataset.fold))).toEqual(['weight', 'where', 'blocks', 'rules', 'life', 'details', 'templates', 'more']);
   await expect(fold(dlg, 'weight').locator(':scope > summary')).toContainText('160 g · gewogen');
   await expect(fold(dlg, 'weight').locator(':scope > summary')).toContainText('2 Vorschläge');
   await expect(fold(dlg, 'blocks').locator(':scope > summary')).toContainText('Standard');
