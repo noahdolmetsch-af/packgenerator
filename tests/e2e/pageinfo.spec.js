@@ -4,7 +4,7 @@
 // phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { PAGES, tipOfDay, tipPlace, farOf } from '../../src/lib/pageinfo.js';
+import { PAGES, tipOfDay, tipPlace, farOf, contextOf } from '../../src/lib/pageinfo.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -20,6 +20,7 @@ async function open(page, context, hash) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`./${hash}`);
+  // Noah 19.10 «2a»: the Einstieg of Aktiv lives in the card «Was hier steht»; the tip line is always there
   return errors;
 }
 async function fits(page, where) {
@@ -31,14 +32,15 @@ async function fits(page, where) {
 test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  const tip = tipOfDay(undefined, 'aktiv', TODAY);
+  const ctx = contextOf({}, TODAY); // October: the month tip of the ski season fits (Einstieg 2a)
+  const tip = tipOfDay(undefined, 'aktiv', TODAY, ctx);
 
   // the tip of the day, in German
   const line = main.locator('[data-tip]');
   await expect(line).toHaveAttribute('data-tip', tip.id);
-  await expect(line).toContainText(tip.kind === 'know' ? T('Did you know|tag') : T('Good to know:'));
+  await expect(line).toContainText({ know: T('Did you know|tag'), today: T('Fits today|tag') }[tip.kind] ?? T('Good to know:'));
   await expect(line).toContainText(T(tip.text));
-  await expect(line).toContainText(T('Tip {n} of {of} for {page}', { ...tipPlace(undefined, 'aktiv', TODAY), page: T('Active|place') }));
+  await expect(line).toContainText(tip.kind === 'today' ? T(tip.note) : T('Tip {n} of {of} for {page}', { ...tipPlace(undefined, 'aktiv', TODAY, ctx), page: T('Active|place') }));
 
   // the fold is closed; open, one row per thing the app can do, each a place in the app
   const can = main.locator('[data-section="can"]');

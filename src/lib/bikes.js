@@ -28,6 +28,17 @@ export const SLOTS = [
   { key: 'hip', name: 'Hip|worn', where: 'Hip bag', box: { x: 16, y: 108, w: 100, h: 40 }, worn: true },
 ];
 export const SLOT = Object.fromEntries(SLOTS.map((s) => [s.key, s]));
+/** The places as the app comes (the Standard names); SLOTS above carries the person's names (setSlotNames). */
+export const STD_SLOTS = SLOTS.map((s) => ({ key: s.key, name: s.name }));
+/**
+ * «Alles selbst bearbeiten» (Noah 19.10.2026): the person's names for the places on the bike (Ich › Listen
+ * und Typen). Only the name changes: the place, its spot on the drawing and every bag on it stay.
+ * list: listFor('bikeSlots') [{ id, name, renamed? }].
+ */
+export function setSlotNames(list) {
+  const mine = Object.fromEntries(list.filter((e) => e.renamed).map((e) => [e.id, e.name]));
+  for (const s of SLOTS) s.name = mine[s.key] ?? STD_SLOTS.find((x) => x.key === s.key).name;
+}
 
 /**
  * v0.37.0 (Noah 2a): the worn places. They are on the rider, not mounts of the bike: every bike has
@@ -231,14 +242,14 @@ export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bike
  * Read the address of the Bikes page: #/bikes?tab=care&bike=<id>&open=1.
  * The old address #/care still lands on the Care tab. open: open that bike's care section.
  */
-const SHEET_KEYS = /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all)$/;
+const SHEET_KEYS = /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all|blocks)$/;
 export function parseBikesHash(hash = '') {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
   const q = new URLSearchParams(query);
   // v0.48.0: tab=compare is «Compare bikes» (reached from Setup); tab=shop is «Workshop & receipts»
   // (&visit=<id> opens one visit).
   // UC3 (14.10.2026): tab=rig is «Setup» (photos, weight, bag plan, log, ideas); &view=bags|log its two pages.
-  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : ['compare', 'shop', 'rig'].includes(q.get('tab')) ? q.get('tab') : 'setup';
+  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : ['compare', 'shop', 'rig', 'garmin'].includes(q.get('tab')) ? q.get('tab') : 'setup';
   const out = { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
   if (tab === 'shop' && q.get('visit')) out.visit = q.get('visit');
   // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
@@ -249,7 +260,17 @@ export function parseBikesHash(hash = '') {
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   // «Bugfix Dateneingabe» D2: &view=enter is «Enter values», every value of one bike on one page.
   if (tab === 'compare' && ['all', 'enter'].includes(q.get('view'))) out.view = q.get('view');
-  if (tab === 'rig' && ['bags', 'log'].includes(q.get('view'))) out.view = q.get('view');
+  if (tab === 'rig' && ['bags', 'log', 'setup', 'compare', 'table'].includes(q.get('view'))) out.view = q.get('view');
+  // Taschen-Setups (TS2–TS4, 14.10.2026): &view=setup&setup=<id> one setup, &view=compare&a=<id>&b=<id>
+  // two side by side, &view=table all setups of the bike as a table.
+  if (tab === 'rig' && out.view === 'setup' && q.get('setup')) out.setup = q.get('setup');
+  if (tab === 'rig' && out.view === 'compare') {
+    if (q.get('a')) out.a = q.get('a');
+    if (q.get('b')) out.b = q.get('b');
+  }
+  // «Garmin-Seiten» (GA-A2/A3, 14.10.2026): tab=garmin is a bike's Garmin pages; &view=<profile id>, &page=GA-n one page.
+  if (tab === 'garmin' && /^[\w-]{1,40}$/.test(q.get('view') ?? '')) out.view = q.get('view');
+  if (tab === 'garmin' && /^GA-\d{1,2}$/.test(q.get('page') ?? '')) out.page = q.get('page');
   // Bugfix Dateneingabe: &edit=<part>:<field> on «Compare bikes» opens that one value of the bike for
   // typing at once; &back=<sheet> (and &from) goes back to that sheet of the folder when it is closed.
   if (tab === 'compare' && out.view === 'all' && out.bike && /^[\w-]+:[\w.-]+$/.test(q.get('edit') ?? '')) {
@@ -281,13 +302,20 @@ export function withBack(href, back, from = null) {
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null, page = null, setup = null, a = null, b = null } = {}) {
   const q = new URLSearchParams();
-  if (tab === 'care' || tab === 'compare' || tab === 'shop' || tab === 'rig') q.set('tab', tab);
-  if ((view === 'bags' || view === 'log') && tab === 'rig') q.set('view', view);
+  if (tab === 'care' || tab === 'compare' || tab === 'shop' || tab === 'rig' || tab === 'garmin') q.set('tab', tab);
+  if (['bags', 'log', 'setup', 'compare', 'table'].includes(view) && tab === 'rig') q.set('view', view);
+  if (tab === 'rig' && view === 'setup' && setup) q.set('setup', setup);
+  if (tab === 'rig' && view === 'compare') {
+    if (a) q.set('a', a);
+    if (b) q.set('b', b);
+  }
   if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
+  if (tab === 'garmin' && view) q.set('view', view);
+  if (tab === 'garmin' && page) q.set('page', page);
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);
   if (visit && tab === 'shop') q.set('visit', visit);

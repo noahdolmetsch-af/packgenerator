@@ -16,6 +16,8 @@ import { openData, settle } from './settle.js';
 
 // SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
 const openGroups = async (page) => {
+  // Tempo (19.10.2026): the page loads on its first visit; wait until its groups are there
+  await page.locator('main section.sfold').first().waitFor();
   const shut = page.locator('main section.sfold > details:not([open]) > summary');
   while (await shut.count()) await shut.first().click();
 };
@@ -110,16 +112,19 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(await setsOf(page, 'LX01')).toEqual(['comfort']);
 
   // 2. The Bausteine page: the night blocks, «Auf der Fahrt», no Warm; the check is waiting.
+  // v0.154.0 «Bausteine mehr»: «Auf der Fahrt» is «Auf jeder Fahrt» now (Licht moved to «Je nach Lage»).
   await page.goto('./#/blocks');
   await openGroups(page);
   const main = page.locator('main');
-  await expect(main.getByRole('heading', { name: T('On the ride') })).toBeVisible();
+  await expect(main.getByRole('heading', { name: T('On every ride') })).toBeVisible();
   for (const name of ['Biwak', 'Zelt', 'Hotel/Hütte', 'Reparatur', 'Laden', 'Licht']) await expect(main).toContainText(name);
   await expect(main).not.toContainText('Nacht: Warm');
-  // SN3: the head button reads «Prüfen» (its explain bubble: «Bausteine prüfen» · «zu prüfen»).
-  const check = main.getByRole('link', { name: new RegExp(`^${T('Check|blocks')}`) });
-  await expect(check).toHaveAttribute('data-explain', T('Check building blocks'));
-  await expect(check).toHaveAttribute('data-explain-sub', T('to check|blocks'));
+  // Impeccable runde 2 (Bausteine 2, changed on purpose): the head button reads «Bausteine prüfen»; how many blocks wait
+  // is a link chip under the title («n Bausteine zu prüfen ›»)
+  const check = main.getByRole('link', { name: new RegExp(`^${T('Check building blocks')}`) });
+  await expect(check).toHaveAttribute('href', '#/blocks/check');
+  await expect(main.locator('.bsub a.chk')).toHaveText(/^\d+ Bausteine? zu prüfen ›$/);
+  await expect(main.locator('.bsub a.chk')).toHaveAttribute('href', '#/blocks/check');
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'blocks');
 

@@ -42,13 +42,19 @@ test('Inbox: a filed note stays faint with its target, Undo restores it; with no
   const ids = await open.evaluateAll((li) => li.map((l) => l.dataset.noteId));
   const before = await count(page);
 
-  // File the first one as the app suggests: the sheet, the suggested target, its main button.
+  // File the first one as the app suggests (Impeccable 18.10.2026): the button names the suggested
+  // target and opens its form straight away; «Einfach behalten» files with no form at all.
   const fileFirst = async () => {
-    await open.first().locator('.acts > .btn').click();
-    const sheet = page.getByRole('dialog');
-    await sheet.locator('.targets li.sug button').click();
-    await sheet.locator('.btn.hi').click();
-    await expect(sheet).toBeHidden();
+    const btn = open.first().locator('.acts > .btn');
+    const keep = (await btn.getAttribute('data-target')) === 'keep';
+    const left = await open.count();
+    await btn.click();
+    if (!keep) {
+      const sheet = page.getByRole('dialog');
+      await sheet.locator('.btn.hi').click();
+      await expect(sheet).toBeHidden();
+    }
+    await expect(open).toHaveCount(left - 1);
   };
   await fileFirst();
   await expect(open).toHaveCount(1);

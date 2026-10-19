@@ -9,6 +9,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ready, settle } from './settle.js';
 import { put } from './aktiv-fixture.js';
 import { SEEN_KEY } from '../../src/lib/whatsnew.js';
+import { INTRO_KEY } from '../../src/lib/home/introkt.js';
 // src/lib/maintenance/snapshots.js (SNAP_DB, VERSION_KEY): not imported, it pulls in the app's Svelte state
 const SNAP_DB = 'pack-generator-snapshots';
 const VERSION_KEY = 'version';
@@ -46,7 +47,8 @@ const itemIds = (page) =>
 
 test('a copy before an update, the line in the news banner, and back to the state before', async ({ page, context }) => {
   const errors = await open(page, context);
-  await put(page, { items: [item('test_EL01', 'Test lamp'), item('test_EL02', 'Test charger')] });
+  // the short intro of Heute comes once after an update and dims the page (tested in kacheln-antippbar.spec.js); off here
+  await put(page, { items: [item('test_EL01', 'Test lamp'), item('test_EL02', 'Test charger')], settings: [{ key: INTRO_KEY, value: true }] });
   // simulate an update: this device last started an older version
   await page.evaluate(
     ({ name, key, seen }) =>
@@ -102,6 +104,10 @@ test('App maintenance shows the two Strava bars from the stored numbers', async 
   await settle(page, { sameTrips: false });
   const card = page.locator('[data-section="maintenance"]');
   await expect(card.getByRole('heading', { name: T('App maintenance') })).toBeVisible();
+  // Impeccable (18.10.2026, changed on purpose): folded on Ich, its head counts the hints (85 % of the
+  // 15-minute limit and the AI key with 26 days left)
+  await expect(card.locator('summary')).toContainText(T('{n} hints', { n: 2 }));
+  await card.locator('summary').click();
   await expect(card.locator('[data-bar="short"]')).toContainText(T('{used} of {limit}', { used: 85, limit: 100 }));
   await expect(card.locator('[data-bar="daily"]')).toContainText(T('{used} of {limit}', { used: 400, limit: 1000 }));
   // the AI helper key from the start, 26 days left

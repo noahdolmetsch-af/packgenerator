@@ -9,6 +9,8 @@
   import { db } from '../db.js';
   import { Sparkles } from '@lucide/svelte';
   import SetupFold from './SetupFold.svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
   import { addIdea, toggleIdea, removeIdea, sortIdeas, openIdeas, IDEAS_KEY } from '../hubs.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
@@ -52,6 +54,15 @@
       name,
     });
   }
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): an idea's text can be changed
+  let renaming = $state(null); // the idea
+  async function rename(x, next) {
+    const was = x.text;
+    if (!next || next === was) return;
+    const set = (txt) => write((ideas) => ideas.map((i) => (i.id === x.id ? { ...i, text: txt } : i)));
+    await set(next);
+    offerRename(next.slice(0, 60), () => set(was));
+  }
   const day = (iso) => (iso ? new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 </script>
 
@@ -66,6 +77,7 @@
               <input type="checkbox" checked={!!x.done} onchange={() => toggle(x)} />
               <span><span class="txt">{x.text}</span><small>{day(x.at)}{x.done ? ` · ${t('done|idea')}` : ''}</small></span>
             </label>
+            <button type="button" class="link" aria-label={t('Rename the idea "{text}"', { text: x.text.slice(0, 60) })} onclick={() => (renaming = x)}>{t('Rename')}</button>
             <button type="button" class="link" aria-label={t('Delete the idea "{text}"', { text: x.text.slice(0, 60) })} onclick={() => remove(x)}>{t('Delete')}</button>
           </li>
         {/each}
@@ -77,6 +89,7 @@
     </form>
   </SetupFold>
 </div>
+{#if renaming}<RenameSheet kicker={t('Ideas|bike')} title={t('Rename idea')} value={renaming.text} max={200} onsave={(v) => rename(renaming, v)} onclose={() => (renaming = null)} />{/if}
 
 <style>
   .hint {

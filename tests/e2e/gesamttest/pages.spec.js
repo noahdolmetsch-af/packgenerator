@@ -34,7 +34,8 @@ const CASES = [
   { id: 'today-new-sheet', hash: '#/', act: async (page, T) => tap(await newButton(page, T('New'))) },
   // v0.76.0 «Fünf Orte»: «Ich» (top right) took the place of the «More» sheet
   { id: 'me', hash: '#/me' },
-  { id: 'keys', hash: '#/me', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') })) },
+  // Impeccable (18.10.2026): the shortcuts are one tap deeper, under the row «Help»
+  { id: 'keys', hash: '#/me', act: async (page, T) => (await tap(page.locator('main summary').filter({ hasText: T('Help|me') })), tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }))) },
   {
     id: 'today-search',
     hash: '#/',
@@ -99,11 +100,17 @@ const CASES = [
   { id: 'debrief-running', hash: `#/debrief/${TRIP.running}` },
   { id: 'learnings', hash: '#/debrief/learnings' },
   { id: 'pace', hash: '#/debrief/pace' },
+  // v0.97.0 «Skitouren»: Touren › Skitouren and its pages, with the fixture's ski trip
+  { id: 'ski', hash: '#/ski' },
+  { id: 'ski-check', hash: `#/ski/check/${TRIP.ski}` },
+  { id: 'ski-start', hash: `#/ski/start/${TRIP.ski}` },
+  { id: 'ski-care', hash: '#/ski/care' },
+  { id: 'ski-after', hash: `#/ski/after/${TRIP.ski}` },
   { id: 'logbook', hash: '#/debrief/logbook' },
   { id: 'rides', hash: '#/debrief/ride' },
   { id: 'ride-detail', hash: '#/debrief/ride/ride-gtp-01' },
   { id: 'gear', hash: '#/gear' },
-  { id: 'gear-wishlist', hash: '#/gear', act: async (page, T) => tap(page.getByRole('button', { name: new RegExp(`^${T('Wishlist')}`) }).or(page.getByRole('tab', { name: new RegExp(`^${T('Wishlist')}`) }))) },
+  { id: 'gear-wishlist', hash: '#/gear?view=wish' }, // Impeccable (18.10.2026): the tab «Einkauf», no row in «Ansichten» any more
   {
     id: 'gear-item',
     hash: '#/gear?q=Multitool',

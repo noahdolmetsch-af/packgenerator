@@ -14,6 +14,8 @@ import { openData, settle } from './settle.js';
 
 // SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
 const openGroups = async (page) => {
+  // Tempo (19.10.2026): the page loads on its first visit; wait until its groups are there
+  await page.locator('main section.sfold').first().waitFor();
   const shut = page.locator('main section.sfold > details:not([open]) > summary');
   while (await shut.count()) await shut.first().click();
 };
@@ -91,7 +93,7 @@ test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ p
   const errors = await start(page, context, info);
   await page.goto('./#/gear');
   // The quiet line counts the 3 items, as the head and the view «Unweighed» (v0.137.0 DK2); the bike waits in the queue too.
-  const row = page.getByRole('button', { name: T('{n} without weight · weigh', { n: 3 }) });
+  const row = page.getByRole('button', { name: T('{n} without weight · weigh now', { n: 3 }) });
   await expect(row).toBeVisible();
   await shot(page, info, 'material-wiegen-zeile');
   await row.click();

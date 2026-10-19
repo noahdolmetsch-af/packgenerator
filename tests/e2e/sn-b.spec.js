@@ -54,17 +54,22 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   expect((await pillN(0)) + (await pillN(1)), 'Abgeschlossen + Bewertet = the trips of the period').toBe(trips);
   await expect(page.locator('.hub .head .page-sub')).toHaveText(`${T('12 months')} · ${T('{n} trips ridden', { n: trips })}`);
 
-  // the trip whose debrief is missing: one main button «Bewerten», a quiet «Nicht gefahren»
+  // the trip whose debrief is missing: one main button «Rückblick schreiben» (Impeccable Rückblick 2), a quiet «Nicht gefahren»
   const hero = page.locator('[data-open-debrief]');
   const name = (await hero.locator('.hname').textContent()).trim();
   expect(name).toMatch(/^test_data_gtp_/);
-  await expect(hero.getByRole('link', { name: `${T('Rate|debrief')}: ${name}` })).toBeVisible();
+  await expect(hero.getByRole('link', { name: new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): ${esc(name)}$`) })).toBeVisible();
   await expect(hero.locator('[data-state="done"]')).toBeVisible();
   await expect(page.locator('.hub .btn.hi:visible')).toHaveCount(1);
   await shot(page, info, 'SN2-rueckblick');
 
   // the long table is open under «Alle Kennzahlen» as before (answer 2b) and can be folded
   const fold = page.getByRole('button', { name: T('All figures') });
+  // 0.159.1 (Noah 14.10.2026 «a»): on a phone the table starts closed, one tap opens it
+  if (info.project.name === 'phone') {
+    await expect(fold).toHaveAttribute('aria-expanded', 'false');
+    await fold.click();
+  }
   await expect(fold).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.kz')).toBeVisible();
   await expect(page.locator('.kz').getByRole('rowheader', { name: T('Distance') })).toBeVisible();
@@ -74,6 +79,8 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   await expect(page.locator('.kz')).toBeVisible();
 
   // «Touren im Vergleich»: every row with its state pill (on a phone under the name)
+  // 0.159.1 (UI-Regeln Teil 2): on a phone it is a closed line first
+  if (info.project.name === 'phone') await page.locator('[data-group="rv-compare"] .ls-gh').click();
   const rows = page.locator('#compare table.st tbody tr');
   expect(await rows.count()).toBeGreaterThan(1);
   const pillIn = info.project.name === 'phone' ? '.ph-only [data-state]' : 'td [data-state]';

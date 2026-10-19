@@ -151,7 +151,7 @@ for (const lang of ['en', 'de']) {
     await fold.locator('button.state').first().click();
     await expect(fold.locator('button.state.unused')).toHaveCount(1);
     await page.getByRole('button', { name: T('Done|debrief') }).click();
-    await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
+    await expect(page.locator('[data-saved]')).toContainText(T('Saved on {date}', { date: '' }).trim());
     // v0.40.0 (Noah 3a): one list of past trips with the debrief state.
     await page.goto('./#/pack/past');
     // v0.49.0 R1: one table of past trips.

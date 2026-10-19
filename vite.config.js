@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
+import { sizeGuard } from './scripts/size-guard.mjs';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
-// A Vercel preview (one per pull request, so Noah can test before he merges) serves it from the root.
-const vercel = !!process.env.VERCEL;
+// A test link (a Vercel preview per pull request, or a Cloudflare Pages preview, so Noah can test
+// before the merge) serves it from the root. Cloudflare Pages sets CF_PAGES=1 during its build.
+const vercel = !!process.env.VERCEL || !!process.env.CF_PAGES;
 const base = vercel ? '/' : '/packgenerator/';
 
 import pkg from './package.json' with { type: 'json' };
@@ -20,7 +22,7 @@ export default defineConfig({
   // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest
   // (public/apps/<key>/), so the phone installs it with its own icon; same bundle, same data.
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       input: {
         main: 'index.html',
         meditation: 'apps/meditation/index.html',
@@ -29,10 +31,17 @@ export default defineConfig({
         // Termine buchen (BU2 + BU3): the page the people who book open, without the app
         buchen: 'buchen/index.html',
       },
+      output: {
+        // Tempo «Seiten später laden» (19.10.2026): pages load on their first visit (App.svelte PAGES), the rest
+        // is split automatically. Only the icons go into one file, else each icon would be its own small file.
+        codeSplitting: { groups: [{ name: 'icons', test: /node_modules[\\/]@lucide/ }] },
+      },
     },
   },
   plugins: [
     svelte(),
+    // Wächter: no JavaScript file over 3 MB (the offline store keeps up to 6 MiB per file)
+    sizeGuard(),
     VitePWA({
       registerType: 'autoUpdate', // a new version replaces the old one on the next start
       includeAssets: ['icons/*.svg', 'icons/*.png'],
@@ -64,7 +73,8 @@ export default defineConfig({
             title: 'title',
             text: 'text',
             url: 'url',
-            // P3b «Abgleich Handy–Computer»: a backup file (.json) shared to the app opens «Check import»
+            // Noah 19.10.2026 «2b»: a shared picture always goes to «Dokumente» (field "doc"); a TWINT screenshot
+            // is chosen in Rechnungen instead («Choose a TWINT screenshot», QR6). P3b «Abgleich Handy–Computer»: a backup file (.json) shared to the app opens «Check import»
             files: [
               { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
               { name: 'backup', accept: ['.json', 'application/json'] },

@@ -780,6 +780,7 @@
   --pc-gear: #8a5f12;
   --pc-bikes: #2d6aa3;
   --pc-active: #7a4fae;
+  --pc-week: #3b5f8f; /* «Woche planen» (WP1): its own place since Noah 15.10.2026 «1a» */
   --pc-me: #14232d;
   --pc-ink: #ffffff; /* an icon or a word on the place colour */
   /* the dark sidebar: a lighter row, a line between groups */
@@ -792,6 +793,7 @@
   --pc-gear: #dcae4f;
   --pc-bikes: #79b0e6;
   --pc-active: #b596e3;
+  --pc-week: #8fb2e0;
   --pc-me: #c9d6dd;
   --pc-ink: #0e171d;
 }
@@ -830,14 +832,28 @@
 :root[data-place='gear'] {
   --pc: var(--pc-gear);
 }
-:root[data-place='bikes'] {
+:root[data-place='bikes'],
+:root[data-place='equipment'] {
+  /* AU1: Ausrüstung shares the colour of Velos (one slot in the bottom bar) */
   --pc: var(--pc-bikes);
 }
 :root[data-place='active'] {
   --pc: var(--pc-active);
 }
+:root[data-place='week'] {
+  --pc: var(--pc-week);
+}
 :root[data-place='me'] {
   --pc: var(--pc-me);
+}
+/* «Woche planen» (WP1): one colour per kind of entry, the same in the week and on Heute; never colour
+   alone (each entry has its word). Sport teal, dates blue, to-dos ochre, holidays violet, bike service orange. */
+:root {
+  --wk-sport: var(--l1);
+  --wk-date: var(--l3);
+  --wk-todo: var(--l2);
+  --wk-away: var(--l4);
+  --wk-bike: var(--warn);
 }
 :root,
 :root[data-place] {

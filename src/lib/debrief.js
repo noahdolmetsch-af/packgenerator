@@ -15,6 +15,7 @@
 import { isTestTrip, isArchived } from './testname.js';
 import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
+import { own } from './ownlive.svelte.js';
 import { NEVER_USED_MIN } from './neverused.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
@@ -192,7 +193,7 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   // Leave at home: warm-weather clothing gets a cold limit, standard items become optional.
   if (debrief.weather === 'warmer') {
     for (const i of unused.filter((x) => CLOTHING.includes(x.category) && typeof x.coldBelow !== 'number' && !isWorn(x)))
-      out.push({ id: `cold:${i.id}`, group: 'home', label: t('{name}: only below {n} °C', { name: nameOf(i), n: WARM_LIMIT }), detail: t('Added by the layers when it gets cold, otherwise it stays at home.') });
+      out.push({ id: `cold:${i.id}`, group: 'home', label: t('{name}: only below {n} °C', { name: nameOf(i), n: own.v.coldC }), detail: t('Added by the layers when it gets cold, otherwise it stays at home.') });
   }
   // Answer 8b: only after the third trip without using it (this one counts).
   const before = unusedTimes(history, trip.id);
@@ -253,7 +254,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
 
   for (const id of on) {
     const [kind, key] = id.split(/:(.*)/s);
-    if (kind === 'cold' && byId[key]) edit(key, { coldBelow: WARM_LIMIT });
+    if (kind === 'cold' && byId[key]) edit(key, { coldBelow: own.v.coldC });
     if (kind === 'optional' && byId[key]) edit(key, leaveHomeFields(byId[key]));
     if (kind === 'wish') {
       const m = debrief.missing.find((x) => x.id === key);
@@ -332,9 +333,11 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
       (recentAt(l) && today - new Date(recentAt(l)) < 30 * 864e5 ? 100 : 0)
     );
   };
+  // «Skitouren»: a learning of one area (l.area, e.g. ski) only shows for trips of that area
+  const area = trip?.domain || 'bikepacking';
   // «Inspiration» UC2-2: a packing rule from your inspiration has its own hint (inspiration/PackHints)
   return learnings
-    .filter((l) => l.topic !== 'Open question' && !l.inspo && !l.archivedAt)
+    .filter((l) => l.topic !== 'Open question' && !l.inspo && !l.archivedAt && (!l.area || l.area === area))
     .map((l) => ({ l, s: score(l) }))
     .sort((a, b) => b.s - a.s || String(a.l.id).localeCompare(String(b.l.id), undefined, { numeric: true }))
     .slice(0, n)

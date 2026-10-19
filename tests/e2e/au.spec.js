@@ -98,9 +98,12 @@ test('A-U1: after an update a calm banner on Today, no window; View opens the ne
 
 test('A-U2: a page that throws shows the error page with three ways, never white; the data stays', async ({ page, context }, info) => {
   // Look (Ich › Darstellung) throws on purpose: one text call in the built app is replaced by a throw
-  // since v0.132.0 «Kleine Apps» the app code is the chunk shared by the four pages: assets/main-….js (before: index-….js)
-  await context.route(/\/assets\/(index|main)-[\w-]+\.js$/, async (route) => {
-    const res = await route.fetch();
+  // since v0.132.0 «Kleine Apps» the app code is the chunk shared by the four pages: assets/main-….js (before: index-….js);
+  // since Tempo «Seiten später laden» (19.10.2026) each page has its own file: change the one that has the text
+  await context.route(/\/assets\/[\w~-]+\.js$/, async (route) => {
+    // background loads (pages loading ahead) can still run when the test ends: then there is nothing to change
+    const res = await route.fetch().catch(() => null);
+    if (!res) return;
     const body = (await res.text()).replace(/[\w$]+\(`Sage is new; the earlier ones stay`\)/, `(()=>{throw new Error(${JSON.stringify(BOOM)})})()`);
     await route.fulfill({ response: res, body });
   });

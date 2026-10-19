@@ -1,0 +1,372 @@
+/* v0.97.0 «Skitouren»: the shared pieces of the ski pages (#/ski …), tokens only. The same calm
+   vocabulary as the meditation page (v0.86.0 «Einfach-Muster»): a head, one main card with the one
+   main button, rows with an icon and a chevron, «Mehr» folded. Prefixed sk- so nothing clashes. */
+.sk {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1180px;
+  margin: 0 auto;
+  min-width: 0;
+}
+.sk-back {
+  margin: 0;
+}
+.sk-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: var(--fs-small);
+}
+.sk-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.sk-head > div {
+  min-width: 0;
+}
+.sk-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--hi-soft);
+  color: var(--hi);
+}
+.sk-h1 {
+  margin: 0;
+  font: 800 var(--fs-page)/1.05 var(--font-brand);
+  overflow-wrap: break-word;
+}
+.sk-sub {
+  margin: 4px 0 0;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.sk-pad {
+  padding: 16px 18px;
+  min-width: 0;
+}
+.sk-kicker {
+  margin: 0;
+  color: var(--hi);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sk-title {
+  margin: 4px 0 0;
+  font: 800 var(--fs-section)/1.1 var(--font-brand);
+  overflow-wrap: break-word;
+}
+.sk-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.sk-bar {
+  display: block;
+  height: 10px;
+  margin: 6px 0 0;
+  border-radius: 5px;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.sk-bar > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.sk-go {
+  width: 100%;
+  min-height: 60px;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 14px;
+  font: 700 var(--fs-sub)/1.2 var(--font-body);
+  text-decoration: none;
+}
+.sk-quiet {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.sk-center {
+  text-align: center;
+}
+.sk-rows {
+  margin: 0;
+  padding: 4px 18px;
+  list-style: none;
+}
+.sk-rows > li + li {
+  border-top: 1px solid var(--line);
+}
+.sk-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+a.sk-row:visited {
+  color: var(--ink);
+}
+.sk-row > svg {
+  flex: none;
+  color: var(--ink-2);
+}
+.sk-ri {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.sk-ri.q {
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+.sk-rt {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+.sk-rt b {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+.sk-rt small {
+  display: block;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.sk-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.sk-cols > div {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+@media (min-width: 960px) {
+  .sk-cols {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+  .sk-cols.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+/* a group card: the name and the count, then the rows */
+.sk-gh {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0 0 4px;
+}
+.sk-gh h2 {
+  margin: 0;
+  font: 600 var(--fs-sub)/1.3 var(--font-body);
+}
+.sk-gh span {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.sk-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sk-list > li + li {
+  border-top: 1px solid var(--line);
+}
+/* one tickable row: a big square, the text; the whole row is the button */
+.sk-tick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 2px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sk-box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--input);
+  color: var(--hi-ink);
+}
+.sk-box.big {
+  width: 36px;
+  height: 36px;
+}
+[aria-checked='true'] > .sk-box,
+[aria-pressed='true'] > .sk-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.sk-tt {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.sk-tt b {
+  display: block;
+  font-weight: 600;
+}
+.sk-tt small {
+  display: block;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+/* a learning under a group */
+.sk-tip {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--warn-soft);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.sk-tip > svg {
+  flex: none;
+  color: var(--warn);
+}
+/* chips (turnaround time, who came along, what to change) */
+.sk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 var(--fs-body)/1.2 var(--font-body);
+  cursor: pointer;
+}
+.sk-chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ok);
+  font-weight: 600;
+}
+.sk-chip.add {
+  border-style: dashed;
+  color: var(--ink-2);
+}
+.sk-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.sk-field > span {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.sk-grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.sk-note {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: var(--radius-card);
+  background: var(--warn-soft);
+}
+.sk-note h2 {
+  margin: 0;
+  font: 600 var(--fs-sub)/1.3 var(--font-body);
+}
+.sk-text {
+  min-height: 84px;
+  resize: vertical;
+}
+.sk-later {
+  width: 100%;
+  justify-content: center;
+  min-height: 48px;
+  border-color: transparent;
+  background: none;
+  color: var(--ink-2);
+}
+/* the line after a save, with Undo (like bike care) */
+.sk-notice {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(560px, calc(100vw - 32px));
+  margin: 0;
+  padding: 8px 10px 8px 14px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--fs-small);
+}
+.sk-notice button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  color: var(--paper);
+  font: 600 var(--fs-small) var(--font-body);
+  cursor: pointer;
+}
+@media (max-width: 719px) {
+  .sk-notice {
+    bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}

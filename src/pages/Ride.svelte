@@ -324,6 +324,8 @@
     });
   }
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
+  // Impeccable Unterwegs 3: «Entfernen» sits in the «…» of each note. Paket C keeps the app-wide delete
+  // question with 4 s «Rückgängig» of «Rückmeldungen» (Paket D) instead of an own toast.
   async function dropNote(n) {
     if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const name = String(n.text ?? '').slice(0, 40);
@@ -354,6 +356,18 @@
       name,
     });
   }
+  // Impeccable Unterwegs 3: the newest three notes, the rest behind «Alle {n} Notizen».
+  const NOTES_SHOWN = 3;
+  let allNotes = $state(false);
+  const shownNotes = $derived(allNotes || notes.length <= NOTES_SHOWN ? notes : notes.slice(-NOTES_SHOWN));
+  // On a phone a long press on a note opens its «…» too.
+  const noteMenus = {};
+  let pressTimer;
+  const pressStart = (key) => {
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => noteMenus[key]?.show(), 550);
+  };
+  const pressEnd = () => clearTimeout(pressTimer);
   const time = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 
   /* ---------- v0.29.0 (Noah 7a): the block of now ---------- */
@@ -404,6 +418,7 @@
   // («Geplant · unterwegs, Tag 2 von 3») instead of a kicker line of its own.
   const running = $derived(!!trip && tripStarted && !trip.finished);
   const todayIdx = $derived(trip ? Math.max(0, Math.min(days - 1, dayIndex(trip, today))) : 0);
+  const bcCompact = $derived(running && todayIdx >= 1);
   const dayOf = $derived(days > 1 ? t('Day {n} of {total}', { n: todayIdx + 1, total: days }) : '');
   // SN1 (question 1a): before the last day the main button is «Notiz»; «Tour beenden» moves into «…»
   // and becomes the main button on the last day (mainStep 'last').
@@ -527,7 +542,9 @@
        tonight's charging and «Mehr» (what is where, the evening, the stage). -->
   <div class="tp-grid2 r">
     <div class="col">
-      {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
+      <!-- Impeccable (Noah 18.10.2026): from day 2 of a running trip the open base check
+           is one quiet line, so the days and «Jetzt» come into the first screen. -->
+      {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
       <!-- Paket K #280 + #206 «Bereit für heute?» with the listening tip, on the tour day -->
       {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{/await}{/if}
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
@@ -551,7 +568,7 @@
               <li><Shirt size={20} aria-hidden="true" /><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
               <li><Utensils size={20} aria-hidden="true" /><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
               <li><Droplet size={20} aria-hidden="true" /><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L', { n: num(nowB.drinkL) })}</span>{#if refillText(nowB)}<small>{refillText(nowB)}</small>{/if}</div></li>
-              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<small>{names(bp.lights)}</small>{/if}</div></li>
+              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<details class="lamps"><summary><small>{tn(bp.lights.length, '{n} lamp with you', '{n} lamps with you')}</small><ChevronRight class="chev" size={14} aria-hidden="true" /></summary><small class="lamplist">{names(bp.lights)}</small></details>{/if}</div></li>
             </ul>
           {/if}
           {#if nextB}
@@ -676,10 +693,13 @@
           <p class="ok tp-small" role="status">{noteMsg}</p>
           {#if notes.length}
             <ul class="notes">
-              {#each notes as n (n.key)}
-                <li><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><button type="button" class="tp-link" onclick={() => dropNote(n)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
+              {#each shownNotes as n (n.key)}
+                <li ontouchstart={() => pressStart(n.key)} ontouchend={pressEnd} ontouchmove={pressEnd} ontouchcancel={pressEnd}><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><MoreActions bind:this={noteMenus[n.key]} small title={n.text} label={t('More for this note|ride')} actions={[{ name: t('Remove'), explain: t('with Undo'), icon: X, run: () => dropNote(n) }]} /></li>
               {/each}
             </ul>
+            {#if notes.length > NOTES_SHOWN}
+              <button type="button" class="tp-link allnotes" aria-expanded={allNotes} onclick={() => (allNotes = !allNotes)}>{allNotes ? t('Show the newest 3 only') : t('All {n} notes', { n: notes.length })}<ChevronRight class="chev" size={16} aria-hidden="true" /></button>
+            {/if}
           {/if}
         </div>
       </section>
@@ -826,6 +846,14 @@
   .tiles li > :global(svg) { margin-top: 2px; color: var(--ink-2); }
   .tiles small { display: block; font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word; }
   .tiles .val { font-weight: 600; }
+  /* Impeccable Unterwegs 2: the lamps behind one line, so the four tiles stay the same size */
+  .lamps summary { display: flex; align-items: center; gap: 2px; min-height: 44px; margin: -8px 0 -12px; cursor: pointer; list-style: none; color: var(--ink-2); }
+  .lamps summary::-webkit-details-marker { display: none; }
+  .lamps summary small { text-decoration: underline; text-underline-offset: 3px; }
+  .lamps :global(.chev) { flex: none; transition: transform 0.15s; }
+  .lamps[open] :global(.chev) { transform: rotate(90deg); }
+  .lamps summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .lamplist { margin-top: 8px; }
   /* a very small phone: one tile per row, so no word breaks */
   @media (max-width: 379px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
   .do { list-style: none; margin: 0; padding: 0; }
@@ -857,7 +885,7 @@
   .notes li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 4px 0; border-top: 1px solid var(--line); }
   .notes .when { flex: none; font-size: var(--fs-tiny); font-weight: 600; }
   .notes li span { min-width: 0; overflow-wrap: break-word; }
-  .notes .tp-link { min-height: 44px; }
+  .allnotes { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin-top: 4px; }
   @media (max-width: 479px) {
     .notes li { grid-template-columns: minmax(0, 1fr) auto; padding-top: 8px; }
     .notes .when { grid-column: 1 / -1; }

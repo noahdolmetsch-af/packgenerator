@@ -61,7 +61,6 @@ export default {
 
   // Service plan
   'Intervals are suggestions': 'Intervalle sind Vorschläge',
-  Interval: 'Intervall',
   'Last work': 'Letzte Arbeit',
   'Since then': 'Seither',
   'since then {since}': 'seither {since}',

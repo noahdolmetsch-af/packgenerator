@@ -1,5 +1,7 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
+  import { offerCare } from '../remind/ask.svelte.js';
   import HintCard from '../pageinfo/HintCard.svelte';
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
@@ -21,7 +23,7 @@
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import { tickPrep, untickPrep } from './prep.js';
-  import { shopSkip } from './last.js';
+  import { orderOf as orderFor } from './orders.js';
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
   import ProblemList from './ProblemList.svelte';
@@ -36,8 +38,9 @@
   import PartDialog from './PartDialog.svelte';
   import VisitDialog from './VisitDialog.svelte';
   import OrderDialog from './OrderDialog.svelte';
-  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
+  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice } from '../workshop.js';
   import { hasBike } from '../domains.js';
+  import { daysFrom } from '../today.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, eventPrep } from '../readiness.js';
 
@@ -117,11 +120,9 @@
   );
   const checks = $derived(
     views.map((b) => {
-      const tyres = tyreSetup(b, visits);
-      // N15: one order for the shop, for this bike's next trip (or what is due today).
-      const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
-      // v0.31.0: only what I do not usually do myself (care/last.js shopSkip).
-      const order = workshopOrder(b, trip, tasks, visits, tyres, today, { skip: shopSkip(b) });
+      // N15: one order for the shop, for this bike's next trip (or what is due today); v0.31.0: only what
+      // I do not usually do myself. Impeccable (Velopflege 3): the same order as in Workshop & receipts.
+      const { tyres, order, orderTrip: trip } = orderFor(b, $tripsQ ?? [], tasks, visits, today);
       const care = bikeCare(b, { tasks, visits, today });
       return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip, care };
     }),
@@ -208,6 +209,8 @@
       } else item = await wish(view, key, e.model);
     }
     saved(view, [key], e, { bikeId: bike.id, prev, itemId: item?.id ?? null });
+    // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): after «Kette geölt» once «Wieder erinnern, wenn es fällig ist?»
+    if (key === 'chain' && e.action === 'service') offerCare(bike, 'chain');
   }
   async function undoSave() {
     const u = $state.snapshot(notice?.undo); // plain data: Dexie cannot store a state proxy
@@ -364,6 +367,10 @@
   const tripsShown = $derived(openC ? trips.filter((x) => x.trip.bikeId === openC.bike.id) : trips);
   const next = $derived(tripsShown[0] ?? null);
   const later = $derived(tripsShown.slice(1));
+  // Impeccable (18.10.2026, Velopflege 1): a trip that starts in the next 7 days stands on top of the
+  // page (above «Due now»), not after the whole overview.
+  const soonDays = $derived(next ? daysFrom(today, next.trip.startDate) : null);
+  const nextSoon = $derived(soonDays != null && soonDays <= 7);
   // v0.22.0 (AP06): #/bikes?tab=care&trip=<id> (Home, Pack) goes to that trip's preparation.
   let laterOpen = $state(false);
   let wentTo = null;
@@ -395,13 +402,15 @@
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-    {#if bikes.length}<HintCard page="care" />{/if}
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+    {#if bikes.length}<HintCard page="care" intro="pflege" />{:else if $bikesQ}<AreaIntro place="pflege" />{/if}
     {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
   {/if}
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else}
+    {#if next && nextSoon}{@render trip(next, soonDays)}{/if}
     {#if !openC}
     <CareOverview
       {checks}
@@ -419,10 +428,10 @@
     />
     {/if}
 
-    {#snippet trip(x)}
-      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
+    {#snippet trip(x, soon = null)}
+      <TripCare {soon} trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
     {/snippet}
-    {#if next}{@render trip(next)}{/if}
+    {#if next && !nextSoon}{@render trip(next)}{/if}
     {#if later.length}
       <div class="folds"><Fold label={t('Later trips')} summary={later.map((x) => x.trip.title).join(' · ')} bind:open={laterOpen}>{#each later as x (x.trip.id)}{@render trip(x)}{/each}</Fold></div>
     {/if}

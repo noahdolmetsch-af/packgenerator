@@ -105,8 +105,10 @@ export function litreWarning(zone, itemsById) {
     need += v * (e.qty || 1);
     known++;
   }
-  need = Math.round(need * 10) / 10;
-  return known && need > cap ? { need, cap, known, count: zone.entries.length } : null;
+  // Taschen-Setups (14.10.2026): compare before rounding, so a 0.75 L bottle in a 0.75 L cage is not «over 0.75 L».
+  const over = need > cap + 1e-9;
+  need = Math.round(need * 100) / 100;
+  return known && over ? { need, cap, known, count: zone.entries.length } : null;
 }
 
 /** The bag record that makes clothing a worn bag (Noah 4a): one per item, on Back. */

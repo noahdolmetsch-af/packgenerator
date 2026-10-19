@@ -12,6 +12,8 @@ import { openRow } from './debrief-rows.js';
 
 // SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
 const openGroups = async (page) => {
+  // Tempo (19.10.2026): the page loads on its first visit; wait until its groups are there
+  await page.locator('main section.sfold').first().waitFor();
   const shut = page.locator('main section.sfold > details:not([open]) > summary');
   while (await shut.count()) await shut.first().click();
 };
@@ -48,8 +50,8 @@ const shot = async (page, info, name, fullPage = false) => {
   if (process.env.V040_SHOTS) await page.screenshot({ path: `${process.env.V040_SHOTS}/${name}-${info.project.name}.png`, fullPage });
 };
 
-// v0.48.0: the Inbox is the «Eingang»: one light button «Ablegen» per entry, the app's suggestion
-// under the text, Delete behind •••; the targets are in the sheet (tests/e2e/v048.spec.js).
+// v0.48.0: the Inbox is the «Eingang»: one light button per entry, since Impeccable (18.10.2026) named by
+// the app's suggestion; «File elsewhere …» and Delete behind •••; the targets are in the sheet (tests/e2e/v048.spec.js).
 test('Inbox: one light button per note, the rest behind •••, the suggestion under the text', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
@@ -58,11 +60,12 @@ test('Inbox: one light button per note, the rest behind •••, the suggestio
   await expect(page.getByRole('group', { name: T('Show') }).getByRole('button', { name: new RegExp(T('To file')) })).toHaveText(`${T('To file')} · 2`);
   const note = page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` });
   await expect(note.locator('.acts > .btn')).toHaveCount(1);
-  await expect(note.locator('.acts > .btn')).toHaveText(T('File'));
+  // Impeccable (18.10.2026, changed on purpose): the button names the app's suggestion
+  await expect(note.locator('.acts > .btn')).toHaveText(T('File as bike problem'));
   await expect(note.locator('.btn.hi')).toHaveCount(0);
-  await expect(note.locator('.sug')).toContainText(T('Suggestion: {what}', { what: T('Problem on a bike') }));
   // v0.117.0 «Knöpfe neu» (N2, changed on purpose): «…» lists its actions with an explanation each
   await note.getByLabel(T('More for this note')).click();
+  await expect(page.getByRole('menuitem', { name: new RegExp(`^${T('File elsewhere …')}`) })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'inbox');

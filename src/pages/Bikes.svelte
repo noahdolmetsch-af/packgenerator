@@ -5,7 +5,9 @@
    * the back button and a reload come back to the same place. The old #/care lands on Care.
    * v0.78.0 «Fünf Orte» 2: the tabs are the place's tabs on top (nav/PlaceTabs), with Masse.
    */
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { parseBikesHash, bikesHash } from '../lib/bikes.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
@@ -18,6 +20,8 @@
   import SheetView from '../lib/bikes/SheetView.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import RigTab from '../lib/bikes/RigTab.svelte';
+  import GarminPages from '../lib/bikes/GarminPages.svelte';
+  import GarminPage from '../lib/bikes/GarminPage.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import { lastBikeChoice, chooseBike } from '../lib/lastchoice.js';
 
@@ -31,7 +35,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back, page: route.page });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -49,12 +53,15 @@
   });
   const shownBike = $derived(route.bike ?? lastBike);
   const opened = () => (route = { ...route, open: false });
+  // «Garmin-Seiten»: the Edge chosen on the pages list stays while you open a page and come back
+  let garminDevice = $state('1040');
 </script>
 
 <div class="bikes">
   <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
        equipment, compare) has its own path back and title (VeloHead). -->
-  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
+  <!-- Impeccable Runde 2 (Setup 1): Setup has its own head «‹ Velo › {bike} › Setup» too -->
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin', 'rig'].includes(route.tab)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
     </header>
@@ -72,8 +79,15 @@
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
     <Equipment bikeId={shownBike} onbike={pickBike} />
   {:else if route.tab === 'rig'}
-    <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log -->
-    <RigTab bikeId={shownBike} view={route.view ?? null} onbike={pickBike} />
+    <!-- UC3 (Noah 14.10.2026 «UC3-1-UC3-3 freigeben»): Setup per bike; &view=bags the bag plan, &view=log the setup log;
+         Taschen-Setups TS2–TS4: &view=setup one setup, &view=compare two side by side, &view=table all -->
+    <RigTab bikeId={shownBike} view={route.view ?? null} setupId={route.setup ?? null} a={route.a ?? null} b={route.b ?? null} onbike={pickBike} />
+  {:else if route.tab === 'garmin' && route.page}
+    <!-- «Garmin-Seiten» GA-A3 (Noah 14.10.2026): one model page in detail -->
+    {#key route.page}<GarminPage bikeId={shownBike} profileId={route.view ?? null} pageId={route.page} />{/key}
+  {:else if route.tab === 'garmin'}
+    <!-- «Garmin-Seiten» GA-A2 (Noah 14.10.2026): the model pages of one Garmin profile of a bike -->
+    <GarminPages bikeId={shownBike} profileId={route.view ?? null} bind:device={garminDevice} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={shownBike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'strava'}
@@ -88,8 +102,10 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
+    <AreaIntro place="velos" />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
-    <PageTiles page="bikes" />
+    <PinnedLists place="bikes" />
+    <PageTiles page="bikes" extrasHint />
   {/if}
 </div>
 

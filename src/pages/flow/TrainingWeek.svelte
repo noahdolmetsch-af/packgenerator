@@ -19,6 +19,7 @@
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
+  import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
 
   let { acts = [] } = $props();
 
@@ -80,6 +81,8 @@
   const weeks = $derived(
     Array.from({ length: 6 }, (_, i) => shiftDay(monday, (i - 5) * 7)).map((m) => ({ m, kw: isoWeek(m), ...weekNumbers(acts, plan, m, zones.bounds) })),
   );
+  // Impeccable runde 2 (onboard): six empty weeks get one sentence and the way to Strava instead of an empty chart
+  const backEmpty = $derived(weeks.every((w) => !w.secs && !w.planned));
   const top = $derived(Math.max(1, ...weeks.map((w) => Math.max(w.secs / 3600, w.planned / 60, goal?.hours ?? 0))));
   const baseShare = $derived.by(() => {
     const z = nums.zones.reduce((s, x) => s + x, 0);
@@ -113,17 +116,20 @@
       <button type="button" class="btn sm" onclick={openGoal}>{t('change')}</button>
     {:else}
       <div class="gt">
-        <h2 id="goal-h" class="gh">{t('A goal for your training?')}</h2>
-        <p>{t('Hours per week, the share in Z1–Z2 and a day: all optional.')}</p>
+        <!-- Impeccable runde 2 (clarify): an hour goal, said apart from the goals under «Ziele» (how often) -->
+        <h2 id="goal-h" class="gh">{t('An hour goal for your training?')}</h2>
+        <p>{t('Hours per week, the share in Z1–Z2 and a day. Unlike under «Goals», the time counts here, not how often. All optional.')}</p>
       </div>
       <button type="button" class="btn sm" onclick={openGoal}>{t('Set a goal')}</button>
     {/if}
   </section>
 
   <div class="lay">
-    <Sec id="plan-h" title={t('Plan the week')} sub={goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}>
+    <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
+    <Sec id="plan-h" title={t('Plan the week')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
+          <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
           <button type="button" class="ib" aria-label={t('Week before')} onclick={() => ((monday = shiftDay(monday, -7)), (form = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
           {#if monday !== mondayOf(today)}<button type="button" class="btn btn-link sm" onclick={() => ((monday = mondayOf(today)), (form = null))}>{t('This week|plan')}</button>{/if}
           <button type="button" class="ib" aria-label={t('Week after')} onclick={() => ((monday = shiftDay(monday, 7)), (form = null))}><ChevronRight size={18} aria-hidden="true" /></button>
@@ -169,12 +175,16 @@
           {/each}
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
-        <p class="hint">{t('Dashed = planned, green = done (comes by itself from Strava). Tap a planned one to change it.')}</p>
+        {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
       </div>
     </Sec>
 
     <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')} more={{ href: '#/flow/review', label: t('Week in review') }}>
       <div class="card back" data-section="look-back">
+        {#if backEmpty}
+          <p class="none" data-back-empty>{t('No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.')}</p>
+          <a class="btn sm" href={STRAVA_HASH} data-back-strava>{strava.key ? t('To Strava') : t('Connect Strava')}</a>
+        {:else}
         <ol class="bars" aria-label={t('Hours per week, last six weeks')}>
           {#each weeks as w (w.m)}
             <li data-week={w.kw} aria-label={t('Week {kw}: {a} h done, {b} h planned', { kw: w.kw, a: hmm(w.secs), b: hours(w.planned) })}>
@@ -191,6 +201,7 @@
         </ol>
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
+        {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>
     </Sec>
@@ -280,6 +291,18 @@
     justify-content: flex-end;
     align-items: center;
     gap: 4px;
+  }
+  .rg {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .none {
+    margin: 4px 0 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
   }
   .days {
     margin: 0;

@@ -21,6 +21,8 @@
   import { localDay } from '../localday.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import { X, Check, ArrowUpRight, BookOpen, Plus, TriangleAlert, Ellipsis, Sun, Route, NotebookPen } from '@lucide/svelte';
+  import { flip } from '../ui/flip.js';
+  import { laterSort, glide } from '../ui/latersort.svelte.js';
   import './trip.css';
 
   let { trip, kind = 'eve', items = [], trips = [], debriefs = [], standard = null, notes = 0, debriefDone = false, debriefHref = '', onedit, onclose } = $props();
@@ -57,7 +59,10 @@
       const cur = await db.trips.get(trip.id);
       if (cur) await db.trips.update(trip.id, touched({ [kind]: fn(checkOf(cur, kind, standard)) }));
     });
-  const tick = (id) => save((l) => toggleCheck(l, id));
+  // «Bewegung» 4b (Noah 19.10.2026 «1a»): done checks slide down a moment after the last tap
+  const sort = laterSort((r) => r.id, (r) => r.done);
+  $effect(() => () => sort.stop());
+  const tick = (id) => (sort.tap(list), save((l) => toggleCheck(l, id)));
   const takeLearn = (name) => save((l) => addCheck(l, t('Pack {name}', { name })));
   // «Liste anpassen»: this sheet closes, then the page opens the editor (one history entry, backclose.js)
   let next = null;
@@ -93,11 +98,11 @@
   {#if list.length}
     <p class="prog"><b class="num" data-count>{t('{done} of {n} done', { done: count.done, n: count.total })}</b><span class="bar" aria-hidden="true"><i style:width="{count.total ? (count.done / count.total) * 100 : 0}%"></i></span></p>
     <ul class="rows">
-      {#each list as r (r.id)}
+      {#each sort.order(list) as r (r.id)}
         {@const I = checkIcon(r.id, kind)}
         {@const hint = checkHint(r, kind, { trip, charged })}
         {@const link = checkLink(r, kind)}
-        <li class:dn={r.done} class:haslink={!!link}>
+        <li class:dn={r.done} class:haslink={!!link} animate:flip={glide()}>
           <label class="lb" for="ck-{kind}-{r.id}">
             <span class="ib" aria-hidden="true"><I size={18} /></span>
             <span class="tx"><span class="nm">{t(r.label)}</span>{#if hint}<small>{hint}</small>{/if}</span>

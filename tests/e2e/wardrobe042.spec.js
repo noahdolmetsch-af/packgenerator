@@ -6,6 +6,7 @@
 // Fictional data only (fixture.json + test_data_gtp_ items made here); every outside request is blocked.
 // V042_SHOTS=<folder> saves screenshots of the new screens there.
 import { test, expect } from '@playwright/test';
+import { openLayers } from './wardrobe-open.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -157,6 +158,7 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   }
   await expect(page).toHaveURL(/#\/wardrobe$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Wardrobe') })).toBeVisible();
+  await openLayers(page); // Impeccable runde 2: a phone shows the layers closed
   for (const l of ['Base|layer', 'Mid|layer', 'Outer|layer', 'Accessories|layer']) await expect(page.locator('h2.lh', { hasText: T(l) })).toBeVisible();
   // The buff (neck) is under Head; °C small on the right, the class when there is no range.
   const acc = page.locator('section.layer', { has: page.locator('h2', { hasText: T('Accessories|layer') }) });

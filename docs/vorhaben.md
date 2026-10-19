@@ -1,6 +1,6 @@
 # Pack Generator: geplante Vorhaben
 
-Stand 10.10.2026, nachgeführt am 18.10.2026 (Abschnitte «Stand heute» und «Reihenfolge»). Der kürzeste Überblick über den heutigen Stand steht im [Projektstand](projektstand.md). Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
+Stand 10.10.2026, nachgeführt am 19.10.2026 (Abschnitte «Stand heute» und «Reihenfolge»). Der kürzeste Überblick über den heutigen Stand steht im [Projektstand](projektstand.md). Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
 
 ## Kurs-Check: sind wir auf dem richtigen Weg?
 
@@ -45,19 +45,20 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (18.10.2026, live 0.144.0)
+## Stand heute (19.10.2026, live 0.148.0)
 
-Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026). Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
+Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.149.0, PR #194) wartet auf Noahs Merge, C (0.150.0) ist darauf gebaut und kommt danach, F (0.151.0) ist auf C gebaut (Noah «ok f» + «1b», 19.10.2026) und kommt zuletzt. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
 
 | Reihenfolge | Paket | Version (vorläufig) | Ziele | Stand |
 | --- | --- | --- | --- | --- |
 | 1 | P3 Navigation und Standard-Velo | 0.145.0 | 1 | PR #182, Noah «ok», wird nach grünem Test zusammengeführt |
 | 2 | A Daten sicher und Bedienung (P3b, P3c, Mehr Inhalt + HT1–HT2) | 0.146.0 | 1, 3 | gebündelt (lokal, 18.10.2026), PR nach #182, Noah merged |
 | 3 | B Server (Training, Pulszonen eins, Fitbit, Dokument als PDF, Google mit Mail, KI-Deckel, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push, Gruppen überall) | 0.147.0 | 2, 3, 4 | gebündelt (lokal, 18.10.2026), PR nach A (#184), Noah merged |
-| 4 | D Touren und Unterwegs (AT1, Höhenprofil, Fahrt hochladen, Planungs-Notizen, Handy kurz, Bugfixes, Deine Fahrten, Wörter, Bewegung, Formulare, Rückmeldungen) | 0.148.0 | 3, 4 | gebündelt (lokal, 19.10.2026), PR nach B (#186), Noah merged; Chronik später |
-| 5 | E Material, Velos, Merken (mit Skitour und Ausrüstung) | danach | 1, 2 | gebaut |
-| 6 | C Heute und Aktiv | danach | 3, 4 | gebaut; Balance-Ring und Routine im Bau |
-| 7 | F Woche | danach | 3 | Woche gebaut, braucht Google aus B |
+| 4 | D Touren und Unterwegs (AT1, Höhenprofil, Fahrt hochladen, Planungs-Notizen, Handy kurz, Bugfixes, Deine Fahrten, Wörter, Bewegung, Formulare, Rückmeldungen) | 0.148.0 | 3, 4 | live seit 19.10.2026 (#192); Chronik später |
+| 5 | E Material, Velos, Merken (mit Skitour, Ausrüstung, Garmin 850, Impeccable Runde 1) | 0.149.0 | 1, 2 | PR #194, Noah merged |
+| 6 | C Heute und Aktiv (Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2) | 0.150.0 | 3, 4 | gebündelt (lokal, 19.10.2026) auf E; PR nach #194, Noah merged. Paket Aktiv selbst (Ziel-Prognose, Erholung, Blöcke) ist noch nicht auf den heutigen Stand übertragen und kommt später |
+| 7 | F Woche (Woche planen, Google in der Woche, Rundgang und Einstieg, eine Karte pro Seite) | 0.151.0 | 3 | gebündelt (lokal, 19.10.2026) auf C; PR nach C, Noah merged |
+| 7b | Tempo: Seiten später laden (#1045) | 0.152.0 | 1 | nach F, vor G; eigenes Release (Noah «1a») |
 
 Inhalt jedes Pakets: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online). Die Tabelle darunter ist der Stand vom 15.10.2026 und bleibt als Verlauf stehen.
 
@@ -65,6 +66,8 @@ Inhalt jedes Pakets: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
+| 0.155.0 | **Heute neu geordnet** (HN4 + HN4b) (Mockup-Freigabe: HN4 «1a 2a 3a 4b HN4 freigegeben» Noah 14.10.2026 21:51, Thread cmsg_018WAR7H251KvEyztXFE5y9Q6xUXvUCqyKZov5xuzzXKZP; HN4b «3a» 22:12 und «HN4b freigegeben» 22:13, Thread cmsg_018WAR7H251KvEyztXFE5y9Q9VEbuzJpjHgYuQkNdpEk6E): Heute in neuer Reihenfolge, Tageskarte nach Tagesteil, «Heute wichtig» als Zeile, Balance kompakt neben Im Flow, Tourkarte am Vortag oben, Aktiv als ganze Zeile, «Strava verbinden» unten, zehn Kacheln weg von Heute; Ziel 3 | in 0.150.0 (Paket C), PR #177 schliessen |
+| 0.154.0 | **Bausteine mehr** (SN3h–SN3j) (Mockup-Freigabe: SN3h–SN3j «SN3h–SN3j freigegeben» Noah 14.10.2026 21:31:37 UTC, Antworten «1a 2a 3a 4b 5a»): neun neue Bausteine mit Beispiel-Teilen, neue Teile mit «+N neu» und Rückgängig, Kälte-Stufen je ein Vorschlag, fünf Gruppen mit Baden, Baden von Hand in Planen; baut auf 0.144.0 auf; Ziel 1 | in 0.150.0 (Paket C), PR #176 schliessen |
 | 0.145.0 | **Paket 3 – Klare Regeln, dein Standard-Velo**, ein Release aus fünf Teilen auf 0.144.0: (1) Navigation «Regeln der App» + Start-Karten ST1–ST2, (2) Standard-Velo VS1–VS4, (3) Scrollen und Listen SL1–SL4, (4) Wieder sichtbar WS2, WS3, WS5, WS6, (5) vier Fehler aus den Bildern von 0.136.0; Ziele 1 (ruhig vorbereiten, Alltag), 2 (Velo im Griff) und 4 (aus jeder Tour lernen); Hinweistexte HT1–HT2 folgen in einem späteren Paket | lokal gebaut, PR folgt, Noah merged |
 | 0.140.1 | Start-Karten (Mockups ST1–ST2 freigegeben: «1a 2a 3b ST1–ST2 freigegeben» 14.10.2026 21:18 UTC; Platz bei der Tourkarte nach HN4 «1a 2a 3a 4b HN4 freigegeben» 21:51 UTC): Karte «Heute unterwegs» und «Letzter Abend» bei der Tourkarte statt der Sprünge; Ziel 1 | Teil von 0.145.0 |
 | 0.140.0 | Regeln der App (Regeln freigegeben: «a a, b a, c b, freigabe» 14.10.2026; Mockups C1 C2 A1 «C1 C2 A1 freigegeben» 14.10.2026 20:29 UTC; App-Start 1b aus «1b 2b 3b 4a 5a» 19:59 UTC): nichts springt von selbst, ein Tipp öffnet zum Ändern, Start nach Pause auf der Startseite, Zurück schliesst überall zuerst das Fenster; Ziel 1 | Teil von 0.145.0 |
@@ -312,7 +315,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Touren und Unterwegs** (Ziele 3 und 4): Strava-Fahrten auf Touren, Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Chronik → Paket D.
 - **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
-- **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F.
+- **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F (0.151.0, gebündelt auf C, 19.10.2026).
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge
