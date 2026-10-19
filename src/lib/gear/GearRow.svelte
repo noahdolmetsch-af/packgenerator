@@ -66,7 +66,9 @@
       // P3b «Bedienregeln», M1a (Noah 15.10.2026 «3a»): a long swipe asks first (Undo stays as well)
       // «Rückmeldungen» 19.10.2026: the app's own question instead of the browser's
       const name = nameOf(item);
-      return (used ? askDelete({ title: t('Archive "{name}"? It stays in the look back.', { name }), archive: t('Archive'), del: false }) : askDelete({ title: t('Delete "{name}"?', { name }), text: t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.') })).then((a) => (a === 'archive' ? onarchive(item) : a === 'delete' ? ondelete(item) : null));
+      // Paket D: an unused item goes to ondelete, which asks itself (Gear.deleteOne); asking here too asked twice
+      if (!used) return ondelete(item);
+      return askDelete({ title: t('Archive "{name}"? It stays in the look back.', { name }), archive: t('Archive'), del: false }).then((a) => (a === 'archive' ? onarchive(item) : null));
     }
     offset = rest = r.offset;
     onswipe?.(r.state === 'closed' ? null : item.id);
