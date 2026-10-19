@@ -21,16 +21,16 @@ export const WHATS_NEW = [
     version: '0.154.0',
     date: '2026-10-19',
     title: 'Riding, learning and your bikes',
-    lead: 'On the road, after the tour and in the workshop: the second big part of the day.',
+    lead: 'On the road, after the tour and in the workshop.',
     points: [
-      { text: 'On the road: the handlebar view, «Before you leave» with the next trains home, «I am here» and a read-only link for your family', href: '#/ride' },
-      { text: 'Bikes › Care: the bike inspection step by step with photos, the service by km, hours or days, parts that fit the kind of bike', href: '#/bikes?tab=care&view=inspect' },
-      { text: 'After the tour: a tour diary, the chronicle, a quiz and «New ground»; every Strava ride opens with all its values', href: '#/chronik' },
+      { text: 'On the road: handlebar view, «Before you leave», a link for your family', href: '#/ride' },
+      { text: 'Bikes › Care: inspection with photos, service by km, hours or days', href: '#/bikes?tab=care&view=inspect' },
+      { text: 'After the tour: diary, chronicle, quiz; Strava rides with all values', href: '#/chronik' },
     ],
     small: [
-      { box: 'new', text: 'Aktiv › Sports: a page for every sport with progress, notes and plans', href: '#/flow/sports' },
-      { box: 'new', text: 'Packing list by photo and sitting position by camera, on the device', href: '#/me/tools/packphoto' },
-      { box: 'new', text: 'Trello for your to-dos and lists, sign in with Google, bike mechanic and guide', href: '#/calendar' },
+      { box: 'new', text: 'Aktiv › Sports: a page for every sport', href: '#/flow/sports' },
+      { box: 'new', text: 'Packing list by photo, sitting position by camera', href: '#/me/tools/packphoto' },
+      { box: 'new', text: 'Trello, sign in with Google, bike mechanic and guide', href: '#/calendar' },
     ],
     test: [
       'Open Trips › On the road and tap «Before you leave».',
