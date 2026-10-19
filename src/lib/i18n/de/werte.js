@@ -46,5 +46,6 @@ export default {
   'Not counted for the year yet. Your minutes of this week are on Aktiv.': 'Fürs Jahr noch nicht gezählt. Deine Minuten dieser Woche stehen auf Aktiv.',
   'No goal · set one': 'Kein Ziel · eins setzen',
   'Empty|goal': 'Leeren',
+  '{n} active zone min': '{n} Min Aktivzonen',
   'Tap a goal to change it. Empty the field (or tap «Empty») for no goal.': 'Tippe auf ein Ziel, um es zu ändern. Feld leeren (oder «Leeren» tippen) heisst: kein Ziel.',
 };

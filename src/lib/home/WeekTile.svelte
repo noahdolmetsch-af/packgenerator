@@ -13,6 +13,8 @@
   import { db } from '../db.js';
   import { heartBetween, withStravaRides, bikeActs } from '../kmbook.js';
   import HeartLine from '../strava/HeartLine.svelte';
+  import { azmWeek, addDays } from '../health.js';
+  import { health } from '../health/client.svelte.js';
 
   let { today, rides = [], isnew = false } = $props();
   const q = $derived(flowQuery(today));
@@ -27,6 +29,9 @@
   // «Werte überall» WU1 (Noah 13.10.2026 «1-5a»): km · Hm · minutes in one line, the heart rate next to it
   const tot = $derived(weekTotals(days.filter((d) => !d.future)));
   const heart = $derived(days.length ? heartBetween($kmQ ?? [], days[0].day, today) : null);
+  // Noah 19.10.2026 «1a»: the active zone minutes of this week from Fitbit (healthDays) in the same line
+  const azmQ = $derived(liveQuery(() => db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray()));
+  const azm = $derived(azmWeek($azmQ ?? [], today));
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
 
@@ -50,7 +55,8 @@
   <p class="vals" data-week-values>
     <span><Bike size={14} aria-hidden="true" /><b class="num">{num(tot.km)} km</b></span>
     {#if tot.hm}<span><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(tot.hm) })}</b></span>{/if}
-    <span class="soon"><Timer size={14} aria-hidden="true" />{t('Minutes come with Fitbit')}</span>
+    {#if azm.any}<span data-week-azm><Timer size={14} aria-hidden="true" /><b class="num">{t('{n} active zone min', { n: num(azm.sum) })}</b></span>
+    {:else if !health.prefs.connected}<span class="soon"><Timer size={14} aria-hidden="true" />{t('Minutes come with Fitbit')}</span>{/if}
     {#if heart}<span><HeartLine {heart} size={14} /></span>{/if}
   </p>
 </section>

@@ -131,6 +131,9 @@ test('active zone minutes of this week on Aktiv, with the weekly goal changeable
   await page.goto('./');
   await importAndSettle(page, file);
 
+  // Noah 19.10.2026 «1a»: Today's «This week» shows the minutes too
+  await page.goto('./');
+  await expect(page.locator('[data-week-azm]')).toContainText(T('{n} active zone min', { n: '125' }));
   await page.goto('./#/flow');
   const box = page.locator('[data-section="azm"]');
   await expect(box.locator('[data-azm-sum]')).toContainText('125');
