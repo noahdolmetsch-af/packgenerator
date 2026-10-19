@@ -39,7 +39,9 @@ jobs:
   # v0.30.0 (Noah 1a): phone and desktop run side by side, so a check takes about half as long.
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 19.10.2026: the suite needs 18–21 min per project now (package B: desktop 21 min); at 20 min the phone
+    # run of «Bewegung» was cut off at test 560 of ~580. 30 like the Gesamttest; the check names stay the same.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
