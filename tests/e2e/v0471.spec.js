@@ -75,7 +75,7 @@ const tripById = async (page, id) => (await allTrips(page)).find((x) => x.id ===
 const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.click());
 const band = (page) => page.locator('.trip-band');
-const fact = (page, name) => band(page).getByRole('button', { name: new RegExp(`^${name}`) });
+const fact = (page, name) => band(page).getByRole('button', { name: new RegExp(`^${name}:`) });
 
 test('shots: the trip page of a day ride (SHOTS only)', async ({ page, context }, info) => {
   test.skip(!shots, 'only with SHOTS=<folder>');

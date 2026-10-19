@@ -104,12 +104,12 @@
     return out;
   });
   // Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the head says in words what is missing, no count
-  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.') };
+  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.'), keep: () => t('The browser does not keep your data for sure yet.') };
   const headLine = $derived.by(() => {
     const warns = lights.filter((l) => l.state === 'warn');
     if (!warns.length) return t('Everything is in order.');
     const rest = lights.some((l) => l.state === 'ok') ? ` ${t('Everything else is in order.')}` : '';
-    return `${warns.map((l) => WARN[l.key]()).join(' ')}${rest}`;
+    return `${warns.map((l) => WARN[l.key]?.() ?? t(l.name)).join(' ')}${rest}`;
   });
   let fileEl = $state();
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
