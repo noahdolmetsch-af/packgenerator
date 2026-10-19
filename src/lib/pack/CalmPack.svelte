@@ -474,7 +474,8 @@
   .core-j :global(.core-a) { flex: none; color: var(--ink-3); }
   .core-c { padding: 6px 11px; border-color: var(--line); color: var(--ink-2); font-size: var(--fs-small); }
   @media (hover: hover) { .core-c:hover { border-color: var(--line-strong); color: var(--ink); } }
-  /* a phone held sideways keeps the band compact: the core line and its jump marks wait for the upright view */
+  /* Paket E CI (D6 «Handy quer»): a phone turned sideways keeps the band compact, as with the crumb and the kicker;
+     the core line and its jump marks show again upright and on a computer (the same numbers stand at the list and the weight) */
   @media (max-height: 500px) { .core { display: none; } }
   @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
