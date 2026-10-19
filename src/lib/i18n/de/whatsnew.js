@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.154.0 Paket 2
+  'Riding, learning and your bikes': 'Unterwegs, lernen und deine Velos',
+  'On the road, after the tour and in the workshop: the second big part of the day.': 'Unterwegs, nach der Tour und in der Werkstatt: der zweite grosse Teil des Tages.',
+  'On the road: the handlebar view, «Before you leave» with the next trains home, «I am here» and a read-only link for your family': 'Unterwegs: die Lenker-Ansicht, «Vor der Abfahrt» mit den nächsten Zügen nach Hause, «Hier bin ich» und ein Link zum Mitlesen für deine Familie',
+  'Bikes › Care: the bike inspection step by step with photos, the service by km, hours or days, parts that fit the kind of bike': 'Velos › Pflege: die Velo-Inspektion Schritt für Schritt mit Fotos, der Service nach km, Stunden oder Tagen, Teile passend zur Velo-Art',
+  'After the tour: a tour diary, the chronicle, a quiz and «New ground»; every Strava ride opens with all its values': 'Nach der Tour: ein Tour-Tagebuch, die Chronik, ein Quiz und «Neuland»; jede Strava-Fahrt öffnet mit allen Werten',
+  'Aktiv › Sports: a page for every sport with progress, notes and plans': 'Aktiv › Sportarten: eine Seite pro Sport mit Fortschritt, Notizen und Plänen',
+  'Packing list by photo and sitting position by camera, on the device': 'Packliste per Foto und Sitzposition per Kamera, auf dem Gerät',
+  'Trello for your to-dos and lists, sign in with Google, bike mechanic and guide': 'Trello für deine To-dos und Listen, mit Google anmelden, Velomech und Guide',
+  'Open Trips › On the road and tap «Before you leave».': 'Öffne Touren › Unterwegs und tippe auf «Vor der Abfahrt».',
+  'Open Bikes › Care and start a monthly inspection.': 'Öffne Velos › Pflege und starte einen monatlichen Check.',
+  'Open Aktiv › Training › List and open a ride.': 'Öffne Aktiv › Training › Liste und öffne eine Fahrt.',
   // 0.153.0 Paket 1: G, L, P, N, Q, H, J
   'Seven new parts at once': 'Sieben neue Teile auf einmal',
   'Your data comes by itself, a toolbox, dreams and goals, easier packing and help in the mountains.': 'Deine Daten kommen von selbst, ein Werkzeugkasten, Träume und Ziele, leichteres Packen und Hilfe in den Bergen.',
