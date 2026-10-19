@@ -79,6 +79,8 @@
   }
   .bt {
     display: grid;
+    /* Durchklick DK7a: a long trip name without spaces wraps */
+    grid-template-columns: minmax(0, 1fr);
     flex: 1 1 220px;
     min-width: 0;
   }
@@ -91,6 +93,7 @@
   }
   .bt b {
     font: 600 var(--fs-body) / 1.3 var(--font-body);
+    min-width: 0;
     overflow-wrap: break-word;
   }
   .whole {

@@ -111,7 +111,8 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.timer').state).toBe('never'); // 0.135.0, older than this version (0.136.0)
     expect(rowsOf(undefined, undefined, '0.145.0').find((r) => r.id === 'f.standardbike').state).toBe('new'); // new in its version (pinned to 0.145.0)
     expect(rowsOf(undefined, undefined, '0.124.0').find((r) => r.id === 'f.packblocks').state).toBe('new'); // new in its version (0.131.0 brought no new function)
-    expect(rowsOf().find((r) => r.id === 'f.analyses').state).toBe('new'); // new in this version
+    expect(rowsOf(undefined, undefined, '0.147.0').find((r) => r.id === 'f.analyses').state).toBe('new'); // new in its version (pinned to 0.147.0; 0.148.0 brings no new function)
+    expect(rowsOf().find((r) => r.id === 'f.analyses').state).toBe('never'); // 0.147.0, older than this version (0.148.0)
     expect(rowsOf().find((r) => r.id === 'f.training').state).toBe('never'); // 0.135.0, older than this version
     expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
     expect(by['f.tripstate'].state).toBe('never');

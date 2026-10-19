@@ -68,7 +68,7 @@ export function rideTiming(text, file = '') {
  * for "with your usual stops". Returns { kmh, climbMh, factor, stops, n } or null.
  */
 export function learnPace(rides) {
-  const rs = rides.filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5);
+  const rs = uniqueRides(rides).filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5);
   if (!rs.length) return null;
   const std = rs.reduce((t, r) => t + r.km / SPEED_KMH + (r.gainM ?? 0) / CLIMB_MH, 0);
   const moving = rs.reduce((t, r) => t + r.movingH, 0);
@@ -77,6 +77,26 @@ export function learnPace(rides) {
   return { kmh: round1(SPEED_KMH / factor), climbMh: Math.round(CLIMB_MH / factor / 10) * 10, factor: Math.round(factor * 100) / 100, stops: Math.round((total / moving) * 100) / 100, n: rs.length };
 }
 const round1 = (v) => Math.round(v * 10) / 10;
+
+/**
+ * GPX-Weg (Noah 15.10.2026 «1-5 a»): one ride, one count. «Dein Tempo» and «Fahrt hochladen» read the
+ * same file a little differently (other ids, other km), so a ride is known by its start minute:
+ * «2026-09-21T06:35» from «2026-09-21T06:35-46» and from «ride-2026-09-21T06:35-46».
+ */
+export const startKey = (id) => {
+  const s = String(id ?? '');
+  return s.match(/^(?:ride-)?(\d{4}-\d\d-\d\dT\d\d:\d\d)/)?.[1] ?? s;
+};
+/** The rides with each start minute once (the first one wins). */
+export function uniqueRides(rides = []) {
+  const seen = new Set();
+  return rides.filter((r) => {
+    const k = startKey(r.id);
+    if (!k || seen.has(k)) return !k;
+    seen.add(k);
+    return true;
+  });
+}
 
 /**
  * v0.61.0 R2 «Dein Tempo» (Noah ★a): your own rule takes over the riding-time guess by itself from
@@ -92,7 +112,7 @@ export const PACE_MIN = 5;
  * learned: your rule ({ kmh, climbMh }) even while it is not used (below PACE_MIN, or standard chosen).
  */
 export function paceOf(setting) {
-  const n = setting?.kmh ? setting.n ?? 0 : (setting?.rides ?? []).filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5).length;
+  const n = setting?.kmh ? setting.n ?? 0 : uniqueRides(setting?.rides ?? []).filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5).length;
   const learned = setting?.kmh ? { kmh: setting.kmh, climbMh: setting.climbMh || CLIMB_MH } : null;
   const standard = setting?.standard === true;
   const need = Math.max(0, PACE_MIN - n);
@@ -111,7 +131,7 @@ export const ruleOf = (p) => (p ? { kmh: Math.round(p.kmh * 2) / 2, climbMh: Mat
  * rides that count, from `from` (an ISO day, null = all). kmh: moving speed; hmPerKm: climbing per km.
  */
 export function paceSeries(rides = [], from = null) {
-  return rides
+  return uniqueRides(rides)
     .filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5 && (!from || (r.date ?? '') >= from))
     .sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''))
     .map((r) => ({ id: r.id, date: r.date, name: r.name, km: r.km, kmh: round1(r.km / r.movingH), hmPerKm: Math.round(((r.gainM ?? 0) / r.km) * 10) / 10 }));

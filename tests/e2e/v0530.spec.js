@@ -71,8 +71,10 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   // SN2 «Seiten neu»: the rule as one short big line
   await expect(rule.getByRole('heading', { level: 2 })).toHaveText(/^[\d.]+ km\/h und 1 h pro [\d’']+ Hm$/);
   // 4 rides: still the standard, 1 is missing
-  await expect(rule).toContainText('Standardregel');
-  await expect(rule).toContainText(/Die Höhenmeter bekommen ihre eigene Zeit: mit den Höhenmetern fahren deine Fahrten im Schnitt [\d.]+ km\/h\./);
+  // GPX-Weg (Noah 15.10.2026 «1-5 a»): until your rule counts, the card says the standard and your rides so far
+  await expect(rule).toContainText('Standardregel · deine Fahrten bisher: 4');
+  await expect(rule.getByRole('heading', { level: 2 })).toHaveText('16 km/h und 1 h pro 600 Hm');
+  await expect(rule).toContainText(/Deine Fahrten bisher: [\d.]+ km\/h mit den Höhenmetern, deine Regel wäre [\d.]+ km\/h/);
   await expect(rule.locator('.state[role="status"]')).toContainText('4 von 5 Fahrten. Ab 5 Fahrten rechnet dein eigenes Tempo');
   await expect(rule.locator('.marks i.on')).toHaveCount(4);
   await expect(main.locator('.mini')).toHaveCount(3);
@@ -80,9 +82,13 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   await noSideways(page);
   await targets(page, info);
 
-  // the 5th ride (GPX): your rule takes over by itself, visibly
-  await main.locator('section.rule label.btn input[type=file]').setInputFiles({ name: 'fahrt.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(rideGpx({ name: 'Testfahrt Fünf', date: day(-1) })) });
-  await expect(main.getByText('1 Fahrt hinzugefügt.')).toBeVisible();
+  // the 5th ride (GPX): «Fahrt hochladen» is the one upload (GPX-Weg 2a); saved, your rule takes over by itself
+  await rule.getByRole('link', { name: 'Fahrt hochladen' }).click();
+  await expect(page).toHaveURL(/#\/debrief\/ride$/);
+  await main.locator('.pickbtn input[type=file]').setInputFiles({ name: 'fahrt.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(rideGpx({ name: 'Testfahrt Fünf', date: day(-1) })) });
+  await main.getByRole('button', { name: 'Fahrt speichern' }).click();
+  await expect(main.locator('[data-saved-card]')).toContainText('Jede neue Tour rechnet jetzt mit');
+  await page.goto('./#/debrief/pace');
   await expect(rule).toContainText('Deine Regel · aus 5 Fahrten');
   await expect(rule.locator('.state[role="status"]')).toContainText('Packen und Unterwegs schätzen die Fahrzeit jetzt mit deiner Regel');
   expect(await paceSetting(page)).toMatchObject({ n: 5 });

@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   /**
    * Templates (Noah, 4.10.2026, answer 9): all saved packing setups on their own page.
    * v0.39.0 (AP28, "Vorlagen neu"): one quiet row per template (no box), linked to the building
@@ -129,7 +130,9 @@
   const restore = (tp) => change(setOne(tp.id, { archivedAt: null, keptAt: now() }), t('{name} is back', { name: tp.name }));
   const keep = (tp) => change(setOne(tp.id, { keptAt: now() }), t('{name} kept. No hint for 12 months.', { name: tp.name }));
   async function remove(tp) {
-    if (!confirm(t('Delete the template "{name}"? Trips made from it stay. A backup file can bring it back.', { name: tp.name }))) return;
+    const a = await askDelete({ title: t('Delete the template "{name}"?', { name: tp.name }), text: t('Trips made from it stay. You can bring it back for 4 seconds afterwards.'), archive: tp.archivedAt ? '' : t('Archive') });
+    if (a === 'archive') return archive(tp);
+    if (a !== 'delete') return;
     await change((list) => list.filter((x) => x.id !== tp.id), t('{name} deleted', { name: tp.name }));
   }
   async function duplicate(tp) {

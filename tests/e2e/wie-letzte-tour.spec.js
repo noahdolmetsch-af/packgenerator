@@ -29,6 +29,16 @@ test('Like the last trip: quick start on Touren and the copy in the new trip win
 
   await page.goto('./#/trips');
   const quick = page.getByRole('group', { name: T('Start quickly') });
+  // Paket D (Noah 18.10.2026 «1b»): on a phone «Schnell starten» is one line in the head of «Geplant»; a tap opens it
+  if (info.project.name === 'phone') {
+    await expect(quick).toHaveCount(0);
+    const line = page.locator('[data-quick-open]');
+    await expect(line).toHaveAttribute('aria-expanded', 'false');
+    await line.click();
+    await expect(line).toHaveAttribute('aria-expanded', 'true');
+  } else {
+    await expect(page.locator('[data-quick-open]')).toHaveCount(0);
+  }
   await expect(quick).toBeVisible();
   await expect(quick.getByRole('link', { name: T('All templates') })).toHaveAttribute('href', '#/pack/templates');
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);

@@ -12,16 +12,14 @@ afterEach(() => (lang.v = 'en'));
 const trip = (id, title, startDate, extra = {}) => ({ id, title, startDate, days: 1, bikeId: 'b1', bike: 'Factor LS', entries: [], ...extra });
 
 describe('test trips (Noah 10a)', () => {
-  it('"test" anywhere in the name, any case; the fixture marker does not count', () => {
-    expect(isTestTrip({ title: 'TEST-Runde' })).toBe(true);
-    expect(isTestTrip({ title: 'Testtour Jura' })).toBe(true);
-    expect(isTestTrip({ title: 'Mein kleiner test' })).toBe(true);
-    expect(isTestTrip({ title: 'Herbstrunde Jura' })).toBe(false);
-    expect(isTestTrip({ title: 'test_data_gtp_ Jura' })).toBe(false);
-    expect(isTestTrip({ title: 'test_data_gtp_ TEST-Runde' })).toBe(true);
+  it('only the «Test trip» switch makes a test trip, never the name (0.161.0, Noah H3a)', () => {
+    expect(isTestTrip({ title: 'Herbstrunde Jura', testTrip: true })).toBe(true);
+    expect(isTestTrip({ title: 'TEST-Runde' })).toBe(false);
+    expect(isTestTrip({ title: 'Contest Jura' })).toBe(false);
+    expect(isTestTrip({ title: 'Testtour Jura', testTrip: false })).toBe(false);
   });
   it('never lead on Today; archived ones neither; archiving keeps the trip and skips it', () => {
-    const list = [trip('a', 'TEST-1', '2026-10-10'), trip('b', 'Jura', '2026-10-12'), trip('c', 'Emmental', '2026-10-11', { archivedAt: '2026-10-09T08:00:00Z' })];
+    const list = [trip('a', 'TEST-1', '2026-10-10', { testTrip: true }), trip('b', 'Jura', '2026-10-12'), trip('c', 'Emmental', '2026-10-11', { archivedAt: '2026-10-09T08:00:00Z' })];
     expect(homeTrips(list).map((x) => x.id)).toEqual(['b']);
     expect(testTrips(list).map((x) => x.id)).toEqual(['a']);
     expect(soonTrips(list, '2026-10-09').map((x) => x.id)).toEqual(['b']);

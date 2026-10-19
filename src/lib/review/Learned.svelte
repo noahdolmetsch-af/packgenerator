@@ -20,7 +20,8 @@
   import './review.css';
 
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const learnings = $derived($learnQ ?? []);
+  // 0.161.0 (Bugfixes 0.132.2 B3): an archived learning («Clean up test data») is gone from the list
+  const learnings = $derived(($learnQ ?? []).filter((l) => !l.archivedAt));
   let lq = $state('');
   // v0.30.2 (test R6.12): topics typed in small letters ("gear") are shown like the others.
   const topicName = (topic) => {

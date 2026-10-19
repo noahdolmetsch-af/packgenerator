@@ -20,7 +20,7 @@
  * need a server with a login (Noah 6).
  */
 import { distKm, climb, thin, profileOf, CLIMB_MH } from './route.js';
-import { learnPace } from './pace.js';
+import { learnPace, startKey } from './pace.js';
 import { stageCount, dayIndex, dayGain, planHours, onTripDay } from './ride.js';
 import { t } from './i18n.svelte.js';
 
@@ -341,14 +341,14 @@ export function learningFrom(sugg, learnings = [], source = '', rideId = null, n
  */
 export function addToPace(setting, ride, now = new Date().toISOString()) {
   const rides = [...(setting?.rides ?? [])];
-  if (!rides.some((r) => r.id === ride.id)) rides.push({ id: ride.id, name: ride.name, date: ride.date, km: ride.km, gainM: ride.gainM, movingH: ride.movingH, totalH: ride.totalH, use: true, from: 'upload' });
+  if (!rides.some((r) => startKey(r.id) === startKey(ride.id))) rides.push({ id: ride.id, name: ride.name, date: ride.date, km: ride.km, gainM: ride.gainM, movingH: ride.movingH, totalH: ride.totalH, use: true, from: 'upload' });
   const learned = learnPace(rides);
   return { ...(learned ?? { kmh: null, climbMh: null }), rides, ...(setting?.standard ? { standard: true } : {}), updatedAt: now };
 }
 
 /** The ride taken out of "Your pace" again (when the ride is deleted). */
 export function dropFromPace(setting, rideId, now = new Date().toISOString()) {
-  const rides = (setting?.rides ?? []).filter((r) => r.id !== rideId);
+  const rides = (setting?.rides ?? []).filter((r) => startKey(r.id) !== startKey(rideId));
   const learned = learnPace(rides);
   return { ...(learned ?? { kmh: null, climbMh: null }), rides, ...(setting?.standard ? { standard: true } : {}), updatedAt: now };
 }

@@ -13,12 +13,18 @@
    * the bike's own pace on that surface is used for the riding time), «Geplant und gefahren» per trip, the
    * months since the first ride (km/h, Ø heart rate, power, zones) and «Deine Pulszonen». Every ride shows
    * its bike and its surface, which can be changed per ride.
+   * GPX-Weg (Noah 15.10.2026 «1-5 a»): «Fahrt hochladen» here opens the one upload of the app (#/debrief/ride),
+   * so a ride is saved, shows up in Look back and counts once. On top the «Einstieg» (how it works). Until
+   * your rule counts, the card says the standard numbers plainly and your rides so far underneath. Rides
+   * saved in this visit are marked «Neu»; the same ride twice shows once.
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { SPEED_KMH, CLIMB_MH } from '../route.js';
-  import { PACE_KEY, PACE_MIN, rideTiming, learnPace, guessFor, paceOf, ruleOf, withStandard, paceSeries } from '../pace.js';
+  import { PACE_KEY, PACE_MIN, learnPace, guessFor, paceOf, ruleOf, withStandard, paceSeries, uniqueRides, startKey } from '../pace.js';
+  import { savedNote } from '../ridejourney.js';
+  import AreaIntro from '../ui/AreaIntro.svelte';
   import { reviewWindow } from '../yearreview.js';
   import { localDay } from '../localday.js';
   import { n1, dayLong } from '../review/fmt.js';
@@ -36,7 +42,9 @@
   import PlannedRidden from './PlannedRidden.svelte';
   import PaceMonths from './PaceMonths.svelte';
   import HeartZones from './HeartZones.svelte';
-  import { Bike } from '@lucide/svelte';
+  import { Trash2 } from '@lucide/svelte';
+  import MoreActions from '../ui/MoreActions.svelte';
+  import { rideBar, openRides, RIDES_OPEN } from './fahrtenliste.js';
 
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const saved = $derived($paceQ?.value ?? null);
@@ -47,13 +55,13 @@
     return () => clearTimeout(id);
   });
   const loaded = $derived(ready || !!$paceQ);
-  const rides = $derived([...(saved?.rides ?? [])].sort((a, b) => b.date.localeCompare(a.date)));
+  const rides = $derived([...uniqueRides(saved?.rides ?? [])].sort((a, b) => b.date.localeCompare(a.date)));
   const pace = $derived(paceOf(saved));
   const rule = $derived(ruleOf(pace.learned));
   const std = { kmh: SPEED_KMH, climbMh: CLIMB_MH };
 
-  let msg = $state('');
-  let busy = $state(false);
+  const note = savedNote();
+  const isNew = (r) => !!note?.ids.some((id) => startKey(id) === startKey(r.id));
 
   /* ---- SN2+ SN2h/SN2i: bikes, surfaces, planned and ridden, the months ---- */
   const werteQ = liveQuery(async () => ({ ...(await loadWerte(db)), review: await loadReview(db) }));
@@ -80,32 +88,10 @@
   }
   const setStandard = (on) => db.settings.put({ key: PACE_KEY, value: withStandard($state.snapshot(saved), on) });
 
-  async function pick(event) {
-    const files = [...event.currentTarget.files];
-    event.currentTarget.value = '';
-    if (!files.length) return;
-    busy = true;
-    msg = '';
-    try {
-      const list = [...(saved?.rides ?? [])];
-      let added = 0;
-      const skipped = [];
-      for (const f of files) {
-        const r = rideTiming(await f.text(), f.name);
-        if (!r) skipped.push(f.name);
-        else if (!list.some((x) => x.id === r.id)) list.push({ ...r, use: true }), added++;
-      }
-      await store(list);
-      msg = tn(added, '{n} ride added.', '{n} rides added.') + (skipped.length ? ` ${t('Without times (planned routes?): {files}.', { files: skipped.join(', ') })}` : '');
-    } catch (e) {
-      msg = t('Could not read the file: {error}', { error: e.message });
-    } finally {
-      busy = false;
-    }
-  }
-
-  const toggle = (id) => store(saved.rides.map((r) => (r.id === id ? { ...r, use: r.use === false } : r)));
-  const drop = (id) => store(saved.rides.filter((r) => r.id !== id));
+  // the same ride twice (both ways in) shows once: untick and remove act on both
+  const toggle = (id) => store(saved.rides.map((r) => (startKey(r.id) === startKey(id) ? { ...r, use: r.use === false } : r)));
+  const drop = (id) => store(saved.rides.filter((r) => startKey(r.id) !== startKey(id)));
+  let allRides = $state(false); // W1 5a: the newest five open, «Show all n» for the rest
   const hm = (h) => `${Math.floor(h)}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
 
   /* ---- the small charts: the last 12 months (Noah ★a) or all rides ---- */
@@ -161,18 +147,33 @@
      rule as a white card, what the riding time uses now, then the small charts; right the rides.
      SN2: the line under the title, the rule short and big, five marks, «Fahrt hochladen» as the main button. -->
 {#snippet picker(cls, children)}
-  <label class={cls}>{@render children()}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
+  <a class={cls} href="#/debrief/ride">{@render children()}</a>
 {/snippet}
 <p class="page-sub psub">{t('How the app guesses the riding time of a new trip')}</p>
+<AreaIntro
+  key="pace"
+  kicker={t('How «Your pace» works')}
+  title={t('The app learns how fast you ride')}
+  sub={t('So the guessed riding time fits when you pack and on the way.')}
+  steps={[
+    { name: t('Upload ride'), text: t('a ride you rode, as a GPX file (Garmin, Wahoo, Strava, komoot: the ride › Export › GPX).') },
+    { name: t('The app learns'), text: t('your speed on the flat and the time for the climbing. Stops of 5 minutes or more do not count.') },
+    { name: t('You plan closer'), text: t('from {min} rides (each 20 km or more) every new trip guesses with your pace. You can switch back any time.', { min: PACE_MIN }) },
+  ]}
+  tip={t('Upload 3 to 5 normal rides with luggage, no races. That gives the best guess.')}
+  know={t('Without rides of your own the app guesses with {kmh} km/h and 1 h per {m} m of climbing, a calm pace with luggage. Your rides replace it.', { kmh: num(std.kmh), m: num(std.climbMh) })}
+  links={[{ label: t('Handbook: Your pace'), href: '#/me/handbook?f=pace' }]}
+/>
 <div class="tempo rv-lay">
   <div class="rv-col">
     <!-- 1. the rule, what the riding time uses now, the marks up to your own rule -->
     <section class="rule" id="pace" aria-labelledby="rule-h">
       <div class="rv-box pad rcard">
-        <p class="kick"><Gauge size={14} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : t('Standard rule')}</p>
-        <h2 id="rule-h" class="sentence">{t('{kmh} km/h and 1 h per {m} Hm', { kmh: num(rule ? rule.kmh : std.kmh), m: num(rule ? rule.climbMh : std.climbMh) })}</h2>
-        {#if rule && !pace.mine}<p class="flat">{t('Your rule so far; the riding time still uses {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}</p>{/if}
-        {#if rule && overall != null}<p class="flat">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
+        <!-- GPX-Weg: until your rule counts, the card says the standard plainly and your rides so far below -->
+        <p class="kick"><Gauge size={14} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : rides.length ? tn(pace.n, 'Standard rule · your rides so far: {n}', 'Standard rule · your rides so far: {n}') : t('Standard rule · no ride of your own yet')}</p>
+        <h2 id="rule-h" class="sentence">{t('{kmh} km/h and 1 h per {m} Hm', { kmh: num(rule && (pace.mine || pace.standard) ? rule.kmh : std.kmh), m: num(rule && (pace.mine || pace.standard) ? rule.climbMh : std.climbMh) })}</h2>
+        {#if rule && !pace.mine && !pace.standard}<p class="flat">{t('Your rides so far: {avg} km/h with the climbing, your rule would be {kmh} km/h and 1 h per {m} Hm. From {min} rides the app uses it.', { avg: n1(overall ?? rule.kmh), kmh: num(rule.kmh), m: num(rule.climbMh), min: PACE_MIN })}</p>{/if}
+        {#if rule && overall != null && (pace.mine || pace.standard)}<p class="flat">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
         {#if loaded}
           <div class="state" role="status">
             {#if pace.mine}
@@ -183,14 +184,13 @@
               <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={18} aria-hidden="true" />{t('Use my rule')}</button>
             {:else}
               <span class="marks" aria-hidden="true">{#each Array.from({ length: PACE_MIN }, (_, i) => i) as i (i)}<i class:on={i < pace.n}></i>{/each}</span>
-              <p class="need">{t('{n} of {min} rides. From {min} rides your own pace counts, you can switch back any time.', { n: pace.n, min: PACE_MIN })}</p>
+              <p class="need">{pace.n ? t('{n} of {min} rides. From {min} rides your own pace counts, you can switch back any time.', { n: pace.n, min: PACE_MIN }) : t('0 of {min} rides. Until then the app guesses with {kmh} km/h and 1 h per {m} Hm.', { min: PACE_MIN, kmh: num(std.kmh), m: num(std.climbMh) })}</p>
             {/if}
           </div>
         {/if}
         <div class="acts">
-          {#snippet upl()}<Upload size={17} aria-hidden="true" /><span class="kl">{busy ? t('Reading …') : t('Upload ride')}</span>{/snippet}
+          {#snippet upl()}<Upload size={17} aria-hidden="true" /><span class="kl">{t('Upload ride')}</span>{/snippet}
           {@render picker('btn k hi', upl)}
-          {#if msg}<p class="msg" role="status">{msg}</p>{/if}
         </div>
       </div>
     </section>
@@ -242,28 +242,48 @@
     {#if rides.length}
       <section class="rv-sec" aria-labelledby="rides-h">
         <div class="rv-h"><div><h2 id="rides-h">{t('Your rides')}</h2><p class="rv-sub num">{tn(pace.n, '{n} counts', '{n} count')}</p></div></div>
+        <!-- W1 (Noah 15.10.2026 «1-5 a»): a compact row per ride: title with the surface chip, one line of
+             facts, the riding time against the guess as a small bar (green faster, orange slower), the
+             switch «counts» and «Remove» in «…»; the newest five open, «Show all n» for the rest. -->
         <ul class="rv-box rides">
-          {#each rides as r (r.id)}
+          {#each openRides(rides, { all: allRides, isNew }) as r (r.id)}
             {@const x = tempoOf(r.id)}
             {@const rb = x?.bikeId ? bikeById[x.bikeId] ?? null : null}
             {@const sf = x ? surfaceOf(x, rb) : null}
-            <li class:off={r.use === false} data-ride={r.id}>
-              <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><span class="rv-t">{r.name}</span><span class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</span></span></label>
-              <button type="button" class="rm" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
-              <!-- SN2+ SN2h: the ride's bike and its surface, changeable per ride -->
-              {#if W}
-                <span class="tg">
-                  {#if rb}<span class="bchip"><Bike size={13} aria-hidden="true" />{rb.name}</span>{/if}
+            {@const g = guessFor(r, pace)}
+            {@const bar = rideBar(r.movingH, g)}
+            <li class:off={r.use === false} class:fresh={isNew(r)} data-ride={r.id}>
+              <div class="rtop">
+                <span class="rtt">
+                <span class="rv-t">{r.name}{#if isNew(r)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span>
+                {#if W}
                   <select class="schip" value={sf ?? ''} aria-label={t('Surface of {name}', { name: r.name })} onchange={(ev) => setSurface(r, ev.currentTarget.value)}>
                     {#if !sf}<option value="">{t('Surface?')}</option>{/if}
                     {#each SURFACES as so (so.key)}<option value={so.key}>{t(so.name)}</option>{/each}
                   </select>
+                {/if}
                 </span>
-              {/if}
+                <span class="rend">
+                  <button type="button" class="switch" role="switch" aria-checked={r.use !== false} aria-label={t('Counts for your pace: {name}', { name: r.name })} onclick={() => toggle(r.id)}><span class="swl" aria-hidden="true">{t('counts|ride')}</span><span class="trk"><span class="knob"></span></span></button>
+                  <MoreActions small title={r.name} label={t('More for {what}', { what: r.name })} actions={[{ name: t('Remove'), explain: t('Take the ride out of your pace'), icon: Trash2, run: () => drop(r.id) }]} />
+                </span>
+              </div>
+              <p class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · {num(r.gainM)} Hm{rb ? ` · ${rb.name}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</p>
+              <div class="rtime">
+                <span class="rv-s num">{hm(r.movingH)} h · {t('guess {time} h', { time: hm(g) })}{r.totalH > r.movingH + 0.05 ? ` · ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}</span>
+                {#if bar}
+                  <span class="rbar" class:slow={!bar.faster} role="img" aria-label={bar.faster ? t('{n} min faster than guessed', { n: bar.min }) : t('{n} min slower than guessed', { n: bar.min })}>
+                    <span class="rfill" style:width="{bar.ride}%"></span><span class="rmark" style:left="{bar.guess}%"></span>
+                  </span>
+                {/if}
+              </div>
             </li>
           {/each}
         </ul>
-        <p class="rv-note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Untick a ride that does not fit, e.g. a race without luggage.')}</span></p>
+        {#if rides.length > RIDES_OPEN}
+          <button type="button" class="btn btn-link more-rides" aria-expanded={allRides} onclick={() => (allRides = !allRides)}>{allRides ? t('Show fewer') : t('Show all {n}', { n: rides.length })}</button>
+        {/if}
+        <p class="rv-note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Switch off a ride that does not fit, e.g. a race without luggage.')}</span></p>
       </section>
     {/if}
     {#if W}<HeartZones zones={W.zones} onsave={(b) => saveZones(db, b)} />{/if}
@@ -393,72 +413,62 @@
   .acts .btn {
     min-height: 44px;
   }
-  .msg {
-    margin: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+  /* GPX-Weg: a ride saved in this visit */
+  .rides li.fresh {
+    box-shadow: inset 3px 0 0 var(--ok);
+  }
+  .rv-tag.nw {
+    margin-left: 8px;
+    vertical-align: 1px;
   }
   .rides {
     padding: 0 16px;
   }
   .rides li {
+    display: grid;
+    gap: 2px;
+    padding: 10px 0 12px;
+  }
+  /* W1 1a/2a: the title with its surface chip, the switch and «…» at the end */
+  .rtop {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .rtt {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 8px;
+    gap: 4px 8px;
   }
-  /* SN2+ SN2h: the bike and the surface of a ride, small under it */
-  .tg {
-    flex-basis: 100%;
+  .rtt .rv-t {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .rend {
+    flex: none;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    padding: 0 0 10px 32px;
+    gap: 2px;
   }
-  .bchip,
   .schip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    min-height: 32px;
+    min-height: 44px;
     padding: 2px 10px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-strong);
     border-radius: 999px;
     background: var(--paper-2);
     color: var(--ink-2);
     font: 500 var(--fs-small) var(--font-body);
-  }
-  .schip {
-    min-height: 44px;
-    border-color: var(--line-strong);
-    background: var(--paper);
-    color: var(--ink);
     cursor: pointer;
   }
-  .pick {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    gap: 12px;
+  /* W1 3a: the switch «counts» (as Gear › rule sheet) */
+  .switch {
+    display: inline-flex;
     align-items: center;
-    min-height: 60px;
-    padding: 8px 0;
-    cursor: pointer;
-  }
-  .pick input {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    accent-color: var(--ink);
-  }
-  .nm {
-    min-width: 0;
-  }
-  .rm {
-    flex: none;
+    gap: 6px;
     min-height: 44px;
-    min-width: 44px;
     padding: 0 4px;
     border: 0;
     background: none;
@@ -466,9 +476,66 @@
     font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
-  .rm:hover {
-    color: var(--ink);
-    text-decoration: underline;
+  .trk {
+    position: relative;
+    width: 40px;
+    height: 24px;
+    border-radius: 99px;
+    background: var(--line-strong);
+    transition: background 0.15s;
+  }
+  .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow);
+    transition: left 0.15s;
+  }
+  .switch[aria-checked='true'] .trk {
+    background: var(--accent);
+  }
+  .switch[aria-checked='true'] .knob {
+    left: 19px;
+  }
+  /* W1 4a: riding time against the guess; the mark is the guess, the fill the ride */
+  .rtime {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .rbar {
+    position: relative;
+    flex: 1 1 120px;
+    max-width: 220px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--paper-2);
+  }
+  .rfill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 99px;
+    background: var(--ok);
+  }
+  .rbar.slow .rfill {
+    background: var(--z4); /* orange (the warm zone colour); --hi is no longer orange */
+  }
+  .rmark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--ink);
+  }
+  .more-rides {
+    min-height: 44px;
+    margin: 4px 0 0;
   }
   .rides li.off .rv-t {
     color: var(--ink-3);

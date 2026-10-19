@@ -16,6 +16,7 @@ import { splitAll, needsSplitUpdate, splitRerunAfterImport, SPLIT_MARKER, REVIEW
 import { ensureSeed } from './flowdb.js';
 import { moveSeatHeight } from './bikespecs.js';
 import { oldMedNick } from './flowtiles.js';
+import { isTestName } from './testname.js';
 
 const now = () => new Date().toISOString();
 
@@ -164,6 +165,8 @@ export async function blocks2026(db) {
 export async function blocksAfterImport(db, data, mode = 'replace') {
   // v0.66.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
   if (splitRerunAfterImport(data, mode)) await db.settings.delete(SPLIT_MARKER);
+  // 0.161.0 (Noah H3a): a file from before the «Test trip» switch gets its test trips marked again.
+  if (testTripsRerunAfterImport(data)) await db.settings.delete(TEST_TRIPS_MARKER);
   if (!blocksRerunAfterImport(data, mode).rerun) return false;
   await db.settings.delete(BLOCKS_MARKER);
   return true;
@@ -290,7 +293,34 @@ export async function medName2026(db) {
   return true;
 }
 
-export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, medName2026, blocks2026, templatesLinked2026, blockSplit2026];
+export const TEST_TRIPS_MARKER = 'update.testTrips2026';
+
+/** A backup without the marker holds trips from before the switch (both modes: a merge brings them too). */
+export function testTripsRerunAfterImport(data) {
+  const tables = data?.tables ?? {};
+  return !!tables.trips?.length && !(tables.settings ?? []).some((r) => r?.key === TEST_TRIPS_MARKER && r.value);
+}
+
+/**
+ * 0.161.0 (Bugfixes 0.132.2, Noah H3a): only the «Test trip» switch hides a trip now (testname.js
+ * isTestTrip). Once, the trips whose name counted as a test before (isTestName) get the switch, so
+ * none of them reappears on Today, Trips or in the numbers; a trip that already has the field (on or
+ * off) or is archived stays as it is. Returns the ids it switched on.
+ */
+export async function testTrips2026(db) {
+  if (await db.settings.get(TEST_TRIPS_MARKER)) return [];
+  let ids = [];
+  await db.transaction('rw', db.trips, db.settings, async () => {
+    const trips = await db.trips.toArray();
+    const hit = trips.filter((x) => x.testTrip === undefined && !x.archivedAt && isTestName(x.title));
+    if (hit.length) await db.trips.bulkPut(hit.map((x) => ({ ...x, testTrip: true })));
+    await db.settings.put({ key: TEST_TRIPS_MARKER, value: now() });
+    ids = hit.map((x) => x.id);
+  });
+  return ids;
+}
+
+export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, medName2026, blocks2026, templatesLinked2026, blockSplit2026, testTrips2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -17,13 +18,14 @@ const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().sl
 const TEST = 'test_data_gtp_ Testtour Regen';
 const EARLY = 'test_data_gtp_ Seerunde';
 const REAL = 'test_data_gtp_ Jura';
+const CONTEST = 'test_data_gtp_ Contest Jura';
 
 function fixture(path) {
   const data = structuredClone(base);
   const bike = data.tables.bikes[0];
   const entries = data.tables.items.slice(3, 7).map((i) => ({ itemId: i.id, slot: 'seat', qty: 1, packed: true }));
   const trip = (id, title, start, extra = {}) => ({ id, domain: 'bikepacking', title, startDate: start, days: 1, bikeId: bike.id, bike: bike.name, setup: bike.setup, entries, ready: [], status: 'done', ...extra });
-  data.tables.trips = [trip('test_data_gtp_t1', TEST, day(-9)), trip('test_data_gtp_t2', REAL, day(-5)), trip('test_data_gtp_t3', EARLY, day(6), { finished: day(-3) })];
+  data.tables.trips = [trip('test_data_gtp_t1', TEST, day(-9)), trip('test_data_gtp_t2', REAL, day(-5)), trip('test_data_gtp_t3', EARLY, day(6), { finished: day(-3) }), trip('test_data_gtp_t4', CONTEST, day(-7))];
   data.tables.debriefs = data.tables.trips.map((x) => ({ tripId: x.id, status: 'done', weather: 'planned', amount: 'right', bags: 'fine', note: '', items: {}, missing: [], applied: [], km: null }));
   writeFileSync(path, JSON.stringify(data));
 }
@@ -43,12 +45,21 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   // (TZ-1 «Zustand sichtbar»: no own group any more; it stands under Geplant with its line;
   // SN4g: «Geplant» is a list of cards, the finished trips are rows of «Abgeschlossene Touren»)
   await page.goto('./#/trips');
+  await openShort(page);
   const planned = page.locator('section[data-planned]');
   await expect(planned.getByText(T('Marked as ended, the date is still ahead'))).toBeVisible();
   await expect(page.locator('section[data-finished]').getByText(EARLY)).toHaveCount(0);
   // SN4g: a finished trip is a row of the list (its title can also stand in a block of «In Zahlen» below)
   const listed = (title) => page.locator('[data-trip-list]').getByRole('link', { name: title, exact: true });
-  await expect(listed(TEST)).toBeVisible();
+  // 0.161.0 (Bugfixes 0.132.2, Noah 1b): a test trip counts nowhere; Touren names it hidden, with the way to tidy it
+  const hidden = page.locator('[data-hidden-tests]');
+  // H3a: the file is from before the «Testtour» switch, so the old name rule switched it on once;
+  // a name like «Contest» never hides a trip
+  await expect(listed(TEST)).toHaveCount(0);
+  await expect(listed(CONTEST)).toBeVisible();
+  await expect(hidden).toContainText(T('{n} test trip hidden', { n: 1 }));
+  await hidden.getByRole('button', { name: T('Clean up test data') }).click();
+  await expect(page.getByRole('dialog', { name: T('Clean up test data') })).toBeVisible();
 
   // F: Ich › Testdaten aufräumen: the test trip and the fixture's «Test …» bags, archived.
   await page.goto('./#/me');
@@ -63,8 +74,10 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(TEST)).toHaveCount(0);
+  await expect(hidden).toHaveCount(0);
 
   // Undo brings it back.
   await page.goto('./#/me');
@@ -76,7 +89,22 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.goto('./#/trips');
+  await openShort(page);
+  await expect(listed(TEST)).toHaveCount(0);
+  await expect(hidden).toBeVisible();
+
+  // H3a: only the switch hides it. «Keine Testtour» in the trip's menu (a rated trip too), and it is a trip again.
+  await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'test_data_gtp_t1'));
+  await page.goto('./#/pack');
+  await page.reload();
+  await page.locator('details.list-menu > summary').click();
+  await page.getByRole('button', { name: T('Not a test trip') }).click();
+  await page.locator('details.list-menu > summary').click();
+  await expect(page.getByRole('button', { name: T('Mark as test trip') })).toBeVisible();
+  await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(TEST)).toBeVisible();
+  await expect(hidden).toHaveCount(0);
 
   // H: the debrief of that trip asks first; «Trotzdem» opens it.
   await page.goto('./#/debrief/test_data_gtp_t3');
@@ -86,9 +114,11 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
 
   // «Wieder planen» on Touren: the trip opens at Plan and leaves the group.
   await page.goto('./#/trips');
+  await openShort(page);
   await page.getByRole('button', { name: `${T('Plan again')}: ${EARLY}` }).click();
   await expect(page).toHaveURL(/#\/pack/);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { name: new RegExp(T('Ended before it began')) })).toHaveCount(0);
 
   // G: the playground with a weekend trip; ending it puts the data back.
@@ -103,6 +133,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   const bar = page.getByRole('region', { name: 'Demo' });
   await expect(bar).toContainText(T('your data is safe · nothing counts'));
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByText(T('Jura loop'), { exact: true }).first()).toBeVisible();
   const ended = page.waitForEvent('load');
   await bar.getByRole('button', { name: T('End|playground') }).click();
@@ -110,6 +141,7 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await settle(page, { sameTrips: false });
   await expect(page.getByRole('region', { name: 'Demo' })).toHaveCount(0);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(T('Jura loop'), { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);

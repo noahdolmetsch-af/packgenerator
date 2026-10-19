@@ -2,7 +2,7 @@
 // freigegeben»), German UI, phone 390 and desktop 1440, fictional data (sn4plus-fixture.js plus one uploaded
 // ride on its own):
 // a) the band «Packmodus» in both states, «Geplant» as a short list, a tap on the band opens Packmodus;
-// b) «Abgeschlossene Touren»: all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
+// b) «Packmodus» (AT1, 14.10.2026: was «Abgeschlossene Touren», now the Strava activities): all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
 //    Ø Tempo, Ø and max. Puls, Wetter, Temp.), «ohne Wattwerte» without a power meter, «Bewerten» /
 //    «Kurz bewerten» on the grey rows, every trip a card on a phone;
 // c) «Filter»: a dialog / sheet with counts, the active filters as chips to tap away, «Filter löschen», a saved
@@ -17,6 +17,7 @@ import { TOUR_GROUPS } from '../../src/lib/review/pastcols.js';
 import { SK_BIG } from '../../src/lib/sk/tiles.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
 import { openData, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const SHOTS = '/tmp/claude-0/sn-shots/sn4g';
 const T = (en, vars) => {
@@ -65,6 +66,7 @@ async function start(page, context, info, d = DATA) {
   await panel.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
   await settle(page);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   await expect(page.locator('[data-trip-list] [data-row]').first()).toBeVisible();
   return errors;
@@ -88,7 +90,9 @@ test('a) the band «Packmodus» above the list in both states, «Geplant» as a 
   await expect(planned.getByRole('heading', { level: 2, name: T('Planned|group') })).toBeVisible();
   const card = planned.locator(`li[data-trip="${NEXT.id}"]`);
   await expect(card).toContainText(NEXT.title);
-  await expect(card.locator('[data-in-pack-mode]')).toHaveText(T('in pack mode'));
+  // 0.163.0 «Handy kurz»: on a phone the pill goes, the band above already says it
+  if (info.project.name === 'phone') await expect(card.locator('[data-in-pack-mode]')).toHaveCount(0);
+  else await expect(card.locator('[data-in-pack-mode]')).toHaveText(T('in pack mode'));
   await expect(card.locator('.tst[data-state="plan"]')).toBeVisible();
   await shot(page, info, 'SN4g-touren-liste-entwurf');
   await noSideways(page);
@@ -124,17 +128,27 @@ test('a2) nothing open: «Gerade wird keine Tour gepackt» with «Neue Tour» an
 test('b) every finished trip of the period by month with its values; grey rows keep «Bewerten» / «Kurz bewerten»', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const phone = info.project.name === 'phone';
-  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Completed trips') })).toBeVisible();
+  // AT1 (Noah 14.10.2026 21:19): «Abgeschlossene Touren» lists the Strava activities (tests/e2e/at1.spec.js);
+  // the trips packed in the app are the section «Packmodus», with their values (answer 4a, 14.10.2026 «1-5a»)
+  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Pack mode|section') })).toBeVisible();
   // the month heads, newest first
   const heads = await list(page).locator('h3.mh').allTextContents();
   expect(heads.length).toBeGreaterThan(3);
   // a rated trip with its rides: all the values, highlighted, no button; no power meter: «ohne Wattwerte»
   const herbst = rowOf(page, 'Herbsttour Hochland');
   await expect(herbst).toHaveAttribute('data-state', 'rated');
-  for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
-  await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^\d+:\d\d$/);
-  await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
+  if (phone) {
+    // 0.163.0 «Handy kurz» (2b): on a phone one grey line with the same values, the empty ones left out
+    for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-pack-line]')).toContainText(T(w));
+    await expect(herbst.locator('[data-values]')).toHaveCount(0);
+  } else {
+    for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
+    await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^\d+:\d\d$/);
+    await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
+  }
   await expect(herbst.locator('[data-power]')).toHaveCount(0);
+  // AT1: below the values, which Strava activity belongs to the trip (none in this fixture)
+  if (!phone) await expect(herbst.locator('[data-strava-of="0"]')).toHaveText(T('no Strava activity')); // 0.163.0: after a tap on a phone
   await expect(herbst.locator('[data-rate]')).toHaveCount(0);
   // grey: a trip whose Rückblick is missing keeps «Bewerten», the uploaded ride on its own «Kurz bewerten»
   const abend = rowOf(page, 'Abendrunde Hügel');
@@ -145,14 +159,12 @@ test('b) every finished trip of the period by month with its values; grey rows k
   await expect(solo.getByRole('link', { name: `${T('Rate briefly')}: Feierabend Seeufer` })).toBeVisible();
   // a trip without a ride: only weather and temp. and the quiet line
   const ski = rowOf(page, 'Skitour Hochgipfel');
-  if (await ski.count()) await expect(ski.locator('[data-no-power]')).toContainText(T('No ride linked: times, pace and heart rate are missing.'));
+  if (!phone && (await ski.count())) await expect(ski.locator('[data-no-power]')).toContainText(T('No ride linked: times, pace and heart rate are missing.'));
   if (phone) {
-    // a card: the values in a box of 4 columns
-    const cols = await herbst.locator('[data-values] .vg').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-    expect(cols).toBe(4);
+    // a card (0.163.0 «Handy kurz»: the values as one grey line instead of the box of 4 columns)
     expect((await abend.locator('[data-rate]').boundingBox()).width).toBeGreaterThan(300);
   }
-  await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toBeVisible();
+  if (!phone) await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toBeVisible(); // 0.163.0: no legend on a phone
   await shot(page, info, 'SN4g-touren-werte');
   // «Alle» shows more trips than 12 months (the 2025 ones)
   const n12 = await list(page).locator('li[data-row]').count();
@@ -205,6 +217,7 @@ test('c) «Filter»: counts, the active filters as chips, «Filter löschen», a
   await expect(page.locator('[data-filter-n]')).toHaveCount(0);
   // the saved filter is kept: after a reload one tap sets it again, «Filter löschen» clears it
   await page.reload();
+  await openShort(page);
   const saved = page.locator('[data-my-filters] [data-saved="Rennrad allein"]');
   await expect(saved).toHaveAttribute('aria-pressed', 'false');
   await saved.click();

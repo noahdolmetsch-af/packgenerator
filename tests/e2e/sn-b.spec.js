@@ -149,12 +149,12 @@ test('Dein Tempo: one line, the rule big, five marks, «Fahrt hochladen» as the
   const main = page.locator('.tempo .btn.hi');
   await expect(main).toHaveCount(1);
   await expect(main).toContainText(T('Upload ride'));
-  await expect(main.locator('input[type=file]')).toHaveCount(1);
+  await expect(main).toHaveAttribute('href', '#/debrief/ride'); // GPX-Weg 2a: the one upload of the app
   // below five rides the five marks show how far it is; else the rule in use
   await expect(page.locator('section.rule [role="status"]')).toBeVisible();
   if (await page.locator('.marks').count()) await expect(page.locator('.marks i')).toHaveCount(5);
   await expect(page.getByRole('heading', { name: T('Where the rides come from') })).toBeVisible();
-  await expect(page.locator('.rides-c label.rv-row')).toContainText(T('GPX file'));
+  await expect(page.locator('.rides-c a.rv-row')).toContainText(T('GPX file'));
   await shot(page, info, 'SN2-tempo');
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);

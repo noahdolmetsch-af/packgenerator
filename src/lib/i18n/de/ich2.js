@@ -92,6 +92,6 @@ export default {
   'On a phone without a keyboard you need no shortcuts: the bar at the bottom and «+» on top do the same.': 'Am Handy ohne Tastatur brauchst du keine Kürzel: die Leiste unten und «+» oben machen dasselbe.',
 
   /* ---------- I13 Spielwiese ---------- */
-  'Playground with a made-up trip and made-up gear': 'Spielwiese mit erfundener Tour und erfundener Ausrüstung',
+  'Playground with a made-up trip and made-up gear': 'Spielwiese mit erfundener Tour und erfundenem Material',
   'This is how it looks while it runs': 'So sieht es aus, solange sie läuft',
 };

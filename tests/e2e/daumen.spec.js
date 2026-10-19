@@ -3,8 +3,10 @@
 // (test_data_gtp_), German, phone + desktop. FE_SHOTS=<dir> also writes screenshots.
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { start, DE } from './gesamttest/lib.js';
+import { start, DE, fixture, day } from './gesamttest/lib.js';
+import { at1Acts } from './at1-acts.js';
 import { SIGN, FIELD_HELP } from '../../src/lib/daumen.js';
+import { openShort } from './kurz-open.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const phoneOf = (info) => info.project.name === 'phone';
@@ -58,6 +60,7 @@ test('FE1 Daumen-Zone: the main button at the bottom on a phone, Save stays in s
   await shot(page, info, 'fe1-material');
 
   await page.goto('./#/trips');
+  await openShort(page);
   await expectThumb(page, info, page.locator('[data-plan-new]'));
   await page.goto('./#/pack/templates');
   await expectThumb(page, info, page.locator('main .daumen > .btn'));
@@ -103,7 +106,9 @@ test('FE13 Farbe nie allein: every coloured status carries a sign', async ({ pag
 });
 
 test('FE14 help in place: a tap shows the sentence, again hides it', async ({ page, context }, info) => {
-  const errors = await start(page, context, info);
+  // AT1: the values of Touren are those of the Strava activities, so the data carries a few fictional ones
+  const base = fixture().data;
+  const errors = await start(page, context, info, { data: { ...base, tables: { ...base.tables, activities: at1Acts(day) } } });
   await page.goto('./#/gear');
   await page.locator('main .addb').click();
   const dlg = page.locator('dialog[open]');
@@ -125,10 +130,17 @@ test('FE14 help in place: a tap shows the sentence, again hides it', async ({ pa
   await expect(grams).not.toHaveAttribute('aria-describedby', new RegExp(id));
   await page.keyboard.press('Escape');
 
-  // Touren: «Fahrzeit» and «Verstrichen» explain themselves in the values of a trip
+  // Touren: «Dauer» and «Verstrichen» explain themselves in the values of an activity (AT1)
   await page.goto('./#/trips');
-  const vals = page.locator('[data-values]').first();
-  const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Moving time|col'))}` });
+  await openShort(page);
+  // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line, the «?» comes with the activity itself
+  if (phoneOf(info)) {
+    await expect(page.locator('[data-act-line]').first()).toContainText(T('Duration|act'));
+    expect(errors).toEqual([]);
+    return;
+  }
+  const vals = page.locator('[data-act-values]').first();
+  const moving = vals.getByRole('button', { name: `${T('Explain: {what}').replace('{what}', T('Duration|act'))}` });
   await moving.click();
   await expect(vals.getByRole('note')).toHaveText(T(FIELD_HELP.moving));
   await shot(page, info, 'fe14-touren');
@@ -161,10 +173,11 @@ test('FE16 Handy-Tastatur: number pad, Next to the next field, Done on the last'
   await expect(qty).toHaveAttribute('inputmode', 'numeric');
   await grams.focus();
   await expect(grams).toHaveAttribute('enterkeyhint', 'next');
-  const brand = dlg.getByRole('textbox', { name: T('Brand'), exact: true });
+  // Einheitliche Formulare (2a, 19.10.2026): optional fields say «freiwillig» after their label
+  const brand = dlg.getByRole('textbox', { name: new RegExp(`^${T('Brand')}\\b`) });
   await brand.fill('test_data_gtp_ Marke');
   await brand.press('Enter');
-  await expect(dlg.getByRole('textbox', { name: T('Model / colour'), exact: true })).toBeFocused();
+  await expect(dlg.getByRole('textbox', { name: new RegExp(`^${T('Model / colour')}`) })).toBeFocused();
   await expect(dlg).toBeVisible();
   await page.keyboard.press('Escape');
   expect(errors).toEqual([]);

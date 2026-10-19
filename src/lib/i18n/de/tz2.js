@@ -19,7 +19,7 @@ export default {
   'A debrief takes 2 minutes and improves the next trip.': 'Ein Rückblick dauert 2 Minuten und verbessert die nächste Tour.',
   'Rated: debrief saved on {date}': 'Bewertet: Rückblick gespeichert am {date}',
   'Rated: debrief saved.': 'Bewertet: Rückblick gespeichert.',
-  'The learnings help the next trip.': 'Die Learnings wirken auf die nächste Tour.',
+  'The learnings help the next trip.': 'Die Erkenntnisse wirken auf die nächste Tour.',
   'As a template you take the list with all changes from the debrief.': 'Als Vorlage nimmst du die Liste mit allen Änderungen aus dem Rückblick.',
   'Fill in the debrief': 'Rückblick ausfüllen',
   'Change debrief': 'Rückblick ändern',

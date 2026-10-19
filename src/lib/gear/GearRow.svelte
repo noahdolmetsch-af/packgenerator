@@ -1,4 +1,5 @@
 <script>
+  import { askDelete } from '../ui/ask.js';
   /**
    * v0.38.0 (Noah 1a-4a): one gear row in one line: star, name, (bag on wish), weight, •••.
    * - The bag shows only with "With bag" (showBag) above the list.
@@ -63,9 +64,11 @@
       offset = rest = 0;
       onswipe?.(null);
       // P3b «Bedienregeln», M1a (Noah 15.10.2026 «3a»): a long swipe asks first (Undo stays as well)
-      const ask = used ? t('Archive "{name}"? It stays in the look back.', { name: nameOf(item) }) : t('Delete "{name}"?', { name: nameOf(item) });
-      if (!confirm(ask)) return;
-      return used ? onarchive(item) : ondelete(item);
+      // «Rückmeldungen» 19.10.2026: the app's own question instead of the browser's
+      const name = nameOf(item);
+      // Paket D: an unused item goes to ondelete, which asks itself (Gear.deleteOne); asking here too asked twice
+      if (!used) return ondelete(item);
+      return askDelete({ title: t('Archive "{name}"? It stays in the look back.', { name }), archive: t('Archive'), del: false }).then((a) => (a === 'archive' ? onarchive(item) : null));
     }
     offset = rest = r.offset;
     onswipe?.(r.state === 'closed' ? null : item.id);

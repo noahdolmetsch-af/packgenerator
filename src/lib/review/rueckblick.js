@@ -78,9 +78,27 @@ export function learningsOf(trip, learnings = [], rideIds = new Set()) {
 }
 
 /**
+ * v0.151.0 (HP1): the profiles of a trip's rides as one line, each ride after the km of the one before.
+ * [[km, m], …] or null when no ride has two points or more.
+ */
+export function joinProfiles(rides = []) {
+  const out = [];
+  let off = 0;
+  for (const r of rides) {
+    const p = r?.profile;
+    if (!(p?.length > 1)) continue;
+    for (const [km, m] of p) out.push([Math.round((off + km) * 100) / 100, m]);
+    off += p.at(-1)[0];
+  }
+  return out.length > 1 ? out : null;
+}
+
+/**
  * One row per trip that happened and per uploaded ride without a trip, newest first:
  * { id, kind: 'trip' | 'ride', trip, rides, title, start, end, days, art, bike, km, gainM, movingH,
- *   totalH, kmh, pauses, rain, tmin, tmax, learnings, learning, special, baseG, debrief, href, profile }.
+ *   totalH, kmh, pauses, rain, tmin, tmax, learnings, learning, special, baseG, debrief, href, profile,
+ *   rideProfile, planProfile }. v0.151.0 (HP1–HP5): rideProfile = the uploaded rides (GPX) one after the
+ *   other, planProfile = the planned route; each null when there is none.
  */
 export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], today = localDay() } = {}) {
   const dBy = Object.fromEntries(debriefs.map((d) => [d.tripId, d]));
@@ -133,6 +151,8 @@ export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [
       debrief,
       href: trip.fromRide && !items0 ? `#/debrief/ride/${encodeURIComponent(trip.fromRide)}` : debrief === 'none' && !items0 ? '#/pack' : `#/debrief/${encodeURIComponent(trip.id)}`,
       profile: own.length === 1 && own[0].profile?.length ? own[0].profile : trip.route?.profile?.length ? trip.route.profile : null,
+      rideProfile: joinProfiles(own),
+      planProfile: trip.route?.profile?.length > 1 ? trip.route.profile : null,
     };
   });
   const solo = rides
@@ -167,6 +187,8 @@ export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [
         debrief: 'none',
         href: `#/debrief/ride/${encodeURIComponent(r.id)}`,
         profile: r.profile?.length ? r.profile : null,
+        rideProfile: joinProfiles([r]),
+        planProfile: null,
       };
     });
   return [...rows, ...solo].sort((a, b) => (b.start ?? '').localeCompare(a.start ?? '') || (b.rides[0]?.startAt ?? '').localeCompare(a.rides[0]?.startAt ?? '') || a.title.localeCompare(b.title));
@@ -197,6 +219,17 @@ const inside = (iso, from, to) => !!iso && (!from || iso >= from) && iso <= to;
 /** The 7 numbers of «Letzte 12 Monate» in their order. */
 export const STAT_KEYS = ['trips', 'km', 'gainM', 'movingH', 'kmh', 'rain', 'learnings'];
 
+/**
+ * 0.161.0 (Bugfixes 0.132.2 B1): the learnings of a period. A learning with its own date counts by it;
+ * one without a date (most older and imported ones) counts with its trip in the period. Before, only
+ * dated ones counted: «85 Learnings» above, «7» in the period.
+ */
+function learningsIn(rows, learnings, from, to) {
+  const n = new Set(learnings.filter((l) => inside(learnedOn(l), from, to)));
+  for (const r of rows) for (const l of r.learnings ?? []) if (!learnedOn(l)) n.add(l);
+  return n.size;
+}
+
 function numbers(rows, learnings, from, to) {
   const known = (f) => rows.filter((r) => f(r) != null);
   const kmRows = known((r) => r.km);
@@ -216,7 +249,7 @@ function numbers(rows, learnings, from, to) {
     kmhN: speedRows.length,
     rain: weather.length ? weather.filter((r) => r.rain.wet).length : null,
     rainKnown: weather.length,
-    learnings: learnings.filter((l) => inside(learnedOn(l), from, to)).length,
+    learnings: learningsIn(rows, learnings, from, to),
   };
 }
 

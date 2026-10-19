@@ -163,7 +163,7 @@ test('import preview says 1 trip and 1 learning in the singular', async ({ page,
   data.tables.trips = data.tables.trips.slice(0, 1);
   const panel = await start(page, context, info, JSON.stringify(data), 'test_data_gtp_one.json');
   const confirm = page.getByRole('dialog', { name: T('Import backup') });
-  await expect(confirm).toContainText(`enthält ${data.tables.items.length} Ausrüstungsteile, 1 Tour und 1 Learning.`);
+  await expect(confirm).toContainText(`enthält ${data.tables.items.length} Materialteile, 1 Tour und 1 Erkenntnis.`);
   await confirm.getByRole('button', { name: T('Cancel') }).click();
   await expect(panel.getByRole('dialog', { name: T('Import backup') })).toHaveCount(0);
 });

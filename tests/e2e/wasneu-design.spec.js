@@ -10,6 +10,7 @@ import { D0, openHome, tr } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
 import { READY } from '../../src/lib/home/tiles.js';
+import { openShort } from './kurz-open.js';
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
@@ -88,6 +89,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.locator('#wn-test li')).toHaveCount(NEWEST.test.length);
   await page.locator('#wn-test input').first().check();
   await page.reload();
+  await openShort(page); // 0.163.0: on a phone the side parts are closed lines
   await expect(page.locator('#wn-test input').first()).toBeChecked(); // the ticks stay on this device
 
   // every function: v0.118.0 (W2, changed on purpose) one row «All functions» to the whole list, which is unchanged:
@@ -129,13 +131,14 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(vers.locator(`article[data-version="${WHATS_NEW[1].version}"] .vn-pts li`)).toHaveCount(WHATS_NEW[1].points.length);
 
   // the side column: the message switch, since your last visit, how to test, planned next
+  await openShort(page); // 0.163.0: on a phone each is a closed line, open here
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
   await expect(sw).toBeChecked();
   await expect(page.getByRole('heading', { name: T('Since your last visit') })).toBeVisible();
   // the functions newer than the version before (none when the newest version brings no function of its own)
   const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
   const sinceIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => newer(m[2], BEFORE)).map((m) => m[1]);
-  const sinceSec = page.locator('section[aria-labelledby="wn-since-h"]');
+  const sinceSec = page.locator('section[aria-labelledby="wn-since-h"], [data-group="wn-since"]');
   await expect(sinceSec.getByText(sinceIds.length === 1 ? T('{n} new function since {v}', { n: 1, v: shortVersion(BEFORE) }) : T('{n} new functions since {v}', { n: sinceIds.length, v: shortVersion(BEFORE) }))).toBeVisible();
   // Paket 2 (0.135.0 brings six functions): the column shows at most SINCE_ROWS of them (read from the page source)
   if (sinceIds.includes(NEW_FNS[0])) {
@@ -214,6 +217,7 @@ test('I11b: the message after an update: the banner closes with × until the nex
 
   // switched on again under Ich › Was ist neu: the next start shows it
   await next.goto('./#/me/news');
+  await openShort(next);
   const sw = next.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
   await expect(sw).not.toBeChecked();
   await sw.check();

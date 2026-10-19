@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * One workshop visit (Noah, 4.10.2026, answers 7a, 8a): what was done, what it cost, and the
@@ -33,9 +34,19 @@
     await db.visits.update(visit.id, { km: n });
   }
   async function remove() {
-    if (!confirm(t('Remove the visit of {date}? Its jobs leave the part history too.', { date: visit.date }))) return;
-    await db.visits.delete(visit.id);
-    dialog.close();
+    if ((await askDelete({ title: t('Remove the visit of {date}?', { date: visit.date }), text: t('Its jobs leave the part history too. You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    const name = `${visit.shop}, ${visit.date}`;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        const rec = await db.visits.get(visit.id);
+        await db.visits.delete(visit.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.visits.put(rec),
+      text: t('"{name}" removed.', { name }),
+      name,
+    });
+    if (ok) dialog.close();
   }
 </script>
 

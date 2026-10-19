@@ -96,4 +96,10 @@ export default {
   'Show all questions as one list (else one after the other)': 'Alle Fragen als eine Liste zeigen (sonst eine nach der anderen)',
   'Show all as a list': 'Alle als Liste zeigen',
   'Show one at a time': 'Eine nach der anderen zeigen',
+  // Noah 19.10.2026 06:29: one question after pairing
+  'Which device has the right state?': 'Welches Gerät hat den richtigen Stand?',
+  '{n} entry is different on the two devices. The answer counts for it.': '{n} Eintrag ist auf den beiden Geräten verschieden. Die Antwort gilt dafür.',
+  '{n} entries are different on the two devices. The answer counts for all of them.': '{n} Einträge sind auf den beiden Geräten verschieden. Die Antwort gilt für alle.',
+  'The other device': 'Das andere Gerät',
+  'Decide one by one': 'Einzeln entscheiden',
 };

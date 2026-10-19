@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
+import { actRecord } from '../../src/lib/training.js';
+import { openShort } from './kurz-open.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -35,6 +37,8 @@ const KM = [
 async function start(page, context, info) {
   const data = JSON.parse(readFileSync(FIX, 'utf8'));
   data.tables.kmBook = [...(data.tables.kmBook ?? []), ...KM];
+  // AT1: Touren shows the Strava activities themselves, so the same rides are also in the activities store
+  data.tables.activities = KM.map((r) => actRecord({ id: r.stravaId, startLocal: `${r.date}T08:00:00`, name: r.name, type: 'Ride', km: r.km, movingS: 3 * 3600, hrAvg: r.hrAvg, hrMax: r.hrMax }));
   const file = info.outputPath('puls-daten.json');
   writeFileSync(file, JSON.stringify(data));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -75,10 +79,12 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   await expect(page.locator('main .heart').first()).toContainText(T('Heart rate'));
   await shot(page, info, 'P2-rueckblick');
 
-  // P3 Touren: the heart rate of each trip (SN4g «Touren-Seite, Runde 2»: «Ø Puls» and «max. Puls» in the values
-  // of every row of «Abgeschlossene Touren», instead of the average table behind «Bestwerte › Alle»)
+  // P3 Touren: the heart rate of each ride (AT1, 14.10.2026: «Ø HF» and «max. HF» in the values of every
+  // Strava activity of «Abgeschlossene Touren»; before, SN4g showed them in the rows of the app trips)
   await page.goto('./#/trips');
-  const hr = page.locator('[data-trip-list] [data-values] .vc').filter({ has: page.getByRole('term').filter({ hasText: new RegExp(`^${T('Ø heart rate')}$`) }) });
+  await openShort(page);
+  // 0.163.0 «Handy kurz» (2b): on a phone the values of an activity are one grey line
+  const hr = info.project.name === 'phone' ? page.locator('[data-activities] [data-act-line]') : page.locator('[data-activities] [data-act-values] [data-field="hf"]');
   await expect(hr.filter({ hasText: new RegExp(`\\d+\\s*${T('bpm').replace('/', '\\/')}`) }).first()).toBeVisible();
   await hr.first().scrollIntoViewIfNeeded();
   await shot(page, info, 'P3-touren');

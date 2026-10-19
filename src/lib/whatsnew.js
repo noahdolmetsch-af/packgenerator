@@ -16,6 +16,30 @@
 
 export const WHATS_NEW = [
   {
+    // v0.148.0 Paket D «Touren und Unterwegs»: AT1 (Strava activities on Trips), Höhenprofil HP1–HP5, GPX-Weg R3a
+    // «Fahrt hochladen», Planungs-Notizen, Handy kurz (Noah 18.10 «1b», 19.10 «1a»), Bugfixes 0.132.2 + H3a,
+    // W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung and Einheitliche Formulare (pilot in «Aus Notiz wird …»).
+    version: '0.148.0',
+    date: '2026-10-19',
+    title: 'Every ride in its place',
+    lead: 'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.',
+    points: [
+      { text: 'Trips: all your Strava rides with filters, your own filters and the values in the Packmode; on the phone the page stays short', href: '#/trips' },
+      { text: '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review with its elevation profile; «Your rides» in Pace show the five newest first', href: '#/debrief/ride' },
+      { text: 'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Pairing now shows «Syncing …» and on the first sync asks only once which device has the right state', href: '#/me/data' },
+      { box: 'nicer', text: 'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens' },
+      { box: 'nicer', text: 'Forms say «optional» and show a mistake right at the field; deleting always asks in a window of the app, with 4 seconds Undo' },
+    ],
+    test: [
+      'Open Trips: below «Planned» stand your Strava rides; filter them by kind.',
+      'Open Review › Upload ride and choose a GPX file: the ride is saved with its elevation profile.',
+      'Open a trip draft and write a planning note; tap «Turn into …» and choose a task.',
+    ],
+  },
+  {
     // v0.147.0 Paket B «Server»: Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit, Dokument als PDF,
     // Google Kalender und Aufgaben, Mail (GM), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
     // automatischer Abgleich Handy–Computer, Selbstwartung + Web-Push, Pulszonen eins, Gruppen überall (Dokumente

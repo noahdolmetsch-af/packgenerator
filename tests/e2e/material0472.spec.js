@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture, COUNTS } from './material0472-fixture.js';
 
-const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Lieblingssachen', never: 'Nie gebraucht', unweighed: 'Ungewogen', wish: 'Wunschliste' };
+const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Favoriten', never: 'Nie gebraucht', unweighed: 'Ungewogen', wish: 'Wunschliste' };
 
 async function openGear(page, context, info, hash = '#/gear') {
   await openHome(page, context, info, { data: materialFixture() });
@@ -39,7 +39,7 @@ test('the seven views: counts on the buttons, each filters the cards and stays i
   await page.goto('./#/gear?tab=dead');
   await expect(views(page).getByRole('button', { name: /^Nie gebraucht/ })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/gear?fav=1');
-  await expect(views(page).getByRole('button', { name: /^Lieblingssachen/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(views(page).getByRole('button', { name: /^Favoriten/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(cards(page)).toHaveCount(COUNTS.fav);
 });
 

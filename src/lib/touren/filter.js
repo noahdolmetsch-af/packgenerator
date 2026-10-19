@@ -12,8 +12,12 @@
  * every backup). Pure functions, tested in tests/sn4g.test.js.
  */
 import { isBikepacking } from '../review/ganz.js';
+import { actSavedOf } from './actfilter.js';
 
-/** settings key: { saved: [{ id, name, f }], band: 'hidden' | null } (the band: the Packmodus band, SN4g). */
+/**
+ * settings key: { saved: [{ id, name, f }], actSaved: [{ id, name, f }], band: 'hidden' | null } (the band:
+ * the Packmodus band, SN4g; actSaved: «Meine Filter» of the Strava activities, AT1, actfilter.js).
+ */
 export const TOURS_KEY = 'toursPage';
 
 /** FL1: the kinds, in their order (English keys for t()). «Feierabend» comes with the Tourart round (TA). */
@@ -169,7 +173,7 @@ export function sameFilter(a, b) {
 export function toursOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const saved = (Array.isArray(v.saved) ? v.saved : []).filter((s) => s && s.id && String(s.name ?? '').trim()).map((s) => ({ id: String(s.id), name: String(s.name).trim(), f: normFilter(s.f) }));
-  return { saved, band: v.band === 'hidden' ? 'hidden' : null };
+  return { saved, actSaved: actSavedOf(v.actSaved), band: v.band === 'hidden' ? 'hidden' : null };
 }
 
 /**

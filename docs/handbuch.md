@@ -160,12 +160,12 @@ Ein Klick auf Heute plant eine Tour für heute: 2,5 Std., das zuletzt gefahrene 
 
 ### Tour planen
 
-Ein Fenster «Rahmenbedingungen»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.
+Ein Fenster «Neue Tour»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Tippe «Neu» › «Tour planen» oder «Neue Tour» unter Touren.
-2. Fülle «Rahmenbedingungen» aus: Sportart, wann, wie lang, Start-PLZ.
+2. Fülle «Neue Tour» aus: Sportart, wann, wie lang, Start-PLZ.
 3. Packliste in Gruppen prüfen und speichern.
 
 **Beispiel:** Gravel, Samstag, 2 Tage, Start 3000 → Liste mit Zelt, Kocher und Regensachen.
@@ -544,8 +544,8 @@ Lade ein paar GPX-Fahrten, dann rechnen die Fahrzeiten mit deinem eigenen Tempo.
 
 **Aufschalten:** Braucht eine Fahrt mit GPX-Datei: Touren › Rückblick › «Fahrt hochladen».
 
-1. Lade ein paar GPX-Fahrten hoch.
-2. Öffne «Dein Tempo zeigen»: Fahrzeiten nutzen jetzt dein eigenes Tempo.
+1. Touren › Rückblick › Dein Tempo › «Fahrt hochladen»: GPX-Datei wählen, prüfen und speichern.
+2. Ab 5 Fahrten mit 20 km oder mehr rechnet jede Tour die Fahrzeit mit deinem eigenen Tempo.
 
 **Beispiel:** Dein Tempo ist 19 km/h auf Gravel → eine 76-km-Route zeigt etwa 4 h.
 
@@ -584,24 +584,24 @@ Fehlendes schlägt ähnliche Teile vor oder kommt auf die Wunschliste.
 
 ### Fahrt hochladen (GPX)
 
-Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Learnings.
+Distanz, Höhenmeter, Pausen, geplant gegen echt, bis 3 Erkenntnisse.
 
-**Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App.
+**Aufschalten:** Braucht eine GPX- oder TCX-Datei vom Velocomputer oder einer App oder die CSV-Liste von Strava oder Garmin.
 
-1. Tippe «Neu» › «Fahrt hochladen» oder Touren › Rückblick.
-2. Datei wählen; Distanz, Höhenmeter und Pausen erscheinen.
-3. Notiere bis zu 3 Learnings.
+1. Tippe «Neu» › «Fahrt hochladen», oder Touren › Rückblick. Mehrere Dateien auf einmal gehen auch.
+2. Datei wählen; Distanz, Höhenmeter, Pausen und was beim Speichern passiert, stehen da.
+3. Speichern: die Karte «Fahrt gespeichert» sagt, was passiert ist; bis zu 3 Erkenntnisse merken.
 
-**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 Min Pausen.
+**Beispiel:** Geplant 5 h, wirklich 5 h 40 mit 50 min Pausen.
 
 ### Vergangene Touren
 
-Eine Tabelle mit km, Höhenmetern, Zeit, Regen und dem Learning jeder Tour.
+Eine Tabelle mit km, Höhenmetern, Zeit, Regen und der Erkenntnis jeder Tour.
 
 **Aufschalten:** Braucht eine Tour, die begonnen hat oder vorbei ist.
 
 1. Öffne Touren › Rückblick › Vergangene Touren.
-2. Lies km, Höhenmeter, Zeit, Regen und das Learning pro Tour.
+2. Lies km, Höhenmeter, Zeit, Regen und die Erkenntnis pro Tour.
 
 **Beispiel:** «Jura 2 Tage · 160 km · 2100 Hm · Regen an Tag 2».
 
@@ -616,13 +616,13 @@ Ein Tagebuch aller Touren, auch alter; Filter nach Jahr und Art.
 
 **Beispiel:** Filter 2025 und «Rennen» → alle Rennen jenes Jahres.
 
-### Learnings
+### Erkenntnisse
 
-Alle Learnings nach Thema, mit Suche.
+Alle Erkenntnisse nach Thema, mit Suche.
 
 **Aufschalten:** Füllt sich mit jedem Rückblick und Fahrt-Upload.
 
-1. Öffne Touren › Rückblick › Learnings.
+1. Öffne Touren › Rückblick › Erkenntnisse.
 2. Lies sie nach Thema oder such ein Wort.
 
 **Beispiel:** Suche «Essen» → «bei langen Anstiegen alle 45 Minuten essen».
@@ -675,7 +675,7 @@ Ein Werkstattauftrag listet, was die Werkstatt machen soll, bereit zum Drucken.
 
 ### Quittung fotografieren
 
-Fotografiere die Werkstatt-Quittung; sie wartet in der Inbox.
+Fotografiere die Werkstatt-Quittung; sie wartet im Eingang.
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 

@@ -6,25 +6,31 @@
    * «Switch off» (optionally emptying the server). A link #/me/data?koppeln=<code> asks to pair once.
    * Every record is sealed with the code on the device; the server cannot read it (sync/code.js).
    * Everything here is a suggestion: the backup file way below stays.
+   * Noah 19.10.2026 06:29 (pairing felt like nothing happened, then many single questions): while it
+   * pairs, «Syncing …» shows in every view; an error shows in every view too; and when the first round
+   * after pairing finds entries changed on both devices, ONE question asks which device has the right
+   * state (this one / the other one / decide one by one). Later rounds ask one question at a time.
    */
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { RefreshCw, Link2, Copy, Share2 } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
-  import { startSync, stopSync, readCfg } from './engine.js';
+  import { startSync, stopSync, readCfg, resolveAll, ASK } from './engine.js';
   import { sync, syncUi, runSync, setAskPrefs } from './auto.svelte.js';
   import { snapDb, takeSnapshot, hasDataIn } from '../maintenance/snapshots.js';
   import { liveQuery } from 'dexie';
 
   const cfgQ = liveQuery(() => readCfg(db));
   const demoQ = liveQuery(() => db.meta.get('demo'));
-  let view = $state(''); // '' | 'enter' | 'pair' | 'off' | 'link'
+  let view = $state(''); // '' | 'enter' | 'pair' | 'off' | 'link' | 'first'
   let typed = $state('');
   let linkCode = $state('');
   let message = $state('');
   let busy = $state(false);
+  let pairing = $state(false); // begin() runs: snapshot, switch on, the first round
+  let firstN = $state(0); // open questions after the first round of a pairing
 
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const linkOf = (code) => `${location.origin}${location.pathname}#/me/data?koppeln=${code}`;
@@ -55,6 +61,7 @@
 
   async function begin(code) {
     busy = true;
+    pairing = true;
     message = '';
     try {
       if (await hasDataIn(db)) await takeSnapshot(db, snapDb(), { version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null, kind: 'sync' });
@@ -63,11 +70,21 @@
       await runSync(db);
     } finally {
       busy = false;
+      pairing = false;
     }
   }
+  /** The error of the round just run (runSync keeps it in syncCfg), or null. */
+  const lastError = async () => (await readCfg(db))?.error ?? null;
   async function switchOn() {
-    await begin(newCode());
-    view = 'pair';
+    try {
+      await begin(newCode());
+      view = 'pair';
+      const err = await lastError();
+      if (err) message = errText(err);
+    } catch (e) {
+      view = '';
+      message = errText(e?.code);
+    }
   }
   async function pairWith(code) {
     const c = readCode(code);
@@ -75,10 +92,44 @@
       message = t('This code is not complete. It has 32 letters and digits.');
       return;
     }
-    await begin(c);
-    view = '';
-    message = t('Paired. From now on both devices keep the same data.');
+    syncUi.first = true; // the question window waits for the one question below
+    try {
+      await begin(c);
+      const err = await lastError();
+      firstN = await db.meta.where('key').startsWith(ASK).count();
+      if (firstN > 0) {
+        view = 'first';
+        return;
+      }
+      syncUi.first = false;
+      view = '';
+      message = err ? errText(err) : t('Paired. From now on both devices keep the same data.');
+    } catch (e) {
+      syncUi.first = false;
+      view = '';
+      message = errText(e?.code);
+    }
   }
+  /** The one question after pairing: 'mine', 'theirs' or 'one' (the window, one question at a time). */
+  async function firstPick(choice) {
+    busy = true;
+    try {
+      if (choice !== 'one') {
+        await resolveAll(db, choice);
+        runSync(db);
+      }
+    } finally {
+      busy = false;
+      syncUi.first = false;
+      view = '';
+      if (choice === 'one') {
+        syncUi.seen = 0;
+        syncUi.open = true;
+      } else message = t('Paired. From now on both devices keep the same data.');
+    }
+  }
+  // leaving the page without an answer: the questions come one at a time as usual
+  onDestroy(() => (syncUi.first = false));
   async function switchOff(forget) {
     busy = true;
     try {
@@ -150,7 +201,7 @@
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
       {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
-    {#if sync.asks}
+    {#if sync.asks && view !== 'first'}
       <p class="asks" data-sync-asks>
         <b>{tn(sync.asks, '{n} entry changed on both devices.', '{n} entries changed on both devices.')}</b>
         <button type="button" class="btn sm hi" onclick={() => { syncUi.seen = 0; syncUi.open = true; }}>{t('Decide')}</button>
@@ -164,7 +215,16 @@
     </fieldset>
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
-    {#if view === 'pair'}
+    {#if view === 'first'}
+      <div class="confirm" role="group" aria-label={t('Which device has the right state?')} data-sync-first>
+        <p><b>{t('Which device has the right state?')}</b> {tn(firstN, '{n} entry is different on the two devices. The answer counts for it.', '{n} entries are different on the two devices. The answer counts for all of them.')}</p>
+        <div class="ich-acts">
+          <button type="button" class="btn hi" disabled={busy} onclick={() => firstPick('mine')}>{t('This device')}</button>
+          <button type="button" class="btn hi" disabled={busy} onclick={() => firstPick('theirs')}>{t('The other device')}</button>
+          <button type="button" class="btn" disabled={busy} onclick={() => firstPick('one')}>{t('Decide one by one')}</button>
+        </div>
+      </div>
+    {:else if view === 'pair'}
       <div class="pair" data-sync-pair>
         <div class="qr"><QrCode text={linkOf($cfgQ.code)} label={t('QR code to pair')} /></div>
         <div class="pm">
@@ -198,6 +258,7 @@
       </div>
     {/if}
   {/if}
+  {#if pairing && !(sync.running && $cfgQ?.on && view !== 'link')}<p class="busyline" role="status" data-sync-busy>{t('Syncing …')}</p>{/if}
   {#if message}<p class="msg" role="status">{message}</p>{/if}
   <h3 class="sh file">{t('Or with a backup file')}</h3>
 </div>
@@ -332,6 +393,10 @@
   .small {
     margin: 0 0 8px;
     font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .busyline {
+    margin: 10px 0 0;
     color: var(--ink-2);
   }
   .msg {

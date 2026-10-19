@@ -6,6 +6,7 @@
   import { liveQuery } from 'dexie';
   import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { isOnMe } from '../swap.js';
   import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
@@ -43,6 +44,8 @@
   import TourBikeAsk from '../bikes/TourBikeAsk.svelte';
   import BikeOrderSheet from '../bikes/BikeOrderSheet.svelte';
   import '../bikes/standardvelo.css';
+  import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
+  import { offerDone } from '../ui/rename.svelte.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -92,7 +95,7 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
-      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
+      ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id, testTrip: trip.testTrip === true }
       : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
         { title: '', startDate: rideDate(), days: 1, bikeId: openBike ? defaultBikeId : tourBikeId(trips, bikes) ?? bikes[0]?.id },
@@ -399,8 +402,14 @@
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
   // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
   const warmIds = $derived(new Set((preview?.weather ?? []).filter((i) => coldLayer(i)).map((i) => i.id)));
-  const packList = $derived(built ? groupEntries(withBlocks(built).entries, items, warmIds) : null);
-  const total = $derived(packList ? packList.bag : 0);
+  const builtEntries = $derived(built ? withBlocks(built).entries : []);
+  const packList = $derived(built ? groupEntries(builtEntries, items, warmIds) : null);
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 5b + 4a): the button counts what the trip will hold, as Pack does:
+  // «x in the bags · y on me»; on me = the body and the worn places (swap.js isOnMe), as on the trip.
+  const known = $derived(new Set(items.map((i) => i.id)));
+  const meN = $derived(builtEntries.filter((e) => known.has(e.itemId) && isOnMe(e)).length);
+  const bagN = $derived(builtEntries.filter((e) => known.has(e.itemId)).length - meN);
+  const total = $derived(bagN + meN);
   // v0.114.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
   const raceItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('race') && !skip.has(i.id)));
   const RACE_COLOR = STD_CATEGORIES.find((c) => c.key === 'cook').color;
@@ -515,11 +524,50 @@
     return withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now()));
   }
 
-  async function save(event) {
+  // «Rückmeldungen» (Noah 19.10.2026 «2a»): «Save», ✕, back and Escape say what was saved; a second tap
+  // while it saves does nothing; a failed save keeps the window and what was typed, with one line why.
+  const save = once(async (event) => {
     event.preventDefault();
-    if (!draft.title.trim()) return (error = t('Give the trip a name.'));
-    if (byBike && !bike) return bikes.length ? (error = t('Choose a bike.')) : ((addingBike = true), (error = t('Add a bike first.')));
-    if (byBike && !hoursOk) return (error = t('Riding hours per day: between 0.5 and 24, or leave it empty.'));
+    error = '';
+    try {
+      if ((await store()) === false) return;
+    } catch (err) {
+      ended = false;
+      return (error = saveFailed(err));
+    }
+    dialog.close();
+  });
+  /** The changes of an existing trip as they stand now, as one function of the stored trip (for «Save» and for «Undo» after «Discard»). */
+  function editFn() {
+    const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
+    if (draft.testTrip !== (trip.testTrip === true)) changes.testTrip = draft.testTrip; // 0.161.0 (Noah H3a)
+    if (byBike) {
+      // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
+      const f = ctxFields();
+      if (ctx.hours !== was.hours) changes.hours = f.hours;
+      if (night && (night !== was.overnight || ctx.cook !== was.cook || f.tent !== hasTent({ overnight: was.overnight, tent: was.tent }))) Object.assign(changes, { overnight: night, cook: f.cook, tent: f.tent });
+      if (f.dark !== !!trip.dark) changes.dark = f.dark; // v0.66.0: Light follows the dark
+      // v0.25.1: weather chosen here is no longer "from the forecast".
+      if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
+      if (ctx.event !== was.event) changes.event = ctx.event;
+    }
+    const switching = byBike && draft.bikeId !== trip.bikeId;
+    const toBike = switching ? $state.snapshot(bike) : null;
+    const its = $state.snapshot(items);
+    // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
+    // 9b: a changed context (duration, overnight stay, weather) applies at once, with Undo in Pack.
+    return (cur) => {
+      const next = { ...cur, ...changes, ...(switching ? switchBike(cur, toBike) : {}) };
+      const out = { ...changes, ...(switching ? switchBike(cur, toBike) : {}) };
+      return hasContext(next) ? { ...out, ...applyContext(next, its, cur) } : out;
+    };
+  }
+  const applyEdit = async (fn) => (onchange ? onchange(fn) : db.trips.update(trip.id, touched(fn(await db.trips.get(trip.id)))));
+  const edited = () => !isNew && JSON.stringify([$state.snapshot(draft), $state.snapshot(ctx)]) !== openedAs;
+  async function store() {
+    if (!draft.title.trim()) return ((error = t('Give the trip a name.')), false);
+    if (byBike && !bike) return (bikes.length ? (error = t('Choose a bike.')) : ((addingBike = true), (error = t('Add a bike first.')))), false;
+    if (byBike && !hoursOk) return ((error = t('Riding hours per day: between 0.5 and 24, or leave it empty.')), false);
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
       const nt = packTrip(readyStandard, autoNow ?? Date.now());
@@ -528,6 +576,7 @@
       await db.trips.put(touched(nt));
       rememberDomain(area);
       oncreated?.(nt.id);
+      offerDone(t('"{name}" saved.', { name: nt.title }));
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
@@ -539,30 +588,12 @@
       await db.trips.put(touched($state.snapshot(withBlocks(nt))));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
+      offerDone(t('"{name}" saved.', { name: nt.title }));
     } else {
-      const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
-      if (byBike) {
-        // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
-        const f = ctxFields();
-        if (ctx.hours !== was.hours) changes.hours = f.hours;
-        if (night && (night !== was.overnight || ctx.cook !== was.cook || f.tent !== hasTent({ overnight: was.overnight, tent: was.tent }))) Object.assign(changes, { overnight: night, cook: f.cook, tent: f.tent });
-        if (f.dark !== !!trip.dark) changes.dark = f.dark; // v0.66.0: Light follows the dark
-        // v0.25.1: weather chosen here is no longer "from the forecast".
-        if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
-        if (ctx.event !== was.event) changes.event = ctx.event;
-      }
-      const switching = byBike && draft.bikeId !== trip.bikeId;
-      // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
-      // 9b: a changed context (duration, overnight stay, weather) applies at once, with Undo in Pack.
-      const fn = (cur) => {
-        const next = { ...cur, ...changes, ...(switching ? switchBike(cur, bike) : {}) };
-        const out = { ...changes, ...(switching ? switchBike(cur, bike) : {}) };
-        return hasContext(next) ? { ...out, ...applyContext(next, items, cur) } : out;
-      };
-      if (onchange) await onchange(fn);
-      else await db.trips.update(trip.id, touched(fn(await db.trips.get(trip.id))));
+      const didChange = edited();
+      await applyEdit(editFn());
+      if (didChange) offerDone(t('Changes to "{name}" saved.', { name: draft.title.trim() }));
     }
-    dialog.close();
   }
 
   /*
@@ -634,19 +665,39 @@
   const openedAs = JSON.stringify([draft, ctx]);
   const keepOnBack = () => (isNew || JSON.stringify([$state.snapshot(draft), $state.snapshot(ctx)]) === openedAs ? dialog.close() : save({ preventDefault() {} }));
   /** "Discard": the trip this window made goes again (it was made here and has nothing else). */
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 4 s «Undo» (the new trip comes back, or the
+  // changes go onto the trip again).
   async function discard() {
     ended = true;
     clearTimeout(autoTimer);
     await autoBusy;
-    if (autoId) await db.trips.delete(autoId);
+    if (autoId) {
+      const made = await db.trips.get(autoId);
+      await db.trips.delete(autoId);
+      if (made) offerDone(t('"{name}" discarded.', { name: made.title }), () => db.trips.put(made));
+    } else if (edited() && draft.title.trim() && (!byBike || (bike && hoursOk))) {
+      const fn = editFn();
+      offerDone(t('Changes to "{name}" discarded.', { name: trip.title }), () => applyEdit(fn));
+    }
     dialog.close();
   }
 
-  async function remove() {
-    if (!confirm(t('Delete the trip "{title}"? A backup file can bring it back.', { title: trip.title }))) return;
-    await db.trips.delete(trip.id);
-    dialog.close();
-  }
+  // «Rückmeldungen» (Noah 19.10.2026): the app's own question, then 4 s «Undo».
+  const remove = once(async () => {
+    const name = trip.title;
+    if ((await askDelete({ title: t('Delete the trip "{name}"?', { name }), text: t('Its packing list goes with it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        const rec = await db.trips.get(trip.id);
+        await db.trips.delete(trip.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.trips.put(rec),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
+    if (ok) dialog.close();
+  });
 </script>
 
 {#snippet overnight()}
@@ -909,6 +960,10 @@
         {@render weather()}
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
+      {#if !isNew}
+        <!-- 0.161.0 (Noah H3a): only this switch hides a trip as a test; its name never does. -->
+        <label class="ck"><input type="checkbox" bind:checked={draft.testTrip} data-test-trip /> {t('Test trip (counts nowhere)')}</label>
+      {/if}
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
         {@render templatesFold()}{@render komootRow()}
@@ -926,9 +981,9 @@
     <div class="foot daumen-foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Discard')}</button>{/if}
+      {:else}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
-      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
+      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt" data-count-split>{` · ${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}</button>
     </div>
   </form>
 </dialog>

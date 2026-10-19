@@ -271,8 +271,11 @@
   }
   .ot {
     display: grid;
+    /* Durchklick DK7a: a long trip name without spaces wraps */
+    grid-template-columns: minmax(0, 1fr);
     gap: 2px;
     min-width: 0;
+    overflow-wrap: break-word;
   }
   .ot small {
     display: flex;

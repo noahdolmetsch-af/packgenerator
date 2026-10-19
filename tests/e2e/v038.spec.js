@@ -140,6 +140,8 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
     await expect.poll(async () => !!(await db(page, 'items', `${P}KL05`)).favorite).toBe(!wasFav);
     // A long swipe left on a used item archives it (Gone), with Undo.
     await swipe(page, jacket.locator('.face'), -300);
+    // «Rückmeldungen» (Paket D): the long swipe asks in the app's own window, not the browser's
+    await page.getByTestId('ask-delete').getByRole('button', { name: 'Archivieren' }).click();
     await expect.poll(async () => (await db(page, 'items', `${P}KL05`)).ownership).toBe('gone');
     await page.getByRole('button', { name: 'Rückgängig' }).click();
     await expect.poll(async () => (await db(page, 'items', `${P}KL05`)).ownership).toBe('owned');
@@ -152,6 +154,7 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
     await expect(warm.getByRole('button', { name: 'Löschen' })).toBeVisible();
     await shot(page, info, 'material-swipe-links');
     await swipe(page, warm.locator('.face'), -300);
+    await page.getByTestId('ask-delete').getByRole('button', { name: 'Löschen' }).click();
     await expect.poll(async () => await db(page, 'items', `${P}KL04`)).toBeUndefined();
     await page.getByRole('button', { name: 'Rückgängig' }).click();
     await expect.poll(async () => (await db(page, 'items', `${P}KL04`))?.name).toBe(`${P} Arm warmers`);
