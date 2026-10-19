@@ -110,10 +110,11 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(await setsOf(page, 'LX01')).toEqual(['comfort']);
 
   // 2. The Bausteine page: the night blocks, «Auf der Fahrt», no Warm; the check is waiting.
+  // v0.154.0 «Bausteine mehr»: «Auf der Fahrt» is «Auf jeder Fahrt» now (Licht moved to «Je nach Lage»).
   await page.goto('./#/blocks');
   await openGroups(page);
   const main = page.locator('main');
-  await expect(main.getByRole('heading', { name: T('On the ride') })).toBeVisible();
+  await expect(main.getByRole('heading', { name: T('On every ride') })).toBeVisible();
   for (const name of ['Biwak', 'Zelt', 'Hotel/Hütte', 'Reparatur', 'Laden', 'Licht']) await expect(main).toContainText(name);
   await expect(main).not.toContainText('Nacht: Warm');
   // SN3: the head button reads «Prüfen» (its explain bubble: «Bausteine prüfen» · «zu prüfen»).

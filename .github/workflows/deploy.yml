@@ -39,6 +39,7 @@ jobs:
   # v0.30.0 (Noah 1a): phone and desktop run side by side, so a check takes about half as long.
   e2e:
     runs-on: ubuntu-latest
+    # 30 like the Gesamttest: the phone run has 583 tests and stopped at 582 after 20 min (18.10.2026)
     timeout-minutes: 30
     strategy:
       fail-fast: false

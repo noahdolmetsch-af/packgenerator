@@ -149,6 +149,7 @@ describe('templates that held an old block (tpl.blocks)', () => {
 
 describe('the update in the database (updates.js) and old backups', () => {
   let n = 0;
+  const own = async (db) => (await db.items.toArray()).filter((i) => !String(i.sources ?? '').startsWith('example parts')).length;
   const fresh = async (items, settings = []) => {
     const db = createDb(`v0550-${++n}`);
     await db.items.bulkPut(structuredClone(items));
@@ -167,7 +168,7 @@ describe('the update in the database (updates.js) and old backups', () => {
     const snap = await db.items.toArray();
     expect(await blockSplit2026(db)).toEqual({ items: [], templates: [] });
     expect(await db.items.toArray()).toEqual(snap);
-    expect(await db.items.count()).toBe(OLD.length);
+    expect(await own(db)).toBe(OLD.length); // v0.154.0: plus the generic example parts of «Bausteine mehr»
   });
 
   it('an old backup (replace, no marker) is migrated again, with its prefills', async () => {
@@ -180,7 +181,7 @@ describe('the update in the database (updates.js) and old backups', () => {
     await applyUpdates(db);
     expect((await db.items.get(`${P}TUBE`)).sets).toEqual(['standard', 'repair']); // the old file also gets toolsAlways2026 again (v0.28.0)
     expect((await db.items.get(`${P}LAMP`)).sets).toEqual(['light', 'lights']);
-    expect(await db.items.count()).toBe(OLD.length);
+    expect(await own(db)).toBe(OLD.length);
   });
 
   it('an old item merged in later is mapped on the next start, without new prefills', async () => {
@@ -370,6 +371,9 @@ describe('«Bausteine prüfen» (4a)', () => {
 describe('German words', () => {
   it('the night and the blocks', () => {
     lang.v = 'de';
-    expect(allSets([]).map((s) => s.name)).toEqual(['Biwak', 'Zelt', 'Hotel/Hütte', 'Nacht: Kochen', 'Erste Hilfe', 'Reparatur', 'Laden', 'Licht', 'Rennen', 'Verpflegung', 'Hygiene', 'Komfort', 'Kälte', 'Hitze', 'Pass & Höhenmeter', 'Lange Fahrt', 'Ausland', 'Zug', 'Regen']); // SN3+: the blocks «je nach Lage»
+    expect(allSets([]).map((s) => s.name)).toEqual(['Biwak', 'Zelt', 'Hotel/Hütte', 'Nacht: Kochen', 'Erste Hilfe', 'Reparatur', 'Laden', 'Licht', 'Rennen', 'Verpflegung', 'Hygiene', 'Komfort', 'Kälte', 'Hitze', 'Pass & Höhenmeter', 'Lange Fahrt', 'Ausland', 'Zug', 'Regen',
+      // v0.154.0 «Bausteine mehr»: the nine new blocks and the stages
+      'Gut schlafen', 'Zwei Nächte', 'Abfahrt warm', 'Erholung danach', 'Glatt und nass', 'Kurz ins Wasser', 'Sauna und Bad', 'Kaltes Wasser', 'Nasses trocken halten',
+      'Kälte: Hände und Füsse', 'Kälte: Schichten', 'Kälte: warm am Abend', 'Kochen: warmes Essen', 'Laden: 2 Tage ohne Strom', 'Erste Hilfe: Notfall Winter', 'Hygiene: Pflege unterwegs']); // SN3+: the blocks «je nach Lage»
   });
 });
