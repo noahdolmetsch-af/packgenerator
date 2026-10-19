@@ -50,6 +50,14 @@ export function stravaEnv(e = process.env) {
   };
 }
 
+/** The start of a ride as a coarse grid cell '47.4,8.5' (0.1°, about 10 km), or null. */
+export function spotOf(ll) {
+  if (!Array.isArray(ll) || ll.length < 2) return null;
+  const [lat, lon] = ll.map(Number);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return `${(Math.round(lat * 10) / 10).toFixed(1)},${(Math.round(lon * 10) / 10).toFixed(1)}`;
+}
+
 /** A Strava activity as the app's ride needs it (nothing else leaves the server). */
 export function trimActivity(a) {
   return {
@@ -83,6 +91,8 @@ export function trimActivity(a) {
     wNorm: a.device_watts && Number(a.weighted_average_watts) > 0 ? Math.round(Number(a.weighted_average_watts)) : null,
     kj: a.device_watts && Number(a.kilojoules) > 0 ? Math.round(Number(a.kilojoules)) : null,
     effort: Number(a.suffer_score) > 0 ? Math.round(Number(a.suffer_score)) : null,
+    // «Velo-Inspektion» (Noah 19.10.2026 «3a»): where the ride started, only to about 10 km (0.1°), for the rain
+    spot: spotOf(a.start_latlng),
   };
 }
 

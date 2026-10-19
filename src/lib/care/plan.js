@@ -44,8 +44,11 @@ export function careStd(key) {
   if (c.kind === 'check') return { everyKm: ownLive.v.checkKm }; // «Eigene Werte» checkKm (standard CHECK_KM)
   const p = { ...PART[c.parts[0]], ...partStd(c.parts[0]) }; // «Eigene Werte»: the own standard interval
   if (c.kind === 'wear') return { warnAt: p.warnAt ?? null, limit: p.limit ?? null };
-  return { everyKm: nn(p.everyKm), everyDays: nn(p.everyDays) };
+  // «Velo im Griff» #193: fork and shock also by riding hours (off as the standard, PART suggestHours offered)
+  return { everyKm: nn(p.everyKm), everyDays: nn(p.everyDays), ...(Object.hasOwn(PART[c.parts[0]] ?? {}, 'everyHours') ? { everyHours: nn(p.everyHours) } : {}) };
 }
+/** The hours the sheet suggests for this care (fork and shock: 50 h), or null. */
+export const careHoursHint = (key) => PART[CARE_ITEM[key]?.parts?.[0]]?.suggestHours ?? null;
 
 /** The cares that fit this bike (fork and shock only with that suspension, as the due rules). */
 export const careItems = (bike) => CARE_ITEMS.filter((c) => c.kind === 'check' || c.parts.every((k) => !PART[k]?.suspension || fits(bike ?? {}, PART[k])));
@@ -66,8 +69,9 @@ export function careRow(bike, key) {
   else {
     const part = partOf(bike, c.parts[0]);
     values = c.kind === 'wear' ? { warnAt: pick(part, 'warnAt', std.warnAt), limit: pick(part, 'limit', std.limit) } : { everyKm: pick(part, 'everyKm', std.everyKm), everyDays: pick(part, 'everyDays', std.everyDays) };
+    if ('everyHours' in std) values.everyHours = pick(part, 'everyHours', std.everyHours);
   }
-  const on = c.kind === 'wear' ? values.limit != null : values.everyKm != null || (c.kind === 'interval' && values.everyDays != null);
+  const on = c.kind === 'wear' ? values.limit != null : values.everyKm != null || (c.kind === 'interval' && (values.everyDays != null || values.everyHours != null));
   const changed = on && Object.keys(std).some((f) => (values[f] ?? null) !== (std[f] ?? null));
   return { key, kind: c.kind, name: c.name, sub: c.sub, on, values, std, changed, note: String(bike?.careNotes?.[key] ?? '') };
 }
@@ -93,7 +97,7 @@ export function checkCare(key, values, on = true) {
     else if (!(typeof v === 'number' && Number.isFinite(v) && v > 0)) return { error: 'number' };
     else out[f] = v;
   }
-  if (c.kind !== 'wear' && out.everyKm == null && out.everyDays == null) return { error: 'interval' };
+  if (c.kind !== 'wear' && out.everyKm == null && out.everyDays == null && out.everyHours == null) return { error: 'interval' };
   if (c.kind === 'wear') {
     if (out.limit == null) return { error: 'wear' };
     const low = !!PART[c.parts[0]]?.lowIsWorn;

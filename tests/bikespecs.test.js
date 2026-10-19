@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { ensureParts, PART, PARTS, isMore } from '../src/lib/care.js';
 import { withVisits } from '../src/lib/workshop.js';
-import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs, partKeys, geoKey, readValue, compareRows, setSpec, specValue, areaWeight, hasSpecs } from '../src/lib/bikespecs.js';
+import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs, partKeys, geoKey, readValue, compareRows, setSpec, specValue, areaWeight, hasSpecs, GEOMETRY } from '../src/lib/bikespecs.js';
 
 const P = 'test_data_gtp_';
 const goat = () => ({
@@ -32,7 +32,9 @@ const FILE = {
 describe('one part list for every bike', () => {
   it('gives every bike the whole template, front and rear separate, the old parts only with a history', () => {
     const keys = ensureParts({ type: 'gravel', parts: [] }).map((p) => p.key);
-    for (const k of ['frame', 'shock', 'fork', 'brakeF', 'brakeR', 'rotorF', 'rotorR', 'wheelF', 'wheelR', 'tyres', 'grips', 'seatpost', 'charger']) expect(keys).toContain(k);
+    // «Velo im Griff» #1009: the gravel template has the fork, no rear shock (that is the mountain bike's, full suspension)
+    expect(keys).not.toContain('shock');
+    for (const k of ['frame', 'fork', 'brakeF', 'brakeR', 'rotorF', 'rotorR', 'wheelF', 'wheelR', 'tyres', 'grips', 'seatpost', 'charger']) expect(keys).toContain(k);
     expect(keys).not.toContain('brakes');
     expect(keys).not.toContain('wheels');
     expect(keys).not.toContain('linkage');
@@ -76,6 +78,7 @@ describe('the bikeSpecs import', () => {
     expect(partKeys('Ladegerät')).toEqual(['charger']);
     expect(geoKey('Lenkwinkel')).toBe('headAngle');
     expect(geoKey('Tretlager-Offset')).toBe('bbDrop');
+    expect(geoKey('Nachlauf')).toBe('trail'); // «Velo im Griff»: the 12th geometry value
     expect(readValue('66,5°', true)).toBe(66.5);
     expect(readValue('15x110', true)).toBe('15x110');
   });
@@ -136,7 +139,7 @@ describe('compare bikes', () => {
     const drive = c.main.find((g) => g.area === 'drive');
     expect(drive.rows.find((r) => r.id === 'chain:model')).toMatchObject({ values: ['Kettenwerk K11', 'Kettenwerk K12'], differ: true });
     expect(drive.rows.find((r) => r.id === 'cassette:model').values).toEqual(['Zahnkranz 10-50', null]);
-    expect(c.geo.rows).toHaveLength(11); // v0.65.0: the saddle height moved to the fit rows
+    expect(c.geo.rows).toHaveLength(GEOMETRY.length); expect(GEOMETRY).toHaveLength(12); // v0.65.0: the saddle height moved to the fit rows
     expect(c.more.find((g) => g.area === 'extras').rows.some((r) => r.key === 'own-klingel')).toBe(true);
     expect(areaWeight(a, 'brakes')).toMatchObject({ g: 500, known: 2 });
     expect(hasSpecs(b)).toBe(true);
