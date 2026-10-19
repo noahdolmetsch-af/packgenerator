@@ -70,6 +70,7 @@
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
   import { weekGoals } from '../lib/flowweek.js';
@@ -284,6 +285,7 @@
       <h1 class="title">{t('Goals|flow')}</h1>
       <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
     </header>
+    <AreaIntro place="goals" />
     <div class="tools">
       <div class="seg" role="group" aria-label={t('Filter by ring')}>
         {#each RING_FILTER as r (r.key)}<button type="button" class="sg" aria-pressed={ringF === r.key} onclick={() => (ringF = r.key)}>{t(r.name)}</button>{/each}
@@ -349,7 +351,8 @@
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
-      <HintCard page="aktiv" />
+      <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+      <HintCard page="aktiv" intro="aktiv" />
       <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">

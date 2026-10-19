@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.151.0 Paket F «Woche»
+  'Your week, and a tour of the app': 'Deine Woche und ein Rundgang durch die App',
+  'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.': 'Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche, und ein kurzer Rundgang, der dir alles zeigt.',
+  'The place «Week»: Monday to Sunday with your training, dates, Google calendar and tasks, holidays and bike service; on Sunday «Plan the week» suggests, you decide': 'Der Ort «Woche»: Montag bis Sonntag mit Training, Terminen, Google Kalender und Aufgaben, Ferien und Velo-Service; am Sonntag schlägt «Woche planen» vor, du entscheidest',
+  'Tour of the app: six short steps with an example trip or your own data, and a small tour per place': 'Rundgang durch die App: sechs kurze Schritte mit einer Beispieltour oder deinen Daten, dazu ein kleiner Rundgang pro Ort',
+  'On top of every page one card says what it is for, with three things to do, what to expect and a «Did you know» with its source': 'Oben auf jeder Seite sagt eine Karte, wofür sie da ist, mit drei Dingen, was dich erwartet und einem «Wusstest du» mit Quelle',
+  'Holidays once under Week › Holidays: the app suggests pausing the plan, servicing the bike before and a packing list': 'Ferien einmal unter Woche › Ferien eintragen: die App schlägt vor, den Plan zu pausieren, das Velo vorher zu warten und eine Packliste',
+  'The card «This week» on Today shows a dot per day and what the plan says for today': 'Die Karte «Diese Woche» auf Heute zeigt einen Punkt pro Tag und was der Plan für heute vorsieht',
+  'Open Week: your week from Monday to Sunday; hide a kind with its chip.': 'Öffne Woche: deine Woche von Montag bis Sonntag; blende eine Art mit ihrem Chip aus.',
+  'Tap «Plan the week» and take or skip a suggestion in each of the four steps.': 'Tippe «Woche planen» und übernimm oder überspring in jedem der vier Schritte einen Vorschlag.',
+  'Open Me › Handbook › Tour and go through the six steps with the example trip.': 'Öffne Ich › Handbuch › Rundgang und geh die sechs Schritte mit der Beispieltour durch.',
   // 0.150.0 Paket C «Heute und Aktiv»
   'Today in a calm order': 'Heute in ruhiger Reihenfolge',
   'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.': 'Heute folgt der Tageszeit: oben eine Tageskarte, der Tages-Check in einem eigenen Fenster, deine Balance als ein Ring und eine kurze Liste, was dir guttut.',

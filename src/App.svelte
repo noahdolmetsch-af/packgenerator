@@ -29,6 +29,8 @@
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
+  import TourHost from './lib/tour/TourHost.svelte';
+  import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
   import KomootSheet from './lib/komoot/KomootSheet.svelte';
@@ -69,6 +71,9 @@
   import OwnValues from './pages/OwnValues.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
+  import Woche from './pages/Woche.svelte';
+  import WochePlanen from './pages/WochePlanen.svelte';
+  import WocheFerien from './pages/WocheFerien.svelte';
   import Routine from './pages/Routine.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
@@ -369,7 +374,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -427,6 +432,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'week'}
+    <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
+    {#if hash.startsWith('#/week/plan')}<WochePlanen />{:else if hash.startsWith('#/week/away')}<WocheFerien />{:else}<Woche />{/if}
   {:else if page === 'timer'}
     <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
     {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
@@ -578,6 +586,8 @@
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
 {#if page !== 'share'}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
+<!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
+{#if page !== 'share'}<TourStart /><TourHost />{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

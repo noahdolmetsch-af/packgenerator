@@ -8,6 +8,7 @@
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
   import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link, Mountain } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Rows from '../../lib/flow/kit/Rows.svelte';
@@ -215,6 +216,7 @@
     <!-- Impeccable runde 2 (clarify): what the page is for, next to «Heute» (tick off) and «Ziele» (the stand) -->
     <PageHead title={t('Activity|tab')} text={t('Your favourite activities at a glance: streaks, bests and the next star.')} />
   </header>
+  <AreaIntro place="activity" />
 
   {#if data}
     <div class="lay">

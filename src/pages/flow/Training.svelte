@@ -9,6 +9,7 @@
    * Observation only: no value is rated.
    */
   import { untrack } from 'svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { ChevronRight, RefreshCw } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
@@ -83,6 +84,7 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Training|tab')} />
     <PageHead title={t('Training|tab')} text={t('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.')} />
   </header>
+  <AreaIntro place="training" />
 
   <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
 
