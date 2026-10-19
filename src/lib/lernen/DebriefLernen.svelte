@@ -5,6 +5,8 @@
    * the message to your future self.
    */
   import Tagebuch from './Tagebuch.svelte';
+  import Zusatzfragen from './Zusatzfragen.svelte';
+  import Zukunft from './Zukunft.svelte';
 
   /** trip, d (the debrief state), persist (saves d), notes (tripNotes), rides (db.rides of the trip) */
   let { trip, d, persist, notes = [], rides = [] } = $props();
@@ -12,4 +14,6 @@
 
 <div class="m-lernen" data-lernen>
   <Tagebuch {trip} {d} {persist} {notes} {rides} />
+  <Zusatzfragen {trip} {d} {persist} {rides} />
+  <Zukunft {d} {persist} />
 </div>
