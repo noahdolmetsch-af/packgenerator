@@ -74,6 +74,17 @@ trackChanges(db);
 // page (before, «Your data» on Today started it; it lives under Me now).
 if (folderBackupSupported) watchForChanges(db, null);
 
+// 19.10.2026: an older service worker on the server domain (packgen) answered /api/… with this app, so the
+// Google and Strava logins never reached the server. If the app starts on an /api/ address, that worker is
+// in the way: remove it and load the same address again, now from the server.
+if (location.pathname.startsWith('/api/') && 'serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .getRegistrations()
+    .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+    .then(() => location.reload())
+    .catch(() => {});
+}
+
 // A pull-request preview (Vercel) says so on every page: it has its own, separate data.
 if (__PREVIEW__) {
   const de = (() => { try { return localStorage.getItem('lang') === 'de'; } catch { return false; } })();
