@@ -125,6 +125,7 @@
   import YearRow from '../lib/home/YearRow.svelte';
   import WeekTile from '../lib/home/WeekTile.svelte';
   import TodaySuggest from '../lib/home/TodaySuggest.svelte';
+  import RoutineTile from '../lib/home/RoutineTile.svelte'; // Routine «Das tut mir gut» (D1)
   import BagReminder from '../lib/home/BagReminder.svelte';
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
@@ -1058,6 +1059,7 @@
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
+  {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />

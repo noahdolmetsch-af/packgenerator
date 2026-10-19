@@ -514,4 +514,8 @@ export default {
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Routine «Das tut mir gut» (D1 + D2)
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
+  'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
 };

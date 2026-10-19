@@ -129,6 +129,7 @@ export const HOWTO = {
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
+  'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],
   'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],

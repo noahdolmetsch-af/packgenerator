@@ -151,7 +151,8 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   const old = ['trip', 'important', 'flow', 'balance', 'morningcheck', 'suggest', 'week', 'news', 'try', 'meditation', 'fn:dayride', 'fn:weigh', 'year'];
   data.tables.settings.push({ key: 'homeWall', value: { v: 4, tiles: old.map((id) => ({ id, size: id === 'news' ? 'w' : id === 'trip' || id === 'year' || id === 'important' ? (id === 'important' ? 'l' : 'long') : id === 'meditation' || id.startsWith('fn:') ? 's' : 'l' })) } });
   await openHome(page, context, info, { data, hour: 13 });
-  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'news', 'fn:weigh', 'year']);
+  // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
+  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'news', 'fn:weigh', 'year']);
   // put «New» wide (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 5, tiles: READY.map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {

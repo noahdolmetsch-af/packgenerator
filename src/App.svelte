@@ -67,6 +67,7 @@
   import OwnValues from './pages/OwnValues.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
+  import Routine from './pages/Routine.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
@@ -366,7 +367,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -431,6 +432,9 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
     {#key hash}{#if checkPart(hash) === 'questions'}<CheckQuestions />{:else}<Check part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'routine'}
+    <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
+    <Routine />
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
