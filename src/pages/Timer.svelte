@@ -12,6 +12,7 @@
    * Everything is optional; the timer runs on when the page changes (TimerFloat in App.svelte).
    */
   import { ArrowUp, ArrowDown, Repeat, Clock, Play, Pause, RotateCcw, Maximize2, Minimize2, Plus, Keyboard, Coffee, Dumbbell, Flower2, Moon, Droplet, Target, Check, ChevronRight, Square, Timer as TimerIcon, List } from '@lucide/svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Face from '../lib/timer/Face.svelte';
   import { timer, loadPrefs, savePrefs, start, togglePause, plusMinute, reset, finish, setNote, closeDone } from '../lib/timer/run.svelte.js';
@@ -188,6 +189,7 @@
   <Crumb path={[{ href: '#/', label: t('Today|place') }]} here={t('Timer')} />
   <h1 class="h1" tabindex="-1" data-page-title>{t('Timer')}</h1>
   <p class="sub">{t('Stopwatch, countdown, interval, Pomodoro or until a time. All optional.')}</p>
+  <AreaIntro place="timer" />
 
   {#if timer.done}
     {@const d = timer.done}

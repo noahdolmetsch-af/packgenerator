@@ -8,6 +8,7 @@
    * tap, or an own one. Everything is a suggestion: nothing here is needed, all can be deleted.
    */
   import { Plus, X, Check, Clock, Link2, Pencil, Trash2 } from '@lucide/svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -79,6 +80,7 @@
   <Crumb path={[{ href: '#/', label: t('Today|place') }]} here={t('What does me good')} />
   <h1 class="rtp-h1" tabindex="-1" data-page-title>{t('What does me good')}</h1>
   <p class="rtp-intro">{t('Put what does you good on your list. It counts every day until you change it.')}</p>
+  <AreaIntro place="routine" />
 
   <div class="rtp-cols">
     <section class="rtp-mine" aria-labelledby="rtp-list-h">

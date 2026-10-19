@@ -11,6 +11,7 @@
    * Data: settings DREAMS_KEY (dreams.js), in every backup. Nothing is fetched online.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { DREAMS_KEY, MONTHS, storeOf, newDream, dreamList, moveDream, monthsOf, seasonText, yearBand, nextWindow, suggestStart, kindName, addKind, renameKind, deleteKind, plannableRaces, raceDays, raceEvent, deadlines, daysUntil, WEEK_HIDE_KEY } from '../lib/dreams.js';
   import { RIG_KEY } from '../lib/inspiration.js';
@@ -132,6 +133,7 @@
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
   <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream.')}</p>
+  <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
     <label class="capt"><span class="sr">{t('New dream tour')}</span><input class="inp" type="text" bind:value={title} maxlength="80" placeholder={t('e.g. Over the Furka and Grimsel')} /></label>

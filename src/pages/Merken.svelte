@@ -11,6 +11,7 @@
    * Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): every own list under «Listen», each opens its page.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
@@ -118,6 +119,7 @@
 
 <div class="mk">
   <PageHead title={t('Remember')} text={t('Your to-dos first, the dates of the app smaller below.')} />
+  <AreaIntro place="merken" />
   <p class="set"><a href="#/me/reminders"><Settings2 size={16} aria-hidden="true" />{t('Reminders')}</a></p>
 
   <div class="card list">
