@@ -273,6 +273,8 @@ export const HOWTO = {
   'f.record': ['Open On the way and tap «Record».', 'Read the battery hint and tap «Start recording»; the screen stays on.', 'Tap «Stop» at the end; a Strava ride of the same time counts first.'],
   'f.spurmap': ['Open a trip’s debrief and tap «Travel track».', 'Drag and pinch the map; tap a day or a dot.', 'Tick «Show Neuland» to see the land you rode for the first time.'],
   'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
+  'f.trainplans': ['Open Active › Training › Training plans.', 'Pick a plan, choose «Back from the race day» and set the day.', 'Tap «Try it»: the sessions stand in your week plan.'],
+  'f.feel': ['Open Active › Training after a ride.', 'Tap a number from 1 to 10 under «How hard was your ride?».', 'Change it later on the page of the ride.'],
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
 };
 

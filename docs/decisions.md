@@ -1733,7 +1733,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
 ## 19.10.2026: Paket 6 Velo-FAQ (0.157.0)
 
-- Noah 19:58 «bitte velo faq in neues paket 6 tun». Dazu die kleine Korrektur «ganze Zeile antippen» bei abgeschlossenen Touren.
+- Noah 19:58 «bitte velo faq in neues paket 6 tun». Trainingspläne (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4») kommen mit, weil sie fertig sind und nicht vom Rennen abhängen. Dazu die kleine Korrektur «ganze Zeile antippen» bei abgeschlossenen Touren.
 
 ## 19.10.2026: Paket 5 ohne Rennen (0.156.0)
 

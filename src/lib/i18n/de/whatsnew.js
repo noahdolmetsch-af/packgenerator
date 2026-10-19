@@ -5,7 +5,8 @@
  */
 export default {
   // 0.157.0 Paket 6: Velo-FAQ
-  'Questions about your bike, answered with a wink.': 'Fragen rund ums Velo, mit Augenzwinkern beantwortet.',
+  'Bike FAQ and training plans': 'Velo-FAQ und Trainingspläne',
+  'Questions about your bike, answered with a wink, and plans to try.': 'Fragen rund ums Velo, mit Augenzwinkern beantwortet, und Pläne zum Ausprobieren.',
   'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink': 'Velo-FAQ: 48 Fragen zu Pflege, Pannen und Mythen, mit Augenzwinkern',
   'Finished trips: the whole row can be tapped': 'Abgeschlossene Touren: die ganze Zeile lässt sich antippen',
   'Open Bikes › Care and tap «Bike FAQ».': 'Öffne Velos › Pflege und tippe auf «Velo-FAQ».',
@@ -21,6 +22,11 @@ export default {
   'Mail a packing list or a document from the app': 'Packliste oder Dokument aus der App mailen',
   'Open the Inbox and tap the button of an attachment.': 'Öffne den Eingang und tippe den Knopf eines Anhangs.',
   'Open Me › Mail, open a mail and tap «Into the app».': 'Öffne Ich › Mail, öffne eine Mail und tippe auf «In die App übernehmen».',
+  // 0.157.0 «Trainingspläne»
+  'Active › Training › Training plans: four plans, back from your race day': 'Aktiv › Training › Trainingspläne: vier Pläne, rückwärts ab deinem Renntag',
+  'After each ride: how hard was it, 1 to 10': 'Nach jeder Fahrt: Wie anstrengend war es, 1 bis 10',
+  'Each zone in heart rate, watts and how it feels': 'Jede Zone in Puls, Watt und wie es sich anfühlt',
+  'Open Active › Training › Training plans and pick «Multi-day race».': 'Öffne Aktiv › Training › Trainingspläne und wähl «Mehrtagesrennen».',
   // 0.155.0 Paket 3+4
   'Free time and everyday life': 'Freie Zeit und Alltag',
   'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',

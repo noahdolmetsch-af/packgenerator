@@ -16,19 +16,24 @@
 
 export const WHATS_NEW = [
   {
-    // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»); whole row of finished trips opens.
+    // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»), «Trainingspläne»
+    // (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»); whole row of finished trips opens.
     version: '0.157.0',
     date: '2026-10-19',
-    title: 'Bike FAQ',
-    lead: 'Questions about your bike, answered with a wink.',
+    title: 'Bike FAQ and training plans',
+    lead: 'Questions about your bike, answered with a wink, and plans to try.',
     points: [
       { text: 'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink', href: '#/bikes?tab=care&view=faq' },
+      { text: 'Active › Training › Training plans: four plans, back from your race day', href: '#/flow/training' },
+      { text: 'After each ride: how hard was it, 1 to 10', href: '#/flow/training' },
     ],
     small: [
+      { box: 'new', text: 'Each zone in heart rate, watts and how it feels', href: '#/flow/training' },
       { box: 'fixed', text: 'Finished trips: the whole row can be tapped', href: '#/trips' },
     ],
     test: [
       'Open Bikes › Care and tap «Bike FAQ».',
+      'Open Active › Training › Training plans and pick «Multi-day race».',
     ],
   },
   {
