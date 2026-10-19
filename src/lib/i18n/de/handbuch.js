@@ -968,4 +968,10 @@ export default {
   "Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.": 'Deine To-dos kommen in die Liste «To-dos» auf dem Board «Packgenerator»; dort kannst du das auch ausschalten.',
   "In a list's settings choose «Also in Trello»: the list and its points appear on the board.": 'In den Einstellungen einer Liste wählst du «Auch in Trello»: Die Liste und ihre Punkte erscheinen auf dem Board.',
   'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.': 'Beispiel: «Licht prüfen», heute fällig, in Trello geschrieben → steht in Merken und «Heute wichtig»; hier abgehakt, dort erledigt.',
+  // «Strava-Fahrt vollständig» (19.10.2026)
+  'Needs Strava on this device; an uploaded GPX shows its own values. Older rides get their details bit by bit.': 'Braucht Strava auf diesem Gerät; eine hochgeladene GPX zeigt ihre eigenen Werte. Ältere Fahrten bekommen ihre Details nach und nach.',
+  'Tap a Strava activity anywhere: Touren, Fahrten-Buch, Verlauf, the Rückblick of a trip or Aktiv › Training.': 'Tippe irgendwo eine Strava-Aktivität an: Touren, Fahrten-Buch, Verlauf, den Rückblick einer Tour oder Aktiv › Training.',
+  'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.': 'Oben: Art, Arbeitsweg, Gerät, neue Bestzeiten, «Wie hart war es?» und dein Strava-Kommentar.',
+  'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.': 'Weiter unten: Runden, Zeiten pro km und Segmentzeiten; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
+  'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.': 'Beispiel: Samstagsfahrt → 3 Runden mit der Rundentaste, km 12 der langsamste, 2 neue Bestzeiten.',
 };

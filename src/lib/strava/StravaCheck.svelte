@@ -1,4 +1,5 @@
 <script>
+  import { actHref } from './acthref.js';
   import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.116.0 «Strava-Verbindung» (decision 2a, mockup S5): «Zum Prüfen», Velo › Pflege › Strava › Zum Prüfen.
@@ -85,7 +86,7 @@
           {#each list as e (e.id)}
             <li class="card ride" data-ride={e.stravaId}>
               <div class="rh">
-                <span class="m"><b>{e.name || t('Ride')}</b><small class="num">{dateOf(e.date)} · {num(e.km)} km</small></span>
+                <span class="m"><b>{#if e.stravaId}<a class="actl" href={actHref(e.stravaId)} data-act-link={e.stravaId}>{e.name || t('Ride')}</a>{:else}{e.name || t('Ride')}{/if}</b><small class="num">{dateOf(e.date)} · {num(e.km)} km</small></span>
                 <span class="chip">{e.gear ? t('Strava bike «{gear}»', { gear: e.gear }) : t('no bike in Strava')}</span>
               </div>
               {#if e.bikeId && bikes.some((b) => b.id === e.bikeId)}
@@ -129,6 +130,12 @@
 </div>
 
 <style>
+  .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
+  }
   .sk {
     margin: 0 0 24px;
   }

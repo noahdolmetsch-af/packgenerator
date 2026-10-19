@@ -17,6 +17,7 @@
   import { AREAS, QUESTION, configOf, filterHistory, byDay, answerRow } from '../lib/abfragen.js';
   import { rowText, valueText, areaName, dayLong, dayShort, timeText, srcText, unitText } from '../lib/abfragen/words.js';
   import { backClose } from '../lib/ui/backclose.js';
+  import { actHref } from '../lib/strava/acthref.js';
   import { localDay } from '../lib/localday.js';
   import { addDays } from '../lib/flow.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -118,7 +119,7 @@
               <li class="h" data-row={r.qid}>
                 <span class="ht num">{timeText(r.at) || '–'}</span>
                 <span class="ich-ib sm">{#if r.kind === 'ride'}<Bike size={16} aria-hidden="true" />{:else}<AreaIcon area={r.area} size={16} />{/if}</span>
-                <span class="hm"><b>{rowText(r, own)}</b>{#if r.note}<small>{r.note}</small>{:else if r.from === 'check'}<small>{t('from the daily check')}</small>{/if}</span>
+                <span class="hm"><b>{#if r.kind === 'ride' && r.ride?.id != null}<a class="actl" href={actHref(r.ride.id)} data-act-link={r.ride.id}>{rowText(r, own)}</a>{:else}{rowText(r, own)}{/if}</b>{#if r.note}<small>{r.note}</small>{:else if r.from === 'check'}<small>{t('from the daily check')}</small>{/if}</span>
                 <span class="hv num">{valueText(r, q)}</span>
                 <span class="ab-src {r.src}"><I size={13} aria-hidden="true" />{srcText(r.src)}</span>
                 {#if r.kind !== 'ride' && q}<button type="button" class="ed" aria-label={t('Change «{q}»', { q: rowText(r, own) })} onclick={() => openEdit(r)}><Pencil size={16} aria-hidden="true" /></button>{:else}<span class="ed"></span>{/if}
@@ -182,6 +183,12 @@
 {/if}
 
 <style>
+  .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
+  }
   .vpage {
     max-width: 1180px;
   }

@@ -1160,6 +1160,11 @@ export const HANDBOOK = {
     steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
     example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
   },
+  'f.ridepage': {
+    on: 'Needs Strava on this device; an uploaded GPX shows its own values. Older rides get their details bit by bit.',
+    steps: ['Tap a Strava activity anywhere: Touren, Fahrten-Buch, Verlauf, the Rückblick of a trip or Aktiv › Training.', 'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.', 'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.'],
+    example: 'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.',
+  },
 
 
   // Paket S «Reise-Spur»

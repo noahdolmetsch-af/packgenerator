@@ -248,6 +248,7 @@ export const HOWTO = {
   'f.chronik': ['Open Trips › Look back › Chronicle.', 'Choose a filter, then a month.', 'Tap an entry to open it.'],
   'f.gelernt': ['Open Trips › Look back › What the app learned.', 'Choose «Month» or «Year» and use the arrows.', 'In «Year»: «Print» or «Share» the letter.'],
   'f.jahr': ['Open Trips › Look back › Your year as pictures.', 'Tap right to go on, left to go back; or swipe.', 'Escape or × closes; the last picture leads to the year letter.'],
+  'f.ridepage': ['Tap a Strava activity in any list.', 'Read the values at the top, then laps, splits per km and segment times.', '«…» on a card hides or moves it.'],
   'f.neuland': ['Open Trips › Look back › New ground.', 'Choose a collection; the app colours in what your routes reached.', 'Tick or untick by hand; «Choose collections» switches them on and off.'],
   'f.eveningtour': ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', '«Whole debrief» opens the trip\'s debrief.'],
   // Paket S «Reise-Spur»

@@ -11,7 +11,10 @@
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
-  import { heartOfRide } from '../lib/kmbook.js';
+  import { heartOfRide, stravaTwin } from '../lib/kmbook.js';
+  import { actHref } from '../lib/strava/acthref.js';
+  import { zones } from '../lib/strava/zones.svelte.js';
+  import { zoneSecs, ZONE_NAMES } from '../lib/training.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, PACE_MIN, paceOf, startKey } from '../lib/pace.js';
@@ -78,6 +81,13 @@
   const rideId = $derived(sub && sub !== 'shared' ? sub : null);
   const ride = $derived(rideId ? rides.find((r) => r.id === rideId) ?? null : null);
   const heart = $derived(ride ? heartOfRide($kmBookQ ?? [], ride) : null);
+  // 19.10.2026 «3a»: the sensor values from the file itself; the heart rate of the file comes before Strava's
+  const sens = $derived(ride?.sensors ?? null);
+  const fileHeart = $derived(sens?.hrAvg != null ? { avg: sens.hrAvg, max: sens.hrMax } : null);
+  const sensZones = $derived(sens?.hist ? zoneSecs(sens.hist, zones.bounds) : null);
+  const zMost = $derived(sensZones ? Math.max(...sensZones) : 0);
+  // 19.10.2026 «1a»: the same ride from Strava opens its page with all values
+  const twin = $derived(ride ? stravaTwin($kmBookQ ?? [], ride) : null);
 
   const day = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const clock = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
@@ -512,8 +522,20 @@
               <div class="rv-tile"><dd><b class="num">{num(ride.gainM)} m</b></dd><dt><small>{t('Climbing')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{hm(ride.movingH)}</b></dd><dt><small>{t('Moving time')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{speedOf(ride) != null ? `${num(speedOf(ride))} km/h` : '–'}</b></dd><dt><small>{t('Average speed')}</small></dt></div>
-              {#if heart}<div class="rv-tile"><dd><b class="num">{heart.avg} / {heart.max ?? '–'}</b></dd><dt><small>{t('Heart rate Ø / max · bpm')}</small></dt></div>{/if}
+              {#if fileHeart ?? heart}<div class="rv-tile" data-file-hr={fileHeart ? '' : undefined}><dd><b class="num">{(fileHeart ?? heart).avg} / {(fileHeart ?? heart).max ?? '–'}</b></dd><dt><small>{t('Heart rate Ø / max · bpm')}</small></dt></div>{/if}
+              {#if sens?.cad != null}<div class="rv-tile" data-file-cad><dd><b class="num">{sens.cad}</b></dd><dt><small>{t('Ø cadence')}</small></dt></div>{/if}
+              {#if sens?.wAvg != null}<div class="rv-tile" data-file-w><dd><b class="num">{sens.wAvg}{sens.wMax != null ? ` / ${sens.wMax}` : ''} W</b></dd><dt><small>{t('Power Ø / max (power meter)')}</small></dt></div>{/if}
+              {#if sens?.tempAvg != null}<div class="rv-tile" data-file-temp><dd><b class="num">{sens.tempMin != null && sens.tempMax != null && sens.tempMin !== sens.tempMax ? `${num(sens.tempMin)}–${num(sens.tempMax)}` : num(sens.tempAvg)} °C</b></dd><dt><small>{t('Temperature (bike computer)')}</small></dt></div>{/if}
             </dl>
+            {#if sens}<p class="rv-note num" data-file-sensors>{t('Heart rate, cadence, power and temperature come from the file itself.')}</p>{/if}
+            {#if sensZones}
+              <div class="rv-box pad szones" data-file-zones aria-label={t('Time in heart rate zones')}>
+                {#each sensZones as z, i (i)}
+                  <div class="szr"><span>Z{i + 1} {t(ZONE_NAMES[i])}</span><span class="szb"><i class="z{i + 1}" style:width="{zMost ? (z / zMost) * 100 : 0}%"></i></span><b class="num">{t('{n} min', { n: Math.round(z / 60) })}</b></div>
+                {/each}
+              </div>
+            {/if}
+            {#if twin}<p class="rv-note"><a href={actHref(twin)} data-act-link={twin}>{t('This ride in Strava: all values')}</a></p>{/if}
             <!-- v0.151.0 HP3: the profile of this ride -->
             {#if ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile points={ride.profile} label="Elevation of the ride" /></div>{/if}
           </section>
@@ -744,6 +766,47 @@
 {#if okUndo}<UndoToast text={okUndo.text} onundo={undoOk} />{/if}
 
 <style>
+  .szones {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .szr {
+    display: grid;
+    grid-template-columns: minmax(100px, 140px) minmax(0, 1fr) 64px;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--fs-small);
+  }
+  .szr b {
+    text-align: right;
+  }
+  .szb {
+    height: 10px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .szb i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+  }
+  .z1 {
+    background: var(--z1);
+  }
+  .z2 {
+    background: var(--z2);
+  }
+  .z3 {
+    background: var(--z3);
+  }
+  .z4 {
+    background: var(--z4);
+  }
+  .z5 {
+    background: var(--z5);
+  }
   .crumb {
     display: flex;
     flex-wrap: wrap;

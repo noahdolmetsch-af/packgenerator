@@ -3,7 +3,7 @@
  * legs: [{ km, kmh, gainM }] ridden one after the other, or { stopMin } for standing still
  * (with a little GPS jitter). A point every `step` seconds, heading east from a made-up start.
  */
-export function makeGpx({ name = 'test_data_gtp_ ride', start = '2026-06-01T06:00:00Z', legs = [], step = 10, ele0 = 400, lat = 46.5, lon = 7.5 } = {}) {
+export function makeGpx({ name = 'test_data_gtp_ ride', start = '2026-06-01T06:00:00Z', legs = [], step = 10, ele0 = 400, lat = 46.5, lon = 7.5, sensors = false } = {}) {
   const pts = [];
   let at = Date.parse(start);
   let x = lon;
@@ -30,7 +30,9 @@ export function makeGpx({ name = 'test_data_gtp_ ride', start = '2026-06-01T06:0
       pts.push({ lat, lon: x, ele, at });
     }
   }
-  const trkpts = pts.map((p) => `<trkpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}"><ele>${p.ele.toFixed(1)}</ele><time>${new Date(p.at).toISOString().replace('.000', '')}</time></trkpt>`).join('\n');
+  // sensors (19.10.2026 «3a»): Garmin's extension with a made-up heart rate 130–149, cadence 85, 200 W and 15 °C
+  const ext = (i) => (sensors ? `<extensions><power>200</power><gpxtpx:TrackPointExtension><gpxtpx:atemp>15</gpxtpx:atemp><gpxtpx:hr>${130 + (i % 20)}</gpxtpx:hr><gpxtpx:cad>85</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions>` : '');
+  const trkpts = pts.map((p, i) => `<trkpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}"><ele>${p.ele.toFixed(1)}</ele><time>${new Date(p.at).toISOString().replace('.000', '')}</time>${ext(i)}</trkpt>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="test_data_gtp_" xmlns="http://www.topografix.com/GPX/1/1">
 <metadata><name>${name}</name></metadata>
