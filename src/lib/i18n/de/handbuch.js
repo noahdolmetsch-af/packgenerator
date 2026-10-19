@@ -962,4 +962,10 @@ export default {
   '«Request»: choose the bike and the days that suit you, then «Write the mail» or «Open their booking page».': '«Anfragen»: Velo und passende Tage wählen, dann «Mail schreiben» oder «Ihre Buchungsseite öffnen».',
   'Change, delete and the order with the arrows or the handle.': 'Ändern, löschen und die Reihenfolge mit den Pfeilen oder dem Griff.',
   'Example: your bike shop → «Request» → bike «Gravel» → «Tue or Thu morning» → «Write the mail».': 'Beispiel: dein Veloladen → «Anfragen» → Velo «Gravel» → «Di oder Do Vormittag» → «Mail schreiben».',
+  // Trello (19.10.2026)
+  'Connect once under Calendar › Remember › Trello (needs Strava connected on this device and a workspace «Packgenerator» in Trello).': 'Einmal verbinden unter Kalender › Merken › Trello (braucht Strava auf diesem Gerät und einen Arbeitsbereich «Packgenerator» in Trello).',
+  "Open Calendar › Remember and tap «Connect Trello»; allow it on Trello's page.": 'Öffne Kalender › Merken und tippe auf «Trello verbinden»; erlaube es auf der Seite von Trello.',
+  "Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.": 'Deine To-dos kommen in die Liste «To-dos» auf dem Board «Packgenerator»; dort kannst du das auch ausschalten.',
+  "In a list's settings choose «Also in Trello»: the list and its points appear on the board.": 'In den Einstellungen einer Liste wählst du «Auch in Trello»: Die Liste und ihre Punkte erscheinen auf dem Board.',
+  'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.': 'Beispiel: «Licht prüfen», heute fällig, in Trello geschrieben → steht in Merken und «Heute wichtig»; hier abgehakt, dort erledigt.',
 };

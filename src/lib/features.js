@@ -271,6 +271,7 @@ const OWN = [
   // v0.147.0 Paket B: GM «Mail in der App»
   { id: 'f.mail', group: 'data', title: 'Mail from Gmail', text: 'Your Gmail inbox in the app: read, search, answer and write; the mails to an appointment with one tap.', href: '#/me/mail', words: 'mail email e-mail gmail google posteingang senden antworten schreiben' },
   { id: 'f.agenda', group: 'data', title: 'Google calendar and tasks', text: 'Your Google calendar and Google Tasks in the app: see the next 14 days, enter appointments, tick and add tasks.', href: '#/me/agenda', words: 'google kalender termine termin aufgaben tasks to-do todo agenda woche planen' },
+  { id: 'f.trello', group: 'data', title: 'Trello', text: 'Your to-dos and the lists you choose also on your Trello board «Packgenerator»: a tick there is a tick here, and back.', href: '#/calendar', words: 'trello board karten karte liste to-do todo merken abgleich' },
   { id: 'f.fitbit', group: 'data', title: 'Fitbit connection', text: 'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.', href: '#/me/fitbit', words: 'fitbit google gesundheit schlaf ruhepuls hrv schritte aktivzonen uhr' },
   { id: 'f.autobackup', group: 'data', title: 'Auto backup into a folder', text: 'Writes after every change into a folder you choose (computer only).', run: 'data', seen: 'folder', words: 'auto backup ordner' },
   // v0.139.0 «Rechnungen ohne Gebühren» (mockups QR1–QR9, Noah 14.10.2026 04:00 and 05:10 «a»)
