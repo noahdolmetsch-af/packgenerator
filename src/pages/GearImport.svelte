@@ -1,5 +1,6 @@
 <script>
   import { UNDO_MS } from '../lib/ui/undo.js';
+  import { plainError } from '../lib/clear/errors.js'; // Paket Q #127: plain words instead of technical text
   /**
    * v0.36.0 (Noah 1a, 2a, 3b): "Import prüfen" (#/gear/import). The reviewed gear list waits here
    * before anything goes into Gear: three folded groups (Schon da, Neu, Unsicher), then the app items
@@ -162,7 +163,7 @@
     try {
       await fn();
     } catch (err) {
-      message = `${t('Nothing was changed.')} ${err.message}`;
+      message = `${t('Nothing was changed.')} ${t(plainError(err))}`;
     } finally {
       busy = false;
     }

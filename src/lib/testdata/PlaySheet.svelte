@@ -6,6 +6,8 @@
    * everything is exactly as before. Backups are off meanwhile. Back closes only this sheet.
    */
   import { backClose } from '../ui/backclose.js';
+  import TipWeek from '../clear/TipWeek.svelte';
+  import { plainError } from '../clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { KINDS, DAYS } from '../play.js';
   import { startPlayground } from '../tour/run.js';
   import { t } from '../i18n.svelte.js';
@@ -31,7 +33,7 @@
     try {
       await startPlayground(kind, day, kind === 'empty' || day === 'today' ? '#/' : day === 'after' ? '#/debrief/play-trip' : day === 'ride' ? '#/ride' : '#/pack');
     } catch (err) {
-      msg = `${t('The playground did not start, nothing was changed.')} ${err.message ?? ''}`;
+      msg = `${t('The playground did not start, nothing was changed.')} ${t(plainError(err))}`;
       busy = false;
     }
   }
@@ -70,6 +72,8 @@
       <span class="pv-btn">{t('End|playground')}</span>
     </div>
     <p class="small">{t('Backups are off meanwhile, so nothing made up gets into them.')}</p>
+    <!-- Paket Q #74 (Noah 19.10.2026 «… und als Kachel in der Spielwiese»): the tip of the week, to try here -->
+    <div class="pl-tip"><TipWeek compact /></div>
     {#if msg}<p class="msg" role="alert">{msg}</p>{/if}
   {/if}
   <div class="vd-foot">
@@ -79,6 +83,9 @@
 </dialog>
 
 <style>
+  .pl-tip {
+    margin-top: 14px;
+  }
   .lead {
     margin: 0 0 6px;
     color: var(--ink);

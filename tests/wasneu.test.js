@@ -13,6 +13,10 @@ import {
 // v0.110.0 Design-Refresh P10 «Was ist neu» (I11–I11e)
 afterEach(() => (lang.v = 'en'));
 const ids = (rows) => rows.map((r) => r.id);
+// Paket Q «App klarer»: its functions are the newest (the bundler gives them the release version)
+const Q_IDS = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.offlinesave', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.tripalert', 'f.comeback'];
+// until the bundler gives Q its release version, Q shares 0.151.0 with Paket F (same version: mixed by name)
+const NEW_TOP = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.weekplan', 'f.offlinesave', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.tour', 'f.tripalert', 'f.comeback'];
 
 describe('every function has a version it came with', () => {
   it('known for every function, never newer than this version, all real versions of the list', () => {

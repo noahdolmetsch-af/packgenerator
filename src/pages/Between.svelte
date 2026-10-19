@@ -31,7 +31,7 @@
   import { typeIcon } from '../lib/trip/checkicons.js';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { Bell, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase, NotebookPen } from '@lucide/svelte';
+  import { Bell, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase, NotebookPen, Wrench, Save, BookOpen } from '@lucide/svelte';
   import StepBar from '../lib/ui/StepBar.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import MainBar from '../lib/ui/MainBar.svelte';
@@ -143,6 +143,7 @@
     clearTimeout(undoTimer);
     await reopenTrip($state.snapshot(trip), u.before);
   }
+  const careHref = $derived(trip?.bikeId ? `#/bikes?tab=care&bike=${encodeURIComponent(trip.bikeId)}` : '#/bikes?tab=care');
   const debriefHref = $derived(trip ? `#/debrief/${encodeURIComponent(trip.id)}` : '#/debrief');
   const endedMain = $derived(day ? (quickDone ? { label: t('To the start page'), href: '#/' } : { label: t('All good'), onclick: allGood, arrow: false }) : { label: t('Continue to Debrief'), href: debriefHref, onclick: pick });
   const endedSecond = $derived(day ? (quickDone ? null : { label: t('Debrief in detail'), href: debriefHref, onclick: pick }) : { label: t('Later'), href: '#/' });
@@ -228,6 +229,8 @@
       <p class="ssub">{t('At home, before everything goes into the cupboard')}</p>
       <ul class="card rows">
         <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('After-trip check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+        <!-- Paket Q #77: the way goes on to the bike after the trip -->
+        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={18} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/if}
         {#if notes.length}
           <li><a class="row" href={debriefHref} onclick={pick} data-row="noted"><span class="ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="bt"><b>{t('Noted on the way')}</b><small>{[tn(notes.length, '{n} note', '{n} notes'), notes.slice(0, 2).map((n) => `«${n.text}»`).join(', ')].join(' · ')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
         {/if}
@@ -253,6 +256,15 @@
       {#if learned.length}
         <ul class="rows">{#each learned as l (l.key)}{@const Icon = l.icon}<li><Icon size={16} aria-hidden="true" /><span class="nm">{l.text}</span></li>{/each}</ul>
       {:else}<p class="tp-muted">{t('Everything was as planned: every item was used.')}</p>{/if}
+    </section>
+    <!-- Paket Q #77/#78: back home, the next small steps (bike, backup, logbook) -->
+    <section class="until" aria-labelledby="home-h" data-section="back-home">
+      <h2 id="home-h" class="sh">{t('Back home')}</h2>
+      <ul class="card rows">
+        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={18} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/if}
+        <li><a class="row" href="#/me/data" data-row="backup"><span class="ic" aria-hidden="true"><Save size={18} /></span><span class="bt"><b>{t('Make a backup')}</b><small>{t('So the trip is safe on your other device too')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/debrief/logbook" data-row="logbook"><span class="ic" aria-hidden="true"><BookOpen size={18} /></span><span class="bt"><b>{t('Logbook')}</b><small>{t('All your trips in one list')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+      </ul>
     </section>
     {#snippet foot()}<a class="tp-link" href={debriefHref} onclick={pick}>{t('See the debrief')}</a>{/snippet}
   </Interstitial>

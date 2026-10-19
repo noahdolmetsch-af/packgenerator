@@ -48,6 +48,7 @@ export const TILES = [
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),
   { id: 'milestones', area: 'flow', label: 'Milestones', icon: 'star', sizes: ['s', 'w'], size: 's', pitch: 'All milestones of all areas on one page.' },
   { id: 'try', area: 'app', label: 'Tried it yet?', icon: 'bulb', sizes: ['w', 'l'], size: 'w', pitch: 'One function you have not used yet, with one button.' },
+  { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l', 'long'], size: 'long', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'bikes', area: 'bikes', label: 'Bikes|place', icon: 'bike', sizes: ['l', 'long'], size: 'long', pitch: 'Your bikes with their km and what is due.' },
   { id: 'year', area: 'trips', label: 'Last 12 months', icon: 'chart', sizes: ['long'], size: 'long', pitch: 'Km, trips and nights of the last 12 months in one row.' },
   { id: 'helper', area: 'app', label: 'Helper', icon: 'chat', sizes: ['s'], size: 's', pitch: 'Ask the helper about a list or a trip.' },
@@ -119,6 +120,7 @@ export const READY = [
   ['trip', 'long'],
   ['aktiv', 'long'],
   ['values', 'long'], // Paket P «Daten-Widget» (Noah «2 beides»): right under Aktiv
+  ['tipweek', 'long'], // Paket Q #74 (Noah 19.10.2026 «4a»): the tip of the week over the whole row, after Aktiv (the rows of HN4 stay)
   ['play', 's'],
   ['news', 's'],
   ['fn:weigh', 's'],
@@ -164,7 +166,7 @@ export function wallOf(value, legacy = null) {
     const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
     const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
     const r = (value.v ?? 1) < 7 ? withRoutine(q) : q;
-    return (value.v ?? 1) < 8 ? withValues(r) : r;
+    return (value.v ?? 1) < 8 ? withValues(withTip(r)) : r;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -264,7 +266,19 @@ export function withValues(tiles = []) {
   out.splice(at + 1, 0, { id: 'values', size: TILE.values.size });
   return out;
 }
-/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» came once). */
+/**
+ * Paket Q #74 (Noah 19.10.2026 «4a»): a wall stored before (v < 8) gets the tip of the week once, right after
+ * Aktiv (else before the bikes and the year, else at the end). Taken away after that (the wall is v 8 then), it stays away. → tiles
+ */
+export function withTip(tiles = []) {
+  if (tiles.some((x) => x.id === 'tipweek')) return tiles;
+  const out = [...tiles];
+  const a = out.findIndex((x) => x.id === 'aktiv');
+  const b = out.findIndex((x) => x.id === 'bikes' || x.id === 'year');
+  out.splice(a >= 0 ? a + 1 : b >= 0 ? b : out.length, 0, { id: 'tipweek', size: TILE.tipweek.size });
+  return out;
+}
+/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
 export const wallRecord = (tiles) => ({ v: 8, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */

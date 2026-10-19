@@ -576,7 +576,7 @@
 
       {#if phone.matches && !extrasOpen && $dataQ && facts.length}
         <!-- 0.163.0: on a phone «In Zahlen» and «Weiter» wait behind one line -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (extrasOpen = true)} data-trips-extras><span><b>{t('In numbers')} · {t('More|tiles')}</b><small>{t('Totals, records, weather and the map of all trips')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (extrasOpen = true)} data-trips-extras><span><b>{t('In numbers')} · {t('More|tiles')}</b><small>{t('Totals, records, weather, map')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       {#if phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       {#if $dataQ && facts.length}
@@ -1169,11 +1169,9 @@
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);
-    /* Paket E CI («Handy kurz», three screens with the SA3 band): the grey line stays one line; the line opens
-       what it names */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* Paket Q (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): the grey line is shown whole again and
+       wraps when it must; its text is short enough for one line on a phone, so Touren stays within three
+       screens (handy-kurz) */
   }
   @media (max-width: 719px) {
     .hide-phone {

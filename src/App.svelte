@@ -43,6 +43,9 @@
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
+  import OfflineLine from './lib/clear/OfflineLine.svelte';
+  import ComebackWindow from './lib/clear/ComebackWindow.svelte';
+  import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { t, lang } from './lib/i18n.svelte.js';
@@ -333,6 +336,7 @@
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
     Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
+    Hinweise: () => import('./pages/Hinweise.svelte'), // Paket Q #148: Ich › Hinweise und News
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
@@ -387,6 +391,8 @@
 {/if}
 <div class="col">
 <DemoBar />
+<OfflineLine />
+{#if !mini && page !== 'share'}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
@@ -471,6 +477,9 @@
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <LazyPage load={PAGES.Me} />
+  {:else if page === 'hinweise'}
+    <!-- Paket Q #148: Ich › Hinweise und News -->
+    <LazyPage load={PAGES.Hinweise} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />

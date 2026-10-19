@@ -32,6 +32,7 @@
   import { zipEntries } from '../lib/zipread.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import { QrCode, FileInput, LayoutTemplate, Trash2 } from '@lucide/svelte';
+  import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
 
   const notesQ = liveQuery(() => db.notes.toArray());
@@ -281,7 +282,7 @@
           {#if inboxN}
             <Empty icon={NotebookPen} text={`${t('No notes yet. What you want to keep lands here.')} ${tn(inboxN, '{n} note is waiting in the Inbox.', '{n} notes are waiting in the Inbox.')}`} action={{ label: t('To the Inbox ({n})', { n: inboxN }), href: '#/inbox' }} />
           {:else}
-            <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')} />
+            <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
           {/if}
         </div>
       {/if}

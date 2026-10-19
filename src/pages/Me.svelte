@@ -348,6 +348,14 @@
             </a>
           </li>
           <li>
+            <!-- Paket Q #148: weather warnings, avalanche danger, passes and news from your own sources -->
+            <a class="ich-row" href="#/me/hinweise" data-row="hinweise">
+              <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Alerts and news')}</b><small>{t('Weather warnings, avalanches, passes, news')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- «Mehr selbst einstellen» (IS 254–258): the numbers of the app and the suggestions on or off -->
             <a class="ich-row" href="#/me/werte">
               <span class="ich-ib"><SlidersHorizontal size={18} aria-hidden="true" /></span>

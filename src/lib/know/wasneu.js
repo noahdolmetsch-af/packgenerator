@@ -53,6 +53,8 @@ export const SINCE = {
   'f.notelinks': '0.151.0', 'f.next': '0.151.0', 'f.dreams': '0.151.0', 'f.races': '0.151.0', 'f.compass': '0.151.0', 'f.noteformats': '0.151.0',
   // Paket P «Was mir gut tut»: the bundler sets the version of the release
   'f.wohl': '0.151.0',
+  // Paket Q «App klarer»: placeholder, the bundler sets the version of the release
+  'f.alerts': '0.151.0', 'f.backuplock': '0.151.0', 'f.yearcheck': '0.151.0', 'f.suggestoff': '0.151.0', 'f.tipweek': '0.151.0', 'f.comeback': '0.151.0', 'f.tripalert': '0.151.0', 'f.helpsearch': '0.151.0', 'f.offlinesave': '0.151.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
   'f.routine': '0.150.0', 'f.insights': '0.150.0',
