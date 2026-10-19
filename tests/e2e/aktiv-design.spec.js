@@ -11,6 +11,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { HELPED } from '../../src/lib/flowmed.js';
+import { SEED2_KEY } from '../../src/lib/flowtiles.js';
 import { D0, TODAY, aktivRows, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
 
@@ -80,6 +81,13 @@ test('A1 and A5: tick tiles, rings, «Mehr» opens the goals with dots and the g
 test('A7: «Vorschlag für heute» is a suggestion tile and any choice can become a challenge', async ({ page, context }) => {
   const errors = await open(page, context);
   const main = page.locator('main');
+  await go(page, '#/flow/activity');
+  // seed 2 (the playful names, flowdb ensureSeed2) runs once after the first open and renames «Sauna» to
+  // «Schwitz-Pause» a moment later; wait for it, then open again, so the chip read below keeps its name
+  await expect.poll(() => page.evaluate((key) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => { const q = r.result.transaction('settings').objectStore('settings').get(key); q.onsuccess = () => { r.result.close(); ok(!!q.result?.value); }; };
+  }), SEED2_KEY)).toBe(true);
   await go(page, '#/flow/activity');
   const tile = main.locator('[data-suggest]');
   await expect(tile).toBeVisible();

@@ -92,10 +92,23 @@ export const markBillOpen = (id, db = appDb) =>
 /** «Später» on the Heute card: hidden for today. */
 export const snoozeBill = (id, db = appDb, today = localDay()) => change(id, (b) => (b.snoozedDay = today), db);
 
+/** Delete one bill. → the bill as it was (for «Undo», restoreBill). */
 export async function deleteBill(id, db = appDb) {
   return db.transaction('rw', db.settings, async () => {
     const row = await db.settings.get(BILLS_KEY);
-    await saveAll(db, (Array.isArray(row?.value) ? row.value : []).filter((x) => x.id !== id));
+    const list = Array.isArray(row?.value) ? row.value : [];
+    await saveAll(db, list.filter((x) => x.id !== id));
+    return list.find((x) => x.id === id) ?? null;
+  });
+}
+
+/** «Undo» after deleteBill: the bill comes back (once). */
+export async function restoreBill(bill, db = appDb) {
+  if (!bill) return;
+  return db.transaction('rw', db.settings, async () => {
+    const row = await db.settings.get(BILLS_KEY);
+    const list = Array.isArray(row?.value) ? row.value : [];
+    if (!list.some((x) => x.id === bill.id)) await saveAll(db, [...list, bill]);
   });
 }
 

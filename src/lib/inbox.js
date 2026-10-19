@@ -152,14 +152,19 @@ export function fileReceipt(note, { bike, shop, date, chf = null, jobs = [] }, {
   return { visit, note: { ...note, status: 'sorted', sortedAt: now, to: { kind: 'receipt', label, ref: id, bikeId: bike.id, shop, chf, made: [['visits', id]] } } };
 }
 
-/** The topics of the Notes page (14a): 5 fixed ones; #tags in the text on top. */
-export const TOPICS = [
+/** The topics of the Notes page (14a): 5 in the Standard; #tags in the text on top. */
+export const STD_TOPICS = [
   { key: 'bike', name: 'Bike|topic' },
   { key: 'trips', name: 'Trip ideas' },
   { key: 'gear', name: 'Gear|topic' },
   { key: 'training', name: 'Training' },
   { key: 'general', name: 'General' },
 ];
+/**
+ * «Gruppen überall» (Noah 18.10.2026): the topics as the person has them (renamed, deleted, own ones,
+ * «Listen und Typen» › Note topics). notebook.js setTopics puts them in place; the Standard stays above.
+ */
+export const TOPICS = STD_TOPICS.map((x) => ({ ...x }));
 const TOPIC_WORDS = {
   bike: /\b(velo|bike|kette|chain|reifen|tyre|bremse|brake|sattel|saddle|druck|pressure|lenker|gabel|fork|schaltung|shift)\w*/i,
   trips: /\b(tour|route|etappe|stage|trip|tage|days|übernacht|camping|zug|train|pass|jura|alpen|alps)\w*/i,
@@ -168,8 +173,10 @@ const TOPIC_WORDS = {
 };
 /** The topic a note's text suggests (the capture field says «Thema wählt sich aus dem Text»). */
 export function guessTopic(text = '') {
-  for (const [k, re] of Object.entries(TOPIC_WORDS)) if (re.test(text)) return k;
-  return 'general';
+  // «Gruppen überall»: a deleted topic is never guessed; without «General» a note has no topic (null)
+  const has = (k) => TOPICS.some((x) => x.key === k);
+  for (const [k, re] of Object.entries(TOPIC_WORDS)) if (has(k) && re.test(text)) return k;
+  return has('general') ? 'general' : null;
 }
 
 /**

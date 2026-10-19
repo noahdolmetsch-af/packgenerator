@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Bikes → Setup. v0.31.0 (Noah 9a, variant A "Ruhig und klar"):
@@ -180,10 +181,24 @@
   }
   const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
   async function removePhoto(p) {
-    if (!confirm(t('Remove the photo "{name}"?', { name: p.name }))) return;
-    if (p.stored) await db.photos.delete(p.id);
-    else await db.bikes.update(bike.id, { photo: null });
-    if (shown != null && shown >= gallery.length - 1) shown = gallery.length > 1 ? gallery.length - 2 : null;
+    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    const bikeId = bike.id;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        if (p.stored) {
+          const rec = await db.photos.get(p.id);
+          await db.photos.delete(p.id);
+          return { rec };
+        }
+        const photo = (await db.bikes.get(bikeId))?.photo ?? null;
+        await db.bikes.update(bikeId, { photo: null });
+        return { photo };
+      },
+      undo: (was) => (was.rec ? db.photos.put(was.rec) : was.photo ? db.bikes.update(bikeId, { photo: was.photo }) : null),
+      text: t('"{name}" removed.', { name: p.name }),
+      name: p.name,
+    });
+    if (ok && shown != null && shown >= gallery.length - 1) shown = gallery.length > 1 ? gallery.length - 2 : null;
   }
 
   let editMounts = $state(false); // show all places and let the user switch mounts on and off

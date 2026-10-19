@@ -52,6 +52,10 @@ test('W1: after an update a banner names the versions since the last visit, View
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   // the page holds the newest on top and the versions since then in the open group (SL1: rows by day)
   await expect(page.locator(`article[data-version="${since[0].version}"]`).first()).toBeAttached();
+  // «New for you» holds exactly the versions since the last visit and opens every day group (two releases on
+  // one day leave the older versions in a closed group otherwise; changed on purpose with 0.147.0)
+  await page.locator('[data-only="you"]').click();
+  await expect(page.locator('[data-only="you"] .num')).toHaveText(String(since.length));
   for (const e of since.slice(1)) await expect(page.locator(`[data-row="${e.version}"], article[data-version="${e.version}"]`).first()).toBeAttached();
   expect(errors).toEqual([]);
 });

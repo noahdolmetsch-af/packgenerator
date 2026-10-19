@@ -1,8 +1,9 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   /**
    * v0.25.1 (Noah 2b): "Was geil wäre", the bike's own list of ideas (not the Gear wishlist).
    * Stored on the bike record as bike.ideas = [{ id, text, at, done }]. Add one here or from
-   * Today's Bikes tile ("Idea"); tick it done; delete it after a confirm().
+   * Today's Bikes tile ("Idea"); tick it done; delete it after the app's question (askDelete), with Undo.
    */
   import { tick } from 'svelte';
   import { db } from '../db.js';
@@ -40,9 +41,16 @@
     await write((ideas) => addIdea(ideas, clean, { id: `idea-${Date.now().toString(36)}` }));
   }
   const toggle = (x) => write((ideas) => toggleIdea(ideas, x.id));
-  function remove(x) {
-    if (!confirm(t('Delete the idea "{text}"?', { text: x.text.slice(0, 60) }))) return;
-    write((ideas) => removeIdea(ideas, x.id));
+  async function remove(x) {
+    const name = x.text.slice(0, 60);
+    if ((await askDelete({ title: t('Delete the idea "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    let at = 0;
+    await deleteWithUndo({
+      run: () => write((ideas) => ((at = Math.max(0, ideas.findIndex((i) => i.id === x.id))), removeIdea(ideas, x.id))),
+      undo: () => write((ideas) => (ideas.some((i) => i.id === x.id) ? ideas : [...ideas.slice(0, at), $state.snapshot(x), ...ideas.slice(at)])),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
   }
   const day = (iso) => (iso ? new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 </script>

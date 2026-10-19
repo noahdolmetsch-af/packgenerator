@@ -14,6 +14,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
+
 **Nachtrag 15.10.2026 (v0.135.0 «Paket 2 – Ruhe, Training und Rechnungen»):** ein Release aus fünf Teilen: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (#173), Eine Zahl pro Sache mit Heute H1/H2 (#170), Training TR1–TR4 (#167), Rechnungen ohne Gebühren QR1–QR9 (#169). Die Nachträge unten zu 0.136.0 bis 0.139.0 beschreiben die Teile; ihre eigenen Nummern fallen weg. Als Nächstes: Paket 2b (Pfeile + Ziehen, LI3 «Gilt für», Inspiration-Korrekturen).
 
 **Nachtrag 14.10.2026 (v0.136.0, jetzt Teil von 0.135.0):** «Inhalte Flow» + «Wusstest du» (Mockup-Freigabe: IF1–IF3 «IF1–IF3 freigegeben» Noah 14.10.2026 04:32 UTC, WD1–WD3 «wd1-wd3 freigegeben» 18:34 UTC, Antworten «1b 2a 3a 4a» 02:03 UTC und «1a 2a» 18:34 UTC; Bilder https://claude.ai/artifact/4YCMMdTbFGvpEZuGjeBTLW): Tipp des Tages, «Das kann die App hier», Kacheln «Weiter», «Passt zu heute», Erde/Everest. Als Nächstes: IF2 Meditation, Hinweistexte HT (wartet auf Freigabe), Texte der Sportarten.
@@ -84,6 +86,10 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
+**Nachtrag 19.10.2026 (v0.148.0 «Paket D – Touren und Unterwegs»):** AT1 Touren-Seite, Höhenprofil HP1–HP5, GPX-Weg R3a, Planungs-Notizen, Handy kurz (Noah «1b» 18.10., «1a» 19.10.), Bugfixes 0.132.2 + H3a, W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung, Einheitliche Formulare (Notiz und Teil) und Rückmeldungen beim Speichern als ein Release auf Paket B. Offen danach: Chronik, E Material/Velos/Merken, C Heute und Aktiv, F Woche; weitere Formulare auf Form/Field.
+
+**Nachtrag 18.10.2026 (v0.147.0 «Paket B – Server»):** Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit (Dexie 13), Dokument als PDF (auf A's Dokumente, ohne eigene Version), Google Kalender und Aufgaben (Dexie 15), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop, automatischer Abgleich, Selbstwartung (Wächter, Dependabot) und Web-Push als ein Release auf Paket A. Offen danach: D Touren und Unterwegs, E Material/Velos/Merken, C Heute und Aktiv (braucht Fitbit und Training aus B), F Woche (liest Google aus B).
+
 **Nachtrag 18.10.2026 (v0.146.0 «Paket A – Daten sicher und Bedienung»):** P3b (Speicher behalten, Abgleich Handy–Computer, Kopie vor jedem Import, Ich › Dokumente, Regeln 3a/5a), P3c (Bedienregeln, Kamera überall) und «Mehr Inhalt» mit Hinweistexten HT1–HT2 als ein Release auf Paket 3 (0.145.0). Offen danach: Dokumente-PDF DP (Kamera, Texterkennung, Drive; baut auf der Dokumente-Seite auf, Dexie 14), Fitbit (Dexie 13), Hinweis-Karte auf weiteren Orten (Bausteine, Vorlagen, Setup …), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
 
 **Nachtrag 15.10.2026 (v0.145.0 «Paket 3 – Klare Regeln, dein Standard-Velo»):** Navigation + Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar (WS2, WS3, WS5, WS6) und vier Anzeigefehler als ein Release, auf Regeln einheitlich 0.144.0 (#175) aufgebaut. Offen danach: Hinweistexte HT1–HT2 (eigener Thread, späteres Paket), WS1/WS4/WS7, Bündel P4/P5 (#176, #177).
@@ -92,6 +98,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, v0.148.0 «Paket D»:** Touren und Unterwegs als ein Release: Strava-Fahrten auf Touren, Höhenprofil, ein Weg «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, «Deine Fahrten», einfache Wörter, Bewegung, Formulare-Pilot.
+**18.10.2026, v0.147.0 «Paket B»:** alle Server-Teile (Training, Fitbit, PDF, Google, KI, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push) als ein Release. Dazu Pulszonen eins (eine Zonenquelle für Tempo, Vergangene Touren und Training, «Kommentar laden»), Mail in der App und «Gruppen überall» (jede Gruppe umbenennen und löschen, auch Ich › Dokumente).
 **18.10.2026, v0.146.0 «Paket A»:** P3b Daten sicher, P3c Bedienregeln und Kamera, Mehr Inhalt und Hinweistexte HT1–HT2 als ein Release.
 **15.10.2026, v0.145.0 «Paket 3»:** Regeln der App, Start-Karten, Standard-Velo, Scrollen und Listen, Wieder sichtbar als ein Release; die Einträge zu 0.140.0–0.143.0 und 0.145.0 (Standard-Velo) sind Teile davon; Regeln einheitlich ist 0.144.0 für sich (#175).
 **15.10.2026, v0.136.0 «Paket 2b»:** Sortieren mit Pfeilen und Ziehen, «Gilt für», Inspiration, Anzeigefehler.

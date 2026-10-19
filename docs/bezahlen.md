@@ -34,6 +34,9 @@ Der Gratis-Weg ohne Stripe (Noah 14.10.2026, alle Mockups freigegeben 04:00 UTC 
 - **Zu zahlen** (QR9, `#/me/pay/bills`, `src/pages/Bills.svelte`, `src/lib/pay/bills.js`, `settings` 'pay.bills'): erhaltene Rechnung fotografieren (Kamera-Knopf), Fälligkeit (sonst 30 Tage), Erinnerung 3 Tage vorher (änderbar), «Zahlteil» zum Kopieren, «Bezahlt», Foto bleibt als Beleg. Die Erinnerungskarte (`BillReminder.svelte`) steht oben auf Ich › Bezahlen, nicht auf Heute (Noah 15.10.2026 21:07 «4b»).
 - **Tests:** `tests/pay-invoices.test.js`, `tests/pay-bills.test.js`, `tests/pay-report.test.js`, `tests/pay-twintshot.test.js`, e2e `rechnungen`, `zu-zahlen`, `bezahlt-melden`, `twint-teilen` (nur erfundene Werte; IBAN = Beispiel-QR-IBAN des Standards).
 
+## Termine buchen und Shop (0.147.0, Paket B)
+`api/booking.js` braucht nur `KV_REST_API_URL` / `KV_REST_API_TOKEN` (Upstash Redis, Gratisstufe). Online bezahlen bei einem Angebot braucht zusätzlich `PAY_MODE=test` und `STRIPE_SECRET_KEY` (nur `sk_test_…`); sonst sagt die Buchungsseite «Online bezahlen ist noch nicht eingerichtet», und Angebote mit «vor Ort» laufen trotzdem. An Stripe gehen nur Angebot, Preis und eine Vorgangsnummer, nie Name oder Kontakt. Namen und Kontakte liegen nur in Redis und fallen 60 Tage nach dem Termin weg. Der Shop ohne Gebühren (SHOP1–SHOP4b) legt Bestellungen über `api/pay.js` in eine eigene Box auf dem Server, bis die App sie abholt; bezahlt wird mit TWINT oder QR-Rechnung.
+
 ## Wie es funktioniert
 
 - **App kaufen:** drei Pläne (einmal, Monat, Jahr). Die Preise in `PLANS` sind Platzhalter, bis Noah sie festlegt. Stripe zeigt die Bezahlseite; danach gibt der Server eine signierte Lizenz zurück, die nur im `localStorage` des Geräts liegt (nie im Backup).

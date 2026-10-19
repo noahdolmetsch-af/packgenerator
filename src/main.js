@@ -48,9 +48,15 @@ import { installExplain } from './lib/ui/explain.js';
 import { installBackdropClose } from './lib/ui/backdrop.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 import { noteAppOpen } from './lib/know/wasneuStore.js';
+import { takeReturn as takeGoogleReturn, watchAutoFetch as watchHealthFetch } from './lib/health/client.svelte.js';
+import { takeReturn as takeDriveReturn } from './lib/docs/client.svelte.js';
+import { takeReturn as takeMailReturn } from './lib/mail/client.svelte.js';
+import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
+import { watchSync } from './lib/sync/auto.svelte.js';
+import SyncAsk from './lib/sync/SyncAsk.svelte';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -87,12 +93,23 @@ installBackdropClose();
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();
 window.addEventListener('hashchange', () => takeReturn());
+// Fitbit über Google: back from the Google login (#/me/fitbit?google=connected), read once like Strava's.
+takeGoogleReturn();
+// Dokumente-PDF: back from the Drive login (#/me/docs?google=connected)
+takeDriveReturn();
+takeMailReturn(); // Google Mail: back from the Google login (#/me/mail?google=connected)
+takeAgendaReturn(); // Google Kalender und Aufgaben: back from the Google login (#/me/agenda?google=connected)
 
 // SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
 noteAppOpen();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
+
+// P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
+// themselves (sync/auto.svelte.js); when both devices changed the same entry, a window asks (3b).
+watchSync(db);
+mount(SyncAsk, { target: document.body.appendChild(document.createElement('div')) });
 
 // v0.134.0 «Listen und Typen»: the person's own lists (categories) without holding up the start
 // (App.svelte draws the page again once they are in place); later changes as they come.
@@ -124,5 +141,7 @@ settling(async () => {
   // BF7 «Wartungs-Check»: once a month the links, the keys and the Strava connection (quiet when offline).
   .finally(() => {
     watchAutoFetch();
+    watchHealthFetch(); // Fitbit: the new daily values when the app opens or comes back (answer 2a)
+    watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
     autoCheck(db);
   });

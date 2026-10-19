@@ -6,19 +6,22 @@
    * there) and «Das kann die App hier» (opens the fold at the page end). × folds the card to the quiet line
    * «Was hier steht ›», which opens it again (1a). Data in hints.js; the state in the setting of pageinfo.
    * page: a key of HINTS (and of PAGES for the fold).
+   * foldedOnPhone (Paket D, Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line.
+   * only: '' draws both states here; 'line' only the folded line, as a small chip «Was hier steht ›» (for a page
+   * head); 'card' only the open card. A page may place the two in different spots (Trips on a phone).
    */
   import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell, Upload, Link2, Flag } from '@lucide/svelte';
   import { pageInfo } from './store.svelte.js';
   import { hintOf } from '../hints.js';
-  import { canRows, canShown, setHint, hintShown } from '../pageinfo.js';
+  import { canRows, canShown, setHint, hintShown, hintShownFolded } from '../pageinfo.js';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { page } = $props();
+  let { page, foldedOnPhone = false, only = '' } = $props();
   const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell, upload: Upload, link: Link2, flag: Flag };
   const pi = pageInfo();
   const hint = $derived(hintOf(page));
-  const open = $derived(pi.loaded && hintShown(pi.info, page));
+  const open = $derived(pi.loaded && (foldedOnPhone && phone.matches ? hintShownFolded(pi.info, page) : hintShown(pi.info, page)));
   const canN = $derived(pi.loaded && canShown(pi.info, page) ? canRows(page).length : 0);
 
   // «Weiter unten»: only the parts that are on the page now (they come with the data, so look a few times)
@@ -46,7 +49,7 @@
 </script>
 
 {#if hint && pi.loaded}
-  {#if open}
+  {#if open && only !== 'line'}
     <section class="hint" data-hint={page} aria-label={t('What is here')}>
       <div class="h">
         <Info size={20} aria-hidden="true" />
@@ -83,7 +86,11 @@
         </div>
       {/if}
     </section>
-  {:else}
+  {:else if !open && only === 'line'}
+    <button type="button" class="mini chip" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
+      <span><b>{t('What is here')}</b></span><ChevronRight size={16} aria-hidden="true" />
+    </button>
+  {:else if !open && only !== 'card'}
     <button type="button" class="mini" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
       <Info size={18} aria-hidden="true" /><span><b>{t('What is here')}</b> · {t(hint.lead[0])}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
@@ -251,5 +258,13 @@
   }
   .mini span {
     flex: 1;
+  }
+  /* Paket D «1a»: the folded line as a small chip in a page head (one line, no lead) */
+  .mini.chip {
+    width: auto;
+    margin: 0;
+    gap: 4px;
+    padding: 8px 12px;
+    white-space: nowrap;
   }
 </style>

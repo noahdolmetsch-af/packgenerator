@@ -15,9 +15,9 @@
   import AssignDialog from './AssignDialog.svelte';
   import Seg from '../ui/Seg.svelte';
   import MergeSheet from './MergeSheet.svelte';
-  import { undoBulk } from './bulk.js';
+  import { undoBulk, deleteItems, deletePlan, archiveItems } from './bulk.js';
+  import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { t, tn, nameOf } from '../i18n.svelte.js';
-  import Help from '../ui/Help.svelte'; // FE14
   import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { SKI_GROUPS, SKI_GROUP, skiGroupOf } from '../ski.js';
@@ -26,7 +26,7 @@
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
@@ -45,6 +45,8 @@
   import { slotOf, ifixitUrl } from '../sk/links.js';
   import { own } from '../ownlive.svelte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import Field from '../ui/Field.svelte'; // Einheitliche Formulare (Noah 19.10.2026 «teil bearbeiten jetzt»)
+  import { checkAll } from '../ui/formchecks.js';
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -215,31 +217,77 @@
     if (live) Object.assign(draft, { sets: [...(live.sets ?? [])], defaultBag: live.defaultBag });
   }
 
-  async function save(event) {
+  /*
+   * Einheitliche Formulare (Noah 19.10.2026 «2a 3a 4b»): every field is checked at once when «Save» is
+   * pressed; each message stands at its field, a line above the buttons counts them, a folded row with a
+   * wrong field opens and the cursor goes to the first one. From then on a message leaves once it is right.
+   */
+  let errors = $state({});
+  let tried = $state(false);
+  const checkItem = () =>
+    checkAll(
+      {
+        name: [draft.name, { field: t('a name|field'), example: t('Rain jacket'), required: true }],
+        ...(!CATEGORY[draft.category] && (isNew || draft.category !== item?.category) ? { category: [null, { field: t('a category|field'), example: t('On-bike clothing'), kind: 'choice', required: true }] } : {}),
+        grams: [draft.grams, { field: t('Weight'), example: '320', kind: 'int', min: 1, max: 30000 }],
+        qty: [draft.qty, { field: t('Quantity'), example: '2', kind: 'int', min: 1, max: 999, required: true }],
+        coldBelow: [draft.coldBelow, { field: t('Colder than'), example: '10', kind: 'number', min: -40, max: 40 }],
+        perHours: [draft.perHours, { field: t('Riding hours'), example: '3', kind: 'number', min: 0.5, max: 48 }],
+        maxQty: [draft.maxQty, { field: t('At most'), example: '2', kind: 'int', min: 1, max: 99 }],
+        waterL: [draft.waterL, { field: t('Water'), example: '0.75', kind: 'number', min: 0.1, max: 20 }],
+        ...(alsoTouched && alsoOn ? { litres: [alsoL, { field: t('Litres'), example: '12', kind: 'number', min: 0.1, max: 100 }] } : {}),
+      },
+      t,
+    );
+  $effect(() => {
+    if (tried) errors = checkItem();
+  });
+  const errorCount = $derived(Object.keys(errors).length);
+  async function showErrors() {
+    await tick();
+    const el = dialog?.querySelector('[aria-invalid="true"]');
+    if (!el) return;
+    // open the folded rows around it (the row «More details» of a new item, the row of the field)
+    for (let d = el.closest('details'); d; d = d.parentElement?.closest('details')) d.open = true;
+    await tick();
+    el.focus();
+    el.scrollIntoView?.({ block: 'center' });
+  }
+
+  /*
+   * «Rückmeldungen» (Noah 19.10.2026 «2a»): every way out says what happened. «Save», ✕, back and Escape
+   * after a change: «Changes to "…" saved.»; a new item: «"…" saved, under {cat}.». A second tap while
+   * it saves does nothing (once); a failed save keeps the window and what was typed, with one line why.
+   */
+  const catName = (c) => t(CATEGORY[c]?.name ?? '') || c;
+  const save = once(async (event) => {
     event.preventDefault();
-    if (!draft.name.trim()) return (error = t('Give the item a name.'));
-    if (!CATEGORY[draft.category] && (isNew || draft.category !== item.category)) return (error = t('Choose a category.'));
+    error = '';
+    tried = true;
+    errors = checkItem();
+    if (Object.keys(errors).length) return showErrors();
     let weightG = null;
-    if (String(draft.grams).trim() !== '') {
-      weightG = parseGrams(draft.grams);
-      if (weightG == null) return (error = t('Weight: whole grams from 1 to 30,000, or leave it empty.'));
-    }
+    if (String(draft.grams).trim() !== '') weightG = parseGrams(draft.grams);
     // v0.23.0 (AP09): the record is built in gear.js (itemRecord), tested there; the ID never changes.
     const record = itemRecord($state.snapshot(draft), { item, items, weightG });
     let litres = null;
-    if (alsoTouched && alsoOn && String(alsoL).trim() !== '') {
-      litres = Number(String(alsoL).replace(',', '.'));
-      if (!(litres > 0 && litres <= 100)) return (error = t('Volume: litres from 0.1 to 100, or leave it empty.'));
-    }
-    ended = true;
+    if (alsoTouched && alsoOn && String(alsoL).trim() !== '') litres = Number(String(alsoL).replace(',', '.'));
+    const changed = isNew || JSON.stringify($state.snapshot(draft)) !== (shownAs ?? startText) || alsoTouched;
     clearTimeout(autoTimer);
     await autoBusy;
-    if (autoId && autoId !== record.id) await db.items.delete(autoId);
-    await db.items.put(record);
-    if (alsoTouched && canBeBag && (alsoOn || alsoBag)) await setAlsoBag(db, record, alsoOn, litres);
+    try {
+      if (autoId && autoId !== record.id) await db.items.delete(autoId);
+      await db.items.put(record);
+      if (alsoTouched && canBeBag && (alsoOn || alsoBag)) await setAlsoBag(db, record, alsoOn, litres);
+    } catch (err) {
+      return (error = saveFailed(err));
+    }
+    ended = true;
     await onsaved?.(record);
+    if (isNew && !onsaved) offerDone(t('"{name}" saved, under {cat}.', { name: nameOf(record), cat: catName(record.category) }));
+    else if (!isNew && changed) offerDone(t('Changes to "{name}" saved.', { name: nameOf(record) }));
     dialog.close();
-  }
+  });
 
   /* ---------- v0.35.0 (AP29): a new item is saved while it is typed ---------- */
   let autoTimer;
@@ -274,6 +322,7 @@
       await autoSave();
       ended = true;
       if (kept) await onkept?.(kept);
+      if (kept && !onkept) offerDone(t('"{name}" is saved. You find it under {cat}.', { name: nameOf(kept), cat: catName(kept.category) }));
     }
     onclose?.();
   }
@@ -310,11 +359,25 @@
   });
   const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === (shownAs ?? startText) ? dialog.close() : save({ preventDefault() {} }));
 
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 4 s «Undo»: a new item made here comes back,
+  // the changes of an existing item are put back on it.
   async function discard() {
     ended = true;
     clearTimeout(autoTimer);
     await autoBusy;
-    if (autoId) await db.items.delete(autoId);
+    if (autoId) {
+      const made = kept ?? (await db.items.get(autoId));
+      await db.items.delete(autoId);
+      if (made) offerDone(t('"{name}" discarded.', { name: nameOf(made) }), async () => {
+        await db.items.put(made);
+        await onkept?.(made);
+      });
+    } else if (!isNew && JSON.stringify($state.snapshot(draft)) !== (shownAs ?? startText) && draft.name.trim()) {
+      const grams = String(draft.grams ?? '').trim();
+      const weightG = grams ? parseGrams(grams) : null;
+      const changedRec = grams && weightG == null ? null : itemRecord($state.snapshot(draft), { item, items, weightG });
+      offerDone(t('Changes to "{name}" discarded.', { name: nameOf(item) }), changedRec ? () => db.items.put(changedRec) : null);
+    }
     dialog.close();
   }
 
@@ -352,11 +415,40 @@
     }
   }
 
-  async function remove() {
-    if (!confirm(t('Delete "{name}" from your gear? A backup file can bring it back.', { name: nameOf(item) }))) return;
-    await db.items.delete(item.id);
+  /*
+   * «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question, then 4 s «Undo». An item still on
+   * trips or in templates offers «Archive» first; «Delete» takes it off them too (deleteItems, like
+   * the list), so no trip keeps an empty line.
+   */
+  const remove = once(async () => {
+    const name = nameOf(item);
+    const plan = await deletePlan(db, [item.id]);
+    const trips = ($tripsQ ?? []).filter((x) => (x.entries ?? []).some((e) => e.itemId === item.id)).length;
+    const tpls = where.templates.length;
+    const used = plan.used.length > 0 || trips > 0;
+    const answer = await askDelete({
+      title: t('Delete "{name}"?', { name }),
+      text: used
+        ? t('It is {where} and goes from there too. To keep it but not use it any more: Archive. Then it stays in the look back.', { where: [trips ? tn(trips, 'on {n} trip', 'on {n} trips') : '', tpls ? tn(tpls, 'in {n} template', 'in {n} templates') : ''].filter(Boolean).join(t(' and ')) || t('in use') })
+        : t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.'),
+      archive: used && item.ownership !== 'gone' ? t('Archive') : '',
+    });
+    if (answer === 'archive') {
+      try {
+        const { snap } = await archiveItems(db, [item.id]);
+        offerDone(t('"{name}" archived. It stays in the look back.', { name }), () => undoBulk(db, snap));
+      } catch (err) {
+        return (error = saveFailed(err));
+      }
+      ended = true;
+      return dialog.close();
+    }
+    if (answer !== 'delete') return;
+    const ok = await deleteWithUndo({ run: () => deleteItems(db, [item.id]), undo: (snap) => undoBulk(db, snap), text: t('"{name}" deleted.', { name }), name });
+    if (!ok) return;
+    ended = true;
     dialog.close();
-  }
+  });
 </script>
 
 {#snippet photoRow()}
@@ -388,10 +480,9 @@
 
 <!-- v0.72.0 (Noah 1a, 2a): the row «Weight»: the field, then the lighter alternatives. -->
 {#snippet weightBody()}
-  <label class="wrow">
-    <span class="lbl">{t('Weight of one piece (g)')}</span>
-    <span class="wfield"><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>
-  </label>
+  <Field id="it-grams" label={t('Weight of one piece (g)')} optional example={t('whole grams, e.g. 320')} error={errors.grams}>
+    {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>{/snippet}
+  </Field>
   {#if wBars.length}
     <ul class="bars" aria-label={t('Weight compared')}>
       {#each wBars as b (b.item.id)}
@@ -435,7 +526,7 @@
   {#if canBeBag}
     <div class="alsobag">
       <label class="cb"><input type="checkbox" checked={alsoOn} onchange={(e) => { alsoTouched = true; alsoOn = e.currentTarget.checked; }} /> {t('Also a bag on my back (e.g. a vest with pockets)')}</label>
-      {#if alsoOn}<label class="alsol"><span class="lbl">{t('Litres')}</span><input class="inp num" type="text" inputmode="decimal" value={alsoL} oninput={(e) => { alsoTouched = true; alsoL = e.currentTarget.value; }} placeholder={t('unknown')} /></label>
+      {#if alsoOn}<Field id="it-litres" class="alsol" label={t('Litres')} optional example={t('e.g. {x}', { x: '12' })} error={errors.litres}>{#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} value={alsoL} oninput={(e) => { alsoTouched = true; alsoL = e.currentTarget.value; }} placeholder={t('unknown')} />{/snippet}</Field>
         <p class="quiet">{t('It stays in your clothing and can be chosen as the bag on Back.')}</p>{/if}
     </div>
   {/if}
@@ -500,34 +591,42 @@
     {#if !item.ride && item.coldBelow == null && !item.rain && !item.perHours && !item.replaces}<p class="quiet">{t('not set')}</p>{/if}
   {:else}
     <div class="layers">
-      <label><span class="lbl">{t('From this ride on')}</span>
-        <select class="sel" bind:value={draft.ride}>
+      <Field id="it-ride" label={t('From this ride on')} optional>
+        {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.ride}>
           <option value="">–</option>
           {#each RIDES.filter((r) => r.key !== 'every') as r (r.key)}<option value={r.key}>{t(r.name)}</option>{/each}
-        </select>
-      </label>
-      <label><span class="lbl">{t('Add when colder than (°C)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.coldBelow} placeholder={t('e.g. {x}', { x: String(own.v.coldC) })} /></label>
-      <label><span class="lbl">{t('When it rains')}</span>
-        <select class="sel" bind:value={draft.rain}>
+        </select>{/snippet}
+      </Field>
+      <Field id="it-cold" label={t('Add when colder than (°C)')} optional example={t('e.g. {x}', { x: String(own.v.coldC) })} error={errors.coldBelow}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.coldBelow} />{/snippet}
+      </Field>
+      <Field id="it-rain" label={t('When it rains')} optional>
+        {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.rain}>
           <option value="">–</option>
           {#each Object.entries(RAIN_ITEM) as [k, v] (k)}<option value={k}>{v === 'Rain' ? t('Always take it') : t('Offer it')}</option>{/each}
-        </select>
-      </label>
-      <label><span class="lbl">{t('1 piece per … riding hours')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.perHours} placeholder={t('e.g. {x}', { x: '3' })} /></label>
-      <label><span class="lbl">{t('At most … pieces')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.maxQty} placeholder={t('e.g. {x}', { x: '2' })} /></label>
-      <label><span class="lbl">{t('On me, instead of')}</span>
-        <select class="sel" bind:value={draft.replaces}>
+        </select>{/snippet}
+      </Field>
+      <Field id="it-perh" label={t('1 piece per … riding hours')} optional example={t('e.g. {x}', { x: '3' })} error={errors.perHours}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.perHours} />{/snippet}
+      </Field>
+      <Field id="it-maxq" label={t('At most … pieces')} optional example={t('e.g. {x}', { x: '2' })} error={errors.maxQty}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.maxQty} />{/snippet}
+      </Field>
+      <Field id="it-repl" label={t('On me, instead of')} optional>
+        {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.replaces}>
           <option value="">–</option>
           {#each items.filter((i) => (isWorn(i) || inStandard(i)) && i.id !== draft.id) as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
-        </select>
-      </label>
-      <label><span class="lbl">{t('Can be taken instead of')}</span>
-        <select class="sel" bind:value={draft.altFor}>
+        </select>{/snippet}
+      </Field>
+      <Field id="it-altfor" label={t('Can be taken instead of')} optional>
+        {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.altFor}>
           <option value="">–</option>
           {#each items.filter((i) => i.ride && i.id !== draft.id) as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
-        </select>
-      </label>
-      <label><span class="lbl">{t('Water in it (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.waterL} placeholder={t('e.g. {x}', { x: '0.75' })} /></label>
+        </select>{/snippet}
+      </Field>
+      <Field id="it-water" label={t('Water in it (L)')} optional example={t('e.g. {x}', { x: '0.75' })} error={errors.waterL}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.waterL} />{/snippet}
+      </Field>
     </div>
   {/if}
 {/snippet}
@@ -565,18 +664,26 @@
   {:else}
     <div class="grid">
       {#if !isNew}
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
+        {@render nameField()}
         {@render categoryField()}
         {@render statusField()}
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       {/if}
-      <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
-      <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
-      <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" inputmode="numeric" min="1" bind:value={draft.qty} /></label>
+      <Field id="it-brand" label={t('Brand')} optional example={t('e.g. {x}', { x: 'Garmin' })}>
+        {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.brand} />{/snippet}
+      </Field>
+      <Field id="it-model" label={t('Model / colour')} optional example={t('e.g. {x}', { x: 'Edge 1040 Solar' })}>
+        {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.model} />{/snippet}
+      </Field>
+      <Field id="it-qty" label={t('Quantity')} example={t('pieces you own, e.g. 2')} error={errors.qty}>
+        {#snippet children(f)}<input class="inp num" type="number" inputmode="numeric" min="1" {...f.attrs} bind:value={draft.qty} />{/snippet}
+      </Field>
       <label class="cb wide"><input type="checkbox" bind:checked={draft.favorite} /> ★ {t('Favourite (tested, one of my best items)')}</label>
       {#if draft.favorite}
-        <label class="wide"><span class="lbl">{t('Why it is a favourite')}</span><input class="inp" bind:value={draft.favNote} placeholder={t('e.g. Warm, packs small, never let me down')} /></label>
+        <Field id="it-favnote" class="wide" label={t('Why it is a favourite')} optional example={t('e.g. Warm, packs small, never let me down')}>
+          {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.favNote} />{/snippet}
+        </Field>
       {/if}
       <!-- v0.21.0 (package 5): one inventory, an item can belong to several areas. -->
       <fieldset class="wide sets">
@@ -595,7 +702,9 @@
           </select>
         </label>
       {/if}
-      <label class="wide"><span class="lbl">{t('Note')}</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
+      <Field id="it-note" class="wide" label={t('Note')} optional>
+        {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea>{/snippet}
+      </Field>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
         <p class="note wide">{[draft.sourceId && `${t('Source ID')}: ${draft.sourceId}`, (draft.zone || draft.layer) && `${t('Body zone')}: ${[draft.zone, draft.layer].filter(Boolean).join(' · ')}`, draft.tempClass && `${t('Temperature')}: ${draft.tempClass}`, draft.rule && `${t('Rule')}: ${draft.rule}`].filter(Boolean).join(' · ')}</p>
@@ -605,21 +714,26 @@
   {/if}
 {/snippet}
 
+{#snippet nameField()}
+  <Field id="it-name" class="wide" label={t('Name')} example={t('e.g. {x}', { x: t('Rain jacket') })} error={errors.name}>
+    {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.name} enterkeyhint="done" />{/snippet}
+  </Field>
+{/snippet}
+
 {#snippet categoryField()}
-  <label>
-    <span class="lbl">{t('Category')} <small class="req">{t('required')}</small></span>
-    <select class="sel" bind:value={draft.category} required>
+  <Field id="it-cat" label={t('Category')} error={errors.category}>
+    {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.category}>
       {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
       {#each choosable(item?.category) as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
-    </select>
-  </label>
+    </select>{/snippet}
+  </Field>
 {/snippet}
 
 <!-- v0.40.0 (design check R4): the status as a segment "Owned · Wishlist · Gone"; the two rarer
      ones (Unclear, To buy) one tap further, never lost. -->
 {#snippet statusField()}
   <div class="wide status">
-    <span class="lbl" id="status-h">{t('Status')} <small class="req">{t('required')}</small></span>
+    <span class="lbl" id="status-h">{t('Status')}</span>
     <Seg labelledby="status-h" options={statusSeg} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
     {#if statusMore.length}
       <details class="moreStat" open={statusMore.some((k) => k === draft.ownership)}>
@@ -689,11 +803,13 @@
     {#if isNew}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
+        {@render nameField()}
         {@render categoryField()}
         {@render statusField()}
         <!-- FE14: the «?» sits next to the label, outside it, so the field keeps its name -->
-        <div class="wide"><span class="lbl"><label for="it-grams">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></label> <Help field="it-grams" text={t(FIELD_HELP.grams)} /></span><input id="it-grams" class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></div>
+        <Field id="it-grams" class="wide" label={t('Weight of one piece (g)')} optional help={t(FIELD_HELP.grams)} example={t('whole grams, e.g. 320')} error={errors.grams}>
+          {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} placeholder={t('not weighed')} />{/snippet}
+        </Field>
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
@@ -709,11 +825,12 @@
       <div class="rows">{@render rows()}</div>
     {/if}
 
+    {#if tried && errorCount}<p class="fsum" role="alert">{tn(errorCount, '{n} entry is missing or wrong. It is marked in red.', '{n} entries are missing or wrong. They are marked in red.')}</p>{/if}
     <p class="err" role="alert">{error}</p>
     <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
     <div class="foot daumen-foot">
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Discard')}</button>{/if}
+      {:else}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button>{/if}
       <button type="submit" class="btn hi">{t('Save')}</button>
     </div>
   </form>
@@ -760,9 +877,8 @@
     gap: 8px;
     min-height: 44px;
   }
-  .alsol {
-    display: block;
-    max-width: 160px;
+  :global(.fld-u.alsol) {
+    max-width: 200px;
   }
   .meta {
     display: flex;
@@ -798,8 +914,21 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-  .wide {
+  .wide,
+  .grid > :global(.fld-u.wide) {
     grid-column: 1 / -1;
+  }
+  /* Einheitliche Formulare: the grids keep their own gaps */
+  .grid > :global(.fld-u),
+  .layers > :global(.fld-u),
+  .wrow :global(.fld-u) {
+    margin: 0;
+  }
+  .fsum {
+    margin: 8px 0 0;
+    color: var(--bad);
+    font-size: var(--fs-small);
+    font-weight: 500;
   }
   @media (max-width: 480px) {
     .grid {
@@ -1265,11 +1394,6 @@
   }
   .wl li {
     overflow-wrap: break-word;
-  }
-  /* v0.23.0 (AP08) */
-  .req {
-    font-weight: 400;
-    color: var(--ink-3);
   }
   .moved {
     margin: 0;

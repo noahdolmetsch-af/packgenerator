@@ -20,7 +20,7 @@ import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
-import { actRecord, KEEP, needDetail, ZONES_KEY } from '../training.js';
+import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
 import { localDay } from '../localday.js';
 import { saveRate } from '../maintenance/rate.js';
 
@@ -312,10 +312,14 @@ export async function keepActivities(db, list) {
   await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])) })));
 }
 
+/** TR5b–TR7f: the further parts of a detail (cadence, 5 km rows, course, heart rate by power, halves, climbs). */
+const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
+const moreOf = (d) => ({ cHist: obj(d.cHist), secs5: Array.isArray(d.secs5) ? d.secs5 : null, prof: obj(d.prof), hw: obj(d.hw), halves: Array.isArray(d.halves) ? d.halves : null, climbs: Array.isArray(d.climbs) ? d.climbs : [] });
+
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
 export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
   const d = await c('detail', { params: { id: String(id) } });
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', detail: now.toISOString() });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', ...moreOf(d), detail: now.toISOString(), dv: DETAIL_V });
   return d;
 }
 

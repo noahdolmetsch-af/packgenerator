@@ -1,5 +1,6 @@
 <script>
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import { UNDO_MS } from '../lib/ui/undo.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
@@ -11,7 +12,7 @@
   import { untrack } from 'svelte';
   import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
-  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
   import { weighQueue } from '../lib/weigh.js';
   import { STAGED } from '../lib/gear/importdb.js';
@@ -112,6 +113,8 @@
   async function deleteOne(item) {
     rowMenu = null;
     if ((usedN[item.id] ?? 0) > 0) return archiveOne(item); // never delete a used item from the row
+    // «Rückmeldungen» 19.10.2026: deleting asks first everywhere (rule «Löschen» 14.10.2026), then Undo
+    if ((await askDelete({ title: t('Delete "{name}"?', { name: nameOf(item) }), text: t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     offerUndo(t('"{name}" deleted.', { name: nameOf(item) }), await deleteItems(db, [item.id]));
   }
   async function favOne(item) {
@@ -576,13 +579,11 @@
       const list = chosen;
       const ids = list.map((i) => i.id);
       const plan = await deletePlan(db, ids);
-      const text = [
-        tn(ids.length, 'Delete {n} item from your gear?', 'Delete {n} items from your gear?'),
-        namesList(list.map((i) => nameOf(i))),
-        plan.used.length ? t('{n} of them are on a trip or template; they disappear from there too.', { n: plan.used.length }) : '',
-        t('You can undo this for a few seconds.'),
-      ].filter(Boolean);
-      if (!confirm(text.join('\n\n'))) return;
+      // «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question; items still used offer «Archive» first
+      const text = [plan.used.length ? t('{n} of them are on a trip or template; they disappear from there too.', { n: plan.used.length }) : '', t('You can bring it back for 4 seconds afterwards.')].filter(Boolean).join(' ');
+      const a = await askDelete({ title: tn(ids.length, 'Delete {n} item from your gear?', 'Delete {n} items from your gear?'), text, lines: list.map((i) => nameOf(i)), archive: plan.used.length ? t('Archive') : '' });
+      if (a === 'archive') return offerUndo(tn(ids.length, '{n} item archived. It stays in the look back.', '{n} items archived. They stay in the look back.'), (await archiveItems(db, ids)).snap);
+      if (a !== 'delete') return;
       offerUndo(tn(ids.length, '{n} item deleted.', '{n} items deleted.'), await deleteItems(db, ids));
     });
   async function doUndo() {

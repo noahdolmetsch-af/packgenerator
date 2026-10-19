@@ -259,10 +259,10 @@
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <LessonsCard {lessons} {reminders} />
-          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
-          <PlanNotesCard {trip} {bike} {fixed} />
           <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
           <DocChecks {trip} />
+          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
+          <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}

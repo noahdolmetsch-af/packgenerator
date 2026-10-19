@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { closeKeep } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { offerRename } from '../ui/rename.svelte.js';
@@ -119,13 +120,32 @@
   let shownName = $state(bag?.name ?? '');
 
   async function remove() {
-    if (!confirm(t('Delete the bag "{name}"? It is taken off every bike. The gear item stays.', { name: bag.name }))) return;
-    await db.transaction('rw', db.containers, db.bikes, async () => {
-      await db.containers.delete(bag.id);
-      // Off every place of every bike (a worn bag can sit on Back or Hip).
-      for (const b of bikes) for (const [k, v] of Object.entries(b.setup ?? {})) if (v === bag.id) await db.bikes.update(b.id, { [`setup.${k}`]: null });
+    const name = bag.name;
+    if ((await askDelete({ title: t('Delete the bag "{name}"?', { name }), text: t('It is taken off every bike. The gear item stays. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({
+      run: () =>
+        db.transaction('rw', db.containers, db.bikes, async () => {
+          const rec = await db.containers.get(bag.id);
+          const places = [];
+          await db.containers.delete(bag.id);
+          // Off every place of every bike (a worn bag can sit on Back or Hip).
+          for (const b of await db.bikes.toArray())
+            for (const [k, v] of Object.entries(b.setup ?? {}))
+              if (v === bag.id) {
+                places.push([b.id, k]);
+                await db.bikes.update(b.id, { [`setup.${k}`]: null });
+              }
+          return { rec, places };
+        }),
+      undo: ({ rec, places }) =>
+        db.transaction('rw', db.containers, db.bikes, async () => {
+          if (rec) await db.containers.put(rec);
+          for (const [id, k] of places) await db.bikes.update(id, { [`setup.${k}`]: rec.id });
+        }),
+      text: t('"{name}" deleted.', { name }),
+      name,
     });
-    dialog.close();
+    if (ok) dialog.close();
   }
 </script>
 

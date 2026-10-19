@@ -5,57 +5,148 @@
    * #/me/lists: the overview (LI1), every list that can be changed, «Standard» or «Angepasst».
    * #/me/lists?categories: one list (LI2): arrows up and down (answer 2b), the eye hides, the pen opens
    * the entry (LI3, ListEntrySheet), «+ Eigene Kategorie», «Auf Standard zurücksetzen».
+   * «Gruppen überall» (Noah 18.10.2026, «gruppen umbenennen und löschen soll grundsätzlich überall auf
+   * der app möglich sein»): the same page for the note topics (?noteTopics) and the groups of the bike
+   * values (?valueGroups): rename, own ones, order, delete. Deleting a group that holds things asks
+   * where they go (GroupDeleteSheet; first choice «Ohne …»), then Undo for a few seconds.
    * Everything is a suggestion of the app: the Standard stays, the person's changes are kept apart
    * (standard.js, lists.js) and travel in the backup.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf } from '../lib/standard.js';
-  import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove } from '../lib/lists.js';
+  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList } from '../lib/standard.js';
+  import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove, applyLists } from '../lib/lists.js';
   import { catIcon, stdIconName } from '../lib/gear/caticon.js';
   import { domainName } from '../lib/domains.js';
+  import { noteTopic, isKept } from '../lib/notebook.js';
+  import { FIELDS_KEY, groupCounts, moveGroupFields } from '../lib/valuefields.js';
+  import { moveItems, moveNotes, targetsOf, writeGroupChange, undoGroupChange } from '../lib/groups.js';
   import ListEntrySheet from '../lib/ich/ListEntrySheet.svelte';
+  import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
+  import UndoToast from '../lib/review/UndoToast.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const overQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
   const itemsQ = liveQuery(() => db.items.toArray());
+  const notesQ = liveQuery(() => db.notes.toArray());
+  const fieldsQ = liveQuery(() => db.settings.get(FIELDS_KEY));
   const checksQ = liveQuery(() => db.settings.where('key').startsWithAnyOf(['eveStandard', 'afterStandard']).toArray());
 
-  const KEY = 'categories';
-  const open = (location.hash.split('?')[1] ?? '') === KEY;
+  // One config per list of groups: the words, how many things each group holds, and where they go
+  // when it is deleted (the records that change). full: symbol, «Gilt für» and the eye (categories).
+  const KINDS = {
+    categories: {
+      full: true,
+      icon: Tag,
+      place: 'Gear|place',
+      sub: 'Applies to gear, the packing list and the search. Drag or use the arrows to change the order.',
+      ownWord: 'Own category',
+      none: 'Without category',
+      noneHint: 'The items stay in Gear, without a category. «Back to Standard» brings a Standard category back with them.',
+      what: (n) => tn(n, '{n} item', '{n} items'),
+      deleteTitle: (name) => t('Delete category «{name}»?', { name }),
+    },
+    noteTopics: {
+      full: false,
+      icon: NotebookPen,
+      place: 'Notes',
+      sub: 'The topics of the notes. Drag or use the arrows to change the order.',
+      ownWord: 'Own topic',
+      none: 'No topic',
+      noneHint: 'The notes show under «No topic» until you give them a topic.',
+      what: (n) => tn(n, '{n} note', '{n} notes'),
+      deleteTitle: (name) => t('Delete topic «{name}»?', { name }),
+      words: (count) => ({ edit: t('Edit topic'), own: t('Own topic'), empty: t('Give the topic a name.'), warn: count ? tn(count, 'Delete: {n} note has this topic. The app then asks where it goes.', 'Delete: {n} notes have this topic. The app then asks where they go.') : t('Delete: no note has this topic.') }),
+    },
+    valueGroups: {
+      full: false,
+      icon: SlidersHorizontal,
+      place: 'Bikes|place',
+      sub: 'The groups on «Enter values», for all bikes. Drag or use the arrows to change the order.',
+      ownWord: 'Own group',
+      none: 'No group',
+      noneHint: 'The fields show under «No group» on «Enter values».',
+      what: (n) => tn(n, '{n} field', '{n} fields'),
+      deleteTitle: (name) => t('Delete group «{name}»?', { name }),
+      words: (count) => ({ edit: t('Edit group'), own: t('Own group'), empty: t('Give the group a name.'), warn: count ? tn(count, 'Delete: {n} field is in this group. The app then asks where it goes.', 'Delete: {n} fields are in this group. The app then asks where they go.') : t('Delete: no field is in this group.') }),
+    },
+  };
+  const q = location.hash.split('?')[1] ?? '';
+  const KEY = Object.hasOwn(KINDS, q) ? q : 'categories';
+  const open = Object.hasOwn(KINDS, q);
+  const K = KINDS[KEY];
 
   const all = $derived($overQ?.value ?? {});
   const value = $derived(all[KEY]);
   const list = $derived(listFor(KEY, all));
-  const count = $derived(($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {}));
+  const countsOf = (key) => {
+    if (key === 'categories') return ($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {});
+    if (key === 'noteTopics') return ($notesQ ?? []).filter(isKept).reduce((m, n) => ((m[noteTopic(n)] = (m[noteTopic(n)] ?? 0) + 1), m), {});
+    return groupCounts($fieldsQ?.value);
+  };
+  const count = $derived(countsOf(KEY));
   const changed = $derived(isChanged(value));
-  const ownN = $derived(list.filter((e) => e.own).length);
-  const hiddenN = $derived(list.filter((e) => e.hidden).length);
-  const catLine = $derived([tn(list.length, '{n} entry', '{n} entries'), ownN ? tn(ownN, '{n} own', '{n} own') : null, hiddenN ? tn(hiddenN, '{n} hidden', '{n} hidden') : null].filter(Boolean).join(' · '));
+  const lineOf = (key) => {
+    const l = listFor(key, all);
+    const ownN = l.filter((e) => e.own).length;
+    const hiddenN = l.filter((e) => e.hidden).length;
+    return [tn(l.length, '{n} entry', '{n} entries'), ownN ? tn(ownN, '{n} own', '{n} own') : null, hiddenN ? tn(hiddenN, '{n} hidden', '{n} hidden') : null].filter(Boolean).join(' · ');
+  };
   const checksOwn = $derived(($checksQ ?? []).length > 0);
 
-  // the window of one entry: { entry } (entry null: a new own category)
+  // the window of one entry: { entry } (entry null: a new own one); then the delete question: { entry }
   let sheet = $state(null);
+  let deleting = $state(null);
+  let undo = $state.raw(null); // { text, snap } (raw: IndexedDB cannot store a reactive proxy)
+  let timer;
+  $effect(() => () => clearTimeout(timer));
 
   const save = (next) => saveList(db, KEY, next);
+  // a name the person typed is shown as it is, never through t() (it could hit another text: «Travel» → «Federweg»)
+  const shown = (e) => (e.own || e.renamed ? e.name : t(e.name));
   // LI3 «Gilt für»: a category for some trip areas only says which, on a line of its own
   const only = (e) => (e.areas?.length ? t('Only {areas}', { areas: e.areas.map((k) => t(domainName(k))).join(', ') }) : '');
   const sub = (e) => {
-    const n = tn(count[e.id] ?? 0, '{n} item', '{n} items');
+    const n = K.what(count[e.id] ?? 0);
     if (e.hidden) return `${t('Hidden')} · ${n}`;
-    if (e.own) return `${t('Own category')} · ${n}`;
+    if (e.own) return `${t(K.ownWord)} · ${n}`;
     if (e.renamed) return `${t('Standard name: {name}', { name: t(e.std) })} · ${n}`;
     return `${t('Standard')} · ${n}`;
   };
   const adapted = (e) => !e.own && (e.renamed || overrideOf(value).icons[e.id] || e.areas);
   function reset() {
-    if (!confirm(t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.'))) return;
+    if (!confirm(KEY === 'categories' ? t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.') : t('Back to the Standard? Your names, own entries, deleted ones and the order are undone.'))) return;
     resetToStandard(db, KEY);
+  }
+
+  // «Gruppen überall»: delete a group and move its things (to: a group id, or null for «Ohne …»)
+  async function deleteGroup(e, to) {
+    const rec = await db.settings.get(OVERRIDES_KEY);
+    const now = rec?.value ?? {};
+    const nextVal = remove(now[KEY], e);
+    const nextAll = isChanged(nextVal) ? { ...now, [KEY]: nextVal } : resetList(now, KEY);
+    const settings = [{ key: OVERRIDES_KEY, value: nextAll }];
+    let items = [];
+    let notes = [];
+    if (KEY === 'categories') items = moveItems(await db.items.toArray(), e.id, to);
+    else if (KEY === 'noteTopics') notes = moveNotes(await db.notes.toArray(), e.id, to);
+    else if (to) settings.push({ key: FIELDS_KEY, value: moveGroupFields((await db.settings.get(FIELDS_KEY))?.value, e.id, to) });
+    const snap = await writeGroupChange(db, { settings, items, notes });
+    applyLists(nextAll);
+    clearTimeout(timer);
+    undo = { text: t('«{name}» deleted.', { name: shown(e) }), snap };
+    timer = setTimeout(() => (undo = null), 8000);
+  }
+  async function doUndo() {
+    const snap = undo?.snap;
+    clearTimeout(timer);
+    undo = null;
+    await undoGroupChange(db, snap);
   }
 </script>
 
@@ -65,19 +156,25 @@
     <p class="info card"><Lightbulb size={18} aria-hidden="true" /><span>{t('Standard = how the app comes. Adapted = you changed something. Every list can go back to Standard.')}</span></p>
 
     <div class="grid">
-      <section class="ich-sec card box" aria-labelledby="ls-gear-h">
-        <h2 id="ls-gear-h">{t('Gear|place')}</h2>
-        <ul class="ich-list">
-          <li>
-            <a class="ich-row" href="#/me/lists?categories">
-              <span class="ich-ib"><Tag size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t(STANDARD_LIST[KEY].name)}</b><small>{catLine}</small></span>
-              <span class="badge" class:mine={changed}>{changed ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-        </ul>
-      </section>
+      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups']], ['notes', 'Notes', ['noteTopics']]] as [area, head, keys] (area)}
+        <section class="ich-sec card box" aria-labelledby="ls-{area}-h">
+          <h2 id="ls-{area}-h">{t(head)}</h2>
+          <ul class="ich-list">
+            {#each keys as key (key)}
+              {@const I = KINDS[key].icon}
+              {@const mine = isChanged(all[key])}
+              <li>
+                <a class="ich-row" href="#/me/lists?{key}">
+                  <span class="ich-ib"><I size={18} aria-hidden="true" /></span>
+                  <span class="ich-m"><b>{t(STANDARD_LIST[key].name)}</b><small>{lineOf(key)}</small></span>
+                  <span class="badge" class:mine>{mine ? t('Adapted') : t('Standard')}</span>
+                  <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                </a>
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/each}
       <section class="ich-sec card box" aria-labelledby="ls-trips-h">
         <h2 id="ls-trips-h">{t('Trips|place')}</h2>
         <ul class="ich-list">
@@ -94,48 +191,67 @@
     </div>
     <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('More lists follow one by one: sports, places on the bike, questions.')}</span></p>
   {:else}
-    <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t('Applies to gear, the packing list and the search. Drag or use the arrows to change the order.')} />
+    <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
     <div class="card box">
       <ul class="ich-list rows" aria-label={t(STANDARD_LIST[KEY].name)} use:sortable={{ onmove: (from, to) => save(moveTo(value, list, list[from].id, to)) }}>
         {#each list as e, i (e.id)}
-          {@const I = catIcon(e.id)}
+          {@const I = KEY === 'categories' ? catIcon(e.id) : K.icon}
           <li class="ich-row" class:off={e.hidden} data-id={e.id} data-sort-id={e.id}>
-            <SortGrip name={t(e.name)} onstep={(dir) => save(move(value, list, e.id, dir))} />
+            <SortGrip name={shown(e)} onstep={(dir) => save(move(value, list, e.id, dir))} />
             <span class="arrows">
-              <button type="button" class="ar" aria-label={t('Up: {name}', { name: t(e.name) })} disabled={i === 0} onclick={() => save(move(value, list, e.id, -1))}><ChevronUp size={16} aria-hidden="true" /></button>
-              <button type="button" class="ar" aria-label={t('Down: {name}', { name: t(e.name) })} disabled={i === list.length - 1} onclick={() => save(move(value, list, e.id, 1))}><ChevronDown size={16} aria-hidden="true" /></button>
+              <button type="button" class="ar" aria-label={t('Up: {name}', { name: shown(e) })} disabled={i === 0} onclick={() => save(move(value, list, e.id, -1))}><ChevronUp size={16} aria-hidden="true" /></button>
+              <button type="button" class="ar" aria-label={t('Down: {name}', { name: shown(e) })} disabled={i === list.length - 1} onclick={() => save(move(value, list, e.id, 1))}><ChevronDown size={16} aria-hidden="true" /></button>
             </span>
             <span class="ich-ib" aria-hidden="true"><I size={18} /></span>
             <!-- v0.163.x: name, mark and pen are one button (the window of the entry); on the phone the name keeps its room next to the handle and the arrows -->
-            <button type="button" class="edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: t(e.name) })} onclick={() => (sheet = { entry: e })}>
-              <span class="ich-m"><b>{t(e.name)}</b><small>{sub(e)}</small>{#if only(e)}<small>{only(e)}</small>{/if}</span>
+            <button type="button" class="edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: shown(e) })} onclick={() => (sheet = { entry: e })}>
+              <span class="ich-m"><b>{shown(e)}</b><small>{sub(e)}</small>{#if only(e)}<small>{only(e)}</small>{/if}</span>
               {#if e.own}<span class="badge own">{t('Own|entry')}</span>{:else if adapted(e)}<span class="badge mine">{t('Adapted')}</span>{/if}
               <span class="pen" aria-hidden="true"><Pencil size={18} /></span>
             </button>
-            <button type="button" class="ib eye" aria-pressed={e.hidden} aria-label={e.hidden ? t('Show again: {name}', { name: t(e.name) }) : t('Hide: {name}', { name: t(e.name) })} onclick={() => save(toggleHidden(value, e.id))}>
-              {#if e.hidden}<EyeOff size={18} aria-hidden="true" />{:else}<Eye size={18} aria-hidden="true" />{/if}
-            </button>
+            {#if K.full}
+              <button type="button" class="ib eye" aria-pressed={e.hidden} aria-label={e.hidden ? t('Show again: {name}', { name: shown(e) }) : t('Hide: {name}', { name: shown(e) })} onclick={() => save(toggleHidden(value, e.id))}>
+                {#if e.hidden}<EyeOff size={18} aria-hidden="true" />{:else}<Eye size={18} aria-hidden="true" />{/if}
+              </button>
+            {/if}
           </li>
         {/each}
       </ul>
-      <button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={18} aria-hidden="true" />{t('Own category')}</button>
+      <button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={18} aria-hidden="true" />{t(K.ownWord)}</button>
     </div>
     {#if changed}<button type="button" class="btn reset" onclick={reset}><Undo2 size={16} aria-hidden="true" />{t('Back to Standard|list')}</button>{/if}
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
+    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{K.full ? t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.') : t('Rename and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
   {/if}
 
   {#if sheet}
     {@const e = sheet.entry}
+    {@const n = e ? (count[e.id] ?? 0) : 0}
     <ListEntrySheet
       entry={e}
-      count={e ? (count[e.id] ?? 0) : 0}
-      stdIcon={e ? stdIconName(e.id) : 'Tag'}
-      onsave={(v) => save(e ? edit(value, e, { ...v, stdIcon: stdIconName(e.id) }) : addOwn(value, v).value)}
+      count={n}
+      full={K.full}
+      words={K.words ? K.words(n) : null}
+      stdIcon={e && K.full ? stdIconName(e.id) : 'Tag'}
+      onsave={(v) => save(e ? edit(value, e, K.full ? { ...v, stdIcon: stdIconName(e.id) } : v) : addOwn(value, v).value)}
       onhide={() => save(toggleHidden(value, e.id))}
-      onremove={() => save(remove(value, e))}
+      onremove={() => (deleting = { entry: e })}
       onclose={() => (sheet = null)}
     />
   {/if}
+  {#if deleting}
+    {@const e = deleting.entry}
+    <GroupDeleteSheet
+      title={K.deleteTitle(shown(e))}
+      count={count[e.id] ?? 0}
+      what={K.what}
+      none={t(K.none)}
+      noneHint={t(K.noneHint)}
+      targets={targetsOf(list, e.id, (x) => shown(x))}
+      onconfirm={(to) => deleteGroup(e, to)}
+      onclose={() => (deleting = null)}
+    />
+  {/if}
+  {#if undo}<UndoToast text={undo.text} onundo={doUndo} />{/if}
 </div>
 
 <style>

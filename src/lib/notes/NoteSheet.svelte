@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 one note, open (Noah 12a-16a): topic, pin (at most 3), title, text, link, photo,
@@ -7,8 +8,12 @@
    * closes; «Fertig» is the one main button.
    */
   import DateInput from '../ui/DateInput.svelte';
+  import Form from '../ui/Form.svelte';
+  import Field from '../ui/Field.svelte';
+  import ChipChoice from '../ui/ChipChoice.svelte';
+  import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -34,7 +39,6 @@
   // svelte-ignore state_referenced_locally
   let bike = $state(note.bikeId ?? bikes[0]?.id ?? null);
   let msg = $state('');
-  let busy = $state(false);
 
   $effect(() => {
     dialog.showModal();
@@ -61,9 +65,19 @@
     dialog.close();
   }
   async function remove() {
-    if (!confirm(t('Delete the note "{text}"?', { text: noteTitle(draft).slice(0, 40) }))) return;
-    await db.notes.delete(note.id);
-    dialog.close();
+    const name = noteTitle(draft).slice(0, 40);
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        const rec = await db.notes.get(note.id);
+        await db.notes.delete(note.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.notes.put(rec),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
+    if (ok) dialog.close();
   }
 
   const MAKES = [
@@ -73,12 +87,20 @@
   ];
   const SAVE = { trip: 'Create trip idea', wish: 'Onto the wishlist', problem: 'Into bike care' };
 
+  // Einheitliche Formulare: what «Create trip idea» / «Onto the wishlist» / «Into bike care» needs
+  let errors = $state({});
+  const checkMake = () =>
+    checkAll(
+      {
+        ...(make !== 'problem' ? { name: [name, { field: t('a name|field'), example: make === 'trip' ? t('Jura weekend') : t('Down jacket'), required: true, maxLen: 80 }] } : {}),
+        ...(make === 'trip' ? { start: [start, { field: t('When'), kind: 'date' }], days: [days, { field: t('Days'), example: '2', kind: 'int', min: 1, max: 60, required: true }] } : {}),
+        ...(make === 'trip' || make === 'problem' ? { bike: [bikes.some((x) => x.id === bike) ? bike : null, { field: t('a bike|field'), example: bikes[0]?.name ?? '', kind: 'choice', required: true }] } : {}),
+      },
+      t,
+    );
+
   async function makeIt() {
-    msg = '';
     const b = bikes.find((x) => x.id === bike) ?? null;
-    if ((make === 'trip' || make === 'problem') && !b) return (msg = t('Choose a bike.'));
-    if (make !== 'problem' && !name.trim()) return (msg = t('Give it a name.'));
-    busy = true;
     const now = new Date().toISOString();
     const src = { ...$state.snapshot(draft), text: [noteTitle(draft), draft.text !== noteTitle(draft) ? draft.text : ''].filter(Boolean).join(' – ') };
     let link = null;
@@ -102,10 +124,8 @@
       });
       onmade?.({ kind: make, link });
       make = null;
-    } catch (err) {
-      msg = err.message || t('This could not be saved.');
     } finally {
-      busy = false;
+      errors = {};
     }
   }
   const LINK_ICON = { trip: Route, wish: Heart, problem: Wrench };
@@ -123,7 +143,7 @@
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="note-h" class="title">{noteTitle(draft) || t('Note')}</h2>
-        <p class="vd-sub">{[cl.length ? `${t('Checklist')} · ${cl.filter((c) => c.done).length}/${cl.length}` : '', `${t('Topic')} ${t(TOPICS.find((x) => x.key === (draft.topic ?? 'general'))?.name ?? 'General')}`, draft.pinned ? t('pinned') : ''].filter(Boolean).join(' · ')}</p>
+        <p class="vd-sub">{[cl.length ? `${t('Checklist')} · ${cl.filter((c) => c.done).length}/${cl.length}` : '', `${t('Topic')} ${topicText(noteTopic(draft), t)}`, draft.pinned ? t('pinned') : ''].filter(Boolean).join(' · ')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={closeIt}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -156,7 +176,7 @@
 
     <p class="lbl">{t('Topic')}</p>
     <div class="vd-chips topics" role="group" aria-label={t('Topic')}>
-      {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={(draft.topic ?? 'general') === x.key} onclick={() => (draft.topic = x.key)}>{t(x.name)}</button>{/each}
+      {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={noteTopic(draft) === x.key} onclick={() => (draft.topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
     </div>
 
     {#if (draft.links ?? []).length}
@@ -169,7 +189,7 @@
     <details class="turn">
       <summary><b>{t('Turn the note into …')}</b><small>{t('a trip idea, a wish or a bike problem · the note links to it')}</small></summary>
       <div class="tiles">
-        {#each MAKES as m (m.key)}{@const I = m.icon}<button type="button" class="tile" data-make={m.key} onclick={() => ((make = m.key), (msg = ''))}><I size={18} aria-hidden="true" />{t(m.name)}</button>{/each}
+        {#each MAKES as m (m.key)}{@const I = m.icon}<button type="button" class="tile" data-make={m.key} onclick={() => ((make = m.key), (msg = ''), (errors = {}))}><I size={18} aria-hidden="true" />{t(m.name)}</button>{/each}
       </div>
     </details>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
@@ -186,26 +206,29 @@
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={closeIt}><X size={20} aria-hidden="true" /></button>
     </div>
-    {#if make !== 'problem'}
-      <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" bind:value={name} /></label>
-    {/if}
-    {#if make === 'trip'}
-      <div class="two">
-        <label class="fld"><span class="lbl">{t('When')} <span class="q">{t('optional')}</span></span><DateInput bind:value={start} /></label>
-        <label class="fld"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={days} /></label>
-      </div>
-    {/if}
-    {#if make === 'trip' || make === 'problem'}
-      <p class="lbl">{t('Bike')}</p>
-      <div class="vd-chips" role="group" aria-label={t('Bike')}>
-        {#each bikes as b (b.id)}<button type="button" class="vd-chip" aria-pressed={bike === b.id} onclick={() => (bike = b.id)}>{b.name}</button>{/each}
-      </div>
-    {/if}
-    {#if msg}<p class="err" role="alert">{msg}</p>{/if}
-    <div class="vd-foot">
-      <button type="button" class="btn" onclick={() => (make = null)} data-explain={t('Back to the note')}><ChevronLeft size={16} aria-hidden="true" />{t('Back|note')}</button>
-      <button type="button" class="btn hi" disabled={busy} onclick={makeIt}>{t(SAVE[make])}</button>
-    </div>
+    <!-- Einheitliche Formulare (Noah 19.10.2026 «1b»): the first form built from Form, Field and ChipChoice -->
+    <Form check={checkMake} bind:errors onsave={makeIt} oncancel={() => ((make = null), (errors = {}))} cancelLabel={t('Back|note')} cancelIcon={ChevronLeft} saveLabel={t(SAVE[make])}>
+      {#if make !== 'problem'}
+        <Field id="nm-name" label={t('Name')} example={make === 'trip' ? t('e.g. Jura weekend') : t('e.g. Down jacket')} error={errors.name}>
+          {#snippet children(f)}<input class="inp" type="text" {...f.attrs} bind:value={name} autocomplete="off" maxlength="80" />{/snippet}
+        </Field>
+      {/if}
+      {#if make === 'trip'}
+        <div class="two">
+          <Field id="nm-when" label={t('When')} optional example={t('Leave it empty if you do not know yet.')} error={errors.start}>
+            {#snippet children(f)}<DateInput {...f.attrs} bind:value={start} />{/snippet}
+          </Field>
+          <Field id="nm-days" label={t('Days')} example={t('1 to 60')} error={errors.days}>
+            {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={days} />{/snippet}
+          </Field>
+        </div>
+      {/if}
+      {#if make === 'trip' || make === 'problem'}
+        <Field id="nm-bike" group label={t('Bike')} error={errors.bike}>
+          {#snippet children(f)}<ChipChoice {...f.attrs} options={bikes.map((b) => ({ value: b.id, label: b.name }))} bind:value={bike} />{/snippet}
+        </Field>
+      {/if}
+    </Form>
   {/if}
 </dialog>
 
@@ -378,7 +401,12 @@
   .two {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 0 10px;
+  }
+  @media (max-width: 419px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
   }
   .err {
     margin: 8px 0 0;

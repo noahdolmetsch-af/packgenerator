@@ -142,7 +142,7 @@
 {#snippet quiet(text)}<p class="quiet">{text}</p>{/snippet}
 
 {#snippet trip(x, text)}
-  {#if x && hrefOf(x.id)}<a class="tl" href={hrefOf(x.id)} onclick={() => go(x.id)}><span class="tlx">{text}</span></a>{:else}<span>{text}</span>{/if}
+  {#if x && hrefOf(x.id)}<a class="tl" href={hrefOf(x.id)} onclick={() => go(x.id)}><span>{text}</span></a>{:else}<span>{text}</span>{/if}
 {/snippet}
 
 {#snippet block(b)}
@@ -815,7 +815,7 @@
     /* Durchklick DK7a: a long trip name without spaces wraps */
     min-width: 0;
     color: var(--ink-2);
-    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
+    overflow-wrap: break-word;
   }
   .kv b,
   .top b {
@@ -830,12 +830,13 @@
     min-height: 44px;
     color: var(--ink);
     min-width: 0;
+    max-width: 100%;
     font-weight: 500;
-    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
   }
-  /* the text in its own flex item, so min-width: 0 lets a long name without spaces wrap (DK7a) */
-  .tlx {
+  /* the name is its own flex item, so it can shrink and break a long word (overflow-wrap: break-word, style lint) */
+  .tl > span {
     min-width: 0;
+    overflow-wrap: break-word;
   }
   .sh {
     margin: 12px 0 0;

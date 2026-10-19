@@ -10,6 +10,7 @@
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
    *   #/flow/ideen       «Meine Ideen» (HN4c, Noah «4 ok»): tips for the balance and the own ideas list (pages/flow/Ideas.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
@@ -64,6 +65,7 @@
   import Trophies from './flow/Trophies.svelte';
   import Gipfelbuch from './flow/Gipfelbuch.svelte';
   import Week from './flow/Week.svelte';
+  import WeekReview from './flow/WeekReview.svelte';
   import Bags from './flow/Bags.svelte';
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
@@ -229,6 +231,8 @@
   <Gipfelbuch />
 {:else if route[0] === 'week'}
   <Week />
+{:else if route[0] === 'review'}
+  <WeekReview {params} />
 {:else if route[0] === 'bags'}
   <Bags {params} />
 {:else if route[0] === 'rest'}

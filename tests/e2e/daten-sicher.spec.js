@@ -43,7 +43,7 @@ test('Data and backup: kept by the browser, phone and computer, the second quest
   await expect(main.getByText(T('Kept by the browser'))).toBeVisible();
   const sync = main.locator('[data-section="sync"]');
   await expect(sync.getByRole('heading', { name: T('Phone and computer') })).toBeVisible();
-  await expect(sync.getByText(/Letzter Abgleich auf diesem Gerät/)).toBeVisible(); // the first import was an exchange
+  await expect(sync.getByText(/Letzter Austausch per Datei auf diesem Gerät/)).toBeVisible(); // the first import was an exchange
   await expect(sync.getByRole('button', { name: T('Open backup') })).toBeVisible();
 
   // the same file again: now there is data here
@@ -60,7 +60,7 @@ test('Data and backup: kept by the browser, phone and computer, the second quest
   const copy = main.locator('[data-section="before-updates"] [data-snapshot="import"]');
   await expect(copy).toHaveCount(1);
   await expect(copy).toContainText(T('Before an import'));
-  await expect(sync.getByText(/Letzter Abgleich auf diesem Gerät/)).toBeVisible();
+  await expect(sync.getByText(/Letzter Austausch per Datei auf diesem Gerät/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });

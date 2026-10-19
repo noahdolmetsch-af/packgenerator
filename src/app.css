@@ -81,6 +81,10 @@
   --card-line: var(--line);
   --card-shadow: none;
   --radius-card: 12px;
+  /* «Bewegung» (Noah 19.10.2026 «alle 1-3»): two shared curves for the few moves in the app.
+     ease-out: starts fast, ends soft (things that appear). drawer: a window sliding up from below. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --l1: #2f8f7f; /* base layer */
   --l2: #c98a1e; /* mid layer */
   --l3: #3f7fbf; /* outer layer */
@@ -1547,4 +1551,62 @@ html:root[data-contrast='high'][data-theme='dark'] {
   --line-strong: #f0f2f1;
   --card-line: #aeb5b1;
   --bar: #9aa29e;
+}
+
+/* «Bewegung» (Noah 19.10.2026 «alle 1-3», notes/bewegung-2026-10-19):
+   Stelle 2: a window fades in and grows from 97 % (computer); on a phone a window from below slides up.
+   Closing stays instant, so nothing lingers over the page and blocks the next tap.
+   Stelle 3: what a fold reveals fades in and settles 4 px down under the row that was tapped (no height move,
+   so the rest of a long page does not slide along). Closing is instant.
+   Keyframes start again on every open; nothing waits for them, taps work from the first moment.
+   Reduced motion: no sliding or growing, only a short fade. */
+@keyframes mv-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes mv-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@keyframes mv-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes mv-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  dialog[open] {
+    animation: mv-pop 180ms var(--ease-out);
+  }
+  dialog[open]::backdrop {
+    animation: mv-fade 200ms ease-out;
+  }
+  details[open] > :not(summary) {
+    animation: mv-reveal 160ms var(--ease-out);
+  }
+}
+@media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
+  dialog.sheet.from-below[open],
+  dialog.sheet:not(.centered)[open],
+  dialog.calm-sheet:not(.centered)[open],
+  dialog.fact-sheet:not(.centered)[open] {
+    animation: mv-up 280ms var(--ease-drawer);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog[open],
+  dialog[open]::backdrop {
+    animation: mv-fade 150ms ease-out;
+  }
+  details[open] > :not(summary) {
+    animation: mv-fade 120ms ease-out;
+  }
 }

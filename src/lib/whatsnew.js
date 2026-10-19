@@ -16,6 +16,55 @@
 
 export const WHATS_NEW = [
   {
+    // v0.148.0 Paket D «Touren und Unterwegs»: AT1 (Strava activities on Trips), Höhenprofil HP1–HP5, GPX-Weg R3a
+    // «Fahrt hochladen», Planungs-Notizen, Handy kurz (Noah 18.10 «1b», 19.10 «1a»), Bugfixes 0.132.2 + H3a,
+    // W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung and Einheitliche Formulare (pilot in «Aus Notiz wird …»).
+    version: '0.148.0',
+    date: '2026-10-19',
+    title: 'Every ride in its place',
+    lead: 'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.',
+    points: [
+      { text: 'Trips: all your Strava rides with filters, your own filters and the values in the Packmode; on the phone the page stays short', href: '#/trips' },
+      { text: '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review with its elevation profile; «Your rides» in Pace show the five newest first', href: '#/debrief/ride' },
+      { text: 'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Pairing now shows «Syncing …» and on the first sync asks only once which device has the right state', href: '#/me/data' },
+      { box: 'nicer', text: 'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens' },
+      { box: 'nicer', text: 'Forms say «optional» and show a mistake right at the field; deleting always asks in a window of the app, with 4 seconds Undo' },
+    ],
+    test: [
+      'Open Trips: below «Planned» stand your Strava rides; filter them by kind.',
+      'Open Review › Upload ride and choose a GPX file: the ride is saved with its elevation profile.',
+      'Open a trip draft and write a planning note; tap «Turn into …» and choose a task.',
+    ],
+  },
+  {
+    // v0.147.0 Paket B «Server»: Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit, Dokument als PDF,
+    // Google Kalender und Aufgaben, Mail (GM), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
+    // automatischer Abgleich Handy–Computer, Selbstwartung + Web-Push, Pulszonen eins, Gruppen überall (Dokumente
+    // included). One release for all the server parts.
+    version: '0.147.0',
+    date: '2026-10-18',
+    title: 'Connected, and it looks after itself',
+    lead: 'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.',
+    points: [
+      { text: 'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers', href: '#/flow/review' },
+      { text: 'Fitbit, Google calendar, tasks and Gmail, and documents photographed as a PDF, also in your Google Drive', href: '#/me/fitbit' },
+      { text: 'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks', href: '#/me/data' },
+    ],
+    small: [
+      { box: 'new', text: 'Assistant: ask the app about your rides, bikes and gear, or plan a trip with it; the AI helper stops at CHF 2 a month and steps aside while the credit is empty', href: '#/assistent' },
+      { box: 'new', text: 'Under Me: people book your free times with one link, a shop without fees, and reminders on the phone', href: '#/me/offers' },
+      { box: 'nicer', text: 'Every group can be renamed and deleted, Documents too; deleting asks where the contents go. Note topics and the groups of the bike values are under Me › Lists and types, built-in building blocks can be deleted and brought back', href: '#/me/lists?categories' },
+    ],
+    test: [
+      'Open Aktiv › Heute › Woche and tap «Week in review ›»: five numbers, the week strip and the highlights.',
+      'Open Me › Documents, tap «Photograph document», choose two photos from the gallery and «Save as PDF»: the new document opens.',
+      'Open Me › Data and backup › Phone and computer, «Switch on sync»: a QR code and a code appear for the other device.',
+    ],
+  },
+  {
     // v0.146.0 Paket A «Daten sicher und Bedienung»: P3b (data kept, phone and computer, Ich › Dokumente, rules 3a/5a),
     // P3c (Bedienregeln, camera everywhere) and «Mehr Inhalt» with Hinweistexte HT1–HT2. Noah 18.10.2026 «1b»:
     // a new tour takes the standard bike, the bike chosen last does not decide it.

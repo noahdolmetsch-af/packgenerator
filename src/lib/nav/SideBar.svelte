@@ -12,7 +12,7 @@
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
-  import { Plus, Compass } from '@lucide/svelte';
+  import { Plus, Compass, MessageCircle } from '@lucide/svelte';
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
   // «Inspiration» UC2-1 (mockup): an entry under the five places, with «neu» until it was opened once
@@ -46,6 +46,8 @@
     <div class="srow">
       <Search short />
     </div>
+    <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button, under the search -->
+    <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
     <nav class="places" aria-label={t('Sections')}>
       <ul>
         {#each SIDE_PLACES as p (p.key)}
@@ -152,6 +154,22 @@
     border-radius: 4px;
     font: 500 var(--fs-tiny) / 1.4 var(--font-body);
     opacity: 0.7;
+  }
+  .asst {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-top: var(--sp-1);
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: var(--ink-2);
+    font: 500 var(--fs-body) var(--font-body);
+    text-decoration: none;
+  }
+  .asst:hover,
+  .asst[aria-current='page'] {
+    background: var(--paper-2);
+    color: var(--ink);
   }
   .places {
     flex: 1;

@@ -21,6 +21,12 @@
  * #/me/pay/invoices?shared=pay, reads it on the phone and suggests the paid invoice. The names must
  * match src/lib/pay/twintshot.js (SHOT_CACHE, SHOT_KEY); tests/pay-share.test.js runs this worker.
  */
+/*
+ * Dokumente-PDF (Noah 15.10.2026 «normale Fotos aus dem Galerie-Ordner senden»): photos and PDFs shared to
+ * the app (field "doc") are kept in the Cache "pg-shared-docs", one entry per file, then the app opens
+ * #/me/docs/scan?shared=1 (src/lib/docs/share.js uses the same names).
+ */
+const SHARE_DOCS_CACHE = 'pg-shared-docs';
 const SHARE_CACHE = 'pg-shared-ride';
 const SHARE_KEY = 'shared-ride';
 const SHARE_BACKUP_CACHE = 'pg-shared-backup';
@@ -71,6 +77,15 @@ self.addEventListener('fetch', (event) => {
         const cache = await caches.open(SHARE_BACKUP_CACHE);
         await cache.put(`${base}${SHARE_BACKUP_KEY}`, new Response(backup, { headers: { 'Content-Type': 'application/json', 'X-File-Name': encodeURIComponent(backup.name || 'backup.json') } }));
         return go(`${base}#/me/data?shared=backup`);
+      }
+      const docs = form.getAll('doc').filter((f) => f && typeof f === 'object' && f.size > 0);
+      if (docs.length) {
+        const cache = await caches.open(SHARE_DOCS_CACHE);
+        for (const old of await cache.keys()) await cache.delete(old);
+        for (const [i, f] of docs.slice(0, 30).entries()) {
+          await cache.put(`${base}shared-doc-${i}`, new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(f.name || `shared-${i}`) } }));
+        }
+        return go(`${base}#/me/docs/scan?shared=1`);
       }
       const file = form.getAll('ride').find((f) => f && typeof f === 'object' && f.size > 0);
       if (file) {

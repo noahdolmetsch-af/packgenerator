@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * Eingang (v0.48.0, Noah «Eingang, Notizen, Ablage, Pflege pro Teil» 1a-8a), was the Inbox:
@@ -115,7 +116,12 @@
       msg = err.message || t('This could not be saved.');
     }
   }
-  const remove = (n) => confirm(t('Delete the note "{text}"?', { text: (n.text ?? '').slice(0, 40) })) && db.notes.delete(n.id);
+  async function remove(n) {
+    const name = (n.text ?? '').slice(0, 40);
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const rec = $state.snapshot(n);
+    await deleteWithUndo({ run: () => db.notes.delete(n.id), undo: () => db.notes.put(rec), text: t('"{name}" deleted.', { name }), name });
+  }
 
   const OLD = { repair: 'Bike care', learning: 'Learning', trip: 'Debrief', done: 'Done|filed' };
   /** «Pflege · Spark», «Beleg · Scale», «Wunschliste»: the target chip of a filed entry. */

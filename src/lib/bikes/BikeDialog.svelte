@@ -16,6 +16,8 @@
   import { SURFACES } from '../review/werte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
+  import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
+  import { offerDone } from '../ui/rename.svelte.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
   let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
@@ -25,6 +27,9 @@
   // svelte-ignore state_referenced_locally
   // SN2+ SN2h (answer 3 «a und sonst b»): the bike's fixed surface, for rides without a Strava sport type
   let draft = $state(bike ? { name: bike.name, type: bike.type ?? '', use: bike.use ?? '', photo: bike.photo ?? null, surface: bike.surface ?? '' } : { name: '', type: '', use: '', photo: null, surface: '' });
+  // svelte-ignore state_referenced_locally
+  const startText = JSON.stringify(draft); // as the window opened: «Save» and ✕ say «saved» only after a change
+  const changed = () => JSON.stringify($state.snapshot(draft)) !== startText;
   let reading = $state(false);
   async function pickPhoto(event) {
     const file = event.currentTarget.files[0];
@@ -71,10 +76,26 @@
     return id;
   }
 
-  async function save(event) {
+  // «Rückmeldungen» (Noah 19.10.2026 «2a»): «Save», ✕, back and Escape say what was saved; a second tap
+  // while it saves does nothing; a failed save keeps the window and says why.
+  async function write(snap) {
+    const name = snap.name.trim();
+    await db.bikes.update(bike.id, { type: snap.type.trim(), use: snap.use.trim(), photo: snap.photo, surface: snap.surface || null });
+    if (name !== bike.name) await renameBike(db, bike.id, name);
+  }
+  const save = once(async (event) => {
     event.preventDefault();
+    error = '';
     const name = draft.name.trim();
     if (!name) return (error = t('Give the bike a name.'));
+    try {
+      await store(name);
+    } catch (err) {
+      return (error = saveFailed(err));
+    }
+    dialog.close();
+  });
+  async function store(name) {
     if (isNew) {
       const id = newId(name);
       const rec = { id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo, surface: draft.surface || null };
@@ -82,10 +103,19 @@
       // VS4: a new bike stands last in the order (the first one ever is the standard bike)
       await saveOrder(db, bikes, withNewBike(bikes, rec));
       oncreated?.(id);
+      offerDone(t('"{name}" saved.', { name }));
     } else {
-      await db.bikes.update(bike.id, { type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo, surface: draft.surface || null });
-      if (name !== bike.name) await renameBike(db, bike.id, name);
+      const was = changed();
+      await write($state.snapshot(draft));
       onsaved?.(bike.id);
+      if (was) offerDone(t('Changes to "{name}" saved.', { name }));
+    }
+  }
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once; changes to a bike come back with 4 s «Undo».
+  function discard() {
+    if (!isNew && changed() && draft.name.trim()) {
+      const snap = $state.snapshot(draft);
+      offerDone(t('Changes to "{name}" discarded.', { name: bike.name }), () => write(snap));
     }
     dialog.close();
   }
@@ -94,13 +124,24 @@
   // without a name there is nothing to keep. v0.72.0: also Android's own back (CloseWatcher) and Escape.
   const keepOnBack = () => (draft.name.trim() ? save({ preventDefault() {} }) : dialog.close());
 
-  async function remove() {
+  // «Rückmeldungen» (Noah 19.10.2026): the app's own question, then 4 s «Undo».
+  const remove = once(async () => {
     const n = await db.trips.filter((x) => x.bikeId === bike.id).count();
     if (n) return (error = t('{n} trip(s) use this bike. Give them another bike first (Pack → Edit trip).', { n }));
-    if (!confirm(t('Delete the bike "{name}"? A backup file can bring it back.', { name: bike.name }))) return;
-    await db.bikes.delete(bike.id);
-    dialog.close();
-  }
+    const name = bike.name;
+    if ((await askDelete({ title: t('Delete the bike "{name}"?', { name }), text: t('No trip uses it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        const rec = await db.bikes.get(bike.id);
+        await db.bikes.delete(bike.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.bikes.put(rec),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
+    if (ok) dialog.close();
+  });
 </script>
 
 <dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
@@ -145,7 +186,7 @@
     <p class="err" role="alert">{error}</p>
     <div class="vd-foot sn7 daumen-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
-      <Btn kind="quiet" label={t('Discard')} onclick={() => dialog.close()} />
+      <Btn kind="quiet" label={t('Discard')} onclick={discard} />
       <Btn kind="hi" type="submit" label={isNew ? t('Add|bike') : t('Save')} />
     </div>
   </form>

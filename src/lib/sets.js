@@ -30,7 +30,9 @@ export function allSets(value) {
   const rec = (key) => list.find((s) => s.key === key);
   // v0.26.0 (Noah 5b): a built-in block can get its own name (saved on its record, as written).
   // SN3+: a block «je nach Lage» carries its changed rule (situation.js) on the same record.
-  const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) }, ...(rec(key)?.rule ? { rule: { ...rec(key).rule } } : {}) }));
+  // «Gruppen überall» (Noah 18.10.2026): a deleted built-in block keeps a record { key, deleted: true }
+  // and is left out until «Zurückholen» (restoreSet) takes the mark away.
+  const builtIn = BUILT_IN.filter((key) => !rec(key)?.deleted).map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) }, ...(rec(key)?.rule ? { rule: { ...rec(key).rule } } : {}) }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
   // SN5+: a block made from the favourites keeps its kind and the favourites of that moment (favplus.js).
   const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
@@ -90,16 +92,39 @@ export function renameSet(value, key, name) {
 }
 
 /**
- * What deleting an own set changes: { value (without its record), items (only the items that
- * carried the key, without it) }. A built-in set cannot be deleted: null.
+ * What deleting a set changes: { value (without its record), items (only the items that carried the
+ * key, without it) }. «Gruppen überall» (Noah 18.10.2026): built-in sets can be deleted too; they keep
+ * a record { key, deleted: true } (restoreSet brings them back, empty). to: another set the items go
+ * into (with their amount); null: they stay in the gear, in no block.
  */
-export function deleteSetPlan(value, items, key, now = new Date().toISOString()) {
-  if (isBuiltIn(key)) return null;
+export function deleteSetPlan(value, items, key, now = new Date().toISOString(), to = null) {
+  const list = value ?? [];
+  const target = to && to !== key && allSets(list).some((s) => s.key === to) ? to : null;
+  const old = list.find((s) => s.key === key);
+  let next = isBuiltIn(key) ? [...list.filter((s) => s.key !== key), { key, deleted: true }] : list.filter((s) => s.key !== key);
+  if (target && old?.qty) {
+    // the amounts travel along (an item already in the target keeps its amount there)
+    const tRec = next.find((s) => s.key === target) ?? { key: target };
+    const qty = { ...(tRec.qty ?? {}) };
+    for (const [id, n] of Object.entries(old.qty)) if (!(id in qty) && !items.find((i) => i.id === id)?.sets?.includes(target)) qty[id] = n;
+    next = next.some((s) => s.key === target) ? next.map((s) => (s.key === target ? { ...s, qty } : s)) : [...next, { key: target, qty }];
+  }
   return {
-    value: (value ?? []).filter((s) => s.key !== key),
-    items: items.filter((i) => i.sets?.includes(key)).map((i) => ({ ...i, sets: i.sets.filter((s) => s !== key), updatedAt: now })),
+    value: next,
+    items: items
+      .filter((i) => i.sets?.includes(key))
+      .map((i) => {
+        const sets = i.sets.filter((s) => s !== key);
+        return { ...i, sets: target && !sets.includes(target) ? [...sets, target] : sets, updatedAt: now };
+      }),
   };
 }
+
+/** The built-in sets the person deleted: [{ key, name }] (for «Zurückholen»). */
+export const deletedBuiltIns = (value) => (Array.isArray(value) ? value : []).filter((s) => s?.deleted && isBuiltIn(s.key)).map((s) => ({ key: s.key, name: t(SETS[s.key]) }));
+
+/** A deleted built-in set back (empty, with its own name). */
+export const restoreSet = (value, key) => (Array.isArray(value) ? value : []).filter((s) => !(s.key === key && s.deleted));
 
 /** The amount of one item in a set (1 removes the entry). A built-in set gets a record when needed. */
 export function setQty(value, key, itemId, n) {

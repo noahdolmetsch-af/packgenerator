@@ -25,7 +25,7 @@
   import { startBike } from '../problems.js';
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks } from '@lucide/svelte';
+  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
   import { suggestKind, listFrom } from '../merken/quick.js';
@@ -161,6 +161,8 @@
     <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
+      <!-- Dokumente-PDF (Noah 15.10.2026): photograph a document, it becomes a PDF in Ich › Dokumente -->
+      <li><a class="opt" href="#/me/docs/scan" onclick={close}><span class="ic" aria-hidden="true"><ScanLine size={20} /></span><span class="tx"><b>{t('Photograph document')}</b><span>{t('Becomes a PDF in «Imported PDFs»')}</span></span></a></li>
     </ul>
   {/if}
 </dialog>

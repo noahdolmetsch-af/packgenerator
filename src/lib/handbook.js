@@ -111,6 +111,11 @@ export const HANDBOOK = {
     steps: ['In the dark trip band, tap the small «more» button.', 'Choose the other trip.'],
     example: 'Example: from «Lake loop» to «Alps weekend» without going back to Trips.',
   },
+  'f.assistent': {
+    on: 'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.',
+    steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
+    example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
+  },
   'f.ask': {
     on: 'Needs the helper code: Me › AI helper, switch on and save the code.',
     steps: ['Open the helper and type a few words.', 'Check the suggestion and take only what fits.'],
@@ -301,6 +306,21 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
     example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
   },
+  'f.analyses': {
+    on: 'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.',
+    steps: ['Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.', 'Open Training › Week: the analyses over the weeks under the look back.', 'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.'],
+    example: 'Example: «First against second half» shows 4 % more heart rate in the second half at the same power.',
+  },
+  'f.weekreview': {
+    on: null,
+    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
+    example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
+  },
+  'f.weight': {
+    on: 'Nothing to switch on; it is voluntary.',
+    steps: ['Open Me › Weight and tap «Enter weight».', 'Type your weight and save; the curve shows from the second entry.'],
+    example: 'Example: 72 kg entered → the ride shows 2.6 W/kg.',
+  },
   'f.velosetup': {
     on: 'Needs a bike under Bikes first.',
     steps: ['Open Bikes › Setup and choose the bike.', 'Add photos, check the total weight, add race-rig links with your own key words.'],
@@ -432,6 +452,12 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
+  // v0.147.0 Paket B (Termine buchen)
+  'f.offers': {
+    on: 'Needs the booking server; online payment only in test mode.',
+    steps: ['Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.', 'Tap + on a day to open a free time, then send the link by WhatsApp.', 'New bookings show on Today; tap a time to see who comes or to cancel it.'],
+    example: 'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».',
+  },
   // v0.133.0
   'f.abfragen': {
     on: null,
@@ -530,10 +556,40 @@ export const HANDBOOK = {
     steps: ['On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).', 'On the other device: tap the file › Share › Pack Generator, or «Open backup».', 'The app says which is newer and suggests: replace, merge or nothing; a copy of before stays under «Before updates».'],
     example: 'Example: planned on the computer in the evening → sent to the phone → «Replace all data» → packing on the phone.',
   },
+  'f.autosync': {
+    on: 'Needs the internet now and then; it is free and the server cannot read your data.',
+    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
+    example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
+  },
   'f.camera': {
     on: 'On a phone or tablet; a computer shows the file dialog.',
     steps: ['Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.', 'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.', 'A receipt with more pages: «Another page» after the first photo.'],
     example: 'Example: a two-page workshop bill → «Photograph the receipt» → «Another page» → shop and cost → Save.',
+  },
+  'f.docscan': {
+    on: 'For Google Drive: «Connect Google Drive» once under Me › Documents (needs Strava connected on this device).',
+    steps: ['Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).', 'Photograph page by page or choose photos; check the corners, then «Save as PDF».', 'Open the new document: set the group, «valid until» and «In the packing list».'],
+    example: 'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.',
+  },
+  'f.mail': {
+    on: 'Connect once under Me › Mail (needs Strava connected on this device).',
+    steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+    example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
+  },
+  'f.agenda': {
+    on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
+    steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
+    example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
+  },
+  'f.webshop': {
+    on: 'Nothing to switch on; the orders wait on the server until the app fetches them.',
+    steps: ['Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.', 'Copy the shop link and send it; people buy without the app or an account.', 'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.'],
+    example: 'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.',
+  },
+  'f.fitbit': {
+    on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
+    steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],
+    example: 'Example: you open the app in the morning → last night’s sleep and today’s resting heart rate are there.',
   },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',
@@ -560,9 +616,14 @@ export const HANDBOOK = {
     steps: ['Open Me › Try it out › Playground, or «Try it» on a function.', 'Pack, ride and debrief a made-up trip; at the end all is as before.'],
     example: 'Example: try the ride day of a made-up 2-day trip without touching your data.',
   },
+  'f.push': {
+    on: 'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.',
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want, one by one.'],
+    example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
+  },
   'f.helper': {
     on: 'Me › AI helper: switch on «Show the AI helper in the app» and save the code.',
-    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.'],
+    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.', 'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.'],
     example: 'Example: switched off again → it shows nowhere, the code stays stored.',
   },
   'f.shortcuts': {

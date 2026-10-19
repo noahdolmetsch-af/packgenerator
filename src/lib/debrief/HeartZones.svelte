@@ -2,7 +2,8 @@
   /**
    * SN2+ SN2i «Deine Pulszonen» (mockup approved 13.10.2026): the five zones as one bar and one row each,
    * where they come from, and «Zonen ändern» (four upper bounds, or back to the standard from your highest
-   * heart rate). zones: actdata.js zonesOf(); onsave(bounds | null).
+   * heart rate). zones: actdata.js zonesOf(); onsave(bounds | null), false when they do not fit. The same zones
+   * as Training: saved here, they show there too.
    */
   import { t, num } from '../i18n.svelte.js';
   import { zoneRows, validBounds } from '../review/werte.js';
@@ -22,8 +23,7 @@
   async function save(event) {
     event.preventDefault();
     const b = draft.map((v) => Number(v));
-    if (!validBounds(b)) return (err = t('Four rising numbers, one for the top of Z1 to Z4.'));
-    await onsave?.(b);
+    if (!validBounds(b) || (await onsave?.(b)) === false) return (err = t('Four rising numbers, one for the top of Z1 to Z4.'));
     edit = false;
   }
   async function standard() {
@@ -34,7 +34,7 @@
 </script>
 
 <section class="rv-sec hz" aria-labelledby="hz-h" data-zones>
-  <div class="rv-h"><div><h2 id="hz-h">{t('Your heart rate zones')}</h2><p class="rv-sub">{zones?.source === 'own' ? t('entered by you') : zones ? t('standard from your highest heart rate, {n} bpm', { n: num(zones.max) }) : t('from Strava, or you enter them yourself')}</p></div></div>
+  <div class="rv-h"><div><h2 id="hz-h">{t('Your heart rate zones')}</h2><p class="rv-sub">{zones?.source === 'own' ? t('entered by you') : zones?.source === 'strava' ? t('your zones from Strava') : zones ? t('standard from your highest heart rate, {n} bpm', { n: num(zones.max) }) : t('from Strava, or you enter them yourself')}</p></div></div>
   <div class="rv-box pad">
     {#if rows.length}
       <div class="zb" aria-hidden="true">{#each rows as r (r.z)}<i class="zc-{r.z}"></i>{/each}</div>

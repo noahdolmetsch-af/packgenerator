@@ -1,0 +1,134 @@
+<!doctype html>
+<!--
+  Paket B «Server» (anleitung.md Teil 3, Punkt 11): the privacy statement Google shows for the login
+  (Google Auth Platform › Branding › Privacy policy link). A plain page next to the app, no script,
+  no tracking, no names. https://noahdolmetsch-af.github.io/packgenerator/datenschutz.html
+-->
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Datenschutz · Pack Generator</title>
+    <meta name="description" content="Datenschutz der App Pack Generator: was mit den Daten der Google-Anmeldung geschieht." />
+    <link rel="icon" href="icons/app.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #f4f5f1;
+        --paper: #ffffff;
+        --ink: #17201c;
+        --ink-2: #4a5550;
+        --line: #d9ded4;
+        --hi: #0f2e27;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111816;
+          --paper: #18211e;
+          --ink: #e8ece9;
+          --ink-2: #a9b4ae;
+          --line: #2c3833;
+          --hi: #8fd3b6;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 17px/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 28px;
+        line-height: 1.2;
+      }
+      .sub {
+        margin: 0 0 24px;
+        color: var(--ink-2);
+      }
+      section {
+        margin: 0 0 16px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 19px;
+      }
+      p,
+      ul {
+        margin: 0 0 8px;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      a {
+        color: var(--hi);
+      }
+      .small {
+        color: var(--ink-2);
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Datenschutz</h1>
+      <p class="sub">Pack Generator · Stand Oktober 2026</p>
+
+      <section>
+        <h2>Kurz gesagt</h2>
+        <p>Pack Generator ist eine private App zum Planen, Packen und für die Velopflege. Deine Daten bleiben privat. Sie werden nicht verkauft, nicht weitergegeben und nicht für Werbung verwendet.</p>
+      </section>
+
+      <section>
+        <h2>Wo deine Daten liegen</h2>
+        <ul>
+          <li>Alles, was du in der App einträgst, liegt nur auf deinem Gerät, im Speicher des Browsers.</li>
+          <li>Ein kleiner Server hilft bei den Anmeldungen, beim Abgleich zwischen Handy und Computer und bei den Erinnerungen aufs Handy. Er speichert nur, was dafür nötig ist.</li>
+          <li>Der Abgleich zwischen deinen Geräten ist auf dem Gerät verschlüsselt. Der Server kann ihn nicht lesen.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Anmeldung mit Google</h2>
+        <p>Wenn du dich mit Google anmeldest, erlaubst du der App nur das, was du selbst einschaltest:</p>
+        <ul>
+          <li><b>Gesundheit (Fitbit):</b> Schlaf, Schritte, Ruhepuls und Herzfrequenz-Variabilität, nur zum Lesen. Die Werte werden nur angezeigt, nicht bewertet.</li>
+          <li><b>Google Drive:</b> nur die Dateien, die die App selbst anlegt (zum Beispiel ein Dokument als PDF).</li>
+          <li><b>Google Kalender und Aufgaben:</b> deine Termine und Aufgaben anzeigen und Einträge anlegen, die du in der App bestätigst.</li>
+        </ul>
+        <p>Die Zugangsschlüssel von Google liegen nur auf dem Server der App, nie in der App selbst und nie in einer Backup-Datei. Die Daten von Google gehen direkt auf dein Gerät.</p>
+        <p>Die Nutzung der Daten von Google hält sich an die <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, einschliesslich der Regeln zur eingeschränkten Nutzung («Limited Use»).</p>
+      </section>
+
+      <section>
+        <h2>Abmelden und löschen</h2>
+        <ul>
+          <li>In der App kannst du jede Verbindung wieder trennen. Der Server löscht dann die Zugangsschlüssel.</li>
+          <li>Du kannst den Zugriff auch bei Google entfernen: <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+          <li>Die Daten auf deinem Gerät löschst du in der App unter Ich › Daten und Backup oder in den Einstellungen des Browsers.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Keine Werbung, kein Tracking</h2>
+        <p>Die App zeigt keine Werbung und zählt keine Besuche. Sie setzt keine Cookies zum Verfolgen.</p>
+      </section>
+
+      <section lang="en">
+        <h2>In English</h2>
+        <p class="small">Pack Generator is a private app. Your data stays private: it is never sold, shared or used for ads. With Google sign-in the app only reads the health values you allow (read only), only uses the Drive files it creates itself, and shows your calendar and tasks. Google tokens are kept only on the app's server, never in the app or a backup. Use of data from Google APIs follows the Google API Services User Data Policy, including the Limited Use requirements. You can disconnect in the app or at myaccount.google.com/permissions at any time.</p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -66,7 +66,7 @@
   import { factStates, factCounts, matchesState } from '../lib/review/state.js';
   import { homeTrips, testTrips } from '../lib/home/heute.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
-  import { loadPastActs, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
+  import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
@@ -172,8 +172,8 @@
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   // SN4g: wire to training.js when the Training PR lands (the activities: power, NP, moving and elapsed time)
   const moreQ = liveQuery(async () => {
-    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY)]);
-    return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
+    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), zoneValues(db)]);
+    return { acts, entries, zones: zonesOf(zones, entries, acts) };
   });
   const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
 
@@ -355,7 +355,11 @@
       {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${periodWords}: ${tn(stCounts.done, '{n} completed', '{n} completed')}`, tn(stCounts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
     </div>
-    <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
+    <!-- Paket D (Noah 19.10.2026 «1a»): on a phone the folded «Was hier steht ›» sits in the head beside «Fahrt hochladen» -->
+    <div class="ph-acts">
+      {#if phone.matches && view && !view.empty}<HintCard page="trips" foldedOnPhone only="line" />{/if}
+      <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
+    </div>
   </header>
   {#if oldRows.length}
     <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
@@ -371,8 +375,10 @@
       </Empty>
     {:else}
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
-      <HintCard page="trips" />
-      <TipLine page="trips" name={t('Trips|place')} />
+      <!-- Paket D (Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line and the tip of the day
+           waits behind the line «In Zahlen · Weiter» -->
+      <HintCard page="trips" foldedOnPhone only={phone.matches ? 'card' : ''} />
+      {#if !phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
         <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
@@ -522,6 +528,7 @@
         <!-- 0.163.0: on a phone «In Zahlen» and «Weiter» wait behind one line -->
         <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (extrasOpen = true)} data-trips-extras><span><b>{t('In numbers')} · {t('More|tiles')}</b><small>{t('Totals, records, weather and the map of all trips')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
+      {#if phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       {#if $dataQ && facts.length}
         <InZahlen tours {rows} {facts} {vals} {mode} {today} {scope} {states} {bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} view={izView} onview={saveIz} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => openRow(facts.find((x) => x.id === id) ?? {})} />
       {/if}
@@ -556,6 +563,12 @@
     justify-content: space-between;
     gap: 8px 16px;
     margin: 0 0 var(--sp-4);
+  }
+  .ph-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
   }
   .ph .title {
     margin: 0;
@@ -640,7 +653,7 @@
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
+    overflow-wrap: break-word;
   }
   .whole::after {
     content: '';
@@ -842,7 +855,7 @@
     color: var(--ink);
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-decoration: none;
-    overflow-wrap: break-word; /* style lint «breakword»: whole words wrap; min-width: 0 lets a long name without spaces break */
+    overflow-wrap: break-word;
   }
   /* the whole row opens the trip */
   .rn::after {
