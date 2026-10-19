@@ -531,4 +531,9 @@ export default {
   'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // 0.156.0 f.travel «Reise-Links»
+  'Open a trip, «Plan», «Getting there and staying»: the links that fit the trip show, with its place and days filled in.': 'Öffne eine Tour, «Planen», «Anreise und Unterkunft»: die Links, die zur Tour passen, erscheinen mit Ort und Tagen eingefüllt.',
+  'Type your flight number: «Flightradar24» follows the flight live.': 'Tippe deine Flugnummer ein: «Flightradar24» verfolgt den Flug live.',
+  'All links without a trip: Trips › Travel links (search «Reise-Links»).': 'Alle Links ohne Tour: Touren › Reise-Links (Suche «Reise-Links»).',
+  'Example: a weekend in Lisbon with a hotel night → Booking.com for Saturday to Sunday, Google Flights, Rome2rio.': 'Beispiel: ein Wochenende in Lissabon mit Hotel-Nacht → Booking.com für Samstag bis Sonntag, Google Flights, Rome2rio.',
 };

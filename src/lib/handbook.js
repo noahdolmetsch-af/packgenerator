@@ -371,6 +371,12 @@ export const HANDBOOK = {
     steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
     example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
   },
+  // 0.156.0 «Reise-Links»
+  'f.travel': {
+    on: null,
+    steps: ['Open a trip, «Plan», «Getting there and staying»: the links that fit the trip show, with its place and days filled in.', 'Type your flight number: «Flightradar24» follows the flight live.', 'All links without a trip: Trips › Travel links (search «Reise-Links»).'],
+    example: 'Example: a weekend in Lisbon with a hotel night → Booking.com for Saturday to Sunday, Google Flights, Rome2rio.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],

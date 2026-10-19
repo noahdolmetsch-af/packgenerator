@@ -1647,3 +1647,11 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
 - **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
 
+
+## 19.10.2026 «Reise-Links» (Noah «1b 2b 3a 4a 5b»)
+
+- **Nur Absprung-Links, keine Einbindung:** Flightradar24 und Booking.com geben ihre Daten nur gegen Geld oder als Partner heraus (Regel 0 Kosten). Die App öffnet die Seiten in einem neuen Tab, mit Ort, Tagen und Flugnummer eingefüllt; sonst geht nichts hinaus.
+- **In der Tour** («Planen», «Anreise und Unterkunft», `sk/TravelLinks.svelte`): Booking.com, Airbnb und Hostelworld (1b) bei einer Hotel-/Hütten-Nacht, Flugnummer → Flightradar24 und im Ausland Google Flights (2b), Google Maps mit dem Auto, im Ausland Rome2rio, EDA-Reisehinweise und Wikivoyage (3a), Warmshowers bei Velotouren mit Nacht, Hütten-Reservation bei Ski/Wandern mit Hütte, eigener Live-Tracking-Link bei einem Rennen (4a). Regeln in `sk/links.js travelLinks`.
+- **Seite Touren › Reise-Links** (`#/travel`, 5b): alle Links in Gruppen, ohne Ort; erreichbar über die Suche, den Link in der Tour und die Kachel «Dazunehmen» bei Vergangene Touren.
+- **Selbst entschieden:** «du wählst» (1b) heisst: alle drei Anbieter erscheinen, jeder lässt sich mit «…» ausschalten (kommt unter Ich › Darstellung zurück), statt einer eigenen Einstellung. Die Flugnummer liegt auf der Tour (`trip.flight`, keine neue Dexie-Version). Ausland = Land der Ortssuche nicht Schweiz/Liechtenstein, sonst Koordinaten ausserhalb der Schweiz. Für die Hotel-Nächte im Rennen (Paket U) gibt es `sk/StayLinks.svelte` (Ort + Nacht), der Bündler verdrahtet ihn.
+- **Was fällt weg oder rutscht tiefer:** nichts. Heute bleibt unverändert.

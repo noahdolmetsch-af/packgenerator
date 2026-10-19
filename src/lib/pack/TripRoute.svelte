@@ -25,6 +25,7 @@
   import Woanders from '../sk/Woanders.svelte'; // SK X3, X6, X10, X12 (SKX2, SKX4)
   import { swisstopoUrl, meteoUrl, sbbUrl, schweizMobilUrl, slfUrl } from '../sk/links.js';
   import { domainOf, hasBike } from '../domains.js';
+  import TravelLinks from '../sk/TravelLinks.svelte'; // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»)
 
   let { trip, onchange } = $props();
 
@@ -210,6 +211,12 @@
       <!-- SK X3 (SKX2): the forecast map and the train to the start on the trip's day; only the place and the day go out -->
       <Woanders context={trip.place.name} links={[{ kind: 'x3m', href: meteoUrl(lang.v), icon: 'cloudsun', sub: t('Forecast map') }, { kind: 'x3s', href: sbbUrl(trip.place, trip.startDate, lang.v), icon: 'train', sub: [t('to {place}', { place: trip.place.name }), trip.startDate ? longDay(trip.startDate) : ''].filter(Boolean).join(' · ') }]} />
     {/if}
+  </div>
+
+  <div class="part">
+    <span class="lbl">{t('Getting there and staying')}</span>
+    <TravelLinks {trip} {onchange} />
+    {#if !trip.place}<p class="hint">{t('With a start place, links for staying and getting there show here.')}</p>{/if}
   </div>
 </div>
 

@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.156.0 «Reise-Links»
+  'Off you go': 'Ab in die Ferien',
+  'A trip now shows where to sleep, how to get there and how to follow your flight, with its place and days already filled in.': 'Eine Tour zeigt jetzt, wo du schlafen kannst, wie du hinkommst und wie du deinen Flug verfolgst, mit Ort und Tagen schon eingefüllt.',
+  'At a trip, «Getting there and staying»: Booking.com, Airbnb and Hostelworld for its nights, by car, and abroad Google Flights, Rome2rio, travel advice and Wikivoyage': 'In der Tour, «Anreise und Unterkunft»: Booking.com, Airbnb und Hostelworld für ihre Nächte, mit dem Auto, und im Ausland Google Flights, Rome2rio, Reisehinweise und Wikivoyage',
+  'Type your flight number at the trip: Flightradar24 follows the flight live': 'Tippe in der Tour deine Flugnummer ein: Flightradar24 verfolgt den Flug live',
+  'All travel links in one place: Trips › Travel links, with Warmshowers and hut booking': 'Alle Reise-Links an einem Ort: Touren › Reise-Links, mit Warmshowers und Hütten-Reservation',
+  'A race gets a place for your own link to its live tracking page': 'Ein Rennen bekommt einen Platz für deinen eigenen Link zur Live-Tracking-Seite',
+  'Open a trip with a start place abroad and a hotel night, tap «Plan»: under «Getting there and staying» Booking.com shows its days.': 'Öffne eine Tour mit Startort im Ausland und einer Hotel-Nacht, tippe «Planen»: unter «Anreise und Unterkunft» zeigt Booking.com ihre Tage.',
+  'Type LX 1234 as flight number: «Flightradar24» shows with LX1234.': 'Tippe LX 1234 als Flugnummer: «Flightradar24» erscheint mit LX1234.',
+  'Search «Reise-Links»: the page opens with all links.': 'Suche «Reise-Links»: die Seite öffnet mit allen Links.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

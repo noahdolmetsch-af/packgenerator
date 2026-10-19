@@ -16,6 +16,28 @@
 
 export const WHATS_NEW = [
   {
+    // 0.156.0 «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): links with the trip's place and days filled in
+    // (Booking.com, Airbnb, Hostelworld, Flightradar24, Google Flights, Google Maps by car, Rome2rio, FDFA,
+    // Wikivoyage, Warmshowers, hut booking, live tracking) and the page Touren › Reise-Links. No partner, no cost.
+    version: '0.156.0',
+    date: '2026-10-19',
+    title: 'Off you go',
+    lead: 'A trip now shows where to sleep, how to get there and how to follow your flight, with its place and days already filled in.',
+    points: [
+      { text: 'At a trip, «Getting there and staying»: Booking.com, Airbnb and Hostelworld for its nights, by car, and abroad Google Flights, Rome2rio, travel advice and Wikivoyage', href: '#/trips' },
+      { text: 'Type your flight number at the trip: Flightradar24 follows the flight live', href: '#/trips' },
+      { text: 'All travel links in one place: Trips › Travel links, with Warmshowers and hut booking', href: '#/travel' },
+    ],
+    small: [
+      { box: 'new', text: 'A race gets a place for your own link to its live tracking page', href: '#/trips' },
+    ],
+    test: [
+      'Open a trip with a start place abroad and a hotel night, tap «Plan»: under «Getting there and staying» Booking.com shows its days.',
+      'Type LX 1234 as flight number: «Flightradar24» shows with LX1234.',
+      'Search «Reise-Links»: the page opens with all links.',
+    ],
+  },
+  {
     // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
     // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
     version: '0.152.0',

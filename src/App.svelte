@@ -333,6 +333,7 @@
     Handbook: () => import('./pages/Handbook.svelte'),
     MiniApps: () => import('./pages/MiniApps.svelte'),
     Inspiration: () => import('./pages/Inspiration.svelte'),
+    TravelLinks: () => import('./pages/TravelLinksPage.svelte'),
     Lists: () => import('./pages/Lists.svelte'),
     Equipment: () => import('./pages/Equipment.svelte'),
     Ski: () => import('./pages/Ski.svelte'),
@@ -515,6 +516,9 @@
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <LazyPage load={PAGES.Pay} />
+  {:else if page === 'travel'}
+    <!-- «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): Touren › Reise-Links -->
+    <LazyPage load={PAGES.TravelLinks} />
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <LazyPage load={PAGES.Inspiration} />
