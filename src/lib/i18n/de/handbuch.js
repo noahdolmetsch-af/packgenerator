@@ -806,6 +806,11 @@ export default {
   'Open Mountain and emergency › «Signposts and grades».': 'Öffne Berg und Notfall › «Wegweiser und Schwierigkeit».',
   'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).': 'Lies die Farbe am Wegweiser oder die Schwierigkeit aus dem Führer (T1–T6, L–EX).',
   'Example: white-blue-white → alpine hiking trail, T4 to T6.': 'Beispiel: weiss-blau-weiss → Alpinwanderweg, T4 bis T6.',
+  // Strombudget (Noah 19.10.2026 «2a»)
+  'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.': 'Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.',
+  'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».',
+  'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.': 'Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.',
+  'Example: 4 days in a bivouac with phone, light and bike computer → «Take: Power bank 20000».': 'Beispiel: 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».',
   // Paket Q «App klarer»
   "Type your region and tick your passes; weather and avalanche switch on or off.": "Tippe deine Region ein und hake deine Pässe an; Wetter und Lawinen schaltest du an oder aus.",
   "Under «Your sources» add, change or delete news sites with a feed.": "Unter «Deine Quellen» fügst du News-Seiten mit Feed hinzu, änderst oder löschst sie.",

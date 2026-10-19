@@ -820,6 +820,11 @@ export const HANDBOOK = {
     steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
     example: 'Example: after testing with sample data → start fresh with your own gear.',
   },
+  'f.power': {
+    on: 'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.',
+    steps: ['Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».', 'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.'],
+    example: 'Example: 4 days in a bivouac with phone, light and bike computer → «Take: Power bank 20000».',
+  },
   'f.lend': {
     on: null,
     steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],

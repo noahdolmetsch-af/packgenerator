@@ -39,6 +39,8 @@ export const PAGE_GROUPS = [
       // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»): supplies with expiry and what is lent out
       { id: 'supplies', title: 'Supplies', href: '#/gear/supplies', icon: 'calendar', words: 'supplies vorrat vorräte ablauf ablaufdatum haltbar mindesthaltbar best before expiry bestand stock nachkaufen buy again einkauf einkaufsliste shopping list' },
       { id: 'lend', title: 'Lent out', href: '#/gear/lend', icon: 'user', words: 'lent out ausgeliehen ausleihen leihen leihliste lend borrow gast gäste guests rückgabe return wer hat was' },
+      // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
+      { id: 'power', title: 'Power|electric', href: '#/gear/power', icon: 'zap', words: 'power strom strombudget akku batterie battery power bank powerbank laden charge charging stecker charger ladegerät reicht der akku energie wh mah' },
       { id: 'wardrobe', title: 'Wardrobe', href: '#/wardrobe', icon: 'shirt', words: 'wardrobe clothing clothes layers onion kleiderschrank kleider kleidung schicht schichten zwiebel' },
     ],
   },

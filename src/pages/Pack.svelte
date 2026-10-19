@@ -42,6 +42,7 @@
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
+  import PowerLine from '../lib/pack/PowerLine.svelte'; // Strombudget (Noah 19.10.2026 «2a»)
   import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
   import AbroadCard from '../lib/alltag/AbroadCard.svelte'; // Paket V: emergency numbers, travel insurance, currency abroad
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
@@ -1112,7 +1113,7 @@
       {#if charge.length && !over}
         <details class="tp-fold calm-extra charge-fold">
           <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-          <div class="in extra-inner"><ChargeList {trip} {items} /></div>
+          <div class="in extra-inner"><PowerLine {trip} {items} /><ChargeList {trip} {items} /></div>
         </details>
       {/if}
     {/snippet}
