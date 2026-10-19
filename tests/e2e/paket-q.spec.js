@@ -104,3 +104,9 @@ test('«Stimmt das noch?» opens from Ich › Daten', async ({ page }) => {
   await expect(win).toHaveCount(0);
   await expect(page).toHaveURL(/#\/me\/data$/);
 });
+
+test('Hinweise without the server (as in a test preview) says why it is empty', async ({ page }) => {
+  await page.goto('./#/me/hinweise');
+  await settle(page, { sameTrips: false });
+  await expect(page.locator('[data-news-down]')).toHaveText(T("Alerts and news come through the app's server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works."));
+});

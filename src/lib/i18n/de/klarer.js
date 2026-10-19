@@ -162,6 +162,7 @@ export default {
   // #77/#78 Knöpfe im Ablauf
   "Back home": "Wieder zu Hause",
   "1 entry": "1 Eintrag",
+  "Alerts and news come through the app's server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works.": "Hinweise und News kommen über den Server der App, der hier noch nicht antwortet. In einer Test-Vorschau ist das normal: Sie laden, sobald das Update online ist. Alles andere auf dieser Seite funktioniert.",
   "Clean, oil, what is due": "Putzen, ölen, was fällig ist",
   "So the trip is safe on your other device too": "Damit die Tour auch auf deinem anderen Gerät sicher ist",
   "All your trips in one list": "Alle deine Touren in einer Liste",

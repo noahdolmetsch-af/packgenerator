@@ -84,6 +84,10 @@
     <button type="button" class="btn sm" onclick={refresh} disabled={news.busy} data-news-refresh><RefreshCw size={16} aria-hidden="true" />{t('Refresh')}</button>
     {#if news.alerts?.at}<small>{t('As of {when}', { when: when(news.alerts.at) })}</small>{/if}
   </div>
+  {#if news.alerts?.error && news.alerts.error !== 'offline' && !news.alerts.at}
+    <!-- never loaded and online: the server does not answer (in a test preview it cannot, it runs only with the live app) -->
+    <p class="msg" role="status" data-news-down>{t('Alerts and news come through the app\'s server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works.')}</p>
+  {/if}
 
   <section class="ich-sec" aria-labelledby="hw-for">
     <div class="ich-h"><div><h2 id="hw-for">{t('For you')}</h2><p class="ich-hs">{t('Important things also show as one line on Today.')}</p></div></div>
