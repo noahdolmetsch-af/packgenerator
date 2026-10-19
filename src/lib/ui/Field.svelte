@@ -12,6 +12,7 @@
    * help     one sentence behind a «?» (ui/Help.svelte)
    * from     where a value the app filled in comes from (green field, class `pre`, see formprefill.js)
    * error    the message at the field (ui/formchecks.js); the form shows it after «Save» (4b)
+   * class    extra classes for the field's box (e.g. «wide» in a two-column grid)
    * group    true for a group of buttons (ui/ChipChoice.svelte): the label names the group instead of an input
    * The snippet gets f.attrs = { id, aria-invalid, aria-describedby } (group: aria-labelledby too) to spread
    * onto the input, so the label, the example and the message are read out with it.
@@ -19,7 +20,7 @@
   import Help from './Help.svelte';
   import { t } from '../i18n.svelte.js';
 
-  let { id, label, optional = false, example = '', help = '', from = '', error = '', group = false, children } = $props();
+  let { id, label, optional = false, example = '', help = '', from = '', error = '', group = false, class: cls = '', children } = $props();
 
   const describedby = $derived([error ? `${id}-err` : '', from ? `${id}-from` : '', example ? `${id}-ex` : ''].filter(Boolean).join(' ') || undefined);
   const attrs = $derived({
@@ -30,11 +31,11 @@
   });
 </script>
 
-<div class="fld-u" class:bad={!!error} data-field={id}>
+<div class="fld-u {cls}" class:bad={!!error} data-field={id}>
   <div class="fld-h">
     {#if group}<span class="lbl" id="{id}-l">{label}{#if optional}<span class="opt"> · {t('optional|field')}</span>{/if}</span>
     {:else}<label class="lbl" for={id}>{label}{#if optional}<span class="opt"> · {t('optional|field')}</span>{/if}</label>{/if}
-    {#if help}<Help field={id} text={help} label={label} />{/if}
+    {#if help}<Help field={id} text={help} />{/if}
   </div>
   {@render children?.({ attrs, invalid: !!error })}
   {#if from}<small class="prefrom" id="{id}-from">{from}</small>{/if}

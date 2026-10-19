@@ -99,9 +99,9 @@ for (const lang of ['en', 'de']) {
     const dlg = page.getByRole('dialog', { name: T('Add item') });
     await expect(dlg.getByLabel(T('Name'))).toHaveValue(name);
     await expect(dlg.locator('details.more')).toHaveJSProperty('open', false);
-    // Saving without a category is refused.
+    // Saving without a category is refused; the message stands at the field (Einheitliche Formulare, 19.10.2026).
     await dlg.getByRole('button', { name: T('Save') }).click();
-    await expect(dlg.getByText(T('Choose a category.'))).toBeVisible();
+    await expect(dlg.locator('[data-field=it-cat] .fieldmsg')).toHaveText(T('Choose {field}, for example {example}.|form', { field: T('a category|field'), example: T('On-bike clothing') }));
     await dlg.getByLabel(T('Category')).selectOption('cook');
     await dlg.getByRole('button', { name: T('Save') }).click();
     await expect(dlg).toBeHidden();
