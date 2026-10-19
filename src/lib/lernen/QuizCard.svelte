@@ -132,7 +132,7 @@
     color: var(--ink);
     font: inherit;
     text-align: left;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
   }
   .an:disabled {
@@ -156,14 +156,14 @@
     gap: 6px;
     margin: 0;
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .fb :global(svg) {
     flex: none;
   }
   .note {
     margin: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .reveal {
     margin: 0;
@@ -171,7 +171,7 @@
     border-radius: var(--r-ctl);
     background: var(--paper-2);
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .self {
     display: flex;

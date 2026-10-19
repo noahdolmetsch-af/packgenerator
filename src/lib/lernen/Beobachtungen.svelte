@@ -247,7 +247,7 @@
     fill: var(--hi);
   }
   .ch text {
-    font: 500 10px / 1 var(--font-body);
+    font: 500 var(--fs-small) / 1 var(--font-body);
   }
   .ch .lab {
     fill: var(--ink-3);
