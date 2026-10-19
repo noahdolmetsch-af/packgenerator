@@ -153,6 +153,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
+  if (h.startsWith('#/trips/fuel')) return 'fuel'; // Verpflegung (Noah 19.10.2026 «1a»): Touren › Verpflegung
   if (h.startsWith('#/trips/dreams')) return 'dreams'; // Paket N: Touren › Träume
   if (h.startsWith('#/quiz')) return 'quiz'; // Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId>
   if (h.startsWith('#/travel')) return 'travel'; // «Reise-Links» (Noah 19.10.2026 «5b»): Touren › Reise-Links
@@ -373,7 +374,7 @@ export function placeOf(page) {
   if (page === 'frei') return 'me'; // Paket T: Ich › Freie Zeit
   if (page === 'alltag') return 'me'; // Paket V: Ich › Alltag
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'travel'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'travel', 'fuel'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

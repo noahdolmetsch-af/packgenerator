@@ -826,6 +826,11 @@ export const HANDBOOK = {
     steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
     example: 'Example: after testing with sample data → start fresh with your own gear.',
   },
+  'f.fuel': {
+    on: 'Works best with a GPX route on the trip; the places along the route come from the route search.',
+    steps: ['Open Trips › Food and water and choose the trip.', 'Search the places along the route once; change your grams per hour, water and bottles under «Your values».', 'Switch to «My products» to see how many bars and gels to take.'],
+    example: 'Example: 120 km with shops at km 55 and 110 → three sections, each with the grams and litres to carry.',
+  },
   'f.power': {
     on: 'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.',
     steps: ['Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».', 'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.'],

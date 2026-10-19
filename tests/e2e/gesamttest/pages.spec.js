@@ -123,6 +123,7 @@ const CASES = [
   // Paket H «Packen leichter»: supplies and what is lent out
   { id: 'gear-supplies', hash: '#/gear/supplies' },
   { id: 'gear-lend', hash: '#/gear/lend' },
+  { id: 'trips-fuel', hash: '#/trips/fuel' }, // Verpflegung (Noah 19.10.2026 «1a»)
   { id: 'gear-power', hash: '#/gear/power' }, // Strombudget (Noah 19.10.2026 «2a»)
   { id: 'favorites', hash: '#/favorites' },
   { id: 'wardrobe', hash: '#/wardrobe' },

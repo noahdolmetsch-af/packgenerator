@@ -1731,3 +1731,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+
+## 19.10.2026: Verpflegungsstrategie (0.159.0, vorläufig)
+
+- Noah 21:11 «1a 2a 3a und b 4a 5a», 21:12 «auch alle anderen auswählbar wie camping und alle zuvor genannten»: eigene Seite Touren › Verpflegung; Wasser automatisch 1–2 l pro Stunde nach Temperatur und Steigung; Anzeige als Gramm/Liter oder als eigene Produkte, umschaltbar; an der Strecke auch Läden, Tankstellen, Bäckereien, Camping, Unterkünfte, Restaurants und Bahnhöfe wählbar; bei nachts geschlossenen Läden ein Kaufvorschlag mit Menge.
+- **Selbst entschieden:** ein Abschnitt endet beim weitesten offenen Laden innerhalb von etwa 3 h (änderbar); steile Anstiege (600 Hm pro Stunde) geben bis zur Hälfte des Unterschieds kühl→heiss dazu; ohne Prognose rechnet die App mit 20 °C; Uhrzeit = Fahrzeit plus 15 % für kurze Halte. Die Ortssuche wird nicht doppelt gebaut: Läden, Öffnungszeiten und die weiteren Ortsarten kommen aus der Suche des Rennen-Pakets (Paket 7), bis dahin nutzt der Plan die Brunnen der Streckensuche.

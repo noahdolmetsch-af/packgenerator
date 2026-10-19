@@ -105,6 +105,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, «Verpflegung» (0.159.0 vorläufig):** neue Seite Touren › Verpflegung (Noah «1a 2a 3a und b 4a 5a»); dockt nach Paket 7 (U Rennen) an dessen Ortssuche mit Öffnungszeiten an.
+
 **19.10.2026, v0.155.0 «Paket 3+4»:** Paket 3 und Paket 4 sind ein Release 0.155.0 (Noah «paket 3 und 4 verbinden», «mach wie es am besten und am schnellsten geht»): Freie Zeit, Daten, V Alltag, Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI. Danach 0.156.0 «Paket 5» mit U (Rennen, Renn-Karte, Live-Karte) und Mail in die App; U3 Karte offline später. Ton-Aufnahmen bleiben gestrichen.
 
 **19.10.2026, v0.155.0 «Paket 3»:** Freie Zeit (acht Seiten, Impulse) und Daten in den Erkenntnissen, als ein Release nach Paket 2.

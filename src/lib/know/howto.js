@@ -105,6 +105,7 @@ export const HOWTO = {
   'f.readaloud': ['Open a trip in Pack.', 'Tap «Read aloud».', 'Say «ok» when an item is in the bag, or tap the big button.'],
   'f.ownrules': ['Open Gear › Building blocks › «To add» and open your block.', 'Tap «Add a rule» and choose when it comes along.', 'In Packen it is suggested when the trip fits.'],
   'f.startfresh': ['Open Me › Data and backup.', 'Tap «Start fresh …» and «Delete everything».', '«Undo» or «Before updates» brings it all back.'],
+  'f.fuel': ['Open Trips › Food and water and choose the trip.', 'Check your values: grams per hour, water and bottles.', 'Each section says what to eat and drink and what to carry.'],
   'f.power': ['Open Gear › Power and choose the trip.', 'Check the nights with a socket and the riding hours.', 'The app says which power bank and charger to take.'],
   'f.lend': ['Open Gear › Lent out.', 'Tap «New lending list», type the name and tick the things.', 'Send it as a link or PDF; on the return day the app reminds you.'],
   'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],

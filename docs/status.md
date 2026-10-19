@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**Gebaut, wartet auf Paket 7: 0.159.0 «Verpflegung» (vorläufig):** Touren › Verpflegung rechnet pro Abschnitt zwischen Läden Kohlenhydrate (eigene g pro Stunde) und Wasser (1–2 l pro Stunde nach Temperatur und Steigung), warnt bei zu kleinen Flaschen, langen Lücken und geschlossenen Läden und zeigt auf Wunsch eigene Produkte. Link auch auf der Strecken-Karte in Packen.
+
 **0.155.0 «Paket 3+4» (19.10.2026, nach Paket 2):** Paket 3 und 4 als ein Release (Noah 19.10.2026). Dazu kommen zu Paket 3: V «Alltag» (Ich › Alltag: Einkaufsliste, Verträge und Abos, «Lange nicht gesehen», im Ausland Notfallnummern und Währung, Flug am Vorabend), zu K Haus-Check, Liste für die Wohnungs-Hüter und «Bereit für morgen?», Material › Strom (Strombudget und Powerbank), Touren › Reise-Links, eine Anleitung auf weiteren Seiten, Diktat bis Stopp mit Antworten, «Weiter fragen bei …», Gemini über den Helfer und «Meine KI-Projekte».
 
 **Teil Paket 3:** T «Freie Zeit» mit acht neuen Seiten unter Ich › Freie Zeit (Sammlungen, Worauf hab ich Lust?, Mein Abend, Was mir wesentlich ist, Reise-Wünsche, Erste Nacht, Fürs nächste Mal, Impulse) und dem Reiter «Impulse» in Aktiv; «Daten in der App»: Wetter, Tageslicht, Termine und eigene Zahlen-Fragen in den Erkenntnissen. Neue Daten-Ablage Dexie 19 «frei»; Backup-Test ohne Verlust.

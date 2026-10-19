@@ -14,6 +14,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 3 | Paket 3+4 | 0.155.0 | Freie Zeit, Daten in der App, V Alltag (Einkauf, Verträge, Menschen, Ausland, Flug), Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI | dieser PR; Paket 3 und 4 verbunden (Noah 19.10.2026) |
 | 4 | Paket 5 | 0.156.0 | U Rennen (U1 Strategie-Rechner und Muster-Rennen, U2 Renn-Karte und Anstiege, Live-Karte), Mail in die App | im Bau; Ton-Aufnahmen gestrichen |
 | 5 | danach | – | U3 Karte offline | geplant |
+| 6 | Verpflegung | 0.159.0 (vorläufig) | Touren › Verpflegung: Kohlenhydrate und Wasser pro Abschnitt zwischen Läden, Warnungen, eigene Werte und Produkte; dockt nach Paket 7 an die Ortssuche des Rennen-Pakets an | gebaut, wartet auf Paket 7 |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

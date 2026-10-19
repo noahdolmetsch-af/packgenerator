@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.159.0 Verpflegung
+  'Enough food and water': 'Genug essen und trinken',
+  'How much to eat and drink on each part of the route.': 'Wie viel du auf jedem Teil der Strecke isst und trinkst.',
+  'Trips › Food and water: carbohydrates and water per section': 'Touren › Verpflegung: Kohlenhydrate und Wasser pro Abschnitt',
+  'Warnings for long gaps, small bottles and closed shops': 'Warnungen bei langen Lücken, zu kleinen Flaschen und geschlossenen Läden',
+  'Your own values and products, as grams or as bars and gels': 'Eigene Werte und Produkte, als Gramm oder als Riegel und Gels',
+  'Open Trips › Food and water and choose a trip with a GPX route.': 'Öffne Touren › Verpflegung und wähle eine Tour mit GPX-Strecke.',
+  'Search the places along the route, then switch to «My products».': 'Suche die Orte an der Strecke, dann wechsle zu «Meine Produkte».',
   // 0.155.0 Paket 3+4
   'Free time and everyday life': 'Freie Zeit und Alltag',
   'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',

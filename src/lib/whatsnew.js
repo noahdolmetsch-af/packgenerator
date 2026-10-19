@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // Verpflegung (Noah 19.10.2026 21:11 «1a 2a 3a und b 4a 5a»): food and water plan per section; the bundler sets the version.
+    version: '0.159.0',
+    date: '2026-10-19',
+    title: 'Enough food and water',
+    lead: 'How much to eat and drink on each part of the route.',
+    points: [
+      { text: 'Trips › Food and water: carbohydrates and water per section', href: '#/trips/fuel' },
+      { text: 'Warnings for long gaps, small bottles and closed shops', href: '#/trips/fuel' },
+      { text: 'Your own values and products, as grams or as bars and gels', href: '#/trips/fuel' },
+    ],
+    test: [
+      'Open Trips › Food and water and choose a trip with a GPX route.',
+      'Search the places along the route, then switch to «My products».',
+    ],
+  },
+  {
     // v0.155.0 Paket 3+4 (Noah 19.10.2026 «paket 3 und 4 verbinden»): T «Freie Zeit», «Daten in der App», V «Alltag»,
     // K extras (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?»), H «Strombudget», «Reise-Links», «Anleitungen überall», «Diktat».
     version: '0.155.0',
