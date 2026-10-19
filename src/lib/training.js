@@ -207,7 +207,8 @@ export function mondayOf(day) {
 export function isoWeek(day) {
   const d = new Date(`${day}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  return Math.ceil(((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+  // whole days (d is at noon): without the floor a Thursday on day 7, 14 … of the year counted one week too many (2027-01-04 gave week 2)
+  return Math.ceil((Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 864e5) + 1) / 7);
 }
 export const weekOf = (monday) => Array.from({ length: 7 }, (_, i) => shiftDay(monday, i));
 

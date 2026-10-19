@@ -340,6 +340,11 @@
     Tools: () => import('./pages/Tools.svelte'), // Paket L «Werkzeugkasten»
     WebLinks: () => import('./pages/WebLinks.svelte'), // Paket L «Werkzeuge und Links»
     Hinweise: () => import('./pages/Hinweise.svelte'), // Paket Q #148: Ich › Hinweise und News
+    Quiz: () => import('./pages/Quiz.svelte'), // Paket M «Quiz am Vorabend»
+    Chronik: () => import('./pages/Chronik.svelte'), // Paket M «Chronik»
+    Gelernt: () => import('./pages/Gelernt.svelte'), // Paket M «Was die App gelernt hat»
+    JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
+    Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
@@ -398,7 +403,7 @@
 <OfflineLine />
 {#if !mini && page !== 'share'}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -428,6 +433,9 @@
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
     <LazyPage load={PAGES.Trips} />
+  {:else if page === 'quiz'}
+    <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
+    {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
@@ -616,8 +624,20 @@
   {:else if page === 'rides'}
     <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
     {#key sub}<LazyPage load={PAGES.Rides} {sub} />{/key}
+  {:else if page === 'chronik'}
+    <!-- Paket M #1027 «Chronik»: #/chronik, #/chronik/<YYYY-MM> -->
+    {#key hash}<LazyPage load={PAGES.Chronik} month={hash.split('?')[0].split('/')[2] ?? null} />{/key}
+  {:else if page === 'gelernt'}
+    <!-- Paket M #38 «Was die App gelernt hat»: #/gelernt, #/gelernt/<YYYY-MM>, #/gelernt/<YYYY> -->
+    {#key hash}<LazyPage load={PAGES.Gelernt} sub={hash.split('?')[0].split('/')[2] ?? ''} />{/key}
+  {:else if page === 'jahr'}
+    <!-- Paket M #208 «Dein Jahr als Bildgeschichte»: #/jahr, #/jahr/<YYYY> (full screen) -->
+    {#key hash}<LazyPage load={PAGES.JahrStory} {hash} />{/key}
   {:else if page === 'debrief'}
     {#key param}<LazyPage load={PAGES.Debrief} {param} {spot} />{/key}
+  {:else if page === 'neuland'}
+    <!-- «Neuland» (wish #1007 + #1006): Touren › Rückblick › Neuland; the page and its maps load on their own -->
+    <LazyPage load={PAGES.Neuland} />
   {:else}
     <Home />
   {/if}

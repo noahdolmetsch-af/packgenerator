@@ -223,6 +223,18 @@ export const HOWTO = {
   'f.ready': ['Connect Fitbit or Strava once.', 'On the tour day it stands on On the way, before that in Pack.', 'Read the line and the signs; it is an observation, you decide.'],
   'f.listentip': ['In «Ready for today?» tap «Add a listening tip».', 'Give a name and paste the link.', 'One tap on the tip opens it before you ride.'],
   'f.skyplaces': ['Open On the way › More › «Sun, moon and places».', 'Tap «Load places» once online; the texts stay for offline.', 'Sun and moon work offline, worked out on the device.'],
+  // Paket M «Aus Touren lernen»
+  'f.diary': ['Open the debrief of a trip.', 'The draft of the diary is there; change anything.', '«Photos of those days» adds photos; «Copy» or «Share».'],
+  'f.extraq': ['Open the debrief of a trip.', 'Answer the questions under «More to learn», if you like.', '«Adjust questions» switches off, changes or adds questions.'],
+  'f.notetodo': ['Open the debrief of a trip.', 'Choose under «To-dos go to» where they go.', 'Tap «As to-do» beside a note.'],
+  'f.future': ['Open the debrief of a trip.', 'Write a sentence under «A message to your future self».', 'On the way of your next trip, open the letter.'],
+  'f.quiz': ['Open the quiz from «Packed» the evening before, or search «Quiz».', 'Tap an answer, then «Next».', 'Add your own questions under «Your questions».'],
+  'f.observations': ['Open Aktiv › Week › Week in review.', 'On Sunday the 3 observations are at the top.', '«Do not show this kind any more» hides one kind.'],
+  'f.chronik': ['Open Trips › Look back › Chronicle.', 'Choose a filter, then a month.', 'Tap an entry to open it.'],
+  'f.gelernt': ['Open Trips › Look back › What the app learned.', 'Choose «Month» or «Year» and use the arrows.', 'In «Year»: «Print» or «Share» the letter.'],
+  'f.jahr': ['Open Trips › Look back › Your year as pictures.', 'Tap right to go on, left to go back; or swipe.', 'Escape or × closes; the last picture leads to the year letter.'],
+  'f.neuland': ['Open Trips › Look back › New ground.', 'Choose a collection; the app colours in what your routes reached.', 'Tick or untick by hand; «Choose collections» switches them on and off.'],
+  'f.eveningtour': ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', '«Whole debrief» opens the trip\'s debrief.'],
 };
 
 /** The steps of a function, or [] when it has none. */

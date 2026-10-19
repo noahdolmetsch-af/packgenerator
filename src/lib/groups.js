@@ -26,6 +26,7 @@ export const GROUP_PLACES = [
   { name: 'Kinds of tour (Dreams)', file: 'src/pages/Dreams.svelte' },
   { name: 'Compass boxes', file: 'src/pages/Compass.svelte' },
   { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
+  { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

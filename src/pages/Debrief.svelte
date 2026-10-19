@@ -43,6 +43,9 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
+  import TodoButton from '../lib/lernen/TodoButton.svelte';
+  import TodoPlace from '../lib/lernen/TodoPlace.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
@@ -508,6 +511,8 @@
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {openSugg} ontake={(s) => holdSugg(s, 'take')} onno={(s) => holdSugg(s, 'no')} onreopen={reopen} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
+        <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
+        <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" extrasHint />
       {:else}
@@ -600,10 +605,15 @@
             <section class="rv-sec ridenotes" aria-labelledby="notes-h">
               <div class="rv-h"><div><h2 id="notes-h">{t('Notes on the way')}</h2><p class="rv-sub">{tn(freeNotes.length, '{n} · waiting here', '{n} · waiting here')}</p></div></div>
               <ul class="rv-box">
-                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span></li>{/each}
+                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span><TodoButton note={n} {trip} /></li>{/each}
               </ul>
+              <!-- Paket M #88 (Noah «1 b und a oder andere Ablageorte»): where «Als To-do» puts a note -->
+              <TodoPlace tripId={trip.id} />
             </section>
           {/if}
+
+          <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
+          <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
 
           <section class="rv-sec" aria-labelledby="upload-h">
             <div class="rv-h"><div><h2 id="upload-h">{t('Upload ride')}</h2><p class="rv-sub">{t('optional: pauses, plan and reality')}</p></div></div>

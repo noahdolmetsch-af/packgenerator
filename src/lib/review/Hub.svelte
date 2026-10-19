@@ -45,6 +45,9 @@
   import { quickDebrief } from '../debrief.js';
   import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
+  import ChronikKarte from '../lernen/ChronikKarte.svelte'; // Paket M #1027
+  import { storyReady } from '../lernen/jahrstory.js'; // Paket M #208
+  import { Compass, History, GraduationCap, Images, CircleHelp } from '@lucide/svelte';
   import ListGroup from '../list/ListGroup.svelte';
   import { phone } from '../media.svelte.js';
 
@@ -404,9 +407,18 @@
           {@render learnBody()}
         </section>
         {/if}
+        <!-- Paket M #1027: «Früher um diese Zeit», the Chronik-Karte as a section -->
+        <ChronikKarte trips={data.trips} debriefs={data.debriefs} rides={data.rides} {today} frame="section" />
         <section class="rv-sec" aria-labelledby="hmore-h">
           <div class="rv-h"><div><h2 id="hmore-h">{t('More')}</h2></div></div>
+          {#if storyReady(today)}<p class="rv-note" data-story-ready><Sparkles size={16} aria-hidden="true" /><a href="#/jahr">{t('Your year as pictures is ready')}</a></p>{/if}
           <ul class="rv-box">
+            <!-- Paket M «Aus Touren lernen»: Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz -->
+            <li><a class="rv-row" href="#/neuland" data-m-row="neuland"><span class="rv-ic" aria-hidden="true"><Compass size={18} /></span><span class="rv-m"><span class="rv-t">{t('New ground')}</span><span class="rv-s">{t('Cantons, passes, huts and more you reached for the first time')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/chronik" data-m-row="chronik"><span class="rv-ic" aria-hidden="true"><History size={18} /></span><span class="rv-m"><span class="rv-t">{t('Chronicle')}</span><span class="rv-s">{t('Everything on one time line, month by month')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/gelernt" data-m-row="gelernt"><span class="rv-ic" aria-hidden="true"><GraduationCap size={18} /></span><span class="rv-m"><span class="rv-t">{t('What the app learned')}</span><span class="rv-s">{t('Month card and year letter')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/quiz" data-m-row="quiz"><span class="rv-ic" aria-hidden="true"><CircleHelp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Quiz the evening before')}</span><span class="rv-s">{t('3 questions on gear and route, your own ones too')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>

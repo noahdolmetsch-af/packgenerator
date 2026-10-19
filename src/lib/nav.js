@@ -153,6 +153,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
   if (h.startsWith('#/trips/dreams')) return 'dreams'; // Paket N: Touren › Träume
+  if (h.startsWith('#/quiz')) return 'quiz'; // Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId>
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?')) return 'ski'; // v0.97.0 «Skitouren»
@@ -160,6 +161,9 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
+  if (h.startsWith('#/chronik')) return 'chronik'; // Paket M #1027: everything on one time line, one page per month
+  if (h.startsWith('#/gelernt')) return 'gelernt'; // Paket M #38: Monatskarte and Jahresbrief
+  if (/^#\/jahr(\/|\?|$)/.test(h)) return 'jahr'; // Paket M #208: the year as a picture story
   if (h.startsWith('#/debrief/ride')) return 'rides'; // v0.41.0 (Noah 1): upload a ride, planned vs real
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
@@ -167,6 +171,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/inbox')) return 'inbox';
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
+  if (h.startsWith('#/neuland')) return 'neuland'; // «Neuland» (wish #1007): Touren › Rückblick › Neuland
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
   if (h.startsWith('#/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
@@ -298,7 +303,7 @@ export const PLACE_TABS = {
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
-    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
+    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') },
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
@@ -353,7 +358,7 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

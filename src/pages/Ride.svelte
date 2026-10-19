@@ -6,6 +6,7 @@
   import { localDay } from '../lib/localday.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import ZukunftHinweis from '../lib/lernen/ZukunftHinweis.svelte'; // Paket M #258
   /**
    * On the way (v0.29.0, Noah 1a, 7a, 8a; was "Ride day", v0.18.0): what do I need NOW? The block of
    * the hour on top ("Now"): what to wear, eat, drink, and light. Quick notes for the debrief in two taps
@@ -530,6 +531,8 @@
       </div>
     </section>
   {/if}
+  <!-- Paket M #258 (Noah «2 an anderer sinnvoller Stelle, lustig»): on the way, a closed envelope from your earlier self -->
+  {#if running}<ZukunftHinweis tripId={trip.id} />{/if}
   {#if trip.finished && main.kind === 'go' && canReopen(trip, today)}
     <!-- v0.67.0 (U005): ended by mistake? Until the next day it can be taken back. -->
     <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
