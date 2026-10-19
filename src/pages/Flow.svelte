@@ -44,6 +44,7 @@
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
   import YearGoals from '../lib/flow/YearGoals.svelte';
+  import AzmWeek from '../lib/health/AzmWeek.svelte';
   import Rows from '../lib/flow/kit/Rows.svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
@@ -378,8 +379,8 @@
                   <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
                 </details>
               {/if}
-              <!-- Impeccable runde 2 (small observation): the active zone minutes are one quiet line under the rings until Fitbit (P11), not a section of their own -->
-              <p class="azm" data-section="azm"><Timer size={16} aria-hidden="true" /><span><b>{t('Active zone minutes')}</b>{' · '}{t('weekly goal 150 min, changeable')}{' · '}{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
+              <!-- Impeccable runde 2 made the active zone minutes one place under the rings; G (Noah 19.10.2026 «1b»): this week from Fitbit, one bar per day -->
+              <AzmWeek {today} />
             </div>
           </Sec>
           <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
@@ -561,25 +562,6 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-  }
-  .azm {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--sp-2);
-    margin: var(--sp-3) 0 0;
-    padding-top: var(--sp-3);
-    border-top: 1px solid var(--line);
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    line-height: 1.45;
-  }
-  .azm :global(svg) {
-    flex: none;
-    margin-top: 2px;
-  }
-  .azm b {
-    color: var(--ink-2);
-    font-weight: 600;
   }
   .kmn {
     display: flex;

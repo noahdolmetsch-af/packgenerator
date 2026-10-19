@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { restoreBackup, APP_ID } from '../src/lib/backup.js';
-import { saveDays, syncHealth, rangeToFetch, normalOf, weekAzm, latest, addDays, HEALTH_KEY } from '../src/lib/health.js';
+import { saveDays, syncHealth, rangeToFetch, normalOf, weekAzm, azmWeek, azmWeekOf, latest, addDays, HEALTH_KEY } from '../src/lib/health.js';
 
 let n = 0;
 const fresh = () => createDb(`health-test-${++n}`);
@@ -48,5 +48,21 @@ describe('health days', () => {
     await restoreBackup(db, { app: APP_ID, schemaVersion: 12, exportedAt: 'x', tables: { healthDays: [{ date: '2026-10-01', restingHr: 50, src: 'file', at: 'x' }] } }, 'merge');
     expect(await db.healthDays.count()).toBe(1);
     expect(await db.items.count()).toBe(1);
+  });
+
+  it('the week of active zone minutes: Monday to Sunday, no value is not zero, later days are empty', () => {
+    const rows = [{ date: '2026-10-11', azm: 99 }, { date: '2026-10-12', azm: 30 }, { date: '2026-10-14', azm: 0 }, { date: '2026-10-15', azm: 45 }, { date: '2026-10-16', azm: 7 }];
+    const w = azmWeek(rows, '2026-10-15');
+    expect(w.monday).toBe('2026-10-12');
+    expect(w.days.map((d) => d.min)).toEqual([30, null, 0, 45, null, null, null]);
+    expect(w.days.map((d) => d.future)).toEqual([false, false, false, false, true, true, true]);
+    expect(w.sum).toBe(75);
+    expect(w.any).toBe(true);
+    expect(azmWeek([], '2026-10-15').any).toBe(false);
+  });
+  it('the weekly goal starts at 150 and keeps a changed number', () => {
+    expect(azmWeekOf(null)).toBe(150);
+    expect(azmWeekOf({ of: 200 })).toBe(200);
+    expect(azmWeekOf({ of: -1 })).toBe(150);
   });
 });
