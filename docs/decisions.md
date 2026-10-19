@@ -1581,3 +1581,13 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Abgleich nach dem Koppeln (Noah 19.10.2026 06:29):** beim ersten Abgleich nach dem Koppeln fragt die App nur einmal, welches Gerät den richtigen Stand hat; die Antwort gilt für alle verschiedenen Einträge, «Einzeln entscheiden» bleibt möglich. Selbst entschieden: die eine Frage kommt nur nach dem Koppeln und steht im Abschnitt «Handy und Computer», nicht in einem eigenen Fenster.
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
+
+## 19.10.2026: Vorgehen für alle Vorhaben (Thread «Überblick und Vorgehen»)
+
+Noah, 19.10.2026 09:57 UTC: «1a 2a und b 3a und dann b 4a 5a».
+
+- **Ziele:** die vier Tour-Ziele bleiben, «Alltag» kommt als fünftes Ziel dazu.
+- **Eine Liste:** alle Vorhaben stehen in [vorhaben-liste.md](vorhaben-liste.md) und zusätzlich auf der Seite «Mein Überblick».
+- **Ergänzen:** zuerst schlägt Claude pro Ziel Lücken vor und Noah wählt, danach erzählt Noah frei, was noch fehlt.
+- **Wann:** jetzt, parallel zu den Paketen E, C und F.
+- **Pakete nach F:** kleiner, ein Ziel oder Bereich pro Paket, damit öfter ein Testlink kommt.

@@ -8,7 +8,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 
 These replace «Principle No. 1» of 10.10.2026 (mockups first, ★, Trello, «Noah merges himself») and the later «pictures before merge» rule. German summary: `docs/arbeitsweise.md`, section «Stand 18.10.2026». Current state and plan: `docs/projektstand.md`.
 
-1. **Goal:** «Eine App, die mich im Alltag unterstützt.» Every package serves one of the four goals in `docs/vorhaben.md`; if not, ask Noah.
+1. **Goal:** «Eine App, die mich im Alltag unterstützt.» Every package serves one of the five goals in `docs/vorhaben.md` (the four tour goals plus «Alltag», Noah 19.10.2026 «1a»); if not, ask Noah. All plans stand in one list, `docs/vorhaben-liste.md`.
 2. **Overview first:** before work, read `docs/projektstand.md`, project memory and the open PRs, and use the project's skills.
 3. **No mockups, a test link instead** (Noah, 18.10.2026 21:52 UTC, «ab sofort, überall»): build without mockups. For every package, send Noah a test link: the Vercel preview of the package PR, with the line «eigener Speicher, Backup hochladen zum Testen mit deinen Daten» (the preview has its own storage; he uploads a backup to test with his data). No pictures are required.
 4. **Packages:** finished parts are bundled into packages; each package is one release with its own version. Since 18.10.2026 there are six packages in the order P3 → A → B → D → E → C → F (see `docs/projektstand.md`). New work may run in parallel.
@@ -28,7 +28,7 @@ These replace «Principle No. 1» of 10.10.2026 (mockups first, ★, Trello, «N
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
 - A Vercel rate-limit red does not block. Renumber open PRs when main moves on. After a merge, tell Noah in one short German line what is new online.
 - **Groups everywhere** (Noah, 18.10.2026 «grundsätzlich überall»): every group the user sees or chooses can be renamed and deleted. Deleting asks where the contents go, with «Ohne Gruppe» preselected, and then offers Undo. It never deletes the contents. Names the user typed never go through `t()`. A new kind of group comes with rename and delete and goes in `GROUP_PLACES` (`src/lib/groups.js`), which the guard test `tests/groups.test.js` checks. Use `src/lib/ui/GroupDeleteSheet.svelte` for the delete question.
-- **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order; if not, ask Noah. About every five releases, send Noah a short course check with a/b questions.
+- **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the five goals and the order; if not, ask Noah. About every five releases, send Noah a short course check with a/b questions.
 
 ## Privacy (never break)
 
