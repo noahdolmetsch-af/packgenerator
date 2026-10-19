@@ -1717,3 +1717,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - **Gemini in der App:** über den bestehenden Server `api/helper.js` (Aufgabe «gemini», keine neue Function), Schlüssel nur in Vercel, Tageslimit.
 - **Mit Claude besprechen** auf Packliste, Velo-Pflege und Rückblick, öffnet claude.ai mit Noahs Abo. **Meine KI-Projekte:** eigene Links (Ich).
 - **Selbst entschieden:** Duck.ai und Gemini im Web lassen sich nicht zuverlässig vorausfüllen; DuckDuckGo öffnet darum die Suche mit KI-Antwort, Gemini läuft in der App. Ein Max-Abo lässt sich nicht in die App einbinden (nur claude.ai); Projekte und Chats kann die App nicht lesen.
+
+## 19.10.2026: Paket 3 und 4 zusammen (0.155.0)
+
+- Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
+- **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
