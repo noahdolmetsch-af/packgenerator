@@ -276,7 +276,6 @@ export default {
   "Swiss Federal Constitution, Art. 110": "Bundesverfassung, Art. 110",
   // Einstieg for Care, Workshop, Equipment, Shopping
   "Keep every bike ready to ride": "Jedes Velo bereit zum Fahren",
-  "What is due": "Was dran ist",
   "Chain, brakes, tyres: what needs care soon is on top. Due means: before the next ride.": "Kette, Bremsen, Reifen: Was bald Pflege braucht, steht oben. Dran heisst: vor der nächsten Fahrt.",
   "Log a service": "Service eintragen",
   "Open a bike, tap a part and enter what you did. Its km start again.": "Öffne ein Velo, tippe auf ein Teil und trag ein, was du gemacht hast. Seine Kilometer beginnen neu.",

@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.151.0 Paket F «Woche» (version is a placeholder until the release)
+  // 0.151.0 Paket F «Woche»
   'Your week, and a tour of the app': 'Deine Woche und ein Rundgang durch die App',
   'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.': 'Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche, und ein kurzer Rundgang, der dir alles zeigt.',
   'The place «Week»: Monday to Sunday with your training, dates, Google calendar and tasks, holidays and bike service; on Sunday «Plan the week» suggests, you decide': 'Der Ort «Woche»: Montag bis Sonntag mit Training, Terminen, Google Kalender und Aufgaben, Ferien und Velo-Service; am Sonntag schlägt «Woche planen» vor, du entscheidest',

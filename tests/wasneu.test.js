@@ -34,7 +34,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.yeargoals']).toBe('0.132.0'); // «Werte überall»
     expect(SINCE['f.velosetup']).toBe('0.132.0'); // v0.132.0 «Velo-Setup»
     expect(SINCE['f.bagsetups']).toBe('0.149.0'); // «Taschen-Setups», released with Paket E
-    expect(SINCE['f.routine']).toBe(WHATS_NEW[0].version); // Routine «Das tut mir gut», Paket C
+    expect(SINCE['f.routine']).toBe('0.150.0'); // Routine «Das tut mir gut», Paket C
     expect(SINCE['f.abfragen']).toBe('0.133.0'); // v0.133.0 «Wi gaht's?»
     expect(SINCE['f.inspiration']).toBe('0.134.0'); // v0.134.0 «Inspiration»
     expect(SINCE['f.lists']).toBe('0.134.0'); // v0.134.0 «Listen und Typen»
@@ -47,7 +47,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.standardbike']).toBe('0.145.0'); // v0.145.0 «Paket 3»: Standard-Velo VS1–VS4 (0.144.0 RE brought no new function)
     expect(SINCE['f.docs']).toBe(SINCE['f.sync']); // P3b «Daten sicher»: Dokumente and the exchange come together
     expect(SINCE['f.camera']).toBe(SINCE['f.docs']); // P3c «Kamera überall» ships with them in 0.146.0
-    // Paket F «Woche»: Woche planen and the tour of the app (placeholder 0.151.0 until the release, after E and C)
+    // Paket F «Woche»: Woche planen and the tour of the app (0.151.0, after E and C)
     for (const id of ['f.weekplan', 'f.tour']) expect(SINCE[id], id).toBe('0.151.0');
     // v0.147.0 Paket B «Server»: every new function of the server package comes with this version
     for (const id of ['f.fitbit', 'f.analyses', 'f.weight', 'f.weekreview', 'f.docscan', 'f.agenda', 'f.assistent', 'f.offers', 'f.autosync', 'f.push', 'f.webshop', 'f.mail']) expect(SINCE[id], id).toBe('0.147.0');
@@ -103,7 +103,9 @@ describe('the list and its sorts', () => {
     expect(rowsOf().find((r) => r.id === 'f.yeargoals').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.velosetup').state).toBe('never'); // 0.132.0, older than this version
     expect(rowsOf().find((r) => r.id === 'f.bagsetups').state).toBe('never'); // 0.149.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.routine').state).toBe('new'); // new in this version (Paket C)
+    expect(rowsOf().find((r) => r.id === 'f.routine').state).toBe('never'); // 0.150.0 (Paket C), older than this version
+    expect(rowsOf().find((r) => r.id === 'f.weekplan').state).toBe('new'); // new in this version (Paket F)
+    expect(rowsOf(undefined, undefined, '0.150.0').find((r) => r.id === 'f.routine').state).toBe('new'); // new in its version
     expect(rowsOf().find((r) => r.id === 'f.abfragen').state).toBe('never'); // 0.133.0, older than this version
     expect(rowsOf(undefined, undefined, '0.133.0').find((r) => r.id === 'f.abfragen').state).toBe('new'); // new in its version (pinned to 0.133.0)
     expect(rowsOf(undefined, undefined, '0.134.0').find((r) => r.id === 'f.inspiration').state).toBe('new'); // new in its version

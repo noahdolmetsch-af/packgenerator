@@ -18,7 +18,7 @@ export const WHATS_NEW = [
   {
     // v0.151.0 Paket F «Woche»: Woche planen WP1–WP4 + Mehr Inhalt, Rundgang und Einstieg (Teil 1–3), Einstieg in
     // der Karte «Was hier steht» (Noah 19.10 «2a»), Google Kalender und Aufgaben in der Woche.
-    // Version and date are placeholders until the release (after E 0.149.0 and C 0.150.0).
+    // Built on C 0.150.0 (which carries E 0.149.0).
     version: '0.151.0',
     date: '2026-10-19',
     title: 'Your week, and a tour of the app',
@@ -36,6 +36,9 @@ export const WHATS_NEW = [
       'Open Week: your week from Monday to Sunday; hide a kind with its chip.',
       'Tap «Plan the week» and take or skip a suggestion in each of the four steps.',
       'Open Me › Handbook › Tour and go through the six steps with the example trip.',
+    ],
+  },
+  {
     // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
     // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
     // Impeccable round 2 (Aktiv · Heute, timer and the other pages), Fenster, Erkenntnisse, Bewegung 4b and Tempo.
