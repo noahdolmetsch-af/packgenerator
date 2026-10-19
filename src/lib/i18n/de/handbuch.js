@@ -514,4 +514,17 @@ export default {
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Paket R «Andere Menschen und Geld» (19.10.2026)
+  'Needs the internet for the sign-in. The server keeps no e-mail and no name.': 'Braucht Internet für die Anmeldung. Der Server behält keine Mail-Adresse und keinen Namen.',
+  'Me › Data and backup › «Sign in with Google» (or «Switch on sync» for the way without an account).': 'Ich › Daten und Backup › «Mit Google anmelden» (oder «Abgleich einschalten» für den Weg ohne Konto).',
+  'Choose your Google account; the app comes back and switches on the sync.': 'Wähl dein Google-Konto; die App kommt zurück und schaltet den Abgleich ein.',
+  'On the other device: the same, «Sign in with Google». Both then keep the same data.': 'Auf dem anderen Gerät dasselbe: «Mit Google anmelden». Beide haben dann dieselben Daten.',
+  'Example: new phone → open the app → «Sign in with Google» → your gear and trips arrive.': 'Beispiel: neues Handy → App öffnen → «Mit Google anmelden» → dein Material und deine Touren kommen.',
+  'Me › «Privacy and terms».': 'Ich › «Datenschutz und Nutzung».',
+  'Read what stays on your device and what the server keeps when you switch it on.': 'Lies, was auf deinem Gerät bleibt und was der Server behält, wenn du ihn einschaltest.',
+  'Example: before you switch on the sync, look at what the server keeps.': 'Beispiel: Bevor du den Abgleich einschaltest, schaust du, was der Server behält.',
+  'Me › «Bike mechanic and guide» › «Add contact»: name, what they do, mail, booking page or phone.': 'Ich › «Velomech und Guide» › «Kontakt hinzufügen»: Name, was sie machen, Mail, Buchungsseite oder Telefon.',
+  '«Request»: choose the bike and the days that suit you, then «Write the mail» or «Open their booking page».': '«Anfragen»: Velo und passende Tage wählen, dann «Mail schreiben» oder «Ihre Buchungsseite öffnen».',
+  'Change, delete and the order with the arrows or the handle.': 'Ändern, löschen und die Reihenfolge mit den Pfeilen oder dem Griff.',
+  'Example: your bike shop → «Request» → bike «Gravel» → «Tue or Thu morning» → «Write the mail».': 'Beispiel: dein Veloladen → «Anfragen» → Velo «Gravel» → «Di oder Do Vormittag» → «Mail schreiben».',
 };

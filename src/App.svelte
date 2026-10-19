@@ -81,6 +81,8 @@
   import ListPage from './pages/ListPage.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
   import Offers from './pages/Offers.svelte';
+  import Privacy from './pages/Privacy.svelte';
+  import Pros from './pages/Pros.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -469,6 +471,12 @@
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
+  {:else if page === 'privacy'}
+    <!-- Paket R: Ich › Datenschutz und Nutzung -->
+    <Privacy />
+  {:else if page === 'pros'}
+    <!-- Paket R (Noah 19.10.2026 «4a»): Ich › Velomech und Guide -->
+    <Pros />
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
     <Abfragen />

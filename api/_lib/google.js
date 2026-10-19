@@ -53,6 +53,7 @@
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
+import { makeAccount } from './account.js';
 import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
 import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow } from './googleplan.js';
@@ -105,7 +106,9 @@ export function googleEnv(e = process.env) {
   return { clientId: pick('GOOGLE_CLIENT_ID', e), clientSecret: pick('GOOGLE_CLIENT_SECRET', e), ...redisEnv(e) };
 }
 
-export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now() } = {}) {
+export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now(), account = null } = {}) {
+  // Paket R: «Mit Google anmelden» shares this callback address (the one registered in Google Cloud)
+  const signIn = account ?? makeAccount({ doFetch });
   const setUp = (cfg) => {
     if (!cfg.clientId || !cfg.clientSecret) throw new ApiError(503, 'not_set_up', 'Google is not set up on the server (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET).');
   };
@@ -239,9 +242,10 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     const url = new URL(request.url);
     const cfg = env();
     const store = needStore(cfg, doFetch);
+    const st = await takeState(store, null, url.searchParams.get('state'));
+    if (st?.kind === 'account') return signIn.callback(st, url);
+    if (st?.kind !== 'google') return backToApp(null, { google: 'error', error: 'expired' });
     setUp(cfg);
-    const st = await takeState(store, 'google', url.searchParams.get('state'));
-    if (!st) return backToApp(null, { google: 'error', error: 'expired' });
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');

@@ -34,7 +34,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Wrench, ShieldCheck } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -328,6 +328,14 @@
             </a>
           </li>
           <li>
+            <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
+            <a class="ich-row" href="#/me/privacy">
+              <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Privacy and terms')}</b><small>{t('Free, your data stays with you')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <a class="ich-row" href="#/me/apps">
               <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
@@ -404,6 +412,14 @@
             <a class="ich-row" href="#/me/offers">
               <span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Offers')} <span class="pill warn">{t('Test|offers')}</span></b><small>{t('People book your free times: tennis, tours, bike service')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket R (Noah 19.10.2026 «4a»): your bike mechanics and guides, a request by mail or link -->
+            <a class="ich-row" href="#/me/pros">
+              <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Bike mechanic and guide')}</b><small>{t('Ask for a date by mail or their link')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
