@@ -21,7 +21,7 @@ export function subOf(e) {
   const s = e.sub;
   if (!s) return e.done ? t('done|week') : '';
   if (s.mins) return `${dur(s.mins)}${e.done ? ` · ${t('done|week')}` : ''}`;
-  if (s.src) return s.src === 'google' ? t('Google Calendar') : t('Calendar');
+  if (s.src) return s.src === 'google' ? t('Google Calendar') : s.src === 'google-tasks' ? t('Google Tasks') : t('Calendar');
   if (s.away) return t(AWAY_NAMES[s.away]);
   if (s.trip) return s.of > 1 ? t('Trip · day {n} of {m}', { n: s.trip, m: s.of }) : t('Trip|week');
   if (s.bike) return s.before ? t('{bike} · before the holidays', { bike: s.bike }) : s.bike;

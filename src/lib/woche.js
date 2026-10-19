@@ -11,8 +11,11 @@
  *   week.hide      ['sport'|'date'|'todo'|'away'|'bike']  kinds hidden in the week (filter chips)
  *   week.no        ['<ref>|<monday>']                      suggestions skipped for one week
  *   week.planned   'YYYY-MM-DD'                            the Monday last planned with «Woche planen»
- *   week.calendar  [{ id, title, day, time, minutes, src }] dates of an outside calendar. Filled by
- *                  Google Teil 2 (GA, Google Kalender); the week only reads it (CAL_KEY, calEntries).
+ *   week.calendar  [{ id, title, day, time, minutes, src }] dates of an outside calendar (CAL_KEY, calEntries).
+ * Google Kalender und Aufgaben (Paket B, db.gEvents / db.gTasks, Dexie 15): read through agenda.js weekItems()
+ * and undatedTasks() (googleWeek below). Events are dates, tasks with a due day are to-dos of that day, open
+ * tasks without a date are suggestions «Noch einplanen» (taking one makes an own to-do, Google stays as it is).
+ * Only what Ich › Termine und Aufgaben switched on is read (agenda prefs calendar / tasks).
  * Content (Noah 18.10.2026 «1a 2a 3b 4a 5a»): the home weather per day, and a long session on a wet day
  * suggested for a dry one · hints on the load (two hard days in a row, no rest day, much more than
  * last week) · last week in one line · the holidays of the canton of Zürich and season hints · to-dos
@@ -22,6 +25,7 @@
 import { shiftDay, mondayOf, doneBy } from './training.js';
 import { wxOf } from './flowweek.js';
 import { holidayOn, seasonOf } from './woche/kalender.js';
+import { prefsOf as agendaPrefs, weekItems, undatedTasks } from './agenda.js';
 
 export const ITEMS_KEY = 'week.items';
 export const AWAY_KEY = 'week.away';
@@ -103,6 +107,26 @@ export const calEntries = (v) =>
     : [];
 
 /**
+ * Google Kalender und Aufgaben (Paket B) for the week of a Monday: { cal, todos, open }.
+ *   cal    the events as dates (the shape of calEntries, src 'google')
+ *   todos  the tasks with a due day in the week, as to-dos of that day (src 'google-tasks')
+ *   open   open tasks without a date, for «Noch einplanen»
+ * google: { events (db.gEvents), tasks (db.gTasks), prefs (the agenda setting) }; nothing when switched off.
+ */
+export function googleWeek(google, monday) {
+  const p = agendaPrefs(google?.prefs);
+  const events = p.calendar ? (google?.events ?? []) : [];
+  const tasks = p.tasks ? (google?.tasks ?? []) : [];
+  if (!events.length && !tasks.length) return { cal: [], todos: [], open: [] };
+  const rows = weekItems({ events, tasks, from: monday, to: shiftDay(monday, 6) });
+  return {
+    cal: rows.filter((x) => x.kind === 'termin').map((x) => ({ id: `g:${x.id}`, title: String(x.title ?? '').trim().slice(0, 80) || '…', day: x.day, time: x.time, src: 'google' })),
+    todos: rows.filter((x) => x.kind === 'todo').map((x) => ({ id: `gt:${x.id}`, title: String(x.title ?? '').trim().slice(0, 80) || '…', day: x.day, done: x.done })),
+    open: undatedTasks(tasks).map((x) => ({ id: x.id, title: String(x.title ?? '').trim().slice(0, 80) })).filter((x) => x.title),
+  };
+}
+
+/**
  * The follow-ups of a new holiday (Noah 4a), as changes the page saves:
  *   pack   a to-do «Prepare the packing list» the day before (bike trip, ski tour)
  *   shift  open to-dos dated inside the holidays move to the day after
@@ -130,13 +154,14 @@ export function freeDay(days, from, away = []) {
  * The week. sources:
  *   monday, today, items, away, hide, no, cal (calEntries), trips [{ id, title, startDate, days }],
  *   sessions (training plan), acts (Strava activities, for «done»), fixed [{ actId, wd, time }],
- *   plans [{ day, actId }] (Aktiv › Woche), actName(id), care [{ bikeId, bikeName, key, part, name }]
+ *   plans [{ day, actId }] (Aktiv › Woche), actName(id), care [{ bikeId, bikeName, key, part, name }],
+ *   google { events, tasks, prefs } (Paket B, see googleWeek)
  * → { days: [{ day, today, past, away, entries: [{ id, kind, title, sub, time, done, own }] }],
  *     sums: { sessions, mins, goalMins, dates, todos, away, bike }, suggestions: [...], paused: [...] }
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
@@ -162,7 +187,9 @@ export function buildWeek(src) {
     for (const p of plans) if (p.day === d.day) d.entries.push({ id: `pl:${p.actId}`, kind: 'sport', title: actName(p.actId), sub: null, time: '', done: false, own: false, href: '#/flow/week' });
   }
   // dates: your own and the outside calendar's
-  for (const x of cal) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
+  const g = googleWeek(google, monday);
+  for (const x of [...cal, ...g.cal]) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
+  for (const x of g.todos) at(x.day)?.entries.push({ id: x.id, kind: 'todo', title: x.title, sub: { src: 'google-tasks' }, time: '', done: x.done, own: false, href: '#/me/agenda' });
   // holidays and trips with dates
   for (const d of days) if (d.away) d.entries.push({ id: `aw:${d.away.id}`, kind: 'away', title: d.away.title || null, sub: { away: d.away.type }, time: '', done: false, own: false, href: '#/week/away' });
   for (const tr of trips) {
@@ -186,6 +213,12 @@ export function buildWeek(src) {
   const nextAway = away.find((a) => a.to >= from && a.from < end) ?? null;
   const suggestions = [];
   for (const x of items) if (x.kind === 'todo' && !x.day && !x.done && !skipped.has(`todo:${x.id}`)) suggestions.push({ ref: `todo:${x.id}`, kind: 'todo', title: x.title, sub: null, day: freeDay(days, from, away), act: 'take', id: x.id });
+  // open Google tasks without a date (Paket B): taking one makes an own to-do of that day (ref gtask:…)
+  const takenRefs = new Set(items.filter((x) => x.ref).map((x) => x.ref));
+  for (const x of g.open) {
+    const ref = `gtask:${x.id}`;
+    if (!takenRefs.has(ref) && !skipped.has(ref)) suggestions.push({ ref, kind: 'todo', title: x.title, sub: { src: 'google-tasks' }, day: freeDay(days, from, away), act: 'take' });
+  }
   const planned = new Set(items.filter((x) => x.kind === 'bike' && !x.done).map((x) => `${x.bikeId}:${x.part}`));
   for (const c of care) {
     const ref = `bike:${c.bikeId}:${c.key}`;

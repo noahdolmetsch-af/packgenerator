@@ -1,6 +1,6 @@
 // «Woche planen» WP1–WP4: the rules of the week (lib/woche.js). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { buildWeek, cleanItem, itemsOf, cleanAway, awayOf, applyAway, planMonday, skipFor, calEntries, dotsOf, freeDay, KINDS, takeSuggestion } from '../src/lib/woche.js';
+import { buildWeek, cleanItem, itemsOf, cleanAway, awayOf, applyAway, planMonday, skipFor, calEntries, dotsOf, freeDay, KINDS, takeSuggestion, googleWeek } from '../src/lib/woche.js';
 import { easter, holidaysOf, holidayOn, lastSunday, seasonOf } from '../src/lib/woche/kalender.js';
 import { PLACES, BAR_PLACES, pageOf, placeOf, PLACE_TABS, tabOf } from '../src/lib/nav.js';
 
@@ -166,5 +166,43 @@ describe('content (Noah 18.10.2026 «1a 2a 3b 4a 5a»)', () => {
     const season = w.suggestions.find((x) => x.season === 'lights');
     const kept = itemsOf(takeSuggestion(season, { items: [] }, season.day, 'lights').items);
     expect(buildWeek({ ...base, items: kept }).suggestions.some((x) => x.season === 'lights')).toBe(false);
+  });
+});
+
+// Paket B: Google Kalender und Aufgaben (db.gEvents / db.gTasks) through agenda.js weekItems / undatedTasks
+describe('Google calendar and tasks in the week', () => {
+  const events = [
+    { id: 'main|e1', gid: 'e1', cal: 'main', title: 'Dentist', allDay: false, day: '2026-10-21', start: '2026-10-21T07:30:00Z', end: '2026-10-21T08:00:00Z' },
+    { id: 'main|e2', gid: 'e2', cal: 'main', title: 'Jura weekend', allDay: true, day: '2026-10-24', lastDay: '2026-10-25' },
+    { id: 'main|e3', gid: 'e3', cal: 'main', title: 'Next week', allDay: true, day: '2026-10-27' },
+  ];
+  const tasks = [
+    { id: 't1', list: 'l', title: 'Pump the tyres', due: '2026-10-22', done: false },
+    { id: 't2', list: 'l', title: 'Order brake pads', due: null, done: false },
+    { id: 't3', list: 'l', title: 'Old', due: null, done: true },
+  ];
+  const on = { calendar: true, tasks: true };
+  it('reads only what is switched on', () => {
+    expect(googleWeek({ events, tasks, prefs: {} }, MON)).toEqual({ cal: [], todos: [], open: [] });
+    const g = googleWeek({ events, tasks, prefs: { calendar: true } }, MON);
+    expect(g.cal.length).toBe(3); // the dentist and two days of the weekend; next week is left out
+    expect(g.todos).toEqual([]);
+    expect(g.open).toEqual([]);
+  });
+  it('events are dates with their time, tasks with a day are to-dos, open tasks are suggestions', () => {
+    const w = buildWeek({ ...base, google: { events, tasks, prefs: on } });
+    const wed = w.days.find((d) => d.day === '2026-10-21');
+    expect(wed.entries.find((e) => e.title === 'Dentist')).toMatchObject({ kind: 'date', time: '09:30', sub: { src: 'google' } });
+    expect(w.days.find((d) => d.day === '2026-10-25').entries.some((e) => e.title === 'Jura weekend')).toBe(true);
+    expect(w.days.find((d) => d.day === '2026-10-22').entries.find((e) => e.title === 'Pump the tyres')).toMatchObject({ kind: 'todo', sub: { src: 'google-tasks' } });
+    const s = w.suggestions.find((x) => x.ref === 'gtask:t2');
+    expect(s).toMatchObject({ kind: 'todo', title: 'Order brake pads', act: 'take' });
+    expect(w.suggestions.some((x) => x.ref === 'gtask:t3')).toBe(false);
+    // taken: an own to-do of that day; the suggestion does not come back
+    const items = itemsOf(takeSuggestion(s, { items: [] }, '2026-10-23').items);
+    expect(items[0]).toMatchObject({ kind: 'todo', title: 'Order brake pads', day: '2026-10-23' });
+    expect(buildWeek({ ...base, items, google: { events, tasks, prefs: on } }).suggestions.some((x) => x.ref === 'gtask:t2')).toBe(false);
+    // skipped for this week
+    expect(buildWeek({ ...base, no: skipFor([], 'gtask:t2', MON), google: { events, tasks, prefs: on } }).suggestions.some((x) => x.ref === 'gtask:t2')).toBe(false);
   });
 });

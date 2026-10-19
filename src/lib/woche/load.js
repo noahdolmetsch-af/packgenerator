@@ -1,7 +1,8 @@
 /**
  * «Woche planen»: everything the week reads, in one query (lib/woche.js builds the week from it).
  * The training plan, Aktiv's fixed dates, trips, bike care and the outside calendar stay where they
- * live; this only reads them.
+ * live; this only reads them. Google Kalender und Aufgaben (Paket B): db.gEvents and db.gTasks (Dexie 15) and
+ * the agenda setting, turned into the week by googleWeek (lib/woche.js).
  */
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
@@ -11,13 +12,14 @@ import { FIXED_KEY, PLAN_KEY as FLOW_PLAN_KEY, fixedList } from '../flowweek.js'
 import { sortBikes } from '../bikes.js';
 import { withVisits } from '../workshop.js';
 import { bikeCare } from '../readiness.js';
+import { AGENDA_KEY } from '../agenda.js';
 
-const KEYS = [ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
+const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
 
 /** The raw sources of the week (a liveQuery); today: YYYY-MM-DD for the bike care. */
 export function weekQuery(today) {
   return liveQuery(async () => {
-    const [sets, trips, acts, flowActs, bikes, tasks, visits] = await Promise.all([
+    const [sets, trips, acts, flowActs, bikes, tasks, visits, gEvents, gTasks] = await Promise.all([
       db.settings.where('key').anyOf(KEYS).toArray(),
       db.trips.toArray(),
       db.activities.toArray(),
@@ -25,6 +27,9 @@ export function weekQuery(today) {
       db.bikes.toArray(),
       db.maintenance.toArray(),
       db.visits.toArray(),
+      // Google's copy on this device (Paket B); a week back to two months ahead, so the whole table is small
+      db.gEvents ? db.gEvents.toArray() : [],
+      db.gTasks ? db.gTasks.toArray() : [],
     ]);
     const s = Object.fromEntries(sets.map((x) => [x.key, x.value]));
     const care = sortBikes(bikes)
@@ -46,6 +51,7 @@ export function weekQuery(today) {
       acts,
       flowActs,
       care,
+      google: { events: gEvents, tasks: gTasks, prefs: s[AGENDA_KEY] },
     };
   });
 }
