@@ -404,9 +404,15 @@
     if (!folded[key]) keepOpen(key);
   };
   // v0.45.1 (G012): an open category first draws its first rows, the rest with one tap. SL2 (answer 4a):
-  // five rows and «Show n more», on the phone too; a search shows every row.
+  // five rows and «Show n more», on the phone too. Tempo (Noah 19.10.2026 «2a»): a search too shows five
+  // rows per category and «Show n more» (before, the first letter drew ~650 rows at once and the phone froze).
   let full = $state({});
-  const rowsOf = (g) => (searching || selecting ? g.items : shownRows(g.items, !!full[g.key]));
+  const rowsOf = (g) => (selecting ? g.items : shownRows(g.items, !!full[g.key]));
+  // a new search or filter starts with five rows per category again
+  $effect(() => {
+    void [view, filter.q, filter.category, filter.bag, filter.domain, filter.role];
+    untrack(() => (full = {}));
+  });
   // SL2: the jump bar and the category you are in (ListBar tells it)
   let activeCat = $state(null);
   const catJumps = $derived(groups.map((g) => ({ id: g.key, label: t(g.name), n: g.items.length })));

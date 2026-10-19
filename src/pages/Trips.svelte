@@ -82,7 +82,8 @@
   import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
   import { loadActs } from '../lib/review/actdata.js';
   import { phone } from '../lib/media.svelte.js';
-  import { PHONE_ROWS, shortLine, capGroups } from '../lib/touren/kurz.js';
+  import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
+  import { untrack } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
@@ -227,7 +228,20 @@
   let extrasOpen = $state(false);
   let packOpen = $state(false);
   const shortDone = $derived(phone.matches && !doneAll);
-  const shownGroups = $derived(shortDone ? capGroups(groups, PHONE_ROWS) : groups);
+  // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
+  // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
+  let tourLimit = $state(TOUR_ROWS);
+  $effect(() => {
+    void [JSON.stringify(filter), st, mode];
+    untrack(() => (tourLimit = TOUR_ROWS));
+  });
+  const cap = $derived(shortDone ? PHONE_ROWS : tourLimit);
+  const shownGroups = $derived(rows.length > cap ? capGroups(groups, cap) : groups);
+  const moreN = $derived(rows.length > cap ? nextRows(rows.length, cap) : 0);
+  const showMore = () => {
+    tourLimit = cap + moreN;
+    doneAll = true;
+  };
   const KIND_NAME = Object.fromEntries(KINDS.map((k) => [k.key, k.name]));
   const what = (r) => (r.kind === 'ride' ? t(KIND_NAME.ride) : r.days > 1 ? tn(r.days, '{n} day', '{n} days') : t(KIND_NAME[kindOf(r)] ?? 'Day ride|art'));
   const rowBike = (r) => r.bike ?? bikeName[vals[r.id]?.bikeId] ?? null;
@@ -536,8 +550,8 @@
               </ul>
             {/each}
           </div>
-          {#if shortDone && rows.length > PHONE_ROWS}
-            <button type="button" class="phone-more" onclick={() => (doneAll = true)} data-pack-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(rows.length - PHONE_ROWS, 'Show {n} more trip', 'Show {n} more trips')}</button>
+          {#if moreN}
+            <button type="button" class="phone-more" onclick={showMore} data-pack-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(moreN, 'Show {n} more trip', 'Show {n} more trips')}</button>
           {/if}
           <ul class="legend hide-phone" aria-label={t('What the colours mean')}>
             <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
