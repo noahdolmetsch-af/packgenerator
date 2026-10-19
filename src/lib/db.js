@@ -14,7 +14,7 @@ import { trackSync } from './sync/track.js';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 18; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections)
+export const SCHEMA_VERSION = 19; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei)
 
 /** Tables that belong to the user's data and go into every backup file. */
 /** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
@@ -50,6 +50,7 @@ export const DATA_TABLES = [
   'tracks', // Paket S «Reise-Spur»: the app's own recordings (kind 'rec') and «Hier bin ich» places (kind 'place'), spur/spur.js
   'sportItems', // Paket O «Sportarten»: measures and values, notes, lessons, matches, loops, plans per sport (sportsdb.js)
   'inspections', // «Velo-Inspektion»: one row per inspection of a bike, with the result, value, note and photos of every point (inspect/)
+  'frei', // Paket T «Freie Zeit»: collection entries with photos, «In this phase …», travel wishes, marks (freidb.js)
 ];
 
 /**
@@ -225,6 +226,11 @@ export function createDb(name = 'pack-generator') {
   // Version 18 («Velo-Inspektion», Noah 19.10.2026) only adds the inspections, so existing data stays as it is.
   db.version(18).stores({
     inspections: 'id, bikeId, date',
+  });
+  // Version 19 (Paket T «Freie Zeit») only adds the table «frei» (collection entries, travel wishes, marks),
+  // so existing data stays as it is.
+  db.version(19).stores({
+    frei: 'id, kind, coll, day',
   });
   // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
   // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.

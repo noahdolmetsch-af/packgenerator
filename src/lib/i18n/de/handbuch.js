@@ -974,4 +974,11 @@ export default {
   'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.': 'Oben: Art, Arbeitsweg, Gerät, neue Bestzeiten, «Wie hart war es?» und dein Strava-Kommentar.',
   'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.': 'Weiter unten: Runden, Zeiten pro km und Segmentzeiten; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
   'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.': 'Beispiel: Samstagsfahrt → 3 Runden mit der Rundentaste, km 12 der langsamste, 2 neue Bestzeiten.',
+  // Paket T «Freie Zeit»: f.frei and f.impulse
+  'Open Me › Free time and choose one of the eight pages.': 'Öffne Ich › Freie Zeit und wähl eine der acht Seiten.',
+  'Everything is a suggestion: change, sort, hide or delete it, and add your own.': 'Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.',
+  'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
+  'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Ich › Freie Zeit › Impulse.',
+  'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
+  'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
 };

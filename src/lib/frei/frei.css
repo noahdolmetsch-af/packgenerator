@@ -1,0 +1,204 @@
+/* Paket T «Freie Zeit»: the look the eight pages share (one place, so they stay alike). */
+.fz {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1100px;
+  margin: 0 auto;
+  min-width: 0;
+}
+.fz-h1 {
+  margin: 0;
+  font: 800 var(--fs-page)/1.1 var(--font-brand);
+}
+.fz-intro {
+  margin: -6px 0 2px;
+  color: var(--ink-2);
+  font-size: var(--fs-body);
+}
+.fz-h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font: 700 var(--fs-section)/1.2 var(--font-body);
+}
+.fz-note {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+}
+.fz-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  box-shadow: var(--card-shadow);
+  min-width: 0;
+}
+.fz-soft {
+  background: var(--accent-soft);
+  border-color: transparent;
+  box-shadow: none;
+}
+.fz-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fz-chip {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 var(--fs-small) var(--font-body);
+  cursor: pointer;
+}
+.fz-chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+.fz-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fz-list > li + li {
+  border-top: 1px solid var(--line);
+}
+.fz-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 0;
+  min-width: 0;
+}
+.fz-row-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.fz-row-main b {
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+.fz-row-main small {
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.fz-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.fz-icon:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+.fz-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fz-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fz-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink-2);
+  font: 600 var(--fs-small) var(--font-body);
+}
+.fz-lab .inp,
+.fz-lab textarea {
+  font-weight: 400;
+}
+.fz-inline {
+  display: flex;
+  gap: 8px;
+}
+.fz-inline .inp {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.fz-grid {
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 760px) {
+  .fz-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1100px) {
+  .fz-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.fz-empty {
+  margin: 0;
+  color: var(--ink-3);
+}
+.fz-kick {
+  color: var(--ink-3);
+  font: 600 var(--fs-tiny) var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fz-big {
+  margin: 0;
+  font: 700 var(--fs-title)/1.25 var(--font-body);
+  overflow-wrap: break-word;
+}
+.fz-text {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-body);
+  line-height: var(--lh);
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+.fz-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fz-thumbs img {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.fz-done {
+  color: var(--ok);
+}

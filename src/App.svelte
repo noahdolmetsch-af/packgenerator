@@ -382,6 +382,7 @@
     Offers: () => import('./pages/Offers.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
+    Frei: () => import('./pages/Frei.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -501,6 +502,9 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
     {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'frei' || page === 'impulse'}
+    <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
+    <LazyPage load={PAGES.Frei} {hash} />
   {:else if page === 'routine'}
     <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
     <LazyPage load={PAGES.Routine} />

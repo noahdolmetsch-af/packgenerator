@@ -187,6 +187,16 @@
           </li>
         </ul>
       {/if}
+      <!-- Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): impulses, collections and six small pages -->
+      <ul class="card ich-list" data-me-frei>
+        <li>
+          <a class="ich-row" href="#/me/frei">
+            <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
+            <span class="ich-m"><b>{t('Free time')}</b><small>{t('Impulses, collections, evenings, first night and more')}</small></span>
+            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+          </a>
+        </li>
+      </ul>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">

@@ -83,6 +83,8 @@ export const SINCE = {
   'f.here': '0.154.0', 'f.record': '0.154.0', 'f.spurmap': '0.154.0', 'f.spurlink': '0.154.0', 'f.travelbook': '0.154.0',
   // Paket L2 «Bilderkennung» (v0.154.0)
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
+  // Paket T «Freie Zeit» (v0.155.0)
+  'f.frei': '0.155.0', 'f.impulse': '0.155.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
