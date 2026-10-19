@@ -83,3 +83,27 @@ test('Rückblick: Tagebuch-Entwurf, 2 Zusatzfragen, Als To-do, Nachricht an dich
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
+
+// #223: on a trip day the evening review asks how the trip was today; the score goes into its debrief
+test('Abend-Rückblick: heutige Tour bewerten', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, '2026-10-14T21:00:00+02:00');
+  await page.goto('./#/check/evening');
+  const q = page.locator('[data-abendtour]');
+  await expect(q).toBeVisible();
+  await q.getByRole('button', { name: '8', exact: true }).click();
+  await expect(q.getByRole('button', { name: '8', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const ev = await page.evaluate(async (id) => {
+    const open = indexedDB.open('pack-generator');
+    const db = await new Promise((r) => (open.onsuccess = () => r(open.result)));
+    const rec = await new Promise((r) => {
+      const g = db.transaction('debriefs').objectStore('debriefs').get(id);
+      g.onsuccess = () => r(g.result);
+    });
+    return rec?.evening ?? null;
+  }, NEXT);
+  expect(ev).toEqual({ '2026-10-14': 8 });
+  await expect(q.getByRole('link', { name: T('Whole debrief') })).toHaveAttribute('href', `#/debrief/${NEXT}`);
+  expect(errors).toEqual([]);
+});

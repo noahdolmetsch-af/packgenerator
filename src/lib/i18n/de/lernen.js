@@ -128,4 +128,11 @@ export default {
   'On the way of your next trip a closed letter «Mail from you!» waits.': 'Unterwegs auf deiner nächsten Tour wartet ein geschlossener Brief «Post von dir!».',
   'Open it; «Read» puts it away.': 'Mach ihn auf; «Gelesen» legt ihn weg.',
   'Example: «Take the warm gloves, the mornings were cold.»': 'Beispiel: «Nimm die warmen Handschuhe mit, die Morgen waren kalt.»',
+  // #223 Tour am Abend bewerten
+  'How was the trip «{name}» today?': 'Wie war die Tour «{name}» heute?',
+  '1 tough … 10 wonderful · goes into its debrief': '1 zäh … 10 wunderbar · kommt in ihren Rückblick',
+  'Whole debrief': 'Ganzer Rückblick',
+  'Rated in the evening: {n} of 10': 'Am Abend bewertet: {n} von 10',
+  'Rate the trip in the evening': 'Tour am Abend bewerten',
+  'On a trip day the evening review asks how the trip was today, 1 to 10, while it is fresh; it goes into the debrief and the diary.': 'An einem Tourtag fragt der Abend-Rückblick, wie die Tour heute war, 1 bis 10, solange alles frisch ist; das kommt in den Rückblick und ins Tagebuch.',
 };

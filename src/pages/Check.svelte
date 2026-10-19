@@ -16,6 +16,7 @@
    */
   import { Sun, Clock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
+  import AbendTour from '../lib/lernen/AbendTour.svelte'; // Paket M #223
   import Scale from '../lib/flow/check/Scale.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
   import PoolEditor from '../lib/flow/check/PoolEditor.svelte';
@@ -280,6 +281,8 @@
 
 {#snippet eveningQs()}
   <section class="card qs" aria-label={t('Evening review')}>
+    <!-- Paket M #223: on a trip day, rate the trip while it is fresh (nothing shows on other days) -->
+    <AbendTour trips={data.trips} {today} />
     {#if on(8)}
     <div class="q" data-q="sat">
       {@render head(8, 'cq-sat', t('How happy are you with the day?'), `${t('not at all|sat')} … ${t('very|sat')}`, t('daily|check'))}

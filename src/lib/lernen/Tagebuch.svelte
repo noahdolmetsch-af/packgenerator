@@ -22,7 +22,7 @@
   const on = $derived($prefQ === undefined ? null : $prefQ?.value?.on !== false);
   const days = $derived(tripDays(trip));
   const actsQ = $derived(days.length ? liveQuery(() => db.activities.where('day').between(days[0], days.at(-1), true, true).toArray()) : null);
-  const facts = $derived(diaryFacts({ trip, activities: $actsQ ?? [], rides, notes }));
+  const facts = $derived(diaryFacts({ trip, activities: $actsQ ?? [], rides, notes, evening: d?.evening ?? {} }));
 
   let photos = $state([]);
   let msg = $state('');

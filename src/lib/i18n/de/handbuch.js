@@ -570,4 +570,11 @@ export default {
   'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // #223 Tour am Abend bewerten (Paket M)
+  'Shows only on the days of a trip.': 'Erscheint nur an den Tagen einer Tour.',
+  'On a trip day, open the evening review from Today.': 'Öffne an einem Tourtag den Abend-Rückblick auf Heute.',
+  'Tap a number at «How was the trip today?»; a second tap takes it back.': 'Tippe bei «Wie war die Tour heute?» eine Zahl an; ein zweites Tippen nimmt sie zurück.',
+  '«Whole debrief» opens the trip\'s debrief.': '«Ganzer Rückblick» öffnet den Rückblick der Tour.',
+  'The score goes into the debrief; the diary draft names it for that day.': 'Die Zahl kommt in den Rückblick; der Tagebuch-Entwurf nennt sie für diesen Tag.',
+  'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».': 'Beispiel: Tag 2 der Jura-Runde → 8 von 10; im Tagebuch steht «Am Abend bewertet: 8 von 10».',
 };

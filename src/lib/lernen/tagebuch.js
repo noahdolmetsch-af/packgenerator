@@ -38,7 +38,7 @@ const dayName = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale()
  * activities: db.activities (Strava; { day, name, km, hm, movingS, kind }), rides: db.rides of this trip
  * ({ date, km, gainM, movingH? }), notes: tripNotes(...) ({ day (0-based), text, at }).
  */
-export function diaryFacts({ trip, activities = [], rides = [], notes = [] }) {
+export function diaryFacts({ trip, activities = [], rides = [], notes = [], evening = {} }) {
   const days = tripDays(trip);
   const fc = trip?.forecast?.days ?? [];
   return days.map((date, i) => {
@@ -52,6 +52,7 @@ export function diaryFacts({ trip, activities = [], rides = [], notes = [] }) {
       rides: own.map((r) => ({ name: r.name || '', km: r.km || 0, hm: r.gainM ?? null, s: Number.isFinite(r.movingH) ? r.movingH * 3600 : 0 })),
       weather: weather ? { min: weather.min, max: weather.max, rainMm: weather.rainMm ?? 0 } : null,
       notes: notes.filter((n) => (n.day ?? 0) === i).map((n) => n.text).filter(Boolean),
+      score: Number.isFinite(evening?.[date]) ? evening[date] : null, // #223: rated in the evening review
     };
   });
 }
@@ -89,6 +90,7 @@ export function diaryDraft({ trip, facts = [], neu = [], photos = 0 }) {
     const w = weatherLine(f.weather);
     if (w) body.push(t('Weather: {w}', { w }));
     for (const n of f.notes) body.push(t('Note: «{text}»', { text: n }));
+    if (f.score != null) body.push(t('Rated in the evening: {n} of 10', { n: f.score }));
     if (!body.length) continue;
     const label = facts.length > 1 ? t('Day {n} · {date}', { n: f.n, date: dayName(f.date) }) : dayName(f.date);
     lines.push('', label, ...body.map((b) => `– ${b}`));
@@ -100,7 +102,7 @@ export function diaryDraft({ trip, facts = [], neu = [], photos = 0 }) {
 }
 
 /** Whether the draft has anything beyond the title (else the page offers an empty diary). */
-export const hasFacts = (facts) => facts.some((f) => f.acts.length || f.rides.length || f.weather || f.notes.length);
+export const hasFacts = (facts) => facts.some((f) => f.acts.length || f.rides.length || f.weather || f.notes.length || f.score != null);
 
 /** The diary to keep in the debrief: a new draft is only written when there is none yet. */
 export function withDiary(debrief, text, now = new Date()) {
