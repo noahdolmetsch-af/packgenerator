@@ -12,7 +12,8 @@ function world({ kv = {}, sets = {}, routes = {}, ping = 'PONG' } = {}) {
   const calls = [];
   const doFetch = vi.fn(async (url, init = {}) => {
     if (url === REDIS) {
-      const [cmd, k, v] = JSON.parse(init.body);
+      const [cmd, k, v, ...more] = JSON.parse(init.body);
+      if (cmd === 'MGET') return Response.json({ result: [k, v, ...more].filter((x) => x !== undefined).map((x) => kv[x] ?? null) });
       const r = (result) => Response.json({ result });
       if (cmd === 'PING') return r(ping);
       if (cmd === 'GET') return r(kv[k] ?? null);
@@ -41,7 +42,7 @@ describe('/api/health', () => {
     const { status, body, by } = await run(w);
     expect(status).toBe(200);
     expect(body.ok).toBe(true);
-    expect(Object.keys(by)).toEqual(['env', 'upstash', 'anthropic', 'ki-guthaben', 'strava', 'google', 'sync', 'push']);
+    expect(Object.keys(by)).toEqual(['env', 'upstash', 'anthropic', 'ki-guthaben', 'strava', 'google', 'sync', 'push', 'tagesgrenze']);
     expect(by.env.state).toBe('ok');
     expect(by.upstash.state).toBe('ok');
     expect(by.anthropic.state).toBe('ok');

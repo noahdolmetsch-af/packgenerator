@@ -15,6 +15,9 @@
    * inzahlen.js routeMap(); filtered: the words of the active filters ('' = none); go(row) opens a trip,
    * rateHref(row) its short Rückblick;
    * chips: a snippet with the active filter chips.
+   * Paket M (#1002, Noah «5a» 14.10.2026 «Offene Rückblicke oben, In Zahlen zugeklappt»): `top` draws only
+   * DG-O2 «Offene Rückblicke», at the top of the page (no heading «Weiter»); the end of the page then
+   * gets `skip={['o2']}`. Hide and «Show again» stay with the tile.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -31,13 +34,14 @@
   import { dates } from '../review/fmt.js';
   import { EyeOff, Sun, CloudSun, CloudRain, SlidersHorizontal, MapPin, Check, Eye } from '@lucide/svelte';
 
-  let { wx, open = [], map, filtered = '', go = () => {}, rateHref = (r) => r.href, extraOf = () => '', chips = null } = $props();
+  let { wx, open = [], map, filtered = '', go = () => {}, rateHref = (r) => r.href, extraOf = () => '', chips = null, top = false, skip = [] } = $props();
 
   const PAGE = 'trips';
   const stateQ = liveQuery(() => db.settings.get(skKey(PAGE)));
   const cur = $derived(normState($stateQ?.value));
-  const tiles = $derived(SK_BIG[PAGE].filter((d) => !cur.hidden.includes(d.id)));
-  const hidden = $derived(SK_BIG[PAGE].filter((d) => cur.hidden.includes(d.id)));
+  const mine = $derived(SK_BIG[PAGE].filter((d) => (top ? d.id === 'o2' : !skip.includes(d.id))));
+  const tiles = $derived(mine.filter((d) => !cur.hidden.includes(d.id)));
+  const hidden = $derived(mine.filter((d) => cur.hidden.includes(d.id)));
   let note = $state(null);
   let placeOpen = $state(false);
 
@@ -68,10 +72,13 @@
   {#if d.filtered && filtered}<p class="fl" data-filtered><SlidersHorizontal size={14} aria-hidden="true" />{t('filtered: {what}', { what: filtered })}</p>{/if}
 {/snippet}
 
-<section class="more" aria-labelledby="more-h" data-tour-tiles>
+{#if top && !tiles.length && !hidden.length}{:else}
+<section class="more" class:top aria-labelledby={top ? 'tile-o2' : 'more-h'} data-tour-tiles={top ? 'top' : ''}>
+  {#if !top}
   <h2 id="more-h">{t('More|tiles')}</h2>
-  <p class="sub">{t('Weather, open debriefs and routes · map and debriefs follow the filters above, the weather does not')}</p>
+  <p class="sub">{skip.includes('o2') ? t('Weather and routes · the map follows the filters above, the weather does not') : t('Weather, open debriefs and routes · map and debriefs follow the filters above, the weather does not')}</p>
   {@render chips?.()}
+  {/if}
   <div class="grid">
     {#each tiles as d (d.id)}
       <article class="tile {d.size}" data-tile={d.id} aria-labelledby="tile-{d.id}">
@@ -128,11 +135,18 @@
     </p>
   {/if}
 </section>
+{/if}
 <SkToast bind:note />
 
 <style>
   .more {
     margin: 32px 0 0;
+  }
+  .more.top {
+    margin: 16px 0 0;
+  }
+  .more.top .grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .more h2 {
     margin: 0;

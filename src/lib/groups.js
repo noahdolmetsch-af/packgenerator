@@ -22,6 +22,12 @@ export const GROUP_PLACES = [
   { name: 'Building blocks', file: 'src/pages/Blocks.svelte' },
   { name: 'Learnings by topic', file: 'src/lib/review/Learned.svelte' },
   { name: 'Document groups', file: 'src/pages/Docs.svelte' },
+  // Paket N «Pläne und Träume» (19.10.2026)
+  { name: 'Kinds of tour (Dreams)', file: 'src/pages/Dreams.svelte' },
+  { name: 'Compass boxes', file: 'src/pages/Compass.svelte' },
+  { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
+  { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
+  { name: 'Inspection areas', file: 'src/lib/inspect/EditList.svelte' }, // «Velo-Inspektion»: the areas of the checklist
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

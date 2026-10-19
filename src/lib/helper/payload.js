@@ -105,7 +105,7 @@ export function checklistPayload(trip, { items = [], learnings = [], unusedBefor
   const byId = new Map(items.map((i) => [i.id, i]));
   const on = new Set((trip?.entries ?? []).map((e) => e.itemId));
   const area = trip?.domain ?? 'bikepacking';
-  const inArea = (i) => !Array.isArray(i.domains) || !i.domains.length || i.domains.includes(area);
+  const inArea = (i) => !Array.isArray(i.domains) || !i.domains.length || i.domains.includes(area) || i.domains.includes('all');
   return {
     lang,
     trip: tripOut(trip),

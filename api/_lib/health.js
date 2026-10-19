@@ -18,12 +18,15 @@
  *   google        a token refresh, only when Google is connected
  *   sync          the automatic sync's storage (sync:<space>:n): how many paired spaces; skip without one
  *   push          the reminders: with a phone signed up, cron-job.org must have woken the server lately
+ *   tagesgrenze   Paket R: the daily cap (daycap.js). fail «cap_reached» when today or yesterday reached a cap
+ *                 (the server then said «tomorrow again»; nothing cost money), else today's calls of the total
  *
  * The answer is kept 10 minutes (health:last), so calling it often costs nothing and asks nobody.
  * A check that throws counts as fail with code 'error', never with the error's text.
  */
 import { pick, redis, redisEnv, REDIS_ENV } from './core.js';
 import * as helperLib from './helper.js';
+import { dayUsage, dayOf } from './daycap.js';
 
 export const CACHE_KEY = 'health:last';
 /** Set by api/helper.js (branch claude/project-thread-sfodh3) to 'empty' while Anthropic reports no credit. */
@@ -162,6 +165,14 @@ export function makeChecks({ cfg, store, doFetch, now }) {
       if (!last) return fail('push', 'no_tick', 'cron-job.org hat den Server noch nie geweckt.');
       const ago = now() - last;
       return ago > TICK_LATE_MS ? fail('push', 'tick_late', `Letzter Weckruf vor ${Math.round(ago / 60000)} Minuten.`) : ok('push', `${phones} Handy`);
+    },
+    tagesgrenze: async () => {
+      if (!store) return skip('tagesgrenze', 'no_storage');
+      const today = await dayUsage(store, dayOf(now()));
+      const before = await dayUsage(store, dayOf(now() - 86_400_000));
+      const hit = today.over.length ? today : before.over.length ? before : null;
+      if (hit) return fail('tagesgrenze', 'cap_reached', `Tagesgrenze erreicht am ${hit.day}: ${hit.over.join(', ')}. Der Server sagte «morgen wieder», es kostete nichts.`);
+      return ok('tagesgrenze', `${today.total} von ${today.limit} Aufrufen heute`);
     },
   };
 }

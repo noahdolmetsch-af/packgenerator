@@ -1,5 +1,8 @@
 <script>
   import { UNDO_MS } from '../lib/ui/undo.js';
+  import AlertLine from '../lib/clear/AlertLine.svelte';
+  import TipWeek from '../lib/clear/TipWeek.svelte';
+  import { WALL_TIME_KEY, byTime } from '../lib/clear/tipweek.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -37,6 +40,7 @@
    */
   import { equipmentRows, dueCare } from '../lib/maingear.js';
   import { todayNotes } from '../lib/notebook.js';
+  import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -131,11 +135,13 @@
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
-  import YearAgoTile from '../lib/home/YearAgoTile.svelte';
+  import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
   import { stampOf } from '../lib/abfragen.js';
+  import DataWidget from '../lib/wohl/DataWidget.svelte'; // Paket P «Daten-Widget» (Noah «2 beides»)
+  import PhotoGreeting from '../lib/wohl/PhotoGreeting.svelte'; // Paket P «Fotoalbum» (Noah «3a»): own photo on top
   import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
@@ -148,6 +154,10 @@
   import { quietHome } from '../lib/bedienung.svelte.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
+  import { MERKEN_KEY } from '../lib/merkendb.js';
+  import { LISTS_KEY } from '../lib/ownlists.js';
+  import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
+  import { unitsOf as trelloUnits } from '../lib/trello/client.svelte.js';
 
   /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -162,7 +172,7 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -362,7 +372,8 @@
     const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
     if (b && !isShortRide(tr)) {
-      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
+      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike' && !r.key.startsWith('bike:inspectQuick:'));
+      // the Kurzcheck before a tour (Velo-Inspektion) stays on Velopflege; it is no workshop step on the trip card
       service = { n: rows.length, late: rows.some((r) => r.late), href: bikesHash({ tab: 'care', bike: b.id, open: true }) };
     }
     return {
@@ -679,9 +690,23 @@
     for (const d of dueCare(equipmentRows(items, { trips: allTrips, log: $mainLogQ ?? [], today })).slice(0, 2)) rows.push({ key: `main:${d.row.item.id}:${d.care.id}`, tone: 'warn', text: t('{name}: {care}', { name: nameOf(d.row.item), care: t(d.care.name) }), act: { label: t('View|care'), href: `#/equipment?item=${encodeURIComponent(d.row.item.id)}` } });
     for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: stepHere(x).href, trip: x.id } });
     if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: stepHere(next).href, trip: next.id } });
+    // Trello (Noah 19.10.2026 «5a»): due cards of the Trello lists, one line (more than one: how many)
+    if (S[TRELLO_KEY]?.on) {
+      const due = dueInTrello(trelloUnits({ todos: S[MERKEN_KEY] ?? [], lists: S[LISTS_KEY] ?? [], prefs: S[TRELLO_KEY] }, t('To-dos')), today);
+      if (due.length) {
+        const one = due[0];
+        rows.push({ key: 'trello', tone: 'warn', text: due.length === 1 ? t('Trello: {text} ({list})', { text: one.item.text, list: one.unit.name }) : tn(due.length, '{n} Trello card due', '{n} Trello cards due'), act: { label: t('Open'), href: due.length === 1 && one.unit.kind === 'list' ? `#/calendar/list/${encodeURIComponent(one.unit.key)}` : '#/calendar' } });
+      }
+    }
     if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
     // v0.48.0 (Noah 17a): one line only for a pinned note with an open checklist.
     for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
+    // Paket N idea 3 (Noah 19.10.2026 «1-5 a»): the next step of a goal in Mein Kompass, one line; due → tick it here
+    if (compassStep) {
+      const { goal, step, due, late } = compassStep;
+      const text = t('Goal «{goal}»: {step}', { goal: goal.title, step: step.text }) + (late ? ` · ${t('since {day}', { day: shortDay(step.date) })}` : due ? '' : ` · ${shortDay(step.date)}`);
+      rows.push({ key: `compass:${step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => stepDone(goal.id, step.id) } : { label: t('My compass'), href: '#/me/compass' } });
+    }
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
@@ -693,6 +718,12 @@
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
     return rows.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
+  const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
+  async function stepDone(goalId, stepId) {
+    const before = compassOf(S[COMPASS_KEY]);
+    await db.settings.put({ key: COMPASS_KEY, value: setStepDone($state.snapshot(before), goalId, stepId, true) });
+    say(t('Step done.'), () => db.settings.put({ key: COMPASS_KEY, value: $state.snapshot(before) }));
+  }
   function rideDateTomorrow(day) {
     const d = new Date(`${day}T12:00:00`);
     d.setDate(d.getDate() + 1);
@@ -772,6 +803,9 @@
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, hiddenTiles), !!near)));
+  // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
+  const timeOn = $derived(S[WALL_TIME_KEY] !== false);
+  const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1061,10 +1095,13 @@
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
+  {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
+  {:else if x.id === 'tipweek'}<TipWeek used={tipUsed} />
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
+  {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
@@ -1072,7 +1109,8 @@
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
   {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
-  {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
+  <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
+  {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />
@@ -1083,6 +1121,8 @@
   {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
+  <!-- Paket P «Fotoalbum» (Noah 19.10.2026 «3a»): an own photo on top, only with photos in the album -->
+  {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
@@ -1134,6 +1174,8 @@
   {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
+  <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
+  {#if !editing}<AlertLine />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
   {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard && !maintHint && !hush}
     <p class="lphint" role="note" data-hint="longpress">
@@ -1143,7 +1185,7 @@
     </p>
   {/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
-  {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
@@ -1155,6 +1197,7 @@
         <label><span class="lbl">{t('Your name for the greeting')}</span><input class="inp" type="text" bind:value={nameIn} autocomplete="given-name" maxlength="40" /></label>
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
+      <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
     {:else if phone.matches}
       <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
@@ -1191,6 +1234,12 @@
 </dialog>
 
 <style>
+  .bytime {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: var(--sp-3);
+  }
   /* v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, a calm yellow line */
   .lphint {
     display: flex;

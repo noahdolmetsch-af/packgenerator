@@ -25,7 +25,7 @@ import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 import { route, json, ApiError, pick, redis, redisEnv, NO_STORAGE, API_BASE, APP_ORIGIN } from './_lib/core.js';
 import { KEYS, hash, bearer as bearerOf } from './_lib/oauth.js';
 import { newVapidKeys, vapidOk, sendPush } from './_lib/webpush.js';
-import { devKey, cleanSub, cleanList, nextAt, split, weatherReasons, forecastUrl, weatherMessage, KEEP_S } from './_lib/push.js';
+import { devKey, cleanSub, cleanList, nextAt, split, weatherReasons, forecastUrl, weatherMessage, KEEP_S, keepWatch, watchUrl, watchVerdict, watchNews, watchMessage, zurichDay, WATCH_EVERY_MS, keepRain, placeNow, rainUrl, rainSoon, rainMessage, RAIN_EVERY_MS, RAIN_QUIET_MS, airUrl, airVerdict, airText } from './_lib/push.js';
 
 /** Compare two codes in constant time (their hashes, so the length does not leak); empty never matches. */
 export function sameToken(given, want) {
@@ -146,17 +146,76 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
             keepWx.push(w);
             continue;
           }
-          const msg = weatherMessage(w, weatherReasons(data.daily, w.date, rec.hotC), rec.texts ?? {});
+          let msg = weatherMessage(w, weatherReasons(data.daily, w.date, rec.hotC), rec.texts ?? {});
+          // Paket G «Ozon und Pollen»: a strong day goes into the same morning message (or its own)
+          if (rec.air) {
+            const ar = await doFetch(airUrl(w)).catch(() => null);
+            const air = ar?.ok ? await ar.json().catch(() => null) : null;
+            const words = air ? airText(airVerdict(air.hourly, w.date, rec.air), rec.texts ?? {}) : '';
+            if (words) msg = msg ? { ...msg, body: `${msg.body} ${words}` } : { title: w.title || rec.texts?.title || 'Pack Generator', body: words, url: w.url, tag: w.key };
+          }
           if (!msg) continue; // fine weather: nothing to say
           const status = await send(rec.sub, msg, cfg.vapid, { doFetch, now: t }).catch(() => 0);
           if (status === 404 || status === 410) gone = true;
           else if (status >= 200 && status < 300) sent++;
           else keepWx.push(w);
         }
+      // Wetter-Wecker (Paket G): each planned tour twice a day until the day before; tell only news
+      const today = zurichDay(t);
+      const keepWatchList = [];
+      for (const w of rec.watch ?? []) {
+        if (w.date <= today) continue; // the tour day itself has the morning warning
+        if (gone || w.at > t) {
+          keepWatchList.push(w);
+          continue;
+        }
+        const res = await doFetch(watchUrl(w, today)).catch(() => null);
+        const data = res?.ok ? await res.json().catch(() => null) : null;
+        if (!data) {
+          keepWatchList.push({ ...w, at: t + 3600 * 1000 });
+          continue;
+        }
+        const { verdict, alt } = watchVerdict(data.daily, w, today);
+        const news = watchNews(w.last, verdict, alt, w.alt);
+        const msg = news && watchMessage(w, news, rec.texts ?? {});
+        if (msg) {
+          const status = await send(rec.sub, msg, cfg.vapid, { doFetch, now: t }).catch(() => 0);
+          if (status === 404 || status === 410) gone = true;
+          else if (status >= 200 && status < 300) sent++;
+        }
+        keepWatchList.push({ ...w, at: t + WATCH_EVERY_MS, last: verdict ?? w.last, alt: news?.alt ?? (verdict === 'good' ? null : w.alt) });
+      }
+      // Regen-Warnung unterwegs (Paket G): while riding, every 15 min the next 45 min at the expected place
+      const keepRainList = [];
+      for (const r of rec.rain ?? []) {
+        const last = r.points.at(-1);
+        if (t > last.at + 30 * 60 * 1000) continue; // the ride is over
+        if (gone || r.at > t) {
+          keepRainList.push(r);
+          continue;
+        }
+        const next = { ...r, at: t + RAIN_EVERY_MS };
+        const p = placeNow(r, t);
+        if (p && t - (r.warned ?? 0) >= RAIN_QUIET_MS) {
+          const res = await doFetch(rainUrl(p)).catch(() => null);
+          const data = res?.ok ? await res.json().catch(() => null) : null;
+          const minutes = data ? rainSoon(data.minutely_15) : null;
+          const msg = minutes ? rainMessage(r, minutes, rec.texts ?? {}) : null;
+          if (msg) {
+            const status = await send(rec.sub, msg, cfg.vapid, { doFetch, now: t }).catch(() => 0);
+            if (status === 404 || status === 410) gone = true;
+            else if (status >= 200 && status < 300) {
+              sent++;
+              next.warned = t;
+            }
+          }
+        }
+        keepRainList.push(next);
+      }
       if (gone) {
         await store.del(k);
         await store.cmd('SREM', DEVS, k);
-      } else await store.set(k, JSON.stringify({ ...rec, items: keepItems, weather: keepWx }), KEEP_S);
+      } else await store.set(k, JSON.stringify({ ...rec, items: keepItems, weather: keepWx, watch: keepWatchList, rain: keepRainList }), KEEP_S);
     }
     return { sent, next: await renext(store) };
   }
@@ -198,10 +257,13 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
           const sub = cleanSub(body.sub);
           if (!sub) throw new ApiError(400, 'bad_subscription', 'The phone subscription is missing.');
           const list = cleanList(body);
+          const prev = await read(store, k);
+          list.watch = keepWatch(list.watch, prev?.watch);
+          list.rain = keepRain(list.rain, prev?.rain);
           await store.set(k, JSON.stringify({ sub, ...list, updated: now() }), KEEP_S);
           await store.cmd('SADD', DEVS, k);
           const next = await renext(store);
-          return json(request, 200, { ok: true, items: list.items.length, weather: list.weather.length, next });
+          return json(request, 200, { ok: true, items: list.items.length, weather: list.weather.length, watch: list.watch.length, next });
         }
         if (body.a === 'test') {
           const rec = await read(store, k);

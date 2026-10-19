@@ -1,6 +1,6 @@
 # Alle Vorhaben in einer Liste
 
-Stand 19.10.2026, 18 Uhr UTC. Live ist 0.152.0. Diese Liste ist die Übersicht über alle Vorhaben; Einzelheiten stehen in der Ideen-Sammlung, auf «Mein Überblick» und in den Paket-Notizen. Noah, 19.10.2026: «1a 2a und b 3a und dann b 4a 5a».
+Stand 19.10.2026, 19:30 UTC. Live ist 0.154.0. Diese Liste ist die Übersicht über alle Vorhaben; Einzelheiten stehen in der Ideen-Sammlung, auf «Mein Überblick» und in den Paket-Notizen. Noah, 19.10.2026: «1a 2a und b 3a und dann b 4a 5a».
 
 **Stände:** «live» ist online. «gebaut» ist fertig und wartet auf das Zusammenführen. «im Bau» wird gerade gebaut. «gewünscht» heisst: Noah hat ja gesagt, gebaut ist noch nichts. «Idee» ist gesammelt, noch nicht entschieden. In eckigen Klammern steht das Paket. «(prüfen)» heisst: die Prüfung im Code war unsicher.
 
@@ -10,11 +10,11 @@ Stand 19.10.2026, 18 Uhr UTC. Live ist 0.152.0. Diese Liste ist die Übersicht �
 
 | Ziel | live | gebaut | im Bau | gewünscht | Idee |
 |---|---|---|---|---|---|
-| 1 Schneller packen | 42 | 2 | 0 | 8 | 7 |
-| 2 Das Velo im Griff | 27 | 0 | 0 | 3 | 3 |
-| 3 Von der Haustür bis zurück | 30 | 10 | 33 | 13 | 13 |
-| 4 Aus jeder Tour lernen | 21 | 1 | 0 | 3 | 11 |
-| 5 Alltag (seit 19.10.2026) | 120 | 36 | 1 | 16 | 26 |
+| 1 Schneller packen | 48 | 2 | 0 | 2 | 7 |
+| 2 Das Velo im Griff | 30 | 0 | 0 | 0 | 3 |
+| 3 Von der Haustür bis zurück | 50 | 2 | 33 | 1 | 13 |
+| 4 Aus jeder Tour lernen | 25 | 0 | 0 | 0 | 11 |
+| 5 Alltag (seit 19.10.2026) | 169 | 1 | 1 | 5 | 26 |
 
 ## 1. Schneller packen
 
@@ -22,12 +22,6 @@ Stand 19.10.2026, 18 Uhr UTC. Live ist 0.152.0. Diese Liste ist die Übersicht �
 
 | Vorhaben | Grösse | Nutzen |
 |---|---|---|
-| Start-Packlisten pro Art der Tour [H] (prüfen) | mittel | Jede Art von Tour startet mit einer passenden Liste. |
-| Bereichs-Umschalter und Teile «Überall» [H] (prüfen) | mittel | Stirnlampe und Powerbank gehören zu allen Bereichen. |
-| Weitere Excel-Wünsche [H] (prüfen) | mittel | Mehr aus deiner Excel-Liste fliesst in die App. |
-| Packliste vorlesen [H] | mittel | Beim Packen hast du die Hände frei. |
-| Tour als Kalender-Termin mit Packen-Erinnerung [G] | klein | Zwei Tage vorher erinnert dich dein Kalender ans Packen. |
-| Alltag- und Pack-Sterne [G] | klein | Sterne für Check-Serie, nichts vergessen und pünktlichen Service. |
 | Gepackte Teile rutschen unter «Schon gepackt» | klein | Beim Packen siehst du nur noch, was fehlt. |
 | Am Computer alle Taschen nebeneinander | mittel | Am grossen Bildschirm packst du alle Taschen auf einen Blick. |
 
@@ -45,21 +39,13 @@ Stand 19.10.2026, 18 Uhr UTC. Live ist 0.152.0. Diese Liste ist die Übersicht �
 
 **Gebaut, wartet aufs Zusammenführen:** Akku- und Powerbank-Rechner [H (Paket 4)] · Strombudget pro Mehrtagestour [H (Paket 4)]
 
-<details><summary>Schon live (42)</summary>
+<details><summary>Schon live (48)</summary>
 
-Packliste mit Taschen und Bereit-Check · Eigene Vorlagen aus Bausteinen · Kleider auf der Packliste tauschen · Bausteine neu und «Bausteine prüfen» · Erste Hilfe auf jeder Tour · KI-Helfer für Fragen, Liste, Rückblick · Testdaten aufräumen und Spielwiese · Fertige Liste mit «warum», Wetter, Outfit (prüfen) · Neue Tourarten und eigene Sportarten · Start-Listen für andere Sportarten (prüfen) · Material mit Gewicht und Wunschliste · Kleiderschrank nach Zone und Schicht · Excel-Import mit «Import prüfen» · Viele Teile auf einmal ändern · Material: Liste zuerst · Erster neuer Bereich: Skitouren · Bildschirm bleibt an beim Packen und Unterwegs · Kurzes Vibrieren beim Abhaken · Link «Anleitung des Herstellers» beim Material · Wunschliste: «Im Shop ansehen» · Material: Reparieren mit iFixit · Rigs von bikepacking.com als Startpunkt · Schnellstart: ein Klick plant Tour bis 2,5 Std. · Schnellstart-Name ist Datum und Uhrzeit · Name beim Antippen ganz markiert · Tagestour mit einem Tipp · Start-Packlisten (prüfen) · Reisearten neu (7) · Mehrfachauswahl · App einfacher: Material-Liste zuerst (prüfen) · «ID und Cash dabei?» in der Packliste · Packliste als PDF oder drucken · Gewichts-Sparer aus deinen Gewichten · Kein Suchtreffer: als neues Teil vorschlagen · Eine Einkaufsliste für Teile und Essen (prüfen) · Packliste mit Begleitung teilen · Taschen-Setups pro Velo · Skitour: Saisonstart-Check vor dem ersten Tag · Material-Suche ohne Einfrieren am Handy · Zuletzt gewählte Tour und Velo bleiben überall · Langes Wischen in Material fragt zuerst · Lang drücken auf ein Teil: kaputt
+Packliste mit Taschen und Bereit-Check · Eigene Vorlagen aus Bausteinen · Kleider auf der Packliste tauschen · Bausteine neu und «Bausteine prüfen» · Erste Hilfe auf jeder Tour · KI-Helfer für Fragen, Liste, Rückblick · Testdaten aufräumen und Spielwiese · Start-Packlisten pro Art der Tour · Fertige Liste mit «warum», Wetter, Outfit (prüfen) · Neue Tourarten und eigene Sportarten · Start-Listen für andere Sportarten (prüfen) · Material mit Gewicht und Wunschliste · Kleiderschrank nach Zone und Schicht · Excel-Import mit «Import prüfen» · Viele Teile auf einmal ändern · Material: Liste zuerst · Bereichs-Umschalter und Teile «Überall» · Erster neuer Bereich: Skitouren · Weitere Excel-Wünsche · Bildschirm bleibt an beim Packen und Unterwegs · Packliste vorlesen · Kurzes Vibrieren beim Abhaken · Tour als Kalender-Termin mit Packen-Erinnerung · Link «Anleitung des Herstellers» beim Material · Wunschliste: «Im Shop ansehen» · Material: Reparieren mit iFixit · Rigs von bikepacking.com als Startpunkt · Alltag- und Pack-Sterne · Schnellstart: ein Klick plant Tour bis 2,5 Std. · Schnellstart-Name ist Datum und Uhrzeit · Name beim Antippen ganz markiert · Tagestour mit einem Tipp · Start-Packlisten (prüfen) · Reisearten neu (7) · Mehrfachauswahl · App einfacher: Material-Liste zuerst (prüfen) · «ID und Cash dabei?» in der Packliste · Packliste als PDF oder drucken · Gewichts-Sparer aus deinen Gewichten · Kein Suchtreffer: als neues Teil vorschlagen · Eine Einkaufsliste für Teile und Essen (prüfen) · Packliste mit Begleitung teilen · Taschen-Setups pro Velo · Skitour: Saisonstart-Check vor dem ersten Tag · Material-Suche ohne Einfrieren am Handy · Zuletzt gewählte Tour und Velo bleiben überall · Langes Wischen in Material fragt zuerst · Lang drücken auf ein Teil: kaputt
 
 </details>
 
 ## 2. Das Velo im Griff
-
-### Gewünscht, noch nicht gebaut
-
-| Vorhaben | Grösse | Nutzen |
-|---|---|---|
-| Velo-Daten geschützt bei neuen Bereichen [H] (prüfen) | klein | Deine Velo-Daten bleiben sauber, wenn Neues dazukommt. |
-| Strava-Fahrten zählen für Velo-Sterne [G] | klein | Deine Strava-km im Jahr bringen dir Velo-Sterne. |
-| Standard-Teilevorlage für jedes Velo [I] (prüfen) | mittel | Jedes Velo startet mit denselben Teilegruppen und 12 Geometrie-Werten. |
 
 ### Ideen, noch nicht entschieden
 
@@ -69,9 +55,9 @@ Packliste mit Taschen und Bereit-Check · Eigene Vorlagen aus Bausteinen · Klei
 | Indoor-Velo zählt aufs Velo [G] (prüfen) | klein | Rollen-km zählen für Pflege und Ziele des Velos. |
 | Werkstatt-Spick offline: Drehmomente, Pannenhilfe [I] | mittel | Bei einer Panne unterwegs weisst du, was tun. |
 
-<details><summary>Schon live (27)</summary>
+<details><summary>Schon live (30)</summary>
 
-Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werkstatt · Velos mit Teilen und «Jetzt fällig» · Velo-Masse pro Velo · Fahrten-Buch pro Velo mit Import · Velo-Blätter: Pass, Service, Garantie · Wartungsvorschläge vom Helfer · Ausstattung mit Gewicht und Preis · Alte Strava-Fahrten nie doppelt · Kurze Velo-Seite · Strava automatisch ohne Datei · Velopflege: Anleitung bei Park Tool · Velos: Hersteller und Garantie · Velopflege: Link zum Werkstatt-Termin · Garmin-Seiten pro Velo ablegen · Abhol-Check-Werte direkt im Velo-Pass · «Wie vorher» nimmt Wert vom letzten Werkstattbesuch (prüfen) · Reifendruck-Helfer nach Gewicht und Breite · Kosten pro Einsatz · Garantie und Rückgabe mit Erinnerung · Reifendruck-Rechner · Velo-Pass bei Diebstahl als PDF · Kette messen mit Verlauf und Prognose · Garmin-Seiten auch für Edge 850 (prüfen) · Ausrüstung als eigener Ort · Neue Tour nimmt das Standard-Velo · Mehrseitige Belege mit «Weitere Seite»
+Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werkstatt · Velos mit Teilen und «Jetzt fällig» · Velo-Masse pro Velo · Fahrten-Buch pro Velo mit Import · Velo-Blätter: Pass, Service, Garantie · Wartungsvorschläge vom Helfer · Ausstattung mit Gewicht und Preis · Alte Strava-Fahrten nie doppelt · Kurze Velo-Seite · Velo-Daten geschützt bei neuen Bereichen · Strava automatisch ohne Datei · Velopflege: Anleitung bei Park Tool · Velos: Hersteller und Garantie · Velopflege: Link zum Werkstatt-Termin · Garmin-Seiten pro Velo ablegen · Abhol-Check-Werte direkt im Velo-Pass · «Wie vorher» nimmt Wert vom letzten Werkstattbesuch (prüfen) · Reifendruck-Helfer nach Gewicht und Breite · Strava-Fahrten zählen für Velo-Sterne · Kosten pro Einsatz · Garantie und Rückgabe mit Erinnerung · Reifendruck-Rechner · Velo-Pass bei Diebstahl als PDF · Standard-Teilevorlage für jedes Velo · Kette messen mit Verlauf und Prognose · Garmin-Seiten auch für Edge 850 (prüfen) · Ausrüstung als eigener Ort · Neue Tour nimmt das Standard-Velo · Mehrseitige Belege mit «Weitere Seite»
 
 </details>
 
@@ -81,18 +67,6 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 
 | Vorhaben | Grösse | Nutzen |
 |---|---|---|
-| Knopf «Take me home» [K] | klein | Ein Tipp zeigt dir unterwegs den schnellsten Weg heim. |
-| Nächster Zug nach Hause direkt in der App [K] | gross | Du siehst unterwegs sofort, wann der letzte Zug heim fährt. |
-| Querformat am Lenker mit grossen Zahlen [K] | mittel | Am Velo liest du die wichtigsten Zahlen quer und gross. |
-| Nullgradgrenze und Neuschnee im Tour-Entwurf [J] | mittel | Du planst Skitouren mit Schnee und Kälte im Blick. |
-| swisstopo-Ebenen Hangneigung und Skitouren [J] | klein | Steile Hänge sind auf der Karte sofort sichtbar. |
-| Hör-Tipp pro Tourart im Bereit-Check [K] | klein | Dein Podcast oder deine Playlist ist vor der Fahrt mit einem Tipp da. |
-| Bereit für heute? Hinweis aus Schlaf und Fahrten [K] | mittel | Vor der Tour siehst du ruhig, ob eher kürzer besser ist. |
-| Handschuh-Modus mit grossen Knöpfen [K] | mittel | Die App geht auch mit Handschuhen im Winter. |
-| Ess-Erinnerung während der Fahrt [K] | mittel | Erinnert alle 45 Minuten ans Essen, damit die Kraft nicht einbricht. |
-| QR-Code für Notfall-Karte oder Packliste [J] | klein | Helfer sehen deine Notfalldaten mit einem Scan. |
-| GPX in FIT oder KML umwandeln [K] | mittel | Route passt auf jedes Gerät. |
-| Kompass und Höhe offline [J] | mittel | Orientierung auch ohne Netz. |
 | Gestaltung B: gezeichnete Landschaft im Tourkopf | mittel | Tourseiten wirken persönlicher und sind leichter zu erkennen. |
 
 ### Ideen, noch nicht entschieden
@@ -115,23 +89,15 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 
 **Im Bau:** Renn-Zeitplan: Zielzeit, km pro Tag, Checkpoints [U] · Versorgungs-Karte entlang der Route [U] · Schlaf-Plan pro Nacht [U] · Pflichtmaterial-Check aus den Rennregeln [U] · Wetter entlang der Route nach Zeitplan [U] · Stopp-Analyse aus Strava [U] · Generalprobe und Countdown [U] · Ausstiegs-Punkte mit Zug nach Hause [U] · Komfort-Check Nacht für den Schlafsack [U] · Ess-Protokoll im Rennen [U] · Rig-Vergleich: Gewicht und Volumen [U] · Länder-Info: Notruf, Währung, Steckdose [U] · Licht-Plan gegen Lampen-Akku [U] · Kontaktpunkte-Log nach Etappe [U] · Erholung nach dem Rennen (Beobachtung) [U] · Gleiches Rennen Jahr für Jahr [U] · Renn-Modus: schlichte, stromsparende Ansicht [U] · Weiterfahren oder schlafen? Gegenüberstellung [U] · Trockenstrecken und Flaschenbedarf [U] · Anstiege nach Tageszeit [U] · Drop-Bags: Ort, Inhalt, Öffnungszeiten [U] · Velo-Check nach dem Rennen [U] · Mein Warum für Tiefs [U] · Renn-Bericht als PDF [U] · Strategie-Rechner mit Tab «Plan» und Szenarien [U] · Muster-Rennen mit Rundgang [U] · 40 Vorschlagskarten zum Rennen [U] · Rennkarte mit Ebenen und eigenen Punkten [U] · Seite «Anstiege» [U] · Offline-Karte entlang der Route [U] · Reise-Links: Unterkunft, Flug, Zug, Infos [Andere Apps] · Live-Tracking teilen [Andere Apps] · Seite «Reise-Links» [Andere Apps]
 
-**Gebaut, wartet aufs Zusammenführen:** Währungen umrechnen [L] · Abenteuer-Kompass mit Wunschliste [N] · Fehlende Knöpfe im Ablauf ergänzen [Q] · Werkzeugkasten unterwegs: Rechner, Kompass, Kosten teilen [L] · Jahresplan mit Saisonfenstern für Wunsch-Touren [N] · Wichtige Sätze offline übersetzen [L] · Tour-Kosten teilen: wer hat was bezahlt [L] · Aus einem Rennen eine Event-Tour planen [N] · Haus-Check vor der Abfahrt [K (Paket 4)] · KI «Bereit für morgen?» [K (Paket 4)]
+**Gebaut, wartet aufs Zusammenführen:** Haus-Check vor der Abfahrt [K (Paket 4)] · KI «Bereit für morgen?» [K (Paket 4)]
 
-<details><summary>Schon live (30)</summary>
+<details><summary>Schon live (50)</summary>
 
-Weiter-Knöpfe und Schrittleiste · Touren als Kacheln nach Zustand · Ort «Ideen» mit Karten und Links · Wetter mit Kleidervorschlag · Anreise-Knöpfe SBB, Auto, Karte · swisstopo-Karte, Höhenprofil, Wetterkarten · Starker Kontrast für die Sonne · Inspiration: Ideen, Links und Start-Packlisten · Bündel «Sportarten» · Bündel «Links nach aussen» · Erinnerungen aufs Handy (Web-Push) · Touren planen: MeteoSchweiz und SBB · Skitour: Lawinenbulletin des SLF · Touren planen: swisstopo-Karte · Unterwegs: Veloladen in der Nähe · Touren planen: SchweizMobil · Unterwegs: Wind bei Windy · Neue Sportarten-Liste · Wandern: Wasser, ÖV-Rückweg, Schuh-km, Umkehrzeit · Skitour-Platzhalter füllen · Karten und Wetter für Skitour · SBB in der App (prüfen) · Wetterfenster: bester Tag der nächsten 7 · Sonne und Licht: Zeit bis zur Dunkelheit (prüfen) · GPX-Profil ohne Strava · Wetter-Warnung für den Tourtag · Velo im SBB-Zug: Reservation und Link (prüfen) · Planungs-Notizen im Tour-Entwurf · Heute-Regeln: Packen bis gepackt, Rot zuoberst · Geplant zeigt 3 Touren, Schnellstart eine Zeile
+Währungen umrechnen · Weiter-Knöpfe und Schrittleiste · Touren als Kacheln nach Zustand · Ort «Ideen» mit Karten und Links · Abenteuer-Kompass mit Wunschliste · Fehlende Knöpfe im Ablauf ergänzen · Wetter mit Kleidervorschlag · Anreise-Knöpfe SBB, Auto, Karte · Knopf «Take me home» · swisstopo-Karte, Höhenprofil, Wetterkarten · Nächster Zug nach Hause direkt in der App · Querformat am Lenker mit grossen Zahlen · Starker Kontrast für die Sonne · Inspiration: Ideen, Links und Start-Packlisten · Werkzeugkasten unterwegs: Rechner, Kompass, Kosten teilen · Bündel «Sportarten» · Bündel «Links nach aussen» · Nullgradgrenze und Neuschnee im Tour-Entwurf · swisstopo-Ebenen Hangneigung und Skitouren · Erinnerungen aufs Handy (Web-Push) · Touren planen: MeteoSchweiz und SBB · Skitour: Lawinenbulletin des SLF · Touren planen: swisstopo-Karte · Unterwegs: Veloladen in der Nähe · Touren planen: SchweizMobil · Unterwegs: Wind bei Windy · Neue Sportarten-Liste · Wandern: Wasser, ÖV-Rückweg, Schuh-km, Umkehrzeit · Hör-Tipp pro Tourart im Bereit-Check · Skitour-Platzhalter füllen · Karten und Wetter für Skitour · SBB in der App (prüfen) · Bereit für heute? Hinweis aus Schlaf und Fahrten · Wetterfenster: bester Tag der nächsten 7 · Handschuh-Modus mit grossen Knöpfen · Ess-Erinnerung während der Fahrt · Jahresplan mit Saisonfenstern für Wunsch-Touren · QR-Code für Notfall-Karte oder Packliste · GPX in FIT oder KML umwandeln · Sonne und Licht: Zeit bis zur Dunkelheit (prüfen) · Kompass und Höhe offline · Wichtige Sätze offline übersetzen · Tour-Kosten teilen: wer hat was bezahlt · GPX-Profil ohne Strava · Wetter-Warnung für den Tourtag · Velo im SBB-Zug: Reservation und Link (prüfen) · Planungs-Notizen im Tour-Entwurf · Heute-Regeln: Packen bis gepackt, Rot zuoberst · Aus einem Rennen eine Event-Tour planen · Geplant zeigt 3 Touren, Schnellstart eine Zeile
 
 </details>
 
 ## 4. Aus jeder Tour lernen
-
-### Gewünscht, noch nicht gebaut
-
-| Vorhaben | Grösse | Nutzen |
-|---|---|---|
-| 3 Beobachtungen pro Woche mit Diagrammen [M] | mittel | Lernt aus deinen Daten, ohne selbst zu rechnen. |
-| «Offene Rückblicke» oben, «In Zahlen» zugeklappt [M] (prüfen) | klein | Was noch zu besprechen ist, steht zuerst, die Zahlen stören nicht. |
-| Chronik-Karte statt «Vor einem Jahr» [M] | mittel | Eine Karte zeigt, was du an diesem Tag und Monat früher erlebt hast. |
 
 ### Ideen, noch nicht entschieden
 
@@ -149,11 +115,9 @@ Weiter-Knöpfe und Schrittleiste · Touren als Kacheln nach Zustand · Ort «Ide
 | Neuland: «Was war neu?» nach jeder Tour [M] | mittel | Nach jeder Tour wird sichtbar, was du zum ersten Mal erlebt hast. |
 | Neuland: Kantonskarte und Bingo [M] | gross | Eine Karte und ein Bingo zeigen, welche Kantone und Gegenden noch fehlen. |
 
-**Gebaut, wartet aufs Zusammenführen:** Ausgaben pro Tour in Franken [L]
+<details><summary>Schon live (25)</summary>
 
-<details><summary>Schon live (21)</summary>
-
-Fahrt hochladen (GPX) · Logbuch mit Tempo · Rückblick: Ungebrauchtes antippen · Learnings wirken als Regeln beim Packen (prüfen) · Zähler «so oft um die Erde» und Everesting · Rückblick: «In Strava/komoot öffnen» · Rückblick: eigener Link zum Fotoalbum · Puls pro Fahrt mit Strava · Gleiche Strecke, anderer Tag, mit Puls · Learning vor dem Packen · Fussabdruck: gesparte CO2-km pro Jahr · Rückblick «Fehlte etwas?» legt Teil an (prüfen) · Gelernte Regeln sehen, ändern, ausschalten (prüfen) · Training mit Leistung, Zonen und Wochenrückblick · Gipfelbuch für alle Sportarten mit Vitrine · Aktiv mit Ziel-Prognose und Erholung · Strava-Fahrten auf der Touren-Seite · Neuer Look «Deine Fahrten» · Touren-Liste: zuerst 20, dann «Noch zeigen» · Vergangene Tour: «Bist du gefahren?» · Testtouren nur mit Schalter verstecken
+Fahrt hochladen (GPX) · Logbuch mit Tempo · Rückblick: Ungebrauchtes antippen · Learnings wirken als Regeln beim Packen (prüfen) · Zähler «so oft um die Erde» und Everesting · Rückblick: «In Strava/komoot öffnen» · Rückblick: eigener Link zum Fotoalbum · Puls pro Fahrt mit Strava · Gleiche Strecke, anderer Tag, mit Puls · Learning vor dem Packen · Fussabdruck: gesparte CO2-km pro Jahr · 3 Beobachtungen pro Woche mit Diagrammen · Rückblick «Fehlte etwas?» legt Teil an (prüfen) · Gelernte Regeln sehen, ändern, ausschalten (prüfen) · Ausgaben pro Tour in Franken · «Offene Rückblicke» oben, «In Zahlen» zugeklappt · Training mit Leistung, Zonen und Wochenrückblick · Gipfelbuch für alle Sportarten mit Vitrine · Aktiv mit Ziel-Prognose und Erholung · Chronik-Karte statt «Vor einem Jahr» · Strava-Fahrten auf der Touren-Seite · Neuer Look «Deine Fahrten» · Touren-Liste: zuerst 20, dann «Noch zeigen» · Vergangene Tour: «Bist du gefahren?» · Testtouren nur mit Schalter verstecken
 
 </details>
 
@@ -163,22 +127,11 @@ Fahrt hochladen (GPX) · Logbuch mit Tempo · Rückblick: Ungebrauchtes antippen
 
 | Vorhaben | Grösse | Nutzen |
 |---|---|---|
-| Seetemperatur Zürichsee als Verlauf [G] | mittel | Du siehst, ob der See schon warm genug zum Baden ist. |
-| Import für neue Bereiche, Vorrat mit Ablauf [H] | mittel | Du weisst, was bald abläuft und was du nachkaufen musst. |
-| Termine als .ics hinein und hinaus [G] (prüfen) | klein | Eine Tour landet mit einem Tipp in deinem Kalender. |
-| Lese-Link für deinen Handy-Kalender [G] | mittel | Dein Handy-Kalender zeigt die App-Termine von selbst. |
-| Aktivitätsmosaik über alle Sportarten mit Zielen [O] | mittel | Zeigt auf einen Blick, wie viel du in allen Sportarten und mit Meditation machst. |
-| App gratis, «Pro» einmalig 29 CHF [R] | mittel | Die App könnte etwas Geld einbringen, ohne Abo. |
-| Liste von Velomechs und Guides, Anfrage per Mail [R] | klein | Du findest Profis in einer Liste und fragst per Mail an, ohne Anteil und ohne Teilen. |
-| Eine Farbe pro Sportart [O] | mittel | Du unterscheidest Sportarten in Listen und Kalender auf einen Blick. |
-| Seite «Verbindungen» unter Ich [G] | mittel | Du siehst alle Anschlüsse und ihren Datenstand an einem Ort. |
-| Strava hakt Wandern, Laufen, Skitour selbst ab [G] | mittel | Deine Aktiv-Ziele füllen sich von selbst. |
-| Fitbit-Achtsamkeit ins Meditations-Protokoll [G] | mittel | Alte Meditationen sind nicht verloren. |
-| Fitbit-Trainings wie Tennis als Aktiv-Verlauf [G] | mittel | Auch alte Trainings anderer Sportarten zählen. |
-| Fitbit-Sterne nur als Beobachtung [G] | klein | Schritte, Aktivzonen und Schlaf zeigen sich als Sterne. |
-| Daten-Widget mit km, Wetter, Schlaf, HRV [P] | mittel | Die wichtigsten Werte auf einen Blick. |
 | Formulare auch für Tour und Rechnung | mittel | Neue Tour und neue Rechnung funktionieren wie alle anderen Fenster. |
 | Seiten-Kacheln mit Links am Seitenende | mittel | Die wichtigsten Links liegen sortiert nach Nutzung am Ende jeder Seite. |
+| Alltags-Einkaufsliste (mit oder getrennt vom Tour-Einkauf, umschaltbar) | M | Ein Zettel für den Alltag; Rezept-Zutaten (Freie Zeit) landen auch dort |
+| Verträge und Abos unter Dokumente mit Kündigungsfrist und Erinnerung | M | Keine Frist verpassen, Überblick über laufende Kosten |
+| «Lange nicht gesehen»: leise Erinnerung an selbst eingetragene Menschen | S | Kontakt halten ohne Druck; keine echten Namen im Repo |
 
 ### Ideen, noch nicht entschieden
 
@@ -213,11 +166,11 @@ Fahrt hochladen (GPX) · Logbuch mit Tempo · Rückblick: Ungebrauchtes antippen
 
 **Im Bau:** Anleitungen überall [Anleitungen]
 
-**Gebaut, wartet aufs Zusammenführen:** Werkzeugkasten mit kleinen Helfern (PDF, Fotos) [L] · Rechner in der App [L] · Masse umrechnen ohne Internet [L] · Notizen suchen, verknüpfen, auswerten [N] · Projekt-Ablage als Seite in der App [N] · Kachel-Wand Teil 2: Tipp der Woche, Wände [Q] · Versteckte Funktionen nach vorn holen [Q] · Ablage für wichtige Links [L] · Kleine Dateien ablegen [L] · Ruhige Offline-Zeile oben [Q] · Fehlermeldungen in Alltagssprache mit nächstem Schritt [Q] · Sicherung mit Passwort verschlüsseln [Q] · Jährlich fragen «Stimmt das noch?» [Q] · Wiedereinstieg nach langer Pause [Q] · Nachrichten oder News-Feed [Q] · Leer-Texte pro Seite mit erstem Knopf [Q] · PDF verkleinern, zusammenfügen, teilen [L] · Fotos verkleinern, zuschneiden, freistellen [L] · Zeitzonen [L] · Text aus Foto lesen: Betrag und Datum [L] · Neue Ablagen: Vorsätze, Träume, To remember [N] · Cockpit-Helfer: Ideen sammeln und ordnen [N] · Leere Stellen zeigen eigene Inhalte [Q] · Vorschläge pro Bereich an oder aus [Q] · «Hilf mir planen»: Ziel wird zu Schritten [N] · Wasserwaage [L] · Übersetzungs-Rechner [L] · Strichcode wird Material [L] · QR-Code erstellen [L] · Lupe und Taschenlampe [L] · Bildformat ändern [L] · Video verkleinern [L] · Strecke messen [L] · «Passt gerade» im Werkzeugkasten [L] · Werkzeug-Ketten [L] · Wohnungs-Hüter-Liste zum Teilen [K (Paket 4)]
+**Gebaut, wartet aufs Zusammenführen:** Wohnungs-Hüter-Liste zum Teilen [K (Paket 4)]
 
-<details><summary>Schon live (120)</summary>
+<details><summary>Schon live (169)</summary>
 
-Routine «Das tut mir gut» auf Heute · Kachel «Heute baden oder Sauna?» · Vorschläge zum Wählen und als Challenge · Reise-Dokumente als PDF mit Ablauf-Erinnerung · Widget Woche mit km, Wetter, Serien (prüfen) · Eingang und Notizen · Aktiv als eigener Ort mit Zielen · Aktivität und Meilensteine · Meditation: Protokoll und Auswertung · Meditation einfach starten · Meditation: Vorlagen und vier Uhren · Hobby-Seiten: Tennis, Yoga, Gym und mehr (prüfen) · Fitbit: Ruhepuls, HRV, Schlaf · Morgen-Ritual und Tages-Check · Foto weg von der Startseite · Fünf Orte und «Ich» oben rechts · Einfach-Muster überall · Kachel-Wand auf Heute · Release-Info «Was ist neu» · Alles finden: Suche und «Was die App kann» · Timer auf Heute mit Log · Merken: zuerst deine To-dos · Google Kalender in beide Richtungen (prüfen) · Kamera-Knopf direkt bei Notiz, Material und Velo · «Wusstest du»-Sätze in der Tipp-Zeile mit Schalter · Sätze nur bei passendem Wetter oder Anlass · Eigene Packlisten oder Tourenpläne verkaufen · Touren oder Velo-Service buchen lassen · Gratis-Code für Freunde · Weiter, wo du warst · Farbe nie allein, immer mit Zeichen · Kurze Erklärung mit «?» direkt am Feld · Passende Handy-Tastatur in Zahlenfeldern · Suche kann auch handeln · Startort wählbar: Heute, Packen oder Aktiv · Wichtige Knöpfe in der Daumen-Zone · Schriftgrösse in der App wählbar · Tastatur-Kürzel am Computer · Ruhemodus nachts ab 22 Uhr · Graue Platzhalter beim Nachladen · Mikrofon-Knopf in Notizfeldern · Speicher fest anfordern · Hinweis «letzte Sicherung vor x Tagen» · Automatische Sicherung vor jedem Update · Monatlicher Wartungs-Check der App · Gratis-Grenzen im Blick · Fehler melden mit einem Tipp · Daten-Zentrale mit allen Werten (prüfen) · To-do-Listen unter «Merken» · Notizen und Planungs-Notizen · Bündel «Klar und ruhig» · Google Kalender auf Heute · Bilder und PDFs per «Teilen» annehmen · Handy liest neueste Sicherung aus dem Drive · Aktiv: Strava und GotCourts · Im Flow: «Meine Musik» · Gewicht einmal pro Woche abfragen · «Deine Abfragen» mit eigenen Fragen und Intervallen · Tennis: Saiten-Stunden bis neu bespannen · Laufen: Schuh-km mit Ersatz-Hinweis · Für Claude kopieren · Gleiche Ideen nach festen Regeln ohne KI (prüfen) · Chrome-KI lokal am Computer · Tipps «Gut zu wissen» pro Seite (prüfen) · Fitbit-Nacht neben Schlaf-Gefühl im Morgen-Check · Vitrine mit allen Sternen nach Jahr und Bereich · Meditations- und Timer-Sterne · Kachel-Grösse auf Heute ändern · Grösse finden: Hinweis und lange drücken · Ring-Kachel mit mehreren Grössen (prüfen) · Google Health Rest (prüfen) · KI-Helfer einschalten · Merken und Agenda · Excel-Import · Timer Z1 bis Z5 · Freigaben-Prüfung: 9 Abweichungen klären · Daten-Zentrale als eigener Ort und Kachel · Fitbit, Garmin und Strava an einem Ort · Gesundheitsdaten von Fitbit holen · Bildschirmzeit pro Woche eintippen (prüfen) · Tages-Check neu: Morgen, Abend, neue Fragen · Routine «Das tut mir gut» als Kachel · Kachel «Heute baden oder Sauna?» · Jeder Vorschlag wählbar und als Challenge · Dokumente als eigener Ort · Erinnerung vor Ablauf eines Dokuments · Timer mit Log und wählbaren Zifferblättern · Pass oder Beleg als PDF scannen · Alles an die App schicken (Teilen) · App schlägt eine Ablage vor · Haupt-Ausrüstung pro Sportart mit Pflege · Seite «Einstellungen» unter Ich · Morgens auf einen Blick: Schlaf, Wetter, To-dos (prüfen) · Automatisch sichern bei Handy-Verlust · Computer und Handy abgleichen · Geburtstage und Pflanzen · Woche planen: Mo–So mit Sonntags-Planung · Meditation-Kachel hakt mit einem Tipp ab · Assistent «Frag die App» mit KI-Deckel · KI leer: Felder verschwinden von selbst · Google Aufgaben in der App lesen · Gmail in der App lesen und beantworten · Bezahl-Erinnerung nur unter Ich › Bezahlen · TWINT-Zahlung per Teilen aus Rechnungen · Handy kurz: lange Seiten zugeklappt · Gruppen überall umbenennen und löschen · Alles selbst anlegen, umbenennen, löschen · Check-ins als Fenster mit «Später» und «Heute nicht» · Ruhige Bewegungen beim Abhaken und Öffnen · Einheitliche Formulare, Fehler direkt am Feld · Löschen mit Frage, Archiv und 4 s Rückgängig · Seiten später laden, Offline-Start sichern · Google-Login stört alter Service Worker nicht mehr · Rundgang durch die App · Einstieg und «Was hier steht» als eine Karte · Woche ersetzt Material in der Handy-Leiste · Fenster zuerst zu, Getipptes bleibt · «Alle Daten ersetzen» mit Frage und Auto-Backup · Zurück-Weg überall als Pfad «Ich › …» · Bedienregeln: Blatt von unten, 4 s Rückgängig, Tabs (prüfen)
+Routine «Das tut mir gut» auf Heute · Kachel «Heute baden oder Sauna?» · Werkzeugkasten mit kleinen Helfern (PDF, Fotos) · Vorschläge zum Wählen und als Challenge · Reise-Dokumente als PDF mit Ablauf-Erinnerung · Rechner in der App · Masse umrechnen ohne Internet · Seetemperatur Zürichsee als Verlauf · Notizen suchen, verknüpfen, auswerten · Widget Woche mit km, Wetter, Serien (prüfen) · Eingang und Notizen · Import für neue Bereiche, Vorrat mit Ablauf · Aktiv als eigener Ort mit Zielen · Aktivität und Meilensteine · Meditation: Protokoll und Auswertung · Meditation einfach starten · Meditation: Vorlagen und vier Uhren · Hobby-Seiten: Tennis, Yoga, Gym und mehr (prüfen) · Fitbit: Ruhepuls, HRV, Schlaf · Morgen-Ritual und Tages-Check · Projekt-Ablage als Seite in der App · Foto weg von der Startseite · Fünf Orte und «Ich» oben rechts · Einfach-Muster überall · Kachel-Wand auf Heute · Kachel-Wand Teil 2: Tipp der Woche, Wände · Release-Info «Was ist neu» · Alles finden: Suche und «Was die App kann» · Versteckte Funktionen nach vorn holen · Timer auf Heute mit Log · Merken: zuerst deine To-dos · Ablage für wichtige Links · Termine als .ics hinein und hinaus · Lese-Link für deinen Handy-Kalender · Kleine Dateien ablegen · Google Kalender in beide Richtungen (prüfen) · Aktivitätsmosaik über alle Sportarten mit Zielen · Kamera-Knopf direkt bei Notiz, Material und Velo · «Wusstest du»-Sätze in der Tipp-Zeile mit Schalter · Sätze nur bei passendem Wetter oder Anlass · App gratis, «Pro» einmalig 29 CHF · Eigene Packlisten oder Tourenpläne verkaufen · Touren oder Velo-Service buchen lassen · Liste von Velomechs und Guides, Anfrage per Mail · Gratis-Code für Freunde · Weiter, wo du warst · Farbe nie allein, immer mit Zeichen · Kurze Erklärung mit «?» direkt am Feld · Passende Handy-Tastatur in Zahlenfeldern · Suche kann auch handeln · Startort wählbar: Heute, Packen oder Aktiv · Eine Farbe pro Sportart · Wichtige Knöpfe in der Daumen-Zone · Schriftgrösse in der App wählbar · Ruhige Offline-Zeile oben · Fehlermeldungen in Alltagssprache mit nächstem Schritt · Tastatur-Kürzel am Computer · Ruhemodus nachts ab 22 Uhr · Graue Platzhalter beim Nachladen · Mikrofon-Knopf in Notizfeldern · Speicher fest anfordern · Hinweis «letzte Sicherung vor x Tagen» · Sicherung mit Passwort verschlüsseln · Automatische Sicherung vor jedem Update · Jährlich fragen «Stimmt das noch?» · Monatlicher Wartungs-Check der App · Gratis-Grenzen im Blick · Fehler melden mit einem Tipp · Wiedereinstieg nach langer Pause · Daten-Zentrale mit allen Werten (prüfen) · To-do-Listen unter «Merken» · Notizen und Planungs-Notizen · Nachrichten oder News-Feed · Bündel «Klar und ruhig» · Seite «Verbindungen» unter Ich · Strava hakt Wandern, Laufen, Skitour selbst ab · Fitbit-Achtsamkeit ins Meditations-Protokoll · Fitbit-Trainings wie Tennis als Aktiv-Verlauf · Google Kalender auf Heute · Bilder und PDFs per «Teilen» annehmen · Handy liest neueste Sicherung aus dem Drive · Aktiv: Strava und GotCourts · Im Flow: «Meine Musik» · Gewicht einmal pro Woche abfragen · «Deine Abfragen» mit eigenen Fragen und Intervallen · Tennis: Saiten-Stunden bis neu bespannen · Laufen: Schuh-km mit Ersatz-Hinweis · Für Claude kopieren · Gleiche Ideen nach festen Regeln ohne KI (prüfen) · Chrome-KI lokal am Computer · Tipps «Gut zu wissen» pro Seite (prüfen) · Leer-Texte pro Seite mit erstem Knopf · Fitbit-Nacht neben Schlaf-Gefühl im Morgen-Check · Vitrine mit allen Sternen nach Jahr und Bereich · Fitbit-Sterne nur als Beobachtung · Meditations- und Timer-Sterne · Kachel-Grösse auf Heute ändern · Grösse finden: Hinweis und lange drücken · Ring-Kachel mit mehreren Grössen (prüfen) · Google Health Rest (prüfen) · KI-Helfer einschalten · Merken und Agenda · Excel-Import · Timer Z1 bis Z5 · Freigaben-Prüfung: 9 Abweichungen klären · Daten-Zentrale als eigener Ort und Kachel · Fitbit, Garmin und Strava an einem Ort · Daten-Widget mit km, Wetter, Schlaf, HRV · Gesundheitsdaten von Fitbit holen · Bildschirmzeit pro Woche eintippen (prüfen) · Tages-Check neu: Morgen, Abend, neue Fragen · Routine «Das tut mir gut» als Kachel · Kachel «Heute baden oder Sauna?» · Jeder Vorschlag wählbar und als Challenge · Dokumente als eigener Ort · Erinnerung vor Ablauf eines Dokuments · Timer mit Log und wählbaren Zifferblättern · PDF verkleinern, zusammenfügen, teilen · Pass oder Beleg als PDF scannen · Fotos verkleinern, zuschneiden, freistellen · Zeitzonen · Text aus Foto lesen: Betrag und Datum · Alles an die App schicken (Teilen) · App schlägt eine Ablage vor · Neue Ablagen: Vorsätze, Träume, To remember · Cockpit-Helfer: Ideen sammeln und ordnen · Leere Stellen zeigen eigene Inhalte · Haupt-Ausrüstung pro Sportart mit Pflege · Seite «Einstellungen» unter Ich · Vorschläge pro Bereich an oder aus · Morgens auf einen Blick: Schlaf, Wetter, To-dos (prüfen) · Automatisch sichern bei Handy-Verlust · Computer und Handy abgleichen · Geburtstage und Pflanzen · Woche planen: Mo–So mit Sonntags-Planung · Meditation-Kachel hakt mit einem Tipp ab · Assistent «Frag die App» mit KI-Deckel · KI leer: Felder verschwinden von selbst · Google Aufgaben in der App lesen · Gmail in der App lesen und beantworten · Bezahl-Erinnerung nur unter Ich › Bezahlen · TWINT-Zahlung per Teilen aus Rechnungen · Handy kurz: lange Seiten zugeklappt · Gruppen überall umbenennen und löschen · Alles selbst anlegen, umbenennen, löschen · Check-ins als Fenster mit «Später» und «Heute nicht» · Ruhige Bewegungen beim Abhaken und Öffnen · Einheitliche Formulare, Fehler direkt am Feld · Löschen mit Frage, Archiv und 4 s Rückgängig · Seiten später laden, Offline-Start sichern · Google-Login stört alter Service Worker nicht mehr · «Hilf mir planen»: Ziel wird zu Schritten · Rundgang durch die App · Einstieg und «Was hier steht» als eine Karte · Woche ersetzt Material in der Handy-Leiste · Fenster zuerst zu, Getipptes bleibt · «Alle Daten ersetzen» mit Frage und Auto-Backup · Zurück-Weg überall als Pfad «Ich › …» · Bedienregeln: Blatt von unten, 4 s Rückgängig, Tabs (prüfen) · Wasserwaage · Übersetzungs-Rechner · Strichcode wird Material · QR-Code erstellen · Lupe und Taschenlampe · Bildformat ändern · Video verkleinern · Strecke messen · «Passt gerade» im Werkzeugkasten · Werkzeug-Ketten
 
 </details>
 

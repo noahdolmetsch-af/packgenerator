@@ -321,6 +321,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
+  'f.wohl': {
+    on: 'Nothing to switch on; results show after about 10 days with a day score.',
+    steps: ['Open Me › What is good for me.', 'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.', 'Start a small experiment, set your wished mix, add Neuland, phases or season points.'],
+    example: 'Example: «Days with at least 30 min outside: 8 instead of 6».',
+  },
   'f.weight': {
     on: 'Nothing to switch on; it is voluntary.',
     steps: ['Open Me › Weight and tap «Enter weight».', 'Type your weight and save; the curve shows from the second entry.'],
@@ -375,6 +380,62 @@ export const HANDBOOK = {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
+  },
+  // Paket K «Unterwegs» (Noah 19.10.2026)
+  'f.trainhome': {
+    on: 'Set your home place in Me › Settings.',
+    steps: ['On On the way tap «Home»; the location is read only then.', 'Read the next 3 trains, or open the way in Google Maps.'],
+    example: 'Example: a flat tyre in the Jura → «Home» → the train at 17:04 from the station 800 m away.',
+  },
+  'f.handlebar': {
+    on: null,
+    steps: ['On On the way tap «Handlebar view»; the phone turns sideways where it can.', '«Choose numbers»: up to 6, with arrows or by dragging.'],
+    example: 'Example: time, km, metres up and next meal big on the bar mount.',
+  },
+  'f.glove': {
+    on: null,
+    steps: ['Automatic switches on below 5 °C or on a ski tour day.', 'Set On or Off by hand in Me › Look or on On the way.'],
+    example: 'Example: −2 °C in the morning → buttons grow by themselves, gloves stay on.',
+  },
+  'f.eatremind': {
+    on: null,
+    steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
+    example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
+  },
+  'f.departsheet': {
+    on: null,
+    steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
+    example: 'Example: the train ticket from Dokumente, Rega 1414 and a friend’s number on one page.',
+  },
+  'f.komoottour': {
+    on: null,
+    steps: ['On On the way under «More» tap «Open the tour in komoot».', 'No link yet: «Add the komoot link of this tour».'],
+    example: 'Example: the gravel loop shared from komoot opens again with one tap at the start.',
+  },
+  'f.routeconvert': {
+    on: null,
+    steps: ['On On the way › More open «Route for other devices» and choose the GPX.', 'Save FIT for Garmin or KML for maps.'],
+    example: 'Example: a GPX from a club mail → FIT → copied to the Edge as a course.',
+  },
+  'f.waterfood': {
+    on: null,
+    steps: ['On On the way › More open «Water and food».', 'Food with «one per N hours» shows needed against packed.'],
+    example: 'Example: 6 h at 28 °C → 4.5 L, 3 refills with 1.5 L bottles, 1500 kcal.',
+  },
+  'f.ready': {
+    on: 'Connect Fitbit (Me › Data) or Strava.',
+    steps: ['Open On the way on the tour day, or the trip in Pack.', 'Read the line and the signs behind it; you decide.'],
+    example: 'Example: 5.2 h sleep and HRV lower than usual → «maybe a shorter round today?».',
+  },
+  'f.listentip': {
+    on: null,
+    steps: ['In «Ready for today?» add a link for this kind of tour.', 'Rename or delete it with the pencil and the bin.'],
+    example: 'Example: «Morning playlist» for bike tours, a mountain podcast for ski tours.',
+  },
+  'f.skyplaces': {
+    on: null,
+    steps: ['On On the way › More open «Sun, moon and places».', '«Load places» asks Wikipedia about start, middle and finish.'],
+    example: 'Example: dark from 18:52, full moon on Friday, and a few lines about the castle on the way.',
   },
   // v0.134.0 «Inspiration»
   'f.inspiration': {
@@ -436,6 +497,46 @@ export const HANDBOOK = {
     on: 'Needs a trip within 14 days and a bike with parts.',
     steps: ['Open Bikes › Care.', 'The card «before the trip» lists what the workshop still has to do.'],
     example: 'Example: trip in 10 days → «new brake pads» goes to the workshop order.',
+  },
+  'f.sportpage': {
+    on: null,
+    steps: ['Open Active › Sports and tap a sport.', '«Adjust blocks»: switch blocks off, rename them, move them or add your own.', 'Choose a colour for the sport there too.'],
+    example: 'Example: Tennis without «Weather», with «Lessons» and «Matches» on top.',
+  },
+  'f.progress': {
+    on: null,
+    steps: ['Open a sport › History and progress.', 'Take a suggested measure or add your own, e.g. Leg press in kg.', 'The last values are filled in; + and − change them, «Save» keeps them.'],
+    example: 'Example: «Leg press +10 kg in 6 weeks», the best value with a star.',
+  },
+  'f.mosaic': {
+    on: null,
+    steps: ['Open Active › Sports.', 'Each row is a sport, each square a day; the colour is the sport.', 'A goal shows how often you reached it.'],
+    example: 'Example: Gym 3 of 2 times in 7 days, the row is ticked.',
+  },
+  'f.sportextras': {
+    on: null,
+    steps: ['Open a sport › «Adjust blocks».', 'Under «Add a block» choose e.g. Training plans, Lessons or Loops from home.', 'Its lines can be renamed, ticked and deleted.'],
+    example: 'Example: Gravel › «Water and gravel on the route» shows fountains and the gravel share of a route.',
+  },
+  'f.bikeservice': {
+    on: 'Needs a bike with its km.',
+    steps: ['Bikes › Care › your bike: the card «Bike service».', '«Set up»: every 3000 km, 100 h or 365 days, each one can be off.', '«Service done» after the service; it is due again by whichever comes first.'],
+    example: 'Example: mountain bike, 1400 km since the service at 14 km/h ≈ 100 h → due.',
+  },
+  'f.parttemplate': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Part template».', 'Choose road bike, gravel or mountain bike and switch parts on or off.', 'Own parts: add, rename, move, delete.'],
+    example: 'Example: gravel gets «Bell»; every new gravel bike starts with it.',
+  },
+  'f.spick': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
+    example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
+  },
+  'f.inspect': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Inspection»: start the quick check, the monthly check or the full inspection.', 'Tap a state for every point; «How it works» shows tools, steps, torque and when the bike shop is better.', '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.'],
+    example: 'Example: three rides in the rain → the monthly check comes sooner; chain at 0,35 % → about how many km are left.',
   },
   'f.tick': {
     on: null,
@@ -500,6 +601,32 @@ export const HANDBOOK = {
     on: null,
     steps: ['On Today tap «Record the pressure» or «Measure the chain» under the bike.', 'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.'],
     example: "Example: the chain at its limit → the workshop order suggests «replace the chain».",
+  },
+  // Paket J «Berg, Schnee und Notfall»
+  'f.snow': {
+    on: null,
+    steps: ['Plan a ski tour or hike with start place and date; from 16 days before, freezing level and fresh snow show under «Forecast».', 'The Ski tours page shows the line for the next tour; «Hide» takes the box away for one trip.'],
+    example: 'Example: 0° at 2400 m, 15 cm fresh snow in the 3 days before → read the avalanche bulletin with that in mind.',
+  },
+  'f.swissmap': {
+    on: null,
+    steps: ['Open Ski tours › Mountain and emergency › «Map with steep slopes», or the button in a mountain trip.', 'Switch the layers: slopes over 30°, ski touring routes, hiking trails; summer or winter map.'],
+    example: 'Example: the ski route crosses a violet slope → there it is steeper than 40°.',
+  },
+  'f.sos': {
+    on: null,
+    steps: ['Open Ski tours › Mountain and emergency › «Emergency: show my position».', 'Call Rega 1414 or 112 with one tap and read out the position shown big.'],
+    example: 'Example: LV95 2’600’000 / 1’200’000 at 1850 m → you tell Rega exactly where you are.',
+  },
+  'f.sosqr': {
+    on: null,
+    steps: ['Open Mountain and emergency › «Emergency QR», fill in the contact (or take one from a .vcf) and save.', 'Tap «Save the lock-screen image» and set it as the lock screen.'],
+    example: 'Example: a helper scans the code on the locked phone and sees whom to call and your allergies.',
+  },
+  'f.scales': {
+    on: null,
+    steps: ['Open Mountain and emergency › «Signposts and grades».', 'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).'],
+    example: 'Example: white-blue-white → alpine hiking trail, T4 to T6.',
   },
   'f.skiequipment': {
     on: null,
@@ -581,10 +708,166 @@ export const HANDBOOK = {
     steps: ['Open Me › Inbox.', 'Tap «File as …» and choose one of the 7 targets.'],
     example: 'Example: a receipt photo → «File as workshop visit».',
   },
+  // Paket N (19.10.2026)
+  'f.notelinks': {
+    on: 'Needs at least two notes.',
+    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
+    example: 'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.',
+  },
+  'f.dreams': {
+    on: null,
+    steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
+    example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
+  },
+  'f.races': {
+    on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
+    steps: ['Open Trips › Dreams › Races to plan.', 'Tap «Plan as a trip» and add the registration deadline.', 'Tick «Signed up» once you are registered.'],
+    example: 'Example: a gravel race on 7 November → a trip with the race block, deadline 30 October.',
+  },
+  'f.compass': {
+    on: null,
+    steps: ['Open Me › My compass and add a goal with a day.', 'Type the steps, one per line: the app spreads the dates.', 'Once a week answer «How is it going?»; boxes keep ideas and resolutions.'],
+    example: 'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.',
+  },
+  'f.noteformats': {
+    on: null,
+    steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],
+    example: 'Example: a rest stop with place, two photos and a sketch of the route; shared to Keep.',
+  },
+  'f.next': {
+    on: null,
+    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
+    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+  },
   'f.notes': {
     on: null,
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
+  },
+  'f.starters': {
+    on: 'Needs at least two ridden trips of the same sport for «From your trips».',
+    steps: ['Plan a new trip and tap «From your trips».', 'In Pack open «Suggestion list» and tick what you take; «Not needed» hides a line.'],
+    example: 'Example: three ski tours → the new ski tour starts with skins, avalanche kit and thermos.',
+  },
+  'f.supplies': {
+    on: 'Set an expiry date or a stock count on an item (window › «At home and supply»), or food counts by itself.',
+    steps: ['Open Gear › Supplies and set what you have.', 'Two weeks before an item expires the app reminds you; what runs low is under «Buy again».'],
+    example: 'Example: 2 of at least 6 energy gels → «Buy again: 4 energy gels».',
+  },
+  'f.table': {
+    on: 'Works on a wide screen (computer); on the phone the list gets checkboxes.',
+    steps: ['Switch the list to «Table» and edit in the cells.', 'Tick rows, choose a field and «Set for all»; «Undo» brings the old values back.'],
+    example: 'Example: 12 items ticked → bag «Seat bag» for all in one step.',
+  },
+  'f.readaloud': {
+    on: 'Saying «ok» needs a microphone and the internet (Chrome listens over Google); the big button works always.',
+    steps: ['Open a trip in Pack and tap «Read aloud».', 'Choose «Say «ok»» or «Button only»; the app reads one item after the other.'],
+    example: 'Example: «Into frame bag: tyre levers» → «ok» → next item.',
+  },
+  'f.ownrules': {
+    on: 'Needs an own building block with items in it (Gear › Building blocks).',
+    steps: ['Open the block and tap «Add a rule».', 'Choose the value, e.g. «Travel there by train», and save.'],
+    example: 'Example: block «Train things» with the bike ticket → suggested for every trip by train.',
+  },
+  'f.startfresh': {
+    on: null,
+    steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
+    example: 'Example: after testing with sample data → start fresh with your own gear.',
+  },
+  'f.lend': {
+    on: null,
+    steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],
+    example: 'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.',
+  },
+  'f.tools': {
+    on: null,
+    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet.'],
+    example: 'Example: 3.2 bar → 46.4 psi for the tyre pump abroad.',
+  },
+  'f.pdftools': {
+    on: null,
+    steps: ['Open Me › Toolbox › PDF and choose PDFs or photos.', 'Put them in order with the arrows or by dragging.', 'Tap «Merge into one PDF» or «Make smaller», then «Save or share».'],
+    example: 'Example: three receipt photos → one PDF of 3 pages for the insurance.',
+  },
+  'f.phototools': {
+    on: '«Cut out» loads a model once (about 45 MB); after that it works offline.',
+    steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
+    example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
+  },
+  'f.money': {
+    on: 'The rates need the internet once a day; offline the last ones count.',
+    steps: ['Open Me › Toolbox › Currencies.', 'Type the amount and choose its currency.', 'See it in Franken and the other main currencies.'],
+    example: 'Example: 24.50 EUR → about 23 CHF.',
+  },
+  'f.tripcosts': {
+    on: 'For «Request by TWINT», add your TWINT number once under Me › Pay › Invoices.',
+    steps: ['Open Me › Toolbox › Trip costs and choose the trip.', 'Add who was there, then each expense with who paid it; a receipt photo fills in amount and date.', 'Under «Who owes whom» tap «Request by TWINT».'],
+    example: 'Example: you paid the hotel 180 CHF for three → Anna and Ben each pay you 60 CHF.',
+  },
+  'f.ablage': {
+    on: null,
+    steps: ['Open Me › Documents or Me › Toolbox › Links and files.', 'Tap «Add link» or «Add file» (up to 5 MB).', 'Move, rename or delete an entry with its buttons.'],
+    example: 'Example: the timetable link and the train ticket as PDF, both in one place.',
+  },
+  'f.weblinks': {
+    on: null,
+    steps: ['Open Me › Tools and links.', 'Tap a link; it opens in a new tab. The eye switches a suggestion off.', '«Order» moves links and changes their group; groups can be renamed and deleted.'],
+    example: 'Example: SBB opens the timetable to the start of your next trip, on its day.',
+  },
+  'f.chains': {
+    on: null,
+    steps: ['Open Me › Toolbox › Tool chains.', 'Use a ready chain or tap «New chain» and add steps.', 'Tap «Start» and choose the files; the steps run one after the other.'],
+    example: 'Example: «Receipts as one PDF» turns 4 receipt photos into one small PDF to share.',
+  },
+  'f.convert': {
+    on: 'HEIC needs the internet once; after that it works offline.',
+    steps: ['Open Me › Toolbox › Picture format.', 'Choose JPG or PNG, then the pictures.', 'Tap «Save» on each, or «Save all».'],
+    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form.',
+  },
+  'f.video': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make video smaller.', 'Choose the size, then the video.', 'Keep the page open until it is done, then «Save or share».'],
+    example: 'Example: a 90 MB phone video → about 10 MB with «Small».',
+  },
+  'f.qr': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make a QR code.', 'Type a text or link, or the WLAN name and password.', 'Show the code, or tap «Save as picture».'],
+    example: 'Example: the guest WLAN as a code for friends at home.',
+  },
+  'f.mapmeasure': {
+    on: 'The map needs the internet; the line stays on the device.',
+    steps: ['Open Me › Toolbox › Measure a route.', 'Tap along the road, point by point; the length shows on top.', 'Tap «Save as GPX» to use it in a trip or on the Garmin.'],
+    example: 'Example: the way to the lake, 12.4 km, as GPX.',
+  },
+  'f.gears': {
+    on: null,
+    steps: ['Open Me › Toolbox › Gear ratios.', 'Type the chainrings and the cassette, choose the wheel.', 'Read km/h, metres per turn or the ratio in the table.'],
+    example: 'Example: 40 × 42 at 90 rpm → about 6 km/h for a steep climb.',
+  },
+  'f.level': {
+    on: 'On a computer there is no motion sensor; use the phone.',
+    steps: ['Open Me › Toolbox › Spirit level.', 'Lay the phone flat on the surface or stand it on its edge.', 'Read the degrees and the slope in percent.'],
+    example: 'Example: saddle 2.5° nose down.',
+  },
+  'f.barcode': {
+    on: 'The camera scan needs Chrome on the phone; typing the number works everywhere.',
+    steps: ['Open Me › Toolbox › Bar code → gear.', 'Tap «Scan bar code» or type the number.', 'A known code opens its item; a new one: type a name, «Add to gear».'],
+    example: 'Example: scan the tube box → the spare tube opens in Material.',
+  },
+  'f.light': {
+    on: null,
+    steps: ['Open Me › Toolbox › Magnifier and light.', 'Tap «Magnifier and light» and allow the camera.', 'Zoom, «Hold picture», or switch the light on.'],
+    example: 'Example: read the tyre size 40-622 on a dark sidewall.',
+  },
+  'f.packphoto': {
+    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
+    example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
+  },
+  'f.sitpos': {
+    on: 'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.',
+    steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
+    example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
   },
   'f.docs': {
     on: null,
@@ -601,6 +884,22 @@ export const HANDBOOK = {
     steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
     example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
   },
+  // Paket R
+  'f.account': {
+    on: 'Needs the internet for the sign-in. The server keeps no e-mail and no name.',
+    steps: ['Me › Data and backup › «Sign in with Google» (or «Switch on sync» for the way without an account).', 'Choose your Google account; the app comes back and switches on the sync.', 'On the other device: the same, «Sign in with Google». Both then keep the same data.'],
+    example: 'Example: new phone → open the app → «Sign in with Google» → your gear and trips arrive.',
+  },
+  'f.privacy': {
+    on: null,
+    steps: ['Me › «Privacy and terms».', 'Read what stays on your device and what the server keeps when you switch it on.'],
+    example: 'Example: before you switch on the sync, look at what the server keeps.',
+  },
+  'f.pros': {
+    on: null,
+    steps: ['Me › «Bike mechanic and guide» › «Add contact»: name, what they do, mail, booking page or phone.', '«Request»: choose the bike and the days that suit you, then «Write the mail» or «Open their booking page».', 'Change, delete and the order with the arrows or the handle.'],
+    example: 'Example: your bike shop → «Request» → bike «Gravel» → «Tue or Thu morning» → «Write the mail».',
+  },
   'f.camera': {
     on: 'On a phone or tablet; a computer shows the file dialog.',
     steps: ['Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.', 'New › Workshop visit opens the camera at once: photograph the receipt first, then fill in the rest.', 'A receipt with more pages: «Another page» after the first photo.'],
@@ -615,6 +914,71 @@ export const HANDBOOK = {
     on: 'Connect once under Me › Mail (needs Strava connected on this device).',
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
+  },
+  'f.connections': {
+    on: 'Nothing to switch on: Me › Connections shows what is connected.',
+    steps: ['Open Me › Connections.', 'Tap a connection to open its page.', 'The switches below say what the app may do with the data.'],
+    example: 'Example: «Strava: last fetch today 07:12» → your morning run is already ticked on Aktiv.',
+  },
+  'f.stravaticks': {
+    on: 'On by itself once Strava is connected; switch it to «Suggest first» or «Off» under Me › Connections.',
+    steps: ['Do your activity with Strava as always.', 'The next fetch ticks the matching Aktiv activity, or puts it under «From Strava» on Aktiv.', 'Under Me › Connections choose which Strava sport counts for which activity, and a bike for indoor rides.'],
+    example: 'Example: a ski tour on Saturday → «Skitour» is ticked on Saturday; delete the tick and it does not come back.',
+  },
+  'f.owncal': {
+    on: 'Switch on the calendar «Packgenerator» under Me › Connections and allow it once in Google (needs Google Calendar connected).',
+    steps: ['Switch on «Enter tours in the calendar «Packgenerator»».', 'Tap «Allow in Google» once.', 'Every tour appears as an all-day appointment; two days before at 18:00 your phone reminds you to pack.'],
+    example: 'Example: a tour from Saturday to Sunday → Thursday 18:00 the reminder «Tour: Jura».',
+  },
+  'f.notestasks': {
+    on: 'Switch on «Open notes as tasks» under Me › Connections (needs Google Tasks connected).',
+    steps: ['Write a note as always.', 'It appears in the list «Packgenerator Notizen» in Google Tasks.', 'Tick it there or here: it is done on both sides.'],
+    example: 'Example: the note «Kettenöl kaufen» → ticked in Google Tasks on the phone → done in the app.',
+  },
+  'f.fitbitold': {
+    on: 'Once: the Fitbit export from takeout.google.com.',
+    steps: ['Export only «Fitbit» at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the .zip or its files.', 'Check the preview, change which Fitbit type counts for which activity, then «Take over».'],
+    example: 'Example: 3 years of tennis from Fitbit → the tennis history and its stars are complete.',
+  },
+  'f.wxwatch': {
+    on: 'Switch on «Weather alarm» under Me › Reminders on the phone (push must be set up once).',
+    steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
+    example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
+  },
+  'f.tourhints': {
+    on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
+    steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
+    example: 'Example: loop of 60 km, wind from the west at 20 km/h → «Ride the round the other way».',
+  },
+  'f.rainsoon': {
+    on: 'Switch on «Rain on the way» under Me › Reminders on the phone.',
+    steps: ['The app sends the server where you should be every 30 minutes of the ride.', 'Every 15 minutes the server looks at the rain of the next 45 minutes there.', 'One message, then 2 hours quiet for that tour.'],
+    example: 'Example: dry now, rain in 30 minutes near the pass → a message to keep the rain jacket at hand.',
+  },
+  'f.air': {
+    on: 'Set your home place once; switch on «Ozone and pollen» for the tour morning message.',
+    steps: ['The card on Aktiv shows today and tomorrow.', 'Strong pollen after the Swiss classes, ozone from 180 µg/m³.', 'Under «Which values count» switch off the pollen that do not bother you.'],
+    example: 'Example: grasses strong tomorrow → «Strong pollen: Grasses.» on the card and in the morning message.',
+  },
+  'f.routepois': {
+    on: 'Plan of a trip with a GPX route, in the route card under the map.',
+    steps: ['Add a GPX route to the trip.', 'Search once while online; the list then stays on this device, also offline.', 'After changing the route, search again; «Load again» refreshes the list.'],
+    example: 'Example: km 23 · Fountain · Village fountain, 80 m beside the route.',
+  },
+  'f.lake': {
+    on: 'Nothing to switch on; the card on Aktiv fetches the value.',
+    steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],
+    example: 'Example: 21.4 °C at Mythenquai, preview 22 °C on Saturday → a swim after the ride.',
+  },
+  'f.datastars': {
+    on: 'Nothing to switch on; the stars come once there is data.',
+    steps: ['Connect Strava or Fitbit, or answer the daily check.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday; switch off single ones.'],
+    example: 'Example: 1000 km by bike this year → the second bike star.',
+  },
+  'f.trello': {
+    on: 'Connect once under Calendar › Remember › Trello (needs Strava connected on this device and a workspace «Packgenerator» in Trello).',
+    steps: ['Open Calendar › Remember and tap «Connect Trello»; allow it on Trello\'s page.', 'Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.', 'In a list\'s settings choose «Also in Trello»: the list and its points appear on the board.'],
+    example: 'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.',
   },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
@@ -691,21 +1055,155 @@ export const HANDBOOK = {
     steps: ['Point at a button, or hold it on a phone: it says what it does.', '«…» lists the other buttons, each with one line.'],
     example: 'Example: hold «Undo» → «Takes back the last change».',
   },
+  // Paket Q «App klarer»
+  'f.alerts': {
+    on: null,
+    steps: ["Open Me › Alerts and news.", "Type your region and tick your passes; weather and avalanche switch on or off.", "Under «Your sources» add, change or delete news sites with a feed."],
+    example: "Example: region «Testtal» → an orange storm warning shows as one line on Today.",
+  },
+  'f.backuplock': {
+    on: "Off at the start; if you forget the password, nobody can open these backups.",
+    steps: ["Open Me › Data and backup › «Backup with a password».", "Switch it on and type the password twice.", "Export, Send and the folder backup are locked; opening asks for the password."],
+    example: "Example: backup in Google Drive locked → on the phone «Import backup» asks for the password.",
+  },
+  'f.yearcheck': {
+    on: null,
+    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Any time: Me › Data and backup › «Still right?»."],
+    example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
+  },
+  'f.suggestoff': {
+    on: null,
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want."],
+    example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
+  },
+  'f.tipweek': {
+    on: null,
+    steps: ["Look at the tile «Tip of the week» on Today.", "Tap its button to try it; next Monday a new tip comes."],
+    example: "Example: «Templates» this week → «Open templates».",
+  },
+  'f.comeback': {
+    on: null,
+    steps: ["Open the app after three weeks or more away.", "The window «Welcome back» lists what is due and what is new.", "Tap a line to go there, or «Later» / «Not today»."],
+    example: "Example: back from holiday → 2 care points and 3 new versions.",
+  },
+  'f.tripalert': {
+    on: null,
+    steps: ["Plan a trip with its start place (or set your region under Me › Alerts and news).", "From five days before, the app looks for MeteoSwiss warnings for its days and place; on a ski tour also the avalanche danger.", "A line on the trip says what; «Read more» opens the warning."],
+    example: "Example: thunderstorm warning for your region on Saturday → one line on Saturday's trip.",
+  },
+  'f.helpsearch': {
+    on: null,
+    steps: ["Open the search (the magnifier or «/»).", "Type a whole question, e.g. «Where do I set the backup password?».", "«Fits your question» shows up to three functions with their first step; a tap opens it."],
+    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news.",
+  },
+  'f.offlinesave': {
+    on: null,
+    steps: ["Open your trip from three days before it starts.", "Tap «Save for the way»: the newest weather of the trip, the alerts and your news go onto the device.", "The line says what is saved and since when; the packing list is on the device anyway."],
+    example: "Example: the evening before a tour in the mountains, tap once; up there the weather is still there.",
+  },
   'f.news': {
     on: null,
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],
     example: 'Example: after an update read the 3 new things in one minute.',
+  },
+  // Paket M «Aus Touren lernen»
+  'f.diary': {
+    on: 'Photos stay on this device; they are not in the backup.',
+    steps: ['Open the debrief of a trip: the draft from Strava rides, weather and notes is there.', 'Change anything; «New draft» writes it again.', '«Photos of those days» adds photos of the trip days; «Copy» or «Share» the text.'],
+    example: 'Example: «Day 1 · Saturday: 84 km, 1,240 m up in 4 h 10 min. Weather: 14 to 24 °C, dry.»',
+  },
+  'f.extraq': {
+    on: null,
+    steps: ['Open the debrief of a trip.', 'Under «More to learn» the 2 questions that fit the trip best are open; «Ask more» shows the others.', '«Adjust questions»: switch off, change the text, add your own, delete, order with arrows or by dragging.'],
+    example: 'Example: after a rainy trip: «What helped you in the rain, and what did not?»',
+  },
+  'f.notetodo': {
+    on: 'Google Tasks shows as a place once it is switched on under Me › Calendar and tasks.',
+    steps: ['Open the debrief of a trip; the notes on the way are listed.', 'Choose under «To-dos go to»: a new checklist, one of your notes or a Google Tasks list.', 'Tap «As to-do» beside a note.'],
+    example: 'Example: «brake squeaks» → checklist «To-dos after Jura round».',
+  },
+  'f.future': {
+    on: null,
+    steps: ['In the debrief write a sentence under «A message to your future self».', 'On the way of your next trip a closed letter «Mail from you!» waits.', 'Open it; «Read» puts it away.'],
+    example: 'Example: «Take the warm gloves, the mornings were cold.»',
+  },
+  'f.quiz': {
+    on: null,
+    steps: ['The evening before a trip, tap «Quiz the evening before» on «Packed».', 'Answer the three questions; the streak counts the trips with a quiz before them.', 'Add, order, switch off or delete your own questions; hide kinds of suggestions; switch the quiz off at the top.'],
+    example: 'Example: «In which bag is the stove?» → Frame bag. 2 of 3 right · Streak: 4 trips.',
+  },
+  'f.observations': {
+    on: 'Needs data: Strava rides, Fitbit days or «How are you?» answers; with too little data it says so.',
+    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they stay the same afterwards.', 'Hide a kind with «Do not show this kind any more»; earlier weeks are under «Older weeks».'],
+    example: 'Example: «After a day on the bike you slept 35 min longer: 7:55 h against 7:20 h on the other nights.»',
+  },
+  'f.chronik': {
+    on: 'Grows with every debrief, ride and learning.',
+    steps: ['Open Trips › Look back › Chronicle, or the tile «Earlier at this time» on Today.', 'Choose «All», «Bike», «Trips», «Care», «Meditation» or «Notes»; the arrows and the month buttons change the month.', 'Tap a trip or ride to open its look back.'],
+    example: 'Example: 19 October: «Jura heights» 2025, 132 km, «Too many tools with me».',
+  },
+  'f.gelernt': {
+    on: null,
+    steps: ['Open Trips › Look back › What the app learned.', '«Month»: up to 6 lines with numbers; the arrows go to other months.', '«Year»: the letter «Your year»; «Print» also saves it as PDF.'],
+    example: 'Example: October: 2 trips, 121 km · 1 new learning · 1 thing stays at home now.',
+  },
+  'f.jahr': {
+    on: 'Photos stay on this device; without a photo the route is drawn.',
+    steps: ['Open Trips › Look back › Your year as pictures, from 1 December also the hint.', 'Tap, swipe or use the arrow keys; the cover chooses another year.', 'The last picture «Thank you for this year» leads to the year letter.'],
+    example: 'Example: 21 trips, 1,746 km, 55 days on the way.',
+  },  'f.neuland': {
+    on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
+    example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
+  },  'f.eveningtour': {
+    on: 'Shows only on the days of a trip.',
+    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
+    example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
+  },
+  'f.ridepage': {
+    on: 'Needs Strava on this device; an uploaded GPX shows its own values. Older rides get their details bit by bit.',
+    steps: ['Tap a Strava activity anywhere: Touren, Fahrten-Buch, Verlauf, the Rückblick of a trip or Aktiv › Training.', 'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.', 'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.'],
+    example: 'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.',
+  },
+
+
+  // Paket S «Reise-Spur»
+  'f.here': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «I am here».', 'Add a sentence or a photo, then «Save place».'],
+    example: 'Example: «Lunch at the lake» with a photo; it sits on the tour map at that spot.',
+  },
+  'f.record': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «Record», then «Start recording».', 'Keep the phone on the handlebar with power; tap «Stop» at the end.'],
+    example: 'Example: a day without the Garmin: the app draws the line; screen off for 20 min leaves a gap.',
+  },
+  'f.spurmap': {
+    on: 'Needs Strava connected, a GPX ride, a recording or a place on the trip.',
+    steps: ['Open the trip’s debrief › «Travel track».', 'Move and zoom the map, tap a day or a dot.'],
+    example: 'Example: a 3-day tour shows three coloured lines, the lunch places and the photos.',
+  },
+  'f.spurlink': {
+    on: 'Needs the internet once to make the link.',
+    steps: ['«Travel track» › choose what goes in › «Make a link».', 'Send it; «Delete link» ends it at once.'],
+    example: 'Example: the family follows the tour without an account; photos stay on your phone.',
+  },
+  'f.travelbook': {
+    on: null,
+    steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
+    example: 'Example: a cover with the whole line, then one page per day with its photos.',
   },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
 export const MINI_APPS_HANDBOOK = {
   title: 'Small apps',
-  intro: ['Three parts of the app also open as a small app with their own home-screen icon.', 'Each opens directly on its area and shares the same data with the whole app.'],
+  intro: ['Four parts of the app also open as a small app with their own home-screen icon.', 'Each opens directly on its area and shares the same data with the whole app.'],
   apps: [
     { key: 'meditation', title: 'Meditation', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/meditation/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → straight into a 10 min meditation.' },
     { key: 'packliste', title: 'Packing list', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/packliste/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → the open trip in Pack, ready to tick.' },
     { key: 'velopflege', title: 'Bike care', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/velopflege/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → see what is due on the bike and tick the oiled chain.' },
+    { key: 'werkzeug', title: 'Toolbox', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → the calculator, PDF and photo tools at once.' },
   ],
 };
 

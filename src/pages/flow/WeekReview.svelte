@@ -22,6 +22,7 @@
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
+  import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
   let { params = new URLSearchParams() } = $props();
@@ -121,10 +122,15 @@
     </nav>
   </header>
 
+  {#if !nextHref}<GoalCheck link />{/if}
+
   {#if data}
     {#if !any}
       <p class="card quiet" data-wr-empty>{t('Nothing recorded in this week yet. Activities from Strava, ticks in Aktiv and answers to «How are you?» show here.')}</p>
     {/if}
+
+    <!-- Paket M «3 Beobachtungen pro Woche» (#294, #14, #247): from Sunday on, then frozen (lernen/beobachtungen.js) -->
+    {#await import('../../lib/lernen/Beobachtungen.svelte') then m}<m.default {monday} {today} />{/await}
 
     <section class="card wcard" data-wr="five" aria-labelledby="wr-five">
       <h2 id="wr-five">{t('Your week in 5 numbers')}</h2>

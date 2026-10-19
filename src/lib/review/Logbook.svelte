@@ -13,6 +13,7 @@
    */
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
+  import OwnSpark from '../clear/OwnSpark.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
   import { db } from '../db.js';
   import { loadReview } from './load.js';
@@ -192,7 +193,7 @@
               {/if}
             </li>
           {:else}
-            <li class="none"><Empty text={entries.length ? t('Nothing matches.') : t('No entries yet.')} /></li>
+            <li class="none"><Empty text={entries.length ? t('Nothing matches.') : t('No entries yet. Every trip and every uploaded ride comes in here.')} action={entries.length ? null : { label: t('Upload ride'), href: '#/debrief/ride' }}>{#if !entries.length}<OwnSpark place="logbook" />{/if}</Empty></li>
           {/each}
         </ul>
       {/if}

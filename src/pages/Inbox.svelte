@@ -41,6 +41,7 @@
   import { flip } from '../lib/ui/flip.js';
   import { Check, Undo2, ChevronRight, ChevronDown, Search, Shuffle, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import ListBar from '../lib/list/ListBar.svelte';
   import ListGroup from '../lib/list/ListGroup.svelte';
   import TopButton from '../lib/list/TopButton.svelte';
@@ -254,7 +255,8 @@
       </div>
     </ListBar>
     {#if !filed.length}
-      <Empty text={query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet.')} />
+      <!-- Paket Q #216: an empty Inbox says what lands here and offers the first note -->
+      <Empty text={query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet. Every note you file comes in here, by month.')} action={query || filter !== 'all' ? null : { label: t('Write a note'), href: '#/inbox/new' }}>{#if !query && filter === 'all'}<OwnSpark place="inbox" />{/if}</Empty>
     {:else}
       <div class="months" aria-label={t('Filed')}>
         {#each filedMonths as m, i (m.key)}

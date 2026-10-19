@@ -48,6 +48,7 @@ export const TILES = [
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),
   { id: 'milestones', area: 'flow', label: 'Milestones', icon: 'star', sizes: ['s', 'w'], size: 's', pitch: 'All milestones of all areas on one page.' },
   { id: 'try', area: 'app', label: 'Tried it yet?', icon: 'bulb', sizes: ['w', 'l'], size: 'w', pitch: 'One function you have not used yet, with one button.' },
+  { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l', 'long'], size: 'long', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'bikes', area: 'bikes', label: 'Bikes|place', icon: 'bike', sizes: ['l', 'long'], size: 'long', pitch: 'Your bikes with their km and what is due.' },
   { id: 'year', area: 'trips', label: 'Last 12 months', icon: 'chart', sizes: ['long'], size: 'long', pitch: 'Km, trips and nights of the last 12 months in one row.' },
   { id: 'helper', area: 'app', label: 'Helper', icon: 'chat', sizes: ['s'], size: 's', pitch: 'Ask the helper about a list or a trip.' },
@@ -69,14 +70,19 @@ export const TILES = [
   // Tages-Check back (Noah 18.10.2026 «3 a und b», mockup T3c): the questions folded on Heute, with their page
   { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
-  { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
+  // Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the id stays so a stored wall keeps it
+  { id: 'yearago', area: 'trips', label: 'Earlier at this time', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trips and rides of this day and month in earlier years, on a small map.' },
   // v0.97.0 «Skitouren»: Touren › Skitouren (home/SkiTile.svelte; in season November–May, quiet outside it)
   { id: 'ski', area: 'trips', label: 'Ski tour', icon: 'bag', sizes: ['s', 'w'], size: 's', since: '0.97.0', pitch: 'Your next ski tour with its backpack check, November to May.' },
   // 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 «1a 2a 3a 4b HN4 freigegeben»; HN3a, HA1b)
   { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
   // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben», 1a: a wide tile at the top of Heute)
   { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
+  // Paket P #293 «Daten-Widget» (Noah 19.10.2026 «2 beides»): km, weather, sleep, HRV, resting pulse next to your normal
+  { id: 'values', area: 'flow', label: 'Your values today', icon: 'chart', sizes: ['l', 'long'], size: 'long', since: '0.153.0', pitch: 'Km, weather at home, sleep, HRV and resting pulse, each next to your normal. Only to look at.' },
   { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
+  // Paket L «Werkzeugkasten» (Noah 19.10.2026 «zb auf home»): only from the tile catalog, not on the ready wall; the bundler sets «since» to the release
+  { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.153.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
@@ -116,6 +122,8 @@ export const READY = [
   ['milestones', 'w'],
   ['trip', 'long'],
   ['aktiv', 'long'],
+  ['values', 'long'], // Paket P «Daten-Widget» (Noah «2 beides»): right under Aktiv
+  ['tipweek', 'long'], // Paket Q #74 (Noah 19.10.2026 «4a»): the tip of the week over the whole row, after Aktiv (the rows of HN4 stay)
   ['play', 's'],
   ['news', 's'],
   ['fn:weigh', 's'],
@@ -160,7 +168,8 @@ export function wallOf(value, legacy = null) {
     const out = wallBefore5(value);
     const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
     const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
-    return (value.v ?? 1) < 7 ? withRoutine(q) : q;
+    const r = (value.v ?? 1) < 7 ? withRoutine(q) : q;
+    return (value.v ?? 1) < 8 ? withValues(withTip(r)) : r;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -248,8 +257,32 @@ export function withRoutine(tiles = []) {
   out.splice(at, 0, { id: 'routine', size: TILE.routine.size });
   return out;
 }
-/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once). */
-export const wallRecord = (tiles) => ({ v: 7, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * Paket P «Daten-Widget» (Noah 19.10.2026 «2 beides»): a wall stored before (v < 8) gets «Your values today» once,
+ * right under Aktiv. Without Aktiv it is not added (the catalog «+» has it). Taken away after that, it stays away. → tiles
+ */
+export function withValues(tiles = []) {
+  if (tiles.some((x) => x.id === 'values')) return tiles;
+  const at = tiles.findIndex((x) => x.id === 'aktiv');
+  if (at < 0) return tiles;
+  const out = [...tiles];
+  out.splice(at + 1, 0, { id: 'values', size: TILE.values.size });
+  return out;
+}
+/**
+ * Paket Q #74 (Noah 19.10.2026 «4a»): a wall stored before (v < 8) gets the tip of the week once, right after
+ * Aktiv (else before the bikes and the year, else at the end). Taken away after that (the wall is v 8 then), it stays away. → tiles
+ */
+export function withTip(tiles = []) {
+  if (tiles.some((x) => x.id === 'tipweek')) return tiles;
+  const out = [...tiles];
+  const a = out.findIndex((x) => x.id === 'aktiv');
+  const b = out.findIndex((x) => x.id === 'bikes' || x.id === 'year');
+  out.splice(a >= 0 ? a + 1 : b >= 0 ? b : out.length, 0, { id: 'tipweek', size: TILE.tipweek.size });
+  return out;
+}
+/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 8, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

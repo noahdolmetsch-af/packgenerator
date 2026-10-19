@@ -15,6 +15,8 @@
  * - ApiError and route(): clear JSON errors, never the details of an unexpected one.
  */
 
+import { countCall } from './daycap.js';
+
 export const API_BASE = 'https://packgen-three.vercel.app';
 export const APP_ORIGIN = 'https://noahdolmetsch-af.github.io';
 
@@ -117,12 +119,18 @@ export function json(request, status, body, extra = {}) {
   });
 }
 
-/** Wraps a handler: OPTIONS, the allowed methods and errors as clear JSON. name: for the one log line. */
-export function route(methods, name = 'api') {
+/**
+ * Wraps a handler: OPTIONS, the allowed methods and errors as clear JSON. name: for the one log line,
+ * and the name the daily cap counts under (daycap.js, Paket R). capStore: the store the cap counts in
+ * (default: the Upstash store when it is set up; null = no cap, e.g. in tests).
+ */
+export function route(methods, name = 'api', { capStore = () => redis(), now = () => Date.now() } = {}) {
   return async (request) => {
     if (request.method === 'OPTIONS') return preflight(request);
     const fn = methods[request.method];
     if (!fn) return json(request, 405, { error: 'method_not_allowed', code: 'method_not_allowed', message: `Use ${Object.keys(methods).join(' or ')}.` }, { Allow: [...Object.keys(methods), 'OPTIONS'].join(', ') });
+    const used = await countCall(capStore(), name, now());
+    if (used?.over) return json(request, 429, { error: 'daily_cap', code: 'daily_cap', message: 'The server has done enough for today (free limit). It works again tomorrow.' }, { 'Retry-After': '3600' });
     try {
       return await fn(request);
     } catch (err) {

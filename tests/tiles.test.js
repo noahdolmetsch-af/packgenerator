@@ -1,6 +1,6 @@
 // v0.94.0 «Kachel-Wand» (Noah 11.10.2026, Trello nLi5yNmS «1-5 a»): the wall of tiles (tiles.js).
 import { describe, it, expect } from 'vitest';
-import { HEAD_0155, TILES, TILE, READY, SIZES, AREAS, wallOf, wallBefore5, wallRecord, ADDED_0101, ADDED_0127, GONE, REMOVED_0155, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
+import { withValues, HEAD_0155, TILES, TILE, READY, SIZES, AREAS, wallOf, wallBefore5, wallRecord, ADDED_0101, ADDED_0127, GONE, REMOVED_0155, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
 import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 
 describe('the tiles', () => {
@@ -38,14 +38,14 @@ describe('the stored wall', () => {
     // v0.127.0: a wall is stored as v 4 now (v 3 walls get the three daily-check tiles once, below)
     // 0.155.0: a wall is stored as v 5 now (walls of before get the order of HN4 once, tests/heuteneu.test.js)
     // Tages-Check back (18.10.2026): v 6, a v 5 wall gets «Deine 15 Fragen» once (tests/heuteneu.test.js);
-    // Routine «Das tut mir gut»: v 7 now (walls of before get the routine once, below)
-    const w = wallOf({ v: 7, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
+    // Routine «Das tut mir gut»: v 7 (walls of before get the routine once, below); Paket Q: v 8 (the tip of the week once)
+    const w = wallOf({ v: 8, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
-    expect(wallOf({ v: 7, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 7, tiles: w });
-    expect(wallOf({ v: 7, tiles: [] })).toEqual([]);
-    expect(wallOf({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'questions', 'year']);
-    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'year']);
+    expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
+    expect(wallRecord(w)).toEqual({ v: 8, tiles: w });
+    expect(wallOf({ v: 8, tiles: [] })).toEqual([]);
+    expect(wallOf({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'questions', 'tipweek', 'year']);
+    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'tipweek', 'year']);
   });
   it('v0.101.0: the new tiles are marked «neu» for two weeks from the release', () => {
     for (const id of ADDED_0101) {
@@ -94,12 +94,13 @@ describe('the stored wall', () => {
     expect(READY.map((x) => x.id).slice(0, 4)).toEqual([...HEAD_0155, 'routine']);
     expect(TILE.routine).toMatchObject({ area: 'today', sizes: ['l', 'long'], size: 'long' });
     const v5 = wallOf({ v: 6, tiles: [{ id: 'meditation', size: 'long' }, { id: 'daycard', size: 'long' }, { id: 'important', size: 'long' }, { id: 'flow', size: 'l' }] });
-    expect(v5.map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow']);
+    // Paket Q: a wall of before v 8 also gets the tip of the week once (here at the end, no Aktiv/bikes/year)
+    expect(v5.map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'tipweek']);
     // Paket C: Tages-Check is v 6, so a v 6 wall gets only the routine (a v 5 wall gets «Deine 15 Fragen» too, above)
     // without the tiles on top: on top; taken away (stored as v 7), it stays away; moved, it stays where it was put
-    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['routine', 'flow']);
-    expect(wallOf(wallRecord(v5.filter((x) => x.id !== 'routine'))).map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'flow']);
-    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }] })).toEqual([{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }]);
+    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'tipweek']);
+    expect(wallOf(wallRecord(v5.filter((x) => x.id !== 'routine'))).map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'flow', 'tipweek']);
+    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }] })).toEqual([{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }, { id: 'tipweek', size: 'long' }]);
   });
   it('moves, steps, resizes, removes and adds', () => {
     const w = [{ id: 'trip', size: 'long' }, { id: 'news', size: 'w' }, { id: 'play', size: 's' }];
@@ -137,5 +138,16 @@ describe('the catalog and the «New» dot', () => {
     expect(isNew(tile, '2026-10-25', news)).toBe(false);
     expect(isNew({}, '2026-10-11', news)).toBe(false);
     expect(isNew({ since: '9.9.9' }, '2026-10-11', news)).toBe(false);
+  });
+});
+
+// Paket P «Daten-Widget» (Noah 19.10.2026 «2 beides»): «Your values today» on Heute as its own tile
+describe('Paket P: the tile «Your values today»', () => {
+  it('a wall of before (v < 8) gets it once, right under Aktiv; without Aktiv not; taken away it stays away', () => {
+    expect(withValues([{ id: 'trip', size: 'long' }, { id: 'aktiv', size: 'long' }, { id: 'year', size: 'long' }]).map((x) => x.id)).toEqual(['trip', 'aktiv', 'values', 'year']);
+    expect(withValues([{ id: 'trip', size: 'long' }]).map((x) => x.id)).toEqual(['trip']);
+    expect(wallOf({ v: 7, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv', 'values', 'tipweek']) // v 8 also brings Paket Q's tip of the week;
+    expect(wallOf({ v: 8, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv']);
+    expect(TILE.values.sizes).toEqual(['l', 'long']);
   });
 });

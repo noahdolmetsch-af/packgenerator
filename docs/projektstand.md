@@ -1,6 +1,21 @@
 # Projektstand und Plan
 
-Stand: **18. Oktober 2026, abends**. Live ist **Version 0.145.0** (Paket P3, seit 18.10.2026; nachgeführt 18.10.2026, 22 Uhr UTC).
+Stand: **19. Oktober 2026, abends**. Live ist **Version 0.152.0** («Tempo», seit 19.10.2026). Mit diesem PR kommt **0.154.0** (Paket 2); 0.153.0 (Paket 1, PR #200) ist davor online gegangen.
+
+### Kurzstand 19.10.2026, abends (Roadmap)
+
+Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die Tests auf GitHub grün sind (build, e2e desktop, e2e phone). Bei Paketen, die Daten umbauen, wird vorher mit einer Kopie einer Sicherung geprüft, dass nichts verloren geht. «zurück» heisst: sofort rückgängig machen. Reihenfolge nach Noahs «1b» (19.10.2026):
+
+| Schritt | Paket | Version | Inhalt | Stand |
+| --- | --- | --- | --- | --- |
+| ✓ | E, C, F, Tempo | 0.149.0–0.152.0 | Material, Velos, Woche, Seiten laden beim Öffnen | live |
+| 1 | Paket 1 | 0.153.0 | G Daten von selbst, L Werkzeugkasten, P Was mir gut tut, N Pläne und Träume, Q App klarer, H Packen leichter, J Berg, Schnee und Notfall | PR #200 |
+| 2 | Paket 2 | 0.154.0 | K Haus und Alltag, M Tour-Tagebuch, S Reise-Spur, O/I Teile pro Velo und Inspektion, L2 Packliste vom Foto, R App für alle, Trello, Strava-Fahrten auf Touren | dieser PR |
+| 3 | Paket 3 | 0.155.0 | Freie Zeit, Daten in der App | gebaut, kommt allein |
+| 4 | Paket 4 + U1 | 0.156.0 | Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Anleitungen überall, U1 Rennen (Strategie-Rechner, Muster-Rennen, «Rennen in X Tagen») | im Bau; Ton-Aufnahmen gestrichen (Noah 19.10.2026) |
+| 5 | danach | – | U2 Renn-Karte und Anstiege, U3 Karte offline, Andere Apps einbinden (Seite «Reise-Links») | geplant |
+
+«Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
 Diese Seite ist der Einstieg: was die App ist, was heute online ist, was fertig gebaut auf die Veröffentlichung wartet, in welcher Reihenfolge es kommt und was danach geplant ist. Wie das Projekt bis hierhin gewachsen ist, steht in der [Geschichte](geschichte.md). Einzelheiten stehen in den Dokumenten, die unten verlinkt sind.
 
@@ -66,6 +81,7 @@ Vom 15. bis 18.10.2026 wurde viel gebaut, aber wenig veröffentlicht. Am 18.10.2
 | 6 | **C Heute und Aktiv** | 0.150.0 | Heute neu geordnet (HN4, PR #177; Bausteine mehr, PR #176), Tages-Check als eigenes Fenster mit Morgen-Check und Abend-Rückblick, grosser Balance-Ring mit 9 Bereichen statt der drei Im-Flow-Ringe, «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2 | gebündelt auf E (19.10.2026); Paket Aktiv und Paket Heute fehlen noch (Übertragung nötig) |
 | 7 | **F Woche** | 0.151.0 | eigener Ort «Woche» (am Handy statt «Material» in der Leiste), Sonntags-Planung, Ferien mit Folgen, Google Kalender und Aufgaben in der Woche, Rundgang für den Einstieg, eine Karte «Was hier steht» pro Seite | gebündelt auf C (19.10.2026), Noah «ok f» + «1b»; PR nach C |
 | 7b | **Tempo: Seiten später laden** | 0.152.0 | Alle Seiten ausser Heute laden beim ersten Öffnen, grosse Werkzeuge bei Bedarf, Build-Wächter 3 MB pro Datei; grösste JS-Datei 5,2 MB → rund 1 MB | eigenes Release direkt nach F (Noah «1a» 19.10.2026), vor G |
+| später | **N Pläne und Träume** | nach F, G, L, P | Touren › Träume (Traumtouren, Jahresband mit Saison, Rennen aus Inspiration und Google Kalender als Event-Tour mit Anmeldeschluss, Tourarten als Gruppe), Ich › Mein Kompass (Ziele in Schritten, «Wie läuft's?» auch im Wochenrückblick, Ablagen Vorsätze/Träume/Nicht vergessen/Ideen, KI-Schritte ausschaltbar), Notizen verknüpfen und «Auf einen Blick», neue Notiz-Formate (Fotos, Links, Ort, Skizze, QR, Vorlagen, Formatierung, Teilen, Keep-Import, als Artikel lesen), Träume mit Foto und Karte, Push vor Anmeldeschluss, Kompass-Schritt auf Heute, Träume in Woche planen, Ich › Was kommt | gebaut auf Branch `claude/project-thread-mt00nk`, ohne Version, beim Bündler |
 
 **Abhängigkeiten:** A kommt vor B, weil die Datenbank-Stufen aufeinander aufbauen (12 Dokumente → 13 Fitbit → 14 Dokument-PDF → 15 Google). C braucht B (Aktiv nutzt Fitbit und Training). D und E hängen nicht an B. Neue Arbeit darf parallel weiterlaufen.
 

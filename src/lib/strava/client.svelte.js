@@ -16,6 +16,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
+import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
@@ -44,6 +45,8 @@ export const prefsOf = (v) => ({
   gear: Array.isArray(v?.gear) ? v.gear : [],
   lastSync: typeof v?.lastSync === 'string' ? v.lastSync : null,
   athlete: typeof v?.athlete === 'string' ? v.athlete : '',
+  // #202 (package G): the bike indoor rides without a Strava bike count for (null: they do not count)
+  indoorBike: typeof v?.indoorBike === 'string' && v.indoorBike ? v.indoorBike : null,
 });
 
 /* ---------- the device key (localStorage, try/catch: a private window may refuse it) ---------- */
@@ -140,7 +143,7 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
   const importId = `strava-${now.getTime().toString(36)}`;
-  const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
+  const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, indoorBike: prefs.indoorBike, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
   if (plan.entries.length) {
     const text = t('Just taken over: {rides} from {files}.', { rides: tn(plan.entries.length, '{n} ride', '{n} rides'), files: 'Strava' });
     await applyImport(db, { entries: plan.entries, importId, files: ['Strava'], text });
@@ -151,6 +154,8 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
     await db.settings.put({ key: CHANGES_KEY, value: mergeChanges(old, plan.changes) });
   }
   await keepActivities(db, activities);
+  // #156 (package G): Strava ticks the matching Aktiv activity (or suggests it first)
+  await applyTicks(db, { now }).catch(() => null);
   await fetchTraining(db, c, now);
   const last = { at: now.toISOString(), first, counts: plan.counts, perBike: plan.perBike, km: plan.km, n: plan.entries.length, assigned: plan.counts.assigned, check: plan.counts.check, changes: plan.changes.length };
   await db.settings.put({ key: LAST_KEY, value: last });
@@ -309,23 +314,39 @@ export async function keepActivities(db, list) {
   if (!list.length) return;
   const recs = list.map(actRecord);
   const old = await db.activities.bulkGet(recs.map((r) => r.id));
-  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])) })));
+  // Paket S «Reise-Spur»: a line fetched before (also the finer one of step=line) stays when the list sends none
+  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])), line: (old[i]?.lineFine && old[i]?.line) || r.line || old[i]?.line || null, ...(old[i]?.lineFine ? { lineFine: true } : {}) })));
 }
 
 /** TR5b–TR7f: the further parts of a detail (cadence, 5 km rows, course, heart rate by power, halves, climbs). */
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
 const moreOf = (d) => ({ cHist: obj(d.cHist), secs5: Array.isArray(d.secs5) ? d.secs5 : null, prof: obj(d.prof), hw: obj(d.hw), halves: Array.isArray(d.halves) ? d.halves : null, climbs: Array.isArray(d.climbs) ? d.climbs : [] });
+/** «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): laps, splits per km, «How hard?», temperature low/high, the steepest bit. */
+const fin = (v) => (Number.isFinite(v) ? v : null);
+const extraOf = (d) => ({ laps: Array.isArray(d.laps) ? d.laps : [], splits: Array.isArray(d.splits) ? d.splits : [], rpe: fin(d.rpe), tempMin: fin(d.tempMin), tempMax: fin(d.tempMax), steep: fin(d.steep) });
 
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
 export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
   const d = await c('detail', { params: { id: String(id) } });
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', ...moreOf(d), detail: now.toISOString(), dv: DETAIL_V });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', ...moreOf(d), ...extraOf(d), detail: now.toISOString(), dv: DETAIL_V });
   return d;
 }
 
 /**
+ * Paket S «Reise-Spur»: the finer route line of one activity from Strava (step=line), kept on the activity.
+ * Returns the line (encoded polyline) or null.
+ */
+export async function loadLine(db, id, { call: c = call } = {}) {
+  const d = await c('line', { params: { id: String(id) } });
+  const line = typeof d?.line === 'string' && d.line ? d.line : null;
+  if (line) await db.activities.update(String(id), { line, lineFine: true });
+  return line;
+}
+
+/**
  * After a fetch: the zones from Strava (once a day) and the details of the newest activities with
- * heart rate (at most DETAIL_MAX, Strava allows 100 calls per 15 minutes). An error here never
+ * heart rate, then of the older ones (Noah 19.10.2026 «4a»), at most DETAIL_MAX per fetch (Strava
+ * allows 100 calls per 15 minutes). An error here never
  * spoils the fetch: what is missing comes next time or when the activity is opened.
  */
 export async function fetchTraining(db, c = call, now = new Date()) {
@@ -335,7 +356,16 @@ export async function fetchTraining(db, c = call, now = new Date()) {
       const res = await c('zones');
       if (Array.isArray(res?.hr)) await db.settings.put({ key: ZONES_KEY, value: { hr: res.hr, custom: !!res.custom, at: now.toISOString() } });
     }
-    for (const a of needDetail(await db.activities.toArray(), localDay(now))) await loadDetail(db, a.id, { call: c, now });
+    for (const a of needDetail(await db.activities.toArray(), localDay(now))) {
+      try {
+        await loadDetail(db, a.id, { call: c, now });
+      } catch (e) {
+        // Strava has no details for this one (deleted, or an error only for it): skip it in the background
+        // (opening the activity still tries); busy, a new login or no network: stop until next time
+        if (e?.code !== 'strava_error' && e?.code !== 'bad_request') throw e;
+        await db.activities.update(String(a.id), { noDetail: now.toISOString() });
+      }
+    }
   } catch {
     /* next time */
   }

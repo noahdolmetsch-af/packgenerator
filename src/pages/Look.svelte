@@ -19,6 +19,11 @@
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
+  import { SUGGEST_AREAS } from '../lib/clear/suggest.js';
+  import { suggest, setArea, watchSuggest } from '../lib/clear/suggest.svelte.js';
+  watchSuggest();
+  import { glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
+  import { MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -83,12 +88,32 @@
           <p class="oplbl"><b id="look-start">{t('Open the app at')}</b><small>{t('What you see first after opening')}</small></p>
           <Seg labelledby="look-start" value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
         </div>
+        <div class="startrow">
+          <!-- Paket K #285 «Handschuh-Modus» (Noah 19.10.2026 «4a und kann manuell geändert werden») -->
+          <p class="oplbl"><b id="look-glove">{t('Glove mode')}</b></p>
+          <Seg labelledby="look-glove" value={glove.mode} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} onchange={setGlove} />
+        </div>
         <ul class="ops">
           {#each OPS as o (o.key)}
             <li>
               <label class="op">
                 <span class="nm"><span>{t(o.name)}</span><small>{t(o.text)}</small></span>
                 <input type="checkbox" role="switch" class="opsw" data-op={o.key} checked={ops[o.key]} onchange={(e) => setOp(o.key, e.currentTarget.checked)} />
+              </label>
+            </li>
+          {/each}
+        </ul>
+      </section>
+      <!-- Paket Q #361: every area where the app suggests by itself can be switched off (all on at the start) -->
+      <section aria-labelledby="look-sugg" data-suggest-areas>
+        <h2 id="look-sugg">{t('Suggestions')}</h2>
+        <p class="note">{t('What the app suggests by itself; switch off what you do not want. Saved with your data.')}</p>
+        <ul class="ops">
+          {#each SUGGEST_AREAS as a (a.key)}
+            <li>
+              <label class="op">
+                <span class="nm"><span>{t(a.label)}</span><small>{t(a.text)}</small></span>
+                <input type="checkbox" role="switch" class="opsw" data-suggest={a.key} checked={suggest.on[a.key]} onchange={(e) => setArea(a.key, e.currentTarget.checked)} />
               </label>
             </li>
           {/each}

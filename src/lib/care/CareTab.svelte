@@ -43,6 +43,10 @@
   import { daysFrom } from '../today.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, eventPrep } from '../readiness.js';
+  import { serviceDone } from '../bikeservice.js';
+  import { hoursOn } from '../bikehours.js';
+  import { vig } from '../veloimgriff.svelte.js';
+  import { offerDone } from '../ui/rename.svelte.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
   // open: open that bike's section (a link "Bike care for the …").
@@ -191,6 +195,17 @@
     say(t('Start point saved: {part}, {date} · {km} km.', { part: PART[key] ? t(PART[key].name) : key, date: dateOf(entry.date), km: num(entry.km) }), { bikeId, prev, itemId: null });
   }
   const setQ1 = (bikeId, on) => db.bikes.update(bikeId, { q1: on });
+
+  /* ---------- «Velo im Griff» #193: the whole-bike service done today, with Undo ---------- */
+  async function serviceNow(bikeId) {
+    const b = await db.bikes.get(bikeId);
+    if (!b) return;
+    const before = b.service ?? {};
+    await db.bikes.update(bikeId, serviceDone(b, { day: today, km: b.km ?? null, hours: hoursOn(vig.hours[bikeId] ?? null, today) }));
+    offerDone(t('Bike service saved: {date}.', { date: dateOf(today) }), () => db.bikes.update(bikeId, { service: before }));
+  }
+  /** «Done» on a due row: the whole-bike service, or a part's service. */
+  const doneRow = (view, r) => (r.kind === 'service' ? serviceNow(view.id) : checkAndSay(view, [r.part], 'service', r.kind === 'time' ? r.name : '', 'self'));
 
   async function savePart(view, key, entry) {
     const bike = bikeById[view.id];
@@ -420,7 +435,7 @@
       {today}
       bikeIdOf={taskBike}
       onopen={(id) => openBike(id)}
-      ondone={(id, r) => checkAndSay(viewById[id], [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
+      ondone={(id, r) => doneRow(viewById[id], r)}
       onflow={(id, key, mode) => (partOpen = { bikeId: id, key, start: mode })}
       onorder={(id) => (orderOpen = id)}
       onrepair={repairResult}
@@ -472,7 +487,7 @@
         ontoggle={(isOpen) => toggled(c.bike.id, isOpen)}
         onkm={(text) => saveKm(c.bike, text)}
         oncheck={(keys, action, note) => checkAndSay(c.bike, keys, action, note)}
-        ondone={(r) => checkAndSay(c.bike, [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
+        ondone={(r) => doneRow(c.bike, r)}
         onpart={(key) => (partOpen = { bikeId: c.bike.id, key })}
         ontyre={(w, value) => setTyre(bikeById[c.bike.id], w, value)}
         onvisit={(id) => (visitOpen = id)}

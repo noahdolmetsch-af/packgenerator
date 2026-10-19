@@ -21,15 +21,16 @@
   import { formatWeight, itemWeight, isInventory, knownWeight } from '../gear.js';
   import { blockIcon, blockTone } from '../blockicons.js';
   import { qtyOf } from '../sets.js';
-  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf, NEED, OR, ALT, BATHING_BLOCKS } from '../situation.js';
+  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf, NEED, OR, ALT, BATHING_BLOCKS, OWN_RULE, ownRuleOf } from '../situation.js';
   import { cmpWord, unitOf, sourceLine, needLine, byHand } from '../situationtext.js';
   import { SETS } from '../gear.js';
 
-  let { block, rule, onsave, onrename, ondelete = null, onclose } = $props();
+  let { block, rule, onsave, onrename, ondelete = null, onclose, own = false } = $props();
+  // Paket H #260 «Regel-Editor»: own = an own block; every value can be its rule, the start is OWN_RULE
 
   let dialog;
   // svelte-ignore state_referenced_locally
-  const start = ruleOf(block.key, rule);
+  const start = own ? (ownRuleOf(rule) ?? { ...OWN_RULE }) : ruleOf(block.key, rule);
   let on = $state(start.on);
   let metric = $state(start.metric);
   let cmp = $state(start.cmp ?? 'gte');
@@ -38,7 +39,7 @@
   let out = $state([]); // items taken out, saved with «Speichern»
   let error = $state('');
 
-  const std = $derived(ruleOf(block.key, null));
+  const std = $derived(own ? OWN_RULE : ruleOf(block.key, null));
   const bool = $derived(!!METRICS[metric]?.bool);
   const kept = $derived(block.items.filter((i) => !out.includes(i.id)));
   const Icon = $derived(blockIcon(block.key, block.name));
@@ -50,7 +51,7 @@
   });
 
   function reset() {
-    const d = DEFAULT_RULES[block.key];
+    const d = own ? OWN_RULE : DEFAULT_RULES[block.key];
     on = true;
     metric = d.metric;
     cmp = d.cmp ?? 'gte';
@@ -62,6 +63,7 @@
   function pickMetric(m) {
     metric = m;
     if (m === std.metric) limit = String(std.limit);
+    else if (own && !METRICS[m].bool && !String(limit).trim()) limit = '0';
   }
 
   async function save(e) {
@@ -95,7 +97,7 @@
     <div class="head">
       <div>
         <h2 id="rs-h">{block.name}</h2>
-        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
+        <p class="sub num">{own ? t('Own building block with a rule') : t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
       </div>
       <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -108,13 +110,18 @@
 
     <fieldset class="rule">
       <legend class="lbl">{t('Comes along when')}</legend>
+      {#if own}
+        <select class="sel ownm" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
+          {#each Object.keys(METRICS) as m (m)}<option value={m}>{t(METRICS[m].name)}</option>{/each}
+        </select>
+      {/if}
       {#if bool}
-        <p class="boolr">{t(METRICS[metric].name)}</p>
+        {#if !own}<p class="boolr">{t(METRICS[metric].name)}</p>{/if}
       {:else}
         <div class="rrow">
-          <select class="sel" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
+          {#if !own}<select class="sel" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
             {#each NUMERIC as m (m)}<option value={m}>{t(METRICS[m].name)}</option>{/each}
-          </select>
+          </select>{/if}
           <select class="sel" aria-label={t('Comparison')} bind:value={cmp}>
             {#each CMPS as c (c)}<option value={c}>{cmpWord(c)}</option>{/each}
           </select>
@@ -131,7 +138,7 @@
         <!-- v0.154.0 (mockup SN3i): a fixed second condition, by hand where the app does not know it yet -->
         <p class="extra need">{needLine(block.key)}{#if byHand(block.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}</p>
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      <p class="src">{sourceLine(metric)}{#if !own && !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
       {#if NEED[block.key] === 'lake'}<p class="src">{t('Lake or river is not known to the app yet: you tap it in Plan («Lake or river»). Later from the route.')}</p>{/if}
       {#if block.key === 'rain' && metric === 'rainPct'}
         <!-- v0.144.0 RE «Regen überall gleich» (Noah 1a): this limit is the one rain limit of the app -->
@@ -463,4 +470,5 @@
       flex: 1;
     }
   }
+  .ownm { width: 100%; margin: 0 0 8px; }
 </style>

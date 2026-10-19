@@ -21,6 +21,7 @@
   import { smartSearch } from '../kisuche/smart.js';
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
+  import { helpAnswers, isQuestion } from '../clear/help.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -40,7 +41,10 @@
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
-  const feats = $derived(q.trim().length >= 2 ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
+  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
+  // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
+  // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
+  const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
   // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
   const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
@@ -283,8 +287,16 @@
           {/each}
         </ul>
       {:else}
-        {#if !cmds.length && !feats.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+        {#if !cmds.length && !feats.length && !help.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
+      {#if help.length}
+        <p class="gh">{t('Fits your question')}</p>
+        <ul>
+          {#each help as f (f.id)}
+            <li><button type="button" data-help={f.featureId} onclick={() => goFeat(f)}><span class="m"><b>{f.title}</b><small>{f.sub}</small></span></button></li>
+          {/each}
+        </ul>
+      {/if}
       {#if feats.length}
         <p class="gh">{t('Functions')}</p>
         <ul>

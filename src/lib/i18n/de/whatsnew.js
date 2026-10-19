@@ -4,6 +4,30 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.154.0 Paket 2
+  'Riding, learning and your bikes': 'Unterwegs, lernen und deine Velos',
+  'On the road, after the tour and in the workshop.': 'Unterwegs, nach der Tour und in der Werkstatt.',
+  'On the road: handlebar view, «Before you leave», a link for your family': 'Unterwegs: Lenker-Ansicht, «Vor der Abfahrt», ein Link für die Familie',
+  'Bikes › Care: inspection with photos, service by km, hours or days': 'Velos › Pflege: Inspektion mit Fotos, Service nach km, Stunden oder Tagen',
+  'After the tour: diary, chronicle, quiz; Strava rides with all values': 'Nach der Tour: Tagebuch, Chronik, Quiz; Strava-Fahrten mit allen Werten',
+  'Aktiv › Sports: a page for every sport': 'Aktiv › Sportarten: eine Seite pro Sport',
+  'Packing list by photo, sitting position by camera': 'Packliste per Foto, Sitzposition per Kamera',
+  'Trello, sign in with Google, bike mechanic and guide': 'Trello, mit Google anmelden, Velomech und Guide',
+  'Open Trips › On the road and tap «Before you leave».': 'Öffne Touren › Unterwegs und tippe auf «Vor der Abfahrt».',
+  'Open Bikes › Care and start a monthly inspection.': 'Öffne Velos › Pflege und starte einen monatlichen Check.',
+  'Open Aktiv › Training › List and open a ride.': 'Öffne Aktiv › Training › Liste und öffne eine Fahrt.',
+  // 0.153.0 Paket 1: G, L, P, N, Q, H, J
+  'Seven new parts at once': 'Sieben neue Teile auf einmal',
+  'Data by itself, a toolbox, dreams, easier packing, help in the mountains.': 'Daten von selbst, ein Werkzeugkasten, Träume, leichter packen, Hilfe in den Bergen.',
+  'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm': 'Ich › Verbindungen: Strava, Fitbit und Google füllen die App; ein Wetter-Wecker',
+  'Me › Toolbox: PDF, photos, currencies, trip costs, QR code': 'Ich › Werkzeugkasten: PDF, Fotos, Währungen, Tourkosten, QR-Code',
+  'Trips › Dreams: dream tours, races and goals in small steps': 'Touren › Träume: Traumtouren, Rennen und Ziele in kleinen Schritten',
+  'Packing: from earlier trips, Supplies, Lent out, lists as a table': 'Packen: aus früheren Touren, Vorrat, Ausgeliehen, Listen als Tabelle',
+  'Mountains: freezing level, new snow, swisstopo map, emergency page': 'Berge: Nullgradgrenze, Neuschnee, swisstopo-Karte, Notfall-Seite',
+  'What is good for me, alerts, tip of the week, backup with a password': 'Was mir gut tut, Hinweise, Tipp der Woche, Backup mit Passwort',
+  'Open Me › Toolbox and turn three photos into one PDF.': 'Öffne Ich › Werkzeugkasten und mach aus drei Fotos ein PDF.',
+  'Open Trips › Dreams and add a dream tour with a season.': 'Öffne Touren › Träume und füge eine Traumtour mit Saison hinzu.',
+  'Open Me › Connections: every connection with its state and switches.': 'Öffne Ich › Verbindungen: jede Verbindung mit Stand und Schaltern.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

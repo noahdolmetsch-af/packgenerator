@@ -53,6 +53,10 @@ export function careSuggest(sport = '', name = '') {
     return [{ name: 'Wax the base', every: 10, unit: 'uses' }, { name: 'Sharpen the edges', every: 365, unit: 'days' }];
   }
   if (sport === 'act:tennis') return [{ name: 'Restring', every: 30, unit: 'hours' }];
+  // Paket O (#197, #200): skates are sharpened after uses; rope and harness have an age limit
+  if (sport === 'act:hockey' && /schlittschuh|skate/.test(n)) return [{ name: 'Sharpen the skates', every: 10, unit: 'uses' }];
+  if (sport === 'act:climb' && /seil|rope/.test(n)) return [{ name: 'Check the rope for damage', every: 10, unit: 'uses' }, { name: 'Replace the rope', every: 3650, unit: 'days' }];
+  if (sport === 'act:climb' && /gurt|harness/.test(n)) return [{ name: 'Replace the harness', every: 3650, unit: 'days' }];
   if (sport === 'dom:hiking' || sport === 'act:run' || /schuh|shoe/.test(n)) return [{ name: 'Waterproof', every: 300, unit: 'km' }];
   return [];
 }

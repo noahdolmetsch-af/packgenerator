@@ -48,7 +48,11 @@ Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah 
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (19.10.2026, live 0.148.0)
+## Stand heute (19.10.2026, live 0.152.0)
+
+**Nachtrag 19.10.2026 abends:** Reihenfolge nach Noahs «1b»: 0.153.0 Paket 1 (#200), 0.154.0 Paket 2, 0.155.0 Paket 3 allein, dann 0.156.0 Paket 4 + U1 (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Anleitungen überall, Rennen). Ton-Aufnahmen sind gestrichen. Danach U2 (Renn-Karte, Anstiege), U3 (Karte offline) und «Andere Apps einbinden» (Seite «Reise-Links»). «Frontend aufpeppen» ist pausiert. Die Vorhaben-Liste zählt: live 240 · gebaut 49 · im Bau 34 · gewünscht 43 · Idee 60 · nein 16.
+
+Live ist 0.152.0 «Tempo» (19.10.2026). 0.153.0 «Paket 1» (G, L, P, N, Q, H, J) ist als PR #200 unterwegs; 0.154.0 «Paket 2» bringt K, M, S, O/I mit Velo-Inspektion, L2, R, Trello und Strava-Fahrten (Noah 15:14 «1a»); danach 0.155.0 «Paket 3» mit Freie Zeit (acht neue Seiten) und Daten (Wetter, Tageslicht, Termine in Erkenntnissen).
 
 Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.149.0, PR #194) wartet auf Noahs Merge, C (0.150.0) ist darauf gebaut und kommt danach, F (0.151.0) ist auf C gebaut (Noah «ok f» + «1b», 19.10.2026) und kommt zuletzt. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
 
@@ -319,6 +323,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
 - **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F (0.151.0, gebündelt auf C, 19.10.2026).
+- **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, neue Notiz-Formate, Was kommt → Paket N.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge

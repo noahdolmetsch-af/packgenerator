@@ -15,15 +15,24 @@
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED } from '../lib/notebook.js';
+  import ListTable from '../lib/ui/ListTable.svelte';
+  import { savedView, saveView } from '../lib/listtable.js';
+  import { TOPICS } from '../lib/notebook.js';
+  import { phone } from '../lib/media.svelte.js';
+  import { guessTopic, noteTopic, topicText, FILTERS, noteList, filterCounts, newKeptNote, noteTitle, progress, notesMarkdown, linkFrom, tagsOf, MAX_PINNED, noteStats } from '../lib/notebook.js';
   import { sortBikes } from '../lib/bikes.js';
   import { shrinkImage } from '../lib/photo.js';
   import { localDay } from '../lib/localday.js';
   import NoteSheet from '../lib/notes/NoteSheet.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil } from '@lucide/svelte';
+  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
+  import { zipEntries } from '../lib/zipread.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
+  import { QrCode, FileInput, LayoutTemplate, Trash2 } from '@lucide/svelte';
+  import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
 
   const notesQ = liveQuery(() => db.notes.toArray());
@@ -32,8 +41,97 @@
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const names = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const counts = $derived(filterCounts(notes));
+  const stats = $derived(noteStats(notes, localDay())); // Paket N #10: the small evaluation
   const inboxN = $derived(notes.filter((n) => n.status === 'open').length);
 
+  // Paket N N10 templates, N7 QR code, N13 Google Keep (Noah 19.10.2026 «4a», «5b und a»)
+  const tplQ = liveQuery(() => db.settings.get(NOTE_TPL_KEY));
+  const tpls = $derived(templatesOf($tplQ?.value));
+  const saveTpls = (list) => db.settings.put({ key: NOTE_TPL_KEY, value: $state.snapshot(list) });
+  function useTpl(x) {
+    text = tplText(x, t);
+    checkMode = /(^|\n)- /.test(text);
+  }
+  let renaming = $state(null);
+  let renameTo = $state('');
+  async function dropTpl(x) {
+    const before = $state.snapshot(tpls);
+    const name = tplName(x, t);
+    await deleteWithUndo({ run: async () => (await saveTpls(removeTemplate(before, x.key)), before), undo: (snap) => saveTpls(snap), text: t('"{name}" deleted.', { name }), name });
+  }
+  async function scanQr(e) {
+    const f = e.currentTarget.files[0];
+    e.currentTarget.value = '';
+    if (!f) return;
+    msg = '';
+    if (!('BarcodeDetector' in window)) return (msg = t('This browser cannot read QR codes. On the phone (Chrome) it works.'));
+    try {
+      const codes = await new window.BarcodeDetector({ formats: ['qr_code'] }).detect(await createImageBitmap(f));
+      if (!codes.length) return (msg = t('No QR code found in this picture.'));
+      const q = qrToNote(codes[0].rawValue);
+      text = [q.title, q.text].filter(Boolean).join('\n');
+      if (q.link) ((linkOpen = true), (linkUrl = q.link.url), (linkTitle = q.link.title));
+      saved = t('QR code read. Check the note and save it.');
+      setTimeout(() => (saved = ''), 4000);
+    } catch {
+      msg = t('The picture could not be read.');
+    }
+  }
+  let keepMsg = $state('');
+  let keepBusy = $state(false);
+  async function keepFiles(e) {
+    const files = [...e.currentTarget.files];
+    e.currentTarget.value = '';
+    if (!files.length) return;
+    keepBusy = true;
+    keepMsg = '';
+    const jsons = [];
+    try {
+      for (const f of files) {
+        if (/\.zip$/i.test(f.name)) {
+          for (const en of await zipEntries(f, (n) => /keep\/[^/]+\.json$/i.test(n))) {
+            try {
+              jsons.push(JSON.parse(await en.text()));
+            } catch {
+              /* not a note */
+            }
+          }
+        } else if (/\.json$/i.test(f.name)) {
+          try {
+            jsons.push(JSON.parse(await f.text()));
+          } catch {
+            /* not a note */
+          }
+        }
+      }
+      const notesNow = await db.notes.toArray();
+      const r = keepImport(jsons.filter(isKeepNote), notesNow);
+      if (r.add.length) await db.notes.bulkPut(r.add);
+      keepMsg = r.add.length || r.already ? t('{n} notes taken over from Google Keep, {old} were already here.', { n: r.add.length, old: r.already }) : t('No Keep note found. Choose the .zip from Google Takeout or the .json files in its «Keep» folder.');
+    } catch {
+      keepMsg = t('This file could not be read. Choose the .zip from Google Takeout or the .json files in its «Keep» folder.');
+    } finally {
+      keepBusy = false;
+    }
+  }
+
+  // Paket H «3a und b»: the shared table (ListTable), remembered on this device
+  let tableOn = $state(savedView('notes') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('notes', on ? 'table' : 'list'));
+  const noteCols = $derived([
+    { key: 'title', label: t('Title'), type: 'text', bulk: false, get: (n) => noteTitle(n) },
+    { key: 'topic', label: t('Topic'), type: 'select', get: (n) => noteTopic(n), options: TOPICS.map((x) => ({ key: x.key, name: topicText(x.key, t) })) },
+    { key: 'pinned', label: t('Pinned'), type: 'check', width: '6em', readOnly: true }, // at most 3: pinned in the note itself
+    { key: 'created', label: t('Date'), type: 'text', readOnly: true, get: (n) => String(n.createdAt ?? '').slice(0, 10) },
+  ]);
+  async function delNotes(rows) {
+    const ids = rows.map((r) => r.id);
+    return db.transaction('rw', db.notes, async () => {
+      const before = (await db.notes.bulkGet(ids)).filter(Boolean);
+      await db.notes.bulkDelete(ids);
+      return before;
+    });
+  }
   let filter = $state('all');
   let query = $state('');
   const list = $derived(noteList(notes, { filter, query }));
@@ -141,6 +239,7 @@
         <label class="tb" aria-label={t('Add a photo')}><ImageIcon size={18} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
         <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={18} aria-hidden="true" /></button>
         <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={18} aria-hidden="true" /></button>
+        <label class="tb" aria-label={t('Scan a QR code')} data-scan-qr><QrCode size={18} aria-hidden="true" /><input type="file" accept="image/*" capture="environment" hidden onchange={scanQr} /></label>
         {#if SR}<button type="button" class="tb" aria-pressed={listening} aria-label={listening ? t('Stop dictation') : t('Dictate')} title={listening ? t('Stop dictation') : t('Dictate')} onclick={dictate}><Mic size={18} aria-hidden="true" /></button>{/if}
         <button type="submit" class="btn hi save">{t('Save')}</button>
       </div>
@@ -152,6 +251,9 @@
       </div>
     {/if}
     {#if photo}<p class="phrow"><img src={photo} alt={t('Photo of the note')} /><button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button></p>{/if}
+    {#if !text.trim()}
+      <p class="tpls" data-templates><span class="hint">{t('Start from')}</span>{#each tpls as x (x.key)}<button type="button" class="fchip" onclick={() => useTpl(x)}>{tplName(x, t)}</button>{/each}</p>
+    {/if}
     <p class="tools hintrow"><span class="hint">{text.trim() ? t('Topic: {topic}', { topic: topicText(topicNow ?? '', t) }) : t('The topic follows the text')}</span></p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     {#if saved}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{saved}</p>{/if}
@@ -180,10 +282,15 @@
           {#if inboxN}
             <Empty icon={NotebookPen} text={`${t('No notes yet. What you want to keep lands here.')} ${tn(inboxN, '{n} note is waiting in the Inbox.', '{n} notes are waiting in the Inbox.')}`} action={{ label: t('To the Inbox ({n})', { n: inboxN }), href: '#/inbox' }} />
           {:else}
-            <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')} />
+            <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
           {/if}
         </div>
       {/if}
+      <!-- Paket H «3a und b»: the notes as an editable table; tick several to change the topic or delete them -->
+      {#if counts.all}<p class="tblrow"><button type="button" class="btn btn-link" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-note-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button></p>{/if}
+      {#if tableOn && counts.all}
+        <ListTable rows={list} cols={noteCols} nameOf={(n) => noteTitle(n) || t('Note')} onsave={(pairs) => db.notes.bulkPut(pairs.map((p) => ({ ...p.after, updatedAt: new Date().toISOString() })))} ondelete={delNotes} onrestore={(before) => db.notes.bulkPut(before)} onopen={(n) => (open = n.id)} label={t('Notes')} search={false} />
+      {:else}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
           <div class="ich-h"><div><h2 id="pin-h">{t('Pinned')} <small class="n num">{pinned.length}/{MAX_PINNED}</small></h2></div></div>
@@ -197,6 +304,7 @@
         </section>
       {:else if counts.all && !pinned.length}
         <div class="nonote"><Empty icon={Search} text={t('Nothing found.')} /></div>
+      {/if}
       {/if}
     </div>
 
@@ -223,10 +331,54 @@
         </div>
       </section>
 
+      {#if counts.all}
+        <!-- Paket N #10 (19.10.2026): what the notes hold, at a glance; a #tag searches for it -->
+        <section class="ich-sec" aria-labelledby="nstat-h" data-note-stats>
+          <div class="ich-h"><div><h2 id="nstat-h"><ChartColumn size={16} aria-hidden="true" /> {t('At a glance|notes')}</h2><p class="ich-hs">{t('A tap on a #tag searches for it')}</p></div></div>
+          <div class="card ich-body nst">
+            <p>{tn(stats.month, '{n} note this month', '{n} notes this month')} · {tn(stats.total, '{n} in total', '{n} in total')}</p>
+            {#if stats.openLists}<p>{t('{points} open points in {lists} checklists', { points: stats.openPoints, lists: stats.openLists })}{#if stats.oldestOpen} · <button type="button" class="btn-link" onclick={() => (open = stats.oldestOpen.id)}>{t('oldest: {name}', { name: stats.oldestOpen.title || t('Note') })}</button>{/if}</p>{/if}
+            {#if stats.linked}<p>{tn(stats.linked, '{n} note linked with others', '{n} notes linked with others')}</p>{/if}
+            {#if stats.topTags.length}
+              <div class="fl">{#each stats.topTags as x (x.tag)}<button type="button" class="fchip" aria-pressed={query === `#${x.tag}`} onclick={() => (query = query === `#${x.tag}` ? '' : `#${x.tag}`)}>#{x.tag} · <span class="num">{x.n}</span></button>{/each}</div>
+            {:else}<p class="fh">{t('Write #word in a note to group notes by it.')}</p>{/if}
+          </div>
+        </section>
+      {/if}
+
+      <details class="ich-sec tplman" data-template-list>
+        <summary><LayoutTemplate size={16} aria-hidden="true" /> {t('Templates')} <small class="n num">{tpls.length}</small></summary>
+        <ul class="card ich-list">
+          {#each tpls as x (x.key)}
+            <li class="tplrow">
+              {#if renaming === x.key}
+                <form class="tplrn" onsubmit={(e) => (e.preventDefault(), saveTpls(renameTemplate(tpls, x.key, renameTo, t)), (renaming = null))}>
+                  <input class="inp" type="text" maxlength="40" bind:value={renameTo} aria-label={t('New name of the template')} />
+                  <button type="submit" class="btn sm hi">{t('Save')}</button>
+                </form>
+              {:else}
+                <span class="tpln">{tplName(x, t)}</span>
+                <button type="button" class="tb" aria-label={t('Rename {name}', { name: tplName(x, t) })} onclick={() => ((renaming = x.key), (renameTo = tplName(x, t)))}><Pencil size={16} aria-hidden="true" /></button>
+                <button type="button" class="tb" aria-label={t('Remove {name}', { name: tplName(x, t) })} onclick={() => dropTpl(x)}><Trash2 size={16} aria-hidden="true" /></button>
+              {/if}
+            </li>
+          {/each}
+        </ul>
+        <p class="ich-help">{t('Your own: open a note and tap «Save as a template».')}</p>
+      </details>
+
       <section class="ich-sec" aria-labelledby="nmore-h">
         <div class="ich-h"><div><h2 id="nmore-h">{t('More')}</h2></div></div>
         <ul class="card ich-list">
           <li><a class="ich-row" href="#/inbox"><span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Inbox')}</b><small>{tn(inboxN, '{n} to file', '{n} to file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li>
+            <label class="ich-row keepin" data-keep-import>
+              <span class="ich-ib"><FileInput size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{keepBusy ? t('Reading …') : t('Take over from Google Keep')}</b><small>{t('takeout.google.com › only «Keep» › download, then choose the .zip here')}</small></span>
+              <input type="file" accept=".zip,.json,application/zip,application/json" multiple hidden onchange={keepFiles} />
+            </label>
+            {#if keepMsg}<p class="ich-help" role="status">{keepMsg}</p>{/if}
+          </li>
           {#if counts.all}<li><button type="button" class="ich-row" onclick={exportMd}><span class="ich-ib"><Download size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Export as Markdown')}</b><small>{t('The notes are also in the normal backup.')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
         </ul>
       </section>
@@ -236,7 +388,7 @@
 </div>
 
 {#if openNote}
-  <NoteSheet note={openNote} {bikes} pinnedCount={counts.pinned} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />
+  {#key open}<NoteSheet note={openNote} {bikes} {notes} pinnedCount={counts.pinned} onopen={(id) => (open = id)} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />{/key}
 {/if}
 {#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
 
@@ -347,6 +499,53 @@
   }
   .search .inp {
     padding-left: 38px;
+  }
+  .tpls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  .tplman summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .tplrow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+  }
+  .tpln {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tplrn {
+    display: flex;
+    gap: 6px;
+    flex: 1 1 auto;
+    padding: 6px 0;
+  }
+  .tplrn .inp {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .keepin {
+    cursor: pointer;
+  }
+  .nst {
+    display: grid;
+    gap: 6px;
+  }
+  .nst p {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .fl {
     display: flex;

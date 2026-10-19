@@ -46,6 +46,8 @@
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
+  import TripTable from '../lib/touren/TripTable.svelte';
+  import { savedView, saveView } from '../lib/listtable.js';
   import Empty from '../lib/ui/Empty.svelte';
   import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
@@ -68,7 +70,7 @@
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
-  import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
+  import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
   import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
@@ -87,6 +89,7 @@
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
+  import { actHref } from '../lib/strava/acthref.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
   import AreaIntro from '../lib/intro/AreaIntro.svelte';
@@ -96,6 +99,9 @@
   import { oldTripSuggestions, OLD_TRIPS_DONE, oldTripsLater } from '../lib/sports.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
+  // Paket H «3a und b»: the trips as an editable table, remembered on this device
+  let tableOn = $state(savedView('trips') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('trips', on ? 'table' : 'list'));
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -188,7 +194,7 @@
   const acts = $derived($actsQ ?? []);
   const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
   const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
-  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '' });
+  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '', list: [] });
 
   let mode = $state('12m');
   const year = today.slice(0, 4);
@@ -277,7 +283,8 @@
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
   let openNow = $state(null);
   let tvNow = $state(null);
-  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [...TOUR_GROUP_KEYS] });
+  // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; each group's head keeps its main numbers
+  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [] });
   function saveIz(next) {
     const plain = $state.snapshot(next);
     openNow = [...plain.open];
@@ -365,7 +372,7 @@
   {@const sv = stravaOf(r)}
   <p class="pinfo" data-pack-info>
     {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
-    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{sv.n > 1 ? t('Strava: {n} activities', { n: sv.n }) : sv.n === 1 ? t('Strava: {name}', { name: sv.name || t('1 activity') }) : t('no Strava activity')}</span>
+    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{#if sv.n === 1}<a class="actl" href={actHref(sv.list[0].id)} data-act-link={sv.list[0].id}>{t('Strava: {name}', { name: sv.name || t('1 activity') })}</a>{:else if sv.n > 1}{t('Strava: {n} activities', { n: sv.n })}{#each sv.list as a, i (a.id)}{i ? ',' : ':'} <a class="actl" href={actHref(a.id)} data-act-link={a.id}>{a.name || t('1 activity')}</a>{/each}{:else}{t('no Strava activity')}{/if}</span>
   </p>
 {/snippet}
 
@@ -407,6 +414,10 @@
       {#if tours.band !== 'hidden'}
         <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
+
+      <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
+      <!-- Handy kurz: on a phone the open debriefs stay in the folded tiles at the end («Packmodus» counts them) -->
+      {#if $dataQ && !phone.matches}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
       <section class="plan" aria-labelledby="trips-plan" data-planned>
@@ -492,6 +503,8 @@
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
           </div>
           <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
+          <!-- Paket H «3a und b»: change several trips at once (shared table) -->
+          <button type="button" class="btn btn-link more" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-trip-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button>
         </div>
         <div class="tools">
           <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
@@ -506,7 +519,9 @@
         {/if}
         {@render activeRow()}
 
-        {#if !$dataQ}
+        {#if tableOn}
+          <TripTable trips={$tripsQ ?? []} onclose={() => setTable(false)} />
+        {:else if !$dataQ}
           <Skeleton rows={3} />
         {:else if !rows.length}
           <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
@@ -567,7 +582,7 @@
 
       {#if phone.matches && !extrasOpen && $dataQ && facts.length}
         <!-- 0.163.0: on a phone «In Zahlen» and «Weiter» wait behind one line -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (extrasOpen = true)} data-trips-extras><span><b>{t('In numbers')} · {t('More|tiles')}</b><small>{t('Totals, records, weather and the map of all trips')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (extrasOpen = true)} data-trips-extras><span><b>{t('In numbers')} · {t('More|tiles')}</b><small>{t('Totals, records, weather, map')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       {#if phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       {#if $dataQ && facts.length}
@@ -575,7 +590,7 @@
       {/if}
 
       <PageMore page="trips" name={t('Trips|place')} />
-      <TourTiles {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
+      <TourTiles skip={phone.matches ? [] : ['o2']} {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
       {/if}
     {/if}
   {:else}
@@ -1088,6 +1103,12 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .pinfo .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
+  }
   .pinfo span {
     display: inline-flex;
     align-items: center;
@@ -1160,11 +1181,9 @@
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);
-    /* Paket E CI («Handy kurz», three screens with the SA3 band): the grey line stays one line; the line opens
-       what it names */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* Paket Q (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): the grey line is shown whole again and
+       wraps when it must; its text is short enough for one line on a phone, so Touren stays within three
+       screens (handy-kurz) */
   }
   @media (max-width: 719px) {
     .hide-phone {

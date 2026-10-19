@@ -28,6 +28,7 @@ export default defineConfig({
         meditation: 'apps/meditation/index.html',
         packliste: 'apps/packliste/index.html',
         velopflege: 'apps/velopflege/index.html',
+        werkzeug: 'apps/werkzeug/index.html',
         // Termine buchen (BU2 + BU3): the page the people who book open, without the app
         buchen: 'buchen/index.html',
       },
@@ -101,10 +102,37 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
+            // Paket L «Werkzeugkasten»: «Freistellen» loads its reader once from jsdelivr (the model itself is
+            // kept by transformers.js in its own cache), «Bildformat» its HEIC reader; kept here so both work
+            // offline afterwards.
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/(@huggingface\/transformers|onnxruntime-web|onnxruntime-common|heic2any)@/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'pg-cutout-lib', expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
             // Trail Journal fonts: cached after the first online visit.
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'google-fonts', expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
+            // Paket J #161: the swisstopo map tiles you looked at stay for the mountains without the internet.
+            urlPattern: /^https:\/\/wmts\.geo\.admin\.ch\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
+          {
+            // Paket S «Reise-Spur»: OpenStreetMap tiles seen once stay for the tour map offline (swisstopo: Paket J's «swisstopo-tiles»).
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
+          {
+            // Paket L2 «Bilderkennung»: the recognition (MediaPipe script, WebAssembly, models; about 30 MB) is
+            // NOT in the install-time cache; it is kept here after its first use, so it works offline after.
+            urlPattern: /^https:\/\/(cdn\.jsdelivr\.net\/npm\/@mediapipe\/|storage\.googleapis\.com\/mediapipe-models\/)/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'vision-models', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] } },
           },
         ],
       },

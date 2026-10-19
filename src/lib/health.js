@@ -129,3 +129,23 @@ export function weekAzm(rows, today) {
   const monday = addDays(today, -wd);
   return rows.filter((r) => r.date >= monday && r.date <= today).reduce((s, r) => s + (r.azm ?? 0), 0);
 }
+
+/** The weekly goal for the active zone minutes (db.settings AZM_WEEK_KEY { of }, in backups). */
+export const AZM_WEEK_KEY = 'azmWeek';
+export const AZM_WEEK_OF = 150;
+export const azmWeekOf = (v) => (Number.isFinite(Number(v?.of)) && Number(v.of) > 0 ? Math.round(Number(v.of)) : AZM_WEEK_OF);
+
+/**
+ * Aktiv (Noah 19.10.2026 «1b»): the active zone minutes of this week, Monday to Sunday, one entry per day.
+ * min is null for a day without a value and for days after «today». sum counts up to «today».
+ */
+export function azmWeek(rows, today) {
+  const wd = (new Date(`${today}T00:00:00Z`).getUTCDay() + 6) % 7;
+  const monday = addDays(today, -wd);
+  const by = new Map((rows ?? []).filter((r) => Number.isFinite(r?.azm)).map((r) => [r.date, r.azm]));
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(monday, i);
+    return { date, min: date <= today && by.has(date) ? by.get(date) : null, future: date > today, today: date === today };
+  });
+  return { monday, days, sum: days.reduce((s, d) => s + (d.min ?? 0), 0), any: days.some((d) => d.min !== null) };
+}

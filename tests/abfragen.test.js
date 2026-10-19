@@ -21,11 +21,11 @@ const D0 = '2026-10-09'; // a Friday
 const d = (n) => addDays(D0, n);
 
 describe('the 50 questions', () => {
-  it('10 areas with 5 questions each, every one with an answer form and an interval', () => {
+  it('10 areas with 5 questions each (Paket P adds 4 evening questions), every one with an answer form and an interval', () => {
     expect(AREAS).toHaveLength(10);
-    expect(QUESTIONS).toHaveLength(50);
-    for (const a of AREAS) expect(QUESTIONS.filter((q) => q.area === a.key)).toHaveLength(5);
-    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(50);
+    expect(QUESTIONS).toHaveLength(54);
+    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([6, 5, 5, 5, 7, 5, 5, 6, 5, 5]);
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(54);
     for (const q of QUESTIONS) {
       expect(['scale', 'chips', 'yesno', 'number', 'text']).toContain(q.form.kind);
       if (q.form.kind === 'chips' || q.form.kind === 'yesno') expect(q.form.options.length).toBeGreaterThan(1);
@@ -45,12 +45,12 @@ describe('the 50 questions', () => {
     expect(DE['How happy are you with the day: the best of both worlds?']).toBe('Wie zufrieden bist du mit dem Tag: Fünfer und Weggli?');
   });
 
-  it('31 are on at the start, as in AB5 (4·4·3·3·2·3·2·3·4·3), the other 19 can be switched on', () => {
-    expect(ON_AT_START.size).toBe(31);
+  it('31 are on at the start, as in AB5 (4·4·3·3·2·3·2·3·4·3), plus the 4 evening questions of Paket P; the other 19 can be switched on', () => {
+    expect(ON_AT_START.size).toBe(35);
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
-    expect(n).toMatchObject({ all: 50, on: 31 });
-    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([4, 4, 3, 3, 2, 3, 2, 3, 4, 3]);
+    expect(n).toMatchObject({ all: 54, on: 35 });
+    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([5, 4, 3, 3, 4, 3, 2, 4, 4, 3]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
     expect(settingOf(null, QUESTION['erholung.akku']).every).toEqual({ kind: 'times', times: ['08:00', '13:00', '20:00'] });
   });
@@ -66,10 +66,10 @@ describe('switching and intervals', () => {
     let c = configOf({ since: `${d(-10)}T08:00` });
     c = setOn(c, 'spass.gelacht', true, `${D0}T20:30`);
     expect(settingOf(c, QUESTION['spass.gelacht'])).toMatchObject({ on: true, since: `${D0}T20:30` });
-    expect(counts(c).on).toBe(32);
+    expect(counts(c).on).toBe(36);
     c = setOn(c, 'erholung.akku', false, `${D0}T09:00`);
     expect(settingOf(c, QUESTION['erholung.akku']).on).toBe(false);
-    expect(counts(c).on).toBe(31);
+    expect(counts(c).on).toBe(35);
   });
 
   it('own interval per question, several times a day sorted and without doubles', () => {
@@ -108,7 +108,7 @@ describe('own questions (AB2)', () => {
     expect(own).toMatchObject({ text: 'Kaffee', area: 'eigene', form: { kind: 'number', unit: 'Tassen' }, own: true, src: ['only'] });
     let c = putOwn(null, own, `${D0}T10:00`);
     expect(c.own).toHaveLength(1);
-    expect(counts(c)).toMatchObject({ all: 51, on: 32 });
+    expect(counts(c)).toMatchObject({ all: 55, on: 36 });
     expect(settingOf(c, c.own[0])).toMatchObject({ on: true, since: `${D0}T10:00`, every: { kind: 'times', times: ['12:00', '18:00'] } });
     c = putOwn(c, { ...own, text: 'Espresso', every: { kind: 'off' } }, `${D0}T11:00`);
     expect(c.own[0].text).toBe('Espresso');
@@ -351,7 +351,7 @@ describe('the database (schema 9): answers next to the daily checks', () => {
   });
 
   it('a new table abAnswers in the backup; flowChecks stay untouched', async () => {
-    expect(SCHEMA_VERSION).toBe(15); // «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
+    expect(SCHEMA_VERSION).toBe(18); // «Velo-Inspektion»: version 18 adds inspections; Paket O: version 17 adds sportItems; Paket S «Reise-Spur» adds tracks as 16; «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
     expect(DATA_TABLES).toContain('abAnswers');
     await db.flowChecks.put({ day: d(-1), sleep: 6, energy: 5, mood: 7, q: null, extra: null });
     await db.abAnswers.put(answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` }));
