@@ -229,3 +229,16 @@ describe('cost, month and request', () => {
     expect(allowedOrigin('https://packgenerator-evil.vercel.app')).toBe(false);
   });
 });
+
+// Paket N #1047: the helper task «steps» keeps 6 steps at most, with dates between today and the goal's day.
+import { describe as describeN, it as itN, expect as expectN } from 'vitest';
+import { validate as validateN, TASK_NAMES as NAMES_N } from '../api/_lib/helper.js';
+describeN('helper task steps', () => {
+  itN('is a task and checks its answer', () => {
+    expectN(NAMES_N).toContain('steps');
+    const out = validateN('steps', { today: '2026-10-19', due: '2026-11-09' }, { steps: [{ text: ' Route  zeichnen ', date: '2026-10-25' }, { text: 'Zu spät', date: '2026-12-01' }, { text: '', date: '' }, ...Array.from({ length: 8 }, (_, i) => ({ text: `S${i}`, date: 'x' }))] });
+    expectN(out.steps[0]).toEqual({ text: 'Route zeichnen', date: '2026-10-25' });
+    expectN(out.steps[1]).toEqual({ text: 'Zu spät', date: '' });
+    expectN(out.steps).toHaveLength(6);
+  });
+});
