@@ -139,6 +139,15 @@ At most 8 parts, the most urgent first. Do not invent parts. This is not a works
       parts: arr(obj({ key: S, status: { type: 'string', enum: ['soon', 'check', 'ok'] }, reason: S, check: S })),
     }),
   },
+  // Paket N #1047 «Hilf mir planen» (Noah 19.10.2026 «5 a und b»): a goal becomes steps with dates.
+  steps: {
+    effort: 'low',
+    maxTokens: 3000,
+    system: `${COMMON}
+Task: the person has a goal ("goal") they want to reach by a day ("due", YYYY-MM-DD; "today" is today). Split it into 3 to 6 small, concrete steps in a sensible order, each with a date between today and due (YYYY-MM-DD), the first soon.
+Leave out what the person already has as a step ("have"). Each step: one short line that starts with a verb, e.g. "Route auf der Karte zeichnen". No health or medical advice.`,
+    schema: obj({ steps: arr(obj({ text: S, date: S })) }),
+  },
 };
 export const TASK_NAMES = Object.keys(TASKS);
 
@@ -233,6 +242,17 @@ export function validate(task, input = {}, out = {}) {
       .filter((p) => p && parts.has(p.key) && ['soon', 'check', 'ok'].includes(p.status))
       .map((p) => ({ key: p.key, status: p.status, reason: str(p.reason, 160), check: str(p.check, 160) }));
     return { parts: uniq(rows, 'key').slice(0, 8) };
+  }
+  if (task === 'steps') {
+    const today = /^\d{4}-\d{2}-\d{2}$/.test(input.today ?? '') ? input.today : '';
+    const due = /^\d{4}-\d{2}-\d{2}$/.test(input.due ?? '') ? input.due : '';
+    const steps = list(o.steps)
+      .filter((x) => x && typeof x.text === 'string' && x.text.trim())
+      .map((x) => {
+        const d = /^\d{4}-\d{2}-\d{2}$/.test(x.date ?? '') ? x.date : '';
+        return { text: str(x.text, 120), date: d && (!today || d >= today) && (!due || d <= due) ? d : '' };
+      });
+    return { steps: steps.slice(0, 6) };
   }
   return {};
 }

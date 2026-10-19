@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.153.0 Paket 1 (Noah 19.10.2026 15:14 «1a»): G «Daten kommen von selbst», L «Werkzeugkasten», P «Was mir gut tut»,
+    // N «Pläne und Träume», Q «App klarer», H «Packen leichter», J «Berg, Schnee und Notfall». Built on Tempo 0.152.0.
+    version: '0.153.0',
+    date: '2026-10-19',
+    title: 'Seven new parts at once',
+    lead: 'Data by itself, a toolbox, dreams, easier packing, help in the mountains.',
+    points: [
+      { text: 'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm', href: '#/me/connections' },
+      { text: 'Me › Toolbox: PDF, photos, currencies, trip costs, QR code', href: '#/me/tools' },
+      { text: 'Trips › Dreams: dream tours, races and goals in small steps', href: '#/trips/dreams' },
+    ],
+    small: [
+      { box: 'new', text: 'Packing: from earlier trips, Supplies, Lent out, lists as a table', href: '#/gear/supplies' },
+      { box: 'new', text: 'Mountains: freezing level, new snow, swisstopo map, emergency page', href: '#/mountain' },
+      { box: 'nicer', text: 'What is good for me, alerts, tip of the week, backup with a password', href: '#/me/wohl' },
+    ],
+    test: [
+      'Open Me › Connections: every connection with its state and switches.',
+      'Open Me › Toolbox and turn three photos into one PDF.',
+      'Open Trips › Dreams and add a dream tour with a season.',
+    ],
+  },
+  {
     // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
     // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
     version: '0.152.0',

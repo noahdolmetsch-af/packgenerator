@@ -21,6 +21,9 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { db } from '../lib/db.js';
   import Seg from '../lib/ui/Seg.svelte';
+  import ListTable from '../lib/ui/ListTable.svelte'; // Paket H «3a und b»
+  import { savedView, saveView } from '../lib/listtable.js';
+  import { phone } from '../lib/media.svelte.js';
   import GroupActions from '../lib/ui/GroupActions.svelte';
   import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
   import { UNDO_MS } from '../lib/ui/undo.js';
@@ -49,6 +52,30 @@
   const groups = $derived(q.trim() ? [{ key: 'hits', kind: 'hits', name: null, rows: sortDocs(searchDocs(docs.list, q), sort) }] : groupDocs(docs.list, sort, docs.prefs.groups).filter((g) => g.rows.length || g.kind === 'own'));
   const allGroups = $derived(ownGroups([...GROUP_IDEAS.map((g) => ({ group: g })), ...docs.list], docs.prefs.groups));
   const reminders = $derived(reminderRows(docs.list, today));
+  // Paket H «3a und b»: the shared table; name and group go through the same calls as the document page (Drive follows)
+  let tableOn = $state(savedView('docs') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('docs', on ? 'table' : 'list'));
+  const docCols = $derived([
+    { key: 'name', label: t('Name'), type: 'text', required: true, bulk: false },
+    { key: 'group', label: t('Group'), type: 'select', get: (d) => groupOf(d), options: allGroups.map((g) => ({ key: g, name: ownLabel(g) })) },
+    { key: 'until', label: t('Valid until (month)'), type: 'text', width: '9em', set: (d, v) => ({ ...d, until: /^\d{4}-(0[1-9]|1[0-2])$/.test(v) ? v : null }) },
+    { key: 'note', label: t('Note'), type: 'text' },
+    { key: 'kind', label: t('Kind'), type: 'text', readOnly: true, get: (d) => kindLine(d) },
+  ]);
+  async function saveDocRows(pairs) {
+    for (const { before, after } of pairs) {
+      if (after.name !== before.name) await renameDoc(after.id, after.name);
+      if (groupOf(after) !== groupOf(before)) await moveDoc(after.id, groupOf(after));
+      const patch = {};
+      for (const k of ['until', 'note']) if ((after[k] ?? null) !== (before[k] ?? null)) patch[k] = after[k] ?? null;
+      if (Object.keys(patch).length) await updateDoc(after.id, patch);
+    }
+  }
+  async function delDocs(rows) {
+    const out = [];
+    for (const r of rows) out.push(await deleteDoc(r.id));
+    return out.filter(Boolean);
+  }
   const pack = $derived(packRows(docs.list));
   const ticks = $derived(next?.docChecks ?? {});
 
@@ -220,6 +247,7 @@
     preview = url;
     return () => URL.revokeObjectURL(url);
   });
+  import Ablage from '../lib/tools/Ablage.svelte';
 </script>
 
 {#snippet packCard(rows)}
@@ -330,6 +358,11 @@
             <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search, also in the text of the pages')} aria-label={t('Search documents')} /></label>
             <Seg chips full={false} label={t('Sort')} value={sort} onchange={(v) => (sort = v)} options={SORTS.map((k) => ({ key: k, name: t(SORT_NAMES[k]) }))} />
           </div>
+          <!-- Paket H «3a und b»: the documents as an editable table; tick several to move or delete them -->
+          <p class="tblrow"><button type="button" class="btn btn-link" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-doc-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button></p>
+          {#if tableOn}
+            <ListTable rows={docs.list} cols={docCols} nameOf={(d) => d.name || t('Document')} onsave={saveDocRows} ondelete={delDocs} onrestore={(rows) => Promise.all(rows.map((r) => restoreDoc(r)))} onopen={(d) => (location.hash = `${DOCS_HASH}/${encodeURIComponent(d.id)}`)} label={t('Documents')} />
+          {:else}
           {#each groups as g (g.key)}
             <section class="ich-sec" aria-labelledby={gid(g)}>
               {#if g.kind === 'hits'}
@@ -356,6 +389,7 @@
               {/if}
             </section>
           {/each}
+          {/if}
         {/if}
         <div class="ich-acts">
           <a class="btn hi" href={SCAN_HASH}><Camera size={16} aria-hidden="true" />{t('Photograph document')}</a>
@@ -363,6 +397,8 @@
         </div>
         <p class="ich-help">{t('Photograph the pages: the app makes a PDF and reads the text. Or add a PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.')}</p>
         {#if docs.list.length}<p class="ich-help" data-group-help>{t('Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.')}</p>{/if}
+        <!-- Paket L «Werkzeugkasten» (Noah «4 a und b»): links and small files, the same as Werkzeugkasten › Ablage -->
+        <div class="doc-ablage"><Ablage head="h2" /></div>
       </div>
       <div class="ich-side">
         <section class="ich-sec" aria-labelledby="rem-h">
@@ -435,6 +471,11 @@
 
 
 <style>
+  .doc-ablage {
+    display: grid;
+    gap: var(--sp-4);
+    margin-top: var(--sp-5);
+  }
   .msg {
     margin: 0 0 12px;
     font-weight: 600;

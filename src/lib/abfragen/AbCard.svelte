@@ -18,6 +18,7 @@
   import { kgOf } from '../review/actdata.js';
   import { t } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
+  import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
   import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
   import '../bikes/velo-dlg.css';
   import './ab.css';
@@ -119,6 +120,7 @@
         {/if}
       </div>
     {/each}
+    <CheckLine {today} {evening} />
     <div class="lks">
       <a class="ab-lnk" href={evening ? '#/check/evening' : '#/check/morning'} data-ab-page>{evening ? t('Whole evening review') : t('Whole morning check')}<ChevronRight size={14} aria-hidden="true" /></a>
       <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>

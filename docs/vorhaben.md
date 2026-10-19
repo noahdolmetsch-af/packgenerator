@@ -45,7 +45,9 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (19.10.2026, live 0.148.0)
+## Stand heute (19.10.2026, live 0.151.0)
+
+Live ist 0.151.0 «Paket F – Woche» (19.10.2026); Tempo 0.152.0 kommt als Nächstes, dann 0.153.0 «Paket 1» mit G, L, P, N, Q, H und J in einem Release (Noah 15:14 «1a»), danach 0.154.0 «Paket 2» mit K, M, S, O/I, L2, R und Trello.
 
 Live ist 0.148.0 «Paket D – Touren und Unterwegs» (seit 19.10.2026); E (0.149.0, PR #194) wartet auf Noahs Merge, C (0.150.0) ist darauf gebaut und kommt danach, F (0.151.0) ist auf C gebaut (Noah «ok f» + «1b», 19.10.2026) und kommt zuletzt. Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
 
@@ -316,6 +318,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
 - **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F (0.151.0, gebündelt auf C, 19.10.2026).
+- **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, neue Notiz-Formate, Was kommt → Paket N.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge

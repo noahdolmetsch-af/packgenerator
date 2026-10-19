@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.153.0 Paket 1: G, L, P, N, Q, H, J
+  'Seven new parts at once': 'Sieben neue Teile auf einmal',
+  'Data by itself, a toolbox, dreams, easier packing, help in the mountains.': 'Daten von selbst, ein Werkzeugkasten, Träume, leichter packen, Hilfe in den Bergen.',
+  'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm': 'Ich › Verbindungen: Strava, Fitbit und Google füllen die App; ein Wetter-Wecker',
+  'Me › Toolbox: PDF, photos, currencies, trip costs, QR code': 'Ich › Werkzeugkasten: PDF, Fotos, Währungen, Tourkosten, QR-Code',
+  'Trips › Dreams: dream tours, races and goals in small steps': 'Touren › Träume: Traumtouren, Rennen und Ziele in kleinen Schritten',
+  'Packing: from earlier trips, Supplies, Lent out, lists as a table': 'Packen: aus früheren Touren, Vorrat, Ausgeliehen, Listen als Tabelle',
+  'Mountains: freezing level, new snow, swisstopo map, emergency page': 'Berge: Nullgradgrenze, Neuschnee, swisstopo-Karte, Notfall-Seite',
+  'What is good for me, alerts, tip of the week, backup with a password': 'Was mir gut tut, Hinweise, Tipp der Woche, Backup mit Passwort',
+  'Open Me › Toolbox and turn three photos into one PDF.': 'Öffne Ich › Werkzeugkasten und mach aus drei Fotos ein PDF.',
+  'Open Trips › Dreams and add a dream tour with a season.': 'Öffne Touren › Träume und füge eine Traumtour mit Saison hinzu.',
+  'Open Me › Connections: every connection with its state and switches.': 'Öffne Ich › Verbindungen: jede Verbindung mit Stand und Schaltern.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

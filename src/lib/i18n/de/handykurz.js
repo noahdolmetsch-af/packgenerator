@@ -4,6 +4,6 @@ export default {
   'Show {n} more activities': 'Noch {n} Aktivitäten zeigen',
   'Show {n} more trip': 'Noch {n} Tour zeigen',
   'Show {n} more trips': 'Noch {n} Touren zeigen',
-  'Totals, records, weather and the map of all trips': 'Summen, Rekorde, Wetter und die Karte aller Touren',
+  'Totals, records, weather, map': 'Summen, Rekorde, Wetter, Karte',
   '{n} to rate': '{n} zu bewerten',
 };

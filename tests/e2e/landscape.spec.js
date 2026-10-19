@@ -96,6 +96,18 @@ for (const [w, hgt] of [
       // What the fixed bars cover at the top and bottom leaves at least half the screen for the page.
       const covered = m.top + Math.max(m.bottom, 0) + m.act;
       expect(m.vh - covered, `${where}: room for the content`).toBeGreaterThanOrEqual(m.vh * 0.5);
+      // Paket H (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): on Plan the jump marks stand right under the band
+      if (step === 'Plan') {
+        const alone = page.locator('[data-core-alone]');
+        await expect(alone, `${where}: jump marks under the band`).toBeVisible();
+        await expect(page.locator('.trip-band [data-core-line]'), `${where}: not inside the band`).toBeHidden();
+        const marks = alone.locator('[data-jump]');
+        expect(await marks.count(), `${where}: at least two jump marks`).toBeGreaterThanOrEqual(2);
+        for (const b of await marks.all()) expect((await b.boundingBox()).height, `${where}: jump mark 44 px`).toBeGreaterThanOrEqual(44);
+        await alone.locator('[data-jump="list"]').click();
+        await expect.poll(() => page.evaluate(() => window.scrollY), `${where}: the jump scrolls down`).toBeGreaterThan(0);
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
     }
     expect(errors).toEqual([]);
   });

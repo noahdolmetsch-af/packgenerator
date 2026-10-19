@@ -13,6 +13,9 @@ import { clock } from '../../flowtimer.js';
 export const tileName = (a) => (a ? (lang.v === 'de' && a.nickDe ? a.nickDe : a.nick) || actName(a) : '');
 /** A milestone's name. */
 export const msName = (m) => t(m.name, m.vars);
+/** Package G: the name of a data milestone's area (bike, Fitbit, everyday), '' for another key. */
+const AREA_WORDS = { bike: 'Bike|msarea', fitbit: 'Fitbit|msarea', daily: 'Everyday|msarea' };
+export const areaWord = (key) => (AREA_WORDS[key] ? t(AREA_WORDS[key]) : '');
 /** «4th star · Depth» */
 export const stageName = (k) => t(STAGES[Math.max(0, Math.min(6, k - 1))]);
 export const starLine = (k) => t('Star {k} · {stage}', { k, stage: stageName(k) });

@@ -120,7 +120,7 @@
       <section class="ssec" aria-labelledby="visits-h">
         <h2 id="visits-h" class="sh">{t('Visits and receipts')}</h2>
         {#if !visits.length}
-          <Empty icon={ReceiptText} text={t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')} />
+          <Empty icon={ReceiptText} text={t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')} action={{ label: t('To the Inbox'), href: '#/inbox' }} />
         {:else}
           <ul class="card srows">
             {#each months as m (m.key)}

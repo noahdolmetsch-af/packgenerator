@@ -104,7 +104,10 @@ test('A-U2: a page that throws shows the error page with three ways, never white
     // background loads (pages loading ahead) can still run when the test ends: then there is nothing to change
     const res = await route.fetch().catch(() => null);
     if (!res) return;
-    const body = (await res.text()).replace(/[\w$]+\(`Sage is new; the earlier ones stay`\)/, `(()=>{throw new Error(${JSON.stringify(BOOM)})})()`);
+    // the same for a response that was already disposed when the test ended (seen on CI, phone)
+    const text = await res.text().catch(() => null);
+    if (text == null) return;
+    const body = text.replace(/[\w$]+\(`Sage is new; the earlier ones stay`\)/, `(()=>{throw new Error(${JSON.stringify(BOOM)})})()`);
     await route.fulfill({ response: res, body });
   });
   const T = await openHome(page, context, info);

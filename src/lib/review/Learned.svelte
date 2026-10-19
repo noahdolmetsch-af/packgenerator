@@ -99,7 +99,7 @@
       </ul>
     </section>
   {:else}
-    <Empty icon={Lightbulb} text={learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')} />
+    <Empty icon={Lightbulb} text={learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')} action={learnings.length ? null : { label: t('To the look back'), href: '#/debrief' }} />
   {/each}
 </section>
 

@@ -1,3 +1,4 @@
+import { backupText } from './backupcrypt.js';
 import { buildBackup, backupFileName, DEVICE_SETTINGS } from './backup.js';
 import { DATA_TABLES } from './db.js';
 
@@ -69,7 +70,7 @@ export async function writeNow(db) {
   // No backup while a demo runs: the demo data must not end up in your backup files.
   if (await db.table('meta').get('demo')) return false;
   if (!rec || (await rec.handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return false;
-  const text = JSON.stringify(await buildBackup(db), null, 2);
+  const text = await backupText(db, await buildBackup(db)); // Paket Q #135: locked when switched on
   await writeFile(rec.handle, LATEST, text);
   await writeFile(rec.handle, backupFileName(), text);
   await db.table('meta').put({ ...rec, lastWrite: new Date().toISOString() });

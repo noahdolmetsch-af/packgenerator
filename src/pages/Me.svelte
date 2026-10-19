@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack } from '@lucide/svelte';
+  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
@@ -214,6 +214,14 @@
             </a>
           </li>
           <li>
+            <!-- package G #155: every connection in one place (Strava, Fitbit, Google, lake), with its switches -->
+            <a class="ich-row" href="#/me/connections" data-row="connections">
+              <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Connections')}</b><small>{t('Strava, Fitbit, Google, lake: state and switches')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- Google Mail (GM): the Gmail inbox, read and send -->
             <a class="ich-row" href="#/me/mail">
               <span class="ich-ib"><Mail size={18} aria-hidden="true" /></span>
@@ -269,6 +277,14 @@
             </a>
           </li>
           <li>
+            <!-- Paket N (Noah 19.10.2026 «4b»): Ich › Mein Kompass, goals in steps and the boxes -->
+            <a class="ich-row" href="#/me/compass" data-row="compass">
+              <span class="ich-ib"><Target size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('My compass')}</b><small>{t('Goals in steps, resolutions, dreams, ideas')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- «Inspiration» UC2-1: on a phone Ich › Inspiration (on a computer also in the sidebar) -->
             <a class="ich-row" href="#/inspiration">
               <span class="ich-ib"><Compass size={18} aria-hidden="true" /></span>
@@ -281,6 +297,30 @@
             <a class="ich-row" href="#/me/weight" data-row="weight">
               <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Weight|place')}</b><small>{weightLine}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket P «Was mir gut tut» (Noah 19.10.2026) -->
+            <a class="ich-row" href="#/me/wohl" data-row="wohl">
+              <span class="ich-ib"><HeartHandshake size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What is good for me')}</b><small>{t('Good days, experiments, life phases')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket L «Werkzeugkasten»: calculator, units, time zones, compass, phrases, PDF, photos -->
+            <a class="ich-row" href="#/me/tools" data-row="tools">
+              <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Toolbox')}</b><small>{t('Calculator, units, PDF, photos and more')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket L «Werkzeuge und Links» (Noah 19.10.2026 «1b»): other apps and pages -->
+            <a class="ich-row" href="#/me/links" data-row="weblinks">
+              <span class="ich-ib"><ExternalLink size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Tools and links')}</b><small>{t('SBB, Maps, komoot, Trello and your own links')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -320,6 +360,14 @@
             <a class="ich-row" href="#/me/push">
               <span class="ich-ib"><BellRing size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Reminders on the phone')}</b><small>{t('Birthdays, plants, the evening before, the weather')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket Q #148: weather warnings, avalanche danger, passes and news from your own sources -->
+            <a class="ich-row" href="#/me/hinweise" data-row="hinweise">
+              <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Alerts and news')}</b><small>{t('Weather warnings, avalanches, passes, news')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -370,6 +418,14 @@
             <a class="ich-row" href="#/me/news">
               <span class="ich-ib"><Star size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What is new')}</b><small>{t('New in {version}', { version: shortVersion(WHATS_NEW[0].version) })}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket N #68 (19.10.2026): Ich › Was kommt, the plan package by package -->
+            <a class="ich-row" href="#/me/next" data-row="next">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What comes next')}</b><small>{t('The plan of the app, package by package')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

@@ -43,8 +43,12 @@
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
+  import OfflineLine from './lib/clear/OfflineLine.svelte';
+  import ComebackWindow from './lib/clear/ComebackWindow.svelte';
+  import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
+  import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -322,6 +326,9 @@
     Agenda: () => import('./pages/Agenda.svelte'),
     MailPage: () => import('./pages/Mail.svelte'),
     WasNeu: () => import('./pages/WasNeu.svelte'),
+    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68: Ich › Was kommt
+    Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
+    Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
     Push: () => import('./pages/Push.svelte'),
@@ -329,6 +336,13 @@
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
+    Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
+    Tools: () => import('./pages/Tools.svelte'), // Paket L «Werkzeugkasten»
+    WebLinks: () => import('./pages/WebLinks.svelte'), // Paket L «Werkzeuge und Links»
+    Hinweise: () => import('./pages/Hinweise.svelte'), // Paket Q #148: Ich › Hinweise und News
+    Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
+    Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
+    Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
     Pay: () => import('./pages/Pay.svelte'),
     Handbook: () => import('./pages/Handbook.svelte'),
     MiniApps: () => import('./pages/MiniApps.svelte'),
@@ -380,8 +394,10 @@
 {/if}
 <div class="col">
 <DemoBar />
+<OfflineLine />
+{#if !mini && page !== 'share'}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -414,6 +430,9 @@
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'mountain'}
+    <!-- Paket J «Berg, Schnee und Notfall»: #/mountain, /sos, /qr, /map, /scales; loads only when opened -->
+    <LazyPage load={PAGES.Mountain} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <LazyPage load={PAGES.PastTrips} />
@@ -430,6 +449,12 @@
   {:else if page === 'features'}
     <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
     <LazyPage load={PAGES.Features} />
+  {:else if page === 'supplies'}
+    <!-- Paket H (answer 2b): Material › Vorrat, loaded only when opened -->
+    <LazyPage load={PAGES.Supplies} />
+  {:else if page === 'lend'}
+    <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
+    <LazyPage load={PAGES.Lend} />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <LazyPage load={PAGES.Favorites} />
@@ -455,6 +480,9 @@
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <LazyPage load={PAGES.Me} />
+  {:else if page === 'hinweise'}
+    <!-- Paket Q #148: Ich › Hinweise und News -->
+    <LazyPage load={PAGES.Hinweise} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />
@@ -470,12 +498,21 @@
   {:else if page === 'docscan'}
     <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
     <LazyPage load={PAGES.DocScan} />
+  {:else if page === 'connections'}
+    <!-- package G #155: Ich › Verbindungen, loaded only when opened (main.js stays small) -->
+    {#await import('./pages/Connections.svelte') then m}<m.default />{/await}
   {:else if page === 'agenda'}
     <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
     <LazyPage load={PAGES.Agenda} />
   {:else if page === 'mail'}
     <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
     {#key hash}<LazyPage load={PAGES.MailPage} />{/key}
+  {:else if page === 'compass'}
+    <LazyPage load={PAGES.Compass} />
+  {:else if page === 'dreams'}
+    <LazyPage load={PAGES.Dreams} />
+  {:else if page === 'next'}
+    <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}
@@ -494,6 +531,12 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <LazyPage load={PAGES.MiniApps} />
+  {:else if page === 'tools'}
+    <!-- Paket L «Werkzeugkasten»: Ich › Werkzeugkasten and its tools (#/me/tools/<key>) -->
+    {#key toolKeyOf(hash)}<LazyPage load={PAGES.Tools} tool={toolKeyOf(hash)} />{/key}
+  {:else if page === 'weblinks'}
+    <!-- Paket L «Werkzeuge und Links» (Noah 19.10.2026 «1b»): links to other apps and pages -->
+    <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
@@ -512,6 +555,9 @@
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
     <LazyPage load={PAGES.Weight} />
+  {:else if page === 'wohl'}
+    <!-- Paket P «Was mir gut tut»: Ich › Was mir gut tut -->
+    <LazyPage load={PAGES.Wohl} />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <LazyPage load={PAGES.Pay} />

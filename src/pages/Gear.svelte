@@ -8,7 +8,10 @@
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { LENDS_KEY, lentOut } from '../lib/lend.js';
   import { phone } from '../lib/media.svelte.js';
+  import ListTable from '../lib/ui/ListTable.svelte'; // Paket H «3a und b»: the table and «Change for all»
+  import { gearCols, saveItemRows } from '../lib/gear/tablecols.js';
   import { untrack } from 'svelte';
   import '../lib/ui/daumen.css'; // FE1
   import { SvelteSet, MediaQuery } from 'svelte/reactivity';
@@ -68,6 +71,9 @@
   }
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
+  // Paket H «5 a und b»: what is lent out right now, shown in the row
+  const lendsQ = liveQuery(() => db.settings.get(LENDS_KEY));
+  const lentNow = $derived(lentOut(Array.isArray($lendsQ?.value) ? $lendsQ.value : []));
   const items = $derived($itemsQuery ?? []);
   const stats = $derived(gearStats(items));
   // v0.19.2 (Noah 6a, 7a): what the debriefs say about each item.
@@ -187,7 +193,8 @@
     (() => {
       try {
         // v0.102.0 Design-Refresh P3 (M1, Noah «5a Liste zuerst»): the list first; the cards stay a choice
-        return localStorage.getItem(DISPLAY) === 'cards' ? 'cards' : 'list';
+        const d = localStorage.getItem(DISPLAY);
+        return d === 'cards' || d === 'table' ? d : 'list';
       } catch {
         return 'list';
       }
@@ -353,7 +360,8 @@
   const altOf = (item) => (item.ownership === 'owned' || item.ownership === 'unclear' ? lighterAlt(item, items) : null);
   const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
   // Selecting works on the list (the rows have the boxes); the cards come back afterwards.
-  const shownAs = $derived(selecting ? 'list' : display);
+  // Paket H «3a»: the table only on a computer; a phone shows the list
+  const shownAs = $derived(selecting ? 'list' : display === 'table' && phone.matches ? 'list' : display);
   // v0.102.0 Design-Refresh P3 (M1): the chosen item shows on the right in the list too (computer)
   const showPanel = $derived(wideQ.current && !mode);
   // Impeccable runde 2 (18.10.2026, Material 2): nothing chosen, nothing shown: a calm card says what a tap shows
@@ -749,7 +757,9 @@
           <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
           <p class="weighrow">{@render weighLink()}</p>
         {/if}
-        {#if shownAs === 'cards'}
+        {#if shownAs === 'table' && sorted.length}
+          <ListTable rows={sorted} cols={gearCols()} nameOf={(i) => nameOf(i)} onsave={(pairs) => saveItemRows(db, pairs)} ondelete={(rows) => deleteItems(db, rows.map((r) => r.id))} onrestore={(snap) => undoBulk(db, snap)} onopen={open} label={t('Gear|page')} search={false} />
+        {:else if shownAs === 'cards'}
           {#if sorted.length}
             <div class="cards">
               {#each sorted.slice(0, limit) as item (item.id)}
@@ -800,7 +810,7 @@
                   <ul class="rows">
                     {#each rows as item (item.id)}
                       {#if !selecting}
-                        <GearRow {item} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
+                        <GearRow {item} lent={lentNow[item.id] ?? null} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
                       {:else}
                         <li class="fr">{@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}</li>
                       {/if}
@@ -932,8 +942,9 @@
 {/snippet}
 
 {#snippet showAs()}
-  {#if !phone.matches}<span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>{/if}
-  <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
+  <!-- Paket H «3a und b» (Noah 19.10.2026): the third choice «Table» on a computer (shared ui/ListTable) -->
+  <!-- on a phone «Show as» lives in the filter sheet (Impeccable 2, Material 3) -->
+  {#if !phone.matches}<span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }, { key: 'table', name: t('Table') }]} value={display} onchange={setDisplay} /></span>{/if}
   <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
 

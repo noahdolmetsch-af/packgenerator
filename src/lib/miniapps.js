@@ -46,6 +46,18 @@ export const MINI_APPS = [
       { key: 'bikes', label: 'Bikes|place', href: '#/bikes', match: (h) => path(h).startsWith('#/bikes') && !['care', 'shop'].includes(q(h, 'tab')) },
     ],
   },
+  {
+    // Paket L «Werkzeugkasten» (Noah 19.10.2026 «1 … b auch möglich»): the toolbox as its own small app
+    key: 'werkzeug',
+    name: 'Toolbox',
+    icon: 'wrench',
+    tabs: [
+      { key: 'tools', label: 'Toolbox', href: '#/me/tools', match: (h) => path(h) === '#/me/tools' || (path(h).startsWith('#/me/tools/') && !/^#\/me\/tools\/(calc|pdf|photo)/.test(path(h))) },
+      { key: 'calc', label: 'Calculator', href: '#/me/tools/calc', match: (h) => path(h).startsWith('#/me/tools/calc') },
+      { key: 'pdf', label: 'PDF', href: '#/me/tools/pdf', match: (h) => path(h).startsWith('#/me/tools/pdf') },
+      { key: 'photo', label: 'Photos', href: '#/me/tools/photo', match: (h) => path(h).startsWith('#/me/tools/photo') },
+    ],
+  },
 ];
 
 export const MINI_APP = Object.fromEntries(MINI_APPS.map((a) => [a.key, a]));

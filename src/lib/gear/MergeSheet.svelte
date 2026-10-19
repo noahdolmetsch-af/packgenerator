@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import { plainError } from '../clear/errors.js'; // Paket Q #127: plain words instead of technical text
   /**
    * v0.37.1 "Zusammenlegen": merge one item into its counterpart(s). Comes up from below on a phone,
    * centred on a computer. The app proposes up to 3 counterparts (gearimport.js counterparts, badge
@@ -59,7 +60,7 @@
         dialog.close();
       }
     } catch (err) {
-      error = `${t('Nothing was changed.')} ${err.message}`;
+      error = `${t('Nothing was changed.')} ${t(plainError(err))}`;
     } finally {
       busy = false;
     }

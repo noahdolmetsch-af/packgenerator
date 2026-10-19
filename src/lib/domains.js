@@ -133,7 +133,12 @@ export const hasBike = (trip) => !Array.isArray(trip?.packs);
 export const domainName = (key) => DOMAIN[key]?.name ?? key;
 
 /** The areas of an item; none set means bikepacking. */
-export const itemDomains = (item) => (item?.domains?.length ? item.domains : [BIKEPACKING]);
+/**
+ * Paket H (#55 «Teile Überall»): an item with the area 'all' belongs to every area (head torch, power
+ * bank); it counts as each of them, so every page that reads the areas sees it everywhere.
+ */
+export const EVERYWHERE = 'all';
+export const itemDomains = (item) => (item?.domains?.includes(EVERYWHERE) ? DOMAINS.map((d) => d.key) : item?.domains?.length ? item.domains : [BIKEPACKING]);
 /** v0.36.0: a bike trip (bikepacking) also takes the items of the area Velo. */
 export const VELO = 'velo';
 export const inDomain = (item, key) => !key || itemDomains(item).includes(key) || (key === BIKEPACKING && itemDomains(item).includes(VELO));

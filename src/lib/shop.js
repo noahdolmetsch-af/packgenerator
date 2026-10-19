@@ -16,17 +16,24 @@ import { t, nameOf } from './i18n.svelte.js';
  */
 export function shopList(trip, itemsById = {}) {
   const ticks = trip?.shop ?? {};
+  const people = peopleOf(trip);
   const rows = new Map();
   for (const e of trip?.entries ?? []) {
     const it = itemsById[e.itemId];
     if (!it || !isConsumable(it)) continue;
-    const qty = Math.max(1, Number(e.qty) || 1);
+    const qty = Math.max(1, Number(e.qty) || 1) * people;
     const row = rows.get(e.itemId);
     if (row) row.qty += qty;
     else rows.set(e.itemId, { itemId: e.itemId, name: nameOf(it) || e.itemId, qty, done: !!ticks[e.itemId] });
   }
   return [...rows.values()];
 }
+
+/**
+ * Paket H (#365 «Tour-Essen für mehrere Personen»): how many people eat from this list (trip.people,
+ * 1 when not set). The amounts of the shopping list are for all of them; the packing list stays yours.
+ */
+export const peopleOf = (trip) => Math.min(20, Math.max(1, Math.round(Number(trip?.people) || 1)));
 
 /** { total, done, open } of a list from shopList. */
 export const shopCount = (rows = []) => {

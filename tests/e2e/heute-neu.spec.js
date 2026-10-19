@@ -6,7 +6,7 @@
 // Fictional data only (test_data_gtp_), Friday 9 October 2026 (Europe/Zurich), Open-Meteo mocked.
 // SHOTS=<folder> saves full-page screenshots (light) of the morning, the day and the day before a trip.
 import { test, expect } from '@playwright/test';
-import { homeFixture, openHome, D0 } from './home0460-fixture.js';
+import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
 import { READY, REMOVED_0155, HEAD_0155 } from '../../src/lib/home/tiles.js';
 
 /** The fixture without the trip of tomorrow: the ordinary order (the next trip is in 5 days). */
@@ -34,7 +34,8 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
   await expect(page.locator('[data-daycard]')).toHaveAttribute('data-part', 'morning');
 
   // the wall in the order of HN4 (the helper is hidden while the AI helper is off)
-  await expect.poll(() => order(page)).toEqual(READY.map((x) => x.id).filter((id) => id !== 'helper'));
+  // Paket Q #74: at 08:00 the morning tiles move up right under the head (byTime, changed on purpose)
+  await expect.poll(() => order(page)).toEqual(atHour(READY.filter((x) => x.id !== 'helper'), 8).map((x) => x.id));
   expect((await order(page)).slice(0, 3)).toEqual(HEAD_0155);
   for (const id of REMOVED_0155) await expect(page.locator(`.wall [data-tile="${id}"]`), id).toHaveCount(0);
 
@@ -152,7 +153,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   data.tables.settings.push({ key: 'homeWall', value: { v: 4, tiles: old.map((id) => ({ id, size: id === 'news' ? 'w' : id === 'trip' || id === 'year' || id === 'important' ? (id === 'important' ? 'l' : 'long') : id === 'meditation' || id.startsWith('fn:') ? 's' : 'l' })) } });
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
-  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'news', 'fn:weigh', 'year']);
+  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'values', 'tipweek', 'news', 'fn:weigh', 'year']); // Paket P and Q (homeWall v8): «Your values today» and the tip of the week once after Aktiv
   // put «New» wide (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 5, tiles: READY.map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {
