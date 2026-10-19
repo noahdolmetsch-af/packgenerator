@@ -71,6 +71,8 @@ export const SINCE = {
   'f.weblinks': '0.153.0', 'f.chains': '0.153.0', 'f.convert': '0.153.0', 'f.video': '0.153.0', 'f.qr': '0.153.0', 'f.mapmeasure': '0.153.0', 'f.gears': '0.153.0', 'f.level': '0.153.0', 'f.barcode': '0.153.0', 'f.light': '0.153.0',
   // Paket M «Aus Touren lernen» (the bundler sets the release version)
   'f.diary': '0.150.0', 'f.extraq': '0.150.0', 'f.notetodo': '0.150.0', 'f.future': '0.150.0', 'f.quiz': '0.150.0', 'f.observations': '0.150.0', 'f.chronik': '0.150.0', 'f.gelernt': '0.150.0', 'f.jahr': '0.150.0', 'f.neuland': '0.150.0', 'f.eveningtour': '0.150.0',
+  // Paket S «Reise-Spur»: the bundler sets the version of the release that brings it (0.148.0 is a placeholder)
+  'f.here': '0.148.0', 'f.record': '0.148.0', 'f.spurmap': '0.148.0', 'f.spurlink': '0.148.0', 'f.travelbook': '0.148.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

@@ -82,6 +82,9 @@ describe('the counts of «Your top 10»', () => {
   });
 });
 
+// Paket S «Reise-Spur» (the bundler sets its real version; same version: by name)
+const SPUR = ['f.here', 'f.spurlink', 'f.record', 'f.spurmap', 'f.travelbook'];
+
 describe('the list and its sorts', () => {
   const used = new Set(['care']);
   const rows = rowsOf(used, { backup: 5, templates: 9, 'f.plan': 2 }, '0.116.0'); // f.strava is new in 0.116.0

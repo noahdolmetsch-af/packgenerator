@@ -235,6 +235,12 @@ export const HOWTO = {
   'f.jahr': ['Open Trips › Look back › Your year as pictures.', 'Tap right to go on, left to go back; or swipe.', 'Escape or × closes; the last picture leads to the year letter.'],
   'f.neuland': ['Open Trips › Look back › New ground.', 'Choose a collection; the app colours in what your routes reached.', 'Tick or untick by hand; «Choose collections» switches them on and off.'],
   'f.eveningtour': ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', '«Whole debrief» opens the trip\'s debrief.'],
+  // Paket S «Reise-Spur»
+  'f.here': ['Open On the way during a tour.', 'Tap «I am here».', 'Add a sentence or a photo if you like, then «Save place».'],
+  'f.record': ['Open On the way and tap «Record».', 'Read the battery hint and tap «Start recording»; the screen stays on.', 'Tap «Stop» at the end; a Strava ride of the same time counts first.'],
+  'f.spurmap': ['Open a trip’s debrief and tap «Travel track».', 'Drag and pinch the map; tap a day or a dot.', 'Tick «Show Neuland» to see the land you rode for the first time.'],
+  'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
+  'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
 };
 
 /** The steps of a function, or [] when it has none. */

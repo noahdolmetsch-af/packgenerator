@@ -70,6 +70,8 @@ export function actRecord(a) {
     wNorm: fin(a.wNorm),
     kj: fin(a.kj),
     effort: fin(a.effort),
+    // Paket S «Reise-Spur»: Strava's route line (encoded polyline) for the tour map; null when Strava sent none
+    line: typeof a.line === 'string' && a.line ? a.line : null,
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */

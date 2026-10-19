@@ -314,7 +314,8 @@ export async function keepActivities(db, list) {
   if (!list.length) return;
   const recs = list.map(actRecord);
   const old = await db.activities.bulkGet(recs.map((r) => r.id));
-  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])) })));
+  // Paket S «Reise-Spur»: a line fetched before (also the finer one of step=line) stays when the list sends none
+  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])), line: (old[i]?.lineFine && old[i]?.line) || r.line || old[i]?.line || null, ...(old[i]?.lineFine ? { lineFine: true } : {}) })));
 }
 
 /** TR5b–TR7f: the further parts of a detail (cadence, 5 km rows, course, heart rate by power, halves, climbs). */
@@ -326,6 +327,17 @@ export async function loadDetail(db, id, { call: c = call, now = new Date() } = 
   const d = await c('detail', { params: { id: String(id) } });
   await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', ...moreOf(d), detail: now.toISOString(), dv: DETAIL_V });
   return d;
+}
+
+/**
+ * Paket S «Reise-Spur»: the finer route line of one activity from Strava (step=line), kept on the activity.
+ * Returns the line (encoded polyline) or null.
+ */
+export async function loadLine(db, id, { call: c = call } = {}) {
+  const d = await c('line', { params: { id: String(id) } });
+  const line = typeof d?.line === 'string' && d.line ? d.line : null;
+  if (line) await db.activities.update(String(id), { line, lineFine: true });
+  return line;
 }
 
 /**

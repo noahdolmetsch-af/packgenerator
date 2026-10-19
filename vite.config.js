@@ -121,6 +121,12 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
           },
+          {
+            // Paket S «Reise-Spur»: OpenStreetMap tiles seen once stay for the tour map offline (swisstopo: Paket J's «swisstopo-tiles»).
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
       },
     }),

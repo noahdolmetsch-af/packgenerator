@@ -167,6 +167,8 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/debrief/ride')) return 'rides'; // v0.41.0 (Noah 1): upload a ride, planned vs real
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
+  if (h.startsWith('#/spur-link/')) return 'spurlink'; // Paket S «Reise-Spur»: a tour's read link for the family
+  if (h.startsWith('#/spur/')) return 'spur'; // Paket S «Reise-Spur»: one tour's map, days, link and book
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
@@ -358,7 +360,7 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

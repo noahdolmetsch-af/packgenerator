@@ -102,6 +102,8 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
+  // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
+  const guest = $derived(page === 'share' || page === 'spurlink');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -131,7 +133,7 @@
       if (s.go) location.hash = s.go;
       else if (s.act === 'me') location.hash = '#/me';
       else if (s.act === 'help') keysOpen = true;
-      else if (s.act === 'new' && page !== 'share') newMode = 'all';
+      else if (s.act === 'new' && !guest) newMode = 'all';
       else if (s.act === 'search') {
         const field = document.querySelector('.side .search input');
         if (field) field.focus();
@@ -345,6 +347,8 @@
     Gelernt: () => import('./pages/Gelernt.svelte'), // Paket M «Was die App gelernt hat»
     JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
     Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
+    Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
+    SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
@@ -385,7 +389,7 @@
      in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
 <div class="shell" class:wide={wide.matches && !mini} class:mini={!!mini}>
 {#if wide.matches && !mini}
-  <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={page !== 'share'} onnew={() => (newMode = 'all')} />
+  <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={!guest} onnew={() => (newMode = 'all')} />
 {:else}
   <header class="top">
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
@@ -393,7 +397,7 @@
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
       <Search compact />
-      {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
+      {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
     </div>
   </header>
@@ -401,14 +405,14 @@
 <div class="col">
 <DemoBar />
 <OfflineLine />
-{#if !mini && page !== 'share'}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
+{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
-  {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
-  {#if page !== 'share' && page !== 'home'}<RemindCard />{/if}
+  {#if !guest && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -450,6 +454,12 @@
     {#if param === 'abfahrt'}<LazyPage load={PAGES.Abfahrt} />{:else}<LazyPage load={PAGES.Ride} />{/if}
   {:else if page === 'share'}
     {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
+  {:else if page === 'spur'}
+    <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
+    {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}
+  {:else if page === 'spurlink'}
+    <!-- Paket S «Reise-Spur»: what the family sees behind the read link -->
+    {#key hash}<LazyPage load={PAGES.SpurLink} {hash} />{/key}
   {:else if page === 'blockcheck'}
     <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
     <LazyPage load={PAGES.BlockCheck} />
@@ -646,20 +656,20 @@
   </svelte:boundary>
 </main>
 
-{#if page !== 'share'}
+{#if !guest}
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
-{#if page !== 'share'}<SkiTurn />{/if}
+{#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
-{#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
+{#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
-{#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
+{#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
-{#if page !== 'share'}<CreditNotice />{/if}
+{#if !guest}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
-{#if page !== 'share'}<TourStart /><TourHost />{/if}
+{#if !guest}<TourStart /><TourHost />{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->
