@@ -42,13 +42,14 @@ export function offerRename(name, undo = null) {
 /**
  * v0.125.0 A-J1: the same calm toast for any saved thing, «<text> · Undo» for 10 s
  * (e.g. «Workshop visit saved.»). text: already translated; undo: async function or null.
+ * ms: how long it stays (Taschen-Setups: 4 s, Noah's rule for deleting).
  */
-export function offerDone(text, undo = null) {
+export function offerDone(text, undo = null, ms = UNDO_MS) {
   if (typeof document !== 'undefined') place();
   clearTimeout(timer);
   held = undo;
   renamed.v = { text, undo: !!undo };
-  timer = setTimeout(() => ((renamed.v = null), (held = null)), UNDO_MS);
+  timer = setTimeout(() => ((renamed.v = null), (held = null)), ms);
 }
 
 export async function undoRename() {

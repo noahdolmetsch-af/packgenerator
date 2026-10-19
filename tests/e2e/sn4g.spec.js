@@ -157,9 +157,12 @@ test('b) every finished trip of the period by month with its values; grey rows k
   const solo = rowOf(page, 'Feierabend Seeufer');
   await expect(solo).toContainText(T('Ride from GPX|kind'));
   await expect(solo.getByRole('link', { name: `${T('Rate briefly')}: Feierabend Seeufer` })).toBeVisible();
-  // a trip without a ride: only weather and temp. and the quiet line
+  // a trip without a ride: only weather and temp.; Impeccable Touren 2: «no ride linked» is said once above the list
   const ski = rowOf(page, 'Skitour Hochgipfel');
-  if (!phone && (await ski.count())) await expect(ski.locator('[data-no-power]')).toContainText(T('No ride linked: times, pace and heart rate are missing.'));
+  if (!phone && (await ski.count())) {
+    await expect(ski.locator('[data-no-power]')).toHaveCount(0);
+    await expect(page.locator('[data-no-ride]')).toContainText(T('Upload ride'));
+  }
   if (phone) {
     // a card (0.163.0 «Handy kurz»: the values as one grey line instead of the box of 4 columns)
     expect((await abend.locator('[data-rate]').boundingBox()).width).toBeGreaterThan(300);

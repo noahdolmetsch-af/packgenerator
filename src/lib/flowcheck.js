@@ -241,22 +241,23 @@ export function suggestion({ sleep = null, energy = null, joy = [], weather = nu
  * Questions 4 and 5 are the rotating question of the morning (the pool ids 'body' and 'calm').
  */
 export const OFF_KEY = 'checkQuestionsOff';
+/** short: the chip of «Deine 15 Fragen» on Heute (T3c, back with Noah 18.10.2026 «3 a und b»). */
 export const QUESTIONS = [
-  { n: 1, part: 'morning', text: 'How well did you sleep?', often: 'daily|often', answer: '1–10', cat: 'rest' },
-  { n: 2, part: 'morning', text: 'How much energy do you have?', often: 'daily|often', answer: '1–10', cat: 'rest' },
-  { n: 3, part: 'morning', text: 'How is your mood?', often: 'daily|often', answer: '1–10', cat: 'fun' },
-  { n: 4, part: 'morning', text: 'Body and legs?', often: 'rotating|often', answer: '1–10', cat: 'sport', pool: 'body' },
-  { n: 5, part: 'morning', text: 'How calm is your mind?', often: 'rotating|often', answer: '1–10', cat: 'mind', pool: 'calm' },
-  { n: 6, part: 'morning', text: 'What are you looking forward to?', often: 'daily|often', answer: 'Choice|answer', cat: 'fun' },
-  { n: 7, part: 'morning', text: 'Most important goal today', often: 'daily|often', answer: 'Choice or sentence', cat: 'goals' },
-  { n: 8, part: 'evening', text: 'How happy with the day?', often: 'daily|often', answer: '1–10', cat: 'done' },
-  { n: 9, part: 'evening', text: 'What was the best part?', often: 'daily|often', answer: 'Choice + tell more', cat: 'fun' },
-  { n: 10, part: 'evening', text: 'Goal reached?', often: 'daily|often', answer: 'yes · partly · no', cat: 'done' },
-  { n: 11, part: 'evening', text: 'How long outside?', often: 'daily, filled in', answer: 'Choice|answer', cat: 'nature' },
-  { n: 12, part: 'evening', text: 'Time with friends or family?', often: 'rotating|often', answer: 'no · briefly · a lot', cat: 'friends' },
-  { n: 13, part: 'evening', text: 'How much fun?', often: 'rotating|often', answer: '1–10', cat: 'fun' },
-  { n: 14, part: 'evening', text: 'Mindful moment?', often: 'rotating, meditation counts by itself', answer: 'yes · no', cat: 'mind' },
-  { n: 15, part: 'sunday', text: 'Closer to your vision?', often: 'weekly|often', answer: '1–10 + 1 sentence', cat: 'vision' },
+  { n: 1, short: 'Sleep|q', part: 'morning', text: 'How well did you sleep?', often: 'daily|often', answer: '1–10', cat: 'rest' },
+  { n: 2, short: 'Energy|q', part: 'morning', text: 'How much energy do you have?', often: 'daily|often', answer: '1–10', cat: 'rest' },
+  { n: 3, short: 'Mood|q', part: 'morning', text: 'How is your mood?', often: 'daily|often', answer: '1–10', cat: 'fun' },
+  { n: 4, short: 'Body|q', part: 'morning', text: 'Body and legs?', often: 'rotating|often', answer: '1–10', cat: 'sport', pool: 'body' },
+  { n: 5, short: 'Head|q', part: 'morning', text: 'How calm is your mind?', often: 'rotating|often', answer: '1–10', cat: 'mind', pool: 'calm' },
+  { n: 6, short: 'Looking forward|q', part: 'morning', text: 'What are you looking forward to?', often: 'daily|often', answer: 'Choice|answer', cat: 'fun' },
+  { n: 7, short: 'Goal of the day|q', part: 'morning', text: 'Most important goal today', often: 'daily|often', answer: 'Choice or sentence', cat: 'goals' },
+  { n: 8, short: 'Satisfaction|q', part: 'evening', text: 'How happy with the day?', often: 'daily|often', answer: '1–10', cat: 'done' },
+  { n: 9, short: 'Best part|q', part: 'evening', text: 'What was the best part?', often: 'daily|often', answer: 'Choice + tell more', cat: 'fun' },
+  { n: 10, short: 'Goal reached|q', part: 'evening', text: 'Goal reached?', often: 'daily|often', answer: 'yes · partly · no', cat: 'done' },
+  { n: 11, short: 'Outside|q', part: 'evening', text: 'How long outside?', often: 'daily, filled in', answer: 'Choice|answer', cat: 'nature' },
+  { n: 12, short: 'Friends|q', part: 'evening', text: 'Time with friends or family?', often: 'rotating|often', answer: 'no · briefly · a lot', cat: 'friends' },
+  { n: 13, short: 'Fun|q', part: 'evening', text: 'How much fun?', often: 'rotating|often', answer: '1–10', cat: 'fun' },
+  { n: 14, short: 'Mindfulness|q', part: 'evening', text: 'Mindful moment?', often: 'rotating, meditation counts by itself', answer: 'yes · no', cat: 'mind' },
+  { n: 15, short: 'Vision|q', part: 'sunday', text: 'Closer to your vision?', often: 'weekly|often', answer: '1–10 + 1 sentence', cat: 'vision' },
 ];
 /** The stored list of switched-off questions made safe: numbers 1–15, each once. */
 export const offOf = (value) => [...new Set((Array.isArray(value) ? value : []).map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 15))].sort((a, b) => a - b);

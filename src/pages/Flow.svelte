@@ -12,8 +12,10 @@
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
+   *   #/flow/ideen       «Meine Ideen» (HN4c, Noah «4 ok»): tips for the balance and the own ideas list (pages/flow/Ideas.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
+   *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
    *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
@@ -24,13 +26,16 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
+  import Ideas from './flow/Ideas.svelte';
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import { Plus, Sun, GripVertical, Lightbulb, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { inSeason } from '../lib/ski.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
-  import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
+  import { flowStates, rings as ringsOf, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
   import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
   import { openTimer, actName, goalName } from '../lib/flow/ui.svelte.js';
@@ -58,6 +63,7 @@
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
+  import Gipfelbuch from './flow/Gipfelbuch.svelte';
   import Week from './flow/Week.svelte';
   import WeekReview from './flow/WeekReview.svelte';
   import Bags from './flow/Bags.svelte';
@@ -91,22 +97,25 @@
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
-  const sum = $derived(summary(states));
   // WS6 (Noah 3a): what counts for «Erholung», folded open under the rings, with «zuletzt am»
   const rest = $derived(restRows(states, data?.log ?? [], today));
   const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const week = lastDays(today, 7);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
-  const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
-  const sumLine = $derived.by(() => {
-    const met = sum.met.map(actName);
-    // v0.69.1 G: «Yoga Yoga Studio» → «Yoga Studio»; a sub-goal without the name: «Yoga (Zuhause)»
-    const subOf = (m) => (goalName(m.goal).toLowerCase().includes(actName(m.act).toLowerCase()) ? goalName(m.goal) : `${actName(m.act)} (${goalName(m.goal)})`);
-    const miss = sum.missing.map((m) => (m.goal ? subOf(m) : `${m.n}× ${actName(m.act)}`));
-    const a = met.length ? t('{list} on track.', { list: list(met) }) : '';
-    const b = miss.length ? t('{list} still to do.', { list: list(miss) }) : met.length ? t('Everything on track.') : '';
-    return [a, b].filter(Boolean).join(' ');
-  });
+  // Impeccable (18.10.2026, distill): «Noch offen heute» is one count under «Heute abhaken»; the tiles show the names
+  const onTrack = $derived(live.filter((s) => s.met || (s.daily && !s.open)).length);
+  // Impeccable runde 2 (18.10.2026, clarify): the head answers «how do I stand?»: the date, the move goals on track
+  // (rolling 7 days, the same count as the ring «Bewegen») and the season; its dates stay under «Mehr › Saison»
+  const todayLine = $derived(
+    [
+      fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }),
+      rings.move.of ? tn(rings.move.of, 'this week {k} of {n} move goal on track', 'this week {k} of {n} move goals on track', { k: rings.move.n }) : '',
+      season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : '',
+    ]
+      .filter(Boolean)
+      .join(' · '),
+  );
+  const tickSub = $derived([live.length ? t('{n} of {m} on track', { n: onTrack, m: live.length }) : '', phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')].filter(Boolean).join(' · '));
 
   // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
   const route = $derived(sub.split('?')[0].split('/'));
@@ -146,11 +155,8 @@
   let seasonOpen = $state(false);
   // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
   const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
-  const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
+  // Impeccable (18.10.2026, distill): «Ziele × Tage», «Meditation» and «Aktivität und Meilensteine» are the tabs above, so «Mehr» keeps the rest
   const moreRows = $derived([
-    { key: 'goals', icon: Pulse, title: t('Goals × days'), sub: rings.move.of ? t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of }) : '', href: '#/flow/goals' },
-    ...(medAct ? [{ key: 'med', icon: Lightbulb, title: actName(medAct), sub: t('start, log, more'), href: `#/flow/act/${encodeURIComponent(medAct.id)}` }] : []),
-    { key: 'activity', icon: Star, title: t('Activity and milestones'), href: '#/flow/activity' },
     { key: 'timer', icon: Timer, title: t('Stopwatch'), sub: t('runs until you are done, then ticks off'), onclick: () => openTimer() },
     ...(season ? [{ key: 'season', icon: Sun, title: t('Season'), sub: `${season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}${season.next ? ` · ${season.half === 'summer' ? t('Winter from {date}', { date: dayShort(season.next) }) : t('Summer from {date}', { date: dayShort(season.next) })}` : ''}`, onclick: () => (seasonOpen = !seasonOpen), expanded: seasonOpen }] : []),
   ]);
@@ -204,6 +210,25 @@
     if (i >= 0 && i !== from) move(dragId, i);
   }
   const gripUp = () => (dragId = null);
+  // Impeccable runde 2 (distill): moving is rare, reading is daily; on a phone the grip and the arrows wait for «Reihenfolge ändern»
+  let reorder = $state(false);
+  const sorting = $derived(!phone.matches || reorder);
+
+  /* Impeccable runde 2 (clarify): three calm states instead of «! heute offen» on nearly every goal.
+     A daily goal not done today: «heute offen» (orange). A rolling goal not on track: «noch 1× in 10 Tagen»
+     (grey, no «!»). A rolling goal on track whose window runs out in 1–2 days without a new entry:
+     «bis morgen» / «bis übermorgen» (orange). Else «im Soll». */
+  function goalPill(s) {
+    if (s.met || (s.daily && !s.open)) {
+      const due = s.daily ? null : Math.min(...s.goals.filter((r) => r.goal.days > 1 && r.dueIn != null).map((r) => r.dueIn));
+      if (due === 1) return { key: 'due', cls: 'warn', text: t('until tomorrow|goal') };
+      if (due === 2) return { key: 'due', cls: 'warn', text: t('until the day after tomorrow|goal') };
+      return { key: 'ok', cls: 'ok', text: t('on track') };
+    }
+    if (s.open) return { key: 'today', cls: 'warn', text: t('open today') };
+    const r = s.goals.find((x) => !x.met);
+    return { key: 'left', cls: '', text: t('{n}× more in {d} days', { n: r.goal.count - r.done, d: r.goal.days }) };
+  }
 
   /* v0.86.0 «Meditation einfach»: a tap on Meditation in «Heute abhaken» opens the start sheet (mockup A) */
   let medFor = $state(null);
@@ -221,6 +246,8 @@
   <Milestones {params} />
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'gipfelbuch'}
+  <Gipfelbuch />
 {:else if route[0] === 'week'}
   <Week />
 {:else if route[0] === 'review'}
@@ -229,6 +256,8 @@
   <Bags {params} />
 {:else if route[0] === 'rest'}
   <Rest />
+{:else if route[0] === 'ideen'}
+  <Ideas />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -263,8 +292,10 @@
     </div>
     <div class="lay">
       <div class="col">
-        <Sec id="acts-h" title={t('Goals × days')} sub={t('Dots = last 7 days · today on the right')}>
-          <ul class="acts card" bind:this={listEl}>
+        <!-- Impeccable runde 2 (distill): on a phone grip and arrows come after «Reihenfolge ändern»; a computer keeps them -->
+        <Sec id="acts-h" title={t('Your goals, last 7 days')} sub={t('Dots = last 7 days · today on the right')} more={phone.matches ? { label: reorder ? t('Done|order') : t('Change the order'), onclick: () => (reorder = !reorder), expanded: reorder } : null}>
+          {#if phone.matches && reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
+          <ul class="acts card" class:sorting={sorting} bind:this={listEl}>
             {#each all as a, i (a.id)}
               {@const s = stateOf.get(a.id)}
               {#if ringF === 'all' || a.ring === ringF}
@@ -275,15 +306,18 @@
                     {#if s && !s.resting}
                       <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
                       <span class="st num">{s.stand.n} / {s.stand.of}</span>
-                      <span class="bdw"><span class="pill {s.met || (s.daily && !s.open) ? 'ok' : 'warn'}">{s.met || (s.daily && !s.open) ? t('on track') : t('open today')}</span></span>
+                      {@const p = goalPill(s)}
+                      <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
                     {:else}
                       <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
                       <span class="st num">–</span>
                       <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
                     {/if}
                   </a>
-                  <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
-                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
+                  {#if sorting}
+                    <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                    <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
+                  {/if}
                 </li>
               {/if}
             {/each}
@@ -298,7 +332,7 @@
         {/if}
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
-        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>
+        {#if !phone.matches}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
       </aside>
     </div>
   </div>
@@ -306,7 +340,9 @@
   <div class="flow">
     <header class="ph">
       <h1 class="title">{t('Active|place')}</h1>
-      <p class="sub">{t('Today, {date}', { date: fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }) })}{#if season?.since}{' · '}{season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}{/if}</p>
+      <p class="sub" data-today-line>{todayLine}</p>
+      <!-- «Skitouren»: in season (November–May) one small row to Touren › Skitouren -->
+      {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
     </header>
 
     {#if data && !states.length}
@@ -318,7 +354,8 @@
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
-          <Sec id="tick-h" title={t('Tick off today')} sub={phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')}>
+          <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
+          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
@@ -336,6 +373,8 @@
                   <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
                 </details>
               {/if}
+              <!-- Impeccable runde 2 (small observation): the active zone minutes are one quiet line under the rings until Fitbit (P11), not a section of their own -->
+              <p class="azm" data-section="azm"><Timer size={16} aria-hidden="true" /><span><b>{t('Active zone minutes')}</b>{' · '}{t('weekly goal 150 min, changeable')}{' · '}{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
             </div>
           </Sec>
           <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
@@ -357,21 +396,12 @@
             </a>
             {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
           </Sec>
-          <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
-          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
-            <p class="card azm" data-section="azm"><Timer size={18} aria-hidden="true" /><span>{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
-          </Sec>
         </div>
         <aside class="col">
           <!-- WG: the daily check is «Wi gaht's?» now; the section keeps today's values and the 7 days -->
           <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
             <div class="card">{@render checkRow()}</div>
           </Sec>
-          {#if sumLine}
-            <Sec id="open-h" title={t('Still open today|aktiv')}>
-              <p class="card sumline">{sumLine}</p>
-            </Sec>
-          {/if}
           <Sec id="more-h" title={t('More|item')}>
             <Rows rows={moreRows} open={seasonList} />
           </Sec>
@@ -379,6 +409,7 @@
       </div>
       <PageMore page="aktiv" name={t('Active|place')} />
       <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PinnedLists place="active" />
       <PageTiles page="flow" />
     {/if}
   </div>
@@ -431,7 +462,7 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  /* 0.136.0: on a phone the floating «Stoppuhr» button sits over the page end; room below the last tiles */
+  /* 0.136.0: on a phone the small running clock floats over the page end; room below the last tiles */
   @media (max-width: 719px) {
     .flow {
       padding-bottom: 72px;
@@ -525,10 +556,22 @@
   }
   .azm {
     display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    margin: 0;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin: var(--sp-3) 0 0;
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
     color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .azm :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .azm b {
+    color: var(--ink-2);
+    font-weight: 600;
   }
   .kmn {
     display: flex;
@@ -559,11 +602,6 @@
     justify-content: space-between;
     color: var(--ink-3);
     font-size: var(--fs-tiny);
-  }
-  .sumline {
-    margin: 0;
-    font-size: var(--fs-body);
-    line-height: 1.45;
   }
   .crow {
     display: flex;
@@ -746,5 +784,22 @@
   .note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .skl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  /* Impeccable runde 2: without grip and arrows (a phone, not reordering) the row ends with the same gutter as it starts */
+  .acts:not(.sorting) {
+    padding-right: var(--sp-4);
+  }
+  .ronote {
+    margin: 0 2px var(--sp-2);
   }
 </style>

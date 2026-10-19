@@ -38,7 +38,7 @@ export const PAGE_GROUPS = [
 const PAGE_OF = [
   [/^#\/(pack|ride|debrief|trips)/, 'trips'],
   [/^#\/(gear|wardrobe|blocks)/, 'gear'],
-  [/^#\/bikes/, 'bikes'],
+  [/^#\/(bikes|equipment)/, 'bikes'],
   [/^#\/flow/, 'flow'],
 ];
 const RUN_PAGE = { quick: 'trips', trip: 'trips', wear: 'gear', problem: 'bikes', km: 'bikes', receipt: 'bikes' };
@@ -88,6 +88,8 @@ const OWN = [
   { id: 'f.kit', group: 'before', title: 'Save as a kit', text: 'Save an outfit as a kit; planning then suggests it.', href: '#/wardrobe', words: 'kit outfit speichern' },
   { id: 'f.lighter', group: 'before', title: 'Lighter alternatives', text: 'Open an item, then its weight: lighter things from your own gear.', href: '#/gear', words: 'leichter alternative gewicht' },
   { id: 'f.lists', group: 'before', title: 'Your own categories', text: 'Me › Lists and types: rename categories, add your own, hide, delete, change the order.', href: '#/me/lists?categories', words: 'kategorie kategorien liste listen eigene umbenennen standard' },
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): every kind of data can be added, renamed and deleted
+  { id: 'f.editall', group: 'before', title: 'Change everything yourself', text: 'Bikes, problems, learnings, rides, ideas, logbook entries and the lists (sports, places on the bike, care parts): add, rename and delete them yourself. Deleting asks first and can be undone.', href: '#/me/lists', words: 'bearbeiten umbenennen löschen hinzufügen velo löschen sportart eigene alles ändern' },
   { id: 'f.select', group: 'before', title: 'Select many items', text: 'Category, bag, archive or a building block for many items at once.', href: '#/gear', words: 'auswählen mehrere viele' },
   { id: 'f.merge', group: 'before', title: 'Merge duplicates', text: '«Merge with …» at the bottom of an item joins two items into one.', href: '#/gear', words: 'doppelt zusammenlegen zusammenführen' },
   { id: 'f.blockcheck', group: 'before', title: 'Check building blocks', text: 'One block after the other: keep, out or elsewhere.', href: '#/blocks/check', words: 'bausteine prüfen aufräumen' },
@@ -102,6 +104,8 @@ const OWN = [
   // v0.133.0 «Tour aus komoot» (SN1b–SN1d): suggestions near you, a shared tour becomes a planned trip
   // v0.134.0 «Inspiration» (UC2-1, UC2-2, UC2-4): your own links, the kind from the address, a note becomes a packing rule
   { id: 'f.inspiration', group: 'before', title: 'Inspiration', text: 'Your own links to rigs, routes, videos and races; the kind comes from the address, a note becomes a packing rule.', href: '#/inspiration', words: 'inspiration links link rig route video packliste packregel wunschliste rennen kalender ics ideen' },
+  // 0.156.0 «Sportart statt Tourart» (SA1–SA3): one sports list, a standard bike per sport, old trips get a sport
+  { id: 'f.sports', group: 'before', title: 'Sport of a trip', text: 'Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Ski touring or Hiking: each bike sport brings its own standard bike.', href: '#/trips', words: 'sportart sport gravel cross country xc downhill bikepacking skitour wandern standard velo' },
   { id: 'f.komoot', group: 'before', title: 'Tour from komoot', text: 'komoot opens with suggestions near you; a tour shared from komoot becomes a planned trip.', href: '#/trips', words: 'komoot route vorschlag gpx teilen geplant' },
   // After the trip
   { id: 'f.unneeded', group: 'after', title: 'What did you not need?', text: 'Tap what stayed in the bag; the app counts how much lighter it could be.', href: '#/debrief', play: 'after', words: 'nicht gebraucht rückblick' },
@@ -119,7 +123,11 @@ const OWN = [
   { id: 'f.velosetup', group: 'bike', title: 'Bike setup and race rigs', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'setup race rig bikepacking fotos gewicht rennen vergleich links' },
   { id: 'f.standardbike', group: 'bike', title: 'Standard bike and order', text: 'The first bike is your standard bike (★); arrows set the order, and you choose what a new trip brings.', href: '#/bikes?tab=setup', words: 'standard velo stern reihenfolge pfeile neue tour zuletzt gefahren' },
   { id: 'f.bagplan', group: 'bike', title: 'Bag plan', text: 'Which bag sits where, weight front, middle and rear, hints to move an item.', href: '#/bikes?tab=rig&view=bags', words: 'taschen plan gewicht verteilung vorne hinten umpacken' },
+  // v0.147.0 «Taschen-Setups» (TS0–TS5)
+  { id: 'f.bagsetups', group: 'bike', title: 'Bag setups per bike', text: 'Several bag setups per bike: which bags and what goes where, weights, compare two or all, choose one when planning.', href: '#/bikes?tab=rig', words: 'taschen setup setups vergleichen basisgewicht flasche bikepacking' },
   { id: 'f.setuplog', group: 'bike', title: 'Setup log', text: 'What you changed on the bike, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log', words: 'logbuch änderung kettenblatt reifen werkstatt' },
+  // v0.146.0 «Garmin-Seiten» (GA-1 to GA-10, GA-A1 to GA-A3)
+  { id: 'f.garmin', group: 'bike', title: 'Garmin pages', text: 'Model data pages for the Edge 1040 and 850 per bike, with the reason for every value.', href: '#/bikes', words: 'garmin edge 1040 850 540 datenseiten datenfelder profil aktivitätsprofil connect iq zonen' },
   { id: 'f.problem', group: 'bike', title: 'Problem on the bike', text: 'One problem per row with priority and deadline; the app sorts who fixes it.', run: 'problem', seen: 'problems', words: 'problem reparatur kaputt frist' },
   { id: 'f.workshop', group: 'bike', title: 'Workshop and receipts', text: 'Visits with amount, work and receipt photo; costs per year and per 1000 km.', href: '#/bikes?tab=shop', seen: 'visits', words: 'werkstatt besuch beleg kosten' },
   { id: 'f.equipment', group: 'bike', title: 'Equipment', text: 'Every part like a maker’s data sheet: name, details, weight, price.', href: '#/bikes?tab=compare', words: 'ausstattung teile datenblatt' },
@@ -151,12 +159,24 @@ const OWN = [
   { id: 'f.analyses', group: 'active', title: 'Power and analyses', text: 'With a power meter: power, load and power curve on each ride; analyses on the activity and over the weeks, each can be hidden.', href: '#/flow/training', words: 'leistung watt ftp belastung form fitness analysen leistungskurve vam anstiege trittfrequenz' },
   { id: 'f.weekreview', group: 'active', title: 'Week in review', text: 'Your week in five numbers, a strip Monday to Sunday, highlights and one suggestion for next week; observation only.', href: '#/flow/review', words: 'wochenrückblick woche rückblick zusammenfassung höhepunkte wochenstreifen schlaf stimmung' },
   { id: 'f.weight', group: 'data', title: 'Weight', text: 'Voluntary, only on this device: your weight with a curve, for watts per kg.', href: '#/me/weight', words: 'gewicht kg watt pro kg wkg' },
-  { id: 'f.wohl', group: 'data', title: 'What does me good', text: 'What your good days have in common, small experiments, your comfort range, life phases, Neuland and the season switch; observation only.', href: '#/me/wohl', words: 'gut tut wohl gute tage experiment kombination wohlfühlbereich energieräuber lebensphase neuland saisonwechsel rezept' },
+  { id: 'f.wohl', group: 'data', title: 'What is good for me', text: 'What your good days have in common, small experiments, your comfort range, life phases, Neuland and the season switch; observation only.', href: '#/me/wohl', words: 'gut tut wohl gute tage experiment kombination wohlfühlbereich energieräuber lebensphase neuland saisonwechsel rezept' },
   { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },
   { id: 'f.medlog', group: 'active', title: 'Meditation log', text: 'Every session, a streak heat map, the best time of day.', href: '#/flow/act/meditation/log', words: 'protokoll wärmebild serie' },
   // v0.135.0 «Meditation und Timer» (ME3, Z1–Z5)
   { id: 'f.medreview', group: 'active', title: 'Meditation look back', text: 'Week, month or year: days, minutes, the calendar and what helps you.', href: '#/flow/act/meditation/rueckblick', words: 'rückblick woche monat jahr kalender' },
+  { id: 'f.gipfelbuch', group: 'active', title: 'Summit book', text: 'Passes, summits, trails and halls you reached, for every sport; the app finds tops in your rides and you confirm; stars for new places.', href: '#/flow/gipfelbuch', words: 'gipfelbuch pass gipfel orte höchster punkt trail halle meilenstein' },
+  // Skitour AU1 «Ausrüstung» (Noah 15.10.2026 «5b»): own ID, f.equipment is the bike parts' data sheet
+  { id: 'f.skiequipment', group: 'bike', title: 'Main equipment', text: 'Skis, skins, transceiver and the like for each sport: a counter of uses and the care, due on Today too.', href: '#/equipment', words: 'ausrüstung hauptausrüstung ski felle lvs pflege zähler einsatz' },
+  // Paket E 0.149.0: Merken + Eigene Listen (PL3), Erinnerungen ER1–ER3, Geburtstage + Pflanzen, Werte messen W5–W6
+  { id: 'f.remember', group: 'data', title: 'Remember and own lists', text: 'Calendar › Remember: your own to-dos, lists like «My ideas» and what the app reminds you of, in one place.', href: '#/calendar', words: 'merken todo aufgaben liste ideen kalender' },
+  { id: 'f.reminders', group: 'data', title: 'Reminders', text: 'Me › Reminders: after a ride, before a trip or after bike care the app asks once; every reminder can be switched off.', href: '#/me/reminders', words: 'erinnerung erinnern fragen nie fragen' },
+  { id: 'f.birthdays', group: 'data', title: 'Birthdays and plants', text: 'Birthdays and plants to water in Me › Reminders, shown in Calendar › Remember when it is time.', href: '#/me/reminders', words: 'geburtstag pflanzen giessen' },
+  { id: 'f.measure', group: 'bike', title: 'Measure pressure and chain', text: 'Today records the tyre pressure and measures the chain; Enter values suggests a target pressure, the pick-up check checks both.', href: '#/bikes?tab=compare&view=enter', words: 'reifendruck druck kette messen abholcheck' },
+  // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben»)
+  { id: 'f.routine', group: 'active', title: 'What does me good', text: 'A short daily list on Today: tick it off, see days in a row; meditation ticks itself.', href: '#/routine', words: 'routine das tut mir gut vorsätze gewohnheit gewohnheiten habit abhaken serie aufstehen' },
+  // Erkenntnisse (Noah 19.10.2026 «4b» + own page): observation only, no cause and no diagnosis
+  { id: 'f.insights', group: 'active', title: 'Insights', text: 'What goes together in your data: sleep, battery, mood, rides, meditation and resting pulse; the strongest three in the analysis.', href: '#/me/insights', words: 'erkenntnisse zusammenhang auswertung schlaf akku stimmung ruhepuls muster' },
   { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log' },
   { id: 'f.medmore', group: 'active', title: 'Meditation · more', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'klänge zitate links' },
   // Data and app
@@ -184,6 +204,7 @@ const OWN = [
   { id: 'f.playground', group: 'data', title: 'Playground', text: 'A made-up trip: pack, ride and debrief; afterwards all is as before.', run: 'play', seen: 'play', words: 'ausprobieren spielwiese spielplatz' },
   { id: 'f.helper', group: 'data', title: 'Helper', text: 'The code stays on this device, with a monthly limit; you see what goes to Claude.', href: '#/helper', words: 'helfer ki code limit kosten modell haiku sonnet' },
   { id: 'f.shortcuts', group: 'data', title: 'Keyboard shortcuts', text: 'g h, g t … switch places, n = New, / = search, ? = the list.', href: '#/me', words: 'tastenkürzel tastatur' },
+  { id: 'f.ownvalues', group: 'data', title: 'Set your own numbers', text: 'Me › Own values: the packing step, the backup reminder, the bike check, chain wax, sealant, fork service, the workshop lead and «cold».', href: '#/me/werte', words: 'eigene werte einstellungen packtage backup erinnerung velo check kette wachsen dichtmilch gabel werkstatt vorlauf kalt standard' },
   { id: 'f.push', group: 'data', title: 'Reminders on the phone', text: 'Birthdays, plants, the evening before, the tour weather, the workshop and the backup as a message on the phone; each one switched on by itself.', href: '#/me/push', words: 'erinnerung erinnerungen handy benachrichtigung push nachricht geburtstag pflanze wetter' },
   { id: 'f.theme', group: 'data', title: 'Light, dark and colours', text: 'Font, colour world, text size and light or dark, under Me › Appearance.', href: '#/me/look', words: 'hell dunkel farben stil schrift grösse darstellung' },
   // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu, the newest version, every function and all versions

@@ -20,7 +20,6 @@
   import PayTabs from '../lib/pay/PayTabs.svelte';
   import PayReports from '../lib/pay/PayReports.svelte';
   import ShotResult from '../lib/pay/ShotResult.svelte';
-  import { takeSharedShot } from '../lib/pay/twintshot.js';
   import '../lib/ich/ich.css';
 
   let list = $state([]);
@@ -39,12 +38,13 @@
   }
   load();
 
-  // A TWINT screenshot shared to the app (mockup QR6): the service worker keeps it, the app opens
-  // #/me/pay/invoices?shared=pay and reads it here.
+  // A TWINT screenshot (mockup QR6): chosen here under «Recognise payments» (Noah 19.10.2026 «2b»: sharing a
+  // picture goes to Dokumente), read on the phone; ShotResult suggests the paid invoice.
   let shot = $state(null);
-  if (location.hash.includes('shared=pay')) {
-    takeSharedShot().then((f) => (shot = f));
-    history.replaceState(null, '', location.hash.replace(/[?&]shared=pay/, ''));
+  function onshot(file) {
+    done = '';
+    shot = file;
+    window.scrollTo?.(0, 0);
   }
 
   const sum = $derived(openSummary(list));
@@ -155,7 +155,7 @@
   <div class="invs-two">
     <div class="invs-main">
       {#if done}<p class="invs-done" role="status">{done}</p>{/if}
-      {#if shot && loaded}<ShotResult file={shot} invoices={list} onchange={load} ondone={(line) => ((shot = null), (done = line))} />{/if}
+      {#if shot && loaded}{#key shot}<ShotResult file={shot} invoices={list} onchange={load} ondone={(line) => ((shot = null), (done = line))} />{/key}{/if}
       {#if loaded}<PayReports invoices={list} onchange={load} />{/if}
 
       {#if list.length}
@@ -191,7 +191,7 @@
         </a>
       {/if}
     </div>
-    <PayDetect {onstatement} {onqr} />
+    <PayDetect {onstatement} {onqr} {onshot} />
   </div>
   {/if}
 </div>

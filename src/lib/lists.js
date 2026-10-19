@@ -11,6 +11,9 @@ import { STD_CATEGORIES, setCategories } from './gear.js';
 import { listsReady } from './listsready.svelte.js';
 import { setTopics } from './notebook.js';
 import { setValueGroups } from './valuefields.js';
+import { setDomains } from './domains.js';
+import { setSlotNames } from './bikes.js';
+import { setPartNames } from './care.js';
 
 /** Colours for own categories, in turn (quiet tones next to the Trail Journal ones). */
 export const OWN_COLORS = ['#6B8F3A', '#A0522D', '#4F7C8A', '#9C6B98', '#7A7F3A', '#B0625A', '#3F6E5A', '#8A6F3E'];
@@ -37,6 +40,10 @@ export function applyLists(all) {
   setCategories(categoriesFrom(all ?? {}));
   setTopics(listFor('noteTopics', all ?? {}).map((e) => ({ key: e.id, name: e.name, raw: e.own || e.renamed })));
   setValueGroups(listFor('valueGroups', all ?? {}).map((e) => ({ key: e.id, name: e.name, raw: e.own || e.renamed })));
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): sports, places on the bike, care parts
+  setDomains(listFor('domains', all ?? {}));
+  setSlotNames(listFor('bikeSlots', all ?? {}));
+  setPartNames(listFor('careParts', all ?? {}));
 }
 
 /**

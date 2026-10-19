@@ -111,7 +111,7 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   const form = page.getByRole('form', { name: de('New appointment') });
   await form.getByLabel(de('Title')).fill('Velo-Service');
   await form.getByLabel(de('From|time')).fill('17:30');
-  await form.getByLabel(de('To'), { exact: true }).fill('18:00');
+  await form.getByLabel(de('To|time'), { exact: true }).fill('18:00');
   await shot(page, info, 'A3-termin');
   await form.getByRole('button', { name: de('Enter in Google') }).click();
   await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00' });

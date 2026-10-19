@@ -6,6 +6,7 @@
 // blocked, the home forecast is written into the app's database. Service workers are blocked
 // (playwright.config.js). V045_SHOTS=<folder> saves the screenshots of the new screens there.
 import { test, expect } from '@playwright/test';
+import { openLayers } from './wardrobe-open.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -123,8 +124,10 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   // v0.46.0: the card opens from the button "What do I wear?" of "What do you want to do?".
   await page.goto('./');
   await page.reload();
-  await page.locator('.wall [data-fn="wear"]').click();
-  const card = page.locator('[data-wear-card]');
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «What to wear» is in the
+  // day card's morning (one tap on the clock at another time of day)
+  await page.locator('[data-daycard] [data-clock="morning"]').click();
+  const card = page.locator('[data-daycard] [data-wear-card]');
   await expect(card.getByRole('heading')).toHaveText(new RegExp(`${T('What do I wear today?')}|${T('What do I wear tomorrow?')}`));
   // 6 °C, felt 4 °C (you run cold: +2 °C)
   await expect(card.locator('.meta')).toContainText(T('feels {c} °C', { c: 4 }));
@@ -136,6 +139,7 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   await noSideScroll(page);
   await card.getByRole('link', { name: T('Open the wardrobe') }).click();
   await expect(page).toHaveURL(/#\/wardrobe$/);
+  await openLayers(page); // Impeccable runde 2: a phone shows the layers closed
 
   // 8. The offset in the header, Reset and Undo.
   const off = page.locator('p.offset');
@@ -224,8 +228,10 @@ test('Today without a home place: a short hint with the place search', async ({ 
   const errors = await start(page, context, info, { home: false });
   await page.goto('./');
   await page.reload();
-  await page.locator('.wall [data-fn="wear"]').click();
-  const card = page.locator('[data-wear-card]');
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «What to wear» is in the
+  // day card's morning (one tap on the clock at another time of day)
+  await page.locator('[data-daycard] [data-clock="morning"]').click();
+  const card = page.locator('[data-daycard] [data-wear-card]');
   await expect(card).toContainText(T('Set your home place: then Today says what to wear for a ride.'));
   await expect(card.locator('li')).toHaveCount(0);
   await card.getByRole('button', { name: T('Set home place') }).click();

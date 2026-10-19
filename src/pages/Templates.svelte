@@ -24,6 +24,7 @@
   import { Archive, Plus, Backpack, Ellipsis, Tent, BedDouble, Bike, Mountain, Pencil, Copy, Trash2, Route, Undo2, Check, Star } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import Section from '../lib/ui/Section.svelte';
   import '../lib/ui/daumen.css'; // FE1
   import Btn from '../lib/ui/Btn.svelte';
@@ -33,7 +34,7 @@
   import { tripStates } from '../lib/tripstate.js';
   import { offer } from '../lib/tpl/toast.svelte.js';
   import { db } from '../lib/db.js';
-  import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName } from '../lib/templates.js';
+  import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName, templateParts } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { knownWeight } from '../lib/gear.js';
   import { domainName } from '../lib/domains.js';
@@ -104,7 +105,10 @@
         const use = templateUse(tp, trips, today);
         const w = templateWeight(tp, items, setsValue);
         const hints = templateHints(tp, trips, $debriefsQ ?? [], items).length;
-        return { tp, use, w, hints, line: lineOf(tp, setsValue), stale: isStale(tp, trips, today) };
+        // Impeccable Vorlagen 1: a loose list without blocks says its count once («12 einzelne Teile · 1.93 kg»)
+        const parts = templateParts(tp, setsValue);
+        const loose = !parts || (!parts.standard && !parts.blocks.length);
+        return { tp, use, w, hints, loose, line: lineOf(tp, setsValue), stale: isStale(tp, trips, today) };
       })
       .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? '') || (b.tp.createdAt ?? '').localeCompare(a.tp.createdAt ?? '') || a.tp.name.localeCompare(b.tp.name)),
   );
@@ -185,6 +189,7 @@
       <!-- FE1: on a phone «New template» sits at the bottom, in reach of the thumb -->
       <span class="daumen"><Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} /></span>
     </PathHead>
+    <HintCard page="templates" />
 
     {#if showSwitch}
       <div class="areas">
@@ -207,7 +212,7 @@
                   <span class="sib" class:ok={!r.stale} class:warn={r.stale} aria-hidden="true"><Icon size={18} /></span>
                   <a class="sm main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
                     <b>{r.tp.name}</b>
-                    <small>{[r.line, r.w.n ? tn(r.w.n, '{n} item', '{n} items') : '', weight(r.w), r.stale ? `${t('long not used')} (${tn(monthsSince(r.use.last ?? r.tp.createdAt), '{n} month', '{n} months')})` : ''].filter(Boolean).join(' · ')}</small>
+                    <small>{[r.line, r.w.n && !r.loose ? tn(r.w.n, '{n} item', '{n} items') : '', weight(r.w), r.stale ? `${t('long not used')} (${tn(monthsSince(r.use.last ?? r.tp.createdAt), '{n} month', '{n} months')})` : ''].filter(Boolean).join(' · ')}</small>
                     {#if r.hints}<span class="spill"><i class="pill">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i></span>{/if}
                   </a>
                   <span class="rowacts">
@@ -227,9 +232,11 @@
 
       <aside class="side">
         {#if sources.length}
-          <Section title={t('From your trips')} sub={t('only from Planned or Rated')} id="tpl-src-h">
+          <!-- Impeccable Vorlagen 3: ridden trips first, the planned ones under «Noch geplant» -->
+          <Section title={t('From your trips')} sub={t('Ridden trips first: they know what you really needed.')} id="tpl-src-h">
             <ul class="card slist">
-              {#each sources as s (s.trip.id)}
+              {#each sources as s, i (s.trip.id)}
+                {#if s.state === 'plan' && i > 0 && sources[i - 1].state !== 'plan'}<li class="subh" data-src-planned>{t('Still planned')}</li>{/if}
                 <li class="srow" data-src={s.trip.id}>
                   <span class="sib {s.state}" aria-hidden="true">{#if s.state === 'plan'}<Pencil size={18} />{:else if s.state === 'rated'}<Star size={18} />{:else}<Mountain size={18} />{/if}</span>
                   <span class="sm">
@@ -338,5 +345,38 @@
   }
   .arch .main small {
     color: var(--ink-3);
+  }
+  /* Vorlagen 3: the small title over the planned trips in «Aus deinen Touren» */
+  .subh {
+    padding: var(--sp-3) 0 var(--sp-1);
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+  }
+  /* Vorlagen 2: on a phone «Neue Tour» stays small at the right of the name, as on a computer */
+  @media (max-width: 719px) {
+    .mainc .srow {
+      flex-wrap: nowrap;
+    }
+    .mainc .srow .sm {
+      flex: 1 1 0;
+    }
+    /* the name gets the room: the icon tile goes on a phone (the state stays in «lange nicht gebraucht») */
+    .mainc .srow .sib {
+      display: none;
+    }
+    .mainc .rowacts {
+      flex: none;
+      width: auto;
+      margin-left: 0;
+      gap: 4px;
+    }
+    .mainc .rowacts > :global(.btn:not(.dots)) {
+      flex: none;
+      min-width: 0;
+      min-height: 44px;
+      padding-inline: 10px;
+      font-size: var(--fs-small);
+    }
   }
 </style>

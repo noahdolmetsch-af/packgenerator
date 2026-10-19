@@ -25,7 +25,7 @@ export default {
   'all day': 'ganztags',
   'until {day}': 'bis {day}',
   'From|time': 'Von',
-  To: 'Bis',
+  'To|time': 'Bis',
   'Where (optional)': 'Wo (freiwillig)',
   'Enter in Google': 'In Google eintragen',
   'Nothing entered.': 'Nichts eingetragen.',

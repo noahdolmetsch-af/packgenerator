@@ -226,8 +226,9 @@ test.describe('L9: first start on a German browser', () => {
     await expect(page.locator('[data-row="nobike"]')).toHaveCount(0);
     await narrow(page, info, 'First steps');
 
-    // v0.46.0: "Tried it yet?" offers a first function with one button.
-    await expect(page.getByRole('region', { name: T('Tried it yet?') }).locator('.tryb')).toHaveCount(1);
+    // v0.46.0: "Tried it yet?" offered a first function; v0.155.0 «Heute neu geordnet» (HN4 3a, changed on
+    // purpose): it left Today (still in the catalog)
+    await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
 
     // Plan your first trip opens the New trip window.
     await first.getByRole('button', { name: T('Plan a trip|first') }).click();

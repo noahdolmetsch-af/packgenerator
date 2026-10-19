@@ -4,19 +4,21 @@ import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture, COUNTS } from './material0472-fixture.js';
 
-const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Favoriten', never: 'Nie gebraucht', unweighed: 'Ungewogen', wish: 'Wunschliste' };
+// Impeccable (18.10.2026): «Favoriten» (one word), and the wishlist is the tab «Einkauf», no row in «Ansichten»
+const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Favoriten', never: 'Nie gebraucht', unweighed: 'Ungewogen' };
 
 async function openGear(page, context, info, hash = '#/gear') {
   await openHome(page, context, info, { data: materialFixture() });
   // v0.102.0 Design-Refresh P3: the list comes first now (Noah «5a»); these checks are about the cards
   await page.evaluate(() => localStorage.setItem('gear.display', 'cards'));
   await page.goto(`./${hash}`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Material' })).toBeVisible();
+  // Impeccable (18.10.2026): the tab «Einkauf» has its own title
+  await expect(page.getByRole('heading', { level: 1, name: hash.includes('view=wish') ? 'Einkauf' : 'Material' })).toBeVisible();
 }
 const views = (page) => page.getByRole('group', { name: 'Ansichten' });
 const cards = (page) => page.locator('.cards .mcard');
 
-test('the seven views: counts on the buttons, each filters the cards and stays in the address', async ({ page, context }, info) => {
+test('the views: counts on the buttons, each filters the cards and stays in the address', async ({ page, context }, info) => {
   await openGear(page, context, info);
   for (const [key, name] of Object.entries(NAMES)) {
     const b = views(page).getByRole('button', { name: new RegExp(`^${name} ${COUNTS[key]}$`) });
@@ -28,6 +30,12 @@ test('the seven views: counts on the buttons, each filters the cards and stays i
     if (key === 'all') expect(page.url()).not.toContain('view=');
     else expect(page.url()).toContain(`view=${key}`);
   }
+  // the wishlist: no row here, the tab «Einkauf» (?view=wish) shows it
+  await expect(views(page).locator('[data-view="wish"]')).toHaveCount(0);
+  await page.goto('./#/gear?view=wish');
+  await expect(cards(page)).toHaveCount(COUNTS.wish);
+  await expect(page.getByRole('heading', { level: 1, name: 'Einkauf' })).toBeVisible();
+  await page.goto('./#/gear');
   // the right items in the views
   await views(page).getByRole('button', { name: /^Meist genutzt/ }).click();
   await expect(cards(page).locator('.nm')).toHaveText(['Bike computer', 'Power bank 10000 mAh', 'Rain jacket']);
@@ -41,6 +49,28 @@ test('the seven views: counts on the buttons, each filters the cards and stays i
   await page.goto('./#/gear?fav=1');
   await expect(views(page).getByRole('button', { name: /^Favoriten/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(cards(page)).toHaveCount(COUNTS.fav);
+});
+
+// Impeccable (18.10.2026): «Einkauf» has its own head (wishes, price, weight) and «Gekauft» on every row
+test('Einkauf: own head with the numbers, «Gekauft» moves a wish to my gear with Undo', async ({ page, context }, info) => {
+  await openGear(page, context, info, '#/gear?view=wish');
+  await page.evaluate(() => localStorage.setItem('gear.display', 'list'));
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: 'Einkauf' })).toBeVisible();
+  await expect(page.locator('.page-sub')).toHaveText('2 Wünsche · 360 g · 2 ohne Preis');
+  await expect(page.getByText('Noch nicht gekauft und in keiner Summe.', { exact: false })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Wunschliste & zu kaufen' })).toHaveCount(0);
+  const wish = page.getByRole('region', { name: 'Einkauf' });
+  await wish.getByRole('button', { name: 'Gekauft: Ultralight tarp' }).click();
+  const bar = page.getByRole('status').filter({ hasText: '«Ultralight tarp» ist jetzt in deinem Material.' });
+  await expect(bar).toBeVisible();
+  await expect(page.locator('.page-sub')).toHaveText('1 Wunsch · 60 g · 1 ohne Preis');
+  await bar.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(wish.getByRole('button', { name: /^Gekauft: / })).toHaveCount(2);
+  // the cards have it too
+  await page.evaluate(() => localStorage.setItem('gear.display', 'cards'));
+  await page.reload();
+  await expect(page.locator('.mcard[data-id="WI02"]').getByRole('button', { name: 'Gekauft: Lighter pump' })).toBeVisible();
 });
 
 test('Never used says it in one plain sentence, and Leave at home works', async ({ page, context }, info) => {
@@ -95,8 +125,9 @@ test('the item: its year on tour, the learned rule, the last trips, the lighter 
 test('desktop: cards with the chosen one in the detail column, Cards or List', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'desktop', 'the detail column is for the computer');
   await openGear(page, context, info);
-  const panel = page.getByRole('complementary', { name: 'Bike computer' });
-  await expect(panel).toBeVisible(); // the first card is chosen at the start
+  // Impeccable runde 2 (Material 2, changed on purpose): no card is chosen at the start; a calm card says what a tap shows
+  await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Bike computer' })).toHaveCount(0);
   await page.locator('.mcard[data-id="RA01"] .mopen').click();
   const rj = page.getByRole('complementary', { name: 'Rain jacket' });
   await expect(rj).toBeVisible();

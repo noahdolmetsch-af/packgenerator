@@ -4,7 +4,7 @@
 //         switch, an interval chosen in its window, «Alle aufklappen»;
 // AB2     «Eigene Frage anlegen»: Kaffee, number with «Tassen», twice a day; it shows under «Eigene»;
 // AB3     the card on Heute with what is due (a battery 1–10, the weight with «zuletzt»), «Speichern» and
-//         «Jetzt nicht»;
+//         «Jetzt nicht»; since Noah 19.10.2026 its own window (Morgen-Check) with «Später» and «Heute nicht»;
 // AB4     Ich › Daten › Verlauf: the answers and an old daily check, filter by area and source, change an answer.
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
@@ -34,11 +34,10 @@ test.describe('AB Deine Abfragen', () => {
     const T = await openHome(page, context, info, { data: data() });
     const card = page.locator('[data-section="abfragen"]');
     await expect(card).toBeVisible();
-    await expect(card.getByText(T('Your questions'), { exact: true })).toBeVisible();
+    // Noah 19.10.2026 (changed on purpose): Heute no longer starts with the questions; they come as a window
+    await expect(card.getByRole('heading', { name: T('Morning check') })).toBeVisible();
+    await expect(card).toHaveJSProperty('open', true);
     await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
-    // the order: under the greeting, before the wall
-    const greet = await page.locator('[data-section="greeting"]').boundingBox();
-    expect((await card.boundingBox()).y).toBeGreaterThan(greet.y);
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
@@ -58,8 +57,8 @@ test.describe('AB Deine Abfragen', () => {
     await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
     await expect(card.locator('[data-q="koerper.waage"]')).toHaveCount(0);
     await expect(card.getByText(T('{n} due now', { n: 1 }))).toBeVisible();
-    // «Jetzt nicht»: the card goes until the next question time
-    await card.locator('[data-ab-later]').click();
+    // «Heute nicht» (was «Jetzt nicht»): the window goes until the next question time
+    await card.locator('[data-ab-today]').click();
     await expect(card).toHaveCount(0);
     await page.reload();
     await expect(page.locator('[data-section="greeting"]')).toBeVisible();
@@ -83,12 +82,15 @@ test.describe('AB Deine Abfragen', () => {
     await page.getByRole('link', { name: new RegExp(T('Your questions')) }).click();
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
-    await expect(page.getByText('54 Fragen in 10 Bereichen, 35 davon an.', { exact: false })).toBeVisible();
+    // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
+    await expect(page.locator('.vhead .vsub')).toHaveText(/^35 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
+    await expect(page.getByText('10 Bereiche · 54 Fragen · 35 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
     await expect(erholung.locator('[data-q]')).toHaveCount(6);
-    await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toBeVisible();
+    // Impeccable Runde 2 (on purpose): «bisher: …» only in the interval sheet of the question
+    await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toHaveCount(0);
     await expect(page.locator('[data-area="spass"]').getByText('5 Fragen · 4 an')).toBeVisible();
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /3× täglich · 8:00, 13:00, 20:00/ })).toBeVisible();
     await shot(page, info, 'AB5-fragen-bereiche');
@@ -101,6 +103,7 @@ test.describe('AB Deine Abfragen', () => {
     await erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /täglich/ }).click();
     const sheet = page.getByRole('dialog', { name: T('How often to ask?') });
     await expect(sheet).toBeVisible();
+    await expect(sheet.getByText('bisher: Wie viel Energie hast du?')).toBeVisible();
     await sheet.getByRole('button', { name: '13:00 entfernen' }).click();
     await sheet.locator('[data-iv-save]').click();
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /2× täglich · 8:00, 20:00/ })).toBeVisible();

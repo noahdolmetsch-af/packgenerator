@@ -6,6 +6,8 @@
    * column shows both lists with how often each row was ticked on earlier trips of the type (only when
    * there are such trips), «Anpassen» opens the editor (CheckEdit) for the type's standard. On the side:
    * what was missing on earlier trips (from the debriefs), the other types, and that all is a suggestion.
+   * Impeccable Runde 2: the button of a debrief suggestion says where the row goes («To the evening before»);
+   * on a phone the list of the other types is left out (the chips on top choose them), a computer keeps it.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -87,20 +89,20 @@
     <div class="ich-side">
       {#if missed.length}
         <section class="ich-sec" aria-labelledby="ck-learn-h">
-          <div class="ich-h"><div><h2 id="ck-learn-h">{t('From your debriefs')}</h2><p class="ich-hs">{t('{area} · suggestions, you decide', { area })}</p></div></div>
+          <div class="ich-h"><div><h2 id="ck-learn-h">{t('From your debriefs')}</h2><p class="ich-hs">{t('{area} · what you missed goes into the evening-before check with one tap', { area })}</p></div></div>
           <ul class="card ich-list">
             {#each missed.slice(0, 5) as m (m.name)}
               <li class="ich-row">
                 <span class="ich-ib" aria-hidden="true"><Plus size={18} /></span>
                 <span class="ich-m"><b>{t('Pack {name}', { name: m.name })}</b><small>{tn(m.n, 'missing {n} time · debrief of {day}', 'missing {n} times · last debrief {day}', { day: shortDay(m.at) })}</small></span>
-                <button type="button" class="btn" aria-label={t('Add {name}', { name: t('Pack {name}', { name: m.name }) })} onclick={() => take(m.name)}>{t('Add|row')}</button>
+                <button type="button" class="btn" aria-label={t('{name}: to the evening-before check', { name: t('Pack {name}', { name: m.name }) })} onclick={() => take(m.name)}>{t('To the evening before')}</button>
               </li>
             {/each}
           </ul>
         </section>
       {/if}
 
-      <section class="ich-sec" aria-labelledby="ck-other-h">
+      <section class="ich-sec others" aria-labelledby="ck-other-h">
         <div class="ich-h"><div><h2 id="ck-other-h">{t('The other trip types')}</h2><p class="ich-hs">{t('each with its own list')}</p></div></div>
         <ul class="card ich-list">
           {#each others as d (d.key)}
@@ -133,6 +135,12 @@
   }
   .types {
     margin: 0 0 20px;
+  }
+  /* Impeccable Runde 2: a phone chooses the type with the chips on top; the side list only beside the page */
+  @media (max-width: 999px) {
+    .others {
+      display: none;
+    }
   }
   .adj {
     flex: none;

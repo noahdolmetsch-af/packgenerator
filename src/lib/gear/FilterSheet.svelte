@@ -14,8 +14,10 @@
    * cats/bags/areas: [{ key, name, n }] (names translated); onclose.
    * v0.102.0 Design-Refresh P3 (M3): total (all items of the view) for the line «n of m items match»;
    * every choice is a chip (sort and area too), the chosen one filled.
+   * Impeccable runde 2 (18.10.2026, Material 3): look = { display, showBag, bagOk } on a phone: «Display» with
+   * «List | Cards» and «Compact | With bag» (they left the line above the list); onlook(patch).
    */
-  let { value, onchange, count = 0, total = null, cats = [], bags = [], areas = [], onclose } = $props();
+  let { value, onchange, count = 0, total = null, cats = [], bags = [], areas = [], look = null, onlook = null, onclose } = $props();
   let dlg = $state();
   $effect(() => {
     dlg?.showModal();
@@ -77,6 +79,19 @@
   <div class="fchips" role="group" aria-labelledby="fs-role">
     {#each ROLES as r (r.key)}<button type="button" class="fchip" aria-pressed={value.role === r.key} onclick={() => onchange({ role: r.key })}>{r.name}</button>{/each}
   </div>
+
+  {#if look}
+    <h3 class="lbl" id="fs-look">{t('Display|gear sheet')}</h3>
+    <div class="fchips" role="group" aria-label={t('Show as')}>
+      {#each [{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }] as o (o.key)}<button type="button" class="fchip" aria-pressed={look.display === o.key} onclick={() => onlook?.({ display: o.key })}>{o.name}</button>{/each}
+    </div>
+    {#if look.bagOk && look.display === 'list'}
+      <div class="fchips look2" role="group" aria-label={t('Show the bag')}>
+        <button type="button" class="fchip" aria-pressed={!look.showBag} onclick={() => onlook?.({ showBag: false })}>{t('Compact')}</button>
+        <button type="button" class="fchip" aria-pressed={look.showBag} onclick={() => onlook?.({ showBag: true })}>{t('With bag')}</button>
+      </div>
+    {/if}
+  {/if}
 
   <div class="ff">
     {#if active}<button type="button" class="btn" onclick={() => onchange({ category: '', bag: '', domain: '', role: '' })}>{t('Reset filters')}</button>{/if}
@@ -145,6 +160,9 @@
     font: 600 var(--fs-small) / 1.2 var(--font-body);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  .look2 {
+    margin-top: 8px;
   }
   .fchips {
     display: flex;

@@ -14,7 +14,8 @@
  * Everything stays a suggestion: switching off only stops the reminder, the history stays.
  * Pure functions, tested in tests/careplan.test.js.
  */
-import { PART, CHECK_KM, ensureParts, fits, checkKmOf } from '../care.js';
+import { PART, ensureParts, fits, checkKmOf, partStd } from '../care.js';
+import { own as ownLive } from '../ownlive.svelte.js';
 
 /**
  * The cares of the card, in this order. kind: 'interval' (km and/or days), 'wear' (warn and replace
@@ -40,8 +41,8 @@ const own = (part, f) => !!part && Object.hasOwn(part, f);
 export function careStd(key) {
   const c = CARE_ITEM[key];
   if (!c) return null;
-  if (c.kind === 'check') return { everyKm: CHECK_KM };
-  const p = PART[c.parts[0]];
+  if (c.kind === 'check') return { everyKm: ownLive.v.checkKm }; // «Eigene Werte» checkKm (standard CHECK_KM)
+  const p = { ...PART[c.parts[0]], ...partStd(c.parts[0]) }; // «Eigene Werte»: the own standard interval
   if (c.kind === 'wear') return { warnAt: p.warnAt ?? null, limit: p.limit ?? null };
   return { everyKm: nn(p.everyKm), everyDays: nn(p.everyDays) };
 }
@@ -113,7 +114,7 @@ export function careChange(stored, key, { on = true, values = null, note } = {})
   const want = on ? { ...std, ...(values ?? {}) } : Object.fromEntries(Object.keys(std).map((f) => [f, null]));
   const out = {};
   if (c.kind === 'check') {
-    if (want.everyKm === CHECK_KM) {
+    if (want.everyKm === std.everyKm) {
       if (Object.hasOwn(stored ?? {}, 'checkKm')) out.checkKm = undefined;
     } else out.checkKm = want.everyKm ?? null;
   } else {

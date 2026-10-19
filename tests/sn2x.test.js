@@ -26,9 +26,10 @@ const A_NONE = { id: 3, day: '2026-09-12', movingS: 10000, hrAvg: 128, wAvg: nul
 describe('the five groups of the page (answer 1a)', () => {
   it('only «Die Tour» is open at the start; a remembered state is taken, a broken one ignored', () => {
     expect(GROUPS.map((g) => g.key)).toEqual(['tour', 'body', 'way', 'pack', 'next']);
-    expect(openOf(null)).toEqual({ tour: true });
-    expect(openOf('{"tour":false,"body":true,"nope":true}')).toEqual({ tour: false, body: true });
-    expect(openOf('not json')).toEqual({ tour: true });
+    expect(openOf(null)).toEqual({ tour: true, next: true });
+    expect(openOf('{"tour":false,"body":true,"nope":true}')).toEqual({ tour: false, body: true, next: true });
+    expect(openOf('{"next":false}')).toEqual({ tour: true, next: false });
+    expect(openOf('not json')).toEqual({ tour: true, next: true });
   });
 });
 

@@ -51,18 +51,20 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   expect(dark).toBe(0);
 
   // the four new tiles on the wall (their «neu» sign counts from the release day: tests/tiles.test.js)
-  for (const id of ['week', 'month', 'nextms', 'yearago']) await expect(page.locator(`.wall [data-tile="${id}"] h2`)).toBeVisible();
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Next milestone» left the ready wall; three stay
+  for (const id of ['week', 'month', 'yearago']) await expect(page.locator(`.wall [data-tile="${id}"] h2`)).toBeVisible();
+  await expect(page.locator('.wall [data-tile="nextms"]')).toHaveCount(0);
   await expect(page.locator('[data-section="week"] li')).toHaveCount(7);
   await page.screenshot({ path: info.outputPath(`heute-${phone ? 390 : 1440}.png`), fullPage: true });
   await noSideways(page);
 
-  // «New» by area: Trips, Gear, Bikes, Note, «Plan a trip» first
+  // «New» by area: Merken first (PL1, Noah «5a»; Eigene Listen), then Trips, Gear, Bikes, Note; «Plan a trip» first of Trips
   await page.evaluate(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'n' })));
   const sheet = page.locator('dialog.sheet.new');
   if (!(await sheet.isVisible())) await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator('h3.ngrp')).toHaveText([T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Note|group')]);
-  await expect(sheet.locator('.opt').first()).toContainText(T('Plan a trip'));
+  await expect(sheet.locator('h3.ngrp')).toHaveText([T('Remember'), T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Note|group')]);
+  await expect(sheet.locator('h3.ngrp', { hasText: T('Trips|place') }).locator('xpath=following-sibling::ul[1]').locator('.opt').first()).toContainText(T('Plan a trip'));
   await page.screenshot({ path: info.outputPath(`neu-${phone ? 390 : 1440}.png`) });
   expect(errors).toEqual([]);
 });

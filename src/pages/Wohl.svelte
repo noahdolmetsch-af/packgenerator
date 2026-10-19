@@ -314,11 +314,11 @@
 </script>
 
 <div class="ich-page wohl" data-page="wohl">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('What does me good')} title={t('What does me good')} sub={t('What your good days have in common. Only to look at: no grade, no diagnosis.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('What is good for me')} title={t('What is good for me')} sub={t('What your good days have in common. Only to look at: no grade, no diagnosis.')} />
 
   <AreaIntro
     key="wohl"
-    kicker={t('How «What does me good» works')}
+    kicker={t('How «What is good for me» works')}
     title={t('Your good days, explained by your own data')}
     sub={t('The app compares days with a good day score (how happy you were with the day) to the others.')}
     steps={[

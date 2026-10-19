@@ -5,24 +5,36 @@
    * v0.98.0 Design-Refresh R2 (G4/G5 A★, Noah 11.10 23:10): the sidebar is light: the logo with its
    * mark, «+ Neu», the search, the five places with plain icons (the chosen one on a soft row, its pages
    * under it with a line), and «Ich» as a card at the bottom.
+   * AU1 (Noah 15.10.2026 «5b»): «Ausrüstung» is its own row under Velos (nav.js SIDE_PLACES).
    */
-  import { PLACES, PLACE_TABS, tabOf, placeHref } from '../nav.js';
+  import { SIDE_PLACES, PLACE_TABS, tabOf, placeHref } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus, Compass, MessageCircle } from '@lucide/svelte';
+  import { localDay } from '../localday.js';
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
   // «Inspiration» UC2-1 (mockup): an entry under the five places, with «neu» until it was opened once
   const INSP_SEEN = 'insp.seen';
   const insp = $derived((hash || '').startsWith('#/inspiration'));
-  let seen = $state(false);
+  // Impeccable Runde 2: the «neu» also goes after 14 days from the first time it showed, opened or not
+  const INSP_SINCE = 'insp.newSince';
+  const NEW_DAYS = 14;
+  let first = false;
   try {
-    seen = !!localStorage.getItem(INSP_SEEN);
+    first = !!localStorage.getItem(INSP_SEEN);
+    if (!first) {
+      const today = localDay();
+      const since = localStorage.getItem(INSP_SINCE);
+      if (!since) localStorage.setItem(INSP_SINCE, today);
+      else if (Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${since}T12:00:00Z`)) / 864e5) >= NEW_DAYS) first = true;
+    }
   } catch {
     /* private mode: the «neu» stays */
   }
+  let seen = $state(first);
   $effect(() => {
     if (!insp || seen) return;
     seen = true;
@@ -49,7 +61,7 @@
     <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
     <nav class="places" aria-label={t('Sections')}>
       <ul>
-        {#each PLACES as p (p.key)}
+        {#each SIDE_PLACES as p (p.key)}
           {@const tabs = PLACE_TABS[p.key] ?? []}
           {@const on = place === p.key}
           {@const tab = on ? tabOf(p.key, hash) : null}

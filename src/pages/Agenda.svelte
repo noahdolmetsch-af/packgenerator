@@ -178,7 +178,7 @@
               {#if !ev.allDay}
                 <div class="two">
                   <label>{t('From|time')}<input type="time" bind:value={ev.from} required /></label>
-                  <label>{t('To')}<input type="time" bind:value={ev.to} /></label>
+                  <label>{t('To|time')}<input type="time" bind:value={ev.to} /></label>
                 </div>
               {/if}
               <label>{t('Where (optional)')}<input type="text" bind:value={ev.where} maxlength="200" /></label>

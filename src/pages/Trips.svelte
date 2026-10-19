@@ -47,7 +47,7 @@
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { overviewCounts, weatherWindow, packBand, tileRows } from '../lib/touren.js';
+  import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { switchTrip, openNew, openTrip, newTrip } from '../lib/nav.js';
@@ -82,12 +82,17 @@
   import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
   import { loadActs } from '../lib/review/actdata.js';
   import { phone } from '../lib/media.svelte.js';
-  import { PHONE_ROWS, shortLine, capGroups } from '../lib/touren/kurz.js';
+  import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
+  import { untrack } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
+
+  import OldTripsSports from '../lib/trip/OldTripsSports.svelte';
+  import '../lib/sports.css';
+  import { oldTripSuggestions, OLD_TRIPS_DONE, oldTripsLater } from '../lib/sports.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -107,6 +112,15 @@
       .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? ''))
       .slice(0, 2),
   );
+  // SA3 (Noah 14.10.2026 «SA1–SA3 freigegeben», «4b»): once, a sport for the old bike trips (sports.js).
+  // A quiet band opens the window («nothing jumps by itself», app rules 14.10.2026); «Später» hides it
+  // until the app is opened again, «Alle übernehmen» for good.
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const oldDoneQ = liveQuery(() => db.settings.get(OLD_TRIPS_DONE).then((r) => r ?? null));
+  let oldLater = $state(oldTripsLater.v);
+  const oldRows = $derived(loaded && $bikesQ && $oldDoneQ !== undefined && !$oldDoneQ?.value && !oldLater ? oldTripSuggestions($tripsQ, $bikesQ) : []);
+  // the rows are fixed while the window is open (a trip saved meanwhile does not move them)
+  let shownRows = $state(null);
   const rides = $derived($ridesQ ?? []);
   // 0.161.0 (Bugfixes 0.132.2 B1, Noah 1b + H3a): trips with the «Test trip» switch count nowhere, as on Today
   const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
@@ -133,6 +147,10 @@
   const plan = $derived(view?.plan ?? []);
   const band = $derived(packBand(plan, $tripsQ ?? [], current));
   const bandRow = $derived(band.state === 'draft' ? band.row : null);
+  // Impeccable 18.10.2026 (Touren 1): while a trip is on the way the band shows it; the pack draft moves
+  // to its row in «Geplant» (the pill «im Packmodus» there becomes the way into Packmodus)
+  const ride = $derived(rideBand(plan, $tripsQ ?? [], today));
+  const topBand = $derived(ride ?? band);
   const PLAN_SHORT = 3;
   // Paket D (Noah 18.10.2026 «1b»): on a phone «Schnell starten» is one line in the head of «Geplant» (where «New trip»
   // sits on a computer); a tap opens its buttons. So Touren stays within three phone screens (Handy kurz).
@@ -210,7 +228,20 @@
   let extrasOpen = $state(false);
   let packOpen = $state(false);
   const shortDone = $derived(phone.matches && !doneAll);
-  const shownGroups = $derived(shortDone ? capGroups(groups, PHONE_ROWS) : groups);
+  // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
+  // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
+  let tourLimit = $state(TOUR_ROWS);
+  $effect(() => {
+    void [JSON.stringify(filter), st, mode];
+    untrack(() => (tourLimit = TOUR_ROWS));
+  });
+  const cap = $derived(shortDone ? PHONE_ROWS : tourLimit);
+  const shownGroups = $derived(rows.length > cap ? capGroups(groups, cap) : groups);
+  const moreN = $derived(rows.length > cap ? nextRows(rows.length, cap) : 0);
+  const showMore = () => {
+    tourLimit = cap + moreN;
+    doneAll = true;
+  };
   const KIND_NAME = Object.fromEntries(KINDS.map((k) => [k.key, k.name]));
   const what = (r) => (r.kind === 'ride' ? t(KIND_NAME.ride) : r.days > 1 ? tn(r.days, '{n} day', '{n} days') : t(KIND_NAME[kindOf(r)] ?? 'Day ride|art'));
   const rowBike = (r) => r.bike ?? bikeName[vals[r.id]?.bikeId] ?? null;
@@ -238,6 +269,8 @@
       DASH,
     );
   };
+  // Impeccable 18.10.2026 (Touren 2): «Keine Fahrt verknüpft» once above the list instead of in every card
+  const noRide = $derived($moreQ ? rows.filter((r) => !hasRide(vals[r.id])).length : 0);
 
   /* ---- SN4h: «In Zahlen» (all groups open at first; Blöcke and closed blocks remembered) ---- */
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
@@ -299,8 +332,8 @@
   <div class="vals" data-values>
     <dl class="vg">
       {#if ride}
-        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
-        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
+        {@render cell(t('Moving time|col'), secs(v.movingS))}
+        {@render cell(t('Elapsed|col'), secs(v.elapsedS))}
         {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
         {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
         {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
@@ -314,11 +347,12 @@
         <dl class="vg">
           {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
           {@render cell(t('Max. power'), n0(v.wMax), 'W')}
-          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
+          {@render cell(t('NP'), n0(v.wNorm), 'W')}
         </dl>
       </div>
-    {:else}
-      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+    {:else if ride}
+      <!-- Impeccable Touren 2: «ohne Wattwerte» only where a ride could have them; «Keine Fahrt verknüpft» is said once above the list -->
+      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
     {/if}
     {@render packInfo(r)}
   </div>
@@ -348,6 +382,12 @@
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  {#if oldRows.length}
+    <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
+      <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
+      <ChevronRight size={18} aria-hidden="true" />
+    </button>
+  {/if}
   {#if view}
     {#if view.empty}
       <!-- v0.127.0 A-U2: the one empty building block -->
@@ -362,7 +402,7 @@
       {#if !phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
-        <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
+        <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
@@ -417,7 +457,13 @@
                 {:else}
                   <span class="pr"><span class="num">{t(r.state.label, r.state)}</span></span>
                 {/if}
-                {#if bandRow?.tripId === r.tripId && !(phone.matches && tours.band !== 'hidden')}<span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>{/if}
+                {#if bandRow?.tripId === r.tripId && !(phone.matches && tours.band !== 'hidden')}
+                  {#if ride && ride.tripId !== r.tripId}
+                    <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')} · {t('Open pack mode')}<ChevronRight size={13} aria-hidden="true" /></a>
+                  {:else}
+                    <span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>
+                  {/if}
+                {/if}
               </li>
             {/each}
           </ul>
@@ -462,6 +508,17 @@
         {:else if !rows.length}
           <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
         {:else}
+          <!-- Impeccable Touren 2: what is missing, said once; the «?» of the values explained here once -->
+          <div class="vhead" data-values-head>
+            {#if noRide}<p class="vmiss" data-no-ride><Info size={16} aria-hidden="true" /><span>{t('For {n} of {all} trips, times, pace and heart rate are missing because no ride is linked.', { n: num(noRide), all: num(rows.length) })} <a href="#/debrief/ride">{t('Upload ride')}<ChevronRight size={14} aria-hidden="true" /></a></span></p>{/if}
+            {#if rows.length > noRide}
+              <div class="vq" data-values-help>
+                <span>{t('Moving time|col')}<Help label={t('Moving time|col')} text={t(FIELD_HELP.moving)} /></span>
+                <span>{t('Elapsed|col')}<Help label={t('Elapsed|col')} text={t(FIELD_HELP.elapsed)} /></span>
+                {#if rows.some((r) => vals[r.id]?.watts)}<span>{t('NP')}<Help label={t('NP')} text={t(FIELD_HELP.np)} /></span>{/if}
+              </div>
+            {/if}
+          </div>
           <div class="list" data-trip-list>
             {#each shownGroups as g (g.month)}
               <h3 class="mh">{monthLong(g.month)}</h3>
@@ -493,8 +550,8 @@
               </ul>
             {/each}
           </div>
-          {#if shortDone && rows.length > PHONE_ROWS}
-            <button type="button" class="phone-more" onclick={() => (doneAll = true)} data-pack-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(rows.length - PHONE_ROWS, 'Show {n} more trip', 'Show {n} more trips')}</button>
+          {#if moreN}
+            <button type="button" class="phone-more" onclick={showMore} data-pack-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(moreN, 'Show {n} more trip', 'Show {n} more trips')}</button>
           {/if}
           <ul class="legend hide-phone" aria-label={t('What the colours mean')}>
             <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
@@ -523,6 +580,9 @@
     <Skeleton rows={4} />
   {/if}
 </div>
+{#if shownRows}
+  <OldTripsSports rows={shownRows} bikes={$bikesQ ?? []} onclose={(later) => ((shownRows = null), later && ((oldLater = true), (oldTripsLater.v = true)))} />
+{/if}
 
 {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
 {#if sheet}
@@ -694,6 +754,62 @@
     background: var(--st-plan-soft);
     color: var(--st-plan);
     font: 500 var(--fs-tiny) / 1.4 var(--font-body);
+  }
+  /* Touren 1: with a trip on the way the pill is the way into Packmodus (above the card's own link) */
+  a.go-pm {
+    position: relative;
+    z-index: 1;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  /* Touren 2: the line above the list */
+  .vhead {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 var(--sp-3);
+  }
+  .vmiss {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .vmiss :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .vmiss a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  /* a 44 px tap area around the link, without pushing the line apart */
+  .vmiss a::after {
+    content: '';
+    position: absolute;
+    inset: -12px -4px;
+  }
+  .vq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* the open sentence of a «?» takes its own line under the three words */
+  .vq > span {
+    display: contents;
+  }
+  .vq :global(.q) {
+    margin-right: 14px;
   }
   .noplan {
     display: flex;
@@ -1034,10 +1150,18 @@
     flex: 1;
     gap: 2px;
   }
+  .phone-more.extras span {
+    min-width: 0;
+  }
   .phone-more.extras small {
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);
+    /* Paket E CI («Handy kurz», three screens with the SA3 band): the grey line stays one line; the line opens
+       what it names */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   @media (max-width: 719px) {
     .hide-phone {

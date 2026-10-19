@@ -23,11 +23,14 @@
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
   import { tick as settle, untrack } from 'svelte';
+  import { cubicOut } from 'svelte/easing';
+  import { flip } from '../ui/flip.js';
+  import { laterSort, glide } from '../ui/latersort.svelte.js';
   import { buzz } from '../bedienung.svelte.js';
   import TripBand from '../trip/TripBand.svelte';
   import { askReopen } from '../trip/reopen.svelte.js';
   import Empty from '../ui/Empty.svelte';
-  import { formatWeight } from '../gear.js';
+  import { formatWeight, isConsumable } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
@@ -92,6 +95,7 @@
   function touchBag() {
     downAt = now();
     cancelJump();
+    if (sortT) sortLater(); // a finger in the bag: the rows wait a bit longer
   }
   // «Bewegung» Stelle 1 (Noah 19.10.2026 «alle 1-3»): when a full bag moves on by itself, its row in «Taschen»
   // lights up green for a moment, so the eye sees where the finished bag went (also with reduced motion).
@@ -147,6 +151,7 @@
     }
     if (willFill) advance(step.key, JUMP_MS, at);
     else if (timer) cancelJump();
+    sortLater();
   }
   async function wholeBag(step) {
     cancelJump();
@@ -154,10 +159,13 @@
     await onpack(step.entries.map((e) => e.itemId));
     advance(step.key, 0);
   }
+  // the ready check sorts the same way: done checks slide down a moment after the last tap
+  const readySort = laterSort((r) => r.id, (r) => readyDone(r, trip));
   async function readyTick(r) {
     const key = `ready:${r.id ?? r.itemId}`;
     if (busy.has(key)) return;
     busy.add(key);
+    readySort.tap(ready);
     if (!readyDone(r, trip)) buzz(); // FE7: only when it gets ticked
     try {
       remember();
@@ -189,6 +197,20 @@
   }
   // Open items on top, packed ones at the bottom. v0.30.2 (test P4.7): the order is fixed when
   // a bag opens, so a ticked row stays under the finger and a quick second tap hits the next item.
+  // «Bewegung» + «Gestaltungsrichtung B» 4b (Noah 19.10.2026): a ticked item slides down to the packed
+  // ones, but only SORT_MS after the last tap in the bag, so quick ticks in a row never move a row away
+  // under the finger (B3/B4). The rows glide (250 ms); with reduced motion they move at once.
+  const SORT_MS = 1000;
+  let sortT = null;
+  function sortLater() {
+    clearTimeout(sortT);
+    sortT = setTimeout(() => {
+      sortT = null;
+      const s = stepOf(cur);
+      if (s && order.key === cur) order = { key: cur, ids: sorted(s).map((e) => e.itemId) };
+    }, SORT_MS);
+  }
+  const still = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sorted = (s) => [...s.entries.filter((e) => !e.packed), ...s.entries.filter((e) => e.packed)];
   let order = $state.raw({ key: '', ids: [] });
   $effect(() => {
@@ -210,9 +232,20 @@
   const newLessons = $derived(lessons.filter((l) => !shownTips.has(l.rule)));
   const hintOf = (id) => (badges[id] ?? []).map((b) => (b.key === 'tip' ? b.text : b.label)).join(' · ');
   // v0.105.0 P5 (T6): the line under a bag in «Taschen»: «6 Teile · 3.4 kg».
-  const kgOf = (s) => s.entries.reduce((g, e) => g + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
+  // Impeccable 18.10.2026 (Packen 3): the same calculation as «Gewicht nach Taschen» (touren.js weightByPlace:
+  // gear without food and water); a bag with food or water says so: «2.5 kg mit Essen».
+  const eats = (i) => isConsumable(i) || i.waterL > 0;
+  const kgOf = (s, food = false) => s.entries.reduce((g, e) => {
+    const it = itemsById[e.itemId];
+    return it && eats(it) === food ? g + (it.weightG ?? 0) * (e.qty || 1) : g;
+  }, 0);
   const kgText = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
-  const subOf = (s) => [tn(s.entries.length, '{n} item', '{n} items'), kgOf(s) ? kgText(kgOf(s)) : ''].filter(Boolean).join(' · ');
+  const kgLine = (s) => {
+    const gear = kgOf(s);
+    const food = kgOf(s, true);
+    return food ? t('{kg} with food|bag', { kg: kgText(gear + food) }) : gear ? kgText(gear) : '';
+  };
+  const subOf = (s) => [tn(s.entries.length, '{n} item', '{n} items'), kgLine(s)].filter(Boolean).join(' · ');
   // A tap on a bag in the list opens it below; when the open bag is out of sight the page goes there.
   let openEl = $state();
   async function pick(key) {
@@ -226,6 +259,25 @@
   // "Next: On the way" with something missing asks first (Noah: also works when something is missing).
   let askEl = $state();
   const missing = $derived(total - packed + (ready.length - readyN));
+  // Impeccable 18.10.2026 (Packen 3): the bar names both counts: «30 Teile und 2 Checks fehlen noch»
+  const missingText = $derived.by(() => {
+    const items = total - packed;
+    const checks = ready.length - readyN;
+    if (items && checks) return t('{items} and {checks} still missing', { items: tn(items, '{n} item', '{n} items'), checks: tn(checks, '{n} check', '{n} checks') });
+    if (checks) return tn(checks, '{n} check still missing', '{n} checks still missing');
+    return tn(items, '{n} item still missing', '{n} items still missing');
+  });
+  // Impeccable 18.10.2026 (Packen 2, Noah «alle Vorschläge angenommen»): while less than half is packed the
+  // main button packs: «Satteltasche packen (0 von 12)» opens the next open bag; from half on it is
+  // «Packen abschliessen» again, which stays reachable as a quiet link at the end of the bags.
+  const packFirst = $derived(main.kind === 'finish' && !fixed && total > 0 && packed * 2 < total);
+  const nextBag = $derived(steps.find((x) => x.key === cur && !full(x)) ?? steps.find((x) => !full(x)) ?? null);
+  async function packNext() {
+    if (!nextBag) return;
+    cur = nextBag.key;
+    await settle();
+    openEl?.scrollIntoView?.({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
   function next() {
     if (missing) askEl?.showModal();
     else onnext();
@@ -248,6 +300,8 @@
       lock?.release?.();
       clearTimeout(timer);
       clearTimeout(flashT);
+      clearTimeout(sortT);
+      readySort.stop();
       document.removeEventListener('visibilitychange', again);
     };
   });
@@ -276,7 +330,8 @@
 <!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Zur Startseite», under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
-{#snippet go()}{#if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next>{t('Pack {bag}|next', { bag: nextBag.title })}<span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 {#snippet aside()}{@render ring(52)}{/snippet}
@@ -300,7 +355,7 @@
 {/snippet}
 
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
-  <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} note />
+  <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? missingText : t('Everything is in.')} note />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
   <HintCard page="pack" />
   <TipLine page="pack" name={t('Pack')} />
@@ -367,7 +422,7 @@
                 {#each ordered(s) as e (e.itemId)}
                   {@const it = itemsById[e.itemId]}
                   {@const hint = hintOf(e.itemId)}
-                  <li class:in={e.packed}>
+                  <li class:in={e.packed} animate:flip={{ duration: still() ? 0 : 250, easing: cubicOut }}>
                     <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
                       <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
                       <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
@@ -392,9 +447,9 @@
           </div>
           <div class="card ibox">
             <ul class="items">
-              {#each ready as r (r.id)}
+              {#each readySort.order(ready) as r (r.id)}
                 {@const ok = readyDone(r, trip)}
-                <li class:in={ok}>
+                <li class:in={ok} animate:flip={glide()}>
                   <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}>
                     <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
                     <span class="nm">{readyLabel(r)}</span>
@@ -411,7 +466,7 @@
           </div>
         </section>
       {/if}
-      {#if !fixed && (packed < total || !readyAll)}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
+      {#if !fixed && (packed < total || !readyAll)}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button>{#if packFirst}<button type="button" class="tp-link" onclick={next} data-finish-quiet>{t(main.label)}</button>{/if}</p>{/if}
     </div>
 
     <div class="pside">
@@ -522,7 +577,9 @@
   .chg { flex: none; padding: 0 0 0 12px; font-size: var(--fs-small); white-space: nowrap; }
   .bagfoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0 12px; border-top: 1px solid var(--line); }
   .bagfoot .tp-link, .all .tp-link { font-size: var(--fs-small); }
-  .all { margin: -12px 0 0; }
+  .all { display: flex; flex-wrap: wrap; gap: 0 16px; margin: -12px 0 0; }
   .ask h2 { margin: 0 0 8px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  /* a phone held sideways keeps the trip band compact: the count is in the steps already */
+  @media (max-height: 500px) { .gocnt { display: none; } }
 </style>

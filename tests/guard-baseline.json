@@ -29,7 +29,6 @@
       "fontsize": 33
     },
     "src/lib/care/CareTab.svelte": {
-      "colour": 1,
       "fontsize": 6
     },
     "src/lib/care/OrderDialog.svelte": {
@@ -108,7 +107,7 @@
       "fontsize": 2
     },
     "src/lib/pack/CalmPack.svelte": {
-      "fontsize": 11
+      "fontsize": 10
     },
     "src/lib/pack/NotPacked.svelte": {
       "fontsize": 6
