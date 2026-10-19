@@ -1731,6 +1731,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+## 19.10.2026: Paket 6 Velo-FAQ (0.157.0)
+
+- Noah 19:58 «bitte velo faq in neues paket 6 tun». Dazu die kleine Korrektur «ganze Zeile antippen» bei abgeschlossenen Touren.
+
 ## 19.10.2026: Paket 5 ohne Rennen (0.156.0)
 
 - Noah «mach wie es am besten und am schnellsten geht»; U wächst (Profil, Live-Karte, Suche, POIs …). Darum geht Paket 5 mit Mail, Grösse und dem Abgleich-Hinweis online; Velo-FAQ wird 0.157.0, U 0.158.0.

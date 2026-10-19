@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»); whole row of finished trips opens.
+    version: '0.157.0',
+    date: '2026-10-19',
+    title: 'Bike FAQ',
+    lead: 'Questions about your bike, answered with a wink.',
+    points: [
+      { text: 'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink', href: '#/bikes?tab=care&view=faq' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Finished trips: the whole row can be tapped', href: '#/trips' },
+    ],
+    test: [
+      'Open Bikes › Care and tap «Bike FAQ».',
+    ],
+  },
+  {
     // v0.156.0 Paket 5: «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»), «Grösse» (Noah «1b 2b»), Abend-Runde sync hint.
     // U «Rennen» follows as Paket 7 (0.158.0).
     version: '0.156.0',

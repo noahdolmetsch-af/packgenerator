@@ -4,6 +4,11 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.157.0 Paket 6: Velo-FAQ
+  'Questions about your bike, answered with a wink.': 'Fragen rund ums Velo, mit Augenzwinkern beantwortet.',
+  'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink': 'Velo-FAQ: 48 Fragen zu Pflege, Pannen und Mythen, mit Augenzwinkern',
+  'Finished trips: the whole row can be tapped': 'Abgeschlossene Touren: die ganze Zeile lässt sich antippen',
+  'Open Bikes › Care and tap «Bike FAQ».': 'Öffne Velos › Pflege und tippe auf «Velo-FAQ».',
   // 0.156.0 Paket 5: Mail in die App
   'Mails into the app and the size': 'Mails in die App und die Grösse',
   'From Gmail into the Inbox, and the whole app smaller or larger.': 'Von Gmail in den Eingang, und die ganze App kleiner oder grösser.',
