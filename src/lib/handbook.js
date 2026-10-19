@@ -437,6 +437,22 @@ export const HANDBOOK = {
     steps: ['On On the way › More open «Sun, moon and places».', '«Load places» asks Wikipedia about start, middle and finish.'],
     example: 'Example: dark from 18:52, full moon on Friday, and a few lines about the castle on the way.',
   },
+  // Paket 4 (Noah 19.10.2026 «1a», «3a»)
+  'f.housecheck': {
+    on: null,
+    steps: ['On On the way tap «Before you leave»; the house check is below the way home.', '«Edit the list» to rename, delete, add or move lines.'],
+    example: 'Example: stove off, windows closed, rubbish out, and your own line «Blinds down».',
+  },
+  'f.flatsitter': {
+    on: null,
+    steps: ['On the sheet «Before you leave» write what the sitter should do, and a note.', '«Share link» or «QR code»; the list is stored only in the link.'],
+    example: 'Example: water the plants on Wednesday, empty the letterbox, the key is with the neighbour.',
+  },
+  'f.readytomorrow': {
+    on: null,
+    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.'],
+    example: 'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.',
+  },
   // v0.134.0 «Inspiration»
   'f.inspiration': {
     on: null,

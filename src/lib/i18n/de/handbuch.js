@@ -996,4 +996,27 @@ export default {
   'Give the trip a country under Plan › Pass, country, getting there.': 'Gib der Tour ein Land unter Planen › Pass, Land, Anreise.',
   'Below it: the emergency numbers (change them per country), your travel insurance and «Convert» to the currency of the country.': 'Darunter: die Notfallnummern (je Land änderbar), deine Reiseversicherung und «umrechnen» in die Währung des Landes.',
   'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».': 'Beispiel: Land Frankreich → 112 und 15, deine Versicherung mit ihrer Nummer, «EUR umrechnen».',
+  // «Alles selbst bearbeiten» (19.10.2026)
+  'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
+  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Routine «Das tut mir gut» (D1 + D2)
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
+  'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
+  // Paket C 0.150.0: f.insights «Erkenntnisse»
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
+  'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // Paket 4: Haus-Check, Wohnungs-Hüter-Liste, Bereit für morgen
+  'On On the way tap «Before you leave»; the house check is below the way home.': 'Auf Unterwegs «Vor der Abfahrt» antippen; der Haus-Check steht unter dem Heimweg.',
+  '«Edit the list» to rename, delete, add or move lines.': '«Liste bearbeiten», um Zeilen umzubenennen, zu löschen, hinzuzufügen oder zu verschieben.',
+  'Example: stove off, windows closed, rubbish out, and your own line «Blinds down».': 'Beispiel: Herd aus, Fenster zu, Abfall raus und deine eigene Zeile «Storen runter».',
+  'On the sheet «Before you leave» write what the sitter should do, and a note.': 'Auf dem Blatt «Vor der Abfahrt» schreiben, was die Hüter tun sollen, und eine Notiz.',
+  '«Share link» or «QR code»; the list is stored only in the link.': '«Link teilen» oder «QR-Code»; die Liste ist nur im Link gespeichert.',
+  'Example: water the plants on Wednesday, empty the letterbox, the key is with the neighbour.': 'Beispiel: am Mittwoch Pflanzen giessen, Briefkasten leeren, der Schlüssel ist bei den Nachbarn.',
+  'The evening before a tour open the trip in Pack.': 'Am Vorabend einer Tour die Tour in Packen öffnen.',
+  'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.': 'Die Hinweise in «Bereit für morgen?» lesen; ist der KI-Helfer an, ihn auch fragen.',
+  'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.': 'Beispiel: 3 °C am Morgen → Handschuhe zuoberst; noch 4 Sachen einpacken; Lichter laden.',
 };
