@@ -452,6 +452,21 @@ export const HANDBOOK = {
     steps: ['Open a sport › «Adjust blocks».', 'Under «Add a block» choose e.g. Training plans, Lessons or Loops from home.', 'Its lines can be renamed, ticked and deleted.'],
     example: 'Example: Gravel › «Water and gravel on the route» shows fountains and the gravel share of a route.',
   },
+  'f.bikeservice': {
+    on: 'Needs a bike with its km.',
+    steps: ['Bikes › Care › your bike: the card «Bike service».', '«Set up»: every 3000 km, 100 h or 365 days, each one can be off.', '«Service done» after the service; it is due again by whichever comes first.'],
+    example: 'Example: mountain bike, 1400 km since the service at 14 km/h ≈ 100 h → due.',
+  },
+  'f.parttemplate': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Part template».', 'Choose road bike, gravel or mountain bike and switch parts on or off.', 'Own parts: add, rename, move, delete.'],
+    example: 'Example: gravel gets «Bell»; every new gravel bike starts with it.',
+  },
+  'f.spick': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
+    example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
+  },
   'f.tick': {
     on: null,
     steps: ['Open Active, or the Active card on Today.', 'One tap ticks an activity; «Undo» takes it back.'],
