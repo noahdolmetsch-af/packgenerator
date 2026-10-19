@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // Verpflegung (Noah 19.10.2026 21:11 «1a 2a 3a und b 4a 5a»): food and water plan per section. Paket 8.
+    version: '0.160.0',
+    date: '2026-10-19',
+    title: 'Enough food and water',
+    lead: 'How much to eat and drink on each part of the route.',
+    points: [
+      { text: 'Trips › Food and water: carbohydrates and water per section', href: '#/trips/fuel' },
+      { text: 'Warnings for long gaps, small bottles and closed shops', href: '#/trips/fuel' },
+      { text: 'Your own values and products, as grams or as bars and gels', href: '#/trips/fuel' },
+    ],
+    test: [
+      'Open Trips › Food and water and choose a trip with a GPX route.',
+      'Search the places along the route, then switch to «My products».',
+    ],
+  },
+  {
     // Paket U «Bikepacking und Ultra-Rennen» (Noah 19.10.2026, ideas 1–40): Touren › Rennen with Plan, Strategie,
     // Vorbereiten, Strecke, Unterwegs, Danach, the sample race and the countdown on Heute («3b»).
     // Paket 7.

@@ -4,6 +4,7 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.160.0 «Verpflegung» (Paket 8):** Touren › Verpflegung rechnet pro Abschnitt zwischen Läden Kohlenhydrate (eigene g pro Stunde) und Wasser (1–2 l pro Stunde nach Temperatur und Steigung), warnt bei zu kleinen Flaschen, langen Lücken und geschlossenen Läden und zeigt auf Wunsch eigene Produkte. Link auch auf der Strecken-Karte in Packen.
 **0.159.0 «Paket 7» (19.10.2026, nach 0.158.0):** Touren › Rennen (Plan, Strategie, Vorbereiten, Strecke, Unterwegs, Danach, Muster-Rennen), Renn-Karte mit feinem Höhenprofil (ein Punkt alle 100 m, nach Steigung gefärbt, zoombar, Karte zeigt dieselbe Strecke), Anstiege, Karte offline (swisstopo und OpenFreeMap), Live-Karte für jede Fahrt (#/live: Vollbild, oben bis 6 Zahlen, du als Pfeil, Stopps als Symbole, Panel unten, SOS im «⋯»-Menü), Orte auf der Karte (16 Arten, Umkreis 2–20 km, «Hier suchen», entlang der Strecke, offline mitgespeichert, Abstecher, Teilen), Wetter-Zeitleiste entlang der Strecke, GPX auf der Live-Karte, Kachel «Ausfahrt starten» und Kurzbefehl am App-Symbol.
 
 **0.158.0 «Heute stabil» (19.10.2026, Reparatur vor Paket 7):** Heute bleibt nach einem Update oder Abgleich nie mehr grau: doppelte Meilensteine aus dem Abgleich zählen einmal, jede Kachel fängt ihre eigenen Fehler ab, und hält ein altes Fenster das Datenbank-Update auf, zeigt die App oben einen Hinweis.

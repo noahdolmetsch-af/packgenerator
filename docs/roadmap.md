@@ -105,6 +105,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, «Verpflegung» (0.160.0, Paket 8):** neue Seite Touren › Verpflegung (Noah «1a 2a 3a und b 4a 5a»); nutzt die Ortssuche von Paket 7 mit Öffnungszeiten.
 **19.10.2026, v0.159.0 «Paket 7»:** U «Rennen» mit Renn-Karte, feinem Höhenprofil, Anstiegen, Karte offline und der Live-Karte für jede Fahrt (Orte suchen, Wetter-Zeitleiste, GPX). Ton-Aufnahmen gestrichen (Noah). Danach: Trainingsplan-Kopplung (Rennen › Vorbereiten verlinkt schon auf Trainingspläne).
 
 **19.10.2026, v0.158.0 «Heute stabil»:** Reparatur für den Mac (Heute blieb grau). Danach 0.159.0 U «Rennen», 0.160.0 Paket 8 (Verpflegung, Training zum Rennen, Kachel «Das tut mir gut»), 0.161.0 Paket 9 Tour-Seite.
