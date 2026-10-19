@@ -309,3 +309,37 @@ describe('Wetter-Wecker (Paket G)', () => {
     expect(rec.watch).toEqual([]);
   });
 });
+
+describe('Regen unterwegs and Ozon/Pollen on the tick (Paket G)', () => {
+  it('warns once before the rain on the way, then stays quiet; adds strong pollen to the morning message', async () => {
+    const wld = world();
+    const orig = wld.doFetch.getMockImplementation();
+    let rainNow = [0, 0, 0.6, 1];
+    wld.doFetch.mockImplementation(async (url, init) => {
+      const u = String(url);
+      if (u.startsWith('https://api.open-meteo.com/') && u.includes('minutely_15')) return Response.json({ minutely_15: { precipitation: rainNow } });
+      if (u.startsWith('https://api.open-meteo.com/')) return Response.json({ daily: { time: ['2026-10-20'], weather_code: [1], wind_gusts_10m_max: [20], temperature_2m_max: [18] } });
+      if (u.startsWith('https://air-quality-api.open-meteo.com/')) return Response.json({ hourly: { time: ['2026-10-20T12:00'], ozone: [60], grass_pollen: [90], birch_pollen: [0], alder_pollen: [0], mugwort_pollen: [0], ragweed_pollen: [0] } });
+      return orig(url, init);
+    });
+    const ph = phone();
+    let now = T0;
+    const h = makeHandler({ env: env(), doFetch: wld.doFetch, now: () => now });
+    const texts = { title: 'Wetter', thunder: '', storm: '', heat: '', rtitle: 'Regen unterwegs', rain: 'Regen in {min} Minuten auf {trip}.', pollen: 'Starker Pollenflug: {list}.', ozone: 'Ozon {n}.', pollenNames: { grass: 'Gräser' } };
+    const points = [0, 1, 2, 3].map((n) => ({ at: T0 + n * 1800e3, lat: 47 + n / 100, lon: 8 }));
+    await h(post({ a: 'save', token: TOKEN, sub: ph.sub, rain: [{ key: 'rain:1', title: 'Testtour', url: '#/pack', points }], weather: [{ key: 'wx:1', at: T0 + 500, date: '2026-10-20', lat: 47, lon: 8, title: 'Testtour', url: '#/pack' }], air: { pollen: ['grass'] }, texts }));
+    now = T0 + 1000;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 2 });
+    const msgs = wld.sent.map((s) => decrypt(s.init.body, ph));
+    expect(msgs).toContainEqual(expect.objectContaining({ title: 'Testtour', body: 'Starker Pollenflug: Gräser.' }));
+    expect(msgs).toContainEqual(expect.objectContaining({ title: 'Regen unterwegs', body: 'Regen in 30 Minuten auf Testtour.', tag: 'rain:1' }));
+    // 15 minutes later: rain still coming, but 2 hours quiet
+    now = T0 + 1000 + 15 * 60e3;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 0 });
+    // after the ride the watch is gone
+    rainNow = [0, 0, 0, 0];
+    now = T0 + 4 * 1800e3 + 1;
+    await h(get(`a=tick&key=${TICK}`));
+    expect(JSON.parse(wld.store[devKey(TOKEN)]).rain).toEqual([]);
+  });
+});

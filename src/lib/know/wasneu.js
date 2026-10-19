@@ -50,7 +50,7 @@ export const SINCE = {
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
   // Paket G «Daten kommen von selbst» (the bundler sets the final version)
-  'f.connections': '0.148.0', 'f.owncal': '0.148.0', 'f.notestasks': '0.148.0', 'f.fitbitold': '0.148.0', 'f.stravaticks': '0.148.0', 'f.lake': '0.148.0', 'f.datastars': '0.148.0', 'f.wxwatch': '0.148.0',
+  'f.connections': '0.148.0', 'f.owncal': '0.148.0', 'f.notestasks': '0.148.0', 'f.fitbitold': '0.148.0', 'f.stravaticks': '0.148.0', 'f.lake': '0.148.0', 'f.datastars': '0.148.0', 'f.wxwatch': '0.148.0', 'f.tourhints': '0.148.0', 'f.rainsoon': '0.148.0', 'f.air': '0.148.0', 'f.routepois': '0.148.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';

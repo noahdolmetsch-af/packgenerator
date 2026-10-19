@@ -15,6 +15,9 @@
  */
 import { t, locale } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
+import { ridesIntoDark, sunTimes, offsetFor } from '../blockplan.js';
+import { stage, stageCount, pointAt } from '../ride.js';
+import { airPrefs, POLLEN_NAMES } from '../air.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -39,6 +42,9 @@ export const KINDS = [
   { key: 'eve', label: 'Evening before a trip', hint: 'The evening-before check, at the time of «Eigene Werte».' },
   { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat or a thunderstorm.' },
   { key: 'wxwatch', label: 'Weather alarm', hint: 'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.' },
+  { key: 'dark', label: 'Light alarm', hint: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.' },
+  { key: 'rainsoon', label: 'Rain on the way', hint: 'While you ride: when rain comes in about 15 to 45 minutes where you should be.' },
+  { key: 'air', label: 'Ozone and pollen', hint: 'On the tour morning, with much ozone or strong pollen (the kinds you choose on Aktiv).' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
@@ -106,7 +112,42 @@ export function buildList(data) {
   if (on('eve'))
     for (const tr of upcoming)
       add({ key: `eve:${tr.id}:${tr.startDate}`, at: atMs(addDays(tr.startDate, -1), hm(eveAt)), title: t('Evening before'), body: t('Tomorrow: {trip}. The evening-before check is waiting.', { trip: tourName(tr) }), url: `#/trip/${tr.id}/packed` });
-  if (on('weather')) {
+  const placeOf = (tr) => {
+    const home = data.settings?.homePlace;
+    const pl = tr.route?.start ?? (Number.isFinite(tr.place?.lat) ? tr.place : null) ?? (home && Number.isFinite(home.lat) ? home : null);
+    return pl && Number.isFinite(pl.lat) && Number.isFinite(pl.lon) ? pl : null;
+  };
+  // Licht-Wecker (Paket G): the evening before, when a stage goes on after sunset
+  if (on('dark'))
+    for (const tr of upcoming) {
+      const place = placeOf(tr);
+      if (!ridesIntoDark(tr, place)) continue;
+      const sun = place ? sunTimes(tr.startDate, place.lat, place.lon) : null;
+      const set = sun ? new Date(sun.set + offsetFor(tr.startDate) * 6e4).toISOString().slice(11, 16) : null;
+      add({ key: `dark:${tr.id}:${tr.startDate}`, at: atMs(addDays(tr.startDate, -1), hm(eveAt)), title: t('Light alarm'), body: set ? t('{trip}: you ride after sunset ({time}). Pack the light and the reflective vest.', { trip: tourName(tr), time: set }) : t('{trip}: you ride into the dark. Pack the light and the reflective vest.', { trip: tourName(tr) }), url: '#/pack' });
+    }
+  // Regen-Warnung unterwegs (Paket G): the expected place every 30 minutes of each riding day
+  const rain = [];
+  if (on('rainsoon')) {
+    const riding = (data.trips ?? []).filter((tr) => tr.status !== 'done' && !tr.skipped && DAY.test(tr.startDate ?? '') && addDays(tr.startDate, Math.max(1, Number(tr.days) || 1) - 1) >= today && tr.startDate <= addDays(today, AHEAD_DAYS));
+    for (const tr of riding.slice(0, 5)) {
+      const points = [];
+      const n = stageCount(tr);
+      for (let d = 0; d < n; d++) {
+        const st = stage(tr, d);
+        if (!st.startAt || !st.endAt) continue;
+        const from = atMs(st.startAt.slice(0, 10), st.startAt.slice(11, 16));
+        const to = atMs(st.endAt.slice(0, 10), st.endAt.slice(11, 16));
+        for (let at = from; at <= to && points.length < 120; at += 30 * 60 * 1000) {
+          const frac = (d + (to > from ? (at - from) / (to - from) : 0)) / n;
+          const p = tr.route?.line?.length ? pointAt(tr.route.line, frac) : placeOf(tr);
+          if (p && at + 30 * 60 * 1000 > ms) points.push({ at, lat: p.lat, lon: p.lon });
+        }
+      }
+      if (points.length) rain.push({ key: `rain:${tr.id}:${tr.startDate}`, title: tourName(tr), url: '#/pack', points });
+    }
+  }
+  if (on('weather') || on('air')) {
     const home = data.settings?.homePlace;
     for (const tr of upcoming) {
       const place = tr.route?.start ?? (home && Number.isFinite(home.lat) ? home : null);
@@ -162,11 +203,18 @@ export function buildList(data) {
     }
   }
   items.sort((a, b) => a.at - b.at);
+  const wxOn = on('weather');
   const texts = {
     title: t('Weather on the tour day'),
-    thunder: t('Thunderstorms are possible today. Have a look at the weather.'),
-    storm: t('Strong gusts are expected today. Have a look at the weather.'),
-    heat: t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }),
+    // with «Weather on the tour day» off (only «Ozone and pollen» on) the server has no weather words
+    thunder: wxOn ? t('Thunderstorms are possible today. Have a look at the weather.') : '',
+    storm: wxOn ? t('Strong gusts are expected today. Have a look at the weather.') : '',
+    heat: wxOn ? t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }) : '',
+    rtitle: t('Rain on the way'),
+    rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
+    ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),
+    pollen: t('Strong pollen today: {list}.', { list: '{list}' }),
+    pollenNames: Object.fromEntries(Object.entries(POLLEN_NAMES).map(([k, v]) => [k, t(v)])),
     wtitle: t('Weather alarm'),
     bad: t('The weather for {trip} looks bad.', { trip: '{trip}' }),
     turn: t('The weather for {trip} turns: it looks bad now.', { trip: '{trip}' }),
@@ -175,5 +223,5 @@ export function buildList(data) {
     better: t('From {day} it looks better.', { day: '{day}' }),
     wdays: [4, 5, 6, 7, 8, 9, 10].map((d) => new Date(Date.UTC(2026, 0, d, 12)).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' })), // Sun … Sat
   };
-  return { items, weather, watch, texts, hotC };
+  return { items, weather, watch, rain, air: on('air') ? airPrefs(data.settings?.air) : null, texts, hotC };
 }
