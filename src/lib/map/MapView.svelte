@@ -16,12 +16,21 @@
    * - prefsKey: keeps ground and switches on this device (localStorage); adding: «Add point» mode.
    * - onpick(point) a tap on a point; onmapclick({ lat, lon, zoom }) a tap elsewhere;
    *   onlongpress({ lat, lon }) a long press or right click.
-   * Methods (bind:this): fitRoute(), show(lat, lon, zoom).
+   * - highlight: [[lat, lon]] a stretch drawn wide under the route (the zoomed part of the profile).
+   * - done: [[lat, lon]] the part already ridden, drawn faded; grades: [{ line, colour }] the climbs ahead
+   *   in the steepness colours (live map). me.deg: your direction → an arrow (north stays up).
+   * - Points are small symbols in light circles (symbols.js), names from zoom 13.
+   * - Live map: fill (the map fills its box), bar=false (ground and layers live in the page's menu),
+   *   fitButton=false, navAt (corner of the zoom buttons).
+   * - onview({ west, south, east, north }): after you moved or zoomed the map yourself (debounced).
+   * - onmove({ s, w, n, e }): after every move of the map (yours or the page's), for the place search.
+   * Methods (bind:this): fitRoute(), fitLine(line), show(lat, lon, zoom).
    */
   import { onMount, untrack } from 'svelte';
   import { Maximize2, Layers } from '@lucide/svelte';
   import { GROUNDS, groundOf, pickGround } from './sources.js';
-  import { styleOf, tokenColours, sectorColour, kindColourExpr, segmentsGeo, lineFeature, pointsGeo, pointFeature, zoomSteps, boundsOf, middleOf, loadPrefs, savePrefs, hasWebGL, FONT, LABEL_ZOOM, SECTOR_TOKENS } from './maplib.js';
+  import { SYMBOL_KINDS, symbolId, symbolSvg } from './symbols.js';
+  import { styleOf, tokenColours, sectorColour, kindColour, kindColourExpr, segmentsGeo, lineFeature, pointsGeo, pointFeature, zoomSteps, boundsOf, middleOf, loadPrefs, savePrefs, hasWebGL, FONT, LABEL_ZOOM, SECTOR_TOKENS } from './maplib.js';
   import { t } from '../i18n.svelte.js';
 
   let {
@@ -39,6 +48,16 @@
     prefsKey = '',
     adding = false,
     label = '',
+    highlight = [],
+    done = [],
+    grades = [],
+    fill = false,
+    bar = true,
+    fitButton = true,
+    navAt = 'top-right',
+    onview = null,
+    ondrag = null,
+    onmove = null,
     onpick = null,
     onmapclick = null,
     onlongpress = null,
@@ -73,16 +92,77 @@
     return pickGround(ground, mid?.lat, mid?.lon);
   };
 
-  export function fitRoute() {
+  export function fitRoute(mine = false) {
     const b = routeBounds();
-    if (map && b) map.fitBounds(b, { padding: 32, maxZoom: 14, duration: 0 });
+    // mine: «Whole route» under the map, counted as your own move (the profile follows)
+    if (map && b) map.fitBounds(b, { padding: 32, maxZoom: 14, duration: 0 }, mine ? { mvUser: true } : undefined);
+  }
+  /** Fit the map to a stretch (the profile's zoom); not counted as your own move. bottomPx: covered below. */
+  export function fitLine(l = [], bottomPx = 0) {
+    const b = boundsOf(l);
+    if (map && b) map.fitBounds(b, { padding: { top: 40, left: 40, right: 40, bottom: 40 + Math.max(0, bottomPx) }, maxZoom: 15, duration: 300 });
+  }
+  /** Put lat/lon in the middle of the part not covered below (bottomPx), at least at zoom. */
+  export function centerOn(lat, lon, zoom = 13, bottomPx = 0) {
+    if (map && Number.isFinite(lat) && Number.isFinite(lon)) map.easeTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), zoom), offset: [0, -Math.max(0, bottomPx) / 2] });
+  }
+  /** Follow: move only when lat/lon nears the edge of the uncovered part (so a chosen view stays). */
+  export function keep(lat, lon, bottomPx = 0) {
+    if (!map || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const c = map.getContainer();
+    const w = c.clientWidth;
+    const h = Math.max(80, c.clientHeight - Math.max(0, bottomPx));
+    const p = map.project([lon, lat]);
+    if (p.x < w * 0.2 || p.x > w * 0.8 || p.y < h * 0.2 || p.y > h * 0.8) map.easeTo({ center: [lon, lat], offset: [0, -Math.max(0, bottomPx) / 2], duration: 600 });
   }
   export function show(lat, lon, zoom = 13) {
     if (map && Number.isFinite(lat) && Number.isFinite(lon)) map.easeTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), zoom) });
   }
 
   /* ---------- our sources and layers (again after every change of ground) ---------- */
-  const SRC = ['ov', 'stretch', 'route', 'seg', 'pts', 'cursor', 'me'];
+  const SRC = ['ov', 'stretch', 'hl', 'route', 'seg', 'grade', 'done', 'pts', 'cursor', 'me'];
+
+  /* ---------- the symbols (drawn once per page from SVG into pixels, added on every style) ---------- */
+  let symImgs = null;
+  let symLoading = null;
+  function loadSymbols() {
+    if (symImgs) return Promise.resolve(symImgs);
+    symLoading ??= (async () => {
+      const out = {};
+      const one = (id, svg) =>
+        new Promise((res) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const c = document.createElement('canvas');
+              c.width = c.height = 64;
+              const g = c.getContext('2d');
+              g.drawImage(img, 0, 0, 64, 64);
+              out[id] = g.getImageData(0, 0, 64, 64);
+            } catch {
+              /* no canvas: that symbol is missing, the rest still draws */
+            }
+            res();
+          };
+          img.onerror = () => res();
+          img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        });
+      await Promise.all([
+        ...SYMBOL_KINDS.map((k) => one(symbolId(k), symbolSvg(k, kindColour(colours, k), colours['--paper'] ?? '#fbfbf8', 64))),
+        one('me-arrow', arrowSvg()),
+      ]);
+      symImgs = out;
+      return out;
+    })();
+    return symLoading;
+  }
+  // your arrow: a filled navigation arrow in the «you» colour with a light rim
+  const arrowSvg = () =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="${colours['--paper'] ?? '#fbfbf8'}" opacity="0.9"/><path d="M32 8 L50 52 L32 42 L14 52 Z" fill="${colours['--l3'] ?? '#3f7fbf'}" stroke="${colours['--paper'] ?? '#fbfbf8'}" stroke-width="3" stroke-linejoin="round"/></svg>`;
+  function addSymbols() {
+    if (!map || !symImgs) return;
+    for (const [id, data] of Object.entries(symImgs)) if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: 2 });
+  }
   function src(id, data) {
     const s = map.getSource(id);
     if (s) s.setData(data);
@@ -104,15 +184,27 @@
     layer({ id: 'stretch-night', type: 'line', source: 'stretch', filter: ['==', ['get', 'tone'], 'night'], paint: { 'line-color': colours['--ink'], 'line-width': 12, 'line-opacity': 0.28 }, layout: { 'line-cap': 'round' } });
     layer({ id: 'stretch-lies', type: 'line', source: 'stretch', filter: ['==', ['get', 'tone'], 'lies'], paint: { 'line-color': colours['--l3'], 'line-width': 14, 'line-opacity': 0.5 }, layout: { 'line-cap': 'round' } });
     layer({ id: 'stretch-snow', type: 'line', source: 'stretch', filter: ['==', ['get', 'tone'], 'snow'], paint: { 'line-color': colours['--l3'], 'line-width': 12, 'line-opacity': 0.45, 'line-dasharray': [1, 1] } });
+    src('hl', empty);
+    layer({ id: 'hl-band', type: 'line', source: 'hl', paint: { 'line-color': colours['--hi'], 'line-width': 13, 'line-opacity': 0.45 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
     src('route', empty);
     layer({ id: 'route-casing', type: 'line', source: 'route', paint: { 'line-color': colours['--paper'], 'line-width': 7 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
     layer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': colours['--ink'], 'line-width': 4 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
     src('seg', empty);
     const seg = ['match', ['%', ['get', 'i'], SECTOR_TOKENS.length], ...SECTOR_TOKENS.flatMap((_, i) => [i, sectorColour(colours, i)]), colours['--ink']];
     layer({ id: 'seg-line', type: 'line', source: 'seg', paint: { 'line-color': seg, 'line-width': 4 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    src('grade', empty);
+    layer({ id: 'grade-line', type: 'line', source: 'grade', paint: { 'line-color': ['coalesce', ['get', 'colour'], colours['--ink']], 'line-width': 5 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    src('done', empty);
+    layer({ id: 'done-line', type: 'line', source: 'done', paint: { 'line-color': colours['--paper'], 'line-width': 6, 'line-opacity': 0.62 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
     src('pts', empty);
     src('cursor', empty);
     src('me', empty);
+    if (symImgs) addSymbols();
+    else
+      loadSymbols().then(() => {
+        addSymbols();
+        styleVer++; // draw the points and the arrow again, now with their images
+      });
     styleVer++;
   }
 
@@ -141,30 +233,47 @@
     src('pts', pointsGeo(points));
     const colour = kindColourExpr(colours);
     for (const z of steps) {
-      layer({
-        id: `pts-z${z}`,
-        type: 'circle',
-        source: 'pts',
-        minzoom: z,
-        filter: ['==', ['get', 'minZoom'], z],
-        paint: {
-          'circle-color': colour,
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, z === 0 ? 5 : 3.5, 13, z === 0 ? 8 : 6.5],
-          'circle-stroke-color': colours['--paper'],
-          'circle-stroke-width': 1.5,
-        },
-      });
+      if (symImgs) {
+        // a small symbol in a light circle (cart, cutlery, drop, bed, train …)
+        if (map.getLayer(`pts-z${z}`)?.type === 'circle') map.removeLayer(`pts-z${z}`);
+        layer({
+          id: `pts-z${z}`,
+          type: 'symbol',
+          source: 'pts',
+          minzoom: z,
+          filter: ['==', ['get', 'minZoom'], z],
+          layout: {
+            'icon-image': ['get', 'sym'],
+            'icon-size': ['interpolate', ['linear'], ['zoom'], 6, z === 0 ? 0.8 : 0.7, 13, z === 0 ? 1.05 : 0.95],
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+          },
+        });
+      } else
+        layer({
+          id: `pts-z${z}`,
+          type: 'circle',
+          source: 'pts',
+          minzoom: z,
+          filter: ['==', ['get', 'minZoom'], z],
+          paint: {
+            'circle-color': colour,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, z === 0 ? 5 : 3.5, 13, z === 0 ? 8 : 6.5],
+            'circle-stroke-color': colours['--paper'],
+            'circle-stroke-width': 1.5,
+          },
+        });
     }
     layer({
       id: 'pts-label',
       type: 'symbol',
       source: 'pts',
       minzoom: LABEL_ZOOM,
-      layout: { 'text-field': ['get', 'name'], 'text-font': FONT, 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true, 'text-max-width': 10 },
+      layout: { 'text-field': ['get', 'name'], 'text-font': FONT, 'text-size': 12, 'text-offset': [0, 1.4], 'text-anchor': 'top', 'text-optional': true, 'text-max-width': 10 },
       paint: { 'text-color': colours['--ink'], 'text-halo-color': colours['--paper'], 'text-halo-width': 1.5 },
     });
     // the cursor and your position stay on top
-    for (const id of ['cursor-dot', 'me-acc', 'me-dot']) if (map.getLayer(id)) map.moveLayer(id);
+    for (const id of ['cursor-dot', 'me-acc', 'me-dot', 'me-arrow']) if (map.getLayer(id)) map.moveLayer(id);
   }
 
   function syncArrows() {
@@ -202,6 +311,21 @@
   });
   $effect(() => {
     const v = styleVer;
+    const f = lineFeature(highlight);
+    if (v && map) untrack(() => src('hl', f ? { type: 'FeatureCollection', features: [f] } : empty));
+  });
+  $effect(() => {
+    const v = styleVer;
+    const f = lineFeature(done);
+    if (v && map) untrack(() => src('done', f ? { type: 'FeatureCollection', features: [f] } : empty));
+  });
+  $effect(() => {
+    const v = styleVer;
+    const data = { type: 'FeatureCollection', features: (grades ?? []).map((g) => lineFeature(g.line, { colour: g.colour ?? '' })).filter(Boolean) };
+    if (v && map) untrack(() => src('grade', data));
+  });
+  $effect(() => {
+    const v = styleVer;
     void points;
     if (v && map) untrack(syncPoints);
   });
@@ -221,7 +345,7 @@
   });
   $effect(() => {
     const v = styleVer;
-    const f = pointFeature(me, { acc: Number(me?.acc) || 0 });
+    const f = pointFeature(me, { acc: Number(me?.acc) || 0, deg: Number.isFinite(me?.deg) ? me.deg : -1 });
     if (!v || !map) return;
     untrack(() => {
       src('me', f ? { type: 'FeatureCollection', features: [f] } : empty);
@@ -229,8 +353,13 @@
       const acc = Math.max(1, Number(me?.acc) || 0);
       drop('me-acc');
       map.addLayer({ id: 'me-acc', type: 'circle', source: 'me', paint: { 'circle-color': colours['--l3'], 'circle-opacity': 0.15, 'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 0, acc / c, 22, (acc * 2 ** 22) / c] } });
-      layer({ id: 'me-dot', type: 'circle', source: 'me', paint: { 'circle-color': colours['--l3'], 'circle-radius': 7, 'circle-stroke-color': colours['--paper'], 'circle-stroke-width': 3 } });
+      // a dot while the direction is unknown, else the arrow (north up: it turns, the map does not)
+      layer({ id: 'me-dot', type: 'circle', source: 'me', filter: ['<', ['get', 'deg'], 0], paint: { 'circle-color': colours['--l3'], 'circle-radius': 7, 'circle-stroke-color': colours['--paper'], 'circle-stroke-width': 3 } });
       map.moveLayer('me-dot');
+      if (symImgs?.['me-arrow']) {
+        layer({ id: 'me-arrow', type: 'symbol', source: 'me', filter: ['>=', ['get', 'deg'], 0], layout: { 'icon-image': 'me-arrow', 'icon-size': 0.9, 'icon-rotate': ['get', 'deg'], 'icon-rotation-alignment': 'map', 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
+        map.moveLayer('me-arrow');
+      }
     });
   });
   $effect(() => {
@@ -289,10 +418,30 @@
           },
         });
         map.touchZoomRotate.disableRotation();
-        map.addControl(new ml.NavigationControl({ showCompass: false }), 'top-right');
+        map.addControl(new ml.NavigationControl({ showCompass: false }), navAt);
         map.on('style.load', addOwn);
+        map.once('load', () => {
+          const mb = map.getBounds();
+          onmove?.({ s: mb.getSouth(), w: mb.getWest(), n: mb.getNorth(), e: mb.getEast() });
+        });
         map.on('error', (e) => console.warn('map', e?.error?.message ?? e));
-        map.on('moveend', () => {
+        let viewTimer = null;
+        map.on('moveend', (e) => {
+          // the view as an attribute (tests read it): zoom and centre
+          const c = map.getCenter();
+          el?.setAttribute('data-map-view', `${map.getZoom().toFixed(2)} ${c.lat.toFixed(4)} ${c.lng.toFixed(4)}`);
+          if (onmove) {
+            const mb = map.getBounds();
+            onmove({ s: mb.getSouth(), w: mb.getWest(), n: mb.getNorth(), e: mb.getEast() });
+          }
+          // your own move (drag, pinch, wheel, the zoom buttons, «Whole route»): tell the page, debounced
+          if ((e?.originalEvent || e?.mvUser) && onview) {
+            clearTimeout(viewTimer);
+            viewTimer = setTimeout(() => {
+              const b = map?.getBounds?.();
+              if (b) onview({ west: b.getWest(), south: b.getSouth(), east: b.getEast(), north: b.getNorth() });
+            }, 300);
+          }
           if (ground !== 'auto') return;
           const g2 = groundAt();
           if (g2.key !== active) {
@@ -310,6 +459,7 @@
           }
           onmapclick?.({ lat: e.lngLat.lat, lon: e.lngLat.lng, zoom: map.getZoom() });
         });
+        map.on('dragstart', () => ondrag?.());
         map.on('contextmenu', (e) => onlongpress?.({ lat: e.lngLat.lat, lon: e.lngLat.lng }));
         const stop = () => {
           clearTimeout(press);
@@ -341,7 +491,7 @@
   const g = $derived(groundOf(ground));
 </script>
 
-<div class="mv" bind:this={root} data-map>
+<div class="mv" class:mv-fill={fill} bind:this={root} data-map>
   {#if phase === 'nogl' || phase === 'failed'}
     <p class="mv-fallback" role="note" data-map-fallback>
       {phase === 'nogl' ? t('This device or browser cannot draw the map (WebGL is missing). Everything below still works: the profile, the points and the lists.') : t('The map could not start. Everything below still works: the profile, the points and the lists.')}
@@ -351,9 +501,10 @@
       <div class="mv-map" bind:this={el} role="region" aria-label={label || t('Map|race')} data-map-ready={phase === 'ready' ? '' : undefined}></div>
       {#if phase === 'loading'}<p class="mv-loading">{t('Loading the map…')}</p>{/if}
       {#if adding}<p class="mv-hint" role="status" data-map-adding>{t('Tap the map where the point should go.')}</p>{/if}
-      <button type="button" class="mv-fit" onclick={fitRoute} disabled={phase !== 'ready'} data-map-fit><Maximize2 size={16} aria-hidden="true" />{t('Whole route')}</button>
+      {#if fitButton}<button type="button" class="mv-fit" onclick={() => fitRoute(true)} disabled={phase !== 'ready'} data-map-fit><Maximize2 size={16} aria-hidden="true" />{t('Whole route')}</button>{/if}
     </div>
   {/if}
+  {#if bar}
   <div class="mv-bar">
     <label class="mv-ground">
       <span class="mv-lab"><Layers size={16} aria-hidden="true" />{t('Map ground')}</span>
@@ -370,6 +521,7 @@
       </div>
     {/if}
   </div>
+  {/if}
 </div>
 
 <style>
@@ -379,6 +531,19 @@
     flex-direction: column;
     gap: 10px;
     min-width: 0;
+  }
+  .mv-fill,
+  .mv-fill .mv-frame {
+    height: 100%;
+    min-height: 0;
+  }
+  .mv-fill .mv-frame {
+    border: 0;
+    border-radius: 0;
+  }
+  .mv-fill .mv-map {
+    height: 100%;
+    min-height: 0;
   }
   .mv-frame {
     position: relative;

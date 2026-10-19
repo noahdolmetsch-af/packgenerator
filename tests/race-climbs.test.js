@@ -22,7 +22,19 @@ describe('finding the climbs', () => {
     expect(pass).toBeTruthy();
     expect(pass.toKm).toBeGreaterThan(660);
     expect(pass.toKm).toBeLessThan(680);
-    expect(pass.max).toBeCloseTo(6, 0);
+    // the fine profile (100 m steps): 6 % on the way up, the steeper ramp of 9 % below the top
+    expect(pass.max).toBeCloseTo(9, 0);
+    expect(pass.estimated).toBe(false);
+    expect(pass.avg).toBeGreaterThan(4);
+  });
+  it('the fine profile gives more detail than the coarse one: real short ramps', () => {
+    const fine = C.climbsDetail({ route });
+    const coarse = C.climbsDetail({ route: { ...route, profileFine: null } });
+    expect(coarse[0].estimated).toBe(true);
+    expect(Math.max(...fine.map((c) => c.max))).toBeGreaterThan(Math.max(...coarse.map((c) => c.max)));
+    expect(C.climbProfile(route).length).toBe(route.profileFine.d.length);
+    expect(C.climbProfile({ profile: [[0, 1], [1, 2]] })).toEqual([[0, 1], [1, 2]]);
+    expect(C.climbProfile(null)).toEqual([]);
   });
   it('a higher minimum gives fewer climbs', () => {
     expect(C.climbsDetail({ route, minGain: 1000 }).length).toBeLessThan(C.climbsDetail({ route, minGain: 100 }).length);
@@ -56,7 +68,7 @@ describe('the numbers of one climb', () => {
     expect(c.bars[14].pct).toBe(10);
   });
   it('a coarse profile (2 km) is interpolated and marked estimated', () => {
-    const list = C.climbsDetail({ route });
+    const list = C.climbsDetail({ route: { ...route, profileFine: null } });
     expect(list[0].estimated).toBe(true);
     expect(list[0].bars.length).toBe(Math.ceil(list[0].lengthKm * 10 - 1e-9));
   });

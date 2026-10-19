@@ -17,6 +17,7 @@
   import { PARTS, raceHref } from './parts.js';
   import { localDay } from '../localday.js';
   import SampleBar from './SampleBar.svelte';
+  import { withSampleFine } from './sample.js';
   import { setBox } from './view.js';
   import { t, tn } from '../i18n.svelte.js';
   import './race.css';
@@ -62,7 +63,8 @@
   const trip = $derived($tripQ);
   const stored = $derived(($racesQ ?? {})[id] ?? {});
   const race = $derived(trip ? raceOf(stored, trip) : null);
-  const route = $derived(stored.route ?? trip?.route ?? null);
+  // an old sample without the fine profile gets it here (Paket U2), without «Reset»
+  const route = $derived(withSampleFine(stored).route ?? trip?.route ?? null);
   const pts = $derived(lineKm(route));
   const own = $derived(Array.isArray(stored.pois) ? stored.pois : []);
   const osm = $derived($osmQ?.data ?? []);

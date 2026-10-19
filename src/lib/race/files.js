@@ -7,12 +7,14 @@
  *
  * The race keeps (in the settings record, so in the backup):
  *   race.route = { km, gainM, lossM, maxM, start, end, line [[lat, lon]] (≤ 800), profile [[km, m]] (≤ 800),
+ *                  profileFine (the detailed profile of map/fineprofile.js, for drawing and the climbs),
  *                  sectors [{ name, fromKm, toKm, gainM }], files [name] }
  *   race.pois  = [{ id, kind, name, lat, lon, km, offKm, sym, own: true }]
  * Pure functions (no browser needed), tested in tests/race.test.js.
  */
 import { distKm, climb, thin, profileOf, parseGpx } from '../route.js';
 import { lineKm, snap } from './race.js';
+import { fineFromSeries } from '../map/fineprofile.js';
 
 /** «Sektor 2», «Sektor-10» sort as numbers: file names in their natural order. */
 export const naturalSort = (names) => [...names].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
@@ -26,6 +28,8 @@ export function joinSectors(files = []) {
   const all = [];
   const sectors = [];
   const gaps = [];
+  const ks = [];
+  const es = [];
   let km = 0;
   for (const f of files) {
     const pts = f.points ?? [];
@@ -36,7 +40,11 @@ export function joinSectors(files = []) {
       if (jump > 2) gaps.push({ after: sectors.at(-1)?.name ?? '', km: Math.round(jump * 10) / 10 });
     }
     let sk = 0;
-    for (let i = 1; i < pts.length; i++) sk += distKm(pts[i - 1], pts[i]);
+    for (let i = 0; i < pts.length; i++) {
+      if (i) sk += distKm(pts[i - 1], pts[i]);
+      // the heights at the km of the route (a jump between files is not counted, as in km)
+      if (pts[i].ele != null && Number.isFinite(Number(pts[i].ele))) ks.push(km + sk), es.push(Number(pts[i].ele));
+    }
     const { gain } = climb(pts);
     sectors.push({ name: f.name || `${sectors.length + 1}`, fromKm: Math.round(km * 10) / 10, toKm: Math.round((km + sk) * 10) / 10, gainM: gain });
     km += sk;
@@ -56,6 +64,7 @@ export function joinSectors(files = []) {
       end: { lat: r5(all.at(-1).lat), lon: r5(all.at(-1).lon) },
       line: thin(all, 800),
       profile: profileOf(all, 800),
+      profileFine: es.length > 1 ? fineFromSeries(ks, es, km) : null,
       sectors,
       files: files.map((f) => f.file ?? f.name),
     },

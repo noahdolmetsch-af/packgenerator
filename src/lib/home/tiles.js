@@ -83,7 +83,7 @@ export const TILES = [
   { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
   // Paket L «Werkzeugkasten» (Noah 19.10.2026 «zb auf home»): only from the tile catalog, not on the ready wall; the bundler sets «since» to the release
   // Paket U3 «Live-Karte» (Noah 19.10.2026 «5a … 1a»): only from the tile catalog, not on the ready wall (HN4 stays); today's trip or a free ride
-  { id: 'liveride', area: 'trips', label: 'Start a ride', icon: 'ride', sizes: ['s', 'w'], size: 's', since: '0.156.0', pitch: 'The live map: where you are, the next shop and climb, arrival and light.' },
+  { id: 'liveride', area: 'trips', label: 'Start a ride', icon: 'ride', sizes: ['s', 'w'], size: 's', since: '0.158.0', pitch: 'The live map: where you are, the next shop and climb, arrival and light.' },
   { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.153.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */

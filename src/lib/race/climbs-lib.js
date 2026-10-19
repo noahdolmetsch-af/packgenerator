@@ -6,6 +6,7 @@
  * Pure functions, tested in tests/race-climbs.test.js. Labels are English keys for t().
  */
 import { climbWhen, rideHoursBetween } from './race.js';
+import { toProfile, isFine } from '../map/fineprofile.js';
 
 /** Steepness classes of the chart (0–3 / 3–6 / 6–9 / 9–12 / over 12 %). */
 export const STEEP = [
@@ -39,21 +40,48 @@ export const MIN_GAINS = [50, 100, 200, 300, 500];
 export const DEFAULT_MIN = 100;
 
 const r1 = (x) => Math.round(x * 10) / 10;
-const clean = (profile) => (Array.isArray(profile) ? profile.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1])) : []);
+const cleaned = new WeakMap();
+const clean = (profile) => {
+  if (!Array.isArray(profile)) return [];
+  const c = cleaned.get(profile);
+  if (c && c.len === profile.length) return c.out;
+  const out = profile.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  cleaned.set(profile, { len: profile.length, out });
+  return out;
+};
+
+/**
+ * The profile the climbs read: the fine one (map/fineprofile.js, a point every 50–100 m) when the route
+ * has it, else the coarse [[km, m]] profile. Cached per route object.
+ */
+const fineCache = new WeakMap();
+export function climbProfile(route) {
+  if (!route) return [];
+  if (isFine(route.profileFine)) {
+    const f = route.profileFine;
+    if (!fineCache.has(f)) fineCache.set(f, toProfile(f));
+    return fineCache.get(f);
+  }
+  return clean(route.profile);
+}
 
 /** The height at km (linear between the profile points; outside: the first or last point). */
 export function heightAt(profile, km) {
   const p = clean(profile);
   if (!p.length) return null;
   if (km <= p[0][0]) return p[0][1];
-  for (let i = 1; i < p.length; i++) {
-    if (p[i][0] >= km) {
-      const [a, ha] = p[i - 1];
-      const [b, hb] = p[i];
-      return b > a ? ha + ((hb - ha) * (km - a)) / (b - a) : hb;
-    }
+  if (km >= p.at(-1)[0]) return p.at(-1)[1];
+  // binary search: a fine profile has 10 000 points
+  let lo = 0;
+  let hi = p.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (p[mid][0] < km) lo = mid;
+    else hi = mid;
   }
-  return p.at(-1)[1];
+  const [a, ha] = p[lo];
+  const [b, hb] = p[hi];
+  return b > a ? ha + ((hb - ha) * (km - a)) / (b - a) : hb;
 }
 
 /** The usual distance between two profile points in km (the median). */
@@ -144,7 +172,7 @@ export function suppliesNear(pois = [], km, near = NEAR_KM) {
  *      sector, foot, summit, eta, etaTop, planH, climbH, dark, when }]
  */
 export function climbsDetail({ route, minGain = DEFAULT_MIN, plan = null, as = {}, pois = [], isDark = () => false, tempAt = () => null } = {}) {
-  const profile = clean(route?.profile);
+  const profile = climbProfile(route);
   const step = stepOf(profile);
   const estimated = step != null && step > COARSE_KM;
   const rate = climbRateOf(as);
@@ -215,7 +243,7 @@ export function climbTotals(list, routeGain = 0) {
 export function miniPath(profile, fromKm, toKm, w = 300, h = 80, padKm = 0.5) {
   const a = Math.max(0, fromKm - padKm);
   const b = toKm + padKm;
-  const n = 60;
+  const n = 150;
   const pts = [];
   for (let i = 0; i <= n; i++) {
     const km = a + ((b - a) * i) / n;

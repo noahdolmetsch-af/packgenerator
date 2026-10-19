@@ -19,7 +19,7 @@ export const WHATS_NEW = [
     // Paket U «Bikepacking und Ultra-Rennen» (Noah 19.10.2026, ideas 1–40): Touren › Rennen with Plan, Strategie,
     // Vorbereiten, Strecke, Unterwegs, Danach, the sample race and the countdown on Heute («3b»).
     // Provisional version: the bundler renumbers it (Paket 5 with Mail).
-    version: '0.156.0',
+    version: '0.158.0',
     date: '2026-10-19',
     title: 'Races and the live map',
     lead: 'Plan a long race and ride with the live map.',

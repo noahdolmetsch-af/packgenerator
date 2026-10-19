@@ -438,7 +438,7 @@ export default {
   'Open Aktiv › Aktivität › «Summit book».': 'Öffne Aktiv › Aktivität › «Gipfelbuch».',
   'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.': 'Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.',
   'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.': 'Beispiel: eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.',
-  // 0.156.0 Sportart statt Tourart (SA1–SA3)
+  // 0.158.0 Sportart statt Tourart (SA1–SA3)
   'In New tour choose the sport: the sports you use most come first.': 'Wähle in Neue Tour die Sportart: Die meistgenutzten stehen zuerst.',
   'A bike sport brings its standard bike; tap another bike and «Make standard for …» to keep it for that sport.': 'Eine Velo-Sportart bringt ihr Standard-Velo; tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.',
   'On Trips, «New: every trip has a sport» suggests a sport for your old bike trips.': 'Auf Touren schlägt «Neu: Jede Tour hat eine Sportart» eine Sportart für deine alten Velotouren vor.',

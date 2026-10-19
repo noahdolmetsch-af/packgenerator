@@ -75,7 +75,7 @@ describe('GeoJSON', () => {
   it('points with their zoom; broken points are left out', () => {
     const g = pointsGeo([{ id: 1, lat: 46, lon: 7, kind: 'shop', name: 'A' }, { id: 2, lat: NaN, lon: 7 }, { id: 3, lat: 46, lon: 7, kind: 'own', minZoom: 4 }]);
     expect(g.features).toHaveLength(2);
-    expect(g.features[0].properties).toEqual({ id: '1', kind: 'shop', name: 'A', minZoom: 10 });
+    expect(g.features[0].properties).toEqual({ id: '1', kind: 'shop', name: 'A', minZoom: 10, sym: 'sym-shop' });
     expect(g.features[1].properties.minZoom).toBe(4);
     expect(pointFeature({ lat: 46, lon: 7 }).geometry.coordinates).toEqual([7, 46]);
     expect(pointFeature(null)).toBeNull();

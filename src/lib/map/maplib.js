@@ -7,6 +7,7 @@
  * Coordinates: the app keeps [lat, lon] and { lat, lon }; GeoJSON and maplibre want [lon, lat].
  */
 import { pointAt, snap } from '../race/race.js';
+import { symbolId } from './symbols.js';
 
 /* ---------- colours from tokens ---------- */
 
@@ -49,7 +50,17 @@ export const KIND_TOKEN = {
   startfinish: '--ink',
   own: '--accent',
   other: '--ink-3',
+  // the kinds of the POI search (map/poisearch.js)
+  repair: '--ok',
+  camp: '--l4',
+  toilet: '--ink-2',
+  pharmacy: '--bad',
+  hospital: '--bad',
+  atm: '--ink-2',
+  view: '--l1',
 };
+/** The plain colour of a kind (for the symbol images). */
+export const kindColour = (colours, kind) => colours[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK['--ink-3'];
 /** Read tokens: names → { name: colour }. style: a CSSStyleDeclaration (getComputedStyle) or null. */
 export function tokenColours(style, names = Object.keys(FALLBACK)) {
   const out = {};
@@ -128,7 +139,7 @@ export function segmentsGeo(segments) {
 
 /**
  * The points as GeoJSON: [{ id, lat, lon, kind, name, minZoom? }] → Features with
- * { id, kind, name, minZoom } (minZoom from the kind when not given).
+ * { id, kind, name, minZoom, sym } (minZoom from the kind when not given; sym: the symbol image, symbols.js).
  */
 export function pointsGeo(points = []) {
   return fc(
@@ -136,7 +147,7 @@ export function pointsGeo(points = []) {
       .filter(ok)
       .map((p) => ({
         type: 'Feature',
-        properties: { id: String(p.id ?? ''), kind: p.kind ?? 'other', name: p.name ?? '', minZoom: Number.isFinite(p.minZoom) ? p.minZoom : minZoomOf(p.kind) },
+        properties: { id: String(p.id ?? ''), kind: p.kind ?? 'other', name: p.name ?? '', minZoom: Number.isFinite(p.minZoom) ? p.minZoom : minZoomOf(p.kind), sym: symbolId(p.kind ?? 'other') },
         geometry: { type: 'Point', coordinates: ll(p) },
       })),
   );

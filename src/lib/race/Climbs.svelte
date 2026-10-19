@@ -16,7 +16,7 @@
   import { darkAt, wxNear } from './route-lib.js';
   import { raceHref } from './parts.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
-  import { climbsDetail, sortClimbs, climbTotals, miniPath, climbParam, climbRateOf, stepOf, STEEP, steepClass, LEVELS, SORTS, MIN_GAINS, DEFAULT_MIN, NEAR_KM } from './climbs-lib.js';
+  import { climbsDetail, climbProfile, sortClimbs, climbTotals, miniPath, climbParam, climbRateOf, stepOf, STEEP, steepClass, LEVELS, SORTS, MIN_GAINS, DEFAULT_MIN, NEAR_KM } from './climbs-lib.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { ctx } = $props();
@@ -30,7 +30,8 @@
   let sortBy = $state('order');
   let open = $state(null); // the key (fromKm) of the open climb
 
-  const profile = $derived(ctx.route?.profile ?? []);
+  // the fine profile (a point every 50–100 m) when the route has one, else the coarse one
+  const profile = $derived(climbProfile(ctx.route));
   const isDark = (km, ms) => {
     const p = pointAt(ctx.pts ?? [], km) ?? ctx.route?.start;
     return p ? darkAt(Number(p.lat), Number(p.lon))(ms) : false;

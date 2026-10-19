@@ -21,6 +21,7 @@
   import { STRIPS_KEY, WIDTHS, groundsFor, planStrip, estimateBytes, fmtBytes, keepStrip, removeStrip, undoRemove, sweep, renameStrip, presentIds, storageInfo, kindOfGround } from './offline.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import '../race/race.css';
+  import PoiKeepAlong from './PoiKeepAlong.svelte';
 
   let { ctx = null, line = null, name = '', tripId = null } = $props();
 
@@ -53,6 +54,7 @@
   let storage = $state(null);
   let keep = $state('unknown');
   let renaming = $state(null);
+  let keptRuns = $state(0); // «Orte auf der Karte» 1a: each kept strip also keeps the places along the route
 
   const refreshStorage = async () => {
     storage = await storageInfo();
@@ -86,6 +88,7 @@
         msg = t('Cancelled. Nothing was kept.');
       } else {
         run = { ...run, state: 'done', bytes: res.strip.bytes };
+        keptRuns++;
         if (replaceId) await removeStrip(db, replaceId).catch(() => {});
         msg = res.failed ? tn(res.failed, 'Kept: {size}. {n} tile could not be loaded.', 'Kept: {size}. {n} tiles could not be loaded.', { size: fmtBytes(res.strip.bytes) }) : t('Kept: {size}. The map now works here without the internet.', { size: fmtBytes(res.strip.bytes) });
       }
@@ -185,6 +188,7 @@
       {/if}
     {/if}
     {#if msg}<p class={run?.state === 'done' ? 'rc-ok' : 'rc-note'} role="status" data-om-msg data-om-done={run?.state === 'done' ? '' : undefined}>{msg}</p>{/if}
+    {#if theLine.length > 1}<PoiKeepAlong line={theLine} tripId={theTrip} run={keptRuns} />{/if}
 
     {#if strips.length}
       <div class="om-lab">{t('Kept on this phone')}</div>

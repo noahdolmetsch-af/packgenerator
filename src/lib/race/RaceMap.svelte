@@ -29,6 +29,10 @@
   import { ownQuery, saveOwn, putOwn, newPoint, updatePoint, removePoint, movePoint, ownOnMap, ownLabel, OWN_KINDS } from '../map/ownpoints.js';
   import { MAP_WX_CACHE, RADAR_MAX_ZOOM, RADAR_ATTRIBUTION, fetchRadar, fetchMapWx, wxPoints, wxRows, snowStretches, windArrows, windiest, isOld } from '../map/wx.js';
   import { compass } from './outside.js';
+  import { kmRangeIn } from '../map/fineprofile.js';
+  import PoiPanel from '../map/PoiPanel.svelte';
+  import PoiDetail from '../map/PoiDetail.svelte';
+  import WxTimeline from '../map/WxTimeline.svelte';
   import { t, locale } from '../i18n.svelte.js';
 
   let { ctx } = $props();
@@ -142,6 +146,27 @@
   /* ---------- profile ↔ map ---------- */
   let cursorKm = $state(null);
   const cursor = $derived(cursorKm == null ? null : placeAt(pts, cursorKm));
+  // the zoomed part of the profile ↔ the map view (Paket U2 «Feines Höhenprofil»)
+  let pview = $state(null); // { from, to } or null (the whole route)
+  let pfollow = $state(true); // the profile follows the map
+  let pmine = $state(false); // the profile's view was set in the profile: highlight it on the map
+  const highlight = $derived(pview && pmine ? stretch(pts, pview.from, pview.to) : []);
+  function profileView(v) {
+    pmine = !!v;
+    if (v) mapView?.fitLine?.(stretch(pts, v.from, v.to));
+    else mapView?.fitRoute?.();
+  }
+  // the place search (PoiPanel): its places as symbols on the map; a tap on one opens PoiDetail
+  let poiPoints = $state([]);
+  let poiPicked = $state(null);
+  let mapBounds = $state(null); // { s, w, n, e }
+  function mapView2(b) {
+    if (!pfollow) return;
+    const r = kmRangeIn(pts, b);
+    if (!r) return;
+    pmine = false;
+    pview = r.to - r.from >= km * 0.98 ? null : r;
+  }
   let picked = $state(null);
   const pickedEta = $derived(picked?.km != null && plan ? plan.etaOf(picked.km) : null);
 
@@ -173,6 +198,10 @@
     sheet = { point: { lat: e.lat, lon: e.lon, name: '', note: '', kind: 'note' }, fresh: true };
   }
   function pick(p) {
+    if (String(p.id ?? '').startsWith('poi-')) {
+      poiPicked = poiPoints.find((x) => `poi-${x.id}` === p.id) ?? null;
+      return;
+    }
     if (p.kind === 'own') {
       const o = own.find((x) => x.id === p.id);
       if (o) sheet = { point: o, fresh: false };
@@ -232,13 +261,16 @@
       line={route?.line ?? []}
       {segments}
       {stretches}
-      points={mapPoints}
+      points={poiPoints.length ? [...mapPoints, ...poiPoints.filter((p) => Number.isFinite(Number(p.lat))).map((p) => ({ id: `poi-${p.id}`, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind) }))] : mapPoints}
       {cursor}
       {arrows}
       {overlays}
       {toggles}
       adding={adding || !!moving}
       label={t('Map of the route')}
+      {highlight}
+      onview={mapView2}
+      onmove={(b) => (mapBounds = b)}
       onmapclick={mapTap}
       onlongpress={longPress}
       onpick={pick}
@@ -252,6 +284,13 @@
         <span>{kindName(picked.kind)}{#if picked.km != null} · {t('km {km}', { km: Math.round(picked.km) })}{/if}{#if pickedEta} · {t('there {when}', { when: when(pickedEta) })}{/if}</span>
       </p>
     {/if}
+    {#if poiPicked}
+      <div data-map-poi-detail><PoiDetail place={poiPicked} from={cursor} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
+    {/if}
+    <details class="rm-find" data-map-places>
+      <summary>{t('Find places')}</summary>
+      <PoiPanel center={cursor ? { lat: cursor.lat, lon: cursor.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={ctx.trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+    </details>
     {#if kinds.length && shown.stops}
       <div class="rm-kinds">
         <p class="rc-note">{t('Which stops: tap to hide or show a kind.')}</p>
@@ -274,7 +313,7 @@
     from="The heights of your route file; dark from sunrise and sunset and your plan; snow from the weather layer."
   >
     {#if route?.profile?.length > 1}
-      <ProfileStrip profile={route.profile} sectors={shown.sectors ? (route.sectors ?? []) : []} nights={shown.night ? nights : []} snow={shown.snow ? snow : []} marks={shown.beds ? beds : []} bind:cursorKm etaOf={plan?.etaOf ?? null} onmove={() => (picked = null)} />
+      <ProfileStrip profile={route.profile} fine={route.profileFine ?? null} bind:view={pview} bind:follow={pfollow} canFollow onview={profileView} sectors={shown.sectors ? (route.sectors ?? []) : []} nights={shown.night ? nights : []} snow={shown.snow ? snow : []} marks={shown.beds ? beds : []} bind:cursorKm etaOf={plan?.etaOf ?? null} onmove={() => (picked = null)} />
     {:else}
       <p class="rc-note">{t('No heights yet: a route file with heights (GPX) brings the profile.')}</p>
     {/if}
@@ -297,6 +336,7 @@
       <button type="button" class="btn sm" onclick={loadWx} disabled={!!busy || pts.length < 2} data-map-load-wx>{busy === 'wx' ? t('Loading…') : wx?.data ? t('Wind and snow again') : t('Load wind and snow')}</button>
     </div>
     {#if msg}<p class="rc-warn" role="alert">{msg}</p>{/if}
+    {#if pts.length > 1}{#key id}<WxTimeline {route} {plan} tripId={id} />{/key}{/if}
     <ul class="rc-list">
       <li class="rc-row"><span class="rc-row-main"><b>{t('Rain radar')}</b><small>{radar ? t('Radar picture of {when}; it shows now, not your race day.', { when: when(radar.time) }) : t('Not loaded yet.')}</small></span></li>
       <li class="rc-row" data-map-wx-asof>
@@ -368,6 +408,13 @@
 {/if}
 
 <style>
+  .rm-find > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    cursor: pointer;
+  }
   .rm {
     display: flex;
     flex-direction: column;

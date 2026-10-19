@@ -1,10 +1,12 @@
 /**
  * GPX route of a trip (Noah, 4.10.2026, answer 12b): distance, climbing and riding hours.
  * The file is read on the device; only the numbers, the start and a thinned line are stored:
- *   trip.route = { name, km, gainM, lossM, start: { lat, lon }, end: { lat, lon }, line: [[lat, lon], …], file }
+ *   trip.route = { name, km, gainM, lossM, start: { lat, lon }, end: { lat, lon }, line: [[lat, lon], …], profile, profileFine, file }
+ * profileFine (Paket U2): the detailed, zoomable profile of map/fineprofile.js (null without heights).
  * The start also gives the place for the weather forecast.
  */
 import { t } from './i18n.svelte.js';
+import { buildFine } from './map/fineprofile.js';
 
 /** Read the points of a GPX file (track points, else route points). Works without a browser. */
 export function parseGpx(text) {
@@ -109,6 +111,7 @@ export function routeStats(gpx, file = '') {
     end: { lat: round(last.lat), lon: round(last.lon) },
     line: thin(points),
     profile: profileOf(points),
+    profileFine: buildFine(points),
     file,
   };
 }

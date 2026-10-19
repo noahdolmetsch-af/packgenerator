@@ -8,6 +8,7 @@
  * Pure apart from the small db helpers at the end; tested in tests/race-sample.test.js.
  */
 import { addDay, lineKm, pointAt } from './race.js';
+import { encode, climbOf } from '../map/fineprofile.js';
 
 export const SAMPLE_ID = 'race-sample';
 export const SAMPLE_KM = 1004;
@@ -32,6 +33,38 @@ const PRE = ['Ober', 'Unter', 'Hinter', 'Vorder', 'Mittel', 'Neu', 'Alt', 'Gross
 const SUF = ['riedli', 'mattli', 'eggwil', 'auboden', 'bergli', 'talwil', 'moosach', 'feldli', 'bachau', 'stalden', 'weidli', 'brunnwil'];
 const placeName = (i) => `${PRE[i % PRE.length]}${SUF[(i * 7 + 3) % SUF.length]}`;
 
+/**
+ * The made-up heights every 100 m (Paket U2 «Feines Höhenprofil»): long climbs and valleys (30 a route),
+ * rolling hills, short ramps of 8–16 % (a fixed pattern, so the sample is the same on every device) and
+ * the high pass at km 670 (2060 m, about 6 % on both sides, a steeper ramp below the top).
+ */
+export const SAMPLE_STEP = 0.1;
+const bump = (k, at, half, h) => (Math.abs(k - at) < half ? (h * (1 + Math.cos(((k - at) / half) * Math.PI))) / 2 : 0);
+export function sampleHeights() {
+  const n = Math.round(SAMPLE_KM / SAMPLE_STEP) + 1;
+  // the short ramps: one every 3–9 km, 15–45 m high over 0.3–0.9 km (deterministic)
+  const ramps = [];
+  for (let k = 4, i = 0; k < SAMPLE_KM - 2; i++) {
+    const r = ((i * 9301 + 49297) % 233280) / 233280;
+    ramps.push({ at: k, half: 0.15 + r * 0.3, h: 15 + ((i * 37) % 31) });
+    k += 3 + ((i * 53) % 7);
+  }
+  const out = new Array(n);
+  let ri = 0;
+  for (let i = 0; i < n; i++) {
+    const k = Math.round(i * SAMPLE_STEP * 10) / 10;
+    const cyc = (k / SAMPLE_KM) * 30 * 2 * Math.PI;
+    let base = 600 + 420 * (1 - Math.cos(cyc)) + 70 * Math.sin(k / 7) + 14 * Math.sin(k * 1.7) + 6 * Math.sin(k * 5.3);
+    while (ri < ramps.length - 1 && ramps[ri].at + ramps[ri].half < k) ri++;
+    for (const r of ramps.slice(Math.max(0, ri - 1), ri + 2)) base += bump(k, r.at, r.half, r.h);
+    // the pass: 6 % on both sides, the last 1.5 km below the top at 9 %
+    const d = Math.abs(k - 670);
+    const pass = d < 1.5 ? 2060 - d * 90 : 2060 - 135 - (d - 1.5) * 60;
+    out[i] = Math.round(Math.max(base, pass));
+  }
+  return out;
+}
+
 /** The route: 11 sectors, a profile with about 30 000 m up and one pass above 2000 m. */
 export function sampleRoute() {
   const line = [];
@@ -44,24 +77,23 @@ export function sampleRoute() {
     }
   }
   line.push(WAY.at(-1));
+  const heights = sampleHeights();
+  const profileFine = encode(heights, SAMPLE_STEP, SAMPLE_KM);
+  // the coarse profile of the plan sums: every 2 km of the fine one
+  const per = Math.round(2 / SAMPLE_STEP);
   const profile = [];
-  for (let k = 0; k <= SAMPLE_KM; k += 2) {
-    const cyc = (k / SAMPLE_KM) * 30 * 2 * Math.PI;
-    const base = 600 + 480 * (1 - Math.cos(cyc)) + 120 * Math.sin(k / 7);
-    const pass = 2060 - Math.abs(k - 670) * 60; // the high pass, 6 % on both sides
-    profile.push([k, Math.round(Math.max(base, pass))]);
-  }
-  let gain = 0;
-  let loss = 0;
-  for (let i = 1; i < profile.length; i++) {
-    const d = profile[i][1] - profile[i - 1][1];
-    if (d > 0) gain += d;
-    else loss -= d;
-  }
+  for (let i = 0; i < heights.length; i += per) profile.push([Math.round(i * SAMPLE_STEP), heights[i]]);
+  if (profile.at(-1)[0] !== SAMPLE_KM) profile.push([SAMPLE_KM, heights.at(-1)]);
+  const { gain, loss } = climbOf(profileFine);
   const cuts = [0, 92, 181, 268, 354, 441, 530, 618, 709, 800, 897, SAMPLE_KM];
   const gainIn = (a, b) => {
     let g = 0;
-    for (let i = 1; i < profile.length; i++) if (profile[i][0] > a && profile[i][0] <= b) g += Math.max(0, profile[i][1] - profile[i - 1][1]);
+    let ref = heights[Math.round(a / SAMPLE_STEP)];
+    for (let i = Math.round(a / SAMPLE_STEP) + 1; i <= Math.round(b / SAMPLE_STEP); i++) {
+      const d = heights[i] - ref;
+      if (d >= 3) (g += d), (ref = heights[i]);
+      else if (d <= -3) ref = heights[i];
+    }
     return g;
   };
   const sectors = cuts.slice(1).map((to, i) => ({ name: `Sektor ${String(i + 1).padStart(2, '0')}`, fromKm: cuts[i], toKm: to, gainM: gainIn(cuts[i], to) }));
@@ -69,14 +101,27 @@ export function sampleRoute() {
     km: SAMPLE_KM,
     gainM: gain,
     lossM: loss,
-    maxM: Math.max(...profile.map((p) => p[1])),
+    maxM: Math.max(...heights),
     start: { lat: line[0][0], lon: line[0][1] },
     end: { lat: line.at(-1)[0], lon: line.at(-1)[1] },
     line,
     profile,
+    profileFine,
     sectors,
     files: sectors.map((s) => `${s.name}.gpx`),
   };
+}
+
+/**
+ * A sample stored before the fine profile (Paket U2): the route gets it when the race is opened, so the
+ * profile is detailed without «Reset». Other races (and a sample whose route you replaced) stay as they are.
+ */
+const fineOld = new WeakMap();
+export function withSampleFine(stored) {
+  const r = stored?.route;
+  if (!stored?.sample || !r || r.profileFine || Number(r.km) !== SAMPLE_KM || r.files?.[0] !== 'Sektor 01.gpx') return stored;
+  if (!fineOld.has(r)) fineOld.set(r, { ...r, profileFine: encode(sampleHeights(), SAMPLE_STEP, SAMPLE_KM) });
+  return { ...stored, route: fineOld.get(r) };
 }
 
 /** Is km inside one of the gaps (no shop, no food)? */

@@ -76,19 +76,52 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await noSideways(page, 'before start');
 
   await tap(page.locator('[data-live-start]'), info);
-  await expect(page.locator('[data-live-stop]')).toBeVisible();
+  // the full view: the map, the band of numbers (3 at the start), the sheet with the next stop and climb
+  const full = page.locator('[data-live-full]');
+  await expect(full).toBeVisible();
+  await expect(page.locator('[data-live-tile]')).toHaveCount(3);
   await expect(page.locator('[data-live-km]')).toContainText('410');
   await context.setGeolocation(at(412));
   await expect(page.locator('[data-live-km]')).toContainText('412', { timeout: 10_000 });
   await expect(page.locator('[data-live-left]')).toContainText('592');
+  await expect(page.locator('[data-live-climb]')).toBeVisible();
+  await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'peek');
+  await noSideways(page, 'riding, map');
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: info.outputPath('live-map.png') });
+  // sideways on the handlebar: the map left, the numbers right
+  if (phone(info)) {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: size.height, height: size.width });
+    const band = await page.locator('[data-live-panel]').boundingBox();
+    expect(band.x).toBeGreaterThan(size.height / 2);
+    await noSideways(page, 'landscape');
+    await page.screenshot({ path: info.outputPath('live-landscape.png') });
+    await page.setViewportSize(size);
+  }
+  // pull the sheet up (a tap on the handle: peek → half → full)
+  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'half');
+  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'full');
+  await expect(page.locator('[data-live-stop]')).toBeAttached();
   await expect(page.locator('[data-live-arrival]')).toBeVisible();
   const rows = page.locator('[data-live-stop-row]');
   await expect(rows.first()).toBeVisible();
   expect(await rows.count()).toBeGreaterThan(0);
   expect(await rows.count()).toBeLessThanOrEqual(5);
   await expect(rows.first().locator('[data-live-dist]')).toContainText('km');
-  await expect(page.locator('[data-live-climb]')).toBeVisible();
   await expect(page.locator('[data-live-plan]')).toBeVisible();
+  // the fine profile from your km, with your dot
+  await page.locator('[data-live-full] [data-profile-fine]').scrollIntoViewIfNeeded();
+  await expect(page.locator('[data-live-full] [data-profile-me]')).toBeVisible();
+  // the weather along the route and the place search sit in the sheet too
+  await expect(page.locator('[data-live-full] [data-wx-timeline]')).toBeAttached();
+  await expect(page.locator('[data-live-full] [data-poi-panel]')).toBeAttached();
+  // the app at 130 % («Grösse», CSS zoom on <html>): still no sideways scroll
+  await page.evaluate(() => (document.documentElement.style.zoom = '1.3'));
+  await noSideways(page, 'zoom 130 %');
+  await page.evaluate(() => (document.documentElement.style.zoom = ''));
   await noSideways(page, 'riding');
 
   // the Navigate menu: Google Maps and OsmAnd
@@ -96,11 +129,20 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await expect(rows.first().locator('a[href*="google.com/maps/dir"]')).toBeVisible();
   await expect(rows.first().locator('a[href*="osmand.net"]')).toBeVisible();
 
-  // the options fold: everything off by default
+  // choose a fourth number on top, then the options fold: everything off by default
+  await page.locator('[data-live-numbers] summary').scrollIntoViewIfNeeded();
+  await tap(page.locator('[data-live-numbers] summary'), info);
+  await tap(page.locator('[data-live-tile-pick="height"]'), info);
+  await expect(page.locator('[data-live-tile]')).toHaveCount(4);
+  await expect(page.locator('[data-live-tile="height"]')).toContainText(/\d/);
+  await page.locator('[data-live-options] summary').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-options] summary'), info);
   for (const k of ['voice', 'offRoute', 'eatHm', 'battery', 'storm']) await expect(page.locator(`[data-live-opt="${k}"]`)).not.toBeChecked();
 
-  // SOS: the position big
+  // SOS in the «⋯» menu: the position big
+  await tap(page.locator('[data-live-menu]'), info);
+  await expect(page.locator('[data-live-menu-panel] [data-map-ground]')).toBeVisible();
+  await noSideways(page, 'menu');
   await tap(page.locator('[data-live-sos]'), info);
   const sos = page.locator('[data-live-sos-sheet]');
   await expect(sos).toBeVisible();
@@ -114,9 +156,12 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await expect(sos).toBeHidden();
 
   // stop → the after-ride area
+  await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('live-sheet.png') });
   await tap(page.locator('[data-live-stop]'), info);
   await expect(page.locator('[data-live-after]')).toBeVisible();
   await expect(page.locator('[data-live-start]')).toBeVisible();
+  await expect(full).toHaveCount(0);
   await noSideways(page, 'after');
 });
 
@@ -139,12 +184,20 @@ test('Live map without a tour: the stops around you', async ({ page, context }, 
   await context.setGeolocation({ latitude: here.lat, longitude: here.lon, accuracy: 10 });
   await page.goto('./#/live');
   await expect(page.locator('[data-live-empty]')).toBeVisible();
+  // a ride without a tour: a GPX can be opened for it
+  await expect(page.locator('[data-live-route]')).toBeVisible();
   await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-next]')).toBeVisible();
+  await expect(page.locator('[data-live-tile]')).toHaveCount(3);
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: info.outputPath('live-free.png') });
+  await tap(page.locator('[data-live-sheet-toggle]'), info);
   const stops = page.locator('[data-live-stops]');
   await expect(stops).toBeVisible();
   await expect(stops.getByText('test_data_gtp_ Beck')).toBeVisible();
   await expect(page.locator('[data-live-stop-row]')).toHaveCount(3);
   await noSideways(page, 'free ride');
+  await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-stop]'), info);
   await expect(page.locator('[data-live-after]')).toBeVisible();
 });

@@ -74,7 +74,40 @@ test('Race map: map or fallback, profile, weather, own point add rename delete u
   await expect(page.locator('[data-profile-read]')).toContainText(/km \d+/);
   await expect(page.locator('[data-profile-read]')).toContainText('%');
   await box.press('ArrowRight');
+  await expect(page.locator('[data-profile-fine]')).toBeVisible();
+  await expect(page.locator('[data-profile-read]')).toContainText(/(summit|valley|Gipfel|Tal) /);
 
+  // zoom: «+» shows a shorter stretch, «Whole route» goes back
+  const range = page.locator('[data-profile-range]');
+  await expect(range).toHaveAttribute('data-from', '0');
+  const to0 = Number(await range.getAttribute('data-to'));
+  await page.locator('[data-profile-zoomin]').click();
+  await expect.poll(async () => Number(await range.getAttribute('data-to')) - Number(await range.getAttribute('data-from'))).toBeLessThan(to0 * 0.6);
+  await page.locator('[data-profile-zoomin]').click();
+  await expect.poll(async () => Number(await range.getAttribute('data-to')) - Number(await range.getAttribute('data-from'))).toBeLessThan(to0 * 0.3);
+  await page.locator('[data-profile-whole]').click();
+  await expect(range).toHaveAttribute('data-to', String(to0));
+
+  // select a stretch: drag over it; the profile zooms there and the map shows it (with WebGL)
+  if (drawn) await expect(page.locator('[data-map-ready]')).toHaveAttribute('data-map-view', /\d/);
+  const view0 = drawn ? await page.locator('[data-map-ready]').getAttribute('data-map-view') : '';
+  await page.locator('[data-profile-select]').click();
+  await expect(page.locator('[data-profile-select]')).toHaveAttribute('aria-pressed', 'true');
+  const pb = await box.boundingBox();
+  await page.mouse.move(pb.x + pb.width * 0.6, pb.y + pb.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(pb.x + pb.width * 0.65, pb.y + pb.height / 2, { steps: 4 });
+  await page.mouse.move(pb.x + pb.width * 0.7, pb.y + pb.height / 2, { steps: 4 });
+  await page.mouse.up();
+  await expect(page.locator('[data-profile-select]')).toHaveAttribute('aria-pressed', 'false');
+  await expect.poll(async () => Number(await range.getAttribute('data-from'))).toBeGreaterThan(to0 * 0.55);
+  expect(Number(await range.getAttribute('data-to'))).toBeLessThan(to0 * 0.75);
+  if (drawn) await expect.poll(() => page.locator('[data-map-ready]').getAttribute('data-map-view')).not.toBe(view0);
+  await page.locator('[data-profile-whole]').click();
+
+  // the weather timeline and the place search are there
+  await expect(page.locator('[data-race-box="map-wx"] [data-wx-timeline]')).toBeVisible();
+  await expect(page.locator('[data-map-places] summary')).toBeVisible();
   // weather: wind and snow with their «as of» time (mocked)
   await page.locator('[data-map-load-wx]').click();
   await expect(page.locator('[data-map-wx-asof]')).toContainText(/\d\d:\d\d/);

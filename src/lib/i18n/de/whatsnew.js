@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.156.0 Paket U «Rennen» (provisional version)
+  // 0.158.0 Paket U «Rennen» (provisional version)
   'Races and the live map': 'Rennen und Live-Karte',
   'Plan a long race and ride with the live map.': 'Plane ein langes Rennen und fahr mit der Live-Karte.',
   'Trips › Races: plan, map, climbs and a sample race': 'Touren › Rennen: Plan, Karte, Anstiege und ein Muster-Rennen',
