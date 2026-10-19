@@ -10,7 +10,7 @@
   import { liveQuery } from 'dexie';
   import { ChevronDown, X } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { switchTrip } from '../nav.js';
@@ -92,7 +92,7 @@
 {#if others > 0 || open || undo}
   <span class="ipw">
     <button type="button" class="pill" class:light bind:this={pill} aria-haspopup="dialog" aria-expanded={open} onclick={() => (open = !open)}>
-      <span class="num">{label ? label(others) : t('{n} more|progress', { n: others })}</span><ChevronDown size={16} aria-hidden="true" />
+      <span class="num">{label ? label(others) : tn(others, '{n} more trip open', '{n} more trips open')}</span><ChevronDown size={16} aria-hidden="true" />
     </button>
     {#if open && !phone.matches}
       <div class="pop" bind:this={pop} role="dialog" aria-labelledby="ip-h">{@render body()}</div>
