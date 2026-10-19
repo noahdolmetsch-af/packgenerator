@@ -55,13 +55,59 @@ export const VALUE_GROUPS = [
 ];
 export const GROUP_KEYS = VALUE_GROUPS.map((g) => g.key);
 
+/**
+ * «Gruppen überall» (Noah 18.10.2026): the groups as the person has them ([{ key, name }]: renamed,
+ * deleted, own ones, in their order; «Listen und Typen» › Groups of the bike values). setValueGroups
+ * puts them in place (lists.js). The fields of a deleted group show under «Ohne Gruppe» (key ''),
+ * unless they were moved to another group when it was deleted (stored.place, stored own[].group).
+ */
+export const GROUP_LIST = VALUE_GROUPS.map((g) => ({ key: g.key, name: g.name }));
+export const NO_GROUP = '';
+export function setValueGroups(list) {
+  GROUP_LIST.splice(0, GROUP_LIST.length, ...list.map((g) => ({ key: g.key, name: g.name, ...(g.raw ? { raw: true } : {}) })));
+}
+/** The group of each built-in field in the Standard: { fieldId: groupKey }. */
+const HOME = Object.fromEntries(VALUE_GROUPS.flatMap((g) => g.fields.map((f) => [fieldOf(f).id, g.key])));
+
 const empty = (v) => v == null || v === '';
 
-/** The stored choice, cleaned: { hidden: [id], own: [field] }. */
+/** The stored choice, cleaned: { hidden: [id], own: [field], place: { fieldId: groupKey } }. */
 export function fieldsOf(stored) {
   const s = stored && typeof stored === 'object' ? stored : {};
   const own = (Array.isArray(s.own) ? s.own : []).filter((f) => f && typeof f.id === 'string' && String(f.name ?? '').trim());
-  return { hidden: Array.isArray(s.hidden) ? s.hidden.filter((x) => typeof x === 'string') : [], own: own.map((f) => ({ id: f.id, name: String(f.name).trim(), unit: String(f.unit ?? '').trim(), num: !!f.num, group: GROUP_KEYS.includes(f.group) ? f.group : 'parts' })) };
+  const place = Object.fromEntries(Object.entries(s.place && typeof s.place === 'object' ? s.place : {}).filter(([id, g]) => HOME[id] && typeof g === 'string'));
+  return {
+    hidden: Array.isArray(s.hidden) ? s.hidden.filter((x) => typeof x === 'string') : [],
+    own: own.map((f) => ({ id: f.id, name: String(f.name).trim(), unit: String(f.unit ?? '').trim(), num: !!f.num, group: typeof f.group === 'string' ? f.group : 'parts' })),
+    ...(Object.keys(place).length ? { place } : {}),
+  };
+}
+
+/** The group a field shows in: its place, else its Standard group (own fields: their group). */
+const groupOfRow = (s, row) => (row.own ? (s.own.find((o) => `own:${o.id}` === row.id)?.group ?? NO_GROUP) : (s.place?.[row.id] ?? HOME[row.id]));
+const ALL_FIELDS = VALUE_GROUPS.flatMap((g) => g.fields.map(fieldOf));
+
+/** How many fields each group holds (hidden ones too): { groupKey: n }. */
+export function groupCounts(stored) {
+  const s = fieldsOf(stored);
+  const out = {};
+  for (const r of [...ALL_FIELDS, ...s.own.map(ownField)]) {
+    const g = groupOfRow(s, r);
+    out[g] = (out[g] ?? 0) + 1;
+  }
+  return out;
+}
+
+/**
+ * Before a group is deleted: its fields move to the group `to` (null: they show under «Ohne Gruppe»
+ * and come back with the group when «Auf Standard zurücksetzen» brings it back).
+ */
+export function moveGroupFields(stored, from, to) {
+  const s = fieldsOf(stored);
+  if (!to) return s;
+  const place = { ...(s.place ?? {}) };
+  for (const r of ALL_FIELDS) if (groupOfRow(s, r) === from) place[r.id] = to;
+  return { ...s, own: s.own.map((o) => (o.group === from ? { ...o, group: to } : o)), ...(Object.keys(place).length ? { place } : {}) };
 }
 
 /** One field of a group in a common form: { id, key, field, label (English, for t), unit, num, own, susp }. */
@@ -108,15 +154,19 @@ function fitsBike(bike, row) {
  * without a bike, every field (the choice is the same for all bikes).
  */
 export function valueGroups(bike, stored, { all = false } = {}) {
-  const { hidden, own } = fieldsOf(stored);
-  const groups = VALUE_GROUPS.map((g) => {
-    const rows = [...g.fields.map(fieldOf), ...own.filter((o) => o.group === g.key).map(ownField)]
+  const s = fieldsOf(stored);
+  const { hidden, own } = s;
+  const known = new Set(GROUP_LIST.map((g) => g.key));
+  const rowsOf = (key) => [...ALL_FIELDS, ...own.map(ownField)].filter((r) => (known.has(groupOfRow(s, r)) ? groupOfRow(s, r) : NO_GROUP) === key);
+  const list = [...GROUP_LIST, { key: NO_GROUP, name: 'No group' }];
+  const groups = list.map((g) => {
+    const rows = rowsOf(g.key)
       .filter((r) => !bike || fitsBike(bike, r))
       .map((r) => ({ ...r, value: bike ? valueOf(bike, r) : null, hidden: hidden.includes(r.id) }))
       .filter((r) => all || !r.hidden);
     const shown = rows.filter((r) => !r.hidden);
-    return { key: g.key, name: g.name, rows, filled: shown.filter((r) => r.value != null).length, total: shown.length };
-  }).filter((g) => g.rows.length || all);
+    return { key: g.key, name: g.name, raw: !!g.raw, rows, filled: shown.filter((r) => r.value != null).length, total: shown.length };
+  }).filter((g) => g.rows.length || (all && g.key !== NO_GROUP));
   return { groups, filled: groups.reduce((s, g) => s + g.filled, 0), total: groups.reduce((s, g) => s + g.total, 0) };
 }
 
@@ -146,7 +196,7 @@ export function addOwnField(stored, { name, unit = '', num = true, group = 'part
   if (!n) return null;
   let id = slug(n);
   for (let k = 2; s.own.some((o) => o.id === id); k++) id = `${slug(n)}-${k}`;
-  const field = { id, name: n, unit: String(unit ?? '').trim(), num: !!num, group: GROUP_KEYS.includes(group) ? group : 'parts' };
+  const field = { id, name: n, unit: String(unit ?? '').trim(), num: !!num, group: typeof group === 'string' ? group : 'parts' };
   return { fields: { ...s, own: [...s.own, field] }, id: `own:${id}` };
 }
 
@@ -161,7 +211,7 @@ export function renameOwnField(stored, id, name) {
 /** The choice without an own field (the values stay on the bikes, so adding it again brings them back). */
 export function removeOwnField(stored, id) {
   const s = fieldsOf(stored);
-  return { hidden: s.hidden.filter((x) => x !== id), own: s.own.filter((o) => `own:${o.id}` !== id) };
+  return { ...s, hidden: s.hidden.filter((x) => x !== id), own: s.own.filter((o) => `own:${o.id}` !== id) };
 }
 
 /** The step of the − and + buttons for a unit: 0.1 bar, 1 for the rest. */

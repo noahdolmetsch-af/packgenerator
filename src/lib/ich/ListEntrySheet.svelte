@@ -7,6 +7,10 @@
    * entry: { id, name, std, own, hidden, icon, areas } or null for a new own entry; count: items with it.
    * LI3 «Gilt für» (Noah «2b» 15.10.2026): the trip areas the category applies to. All chosen (the
    * Standard) stores nothing; when packing, the app suggests the items only on trips of these areas.
+   * «Gruppen überall» (Noah 18.10.2026): the same window for the other groups of «Listen und Typen»
+   * (note topics, groups of the bike values). words: { edit, own, empty, warn } replaces the category
+   * words; full: false leaves out symbol, «Gilt für» and «Ausblenden». «Löschen» hands over to the
+   * window that asks where the things go (GroupDeleteSheet, in Lists.svelte).
    */
   import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
@@ -16,14 +20,14 @@
   import { X, Check, Eye, EyeOff, Trash2, Lightbulb } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { entry = null, count = 0, stdIcon = 'Tag', onsave, onhide, onremove, onclose } = $props();
+  let { entry = null, count = 0, stdIcon = 'Tag', words = null, full = true, onsave, onhide, onremove, onclose } = $props();
 
   let dialog;
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
   });
   // svelte-ignore state_referenced_locally
-  let name = $state(entry ? t(entry.name) : '');
+  let name = $state(entry ? (entry.own || entry.renamed ? entry.name : t(entry.name)) : ''); // a typed name never through t()
   // svelte-ignore state_referenced_locally
   let icon = $state(entry?.icon ?? (entry && !entry.own ? stdIcon : 'Tag'));
   let msg = $state('');
@@ -36,9 +40,10 @@
   function save(event) {
     event.preventDefault();
     const n = name.trim();
-    if (!n) return (msg = t('Give the category a name.'));
+    if (!n) return (msg = words?.empty ?? t('Give the category a name.'));
     // the Standard name in German is no change of the name
-    onsave?.({ name: entry && !entry.own && n === t(entry.std) ? entry.std : n, icon, areas: areas.length === ALL.length ? null : areas });
+    const named = entry && !entry.own && n === t(entry.std) ? entry.std : n;
+    onsave?.(full ? { name: named, icon, areas: areas.length === ALL.length ? null : areas } : { name: named });
     dialog.close();
   }
   function hide() {
@@ -53,7 +58,7 @@
 
 <dialog use:keepTyped={'listentry:' + (entry?.id ?? entry?.key ?? 'new')} class="sheet vdlg les" bind:this={dialog} use:backClose {onclose} aria-labelledby="les-h">
   <div class="vd-head">
-    <div class="vd-t"><h2 id="les-h">{entry ? t('Edit category') : t('Own category')}</h2></div>
+    <div class="vd-t"><h2 id="les-h">{entry ? (words?.edit ?? t('Edit category')) : (words?.own ?? t('Own category'))}</h2></div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
@@ -63,6 +68,7 @@
       <p class="vd-note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Standard name: «{name}». Your name only applies for you.', { name: t(entry.std) })}</span></p>
     {/if}
 
+    {#if full}
     <p class="lbl sym" id="les-sym">{t('Symbol')}</p>
     <div class="icons" role="radiogroup" aria-labelledby="les-sym">
       {#each Object.entries(ICON_CHOICES) as [key, c] (key)}
@@ -77,21 +83,24 @@
       {/each}
     </div>
     <p class="hint">{t('When packing, the app suggests these items only on trips of the chosen kinds. The search always finds them.')}</p>
+    {/if}
     {#if msg}<p class="msg" role="alert">{msg}</p>{/if}
 
     <div class="vd-foot">
       {#if entry}
         <button type="button" class="btn del" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
-        <button type="button" class="btn" onclick={hide}>
-          {#if entry.hidden}<Eye size={16} aria-hidden="true" />{t('Show again|list')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hide')}{/if}
-        </button>
+        {#if full}
+          <button type="button" class="btn" onclick={hide}>
+            {#if entry.hidden}<Eye size={16} aria-hidden="true" />{t('Show again|list')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hide')}{/if}
+          </button>
+        {/if}
       {/if}
       <button type="submit" class="btn hi"><Check size={16} aria-hidden="true" />{t('Save')}</button>
     </div>
     {#if entry}
       <p class="warn">
-        {count ? tn(count, 'Delete: {n} item has this category. It then shows under «No category».', 'Delete: {n} items have this category. They then show under «No category».') : t('Delete: no item has this category.')}
-        {#if !entry.own}{t('«Back to Standard» brings the category back.')}{/if}
+        {#if words?.warn}{words.warn}{:else}{count ? tn(count, 'Delete: {n} item has this category. The app then asks where it goes.', 'Delete: {n} items have this category. The app then asks where they go.') : t('Delete: no item has this category.')}{/if}
+        {#if !entry.own}{t('«Back to Standard» brings it back.')}{/if}
       </p>
     {/if}
   </form>

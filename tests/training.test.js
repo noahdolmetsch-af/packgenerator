@@ -65,7 +65,7 @@ describe('numbers and lists', () => {
     expect(monthsOf(list)).toEqual(['2026-10', '2026-09']);
   });
   it('details: the newest with heart rate, recent, at most a few', () => {
-    const list = [rec('1'), rec('2', { hrAvg: null }), rec('3', { startLocal: '2026-01-01T07:00:00Z' }), rec('4', { extra: { detail: '2026-10-11' } }), rec('5', { startLocal: '2026-10-12T07:00:00Z' })];
+    const list = [rec('1'), rec('2', { hrAvg: null }), rec('3', { startLocal: '2026-01-01T07:00:00Z' }), rec('4', { extra: { detail: '2026-10-11', dv: 2 } }), rec('5', { startLocal: '2026-10-12T07:00:00Z' })];
     expect(needDetail(list, '2026-10-13').map((a) => a.id)).toEqual(['5', '1']);
     expect(needDetail(list, '2026-10-13', { max: 1 }).map((a) => a.id)).toEqual(['5']);
   });

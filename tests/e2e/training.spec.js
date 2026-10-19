@@ -87,19 +87,38 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await expect(tile.locator('.vals')).toContainText('680');
   await expect(tile.locator('.vals')).toContainText('138');
   await expect(tile.locator('[data-zones]')).toHaveAttribute('aria-label', /Z1 10 Min, Z2 30 Min, Z3 15 Min, Z4 5 Min, Z5 1 Min/);
+  await expect(tile.locator('[data-strava-page]')).toHaveAttribute('href', '#/bikes?tab=care&view=strava');
   await shot(page, info, 'TR1');
+  // release analysis P2: after a fetch with new rides the km per bike stay under the activity (a fictional last fetch)
+  await expect(tile.locator('[data-fetch-km]')).toHaveCount(0); // the first fetch only counts what was there
+  await page.evaluate((v) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const tx = r.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').put({ key: 'strava.last', value: v });
+      tx.oncomplete = () => (r.result.close(), ok());
+    };
+  }), { at: new Date().toISOString(), n: 3, km: 118.4, perBike: { [`${P}gb`]: { km: 80.2 } }, counts: {}, assigned: 3, check: 0, changes: 0 });
+  await page.reload();
+  await ready(page);
+  await expect(tile.locator('[data-fetch-km]')).toHaveText(`+118 km · ${P}Gravel Blau +80`);
 
   // TR3: a tap opens the activity
   await tile.locator('[data-last-activity]').click();
   await expect(page.getByRole('heading', { level: 1, name: `${P}Abendrunde` })).toBeVisible();
   const values = page.locator('[data-section="values"]');
-  await expect(values).toContainText('Dauer (Bewegung 1:42)');
+  await expect(values.locator('[data-val="moving"]')).toContainText('1:42');
+  await expect(values.locator('[data-val="moving"]')).toContainText('Dauer in Bewegung');
+  await expect(values.locator('[data-val="elapsed"]')).toContainText('1:48');
   await expect(values).toContainText('890');
   await expect(values).toContainText('171');
-  await expect(values.locator('[data-power="avg"]')).toContainText('188 W');
-  await expect(values.locator('[data-power="max"]')).toContainText('612 W');
-  await expect(values.locator('[data-power="w20"]')).toContainText('231 W');
-  await expect(values.locator('[data-power="w20"]')).toContainText('beste 20 Min');
+  // TR5: with a power meter the power values are in their own card «Leistung»
+  await expect(values.locator('[data-power]')).toHaveCount(0);
+  const power = page.locator('[data-section="power"]');
+  await expect(power.locator('[data-power="avg"]')).toContainText('188 W');
+  await expect(power.locator('[data-power="max"]')).toContainText('612 W');
+  await expect(power.locator('[data-power="w20"]')).toContainText('231 W');
+  await expect(power.locator('[data-power="w20"]')).toContainText('beste 20 Min');
   const zt = page.locator('[data-section="zone-time"]');
   await expect(zt.locator('li[data-zone]')).toHaveCount(5);
   await expect(zt.locator('li[data-zone="2"]')).toContainText('Grundlage');

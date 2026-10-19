@@ -1,0 +1,76 @@
+# Paket B «Server», der Wächter (Noah 18.10.2026 «3a und b»): every morning GitHub asks the server
+# (api/health) whether keys, storage, logins, the AI credit, the sync and the reminders are fine.
+# Only on a failure it opens an issue (or adds a comment to the open one), so Noah gets an e-mail.
+# When everything is fine again, it says so and closes the issue. Only GITHUB_TOKEN, no secret.
+# The address: the repository variable HEALTH_URL when set, else the «packgen» server.
+name: Wächter
+
+on:
+  schedule:
+    - cron: '17 5 * * *' # every day 05:17 UTC (07:17 in Zurich in summer)
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: waechter
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTH_URL: ${{ vars.HEALTH_URL || 'https://packgen-three.vercel.app/api/health' }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: waechter
+    steps:
+      - name: Ask the server
+        id: ask
+        run: |
+          code=$(curl -sS -o health.json -w '%{http_code}' --max-time 60 "$HEALTH_URL" || echo 000)
+          echo "HTTP $code"
+          if jq -e '.checks' health.json >/dev/null 2>&1; then
+            jq -r '.checks[] | "\(.state)\t\(.id)\t\(.code)\t\(.note)"' health.json
+            ok=$(jq -r 'if .ok == true then "yes" else "no" end' health.json)
+          else
+            ok=no
+            echo '{"checks":[{"id":"server","state":"fail","code":"no_answer","note":"Keine Antwort vom Server"}]}' > health.json
+          fi
+          {
+            echo "### Wächter $(date -u +'%Y-%m-%d %H:%M') UTC"
+            echo
+            echo "Adresse: $HEALTH_URL (HTTP $code)"
+            echo
+            echo '| Prüfung | Stand | Code | Hinweis |'
+            echo '|---|---|---|---|'
+            jq -r '.checks[] | "| \(.id) | \(if .state == "fail" then "❌ Fehler" elif .state == "ok" then "✅ ok" else "– übersprungen" end) | \(.code) | \(.note // "") |"' health.json
+          } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the issue
+        if: steps.ask.outputs.ok != 'yes'
+        run: |
+          gh label create "$LABEL" --color B60205 --description 'Der Wächter hat einen Fehler am Server gefunden' 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file report.md
+          else
+            {
+              echo 'Der Wächter hat heute einen Fehler am Server «packgen» gefunden. Claude repariert ihn und bringt dir die Lösung.'
+              echo
+              cat report.md
+            } > body.md
+            gh issue create --title 'Wächter: Server braucht Hilfe' --label "$LABEL" --body-file body.md
+          fi
+
+      - name: Close the issue when all is fine again
+        if: steps.ask.outputs.ok == 'yes'
+        run: |
+          for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Alles wieder in Ordnung.$(printf '\n\n')$(cat report.md)"
+          done

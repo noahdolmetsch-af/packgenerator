@@ -18,10 +18,17 @@
   import { strava, loadDetail } from '../../lib/strava/client.svelte.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { dayWhen } from '../../lib/strava/when.js';
-  import { zoneSecs, shares, hmm, speed, sameRoute, typeKey, ZONE_NAMES, zoneRange } from '../../lib/training.js';
+  import { zoneSecs, shares, hmm, speed, sameRoute, typeKey, ZONE_NAMES, zoneRange, hasDetail } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { localDay } from '../../lib/localday.js';
+  import { hasMeter } from '../../lib/training/act/power.js';
+  import PowerBlock from '../../lib/training/act/PowerBlock.svelte';
+  import LoadCurve from '../../lib/training/act/LoadCurve.svelte';
+  import ActAnalyses from '../../lib/training/act/ActAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
 
   let { id = '' } = $props();
+  const today = localDay();
 
   const actQ = $derived(liveQuery(async () => (await db.activities.get(id)) ?? null));
   const allQ = liveQuery(() => db.activities.toArray());
@@ -30,6 +37,9 @@
   const most = $derived(secs ? Math.max(...secs) : 0);
   const sh = $derived(shares(secs));
   const same = $derived(act ? sameRoute($allQ ?? [], act) : { list: [], fastest: null });
+  // the values card: speed from Strava or from distance and time; the power values go to «Leistung» with a power meter
+  const spdAvg = $derived(act ? (act.spdAvg ?? speed(act)) : null);
+  const meter = $derived(hasMeter(act));
   const gearName = $derived(act ? (strava.prefs.gear.find((g) => g.id === act.gearId)?.name ?? '') : '');
   const longDay = $derived(act ? new Date(`${act.day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' }) : '');
   const source = $derived(zones.source === 'own' ? t('your own zones') : zones.source === 'strava' ? t('your zones from Strava') : t('standard zones (maximum heart rate {n})', { n: 190 }));
@@ -42,7 +52,7 @@
   let asked = $state('');
   let fetchErr = $state('');
   $effect(() => {
-    if (!act || act.detail || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
+    if (!act || hasDetail(act) || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
     asked = act.id;
     loadDetail(db, act.id).catch((e) => (fetchErr = e?.code === 'strava_busy' ? t('Strava is busy right now; the heart rate comes with the next fetch.') : t('The heart rate could not be fetched just now.')));
   });
@@ -81,17 +91,20 @@
     <div class="lay">
       <div class="col">
         <div class="card vals num" data-section="values">
-          <span><b>{hmm(act.elapsedS || act.movingS)}</b><small>{act.elapsedS && act.elapsedS - act.movingS >= 60 ? t('Time (moving {t})', { t: hmm(act.movingS) }) : t('Time|duration')}</small></span>
-          {#if act.km}<span><b>{num(act.km)} km</b><small>{t('Distance')}</small></span>{/if}
-          {#if act.hm != null}<span><b>{num(act.hm)} {t('Hm|short')}</b><small>{t('Metres climbed')}</small></span>{/if}
-          {#if speed(act)}<span><b>{num(speed(act))}</b><small>{t('Ø km/h')}</small></span>{/if}
-          {#if act.hrAvg != null}<span><b>{act.hrAvg}</b><small>{t('Ø heart rate')}</small></span>{/if}
-          {#if act.hrMax != null}<span><b>{act.hrMax}</b><small>{t('max heart rate')}</small></span>{/if}
-          {#if act.kcal}<span><b>{num(act.kcal)}</b><small>kcal</small></span>{/if}
-          {#if act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{act.wDevice ? t('Ø power') : t('Ø power (Strava estimate)')}</small></span>{/if}
-          {#if act.wMax != null}<span data-power="max"><b>{act.wMax} W</b><small>{t('max power')}</small></span>{/if}
-          {#if act.w20 != null}<span data-power="w20"><b>{act.w20} W</b><small>{t('best 20 min')}</small></span>{/if}
+          {#if act.movingS}<span data-val="moving"><b>{hmm(act.movingS)}</b><small>{t('Moving time|act')}</small></span>{/if}
+          {#if act.elapsedS}<span data-val="elapsed"><b>{hmm(act.elapsedS)}</b><small>{t('Elapsed time')}</small></span>{/if}
+          {#if act.km}<span data-val="km"><b>{num(act.km)} km</b><small>{t('Distance')}</small></span>{/if}
+          {#if act.hm != null}<span data-val="hm"><b>{num(act.hm)} {t('Hm|short')}</b><small>{t('Metres climbed')}</small></span>{/if}
+          {#if spdAvg != null}<span data-val="speed"><b>{num(spdAvg)}{act.spdMax ? ` / ${num(act.spdMax)}` : ''}</b><small>{act.spdMax ? t('Ø / max km/h') : t('Ø km/h')}</small></span>{/if}
+          {#if act.hrAvg != null}<span data-val="hr"><b>{act.hrAvg}{act.hrMax != null ? ` / ${act.hrMax}` : ''}</b><small>{act.hrMax != null ? t('Ø / max heart rate') : t('Ø heart rate')}</small></span>{/if}
+          {#if act.cad}<span data-val="cad"><b>{act.cad}</b><small>{t('Ø cadence')}</small></span>{/if}
+          {#if act.kcal}<span data-val="kcal"><b>{num(act.kcal)}</b><small>kcal</small></span>{/if}
+          {#if act.tempAvg != null}<span data-val="temp"><b>{num(act.tempAvg)} °C</b><small>{t('Temperature (bike computer)')}</small></span>{/if}
+          {#if act.pauses?.n > 0}<span data-val="pauses"><b>{act.pauses.n} · {t('{n} min', { n: Math.round((act.pauses.secs ?? 0) / 60) })}</b><small>{t('Breaks|act')}</small></span>{/if}
+          {#if !meter && act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{t('Ø power (Strava estimate)')}</small></span>{/if}
         </div>
+
+        <PowerBlock {act} all={$allQ ?? []} {today} />
 
         <Sec id="zones-h" title={t('Time in heart rate zones')} sub={source} more={{ label: t('change zones'), href: '#/flow/training?zones=1' }}>
           <div class="card zones" data-section="zone-time">
@@ -134,6 +147,8 @@
       </div>
 
       <div class="col">
+        <LoadCurve {act} all={$allQ ?? []} {today} />
+
         {#if same.list.length > 1}
           <Sec id="same-h" title={t('Same route')} sub={t('{n}× done', { n: same.list.length })}>
             <ul class="card same" data-section="same-route">
@@ -160,8 +175,11 @@
         <p class="kd"><KindIcon kind={act.kind} size={14} /> {t(typeKey(act.type))}</p>
       </div>
     </div>
+
+    <ActAnalyses {act} all={$allQ ?? []} {today} />
   {/if}
 </div>
+<AnaSheet />
 
 <style>
   .ta {

@@ -16,7 +16,14 @@
  */
 
 export const DEFAULT_MODEL = 'claude-sonnet-5-5';
-export const DEFAULT_CAP_CHF = 5;
+/** Noah 15.10.2026 «1b»: the server's monthly cap is CHF 2 unless HELPER_MONTHLY_CHF says otherwise. */
+export const DEFAULT_CAP_CHF = 2;
+/**
+ * Noah 15.10.2026 «2a, wobei nutzer dies ändern kann im frontend»: Sonnet stays the default, the app may
+ * ask for one of these instead (Ich › KI-Helfer). Anything else falls back to the server's model.
+ */
+export const MODEL_CHOICES = ['claude-sonnet-5-5', 'claude-haiku-5-5'];
+export const pickModel = (wanted, fallback = DEFAULT_MODEL) => (MODEL_CHOICES.includes(wanted) ? wanted : fallback);
 /** Fixed rate for the estimate (USD → CHF), October 2026. */
 export const USD_TO_CHF = 0.9;
 /** USD per million tokens: input, output. Unknown models count as the most expensive row. */

@@ -1,5 +1,4 @@
 <script>
-  import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
   import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.26.0 (Noah 2a/2b, AP10): building blocks (code: item sets) on their own page, #/blocks.
@@ -28,13 +27,13 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown, knownWeight } from '../lib/gear.js';
-  import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
+  import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel, deletedBuiltIns } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
   import { NIGHT_BLOCKS, RIDE_BLOCKS, OUTDOOR_BLOCKS } from '../lib/context.js';
   import { REVIEW_KEY, reviewOpen } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
-  import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
+  import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet, restoreSetIn } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star } from '@lucide/svelte';
@@ -49,6 +48,7 @@
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import RuleSheet from '../lib/gear/RuleSheet.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
+  import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { favDrift, takeDrift } from '../lib/favplus.js';
 
@@ -142,14 +142,19 @@
     if (res.error) return errText(res.error, name);
     offer(t('Renamed to "{name}".', { name: name || builtInName(s.key) }), res.snap);
   }
-  async function remove(s) {
-    const n = s.items.length;
-    const tn2 = inTemplates(s.key);
-    const text = [tn(n, 'Its {n} item stays in your gear; only the building block goes.', 'Its {n} items stay in your gear; only the building block goes.'), ...(tn2 ? [tn(tn2, 'The template that holds it keeps its items as extras.', 'The {n} templates that hold it keep its items as extras.')] : []), t('You can bring it back for 4 seconds afterwards.')].join(' ');
-    if ((await askDelete({ title: t('Delete the building block "{name}"?', { name: s.name }), text })) !== 'delete') return;
-    const res = await deleteSet(db, s.key);
+  // «Gruppen überall» (Noah 18.10.2026): every block can be deleted, the built-in ones too; the window
+  // asks where its items go (first choice: in no block, they stay in the gear), then Undo.
+  let deleting = $state(null); // the block
+  const remove = (s) => ((ruling = null), (deleting = s));
+  async function doDelete(s, to) {
+    const res = await deleteSet(db, s.key, to);
     if (res.error) return;
     offer(t('Building block "{name}" deleted.', { name: s.name }), res.snap);
+  }
+  const gone = $derived(deletedBuiltIns($setsQ?.value));
+  async function restore(g) {
+    const res = await restoreSetIn(db, g.key);
+    if (!res.error) offer(t('Building block "{name}" is back.', { name: g.name }), res.snap);
   }
   async function takeOut(s, item) {
     const res = await assignSet(db, [item.id], s.key, { out: true });
@@ -283,7 +288,7 @@
         <div class="acts">
           <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
           <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => (renaming = s)}>{t('Rename')}</button>
-          {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
+          <button type="button" class="btn del" aria-label={t('Delete {name}', { name: blockLabel(s) })} onclick={() => remove(s)}>{t('Delete')}</button>
         </div>
       </div>
     </details>
@@ -373,6 +378,17 @@
         <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Empty building blocks do not disturb: they only come along once an item is in them.')}</span></p>
         <p class="shint tl"><Layers size={15} aria-hidden="true" /><a class="tlink" href="#/pack/templates">{t('Templates')} <span class="num">({tplCount})</span></a></p>
       </Section>
+
+      {#if gone.length}
+        <!-- «Gruppen überall»: the deleted built-in blocks, each can come back (empty) -->
+        <Section fold title={t('Deleted building blocks')} sub={t('come back empty, with their own name')} count={gone.length} id="g-gone">
+          <ul class="card slist">
+            {#each gone as g (g.key)}
+              <li class="srow"><span class="sm"><b>{g.name}</b></span><button type="button" class="btn" aria-label={t('Bring back {name}', { name: g.name })} onclick={() => restore(g)}>{t('Bring back')}</button></li>
+            {/each}
+          </ul>
+        </Section>
+      {/if}
     </div>
 
     <div class="gcol aside">
@@ -430,7 +446,23 @@
 
 {#if rulingCard}
   {@const s = rulingCard}
-  <RuleSheet block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} onclose={() => (ruling = null)} />
+  <RuleSheet block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} ondelete={() => remove(s)} onclose={() => (ruling = null)} />
+{/if}
+
+{#if deleting}
+  {@const d = deleting}
+  {@const nT = inTemplates(d.key)}
+  <GroupDeleteSheet
+    title={t('Delete the building block "{name}"?', { name: blockLabel(d) })}
+    count={d.items.length}
+    what={(n) => tn(n, '{n} item', '{n} items')}
+    none={t('In no building block')}
+    noneHint={t('The items stay in your gear.')}
+    targets={cards.filter((c) => c.key !== d.key).map((c) => ({ id: c.key, name: blockLabel(c) }))}
+    note={nT ? tn(nT, 'The template that holds it keeps its items as extras.', 'The {n} templates that hold it keep its items as extras.') : ''}
+    onconfirm={(to) => doDelete(d, to)}
+    onclose={() => (deleting = null)}
+  />
 {/if}
 
 {#if renaming}

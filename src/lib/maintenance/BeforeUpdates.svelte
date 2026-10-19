@@ -26,9 +26,9 @@
   let sec = $state();
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
-  const backLabel = (s) => (s.kind === 'update' ? t('Back to the state before {v}', { v: shortVersion(s.to ?? current) }) : s.kind === 'import' ? t('Back to the state before the import') : t('Undo going back'));
+  const backLabel = (s) => (s.kind === 'update' ? t('Back to the state before {v}', { v: shortVersion(s.to ?? current) }) : s.kind === 'import' ? t('Back to the state before the import') : s.kind === 'sync' ? t('Back to the state before the first sync') : t('Undo going back'));
   // P3b «Daten sicher» (rule 5a): the copies before an import stand here too
-  const rowName = (s) => (s.kind === 'update' ? t('Version {v}', { v: shortVersion(s.version ?? '?') }) : s.kind === 'import' ? t('Before an import') : t('Before going back'));
+  const rowName = (s) => (s.kind === 'update' ? t('Version {v}', { v: shortVersion(s.version ?? '?') }) : s.kind === 'import' ? t('Before an import') : s.kind === 'sync' ? t('Before the first sync') : t('Before going back'));
 
   // from the news banner (#/me/data?at=before-updates): this section in view
   $effect(() => {
