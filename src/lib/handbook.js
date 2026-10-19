@@ -591,6 +591,16 @@ export const HANDBOOK = {
     steps: ['Open a trip in Pack and tap «Read aloud».', 'Choose «Say «ok»» or «Button only»; the app reads one item after the other.'],
     example: 'Example: «Into frame bag: tyre levers» → «ok» → next item.',
   },
+  'f.ownrules': {
+    on: 'Needs an own building block with items in it (Gear › Building blocks).',
+    steps: ['Open the block and tap «Add a rule».', 'Choose the value, e.g. «Travel there by train», and save.'],
+    example: 'Example: block «Train things» with the bike ticket → suggested for every trip by train.',
+  },
+  'f.startfresh': {
+    on: null,
+    steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
+    example: 'Example: after testing with sample data → start fresh with your own gear.',
+  },
   'f.lend': {
     on: null,
     steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],

@@ -281,4 +281,17 @@ export default {
   'Your data is back.': 'Deine Daten sind zurück.',
   'Back to the state before starting fresh': 'Zurück zum Stand vor «Neu beginnen»',
   'Before starting fresh': 'Vor «Neu beginnen»',
+  // #260 Regel-Editor: own blocks with their own rule
+  'Own building block with a rule': 'Eigener Baustein mit Regel',
+  'No rule yet: it comes only when you choose it.': 'Noch keine Regel: er kommt nur, wenn du ihn wählst.',
+  'Add a rule': 'Regel festlegen',
+  'Own rules for blocks': 'Eigene Regeln für Bausteine',
+  'Give your own building block a rule, e.g. «comes along by train» or «below 5 °C»: it is then suggested in Packen when the trip fits.': 'Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zug» oder «unter 5 °C»: dann wird er in Packen vorgeschlagen, wenn die Tour passt.',
+  'Delete all data and begin from zero; a copy stays, and «Undo» brings everything back.': 'Alle Daten löschen und bei null beginnen; eine Kopie bleibt, und «Rückgängig» holt alles zurück.',
+  'Open Gear › Building blocks › «To add» and open your block.': 'Öffne Material › Bausteine › «Zum Dazunehmen» und deinen Baustein.',
+  'Tap «Add a rule» and choose when it comes along.': 'Tippe «Regel festlegen» und wähle, wann er mitkommt.',
+  'In Packen it is suggested when the trip fits.': 'In Packen wird er vorgeschlagen, wenn die Tour passt.',
+  'Open Me › Data and backup.': 'Öffne Ich › Daten und Backup.',
+  'Tap «Start fresh …» and «Delete everything».': 'Tippe «Neu beginnen …» und «Alles löschen».',
+  '«Undo» or «Before updates» brings it all back.': '«Rückgängig» oder «Vor Updates» holt alles zurück.',
 };

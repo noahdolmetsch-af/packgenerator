@@ -94,6 +94,8 @@ export const HOWTO = {
   'f.supplies': ['Open Gear › Supplies.', 'Set the expiry date and how many you have at home.', 'What runs low is under «Buy again»; tap «Bought» after shopping.'],
   'f.table': ['On the computer open Gear and choose «Table», or «Edit as a table» in other lists.', 'Click a cell and type; it saves when you leave the cell.', 'Tick several rows, choose a field and «Set for all».'],
   'f.readaloud': ['Open a trip in Pack.', 'Tap «Read aloud».', 'Say «ok» when an item is in the bag, or tap the big button.'],
+  'f.ownrules': ['Open Gear › Building blocks › «To add» and open your block.', 'Tap «Add a rule» and choose when it comes along.', 'In Packen it is suggested when the trip fits.'],
+  'f.startfresh': ['Open Me › Data and backup.', 'Tap «Start fresh …» and «Delete everything».', '«Undo» or «Before updates» brings it all back.'],
   'f.lend': ['Open Gear › Lent out.', 'Tap «New lending list», type the name and tick the things.', 'Send it as a link or PDF; on the return day the app reminds you.'],
   'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],
   'f.sync': ['Send the backup from the newer device.', 'On the other device open it with Share › Pack Generator or «Open backup».', 'Follow the suggestion; a copy of before stays.'],

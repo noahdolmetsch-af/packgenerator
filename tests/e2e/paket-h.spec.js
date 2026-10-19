@@ -101,3 +101,45 @@ test('Paket H: supplies, lending, table, read aloud', async ({ page, context }, 
 
   expect(errors).toEqual([]);
 });
+
+// Paket H, Noah 19.10.2026 «1a … 3a»: an own block gets its own rule (#260); «Neu beginnen» empties all, «Rückgängig» brings it back.
+test('Paket H: own rule for a block, start fresh with Undo', async ({ page, context }, info) => {
+  test.setTimeout(120_000);
+  const errors = [];
+  page.on('pageerror', (err) => errors.push(err.message));
+  const data = fixture();
+  data.tables.items.push({ id: 'test_data_gtp_ticket', name: 'test_data_gtp_ Velo-Billett', category: 'tools', weightG: 5, qty: 1, ownership: 'owned', domains: ['bikepacking'], sets: ['u-zug'] });
+  data.tables.settings.push({ key: 'sets', value: [{ key: 'u-zug', name: 'test_data_gtp_ Zug-Sachen' }] });
+  const T = await openHome(page, context, info, { data });
+  const main = page.locator('main');
+
+  // #260: the own block «Zug-Sachen» comes along when the trip goes by train
+  await page.goto('./#/blocks');
+  const own = main.locator('li.blk', { has: page.locator('#blk-u-zug') });
+  if (!(await own.isVisible())) await main.locator('#g-add').click(); // the folded group «Zum Dazunehmen»
+  await own.locator('summary').click();
+  await expect(own.getByText(T('No rule yet: it comes only when you choose it.'))).toBeVisible();
+  await own.getByRole('button', { name: T('Add a rule') }).click();
+  const sheet = page.getByRole('dialog', { name: 'test_data_gtp_ Zug-Sachen' });
+  await sheet.getByLabel(T('Value')).first().selectOption('train');
+  await sheet.getByRole('button', { name: T('Save') }).click();
+  await expect(own.locator('[data-own-rule]')).toContainText(T('Travel there by train'));
+
+  // «Neu beginnen»: everything goes, Undo brings it back
+  await page.goto('./#/me/data');
+  const fresh = main.locator('#start-fresh');
+  await fresh.getByRole('button', { name: T('Start fresh …') }).click();
+  await expect(fresh.getByText(T('Really delete all data?'))).toBeVisible();
+  await fresh.getByRole('button', { name: T('Delete everything') }).click();
+  const toast = page.locator('button.undo').filter({ hasText: T('Undo') });
+  await expect(toast).toBeVisible();
+  expect(await page.evaluate(async () => {
+    const dbs = await indexedDB.databases();
+    return dbs.map((d) => d.name);
+  })).toContain('pack-generator-snapshots');
+  await toast.click();
+  await page.goto('./#/gear?q=Power%20bank');
+  await expect(main.getByText(/Power bank/).first()).toBeVisible();
+
+  expect(errors).toEqual([]);
+});

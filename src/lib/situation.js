@@ -184,3 +184,49 @@ export function situationHits(trip, setsValue) {
   const rules = rulesOf(setsValue);
   return Object.fromEntries(SITUATION_BLOCKS.map((k) => [k, ruleHit(k, rules[k], facts)]).filter(([, r]) => r));
 }
+
+/**
+ * Paket H #260 «Regel-Editor» (Noah 19.10.2026 «3a»): an own block can carry its own rule too
+ * («Kommt mit, wenn …»), on any value of METRICS. Stored as `rule` on the own block's record in the
+ * settings «sets»; no rule = never suggested by itself. Never binding: a hit is a dashed suggestion.
+ */
+export const OWN_RULE = { on: true, metric: 'minC', cmp: 'lt', limit: 5 };
+
+/** An own block's rule, every field checked; null when there is none. */
+export function ownRuleOf(saved) {
+  if (!saved || typeof saved !== 'object') return null;
+  const metric = Object.hasOwn(METRICS, saved.metric) ? saved.metric : OWN_RULE.metric;
+  const out = { on: saved.on !== false, metric };
+  if (METRICS[metric].bool) return out;
+  out.cmp = CMPS.includes(saved.cmp) ? saved.cmp : 'gte';
+  out.limit = fin(saved.limit) ?? 0;
+  return out;
+}
+
+/** Does an own rule fit? → a reason (the same shapes hitBadge knows) or null. */
+export function ownHit(rule, facts) {
+  if (!rule?.on) return null;
+  const m = rule.metric;
+  if (METRICS[m]?.bool) return facts[m] ? (m === 'abroad' ? { kind: 'abroad', country: facts.country, own: true } : { kind: m, own: true }) : null;
+  return passes(facts[m], rule.cmp, rule.limit) ? { kind: 'own', metric: m, value: facts[m], own: true } : null;
+}
+
+/** Store an own block's rule (null: no rule). The record keeps its name, note and amounts. */
+export function setOwnRule(setsValue, key, rule) {
+  const list = Array.isArray(setsValue) ? setsValue : [];
+  const clean = ownRuleOf(rule);
+  return list.map((s) => {
+    if (s?.key !== key) return s;
+    const { rule: _, ...rest } = s;
+    return clean ? { ...rest, rule: clean } : rest;
+  });
+}
+
+/** Every own block with a rule that fits the trip: { 'u-…': reason }. */
+export function ownHits(trip, setsValue) {
+  if (!trip) return {};
+  const list = (Array.isArray(setsValue) ? setsValue : []).filter((s) => s?.key && !isSituation(s.key) && s.rule && !DEFAULT_RULES[s.key]);
+  if (!list.length) return {};
+  const facts = tripFacts(trip);
+  return Object.fromEntries(list.map((s) => [s.key, ownHit(ownRuleOf(s.rule), facts)]).filter(([, r]) => r));
+}

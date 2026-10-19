@@ -35,7 +35,7 @@ export function allSets(value) {
   const builtIn = BUILT_IN.filter((key) => !rec(key)?.deleted).map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) }, ...(rec(key)?.rule ? { rule: { ...rec(key).rule } } : {}) }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
   // SN5+: a block made from the favourites keeps its kind and the favourites of that moment (favplus.js).
-  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
+  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav', 'rule'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
   // v0.66.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
   const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];

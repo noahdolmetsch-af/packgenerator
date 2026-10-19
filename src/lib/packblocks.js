@@ -15,7 +15,7 @@ import { NIGHT_SETS } from './trips.js';
 import { activeBlocks, OFFER_ONLY } from './context.js';
 import { tempKits, rainChance } from './wardrobe.js';
 import { needsSlim, repairItems, REPAIR } from './repairslim.js';
-import { SITUATION_BLOCKS, situationHits } from './situation.js';
+import { SITUATION_BLOCKS, situationHits, ownHits } from './situation.js';
 import { RAIN_LIMIT, rainLimit } from './rainlimit.svelte.js';
 
 /** The built-in blocks shown in Packen, in this order: the ride's (first aid, light, repair, charging, race, cook), food, hygiene. */
@@ -46,6 +46,8 @@ export function blockRows(trip, items, setsValue) {
   const own = sets.filter((s) => !s.builtIn && !kits.has(s.key) && !OFFER_ONLY.includes(s.key));
   // SN3+: the blocks «je nach Lage» that fit this trip ({ cold: { kind, c }, rain: { kind, pct }, … })
   const hits = situationHits(trip, setsValue);
+  // Paket H #260: own blocks with their own rule («Kommt mit, wenn …»)
+  const mine = ownHits(trip, setsValue);
   const slim = needsSlim(items);
   const rows = [...builtIn, ...own]
     .map((s) => {
@@ -54,8 +56,9 @@ export function blockRows(trip, items, setsValue) {
       let suggest = null;
       if (!on && s.key === REPAIR && slim) suggest = { kind: 'slim', n: repairItems(items).length };
       else if (!on && hits[s.key]) suggest = { ...hits[s.key] };
+      else if (!on && mine[s.key]) suggest = { ...mine[s.key] };
       else if (!on && !s.builtIn && hits.rain && RAIN_WORDS.test(s.name)) suggest = { kind: 'rain', pct: hits.rain.pct };
-      return { key: s.key, name: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, builtIn: s.builtIn, n: v.inventory.length, g: v.g, missing: v.missing, ids: v.inventory.map((i) => i.id), on, suggest };
+      return { key: s.key, name: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, builtIn: s.builtIn, ...(s.rule && !s.builtIn ? { rule: s.rule } : {}), n: v.inventory.length, g: v.g, missing: v.missing, ids: v.inventory.map((i) => i.id), on, suggest };
     })
     .filter((r) => r.n > 0);
   const add = rows.filter((r) => !r.on);

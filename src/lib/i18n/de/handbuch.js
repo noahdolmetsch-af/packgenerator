@@ -534,4 +534,12 @@ export default {
   'Open Gear › Lent out and make a new list for the guest.': 'Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.',
   'Send it as a link or PDF; tap «Back» for each thing that comes back.': 'Schick sie als Link oder PDF; tippe «Zurück» bei jeder Sache, die zurückkommt.',
   'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.': 'Beispiel: Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.',
+  // Paket H: eigene Regeln, Neu beginnen
+  'Needs an own building block with items in it (Gear › Building blocks).': 'Braucht einen eigenen Baustein mit Teilen darin (Material › Bausteine).',
+  'Open the block and tap «Add a rule».': 'Öffne den Baustein und tippe «Regel festlegen».',
+  'Choose the value, e.g. «Travel there by train», and save.': 'Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.',
+  'Example: block «Train things» with the bike ticket → suggested for every trip by train.': 'Beispiel: Baustein «Zug-Sachen» mit dem Velobillett → bei jeder Tour mit dem Zug vorgeschlagen.',
+  'Me › Data and backup › «Start fresh …» › «Delete everything».': 'Ich › Daten und Backup › «Neu beginnen …» › «Alles löschen».',
+  'Changed your mind? «Undo», or later «Before updates».': 'Doch nicht? «Rückgängig», oder später «Vor Updates».',
+  'Example: after testing with sample data → start fresh with your own gear.': 'Beispiel: nach dem Testen mit Beispieldaten → neu beginnen mit deinem eigenen Material.',
 };

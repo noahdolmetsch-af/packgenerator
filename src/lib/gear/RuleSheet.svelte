@@ -18,14 +18,15 @@
   import { formatWeight, itemWeight, isInventory, knownWeight } from '../gear.js';
   import { blockIcon, blockTone } from '../blockicons.js';
   import { qtyOf } from '../sets.js';
-  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf } from '../situation.js';
+  import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf, OWN_RULE, ownRuleOf } from '../situation.js';
   import { cmpWord, unitOf, sourceLine } from '../situationtext.js';
 
-  let { block, rule, onsave, onrename, ondelete = null, onclose } = $props();
+  let { block, rule, onsave, onrename, ondelete = null, onclose, own = false } = $props();
+  // Paket H #260 «Regel-Editor»: own = an own block; every value can be its rule, the start is OWN_RULE
 
   let dialog;
   // svelte-ignore state_referenced_locally
-  const start = ruleOf(block.key, rule);
+  const start = own ? (ownRuleOf(rule) ?? { ...OWN_RULE }) : ruleOf(block.key, rule);
   let on = $state(start.on);
   let metric = $state(start.metric);
   let cmp = $state(start.cmp ?? 'gte');
@@ -34,7 +35,7 @@
   let out = $state([]); // items taken out, saved with «Speichern»
   let error = $state('');
 
-  const std = $derived(ruleOf(block.key, null));
+  const std = $derived(own ? OWN_RULE : ruleOf(block.key, null));
   const bool = $derived(!!METRICS[metric]?.bool);
   const kept = $derived(block.items.filter((i) => !out.includes(i.id)));
   const Icon = $derived(blockIcon(block.key, block.name));
@@ -46,7 +47,7 @@
   });
 
   function reset() {
-    const d = DEFAULT_RULES[block.key];
+    const d = own ? OWN_RULE : DEFAULT_RULES[block.key];
     on = true;
     metric = d.metric;
     cmp = d.cmp ?? 'gte';
@@ -58,6 +59,7 @@
   function pickMetric(m) {
     metric = m;
     if (m === std.metric) limit = String(std.limit);
+    else if (own && !METRICS[m].bool && !String(limit).trim()) limit = '0';
   }
 
   async function save(e) {
@@ -91,7 +93,7 @@
     <div class="head">
       <div>
         <h2 id="rs-h">{block.name}</h2>
-        <p class="sub num">{t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
+        <p class="sub num">{own ? t('Own building block with a rule') : t('Building block depending on the situation')} · {tn(kept.length, '{n} item', '{n} items')}{#if kept.length}{' · '}{knownWeight(block.g, block.missing)}{/if}</p>
       </div>
       <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -104,13 +106,18 @@
 
     <fieldset class="rule">
       <legend class="lbl">{t('Comes along when')}</legend>
+      {#if own}
+        <select class="sel ownm" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
+          {#each Object.keys(METRICS) as m (m)}<option value={m}>{t(METRICS[m].name)}</option>{/each}
+        </select>
+      {/if}
       {#if bool}
-        <p class="boolr">{t(METRICS[metric].name)}</p>
+        {#if !own}<p class="boolr">{t(METRICS[metric].name)}</p>{/if}
       {:else}
         <div class="rrow">
-          <select class="sel" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
+          {#if !own}<select class="sel" aria-label={t('Value')} value={metric} onchange={(e) => pickMetric(e.currentTarget.value)}>
             {#each NUMERIC as m (m)}<option value={m}>{t(METRICS[m].name)}</option>{/each}
-          </select>
+          </select>{/if}
           <select class="sel" aria-label={t('Comparison')} bind:value={cmp}>
             {#each CMPS as c (c)}<option value={c}>{cmpWord(c)}</option>{/each}
           </select>
@@ -120,7 +127,7 @@
           <label class="rrow alt"><span>{t('or the highest point from')}</span><span class="lim"><input class="inp num" type="text" inputmode="numeric" aria-label={t('Highest point from')} bind:value={alt} oninput={() => (error = '')} /><span class="unit">{t('m above sea level')}</span></span></label>
         {/if}
       {/if}
-      <p class="src">{sourceLine(metric)}{#if !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
+      <p class="src">{sourceLine(metric)}{#if !own && !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if block.key === 'climb'}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
       {#if block.key === 'rain' && metric === 'rainPct'}
         <!-- v0.144.0 RE «Regen überall gleich» (Noah 1a): this limit is the one rain limit of the app -->
         <p class="everywhere" data-rain-everywhere><Info size={16} aria-hidden="true" /><span><b>{t('Counts everywhere in the app:')}</b> {t('Packing, rain gear, What to wear, the weather on Today, the suggestion of the day, the plan on the way.')} {t('One limit for everything: from {n} % a trip counts as wet.', { n: Number.isFinite(toNum(limit)) ? num(toNum(limit)) : num(std.limit) })}</span></p>
@@ -431,4 +438,5 @@
       flex: 1;
     }
   }
+  .ownm { width: 100%; margin: 0 0 8px; }
 </style>

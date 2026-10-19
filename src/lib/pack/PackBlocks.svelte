@@ -42,7 +42,7 @@
     r.suggest?.kind === 'slim' ? t('Suggestion: {n} of {all} for the ride', { n: SLIM_MAX, all: r.suggest.n })
     : r.suggest?.kind === 'rain' && !r.suggest.metric ? (r.suggest.pct != null ? t('Suggestion: {pct} % rain', { pct: r.suggest.pct }) : t('Suggestion: rain is forecast'))
     : hitBadge(r.suggest);
-  const ruleOfRow = (r) => (isSituation(r.key) && rules[r.key] ? ruleLine(r.key, rules[r.key]) : r.suggest?.kind === 'rain' && rules.rain ? ruleLine('rain', rules.rain) : '');
+  const ruleOfRow = (r) => (isSituation(r.key) && rules[r.key] ? ruleLine(r.key, rules[r.key]) : r.suggest?.own && r.rule ? ruleLine('own', r.rule) : r.suggest?.kind === 'rain' && rules.rain ? ruleLine('rain', rules.rain) : '');
   const explainOf = (r) => (r.suggest?.kind === 'slim' ? t('Choose at most {n} parts for the ride', { n: SLIM_MAX }) : r.suggest ? t('{block} · comes along {rule}', { block: r.name, rule: ruleOfRow(r) }) : r.on ? t('Takes {block} off this trip', { block: r.name }) : t('Adds {block} to this trip', { block: r.name }));
   const tap = (r) => (r.suggest?.kind === 'slim' ? onslim() : ontoggle(r));
   // v0.144.0 RE «Regen überall gleich» (mockup RE1-packen): the one rain limit says why rain is suggested
