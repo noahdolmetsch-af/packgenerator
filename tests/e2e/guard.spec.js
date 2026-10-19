@@ -113,6 +113,8 @@ const ROUTES = [
   ['#/me/werte', 'Eigene Werte'],
   // v0.97.0 «Skitouren»: Touren › Skitouren and its four pages, strict like their files (the fixture has no
   // ski tour: the empty states; tests/e2e/ski.spec.js checks them filled)
+  // «Reise-Links» (Noah 19.10.2026 «5b»): Touren › Reise-Links
+  ['#/travel', 'Reise-Links'],
   ['#/ski', 'Skitouren'],
   ['#/ski/check', 'Rucksack-Check'],
   ['#/ski/start', 'Start-Check'],

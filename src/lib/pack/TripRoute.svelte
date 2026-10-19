@@ -28,6 +28,7 @@
   import SnowBox from '../mountain/SnowBox.svelte'; // Paket J #160: freezing level and fresh snow
   import { isMountain } from '../mountain/snow.js';
   import { Map as MapIcon, Siren } from '@lucide/svelte';
+  import TravelLinks from '../sk/TravelLinks.svelte'; // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»)
 
   let { trip, onchange } = $props();
 
@@ -225,6 +226,11 @@
       </p>
     </div>
   {/if}
+  <div class="part">
+    <span class="lbl">{t('Getting there and staying')}</span>
+    <TravelLinks {trip} {onchange} />
+    {#if !trip.place}<p class="hint">{t('With a start place, links for staying and getting there show here.')}</p>{/if}
+  </div>
 </div>
 
 <style>

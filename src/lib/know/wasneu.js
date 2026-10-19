@@ -90,6 +90,8 @@ export const SINCE = {
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)
   'f.shopping': '0.155.0', 'f.contracts': '0.155.0', 'f.people': '0.155.0', 'f.abroad': '0.155.0',
+  // «Reise-Links» (v0.155.0)
+  'f.travel': '0.155.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

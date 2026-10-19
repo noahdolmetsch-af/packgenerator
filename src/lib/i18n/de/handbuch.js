@@ -1024,4 +1024,9 @@ export default {
   'The evening before a tour open the trip in Pack.': 'Am Vorabend einer Tour die Tour in Packen öffnen.',
   'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.': 'Die Hinweise in «Bereit für morgen?» lesen; ist der KI-Helfer an, ihn auch fragen.',
   'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.': 'Beispiel: 3 °C am Morgen → Handschuhe zuoberst; noch 4 Sachen einpacken; Lichter laden.',
+  // 0.156.0 f.travel «Reise-Links»
+  'Open a trip, «Plan», «Getting there and staying»: the links that fit the trip show, with its place and days filled in.': 'Öffne eine Tour, «Planen», «Anreise und Unterkunft»: die Links, die zur Tour passen, erscheinen mit Ort und Tagen eingefüllt.',
+  'Type your flight number: «Flightradar24» follows the flight live.': 'Tippe deine Flugnummer ein: «Flightradar24» verfolgt den Flug live.',
+  'All links without a trip: Trips › Travel links (search «Reise-Links»).': 'Alle Links ohne Tour: Touren › Reise-Links (Suche «Reise-Links»).',
+  'Example: a weekend in Lisbon with a hotel night → Booking.com for Saturday to Sunday, Google Flights, Rome2rio.': 'Beispiel: ein Wochenende in Lissabon mit Hotel-Nacht → Booking.com für Samstag bis Sonntag, Google Flights, Rome2rio.',
 };
