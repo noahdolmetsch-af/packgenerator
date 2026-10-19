@@ -1,10 +1,13 @@
 // v0.48.0 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: focused checks with the fictional
 // v048 fixture (four bikes, the «Bergziege» without part data, problems, a receipt note, kept notes).
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { v048File, P, SPARK, SCALE, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
 import { openMore } from './bike-more.js';
 
+// the targets of «Ablegen als …», read from the app source («Mail in die App» added six)
+const TARGETS = [...readFileSync(new URL('../../src/lib/inbox.js', import.meta.url), 'utf8').split('export const TARGETS = [')[1].split('];')[0].matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
 const SHOTS = process.env.V048_SHOTS;
 const shot = async (page, info, name) => {
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name}.png`, fullPage: true });
@@ -110,7 +113,7 @@ test('Eingang: day groups, filed today stays faint with its target; a receipt be
   await expect(sheet.locator('.chosen')).toContainText('Rechnungsbeleg');
   await expect(sheet.locator('.targets')).toHaveCount(0);
   await sheet.getByRole('button', { name: 'Anderes Ziel wählen' }).click();
-  await expect(sheet.locator('.targets li')).toHaveCount(7);
+  await expect(sheet.locator('.targets li')).toHaveCount(TARGETS.length);
   await expect(sheet.locator('.targets li').first()).toContainText('Vorschlag');
   await sheet.locator('[data-target=receipt]').click();
   await sheet.getByRole('button', { name: `${P} Bergziege 29` }).click();

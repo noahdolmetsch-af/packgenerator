@@ -752,22 +752,27 @@
   --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* v0.97.0 R1: the text size (Ich › Darstellung): small, normal (the scale above) or large («Gross hilft
-   unterwegs»). Only the reading sizes change; page titles keep their own scale. */
-:root[data-size='small'] {
-  --fs-section: 20px;
-  --fs-sub: 17px;
-  --fs-body: 15px;
-  --fs-label: 13px;
-  --fs-small: 13px;
+/* «Grösse» (Noah 19.10.2026 «1b 2b», Ich › Darstellung): one slider 80–130 % zooms the whole app, text,
+   tiles, buttons and spacing together (theme.svelte.js sets --ui-zoom; it replaces the three text sizes of
+   v0.97.0). vh and vw are divided back at build time (scripts/viewport-zoom.mjs), so sheets still fit.
+   «Kompakt» keeps the text and takes away spacing where the app uses the shared steps. */
+html {
+  zoom: var(--ui-zoom, 1);
 }
-:root[data-size='large'] {
-  --fs-section: 24px;
-  --fs-sub: 20px;
-  --fs-body: 18px;
-  --fs-label: 16px;
-  --fs-small: 16px;
-  --fs-tiny: 14px;
+:root[data-dense] {
+  --sp-2: 6px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 22px;
+  --gut: 12px;
+  --lh: 1.38;
+  --radius-card: 10px;
+}
+@media (min-width: 720px) {
+  :root[data-dense] {
+    --gut: 20px;
+  }
 }
 
 /* ---------- v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026): each place has a light colour ----------

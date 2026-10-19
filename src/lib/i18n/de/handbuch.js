@@ -285,7 +285,6 @@ export default {
   'Type a command; it is entered right away.': 'Tippe einen Befehl; er wird sofort eingetragen.',
   'Example: «kette geölt gravel» → chain oiled on the gravel bike, today.': 'Beispiel: «kette geölt gravel» → Kette am Gravelbike heute geölt.',
   'Open Me › Inbox.': 'Öffne Ich › Eingang.',
-  'Tap «File as …» and choose one of the 7 targets.': 'Tippe «Ablegen als …» und wähle eines der 7 Ziele.',
   'Example: a receipt photo → «File as workshop visit».': 'Beispiel: ein Quittungsfoto → «Ablegen als Werkstattbesuch».',
   'Open Me › Notes.': 'Öffne Ich › Notizen.',
   'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.': 'Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.',
@@ -934,6 +933,11 @@ export default {
   'Choose road bike, gravel or mountain bike and switch parts on or off.': 'Wähle Rennvelo, Gravel oder Mountainbike und schalte Teile ein oder aus.',
   'Own parts: add, rename, move, delete.': 'Eigene Teile: hinzufügen, umbenennen, verschieben, löschen.',
   'Example: gravel gets «Bell»; every new gravel bike starts with it.': 'Beispiel: Gravel bekommt «Klingel»; jedes neue Gravel startet damit.',
+  // «Velo-FAQ» (Paket 6)
+  'Bikes › Care › «Bike FAQ» (also on every bike’s card).': 'Velos › Pflege › «Velo-FAQ» (auch auf der Karte jedes Velos).',
+  'On top the question of the day; «Another question» shows the next one.': 'Oben die Frage des Tages; «Andere Frage» zeigt die nächste.',
+  'Search or open a topic; «Your own questions» keeps what you learned.': 'Such oder öffne ein Thema; «Deine eigenen Fragen» behält, was du gelernt hast.',
+  'Example: search «squeal» → why disc brakes squeal and what helps.': 'Beispiel: Such «quietschen» → warum Scheibenbremsen quietschen und was hilft.',
   'Bikes › Care › a bike › «Workshop cheat sheet».': 'Velos › Pflege › ein Velo › «Werkstatt-Spick».',
   'Torque values: the value on the part always wins.': 'Drehmomente: der Wert auf dem Teil gilt immer.',
   '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.': '«Pannenhilfe»: kurze Schritte für Platten, Kette, Schaltauge, Bremse, Speiche, Knacken.',
@@ -1010,6 +1014,14 @@ export default {
   'Tap «Start a ride» on Active.': 'Tippe «Ausfahrt starten» auf Aktiv.',
   'Allow the location.': 'Erlaube den Standort.',
   'Keep the page open while you ride.': 'Lass die Seite offen, während du fährst.',
+  // «Trainingspläne»: f.trainplans and f.feel
+  'Open Active › Training › Training plans and pick one of the four plans.': 'Öffne Aktiv › Training › Trainingspläne und wähl einen der vier Pläne.',
+  'Set the start (back from the race day or from a day) and the hours per week, then «Try it».': 'Stell den Beginn (rückwärts ab Renntag oder ab einem Tag) und die Stunden pro Woche ein, dann «Ausprobieren».',
+  'Missed a session? The plan in use suggests a free day of this week.': 'Eine Einheit verpasst? Der laufende Plan schlägt einen freien Tag dieser Woche vor.',
+  'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.': 'Beispiel: «Mehrtagesrennen», Renntag 12. Juni, 8 Std. → 12 Wochen ab 22. März, lange Wochenenden ab Mai.',
+  'After each ride Active › Training asks «How hard was your ride?» (1 to 10).': 'Nach jeder Fahrt fragt Aktiv › Training «Wie anstrengend war deine Fahrt?» (1 bis 10).',
+  'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
+  'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.': 'Beispiel: Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.',
   // Paket T «Freie Zeit»: f.frei and f.impulse
   'Open Me › Free time and choose one of the eight pages.': 'Öffne Ich › Freie Zeit und wähl eine der acht Seiten.',
   'Everything is a suggestion: change, sort, hide or delete it, and add your own.': 'Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.',
@@ -1075,4 +1087,16 @@ export default {
   'Paste the address of a project or chat and give it a name.': 'Füge die Adresse eines Projekts oder Chats ein und gib ihr einen Namen.',
   'Rename, delete or reorder it with the arrows or by dragging.': 'Umbenennen, löschen oder mit den Pfeilen oder durch Ziehen umsortieren.',
   'Example: «Pack Generator» → your project on claude.ai.': 'Beispiel: «Pack Generator» → dein Projekt auf claude.ai.',
+  // «Mail in die App» (19.10.2026)
+  'Tap «File as …» and choose a target, or make a new place.': 'Tippe «Ablegen als …» und wähle ein Ziel oder mach eine neue Ablage.',
+  'Gmail connected under Me › Mail. For the label: one Gmail filter, set up once (the clicks are on Me › Mail).': 'Gmail unter Ich › Mail verbunden. Fürs Label: ein Gmail-Filter, einmal eingerichtet (die Klicks stehen unter Ich › Mail).',
+  'Open a mail under Me › Mail and tap «Into the app»; or give it the Gmail label «Packgenerator».': 'Öffne eine Mail unter Ich › Mail und tippe «In die App übernehmen»; oder gib ihr das Gmail-Label «Packgenerator».',
+  'Open the Inbox: the mail stands there with its attachments and a tip.': 'Öffne den Eingang: Die Mail steht dort mit Anhängen und einem Tipp.',
+  'Tap the button of an attachment (Documents, appointment, trip, bill) or «File as …».': 'Tippe den Knopf eines Anhangs (Dokumente, Termin, Tour, Rechnung) oder «Ablegen als …».',
+  'Example: a hotel confirmation with a PDF → «Looks like a booking · for the trip «Jura»» → the PDF into Documents, the mail onto the trip.': 'Beispiel: eine Hotelbestätigung mit PDF → «Sieht aus wie eine Buchung · für die Tour «Jura»» → das PDF in Dokumente, die Mail an die Tour.',
+  // «Grösse» (19.10.2026)
+  'Open Me › Appearance › Size and light.': 'Öffne Ich › Darstellung › Grösse und Licht.',
+  'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
+  'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
+  'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
 };

@@ -43,7 +43,7 @@ describe('start a ride', () => {
     expect(todayTrip([{ ...trips[0], finished: '2027-07-10' }], '2027-07-10')).toBeNull();
   });
   it('the tile is in the catalog, small or wide, but not on the ready wall (HN4 stays)', () => {
-    expect(TILE.liveride).toMatchObject({ area: 'trips', sizes: ['s', 'w'], since: '0.158.0', label: 'Start a ride' });
+    expect(TILE.liveride).toMatchObject({ area: 'trips', sizes: ['s', 'w'], since: '0.159.0', label: 'Start a ride' });
     expect(READY.some((x) => x.id === 'liveride')).toBe(false);
   });
 });

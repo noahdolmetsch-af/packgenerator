@@ -84,4 +84,5 @@
     <p class="rc-empty">{t('The race is this week or over: no build-up left.')}</p>
   {/if}
   {#if weeks.length && !Object.keys(longest).length}<p class="rc-note">{t('No rides from Strava yet: connect Strava under Training to compare.')}</p>{/if}
+  {#if start && cd && cd.days > 0}<p class="rc-note"><a href={`#/flow/plans?race=${start}`} data-race-trainplan>{t('Make a training plan counted back from the race day')}</a></p>{/if}
 </RaceBox>

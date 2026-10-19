@@ -18,6 +18,8 @@
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
   import StartFresh from './maintenance/StartFresh.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
+  import { SYNC_WISH } from './sync/nudge.js';
+  import { take } from './nav.js';
   import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
@@ -49,6 +51,12 @@
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
     visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days', sportItems: 'Sports entries', inspections: 'Bike inspections',
   };
+
+  // Noah 19.10.2026 «1a»: Ich › «Switch on» opens this page at «Phone and computer»
+  $effect(() => {
+    if (take(SYNC_WISH) !== '1') return;
+    requestAnimationFrame(() => document.querySelector('[data-section="sync"]')?.scrollIntoView({ block: 'start' }));
+  });
 
   async function refreshFolder() {
     if (folderBackupSupported) folder = await folderStatus(db);

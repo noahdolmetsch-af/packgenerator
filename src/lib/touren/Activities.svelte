@@ -326,6 +326,7 @@
     list-style: none;
   }
   .ar {
+    position: relative;
     display: grid;
     grid-template-columns: 40px minmax(0, 1fr) auto 20px;
     align-items: center;
@@ -362,6 +363,30 @@
   }
   .an:hover {
     text-decoration: underline;
+  }
+  /* bug fix (Noah 19.10.2026 «kann ich nicht anklicken»): the whole row opens the activity, not only its name */
+  .an::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .an:focus-visible {
+    outline: none;
+  }
+  .an:focus-visible::after {
+    outline: var(--focus-ring);
+    outline-offset: -3px;
+  }
+  .ar:hover {
+    background: var(--paper-2);
+  }
+  /* the values sit above the row's link to place their «?»; a tap on them still opens the row, the «?» keeps its own tap */
+  .av {
+    pointer-events: none;
+  }
+  .av :global(button),
+  .av :global(.help) {
+    pointer-events: auto;
   }
   .pm {
     display: inline-flex;

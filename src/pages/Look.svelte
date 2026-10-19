@@ -11,11 +11,11 @@
    * shows only while a link is switched off (LinksOff).
    */
   import { t } from '../lib/i18n.svelte.js';
-  import { theme, FONTS, PALETTES, SIZES, MODES, setFont, setPalette, setSize, setMode } from '../lib/theme.svelte.js';
+  import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
-  import { ChevronRight, Check } from '@lucide/svelte';
+  import { ChevronRight, Check, Minus, Plus } from '@lucide/svelte';
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
@@ -31,6 +31,14 @@
   // the chosen font is always in sight, also when it is one of the last four
   const fonts = $derived(allFonts || FONTS.findIndex((f) => f.key === theme.font) >= FIRST ? FONTS : FONTS.slice(0, FIRST));
   const sample = $derived(t('Down sleeping bag 700') + ' · 820 g');
+  // «Grösse» (Noah 19.10.2026 «1b»): the slider shows the number while it moves and zooms the app when let go,
+  // so the slider does not jump away under the finger
+  let draft = $state(null);
+  const shown = $derived(draft ?? theme.scale);
+  const commit = (v) => {
+    draft = null;
+    setScale(v);
+  };
 </script>
 
 <div class="look">
@@ -71,11 +79,27 @@
         </div>
       </section>
 
-      <section aria-labelledby="look-size">
-        <h2 id="look-size">{t('Text size and light')}</h2>
-        <p class="note">{t('Large helps on the way')}</p>
-        <div class="segs">
-          <Seg label={t('Text size')} value={theme.size} options={SIZES.map((z) => ({ key: z.key, name: t(z.name) }))} onchange={setSize} />
+      <section aria-labelledby="look-size" data-size-set>
+        <h2 id="look-size">{t('Size and light')}</h2>
+        <p class="note">{t('Text, tiles and buttons together, everywhere in the app. Each device keeps its own size.')}</p>
+        <div class="scale">
+          <p class="oplbl"><b id="look-scale">{t('Size|scale')}</b><output for="look-scale-in" data-scale-shown>{shown} %</output></p>
+          <div class="scrow">
+            <button type="button" class="scb" aria-label={t('Smaller')} disabled={theme.scale <= SCALE_MIN} onclick={() => commit(theme.scale - SCALE_STEP)}><Minus size={18} aria-hidden="true" /></button>
+            <input id="look-scale-in" type="range" aria-labelledby="look-scale" aria-valuetext="{shown} %" min={SCALE_MIN} max={SCALE_MAX} step={SCALE_STEP} value={shown} oninput={(e) => (draft = +e.currentTarget.value)} onchange={(e) => commit(+e.currentTarget.value)} />
+            <button type="button" class="scb" aria-label={t('Larger')} disabled={theme.scale >= SCALE_MAX} onclick={() => commit(theme.scale + SCALE_STEP)}><Plus size={18} aria-hidden="true" /></button>
+          </div>
+          <p class="scends"><span>{SCALE_MIN} %</span>{#if theme.scale !== DEFAULT_SCALE}<button type="button" class="back100" onclick={() => commit(DEFAULT_SCALE)}>{t('Back to {n} %', { n: DEFAULT_SCALE })}</button>{/if}<span>{SCALE_MAX} %</span></p>
+        </div>
+        <ul class="ops">
+          <li>
+            <label class="op">
+              <span class="nm"><span>{t('Compact|size')}</span><small>{t('Same text, less space between, so more fits on the screen')}</small></span>
+              <input type="checkbox" role="switch" class="opsw" data-dense-switch checked={theme.dense} onchange={(e) => setDense(e.currentTarget.checked)} />
+            </label>
+          </li>
+        </ul>
+        <div class="segs light">
           <Seg label={t('Light or dark')} value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
         </div>
       </section>
@@ -254,6 +278,69 @@
   .segs {
     display: grid;
     gap: var(--sp-3);
+  }
+  .scale {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .scale .oplbl {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .scale output {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .scrow {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .scrow input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    accent-color: var(--brand);
+  }
+  .scb {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--card-line);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .scb:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .back100 {
+    min-height: 44px;
+    padding: 0 var(--sp-2);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 400 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .segs.light {
+    margin-top: var(--sp-4);
+  }
+  .scends {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
   }
   .startrow {
     display: grid;

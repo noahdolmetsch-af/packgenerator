@@ -38,8 +38,12 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
+  // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
+  'f.velofaq': '0.157.0', // bundler: 0.157.0 with Paket 6
   // Paket 4 zu K: Haus-Check, Wohnungs-Hüter, «Bereit für morgen?» (v0.155.0)
   'f.housecheck': '0.155.0', 'f.flatsitter': '0.155.0', 'f.readytomorrow': '0.155.0',
+  // «Grösse» (Noah 19.10.2026 «1b 2b»): the whole app smaller or larger, plus «Kompakt»
+  'f.uisize': '0.156.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
   'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.gearimport': '0.36.0',
@@ -77,6 +81,8 @@ export const SINCE = {
   'f.snow': '0.153.0', 'f.swissmap': '0.153.0', 'f.sos': '0.153.0', 'f.sosqr': '0.153.0', 'f.scales': '0.153.0',
   // Paket L «Werkzeugkasten» (v0.153.0)
   'f.tools': '0.153.0', 'f.pdftools': '0.153.0', 'f.phototools': '0.153.0', 'f.money': '0.153.0', 'f.tripcosts': '0.153.0', 'f.ablage': '0.153.0',
+  // «Mail in die App» (Paket 4+U)
+  'f.mailin': '0.156.0',
   'f.weblinks': '0.153.0', 'f.chains': '0.153.0', 'f.convert': '0.153.0', 'f.video': '0.153.0', 'f.qr': '0.153.0', 'f.mapmeasure': '0.153.0', 'f.gears': '0.153.0', 'f.level': '0.153.0', 'f.barcode': '0.153.0', 'f.light': '0.153.0',
   // Paket M «Aus Touren lernen» (v0.154.0)
   'f.diary': '0.154.0', 'f.extraq': '0.154.0', 'f.notetodo': '0.154.0', 'f.future': '0.154.0', 'f.quiz': '0.154.0', 'f.observations': '0.154.0', 'f.chronik': '0.154.0', 'f.gelernt': '0.154.0', 'f.jahr': '0.154.0', 'f.neuland': '0.154.0', 'f.eveningtour': '0.154.0', 'f.ridepage': '0.154.0',
@@ -87,7 +93,7 @@ export const SINCE = {
   // Paket L2 «Bilderkennung» (v0.154.0)
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
   // Paket U «Rennen» (provisional version, the bundler renumbers)
-  'f.race': '0.158.0', 'f.racesample': '0.158.0', 'f.racemap': '0.158.0', 'f.climbs': '0.158.0', 'f.mapoffline': '0.158.0', 'f.live': '0.158.0',
+  'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)
@@ -96,6 +102,8 @@ export const SINCE = {
   'f.travel': '0.155.0',
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
+  // «Trainingspläne» (v0.157.0, provisional)
+  'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

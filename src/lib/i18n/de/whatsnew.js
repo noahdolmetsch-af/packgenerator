@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.158.0 Paket U «Rennen» (provisional version)
+  // 0.159.0 Paket 7 U «Rennen»
   'Races and the live map': 'Rennen und Live-Karte',
   'Plan a long race and ride with the live map.': 'Plane ein langes Rennen und fahr mit der Live-Karte.',
   'Trips › Races: plan, map, climbs and a sample race': 'Touren › Rennen: Plan, Karte, Anstiege und ein Muster-Rennen',
@@ -13,6 +13,29 @@ export default {
   'Today: «Race in X days» and the tile «Start a ride»': 'Heute: «Rennen in X Tagen» und die Kachel «Ausfahrt starten»',
   'Open Trips › Races › «See the sample race» and tap «Map».': 'Öffne Touren › Rennen › «Muster-Rennen ansehen» und tippe «Karte».',
   'Tap «Start a ride» on Active: the live map shows your km.': 'Tippe «Ausfahrt starten» auf Aktiv: die Live-Karte zeigt deine km.',
+  // 0.157.0 Paket 6: Velo-FAQ
+  'Bike FAQ and training plans': 'Velo-FAQ und Trainingspläne',
+  'Questions about your bike, answered with a wink, and plans to try.': 'Fragen rund ums Velo, mit Augenzwinkern beantwortet, und Pläne zum Ausprobieren.',
+  'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink': 'Velo-FAQ: 48 Fragen zu Pflege, Pannen und Mythen, mit Augenzwinkern',
+  'Finished trips: the whole row can be tapped': 'Abgeschlossene Touren: die ganze Zeile lässt sich antippen',
+  'Open Bikes › Care and tap «Bike FAQ».': 'Öffne Velos › Pflege und tippe auf «Velo-FAQ».',
+  // 0.156.0 Paket 5: Mail in die App
+  'Mails into the app and the size': 'Mails in die App und die Grösse',
+  'From Gmail into the Inbox, and the whole app smaller or larger.': 'Von Gmail in den Eingang, und die ganze App kleiner oder grösser.',
+  'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)': 'Grösse: ein Schieber unter Ich › Darstellung macht die ganze App kleiner oder grösser (80–130 %)',
+  'Compact: the same text with less space between': 'Kompakt: gleiche Schrift, weniger Abstand',
+  'Me shows a hint while phone and computer do not sync': 'Unter Ich ein Hinweis, solange Handy und Computer nicht abgleichen',
+  'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»': 'Mails in die App: «In die App übernehmen» unter Ich › Mail oder das Gmail-Label «Packgenerator»',
+  'The Inbox shows tips (bill, booking, deadline) and a button per attachment': 'Der Eingang zeigt Tipps (Rechnung, Buchung, Frist) und einen Knopf pro Anhang',
+  '«File as …» with 13 targets and your own new places': '«Ablegen als …» mit 13 Zielen und eigenen neuen Ablagen',
+  'Mail a packing list or a document from the app': 'Packliste oder Dokument aus der App mailen',
+  'Open the Inbox and tap the button of an attachment.': 'Öffne den Eingang und tippe den Knopf eines Anhangs.',
+  'Open Me › Mail, open a mail and tap «Into the app».': 'Öffne Ich › Mail, öffne eine Mail und tippe auf «In die App übernehmen».',
+  // 0.157.0 «Trainingspläne»
+  'Active › Training › Training plans: four plans, back from your race day': 'Aktiv › Training › Trainingspläne: vier Pläne, rückwärts ab deinem Renntag',
+  'After each ride: how hard was it, 1 to 10': 'Nach jeder Fahrt: Wie anstrengend war es, 1 bis 10',
+  'Each zone in heart rate, watts and how it feels': 'Jede Zone in Puls, Watt und wie es sich anfühlt',
+  'Open Active › Training › Training plans and pick «Multi-day race».': 'Öffne Aktiv › Training › Trainingspläne und wähl «Mehrtagesrennen».',
   // 0.155.0 Paket 3+4
   'Free time and everyday life': 'Freie Zeit und Alltag',
   'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',

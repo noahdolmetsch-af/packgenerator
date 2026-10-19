@@ -242,4 +242,5 @@ export default {
   'On paper it works without battery and signal, and your family knows your plan.': 'Auf Papier geht es ohne Akku und Empfang, und deine Familie kennt deinen Plan.',
   'Everything you set for this race.': 'Alles, was du für dieses Rennen eingestellt hast.',
   'Open the briefing sheet': 'Briefing-Blatt öffnen',
+  'Make a training plan counted back from the race day': 'Trainingsplan rückwärts vom Renntag erstellen',
 };
