@@ -12,7 +12,8 @@
   import { touched } from '../trips.js';
   import { t, tn } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
-  import { shopList, shopCount, toggleShop, shopText, shopLine } from '../shop.js';
+  import { shopList, shopCount, toggleShop, shopText, shopLine, peopleOf } from '../shop.js';
+  import { Minus, Plus } from '@lucide/svelte';
 
   let { trip, itemsById } = $props();
 
@@ -40,6 +41,14 @@
       const cur = await db.trips.get(id);
       if (cur) await db.trips.update(id, touched({ shop: toggleShop(cur.shop, itemId) }));
     });
+  }
+
+  // Paket H (#365): food for several people: the amounts count for everyone who eats from it
+  const people = $derived(peopleOf(trip));
+  async function setPeople(n) {
+    const id = trip.id;
+    const v = Math.min(20, Math.max(1, n));
+    await db.trips.update(id, touched({ people: v === 1 ? null : v }));
   }
 
   async function share() {
@@ -73,6 +82,13 @@
     <header><h2 id="shop-h">{t('Shopping list')}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('Close')}</button></header>
     {#if rows.length}
       <p class="sub">{t('{open} of {total} still to buy.', { open: count.open, total: count.total })}</p>
+      <div class="ppl">
+        <span>{t('For how many people')}</span>
+        <button type="button" class="btn sm" aria-label={t('One person less')} disabled={people <= 1} onclick={() => setPeople(people - 1)}><Minus size={16} aria-hidden="true" /></button>
+        <b class="num" aria-live="polite">{people}</b>
+        <button type="button" class="btn sm" aria-label={t('One person more')} disabled={people >= 20} onclick={() => setPeople(people + 1)}><Plus size={16} aria-hidden="true" /></button>
+      </div>
+      {#if people > 1}<p class="sub ppl-n">{t('The amounts are for {n} people. Your packing list stays as it is.', { n: people })}</p>{/if}
       <ul class="shop" aria-label={t('Shopping list')}>
         {#each rows as r (r.itemId)}
           <li class:done={r.done}>
@@ -104,6 +120,9 @@
   .shop-sheet { max-width: 520px; }
   .shop-sheet > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
   .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: 14px; }
+  .ppl { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+  .ppl b { min-width: 2ch; text-align: center; }
+  .ppl-n { margin: 0 0 8px; }
   .shop { list-style: none; margin: 0; padding: 0; }
   .shop li { border-bottom: 1px solid var(--line); }
   .shop li:last-child { border-bottom: 0; }

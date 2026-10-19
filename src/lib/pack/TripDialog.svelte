@@ -8,6 +8,7 @@
   import { db } from '../db.js';
   import { isOnMe } from '../swap.js';
   import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
+  import { historyTrip } from '../startlists.js'; // Paket H «1b»: the start list from earlier trips of the sport
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
   import { ridesIntoDark } from '../blockplan.js';
@@ -213,6 +214,14 @@
   // (the bike chips decide the bike; «Like the last trip» follows them).
   const ridden = $derived(riddenTrips(trips));
   const lastRidden = $derived(isNew && byBike && draft.bikeId ? lastTripOn(draft.bikeId, ridden) : null);
+  // Paket H (Noah 19.10.2026 «1b»): «From your trips»: what was along on at least half of your earlier
+  // trips of this sport (startlists.js). newTrip / newPackTrip copy it like «the last trip».
+  const hist = $derived(isNew ? historyTrip({ domain: area, bikeId: byBike ? draft.bikeId : null, trips, items }) : null);
+  const source = $derived(start === 'history' && hist ? [hist] : ridden);
+  function pickHistory() {
+    start = 'history';
+    example = null;
+  }
   const lastWhen = $derived(lastRidden?.startDate ? new Date(`${lastRidden.startDate}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const lastLine = $derived(lastRidden ? [lastWhen, lastRidden.bike ?? bikes.find((b) => b.id === lastRidden.bikeId)?.name ?? ''].filter(Boolean).join(' · ') : '');
   function pickLast() {
@@ -227,6 +236,7 @@
     if (tp && tplDomain(tp) !== area) start = 'standard';
     // v0.143.0 WS3: no ridden trip with this bike (or not a bike trip): back to the standard
     if (start === 'last' && !lastRidden) start = 'standard';
+    if (start === 'history' && !hist) start = 'standard';
     if (example && !examplesFor(area).some((x) => x.id === example)) example = null;
   });
   let error = $state('');
@@ -353,7 +363,7 @@
   /** The start of a new bike trip (template, last trip or standard set), before its context. */
   function startTrip() {
     const tpl = templates.find((x) => x.id === start);
-    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : ridden, items);
+    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : source, items);
     return { base, tpl, fromCopy: !tpl && !!base.copiedFrom };
   }
   // v0.25.0 (M3): "Your packing list", live from the same pure functions as "Create trip".
@@ -371,7 +381,7 @@
   const byId = $derived(new Map(items.map((i) => [i.id, i])));
 
   // v0.30.0 (Noah, finding 2): the new trip as "Create trip" will make it, live (count on the button).
-  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips: ridden, items, fields: ctxFields(), sets: setsValue }, 0) : null);
+  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips: source, items, fields: ctxFields(), sets: setsValue }, 0) : null);
   // Building blocks that do not come by themselves (contextSets), with what each would add. The
   // same function as Pack's "Add material → Building blocks" (addSetEntries), same bags skipped.
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -521,7 +531,7 @@
   function packTrip(readyStandard, now) {
     const snap = $state.snapshot(draft);
     if (chosenTpl) return withExtras(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue)));
-    return withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now()));
+    return withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : start === 'history' && hist ? [hist] : trips, items, now ?? Date.now()));
   }
 
   // «Rückmeldungen» (Noah 19.10.2026 «2a»): «Save», ✕, back and Escape say what was saved; a second tap
@@ -581,7 +591,7 @@
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
       const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: source, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
       ended = true;
       clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
@@ -621,7 +631,7 @@
     if (!bike || !hoursOk) return null;
     const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
     const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
+    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: source, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
   }
   let autoTimer;
   let autoBusy = Promise.resolve();
@@ -774,7 +784,7 @@
   <section class="tplbox" class:open={tplOpen}>
     <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
       <span class="tplic" aria-hidden="true"><Star size={18} /></span>
-      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it: the last trip ridden with this bike or a template.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : start === 'last' && lastRidden ? t('Like the last trip') : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
+      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it: the last trip ridden with this bike or a template.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : start === 'last' && lastRidden ? t('Like the last trip') : start === 'history' && hist ? t('From your trips') : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
       {#if tplOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
     </button>
     {#if tplOpen}
@@ -784,6 +794,13 @@
           <p class="grp-l">{t('Like the last trip')}</p>
           <div class="obtns" role="group" aria-label={t('Like the last trip')}>
             <OptionButton pressed={start === 'last'} icon={History} label={lastRidden.title || t('Last trip')} title={lastLine} data-start="last" onclick={pickLast} />
+          </div>
+        {/if}
+        <!-- Paket H «1b»: the list the app builds from your earlier trips of this sport -->
+        {#if hist}
+          <p class="grp-l">{t('From your trips')}</p>
+          <div class="obtns" role="group" aria-label={t('From your trips')}>
+            <OptionButton pressed={start === 'history'} icon={History} label={tn(hist.from, 'From your {n} trip', 'From your {n} trips')} title={tn(hist.entries.length, '{n} item that was along at least every second time', '{n} items that were along at least every second time')} data-start="history" onclick={pickHistory} />
           </div>
         {/if}
         <p class="grp-l">{t('Your templates')}</p>
@@ -799,6 +816,7 @@
         {/if}
         <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
           {#if chosenTpl}<b>{chosenTpl.name}</b> · {tplLine(chosenTpl)}
+          {:else if start === 'history' && hist}<b>{t('From your trips')}</b> · {tn(hist.entries.length, '{n} item that was along at least every second time', '{n} items that were along at least every second time')} · {t('nothing ticked off')}
           {:else if start === 'last' && lastRidden}<b>{lastRidden.title || t('Last trip')}</b> · {lastLine}{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')}{/if}{' · '}{t('copied, nothing ticked off')}
           {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null}{' · '}{t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
           {:else}<b>{t('Standard')}</b>{#if preview}{' · '}{tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
