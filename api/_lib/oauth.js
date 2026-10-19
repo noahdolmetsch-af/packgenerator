@@ -52,7 +52,7 @@ export function safeReturn(url) {
     const u = new URL(String(url ?? ''));
     const ok = u.href.startsWith(APP_URL) || /^https:\/\/packgen(?:-[a-z0-9-]+)?\.vercel\.app$/.test(u.origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(u.origin);
     if (!ok) return APP_RETURN;
-    const frag = u.hash.replace(/[?&](strava|google|key|error)=.*$/, '');
+    const frag = u.hash.replace(/[?&](strava|google|konto|trello|key|error)=.*$/, '');
     return `${u.origin}${u.pathname}${u.search}${frag || '#/bikes?tab=care&view=strava'}`;
   } catch {
     return APP_RETURN;
@@ -66,7 +66,7 @@ export async function saveState(store, kind, data) {
   return state;
 }
 
-/** Read and delete a login state; null when unknown, used or of another kind. */
+/** Read and delete a login state; null when unknown, used or of another kind (kind null: any kind). */
 export async function takeState(store, kind, state) {
   if (!state || String(state).length > 100) return null;
   const k = `oauth:state:${hash(state)}`;
@@ -74,7 +74,7 @@ export async function takeState(store, kind, state) {
   if (!raw) return null;
   try {
     const data = JSON.parse(raw);
-    return data.kind === kind ? data : null;
+    return kind == null || data.kind === kind ? data : null;
   } catch {
     return null;
   }

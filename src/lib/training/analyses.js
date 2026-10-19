@@ -25,6 +25,10 @@ export const ANALYSES = {
     // «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T2 hard pieces, T5 the same route over time
     { key: 'intervals', head: 'Hard pieces of this ride', title: 'Intervals', sub: 'Found from the power' },
     { key: 'homeloop', head: 'Your home loop over time', title: 'Home loop', sub: 'Same route, time, power and heart rate' },
+    // «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): laps, splits per km, own segment times
+    { key: 'laps', head: 'Laps of this ride', title: 'Laps', sub: 'From your bike computer' },
+    { key: 'splits', head: 'Per kilometre', title: 'Per kilometre', sub: 'Time, metres, speed, heart rate' },
+    { key: 'segs', head: 'Segment times', title: 'Segment times', sub: 'Your own times and best times' },
   ],
   week: [
     { key: 'form', head: 'Fitness, fatigue and form', title: 'Fitness, fatigue, form', sub: 'Lines' },

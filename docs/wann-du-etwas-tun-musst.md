@@ -53,6 +53,13 @@ Dann:
 Dann prüft und repariert niemand mehr. Die App läuft weiter, aber neue Fehler bleiben liegen.
 - Vorher: **Ich** › **Daten und Backup** › **Backup exportieren** auf beiden Geräten.
 
+## 7. Viele andere Menschen nutzen die App (Paket R)
+**Woran du es merkst:** Ich sage es dir hier, oder der Wächter meldet «Tagesgrenze erreicht».
+
+- **Google-Anmeldung:** Solange dein Google-Projekt im Modus «Testing» ist, können sich nur eingetragene Test-Nutzer anmelden, höchstens 100. Für alle: ein zweites, gratis Google-Projekt nur für «Mit Google anmelden» (es fragt nur nach der Mail-Adresse und braucht darum keine Prüfung durch Google). Ich gebe dir dann die Klicks. Kalender, Mail und Fitbit für alle bräuchten eine Prüfung durch Google (bei Mail kostet sie Geld): das machen wir nicht.
+- **Strava:** Eine neue Strava-App erlaubt am Anfang nur wenige Personen. Für mehr: Antrag bei Strava (gratis). Heute ist Strava nur für dich.
+- **Tagesgrenze:** Der Server macht höchstens 4000 Aufgaben pro Tag, damit nie eine Rechnung kommt. Wird sie erreicht, sagt die App «morgen wieder». Du musst nichts tun; meldet der Wächter es oft, schlage ich dir etwas vor.
+
 ---
 
 ## Einmal im Monat (freiwillig, 1 Minute)

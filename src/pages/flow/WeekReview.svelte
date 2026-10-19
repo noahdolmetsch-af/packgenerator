@@ -129,6 +129,9 @@
       <p class="card quiet" data-wr-empty>{t('Nothing recorded in this week yet. Activities from Strava, ticks in Aktiv and answers to «How are you?» show here.')}</p>
     {/if}
 
+    <!-- Paket M «3 Beobachtungen pro Woche» (#294, #14, #247): from Sunday on, then frozen (lernen/beobachtungen.js) -->
+    {#await import('../../lib/lernen/Beobachtungen.svelte') then m}<m.default {monday} {today} />{/await}
+
     <section class="card wcard" data-wr="five" aria-labelledby="wr-five">
       <h2 id="wr-five">{t('Your week in 5 numbers')}</h2>
       <ul class="five">

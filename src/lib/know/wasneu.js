@@ -36,6 +36,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Paket K «Unterwegs»: v0.154.0
+  'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
   'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.gearimport': '0.36.0',
@@ -46,6 +48,10 @@ export const SINCE = {
   'f.tick': '0.51.0', 'f.check': '0.51.0', 'f.stopwatch': '0.51.0', 'f.goals': '0.51.0', 'f.milestones': '0.79.0', 'f.meditation': '0.81.0', 'f.medlog': '0.84.0', 'f.medmore': '0.86.0',
   backup: '0.2.0', install: '0.1.0', lang: '0.20.0', demo: '0.18.0', 'f.search': '0.46.0', 'f.inbox': '0.19.3', 'f.notes': '0.57.0', 'f.autobackup': '0.2.0', 'f.tidy': '0.88.0', 'f.playground': '0.88.0', 'f.tour': '0.151.0',
   'f.weekplan': '0.151.0', 'f.standardbike': '0.145.0', 'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0', 'f.tripstate': '0.132.0', 'f.yeargoals': '0.132.0', 'f.velosetup': '0.132.0', 'f.bagplan': '0.132.0', 'f.setuplog': '0.132.0', 'f.abfragen': '0.133.0', 'f.komoot': '0.133.0', 'f.inspiration': '0.134.0', 'f.lists': '0.134.0', 'f.medreview': '0.135.0', 'f.timer': '0.135.0', 'f.pagetips': '0.135.0', 'f.training': '0.135.0', 'f.invoices': '0.135.0', 'f.bills': '0.135.0', 'f.garmin': '0.149.0', 'f.bagsetups': '0.149.0', 'f.ownvalues': '0.149.0', 'f.gipfelbuch': '0.149.0', 'f.skiequipment': '0.149.0', 'f.remember': '0.149.0', 'f.reminders': '0.149.0', 'f.birthdays': '0.149.0', 'f.measure': '0.149.0', 'f.editall': '0.149.0', 'f.sports': '0.149.0',
+  // Paket O «Sportarten» (v0.154.0)
+  'f.sportpage': '0.154.0', 'f.progress': '0.154.0', 'f.mosaic': '0.154.0', 'f.sportextras': '0.154.0',
+  // Paket I «Velo im Griff»
+  'f.bikeservice': '0.154.0', 'f.parttemplate': '0.154.0', 'f.spick': '0.154.0', 'f.inspect': '0.154.0',
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
@@ -55,6 +61,8 @@ export const SINCE = {
   'f.wohl': '0.153.0',
   // Paket Q «App klarer» (v0.153.0)
   'f.alerts': '0.153.0', 'f.backuplock': '0.153.0', 'f.yearcheck': '0.153.0', 'f.suggestoff': '0.153.0', 'f.tipweek': '0.153.0', 'f.comeback': '0.153.0', 'f.tripalert': '0.153.0', 'f.helpsearch': '0.153.0', 'f.offlinesave': '0.153.0',
+  // Paket R «Andere Menschen und Geld» (v0.154.0)
+  'f.account': '0.154.0', 'f.privacy': '0.154.0', 'f.pros': '0.154.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
   'f.routine': '0.150.0', 'f.insights': '0.150.0',
@@ -67,8 +75,16 @@ export const SINCE = {
   // Paket L «Werkzeugkasten» (v0.153.0)
   'f.tools': '0.153.0', 'f.pdftools': '0.153.0', 'f.phototools': '0.153.0', 'f.money': '0.153.0', 'f.tripcosts': '0.153.0', 'f.ablage': '0.153.0',
   // «Mail in die App» (Paket 4+U)
-  'f.mailin': '0.157.0',
+  'f.mailin': '0.156.0',
   'f.weblinks': '0.153.0', 'f.chains': '0.153.0', 'f.convert': '0.153.0', 'f.video': '0.153.0', 'f.qr': '0.153.0', 'f.mapmeasure': '0.153.0', 'f.gears': '0.153.0', 'f.level': '0.153.0', 'f.barcode': '0.153.0', 'f.light': '0.153.0',
+  // Paket M «Aus Touren lernen» (v0.154.0)
+  'f.diary': '0.154.0', 'f.extraq': '0.154.0', 'f.notetodo': '0.154.0', 'f.future': '0.154.0', 'f.quiz': '0.154.0', 'f.observations': '0.154.0', 'f.chronik': '0.154.0', 'f.gelernt': '0.154.0', 'f.jahr': '0.154.0', 'f.neuland': '0.154.0', 'f.eveningtour': '0.154.0', 'f.ridepage': '0.154.0',
+  // Trello (Paket 2, v0.154.0)
+  'f.trello': '0.154.0',
+  // Paket S «Reise-Spur» (v0.154.0)
+  'f.here': '0.154.0', 'f.record': '0.154.0', 'f.spurmap': '0.154.0', 'f.spurlink': '0.154.0', 'f.travelbook': '0.154.0',
+  // Paket L2 «Bilderkennung» (v0.154.0)
+  'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

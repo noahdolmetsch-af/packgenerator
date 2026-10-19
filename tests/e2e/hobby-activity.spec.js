@@ -161,8 +161,8 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
   await expect(main.getByRole('heading', { level: 2, name: T('Trophy shelf') })).toBeVisible();
   // the shelf shows the three newest stars, newest first: «Hingebungsvoll» star 1 (7 Oct.). Only meditation is
-  // logged, so no three-ring day: Paket G loads the activities with the history, the empty first read that once
-  // gave a «Drei-Ringe-Tag» star today is gone. «Neues ausprobiert» star 1 is among all milestones
+  // logged, so no three-ring day (a read before the activities are there no longer counts as one: no rings,
+  // no three-ring day). «Neues ausprobiert» star 1 is among all milestones
   await expect(main.locator('.ts li:not(.open)').first()).toContainText(T('Devoted'));
   await expect(main.locator('.grid').getByText(T('Tried something new'))).toBeVisible();
   await expect.poll(() => count(page, 'flowStars')).toBeGreaterThan(2);

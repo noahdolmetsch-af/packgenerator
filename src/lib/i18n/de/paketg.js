@@ -1,7 +1,7 @@
 /** Paket G «Daten kommen von selbst»: Verbindungen, Strava hakt ab, Kalender «Packgenerator», Notizen in Google Aufgaben, .ics. */
 export default {
   'Ice skating': 'Eislaufen',
-  Count: 'Zählen',
+  'Count|tick': 'Zählen',
   'Do not count': 'Nicht zählen',
   'Tick by itself instead: Me › Connections': 'Lieber selbst abhaken: Ich › Verbindungen',
   'From Strava: {n} activity to count?': 'Von Strava: {n} Aktivität zählen?',

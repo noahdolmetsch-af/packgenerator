@@ -36,6 +36,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import MainBar from '../lib/ui/MainBar.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
+  import QuizEveRow from '../lib/lernen/QuizEveRow.svelte';
   import '../lib/review/review.css';
 
   let { id, kind } = $props();
@@ -192,6 +193,8 @@
           <!-- v0.111.0 mockup V1 (Noah «v1-v4 ok»): the evening-before check, its sheet on a tap -->
           <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('Evening-before check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
         {/if}
+        <!-- Paket M «Quiz am Vorabend»: only the evening before, when the quiz is on (lernen/QuizEveRow.svelte) -->
+        <QuizEveRow {trip} {today} />
         {#if charge.length}
           <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={18} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
         {/if}

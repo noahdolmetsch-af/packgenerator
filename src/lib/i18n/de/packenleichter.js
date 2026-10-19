@@ -162,7 +162,7 @@ export default {
   Probe: 'Sonde',
   Skins: 'Felle',
   'Ski crampons': 'Harscheisen',
-  Goggles: 'Skibrille',
+  Goggles: 'Brille',
   'Warm gloves': 'Warme Handschuhe',
   'Spare gloves': 'Ersatzhandschuhe',
   'Down jacket': 'Daunenjacke',

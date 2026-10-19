@@ -392,7 +392,7 @@
     <div class="pmain">
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}</p>
+        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{' · '}<a class="photo-tick" href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}</p>
         <ul class="card blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -524,6 +524,7 @@
   .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   /* Paket H: on a computer «Read aloud» stands in the line above the bags (on a phone it is next to the ring) */
   .pd-read-w { margin-left: 12px; vertical-align: middle; }
+  .photo-tick { display: inline-block; min-height: 44px; line-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
   /* the list of bags: one row each, the open one tinted */
   .blist, .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
   .brow + .brow, .mlist li + li { border-top: 1px solid var(--line); }

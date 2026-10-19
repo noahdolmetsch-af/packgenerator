@@ -8,7 +8,8 @@
    */
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { X, ListChecks, NotebookPen, Pin } from '@lucide/svelte';
+  import { X, ListChecks, NotebookPen, Pin, Smartphone, SquareKanban } from '@lucide/svelte';
+  import { trello, syncSoon } from '../trello/client.svelte.js';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
@@ -27,6 +28,10 @@
   let pin = $state(from ? (from.pin?.place ?? '') : (place ?? ''));
   // svelte-ignore state_referenced_locally
   let trip = $state(from?.pin?.tripId ?? tripId ?? '');
+  // Trello (Noah 19.10.2026 «1a 2a»): every list has exactly one place, the app only or also Trello
+  // svelte-ignore state_referenced_locally
+  let inTrello = $state(from?.sync === 'trello');
+  const trelloOn = $derived(!!trello.prefs?.on);
   let error = $state('');
   let dialog;
   let input;
@@ -55,11 +60,16 @@
     }
     const p = !pin ? null : pin === 'trips' ? (tripOf ? { place: 'trips', tripId: tripOf.id } : null) : { place: pin };
     let r;
-    if (from) r = { list: from, undo: await changeList(db, from.id, (l) => ({ ...l, name: name.trim(), check, pin: p })) };
+    const where = (l) => {
+      const { sync: _s, ...rest } = l;
+      return inTrello && trelloOn ? { ...rest, sync: 'trello' } : rest;
+    };
+    if (from) r = { list: from, undo: await changeList(db, from.id, (l) => where({ ...l, name: name.trim(), check, pin: p })) };
     else {
       r = await addList(db, { name, check, pin: p });
-      if (r && points.length) await changeList(db, r.list.id, (l) => points.reduce((acc, tx) => addPoint(acc, tx, { id: uid('pt') }), l));
+      if (r && (points.length || inTrello)) await changeList(db, r.list.id, (l) => where(points.reduce((acc, tx) => addPoint(acc, tx, { id: uid('pt') }), l)));
     }
+    if (inTrello || from?.sync === 'trello') syncSoon();
     dialog.close();
     ondone?.(r);
   }
@@ -85,6 +95,14 @@
         <button type="button" class="chip" aria-pressed={check} onclick={() => (check = true)}><ListChecks size={16} aria-hidden="true" />{t('With boxes to tick')}</button>
         <button type="button" class="chip" aria-pressed={!check} onclick={() => (check = false)}><NotebookPen size={16} aria-hidden="true" />{t('Notes only')}</button>
       </div>
+    </fieldset>
+
+    <fieldset class="fld"><legend class="lbl">{t('Where it lives')}</legend>
+      <div class="chips">
+        <button type="button" class="chip" aria-pressed={!inTrello} onclick={() => (inTrello = false)}><Smartphone size={16} aria-hidden="true" />{t('Only in the app')}</button>
+        <button type="button" class="chip" aria-pressed={inTrello} disabled={!trelloOn && !inTrello} onclick={() => (inTrello = true)}><SquareKanban size={16} aria-hidden="true" />{t('Also in Trello')}</button>
+      </div>
+      <p class="hint">{trelloOn ? (inTrello ? t('A list on your Trello board «Packgenerator»; changes go both ways.') : from?.sync === 'trello' ? t('Saved like this, the list leaves Trello (archived there); here everything stays.') : t('Only on your devices.')) : t('For Trello, connect it first: Calendar › Remember › Trello.')}</p>
     </fieldset>
 
     <fieldset class="fld"><legend class="lbl"><Pin size={16} aria-hidden="true" />{t('Also show it at')}</legend>
@@ -170,6 +188,10 @@
     color: var(--ink);
     font: inherit;
     cursor: pointer;
+  }
+  .chip:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
   .chip[aria-pressed='true'] {
     background: var(--ink);

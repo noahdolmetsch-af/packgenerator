@@ -189,6 +189,7 @@ export function zoneParts(secs) {
 /** The Strava activities of a Packmodus trip, for its row: { n, name } (n 0: none). */
 export function stravaOfTrip(trip, acts = [], kmBook = []) {
   const list = activitiesForTrip(trip, acts, kmBook);
-  return { n: list.length, name: list.length === 1 ? list[0].name : '' };
+  // 19.10.2026 (answer 1a): each activity opens its own page
+  return { n: list.length, name: list.length === 1 ? list[0].name : '', list: list.map((a) => ({ id: a.id, name: a.name ?? '', day: a.day ?? '' })) };
 }
 

@@ -52,6 +52,8 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   await expect(planning.locator('li.pc').first()).toBeVisible();
   await expect(planning.getByRole('button', { name: new RegExp(esc(T('New trip'))) }).first()).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Good days for a trip') })).toBeVisible();
+  // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; «Alle aufklappen» shows the blocks
+  await page.locator('[data-fold-all]').filter({ hasText: T('Open all') }).click();
   await expect(page.getByRole('heading', { name: T('Best values'), exact: true })).toBeVisible();
   // only the band has the main colour
   await expect(page.locator('main .btn.hi')).toHaveCount(await band.locator('.btn.hi').count());

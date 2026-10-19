@@ -221,7 +221,7 @@ export function crossMilestones(ctx) {
     ms({ id: 'x.activeDay', name: 'Active day', what: 'days with movement', steps: [7, 30, 100, 200, 365], series: (c) => cumDays(c, has('move')) }),
     ms({ id: 'x.allround', name: 'All-rounder', what: 'sports in one week', steps: [3, 4, 5, 6], series: (c) => weekly(c, (l) => new Set(l.filter((e) => ringOf(c, e) === 'move').map((e) => e.actId)).size) }),
     ms({ id: 'x.wholeWeek', name: 'Whole week', what: 'weeks with all goals', steps: [1, 4, 12, 26], series: (c) => wholeWeeks(c) }),
-    ms({ id: 'x.threeRings', name: 'Three-ring day', what: 'all 3 rings full', sugg: true, steps: [1, 7, 30, 100], series: (c) => cumDays(c, (l) => [...rings].every((r) => has(r)(l))) }),
+    ms({ id: 'x.threeRings', name: 'Three-ring day', what: 'all 3 rings full', sugg: true, steps: [1, 7, 30, 100], series: (c) => cumDays(c, (l) => rings.size > 0 && [...rings].every((r) => has(r)(l))) }),
     ms({ id: 'x.recovery', name: 'Recovery pro', what: 'days with recovery', sugg: true, steps: [10, 25, 50, 100], series: (c) => cumDays(c, has('rest')) }),
     ms({ id: 'x.outdoor', name: 'Outdoor person', what: 'days with sport outside', sugg: true, steps: [10, 50, 100, 250], series: (c) => cumDays(c, (l) => l.some((e) => outdoor(c.actOf.get(e.actId)))) }),
     ms({ id: 'x.early', name: 'Early start', what: 'active before 8', sugg: true, steps: [10, 25, 50, 100], series: (c) => cumDays(c, (l) => l.some((e) => (zurichHour(e.at) ?? 24) < 8)) }),

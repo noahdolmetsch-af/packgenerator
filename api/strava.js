@@ -11,9 +11,12 @@
  *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }] }
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
  *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
- *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs } (the heart rate per second as a
+ *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs,
+ *                           laps, splits, rpe, tempMin, tempMax, steep } (the heart rate per second as a
  *                           histogram { bpm: seconds }, a short curve [[minute, bpm]] and the best 20 minutes of
  *                           power from a power meter; never the route)
+ *   GET  ?step=line         Bearer, &id=<activity id> → { id, line } (Paket S «Reise-Spur»: the finer route line of one
+ *                           activity, encoded polyline; for rides fetched before the list carried the line)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
  *
  * BF8 «Gratis-Grenzen» (Noah 13.10.2026): every answer after a call to Strava carries `rate`, Strava's
@@ -48,6 +51,14 @@ export function stravaEnv(e = process.env) {
   };
 }
 
+/** The start of a ride as a coarse grid cell '47.4,8.5' (0.1°, about 10 km), or null. */
+export function spotOf(ll) {
+  if (!Array.isArray(ll) || ll.length < 2) return null;
+  const [lat, lon] = ll.map(Number);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return `${(Math.round(lat * 10) / 10).toFixed(1)},${(Math.round(lon * 10) / 10).toFixed(1)}`;
+}
+
 /** A Strava activity as the app's ride needs it (nothing else leaves the server). */
 export function trimActivity(a) {
   return {
@@ -62,6 +73,8 @@ export function trimActivity(a) {
     elapsedS: Number(a.elapsed_time) || 0,
     gearId: a.gear_id ?? null,
     device: a.device_name ?? '',
+    // Paket S «Reise-Spur» (Noah 19.10.2026 «1a»): the route as Strava's short line (encoded polyline), for the tour map
+    line: typeof a.map?.summary_polyline === 'string' && a.map.summary_polyline ? a.map.summary_polyline.slice(0, 60_000) : null,
     commute: !!a.commute,
     trainer: !!a.trainer,
     hrAvg: a.has_heartrate === false || !Number(a.average_heartrate) ? null : Math.round(Number(a.average_heartrate)),
@@ -79,7 +92,97 @@ export function trimActivity(a) {
     wNorm: a.device_watts && Number(a.weighted_average_watts) > 0 ? Math.round(Number(a.weighted_average_watts)) : null,
     kj: a.device_watts && Number(a.kilojoules) > 0 ? Math.round(Number(a.kilojoules)) : null,
     effort: Number(a.suffer_score) > 0 ? Math.round(Number(a.suffer_score)) : null,
+    // «Velo-Inspektion» (Noah 19.10.2026 «3a»): where the ride started, only to about 10 km (0.1°), for the rain
+    spot: spotOf(a.start_latlng),
+    // «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): the kind (race, workout, long), the new bests,
+    // the highest and lowest point; nothing about the route
+    workout: WORKOUT[Number(a.workout_type)] ?? null,
+    prs: Number(a.pr_count) > 0 ? Math.round(Number(a.pr_count)) : 0,
+    achv: Number(a.achievement_count) > 0 ? Math.round(Number(a.achievement_count)) : 0,
+    elevHigh: Number.isFinite(Number(a.elev_high)) && a.elev_high != null ? Math.round(Number(a.elev_high)) : null,
+    elevLow: Number.isFinite(Number(a.elev_low)) && a.elev_low != null ? Math.round(Number(a.elev_low)) : null,
   };
+}
+
+/** Strava's workout_type as a word: 1/11 race, 2 long run, 3/12 workout; 0/10 (default) is none. */
+export const WORKOUT = { 1: 'race', 11: 'race', 2: 'long', 3: 'workout', 12: 'workout' };
+
+const r1 = (v) => Math.round(v * 10) / 10;
+const posOr = (v) => (Number(v) > 0 ? Number(v) : null);
+const LAPS_MAX = 60;
+const SPLITS_MAX = 300;
+
+/**
+ * The laps of the bike computer (the lap button, or Garmin's auto lap): per lap km, moving seconds,
+ * metres climbed, Ø heart rate, Ø watts (power meter only), Ø km/h. Only with two laps or more.
+ */
+export function trimLaps(list, meter = false) {
+  if (!Array.isArray(list) || list.length < 2) return [];
+  return list.slice(0, LAPS_MAX).map((l, i) => ({
+    n: i + 1,
+    name: String(l?.name ?? '').slice(0, 60),
+    km: r1((Number(l?.distance) || 0) / 1000),
+    s: Math.round(Number(l?.moving_time) || Number(l?.elapsed_time) || 0),
+    hm: Math.round(Number(l?.total_elevation_gain) || 0),
+    hr: posOr(l?.average_heartrate) ? Math.round(Number(l.average_heartrate)) : null,
+    w: meter && posOr(l?.average_watts) ? Math.round(Number(l.average_watts)) : null,
+    kmh: posOr(l?.average_speed) ? r1(Number(l.average_speed) * 3.6) : null,
+  }));
+}
+
+/** Strava's splits per km: km number, moving seconds, metres up or down, Ø heart rate, Ø km/h. */
+export function trimSplits(list) {
+  if (!Array.isArray(list) || list.length < 2) return [];
+  return list.slice(0, SPLITS_MAX).map((x, i) => ({
+    k: Number(x?.split) || i + 1,
+    km: r1((Number(x?.distance) || 0) / 1000),
+    s: Math.round(Number(x?.moving_time) || Number(x?.elapsed_time) || 0),
+    hm: Number.isFinite(Number(x?.elevation_difference)) ? Math.round(Number(x.elevation_difference)) : null,
+    hr: posOr(x?.average_heartrate) ? Math.round(Number(x.average_heartrate)) : null,
+    kmh: posOr(x?.average_speed) ? r1(Number(x.average_speed) * 3.6) : null,
+  }));
+}
+
+/** Strava's «How hard was it?» (1–10), or null when not given. */
+export const rpeOf = (one) => {
+  const n = Math.round(Number(one?.perceived_exertion));
+  return n >= 1 && n <= 10 ? n : null;
+};
+
+/**
+ * From the temperature and the course: the lowest and highest temperature, and the steepest
+ * 200 metres in % (with at least 10 m up, so a jump of the altimeter does not count).
+ */
+export const STEEP_M = 200;
+export function trimExtra(streams) {
+  const time = streams?.time?.data;
+  const len = Array.isArray(time) ? time.length : 0;
+  const arr = (k) => (Array.isArray(streams?.[k]?.data) && streams[k].data.length === len ? streams[k].data : null);
+  const temp = arr('temp');
+  let tempMin = null;
+  let tempMax = null;
+  if (temp) {
+    const vals = temp.map(Number).filter((v) => Number.isFinite(v) && v > -40 && v < 60);
+    if (vals.length) (tempMin = Math.round(Math.min(...vals))), (tempMax = Math.round(Math.max(...vals)));
+  }
+  const dist = arr('distance');
+  const alt = arr('altitude');
+  let steep = null;
+  if (dist && alt) {
+    let j = 0;
+    for (let i = 0; i < len; i++) {
+      while (j < len && Number(dist[j]) - Number(dist[i]) < STEEP_M) j++;
+      if (j >= len) break;
+      const up = Number(alt[j]) - Number(alt[i]);
+      const run = Number(dist[j]) - Number(dist[i]);
+      if (up >= 10 && run > 0) {
+        const g = (up / run) * 100;
+        if (g < 40 && (steep == null || g > steep)) steep = g;
+      }
+    }
+    if (steep != null) steep = r1(steep);
+  }
+  return { tempMin, tempMax, steep };
 }
 
 /** Strava's heart rate zones: the upper bounds in order, the last open (max -1). */
@@ -476,11 +579,19 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const one = await stravaGet(cfg, store, `/activities/${id}?include_all_efforts=true`);
           // the streams for the breaks too (moving), so every activity; still two calls in all
           // distance, altitude and cadence too (TR5b–TR7f), still no position
-          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude&key_by_type=true`);
+          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude,temp&key_by_type=true`);
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
           const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts) });
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one) });
+        }
+        if (step === 'line') {
+          // Paket S «Reise-Spur»: one activity's line; Strava's finer line (map.polyline), else the short one
+          const id = url.searchParams.get('id') ?? '';
+          if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
+          const one = await stravaGet(cfg, store, `/activities/${id}`, ctx);
+          const line = [one?.map?.polyline, one?.map?.summary_polyline].find((x) => typeof x === 'string' && x) ?? null;
+          return json(request, 200, withRate({ ok: true, id, line: line ? line.slice(0, 200_000) : null }));
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

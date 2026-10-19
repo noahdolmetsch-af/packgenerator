@@ -238,11 +238,15 @@ test('c) «Filter»: counts, the active filters as chips, «Filter löschen», a
   expect(errors).toEqual([]);
 });
 
-test('d) «In Zahlen»: all five groups open, a jump bar, «Alle zuklappen»', async ({ page, context }, info) => {
+test('d) «In Zahlen»: five groups folded at first (Paket M #1002), «Alle aufklappen», a jump bar, «Alle zuklappen»', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const iz = page.locator('section[data-in-numbers][data-tours]');
   await expect(iz.getByRole('heading', { level: 2, name: T('In numbers') })).toBeVisible();
   await expect(iz.locator('[data-group]')).toHaveCount(TOUR_GROUPS.length);
+  // Paket M (#1002, Noah «5a»): the numbers wait folded; each head keeps its main numbers
+  for (const g of TOUR_GROUPS) await expect(iz.locator(`[data-group="${g.key}"] .gh button`)).toHaveAttribute('aria-expanded', 'false');
+  await expect(iz.locator('[data-fold-all]')).toHaveText(T('Open all'));
+  await iz.locator('[data-fold-all]').click();
   for (const g of TOUR_GROUPS) {
     await expect(iz.locator(`[data-group="${g.key}"] .gh button`)).toHaveAttribute('aria-expanded', 'true');
     await expect(iz.locator(`[data-group="${g.key}"] [data-block]`).first()).toBeVisible();
@@ -272,10 +276,12 @@ test('d) «In Zahlen»: all five groups open, a jump bar, «Alle zuklappen»', a
 
 test('e) the tiles: «Offene Rückblicke» and «Karte» follow a filter, «Gute Tage» does not', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  const tiles = page.locator('[data-tour-tiles]');
-  await expect(tiles.locator('[data-tile]')).toHaveCount(SK_BIG.trips.length);
+  // Paket M (#1002, Noah «5a»): on a computer «Offene Rückblicke» (o2) is at the top of the page, the other tiles
+  // stay at the end; on a phone (Handy kurz) all of them stay in the folded end
+  const tiles = page.locator('[data-tour-tiles=""]');
+  await expect(page.locator('[data-tour-tiles] [data-tile]')).toHaveCount(SK_BIG.trips.length);
   const o1 = tiles.locator('[data-tile="o1"]');
-  const o2 = tiles.locator('[data-tile="o2"]');
+  const o2 = page.locator('[data-tile="o2"]');
   const o5 = tiles.locator('[data-tile="o5"]');
   await expect(o1.getByRole('heading', { name: T('Good days for a trip') })).toBeVisible();
   // no home place in the fixture and no internet: a quiet line
