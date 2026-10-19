@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 one note, open (Noah 12a-16a): topic, pin (at most 3), title, text, link, photo,
@@ -61,9 +62,19 @@
     dialog.close();
   }
   async function remove() {
-    if (!confirm(t('Delete the note "{text}"?', { text: noteTitle(draft).slice(0, 40) }))) return;
-    await db.notes.delete(note.id);
-    dialog.close();
+    const name = noteTitle(draft).slice(0, 40);
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({
+      run: async () => {
+        const rec = await db.notes.get(note.id);
+        await db.notes.delete(note.id);
+        return rec;
+      },
+      undo: (rec) => rec && db.notes.put(rec),
+      text: t('"{name}" deleted.', { name }),
+      name,
+    });
+    if (ok) dialog.close();
   }
 
   const MAKES = [

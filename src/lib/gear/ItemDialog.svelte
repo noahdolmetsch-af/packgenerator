@@ -15,7 +15,8 @@
   import AssignDialog from './AssignDialog.svelte';
   import Seg from '../ui/Seg.svelte';
   import MergeSheet from './MergeSheet.svelte';
-  import { undoBulk } from './bulk.js';
+  import { undoBulk, deleteItems, deletePlan, archiveItems } from './bulk.js';
+  import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import Help from '../ui/Help.svelte'; // FE14
   import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
@@ -25,7 +26,7 @@
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
@@ -213,8 +214,15 @@
     if (live) Object.assign(draft, { sets: [...(live.sets ?? [])], defaultBag: live.defaultBag });
   }
 
-  async function save(event) {
+  /*
+   * «Rückmeldungen» (Noah 19.10.2026 «2a»): every way out says what happened. «Save», ✕, back and Escape
+   * after a change: «Changes to "…" saved.»; a new item: «"…" saved, under {cat}.». A second tap while
+   * it saves does nothing (once); a failed save keeps the window and what was typed, with one line why.
+   */
+  const catName = (c) => t(CATEGORY[c]?.name ?? '') || c;
+  const save = once(async (event) => {
     event.preventDefault();
+    error = '';
     if (!draft.name.trim()) return (error = t('Give the item a name.'));
     if (!CATEGORY[draft.category] && (isNew || draft.category !== item.category)) return (error = t('Choose a category.'));
     let weightG = null;
@@ -229,15 +237,22 @@
       litres = Number(String(alsoL).replace(',', '.'));
       if (!(litres > 0 && litres <= 100)) return (error = t('Volume: litres from 0.1 to 100, or leave it empty.'));
     }
-    ended = true;
+    const changed = isNew || JSON.stringify($state.snapshot(draft)) !== (shownAs ?? startText) || alsoTouched;
     clearTimeout(autoTimer);
     await autoBusy;
-    if (autoId && autoId !== record.id) await db.items.delete(autoId);
-    await db.items.put(record);
-    if (alsoTouched && canBeBag && (alsoOn || alsoBag)) await setAlsoBag(db, record, alsoOn, litres);
+    try {
+      if (autoId && autoId !== record.id) await db.items.delete(autoId);
+      await db.items.put(record);
+      if (alsoTouched && canBeBag && (alsoOn || alsoBag)) await setAlsoBag(db, record, alsoOn, litres);
+    } catch (err) {
+      return (error = saveFailed(err));
+    }
+    ended = true;
     await onsaved?.(record);
+    if (isNew && !onsaved) offerDone(t('"{name}" saved, under {cat}.', { name: nameOf(record), cat: catName(record.category) }));
+    else if (!isNew && changed) offerDone(t('Changes to "{name}" saved.', { name: nameOf(record) }));
     dialog.close();
-  }
+  });
 
   /* ---------- v0.35.0 (AP29): a new item is saved while it is typed ---------- */
   let autoTimer;
@@ -272,6 +287,7 @@
       await autoSave();
       ended = true;
       if (kept) await onkept?.(kept);
+      if (kept && !onkept) offerDone(t('"{name}" is saved. You find it under {cat}.', { name: nameOf(kept), cat: catName(kept.category) }));
     }
     onclose?.();
   }
@@ -308,11 +324,25 @@
   });
   const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === (shownAs ?? startText) ? dialog.close() : save({ preventDefault() {} }));
 
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 4 s «Undo»: a new item made here comes back,
+  // the changes of an existing item are put back on it.
   async function discard() {
     ended = true;
     clearTimeout(autoTimer);
     await autoBusy;
-    if (autoId) await db.items.delete(autoId);
+    if (autoId) {
+      const made = kept ?? (await db.items.get(autoId));
+      await db.items.delete(autoId);
+      if (made) offerDone(t('"{name}" discarded.', { name: nameOf(made) }), async () => {
+        await db.items.put(made);
+        await onkept?.(made);
+      });
+    } else if (!isNew && JSON.stringify($state.snapshot(draft)) !== (shownAs ?? startText) && draft.name.trim()) {
+      const grams = String(draft.grams ?? '').trim();
+      const weightG = grams ? parseGrams(grams) : null;
+      const changedRec = grams && weightG == null ? null : itemRecord($state.snapshot(draft), { item, items, weightG });
+      offerDone(t('Changes to "{name}" discarded.', { name: nameOf(item) }), changedRec ? () => db.items.put(changedRec) : null);
+    }
     dialog.close();
   }
 
@@ -350,11 +380,40 @@
     }
   }
 
-  async function remove() {
-    if (!confirm(t('Delete "{name}" from your gear? A backup file can bring it back.', { name: nameOf(item) }))) return;
-    await db.items.delete(item.id);
+  /*
+   * «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question, then 4 s «Undo». An item still on
+   * trips or in templates offers «Archive» first; «Delete» takes it off them too (deleteItems, like
+   * the list), so no trip keeps an empty line.
+   */
+  const remove = once(async () => {
+    const name = nameOf(item);
+    const plan = await deletePlan(db, [item.id]);
+    const trips = ($tripsQ ?? []).filter((x) => (x.entries ?? []).some((e) => e.itemId === item.id)).length;
+    const tpls = where.templates.length;
+    const used = plan.used.length > 0 || trips > 0;
+    const answer = await askDelete({
+      title: t('Delete "{name}"?', { name }),
+      text: used
+        ? t('It is {where} and goes from there too. To keep it but not use it any more: Archive. Then it stays in the look back.', { where: [trips ? tn(trips, 'on {n} trip', 'on {n} trips') : '', tpls ? tn(tpls, 'in {n} template', 'in {n} templates') : ''].filter(Boolean).join(t(' and ')) || t('in use') })
+        : t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.'),
+      archive: used && item.ownership !== 'gone' ? t('Archive') : '',
+    });
+    if (answer === 'archive') {
+      try {
+        const { snap } = await archiveItems(db, [item.id]);
+        offerDone(t('"{name}" archived. It stays in the look back.', { name }), () => undoBulk(db, snap));
+      } catch (err) {
+        return (error = saveFailed(err));
+      }
+      ended = true;
+      return dialog.close();
+    }
+    if (answer !== 'delete') return;
+    const ok = await deleteWithUndo({ run: () => deleteItems(db, [item.id]), undo: (snap) => undoBulk(db, snap), text: t('"{name}" deleted.', { name }), name });
+    if (!ok) return;
+    ended = true;
     dialog.close();
-  }
+  });
 </script>
 
 {#snippet photoRow()}
@@ -698,7 +757,7 @@
     <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
     <div class="foot daumen-foot">
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Discard')}</button>{/if}
+      {:else}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button>{/if}
       <button type="submit" class="btn hi">{t('Save')}</button>
     </div>
   </form>

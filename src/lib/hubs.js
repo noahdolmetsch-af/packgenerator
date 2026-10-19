@@ -90,7 +90,7 @@ export function addIdea(ideas = [], text, { id, at = new Date().toISOString() } 
 /** Tick an idea done (or open again). */
 export const toggleIdea = (ideas = [], id) => (ideas ?? []).map((x) => (x.id === id ? { ...x, done: !x.done } : x));
 
-/** Remove one idea (the page asks with confirm() first). */
+/** Remove one idea (the page asks first, askDelete). */
 export const removeIdea = (ideas = [], id) => (ideas ?? []).filter((x) => x.id !== id);
 
 /** Open ideas first (newest first), the done ones after. */

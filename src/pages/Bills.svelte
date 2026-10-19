@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   /**
    * Ich › Bezahlen › Zu zahlen (#/me/pay/bills; mockup QR9, Noah 14.10.2026 05:02 «a», 05:10 «1-4a»
    * and «a»): bills Noah gets. Upload a photo or screenshot of the QR bill; the app reads recipient,
@@ -12,7 +13,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { t, tn, dateOf } from '../lib/i18n.svelte.js';
   import { Upload, Check, QrCode, RotateCcw, Copy, Trash2, PenLine } from '@lucide/svelte';
-  import { listBills, addBill, markBillPaid, markBillOpen, deleteBill, billsSummary, daysLeft, isDueSoon, addDays, DUE_DAYS, REMIND_DAYS } from '../lib/pay/bills.js';
+  import { listBills, addBill, markBillPaid, markBillOpen, deleteBill, restoreBill, billsSummary, daysLeft, isDueSoon, addDays, DUE_DAYS, REMIND_DAYS } from '../lib/pay/bills.js';
   import { formatAmount, parseAmount, formatIban, formatReference } from '../lib/pay/qrbill.js';
   import { readQrImage } from '../lib/pay/qrread.js';
   import { shrinkImage } from '../lib/photo.js';
@@ -99,8 +100,10 @@
     await load();
   }
   async function remove(b) {
-    if (!confirm(t('Delete this bill, with its photo?'))) return;
-    await deleteBill(b.id);
+    const name = b.to || t('Bill');
+    if ((await askDelete({ title: t('Delete the bill to "{name}"?', { name }), text: t('Its photo goes too. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const ok = await deleteWithUndo({ run: () => deleteBill(b.id), undo: async (rec) => (await restoreBill(rec), await load()), text: t('"{name}" deleted.', { name }), name });
+    if (!ok) return;
     opened = null;
     await load();
   }

@@ -1,4 +1,5 @@
 <script>
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import Crumbs from '../lib/ui/Crumbs.svelte'; // P3b I2a: the full path back
   /**
    * One template (Noah, 4.10.2026, templates answer 7b), v0.39.0 (AP28, "Vorlagen neu"):
@@ -119,8 +120,11 @@
     if (key === 'archive') change((l) => l.map((x) => (x.id === id ? { ...x, archivedAt: now() } : x)), t('{name} archived', { name: tpl.name }));
     if (key === 'restore') change((l) => l.map((x) => (x.id === id ? { ...x, archivedAt: null, keptAt: now() } : x)), t('{name} is back', { name: tpl.name }));
     if (key === 'delete') {
-      if (!confirm(t('Delete the template "{name}"? Trips made from it stay. A backup file can bring it back.', { name: tpl.name }))) return;
-      change((l) => l.filter((x) => x.id !== id), t('{name} deleted', { name: tpl.name }), () => (location.hash = '#/pack/templates'));
+      const name = tpl.name;
+      askDelete({ title: t('Delete the template "{name}"?', { name }), text: t('Trips made from it stay. You can bring it back for 4 seconds afterwards.'), archive: tpl.archivedAt ? '' : t('Archive') }).then((a) => {
+        if (a === 'archive') pickMenu('archive');
+        if (a === 'delete') change((l) => l.filter((x) => x.id !== id), t('{name} deleted', { name }), () => (location.hash = '#/pack/templates'));
+      });
     }
   }
   // SN3: «…» of the page (ui/MoreActions): rename, duplicate, archive or bring back, delete.

@@ -1,4 +1,5 @@
 <script>
+  import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
   /**
    * Ich › Dokumente (P3b «Daten sicher», Noah 15.10.2026 «1a»; mockups D3 and D4 approved 12.10.2026
    * «d1-d5 freigeben», round 2 answers «4a» reminder 6 months before, «5a» «ID und Cash dabei?» as a
@@ -110,7 +111,7 @@
   }
   /** Delete: asks first, then 4 s «Undo» (rule «Löschen» 14.10.2026, Ü4a 15.10.2026). */
   async function remove(d) {
-    if (!confirm(t('Delete «{name}»? It is gone from this device; older backup files still have it.', { name: d.name }))) return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: d.name }), text: t('It is gone from this device; older backup files still have it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const row = await deleteDoc(d.id);
     clearTimeout(undo?.timer);
     undo = { row, timer: setTimeout(() => (undo = null), 4000) };
