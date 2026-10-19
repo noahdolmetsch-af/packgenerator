@@ -14,7 +14,7 @@ import {
 afterEach(() => (lang.v = 'en'));
 const ids = (rows) => rows.map((r) => r.id);
 // Paket Q «App klarer»: its functions are the newest (the bundler gives them the release version)
-const Q_IDS = ['f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.comeback'];
+const Q_IDS = ['f.alerts', 'f.helpsearch', 'f.backuplock', 'f.offlinesave', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.tripalert', 'f.comeback'];
 
 describe('every function has a version it came with', () => {
   it('known for every function, never newer than this version, all real versions of the list', () => {

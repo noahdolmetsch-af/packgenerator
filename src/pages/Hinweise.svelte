@@ -8,6 +8,7 @@
    * Everything comes through /api/news; offline the last answer stays, with its time.
    */
   import { liveQuery } from 'dexie';
+  import { untrack } from 'svelte';
   import { RefreshCw, Plus, Pencil, Trash2, ExternalLink, TriangleAlert, Mountain, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -19,7 +20,7 @@
 
   const q = liveQuery(async () => {
     const [f, a, home] = await Promise.all([db.settings.get(FEEDS_KEY), db.settings.get(ALERTS_KEY), db.settings.get('homePlace')]);
-    return { feeds: feedsOf(f?.value), prefs: alertsOf(a?.value), home: home?.value?.name ?? '' };
+    return { feeds: feedsOf(f?.value), prefs: alertsOf(a?.value), set: !!a?.value, home: home?.value?.name ?? '' };
   });
   const feeds = $derived($q?.feeds ?? []);
   const prefs = $derived($q?.prefs ?? alertsOf(null));
@@ -33,8 +34,13 @@
   $effect(() => {
     if (!$q || started) return;
     started = true;
-    loadAlerts();
-    for (const f of $q.feeds) loadFeed(f);
+    // the first visit sets the alerts up (the defaults): from now on Today and your trips may ask the server
+    if (!$q.set) db.settings.put({ key: ALERTS_KEY, value: alertsOf(null) });
+    const list = $q.feeds;
+    untrack(() => {
+      loadAlerts();
+      for (const f of list) loadFeed(f);
+    });
   });
   async function refresh() {
     news.busy = true;
@@ -106,7 +112,7 @@
               <li class="lvl-{w.level}" data-warning>
                 <b>{w.event}</b> · {w.area}
                 <small>{when(w.onset)}{w.expires ? ` – ${when(w.expires)}` : ''}</small>
-                {#if w.link}<a href={w.link} target="_blank" rel="noopener">{t('Details')}<ExternalLink size={14} aria-hidden="true" /></a>{/if}
+                {#if w.link}<a href={w.link} target="_blank" rel="noopener">{t('Read more|alert')}<ExternalLink size={14} aria-hidden="true" /></a>{/if}
               </li>
             {/each}
           </ul>

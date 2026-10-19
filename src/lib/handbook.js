@@ -646,6 +646,21 @@ export const HANDBOOK = {
     steps: ["Open the app after three weeks or more away.", "The window «Welcome back» lists what is due and what is new.", "Tap a line to go there, or «Later» / «Not today»."],
     example: "Example: back from holiday → 2 care points and 3 new versions.",
   },
+  'f.tripalert': {
+    on: null,
+    steps: ["Plan a trip with its start place (or set your region under Me › Alerts and news).", "From five days before, the app looks for MeteoSwiss warnings for its days and place; on a ski tour also the avalanche danger.", "A line on the trip says what; «Read more» opens the warning."],
+    example: "Example: thunderstorm warning for your region on Saturday → one line on Saturday's trip.",
+  },
+  'f.helpsearch': {
+    on: null,
+    steps: ["Open the search (the magnifier or «/»).", "Type a whole question, e.g. «Where do I set the backup password?».", "«Fits your question» shows up to three functions with their first step; a tap opens it."],
+    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news.",
+  },
+  'f.offlinesave': {
+    on: null,
+    steps: ["Open your trip from three days before it starts.", "Tap «Save for the way»: the newest weather of the trip, the alerts and your news go onto the device.", "The line says what is saved and since when; the packing list is on the device anyway."],
+    example: "Example: the evening before a tour in the mountains, tap once; up there the weather is still there.",
+  },
   'f.news': {
     on: null,
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],

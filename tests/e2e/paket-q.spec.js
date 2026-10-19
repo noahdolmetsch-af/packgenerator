@@ -6,9 +6,10 @@
 // - «Stimmt das noch?» opens from Ich › Daten.
 // Fictional data only; nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, replaceAll } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -109,4 +110,77 @@ test('Hinweise without the server (as in a test preview) says why it is empty', 
   await page.goto('./#/me/hinweise');
   await settle(page, { sameTrips: false });
   await expect(page.locator('[data-news-down]')).toHaveText(T("Alerts and news come through the app's server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works."));
+});
+
+// ---------- Zusatz (Noah 19.10.2026 «1-3 alle a»): warning for the trip, help search, save for the way ----------
+const zurichDay = (n) => {
+  const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich' }).format(new Date()).split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+};
+const TRIP = 'trip-test_data_gtp_q';
+async function withTrip(page, info) {
+  const data = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
+  const bike = data.tables.bikes[0];
+  data.tables.trips.push({
+    id: TRIP, domain: 'bikepacking', title: 'test_data_gtp_ Morgenrunde', startDate: zurichDay(1), days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
+    place: { name: 'Testregion', lat: 46.9, lon: 7.4 }, entries: [], ready: [], ride: null, hours: null, sets: {}, purpose: {}, status: 'planned', copiedFrom: null, createdAt: '2026-10-01T08:00:00.000Z',
+  });
+  const file = info.outputPath('trip.json');
+  writeFileSync(file, JSON.stringify(data));
+  await page.goto('./');
+  const panel = await openData(page);
+  await panel.getByLabel(T('Import backup')).setInputFiles(file);
+  await replaceAll(panel);
+  await settle(page);
+  await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), TRIP);
+  // the alerts are set up once Ich › Hinweise was opened
+  await page.goto('./#/me/hinweise');
+  await settle(page, { sameTrips: false });
+  await expect(page.locator('[data-page="hinweise"]')).toBeVisible();
+}
+const WARN = () => ({ event: 'test_data_gtp_ Starkregen', area: 'Testregion Nord', level: 3, onset: `${zurichDay(1)}T04:00:00.000Z`, expires: `${zurichDay(2)}T04:00:00.000Z`, link: 'https://example.org/w' });
+async function mockServer(page) {
+  await page.route(/packgen-three\.vercel\.app\/api\/news/, (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    const body = q.get('alerts') === 'weather' ? { ok: true, warnings: [WARN()] } : q.get('alerts') === 'avalanche' ? { ok: true, level: null, link: 'https://www.slf.ch/' } : { ok: true, title: 'Test', items: [] };
+    return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(body) });
+  });
+  await page.route(/api\.open-meteo\.com\/v1\/forecast/, (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ daily: { time: [zurichDay(1)], temperature_2m_min: [6], temperature_2m_max: [14], precipitation_sum: [8], precipitation_probability_max: [80] } }) }),
+  );
+}
+
+test('a warning for the days and place of a planned trip shows on the trip, once the alerts are set up', async ({ page }, info) => {
+  await mockServer(page);
+  await withTrip(page, info);
+  await page.goto('./#/pack');
+  await settle(page, { sameTrips: false });
+  await expect(page.locator('[data-trip-alert="weather"]')).toContainText(T('Weather warning for your trip: {event} ({area})', { event: 'test_data_gtp_ Starkregen', area: 'Testregion Nord' }));
+});
+
+test('save for the way: weather, alerts and news on the device, one line says so', async ({ page }, info) => {
+  await mockServer(page);
+  await withTrip(page, info);
+  await page.goto('./#/pack');
+  await settle(page, { sameTrips: false });
+  const box = page.locator('[data-offline-save]');
+  await box.locator('[data-offline-save-btn]').click();
+  const what = [T('the weather|offline'), T('the alerts|offline'), T('the news|offline')].join(', ');
+  await expect(box.getByRole('status')).toContainText(T('Saved for the way: {what} and your packing list.', { what }));
+  const trip = await page.evaluate((id) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => { const q = r.result.transaction('trips').objectStore('trips').get(id); q.onsuccess = () => { r.result.close(); ok(q.result); }; };
+  }), TRIP);
+  expect(trip.forecast.days[0]).toMatchObject({ date: zurichDay(1), max: 14 });
+});
+
+test('the search answers a question in everyday words', async ({ page }, info) => {
+  await page.goto('./');
+  await settle(page);
+  if (info.project.name === 'phone') await page.getByRole('button', { name: T('Search everything') }).click();
+  await page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).fill('Wo stelle ich das Backup-Passwort ein?');
+  const res = page.getByRole('region', { name: T('Search results') });
+  await expect(res.getByText(T('Fits your question'))).toBeVisible();
+  await res.locator('[data-help="f.backuplock"]').click();
+  await expect(page).toHaveURL(/#\/me\/data/);
 });

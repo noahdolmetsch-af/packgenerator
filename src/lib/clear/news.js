@@ -102,3 +102,40 @@ export function importantOf({ warnings = [], avalanche = null, prefs = ALERTS_DE
 
 /** Is a cached answer fresh enough (3 hours)? */
 export const fresh = (at, now = Date.now(), hours = 3) => !!at && now - new Date(at).getTime() < hours * 36e5;
+
+/** 'YYYY-MM-DD' plus n days (calendar days, no time zone). */
+const plusDays = (day, n) => new Date(Date.UTC(...day.split('-').map((x, i) => (i === 1 ? x - 1 : +x))) + n * 864e5).toISOString().slice(0, 10);
+const matchArea = (area, names) => names.some((n) => n && (area.toLowerCase().includes(n) || n.includes(area.toLowerCase())));
+
+/**
+ * Paket Q Zusatz 1 (Noah 19.10.2026 «1-3 alle a»): a warning for the days and the place of a planned trip.
+ * Weather: a MeteoSwiss warning from level 2 (yellow) whose area matches the trip's start place or your
+ * region and whose time touches the trip's days. Avalanche: on a ski tour today or tomorrow, danger 3 or
+ * higher. Each line: { key, text, vars, href }. Nothing for a trip that is over or has no date.
+ * input: { trip, warnings, avalanche, prefs, today ('YYYY-MM-DD') }
+ */
+export function tripAlerts({ trip, warnings = [], avalanche = null, prefs = ALERTS_DEFAULT, today }) {
+  const start = trip?.startDate;
+  if (!start || !/^\d{4}-\d{2}-\d{2}$/.test(start)) return [];
+  const end = plusDays(start, Math.max(1, Number(trip.days) || 1) - 1);
+  if (end < today) return [];
+  const out = [];
+  const names = [trip.place?.name, prefs.region].map((n) => (n ?? '').trim().toLowerCase()).filter((n) => n.length >= 3);
+  if (prefs.weather !== false && names.length) {
+    const from = `${start}T00:00:00`;
+    const to = `${plusDays(end, 1)}T00:00:00`;
+    const hit = warnings
+      .filter((w) => w.level >= 2 && matchArea(w.area ?? '', names))
+      .filter((w) => (!w.onset || w.onset.slice(0, 19) < to) && (!w.expires || w.expires.slice(0, 19) > from))
+      .sort((a, b) => b.level - a.level)[0];
+    if (hit) out.push({ key: 'weather', text: 'Weather warning for your trip: {event} ({area})', vars: { event: hit.event, area: hit.area }, href: hit.link || '#/me/hinweise' });
+  }
+  const ski = trip.domain === 'ski';
+  if (ski && prefs.avalanche !== false && avalanche?.level >= 3 && start <= plusDays(today, 1)) {
+    out.push({ key: 'avalanche', text: 'Avalanche danger up to level {n}: read the bulletin before your tour', vars: { n: avalanche.level }, href: avalanche.link || '#/me/hinweise' });
+  }
+  return out;
+}
+
+/** Is the trip soon enough to look for warnings (from today up to 5 days ahead, or under way)? */
+export const tripSoon = (trip, today) => !!trip?.startDate && trip.startDate <= plusDays(today, 5) && plusDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1) >= today;

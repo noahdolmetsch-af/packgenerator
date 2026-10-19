@@ -1,6 +1,6 @@
 // Paket Q #148: alerts for you and your own news sources.
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_FEEDS, PASSES, feedsOf, alertsOf, checkFeed, usuallyOpen, warningsFor, importantOf, seasonOf } from '../src/lib/clear/news.js';
+import { DEFAULT_FEEDS, PASSES, feedsOf, alertsOf, checkFeed, usuallyOpen, warningsFor, importantOf, seasonOf, tripAlerts, tripSoon } from '../src/lib/clear/news.js';
 import DE from '../src/lib/i18n/de/klarer.js';
 
 const W = [
@@ -45,5 +45,35 @@ describe('alerts', () => {
   it('every line has German', () => {
     const lines = importantOf({ warnings: W, avalanche: { level: 4 }, prefs: alertsOf({ region: 'Nord', passes: ['furka', 'oberalp'] }), now: new Date('2026-05-10T08:00:00Z') });
     for (const l of lines) expect(DE[l.text], l.text).toBeTruthy();
+  });
+});
+
+describe('warning for a planned trip (Zusatz 1)', () => {
+  const W = { event: 'Starkregen', area: 'Testregion Nord', level: 2, onset: '2026-10-21T06:00:00.000Z', expires: '2026-10-22T06:00:00.000Z', link: 'https://example.org/w' };
+  const trip = { startDate: '2026-10-21', days: 2, domain: 'bikepacking', place: { name: 'Testregion' } };
+  it('finds a warning for the trip place and days', () => {
+    const r = tripAlerts({ trip, warnings: [W], today: '2026-10-19' });
+    expect(r).toEqual([{ key: 'weather', text: 'Weather warning for your trip: {event} ({area})', vars: { event: 'Starkregen', area: 'Testregion Nord' }, href: 'https://example.org/w' }]);
+  });
+  it('nothing for another place, other days, a past trip or a weak warning', () => {
+    expect(tripAlerts({ trip: { ...trip, place: { name: 'Anderswo' } }, warnings: [W], today: '2026-10-19' })).toEqual([]);
+    expect(tripAlerts({ trip: { ...trip, startDate: '2026-10-25' }, warnings: [W], today: '2026-10-19' })).toEqual([]);
+    expect(tripAlerts({ trip, warnings: [W], today: '2026-10-30' })).toEqual([]);
+    expect(tripAlerts({ trip, warnings: [{ ...W, level: 1 }], today: '2026-10-19' })).toEqual([]);
+  });
+  it('uses your region when the trip has no place', () => {
+    expect(tripAlerts({ trip: { ...trip, place: null }, warnings: [W], prefs: { region: 'nord', weather: true }, today: '2026-10-19' })).toHaveLength(1);
+  });
+  it('avalanche only on a ski tour today or tomorrow', () => {
+    const av = { level: 3, link: 'https://example.org/slf' };
+    expect(tripAlerts({ trip: { ...trip, domain: 'ski', startDate: '2026-10-20' }, avalanche: av, today: '2026-10-19' })[0].key).toBe('avalanche');
+    expect(tripAlerts({ trip: { ...trip, domain: 'ski', startDate: '2026-10-23' }, avalanche: av, today: '2026-10-19' })).toEqual([]);
+    expect(tripAlerts({ trip: { ...trip, startDate: '2026-10-20' }, avalanche: av, today: '2026-10-19' })).toEqual([]);
+  });
+  it('soon: from today up to 5 days ahead, or under way', () => {
+    expect(tripSoon(trip, '2026-10-19')).toBe(true);
+    expect(tripSoon(trip, '2026-10-22')).toBe(true);
+    expect(tripSoon(trip, '2026-10-23')).toBe(false);
+    expect(tripSoon({ ...trip, startDate: '2026-10-30' }, '2026-10-19')).toBe(false);
   });
 });

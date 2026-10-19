@@ -19,6 +19,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
+  import TripAlert from '../lib/clear/TripAlert.svelte';
+  import OfflineSave from '../lib/clear/OfflineSave.svelte';
   import Onion from '../lib/pack/Onion.svelte';
   import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
@@ -1003,6 +1005,10 @@
   {/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
+  <!-- Paket Q Zusatz 1: a weather or avalanche warning for this trip's days and place (only then) -->
+  <TripAlert {trip} />
+  <!-- Paket Q Zusatz 3: from 3 days before the trip, «Für unterwegs offline speichern» -->
+  <OfflineSave {trip} />
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}

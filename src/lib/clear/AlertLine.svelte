@@ -10,7 +10,8 @@
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
-  import { ALERTS_KEY, alertsOf, importantOf } from './news.js';
+  import { untrack } from 'svelte';
+  import { ALERTS_KEY, alertsOf, importantOf, avalancheSeason } from './news.js';
   import { news, loadAlerts } from './news.svelte.js';
 
   const HIDE = 'pg-alertline-hidden';
@@ -22,8 +23,12 @@
   }
   const prefsQ = liveQuery(() => db.settings.get(ALERTS_KEY));
   const prefs = $derived(alertsOf($prefsQ?.value));
+  // ask the server only once you have set up Ich › Hinweise, and only when a line can come from it: a region
+  // for the weather, or the avalanche in winter (passes need no server). Once per visit (untrack: the answer
+  // must not start a new question). Without a setup Today talks to no one.
+  const need = $derived(!!$prefsQ?.value && ((prefs.weather && !!prefs.region?.trim()) || (prefs.avalanche && avalancheSeason(new Date().getMonth() + 1))));
   $effect(() => {
-    if (globalThis.navigator?.onLine !== false) loadAlerts();
+    if (need && globalThis.navigator?.onLine !== false) untrack(() => loadAlerts());
   });
   const lines = $derived(importantOf({ warnings: news.alerts?.warnings ?? [], avalanche: news.alerts?.avalanche ?? null, prefs }));
   const today = localDay();

@@ -195,6 +195,9 @@ const OWN = [
   { id: 'f.suggestoff', group: 'data', title: "Suggestions on or off", text: "Switch off what the app suggests by itself, area by area: clothing for the weather, inspiration rules, ideas in Active.", href: '#/me/look', words: "vorschläge aus ausschalten an einschalten bereich" },
   { id: 'f.tipweek', group: 'data', title: "Tip of the week", text: "One thing the app can do, a new one every week, as a tile on Today and in the playground.", href: '#/', words: "tipp woche kachel heute tageszeit" },
   { id: 'f.comeback', group: 'data', title: "Welcome back", text: "After three weeks away, a window first shows what is due and what is new.", href: '#/', words: "wiedereinstieg pause zurück fällig neu offline" },
+  { id: 'f.tripalert', group: 'before', title: "Warning for your trip", text: "A weather warning for the days and the place of a planned trip, or high avalanche danger on a ski tour, shows as one line on the trip.", href: '#/pack', words: "wetter warnung unwetter lawine tour gefahr hinweis" },
+  { id: 'f.helpsearch', group: 'data', title: "Ask in your own words", text: "Type a question in your own words into the search; it shows the functions that answer it, with the first step.", href: '#/', words: "hilfe frage suche wie wo finden" },
+  { id: 'f.offlinesave', group: 'onway', title: "Save for the way", text: "From three days before a trip one button puts its weather, the alerts and the news on the device, for places without internet.", href: '#/pack', words: "offline netz empfang speichern unterwegs wetter" },
   { id: 'f.news', group: 'data', title: 'What is new', text: 'The newest version, every function one by one and all versions by month.', href: '#/me/news', words: 'neu neuigkeiten update version was ist neu top 10' },
 ];
 
