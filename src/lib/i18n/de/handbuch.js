@@ -933,6 +933,11 @@ export default {
   'Choose road bike, gravel or mountain bike and switch parts on or off.': 'Wähle Rennvelo, Gravel oder Mountainbike und schalte Teile ein oder aus.',
   'Own parts: add, rename, move, delete.': 'Eigene Teile: hinzufügen, umbenennen, verschieben, löschen.',
   'Example: gravel gets «Bell»; every new gravel bike starts with it.': 'Beispiel: Gravel bekommt «Klingel»; jedes neue Gravel startet damit.',
+  // «Velo-FAQ» (Paket 6)
+  'Bikes › Care › «Bike FAQ» (also on every bike’s card).': 'Velos › Pflege › «Velo-FAQ» (auch auf der Karte jedes Velos).',
+  'On top the question of the day; «Another question» shows the next one.': 'Oben die Frage des Tages; «Andere Frage» zeigt die nächste.',
+  'Search or open a topic; «Your own questions» keeps what you learned.': 'Such oder öffne ein Thema; «Deine eigenen Fragen» behält, was du gelernt hast.',
+  'Example: search «squeal» → why disc brakes squeal and what helps.': 'Beispiel: Such «quietschen» → warum Scheibenbremsen quietschen und was hilft.',
   'Bikes › Care › a bike › «Workshop cheat sheet».': 'Velos › Pflege › ein Velo › «Werkstatt-Spick».',
   'Torque values: the value on the part always wins.': 'Drehmomente: der Wert auf dem Teil gilt immer.',
   '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.': '«Pannenhilfe»: kurze Schritte für Platten, Kette, Schaltauge, Bremse, Speiche, Knacken.',
