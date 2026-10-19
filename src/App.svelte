@@ -56,6 +56,7 @@
   import Abfragen from './pages/Abfragen.svelte';
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
+  import Erkenntnisse from './pages/Erkenntnisse.svelte';
   import Weight from './pages/Weight.svelte';
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
@@ -489,6 +490,9 @@
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
     <Auswertung />
+  {:else if page === 'insights'}
+    <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): Ich › Erkenntnisse -->
+    <Erkenntnisse />
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
     <Weight />

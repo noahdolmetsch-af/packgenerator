@@ -30,8 +30,8 @@ export const WHATS_NEW = [
     ],
     small: [
       { box: 'new', text: 'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups', href: '#/blocks' },
-      { box: 'nicer', text: 'Aktiv on Today: sleep, your last activity and the next fixed date; Aktiv › Today without the doubles, «Stopwatch ›» in the head', href: '#/flow' },
-      { box: 'nicer', text: 'Calmer pages: Rides, Setup and Inspiration with their own head, Pay with Invoices first, Notes and Inbox shorter' },
+      { box: 'nicer', text: 'Aktiv on Today: sleep, your last activity and the next fixed date; calmer pages such as Aktiv › Today, Rides, Setup and Pay', href: '#/flow' },
+      { box: 'new', text: 'Me › Insights: what goes together in your data, such as sleep and battery; the strongest three also in the analysis', href: '#/me/insights' },
     ],
     test: [
       'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',

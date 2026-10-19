@@ -225,6 +225,14 @@
             </a>
           </li>
           <li>
+            <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): what goes together in your data -->
+            <a class="ich-row" href="#/me/insights" data-me-insights>
+              <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, resting pulse')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <a class="ich-row" href="#/inbox">
               <span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Inbox')}</b><small>{$waitQ?.inbox ? `${t('{n} to sort', { n: $waitQ.inbox })} · ${t('Notes from on the way')}` : t('Notes from on the way, to sort')}</small></span>

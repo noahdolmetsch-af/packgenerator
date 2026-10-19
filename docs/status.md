@@ -70,6 +70,8 @@ Ausführlich: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-n
   - **Routine «Das tut mir gut» (D1/D2):** Kachel unter dem Kopf von Heute, verschiebbar, ein leerer Tag unterbricht die Serie; Seite `#/routine`; Wand v 7 (`withRoutine`), `f.routine` seit 0.150.0.
   - **Impeccable Runde 2:** Aktiv · Heute ohne Doppeltes, «Stoppuhr ›» im Kopf, Timer «Intervall»; dazu die übrigen Seiten der Runde 2 (Fahrten, Setup mit eigenem Kopf, Bezahlen mit Rechnungen zuerst, Notizen, Eingang, Ich, Handbuch, Was ist neu …). Runde 1 kam mit E.
   - **Ein deutscher Text pro Schlüssel:** Wächter `tests/i18n-doppelt.test.js`; Kontext-Schlüssel `'{n} item|routine'`, `'{n} s|span'`, `'To|time'`, `'Elapsed time|act'`.
+  - **Fenster auf Heute** (Noah 19.10.2026 «1a 2b 3a»): Packen am Vorabend einer Tour und der Wochenrückblick am Sonntag als Fenster mit «Später» und «Heute nicht» (`home/windows.js`, `home/HomeWindow.svelte`); erst das Tages-Check-Fenster, dann dieses (AbCard `busy`, HomeWindow `blocked`).
+  - **Erkenntnisse** (Noah 19.10.2026 «4b» + eigene Seite): `erkenntnisse.js` (feste Paare, 90 Tage, ab 14 Tagen, Spearman |rho| ≥ 0,3, nur Beobachtung), die stärksten drei in der Auswertung, Seite Ich › Erkenntnisse `#/me/insights`, Ruhepuls-Hinweis; `f.insights` seit 0.150.0.
   - **Anleitung** `docs/wann-du-etwas-tun-musst.md` (nach der Server-Einrichtung).
   - Fehlt noch: **Paket Aktiv** (Ziel-Prognose, Erholung, Blöcke; Bündel von 0.160.0 auf altem Stand, nicht übertragen) und **Paket Heute** (ID1/ID2/ID4/ID5b, H1a/H4a; baut auf Paket Aktiv).
 - **v0.149.0 «Paket E – Material, Velos, Merken» (19.10.2026, auf Paket D 0.148.0, je ein Merge pro Teil):**

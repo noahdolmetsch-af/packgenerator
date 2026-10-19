@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 133 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 134 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1145,6 +1145,17 @@ Eine kurze Liste für jeden Tag auf Heute: abhaken, Tage in Folge sehen; Meditat
 2. «Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.
 
 **Beispiel:** «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.
+
+### Erkenntnisse
+
+Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation und Ruhepuls; die stärksten drei in der Auswertung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.
+2. Ich › Wi gaht's? › Auswertung zeigt die stärksten drei und führt zu allen.
+
+**Beispiel:** An Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.
 
 ### Timer
 
