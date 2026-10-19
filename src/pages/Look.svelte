@@ -22,6 +22,8 @@
   import { SUGGEST_AREAS } from '../lib/clear/suggest.js';
   import { suggest, setArea, watchSuggest } from '../lib/clear/suggest.svelte.js';
   watchSuggest();
+  import { glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
+  import { MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -85,6 +87,11 @@
         <div class="startrow">
           <p class="oplbl"><b id="look-start">{t('Open the app at')}</b><small>{t('What you see first after opening')}</small></p>
           <Seg labelledby="look-start" value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
+        </div>
+        <div class="startrow">
+          <!-- Paket K #285 «Handschuh-Modus» (Noah 19.10.2026 «4a und kann manuell geändert werden») -->
+          <p class="oplbl"><b id="look-glove">{t('Glove mode')}</b></p>
+          <Seg labelledby="look-glove" value={glove.mode} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} onchange={setGlove} />
         </div>
         <ul class="ops">
           {#each OPS as o (o.key)}

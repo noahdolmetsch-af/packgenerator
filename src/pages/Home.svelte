@@ -135,7 +135,7 @@
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
-  import YearAgoTile from '../lib/home/YearAgoTile.svelte';
+  import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -154,6 +154,10 @@
   import { quietHome } from '../lib/bedienung.svelte.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
+  import { MERKEN_KEY } from '../lib/merkendb.js';
+  import { LISTS_KEY } from '../lib/ownlists.js';
+  import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
+  import { unitsOf as trelloUnits } from '../lib/trello/client.svelte.js';
 
   /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -168,7 +172,7 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
-  const SKEYS = [WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -368,7 +372,8 @@
     const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
     if (b && !isShortRide(tr)) {
-      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
+      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike' && !r.key.startsWith('bike:inspectQuick:'));
+      // the Kurzcheck before a tour (Velo-Inspektion) stays on Velopflege; it is no workshop step on the trip card
       service = { n: rows.length, late: rows.some((r) => r.late), href: bikesHash({ tab: 'care', bike: b.id, open: true }) };
     }
     return {
@@ -685,6 +690,14 @@
     for (const d of dueCare(equipmentRows(items, { trips: allTrips, log: $mainLogQ ?? [], today })).slice(0, 2)) rows.push({ key: `main:${d.row.item.id}:${d.care.id}`, tone: 'warn', text: t('{name}: {care}', { name: nameOf(d.row.item), care: t(d.care.name) }), act: { label: t('View|care'), href: `#/equipment?item=${encodeURIComponent(d.row.item.id)}` } });
     for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: stepHere(x).href, trip: x.id } });
     if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: stepHere(next).href, trip: next.id } });
+    // Trello (Noah 19.10.2026 «5a»): due cards of the Trello lists, one line (more than one: how many)
+    if (S[TRELLO_KEY]?.on) {
+      const due = dueInTrello(trelloUnits({ todos: S[MERKEN_KEY] ?? [], lists: S[LISTS_KEY] ?? [], prefs: S[TRELLO_KEY] }, t('To-dos')), today);
+      if (due.length) {
+        const one = due[0];
+        rows.push({ key: 'trello', tone: 'warn', text: due.length === 1 ? t('Trello: {text} ({list})', { text: one.item.text, list: one.unit.name }) : tn(due.length, '{n} Trello card due', '{n} Trello cards due'), act: { label: t('Open'), href: due.length === 1 && one.unit.kind === 'list' ? `#/calendar/list/${encodeURIComponent(one.unit.key)}` : '#/calendar' } });
+      }
+    }
     if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
     // v0.48.0 (Noah 17a): one line only for a pinned note with an open checklist.
     for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
@@ -1096,7 +1109,8 @@
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
   {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
-  {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
+  <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
+  {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />

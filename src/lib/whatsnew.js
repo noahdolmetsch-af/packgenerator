@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.154.0 Paket 2 (Noah 19.10.2026 15:14 «1a»): K «Unterwegs», M «Aus Touren lernen» + «Neuland», S «Reise-Spur»,
+    // O «Sportarten», I «Velo im Griff» + «Velo-Inspektion», L2 «Bilderkennung», R «Andere Menschen», Trello, «Strava-Fahrten».
+    version: '0.154.0',
+    date: '2026-10-19',
+    title: 'Riding, learning and your bikes',
+    lead: 'On the road, after the tour and in the workshop.',
+    points: [
+      { text: 'On the road: handlebar view, «Before you leave», a link for your family', href: '#/ride' },
+      { text: 'Bikes › Care: inspection with photos, service by km, hours or days', href: '#/bikes?tab=care&view=inspect' },
+      { text: 'After the tour: diary, chronicle, quiz; Strava rides with all values', href: '#/chronik' },
+    ],
+    small: [
+      { box: 'new', text: 'Aktiv › Sports: a page for every sport', href: '#/flow/sports' },
+      { box: 'new', text: 'Packing list by photo, sitting position by camera', href: '#/me/tools/packphoto' },
+      { box: 'new', text: 'Trello, sign in with Google, bike mechanic and guide', href: '#/calendar' },
+    ],
+    test: [
+      'Open Trips › On the road and tap «Before you leave».',
+      'Open Bikes › Care and start a monthly inspection.',
+      'Open Aktiv › Training › List and open a ride.',
+    ],
+  },
+  {
     // v0.153.0 Paket 1 (Noah 19.10.2026 15:14 «1a»): G «Daten kommen von selbst», L «Werkzeugkasten», P «Was mir gut tut»,
     // N «Pläne und Träume», Q «App klarer», H «Packen leichter», J «Berg, Schnee und Notfall». Built on Tempo 0.152.0.
     version: '0.153.0',

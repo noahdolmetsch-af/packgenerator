@@ -63,7 +63,7 @@
     const { bike, row } = d;
     const ctx = [row.name, t('today|done'), bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ');
     const open = { name: t('Open the bike'), explain: t('All parts of {bike}', { bike: short(bike.name) }), icon: Bike, run: () => onopen(bike.id) };
-    if (row.kind === 'time' || row.kind === 'km')
+    if (row.kind === 'time' || row.kind === 'km' || row.kind === 'service')
       return [
         { kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row) },
         ...(row.part
@@ -74,6 +74,9 @@
           : []),
         open,
       ];
+    // «Velo-Inspektion»: the full inspection is started, not ticked off.
+    if (row.kind === 'inspect')
+      return [{ kind: 'hi', name: t('Start the inspection'), explain: t('Point by point, with guides'), sub: row.name, icon: Check, run: () => (location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: row.level ?? 'full' })) }, open];
     // v0.137.0 (DK1): a problem due before the next ride: Done closes it, as in the problem list.
     if (row.kind === 'repair' && row.task)
       return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: row.name, icon: Check, run: () => onrepair(row.task, 'done') }, open];

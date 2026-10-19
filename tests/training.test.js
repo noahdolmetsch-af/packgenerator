@@ -66,7 +66,11 @@ describe('numbers and lists', () => {
   });
   it('details: the newest with heart rate, recent, at most a few', () => {
     const list = [rec('1'), rec('2', { hrAvg: null }), rec('3', { startLocal: '2026-01-01T07:00:00Z' }), rec('4', { extra: { detail: '2026-10-11', dv: 2 } }), rec('5', { startLocal: '2026-10-12T07:00:00Z' })];
-    expect(needDetail(list, '2026-10-13').map((a) => a.id)).toEqual(['5', '1']);
+    // recent with heart rate first; then (19.10.2026 «4a») the older ones and the ones without heart rate, newest first;
+    // '4' has the details of an older kind (dv 2) and is fetched once more
+    expect(needDetail(list, '2026-10-13').map((a) => a.id)).toEqual(['5', '1', '4', '2', '3']);
+    expect(needDetail([...list.slice(0, 4).map((a) => ({ ...a, detail: 'x', dv: 3 })), list[4]], '2026-10-13').map((a) => a.id)).toEqual(['5']);
+    expect(needDetail([{ ...list[2], noDetail: '2026-10-12' }], '2026-10-13')).toEqual([]);
     expect(needDetail(list, '2026-10-13', { max: 1 }).map((a) => a.id)).toEqual(['5']);
   });
 });
@@ -139,13 +143,14 @@ describe('the fetch keeps every activity', () => {
     };
     const now = new Date('2026-10-13T08:00:00Z');
     await fetchTraining(db, c, now);
-    expect(log).toEqual([['zones', undefined], ['detail', '11']]);
+    // 19.10.2026 «4a»: the ride without heart rate gets its details too (laps, splits, climbs)
+    expect(log).toEqual([['zones', undefined], ['detail', '11'], ['detail', '12']]);
     expect((await db.activities.get('11')).kcal).toBe(512);
     await db.activities.update('11', { note: 'Beine gut' });
     await keepActivities(db, [{ ...acts[0], name: 'Lauf am See' }]);
     expect(await db.activities.get('11')).toMatchObject({ name: 'Lauf am See', kcal: 512, desc: 'test_data_gtp_ lockere Runde', pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], note: 'Beine gut', hist: { 150: 2800 } });
     await fetchTraining(db, c, new Date('2026-10-13T09:00:00Z'));
-    expect(log.length).toBe(2); // zones fresh, details there
+    expect(log.length).toBe(3); // zones fresh, details there
     await loadDetail(db, '12', { call: c, now });
     expect((await db.activities.get('12')).detail).toBe(now.toISOString());
   });

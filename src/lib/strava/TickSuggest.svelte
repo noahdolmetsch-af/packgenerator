@@ -34,7 +34,7 @@
       {#each open.slice(0, 8) as s (s.id)}
         <li data-suggest={s.id}>
           <span class="m"><b>{actName(actOf(s.actId)) || s.actId}</b><small>{dayShort(s.day)}{s.name ? ` · ${s.name}` : ''}{s.min ? ` · ${t('{n} min', { n: s.min })}` : ''}</small></span>
-          <button type="button" class="btn sm hi" disabled={busy === s.id} onclick={() => go(s.id, true)}><Check size={16} aria-hidden="true" />{t('Count')}</button>
+          <button type="button" class="btn sm hi" disabled={busy === s.id} onclick={() => go(s.id, true)}><Check size={16} aria-hidden="true" />{t('Count|tick')}</button>
           <button type="button" class="btn sm" disabled={busy === s.id} onclick={() => go(s.id, false)} aria-label={t('Do not count')}><X size={16} aria-hidden="true" /><span class="ts-lbl">{t('Do not count')}</span></button>
         </li>
       {/each}

@@ -98,8 +98,11 @@ test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every
   for (const id of ['logbook', 'pace', 'learnings', 'past']) await expect(row.locator(`[data-sk-tile="${id}"]`)).toHaveCount(0);
   await expect(row.locator('[data-sk-tile="tpl"]')).toBeVisible();
   await expect(row.locator('[data-sk-extras]')).toBeVisible();
-  // «Mehr» keeps Logbuch, Vergangene Touren and Fahrten
-  await expect(page.getByRole('region', { name: T('More') }).getByRole('link')).toHaveCount(3);
+  // «Mehr» keeps Logbuch, Vergangene Touren and Fahrten; Paket M adds its five rows above them
+  // (Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz)
+  const more = page.getByRole('region', { name: T('More') });
+  await expect(more.locator('a[data-m-row]')).toHaveCount(5);
+  await expect(more.locator('a:not([data-m-row])')).toHaveCount(3);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

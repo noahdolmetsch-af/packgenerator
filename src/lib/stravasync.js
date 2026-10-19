@@ -30,7 +30,7 @@ export function toRides(activities, bikes = [], { indoor = false } = {}) {
       other++;
       continue;
     }
-    rides.push({ ...(inside && !gear ? { indoor: true } : {}), source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null });
+    rides.push({ ...(inside && !gear ? { indoor: true } : {}), source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null, ...(a.spot ? { spot: a.spot } : {}) });
   }
   return { rides, other };
 }
@@ -112,6 +112,8 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
       if (r.hrAvg != null && (old.hrAvg ?? null) !== r.hrAvg) Object.assign(ch, { hrAvg: r.hrAvg, hrMax: r.hrMax });
       // «Werte überall» (WU1–WU4): the climbing of a ride fetched before the app kept it
       if (r.hm != null && (old.hm ?? null) !== r.hm) ch.hm = r.hm;
+      // «Velo-Inspektion» 3a: the start cell for the rain where the ride was
+      if (r.spot && old.spot !== r.spot) ch.spot = r.spot;
       if (Object.keys(ch).length) updates.push({ id: old.id, changes: ch });
     } else if (r.gearId && skip.has(String(r.gearId))) counts0.ignored++;
     else fresh.push(r);
@@ -139,7 +141,7 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
   const perBike = {};
   const add = (row, fields) => {
     const r = row.ride;
-    const e = makeEntry({ date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, hrAvg: r.hrAvg, hrMax: r.hrMax, hm: r.hm, importId, ...fields }, now);
+    const e = makeEntry({ date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, hrAvg: r.hrAvg, hrMax: r.hrMax, hm: r.hm, spot: r.spot, importId, ...fields }, now);
     out.push(e);
     if (e.state === 'counted' && e.bikeId) {
       const p = (perBike[e.bikeId] ??= { n: 0, km: 0 });
@@ -155,7 +157,7 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
     if (row.dup === 'known') {
       counts0.known++;
       const old = entries.find((e) => e.id === row.of);
-      if (old && !old.stravaId && !old.span) updates.push({ id: old.id, changes: { stravaId: row.ride.stravaId, ...(row.ride.hrAvg != null ? { hrAvg: row.ride.hrAvg, hrMax: row.ride.hrMax } : {}), ...(row.ride.hm != null ? { hm: row.ride.hm } : {}) } });
+      if (old && !old.stravaId && !old.span) updates.push({ id: old.id, changes: { stravaId: row.ride.stravaId, ...(row.ride.hrAvg != null ? { hrAvg: row.ride.hrAvg, hrMax: row.ride.hrMax } : {}), ...(row.ride.hm != null ? { hm: row.ride.hm } : {}), ...(row.ride.spot ? { spot: row.ride.spot } : {}) } });
       continue;
     }
     if (!row.ride.gear && row.ride.indoor && indoorTo) {

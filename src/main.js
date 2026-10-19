@@ -44,6 +44,8 @@ import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 import { initOps } from './lib/bedienung.svelte.js';
+import { initGlove } from './lib/unterwegs/handschuh.svelte.js'; // Paket K #285 «Handschuh-Modus»
+import './lib/unterwegs/handschuh.css';
 import { installExplain } from './lib/ui/explain.js';
 import { installBackdropClose } from './lib/ui/backdrop.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
@@ -52,6 +54,7 @@ import { takeReturn as takeGoogleReturn, watchAutoFetch as watchHealthFetch } fr
 import { takeReturn as takeDriveReturn } from './lib/docs/client.svelte.js';
 import { takeReturn as takeMailReturn } from './lib/mail/client.svelte.js';
 import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
+import { takeReturn as takeTrelloReturn, watchAutoSync as watchTrelloSync } from './lib/trello/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
@@ -63,6 +66,7 @@ import SyncAsk from './lib/sync/SyncAsk.svelte';
 initTheme();
 // Bedienung (Noah 13.10.2026): the small helps of Ich › Darstellung, high contrast before the first paint.
 initOps();
+initGlove();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();
@@ -110,6 +114,7 @@ takeGoogleReturn();
 takeDriveReturn();
 takeMailReturn(); // Google Mail: back from the Google login (#/me/mail?google=connected)
 takeAgendaReturn(); // Google Kalender und Aufgaben: back from the Google login (#/me/agenda?google=connected)
+takeTrelloReturn(); // Trello: back from Trello's permission page (#/calendar?trello=connected)
 
 // SN6+ (answer 5b): remember this opening of the app; «What the app can do» shows what is new since the one before.
 noteAppOpen();
@@ -154,5 +159,6 @@ settling(async () => {
     watchAutoFetch();
     watchHealthFetch(); // Fitbit: the new daily values when the app opens or comes back (answer 2a)
     watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
+    watchTrelloSync(); // Trello (Noah 19.10.2026 «2a»): Merken and the Trello lists, the same way
     autoCheck(db);
   });

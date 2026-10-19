@@ -12,6 +12,7 @@ import { learnPace } from '../pace.js';
 import { heartOf } from '../kmbook.js';
 import { planVsReal } from './rueckblick.js';
 import { tripEnd } from '../tripstate.js';
+import { kindOf } from '../training.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const r1 = (v) => Math.round(v * 10) / 10;
@@ -147,6 +148,8 @@ export function tempoRides({ acts = [], entries = [], paceRides = [], trips = []
   for (const a of acts) {
     const h = hoursOf(a);
     if (!h || !pos(a.km) || !dayOf(a)) continue;
+    // 19.10.2026: «Dein Tempo» is about the bike; runs, hikes and other sports stay out
+    if ((a.kind ?? kindOf(a.type)) !== 'bike') continue;
     const e = byStrava.get(String(a.id)) ?? null;
     out.push({ id: `act:${a.id}`, from: 'act', date: dayOf(a), name: a.name ?? e?.name ?? '', km: a.km, gainM: a.hm ?? null, movingH: h, bikeId: e?.bikeId ?? null, type: a.type ?? e?.type ?? '', surface: e?.surface ?? null, entryId: e?.id ?? null, paceId: null, hrAvg: a.hrAvg ?? e?.hrAvg ?? null, hrMax: a.hrMax ?? e?.hrMax ?? null, hist: a.hist ?? null, wAvg: a.wAvg ?? null, wMax: a.wMax ?? null, wDevice: a.wDevice ?? null, w20: a.w20 ?? null, use: true });
   }
@@ -155,7 +158,7 @@ export function tempoRides({ acts = [], entries = [], paceRides = [], trips = []
     if (out.some((x) => x.from === 'act' && x.date === r.date && Math.abs(x.km - r.km) <= Math.max(2, r.km * 0.1))) continue;
     const e = entries.find((x) => sameRide(x, r)) ?? null;
     const trip = trips.find((t) => t.bikeId && t.startDate && t.startDate <= r.date && r.date <= tripEnd(t));
-    out.push({ id: `pace:${r.id}`, from: 'pace', date: r.date, name: r.name ?? '', km: r.km, gainM: r.gainM ?? null, movingH: r.movingH, bikeId: e?.bikeId ?? r.bikeId ?? trip?.bikeId ?? null, type: e?.type ?? '', surface: e?.surface ?? r.surface ?? null, entryId: e?.id ?? null, paceId: r.id, hrAvg: e?.hrAvg ?? null, hrMax: e?.hrMax ?? null, hist: null, wAvg: null, wMax: null, wDevice: null, w20: null, use: r.use !== false });
+    out.push({ id: `pace:${r.id}`, from: 'pace', date: r.date, name: r.name ?? '', km: r.km, gainM: r.gainM ?? null, movingH: r.movingH, bikeId: e?.bikeId ?? r.bikeId ?? trip?.bikeId ?? null, type: e?.type ?? '', surface: e?.surface ?? r.surface ?? null, entryId: e?.id ?? null, paceId: r.id, hrAvg: e?.hrAvg ?? r.sensors?.hrAvg ?? null, hrMax: e?.hrMax ?? r.sensors?.hrMax ?? null, hist: r.sensors?.hist ?? null, wAvg: r.sensors?.wAvg ?? null, wMax: r.sensors?.wMax ?? null, wDevice: r.sensors?.wAvg != null ? true : null, w20: null, use: r.use !== false });
   }
   return out.sort((a, b) => b.date.localeCompare(a.date));
 }

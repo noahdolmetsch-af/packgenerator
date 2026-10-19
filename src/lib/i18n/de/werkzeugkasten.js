@@ -208,7 +208,7 @@ export default {
   '{from} pays you': '{from} zahlt dir',
   'You pay {to}': 'Du zahlst {to}',
   // Paket L, Teil 3: Wasserwaage, Übersetzung, Strichcode, QR, Lupe, Bildformat, Video, Karte, Ketten, «Passt gerade»
-  "Level": "Gerade",
+  "Level|bubble": "Gerade",
   "{pct} % slope": "{pct} % Steigung",
   "Set to zero here": "Hier auf null stellen",
   "Back to the sensor": "Zurück zum Sensor",

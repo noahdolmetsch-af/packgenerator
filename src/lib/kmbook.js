@@ -111,6 +111,8 @@ export function makeEntry(fields, now = new Date()) {
     hrAvg: fields.hrAvg ?? null,
     hrMax: fields.hrMax ?? null,
     hm: Number.isFinite(fields.hm) ? fields.hm : null,
+    // «Velo-Inspektion» 3a: the start cell of a Strava ride ('47.4,8.5'), only when known
+    ...(fields.spot ? { spot: fields.spot } : {}),
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
     state: fields.state ?? 'counted',
@@ -852,6 +854,13 @@ function sameFileRide(e, ride) {
 }
 
 /** The Strava ride of an uploaded GPX/FIT ride: same day, about the same km (and start time, when both have one). */
+/** 19.10.2026 (answer 1a): the Strava id of the same ride in the ledger (exactly one), so the uploaded ride links to its Strava page. */
+export function stravaTwin(entries, ride) {
+  if (!ride?.date) return null;
+  const near = (entries ?? []).filter((e) => e.source === 'strava' && e.stravaId && e.state !== 'removed' && sameFileRide(e, ride));
+  return near.length === 1 ? String(near[0].stravaId) : null;
+}
+
 export function heartOfRide(entries, ride) {
   if (!ride?.date) return null;
   const near = (entries ?? []).filter((e) => e.source === 'strava' && hasHeart(e) && sameFileRide(e, ride));

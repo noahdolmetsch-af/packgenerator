@@ -381,6 +381,62 @@ export const HANDBOOK = {
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
     example: 'Example: a gravel round shared from komoot → a planned trip for tomorrow with the packing list of your last trip.',
   },
+  // Paket K «Unterwegs» (Noah 19.10.2026)
+  'f.trainhome': {
+    on: 'Set your home place in Me › Settings.',
+    steps: ['On On the way tap «Home»; the location is read only then.', 'Read the next 3 trains, or open the way in Google Maps.'],
+    example: 'Example: a flat tyre in the Jura → «Home» → the train at 17:04 from the station 800 m away.',
+  },
+  'f.handlebar': {
+    on: null,
+    steps: ['On On the way tap «Handlebar view»; the phone turns sideways where it can.', '«Choose numbers»: up to 6, with arrows or by dragging.'],
+    example: 'Example: time, km, metres up and next meal big on the bar mount.',
+  },
+  'f.glove': {
+    on: null,
+    steps: ['Automatic switches on below 5 °C or on a ski tour day.', 'Set On or Off by hand in Me › Look or on On the way.'],
+    example: 'Example: −2 °C in the morning → buttons grow by themselves, gloves stay on.',
+  },
+  'f.eatremind': {
+    on: null,
+    steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
+    example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
+  },
+  'f.departsheet': {
+    on: null,
+    steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
+    example: 'Example: the train ticket from Dokumente, Rega 1414 and a friend’s number on one page.',
+  },
+  'f.komoottour': {
+    on: null,
+    steps: ['On On the way under «More» tap «Open the tour in komoot».', 'No link yet: «Add the komoot link of this tour».'],
+    example: 'Example: the gravel loop shared from komoot opens again with one tap at the start.',
+  },
+  'f.routeconvert': {
+    on: null,
+    steps: ['On On the way › More open «Route for other devices» and choose the GPX.', 'Save FIT for Garmin or KML for maps.'],
+    example: 'Example: a GPX from a club mail → FIT → copied to the Edge as a course.',
+  },
+  'f.waterfood': {
+    on: null,
+    steps: ['On On the way › More open «Water and food».', 'Food with «one per N hours» shows needed against packed.'],
+    example: 'Example: 6 h at 28 °C → 4.5 L, 3 refills with 1.5 L bottles, 1500 kcal.',
+  },
+  'f.ready': {
+    on: 'Connect Fitbit (Me › Data) or Strava.',
+    steps: ['Open On the way on the tour day, or the trip in Pack.', 'Read the line and the signs behind it; you decide.'],
+    example: 'Example: 5.2 h sleep and HRV lower than usual → «maybe a shorter round today?».',
+  },
+  'f.listentip': {
+    on: null,
+    steps: ['In «Ready for today?» add a link for this kind of tour.', 'Rename or delete it with the pencil and the bin.'],
+    example: 'Example: «Morning playlist» for bike tours, a mountain podcast for ski tours.',
+  },
+  'f.skyplaces': {
+    on: null,
+    steps: ['On On the way › More open «Sun, moon and places».', '«Load places» asks Wikipedia about start, middle and finish.'],
+    example: 'Example: dark from 18:52, full moon on Friday, and a few lines about the castle on the way.',
+  },
   // v0.134.0 «Inspiration»
   'f.inspiration': {
     on: null,
@@ -441,6 +497,46 @@ export const HANDBOOK = {
     on: 'Needs a trip within 14 days and a bike with parts.',
     steps: ['Open Bikes › Care.', 'The card «before the trip» lists what the workshop still has to do.'],
     example: 'Example: trip in 10 days → «new brake pads» goes to the workshop order.',
+  },
+  'f.sportpage': {
+    on: null,
+    steps: ['Open Active › Sports and tap a sport.', '«Adjust blocks»: switch blocks off, rename them, move them or add your own.', 'Choose a colour for the sport there too.'],
+    example: 'Example: Tennis without «Weather», with «Lessons» and «Matches» on top.',
+  },
+  'f.progress': {
+    on: null,
+    steps: ['Open a sport › History and progress.', 'Take a suggested measure or add your own, e.g. Leg press in kg.', 'The last values are filled in; + and − change them, «Save» keeps them.'],
+    example: 'Example: «Leg press +10 kg in 6 weeks», the best value with a star.',
+  },
+  'f.mosaic': {
+    on: null,
+    steps: ['Open Active › Sports.', 'Each row is a sport, each square a day; the colour is the sport.', 'A goal shows how often you reached it.'],
+    example: 'Example: Gym 3 of 2 times in 7 days, the row is ticked.',
+  },
+  'f.sportextras': {
+    on: null,
+    steps: ['Open a sport › «Adjust blocks».', 'Under «Add a block» choose e.g. Training plans, Lessons or Loops from home.', 'Its lines can be renamed, ticked and deleted.'],
+    example: 'Example: Gravel › «Water and gravel on the route» shows fountains and the gravel share of a route.',
+  },
+  'f.bikeservice': {
+    on: 'Needs a bike with its km.',
+    steps: ['Bikes › Care › your bike: the card «Bike service».', '«Set up»: every 3000 km, 100 h or 365 days, each one can be off.', '«Service done» after the service; it is due again by whichever comes first.'],
+    example: 'Example: mountain bike, 1400 km since the service at 14 km/h ≈ 100 h → due.',
+  },
+  'f.parttemplate': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Part template».', 'Choose road bike, gravel or mountain bike and switch parts on or off.', 'Own parts: add, rename, move, delete.'],
+    example: 'Example: gravel gets «Bell»; every new gravel bike starts with it.',
+  },
+  'f.spick': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
+    example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
+  },
+  'f.inspect': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Inspection»: start the quick check, the monthly check or the full inspection.', 'Tap a state for every point; «How it works» shows tools, steps, torque and when the bike shop is better.', '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.'],
+    example: 'Example: three rides in the rain → the monthly check comes sooner; chain at 0,35 % → about how many km are left.',
   },
   'f.tick': {
     on: null,
@@ -763,6 +859,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Toolbox › Magnifier and light.', 'Tap «Magnifier and light» and allow the camera.', 'Zoom, «Hold picture», or switch the light on.'],
     example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
+  'f.packphoto': {
+    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
+    example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
+  },
+  'f.sitpos': {
+    on: 'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.',
+    steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
+    example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
@@ -777,6 +883,22 @@ export const HANDBOOK = {
     on: 'Needs the internet now and then; it is free and the server cannot read your data.',
     steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
     example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
+  },
+  // Paket R
+  'f.account': {
+    on: 'Needs the internet for the sign-in. The server keeps no e-mail and no name.',
+    steps: ['Me › Data and backup › «Sign in with Google» (or «Switch on sync» for the way without an account).', 'Choose your Google account; the app comes back and switches on the sync.', 'On the other device: the same, «Sign in with Google». Both then keep the same data.'],
+    example: 'Example: new phone → open the app → «Sign in with Google» → your gear and trips arrive.',
+  },
+  'f.privacy': {
+    on: null,
+    steps: ['Me › «Privacy and terms».', 'Read what stays on your device and what the server keeps when you switch it on.'],
+    example: 'Example: before you switch on the sync, look at what the server keeps.',
+  },
+  'f.pros': {
+    on: null,
+    steps: ['Me › «Bike mechanic and guide» › «Add contact»: name, what they do, mail, booking page or phone.', '«Request»: choose the bike and the days that suit you, then «Write the mail» or «Open their booking page».', 'Change, delete and the order with the arrows or the handle.'],
+    example: 'Example: your bike shop → «Request» → bike «Gravel» → «Tue or Thu morning» → «Write the mail».',
   },
   'f.camera': {
     on: 'On a phone or tablet; a computer shows the file dialog.',
@@ -852,6 +974,11 @@ export const HANDBOOK = {
     on: 'Nothing to switch on; the stars come once there is data.',
     steps: ['Connect Strava or Fitbit, or answer the daily check.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday; switch off single ones.'],
     example: 'Example: 1000 km by bike this year → the second bike star.',
+  },
+  'f.trello': {
+    on: 'Connect once under Calendar › Remember › Trello (needs Strava connected on this device and a workspace «Packgenerator» in Trello).',
+    steps: ['Open Calendar › Remember and tap «Connect Trello»; allow it on Trello\'s page.', 'Your to-dos go to the list «To-dos» on the board «Packgenerator»; switch it off there if you like.', 'In a list\'s settings choose «Also in Trello»: the list and its points appear on the board.'],
+    example: 'Example: «Licht prüfen» due today, written in Trello → it stands in Remember and «Important today»; ticked here, done there.',
   },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
@@ -978,6 +1105,93 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],
     example: 'Example: after an update read the 3 new things in one minute.',
+  },
+  // Paket M «Aus Touren lernen»
+  'f.diary': {
+    on: 'Photos stay on this device; they are not in the backup.',
+    steps: ['Open the debrief of a trip: the draft from Strava rides, weather and notes is there.', 'Change anything; «New draft» writes it again.', '«Photos of those days» adds photos of the trip days; «Copy» or «Share» the text.'],
+    example: 'Example: «Day 1 · Saturday: 84 km, 1,240 m up in 4 h 10 min. Weather: 14 to 24 °C, dry.»',
+  },
+  'f.extraq': {
+    on: null,
+    steps: ['Open the debrief of a trip.', 'Under «More to learn» the 2 questions that fit the trip best are open; «Ask more» shows the others.', '«Adjust questions»: switch off, change the text, add your own, delete, order with arrows or by dragging.'],
+    example: 'Example: after a rainy trip: «What helped you in the rain, and what did not?»',
+  },
+  'f.notetodo': {
+    on: 'Google Tasks shows as a place once it is switched on under Me › Calendar and tasks.',
+    steps: ['Open the debrief of a trip; the notes on the way are listed.', 'Choose under «To-dos go to»: a new checklist, one of your notes or a Google Tasks list.', 'Tap «As to-do» beside a note.'],
+    example: 'Example: «brake squeaks» → checklist «To-dos after Jura round».',
+  },
+  'f.future': {
+    on: null,
+    steps: ['In the debrief write a sentence under «A message to your future self».', 'On the way of your next trip a closed letter «Mail from you!» waits.', 'Open it; «Read» puts it away.'],
+    example: 'Example: «Take the warm gloves, the mornings were cold.»',
+  },
+  'f.quiz': {
+    on: null,
+    steps: ['The evening before a trip, tap «Quiz the evening before» on «Packed».', 'Answer the three questions; the streak counts the trips with a quiz before them.', 'Add, order, switch off or delete your own questions; hide kinds of suggestions; switch the quiz off at the top.'],
+    example: 'Example: «In which bag is the stove?» → Frame bag. 2 of 3 right · Streak: 4 trips.',
+  },
+  'f.observations': {
+    on: 'Needs data: Strava rides, Fitbit days or «How are you?» answers; with too little data it says so.',
+    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they stay the same afterwards.', 'Hide a kind with «Do not show this kind any more»; earlier weeks are under «Older weeks».'],
+    example: 'Example: «After a day on the bike you slept 35 min longer: 7:55 h against 7:20 h on the other nights.»',
+  },
+  'f.chronik': {
+    on: 'Grows with every debrief, ride and learning.',
+    steps: ['Open Trips › Look back › Chronicle, or the tile «Earlier at this time» on Today.', 'Choose «All», «Bike», «Trips», «Care», «Meditation» or «Notes»; the arrows and the month buttons change the month.', 'Tap a trip or ride to open its look back.'],
+    example: 'Example: 19 October: «Jura heights» 2025, 132 km, «Too many tools with me».',
+  },
+  'f.gelernt': {
+    on: null,
+    steps: ['Open Trips › Look back › What the app learned.', '«Month»: up to 6 lines with numbers; the arrows go to other months.', '«Year»: the letter «Your year»; «Print» also saves it as PDF.'],
+    example: 'Example: October: 2 trips, 121 km · 1 new learning · 1 thing stays at home now.',
+  },
+  'f.jahr': {
+    on: 'Photos stay on this device; without a photo the route is drawn.',
+    steps: ['Open Trips › Look back › Your year as pictures, from 1 December also the hint.', 'Tap, swipe or use the arrow keys; the cover chooses another year.', 'The last picture «Thank you for this year» leads to the year letter.'],
+    example: 'Example: 21 trips, 1,746 km, 55 days on the way.',
+  },  'f.neuland': {
+    on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
+    example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
+  },  'f.eveningtour': {
+    on: 'Shows only on the days of a trip.',
+    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
+    example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
+  },
+  'f.ridepage': {
+    on: 'Needs Strava on this device; an uploaded GPX shows its own values. Older rides get their details bit by bit.',
+    steps: ['Tap a Strava activity anywhere: Touren, Fahrten-Buch, Verlauf, the Rückblick of a trip or Aktiv › Training.', 'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.', 'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.'],
+    example: 'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.',
+  },
+
+
+  // Paket S «Reise-Spur»
+  'f.here': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «I am here».', 'Add a sentence or a photo, then «Save place».'],
+    example: 'Example: «Lunch at the lake» with a photo; it sits on the tour map at that spot.',
+  },
+  'f.record': {
+    on: 'Needs a trip that has started; the browser asks once to use the location.',
+    steps: ['On the way: tap «Record», then «Start recording».', 'Keep the phone on the handlebar with power; tap «Stop» at the end.'],
+    example: 'Example: a day without the Garmin: the app draws the line; screen off for 20 min leaves a gap.',
+  },
+  'f.spurmap': {
+    on: 'Needs Strava connected, a GPX ride, a recording or a place on the trip.',
+    steps: ['Open the trip’s debrief › «Travel track».', 'Move and zoom the map, tap a day or a dot.'],
+    example: 'Example: a 3-day tour shows three coloured lines, the lunch places and the photos.',
+  },
+  'f.spurlink': {
+    on: 'Needs the internet once to make the link.',
+    steps: ['«Travel track» › choose what goes in › «Make a link».', 'Send it; «Delete link» ends it at once.'],
+    example: 'Example: the family follows the tour without an account; photos stay on your phone.',
+  },
+  'f.travelbook': {
+    on: null,
+    steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
+    example: 'Example: a cover with the whole line, then one page per day with its photos.',
   },
 };
 

@@ -352,6 +352,8 @@
                 <a href="#/pack/templates">{t('Templates')}</a>
                 <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button>
                 {#if !fixed}<button onclick={menu(() => show('ready'))}>{t('Ready check')} {readyCount}/{readyTotal}</button>
+                <!-- Paket L2 «Packliste per Foto»: tick the list from one photo of the laid-out gear -->
+                <a href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>
                 {#if stats.packed}<button onclick={actions.resetPacked}>{t('Untick packed items')}</button>{/if}
                 <button onclick={actions.skip}>{bikeTrip ? trip.skipped ? t('Riding it after all') : t('Not riding') : trip.skipped ? t('Going after all') : t('Not going')}</button>{/if}
               </div>
