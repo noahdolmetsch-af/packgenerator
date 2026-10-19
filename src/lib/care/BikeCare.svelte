@@ -342,6 +342,18 @@
                 <Btn icon={Check} label={t('Service done')} explain={t('Record the bike service as done today')} sub={x.d.name} onclick={() => ondone(x.d)} />
               </span></span>
             </li>
+          {:else if x.d.kind === 'inspect'}
+            <!-- «Velo-Inspektion»: the full inspection (no part of its own); the button starts it -->
+            <li class="pt due" data-due-inspect>
+              <span class="pn"><span class="part-btn">{x.d.name}</span></span>
+              <span class="st">{@render badge('due')}</span>
+              <span class="last"><span class="lt">{x.d.detail}</span></span>
+              <span class="next late">–</span>
+              <span class="wear"></span>
+              <span class="act"><span class="rowacts">
+                <Btn icon={ListChecks} label={t('Start the inspection')} explain={t('Point by point, with guides')} sub={x.d.name} href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'full' })} />
+              </span></span>
+            </li>
           {/if}
         {/each}
         {#each hcards as h (h.key)}
@@ -374,6 +386,8 @@
         <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
         <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
         {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
+        <!-- «Velo-Inspektion» (Noah 19.10.2026): the checks point by point, with guides; loaded with the bike -->
+        {#if stored}{#await import('../inspect/InspectCard.svelte') then m}<m.default bike={stored} />{/await}{/if}
         {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
       {:else}

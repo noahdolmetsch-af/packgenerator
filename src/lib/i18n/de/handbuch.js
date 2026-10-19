@@ -543,4 +543,9 @@ export default {
   'Torque values: the value on the part always wins.': 'Drehmomente: der Wert auf dem Teil gilt immer.',
   '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.': '«Pannenhilfe»: kurze Schritte für Platten, Kette, Schaltauge, Bremse, Speiche, Knacken.',
   'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.': 'Beispiel: Steckachse 12–15 Nm; dein Vorbau sagt 5 Nm → als eigene Zeile eintragen.',
+  // «Velo-Inspektion» (19.10.2026)
+  'Bikes › Care › a bike › «Inspection»: start the quick check, the monthly check or the full inspection.': 'Velos › Pflege › ein Velo › «Inspektion»: Kurzcheck, Monatscheck oder grosse Inspektion starten.',
+  'Tap a state for every point; «How it works» shows tools, steps, torque and when the bike shop is better.': 'Bei jedem Punkt einen Zustand antippen; «So geht’s» zeigt Werkzeug, Schritte, Drehmoment und wann die Werkstatt besser ist.',
+  '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.': '«Fertig» speichert Werte und Fotos; «Selbst richten» und «Werkstatt» werden Probleme.',
+  'Example: three rides in the rain → the monthly check comes sooner; chain at 0,35 % → about how many km are left.': 'Beispiel: drei Regenfahrten → der Monatscheck kommt früher; Kette bei 0,35 % → etwa so viele km bleiben.',
 };

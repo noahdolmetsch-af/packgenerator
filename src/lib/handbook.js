@@ -467,6 +467,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
     example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
   },
+  'f.inspect': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Inspection»: start the quick check, the monthly check or the full inspection.', 'Tap a state for every point; «How it works» shows tools, steps, torque and when the bike shop is better.', '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.'],
+    example: 'Example: three rides in the rain → the monthly check comes sooner; chain at 0,35 % → about how many km are left.',
+  },
   'f.tick': {
     on: null,
     steps: ['Open Active, or the Active card on Today.', 'One tap ticks an activity; «Undo» takes it back.'],

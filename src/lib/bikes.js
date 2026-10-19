@@ -257,7 +257,9 @@ export function parseBikesHash(hash = '') {
   // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
   // v0.116.0 «Strava-Verbindung»: &view=strava is the Strava page (S1–S3), &view=strava-check «Zum Prüfen» (S5).
   // «Velo im Griff» (19.10.2026): &view=spick is the «Werkstatt-Spick», &view=templates the part templates per kind.
-  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates'].includes(q.get('view'))) out.view = q.get('view');
+  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect'].includes(q.get('view'))) out.view = q.get('view');
+  // «Velo-Inspektion» (19.10.2026): &view=inspect is a bike's inspections (history, checklist); &level=quick|monthly|full runs one.
+  if (out.view === 'inspect' && ['quick', 'monthly', 'full'].includes(q.get('level'))) out.level = q.get('level');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   // «Bugfix Dateneingabe» D2: &view=enter is «Enter values», every value of one bike on one page.
   if (tab === 'compare' && ['all', 'enter'].includes(q.get('view'))) out.view = q.get('view');
@@ -303,7 +305,7 @@ export function withBack(href, back, from = null) {
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null, page = null, setup = null, a = null, b = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null, page = null, setup = null, a = null, b = null, level = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop' || tab === 'rig' || tab === 'garmin') q.set('tab', tab);
   if (['bags', 'log', 'setup', 'compare', 'table'].includes(view) && tab === 'rig') q.set('view', view);
@@ -312,9 +314,10 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
     if (a) q.set('a', a);
     if (b) q.set('b', b);
   }
-  if (['import', 'strava', 'strava-check', 'spick', 'templates'].includes(view) && tab === 'care') q.set('view', view);
+  if (['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
+  if (tab === 'care' && view === 'inspect' && ['quick', 'monthly', 'full'].includes(level)) q.set('level', level);
   if (tab === 'garmin' && view) q.set('view', view);
   if (tab === 'garmin' && page) q.set('page', page);
   if (open && bike) q.set('open', '1');

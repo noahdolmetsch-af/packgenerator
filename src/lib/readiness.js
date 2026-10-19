@@ -35,10 +35,10 @@ export const repairDue = (x, today = localDay()) => x.status === 'needed' || !!x
 
 /**
  * The kind of a bike row: 'time' (sealant, fork, shock), 'km' (wax the chain), 'check' (1000 km), 'part' (worn or work needed),
- * 'service' («Velo im Griff»: the service of the whole bike; it has no part).
+ * 'service' («Velo im Griff»: the service of the whole bike; it has no part), 'inspect' (the full inspection, no part).
  */
-const kindOf = (r) => (r.worn ? 'part' : r.service ? 'service' : r.key === 'check' ? 'check' : PART[r.key]?.everyKm ? 'km' : 'time');
-const partOf = (r) => (r.service ? null : r.key);
+const kindOf = (r) => (r.worn ? 'part' : r.inspect ? 'inspect' : r.service ? 'service' : r.key === 'check' ? 'check' : PART[r.key]?.everyKm ? 'km' : 'time');
+const partOf = (r) => (r.service || r.inspect ? null : r.key);
 
 /**
  * Bike care for one bike. bike: from withVisits (parts with the workshop jobs).
@@ -58,7 +58,7 @@ export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = l
     const detail = x.status === 'needed' ? t('work needed') : x.beforeRide && !x.dueDate ? t('Before the next ride') : t('open repair');
     rows.push({ key: `repair:${x.id}`, kind: 'repair', part: null, name: x.task, detail, late: x.status === 'needed', task: x });
   }
-  const now = new Set(rows.map((r) => (r.kind === 'service' ? 'service' : r.part)).filter(Boolean));
+  const now = new Set(rows.map((r) => (r.kind === 'service' ? 'service' : r.kind === 'inspect' ? 'inspect' : r.part)).filter(Boolean));
   const soon = trip && trip.bikeId === bike.id
     ? (beforeTrip(bike, trip, setup, today)?.rows ?? [])
         .filter((r) => !now.has(r.key))

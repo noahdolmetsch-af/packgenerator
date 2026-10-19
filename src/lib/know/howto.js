@@ -132,6 +132,7 @@ export const HOWTO = {
   'f.sportextras': ['Open a sport.', 'Tap «Adjust blocks».', 'Add an extra block under «Add a block».'],
   'f.bikeservice': ['Open a bike under Bikes › Care.', 'Card «Bike service»: tap «Set up» for km, hours and days.', 'After the service tap «Service done».'],
   'f.parttemplate': ['Open Bikes › Care › a bike › «Part template».', 'Choose the kind and switch parts on or off.', 'Add your own parts; a new bike of that kind gets them.'],
+  'f.inspect': ['Open Bikes › Care › a bike › «Inspection».', 'Start a level; tap a state for every point, add a value, a note or a photo.', 'Tap «Done»: the history keeps it, problems go to the bike.'],
   'f.spick': ['Open Bikes › Care › a bike › «Workshop cheat sheet».', 'Look up the torque; add your own values.', 'Under «Breakdown help» open the breakdown you have.'],
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],

@@ -49,7 +49,7 @@ export const SINCE = {
   // Paket O «Sportarten» (the bundler sets the release version)
   'f.sportpage': '0.149.0', 'f.progress': '0.149.0', 'f.mosaic': '0.149.0', 'f.sportextras': '0.149.0',
   // Paket I «Velo im Griff»
-  'f.bikeservice': '0.149.0', 'f.parttemplate': '0.149.0', 'f.spick': '0.149.0',
+  'f.bikeservice': '0.149.0', 'f.parttemplate': '0.149.0', 'f.spick': '0.149.0', 'f.inspect': '0.149.0',
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push

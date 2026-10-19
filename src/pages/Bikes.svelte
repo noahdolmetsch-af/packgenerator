@@ -34,7 +34,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back, page: route.page });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back, page: route.page, level: route.level });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -100,6 +100,9 @@
   {:else if route.tab === 'care' && route.view === 'templates'}
     <!-- «Velo im Griff» #1009: the part template per bike kind; loaded only when opened -->
     {#await import('../lib/care/TemplatePage.svelte') then m}<m.default bikeId={route.bike} />{/await}
+  {:else if route.tab === 'care' && route.view === 'inspect'}
+    <!-- «Velo-Inspektion» (Noah 19.10.2026): a bike's inspections, or one running (&level=); loaded only when opened -->
+    {#await import('../lib/inspect/InspectPage.svelte') then m}{#key `${route.bike}:${route.level ?? ''}`}<m.default bikeId={route.bike} level={route.level ?? null} />{/key}{/await}
   {:else if route.tab === 'care' && route.view === 'import'}
     <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
     <KmImport bikeId={route.bike} />

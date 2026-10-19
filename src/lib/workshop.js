@@ -7,12 +7,13 @@
  * Pure functions only, so they are easy to test.
  */
 import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, kmSince, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
-import { t as tr, tn, num, locale } from './i18n.svelte.js';
+import { t as tr, tn, num, locale, dateOf } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 import { own } from './ownlive.svelte.js';
 import { vig } from './veloimgriff.svelte.js';
 import { hoursSince, hoursText } from './bikehours.js';
 import { serviceState } from './bikeservice.js';
+import { insp } from './inspect/live.svelte.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -199,6 +200,13 @@ export function overdueDays(days) {
 }
 
 /** v0.22.0: exported for readiness.js (the same rules for Home, Pack and Care). */
+/** Why the full inspection is due, in one line. */
+export function inspectWhy(st) {
+  if (st.by === 'season') return tr('Start of the season');
+  if (st.by === 'km') return st.extra > 0 ? tr('{km} km since the last one, {extra} of them for rain and trails', { km: num(st.load.load), extra: num(st.extra) }) : tr('{km} km since the last one', { km: num(st.load.load) });
+  return tr('last one {date}', { date: dateOf(st.last?.date ?? '') });
+}
+
 export function bikeDue(bike, trip, setup, today, end) {
   const tripKm = typeof trip.route?.km === 'number' ? trip.route.km : null;
   const rows = [];
@@ -232,6 +240,11 @@ export function bikeDue(bike, trip, setup, today, end) {
     if (sv.next && sv.next <= end) rows.push({ key: 'service', name: tr('Bike service'), when: sv.next < trip.startDate ? 'now' : 'during', service: true, detail: sv.next < trip.startDate ? tr('due {date}, before the start', { date: sv.next }) : tr('due {date}, on the trip', { date: sv.next }) });
     else if (tripKm != null && sv.kmLeft != null && tripKm >= sv.kmLeft) rows.push({ key: 'service', name: tr('Bike service'), when: 'during', service: true, detail: tr('due after {km} km of the route', { km: sv.kmLeft }) });
   }
+  // «Velo-Inspektion» (3a): the full inspection, by weighted km, days or the start of the season. It is done
+  // at home (not in the workshop order); before a trip when it falls due by then.
+  const full = insp.byBike[bike.id]?.full ?? null;
+  if (full?.due) rows.push({ key: 'inspect', name: tr('Full inspection'), when: 'now', late: true, inspect: true, detail: inspectWhy(full) });
+  else if (full && !full.never && !full.off && full.next && full.next <= end && trip.startDate > today) rows.push({ key: 'inspect', name: tr('Full inspection'), when: full.next < trip.startDate ? 'now' : 'during', inspect: true, detail: tr('due {date}, before the start', { date: full.next }) });
   // The 1000 km check: due now, or reached on the way.
   const check = checkState(bike);
   if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(check.every) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });
@@ -354,7 +367,7 @@ export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { fro
   // Waxing the chain every 150 km is done at home, not in the shop.
   // v0.31.0 (proposal 3/4): skip(key) leaves out the jobs the owner usually does himself
   // (part keys, 'check' for the 1000 km check); open repairs always stay.
-  const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn) && !skip?.(r.key)).map((r) => {
+  const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn) && !r.inspect && !skip?.(r.key)).map((r) => {
     const action = r.worn ? 'replace' : r.key === 'check' ? 'check' : 'service';
     const price = priceFor(visits, bike.id, r.key, action);
     // «Werte messen» 3a: a chain measured at its limit is replaced, with the value for the bike shop

@@ -22,6 +22,7 @@ export const GROUP_PLACES = [
   { name: 'Building blocks', file: 'src/pages/Blocks.svelte' },
   { name: 'Learnings by topic', file: 'src/lib/review/Learned.svelte' },
   { name: 'Document groups', file: 'src/pages/Docs.svelte' },
+  { name: 'Inspection areas', file: 'src/lib/inspect/EditList.svelte' }, // «Velo-Inspektion»: the areas of the checklist
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
