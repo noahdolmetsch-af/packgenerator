@@ -26,7 +26,7 @@ export const WHATS_NEW = [
     points: [
       { text: '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak', href: '#/routine' },
       { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care', href: '#/' },
-      { text: 'Morning check and evening review come as a window with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas, the tile «Your 15 questions» which question comes when', href: '#/check/morning' },
+      { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
     ],
     small: [
       { box: 'new', text: 'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups', href: '#/blocks' },

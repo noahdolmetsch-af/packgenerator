@@ -22,7 +22,9 @@
   import '../bikes/velo-dlg.css';
   import './ab.css';
 
-  let { today } = $props();
+  // Paket C: busy tells Heute that this window is open or still loading, so the window of windows.js
+  // (HomeWindow: Vorabend, Wochenrückblick) waits; the round comes first, never two windows at once.
+  let { today, busy = $bindable(false) } = $props();
   let now = $state(stampOf());
   $effect(() => {
     const id = setInterval(() => (now = stampOf()), 60_000);
@@ -75,6 +77,9 @@
   const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
   const open = $derived(shown.length > 0 && !waiting);
+  $effect(() => {
+    busy = !data?.stored || open;
+  });
 
   let dialog = $state();
   $effect(() => {

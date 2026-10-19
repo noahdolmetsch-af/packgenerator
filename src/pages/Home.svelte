@@ -134,6 +134,8 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
+  import { stampOf } from '../lib/abfragen.js';
+  import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
@@ -810,6 +812,8 @@
   }
   // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
   let stravaCard = $state(false);
+  // Paket C: the Tages-Check window (AbCard) is open or loading; the other window of Heute (HomeWindow) waits
+  let roundOpen = $state(true);
   // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
   let maintHint = $state(false);
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
@@ -1119,7 +1123,9 @@
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
-  {#if !editing && ready}<AbCard {today} />{/if}
+  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} />{/if}
+  <!-- Fenster (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's review, only after the round window -->
+  {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
