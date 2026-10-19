@@ -16,18 +16,22 @@
 
 export const WHATS_NEW = [
   {
-    // v0.156.0 Paket 5 (placeholder; the bundler adds U «Rennen»): «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»).
+    // v0.156.0 Paket 5: «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»), «Grösse» (Noah «1b 2b»), Abend-Runde sync hint.
+    // U «Rennen» follows as Paket 7 (0.158.0).
     version: '0.156.0',
     date: '2026-10-19',
-    title: 'Mails into the app',
-    lead: 'From Gmail into the Inbox, and from the app into a mail.',
+    title: 'Mails into the app and the size',
+    lead: 'From Gmail into the Inbox, and the whole app smaller or larger.',
     points: [
       { text: 'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»', href: '#/me/mail' },
       { text: 'The Inbox shows tips (bill, booking, deadline) and a button per attachment', href: '#/inbox' },
       { text: '«File as …» with 13 targets and your own new places', href: '#/inbox' },
+      { text: 'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)', href: '#/me/look' },
     ],
     small: [
       { box: 'new', text: 'Mail a packing list or a document from the app', href: '#/me/mail' },
+      { box: 'new', text: 'Compact: the same text with less space between', href: '#/me/look' },
+      { box: 'new', text: 'Me shows a hint while phone and computer do not sync', href: '#/me' },
     ],
     test: [
       'Open Me › Mail, open a mail and tap «Into the app».',

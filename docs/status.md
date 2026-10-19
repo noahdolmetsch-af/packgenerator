@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.156.0 «Paket 5» (19.10.2026, nach Paket 3+4):** Mail in die App (Ich › Mail «In die App übernehmen», Gmail-Label «Packgenerator», Eingang mit Tipps und Knopf pro Anhang, «Ablegen als …»), Grösse (Ich › Darstellung: ein Schieber 80–130 % statt drei Knöpfe, «Kompakt») und unter Ich ein Hinweis, solange Handy und Computer nicht abgleichen. U «Rennen» folgt als Paket 7 (0.158.0), die Velo-FAQ als Paket 6 (0.157.0).
+
 **0.155.0 «Paket 3+4» (19.10.2026, nach Paket 2):** Paket 3 und 4 als ein Release (Noah 19.10.2026). Dazu kommen zu Paket 3: V «Alltag» (Ich › Alltag: Einkaufsliste, Verträge und Abos, «Lange nicht gesehen», im Ausland Notfallnummern und Währung, Flug am Vorabend), zu K Haus-Check, Liste für die Wohnungs-Hüter und «Bereit für morgen?», Material › Strom (Strombudget und Powerbank), Touren › Reise-Links, eine Anleitung auf weiteren Seiten, Diktat bis Stopp mit Antworten, «Weiter fragen bei …», Gemini über den Helfer und «Meine KI-Projekte».
 
 **Teil Paket 3:** T «Freie Zeit» mit acht neuen Seiten unter Ich › Freie Zeit (Sammlungen, Worauf hab ich Lust?, Mein Abend, Was mir wesentlich ist, Reise-Wünsche, Erste Nacht, Fürs nächste Mal, Impulse) und dem Reiter «Impulse» in Aktiv; «Daten in der App»: Wetter, Tageslicht, Termine und eigene Zahlen-Fragen in den Erkenntnissen. Neue Daten-Ablage Dexie 19 «frei»; Backup-Test ohne Verlust.

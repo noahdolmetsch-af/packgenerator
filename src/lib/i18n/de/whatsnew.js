@@ -5,8 +5,11 @@
  */
 export default {
   // 0.156.0 Paket 5: Mail in die App
-  'Mails into the app': 'Mails in die App',
-  'From Gmail into the Inbox, and from the app into a mail.': 'Von Gmail in den Eingang und aus der App in eine Mail.',
+  'Mails into the app and the size': 'Mails in die App und die Grösse',
+  'From Gmail into the Inbox, and the whole app smaller or larger.': 'Von Gmail in den Eingang, und die ganze App kleiner oder grösser.',
+  'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)': 'Grösse: ein Schieber unter Ich › Darstellung macht die ganze App kleiner oder grösser (80–130 %)',
+  'Compact: the same text with less space between': 'Kompakt: gleiche Schrift, weniger Abstand',
+  'Me shows a hint while phone and computer do not sync': 'Unter Ich ein Hinweis, solange Handy und Computer nicht abgleichen',
   'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»': 'Mails in die App: «In die App übernehmen» unter Ich › Mail oder das Gmail-Label «Packgenerator»',
   'The Inbox shows tips (bill, booking, deadline) and a button per attachment': 'Der Eingang zeigt Tipps (Rechnung, Buchung, Frist) und einen Knopf pro Anhang',
   '«File as …» with 13 targets and your own new places': '«Ablegen als …» mit 13 Zielen und eigenen neuen Ablagen',

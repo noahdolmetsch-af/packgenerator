@@ -139,6 +139,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 19.10.2026, 0.156.0 «Paket 5»: Ich › Darstellung bekommt einen Schieber «Grösse» (80–130 %, Schritte 5 %) statt drei Knöpfe und «Kompakt»; der Eingang zeigt Mails mit Tipps und Knöpfen pro Anhang; unter Ich ein Hinweis, solange nicht abgeglichen wird.
 - 19.10.2026, 0.155.0 «Paket 3+4»: neue Seiten Ich › Alltag, Material › Strom, Touren › Reise-Links, Ich › Meine KI-Projekte, Wohnungs-Hüter-Liste als Gast-Seite (#/share/hueter); ein Mikrofon für die ganze App (SpeakButton); alle neuen Seiten laden erst beim Öffnen.
 - 19.10.2026, 0.155.0 «Paket 3» (Freie Zeit, Daten): neue Seiten unter Ich › Freie Zeit, Aktiv bekommt einen 6. Reiter «Impulse» (am Handy seitlich scrollbar, Reiter min. 44 px). Alle laden über `PAGES`/LazyPage.
 - 19.10.2026, 0.154.0 «Paket 2» (K, M, S, O/I, L2, R, Trello, Strava-Fahrten; ohne Testlink, Noah 13:48): neue Seiten Vor der Abfahrt, Quiz, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Neuland, Reise-Spur mit Familien-Link, Sportarten, Velo-Inspektion, Packliste per Foto, Sitzposition, Datenschutz, Velomech und Guide, Strava-Fahrt. Alle laden erst beim Öffnen (`PAGES`/LazyPage); der Familien-Link zeigt als Gast-Seite keine Leisten, Fenster oder Tour-Start (`guest`).
