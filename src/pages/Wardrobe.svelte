@@ -35,6 +35,7 @@
   import { SvelteSet } from 'svelte/reactivity';
   import { ChevronDown, ChevronLeft, MoreHorizontal, Undo2, Check, Thermometer, Sparkles, Heart, Layers, X } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import ShareBar from '../lib/ui/ShareBar.svelte';
   import { addItem } from '../lib/nav.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -95,6 +96,8 @@
   // v0.45.0 (decision 2): the gaps are about riding, so not under Alltag.
   const gaps = $derived(use === 'everyday' ? [] : wardrobeGaps(items, { offset }));
   const w = $derived(wardrobe(items, use, { gaps }));
+  const LAYER_COLOR = { base: 'var(--l1)', mid: 'var(--l2)', outer: 'var(--l3)', accessory: 'var(--l4)' };
+  const layerParts = $derived(w.layers.map((l) => ({ key: l.key, label: t(LAYERS.find((x) => x.key === l.key).name), g: l.g || 0, color: LAYER_COLOR[l.key] })));
   // v0.45.0 (decision 8): the learned offset in words, with "Reset".
   const offLine = $derived(offsetLine(offset));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} kg`;
@@ -292,6 +295,8 @@
       <Crumbs crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} here={t('Wardrobe')} />
       <h1 class="title">{t('Wardrobe')}</h1>
       <p class="page-sub">{tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
+      <!-- 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): the weight per layer as one thin bar -->
+      <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
       {#if offLine}
         <p class="offset"><Thermometer size={15} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
@@ -634,6 +639,10 @@
   .back a:hover {
     color: var(--ink);
     text-decoration: underline;
+  }
+  .wshare {
+    margin: 10px 0 0;
+    max-width: 560px;
   }
   .page-sub {
     margin: 6px 0 8px;

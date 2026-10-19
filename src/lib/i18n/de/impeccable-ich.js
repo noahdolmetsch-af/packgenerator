@@ -1,0 +1,48 @@
+// Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): Eingang, Ich, Daten und Backup
+export default {
+  // Eingang: the button names the suggestion
+  'File as receipt': 'Als Beleg ablegen',
+  'File as bike problem': 'Als Problem am Velo ablegen',
+  'To the trip note': 'Zur Tour-Notiz',
+  'Becomes a note in «Notes», with one tap': 'Wird mit einem Tipp eine Notiz in «Notizen»',
+  'Suggestion of the app': 'Vorschlag der App',
+  'File elsewhere …': 'Woanders ablegen …',
+  'Choose one of the 7 targets yourself': 'Eines der 7 Ziele selbst wählen',
+  'The button names the suggestion · ••• for other targets': 'Der Knopf nennt den Vorschlag · ••• für andere Ziele',
+  'No notes yet. Tap + at the top › Note when something comes up on the way.': 'Noch keine Notizen. Tippe oben auf + › Notiz, wenn dir unterwegs etwas einfällt.',
+
+  // Ich: «Wartet auf dich», folds
+  'Waiting for you': 'Wartet auf dich',
+  'Backup: none yet': 'Backup: noch keins',
+  'Backup: the last one {n} day ago': 'Backup: das letzte vor {n} Tag',
+  'Backup: the last one {n} days ago': 'Backup: das letzte vor {n} Tagen',
+  'Inbox: {n} note to file': 'Eingang: {n} Notiz zum Ablegen',
+  'Inbox: {n} notes to file': 'Eingang: {n} Notizen zum Ablegen',
+  'Bills: {n} open': 'Rechnungen: {n} offen',
+  '{name} runs out in {n} day': '{name} läuft in {n} Tag ab',
+  '{name} runs out in {n} days': '{name} läuft in {n} Tagen ab',
+  '{name} ran out': '{name} ist abgelaufen',
+  'Look|maint': 'Ansehen',
+  'All done.': 'Alles erledigt.',
+  'Last backup today.': 'Letztes Backup heute.',
+  'Last backup {n} day ago.': 'Letztes Backup vor {n} Tag.',
+  'Last backup {n} days ago.': 'Letztes Backup vor {n} Tagen.',
+  'Help|me': 'Hilfe',
+  'Handbook, keyboard shortcuts, show the intro again': 'Handbuch, Tastenkürzel, Einführung nochmals zeigen',
+  'Try it out, clean up test data': 'Ausprobieren, Testdaten aufräumen',
+  'all in order': 'alles in Ordnung',
+
+  // Daten und Backup: one clear main button, the head in words
+  'Save backup': 'Backup speichern',
+  'Last backup: never': 'Letztes Backup: noch nie',
+  'Last backup: {when}': 'Letztes Backup: {when}',
+  'last change {when}': 'letzte Änderung {when}',
+  'Backup missing.': 'Backup fehlt.',
+  // Paket E × A: the fourth light «Vom Browser behalten» in the head line
+  'The browser does not keep the data for good yet.': 'Der Browser behält die Daten noch nicht fest.',
+  'Backup due.': 'Backup fällig.',
+  'The folder backup needs your OK.': 'Das Ordner-Backup braucht dein OK.',
+  'The storage is almost full.': 'Der Speicher ist fast voll.',
+  'Everything is in order.': 'Alles ist in Ordnung.',
+  'Everything else is in order.': 'Alles andere ist in Ordnung.',
+};

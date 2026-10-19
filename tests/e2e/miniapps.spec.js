@@ -70,6 +70,8 @@ test('Ich › Handbuch: every function folded, with how to switch it on and an e
   const errors = await prep(page, context);
   await page.goto('./#/me');
   await ready(page);
+  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
   await page.locator('a.ich-row[href="#/me/handbook"]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Handbook') })).toBeVisible();
   const { FEATURES } = await import('../../src/lib/features.js').catch(() => ({ FEATURES: null }));

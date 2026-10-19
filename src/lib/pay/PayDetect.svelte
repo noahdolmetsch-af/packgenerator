@@ -2,16 +2,17 @@
   /**
    * «Zahlungen erkennen» beside the invoice list (mockups QR2 + QR8, Noah 14.10.2026 04:00 «a»):
    * upload a QR bill from the e-banking (image with the QR code) or a bank statement (camt.054/053),
+   * a TWINT screenshot (QR6; here since Noah 19.10.2026 «2b», sharing a picture goes to Dokumente)
    * and the Sunday reminder switch. Files are read on this device and not kept.
    */
   import { t } from '../i18n.svelte.js';
-  import { QrCode, Landmark, Bell } from '@lucide/svelte';
+  import { QrCode, Landmark, Bell, Smartphone } from '@lucide/svelte';
   import { isCamt, readCamt } from './camt.js';
   import { readQrImage } from './qrread.js';
   import { readReminder, writeReminder } from './invoices.js';
 
-  /** onstatement({ payments, file }) · onqr(parsed QR bill) */
-  let { onstatement, onqr } = $props();
+  /** onstatement({ payments, file }) · onqr(parsed QR bill) · onshot(picture file) */
+  let { onstatement, onqr, onshot } = $props();
 
   let problem = $state('');
   let rem = $state({ on: true });
@@ -30,6 +31,15 @@
     const xml = await file.text();
     if (!isCamt(xml)) return (problem = t('This is not a camt file. In the e-banking, export the account statement or the credit notification as camt.054 or camt.053 (XML).'));
     onstatement?.({ payments: readCamt(xml), file: file.name });
+  }
+
+  function pickShot(e) {
+    problem = '';
+    const file = e.currentTarget.files?.[0];
+    e.currentTarget.value = '';
+    if (!file) return;
+    if (!/^image\//.test(file.type || '')) return (problem = t('Please choose a picture (a screenshot from TWINT).'));
+    onshot?.(file);
   }
 
   async function pickBill(e) {
@@ -57,6 +67,13 @@
     <span><b>{t('Upload a bank statement')}</b><small>{t('File from the e-banking (camt.054 or camt.053). The app recognises payments by the reference.')}</small></span>
     <input class="det-file" type="file" accept=".xml,.camt,.053,.054,application/xml,text/xml" onchange={pickStatement} />
   </label>
+  {#if onshot}
+    <label class="card det-up">
+      <span class="det-ib"><Smartphone size={20} aria-hidden="true" /></span>
+      <span><b>{t('Choose a TWINT screenshot')}</b><small>{t('Screenshot of a received payment. The app reads it on your phone and suggests the paid invoice.')}</small></span>
+      <input class="det-file" type="file" accept="image/*" data-testid="twint-shot" onchange={pickShot} />
+    </label>
+  {/if}
   {#if problem}<p class="det-err" role="alert">{problem}</p>{/if}
   <div class="card ich-row det-rem">
     <span class="det-ib"><Bell size={18} aria-hidden="true" /></span>

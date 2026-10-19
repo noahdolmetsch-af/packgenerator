@@ -4,6 +4,8 @@
 // V038_SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';
+import { PLACES, SIDE_PLACES } from '../../src/lib/nav.js';
+import DE from '../../src/lib/i18n/de/index.js';
 
 const db = (page, table, id) =>
   page.evaluate(
@@ -68,7 +70,9 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await expect(page.locator('dialog.more')).toHaveCount(0);
-  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText([/Heute/, /Touren/, /Material/, /Velos/, /Aktiv/]);
+  // AU1 «1b» (Paket E, changed on purpose): the sidebar has «Ausrüstung» under Velos; the bottom bar keeps five. Read from nav.js.
+  const side = await page.locator('.side li.pl').first().isVisible();
+  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText((side ? SIDE_PLACES : PLACES).map((p) => new RegExp(DE[p.label] ?? p.label.replace(/\|[a-z]+$/, ''))));
   await me.click();
   await expect(page).toHaveURL(/#\/me$/);
   const main = page.locator('main');

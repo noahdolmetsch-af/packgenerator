@@ -22,6 +22,8 @@ export const PAGE_GROUPS = [
       { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv table tabelle' },
       { id: 'learnings', title: 'Learnings', href: '#/debrief/learnings', icon: 'book', words: 'learnings learning lernen gelernt erkenntnisse what the app learned was die app gelernt hat' },
       { id: 'pace', title: 'Your pace', href: '#/debrief/pace', icon: 'gauge', words: 'pace tempo speed geschwindigkeit gpx riding time fahrzeit' },
+      // v0.97.0 «Skitouren»: Touren › Skitouren (next tour, backpack check, start check, care, after the tour)
+      { id: 'ski', title: 'Ski tours', href: '#/ski', icon: 'route', words: 'ski tours skitouren skitour ski touring skitouren rucksack-check backpack check start-check lvs lawine avalanche bulletin umkehrzeit turnaround saison-pflege season care felle skins wachsen wax gipfel peak höhenmeter' },
     ],
   },
   {
@@ -68,6 +70,8 @@ export const PAGE_GROUPS = [
       { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.
       { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
+      // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte.
+      { id: 'werte', title: 'Own values', href: '#/me/werte', icon: 'sliders', words: 'own values eigene werte einstellungen settings packen packtage pack days backup erinnerung reminder km check velo-check kette wachsen chain wax dichtmilch sealant gabel fork werkstatt workshop kalt cold standard vorschläge suggestions tipps tips' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
       // v0.76.0: «Ich» itself, with the language (v0.97.0: the look has its own page).
       { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english home place heimat keyboard shortcuts tastenkürzel help hilfe version' },

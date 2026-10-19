@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 121 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 132 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -280,7 +280,7 @@ Ein paar Wörter werden ein Vorschlag für die Packliste (nur mit Helfer-Code).
 
 **Beispiel:** «2 Tage Gravel, eine Nacht Camping, Regen möglich» → ein Packlisten-Vorschlag.
 
-### Kleiderschrank
+### Kleider
 
 Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste.
 
@@ -323,6 +323,18 @@ Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, 
 2. Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.
 
 **Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
+
+### Alles selbst ändern
+
+Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.
+2. Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».
+3. Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».
+
+**Beispiel:** Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».
 
 ### Viele Teile auswählen
 
@@ -379,6 +391,18 @@ Deine eigenen Links zu Rigs, Routen, Videos und Rennen; die Art kommt aus der Ad
 3. Ein Rennen gibt eine Kalenderdatei (.ics), eine Route einen Tourentwurf.
 
 **Beispiel:** Ein Rig-Video mit der Notiz «Ersatz-Bremsbeläge» → ein ruhiger Hinweis beim Packen der nächsten Tour.
+
+### Sportart einer Tour
+
+Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren oder Wandern: Jede Velo-Sportart bringt ihr eigenes Standard-Velo.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Wähle in Neue Tour die Sportart: Die meistgenutzten stehen zuerst.
+2. Eine Velo-Sportart bringt ihr Standard-Velo; tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.
+3. Auf Touren schlägt «Neu: Jede Tour hat eine Sportart» eine Sportart für deine alten Velotouren vor.
+
+**Beispiel:** Gravel → das Gravel-Velo ist vorgewählt; 2 Tage mit Hotel → der Hinweis «Zu Bikepacking».
 
 ### Tour aus komoot
 
@@ -750,6 +774,18 @@ Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.
 
 **Beispiel:** Hinweis «Hinten ist schwer» → den Kocher in die Rahmentasche verschieben.
 
+### Taschen-Setups pro Velo
+
+Mehrere Taschen-Setups pro Velo: welche Taschen und was wohin kommt, Gewichte, zwei oder alle vergleichen, beim Planen eins wählen.
+
+**Aufschalten:** Braucht zuerst ein Velo mit Taschen: Material › Taschen.
+
+1. Öffne Velos › Mein Setup und tippe «Neues Setup».
+2. Wähle im Setup die Taschen und lege deine Sachen hinein.
+3. Beim Planen einer Tour tippe «Setup: …», um ein anderes zu nehmen.
+
+**Beispiel:** «Bikepacking 3 Tage» 12.4 kg Basisgewicht, «Tagestour leicht» 10.9 kg.
+
 ### Setup-Logbuch
 
 Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.
@@ -760,6 +796,18 @@ Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach
 2. Notiere nach der nächsten Tour, wie es sich angefühlt hat.
 
 **Beispiel:** «Neue Reifen 45 mm» am 3. Mai → 420 km seither, «ruhiger auf Schotter».
+
+### Garmin-Seiten
+
+Muster-Datenseiten für den Edge 1040 und 850 pro Velo, mit dem Grund für jeden Wert.
+
+**Aufschalten:** Braucht zuerst ein Velo unter Velos.
+
+1. Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.
+2. Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.
+3. Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.
+
+**Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint, mit 8 Feldern auf dem Edge 1040 und dem Edge 850.
 
 ### Problem am Velo
 
@@ -881,6 +929,28 @@ Ab 14 Tagen vor einer Tour: was die Werkstatt noch machen muss.
 2. Die Karte «vor der Tour» zeigt, was die Werkstatt noch machen muss.
 
 **Beispiel:** Tour in 10 Tagen → «neue Bremsbeläge» kommt in den Werkstattauftrag.
+
+### Hauptausrüstung
+
+Ski, Felle, LVS und mehr für jede Sportart: ein Zähler der Einsätze und die Pflege, fällig auch auf Heute.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Velos › Ausrüstung und tippe «Ausrüstung hinzufügen»; wähle ein Teil aus Material und seine Sportart.
+2. Tippe nach einer Tour «Einsatz eintragen»; die Pflege zeigt sich hier und auf Heute, wenn sie fällig ist.
+
+**Beispiel:** Tourenski alle 10 Einsätze wachsen → nach dem 10. Einsatz ist «Belag wachsen» fällig.
+
+### Druck und Kette messen
+
+Heute hält den Reifendruck fest und misst die Kette; «Werte erfassen» schlägt einen Solldruck vor, der Abhol-Check prüft beides.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf Heute unter dem Velo «Druck erfassen» oder «Kette messen».
+2. In Velos › Werte erfassen schlägt «Druck berechnen» einen Solldruck vor.
+
+**Beispiel:** Die Kette an der Grenze → der Werkstatt-Auftrag schlägt «Kette ersetzen» vor.
 
 ## Aktiv
 
@@ -1054,6 +1124,17 @@ Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.
 
 **Beispiel:** Oktober mit 18 von 31 Tagen, 6 h 40 Min, längste Sitzung 35 Min.
 
+### Gipfelbuch
+
+Pässe, Gipfel, Trails und Hallen, die du erreicht hast, für jede Sportart; die App findet höchste Punkte in deinen Fahrten und du bestätigst; Sterne für neue Orte.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Aktivität › «Gipfelbuch».
+2. Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.
+
+**Beispiel:** Eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.
+
 ### Timer
 
 Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.
@@ -1144,6 +1225,39 @@ Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.
 2. Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.
 
 **Beispiel:** 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.
+
+### Merken und eigene Listen
+
+Kalender › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Kalender › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».
+2. Hake ein To-do ab; «Rückgängig» holt es zurück.
+
+**Beispiel:** «Neue Bremsbeläge bestellen» → nach dem Werkstattbesuch abgehakt.
+
+### Erinnerungen
+
+Ich › Erinnerungen: nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal; jede Erinnerung lässt sich ausschalten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal, ob sie dich erinnern soll; «Nie fragen» stellt das dort ab.
+2. Öffne Ich › Erinnerungen, um eine auszuschalten oder ihre Zeit zu ändern.
+
+**Beispiel:** Yoga am Dienstag → «Jeden Dienstag um 18:00 erinnern?».
+
+### Geburtstage und Pflanzen
+
+Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Kalender › Merken, wenn es Zeit ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Erinnerungen und füge einen Geburtstag oder eine Pflanze mit ihren Giesstagen hinzu.
+2. Wenn es Zeit ist, steht es in Kalender › Merken.
+
+**Beispiel:** Ein Farn alle 5 Tage → «Farn giessen» in Merken.
 
 ### Such-Befehle
 
@@ -1352,6 +1466,18 @@ g h, g t … wechselt den Ort, n = Neu, / = Suche, ? = die Liste.
 2. g und ein Buchstabe wechseln den Ort; n ist Neu, / ist Suche.
 
 **Beispiel:** G t → Touren, dann n → neue Tour planen.
+
+### Eigene Zahlen einstellen
+
+Ich › Eigene Werte: der Packen-Schritt, die Backup-Erinnerung, der Velo-Check, Kette wachsen, Dichtmilch, Gabel-Service, der Werkstatt-Vorlauf und «kalt».
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Eigene Werte.
+2. Ändere eine Zahl mit − und + oder tippe sie ein.
+3. «Auf Standard zurück» holt die Zahl der App zurück.
+
+**Beispiel:** Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.
 
 ### Erinnerungen aufs Handy
 

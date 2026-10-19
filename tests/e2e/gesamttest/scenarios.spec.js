@@ -506,7 +506,7 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'homeMilestones'), { timeout: 20_000 }).toBe(true);
   const db1 = await snapshot(page);
   const panel = await openData(page);
-  const [dl] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: T('Export backup') }).click()]);
+  const [dl] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: T('Save backup') }).click()]);
   const path = info.outputPath('export1.json');
   await dl.saveAs(path);
   const exp1 = JSON.parse(readFileSync(path, 'utf8'));
@@ -526,7 +526,7 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   await page.reload();
   await page.waitForTimeout(800);
   const panel2 = await openData(page);
-  const [dl2] = await Promise.all([page.waitForEvent('download'), panel2.getByRole('button', { name: T('Export backup') }).click()]);
+  const [dl2] = await Promise.all([page.waitForEvent('download'), panel2.getByRole('button', { name: T('Save backup') }).click()]);
   const path2 = info.outputPath('export2.json');
   await dl2.saveAs(path2);
   const exp2 = JSON.parse(readFileSync(path2, 'utf8'));

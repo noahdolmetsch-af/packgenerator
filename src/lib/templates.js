@@ -9,6 +9,7 @@
  * Templates live in the settings table (key "templates"), so backups include them.
  */
 import { slotFor, alwaysEntries, freshReady } from './trips.js';
+import { placeBySetup } from './setups.js';
 import { allSets, qtyOf } from './sets.js';
 import { isInventory, itemWeight, sumKnown } from './gear.js';
 import { DOMAIN, BIKEPACKING, inDomain, packsFor, packSlot, READY_BY_DOMAIN, domainEntries } from './domains.js';
@@ -148,7 +149,9 @@ export function tripFromTemplate({ title, startDate, days, bike = null }, tpl, i
   for (const [slot, bagId] of Object.entries(tpl.setup ?? {})) if (bagId && bike.slots?.includes(slot)) setup[slot] = bagId;
   const entries = list.map((e) => ({ itemId: e.itemId, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), qty: e.qty || 1, packed: false }));
   entries.push(...alwaysEntries(items, entries, setup));
-  return { ...common, bikeId: bike.id, bike: bike.name, setup, entries, ready: freshReady(tpl.ready), ride: tpl.ride ?? null, hours: tpl.hours ?? null };
+  // Taschen-Setups (Noah 14.10.2026 «1a»): the template says what comes along, the setup «Standard» where it goes.
+  const placed = bike.id ? placeBySetup(entries, { bags: setup, items: bike.stdItems ?? [] }, setup) : entries;
+  return { ...common, bikeId: bike.id, bike: bike.name, setupId: 'std', setup, entries: placed, ready: freshReady(tpl.ready), ride: tpl.ride ?? null, hours: tpl.hours ?? null };
 }
 
 /** Change one template in place: fn gets a copy and returns the changed template. */
