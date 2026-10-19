@@ -142,6 +142,7 @@ export const HOWTO = {
   'f.shortcuts': ['On a computer press ?.', 'The list of shortcuts opens.', 'Try g h, g t, n or /.'],
   'f.ownvalues': ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
+  'f.uisize': ['Open Me › Appearance.', 'Move «Size» between 80 and 130 %.', '«Back to 100 %» brings the normal size back.'],
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
   // Paket Q «App klarer»
   'f.alerts': ["Open Me › Alerts and news.", "Type your region and tick your passes.", "Add, change or delete your news sources."],
@@ -183,6 +184,7 @@ export const HOWTO = {
   'f.bikeservice': ['Open a bike under Bikes › Care.', 'Card «Bike service»: tap «Set up» for km, hours and days.', 'After the service tap «Service done».'],
   'f.parttemplate': ['Open Bikes › Care › a bike › «Part template».', 'Choose the kind and switch parts on or off.', 'Add your own parts; a new bike of that kind gets them.'],
   'f.inspect': ['Open Bikes › Care › a bike › «Inspection».', 'Start a level; tap a state for every point, add a value, a note or a photo.', 'Tap «Done»: the history keeps it, problems go to the bike.'],
+  'f.velofaq': ['Open Bikes › Care › «Bike FAQ».', 'Tap a question; the link below the answer leads to the right place.', 'Add your own question at the end.'],
   'f.spick': ['Open Bikes › Care › a bike › «Workshop cheat sheet».', 'Look up the torque; add your own values.', 'Under «Breakdown help» open the breakdown you have.'],
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
   // Paket J «Berg, Schnee und Notfall»
@@ -214,6 +216,7 @@ export const HOWTO = {
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
   'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+  'f.mailin': ['Open a mail under Me › Mail and tap «Into the app».', 'In the Inbox tap the button of an attachment or «File as …».', 'Or give mails the Gmail label «Packgenerator»: they come by themselves.'],
   'f.connections': ['Open Me › Connections.', 'Each connection shows its state and when data last came.', 'Switch on or off what the app may do with it.'],
   'f.stravaticks': ['Open Me › Connections.', 'Under «Strava ticks Aktiv» choose «Tick by itself» or «Suggest first».', 'Change which Strava sport counts for which activity.'],
   'f.owncal': ['Open Me › Connections and switch on the calendar «Packgenerator».', 'Tap «Allow in Google» once.', 'Your tours appear in the calendar, with a reminder two days before.'],
@@ -270,6 +273,8 @@ export const HOWTO = {
   'f.record': ['Open On the way and tap «Record».', 'Read the battery hint and tap «Start recording»; the screen stays on.', 'Tap «Stop» at the end; a Strava ride of the same time counts first.'],
   'f.spurmap': ['Open a trip’s debrief and tap «Travel track».', 'Drag and pinch the map; tap a day or a dot.', 'Tick «Show Neuland» to see the land you rode for the first time.'],
   'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
+  'f.trainplans': ['Open Active › Training › Training plans.', 'Pick a plan, choose «Back from the race day» and set the day.', 'Tap «Try it»: the sessions stand in your week plan.'],
+  'f.feel': ['Open Active › Training after a ride.', 'Tap a number from 1 to 10 under «How hard was your ride?».', 'Change it later on the page of the ride.'],
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
 };
 

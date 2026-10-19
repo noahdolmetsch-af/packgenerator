@@ -1,4 +1,5 @@
 <script>
+  import { uiZoom, unzoomRect } from '../uizoom.js';
   /**
    * Paket S «Reise-Spur» (answer 2a): the zoomable map of a tour. Drag to move, pinch or the wheel to
    * zoom, «+» «−» and «Ganze Tour». Under it swisstopo in Switzerland, OpenStreetMap elsewhere
@@ -76,10 +77,12 @@
   const ptrs = new Map();
   let pinch = null;
   let moved = 0;
+  // «Grösse»: pointer and box in the page's own pixels (the app may be zoomed)
+  const pt = (e) => ({ x: e.clientX / uiZoom(), y: e.clientY / uiZoom() });
   function down(e) {
     if (e.target.closest('button')) return;
     box.setPointerCapture?.(e.pointerId);
-    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    ptrs.set(e.pointerId, pt(e));
     moved = 0;
     if (ptrs.size === 2) {
       const [a, b] = [...ptrs.values()];
@@ -89,12 +92,13 @@
   function move(e) {
     const p = ptrs.get(e.pointerId);
     if (!p) return;
-    const r = box.getBoundingClientRect();
+    const r = unzoomRect(box.getBoundingClientRect());
+    const c = pt(e);
     if (ptrs.size === 1) {
-      view = panBy(view, e.clientX - p.x, e.clientY - p.y);
-      moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y);
+      view = panBy(view, c.x - p.x, c.y - p.y);
+      moved += Math.abs(c.x - p.x) + Math.abs(c.y - p.y);
     }
-    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    ptrs.set(e.pointerId, c);
     if (ptrs.size === 2 && pinch) {
       const [a, b] = [...ptrs.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -109,8 +113,9 @@
   }
   function wheel(e) {
     e.preventDefault();
-    const r = box.getBoundingClientRect();
-    view = zoomAt(view, Math.exp(-e.deltaY * 0.0025), e.clientX - r.left, e.clientY - r.top, w, h, { max: g.maxZoom });
+    const r = unzoomRect(box.getBoundingClientRect());
+    const c = pt(e);
+    view = zoomAt(view, Math.exp(-e.deltaY * 0.0025), c.x - r.left, c.y - r.top, w, h, { max: g.maxZoom });
   }
   function key(e) {
     const step = 60;

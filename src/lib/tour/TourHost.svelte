@@ -1,4 +1,5 @@
 <script>
+  import { uiZoom, unzoomRect } from '../uizoom.js';
   /**
    * «Rundgang» (Noah 15.10.2026 12:36, «1a … 5a»): the running tour on top of the real page. The page
    * gets dark, one part of it is lit with an orange frame, the place in the navigation is marked, and a
@@ -70,16 +71,17 @@
 
   function measure() {
     if (!step) return;
-    vw = innerWidth;
-    vh = innerHeight;
+    const z = uiZoom(); // «Grösse»: everything in the page's own pixels
+    vw = innerWidth / z;
+    vh = innerHeight / z;
     if (el?.isConnected) {
-      const r = el.getBoundingClientRect();
+      const r = unzoomRect(el.getBoundingClientRect(), z);
       // the lit part never reaches under the card (at the bottom on the phone, below it on the computer)
       const room = phone.matches ? vh - r.y - cardH - 110 : vh - r.y - cardH - 44;
       rect = { x: r.x, y: r.y, width: r.width, height: Math.max(48, Math.min(r.height, room)) };
     } else rect = null;
     const n = [...document.querySelectorAll(navSelector(step.place))].find((x) => x.getBoundingClientRect().height > 0);
-    const nr = n?.getBoundingClientRect();
+    const nr = n && unzoomRect(n.getBoundingClientRect(), z);
     nav = nr ? { x: nr.x, y: nr.y, width: nr.width, height: nr.height } : null;
   }
   $effect(() => {
@@ -191,7 +193,7 @@
   .tcard {
     position: fixed;
     box-sizing: border-box;
-    width: min(380px, calc(100vw - 32px));
+    width: min(380px, calc(calc(100vw / var(--ui-zoom, 1)) - 32px));
     background: var(--paper);
     color: var(--ink);
     border-radius: 18px;

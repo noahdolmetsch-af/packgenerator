@@ -1731,3 +1731,22 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+## 19.10.2026: Paket 6 Velo-FAQ (0.157.0)
+
+- Noah 19:58 «bitte velo faq in neues paket 6 tun». Trainingspläne (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4») kommen mit, weil sie fertig sind und nicht vom Rennen abhängen. Dazu die kleine Korrektur «ganze Zeile antippen» bei abgeschlossenen Touren.
+
+## 19.10.2026: Paket 5 ohne Rennen (0.156.0)
+
+- Noah «mach wie es am besten und am schnellsten geht»; U wächst (Profil, Live-Karte, Suche, POIs …). Darum geht Paket 5 mit Mail, Grösse und dem Abgleich-Hinweis online; Velo-FAQ wird 0.157.0, U 0.158.0.
+- **Selbst entschieden:** Grösse in Schritten von 5 %, die App ändert sich beim Loslassen; die frühere Wahl (Klein/Normal/Gross) bleibt als 90/100/115 %.
+
+## 19.10.2026: Mail in die App (Noah «1a 2a 3b 4a 5a», «1a oder neue Ablage erstellen vom Benutzer 2a 3a», «1a–5a», «1a–4a», «bitte umsetzen»)
+- Eine Mail kommt als **ein** Eintrag in den Eingang, mit ihren Anhängen; die App legt nie selbst ab (3b). Wege: «In die App übernehmen» unter Ich › Mail, das Gmail-Label «Packgenerator» (auch per +pack-Adresse und Gmail-Filter), die Google-Aufgabenliste «Packgenerator», Termine mit «#pack», das Lesezeichen «In den Eingang» am Mac.
+- Anhänge: PDF, Foto und Wallet-Ticket › Dokumente; Kalender-Datei › Termin; GPX › Tour oder Fahrt; QR-Rechnung › Zu zahlen; Kontakt › in die Notiz. Bilder unter 15 KB (Logos) bleiben in Gmail, ebenso Anhänge über zusammen 2,6 MB (sonst käme der Eintrag beim automatischen Abgleich nicht aufs andere Gerät).
+- «Ablegen als …» hat 13 Ziele (neu: Neue Tour, Rechnung, Termin, Aufgabe, Dokument, Liste) und «Neue Ablage» (ein eigenes Notiz-Thema, umbenennen und löschen unter Listen und Typen).
+- Tipp in der Zeile: Buchung (mit Tag und passender Tour), Rechnung, Frist; ein Absender, zweimal gleich abgelegt, wird so vorgeschlagen. Eine Buchung vor der Tour wird eine Planungs-Notiz der Tour.
+- Mailen aus der App: Packliste und Plan einer Tour (PDF) oder ein Dokument anhängen, höchstens 3, zusammen 3 MB.
+- Keine neue Server-Datei: Schritt `mail-file` und Anhänge bei `mail-send` in `api/_lib/google.js`. Keine neue Dexie-Version: Einträge bekommen die Felder `mail`, `files`, `plan`.
+## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
+- Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
+- Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.

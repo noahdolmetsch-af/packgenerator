@@ -82,7 +82,7 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'tempMin', 'tempMax', 'steep', 'noDetail'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
@@ -239,7 +239,10 @@ export function cleanSession(s) {
   const mins = Math.round(Number(s?.mins));
   const zone = Math.round(Number(s?.zone));
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s?.day ?? '')) || !(mins > 0 && mins <= 24 * 60)) return null;
-  return { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
+  const out = { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
+  // «Trainingspläne»: a session written by a sample plan keeps the plan's id, so the plan can be taken out again
+  if (typeof s.src === 'string' && s.src) out.src = s.src.slice(0, 40);
+  return out;
 }
 export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);
 
@@ -259,6 +262,16 @@ export function goalOf(v) {
 }
 /** Whole weeks from today to the goal's day (0 when passed), or null. */
 export const weeksTo = (until, today) => (until ? Math.max(0, Math.ceil((Date.parse(`${until}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / (7 * 864e5))) : null);
+
+/*
+ * «Gefühlte Anstrengung» 1–10 (Noah 19.10.2026, thread «Trainingspläne» 3): asked after every ride; the own
+ * answer (feel) comes before Strava's «How hard?» (rpe). Without an answer it simply does not count.
+ */
+export const feelOf = (a) => (Number.isFinite(a?.feel) && a.feel >= 1 && a.feel <= 10 ? a.feel : Number.isFinite(a?.rpe) && a.rpe >= 1 && a.rpe <= 10 ? a.rpe : null);
+/** The zone (1–5) a felt effort stands for: 1–2 → Z1, 3–4 → Z2, 5–6 → Z3, 7–8 → Z4, 9–10 → Z5; null without one. */
+export const feelZone = (f) => (Number.isFinite(f) && f >= 1 && f <= 10 ? Math.ceil(f / 2) : null);
+/** The felt effort a zone stands for, as a span: Z2 → [3, 4]. */
+export const zoneFeel = (z) => (z >= 1 && z <= 5 ? [z * 2 - 1, z * 2] : null);
 
 /** A planned session is done when an activity of its kind is on its day. */
 export const doneBy = (s, acts) => acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? null;

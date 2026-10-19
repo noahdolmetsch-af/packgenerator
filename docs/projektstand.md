@@ -11,9 +11,11 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | ✓ | E, C, F, Tempo | 0.149.0–0.152.0 | Material, Velos, Woche, Seiten laden beim Öffnen | live |
 | 1 | Paket 1 | 0.153.0 | G Daten von selbst, L Werkzeugkasten, P Was mir gut tut, N Pläne und Träume, Q App klarer, H Packen leichter, J Berg, Schnee und Notfall | PR #200 |
 | 2 | Paket 2 | 0.154.0 | K Haus und Alltag, M Tour-Tagebuch, S Reise-Spur, O/I Teile pro Velo und Inspektion, L2 Packliste vom Foto, R App für alle, Trello, Strava-Fahrten auf Touren | PR #201 |
-| 3 | Paket 3+4 | 0.155.0 | Freie Zeit, Daten in der App, V Alltag (Einkauf, Verträge, Menschen, Ausland, Flug), Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI | dieser PR; Paket 3 und 4 verbunden (Noah 19.10.2026) |
-| 4 | Paket 5 | 0.156.0 | U Rennen (U1 Strategie-Rechner und Muster-Rennen, U2 Renn-Karte und Anstiege, Live-Karte), Mail in die App | im Bau; Ton-Aufnahmen gestrichen |
-| 5 | danach | – | U3 Karte offline | geplant |
+| 3 | Paket 3+4 | 0.155.0 | Freie Zeit, Daten in der App, V Alltag (Einkauf, Verträge, Menschen, Ausland, Flug), Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI | PR #202; Paket 3 und 4 verbunden (Noah 19.10.2026) |
+| 4 | Paket 5 | 0.156.0 | Mail in die App, Grösse (Schieber 80–130 %, Kompakt), Abgleich-Hinweis unter Ich | PR #203 |
+| 5 | Paket 6 | 0.157.0 | Velo-FAQ (48 Fragen), Trainingspläne mit gefühlter Anstrengung, ganze Zeile bei abgeschlossenen Touren | dieser PR |
+| 6 | Paket 7 | 0.158.0 | U Rennen (U1 Strategie-Rechner und Muster-Rennen, U2 Renn-Karte und Anstiege, Live-Karte) | im Bau; Ton-Aufnahmen gestrichen |
+| 7 | danach | – | U3 Karte offline | geplant |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
