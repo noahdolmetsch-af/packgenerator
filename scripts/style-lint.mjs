@@ -40,6 +40,10 @@ export const STRICT_STYLE = [
   'src/lib/home/BalanceTile.svelte',
   // WG «Wi gaht's?» takes over the daily check: the round tile on Heute (all new, all strict)
   'src/lib/home/RoundTile.svelte',
+  // 0.155.0 HN4 «Heute neu geordnet»: the meditation card, the day card and the Aktiv tile (all new, all strict)
+  'src/lib/home/MedCard.svelte',
+  'src/lib/home/TagesKarte.svelte',
+  'src/lib/home/AktivTile.svelte',
   'src/lib/ui/StepBar.svelte',
   'src/lib/ui/MainBar.svelte',
   'src/lib/ui/PageHead.svelte',

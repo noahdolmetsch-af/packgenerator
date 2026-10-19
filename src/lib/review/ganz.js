@@ -46,7 +46,8 @@ export const GROUPS = [
   { key: 'pack', name: 'Luggage and bike' },
   { key: 'next', name: 'Next|review' },
 ];
-export const OPEN_START = { tour: true };
+// Impeccable Runde 2 (Rückblick einer Tour 3): «Weiter» is open from the start, it shows the next step
+export const OPEN_START = { tour: true, next: true };
 /** The open groups as remembered (localStorage value, JSON) made safe: { key: true | false }. */
 export function openOf(stored) {
   let v = null;

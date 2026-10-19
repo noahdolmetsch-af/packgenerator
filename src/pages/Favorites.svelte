@@ -64,6 +64,8 @@
   const bars = $derived(favBars(groups));
   const last = $derived(lastTrips($tripsQ ?? [], today));
   const often = $derived($itemsQ && $tripsQ ? oftenTaken($itemsQ, $tripsQ, today, { off: $offQ?.value ?? [] }) : []);
+  // Impeccable runde 2 (Favoriten 1): «Oft dabei» is the one thing to do here; it comes first as a closed line
+  let oftenOpen = $state(false);
   const anyTrips = $derived(($tripsQ ?? []).some((x) => !x.skipped && x.startDate && x.startDate <= today && (x.entries ?? []).length));
   /** «7. Okt.» (the year only when it is not this year). */
   const shortDay = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}), timeZone: 'UTC' });
@@ -137,6 +139,17 @@
   {#if wishFavs}<label class="wishsw no-print" data-fav-wish><input type="checkbox" bind:checked={withWish} /> {tn(wishFavs, 'Show {n} from the wishlist', 'Show {n} from the wishlist')}</label>{/if}
   {#if $itemsQ}
     {#if count}
+      {#if often.length}
+        <!-- Impeccable runde 2 (Favoriten 1): the suggestions on top, one line; a tap opens the list right here -->
+        <button type="button" class="oline no-print" aria-expanded={oftenOpen} aria-controls="fav-often" onclick={() => (oftenOpen = !oftenOpen)} data-often-line>
+          <Star size={18} aria-hidden="true" />
+          <span class="ol-t">{tn(often.length, '{n} suggestion: often with you, no star yet', '{n} suggestions: often with you, no star yet')}</span>
+          <ChevronRight class={oftenOpen ? 'olchev down' : 'olchev'} size={18} aria-hidden="true" />
+        </button>
+        {#if oftenOpen}{@render oftenSec()}{/if}
+      {/if}
+      <!-- Impeccable runde 2 (Favoriten 2): the bar under each kind, said once -->
+      {#if groups.length > 1}<p class="flegend"><span class="fbar demo" aria-hidden="true"><span style:width="60%"></span></span>{t('Bar: the weight of the favourites against the heaviest kind')}</p>{/if}
       <div class="fgrid">
         {#each groups as g (g.key)}
           {#if shut(g.key)}
@@ -176,7 +189,7 @@
           {/if}
         {/each}
       </div>
-      {@render oftenSec()}
+      {#if !often.length}{@render oftenSec()}{/if}
       <p class="hint no-print hide-phone"><Star size={15} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
     {:else}
       <!-- v0.127.0 A-U2: the one empty building block -->
@@ -350,8 +363,9 @@
     font-style: italic;
   }
   /* SN5+ F1 the bar, F3 «zuletzt dabei», F2 «Oft dabei» */
+  /* Impeccable runde 2 (Favoriten 2): thin and in the accent colour, explained once above the kinds */
   .fbar {
-    height: 6px;
+    height: 4px;
     margin: -4px 2px 10px;
     border-radius: 99px;
     background: var(--paper-2);
@@ -361,7 +375,63 @@
     display: block;
     height: 100%;
     border-radius: 99px;
-    background: var(--brand, var(--ok));
+    background: var(--accent);
+  }
+  .flegend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 var(--sp-3);
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fbar.demo {
+    flex: none;
+    width: 32px;
+    margin: 0;
+    background: var(--line);
+  }
+  /* Impeccable runde 2 (Favoriten 1): «n suggestions» as one line on top */
+  .oline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    margin: 0 0 var(--sp-4);
+    padding: 10px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .oline:hover {
+    background: var(--paper-2);
+  }
+  .oline :global(svg) {
+    flex: none;
+    color: var(--ink-2);
+  }
+  .ol-t {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+  }
+  .oline :global(.olchev) {
+    transition: transform 150ms ease-out;
+  }
+  .oline :global(.olchev.down) {
+    transform: rotate(90deg);
+  }
+  .oline[aria-expanded='true'] {
+    margin-bottom: var(--sp-2);
+  }
+  .oline[aria-expanded='true'] + .often {
+    margin: 0 0 var(--sp-5);
   }
   .favs .last {
     display: flex;

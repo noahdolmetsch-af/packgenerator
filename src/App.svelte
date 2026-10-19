@@ -36,6 +36,7 @@
   import { localDay } from './lib/localday.js';
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
+  import { checkPart } from './lib/flowcheck.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
@@ -295,6 +296,10 @@
     Trips: () => import('./pages/Trips.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
+    Check: () => import('./pages/Check.svelte'),
+    CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
+    Routine: () => import('./pages/Routine.svelte'),
+    Erkenntnisse: () => import('./pages/Erkenntnisse.svelte'),
     Features: () => import('./pages/Features.svelte'),
     Helper: () => import('./pages/Helper.svelte'),
     Assistent: () => import('./pages/Assistent.svelte'),
@@ -371,7 +376,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -432,6 +437,13 @@
   {:else if page === 'timer'}
     <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
     {#key hash}{#if hash.startsWith('#/timer/faces')}<LazyPage load={PAGES.TimerFaces} />{:else if hash.startsWith('#/timer/log')}<LazyPage load={PAGES.TimerLog} />{:else}<LazyPage load={PAGES.Timer} />{/if}{/key}
+  {:else if page === 'check'}
+    <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
+    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
+    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'routine'}
+    <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
+    <LazyPage load={PAGES.Routine} />
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <LazyPage load={PAGES.Me} />
@@ -486,6 +498,9 @@
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
     <LazyPage load={PAGES.Auswertung} />
+  {:else if page === 'insights'}
+    <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): Ich › Erkenntnisse -->
+    <LazyPage load={PAGES.Erkenntnisse} />
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
     <LazyPage load={PAGES.Weight} />

@@ -4,8 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { sizeGuard } from './scripts/size-guard.mjs';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
-// A Vercel preview (one per pull request, so Noah can test before he merges) serves it from the root.
-const vercel = !!process.env.VERCEL;
+// A test link (a Vercel preview per pull request, or a Cloudflare Pages preview, so Noah can test
+// before the merge) serves it from the root. Cloudflare Pages sets CF_PAGES=1 during its build.
+const vercel = !!process.env.VERCEL || !!process.env.CF_PAGES;
 const base = vercel ? '/' : '/packgenerator/';
 
 import pkg from './package.json' with { type: 'json' };

@@ -506,6 +506,16 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Aktivität › «Summit book».', 'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.'],
     example: 'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.',
   },
+  'f.routine': {
+    on: null,
+    steps: ['Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.', '«Change list» adds, renames, sorts or deletes items, with their days and a time.'],
+    example: 'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.',
+  },
+  'f.insights': {
+    on: null,
+    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
+    example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
+  },
   'f.timer': {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],

@@ -4,6 +4,26 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.152.0 Tempo «Seiten später laden»
+  'Lighter on the phone': 'Leichter auf dem Handy',
+  'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',
+  'Pages load when you open them; the most used ones load quietly in the background, and everything still works offline': 'Seiten laden beim Öffnen; die meistgenutzten laden still im Hintergrund vor, und alles funktioniert weiter offline',
+  'After an update a page that is missing reloads the app once by itself instead of showing an error': 'Fehlt nach einem Update eine Seite, lädt die App einmal von selbst neu statt einen Fehler zu zeigen',
+  'Open Gear, Pack and Trips one after the other: each page opens as before.': 'Öffne nacheinander Material, Packen und Touren: jede Seite öffnet wie bisher.',
+  'Turn on flight mode, close the app and open it again: Today and the other pages still open.': 'Schalte den Flugmodus ein, schliesse die App und öffne sie wieder: Heute und die anderen Seiten öffnen weiterhin.',
+  // 0.150.0 Paket C «Heute und Aktiv»
+  'Today in a calm order': 'Heute in ruhiger Reihenfolge',
+  'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.': 'Heute folgt der Tageszeit: oben eine Tageskarte, der Tages-Check in einem eigenen Fenster, deine Balance als ein Ring und eine kurze Liste, was dir guttut.',
+  'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care; below it Aktiv with sleep, last activity and next fixed date': 'Die Tageskarte: am Morgen das Wetter und was anziehen, am Tag Schnellstart und deine Velos, am Abend Rückblick, km und Velopflege; weiter unten Aktiv mit Schlaf, letzter Aktivität und nächstem festem Termin',
+  'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas': 'Morgen-Check, Abend-Rückblick, Packen am Vorabend einer Tour und der Wochenrückblick am Sonntag kommen als Fenster, eins nach dem anderen, mit «Später» (in einer Stunde wieder) und «Heute nicht»; der grosse Ring zeigt deine neun Bereiche',
+  '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak': '«Das tut mir gut»: eine kurze Liste auf Heute, Tag für Tag abgehakt; ein leerer Tag unterbricht die Serie',
+  'Me › Insights: what goes together in your data; and nine new building blocks': 'Ich › Erkenntnisse: was in deinen Daten zusammenhängt; dazu neun neue Bausteine',
+  'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list': 'Abgehakte Teile rutschen kurz nach dem letzten Tipp nach unten: beim Packen, Laden, in den Checks und der Einkaufsliste',
+  'Gear search reacts at once (first 5 hits per group); Trips shows 20 trips first': 'Suche in Material reagiert sofort (erst 5 Treffer pro Gruppe); Touren-Liste zeigt zuerst 20 Touren',
+  'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».': 'Öffne Heute am Morgen: die Meditationskarte, dann die Tageskarte «Morgen»; tippe in ihrer kleinen Uhr auf «Tag»: Schnellstart und «Velos bereit?».',
+  'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.': 'Öffne den Morgen-Check aus der Tageskarte und tippe «Später»: das Fenster schliesst sich und kommt in einer Stunde wieder; «Heute nicht» lässt es bis morgen.',
+  'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.': 'Tippe auf Heute eine Zeile der Kachel «Das tut mir gut» an: sie ist abgehakt; öffne «Liste ändern» und füge einen Vorsatz hinzu.',
+  'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.': 'Öffne Material › Bausteine: fünf Gruppen; «Je nach Lage» und «Baden» sind offen.',
   // 0.149.0 Paket E «Material, Velos, Merken»
   'Remember, set up, sport by sport': 'Merken, einrichten, Sport für Sport',
   'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.': 'Die App merkt sich deine To-dos und Geburtstage, jedes Velo behält seine Taschen-Setups, jede Tour hat ihre eigene Sportart, und alles kannst du selbst umbenennen und löschen.',

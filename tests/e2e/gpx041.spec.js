@@ -84,7 +84,7 @@ for (const lang of ['en', 'de']) {
     await (await newButton(page, T('New'))).click();
     await page.getByRole('dialog', { name: T('New') }).getByRole('link', { name: new RegExp(`^${T('Upload ride')}`) }).click();
     await expect(page).toHaveURL(/#\/debrief\/ride$/);
-    await expect(page.getByRole('heading', { level: 1, name: T('Upload ride') })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: T('Rides|page') })).toBeVisible(); // Impeccable Runde 2: the page is «Fahrten»
 
     // 2. Choose the file: the ride, its pauses (the 3-minute stop is moving time), the trip of that day chosen
     await page.locator('.pickbtn input[type=file]').setInputFiles(gpx);

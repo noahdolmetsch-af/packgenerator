@@ -172,6 +172,10 @@ const OWN = [
   { id: 'f.reminders', group: 'data', title: 'Reminders', text: 'Me › Reminders: after a ride, before a trip or after bike care the app asks once; every reminder can be switched off.', href: '#/me/reminders', words: 'erinnerung erinnern fragen nie fragen' },
   { id: 'f.birthdays', group: 'data', title: 'Birthdays and plants', text: 'Birthdays and plants to water in Me › Reminders, shown in Calendar › Remember when it is time.', href: '#/me/reminders', words: 'geburtstag pflanzen giessen' },
   { id: 'f.measure', group: 'bike', title: 'Measure pressure and chain', text: 'Today records the tyre pressure and measures the chain; Enter values suggests a target pressure, the pick-up check checks both.', href: '#/bikes?tab=compare&view=enter', words: 'reifendruck druck kette messen abholcheck' },
+  // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben»)
+  { id: 'f.routine', group: 'active', title: 'What does me good', text: 'A short daily list on Today: tick it off, see days in a row; meditation ticks itself.', href: '#/routine', words: 'routine das tut mir gut vorsätze gewohnheit gewohnheiten habit abhaken serie aufstehen' },
+  // Erkenntnisse (Noah 19.10.2026 «4b» + own page): observation only, no cause and no diagnosis
+  { id: 'f.insights', group: 'active', title: 'Insights', text: 'What goes together in your data: sleep, battery, mood, rides, meditation and resting pulse; the strongest three in the analysis.', href: '#/me/insights', words: 'erkenntnisse zusammenhang auswertung schlaf akku stimmung ruhepuls muster' },
   { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log' },
   { id: 'f.medmore', group: 'active', title: 'Meditation · more', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'klänge zitate links' },
   // Data and app

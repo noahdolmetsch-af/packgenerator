@@ -94,6 +94,16 @@ test('SN5+ Favoriten: bar, zuletzt dabei, Oft dabei, Als Baustein and the hint o
   await expect(bike.locator('li.frow', { hasText: 'Sleeping bag' }).locator('.last')).toHaveText(T('not on any trip yet'));
 
   // F2: «Oft dabei»: on at least half of the trips, no star yet.
+  // Impeccable runde 2 (Favoriten 1): «Oft dabei» is a closed line on top now: «2 Vorschläge: …», a tap opens it
+  const line = page.locator('[data-often-line]');
+  await expect(line).toHaveText(T('{n} suggestions: often with you, no star yet', { n: 2 }));
+  expect((await line.boundingBox()).y).toBeLessThan((await bike.boundingBox()).y);
+  // Favoriten 2: the bar is thin, and said once above the kinds
+  await expect(page.getByText(T('Bar: the weight of the favourites against the heaviest kind'))).toBeVisible();
+  expect(await bike.locator('.fbar').evaluate((b) => b.getBoundingClientRect().height)).toBe(4);
+  await line.click();
+  // Handy kurz: on a phone «Oft dabei» is a closed line of its own once the suggestions are open
+  await openShort(page);
   const often = page.locator('[data-sec="often"]');
   await expect(often.locator('li')).toHaveCount(2);
   await expect(often.locator('li').first()).toContainText('Bike computer');

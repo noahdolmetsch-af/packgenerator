@@ -17,6 +17,8 @@
    * 0.163.0 «Handy kurz» (Durchklick 2, Noah 15.10.2026 «freigabe», answer 1 «wo sinnvoll»): on a phone the
    * side parts (message, since your visit, never tried, how to test, planned next) are one closed line each;
    * «How to test it» opens its line. A computer keeps them open.
+   * Impeccable Runde 2: every group head names its versions too («Yesterday, 17 Oct · 0.130–0.136 · 12 updates»),
+   * so a version is found by its number; the grouping by day (SL1, approved) stays.
    */
   import { liveQuery } from 'dexie';
   import { tick as settled } from 'svelte';
@@ -147,6 +149,12 @@
   };
   const chipLabel = (g) => (g.older ? t('Older|group') : g.ago === 0 ? t('Today') : g.ago === 1 ? t('Yesterday') : day(g.to, { day: 'numeric', month: 'short' }));
   const nUp = (n) => tn(n, '{n} update', '{n} updates');
+  // Impeccable Runde 2: the versions of a group, oldest to newest («0.130–0.136»; one version alone)
+  const verRange = (g) => {
+    const lo = shortVersion(g.entries.at(-1).version);
+    const hi = shortVersion(g.entries[0].version);
+    return lo === hi ? hi : `${lo}–${hi}`;
+  };
   // the newest day is open (answer: only the newest open); a search opens every group it found
   let opened = $state({});
   const isOpen = (g, i) => opened[g.key] ?? (searching || i === 0);
@@ -288,7 +296,7 @@
           <div class="wn-jump-ph"><ListNav groups={jumps} {active} onjump={jump} /></div>
           <div class="wn-days">
             {#each days as g, i (g.key)}
-              <ListGroup id={g.key} title={dayLabel(g)} count={nUp(g.entries.length)} peek={g.older ? t('back to the first version 0.1') : g.entries.slice(0, 3).map((e) => t(e.title)).join(' · ')} bind:open={() => isOpen(g, i), (v) => (opened = { ...opened, [g.key]: v })} rows={g.entries} more={(n) => t('Show {n} more|list', { n })}>
+              <ListGroup id={g.key} title={`${dayLabel(g)} · ${verRange(g)}`} count={nUp(g.entries.length)} peek={g.older ? t('back to the first version 0.1') : g.entries.slice(0, 3).map((e) => t(e.title)).join(' · ')} bind:open={() => isOpen(g, i), (v) => (opened = { ...opened, [g.key]: v })} rows={g.entries} more={(n) => t('Show {n} more|list', { n })}>
                 {#snippet row(e)}
                   <button type="button" class="wn-vr" aria-expanded={openV === e.version} data-row={e.version} onclick={() => (openV = openV === e.version ? null : e.version)}>
                     <span class="wn-vb num">{shortVersion(e.version)}</span>

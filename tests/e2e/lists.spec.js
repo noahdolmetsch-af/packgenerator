@@ -4,6 +4,7 @@
 // the number of items) and «Liste bearbeiten» in Material › Sortieren und filtern (LI4). The changes
 // reach Material at once and stay in the backup (settings «listOverrides»). Fictional fixture only.
 import { test, expect } from '@playwright/test';
+import { pickLook } from './gear-look.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -49,7 +50,8 @@ const row = (page, key) => page.locator(`main li[data-id="${key}"]`);
 test('LI1 + LI2 + LI3: rename, symbol, hide, own category and back to Standard reach Material', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/me');
-  await page.locator('main').getByRole('link', { name: new RegExp(T('Lists and types')) }).click();
+  // Impeccable Runde 2: on Ich one row «Lists and checks» leads here
+  await page.locator('main').getByRole('link', { name: new RegExp(T('Lists and checks')) }).click();
   await expect(page.getByRole('heading', { level: 1, name: T('Lists and types') })).toBeVisible();
   const catRow = page.locator('main').getByRole('link', { name: new RegExp(T('Categories')) });
   await expect(catRow).toContainText(T('Standard'));
@@ -131,7 +133,7 @@ test('LI3: delete a Standard category, its items show under «Ohne Kategorie», 
 
   await page.goto('./#/gear');
   await settle(page);
-  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
+  await pickLook(page, T('Show as'), T('List')); // Impeccable runde 2: on a phone in «Sort and filter»
   await expect(page.locator('section.cat').filter({ has: page.locator('#gh-other') }).locator('h2')).toContainText(T('Other / unknown category'));
 
   await page.goto('./#/me/lists?categories');
@@ -224,6 +226,10 @@ test('Gruppen ueberall: note topics and the groups of the bike values can be ren
   // the Notes page shows the new name and no longer the deleted topic
   await page.goto('./#/notes');
   await settle(page);
+  // Impeccable round 2: the topic chips show once there is a note, and only topics that find one; a training note
+  const capture = page.locator('main').getByRole('textbox', { name: T('New note') });
+  await capture.fill('test_data_gtp_ Intervall am Berg');
+  await page.locator('main').getByRole('button', { name: T('Save'), exact: true }).first().click();
   const topics = page.getByRole('group', { name: T('Filter') });
   await expect(topics).toContainText('test_data_gtp_ Fitness');
   await expect(topics).not.toContainText(T('Trip ideas'));
