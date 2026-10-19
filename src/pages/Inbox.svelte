@@ -393,6 +393,18 @@
 {/if}
 
 <style>
+  /* «Jetzt holen»: a full-size tap target (Wächter) */
+  .ib {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: none;
+    color: inherit;
+    border-radius: var(--r-s, 8px);
+    cursor: pointer;
+  }
   /* SL: the filed ones by month */
   .months {
     display: flex;
