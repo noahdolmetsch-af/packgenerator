@@ -154,7 +154,8 @@ test('cold: the temperature rule the app suggests follows', async ({ page, conte
   const dialog = page.locator('dialog[open]');
   await dialog.locator('details.more > summary').click();
   await dialog.locator('details[data-fold="rules"] > summary').click();
-  await expect(dialog.getByPlaceholder(T('e.g. {x}', { x: '6' }))).toBeVisible();
+  // Paket D «Einheitliche Formulare» (changed on purpose): the example is the line under the field (Field «example»)
+  await expect(dialog.locator('#it-cold-ex')).toHaveText(T('e.g. {x}', { x: '6' }));
 });
 
 test('hot from and the evening-before reminder: settings only, standards 30 C and 19:00', async ({ page, context }, info) => {

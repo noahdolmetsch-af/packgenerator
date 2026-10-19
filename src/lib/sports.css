@@ -149,6 +149,18 @@
   color: var(--ink-3);
   font-size: var(--fs-small);
 }
+/* Paket E with D «Handy kurz» (at most three phone screens on Touren): on a phone the band is one line, the
+   title with its arrow; the window it opens lists the old trips with their count. The computer keeps both lines. */
+@media (max-width: 719px) {
+  .sa-band {
+    min-height: 48px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+  }
+  .sa-bt small {
+    display: none;
+  }
+}
 /* the bike chip with «Standard für Cross Country» stays inside the window on a phone: the tag wraps under the name */
 .tp-chip:has(.sa-std) {
   flex-wrap: wrap;
