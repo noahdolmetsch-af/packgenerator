@@ -35,7 +35,7 @@ test('backup with a password: locked file, wrong password changes nothing, right
   await expect(lock.locator('[data-lock-switch]')).toBeChecked();
 
   const wait = page.waitForEvent('download');
-  await data.getByRole('button', { name: T('Export backup'), exact: true }).first().click();
+  await data.getByRole('button', { name: T('Save backup'), exact: true }).first().click();
   const file = info.outputPath('locked.json');
   await (await wait).saveAs(file);
   const text = readFileSync(file, 'utf8');
