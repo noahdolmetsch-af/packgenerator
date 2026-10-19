@@ -1608,6 +1608,17 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Noah «1b» (#1045), «1a» 14:00:** eigenes Release direkt nach F, vor G. Alle Seiten ausser Heute laden beim ersten Öffnen (`PAGES` in `src/App.svelte`, `LazyPage`), grosse Werkzeuge erst bei Bedarf. Der Build bricht ab, wenn eine JS-Datei grösser als 3 MB ist (`scripts/size-guard.mjs`); die Offline-Grenze bleibt 6 MiB.
 - **Gemessen:** grösste JS-Datei 5,2 MB → rund 1 MB. Der Start ist nicht schneller (bei 4× gebremster CPU eher 0,1 s langsamer); der Gewinn ist, dass die App sicher offline speicherbar bleibt.
 - **Selbst entschieden:** häufige Seiten (Material, Packen, Touren, Velos, Ich, Ablauf, Rückblick) laden im Hintergrund vor; graue Platzhalter erst nach 0,3 s; fehlt nach einem Update ein Teil, lädt die App höchstens einmal pro Minute neu. Nur die Icons sind eine eigene Datei, der Rest teilt sich automatisch.
+## Paket N «Pläne und Träume» (19.10.2026)
+
+- **Traumtouren auf eigener Seite** Touren › Träume mit Jahresband Januar bis Dezember (Noah «1a»). Grund: Träume bleiben getrennt von geplanten Touren; ein Tipp macht eine Tour daraus.
+- **Saison als Vorschlag der Tourart** (Noah «2b»), pro Traum änderbar, «Zurück zum Vorschlag». Tourarten sind eine Gruppe (umbenennen, löschen, eigene; Regel 17/18).
+- **Rennen aus Inspiration und Google Kalender** (Noah «3a und b»): Titel mit «Rennen», «Race», «Marathon», «Gran Fondo» … zählen; die Tour bekommt den Baustein Rennen und den Anmeldeschluss, bis «Angemeldet».
+- **Mein Kompass als eigene Seite** unter Ich (Noah «4b»), getrennt von Notizen; Ablagen sind eine Gruppe.
+- **Ziele in Schritten** (Noah «5 a und nutzer kann b ausschalten und ausblenden»): Schritte selbst tippen, die App verteilt die Daten bis zum Zieldatum; KI-Vorschläge über den KI-Helfer (neue Aufgabe `steps`), auf der Seite ausschaltbar und ausblendbar.
+- **Neue Notiz-Formate** (Noah 19.10.2026 «4a» und «5b und a»): mehrere Fotos und Links, Ort mit Google Maps und swisstopo, Skizze, QR-Code scannen, Vorlagen (umbenennen, löschen), Formatierung mit Leseansicht, Teilen-Knopf, einmaliger Google-Keep-Import aus Takeout. Selbst entschieden: das erste Foto und der erste Link bleiben in den alten Feldern (ältere Sicherungen laufen weiter); Formatierung wird zuerst ganz maskiert, nur Überschrift, fett, kursiv, Listen und Tabellen kommen zurück; Keep-Labels werden #Stichworte, ein zweiter Import legt nichts doppelt an.
+- **Zusätze** (Noah 19.10.2026 12:46 «1-5 a»): Traum mit Foto und Karte aus GPX; Push 3 und 1 Tag vor dem Anmeldeschluss; nächster Kompass-Schritt als Zeile in «Heute wichtig» (abschaltbar, Noahs OK für Heute); Notiz als Artikel lesen (N15); Karte «Träume und Rennen» in Woche planen (kommt mit F). Selbst entschieden: Karte nur bis 160 Punkte (klein im Backup); in einer Woche mit Tour keine Traum-Vorschläge.
+- Selbst entschieden: «Wie läuft's?» einmal pro Woche auf Mein Kompass und im Wochenrückblick (nur die laufende Woche); Daten in `settings` (dreams, compass), keine neue Tabelle, also in jeder Sicherung; Notizen verknüpfen wird nur einmal gespeichert und auf beiden Notizen gezeigt; Ich › Was kommt liest die Pakete aus `src/lib/wascommt.js` (der Bündler trägt die Version ein, sobald ein Paket live ist).
+
 ## 19.10.2026: Paket F Woche (0.151.0)
 
 - **Freigabe:** Noah «ok f» + «1b» (19.10.2026 10:36). F kommt nach E und C (Reihenfolge E → C → F). Teile: Woche planen WP1–WP4 + Mehr Inhalt (15.10. und 18.10.2026 «1a 2a 3b 4a 5a»), Rundgang und Einstieg Teil 1–3 (15.10. «1a … 5a», Einstieg «1a 2a 3a 4a», 18.10. «4a»), Google in der Woche (liest Paket B).
@@ -1647,3 +1658,23 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
 - **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
 
+
+## 19.10.2026 · Paket J «Berg, Schnee und Notfall» (Noah «1a und b … 2a 3a 4a, 5 nicht»)
+
+- Nullgradgrenze und Neuschnee (#160) kommen von Open-Meteo (gratis, ohne Schlüssel), nur der Kartenpunkt geht hinaus. Sie stehen bei jeder Skitour und Wanderung, bei einer Velotour ab 1500 m auf der Route, und auf der Seite Skitouren. Nur Zahlen, keine Bewertung; pro Tour ausblendbar.
+- Die swisstopo-Karte (#161) läuft in der App mit Leaflet, das erst beim Öffnen der Karte lädt (main.js wächst nicht). Ebenen Hangneigung über 30°, Skitouren, Wanderwege; Winterkarte November bis April. Angeschaute Kacheln bleiben offline (Service-Worker-Cache, max. 800).
+- Neue Seite Touren › Skitouren › «Berg und Notfall» (#/mountain): Notfall mit Standort gross (Grad und LV95) und Anruf Rega 1414 / 112 (#325, #217), Notfall-QR als Sperrbild (#311) mit Kontakt aus .vcf (#1001), Wegweiser und SAC-Skalen (#220), Schweizer Seiten nach Sportart, jede ausblendbar (#219). Kompass nur verlinkt (Paket L).
+- Privat-Zone #138 fällt weg (Noah «5 nicht»). Heute bleibt unverändert.
+## 19.10.2026: Paket L Werkzeugkasten
+
+- **Paket L «Werkzeugkasten» (Noah 19.10.2026 «1 eigene neue Seite … und b», «2a», «3a», «4 a und b», «5 a und b», dann «1–8 alle umsetzen», «9-10 nicht. 1-3 freigabe»):** neue Seite Ich › Werkzeugkasten (#/me/tools) mit 19 Werkzeugen, dazu die kleine App «Werkzeug» mit eigenem Symbol und die Kachel Werkzeugkasten (nur im Kachel-Katalog, Heute bleibt HN4). Kurse 1× am Tag gratis (Frankfurter/EZB); Tour-Kosten mit «Per TWINT anfordern»; Links und Dateien in Dokumente UND im Werkzeugkasten; Sätze in FR, IT, EN, ES, PT, NL. Neu: Wasserwaage, Übersetzungs-Rechner, Strichcode → Material, QR-Code, Lupe und Taschenlampe, Bildformat, Video verkleinern, Strecke messen, «Passt gerade» (nur im Werkzeugkasten) und Werkzeug-Ketten. Rabatt/MWST und Passwort-Generator fallen weg; Bike-Fit per Kamera geht ins Paket «L2 Bilderkennung».
+- **Selbst entschieden (Paket L):** Freistellen mit dem Modell ISNet (BiRefNet lite als zweite Wahl), einmal rund 45 MB, danach offline; HEIC-Leser (heic2any) einmal von jsdelivr, danach offline; Video verkleinern mit dem Browser-eigenen Rekorder (kein Download, dauert so lange wie das Video); die Karte mit Leaflet aus dem App-Paket (nur auf dieser Seite geladen) und OpenStreetMap-Kacheln; Strichcodes nur mit dem Browser-eigenen Leser, nichts wird im Internet nachgeschaut; Links und Dateien liegen in den Einstellungen (Backup und Abgleich), Dateien bis 5 MB; die Liste lässt sich durchsuchen und mit Pfeilen und Ziehen ordnen.
+- **Seite «Werkzeuge und Links» (Noah 19.10.2026 11:28 «1b 2a 3a», in Paket L):** eigene Seite Ich › Werkzeuge und Links (#/me/links), getrennt vom Werkzeugkasten. Startet mit Vorschlägen (SBB, Google Maps, MeteoSchweiz, Windy, Rega, komoot, swisstopo, Ride with GPS, SchweizMobil, SLF, Google Kalender, Strava, Garmin Connect, GotCourts, Trello, Google Notizen/Aufgaben/Drive/Gmail/Wallet, TinyWow, iLovePDF, Squoosh, Park Tool, iFixit), jeder abwählbar und unter «Abgewählte Vorschläge» zurückholbar. Eigene Links sind dieselben wie in «Links und Dateien» (keine zweite Ablage). SBB, Maps, Kalender, swisstopo, komoot und Windy nehmen Ort und Tag der nächsten Tour mit. Gruppen: neu, umbenennen, löschen (Links gehen nach «Ohne Gruppe» oder in eine andere Gruppe, mit Rückgängig). Keine Logos aus dem Internet, nur Anfangsbuchstaben.
+
+## 19.10.2026: Pakete gehen selbst online (Noah 13:49 «ohne testen, direkt online stellen», 14:00 «1a»)
+
+- Kein Testlink und kein «ok X» mehr: Ein Paket geht online, sobald die automatischen Tests grün sind.
+- Jeder Bau-Thread bringt sein Paket selbst online, in der Reihenfolge des Koordinators, mit Auto-Merge.
+- Pakete mit geänderter Daten-Ablage werden vorher mit einer Backup-Kopie geprüft.
+- «zurück» nimmt ein Paket sofort wieder raus.
+- Grund: schneller von der Freigabe bis online.

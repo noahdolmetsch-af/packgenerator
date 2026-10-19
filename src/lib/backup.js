@@ -1,5 +1,6 @@
 import { DATA_TABLES, SCHEMA_VERSION, DEVICE_SETTINGS } from './db.js';
 import { t } from './i18n.svelte.js';
+import { backupText } from './backupcrypt.js'; // Paket Q #135: locked with a password when switched on
 import { own } from './ownlive.svelte.js';
 
 /**
@@ -140,7 +141,7 @@ export const BACKUP_DAYS = 14;
 /** Download the whole app as one file and remember when. */
 export async function downloadBackup(db) {
   const data = await buildBackup(db);
-  saveFile(JSON.stringify(data, null, 2));
+  saveFile(await backupText(db, data));
   await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
   await markSync(db); // P3b: the other device may import this file
 }
@@ -173,7 +174,7 @@ export function shareFiles(text, name = backupFileName(), FileClass = globalThis
  */
 export async function shareBackup(db, nav = globalThis.navigator) {
   const data = await buildBackup(db);
-  const text = JSON.stringify(data, null, 2);
+  const text = await backupText(db, data);
   const file = shareFiles(text).find((f) => nav?.canShare?.({ files: [f] }));
   if (file) {
     try {

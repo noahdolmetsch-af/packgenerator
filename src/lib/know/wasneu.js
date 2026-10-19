@@ -49,9 +49,24 @@ export const SINCE = {
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
+  // Paket N «Pläne und Träume» (v0.153.0)
+  'f.notelinks': '0.153.0', 'f.next': '0.153.0', 'f.dreams': '0.153.0', 'f.races': '0.153.0', 'f.compass': '0.153.0', 'f.noteformats': '0.153.0',
+  // Paket P «Was mir gut tut» (v0.153.0)
+  'f.wohl': '0.153.0',
+  // Paket Q «App klarer» (v0.153.0)
+  'f.alerts': '0.153.0', 'f.backuplock': '0.153.0', 'f.yearcheck': '0.153.0', 'f.suggestoff': '0.153.0', 'f.tipweek': '0.153.0', 'f.comeback': '0.153.0', 'f.tripalert': '0.153.0', 'f.helpsearch': '0.153.0', 'f.offlinesave': '0.153.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
   'f.routine': '0.150.0', 'f.insights': '0.150.0',
+  // Paket G «Daten kommen von selbst» (v0.153.0)
+  'f.connections': '0.153.0', 'f.owncal': '0.153.0', 'f.notestasks': '0.153.0', 'f.fitbitold': '0.153.0', 'f.stravaticks': '0.153.0', 'f.lake': '0.153.0', 'f.datastars': '0.153.0', 'f.wxwatch': '0.153.0', 'f.tourhints': '0.153.0', 'f.rainsoon': '0.153.0', 'f.air': '0.153.0', 'f.routepois': '0.153.0',
+  // Paket H «Packen leichter» (v0.153.0)
+  'f.starters': '0.153.0', 'f.supplies': '0.153.0', 'f.table': '0.153.0', 'f.readaloud': '0.153.0', 'f.lend': '0.153.0', 'f.ownrules': '0.153.0', 'f.startfresh': '0.153.0',
+  // Paket J «Berg, Schnee und Notfall» (v0.153.0)
+  'f.snow': '0.153.0', 'f.swissmap': '0.153.0', 'f.sos': '0.153.0', 'f.sosqr': '0.153.0', 'f.scales': '0.153.0',
+  // Paket L «Werkzeugkasten» (v0.153.0)
+  'f.tools': '0.153.0', 'f.pdftools': '0.153.0', 'f.phototools': '0.153.0', 'f.money': '0.153.0', 'f.tripcosts': '0.153.0', 'f.ablage': '0.153.0',
+  'f.weblinks': '0.153.0', 'f.chains': '0.153.0', 'f.convert': '0.153.0', 'f.video': '0.153.0', 'f.qr': '0.153.0', 'f.mapmeasure': '0.153.0', 'f.gears': '0.153.0', 'f.level': '0.153.0', 'f.barcode': '0.153.0', 'f.light': '0.153.0',
   // Paket U «Rennen» (provisional version, the bundler renumbers)
   'f.race': '0.156.0', 'f.racesample': '0.156.0',
 };

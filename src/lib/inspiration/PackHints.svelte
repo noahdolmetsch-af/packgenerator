@@ -7,13 +7,15 @@
   import { db } from '../db.js';
   import { inspoHints } from '../inspiration.js';
   import InspoHint from './InspoHint.svelte';
+  import { suggest, watchSuggest } from '../clear/suggest.svelte.js';
+  watchSuggest(); // Paket Q #361: «Rules from your inspiration» can be switched off
 
   const hintsQ = liveQuery(() => db.learnings.filter((l) => !!l.inspo).toArray());
   const hints = $derived(inspoHints($hintsQ ?? []));
   const hide = (l) => db.learnings.update(l.id, { packHint: false });
 </script>
 
-{#if hints.length}
+{#if hints.length && suggest.on.inspo}
   <div class="ph-list" data-inspo-hints>
     {#each hints as l (l.id)}
       <InspoHint rule={l.rule} url={l.inspo.url} title={l.inspo.title} onhide={() => hide(l)} />

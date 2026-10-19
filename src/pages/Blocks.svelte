@@ -51,7 +51,7 @@
   import Btn from '../lib/ui/Btn.svelte';
   import { blockIcon, blockTone } from '../lib/blockicons.js';
   import { RAIN_WORDS } from '../lib/packblocks.js';
-  import { rulesOf, setRule, hasRule, stagesOf, STAGE_BLOCKS, MORE_BLOCKS } from '../lib/situation.js';
+  import { rulesOf, setRule, hasRule, stagesOf, STAGE_BLOCKS, MORE_BLOCKS, setOwnRule, ownRuleOf } from '../lib/situation.js';
   import { ruleLine, hitBadge, byHand } from '../lib/situationtext.js';
   import { BLOCK_GROUPS, OPEN_GROUPS, FIXED_WHEN, MORE_KEY, newParts, undoMore } from '../lib/blocksmore.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
@@ -103,10 +103,12 @@
   /** A folded group's line: what it does · its first three names … */
   const groupSub = (what, list) => [what, list.slice(0, 3).map(blockLabel).join(', ') + (list.length > 3 ? ' …' : ''), groupNew(list) ? tn(groupNew(list), '+{n} new item', '+{n} new items') : ''].filter(Boolean).join(' · ');
   let ruling = $state(null); // the key of the block whose rule sheet is open
+  const isOwnRule = (s) => !!s && !s.builtIn && !hasRule(s.key);
   const rulingCard = $derived(ruling ? cards.find((c) => c.key === ruling) ?? null : null);
   // Save the rule (on the block's record) and take out the items crossed out in the sheet; one Undo.
   async function saveRule(s, { rule, out }) {
-    const res = await editSets(db, (v) => ({ value: setRule(v, s.key, rule) }));
+    // Paket H #260: an own block keeps its own rule on its record (setOwnRule)
+    const res = await editSets(db, (v) => ({ value: isOwnRule(s) ? setOwnRule(v, s.key, rule) : setRule(v, s.key, rule) }));
     if (res.error) return;
     let snap = res.snap;
     if (out.length) {
@@ -313,6 +315,14 @@
       {@render summary(s.key, blockLabel(s), `blk-${s.key}`, s.inventory, s, s)}
       <div class="body">
         <p class="note use">{setUse(s.builtIn ? s.key : null)}</p>
+        {#if !s.builtIn}
+          <!-- Paket H #260 «Regel-Editor» (Noah 19.10.2026 «3a»): an own block can come along by its own rule -->
+          {@const r = ownRuleOf(s.rule)}
+          <p class="note ownrule" data-own-rule>
+            {#if r}<span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine('own', r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine('own', r)}{/if}</span>{:else}<span>{t('No rule yet: it comes only when you choose it.')}</span>{/if}
+            <button type="button" class="btn sm" aria-haspopup="dialog" onclick={() => (ruling = s.key)}>{r ? t('Change rule') : t('Add a rule')}</button>
+          </p>
+        {/if}
         {#if s.note}<p class="note">{s.note}</p>{/if}
         {#if inTemplates(s.key)}<p class="note intpl">{tn(inTemplates(s.key), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
         {#if s.items.length}
@@ -524,7 +534,7 @@
 
 {#if rulingCard}
   {@const s = rulingCard}
-  <RuleSheet block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} ondelete={() => remove(s)} onclose={() => (ruling = null)} />
+  <RuleSheet own={isOwnRule(s)} block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} ondelete={() => remove(s)} onclose={() => (ruling = null)} />
 {/if}
 
 {#if deleting}
@@ -1034,4 +1044,6 @@
       min-height: 44px;
     }
   }
+  /* Paket H #260: the rule line of an own block */
+  .ownrule { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 </style>

@@ -18,7 +18,7 @@
    */
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
+  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2 } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
@@ -37,7 +37,7 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -334,7 +334,8 @@
 {:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
-{#snippet aside()}{@render ring(52)}{/snippet}
+<!-- Paket H «4a und b»: «Read aloud» next to the ring, at the thumb on a phone; the window explains the rest -->
+{#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={22} aria-hidden="true" /></button>{/if}{/snippet}
 
 <!-- v0.105.0 P5 (T6): one bag in the list «Taschen»: icon, name, «6 Teile · 3.4 kg», a small bar, the count -->
 {#snippet bagRow(s, Icon, done, isCur)}
@@ -391,7 +392,7 @@
     <div class="pmain">
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}</p>
+        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}</p>
         <ul class="card blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -521,6 +522,8 @@
   .sh { margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
   .sh b { font-weight: 600; }
   .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  /* Paket H: on a computer «Read aloud» stands in the line above the bags (on a phone it is next to the ring) */
+  .pd-read-w { margin-left: 12px; vertical-align: middle; }
   /* the list of bags: one row each, the open one tinted */
   .blist, .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
   .brow + .brow, .mlist li + li { border-top: 1px solid var(--line); }

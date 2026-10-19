@@ -21,7 +21,7 @@ export default {
   '10 km on': '10 km weiter',
   'Use the plan (km {km} now)': 'Plan nehmen (jetzt km {km})',
   '{left} km to the finish': 'Noch {left} km bis ins Ziel',
-  'What comes next': 'Was als Nächstes kommt',
+  'What comes next|race': 'Was als Nächstes kommt',
   'Next checkpoint': 'Nächster Checkpoint',
   'planned around {time}': 'geplant um {time}',
   'You need Ø {kmh} km/h to make the cut-off at {time}': 'Du brauchst Ø {kmh} km/h für den Cut-off um {time}',

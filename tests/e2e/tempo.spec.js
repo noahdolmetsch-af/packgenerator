@@ -27,6 +27,8 @@ test('Material search: five rows per category and Show more', async ({ page, con
   }
   // a category with more hits opens all of them with one tap
   expect(capped).not.toBeNull();
+  // centre it first: at the top edge the sticky search bar would cover it
+  await capped.locator('.allrows').evaluate((el) => el.scrollIntoView({ block: 'center' }));
   await capped.locator('.allrows').click();
   expect(await capped.locator('ul.rows > li').count()).toBeGreaterThan(SHOW_ROWS + 1);
   // a new search starts short again

@@ -4,6 +4,10 @@
 import { test, expect } from '@playwright/test';
 import { base, tr } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
+import { readFileSync } from 'node:fs';
+
+// the switches, read from the app source (schedule.js KINDS) instead of a copy
+const KIND_COUNT = (readFileSync(new URL('../../src/lib/push/schedule.js', import.meta.url), 'utf8').match(/export const KINDS = \[([\s\S]*?)\n\];/)?.[1].match(/\{ key: '/g) ?? []).length;
 
 const T = tr('de');
 const PUSH = 'https://packgen-three.vercel.app/api/push';
@@ -41,7 +45,8 @@ test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a
   await expect(main).not.toBeChecked();
   await expect(box.getByRole('status')).toHaveText(T('Off. Nothing goes to the phone.'));
   const kinds = box.locator('[data-push-kind] input[role="switch"]');
-  await expect(kinds).toHaveCount(7);
+  expect(KIND_COUNT).toBeGreaterThan(6);
+  await expect(kinds).toHaveCount(KIND_COUNT);
   for (const s of await kinds.all()) await expect(s).not.toBeChecked();
   await box.getByRole('switch', { name: T('Birthdays') }).check();
   await expect.poll(() => stored(page, 'push')).toMatchObject({ kinds: { birthday: true } });

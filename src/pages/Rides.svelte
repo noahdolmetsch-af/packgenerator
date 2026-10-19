@@ -24,6 +24,9 @@
   import UndoToast from '../lib/review/UndoToast.svelte';
   import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
+  import ListTable from '../lib/ui/ListTable.svelte'; // Paket H «3a und b»
+  import { savedView, saveView } from '../lib/listtable.js';
+  import { phone } from '../lib/media.svelte.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map, Pencil } from '@lucide/svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
@@ -44,6 +47,33 @@
   const trips = $derived($tripsQ ?? []);
   const paceSetting = $derived($paceQ?.value ?? null);
   const pace = $derived(paceOf(paceSetting));
+  // Paket H «3a und b»: the shared table for the saved rides, remembered on this device
+  let tableOn = $state(savedView('rides') === 'table');
+  const setTable = (on) => ((tableOn = on), saveView('rides', on ? 'table' : 'list'));
+  const rideCols = $derived([
+    { key: 'name', label: t('Name'), type: 'text', required: true, bulk: false },
+    { key: 'date', label: t('Date'), type: 'date', readOnly: true },
+    { key: 'km', label: 'km', type: 'number', readOnly: true },
+    { key: 'trip', label: t('Trip'), type: 'text', readOnly: true, get: (r) => tripOf(r)?.title ?? '' },
+  ]);
+  // several at once: like «Delete» in one ride (also out of the pace), one Undo for all
+  function delRides(list) {
+    const now = new Date().toISOString();
+    return db.transaction('rw', [db.rides, db.settings], async () => {
+      const recs = (await db.rides.bulkGet(list.map((r) => r.id))).filter(Boolean);
+      const paceRow = await db.settings.get(PACE_KEY);
+      let next = paceRow?.value ?? null;
+      for (const r of recs) if (next) next = dropFromPace(next, r.id, now);
+      if (paceRow) await db.settings.put({ key: PACE_KEY, value: next });
+      await db.rides.bulkDelete(recs.map((r) => r.id));
+      return { recs, pace: paceRow };
+    });
+  }
+  const undoRides = ({ recs, pace }) =>
+    db.transaction('rw', [db.rides, db.settings], async () => {
+      await db.rides.bulkPut(recs);
+      if (pace) await db.settings.put(pace);
+    });
   const shared = $derived(sub === 'shared');
   const rideId = $derived(sub && sub !== 'shared' ? sub : null);
   const ride = $derived(rideId ? rides.find((r) => r.id === rideId) ?? null : null);
@@ -664,7 +694,12 @@
 
         {#if rides.length}
           <section class="rv-sec" aria-labelledby="saved-h">
-            <div class="rv-h"><div><h2 id="saved-h">{t('Saved rides')}</h2><p class="rv-sub num">{tn(rides.length, '{n} ride', '{n} rides')}</p></div></div>
+            <div class="rv-h"><div><h2 id="saved-h">{t('Saved rides')}</h2><p class="rv-sub num">{tn(rides.length, '{n} ride', '{n} rides')}</p></div>
+              <!-- Paket H «3a und b»: the rides as an editable table; tick several to delete them -->
+              <button type="button" class="btn btn-link" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-ride-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button></div>
+            {#if tableOn}
+              <ListTable rows={rides} cols={rideCols} nameOf={(r) => r.name || r.date || t('Ride')} onsave={(pairs) => db.rides.bulkPut(pairs.map((p) => p.after))} ondelete={delRides} onrestore={undoRides} onopen={(r) => (location.hash = `#/debrief/ride/${encodeURIComponent(r.id)}`)} label={t('Saved rides')} />
+            {:else}
             <ul class="rv-box" aria-labelledby="saved-h">
               {#each rides as r (r.id)}
                 {@const open = rideLearnings(r, r.plan, r.basis ?? pace).filter((s) => !r.answers?.[s.id]).length}
@@ -679,6 +714,7 @@
                 </li>
               {/each}
             </ul>
+            {/if}
           </section>
         {/if}
       </div>

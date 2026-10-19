@@ -13,6 +13,18 @@ export default {
   'Today shows a small line «Race in X days» when a race of yours is coming': 'Heute zeigt eine kleine Zeile «Rennen in X Tagen», wenn ein Rennen von dir kommt',
   'Open Trips › Races › «See the sample race»: the plan shows the days, the three ways and the gaps.': 'Öffne Touren › Rennen › «Muster-Rennen ansehen»: der Plan zeigt die Tage, die drei Varianten und die Lücken.',
   'Change the climbing rate from 650 to 550 m/h: the plan gets longer at once.': 'Ändere die Steigleistung von 650 auf 550 Hm/h: der Plan wird sofort länger.',
+  // 0.153.0 Paket 1: G, L, P, N, Q, H, J
+  'Seven new parts at once': 'Sieben neue Teile auf einmal',
+  'Data by itself, a toolbox, dreams, easier packing, help in the mountains.': 'Daten von selbst, ein Werkzeugkasten, Träume, leichter packen, Hilfe in den Bergen.',
+  'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm': 'Ich › Verbindungen: Strava, Fitbit und Google füllen die App; ein Wetter-Wecker',
+  'Me › Toolbox: PDF, photos, currencies, trip costs, QR code': 'Ich › Werkzeugkasten: PDF, Fotos, Währungen, Tourkosten, QR-Code',
+  'Trips › Dreams: dream tours, races and goals in small steps': 'Touren › Träume: Traumtouren, Rennen und Ziele in kleinen Schritten',
+  'Packing: from earlier trips, Supplies, Lent out, lists as a table': 'Packen: aus früheren Touren, Vorrat, Ausgeliehen, Listen als Tabelle',
+  'Mountains: freezing level, new snow, swisstopo map, emergency page': 'Berge: Nullgradgrenze, Neuschnee, swisstopo-Karte, Notfall-Seite',
+  'What is good for me, alerts, tip of the week, backup with a password': 'Was mir gut tut, Hinweise, Tipp der Woche, Backup mit Passwort',
+  'Open Me › Toolbox and turn three photos into one PDF.': 'Öffne Ich › Werkzeugkasten und mach aus drei Fotos ein PDF.',
+  'Open Trips › Dreams and add a dream tour with a season.': 'Öffne Touren › Träume und füge eine Traumtour mit Saison hinzu.',
+  'Open Me › Connections: every connection with its state and switches.': 'Öffne Ich › Verbindungen: jede Verbindung mit Stand und Schaltern.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

@@ -113,7 +113,7 @@
     {#if total}<p class="rc-note">{t('{left} km to the finish', { left: num(Math.round(total - km)) })}</p>{/if}
   </section>
 
-  <section class="rc-box rm-lines" data-race-box="ride-next" aria-label={t('What comes next')}>
+  <section class="rc-box rm-lines" data-race-box="ride-next" aria-label={t('What comes next|race')}>
     {#if cp}
       <div class="rm-line" data-race-next="checkpoint">
         <small>{t('Next checkpoint')}</small>

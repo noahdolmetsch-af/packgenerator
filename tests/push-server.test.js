@@ -3,7 +3,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createECDH, createDecipheriv, createPublicKey, hkdfSync, randomBytes, verify } from 'node:crypto';
 import { newVapidKeys, vapidOk, vapidHeader, encrypt } from '../api/_lib/webpush.js';
-import { cleanList, split, weatherReasons, weatherMessage, devKey, nextAt, STALE_MS } from '../api/_lib/push.js';
+import { cleanList, split, weatherReasons, weatherMessage, devKey, nextAt, STALE_MS, dayGood, watchVerdict, watchNews, watchMessage, keepWatch, watchUrl, WATCH_EVERY_MS } from '../api/_lib/push.js';
 import { makeHandler, sameToken, VAPID_KEY, TICK_KEY, LAST_TICK, DEFAULT_SUBJECT, pushEnv } from '../api/push.js';
 import { hash, KEYS } from '../api/_lib/oauth.js';
 
@@ -227,5 +227,119 @@ describe('/api/push', () => {
     await h(post({ a: 'save', token: TOKEN, sub: ph.sub, items: [] }));
     expect(await (await h(post({ a: 'test', token: TOKEN, title: 'Pack Generator', body: 'So kommen deine Erinnerungen an.' }))).json()).toEqual({ ok: true, status: 201 });
     expect(decrypt(w.sent[0].init.body, ph)).toMatchObject({ body: 'So kommen deine Erinnerungen an.' });
+  });
+});
+
+describe('Wetter-Wecker (Paket G)', () => {
+  const days = ['2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27'];
+  /** good: list of booleans per day → a forecast. */
+  const fc = (good) => ({ time: days, weather_code: good.map((g) => (g ? 1 : 61)), precipitation_sum: good.map((g) => (g ? 0 : 8)), precipitation_probability_max: good.map((g) => (g ? 10 : 90)), wind_gusts_10m_max: good.map(() => 20), temperature_2m_max: good.map(() => 16) });
+  const w = { key: 'ww:1', date: '2026-10-24', days: 1, lat: 46.95, lon: 7.45, title: 'Testtour', url: '#/pack' };
+  const texts = { wtitle: 'Wetter-Wecker', bad: 'Das Wetter für {trip} sieht schlecht aus.', turn: 'Das Wetter für {trip} kippt.', good: 'Gutes Wetterfenster: {trip}.', window: 'Für {trip} sieht {day} besser aus.', better: 'Ab {day} sieht es besser aus.', wdays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] };
+
+  it('a day is good when dry, without thunder or storm and not cold', () => {
+    expect(dayGood(fc([true]), '2026-10-21')).toBe(true);
+    expect(dayGood(fc([false]), '2026-10-21')).toBe(false);
+    expect(dayGood({ ...fc([true]), weather_code: [95] }, '2026-10-21')).toBe(false);
+    expect(dayGood({ ...fc([true]), wind_gusts_10m_max: [70] }, '2026-10-21')).toBe(false);
+    expect(dayGood(fc([true]), '2026-11-30')).toBe(null);
+  });
+  it('finds a better start day nearby, never today or before', () => {
+    expect(watchVerdict(fc([true, true, true, true, true, true, true]), w, '2026-10-20')).toEqual({ verdict: 'good', alt: null });
+    expect(watchVerdict(fc([true, true, false, false, true, true, true]), w, '2026-10-20')).toEqual({ verdict: 'bad', alt: '2026-10-25' });
+    expect(watchVerdict(fc([true, false, false, false, false, false, false]), w, '2026-10-20')).toEqual({ verdict: 'bad', alt: '2026-10-21' });
+    expect(watchVerdict(fc([true, false, false, false, false, false, false]), w, '2026-10-21')).toEqual({ verdict: 'bad', alt: null });
+    expect(watchVerdict(fc([true, true, true, true, false, true, true]), { ...w, days: 2 }, '2026-10-20')).toEqual({ verdict: 'bad', alt: '2026-10-23' });
+    expect(watchVerdict({ time: [] }, w, '2026-10-20').verdict).toBe(null);
+  });
+  it('tells only news: the weather turns, gets good, or a better day shows up', () => {
+    expect(watchNews(null, 'good', null, null)).toBe(null);
+    expect(watchNews(null, 'bad', '2026-10-25', null)).toEqual({ kind: 'bad', alt: '2026-10-25' });
+    expect(watchNews('good', 'bad', null, null)).toEqual({ kind: 'turn', alt: null });
+    expect(watchNews('bad', 'good', null, '2026-10-25')).toEqual({ kind: 'good', alt: null });
+    expect(watchNews('bad', 'bad', '2026-10-25', '2026-10-25')).toBe(null);
+    expect(watchNews('bad', 'bad', '2026-10-26', '2026-10-25')).toEqual({ kind: 'window', alt: '2026-10-26' });
+    expect(watchNews('good', 'good', null, null)).toBe(null);
+    expect(watchNews('good', null, null, null)).toBe(null);
+  });
+  it('words the message with the tour and the better day', () => {
+    expect(watchMessage(w, { kind: 'turn', alt: '2026-10-25' }, texts)).toEqual({ title: 'Wetter-Wecker', body: 'Das Wetter für Testtour kippt. Ab So 25.10. sieht es besser aus.', url: '#/pack', tag: 'ww:1' });
+    expect(watchMessage(w, { kind: 'window', alt: '2026-10-26' }, texts).body).toBe('Für Testtour sieht Mo 26.10. besser aus.');
+    expect(watchMessage(w, { kind: 'good', alt: null }, texts).body).toBe('Gutes Wetterfenster: Testtour.');
+    expect(watchMessage(w, { kind: 'good', alt: null }, {})).toBe(null);
+  });
+  it('a resend keeps what the server learned; the forecast spans the days around the tour from tomorrow', () => {
+    const old = [{ ...w, at: 99, last: 'bad', alt: '2026-10-25' }];
+    expect(keepWatch([{ ...w, at: 5 }, { ...w, key: 'ww:2', at: 7 }], old)).toEqual([{ ...w, at: 99, last: 'bad', alt: '2026-10-25' }, { ...w, key: 'ww:2', at: 7, last: null, alt: null }]);
+    const u = watchUrl({ ...w, date: '2026-10-22', days: 2 }, '2026-10-20');
+    expect(u).toContain('start_date=2026-10-21');
+    expect(u).toContain('end_date=2026-10-26');
+    expect(u).toContain('precipitation_sum');
+  });
+  it('on the tick: silent while good, one message when it turns, checks again 12 hours later, stops on the tour day', async () => {
+    let forecast = { daily: fc([true, true, true, true, true, true, true]) };
+    const wld = world();
+    wld.doFetch.mockImplementation(
+      ((orig) => async (url, init) => (String(url).startsWith('https://api.open-meteo.com/') ? Response.json(forecast) : orig(url, init)))(wld.doFetch.getMockImplementation()),
+    );
+    const ph = phone();
+    let now = T0; // 20 Oct 2026, 07:00 in Zurich
+    const h = makeHandler({ env: env(), doFetch: wld.doFetch, now: () => now });
+    const saved = await (await h(post({ a: 'save', token: TOKEN, sub: ph.sub, watch: [{ ...w, at: T0 + 1000 }], texts }))).json();
+    expect(saved).toMatchObject({ ok: true, watch: 1 });
+    now = T0 + 2000;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 0 });
+    let rec = JSON.parse(wld.store[devKey(TOKEN)]);
+    expect(rec.watch[0]).toMatchObject({ last: 'good', at: T0 + 2000 + WATCH_EVERY_MS });
+    // the app sends its list again: the learned state stays
+    await h(post({ a: 'save', token: TOKEN, sub: ph.sub, watch: [{ ...w, at: T0 + 3000 }], texts }));
+    expect(JSON.parse(wld.store[devKey(TOKEN)]).watch[0]).toMatchObject({ last: 'good', at: T0 + 2000 + WATCH_EVERY_MS });
+    // 12 hours later rain on the tour day, Sunday dry
+    forecast = { daily: fc([true, true, true, false, true, true, true]) };
+    now = T0 + 2000 + WATCH_EVERY_MS;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 1 });
+    expect(decrypt(wld.sent[0].init.body, ph)).toMatchObject({ title: 'Wetter-Wecker', body: 'Das Wetter für Testtour kippt. Ab So 25.10. sieht es besser aus.' });
+    // the same again: nothing new
+    now += WATCH_EVERY_MS;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 0 });
+    // on the tour day the watch ends (the morning warning takes over)
+    now = Date.parse('2026-10-24T05:00:00Z');
+    await h(get(`a=tick&key=${TICK}`));
+    rec = JSON.parse(wld.store[devKey(TOKEN)]);
+    expect(rec.watch).toEqual([]);
+  });
+});
+
+describe('Regen unterwegs and Ozon/Pollen on the tick (Paket G)', () => {
+  it('warns once before the rain on the way, then stays quiet; adds strong pollen to the morning message', async () => {
+    const wld = world();
+    const orig = wld.doFetch.getMockImplementation();
+    let rainNow = [0, 0, 0.6, 1];
+    wld.doFetch.mockImplementation(async (url, init) => {
+      const u = String(url);
+      if (u.startsWith('https://api.open-meteo.com/') && u.includes('minutely_15')) return Response.json({ minutely_15: { precipitation: rainNow } });
+      if (u.startsWith('https://api.open-meteo.com/')) return Response.json({ daily: { time: ['2026-10-20'], weather_code: [1], wind_gusts_10m_max: [20], temperature_2m_max: [18] } });
+      if (u.startsWith('https://air-quality-api.open-meteo.com/')) return Response.json({ hourly: { time: ['2026-10-20T12:00'], ozone: [60], grass_pollen: [90], birch_pollen: [0], alder_pollen: [0], mugwort_pollen: [0], ragweed_pollen: [0] } });
+      return orig(url, init);
+    });
+    const ph = phone();
+    let now = T0;
+    const h = makeHandler({ env: env(), doFetch: wld.doFetch, now: () => now });
+    const texts = { title: 'Wetter', thunder: '', storm: '', heat: '', rtitle: 'Regen unterwegs', rain: 'Regen in {min} Minuten auf {trip}.', pollen: 'Starker Pollenflug: {list}.', ozone: 'Ozon {n}.', pollenNames: { grass: 'Gräser' } };
+    const points = [0, 1, 2, 3].map((n) => ({ at: T0 + n * 1800e3, lat: 47 + n / 100, lon: 8 }));
+    await h(post({ a: 'save', token: TOKEN, sub: ph.sub, rain: [{ key: 'rain:1', title: 'Testtour', url: '#/pack', points }], weather: [{ key: 'wx:1', at: T0 + 500, date: '2026-10-20', lat: 47, lon: 8, title: 'Testtour', url: '#/pack' }], air: { pollen: ['grass'] }, texts }));
+    now = T0 + 1000;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 2 });
+    const msgs = wld.sent.map((s) => decrypt(s.init.body, ph));
+    expect(msgs).toContainEqual(expect.objectContaining({ title: 'Testtour', body: 'Starker Pollenflug: Gräser.' }));
+    expect(msgs).toContainEqual(expect.objectContaining({ title: 'Regen unterwegs', body: 'Regen in 30 Minuten auf Testtour.', tag: 'rain:1' }));
+    // 15 minutes later: rain still coming, but 2 hours quiet
+    now = T0 + 1000 + 15 * 60e3;
+    expect(await (await h(get(`a=tick&key=${TICK}`))).json()).toMatchObject({ sent: 0 });
+    // after the ride the watch is gone
+    rainNow = [0, 0, 0, 0];
+    now = T0 + 4 * 1800e3 + 1;
+    await h(get(`a=tick&key=${TICK}`));
+    expect(JSON.parse(wld.store[devKey(TOKEN)]).rain).toEqual([]);
   });
 });

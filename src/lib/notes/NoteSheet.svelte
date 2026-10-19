@@ -13,7 +13,7 @@
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkedNotes, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -22,10 +22,17 @@
   import { t } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import { appendSpoken } from '../speak.js';
-  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft } from '@lucide/svelte';
+  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
+  import { photosOf, linksOf, addPhoto, removePhoto, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
+  import { linkFrom } from '../notebook.js';
+  import { shrinkImage } from '../photo.js';
+  import CameraButton from '../ui/CameraButton.svelte';
+  import SketchPad from './SketchPad.svelte';
+  import NoteReader from './NoteReader.svelte';
+  import { MapPin, Image as ImageIcon, PenLine, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { note, bikes = [], pinnedCount = 0, onclose, onmade } = $props();
+  let { note, bikes = [], pinnedCount = 0, notes = [], onclose, onmade, onopen } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -128,6 +135,99 @@
       errors = {};
     }
   }
+  // Paket N #10: links between notes (kept once, shown on both notes), a picker with a search, and up
+  // to 3 notes that may belong here (shared #tag or the same bike).
+  const others = $derived(notes.map((n) => (n.id === draft.id ? { ...n, ...draft } : n)));
+  const linked = $derived(linkedNotes(draft, others));
+  const related = $derived(maybeRelated(draft, others));
+  let picking = $state(false);
+  let pickQ = $state('');
+  const picks = $derived(picking ? pickNotes(draft, others, pickQ).filter((x) => !linked.some((l) => l.id === x.id)) : []);
+  function linkTo(id) {
+    const other = notes.find((n) => n.id === id);
+    if (other) draft = linkNote($state.snapshot(draft), other);
+    picking = false;
+    pickQ = '';
+  }
+  async function unlink(l) {
+    if (l.own) return (draft = unlinkNote($state.snapshot(draft), l.id));
+    const other = await db.notes.get(l.id);
+    if (other) await db.notes.put(unlinkNote(other, draft.id));
+  }
+  async function openOther(id) {
+    await saveAndClose();
+    onopen?.(id);
+  }
+  // Paket N neue Notiz-Formate (Noah 19.10.2026 «4a», «5b und a»): several photos and links (N1), a place
+  // (N2), a sketch (N5), Markdown light with a reading view (N11), share (N14), save as a template (N10).
+  // svelte-ignore state_referenced_locally
+  let reading = $state(hasFormat(note.text ?? ''));
+  let textEl = $state(null);
+  let sketching = $state(false);
+  let linkForm = $state(false);
+  let readingAll = $state(false); // idea 4 / N15: the note as an article
+  let newUrl = $state('');
+  let newTitle = $state('');
+  let locating = $state(false);
+  let info = $state('');
+  async function morePhoto(e) {
+    const f = e.currentTarget.files[0];
+    e.currentTarget.value = '';
+    if (!f) return;
+    try {
+      draft = addPhoto($state.snapshot(draft), await shrinkImage(f, 1200, 0.8));
+    } catch (err) {
+      msg = err.message || t('This photo could not be read.');
+    }
+  }
+  function moreLink(e) {
+    e.preventDefault();
+    const l = linkFrom(newUrl.trim());
+    if (!l) return (msg = t('This is not a web address.'));
+    msg = '';
+    draft = addLinkTo($state.snapshot(draft), { title: newTitle.trim() || l.title, url: l.url });
+    newUrl = '';
+    newTitle = '';
+    linkForm = false;
+  }
+  function locate() {
+    if (!navigator.geolocation) return (msg = t('This device cannot tell its location.'));
+    locating = true;
+    navigator.geolocation.getCurrentPosition(
+      (p) => ((locating = false), (msg = ''), (draft.place = placeFrom(p.coords, draft.place?.label ?? ''))),
+      () => ((locating = false), (msg = t('The location could not be found. Allow it in the browser, or try outside.'))),
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  }
+  function mark(kind) {
+    const el = textEl;
+    const r = wrapSel(draft.text ?? '', el?.selectionStart ?? (draft.text ?? '').length, el?.selectionEnd ?? (draft.text ?? '').length, kind);
+    draft.text = r.text;
+    requestAnimationFrame(() => (el?.focus(), el?.setSelectionRange(r.start, r.end)));
+  }
+  async function share() {
+    const text = shareText($state.snapshot(draft), t);
+    try {
+      if (navigator.share) return void (await navigator.share({ title: noteTitle(draft) || t('Note'), text }));
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      info = t('Copied. Paste it into Keep, a chat or a mail.');
+    } catch {
+      msg = t('Sharing does not work here.');
+    }
+  }
+  async function asTemplate() {
+    const rec = await db.settings.get(NOTE_TPL_KEY);
+    const list = templatesOf(rec?.value);
+    const body = [draft.title, draft.text, ...(draft.checklist ?? []).map((c) => `- [ ] ${c.text}`)].filter(Boolean).join('\n');
+    const next = addTemplate(list, noteTitle(draft) || t('Note'), body);
+    if (next === list) return (msg = t('Write a few words first.'));
+    await db.settings.put({ key: NOTE_TPL_KEY, value: next });
+    info = t('Saved as a template. New notes can start from it.');
+  }
   const LINK_ICON = { trip: Route, wish: Heart, problem: Wrench };
   const linkHref = (l) => (l.kind === 'trip' ? '#/pack' : l.kind === 'wish' ? `#/gear?item=${encodeURIComponent(l.ref)}` : `#/bikes?tab=care&bike=${encodeURIComponent(l.bikeId ?? '')}&open=1`);
   const LINK_NAME = { trip: 'Trip idea', wish: 'Wish', problem: 'Problem' };
@@ -148,13 +248,56 @@
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={closeIt}><X size={20} aria-hidden="true" /></button>
     </div>
     <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp ttl" type="text" bind:value={draft.title} placeholder={t('Title')} /></label>
-    <label class="fld"><span class="lbl">{t('Text')}</span><textarea class="inp" rows="3" bind:value={draft.text} placeholder={t('Text')}></textarea></label>
+    <div class="fld">
+      <div class="txh">
+        <span class="lbl" id="ntx-l">{t('Text')}</span>
+        <span class="fmt" role="group" aria-label={t('Format')}>
+          {#if !reading}
+            <button type="button" class="tb" aria-label={t('Bold')} onclick={() => mark('bold')}><Bold size={16} aria-hidden="true" /></button>
+            <button type="button" class="tb" aria-label={t('Heading')} onclick={() => mark('heading')}><Heading size={16} aria-hidden="true" /></button>
+            <button type="button" class="tb" aria-label={t('Table')} onclick={() => mark('table')}><Table size={16} aria-hidden="true" /></button>
+          {/if}
+          <button type="button" class="tb" aria-pressed={reading} aria-label={reading ? t('Edit the text') : t('Reading view')} onclick={() => (reading = !reading)} data-reading>{#if reading}<Pencil size={16} aria-hidden="true" />{:else}<BookOpen size={16} aria-hidden="true" />{/if}</button>
+        </span>
+      </div>
+      {#if reading}
+        <!-- mdToHtml escapes everything first; only headings, bold, italic, lists and tables come back -->
+        <div class="md" data-md>{@html mdToHtml(draft.text ?? '')}</div>
+      {:else}
+        <textarea class="inp" rows="4" bind:this={textEl} bind:value={draft.text} placeholder={t('Text')} aria-labelledby="ntx-l"></textarea>
+        <small class="q">{t('**bold**, # heading, - list, | table |')}</small>
+      {/if}
+    </div>
     <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
     <p class="spk"><SpeakButton onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></p>
-    {#if draft.link?.url}
-      <p class="lk"><Link2 size={16} aria-hidden="true" /><span><b>{draft.link.title}</b><a href={draft.link.url} target="_blank" rel="noopener noreferrer">{draft.link.url}</a></span></p>
+    {#each linksOf(draft) as l, i (i)}
+      <p class="lk" data-note-link><Link2 size={16} aria-hidden="true" /><span><b>{l.title}</b><a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></span><button type="button" class="rm" aria-label={t('Remove {name}', { name: l.title })} onclick={() => (draft = removeLinkAt($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></p>
+    {/each}
+    {#each photosOf(draft) as ph, i (i)}
+      <div class="phw" data-note-photo><img class="ph" src={ph} alt={t('Photo of the note')} /><button type="button" class="rm" aria-label={t('Remove photo')} onclick={() => (draft = removePhoto($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></div>
+    {/each}
+    {#if draft.place}
+      {@const pl = placeLinks(draft.place)}
+      <p class="lk" data-note-place><MapPin size={16} aria-hidden="true" /><span><b>{placeText(draft.place)}</b>{#if pl}<span class="pls"><a href={pl.maps} target="_blank" rel="noopener noreferrer">Google Maps</a> · <a href={pl.swisstopo} target="_blank" rel="noopener noreferrer">swisstopo</a></span>{/if}</span><button type="button" class="rm" aria-label={t('Remove the place')} onclick={() => (draft.place = null)}><Trash2 size={16} aria-hidden="true" /></button></p>
     {/if}
-    {#if draft.photo}<img class="ph" src={draft.photo} alt={t('Photo of the note')} />{/if}
+    {#if sketching}
+      <SketchPad onsave={(png) => ((draft = { ...addPhoto($state.snapshot(draft), png), sketch: true }), (sketching = false))} oncancel={() => (sketching = false)} />
+    {/if}
+    {#if linkForm}
+      <form class="lform" onsubmit={moreLink}>
+        <input class="inp" type="url" bind:value={newUrl} placeholder="https://…" aria-label={t('Web address')} />
+        <input class="inp" type="text" bind:value={newTitle} placeholder={t('Title (optional)')} aria-label={t('Title of the link')} />
+        <button type="submit" class="btn">{t('Add')}</button>
+      </form>
+    {/if}
+    <div class="adds" role="group" aria-label={t('Add to the note')} data-note-adds>
+      <CameraButton onchange={morePhoto} icon />
+      <label class="btn sm"><ImageIcon size={16} aria-hidden="true" />{t('Photo')}<input type="file" accept="image/*" hidden onchange={morePhoto} /></label>
+      <button type="button" class="btn sm" aria-pressed={linkForm} onclick={() => (linkForm = !linkForm)}><Link2 size={16} aria-hidden="true" />{t('Link')}</button>
+      <button type="button" class="btn sm" disabled={locating} onclick={locate} data-add-place><MapPin size={16} aria-hidden="true" />{locating ? t('Finding the place …') : draft.place ? t('Place again') : t('Place|location')}</button>
+      <button type="button" class="btn sm" aria-pressed={sketching} onclick={() => (sketching = !sketching)} data-add-sketch><PenLine size={16} aria-hidden="true" />{t('Sketch')}</button>
+    </div>
+    {#if draft.place}<label class="fld"><span class="lbl">{t('Name of the place')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="60" value={draft.place.label} oninput={(e) => (draft.place = { ...draft.place, label: e.currentTarget.value })} placeholder={t('e.g. Nice rest stop')} /></label>{/if}
 
     <p class="lbl">{t('Checklist')}{#if cl.length}<span class="q"> · {cl.filter((c) => c.done).length}/{cl.length}</span>{/if}</p>
     <div class="clp">
@@ -179,10 +322,36 @@
       {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={noteTopic(draft) === x.key} onclick={() => (draft.topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
     </div>
 
-    {#if (draft.links ?? []).length}
+    <p class="lbl">{t('Linked notes')}</p>
+    <div class="nlinks" data-note-links>
+      {#if linked.length}
+        <ul class="nl">
+          {#each linked as l (l.id)}
+            <li>
+              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{l.title || t('Note')}{#if !l.own}<small> · {t('links here')}</small>{/if}</button>
+              <button type="button" class="rm" aria-label={t('Remove the link to {name}', { name: l.title })} onclick={() => unlink(l)}><Unlink size={16} aria-hidden="true" /></button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if picking}
+        <input class="inp" type="search" bind:value={pickQ} placeholder={t('Search a note to link')} aria-label={t('Search a note to link')} />
+        {#if picks.length}
+          <ul class="nl">{#each picks as x (x.id)}<li><button type="button" class="lchip" onclick={() => linkTo(x.id)}><Plus size={14} aria-hidden="true" />{x.title || t('Note')}</button></li>{/each}</ul>
+        {:else}<p class="q">{t('No other note found.')}</p>{/if}
+      {:else}
+        <button type="button" class="btn" onclick={() => (picking = true)}><Link2 size={16} aria-hidden="true" />{t('Link a note')}</button>
+      {/if}
+      {#if related.length && !picking}
+        <p class="q">{t('Maybe related')}</p>
+        <ul class="nl">{#each related as x (x.id)}<li><button type="button" class="lchip" onclick={() => linkTo(x.id)}><Plus size={14} aria-hidden="true" />{x.title || t('Note')}<small> · {x.why === 'tag' ? `#${x.tag}` : t('same bike')}</small></button></li>{/each}</ul>
+      {/if}
+    </div>
+
+    {#if (draft.links ?? []).some((l) => l.kind !== 'note')}
       <p class="lbl">{t('Linked')}</p>
       <div class="vd-chips">
-        {#each draft.links as l, i (i)}{@const I = LINK_ICON[l.kind] ?? Link2}<a class="lchip" href={linkHref(l)} onclick={(e) => { if (l.kind === 'trip') { e.preventDefault(); switchTrip(l.ref, '#/pack'); } }}><I size={14} aria-hidden="true" />{l.label} · {t(LINK_NAME[l.kind] ?? 'Linked')}</a>{/each}
+        {#each (draft.links ?? []).filter((l) => l.kind !== 'note') as l, i (i)}{@const I = LINK_ICON[l.kind] ?? Link2}<a class="lchip" href={linkHref(l)} onclick={(e) => { if (l.kind === 'trip') { e.preventDefault(); switchTrip(l.ref, '#/pack'); } }}><I size={14} aria-hidden="true" />{l.label} · {t(LINK_NAME[l.kind] ?? 'Linked')}</a>{/each}
       </div>
     {/if}
 
@@ -193,6 +362,12 @@
       </div>
     </details>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
+    {#if info}<p class="ok" role="status">{info}</p>{/if}
+    <div class="more2">
+      <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
+      <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
+      <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
+    </div>
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
       <button type="button" class="btn" aria-pressed={!!draft.pinned} onclick={togglePin}>{#if draft.pinned}<PinOff size={16} aria-hidden="true" />{t('Unpin')}{:else}<Pin size={16} aria-hidden="true" />{t('Pin')}{/if}</button>
@@ -231,8 +406,108 @@
     </Form>
   {/if}
 </dialog>
+{#if readingAll}<NoteReader note={$state.snapshot(draft)} onclose={() => (readingAll = false)} />{/if}
 
 <style>
+  .txh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .fmt {
+    display: flex;
+    gap: 2px;
+  }
+  .tb {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .tb[aria-pressed='true'] {
+    background: var(--paper-2);
+  }
+  .md {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    min-height: 44px;
+    overflow-x: auto;
+  }
+  .md :global(table) {
+    border-collapse: collapse;
+  }
+  .md :global(th),
+  .md :global(td) {
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    text-align: left;
+  }
+  .md :global(h3),
+  .md :global(h4),
+  .md :global(h5) {
+    margin: 4px 0;
+    font-size: var(--fs-sub);
+  }
+  .md :global(p) {
+    margin: 4px 0;
+  }
+  .phw {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .phw .rm {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--paper);
+  }
+  .pls {
+    display: block;
+    font-size: var(--fs-small);
+  }
+  .adds,
+  .more2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  .lform {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  .nlinks {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+  }
+  .nl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nl li {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .nlinks .inp {
+    width: 100%;
+    box-sizing: border-box;
+  }
   .spk {
     display: flex;
     flex-wrap: wrap;
@@ -263,8 +538,9 @@
     border-radius: var(--r-ctl);
     background: var(--paper-2);
   }
-  .lk span {
+  .lk > span {
     display: grid;
+    flex: 1 1 auto;
     min-width: 0;
   }
   .lk a {
@@ -354,6 +630,12 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     text-decoration: none;
+  }
+  button.lchip {
+    background: none;
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
   }
   .turn {
     margin: 12px 0 0;

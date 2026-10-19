@@ -9,6 +9,7 @@
    * Nothing is taken over before «Take over»; afterwards «Undo» on the bike page takes it all back.
    */
   import { liveQuery } from 'dexie';
+  import { plainError } from '../clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { ChevronDown, ChevronRight, X, Upload, Check } from '@lucide/svelte';
   import VeloHead from '../bikes/VeloHead.svelte';
   import { db } from '../db.js';
@@ -67,7 +68,7 @@
           files = [...files, { id: entryId(), name: file.name, kind: 'csv', records: rides, other, ski: ski.length }];
         }
       } catch (err) {
-        files = [...files, { id: entryId(), name: file.name, kind: 'bad', records: [], error: err.message }];
+        files = [...files, { id: entryId(), name: file.name, kind: 'bad', records: [], error: t(plainError(err)) }];
       }
     }
     busy = false;

@@ -213,8 +213,8 @@
   }
 </script>
 
-{#snippet core()}
-  <div class="core" data-core-line>
+{#snippet core(alone = false)}
+  <div class="core" class:alone data-core-line={alone ? undefined : ''} data-core-alone={alone ? '' : undefined}>
     <p class="core-l num">{coreLine}</p>
     {#if jumps.length > 1}
       <nav class="core-j" aria-label={t('Jump to')}>
@@ -240,6 +240,9 @@
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
     <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
+    <!-- Paket H (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): on a phone held sideways the core line and its
+         jump marks stand right under the band instead of in it, so the band stays compact (D6) -->
+    {@render core(true)}
     {@render notice?.()}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
@@ -476,7 +479,12 @@
   @media (hover: hover) { .core-c:hover { border-color: var(--line-strong); color: var(--ink); } }
   /* Paket E CI (D6 «Handy quer»): a phone turned sideways keeps the band compact, as with the crumb and the kicker;
      the core line and its jump marks show again upright and on a computer (the same numbers stand at the list and the weight) */
-  @media (max-height: 500px) { .core { display: none; } }
+  .core.alone { display: none; }
+  @media (max-height: 500px) {
+    .core:not(.alone) { display: none; }
+    .core.alone { display: flex; margin: 0 0 8px; }
+    .core.alone .core-c { min-height: 44px; }
+  }
   @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }

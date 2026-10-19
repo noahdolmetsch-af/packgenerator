@@ -1,4 +1,5 @@
 <script>
+  import { suggest, watchSuggest } from '../clear/suggest.svelte.js';
   /**
    * v0.42.0 (Noah, picture draft B, answers 2-5, 12): the onion check, one quiet line under the
    * weather in Plan's conditions card; a tap opens it. Each layer and zone shows ✓ or a quiet gap;
@@ -27,8 +28,11 @@
     if (r.items.length) return t('{names}: too light for {c} °C', { names: r.items.map(nameOf).join(' · '), c: check.c });
     return r.below ? t('{zone} below {n} °C: nothing packed', { zone: t(r.name), n: r.below }) : t('nothing packed');
   };
+  watchSuggest();
 </script>
 
+<!-- Paket Q #361: off when «Clothing for the weather» is switched off under Me › Appearance -->
+{#if suggest.on.weather}
 <div class="onion">
   <button type="button" class="oline" aria-expanded={open} aria-controls="onion-rows" onclick={() => (open = !open)}>
     <Layers size={18} aria-hidden="true" /><span class="s">{summary}</span>
@@ -68,6 +72,7 @@
     </div>
   {/if}
 </div>
+{/if}
 
 <style>
   .onion {

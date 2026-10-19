@@ -19,11 +19,15 @@
   import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
-  import { DOMAINS, itemDomains, domainName } from '../domains.js';
+  import { DOMAINS, itemDomains, domainName, EVERYWHERE } from '../domains.js';
+  import { isSupply, expiryState, daysUntil } from '../supplies.js'; // Paket H: supplies with an expiry date (answer 2b)
+  import { CHARGE_CATEGORIES } from '../gear.js';
+  import { suggestValues, applySuggestion, adds } from './suggestvalues.js'; // Paket H #348: values while typing a new name
   import { SKI_GROUPS, SKI_GROUP, skiGroupOf } from '../ski.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
+  import { Warehouse } from '@lucide/svelte';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename, offerDone } from '../ui/rename.svelte.js';
@@ -63,6 +67,14 @@
   // An existing item: a copy to edit; nothing is saved until "Save".
   // svelte-ignore state_referenced_locally
   let draft = $state(itemDraft(item, preset));
+  // Paket H #348: a new item gets suggested values from your own similar gear or a typical device
+  let sugOff = $state('');
+  const sug = $derived(isNew && !readOnly ? suggestValues(draft.name, items, draft.id) : null);
+  const sugShown = $derived(sug && sugOff !== draft.name.trim() && adds($state.snapshot(draft), sug.values) ? sug : null);
+  function useSug() {
+    Object.assign(draft, applySuggestion($state.snapshot(draft), sug.values));
+    sugOff = draft.name.trim();
+  }
   let error = $state('');
   let dialog;
   // v0.23.0 (AP08): a new item asks only for name, category, status and weight; everything else
@@ -115,6 +127,21 @@
   const toggleBlock = (key) => (draft.sets = inBlock(key) ? draft.sets.filter((x) => x !== key) : [...(draft.sets ?? []), key]);
   const bagChoices = $derived(BAGS.filter((b) => b.key !== 'body' || draft.defaultBag === 'body'));
   const layerCount = $derived(['ride', 'coldBelow', 'rain', 'perHours', 'maxQty', 'replaces', 'altFor', 'waterL'].filter((k) => String(draft[k] ?? '').trim() !== '').length);
+  // Paket H: «Zu Hause und Vorrat»: where it is (#372), expiry and stock (answer 2b), battery (#346)
+  const charges = $derived(CHARGE_CATEGORIES.includes(draft.category));
+  const storeLine = $derived.by(() => {
+    const parts = [];
+    if (String(draft.homeSpot ?? '').trim()) parts.push(String(draft.homeSpot).trim());
+    const ex = /^\d{4}-\d{2}-\d{2}$/.test(draft.expires ?? '') ? draft.expires : null;
+    if (ex) {
+      const st = expiryState({ expires: ex });
+      const d = daysUntil(ex);
+      parts.push(st === 'expired' ? t('expired') : st === 'soon' ? tn(d, 'expires in {n} day', 'expires in {n} days') : t('until {date}', { date: ex }));
+    }
+    if (String(draft.stock ?? '').trim() !== '') parts.push(t('{n} at home', { n: draft.stock }));
+    if (String(draft.runH ?? '').trim() !== '') parts.push(t('lasts {n} h', { n: draft.runH }));
+    return parts.join(' · ') || (isSupply(draft) ? t('supply, nothing set') : t('not set'));
+  });
   const detailLine = $derived([draft.brand, draft.model].filter((x) => String(x ?? '').trim()).join(' · '));
 
   /*
@@ -235,6 +262,10 @@
         perHours: [draft.perHours, { field: t('Riding hours'), example: '3', kind: 'number', min: 0.5, max: 48 }],
         maxQty: [draft.maxQty, { field: t('At most'), example: '2', kind: 'int', min: 1, max: 99 }],
         waterL: [draft.waterL, { field: t('Water'), example: '0.75', kind: 'number', min: 0.1, max: 20 }],
+        stock: [draft.stock, { field: t('At home now'), example: '4', kind: 'int', min: 0, max: 9999 }],
+        minStock: [draft.minStock, { field: t('Buy again below'), example: '2', kind: 'int', min: 0, max: 9999 }],
+        runH: [draft.runH, { field: t('Battery lasts (h)'), example: '12', kind: 'number', min: 0.1, max: 2000 }],
+        chargeH: [draft.chargeH, { field: t('Charging takes (h)'), example: '3', kind: 'number', min: 0.1, max: 200 }],
         ...(alsoTouched && alsoOn ? { litres: [alsoL, { field: t('Litres'), example: '12', kind: 'number', min: 0.1, max: 100 }] } : {}),
       },
       t,
@@ -631,6 +662,34 @@
   {/if}
 {/snippet}
 
+<!-- Paket H «Packen leichter»: where it is at home (#372), the supply (answer 2b) and the battery (#346). -->
+{#snippet storeBody()}
+  <p class="note">{t('All optional. With an expiry date the app reminds you 2 weeks before. With a stock it puts the item on the shopping list when it runs low.')}</p>
+  <div class="grid pair">
+    <Field id="it-spot" class="wide" label={t('Where it is at home')} optional example={t('e.g. {x}', { x: t('Cellar, blue box') })}>
+      {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.homeSpot} />{/snippet}
+    </Field>
+    <Field id="it-exp" label={t('Best before')} optional>
+      {#snippet children(f)}<input class="inp" type="date" {...f.attrs} bind:value={draft.expires} />{/snippet}
+    </Field>
+    <Field id="it-stock" label={t('At home now')} optional example={t('e.g. {x}', { x: '4' })} error={errors.stock}>
+      {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.stock} />{/snippet}
+    </Field>
+    <Field id="it-min" label={t('Buy again below')} optional example={t('e.g. {x}', { x: '2' })} error={errors.minStock}>
+      {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.minStock} />{/snippet}
+    </Field>
+    {#if charges}
+      <Field id="it-run" label={t('Battery lasts (h)')} optional example={t('e.g. {x}', { x: '12' })} error={errors.runH}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.runH} />{/snippet}
+      </Field>
+      <Field id="it-chg" label={t('Charging takes (h)')} optional example={t('e.g. {x}', { x: '3' })} error={errors.chargeH}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.chargeH} />{/snippet}
+      </Field>
+    {/if}
+  </div>
+  <p class="note"><a href="#/gear/supplies">{t('All supplies and the shopping list ›')}</a></p>
+{/snippet}
+
 <!-- v0.63.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
 {#snippet detailsBody()}
   {#if readOnly}
@@ -688,10 +747,14 @@
       <!-- v0.21.0 (package 5): one inventory, an item can belong to several areas. -->
       <fieldset class="wide sets">
         <legend class="lbl">{t('Areas (new trips of an area suggest its items)')}</legend>
+        <!-- Paket H (#55): «Everywhere»: head torch, power bank and the like belong to every area -->
+        <label class="cb"><input type="checkbox" checked={draft.domains?.includes(EVERYWHERE)} onchange={(e) => (draft.domains = e.currentTarget.checked ? [EVERYWHERE] : ['bikepacking'])} /> <b>{t('Everywhere|areas')}</b></label>
+        {#if !draft.domains?.includes(EVERYWHERE)}
         {#each DOMAINS as d (d.key)}
           {@const on = draft.domains?.includes(d.key)}
           <label class="cb"><input type="checkbox" checked={on} disabled={on && draft.domains.length === 1} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...(draft.domains ?? []), d.key] : (draft.domains ?? []).filter((x) => x !== d.key))} /> {t(d.name)}</label>
         {/each}
+        {/if}
       </fieldset>
       <!-- v0.97.0 «Skitouren»: the group in the ski backpack check (only for items of the area ski) -->
       {#if draft.domains?.includes('ski')}
@@ -718,6 +781,13 @@
   <Field id="it-name" class="wide" label={t('Name')} example={t('e.g. {x}', { x: t('Rain jacket') })} error={errors.name}>
     {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.name} enterkeyhint="done" />{/snippet}
   </Field>
+  {#if sugShown}
+    {@const v = sugShown.values}
+    <div class="wide sugv" role="status">
+      <p>{sugShown.from === 'own' ? t('Like «{name}»:', { name: nameOf(sugShown.like) }) : t('Usual values:')} {[v.category && t(CATEGORY[v.category]?.name ?? v.category), v.grams != null && formatWeight(v.grams), v.defaultBag && t(BAG[v.defaultBag] ?? v.defaultBag), v.brand, v.runH != null && t('runs {h} h', { h: v.runH }), v.chargeH != null && t('charges {h} h', { h: v.chargeH })].filter(Boolean).join(' · ')}</p>
+      <span><button type="button" class="btn sm" onclick={useSug}>{t('Use|values')}</button><button type="button" class="text-button" onclick={() => (sugOff = draft.name.trim())}>{t('No, thanks')}</button></span>
+    </div>
+  {/if}
 {/snippet}
 
 {#snippet categoryField()}
@@ -764,6 +834,7 @@
   {@render fold('blocks', Package, t('Building blocks'), blockNames(draft, blocks).join(' · ') || t('no block'), blocksBody)}
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
+  {@render fold('store', Warehouse, t('At home and supply'), storeLine, storeBody)}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
   {#if !isNew}
     <!-- SK X1 + X13 (SKX1): the maker's instructions (your link) and iFixit; X7 for a wish: the shop (your link) -->
@@ -1506,4 +1577,8 @@
   .mainq {
     justify-self: start;
   }
+  /* Paket H #348: the suggested values under the name of a new item */
+  .sugv { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: -4px 0 4px; padding: 8px 12px; border-radius: 8px; background: var(--paper-2); }
+  .sugv p { flex: 1 1 220px; margin: 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  .sugv span { display: flex; align-items: center; gap: 8px; }
 </style>

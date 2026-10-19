@@ -382,10 +382,37 @@ import wocheplanen from './wocheplanen.js';
 // «Rundgang» and «Einstieg» on top of the places
 import rundgang from './rundgang.js';
 
+// Paket G «Daten kommen von selbst» (19.10.2026): Verbindungen, Strava hakt ab, Kalender, See, Fitbit-Altdaten, neue Sterne
+import paketg from './paketg.js';
+import seetemperatur from './seetemperatur.js';
+import sterneg from './sterne-g.js';
+import fitbitexport from './fitbitexport.js';
+
+// «Brunnen und Velo-Werkstätten an der Strecke» (19.10.2026): src/lib/route/RoutePois.svelte
+import routepois from './routepois.js';
+
+// Paket N «Pläne und Träume» (19.10.2026)
+import paketn from './paketn.js';
+
+// Paket P «Was mir gut tut» (Noah 19.10.2026)
+import wohl from './wohl.js';
+
+// Paket H «Packen leichter» (Noah 19.10.2026): Tabelle, Vorräte, Ausleihen, Startlisten, Vorlesen
+import packenleichter from './packenleichter.js';
+
+// Paket J «Berg, Schnee und Notfall»
+import bergnotfall from './bergnotfall.js';
+
+// Paket Q «App klarer» (Noah 19.10.2026); its spread stays last
+import klarer from './klarer.js';
+
+// Paket L «Werkzeugkasten» (Noah 19.10.2026): Rechner, Masse, Zeitzonen, Kompass, Sätze, PDF, Fotos
+import werkzeugkasten from './werkzeugkasten.js';
+
 // Paket U «Rennen»: Touren › Rennen (plan, strategy, prepare, along the route, race mode, after, sample race)
 import rennen from './rennen.js';
 import rennenVorbereiten from './rennen-vorbereiten.js';
 import rennenStrecke from './rennen-strecke.js';
 import rennenUnterwegs from './rennen-unterwegs.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...abholwerte, ...messen, ...bausteine, ...garmin, ...taschensetups, ...merken, ...geburtstage, ...eigenewerte, ...ausruestung, ...gipfelbuch, ...saisonstart, ...sportarten, ...uiregeln, ...impeccableUnterwegs, ...impeccableVelos, ...impeccableIch, ...impeccableMaterial, ...impeccableTouren, ...deinefahrten, ...ski, ...skitag, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...rueckmeldungen, ...formular, ...allesbearbeiten, ...bausteinemehr, ...medhome, ...heuteneu, ...tagescheck3, ...impeccable2Velos, ...impeccable2Rueckblick, ...impeccable2Ich, ...impeccable2Material, ...impeccableAktiv, ...impeccable2Aktivheute, ...impeccable2Aktiv, ...impeccable2Touren, ...routine, ...fenster, ...erkenntnisse, ...wocheplanen, ...rundgang, ...rennen, ...rennenVorbereiten, ...rennenStrecke, ...rennenUnterwegs };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...abholwerte, ...messen, ...bausteine, ...garmin, ...taschensetups, ...merken, ...geburtstage, ...eigenewerte, ...ausruestung, ...gipfelbuch, ...saisonstart, ...sportarten, ...uiregeln, ...impeccableUnterwegs, ...impeccableVelos, ...impeccableIch, ...impeccableMaterial, ...impeccableTouren, ...deinefahrten, ...ski, ...skitag, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...rueckmeldungen, ...formular, ...allesbearbeiten, ...bausteinemehr, ...medhome, ...heuteneu, ...tagescheck3, ...impeccable2Velos, ...impeccable2Rueckblick, ...impeccable2Ich, ...impeccable2Material, ...impeccableAktiv, ...impeccable2Aktivheute, ...impeccable2Aktiv, ...impeccable2Touren, ...routine, ...fenster, ...erkenntnisse, ...wocheplanen, ...rundgang, ...paketg, ...seetemperatur, ...sterneg, ...fitbitexport, ...routepois, ...paketn, ...wohl, ...packenleichter, ...bergnotfall, ...werkzeugkasten, ...rennen, ...rennenVorbereiten, ...rennenStrecke, ...rennenUnterwegs, ...klarer };

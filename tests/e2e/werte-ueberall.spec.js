@@ -73,10 +73,11 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   await expect(page.locator('[data-section="week"]')).toBeVisible();
   await expect(page.locator('[data-section="strava-connect"]')).toHaveCount(0);
 
-  // WU2: Aktiv «Bike this month» with metres climbed; the minutes wait for Fitbit
+  // WU2: Aktiv «Bike this month» with metres climbed; without Fitbit the minutes point to the page Fitbit
   await page.goto('./#/flow');
   await expect(page.locator('[data-section="km"] [data-month-hm]')).toContainText(hm);
-  await expect(page.locator('[data-section="azm"]')).toContainText(T('Come with Fitbit: then the minutes of every activity count here.'));
+  await expect(page.locator('[data-section="azm"]')).toContainText(T('Connect Fitbit: then the minutes of every activity count here.'));
+  await expect(page.locator('[data-section="azm"]')).toHaveAttribute('href', '#/me/fitbit');
   await shot(page, info, 'WU2-aktiv-monat', '[data-section="km"]');
 
   // WU3: Aktiv › Goals: three year goals, each can be switched off; the footprint
@@ -84,7 +85,7 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   const goals = page.locator('[data-section="year-goals"]');
   await expect(goals.locator('[data-goal]')).toHaveCount(3);
   await expect(goals.locator('[data-goal="km"] .bar')).toBeVisible();
-  await expect(goals.locator('[data-goal="azm"]')).toContainText(T('Come with Fitbit: then the minutes of every activity count here.'));
+  await expect(goals.locator('[data-goal="azm"]')).toContainText(T('Not counted for the year yet. Your minutes of this week are on Aktiv.'));
   await expect(page.locator('[data-section="footprint"]')).toContainText('CO₂');
   await shot(page, info, 'WU3-ziele', '[data-section="year-goals"]');
   await goals.locator('[data-goal="km"] input[type="checkbox"]').uncheck();
@@ -94,9 +95,56 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   await inp.fill('6000');
   await inp.press('Enter');
   await expect(goals.locator('[data-goal="km"] .ofb')).toContainText(/6.000/);
+  // Noah 19.10.2026: a goal can be emptied by hand (no goal), and set again
+  await goals.locator('[data-goal="hm"] .ofb').click();
+  await goals.locator('[data-goal="hm"] [data-clear]').click();
+  await expect(goals.locator('[data-goal="hm"] .ofb')).toContainText(T('No goal · set one'));
+  await expect(goals.locator('[data-goal="hm"] .bar')).toHaveCount(0);
+  await goals.locator('[data-goal="hm"] .ofb').click();
+  const hmInp = goals.locator('[data-goal="hm"] input.inp');
+  await hmInp.fill('40000');
+  await hmInp.press('Enter');
+  await expect(goals.locator('[data-goal="hm"] .bar')).toBeVisible();
 
   // WU4: bike care: the chain (serviced 3 October) shows the metres climbed since: 900 + 1100 + 700
   await page.goto(`./#/bikes?tab=care&bike=${ROAD}`);
   await expect(page.locator('.ptable .hm').first()).toContainText(/2.700 Hm/);
   await shot(page, info, 'WU4-velopflege', '.ptable');
+});
+
+// Noah 19.10.2026 «1b»: with Fitbit days, Aktiv shows the minutes of this week, one bar per day, and the
+// weekly goal can be changed. Fictional values; «today» is Sunday 11 October 2026.
+test('active zone minutes of this week on Aktiv, with the weekly goal changeable', async ({ page, context }, info) => {
+  const data = JSON.parse(readFileSync(FIX, 'utf8'));
+  data.tables.healthDays = [
+    { date: '2026-10-04', azm: 500, src: 'google', at: '2026-10-04T20:00:00.000Z' },
+    { date: '2026-10-05', azm: 40, src: 'google', at: '2026-10-05T20:00:00.000Z' },
+    { date: '2026-10-07', azm: 25, src: 'google', at: '2026-10-07T20:00:00.000Z' },
+    { date: '2026-10-10', azm: 60, src: 'google', at: '2026-10-10T20:00:00.000Z' },
+  ];
+  const file = info.outputPath('azm-daten.json');
+  writeFileSync(file, JSON.stringify(data));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  page.on('dialog', (d) => d.accept());
+  await page.clock.setFixedTime(new Date('2026-10-11T10:00:00+02:00'));
+  await page.goto('./');
+  await importAndSettle(page, file);
+
+  // Noah 19.10.2026 «1a»: Today's «This week» shows the minutes too
+  await page.goto('./');
+  await expect(page.locator('[data-week-azm]')).toContainText(T('{n} active zone min', { n: '125' }));
+  await page.goto('./#/flow');
+  const box = page.locator('[data-section="azm"]');
+  await expect(box.locator('[data-azm-sum]')).toContainText('125');
+  await expect(box.locator('[data-day]')).toHaveCount(7);
+  await expect(box.locator('[data-day="2026-10-05"]')).toContainText('40');
+  await expect(box.locator('[data-day="2026-10-06"]')).toContainText('–');
+  await expect(box.locator('[data-azm-goal]')).toContainText('150');
+  await shot(page, info, 'AZM-woche', '[data-section="azm"]');
+  await box.locator('[data-azm-goal]').click();
+  const inp = box.locator('input.inp');
+  await inp.fill('200');
+  await inp.press('Enter');
+  await expect(box.locator('[data-azm-goal]')).toContainText('200');
 });

@@ -6,7 +6,7 @@
 // Fictional data only (home0460-fixture, test_data_gtp_ names), the clock on Friday 9 October 2026
 // (Europe/Zurich); SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
-import { D0, openHome, tr } from './home0460-fixture.js';
+import { D0, openHome, tr, atHour } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
 import { READY, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
@@ -14,7 +14,8 @@ import { openShort } from './kurz-open.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off
-const SHOWN = tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true);
+// Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
+const SHOWN = atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9);
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
@@ -245,7 +246,11 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   await page.locator('[data-news-banner]').getByRole('button', { name: T('Close the hint') }).click();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   // v0.155.0 (changed on purpose): on top right under the head tiles (meditation, day card, Important today)
-  await expect.poll(async () => (await ids(page)).filter((id) => id !== 'trip').indexOf('news')).toBe(HEAD_0155.length);
+  // Paket Q #74: at 09:00 the morning tiles then move up right below the head tiles (byTime, changed on purpose)
+  const base = READY.filter((x) => !HELPER_TILES.includes(x.id) && x.id !== 'news');
+  const pinned = tripUp([...base.slice(0, HEAD_0155.length), { id: 'news' }, ...base.slice(HEAD_0155.length)], true);
+  const newsAt = atHour(pinned, 9).filter((x) => x.id !== 'trip').findIndex((x) => x.id === 'news');
+  await expect.poll(async () => (await ids(page)).filter((id) => id !== 'trip').indexOf('news')).toBe(newsAt);
   await expect(tile).toHaveAttribute('data-size', 'long');
   await expect(tile.getByText(T('New in {v} · {n} days left', { v: V, n: TILE_DAYS }))).toBeVisible();
   await expect(tile.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();

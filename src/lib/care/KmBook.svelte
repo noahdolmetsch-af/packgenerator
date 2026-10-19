@@ -9,6 +9,7 @@
    */
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
+  import { STRAVA_HASH } from '../strava/client.svelte.js';
   import { MoreHorizontal, ChevronDown, ChevronRight } from '@lucide/svelte';
   import ListNav from '../list/ListNav.svelte';
   import { byMonthOf, shownRows as shownList } from '../list/listen.js';
@@ -229,7 +230,7 @@
     {/if}
     <p class="hint">{t('Tap ⋯ on a row to change it or leave it out. A left-out ride stays visible as an entry until you remove it.')}</p>
   {:else}
-    <Empty text={t('No entries yet. Enter the km by hand or import your rides (Strava activities.csv, FIT files).')} />
+    <Empty text={t('No entries yet. Enter the km by hand or import your rides (Strava activities.csv, FIT files).')} action={{ label: t('Connect Strava'), href: STRAVA_HASH }} />
   {/if}
 </section>
 

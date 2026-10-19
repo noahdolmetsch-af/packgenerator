@@ -87,7 +87,7 @@
             </ul>
           {/each}
         {:else}
-          <p class="sm">{t('Nothing in the log yet. Every timer comes in here by itself.')}</p>
+          <p class="sm">{t('Nothing in the log yet. Every timer comes in here by itself.')} <a href="#/timer">{t('Start a timer')}</a></p>
         {/if}
       </section>
     </div>

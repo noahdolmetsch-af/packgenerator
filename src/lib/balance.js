@@ -80,10 +80,11 @@ export function answerSignals(r) {
  * The balance of the last `days` days up to `today`.
  * checks: flowChecks rows; log: flowLog rows ({ actId, day }); acts: activities ({ id, ring });
  * rides: rides of those days ({ date, km, movingH?, totalH? }, Strava ones included);
+ * bagDays: days a sport bag was packed in full (flowbag.js packedDays, package G #222);
  * answers: WG the «Wi gaht's?» answers (abAnswers rows { qid, area, day, kind, value }), see answerSignals.
  * → { cats: [{ key, value (0–100 or null), n (signals) }], mean (0–100 or null), least (key or null), days }
  */
-export function balance({ checks = [], log = [], acts = [], rides = [], answers = [], today, days = 7 } = {}) {
+export function balance({ checks = [], log = [], acts = [], rides = [], answers = [], bagDays = [], today, days = 7 } = {}) {
   const span = lastDays(today, days);
   const inSpan = new Set(span);
   const sig = Object.fromEntries(CATS.map((c) => [c.key, []]));
@@ -140,6 +141,8 @@ export function balance({ checks = [], log = [], acts = [], rides = [], answers 
     if (k && inSpan.has(e.day)) tickDays[k].add(e.day);
   }
   for (const d of rideDays) tickDays.sport.add(d);
+  // package G #222: a sport bag packed in full counts as a day with movement
+  for (const d of bagDays) if (inSpan.has(d)) tickDays.sport.add(d);
   for (const k of ['sport', 'mind', 'rest']) if (tickDays[k].size) add(k, tickDays[k].size / FULL_DAYS[k]);
   if (rideDays.size) add('nature', rideDays.size / FULL_DAYS.ride);
 
