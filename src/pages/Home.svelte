@@ -29,6 +29,7 @@
    * brings the ready wall back. Stored in «homeWall» (in every backup). «Your data» lives under Me now.
    */
   import { todayNotes } from '../lib/notebook.js';
+  import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -142,7 +143,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -657,6 +658,12 @@
     if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
     // v0.48.0 (Noah 17a): one line only for a pinned note with an open checklist.
     for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
+    // Paket N idea 3 (Noah 19.10.2026 «1-5 a»): the next step of a goal in Mein Kompass, one line; due → tick it here
+    if (compassStep) {
+      const { goal, step, due, late } = compassStep;
+      const text = t('Goal «{goal}»: {step}', { goal: goal.title, step: step.text }) + (late ? ` · ${t('since {day}', { day: shortDay(step.date) })}` : due ? '' : ` · ${shortDay(step.date)}`);
+      rows.push({ key: `compass:${step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => stepDone(goal.id, step.id) } : { label: t('My compass'), href: '#/me/compass' } });
+    }
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
@@ -668,6 +675,12 @@
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
     return rows.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
+  const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
+  async function stepDone(goalId, stepId) {
+    const before = compassOf(S[COMPASS_KEY]);
+    await db.settings.put({ key: COMPASS_KEY, value: setStepDone($state.snapshot(before), goalId, stepId, true) });
+    say(t('Step done.'), () => db.settings.put({ key: COMPASS_KEY, value: $state.snapshot(before) }));
+  }
   function rideDateTomorrow(day) {
     const d = new Date(`${day}T12:00:00`);
     d.setDate(d.getDate() + 1);

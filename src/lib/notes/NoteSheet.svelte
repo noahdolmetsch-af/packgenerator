@@ -28,6 +28,7 @@
   import { shrinkImage } from '../photo.js';
   import CameraButton from '../ui/CameraButton.svelte';
   import SketchPad from './SketchPad.svelte';
+  import NoteReader from './NoteReader.svelte';
   import { MapPin, Image as ImageIcon, PenLine, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
@@ -164,6 +165,7 @@
   let textEl = $state(null);
   let sketching = $state(false);
   let linkForm = $state(false);
+  let readingAll = $state(false); // idea 4 / N15: the note as an article
   let newUrl = $state('');
   let newTitle = $state('');
   let locating = $state(false);
@@ -362,6 +364,7 @@
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     {#if info}<p class="ok" role="status">{info}</p>{/if}
     <div class="more2">
+      <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
     </div>
@@ -403,6 +406,7 @@
     </Form>
   {/if}
 </dialog>
+{#if readingAll}<NoteReader note={$state.snapshot(draft)} onclose={() => (readingAll = false)} />{/if}
 
 <style>
   .txh {

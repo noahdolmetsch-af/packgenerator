@@ -236,3 +236,82 @@ export function deadlines(trips = [], today = '') {
     .map((t) => ({ tripId: t.id, title: t.title, signupBy: t.event.signupBy, days: daysUntil(t.event.signupBy, today) }))
     .sort((a, b) => a.signupBy.localeCompare(b.signupBy));
 }
+
+/* ---------- picture and map of a dream (Noah 19.10.2026 «1-5 a», idea 1) ---------- */
+
+/** At most this many points of a route are kept (enough for the still map, small in the backup). */
+export const ROUTE_POINTS = 160;
+
+const rad = (d) => (d * Math.PI) / 180;
+const kmBetween = (a, b) => {
+  const h = Math.sin(rad(b[0] - a[0]) / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(rad(b[1] - a[1]) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+
+/**
+ * The route of a GPX file (track or route points, from Komoot, Garmin and others) for a dream:
+ * { line: [[lat, lon], …] (at most ROUTE_POINTS, rounded), km, name } or null when there are no points.
+ */
+export function routeFromGpx(text, name = '') {
+  const pts = [];
+  for (const m of String(text ?? '').matchAll(/<(?:trkpt|rtept)\b([^>]*)>/gi)) {
+    const lat = Number(m[1].match(/lat\s*=\s*["']([^"']+)/i)?.[1]);
+    const lon = Number(m[1].match(/lon\s*=\s*["']([^"']+)/i)?.[1]);
+    if (Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) pts.push([lat, lon]);
+  }
+  if (pts.length < 2) return null;
+  let km = 0;
+  for (let i = 1; i < pts.length; i++) km += kmBetween(pts[i - 1], pts[i]);
+  const step = Math.max(1, Math.ceil(pts.length / ROUTE_POINTS));
+  const line = pts.filter((_, i) => i % step === 0);
+  if (line.at(-1) !== pts.at(-1)) line.push(pts.at(-1));
+  const title = String(text).match(/<name>\s*(?:<!\[CDATA\[)?([^<\]]+?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ?? '';
+  return { line: line.map(([a, b]) => [Math.round(a * 1e5) / 1e5, Math.round(b * 1e5) / 1e5]), km: Math.round(km), name: String(name || title).slice(0, 80) };
+}
+
+/** Where a dream's link goes, for a short label: komoot, Strava, Ride with GPS, Garmin, else the host. */
+export function linkKind(url) {
+  let host = '';
+  try {
+    host = new URL(String(url)).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+  if (/komoot\./.test(host)) return 'komoot';
+  if (/strava\./.test(host)) return 'Strava';
+  if (/ridewithgps\./.test(host)) return 'Ride with GPS';
+  if (/garmin\./.test(host)) return 'Garmin';
+  return host;
+}
+
+/* ---------- the week (idea 5, read by «Woche planen» of package F) ---------- */
+
+/** settings key: true when the dreams card in «Woche planen» is hidden (Touren › Träume shows it again). */
+export const WEEK_HIDE_KEY = 'dreams.weekHidden';
+
+/**
+ * What the dreams and races bring to one week (Monday … Sunday):
+ *   deadlines  registration deadlines in the week [{ tripId, title, day }]
+ *   dreams     at most `max` open dreams that fit this month, with the Saturday of the week to plan them
+ *              [{ id, title, day }]; none when the week has a trip already or no weekend left
+ * Races with a date are trips and show in the week by themselves.
+ */
+export function weekDreams({ store, trips = [], monday, today, kinds, max = 2 }) {
+  const end = shiftIso(monday, 6);
+  const deadlines = trips
+    .filter((t) => t.event?.signupBy && !t.event.signedUp && t.event.signupBy >= monday && t.event.signupBy <= end && t.event.signupBy >= today)
+    .map((t) => ({ tripId: t.id, title: t.title, day: t.event.signupBy }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const sat = shiftIso(monday, 5);
+  const busy = trips.some((t) => !t.skipped && t.startDate && t.startDate <= end && shiftIso(t.startDate, Math.max(1, Number(t.days) || 1) - 1) >= monday);
+  const s = storeOf(store);
+  const month = Number(sat.slice(5, 7));
+  const dreams = busy || sat < today ? [] : dreamList(s.dreams).filter((d) => !d.tripId && monthsOf(d, kinds ?? s.kinds).includes(month)).slice(0, max).map((d) => ({ id: d.id, title: d.title, day: sat }));
+  return { deadlines, dreams };
+}
+
+function shiftIso(day, n) {
+  const d = new Date(`${day}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}

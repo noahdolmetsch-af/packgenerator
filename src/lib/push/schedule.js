@@ -24,6 +24,8 @@ export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
 export const HOT_STD = 30;
 export const BACKUP_STD = 14;
+/** Days before a registration deadline with a reminder (idea 2). */
+export const RACE_BEFORE = [3, 1];
 
 /** The kinds, in the order of the switches (English keys for t()). */
 export const KINDS = [
@@ -33,6 +35,8 @@ export const KINDS = [
   { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat or a thunderstorm.' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
+  // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
+  { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
 ];
 
@@ -119,6 +123,13 @@ export function buildList(data) {
     if (at <= ms) at = atMs(addDays(today, 1), BACKUP_AT);
     add({ key: `backup:${day}`, at, title: t('Backup'), body: t('Time for a backup.'), url: '#/me/data' });
   }
+  if (on('race'))
+    for (const tr of data.trips ?? []) {
+      const by = tr.event?.signupBy;
+      if (tr.skipped || tr.event?.signedUp || !DAY.test(by ?? '') || by < today) continue;
+      for (const back of RACE_BEFORE)
+        add({ key: `race:${tr.id}:${by}:${back}`, at: atMs(addDays(by, -back), DAY_AT), title: t('Race registration'), body: back === 1 ? t('Tomorrow is the last day to sign up for {trip}.', { trip: tourName(tr) }) : t('{n} days left to sign up for {trip}.', { n: back, trip: tourName(tr) }), url: '#/trips/dreams' });
+    }
   const merken = Array.isArray(data.settings?.merken) ? data.settings.merken : [];
   for (const td of merken) {
     if (!td || td.off || td.doneAt) continue;

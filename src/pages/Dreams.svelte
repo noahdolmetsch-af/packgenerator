@@ -12,7 +12,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { DREAMS_KEY, MONTHS, storeOf, newDream, dreamList, moveDream, monthsOf, seasonText, yearBand, nextWindow, suggestStart, kindName, addKind, renameKind, deleteKind, plannableRaces, raceDays, raceEvent, deadlines, daysUntil } from '../lib/dreams.js';
+  import { DREAMS_KEY, MONTHS, storeOf, newDream, dreamList, moveDream, monthsOf, seasonText, yearBand, nextWindow, suggestStart, kindName, addKind, renameKind, deleteKind, plannableRaces, raceDays, raceEvent, deadlines, daysUntil, WEEK_HIDE_KEY } from '../lib/dreams.js';
   import { RIG_KEY } from '../lib/inspiration.js';
   import { newTrip, toggleSet } from '../lib/trips.js';
   import { sortBikes } from '../lib/bikes.js';
@@ -38,6 +38,8 @@
   const eventsQ = liveQuery(() => db.gEvents.where('day').aboveOrEqual(today).toArray().catch(() => []));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const weekHideQ = liveQuery(() => db.settings.get(WEEK_HIDE_KEY));
+  const weekHidden = $derived($weekHideQ?.value === true);
 
   const store = $derived(storeOf($storeQ?.value));
   const kinds = $derived(store.kinds);
@@ -177,8 +179,8 @@
             <div class="ich-row">
               {#if !month}<SortGrip name={d.title} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <button type="button" class="open" onclick={() => (open = d.id)}>
-                <span class="ich-ib">{#if d.tripId}<Route size={18} aria-hidden="true" />{:else}<Sparkles size={18} aria-hidden="true" />{/if}</span>
-                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), windowText(d)].filter(Boolean).join(' · ')}</small></span>
+                {#if d.photo}<img class="thumb" src={d.photo} alt="" />{:else}<span class="ich-ib">{#if d.tripId}<Route size={18} aria-hidden="true" />{:else}<Sparkles size={18} aria-hidden="true" />{/if}</span>{/if}
+                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), windowText(d), d.route ? t('{km} km', { km: d.route.km }) : ''].filter(Boolean).join(' · ')}</small></span>
               </button>
               {#if !month}<SortArrows name={d.title} {i} n={shown.length} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
@@ -224,6 +226,8 @@
       <p class="ich-help"><Pencil size={14} aria-hidden="true" /> {t('A new kind suggests May to September; change the months on each dream.')}</p>
     </div>
     </details>
+    <!-- idea 5: the dreams card in «Woche planen» can be hidden there and comes back here -->
+    <label class="ck wk"><input type="checkbox" checked={!weekHidden} onchange={(e) => db.settings.put({ key: WEEK_HIDE_KEY, value: !e.currentTarget.checked })} data-week-show /><span>{t('Show fitting dreams and deadlines in «Plan the week»')}</span></label>
   </section>
 </div>
 
@@ -367,5 +371,18 @@
     gap: 6px;
     align-items: center;
     color: var(--ok);
+  }
+  .thumb {
+    width: 36px;
+    height: 36px;
+    flex: none;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .ck.wk {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 12px 0 0;
   }
 </style>

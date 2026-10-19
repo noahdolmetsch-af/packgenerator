@@ -7,6 +7,8 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { PACKAGES } from '../../src/lib/wascommt.js';
 import { ready } from './settle.js';
 
+// a 2×2 PNG (fictional picture)
+const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8z8DAwMDAxMDAwMDAAAANHQEDasKb6QAAAABJRU5ErkJggg==';
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 
 async function prep(page, context) {
@@ -87,7 +89,16 @@ test('Touren › Träume: a dream with its season in the year band', async ({ pa
   const sheet = page.locator('dialog.dsheet');
   await sheet.locator('[data-months] button').nth(5).click(); // June on
   await expect(sheet).toContainText(T('chosen by you'));
+  // idea 1: a photo and a map from a GPX file
+  const pts = Array.from({ length: 30 }, (_, i) => `<trkpt lat="${46.5 + i / 200}" lon="${8.4 + i / 300}"></trkpt>`).join('');
+  await sheet.locator('[data-dream-gpx]').setInputFiles({ name: 'test_data_gtp_furka.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(`<gpx><trk><trkseg>${pts}</trkseg></trk></gpx>`) });
+  await expect(sheet.locator('[data-dream-map] .smap svg')).toBeVisible();
+  await sheet.locator('[data-dream-photo-in]').setInputFiles({ name: 'test_data_gtp_bild.png', mimeType: 'image/png', buffer: Buffer.from(PNG, 'base64') });
+  await expect(sheet.locator('[data-dream-photo] img')).toBeVisible();
+  await noSideScroll(page);
   await sheet.getByRole('button', { name: T('Done') }).click();
+  await expect(root.locator('[data-dream] img.thumb')).toBeVisible();
+  await expect(root.locator('[data-dream]')).toContainText(' km');
   await expect(root.locator('[data-month="6"] .num')).toHaveText('1');
   await root.locator('[data-month="6"]').click();
   await expect(root.locator('#dr-list')).toContainText(T('Dreams in {month}').replace('{month}', T('Jun|month')));
@@ -115,6 +126,7 @@ test('Ich › Mein Kompass: a goal gets steps with dates, «Wie läuft\'s?», an
   await expect(root.locator('[data-goal-check]')).toBeVisible();
   await root.locator('[data-goal-check]').getByRole('button', { name: T('Going well') }).click();
   await expect(root.locator('[data-goal-check]')).toHaveCount(0);
+  await expect(root.locator('[data-on-today]')).toBeChecked();
 
   const ideas = root.locator('[data-box="ideas"]');
   await ideas.locator('form.addrow input').fill('test_data_gtp_ Ostsee umrunden');
@@ -161,5 +173,54 @@ test('notes: start from a template, read the format, add a sketch and a link', a
   }
   await expect(sheet.locator('[data-note-link]')).toHaveCount(2);
   await noSideScroll(page);
+
+  // idea 4 / N15: the note as an article
+  await sheet.locator('[data-note-read]').click();
+  const reader = page.locator('dialog[data-note-reader]');
+  await expect(reader.locator('h1')).toContainText('Format');
+  await expect(reader.locator('.md strong')).toHaveText('fett');
+  await expect(reader.locator('img')).toHaveCount(1);
+  await noSideScroll(page);
+  await reader.getByRole('button', { name: T('Edit the note') }).click();
+  await expect(reader).toHaveCount(0);
+  await expect(sheet).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Heute: the next step of a goal in Mein Kompass, ticked off there', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/me/compass');
+  await ready(page);
+  const root = page.locator('[data-page="compass"]');
+  await root.locator('[data-goals] form.cap input[type="text"]').first().fill('test_data_gtp_ Rumpf');
+  await root.locator('[data-goals] form.cap button[type="submit"]').click();
+  const goal = root.locator('article[data-goal]');
+  await goal.locator('textarea').fill('Plan schreiben');
+  await goal.getByRole('button', { name: T('Add steps') }).click();
+  await expect(goal.locator('.steps li')).toHaveCount(1);
+  // make the step due today: its date field to today (Europe/Zurich)
+  const today = await page.evaluate(() => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }));
+  await page.evaluate((day) => new Promise((res, rej) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+      const g = st.get('compass');
+      g.onsuccess = () => {
+        const v = g.result.value;
+        v.goals[0].steps[0].date = day;
+        const p = st.put({ key: 'compass', value: v });
+        p.onsuccess = () => (r.result.close(), res());
+        p.onerror = rej;
+      };
+    };
+  }), today);
+  await page.goto('./#/');
+  await ready(page);
+  const more = page.locator('.imp button.more');
+  if (await more.count()) await more.click();
+  const row = page.locator('li[data-row="compass"]');
+  await expect(row).toContainText('Plan schreiben');
+  await row.getByRole('button', { name: T('Done ✓') }).click();
+  await expect(page.locator('li[data-row="compass"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

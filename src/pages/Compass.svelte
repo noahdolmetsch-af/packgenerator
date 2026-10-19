@@ -153,6 +153,7 @@
       </form>
       <label class="ck"><input type="checkbox" checked={!c.ai.off} onchange={(e) => setAi({ off: !e.currentTarget.checked })} data-ai-on /><span>{t('AI suggests steps for a goal')}</span></label>
       <label class="ck"><input type="checkbox" checked={c.ai.hidden} onchange={(e) => setAi({ hidden: e.currentTarget.checked })} data-ai-hide /><span>{t('Hide the button «Suggest steps»')}</span></label>
+      <label class="ck"><input type="checkbox" checked={c.onToday} onchange={(e) => save({ ...c, onToday: e.currentTarget.checked })} data-on-today /><span>{t('Show the next step on Today')}</span></label>
       <p class="ich-help">{isSetUp() ? t('Uses your AI helper and its monthly limit. Only the goal and its steps are sent.') : t('Needs the AI helper (Me › AI helper). Without it you type the steps yourself.')}</p>
     </div>
   </section>

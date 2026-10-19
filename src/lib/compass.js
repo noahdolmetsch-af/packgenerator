@@ -42,6 +42,8 @@ export function compassOf(value) {
     entries: Array.isArray(v.entries) ? v.entries.filter((e) => e?.id) : [],
     goals: Array.isArray(v.goals) ? v.goals.filter((g) => g?.id).map((g) => ({ steps: [], checks: [], ...g })) : [],
     ai: { off: !!v.ai?.off, hidden: !!v.ai?.hidden },
+    // idea 3 (Noah 19.10.2026 «1-5 a»): the next step as one line on Heute; can be switched off
+    onToday: v.onToday !== false,
   };
 }
 
@@ -175,4 +177,24 @@ export function entryToGoal(c, entryId, { id, now = new Date().toISOString(), du
   if (!e) return c;
   const goal = { ...newGoal({ title: e.text, due }, { id, now }), from: e.id };
   return { ...editEntry(c, entryId, { done: true, goalId: goal.id }), goals: [goal, ...c.goals] };
+}
+
+/**
+ * The line for Heute (idea 3): the next open step with a date of all open goals, earliest first.
+ * → { goal, step, due: step day is today or earlier, late: before today } or null (none, or switched off).
+ */
+export function todayStep(c, today) {
+  if (!c?.onToday) return null;
+  let best = null;
+  for (const g of c.goals ?? []) {
+    if (g.done) continue;
+    const next = goalProgress(g, today).next;
+    if (next?.date && (!best || next.date < best.step.date)) best = { goal: g, step: next };
+  }
+  return best ? { ...best, due: best.step.date <= today, late: best.step.date < today } : null;
+}
+
+/** A step ticked done (or open again). */
+export function setStepDone(c, goalId, stepId, done = true) {
+  return { ...c, goals: c.goals.map((g) => (g.id === goalId ? { ...g, steps: g.steps.map((s) => (s.id === stepId ? { ...s, done } : s)) } : g)) };
 }
