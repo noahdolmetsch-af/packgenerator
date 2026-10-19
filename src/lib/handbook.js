@@ -361,6 +361,11 @@ export const HANDBOOK = {
     steps: ['In New tour choose the sport: the sports you use most come first.', 'A bike sport brings its standard bike; tap another bike and «Make standard for …» to keep it for that sport.', 'On Trips, «New: every trip has a sport» suggests a sport for your old bike trips.'],
     example: 'Example: Gravel → the gravel bike is chosen; 2 days with a hotel → the hint «Switch to Bikepacking».',
   },
+  'f.editall': {
+    on: null,
+    steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
+    example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],

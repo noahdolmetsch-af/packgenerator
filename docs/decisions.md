@@ -1590,3 +1590,11 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **«Erkenntnisse»** auch auf den Ski-Seiten (statt «Learnings»), wie im Rückblick (DK6).
 - **Ich › Erinnerungen** zeigt unter «Wo sie erscheinen» den Weg zu «Erinnerungen aufs Handy» (#/me/push); Ich zeigt beide Zeilen untereinander.
 - **Selbst entschieden:** die zugeklappte Bausteine-Karte hat unten 16 statt 24 px Abstand (Packen 1: die erste Tasche bleibt am Handy auf dem ersten Bildschirm, auch mit «Was hier steht» darüber); die Saison-Pflege-Aufgaben haben eigene Schlüssel (`|season`); in «Teil bearbeiten» bleibt D's `Field`-Form mit dem «kalt»-Beispiel aus Eigene Werte; Ich › Daten zeigt bei «Backup» den Knopf «Backup machen» (Impeccable), bei Fitbit D's «Jetzt».
+## 19.10.2026: Alles selbst bearbeiten
+
+- **Regel (Noah, 06:48 UTC, «alle daten können vom nutzer selber hinzugefügt, umbenannt oder gelöscht werden … für gesamtes projekt»):** jede Datenart lässt sich im Frontend hinzufügen, umbenennen und löschen. Löschen fragt im App-Fenster und bietet «Rückgängig»; nichts ist gesperrt, weil es noch gebraucht wird.
+- **Velos:** «Velo löschen» geht immer. Das Fenster fragt, welches Velo seine Touren bekommen («Ohne Velo» zuerst). km-Buch, Werkstatt-Besuche, Fotos und Pflege-Aufgaben gehen mit dem Velo; «Rückgängig» holt alles zurück. Ein neuer Name zeigt den Hinweis, dass Garmin-Profil und Strava-Velo gleich heissen müssen. Der Stift heisst jetzt sichtbar «Bearbeiten».
+- **Neu bearbeitbar:** Probleme (umbenennen, löschen), Learnings (hinzufügen, ändern, löschen), hochgeladene Fahrten (umbenennen), Velo-Ideen (umbenennen), alte Logbuch-Einträge (umbenennen, löschen).
+- **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
+- **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
+

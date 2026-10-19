@@ -509,4 +509,9 @@ export default {
   'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
   'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
   'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
+  // «Alles selbst bearbeiten» (19.10.2026)
+  'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
+  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
 };

@@ -28,6 +28,17 @@ export const SLOTS = [
   { key: 'hip', name: 'Hip|worn', where: 'Hip bag', box: { x: 16, y: 108, w: 100, h: 40 }, worn: true },
 ];
 export const SLOT = Object.fromEntries(SLOTS.map((s) => [s.key, s]));
+/** The places as the app comes (the Standard names); SLOTS above carries the person's names (setSlotNames). */
+export const STD_SLOTS = SLOTS.map((s) => ({ key: s.key, name: s.name }));
+/**
+ * «Alles selbst bearbeiten» (Noah 19.10.2026): the person's names for the places on the bike (Ich › Listen
+ * und Typen). Only the name changes: the place, its spot on the drawing and every bag on it stay.
+ * list: listFor('bikeSlots') [{ id, name, renamed? }].
+ */
+export function setSlotNames(list) {
+  const mine = Object.fromEntries(list.filter((e) => e.renamed).map((e) => [e.id, e.name]));
+  for (const s of SLOTS) s.name = mine[s.key] ?? STD_SLOTS.find((x) => x.key === s.key).name;
+}
 
 /**
  * v0.37.0 (Noah 2a): the worn places. They are on the rider, not mounts of the bike: every bike has

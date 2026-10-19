@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 131 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 132 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -323,6 +323,18 @@ Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, 
 2. Die Pfeile ändern die Reihenfolge, der Stift Name, Symbol, Ausblenden und Löschen; «+ Eigene Kategorie» nimmt eine dazu.
 
 **Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
+
+### Alles selbst ändern
+
+Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.
+2. Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».
+3. Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».
+
+**Beispiel:** Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».
 
 ### Viele Teile auswählen
 
