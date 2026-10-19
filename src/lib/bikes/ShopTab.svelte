@@ -77,9 +77,10 @@
     title={t('Workshop & receipts')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
-
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-  <HintCard page="workshop" />
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of
+    the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="workshop" intro="workshop" />
   <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   <!-- Impeccable Runde 2 (Ausstattung 2): the same bike choice as on every Velo page, one row to swipe on a phone -->

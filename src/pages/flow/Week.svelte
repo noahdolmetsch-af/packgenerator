@@ -7,6 +7,7 @@
    * The rules are pure and tested (lib/flowweek.js).
    */
   import { Plus, X, Clock, Sun, Cloud, CloudRain, CalendarPlus, Lightbulb, ChevronRight } from '@lucide/svelte';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -100,6 +101,7 @@
     <PageHead title={t('Week')} text={t('{range} · suggestions from your goals, fixed dates and the weather. Everything can be changed.', { range })} />
     <a class="btn btn-link sm" style="align-self: flex-start" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
   </header>
+  <AreaIntro place="week" />
 
   {#if week}
     <div class="lay">

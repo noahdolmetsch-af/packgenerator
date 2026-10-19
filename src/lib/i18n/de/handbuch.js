@@ -399,6 +399,15 @@ export default {
   'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
   'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
+  // «Woche planen» (f.weekplan)
+  'Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.': 'Öffne Woche: Montag bis Sonntag mit Sport, Terminen, To-dos, Ferien und Velo-Service.',
+  'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',
+  'Enter holidays once under Woche › Holidays; the training plan pauses if you want.': 'Trag Ferien einmal unter Woche › Ferien ein; der Trainingsplan pausiert, wenn du willst.',
+  'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.': 'Beispiel: Freitag bis Sonntag Jura-Wochenende → die lange Ausfahrt fällt weg, «Kette messen» kommt als Vorschlag auf Mittwoch.',
+  // «Rundgang» (f.tour)
+  'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
+  'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
+  'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
   // f.garmin (0.146.0 «Garmin-Seiten»)
   'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
   'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.',

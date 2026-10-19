@@ -24,6 +24,7 @@
   import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
   import HintCard from '../pageinfo/HintCard.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   // Impeccable Runde 2 (18.10.2026, Ausstattung 1+2, Werkstatt 2): the bike choice as one row to swipe on a
   // phone, the short title «Ausstattung», empty measures and weights as a sentence, CHF one way.
   import BikeChips from './BikeChips.svelte';
@@ -92,7 +93,9 @@
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
-    <HintCard page="equipment" />
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
+    <HintCard page="equipment" intro="ausstattung" />
+    <TipLine page="ausstattung" name={t('Equipment|tab')} />
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}

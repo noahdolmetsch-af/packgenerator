@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';
-import { PLACES, SIDE_PLACES } from '../../src/lib/nav.js';
+import { SIDE_PLACES, BAR_PLACES } from '../../src/lib/nav.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const db = (page, table, id) =>
@@ -71,9 +71,10 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await expect(page.locator('dialog.more')).toHaveCount(0);
-  // AU1 «1b» (Paket E, changed on purpose): the sidebar has «Ausrüstung» under Velos; the bottom bar keeps five. Read from nav.js.
+  // AU1 «1b» (Paket E, changed on purpose): the sidebar has «Ausrüstung» under Velos. «Woche planen» (Noah 15.10.2026
+  // «1a»): Woche next to Heute; on a phone it takes Material's place in the bar (BAR_PLACES). Read from nav.js.
   const side = await page.locator('.side li.pl').first().isVisible();
-  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText((side ? SIDE_PLACES : PLACES).map((p) => new RegExp(DE[p.label] ?? p.label.replace(/\|[a-z]+$/, ''))));
+  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => new RegExp(DE[p.label] ?? p.label.replace(/\|[a-z]+$/, ''))));
   await me.click();
   await expect(page).toHaveURL(/#\/me$/);
   const main = page.locator('main');
