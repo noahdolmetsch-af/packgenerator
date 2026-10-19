@@ -390,7 +390,16 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
-/** «Jetzt nicht» (tapped away): every shown question put away until its next time. */
+/** «Später» on the window of the round (Noah 19.10.2026): kept in the snooze record under this key, until when. */
+export const LATER_KEY = '_later';
+/** The stamp one hour after `now` (a stamp 'YYYY-MM-DDTHH:MM', local time). */
+export function laterStamp(now) {
+  const [d, hm] = String(now).split('T');
+  const [y, m, dd] = d.split('-').map(Number);
+  const [h, mi] = hm.split(':').map(Number);
+  return stampOf(new Date(y, m - 1, dd, h + 1, mi));
+}
+/** «Heute nicht» (was «Jetzt nicht»): every shown question put away until its next time. */
 export const snoozeAll = (snooze = {}, due = []) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, d.last ?? d.slot])) });
 
 /* ---------------------------------------------------------------- answers */

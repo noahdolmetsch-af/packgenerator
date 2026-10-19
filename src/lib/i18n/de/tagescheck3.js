@@ -28,4 +28,11 @@ export default {
   'the strongest|balance': 'am stärksten',
   'the weakest|balance': 'am wenigsten',
   'Sport, mindfulness and recovery are part of the ring; it takes the place of the three small Im Flow rings.': 'Sport, Achtsamkeit und Erholung sind Teil des Rings; er ersetzt die 3 kleinen Im-Flow-Ringe.',
+  // Noah 19.10.2026: the round as its own window
+  'Evening check': 'Abend-Check',
+  'Later|mask': 'Später',
+  'Not today|mask': 'Heute nicht',
+  'Whole morning check': 'Ganzer Morgen-Check',
+  'Whole evening review': 'Ganzer Abend-Rückblick',
+  '«Later» brings this window back in one hour. «Not today» puts these questions away until their next time.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» legt diese Fragen bis zu ihrer nächsten Zeit weg.',
 };

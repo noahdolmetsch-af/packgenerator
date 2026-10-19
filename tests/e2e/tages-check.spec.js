@@ -106,10 +106,28 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   const entry = page.locator('[data-daycard] [data-section="morningcheck"]');
   await expect(entry).toContainText(T('Morning round'));
   await expect(entry).toContainText(T('Start|check'));
+  // Noah 19.10.2026 (changed on purpose): the due questions come as a window first; «Später» puts it away
+  await page.locator('[data-section="abfragen"] [data-ab-later]').click();
   await entry.click();
   // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
   await expect(page).toHaveURL(/#\/check\/morning$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Good morning') })).toBeVisible();
+  // «Später» undone (as if the hour had passed), so the window shows again on Heute
+  await page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+          const g = st.get('abfragen.snooze');
+          g.onsuccess = () => {
+            const v = { ...(g.result?.value ?? {}) };
+            delete v._later;
+            st.put({ key: 'abfragen.snooze', value: v }).onsuccess = () => (res(), r.result.close());
+          };
+        };
+      }),
+  );
   await page.goto('./#/');
   await ready(page);
   const mc = page.locator('[data-section="morningcheck"]');

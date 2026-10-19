@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { eveningTurn } from '../../src/lib/flowcheck.js';
+import { ON_AT_START } from '../../src/lib/abfragen.js';
 import { ready } from './settle.js';
 import { put, addDays } from './aktiv-fixture.js';
 
@@ -286,3 +287,69 @@ test('T2 question 15 on a Sunday evening: 1 to 10 and one sentence, saved', asyn
   await expect(page.locator('[data-q="vision"]')).toHaveCount(0);
 });
 
+
+/* ---------- Noah 19.10.2026: the round as its own window, «Später» (1 hour) and «Heute nicht» ---------- */
+function abConfig() {
+  const on = ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel', 'erreicht.zufrieden'];
+  const q = Object.fromEntries([...ON_AT_START].map((id) => [id, { on: false }]));
+  for (const id of on) q[id] = { on: true };
+  return { key: 'abfragen', value: { since: `${addDays(DAY, -1)}T21:00`, q, own: [] } };
+}
+
+test('mask: the morning check comes as a window; Later brings it back after one hour, Not today puts it away', async ({ page, context }) => {
+  const errors = await open(page, context, '07:52');
+  await put(page, { ...rows(), settings: [abConfig()] });
+  await page.reload();
+  await ready(page);
+
+  // Heute does not start with the questions: they come in their own window
+  const mask = page.locator('dialog[data-section="abfragen"]');
+  await expect(mask).toHaveJSProperty('open', true);
+  await expect(mask).toHaveAttribute('data-round', 'morning');
+  await expect(mask.getByRole('heading', { name: T('Morning check') })).toBeVisible();
+  await expect(mask.locator('[data-q="erholung.schlaf"]')).toBeVisible();
+  await expect(mask.getByRole('link', { name: T('Whole morning check') })).toHaveAttribute('href', '#/check/morning');
+  expect(await noScroll(page)).toBe(true);
+  await shot(page, 'maske-morgen-check');
+
+  // «Später»: gone, also after a reload; back after one hour
+  await mask.locator('[data-ab-later]').click();
+  await expect(mask).toBeHidden();
+  await page.reload();
+  await ready(page);
+  await expect(mask).toBeHidden();
+  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toBeVisible(); // the round stays one tap away
+  await page.clock.fastForward('01:01:00');
+  await expect(mask).toHaveJSProperty('open', true);
+
+  // ✕ counts as «Später»
+  await mask.getByRole('button', { name: T('Later|mask') }).first().click();
+  await expect(mask).toBeHidden();
+  await page.clock.fastForward('01:01:00');
+  await expect(mask).toHaveJSProperty('open', true);
+
+  // «Heute nicht»: away until the next question time (the evening round), also after a reload
+  await mask.locator('[data-ab-today]').click();
+  await expect(mask).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(mask).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('mask: the evening check at 20:30, the link to the whole evening review', async ({ page, context }) => {
+  const errors = await open(page, context, '20:40');
+  await put(page, { ...rows({ todayCheck: { sleep: 6, energy: 5, mood: 7 } }), settings: [abConfig()] });
+  await page.reload();
+  await ready(page);
+  const mask = page.locator('dialog[data-section="abfragen"]');
+  await expect(mask).toHaveJSProperty('open', true);
+  await expect(mask).toHaveAttribute('data-round', 'evening');
+  await expect(mask.getByRole('heading', { name: T('Evening check') })).toBeVisible();
+  await expect(mask.locator('[data-q="erreicht.zufrieden"]')).toBeVisible();
+  await shot(page, 'maske-abend-check');
+  await mask.getByRole('link', { name: T('Whole evening review') }).click();
+  await expect(page).toHaveURL(/#\/check\/evening$/);
+  await expect(page.getByRole('heading', { level: 1, name: T('How was your day?') })).toBeVisible();
+  expect(errors).toEqual([]);
+});

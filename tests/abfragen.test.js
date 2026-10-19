@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
-  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
+  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
   ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound,
 } from '../src/lib/abfragen.js';
@@ -250,6 +250,16 @@ describe('what is due now (AB3)', () => {
     const snooze = snoozeAll({}, due);
     expect(dueList(start, [], `${D0}T09:30`, snooze)).toEqual([]);
     expect(dueList(start, [], `${D0}T13:00`, snooze).map((x) => x.q.id)).toContain('erholung.akku');
+  });
+
+  // Noah 19.10.2026: the window of the round with «Später» (one hour) and «Heute nicht»
+  it('«Später» is one hour later, over midnight and month ends too; it never hides a question by itself', () => {
+    expect(laterStamp('2026-10-19T07:05')).toBe('2026-10-19T08:05');
+    expect(laterStamp('2026-10-31T23:30')).toBe('2026-11-01T00:30');
+    const due = dueList(start, [], `${D0}T09:00`);
+    expect(dueList(start, [], `${D0}T09:00`, { [LATER_KEY]: laterStamp(`${D0}T09:00`) })).toEqual(due);
+    // «Heute nicht» keeps a waiting «Später»
+    expect(snoozeAll({ [LATER_KEY]: 'x' }, due)[LATER_KEY]).toBe('x');
   });
 
   // Noah 14.10. 00:52:22 1a 2a 3b 4ab

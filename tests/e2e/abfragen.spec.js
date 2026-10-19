@@ -4,7 +4,7 @@
 //         switch, an interval chosen in its window, «Alle aufklappen»;
 // AB2     «Eigene Frage anlegen»: Kaffee, number with «Tassen», twice a day; it shows under «Eigene»;
 // AB3     the card on Heute with what is due (a battery 1–10, the weight with «zuletzt»), «Speichern» and
-//         «Jetzt nicht»;
+//         «Jetzt nicht»; since Noah 19.10.2026 its own window (Morgen-Check) with «Später» and «Heute nicht»;
 // AB4     Ich › Daten › Verlauf: the answers and an old daily check, filter by area and source, change an answer.
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
@@ -34,11 +34,10 @@ test.describe('AB Deine Abfragen', () => {
     const T = await openHome(page, context, info, { data: data() });
     const card = page.locator('[data-section="abfragen"]');
     await expect(card).toBeVisible();
-    await expect(card.getByText(T('Your questions'), { exact: true })).toBeVisible();
+    // Noah 19.10.2026 (changed on purpose): Heute no longer starts with the questions; they come as a window
+    await expect(card.getByRole('heading', { name: T('Morning check') })).toBeVisible();
+    await expect(card).toHaveJSProperty('open', true);
     await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
-    // the order: under the greeting, before the wall
-    const greet = await page.locator('[data-section="greeting"]').boundingBox();
-    expect((await card.boundingBox()).y).toBeGreaterThan(greet.y);
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
@@ -58,8 +57,8 @@ test.describe('AB Deine Abfragen', () => {
     await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
     await expect(card.locator('[data-q="koerper.waage"]')).toHaveCount(0);
     await expect(card.getByText(T('{n} due now', { n: 1 }))).toBeVisible();
-    // «Jetzt nicht»: the card goes until the next question time
-    await card.locator('[data-ab-later]').click();
+    // «Heute nicht» (was «Jetzt nicht»): the window goes until the next question time
+    await card.locator('[data-ab-today]').click();
     await expect(card).toHaveCount(0);
     await page.reload();
     await expect(page.locator('[data-section="greeting"]')).toBeVisible();
