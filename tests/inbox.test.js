@@ -9,8 +9,8 @@ const at = (d, h = 8) => `${d}T${String(h).padStart(2, '0')}:00:00`;
 const note = (id, d, extra = {}) => ({ id, at: new Date(at(d)).toISOString(), text: `${P} ${id}`, status: 'open', to: null, sortedAt: null, ...extra });
 
 describe('the Eingang list', () => {
-  it('has 7 targets in the agreed order', () => {
-    expect(TARGETS.map((x) => x.key)).toEqual(['receipt', 'problem', 'material', 'wish', 'idea', 'tour', 'keep']);
+  it('has 13 targets in the agreed order (6 more since «Mail in die App», Noah 19.10.2026)', () => {
+    expect(TARGETS.map((x) => x.key)).toEqual(['receipt', 'problem', 'material', 'wish', 'idea', 'tour', 'newtrip', 'bill', 'event', 'task', 'doc', 'list', 'keep']);
   });
   it('guesses a target from the text', () => {
     expect(guessTarget({ text: 'Foto Rechnung Veloshop' })).toBe('receipt');

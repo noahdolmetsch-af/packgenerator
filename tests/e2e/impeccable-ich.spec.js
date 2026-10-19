@@ -6,6 +6,9 @@
 // Fictional data only (tests/e2e/v048-fixture.js, test_data_gtp_ names); nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { readFileSync } from 'node:fs';
+// the targets of «Ablegen als …», read from the app source (inbox.js imports page code that needs the browser)
+const TARGETS = [...readFileSync(new URL('../../src/lib/inbox.js', import.meta.url), 'utf8').split('export const TARGETS = [')[1].split('];')[0].matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
 import { v048File, P } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
 import { put } from './aktiv-fixture.js';
@@ -46,10 +49,10 @@ test('Eingang: the button names the suggestion, Just keep with one tap and Undo,
   await expect(sheet.getByRole('button', { name: T('Into bike care') })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(sheet).toBeHidden();
-  // ••• › «Woanders ablegen …»: the 7 targets
+  // ••• › «Woanders ablegen …»: every target (13 since «Mail in die App»)
   await bell.getByLabel(T('More for this note')).click();
   await page.getByRole('menuitem', { name: new RegExp(`^${T('File elsewhere …')}`) }).click();
-  await expect(sheet.locator('.targets li')).toHaveCount(7);
+  await expect(sheet.locator('.targets li')).toHaveCount(TARGETS.length);
   await page.keyboard.press('Escape');
   await expect(sheet).toBeHidden();
 

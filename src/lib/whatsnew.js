@@ -16,6 +16,49 @@
 
 export const WHATS_NEW = [
   {
+    // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»), «Trainingspläne»
+    // (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»); whole row of finished trips opens.
+    version: '0.157.0',
+    date: '2026-10-19',
+    title: 'Bike FAQ and training plans',
+    lead: 'Questions about your bike, answered with a wink, and plans to try.',
+    points: [
+      { text: 'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink', href: '#/bikes?tab=care&view=faq' },
+      { text: 'Active › Training › Training plans: four plans, back from your race day', href: '#/flow/training' },
+      { text: 'After each ride: how hard was it, 1 to 10', href: '#/flow/training' },
+    ],
+    small: [
+      { box: 'new', text: 'Each zone in heart rate, watts and how it feels', href: '#/flow/training' },
+      { box: 'fixed', text: 'Finished trips: the whole row can be tapped', href: '#/trips' },
+    ],
+    test: [
+      'Open Bikes › Care and tap «Bike FAQ».',
+      'Open Active › Training › Training plans and pick «Multi-day race».',
+    ],
+  },
+  {
+    // v0.156.0 Paket 5: «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»), «Grösse» (Noah «1b 2b»), Abend-Runde sync hint.
+    // U «Rennen» follows as Paket 7 (0.158.0).
+    version: '0.156.0',
+    date: '2026-10-19',
+    title: 'Mails into the app and the size',
+    lead: 'From Gmail into the Inbox, and the whole app smaller or larger.',
+    points: [
+      { text: 'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»', href: '#/me/mail' },
+      { text: 'The Inbox shows tips (bill, booking, deadline) and a button per attachment', href: '#/inbox' },
+      { text: 'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)', href: '#/me/look' },
+    ],
+    small: [
+      { box: 'new', text: 'Mail a packing list or a document from the app', href: '#/me/mail' },
+      { box: 'new', text: 'Compact: the same text with less space between', href: '#/me/look' },
+      { box: 'new', text: 'Me shows a hint while phone and computer do not sync', href: '#/me' },
+    ],
+    test: [
+      'Open Me › Mail, open a mail and tap «Into the app».',
+      'Open the Inbox and tap the button of an attachment.',
+    ],
+  },
+  {
     // v0.155.0 Paket 3+4 (Noah 19.10.2026 «paket 3 und 4 verbinden»): T «Freie Zeit», «Daten in der App», V «Alltag»,
     // K extras (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?»), H «Strombudget», «Reise-Links», «Anleitungen überall», «Diktat».
     version: '0.155.0',

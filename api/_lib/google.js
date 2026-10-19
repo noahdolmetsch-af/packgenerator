@@ -34,7 +34,10 @@
  *                           GET  ?step=mail-list    Bearer, &q=… (Gmail search; default the inbox) &page=token
  *                                                   → { mails: [googlemail.js mailRow], next }
  *                           GET  ?step=mail-get     Bearer, &id=… → { mail: { …mailRow, text, files } }
- *                           POST ?step=mail-send    Bearer, { to, cc?, subject, text, replyTo? (message id) }
+ *                           GET  ?step=mail-file    Bearer, &id=…&att=… → { data (base64), size } («Mail in die App»:
+ *                                                   one attachment, at most FILE_MAX; the server keeps nothing)
+ *                           POST ?step=mail-send    Bearer, { to, cc?, subject, text, replyTo? (message id),
+ *                                                   files?: [{ name, type, data (base64) }] at most 3, FILE_MAX together }
  *                                                   → { id } (sent only after Noah's tap on «Senden»)
  *
  * Google Kalender und Aufgaben (package GA, Noah 15.10.2026 «3 beides», 21:11 «3b» with «Woche planen»):
@@ -60,7 +63,7 @@ import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './co
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
 import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
-import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, mailRow, bodyOf, rawMail } from './googlemail.js';
+import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, FILE_MAX, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow, OWN_CAL_SCOPE, OWN_CAL_NAME, OWN_LIST_NAME, MAX_OWN_ITEMS, KEY_PROP, ownBody, sameEvent } from './googleplan.js';
 
 export const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -348,6 +351,17 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const m = await gmail(token, `messages/${enc(id)}?format=full`);
           return json(request, 200, { ok: true, mail: { ...mailRow(m), ...bodyOf(m.payload) } });
         }
+        if (step === 'mail-file') {
+          const id = needId(url.searchParams.get('id'), 'id');
+          const att = String(url.searchParams.get('att') ?? '');
+          if (!/^[\w-]{1,4000}$/.test(att)) throw new ApiError(400, 'bad_request', 'Bad att.');
+          const token = await accessToken(cfg, store);
+          const part = await gmail(token, `messages/${enc(id)}/attachments/${enc(att)}`);
+          const size = Number(part.size) || 0;
+          if (size > FILE_MAX) throw new ApiError(413, 'too_big', 'This attachment is too big.');
+          const data = String(part.data ?? '').replace(/-/g, '+').replace(/_/g, '/');
+          return json(request, 200, { ok: true, data, size });
+        }
         if (step === 'task-lists') {
           const token = await accessToken(cfg, store);
           const lists = await pages((p) => tasks(token, p), 'users/@me/lists', { maxResults: '100' }, 'items');
@@ -511,7 +525,8 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
         }
         if (step === 'mail-send') {
           setUp(cfg);
-          const body = await jsonBody(request, 120_000);
+          // «Aus der App mailen»: with up to 3 attachments (FILE_MAX together), so the body may be larger
+          const body = await jsonBody(request, 4_400_000);
           let reply = null;
           const token = await accessToken(cfg, store);
           if (body.replyTo) {

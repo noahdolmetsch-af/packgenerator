@@ -5,7 +5,7 @@
  * T4 «FTP über die Monate»: the estimated FTP (training.js ftpEstimate) at the end of each month, with W/kg.
  * Observation only: nothing here rates. Days are calendar days (YYYY-MM-DD); nothing reads the clock.
  */
-import { ftpEstimate, shiftDay, mondayOf, isoWeek, zoneSecs, mainZone, wkg } from '../../training.js';
+import { ftpEstimate, shiftDay, mondayOf, isoWeek, zoneSecs, mainZone, wkg, feelOf, feelZone } from '../../training.js';
 import { kgOn } from '../../weight.js';
 import { mondays, monthStart, daysBetween, trendOf } from '../week/weeks.js';
 
@@ -26,7 +26,8 @@ export function sessionState(s, acts, today, bounds, used = new Set()) {
   if (!act) return { s, act: null, zone: null, diff: null, state: s.day < today ? 'missed' : 'open' };
   used.add(act.id);
   const mz = mainZone(zoneSecs(act.hist, bounds));
-  const zone = mz == null ? null : mz + 1;
+  // without heart rate the felt effort (1–10) stands in; without both the zone is not compared
+  const zone = mz == null ? feelZone(feelOf(act)) : mz + 1;
   const diff = zone != null && s.zone != null ? zone - s.zone : null;
   const state = diff == null || diff === 0 ? 'kept' : Math.abs(diff) === 1 ? 'near' : 'other';
   return { s, act, zone, diff, state };

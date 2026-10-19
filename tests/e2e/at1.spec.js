@@ -228,3 +228,14 @@ test('d) part 2 «Filter»: commute, power meter, the chips to tap away, a saved
   await expect(page.locator('section[data-packmode] [data-active-filters]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('e) bug fix 19.10.2026: a tap anywhere on an activity row opens it, not only on its name', async ({ page, context }, info) => {
+  const { errors } = await start(page, context, info);
+  const r = acts(page).locator('[data-act-row]').first();
+  const href = await r.locator('a').first().getAttribute('href');
+  await r.scrollIntoViewIfNeeded();
+  const b = await r.boundingBox();
+  await page.mouse.click(b.x + b.width - 30, b.y + b.height / 2); // the chevron side, away from the name
+  await expect(page).toHaveURL(new RegExp(`${href.replace(/[/?]/g, '\\$&')}$`));
+  expect(errors).toEqual([]);
+});

@@ -150,7 +150,7 @@
         let last = null;
         for (const [i, p] of pages.entries()) {
           const img = keepPhoto(canvases.get(p.id), { turn: p.turn });
-          last = await addDoc({ kind: 'photo', name: pages.length > 1 ? `${name.trim() || t('Photo')} ${i + 1}` : name.trim() || t('Photo'), group, source: p.source, pages: 1, bytes: dataBytes(img.src), mode: 'color', docDate: date || null, data: img.src });
+          last = await addDoc({ kind: 'photo', name: pages.length > 1 ? `${name.trim() || t('Photo')} ${i + 1}` : name.trim() || t('Photo'), group, source: p.source, pages: 1, bytes: dataBytes(img.src), mode: 'color', docDate: date || null, data: img.src, ...(sharedNote ? { note: sharedNote } : {}) });
         }
         return finish(last);
       }
@@ -170,7 +170,7 @@
         const base = name.trim() || suggestName(text) || fallback;
         const title = sets.length > 1 ? `${base} ${i + 1}` : base;
         const data = await makePdf(set, { title, when });
-        last = await addDoc({ kind: 'pdf', name: title, group, source: src, pages: set.length, bytes: dataBytes(data), mode, text, docDate: date || findDate(text), data });
+        last = await addDoc({ kind: 'pdf', name: title, group, source: src, pages: set.length, bytes: dataBytes(data), mode, text, docDate: date || findDate(text), data, ...(sharedNote ? { note: sharedNote } : {}) });
       }
       finish(last);
     } catch (e) {
@@ -186,16 +186,19 @@
   }
 
   /* photos shared from the gallery («Teilen › Pack Generator», public/share-target.js) */
+  let sharedNote = '';
   onMount(async () => {
     if (!/[?&]shared=1/.test(location.hash) || typeof caches === 'undefined') return;
     history.replaceState(null, '', `${location.pathname}${location.hash.split('?')[0]}`);
     try {
       const cache = await caches.open(SHARE_DOCS_CACHE);
       const files = [];
+      // «Mail in die App» 5a: the text shared with the files becomes the document's note
       for (const req of await cache.keys()) {
         const res = await cache.match(req);
         const blob = await res.blob();
         files.push(new File([blob], decodeURIComponent(res.headers.get('X-File-Name') ?? 'shared'), { type: blob.type || res.headers.get('Content-Type') || '' }));
+        sharedNote ||= decodeURIComponent(res.headers.get('X-Share-Text') ?? '').trim();
         await cache.delete(req);
       }
       const pdfs = files.filter((f) => f.type === 'application/pdf');
@@ -205,7 +208,7 @@
           r.onload = () => ok(String(r.result));
           r.readAsDataURL(f);
         });
-        await addDoc({ kind: 'pdf', name: f.name.replace(/\.pdf$/i, '') || t('Document'), source: 'share', pages: 0, bytes: f.size, mode: 'color', data });
+        await addDoc({ kind: 'pdf', name: f.name.replace(/\.pdf$/i, '') || t('Document'), source: 'share', pages: 0, bytes: f.size, mode: 'color', data, ...(sharedNote ? { note: sharedNote } : {}) });
       }
       const imgs = files.filter((f) => f.type.startsWith('image/'));
       if (imgs.length) {

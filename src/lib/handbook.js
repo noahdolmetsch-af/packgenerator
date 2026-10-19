@@ -555,6 +555,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
     example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
   },
+  'f.velofaq': {
+    on: null,
+    steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],
+    example: 'Example: search «squeal» → why disc brakes squeal and what helps.',
+  },
   'f.inspect': {
     on: null,
     steps: ['Bikes › Care › a bike › «Inspection»: start the quick check, the monthly check or the full inspection.', 'Tap a state for every point; «How it works» shows tools, steps, torque and when the bike shop is better.', '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.'],
@@ -670,6 +675,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.', 'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
+  'f.trainplans': {
+    on: null,
+    steps: ['Open Active › Training › Training plans and pick one of the four plans.', 'Set the start (back from the race day or from a day) and the hours per week, then «Try it».', 'Missed a session? The plan in use suggests a free day of this week.'],
+    example: 'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.',
+  },
+  'f.feel': {
+    on: null,
+    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+  },
   'f.frei': {
     on: null,
     steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],
@@ -757,7 +772,7 @@ export const HANDBOOK = {
   },
   'f.inbox': {
     on: null,
-    steps: ['Open Me › Inbox.', 'Tap «File as …» and choose one of the 7 targets.'],
+    steps: ['Open Me › Inbox.', 'Tap «File as …» and choose a target, or make a new place.'],
     example: 'Example: a receipt photo → «File as workshop visit».',
   },
   // Paket N (19.10.2026)
@@ -987,6 +1002,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
   },
+  'f.mailin': {
+    on: 'Gmail connected under Me › Mail. For the label: one Gmail filter, set up once (the clicks are on Me › Mail).',
+    steps: ['Open a mail under Me › Mail and tap «Into the app»; or give it the Gmail label «Packgenerator».', 'Open the Inbox: the mail stands there with its attachments and a tip.', 'Tap the button of an attachment (Documents, appointment, trip, bill) or «File as …».'],
+    example: 'Example: a hotel confirmation with a PDF → «Looks like a booking · for the trip «Jura»» → the PDF into Documents, the mail onto the trip.',
+  },
   'f.connections': {
     on: 'Nothing to switch on: Me › Connections shows what is connected.',
     steps: ['Open Me › Connections.', 'Tap a connection to open its page.', 'The switches below say what the app may do with the data.'],
@@ -1121,6 +1141,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Appearance.', 'Choose font, colour world, text size and light or dark.'],
     example: 'Example: dark with larger text for the evening.',
+  },
+  'f.uisize': {
+    on: null,
+    steps: ['Open Me › Appearance › Size and light.', 'Move the slider or tap − and +; the app changes when you let go.', 'Switch on «Compact» for less space between.'],
+    example: 'Example: 115 % on the phone for the way, 100 % on the computer.',
   },
   'f.explain': {
     on: null,

@@ -19,6 +19,7 @@
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
+  import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
 
   let { acts = [] } = $props();
@@ -91,6 +92,7 @@
 </script>
 
 <div class="wk">
+  <FeelAsk {acts} {today} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
     <span class="gi" aria-hidden="true"><Target size={22} /></span>
     {#if goalForm}
@@ -126,7 +128,7 @@
 
   <div class="lay">
     <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
-    <Sec id="plan-h" title={t('Plan the week')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')}>
+    <Sec id="plan-h" title={t('Plan the week')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
           <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>

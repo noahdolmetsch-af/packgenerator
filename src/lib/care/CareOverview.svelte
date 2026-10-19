@@ -8,7 +8,7 @@
    *   breakdown»), km since the last check as bars;
    * - beside: for the bike shop (the order), the costs of the year, the bike diary.
    */
-  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, RefreshCw, Gauge, Image as ImageIcon } from '@lucide/svelte';
+  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, RefreshCw, Gauge, Image as ImageIcon, MessageCircleQuestion } from '@lucide/svelte';
   import MessenDialog from '../bikes/MessenDialog.svelte'; // «Werte messen» W5 + W6
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { whoYear } from '../bikes/who.js';
@@ -243,6 +243,8 @@
           <!-- «Werte messen» 2b: measure the chain, record the pressure -->
           <button type="button" class="orow" onclick={() => (messen = 'chain')}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Measure the chain')}</b><small>{t('With the chain checker, with a forecast')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <button type="button" class="orow" onclick={() => (messen = 'pressure')}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record the pressure')}</b><small>{t('Front and rear, with a hint when a tyre loses air')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+          <!-- «Velo-FAQ» (Noah 19.10.2026): questions on care, breakdowns, wear and myths -->
+          <a class="orow" href={bikesHash({ tab: 'care', view: 'faq' })} data-link-faq><span class="ib"><MessageCircleQuestion size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike FAQ')}</b><small>{t('Care, breakdowns and myths, with a wink')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
           <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
           <!-- Impeccable (18.10.2026, Velopflege 2): the booking link, entered once for all bikes -->
           {#if bookOn}
