@@ -20,6 +20,7 @@ import { toWx } from '../weather.js';
 import { withStravaRides, notIgnored } from '../kmbook.js';
 import { msExtra } from './msdata.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
+import { FIXED_KEY } from '../flowweek.js';
 
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
@@ -187,7 +188,7 @@ export async function seedMed(data, actId) {
  */
 export function checkQuery(today) {
   return liveQuery(async () => {
-    const [acts, log, checks, pool, trips, rides, book, place, forecast] = await Promise.all([
+    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(addDays(today, -70)).toArray(),
       db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray(),
@@ -197,6 +198,9 @@ export function checkQuery(today) {
       db.kmBook.where('date').equals(today).toArray(),
       db.settings.get(HOME_PLACE),
       db.meta.get(HOME_FORECAST),
+      // package G #226: the fixed dates of Aktiv › Woche and today's Google appointments («Heute im Blick»)
+      db.settings.get(FIXED_KEY),
+      db.gEvents.where('day').equals(today).toArray(),
     ]);
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
@@ -209,6 +213,8 @@ export function checkQuery(today) {
       tripDays: tripDays(homeTrips(trips), today),
       rides: withStravaRides(rides, book).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null, source: r.source ?? 'file' })),
       weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
+      fixed: Array.isArray(fixed?.value) ? fixed.value : [],
+      events,
       seeded: acts.length > 0,
     };
   });

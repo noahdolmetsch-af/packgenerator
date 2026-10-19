@@ -14,7 +14,7 @@
    * v0.127.0 «Tages-Check» 2 (T4): a question switched off in «Deine 15 Fragen» (#/check/questions) is
    * not asked; on Sundays the evening asks question 15 «Bist du deiner Vision näher gekommen?».
    */
-  import { Sun, Clock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
+  import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Scale from '../lib/flow/check/Scale.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
@@ -26,7 +26,8 @@
   import { flowStates } from '../lib/flow.js';
   import { streaks, zurichTime } from '../lib/flowmed.js';
   import { soonTrips } from '../lib/home/heute.js';
-  import { qText } from '../lib/flow/ui.svelte.js';
+  import { todayAppointments } from '../lib/todayfixed.js';
+  import { qText, actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -83,6 +84,8 @@
   const medYesterday = $derived(data ? mindfulFound(data.log, addDay(today, -1), medId) : null);
   const medStreak = $derived(data ? streaks(data.log, medId, today).now : 0);
   const nextTrip = $derived(data ? (soonTrips(data.trips, today)[0] ?? null) : null);
+  // package G #226: today's fixed dates (Aktiv › Woche) and timed Google appointments, by time
+  const appts = $derived(data ? todayAppointments({ fixed: data.fixed ?? [], events: data.events ?? [], today, nameOf: (id) => actName(data.acts.find((a) => a.id === id)) || id }) : []);
   function addDay(day, n) {
     const d = new Date(`${day}T12:00:00Z`);
     d.setUTCDate(d.getUTCDate() + n);
@@ -262,7 +265,10 @@
       {#if nextTrip}
         <li><span class="ib"><Route size={18} aria-hidden="true" /></span><span class="rt"><b>{nextTrip.title || t('Next trip')}</b><small>{nextTrip.startDate <= today ? t('under way') : t('next trip · from {date}', { date: dayWords(nextTrip.startDate) })}</small></span></li>
       {/if}
-      {#if !data.weather && !medAct && !nextTrip}<li><span class="ib"><Clock size={18} aria-hidden="true" /></span><span class="rt"><small>{t('Nothing known for today yet.')}</small></span></li>{/if}
+      {#each appts as a (a.key)}
+        <li data-row="appt"><span class="ib"><CalendarClock size={18} aria-hidden="true" /></span><span class="rt"><b>{a.title}</b><small><span class="num">{a.time}</span> · {a.kind === 'fixed' ? t('fixed date') : t('Google Calendar')}</small></span></li>
+      {/each}
+      {#if !data.weather && !medAct && !nextTrip && !appts.length}<li><span class="ib"><Clock size={18} aria-hidden="true" /></span><span class="rt"><small>{t('Nothing known for today yet.')}</small></span></li>{/if}
     </ul>
   </section>
 {/snippet}

@@ -80,3 +80,27 @@ test('Verbindungen: all connections, Strava suggests first, the lake, tours as .
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+test('#226 Heute im Blick: the fixed date of Aktiv › Woche and a Google appointment of today, by time', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  await page.goto('./#/flow');
+  await ready(page);
+  // weekday of today in Zurich: 1 Monday … 7 Sunday
+  const wd = ((new Date(`${zurichToday()}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
+  await idb(page, 'put', ['settings', 'readwrite', { key: 'flow.fixed', value: [{ id: 'e2e-fix', actId: 'run', wd, time: '18:15', minutes: 45 }] }]);
+  await idb(page, 'put', ['gEvents', 'readwrite', { id: 'e2e-ev', day: day(0), cal: 'primary', title: 'Testtermin Muster', allDay: false, start: `${day(0)}T07:30:00Z` }]);
+  await page.goto('./#/check/morning');
+  const rows = page.locator('[data-row="appt"]');
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText('Testtermin Muster');
+  await expect(rows.nth(0)).toContainText('Google Kalender');
+  await expect(rows.nth(1)).toContainText('18:15');
+  await expect(rows.nth(1)).toContainText('fester Termin');
+  expect(errors).toEqual([]);
+});
