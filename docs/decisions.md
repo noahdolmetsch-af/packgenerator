@@ -1581,3 +1581,13 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Abgleich nach dem Koppeln (Noah 19.10.2026 06:29):** beim ersten Abgleich nach dem Koppeln fragt die App nur einmal, welches Gerät den richtigen Stand hat; die Antwort gilt für alle verschiedenen Einträge, «Einzeln entscheiden» bleibt möglich. Selbst entschieden: die eine Frage kommt nur nach dem Koppeln und steht im Abschnitt «Handy und Computer», nicht in einem eigenen Fenster.
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
+
+## Paket N «Pläne und Träume» (19.10.2026)
+
+- **Traumtouren auf eigener Seite** Touren › Träume mit Jahresband Januar bis Dezember (Noah «1a»). Grund: Träume bleiben getrennt von geplanten Touren; ein Tipp macht eine Tour daraus.
+- **Saison als Vorschlag der Tourart** (Noah «2b»), pro Traum änderbar, «Zurück zum Vorschlag». Tourarten sind eine Gruppe (umbenennen, löschen, eigene; Regel 17/18).
+- **Rennen aus Inspiration und Google Kalender** (Noah «3a und b»): Titel mit «Rennen», «Race», «Marathon», «Gran Fondo» … zählen; die Tour bekommt den Baustein Rennen und den Anmeldeschluss, bis «Angemeldet».
+- **Mein Kompass als eigene Seite** unter Ich (Noah «4b»), getrennt von Notizen; Ablagen sind eine Gruppe.
+- **Ziele in Schritten** (Noah «5 a und nutzer kann b ausschalten und ausblenden»): Schritte selbst tippen, die App verteilt die Daten bis zum Zieldatum; KI-Vorschläge über den KI-Helfer (neue Aufgabe `steps`), auf der Seite ausschaltbar und ausblendbar.
+- Selbst entschieden: «Wie läuft's?» einmal pro Woche auf Mein Kompass und im Wochenrückblick (nur die laufende Woche); Daten in `settings` (dreams, compass), keine neue Tabelle, also in jeder Sicherung; Notizen verknüpfen wird nur einmal gespeichert und auf beiden Notizen gezeigt; Ich › Was kommt liest die Pakete aus `src/lib/wascommt.js` (der Bündler trägt die Version ein, sobald ein Paket live ist).
+
