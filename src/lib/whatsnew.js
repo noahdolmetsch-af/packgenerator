@@ -29,7 +29,6 @@ export const WHATS_NEW = [
     ],
     small: [
       { box: 'new', text: 'Mail a packing list or a document from the app', href: '#/me/mail' },
-      { box: 'new', text: '«File as …» with 13 targets and your own new places', href: '#/inbox' },
       { box: 'new', text: 'Compact: the same text with less space between', href: '#/me/look' },
       { box: 'new', text: 'Me shows a hint while phone and computer do not sync', href: '#/me' },
     ],
