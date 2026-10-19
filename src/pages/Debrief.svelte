@@ -42,6 +42,7 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
@@ -448,6 +449,8 @@
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
+        <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
+        <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" />
       {:else}
@@ -544,6 +547,9 @@
               </ul>
             </section>
           {/if}
+
+          <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
+          <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
 
           <section class="rv-sec" aria-labelledby="upload-h">
             <div class="rv-h"><div><h2 id="upload-h">{t('Upload ride')}</h2><p class="rv-sub">{t('optional: pauses, plan and reality')}</p></div></div>

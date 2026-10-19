@@ -68,7 +68,7 @@
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
-  import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
+  import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
   import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
@@ -243,7 +243,8 @@
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
   let openNow = $state(null);
   let tvNow = $state(null);
-  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [...TOUR_GROUP_KEYS] });
+  // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; each group's head keeps its main numbers
+  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [] });
   function saveIz(next) {
     const plain = $state.snapshot(next);
     openNow = [...plain.open];
@@ -364,6 +365,9 @@
       {#if tours.band !== 'hidden'}
         <PackBand {band} extra={bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
+
+      <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
+      {#if $dataQ}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
       <section class="plan" aria-labelledby="trips-plan" data-planned>
@@ -515,7 +519,7 @@
       {/if}
 
       <PageMore page="trips" name={t('Trips|place')} />
-      <TourTiles {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
+      <TourTiles skip={['o2']} {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
       {/if}
     {/if}
   {:else}
