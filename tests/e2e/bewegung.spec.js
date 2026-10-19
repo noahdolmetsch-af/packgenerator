@@ -94,3 +94,17 @@ test('Reduced motion on Pack: the bag does not move, the green row still shows',
   await open.getByRole('button', { name: T('Whole bag packed') }).click();
   await expect(page.locator('.pd li.brow.pbag.flash')).toHaveCount(1);
 });
+
+test('4b: a ticked item slides down to the packed ones, but only a moment after the last tap', async ({ page, context }, info) => {
+  await packDay(page, context, info);
+  const items = page.locator('.pd section.pbag.cur button.it');
+  const name = (await items.first().locator('.nm').textContent()).trim();
+  await items.first().click();
+  // right after the tap the row stays under the finger
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(items.first().locator('.nm')).toHaveText(name);
+  // a moment later it has moved down below the open items
+  await expect(items.last()).toHaveAttribute('aria-pressed', 'true', { timeout: 4000 });
+  await expect(items.last().locator('.nm')).toHaveText(name);
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'false');
+});

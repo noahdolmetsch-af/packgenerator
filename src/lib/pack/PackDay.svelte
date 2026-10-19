@@ -23,6 +23,9 @@
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
   import { tick as settle, untrack } from 'svelte';
+  import { cubicOut } from 'svelte/easing';
+  import { flip } from '../ui/flip.js';
+  import { laterSort, glide } from '../ui/latersort.svelte.js';
   import { buzz } from '../bedienung.svelte.js';
   import TripBand from '../trip/TripBand.svelte';
   import { askReopen } from '../trip/reopen.svelte.js';
@@ -92,6 +95,7 @@
   function touchBag() {
     downAt = now();
     cancelJump();
+    if (sortT) sortLater(); // a finger in the bag: the rows wait a bit longer
   }
   // «Bewegung» Stelle 1 (Noah 19.10.2026 «alle 1-3»): when a full bag moves on by itself, its row in «Taschen»
   // lights up green for a moment, so the eye sees where the finished bag went (also with reduced motion).
@@ -147,6 +151,7 @@
     }
     if (willFill) advance(step.key, JUMP_MS, at);
     else if (timer) cancelJump();
+    sortLater();
   }
   async function wholeBag(step) {
     cancelJump();
@@ -154,10 +159,13 @@
     await onpack(step.entries.map((e) => e.itemId));
     advance(step.key, 0);
   }
+  // the ready check sorts the same way: done checks slide down a moment after the last tap
+  const readySort = laterSort((r) => r.id, (r) => readyDone(r, trip));
   async function readyTick(r) {
     const key = `ready:${r.id ?? r.itemId}`;
     if (busy.has(key)) return;
     busy.add(key);
+    readySort.tap(ready);
     if (!readyDone(r, trip)) buzz(); // FE7: only when it gets ticked
     try {
       remember();
@@ -189,6 +197,20 @@
   }
   // Open items on top, packed ones at the bottom. v0.30.2 (test P4.7): the order is fixed when
   // a bag opens, so a ticked row stays under the finger and a quick second tap hits the next item.
+  // «Bewegung» + «Gestaltungsrichtung B» 4b (Noah 19.10.2026): a ticked item slides down to the packed
+  // ones, but only SORT_MS after the last tap in the bag, so quick ticks in a row never move a row away
+  // under the finger (B3/B4). The rows glide (250 ms); with reduced motion they move at once.
+  const SORT_MS = 1000;
+  let sortT = null;
+  function sortLater() {
+    clearTimeout(sortT);
+    sortT = setTimeout(() => {
+      sortT = null;
+      const s = stepOf(cur);
+      if (s && order.key === cur) order = { key: cur, ids: sorted(s).map((e) => e.itemId) };
+    }, SORT_MS);
+  }
+  const still = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sorted = (s) => [...s.entries.filter((e) => !e.packed), ...s.entries.filter((e) => e.packed)];
   let order = $state.raw({ key: '', ids: [] });
   $effect(() => {
@@ -278,6 +300,8 @@
       lock?.release?.();
       clearTimeout(timer);
       clearTimeout(flashT);
+      clearTimeout(sortT);
+      readySort.stop();
       document.removeEventListener('visibilitychange', again);
     };
   });
@@ -398,7 +422,7 @@
                 {#each ordered(s) as e (e.itemId)}
                   {@const it = itemsById[e.itemId]}
                   {@const hint = hintOf(e.itemId)}
-                  <li class:in={e.packed}>
+                  <li class:in={e.packed} animate:flip={{ duration: still() ? 0 : 250, easing: cubicOut }}>
                     <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
                       <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
                       <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
@@ -423,9 +447,9 @@
           </div>
           <div class="card ibox">
             <ul class="items">
-              {#each ready as r (r.id)}
+              {#each readySort.order(ready) as r (r.id)}
                 {@const ok = readyDone(r, trip)}
-                <li class:in={ok}>
+                <li class:in={ok} animate:flip={glide()}>
                   <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}>
                     <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
                     <span class="nm">{readyLabel(r)}</span>

@@ -25,12 +25,12 @@ export const WHATS_NEW = [
     lead: 'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.',
     points: [
       { text: '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak', href: '#/routine' },
-      { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care', href: '#/' },
+      { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care; below it Aktiv with sleep, last activity and next fixed date', href: '#/' },
       { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
     ],
     small: [
       { box: 'new', text: 'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups', href: '#/blocks' },
-      { box: 'nicer', text: 'Aktiv on Today: sleep, your last activity and the next fixed date; calmer pages such as Aktiv › Today, Rides, Setup and Pay', href: '#/flow' },
+      { box: 'nicer', text: 'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list', href: '#/pack' },
       { box: 'new', text: 'Me › Insights: what goes together in your data, such as sleep and battery; the strongest three also in the analysis', href: '#/me/insights' },
     ],
     test: [

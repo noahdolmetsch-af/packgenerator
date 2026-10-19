@@ -13,6 +13,8 @@
   import { t } from '../i18n.svelte.js';
   import { chargeList, chargeCount, isCharged, toggleCharge, chargeAll } from '../charge.js';
   import { Check, Zap } from '@lucide/svelte';
+  import { flip } from '../ui/flip.js';
+  import { laterSort, glide } from '../ui/latersort.svelte.js';
   import './trip.css';
 
   // SN1: all: «Alle geladen» under the card also with the head (On the way)
@@ -36,7 +38,10 @@
       const cur = await db.trips.get(trip.id);
       if (cur) await db.trips.update(trip.id, touched(fn(cur)));
     });
-  const tick = (itemId) => save((cur) => toggleCharge(cur, itemId, night));
+  // «Bewegung» 4b (Noah 19.10.2026 «1a»): charged devices slide down a moment after the last tap
+  const sort = laterSort((r) => r.itemId, (r) => isCharged(trip, r.itemId, night));
+  $effect(() => () => sort.stop());
+  const tick = (itemId) => (sort.tap(list), save((cur) => toggleCharge(cur, itemId, night)));
   const tickAll = () => save((cur) => chargeAll(cur, list, night));
 </script>
 
@@ -48,10 +53,10 @@
       <p class="prog"><b class="num">{t('{done} of {n} charged', { done: count.done, n: count.total })}</b><span class="bar" aria-hidden="true"><i style:width="{count.total ? (count.done / count.total) * 100 : 0}%"></i></span></p>
     {/if}
     <ul class="rows" class:card={head} aria-label={night ? t('Charge tonight') : t('Charge the evening before')}>
-      {#each list as r (r.itemId)}
+      {#each sort.order(list) as r (r.itemId)}
         {@const on = isCharged(trip, r.itemId, night)}
         {@const place = placeOf(r.itemId)}
-        <li class:on>
+        <li class:on animate:flip={glide()}>
           <button type="button" class="it" aria-pressed={on} onclick={() => tick(r.itemId)}>
             <span class="box" aria-hidden="true">{#if on}<Check size={16} strokeWidth={2.5} />{/if}</span>
             <span class="nm">{r.name}{#if r.qty > 1}<span class="q num">{' '}× {r.qty}</span>{/if}{#if place}<small>{place}</small>{/if}</span>
