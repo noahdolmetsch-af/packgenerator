@@ -59,7 +59,8 @@
 <div class="bikes">
   <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
        equipment, compare) has its own path back and title (VeloHead). -->
-  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
+  <!-- Impeccable Runde 2 (Setup 1): Setup has its own head «‹ Velo › {bike} › Setup» too -->
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin', 'rig'].includes(route.tab)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
     </header>

@@ -24,7 +24,7 @@ const ROUTES = [
   ['#/pack/past', 'Vergangene Touren'],
   ['#/ride', 'Unterwegs'],
   ['#/debrief', 'Rückblick'],
-  ['#/debrief/ride', 'Fahrt hochladen'],
+  ['#/debrief/ride', 'Fahrten'],
   // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
   ['#/debrief/learnings', 'Gelernt'],
   ['#/debrief/pace', 'Tempo'],
@@ -83,6 +83,7 @@ const ROUTES = [
   ['#/timer', 'Timer'],
   ['#/timer/faces', 'Zifferblatt'],
   ['#/timer/log', 'Timer-Log'],
+  ['#/routine', 'Das tut mir gut'], // Routine «Das tut mir gut» (mockup D2)
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],

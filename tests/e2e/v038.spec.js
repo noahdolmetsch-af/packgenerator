@@ -3,6 +3,7 @@
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js). Phone and desktop.
 // V038_SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
+import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';
 import { PLACES, SIDE_PLACES } from '../../src/lib/nav.js';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -110,13 +111,14 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
   const rows = page.locator('li.gr');
   await expect(rows.first()).toBeVisible();
   await expect(page.locator('li.gr .bg')).toHaveCount(0);
-  const seg = page.getByRole('group', { name: 'Tasche zeigen' });
-  await expect(seg.getByRole('button', { name: 'Kompakt' })).toHaveAttribute('aria-pressed', 'true');
-  await seg.getByRole('button', { name: 'Mit Tasche' }).click();
+  // Impeccable runde 2 (Material 3): «Kompakt | Mit Tasche» in the line above the list; on a phone in «Sortieren und filtern»
+  await expect(await lookButton(page, 'Tasche zeigen', 'Kompakt')).toHaveAttribute('aria-pressed', 'true');
+  await pickLook(page, 'Tasche zeigen', 'Mit Tasche');
   await expect(page.locator('li.gr .bg').first()).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('group', { name: 'Tasche zeigen' }).getByRole('button', { name: 'Mit Tasche' })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('group', { name: 'Tasche zeigen' }).getByRole('button', { name: 'Kompakt' }).click();
+  await expect(await lookButton(page, 'Tasche zeigen', 'Mit Tasche')).toHaveAttribute('aria-pressed', 'true');
+  await (await lookButton(page, 'Tasche zeigen', 'Kompakt')).click();
+  await closeLook(page);
   await noSideways(page);
 
   // ••• on a used item: Archive, never Delete (that is the red button in the item).

@@ -77,7 +77,6 @@ export default {
   'The exact number to the line.': 'Die genaue Zahl zur Linie.',
   Cadence: 'Trittfrequenz',
   'Too low means too hard a gear. Spares the knees on long days.': 'Zu tief heisst zu schwerer Gang. Schont die Knie auf langen Tagen.',
-  Climbs: 'Klettern',
   'For passes and long climbs: the profile shows where you are, the numbers help to share out your strength.': 'Für Pässe und lange Anstiege: das Profil zeigt die Lage, die Zahlen helfen beim Einteilen der Kraft.',
   'Elevation graph': 'Höhenprofil',
   'Where you are on the climb and what is still to come.': 'Wo du im Anstieg stehst und was noch kommt.',

@@ -63,4 +63,13 @@ describe('the four trip tabs', () => {
     expect(s.ride).toEqual({ text: 'done', done: true });
     expect(s.debrief).toEqual({ text: 'saved', done: true });
   });
+
+  it('Impeccable Heute 3: on «Tour beendet» (also the evening of the last day) Packen and Unterwegs are done', () => {
+    const last = trip({ startDate: '2026-10-07', entries: entries(14, 7) });
+    expect(tabStatus(last, { today: TODAY }).pack).toEqual({ text: '7/14', done: false });
+    const s = tabStatus(last, { today: TODAY, km: 184, ended: true });
+    expect(s.pack).toEqual({ text: '7/14', done: true });
+    expect(s.ride).toEqual({ text: '184 km', done: true });
+    expect(s.debrief).toEqual({ text: 'open', done: false });
+  });
 });

@@ -21,6 +21,8 @@
    * Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the row's button names the suggestion («Als Problem am
    * Velo ablegen», «Auf die Wunschliste», «Einfach behalten» …) and opens that target's form straight away;
    * «Einfach behalten» files with one tap (toast with «Rückgängig»). The 7 targets: ••• › «Woanders ablegen …».
+   * Impeccable Runde 2: «Today», «Yesterday» and «This week» open, «Earlier · n notes» folded («Older notes. Open
+   * them when you have time.»); the head says calmly «Filed today: 3 of 25».
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
@@ -37,7 +39,7 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
-  import { Check, Undo2, ChevronRight, Search, Shuffle, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight, ChevronDown, Search, Shuffle, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import ListBar from '../lib/list/ListBar.svelte';
   import ListGroup from '../lib/list/ListGroup.svelte';
@@ -66,6 +68,10 @@
   const names = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const trips = $derived($tripsQ ?? []);
   const ctx = $derived({ visits: $visitsQ ?? [], tasks: $tasksQ ?? [], items: $itemsQ ?? [], trips, bikes });
+
+  // Impeccable Runde 2: the older notes folded; a search for a note there is not needed (they stay one tap away)
+  let olderOpen = $state(false);
+  const progressLine = $derived(todayN + openN ? t('Filed today: {n} of {total}', { n: todayN, total: todayN + openN }) : '');
 
   let view = $state(location.hash.includes('view=filed') ? 'filed' : 'open');
   let query = $state('');
@@ -158,15 +164,14 @@
     <div class="ich-cols">
       <div class="ich-main">
         <section class="ich-sec" aria-labelledby="tofile-h">
-          <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('The button names the suggestion · ••• for other targets')}</p></div></div>
+          <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{progressLine ? `${progressLine} · ` : ''}{t('The button names the suggestion · ••• for other targets')}</p></div></div>
           {#if $notesQ && !notes.length}
             <!-- v0.127.0 A-U2: the one empty building block -->
             <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + at the top › Note when something comes up on the way.')} action={{ label: t('Write a note'), onclick: onnew }} />
           {:else if $notesQ && !openN}
             <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
           {/if}
-          {#each groups as g (g.key)}
-            <h3 class="day">{t(g.name)}</h3>
+          {#snippet rows(g)}
             <ul class="card ich-list list" aria-label={t(g.name)}>
               {#each g.rows as n (n.id)}
                 {@const sug = guessTarget(n)}
@@ -194,6 +199,18 @@
                 </li>
               {/each}
             </ul>
+          {/snippet}
+          {#each groups as g (g.key)}
+            {#if g.key === 'older' && groups.length > 1}
+              <!-- Impeccable Runde 2: the older notes folded; what is new stays in front -->
+              <details class="older" bind:open={olderOpen}>
+                <summary class="day osum"><span class="ich-m"><b>{t('Earlier')} · {tn(g.rows.length, '{n} note', '{n} notes')}</b><small>{t('Older notes. Open them when you have time.')}</small></span><ChevronDown class="ochev" size={18} aria-hidden="true" /></summary>
+                {#if olderOpen}{@render rows(g)}{/if}
+              </details>
+            {:else}
+              <h3 class="day">{t(g.name)}</h3>
+              {@render rows(g)}
+            {/if}
           {/each}
         </section>
       </div>
@@ -357,6 +374,39 @@
   }
   .list {
     overflow: visible;
+  }
+  /* Impeccable Runde 2: «Earlier · n notes», folded; the chevron turns when open */
+  .older {
+    margin-top: 14px;
+  }
+  .osum {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    margin: 0 0 6px;
+    padding: 6px 2px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .osum::-webkit-details-marker {
+    display: none;
+  }
+  .osum b {
+    color: var(--ink);
+  }
+  .osum :global(.ochev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.18s ease-out;
+  }
+  .older[open] .osum :global(.ochev) {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .osum :global(.ochev) {
+      transition: none;
+    }
   }
   .nrow {
     align-items: flex-start;

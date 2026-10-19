@@ -117,6 +117,7 @@
   };
   const tplOf = (id) => (id ? tpls.find((x) => x.id === id) : null);
   const pct = (r) => Math.round((r?.progress ?? 0) * 100);
+  let depthHelp = $state(false);
 </script>
 
 <div class="med">
@@ -173,12 +174,18 @@
       <div class="side">
         <section class="surf pad" aria-labelledby="m-review">
           <div class="hl"><h2 id="m-review" class="h2">{t('Look back|page')}</h2><a href="{base}/rueckblick" data-to="review">{t('See everything')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+          {#if !recent.length}
+            <!-- Impeccable runde 2 (onboard): before the first session one sentence instead of four zeros and seven empty circles -->
+            <p class="first" data-review-empty>{t('No session yet. After your first meditation you see your streak here, the minutes of the week and how deep it was.')}</p>
+          {:else}
           <div class="stats">
             <div><b class="num">{str.now}</b><small>{t('days in a row')}</small></div>
             <div><b class="num">{weekDays}/7</b><small>{t('last 7 days')}</small></div>
             <div><b class="num">{hm(weekMin)}</b><small>{t('last 7 days')}</small></div>
-            <div><b class="num">{depth ?? '–'}</b><small>{t('avg. depth')}</small></div>
+            <!-- Impeccable runde 2 (clarify): «Ø Tiefe (1–5)», a tap explains where the number comes from -->
+            <button type="button" class="dq" aria-expanded={depthHelp} aria-controls="m-depth-help" onclick={() => (depthHelp = !depthHelp)} data-depth><b class="num">{depth ?? '–'}</b><small>{t('avg. depth (1–5)')} <span class="qm" aria-hidden="true">?</span></small></button>
           </div>
+          {#if depthHelp}<p class="dhelp" id="m-depth-help" role="note">{t('Your own rating after each session, from 1 (restless) to 5 (very deep).')}</p>{/if}
           <a class="wk" href="{base}/log" data-row="week" aria-label={t('{n} of 7 days', { n: weekDays })}>
             {#each week as g (g.day)}<span class="wd" class:on={g.on} class:today={g.day === today}><i aria-hidden="true"></i><small>{wd(g.day)}</small></span>{/each}
             <span class="sr">{t('{n} of 7 days', { n: weekDays })} · {t('{n} min', { n: weekMin })}</span>
@@ -195,10 +202,9 @@
                   <b class="m num">{Math.round(Number(r.e.min) || 0)}′</b>
                 </a>
               </li>
-            {:else}
-              <li class="hint">{t('no session yet')}</li>
             {/each}
           </ul>
+          {/if}
         </section>
 
         {#if nextStar}
@@ -328,6 +334,43 @@
   .stats small {
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  /* Impeccable runde 2: the depth cell is a button that explains the number */
+  .dq {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .qm {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 2px;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .dq[aria-expanded='true'] .qm {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .dhelp,
+  .first {
+    margin: 8px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .first {
+    margin: 12px 0 4px;
+    font-size: var(--fs-body);
   }
   .wk {
     position: relative;

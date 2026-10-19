@@ -120,3 +120,22 @@ export function packBand(planRows = [], trips = [], current = null) {
 export function tileRows(rows = [], states = {}) {
   return { open: rows.filter((r) => states[r.id]?.state === 'done'), map: rows };
 }
+
+/**
+ * Impeccable 18.10.2026 (Touren 1, Noah «alle Vorschläge angenommen»): a trip on the way leads the band.
+ * The first planned trip (overview order) whose days include today, past its packing day. planRows: tripsOverview().plan;
+ * trips: all trips. → { state: 'ride', tripId, title, row, day, total } (day counts from 1) or null.
+ */
+export function rideBand(planRows = [], trips = [], today = null) {
+  const byId = Object.fromEntries(trips.map((x) => [x.id, x]));
+  for (const r of planRows) {
+    const trip = r.kind !== 'replan' ? byId[r.tripId] : null;
+    if (!trip?.startDate || !today) continue;
+    const total = Math.max(1, Number(trip.days) || 1);
+    const day = 1 - daysTo(trip.startDate, today);
+    // on the start day it is still the packing day until «Packen abschliessen» (phase.js packingDay)
+    if (day === 1 && !trip.packedAt) continue;
+    if (day >= 1 && day <= total) return { state: 'ride', tripId: r.tripId, title: r.title, row: r, day, total };
+  }
+  return null;
+}

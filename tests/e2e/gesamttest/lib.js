@@ -4,11 +4,15 @@
 // server. Service workers are blocked by playwright.config.js (serviceWorkers: 'block').
 import { DATA_TABLES } from '../../../src/lib/db.js';
 import { expect } from '@playwright/test';
-import { writeFileSync, mkdirSync, appendFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../../src/lib/i18n/de/index.js';
 import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttest/make.mjs';
 import { openData as openDataFold, settle } from '../settle.js';
+
+// v0.154.0 «Bausteine mehr»: the keys of gear.js SETS (that module needs Svelte, so it is read as text)
+const GEAR_SRC = readFileSync(fileURLToPath(new URL('../../../src/lib/gear.js', import.meta.url)), 'utf8');
+const BUILT_IN_BLOCKS = [...GEAR_SRC.match(/export const SETS = \{([\s\S]*?)\n\};/)[1].matchAll(/^\s+(\w+): '[^']+',/gm)].map((m) => m[1]);
 
 export { P, build, step1, step2, track, gpxText, DE };
 
@@ -354,8 +358,8 @@ export function integrity(db) {
   for (const b of db.bikes) for (const [slot, c] of Object.entries(b.setup ?? {})) if (c && !bags.has(c)) problems.push(`bike ${b.id}: ${slot} bag ${c} missing`);
   for (const c of db.containers) if (c.itemId && !items.has(c.itemId)) problems.push(`bag ${c.id}: item ${c.itemId} missing`);
   const setRec = db.settings.find((s) => s.key === 'sets')?.value ?? [];
-  // The built-in blocks (gear.js SETS, v0.66.0) plus the old keys, which stay on the items for two versions.
-  const builtIn = ['standard', 'bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort'];
+  // The built-in blocks (gear.js SETS, read from the source since v0.154.0) plus the old keys, which stay on the items for two versions.
+  const builtIn = ['standard', ...BUILT_IN_BLOCKS];
   const known = new Set([...builtIn, 'base', 'warm', 'sleep', 'light', 'lodging', ...setRec.map((s) => s.key)]);
   for (const i of db.items) for (const k of i.sets ?? []) if (!known.has(k)) problems.push(`item ${i.id}: block ${k} unknown`);
   for (const tpl of db.settings.find((s) => s.key === 'templates')?.value ?? []) for (const e of tpl.entries ?? []) if (!items.has(e.itemId)) problems.push(`template ${tpl.id}: ${e.itemId} missing`);

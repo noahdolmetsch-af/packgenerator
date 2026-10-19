@@ -146,7 +146,6 @@ export default {
   'How was my week?': 'Wie war meine Woche?',
   'This text is what you would give to Claude. Nothing is sent: copy it and paste it yourself.': 'Diesen Text würdest du Claude geben. Nichts wird gesendet: kopiere ihn und füge ihn selbst ein.',
   'The text for Claude': 'Der Text für Claude',
-  'Copy for Claude': 'Kopieren für Claude',
   // the text for Claude (weekreview.js summaryText)
   'My week from {from} to {to} (week {kw}):': 'Meine Woche vom {from} bis {to} (KW {kw}):',
   '- Moving time {a} h ({d} against the week before)': '- Zeit in Bewegung {a} Std. ({d} gegenüber der Woche davor)',

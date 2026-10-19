@@ -13,17 +13,28 @@
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus, Compass, MessageCircle } from '@lucide/svelte';
+  import { localDay } from '../localday.js';
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
   // «Inspiration» UC2-1 (mockup): an entry under the five places, with «neu» until it was opened once
   const INSP_SEEN = 'insp.seen';
   const insp = $derived((hash || '').startsWith('#/inspiration'));
-  let seen = $state(false);
+  // Impeccable Runde 2: the «neu» also goes after 14 days from the first time it showed, opened or not
+  const INSP_SINCE = 'insp.newSince';
+  const NEW_DAYS = 14;
+  let first = false;
   try {
-    seen = !!localStorage.getItem(INSP_SEEN);
+    first = !!localStorage.getItem(INSP_SEEN);
+    if (!first) {
+      const today = localDay();
+      const since = localStorage.getItem(INSP_SINCE);
+      if (!since) localStorage.setItem(INSP_SINCE, today);
+      else if (Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${since}T12:00:00Z`)) / 864e5) >= NEW_DAYS) first = true;
+    }
   } catch {
     /* private mode: the «neu» stays */
   }
+  let seen = $state(first);
   $effect(() => {
     if (!insp || seen) return;
     seen = true;

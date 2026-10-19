@@ -7,6 +7,11 @@
 
 /** A list on a phone shows this many rows first. */
 export const PHONE_ROWS = 5;
+/** Tempo (Noah 19.10.2026 «3a»): the trip list draws 20 rows first, «Show n more» adds 20 at a time. */
+export const TOUR_ROWS = 20;
+
+/** How many rows the next «Show n more» adds: up to the next step of TOUR_ROWS, never past the total. */
+export const nextRows = (total, shown, step = TOUR_ROWS) => Math.max(0, Math.min(total, (Math.floor(shown / step) + 1) * step) - shown);
 
 /** A phone page is at most this many screens high (the guard test measures it). */
 export const MAX_SCREENS = 3;

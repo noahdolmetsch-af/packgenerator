@@ -343,7 +343,6 @@ export default {
   "Create a trip": "Tour erstellen",
   "{n} day": "{n} Tag",
   "{n} days": "{n} Tage",
-  "No bike": "Kein Velo",
   "Not riding": "Fahre nicht",
   "Compare bikes": "Velos vergleichen",
   "Riding it after all": "Fahre doch",
