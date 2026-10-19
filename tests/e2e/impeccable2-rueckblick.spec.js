@@ -57,14 +57,18 @@ test('Unterwegs: the lamps behind one line, the newest 3 notes, «Entfernen» in
   await expect(sec.locator('.notes')).toContainText('test_data_gtp_ Notiz 1');
   await sec.getByRole('button', { name: T('Show the newest 3 only') }).click();
   await expect(rows).toHaveCount(3);
-  // «Entfernen» sits in the «…» of each note and has «Rückgängig»
+  // «Entfernen» sits in the «…» of each note, asks first and has «Rückgängig»
   await expect(sec.getByRole('button', { name: T('Remove'), exact: true })).toHaveCount(0);
   const last = rows.filter({ hasText: 'test_data_gtp_ Notiz 4' });
   await last.getByRole('button', { name: T('More for this note|ride') }).click();
   await page.getByRole('menuitem', { name: new RegExp(T('Remove')) }).click();
+  // Paket C: the app-wide delete question of «Rückmeldungen» (Paket D) comes first
+  const ask = page.getByTestId('ask-delete');
+  await expect(ask.getByRole('heading')).toHaveText(T('Delete this note?'));
+  await ask.getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(sec.locator('.notes')).not.toContainText('test_data_gtp_ Notiz 4');
   const toast = page.locator('.toast');
-  await expect(toast).toContainText(T('Note removed: {text}', { text: 'test_data_gtp_ Notiz 4' }));
+  await expect(toast).toContainText(T('"{name}" deleted.', { name: 'test_data_gtp_ Notiz 4' }));
   await toast.getByRole('button', { name: T('Undo') }).click();
   await expect(sec.locator('.notes')).toContainText('test_data_gtp_ Notiz 4');
   expect(await wide(page)).toBeLessThanOrEqual(0);

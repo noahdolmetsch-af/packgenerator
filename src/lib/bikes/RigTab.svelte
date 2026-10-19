@@ -137,7 +137,7 @@
 </script>
 
 {#if !bikes.length && $bikesQ}
-  <h1 class="title">{t('Setup|tab')}</h1>
+  <h1 class="title">{t('My setup|tab')}</h1>
   <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
@@ -152,8 +152,8 @@
 {:else if bike}
   <VeloHead
     crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
-    here={t('Setup|tab')}
-    title={t('Setup|tab')}
+    here={t('My setup|tab')}
+    title={t('My setup|tab')}
     sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
   />
   {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}

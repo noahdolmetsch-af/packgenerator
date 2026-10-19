@@ -6,6 +6,7 @@
 // German UI, Europe/Zurich, service workers blocked.
 import { test, expect } from '@playwright/test';
 import { settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 import { fixture, prepare, importBackup, view, tr, sideways } from './gesamttest/lib.js';
 
 const T = tr('de');
@@ -52,7 +53,8 @@ test('Touren 1 + 2: the trip on the way leads the band; «no ride linked» is sa
   // the pack draft sits at its row in «Geplant», as the way into Packmodus
   const pm = page.locator('section[data-planned] [data-in-pack-mode]');
   if (await pm.count()) await expect(pm.first()).toHaveAttribute('href', '#/pack?day');
-  // Touren 2: one line above the list, no card repeats it
+  // Touren 2: one line above the list, no card repeats it (on a phone «Handy kurz» folds the Packmodus first)
+  await openShort(page);
   await expect(page.locator('[data-no-ride]')).toContainText(/Bei \d+ von \d+ Touren fehlen Zeiten, Tempo und Puls/);
   await expect(page.locator('[data-trip-list]')).not.toContainText('Keine Fahrt verknüpft');
   const help = page.locator('[data-values-help]');

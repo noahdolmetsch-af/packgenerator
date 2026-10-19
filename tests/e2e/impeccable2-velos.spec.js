@@ -3,7 +3,7 @@
 // - Werkstatt 2: amounts as «CHF 80», no «80.00»;
 // - Velos 2: no empty «Hersteller und Garantie» box under the bike's name, the head line names the next trip;
 // - Ausstattung 2: on a phone the bike choice is one row that does not wrap;
-// - Setup 1: its own head with the title «Setup».
+// - Setup 1: its own head with the title «Mein Setup» (the tab's name since Taschen-Setups).
 import { test, expect } from '@playwright/test';
 import { start, view } from './gesamttest/lib.js';
 import de from '../../src/lib/i18n/de/index.js';
@@ -56,6 +56,7 @@ test('Velo pages: on a phone the bike choice is one row; Setup has its own head'
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), hash).toBe(true);
     }
   }
-  await expect(page.getByRole('heading', { level: 1, name: T('Setup|tab'), exact: true })).toBeVisible();
+  // Paket C: the head carries the tab's name «Mein Setup» (Taschen-Setups TS, changed on purpose)
+  await expect(page.getByRole('heading', { level: 1, name: T('My setup|tab'), exact: true })).toBeVisible();
   await expect(page.locator('main h1:visible')).toHaveCount(1);
 });
