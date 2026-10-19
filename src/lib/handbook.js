@@ -683,6 +683,86 @@ export const HANDBOOK = {
     steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],
     example: 'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.',
   },
+  'f.tools': {
+    on: null,
+    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet.'],
+    example: 'Example: 3.2 bar → 46.4 psi for the tyre pump abroad.',
+  },
+  'f.pdftools': {
+    on: null,
+    steps: ['Open Me › Toolbox › PDF and choose PDFs or photos.', 'Put them in order with the arrows or by dragging.', 'Tap «Merge into one PDF» or «Make smaller», then «Save or share».'],
+    example: 'Example: three receipt photos → one PDF of 3 pages for the insurance.',
+  },
+  'f.phototools': {
+    on: '«Cut out» loads a model once (about 45 MB); after that it works offline.',
+    steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
+    example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
+  },
+  'f.money': {
+    on: 'The rates need the internet once a day; offline the last ones count.',
+    steps: ['Open Me › Toolbox › Currencies.', 'Type the amount and choose its currency.', 'See it in Franken and the other main currencies.'],
+    example: 'Example: 24.50 EUR → about 23 CHF.',
+  },
+  'f.tripcosts': {
+    on: 'For «Request by TWINT», add your TWINT number once under Me › Pay › Invoices.',
+    steps: ['Open Me › Toolbox › Trip costs and choose the trip.', 'Add who was there, then each expense with who paid it; a receipt photo fills in amount and date.', 'Under «Who owes whom» tap «Request by TWINT».'],
+    example: 'Example: you paid the hotel 180 CHF for three → Anna and Ben each pay you 60 CHF.',
+  },
+  'f.ablage': {
+    on: null,
+    steps: ['Open Me › Documents or Me › Toolbox › Links and files.', 'Tap «Add link» or «Add file» (up to 5 MB).', 'Move, rename or delete an entry with its buttons.'],
+    example: 'Example: the timetable link and the train ticket as PDF, both in one place.',
+  },
+  'f.weblinks': {
+    on: null,
+    steps: ['Open Me › Tools and links.', 'Tap a link; it opens in a new tab. The eye switches a suggestion off.', '«Order» moves links and changes their group; groups can be renamed and deleted.'],
+    example: 'Example: SBB opens the timetable to the start of your next trip, on its day.',
+  },
+  'f.chains': {
+    on: null,
+    steps: ['Open Me › Toolbox › Tool chains.', 'Use a ready chain or tap «New chain» and add steps.', 'Tap «Start» and choose the files; the steps run one after the other.'],
+    example: 'Example: «Receipts as one PDF» turns 4 receipt photos into one small PDF to share.',
+  },
+  'f.convert': {
+    on: 'HEIC needs the internet once; after that it works offline.',
+    steps: ['Open Me › Toolbox › Picture format.', 'Choose JPG or PNG, then the pictures.', 'Tap «Save» on each, or «Save all».'],
+    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form.',
+  },
+  'f.video': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make video smaller.', 'Choose the size, then the video.', 'Keep the page open until it is done, then «Save or share».'],
+    example: 'Example: a 90 MB phone video → about 10 MB with «Small».',
+  },
+  'f.qr': {
+    on: null,
+    steps: ['Open Me › Toolbox › Make a QR code.', 'Type a text or link, or the WLAN name and password.', 'Show the code, or tap «Save as picture».'],
+    example: 'Example: the guest WLAN as a code for friends at home.',
+  },
+  'f.mapmeasure': {
+    on: 'The map needs the internet; the line stays on the device.',
+    steps: ['Open Me › Toolbox › Measure a route.', 'Tap along the road, point by point; the length shows on top.', 'Tap «Save as GPX» to use it in a trip or on the Garmin.'],
+    example: 'Example: the way to the lake, 12.4 km, as GPX.',
+  },
+  'f.gears': {
+    on: null,
+    steps: ['Open Me › Toolbox › Gear ratios.', 'Type the chainrings and the cassette, choose the wheel.', 'Read km/h, metres per turn or the ratio in the table.'],
+    example: 'Example: 40 × 42 at 90 rpm → about 6 km/h for a steep climb.',
+  },
+  'f.level': {
+    on: 'On a computer there is no motion sensor; use the phone.',
+    steps: ['Open Me › Toolbox › Spirit level.', 'Lay the phone flat on the surface or stand it on its edge.', 'Read the degrees and the slope in percent.'],
+    example: 'Example: saddle 2.5° nose down.',
+  },
+  'f.barcode': {
+    on: 'The camera scan needs Chrome on the phone; typing the number works everywhere.',
+    steps: ['Open Me › Toolbox › Bar code → gear.', 'Tap «Scan bar code» or type the number.', 'A known code opens its item; a new one: type a name, «Add to gear».'],
+    example: 'Example: scan the tube box → the spare tube opens in Material.',
+  },
+  'f.light': {
+    on: null,
+    steps: ['Open Me › Toolbox › Magnifier and light.', 'Tap «Magnifier and light» and allow the camera.', 'Zoom, «Hold picture», or switch the light on.'],
+    example: 'Example: read the tyre size 40-622 on a dark sidewall.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
@@ -904,11 +984,12 @@ export const HANDBOOK = {
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
 export const MINI_APPS_HANDBOOK = {
   title: 'Small apps',
-  intro: ['Three parts of the app also open as a small app with their own home-screen icon.', 'Each opens directly on its area and shares the same data with the whole app.'],
+  intro: ['Four parts of the app also open as a small app with their own home-screen icon.', 'Each opens directly on its area and shares the same data with the whole app.'],
   apps: [
     { key: 'meditation', title: 'Meditation', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/meditation/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → straight into a 10 min meditation.' },
     { key: 'packliste', title: 'Packing list', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/packliste/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → the open trip in Pack, ready to tick.' },
     { key: 'velopflege', title: 'Bike care', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/velopflege/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → see what is due on the bike and tick the oiled chain.' },
+    { key: 'werkzeug', title: 'Toolbox', steps: ['In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.', 'Tap the menu ⋮ › «Install app» or «Add to home screen».'], example: 'Example: tap the icon → the calculator, PDF and photo tools at once.' },
   ],
 };
 

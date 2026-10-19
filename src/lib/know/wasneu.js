@@ -64,6 +64,9 @@ export const SINCE = {
   'f.starters': '0.149.0', 'f.supplies': '0.149.0', 'f.table': '0.149.0', 'f.readaloud': '0.149.0', 'f.lend': '0.149.0', 'f.ownrules': '0.149.0', 'f.startfresh': '0.149.0',
   // Paket J «Berg, Schnee und Notfall» (the bundler sets the release version here)
   'f.snow': '0.149.0', 'f.swissmap': '0.149.0', 'f.sos': '0.149.0', 'f.sosqr': '0.149.0', 'f.scales': '0.149.0',
+  // Paket L «Werkzeugkasten» (the bundler sets the release version here and on the tile)
+  'f.tools': '0.151.0', 'f.pdftools': '0.151.0', 'f.phototools': '0.151.0', 'f.money': '0.151.0', 'f.tripcosts': '0.151.0', 'f.ablage': '0.151.0',
+  'f.weblinks': '0.151.0', 'f.chains': '0.151.0', 'f.convert': '0.151.0', 'f.video': '0.151.0', 'f.qr': '0.151.0', 'f.mapmeasure': '0.151.0', 'f.gears': '0.151.0', 'f.level': '0.151.0', 'f.barcode': '0.151.0', 'f.light': '0.151.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

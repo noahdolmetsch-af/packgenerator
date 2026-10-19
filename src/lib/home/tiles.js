@@ -80,6 +80,8 @@ export const TILES = [
   // Paket P #293 «Daten-Widget» (Noah 19.10.2026 «2 beides»): km, weather, sleep, HRV, resting pulse next to your normal
   { id: 'values', area: 'flow', label: 'Your values today', icon: 'chart', sizes: ['l', 'long'], size: 'long', since: '0.151.0', pitch: 'Km, weather at home, sleep, HRV and resting pulse, each next to your normal. Only to look at.' },
   { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
+  // Paket L «Werkzeugkasten» (Noah 19.10.2026 «zb auf home»): only from the tile catalog, not on the ready wall; the bundler sets «since» to the release
+  { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.151.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];

@@ -48,6 +48,7 @@
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
+  import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -336,6 +337,8 @@
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
     Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
+    Tools: () => import('./pages/Tools.svelte'), // Paket L «Werkzeugkasten»
+    WebLinks: () => import('./pages/WebLinks.svelte'), // Paket L «Werkzeuge und Links»
     Hinweise: () => import('./pages/Hinweise.svelte'), // Paket Q #148: Ich › Hinweise und News
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
@@ -528,6 +531,12 @@
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <LazyPage load={PAGES.MiniApps} />
+  {:else if page === 'tools'}
+    <!-- Paket L «Werkzeugkasten»: Ich › Werkzeugkasten and its tools (#/me/tools/<key>) -->
+    {#key toolKeyOf(hash)}<LazyPage load={PAGES.Tools} tool={toolKeyOf(hash)} />{/key}
+  {:else if page === 'weblinks'}
+    <!-- Paket L «Werkzeuge und Links» (Noah 19.10.2026 «1b»): links to other apps and pages -->
+    <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
     {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}

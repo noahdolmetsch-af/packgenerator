@@ -247,6 +247,7 @@
     preview = url;
     return () => URL.revokeObjectURL(url);
   });
+  import Ablage from '../lib/tools/Ablage.svelte';
 </script>
 
 {#snippet packCard(rows)}
@@ -396,6 +397,8 @@
         </div>
         <p class="ich-help">{t('Photograph the pages: the app makes a PDF and reads the text. Or add a PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.')}</p>
         {#if docs.list.length}<p class="ich-help" data-group-help>{t('Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.')}</p>{/if}
+        <!-- Paket L «Werkzeugkasten» (Noah «4 a und b»): links and small files, the same as Werkzeugkasten › Ablage -->
+        <div class="doc-ablage"><Ablage head="h2" /></div>
       </div>
       <div class="ich-side">
         <section class="ich-sec" aria-labelledby="rem-h">
@@ -468,6 +471,11 @@
 
 
 <style>
+  .doc-ablage {
+    display: grid;
+    gap: var(--sp-4);
+    margin-top: var(--sp-5);
+  }
   .msg {
     margin: 0 0 12px;
     font-weight: 600;

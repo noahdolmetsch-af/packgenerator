@@ -25,6 +25,7 @@ export const GROUP_PLACES = [
   // Paket N «Pläne und Träume» (19.10.2026)
   { name: 'Kinds of tour (Dreams)', file: 'src/pages/Dreams.svelte' },
   { name: 'Compass boxes', file: 'src/pages/Compass.svelte' },
+  { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
