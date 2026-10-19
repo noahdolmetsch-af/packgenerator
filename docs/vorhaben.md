@@ -6,13 +6,13 @@ Stand 10.10.2026, nachgeführt am 19.10.2026 (Abschnitte «Stand heute» und «R
 
 Diese Datei wird geprüft:
 
-- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu einem der vier Ziele unten und zur Reihenfolge? Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
+- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu einem der fünf Ziele unten und zur Reihenfolge? Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
 - **in jedem Release-PR**: Abschnitt «Stand heute» und den Stand des Vorhabens nachführen. Neue Entscheide von Noah hier und in `decisions.md` eintragen.
 - **etwa alle fünf Releases**: kurzer Kurs-Check an Noah. Pro Ziel ein Satz, was erreicht ist, was fehlt und ob die Reihenfolge noch stimmt, mit a/b-Fragen, falls etwas abweicht.
 
 Prüffragen:
 
-1. Dient es einem der vier Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour?
+1. Dient es einem der fünf Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour?
 2. Bleibt alles ein Vorschlag, nie Pflicht, immer änderbar?
 3. Bleiben private Daten auf dem Gerät und aus dem Repo?
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
@@ -36,12 +36,15 @@ Prüffragen:
 
 Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Velotouren. Sie hilft beim Packen, beim Planen und beim Lernen aus vergangenen Touren. Daten liegen nur auf dem Gerät (IndexedDB), es gibt kein Konto. Die App läuft offline und lässt sich auf Computer und Handy installieren.
 
-Die geplanten Vorhaben verfolgen vier Ziele:
+**Alle Vorhaben in einer Liste:** [vorhaben-liste.md](vorhaben-liste.md) (seit 19.10.2026, gegen den Code geprüft, nach Ziel geordnet). Sie ist die Übersicht; die Abschnitte unten erklären die grossen Vorhaben genauer.
+
+Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah «1a»):
 
 1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und ein KI-Helfer, der aus dem eigenen Material eine Liste vorschlägt. Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
 2. **Das Velo im Griff haben.** km pro Velo (später automatisch aus Strava), Wartung von Kette, Kassette, Bremsbelägen, Bremsscheiben und Reifen mit konkreten Hinweisen. Beispiel: «Kette 2 400 km seit Wechsel, mit der Lehre 0,5 messen.»
 3. **Von der Haustür bis zurück.** Eine Startseite, die sich der Phase anpasst (vor, während, nach der Tour), mit SBB, swisstopo-Karte, Wetter und dem Knopf «Take me home».
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
+5. **Alltag.** Die App hilft auch an Tagen ohne Tour: Woche und Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause. Beispiel: am Sonntag die Woche planen, am Morgen der Tages-Check, eine Erinnerung, bevor der Pass abläuft.
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 

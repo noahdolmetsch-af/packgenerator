@@ -29,12 +29,13 @@ Der Pack Generator ist Noahs persönliche Web-App (PWA). Sie läuft im Browser a
 
 Angefangen hat sie als Packliste für Bikepacking-Touren. Heute deckt sie den ganzen Ablauf einer Tour ab (planen, packen, unterwegs, Rückblick), dazu Velopflege und Training, Aktivitäten und Meditation, Rechnungen und Notizen.
 
-**Die vier Ziele** (aus [vorhaben.md](vorhaben.md)):
+**Die fünf Ziele** (aus [vorhaben.md](vorhaben.md); «Alltag» kam am 19.10.2026 dazu, alle Vorhaben stehen in der [Liste](vorhaben-liste.md)):
 
 1. **Schneller packen:** Vorschläge statt leerer Listen.
 2. **Das Velo im Griff haben:** km, Verschleiss und Pflege pro Velo.
 3. **Von der Haustür bis zurück:** eine Startseite, die zur Phase der Tour passt.
 4. **Aus jeder Tour lernen:** Rückblick und Learnings, die beim nächsten Packen wieder auftauchen.
+5. **Alltag:** Woche, Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause.
 
 **Grundsätze, die immer gelten:** Alles ist ein Vorschlag, nie Pflicht, immer änderbar. Private Daten bleiben auf dem Gerät und nie im öffentlichen Repository. Es entstehen keine Kosten (nur Gratis-Dienste). Wo eine eigene, schlanke Lösung reicht, kommt kein fremder Dienst dazu.
 

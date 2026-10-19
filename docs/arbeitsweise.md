@@ -6,7 +6,7 @@ Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung 
 
 Diese Regeln gehen den älteren Abschnitten weiter unten vor. Wo unten etwas anderes steht (Mockups vor dem Bau, Bilder vor dem Merge, ★-Empfehlung, Trello, «Noah merged selbst»), ist es Geschichte. Quelle: Noahs Antworten im Projekt vom 13. bis 18.10.2026, festgehalten im [Entscheidungslog](decisions.md).
 
-1. **Ziel:** «Eine App, die mich im Alltag unterstützt.» Jedes Paket dient einem der vier Ziele in [vorhaben.md](vorhaben.md).
+1. **Ziel:** «Eine App, die mich im Alltag unterstützt.» Jedes Paket dient einem der fünf Ziele in [vorhaben.md](vorhaben.md) (seit 19.10.2026 mit «Alltag»). Alle Vorhaben stehen in einer Liste: [vorhaben-liste.md](vorhaben-liste.md).
 2. **Ohne Mockups, dafür ein Testlink** (Noah, 18.10.2026, 21:52 UTC, «ab sofort, überall»): Claude baut ohne Mockups. Zu jedem Paket bekommt Noah einen Testlink, die Vercel-Vorschau des Paket-PRs, mit dem Satz «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Bilder sind nicht mehr nötig. Ersetzt «zuerst bauen, dann Bilder» vom 14.10.2026.
 3. **Veröffentlichen** (seit 15.10.2026, angepasst 18.10.2026): Claude führt ein Paket zusammen, sobald Noah den Testlink **dieses Pakets** bekommen und «ok» geschrieben hat, die Prüfungen auf dem letzten Commit grün sind und `main` sich nicht bewegt hat. Eine «Freigabe» ohne Paketnamen zählt nicht. Ausnahme: Updates von Abhängigkeiten (Dependabot) werden sofort zusammengeführt, sobald die Prüfungen grün sind.
 4. **Pakete:** fertige Teile werden zu Paketen gebündelt; jedes Paket ist ein Release mit eigener Version. Reihenfolge und Inhalt stehen im [Projektstand](projektstand.md).
