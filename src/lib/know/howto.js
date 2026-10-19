@@ -130,6 +130,13 @@ export const HOWTO = {
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
   'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+  'f.connections': ['Open Me › Connections.', 'Each connection shows its state and when data last came.', 'Switch on or off what the app may do with it.'],
+  'f.stravaticks': ['Open Me › Connections.', 'Under «Strava ticks Aktiv» choose «Tick by itself» or «Suggest first».', 'Change which Strava sport counts for which activity.'],
+  'f.owncal': ['Open Me › Connections and switch on the calendar «Packgenerator».', 'Tap «Allow in Google» once.', 'Your tours appear in the calendar, with a reminder two days before.'],
+  'f.notestasks': ['Open Me › Connections and switch on «Open notes as tasks».', 'Your open notes appear in Google Tasks.', 'Tick one there: it is done in the app too.'],
+  'f.fitbitold': ['Export your Fitbit data at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the file.', 'Check the preview and tap «Take over».'],
+  'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
+  'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],
   'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],

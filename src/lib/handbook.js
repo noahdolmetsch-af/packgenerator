@@ -550,6 +550,41 @@ export const HANDBOOK = {
     steps: ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
     example: 'Example: the appointment «Velo-Service» → «Mails to it» shows the workshop’s confirmation.',
   },
+  'f.connections': {
+    on: 'Nothing to switch on: Me › Connections shows what is connected.',
+    steps: ['Open Me › Connections.', 'Tap a connection to open its page.', 'The switches below say what the app may do with the data.'],
+    example: 'Example: «Strava: last fetch today 07:12» → your morning run is already ticked on Aktiv.',
+  },
+  'f.stravaticks': {
+    on: 'On by itself once Strava is connected; switch it to «Suggest first» or «Off» under Me › Connections.',
+    steps: ['Do your activity with Strava as always.', 'The next fetch ticks the matching Aktiv activity, or puts it under «From Strava» on Aktiv.', 'Under Me › Connections choose which Strava sport counts for which activity, and a bike for indoor rides.'],
+    example: 'Example: a ski tour on Saturday → «Skitour» is ticked on Saturday; delete the tick and it does not come back.',
+  },
+  'f.owncal': {
+    on: 'Switch on the calendar «Packgenerator» under Me › Connections and allow it once in Google (needs Google Calendar connected).',
+    steps: ['Switch on «Enter tours in the calendar «Packgenerator»».', 'Tap «Allow in Google» once.', 'Every tour appears as an all-day appointment; two days before at 18:00 your phone reminds you to pack.'],
+    example: 'Example: a tour from Saturday to Sunday → Thursday 18:00 the reminder «Tour: Jura».',
+  },
+  'f.notestasks': {
+    on: 'Switch on «Open notes as tasks» under Me › Connections (needs Google Tasks connected).',
+    steps: ['Write a note as always.', 'It appears in the list «Packgenerator Notizen» in Google Tasks.', 'Tick it there or here: it is done on both sides.'],
+    example: 'Example: the note «Kettenöl kaufen» → ticked in Google Tasks on the phone → done in the app.',
+  },
+  'f.fitbitold': {
+    on: 'Once: the Fitbit export from takeout.google.com.',
+    steps: ['Export only «Fitbit» at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the .zip or its files.', 'Check the preview, change which Fitbit type counts for which activity, then «Take over».'],
+    example: 'Example: 3 years of tennis from Fitbit → the tennis history and its stars are complete.',
+  },
+  'f.lake': {
+    on: 'Nothing to switch on; the card on Aktiv fetches the value.',
+    steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],
+    example: 'Example: 21.4 °C at Mythenquai, preview 22 °C on Saturday → a swim after the ride.',
+  },
+  'f.datastars': {
+    on: 'Nothing to switch on; the stars come once there is data.',
+    steps: ['Connect Strava or Fitbit, or answer the daily check.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday; switch off single ones.'],
+    example: 'Example: 1000 km by bike this year → the second bike star.',
+  },
   'f.agenda': {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],

@@ -125,3 +125,18 @@ export function reminders({ bags = [], fixed = [], packs = {}, today, now, on = 
     })
     .filter(Boolean);
 }
+
+/**
+ * Package G #222: the days a bag was packed in full (every thing in it); such a day counts as
+ * movement in «Deine Balance», also without Strava. Only bags that belong to an activity count.
+ */
+export function packedDays(bags = [], packs = {}) {
+  const out = new Set();
+  for (const b of bags) {
+    const p = packs?.[b.id];
+    if (!b.actId || !p?.day || !b.items?.length) continue;
+    const ids = new Set(p.ids ?? []);
+    if (b.items.every((x) => ids.has(x.id))) out.add(p.day);
+  }
+  return [...out].sort();
+}

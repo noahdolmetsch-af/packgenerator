@@ -13,6 +13,7 @@ import { db as appDb } from '../db.js';
 import { call } from '../health.js';
 import { readKey } from '../strava/client.svelte.js';
 import { localDay } from '../localday.js';
+import { syncOwn, savePrefs as saveOwn } from '../googleown.js';
 import { AGENDA_KEY, BACK_DAYS, AHEAD_DAYS, prefsOf, calsToFetch, addDays } from '../agenda.js';
 
 export const AGENDA_HASH = '#/me/agenda';
@@ -63,6 +64,8 @@ export async function checkAllowed({ db = appDb, c = call } = {}) {
   try {
     const st = await c('status');
     await savePrefs({ calendar: !!st.calendar, tasks: !!st.tasks }, db);
+    // package G: may the app make its own calendar «Packgenerator»?
+    await saveOwn({ owncal: !!st.owncal }, db);
     return st;
   } catch (err) {
     agenda.error = err?.code ?? 'network';
@@ -97,6 +100,8 @@ export function fetchNow({ db = appDb, c = call, today = localDay() } = {}) {
         await keepTasks(db, tasks);
       }
       await savePrefs({ ...patch, lastSync: new Date().toISOString() }, db);
+      // package G: the tours into «Packgenerator», the notes into Google Tasks (each only when switched on)
+      await syncOwn({ db, c, today });
       return true;
     } catch (err) {
       const code = err?.code ?? 'network';
@@ -116,7 +121,7 @@ export function fetchNow({ db = appDb, c = call, today = localDay() } = {}) {
 export async function autoFetch({ db = appDb, now = new Date() } = {}) {
   if (!readKey() || agenda.busy) return null;
   const p = prefsOf((await db.settings.get(AGENDA_KEY))?.value);
-  if (!p.calendar && !p.tasks) return null;
+  if (!p.calendar && !p.tasks) return null; // the own calendar and the notes need calendar or tasks too
   const tried = Date.parse((await db.meta.get(TRY_KEY))?.at ?? '');
   if (Number.isFinite(tried) && now.getTime() - tried < AUTO_EVERY_MS) return null;
   return fetchNow({ db });

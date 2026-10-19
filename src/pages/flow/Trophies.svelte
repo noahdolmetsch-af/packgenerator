@@ -6,7 +6,7 @@
    *   #/flow/trophies            all
    *   #/flow/trophies?y=2026     only the stars of that year
    *   #/flow/trophies?area=<key> one area ('cross' or an activity's id)
-   * Only the stars that exist today (flowms.js); Strava, Fitbit and the daily check come with their packages.
+   * Only the stars that exist today (flowms.js). Package G (#231–#233): the data areas bike, Fitbit and everyday.
    */
   import { Star, ChevronRight } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -16,7 +16,7 @@
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { msContext, allMilestones, newStars, showcase } from '../../lib/flowms.js';
   import { saveStars } from '../../lib/flowdb.js';
-  import { tileName, msName, stageName, val, monthWord } from '../../lib/flow/hobby/words.js';
+  import { tileName, msName, stageName, val, monthWord, areaWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
 
@@ -28,7 +28,7 @@
     seedHobby(data);
   });
 
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   $effect(() => {
@@ -41,7 +41,7 @@
   const all = $derived(showcase(list));
   const sc = $derived(showcase(list, year));
   const groups = $derived(area ? sc.groups.filter((g) => g.key === area) : sc.groups);
-  const areaName = (key) => (key === 'cross' ? t('Over all') : tileName(data?.acts.find((a) => a.id === key)) || key);
+  const areaName = (key) => (key === 'cross' ? t('Over all') : areaWord(key) || tileName(data?.acts.find((a) => a.id === key)) || key);
   const chips = $derived([
     { href: '#/flow/trophies', label: t('All'), on: !year && !area },
     ...all.years.map((y) => ({ href: `#/flow/trophies?y=${y.year}`, label: y.year, on: year === y.year && !area })),
@@ -100,7 +100,7 @@
           <Sec id="tv-soon" title={t('Next within reach')} sub={t('only the next star per milestone')}>
             <ul class="card rows">
               {#each all.soon as r (r.id)}
-                <li data-soon={r.id}><span><b>{msName(r.m)}</b><small>{areaName(r.m.actId ?? 'cross')}</small></span><span class="v num">{left(r)}</span></li>
+                <li data-soon={r.id}><span><b>{msName(r.m)}</b><small>{areaName(r.m.actId ?? r.m.area ?? 'cross')}</small></span><span class="v num">{left(r)}</span></li>
               {/each}
             </ul>
           </Sec>

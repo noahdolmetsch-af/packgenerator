@@ -46,7 +46,7 @@
   });
 
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   // the stars reached are kept for ever (flowStars)

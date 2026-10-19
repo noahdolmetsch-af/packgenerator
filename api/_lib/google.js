@@ -26,6 +26,11 @@
  *                                                   (open ones and the ones done in the last 30 days)
  *                           POST ?step=task-save    Bearer, { list, id?, title?, notes?, due?, done? } → { task }
  *                           POST ?step=task-delete  Bearer, { list, id } → { ok }
+ *                           POST ?step=own-sync     Bearer, { items: [ownBody item] } → { cal, made, changed, removed }
+ *                                                   (package G: the app's own calendar «Packgenerator», made once;
+ *                                                   its events follow the list: new, changed, gone)
+ *                           POST ?step=own-list     Bearer → { list: { id, title } } (package G: the task list
+ *                                                   «Packgenerator Notizen», made once)
  *                           GET  ?step=mail-list    Bearer, &q=… (Gmail search; default the inbox) &page=token
  *                                                   → { mails: [googlemail.js mailRow], next }
  *                           GET  ?step=mail-get     Bearer, &id=… → { mail: { …mailRow, text, files } }
@@ -55,7 +60,7 @@ import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './co
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
 import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, mailRow, bodyOf, rawMail } from './googlemail.js';
-import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow } from './googleplan.js';
+import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow, OWN_CAL_SCOPE, OWN_CAL_NAME, OWN_LIST_NAME, MAX_OWN_ITEMS, KEY_PROP, ownBody, sameEvent } from './googleplan.js';
 
 export const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -76,6 +81,8 @@ export const DRIVE_ROOTS = { pdf: 'Importierte PDF', photos: 'Importierte Fotos'
 export const DRIVE_MAX_BYTES = 4 * 1024 * 1024;
 const FOLDER = 'application/vnd.google-apps.folder';
 const FOLDERS_KEY = 'google:drive:folders';
+const OWN_CAL_KEY = 'google:cal:own';
+const OWN_LIST_KEY = 'google:tasks:own';
 
 /** The scopes to ask for: Fitbit values, Drive, or both (unknown names are ignored). */
 export function scopesFor(services) {
@@ -85,6 +92,7 @@ export function scopesFor(services) {
     ...(list.includes('drive') ? [DRIVE_SCOPE] : []),
     ...(list.includes('calendar') ? CALENDAR_SCOPES : []),
     ...(list.includes('tasks') ? [TASKS_SCOPE] : []),
+    ...(list.includes('owncal') ? [OWN_CAL_SCOPE] : []),
     ...(list.includes('mail') ? MAIL_SCOPES : []),
   ];
   return out.length ? out : SCOPES;
@@ -235,6 +243,34 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     return g && g !== DRIVE_ROOTS.pdf && g !== DRIVE_ROOTS.photos ? folder(token, store, g, top) : top;
   }
 
+  /** The id of the app's own calendar: kept in Redis, made again when it was deleted in Google. */
+  async function ownCal(token, store) {
+    const known = await store.get(OWN_CAL_KEY);
+    if (known) {
+      try {
+        await cal(token, `calendars/${enc(known)}`);
+        return known;
+      } catch (err) {
+        if (err?.code !== 'google_missing') throw err;
+      }
+    }
+    const made = await cal(token, 'calendars', sendJson('POST', { summary: OWN_CAL_NAME, timeZone: 'Europe/Zurich', description: 'Touren und Termine aus dem Packgenerator. Die App trägt sie ein; Änderungen hier überschreibt sie.' }));
+    if (!goodId(made.id)) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    await store.set(OWN_CAL_KEY, made.id);
+    return made.id;
+  }
+
+  /** The app's own task list (by its id in Redis, else by its name, else made new). */
+  async function ownList(token, store) {
+    const known = await store.get(OWN_LIST_KEY);
+    const lists = await pages((p) => tasks(token, p), 'users/@me/lists', { maxResults: '100' }, 'items');
+    const hit = lists.find((l) => l.id === known) ?? lists.find((l) => l.title === OWN_LIST_NAME);
+    const list = hit ?? (await tasks(token, 'users/@me/lists', sendJson('POST', { title: OWN_LIST_NAME })));
+    if (!goodId(list.id)) throw new ApiError(502, 'google_error', 'Google answered with an error.');
+    if (list.id !== known) await store.set(OWN_LIST_KEY, list.id);
+    return listRow(list);
+  }
+
   const callback = async (request) => {
     const url = new URL(request.url);
     const cfg = env();
@@ -245,7 +281,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
-    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, ...MAIL_SCOPES].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE, ...MAIL_SCOPES].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
     return backToApp(st.returnTo, { google: 'connected' });
   };
@@ -263,7 +299,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const raw = await store.get('google:tokens');
           const scopes = raw ? JSON.parse(raw).scope ?? '' : '';
           const has = scopes.split(' ');
-          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE), mail: MAIL_SCOPES.every((x) => has.includes(x)) });
+          return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE), owncal: has.includes(OWN_CAL_SCOPE), mail: MAIL_SCOPES.every((x) => has.includes(x)) });
         }
         if (step === 'cal-list') {
           const token = await accessToken(cfg, store);
@@ -426,6 +462,49 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const made = await cal(token, `calendars/${enc(c)}/events${gid ? `/${enc(gid)}` : ''}`, sendJson(gid ? 'PATCH' : 'POST', send));
           return json(request, 200, { ok: true, event: eventRow(made, c) });
         }
+        if (step === 'own-sync') {
+          setUp(cfg);
+          const body = await jsonBody(request, 400_000);
+          const items = Array.isArray(body.items) ? body.items.slice(0, MAX_OWN_ITEMS) : null;
+          if (!items) throw new ApiError(400, 'bad_request', 'Bad items.');
+          let wanted;
+          try {
+            wanted = new Map(items.map((it) => [String(it.key), ownBody(it)]));
+          } catch (err) {
+            throw new ApiError(400, 'bad_request', `Bad ${err.message}.`);
+          }
+          const token = await accessToken(cfg, store);
+          const c = await ownCal(token, store);
+          const old = await pages((p) => cal(token, p), `calendars/${enc(c)}/events`, { maxResults: '250', showDeleted: 'false' }, 'items');
+          const byKey = new Map();
+          const out = { made: 0, changed: 0, removed: 0 };
+          // One after the other: Google allows only a few requests at once.
+          for (const e of old) {
+            const k = e.extendedProperties?.private?.[KEY_PROP];
+            if (!k) continue; // an event Noah made himself in this calendar stays
+            if (wanted.has(k) && !byKey.has(k)) byKey.set(k, e);
+            else if (goodId(e.id)) {
+              await cal(token, `calendars/${enc(c)}/events/${enc(e.id)}`, { method: 'DELETE' });
+              out.removed++;
+            }
+          }
+          for (const [k, b] of wanted) {
+            const e = byKey.get(k);
+            if (!e) {
+              await cal(token, `calendars/${enc(c)}/events`, sendJson('POST', b));
+              out.made++;
+            } else if (!sameEvent(e, b)) {
+              await cal(token, `calendars/${enc(c)}/events/${enc(e.id)}`, sendJson('PATCH', b));
+              out.changed++;
+            }
+          }
+          return json(request, 200, { ok: true, cal: c, ...out });
+        }
+        if (step === 'own-list') {
+          setUp(cfg);
+          const token = await accessToken(cfg, store);
+          return json(request, 200, { ok: true, list: await ownList(token, store) });
+        }
         if (step === 'mail-send') {
           setUp(cfg);
           const body = await jsonBody(request, 120_000);
@@ -479,6 +558,8 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           }
           await store.del('google:tokens');
           await store.del(FOLDERS_KEY);
+          await store.del(OWN_CAL_KEY);
+          await store.del(OWN_LIST_KEY);
           return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

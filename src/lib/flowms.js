@@ -42,18 +42,94 @@ export function zurichHour(at) {
  * acts, log (the WHOLE flowLog), sessions (flowSessions), today, tripDays.
  * → { days, idx (day → index), byDay (day → entries), acts, actOf, today, ... }
  */
-export function msContext({ acts = [], log = [], sessions = [], today, tripDays = [] }) {
+export function msContext({ acts = [], log = [], sessions = [], today, tripDays = [], extra = null }) {
   const list = acts.map(normAct);
   const actOf = new Map(list.map((a) => [a.id, a]));
   const known = log.filter((e) => e?.day && e.day <= today && actOf.has(e.actId));
-  const first = known.reduce((m, e) => (e.day < m ? e.day : m), today);
+  let first = known.reduce((m, e) => (e.day < m ? e.day : m), today);
+  const ex = extra ? extraOf(extra, today) : null;
+  if (ex?.first && ex.first < first) first = ex.first;
   const days = [];
   for (let d = first; d <= today; d = addDays(d, 1)) days.push(d);
   const idx = new Map(days.map((d, i) => [d, i]));
   const byDay = new Map(days.map((d) => [d, []]));
   for (const e of known) byDay.get(e.day).push(e);
-  return { acts: list, actOf, log: known, sessions, days, idx, byDay, today, tripDays };
+  return { acts: list, actOf, log: known, sessions, days, idx, byDay, today, tripDays, extra: ex };
 }
+
+/* ---------- package G «Daten kommen von selbst» (#231–#233): the data milestones ---------- */
+/**
+ * The other sources the data milestones read (flow/msdata.js builds them from the database; every
+ * field optional, a missing one drops its milestones):
+ *   rideKm  Map day → km ridden (the counted rides of the ledger + Strava rides without a ledger entry)
+ *   steps, azm, sleepMin  Map day → Fitbit value (observation only)
+ *   checkDays  Set of days with a Tages-Check answer
+ *   packOk     days of trips whose debrief says nothing was missing (one entry per trip)
+ *   careOnTime days of a bike service done at or before its interval (one entry per service)
+ * Made safe: only valid days up to today; `first` is the earliest day of any source.
+ */
+const isDay = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+function extraOf(x, today) {
+  let first = null;
+  const see = (d) => {
+    if (!first || d < first) first = d;
+  };
+  const map = (m) => {
+    if (!m) return null;
+    const out = new Map();
+    for (const [d, v] of m instanceof Map ? m : Object.entries(m)) if (isDay(d) && d <= today && Number(v) > 0) (out.set(d, (out.get(d) ?? 0) + Number(v)), see(d));
+    return out.size ? out : null;
+  };
+  const days = (l) => {
+    if (l == null) return null;
+    const out = new Map();
+    for (const d of l) if (isDay(d) && d <= today) (out.set(d, (out.get(d) ?? 0) + 1), see(d));
+    return out;
+  };
+  const out = {
+    rideKm: map(x.rideKm),
+    steps: map(x.steps),
+    azm: map(x.azm),
+    sleepMin: map(x.sleepMin),
+    checkDays: x.checkDays ? new Set([...days(x.checkDays).keys()]) : null,
+    packOk: days(x.packOk),
+    careOnTime: days(x.careOnTime),
+  };
+  return { ...out, first };
+}
+/** The areas of the data milestones (Trophäen-Vitrine, Meilensteine): bike, Fitbit, everyday. */
+export const DATA_AREAS = ['bike', 'fitbit', 'daily'];
+/** The running sum of a day map (from a day on: 0 before it). */
+function cumMap(ctx, m, from = null) {
+  let n = 0;
+  return ctx.days.map((d) => {
+    if (from && d < from) return 0;
+    n += m.get(d) ?? 0;
+    return Math.round(n * 10) / 10;
+  });
+}
+/**
+ * The data milestones (group 'data'): only on Aktiv, Meilensteine and the Vitrine, never on Heute
+ * (Noah 19.10.2026; forHeute). Fitbit ones are observations: neutral words, suggested and optional.
+ */
+export function dataMilestones(ctx) {
+  const x = ctx.extra;
+  if (!x) return [];
+  const year = ctx.today.slice(0, 4);
+  const from = `${year}-01-01`;
+  const d = (o) => ms({ group: 'data', ...o });
+  const out = [];
+  if (x.rideKm) out.push(d({ id: `d.bikeKm.${year}`, key: 'd.bikeKm', area: 'bike', name: 'Bike km {year}', vars: { year }, what: 'km by bike this year', unit: 'km', steps: [500, 1000, 2500, 5000, 7500, 10000], series: (c) => cumMap(c, c.extra.rideKm, from) }));
+  if (x.steps) out.push(d({ id: 'd.steps10k', area: 'fitbit', name: 'Step days', what: 'days with 10 000 steps or more', sugg: true, opt: true, steps: [10, 50, 100, 250, 500, 1000], series: (c) => cumDays(c, (_, day) => (c.extra.steps.get(day) ?? 0) >= 10000) }));
+  if (x.azm) out.push(d({ id: `d.azm.${year}`, key: 'd.azm', area: 'fitbit', name: 'Active zone minutes {year}', vars: { year }, what: 'active zone minutes this year', unit: 'min', sugg: true, opt: true, steps: [1000, 2500, 5000, 7500, 10000], series: (c) => cumMap(c, c.extra.azm, from) }));
+  if (x.sleepMin) out.push(d({ id: 'd.sleep7', area: 'fitbit', name: 'Nights of 7 hours', what: 'nights with 7 h of sleep or more', sugg: true, opt: true, steps: [10, 50, 100, 200, 365], series: (c) => cumDays(c, (_, day) => (c.extra.sleepMin.get(day) ?? 0) >= 420) }));
+  if (x.checkDays) out.push(d({ id: 'd.checkStreak', area: 'daily', name: 'Check in a row', what: 'days in a row with the daily check', steps: [3, 7, 14, 30, 60, 100, 365], series: (c) => streak(c, (_, day) => c.extra.checkDays.has(day)), now: streakNow }));
+  if (x.packOk) out.push(d({ id: 'd.packOk', area: 'daily', name: 'Nothing forgotten', what: 'trips without anything missing', steps: [1, 3, 5, 10, 25, 50], series: (c) => cumMap(c, c.extra.packOk) }));
+  if (x.careOnTime) out.push(d({ id: 'd.careOnTime', area: 'bike', name: 'Care on time', what: 'bike services done on time', steps: [1, 5, 10, 25, 50, 100], series: (c) => cumMap(c, c.extra.careOnTime) }));
+  return out;
+}
+/** Heute never shows the data milestones (Noah 19.10.2026: new stars only on Aktiv and Meilensteine). */
+export const forHeute = (list) => list.filter((r) => (r.m ?? r).group !== 'data');
 const ringOf = (ctx, e) => ctx.actOf.get(e.actId)?.ring;
 const outdoor = (a) => (a?.outdoor != null ? !!a.outdoor : OUTDOOR.includes(a?.id));
 
@@ -255,7 +331,7 @@ export function evaluate(m, ctx, stored = new Map(), tune = {}) {
 
 /** All milestones (cross + per activity), evaluated. Paused activities keep their stars but drop out. */
 export function allMilestones(ctx, stored = new Map(), tune = {}) {
-  const defs = [...crossMilestones(ctx), ...ctx.acts.filter((a) => !a.paused).flatMap(actMilestones)];
+  const defs = [...crossMilestones(ctx), ...dataMilestones(ctx), ...ctx.acts.filter((a) => !a.paused).flatMap(actMilestones)];
   return defs.map((m) => ({ ...evaluate(m, ctx, stored, tune), off: isOff(m, tune) }));
 }
 
@@ -295,7 +371,7 @@ export function nextPerAct(list) {
 
 /* ---------- the trophy showcase (TV1, Noah 13.10.2026 «tv1-tv2 freigeben») ---------- */
 /**
- * All stars reached, by area and year. Area = 'cross' (over all) or the activity's id. year: 'YYYY' to
+ * All stars reached, by area and year. Area = 'cross' (over all), a data area (DATA_AREAS) or the activity's id. year: 'YYYY' to
  * keep only the stars of that year, or null. → { groups: [{ key, items: [{ id, r, star, day }] (per
  * milestone its highest star, newest first), count (stars), next (the closest open milestone) }],
  * years: [{ year, count, top (the area with most stars) }] newest first, soon: the 3 closest open ones,
@@ -305,7 +381,7 @@ export function nextPerAct(list) {
 export function showcase(list, year = null) {
   const shown = list.filter((r) => !r.off);
   const inYear = (s) => !year || s.day.startsWith(year);
-  const keyOf = (r) => r.m.actId ?? 'cross';
+  const keyOf = (r) => r.m.actId ?? r.m.area ?? 'cross';
   const by = new Map();
   for (const r of shown) {
     const k = keyOf(r);
