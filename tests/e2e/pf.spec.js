@@ -988,7 +988,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await endToDebrief(page, T);
   await rec.check('debrief: the ride note is shown for this trip', () => expect(page.locator('.ridenotes')).toContainText(`${P} PF16 note`, { timeout: 3000 }));
   await page.getByRole('button', { name: T('Done|debrief') }).click();
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  await expect(page.locator('[data-saved]')).toBeVisible();
   await rec.check('debrief: saved for this trip', async () => expect((await table(page, 'debriefs')).map((d) => d.tripId)).toContain(tripId));
   await rec.shot('debrief');
   // Backup round trip. v0.94.0: Today first (it stores its milestone levels when it is seen), then the
@@ -1108,7 +1108,7 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   // v0.67.0: «Tour abschliessen» (it asks while the ride is still ahead), «Tour beendet», the debrief
   await endToDebrief(page, T);
   await rec.click(page.getByRole('button', { name: T('Done|debrief') }));
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  await expect(page.locator('[data-saved]')).toBeVisible();
   rec.stop();
   const done = (await table(page, 'trips')).find((x) => x.id === trip0.id);
   rec.r.counts.lostTicks = done.entries.filter((e) => !e.packed).length;

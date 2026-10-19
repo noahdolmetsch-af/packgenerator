@@ -86,7 +86,7 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   await expect(page.locator('[data-feature]')).toHaveCount(total);
   await expect(page.locator('[data-feature].used')).toHaveCount(n);
   // the home place is set in the fixture: its tip counts as used
-  await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('Used|tips'));
+  await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('used|features')); // Impeccable Runde 2: the state in words, «✓ benutzt»
   await noSideScroll(page);
   // «Take me there» starts the thing: the weigh tab of Gear, marked as used
   const weigh = page.locator('[data-feature="weigh"]');

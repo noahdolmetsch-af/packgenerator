@@ -306,12 +306,13 @@ export function templateBlocks(ids, stdIds, sets, items) {
 }
 
 /**
- * v0.32.0 (finding 5, stage 1): a template in the two words of the app, "Standard + Rain + 2 extra"
- * («Standard + Regen + 2 Extra»), from templateBlocks. label(set): the name shown for a block.
+ * v0.32.0 (finding 5, stage 1): a template in the two words of the app, "Standard + Rain + 2 single items"
+ * («Standard + Regen + 2 einzelne Teile», Impeccable Vorlagen 1), from templateBlocks. label(set): the name shown for a block.
  */
 export function blocksLine({ standard, blocks, single }, label = (s) => s.name) {
   const names = [...(standard ? [t('Standard|block')] : []), ...blocks.map(label)];
-  const rest = single ? tn(single, '{n} extra', '{n} extra|plural') : '';
+  // Impeccable 18.10.2026 (Vorlagen 1): «einzeln» instead of «Extra»: «Standard + Regen + 2 einzelne Teile»
+  const rest = single ? tn(single, '{n} single item', '{n} single items') : '';
   return names.length ? [names.join(' + '), rest].filter(Boolean).join(' + ') : rest || tn(0, '{n} item', '{n} items');
 }
 

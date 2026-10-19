@@ -119,7 +119,8 @@ test('SN3 Bausteine: grouped sections of rows, «Prüfen» and «Neuer Baustein�
   // v0.154.0 «Bausteine mehr»: the groups of the Gesamtliste
   for (const name of [T('Overnight|group'), T('On every ride'), T('Depending on the situation'), T('Bathing|group'), T('To add')]) await expect(page.getByRole('region', { name })).toBeVisible();
   expect(await page.locator('details.edit > summary.srow').count()).toBeGreaterThanOrEqual(5);
-  await expect(page.getByRole('link', { name: new RegExp(`^${T('Check|blocks')}`) })).toHaveAttribute('href', '#/blocks/check');
+  // Impeccable runde 2 (Bausteine 2): the button reads «Bausteine prüfen»
+  await expect(page.getByRole('link', { name: new RegExp(`^${T('Check building blocks')}`) }).first()).toHaveAttribute('href', '#/blocks/check');
   expect(await wide(page)).toBeLessThanOrEqual(0);
   await shot(page, info, 'bausteine');
   await page.getByRole('button', { name: T('New building block') }).click();

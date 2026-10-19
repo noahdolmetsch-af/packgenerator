@@ -294,8 +294,9 @@
   {#if ready && !data}
     {#if !$undoQ}
       <div class="empty card">
-        <p>{t('No import is waiting. Choose a gear list (a JSON file of the kind "gear-import"); nothing goes into your gear before you check it here.')}</p>
-        <label class="btn">{t('Choose file')}<input type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
+        <!-- Impeccable runde 2 (Import 1): in plain words, where the file comes from; the one action is the main button -->
+        <p>{t('Here a gear list comes into the app, for example one Claude built from your Excel list (a file ending in .json). You first see every item and decide what is taken over. Nothing goes into your gear before you confirm it.')}</p>
+        <label class="btn hi pickl">{t('Choose a gear list')}<input type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
       </div>
     {/if}
     <!-- SN5+ (I4, Noah 5b): the last three imports, each with «Rückgängig» -->

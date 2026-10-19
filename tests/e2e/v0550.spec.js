@@ -117,10 +117,12 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   await expect(main.getByRole('heading', { name: T('On every ride') })).toBeVisible();
   for (const name of ['Biwak', 'Zelt', 'Hotel/Hütte', 'Reparatur', 'Laden', 'Licht']) await expect(main).toContainText(name);
   await expect(main).not.toContainText('Nacht: Warm');
-  // SN3: the head button reads «Prüfen» (its explain bubble: «Bausteine prüfen» · «zu prüfen»).
-  const check = main.getByRole('link', { name: new RegExp(`^${T('Check|blocks')}`) });
-  await expect(check).toHaveAttribute('data-explain', T('Check building blocks'));
-  await expect(check).toHaveAttribute('data-explain-sub', T('to check|blocks'));
+  // Impeccable runde 2 (Bausteine 2, changed on purpose): the head button reads «Bausteine prüfen»; how many blocks wait
+  // is a link chip under the title («n Bausteine zu prüfen ›»)
+  const check = main.getByRole('link', { name: new RegExp(`^${T('Check building blocks')}`) });
+  await expect(check).toHaveAttribute('href', '#/blocks/check');
+  await expect(main.locator('.bsub a.chk')).toHaveText(/^\d+ Bausteine? zu prüfen ›$/);
+  await expect(main.locator('.bsub a.chk')).toHaveAttribute('href', '#/blocks/check');
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'blocks');
 

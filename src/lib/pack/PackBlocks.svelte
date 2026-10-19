@@ -65,10 +65,10 @@
   }
 </script>
 
-{#snippet hints()}
+{#snippet hints(slim = true)}
   {#if fits.length}<p class="fits"><Info size={16} aria-hidden="true" /><span>{t('Fits this trip: {names}. Never a must: without a tap they stay out.', { names: fits.map((r) => r.name).join(', ') })} <a class="tp-link" href="#/blocks">{t('Change rules')}</a></span></p>{/if}
   {#if rainHit}<p class="fits rainl" data-rain-limit><CloudRain size={16} aria-hidden="true" /><span>{t('{pct} % rain: {block} is suggested, your rain gear comes onto the list by itself.', { pct: rainHit.suggest.pct, block: rainHit.name })}<small>{t('Rain from {limit} %', { limit: rainLimit() })} · <a class="tp-link" href="#/blocks">{t('Change rule')}</a></small></span></p>{/if}
-  {#if slimN}<p class="slim"><button type="button" class="tp-link" onclick={onslim}><Wrench size={16} aria-hidden="true" />{t('Repair has {n} parts: choose {max} for the ride', { n: slimN, max: SLIM_MAX })}</button></p>{/if}
+  {#if slim && slimN}<p class="slim"><button type="button" class="tp-link" onclick={onslim}><Wrench size={16} aria-hidden="true" />{t('Repair has {n} parts: choose {max} for the ride', { n: slimN, max: SLIM_MAX })}</button></p>{/if}
   {#if note}<p class="pnote" role="status"><span>{note}</span>{#if onundo}<button type="button" class="tp-link" onclick={onundo}>{t('Undo')}</button>{/if}</p>{/if}
 {/snippet}
 
@@ -81,7 +81,8 @@
       <Btn label={t('Change building blocks')} aria-expanded="false" explain={t('Shows every building block: one tap adds or removes it.')} onclick={unfold} />
     </div>
   </div>
-  {@render hints()}
+  <!-- the Reparatur suggestion waits behind «Bausteine ändern», so the first bag stays on the first phone screen -->
+  {@render hints(false)}
 </section>
 {:else}
 <section class="card pblocks" aria-labelledby="pbl-h">

@@ -2,11 +2,11 @@
   /**
    * v0.51.0 «Im Flow»: the flow windows over every page (App.svelte): the tick sheet of a long press,
    * the countdown and its small floating version (bottom right, it keeps running on every page) and
-   * the «Rückgängig» toast (v0.127.0: the daily check is a page now, #/check/morning). The «Stoppuhr» button floats on Today and on Im Flow.
+   * the «Rückgängig» toast (v0.127.0: the daily check is a page now, #/check/morning). Only a running clock floats (Impeccable 18.10.2026: no floating start button).
    * Hobby pages 2: a meditation session runs in its own full view (B7, SessionView); the mini clock
    * opens that view again.
    */
-  import { Timer, Pause, Play, Check, Bell, X, ChevronRight } from '@lucide/svelte';
+  import { Pause, Play, Check, Bell, X, ChevronRight } from '@lucide/svelte';
   import TickSheet from './TickSheet.svelte';
   import TimerSheet from './TimerSheet.svelte';
   import SessionView from './hobby/SessionView.svelte';
@@ -16,7 +16,6 @@
   import { remainingSec, isDone, clock } from '../flowtimer.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
-  import { phone } from '../media.svelte.js';
 
   let { page = 'home' } = $props();
   let today = $state(localDay());
@@ -31,8 +30,8 @@
   const tm = $derived(clockState.tm);
   const tmAct = $derived(tm ? data?.acts.find((a) => a.id === tm.actId) : null);
   const done = $derived(tm && isDone(tm, clockState.now));
-  // the «Stoppuhr» button floats on Im Flow on a phone (a computer has it in the page head)
-  const launcher = $derived(!tm && page === 'flow' && phone.matches && states.length > 0);
+  // Impeccable (18.10.2026, layout): no floating «Stoppuhr» start button any more, it covered a tile on a
+  // phone; Aktiv › Heute has «Stoppuhr ›» in the head of «Heute abhaken». Only a running clock floats.
   // a meditation session opens its full view (B7), every other countdown the sheet
   const openClock = () => (tm?.session ? (ui.sessionOpen = true) : openTimer());
 </script>
@@ -55,9 +54,6 @@
       <button type="button" class="pp" onclick={togglePause} aria-label={tm.pausedAt ? t('Continue') : t('Pause')}>{#if tm.pausedAt}<Play size={18} aria-hidden="true" />{:else}<Pause size={18} aria-hidden="true" />{/if}</button>
     {/if}
   </div>
-{:else if launcher && !ui.timerOpen && !ui.toast}
-  <!-- 0.136.0: while a message shows (e.g. «Fertig · 1 Min gespeichert») the button steps aside, so it never covers it -->
-  <button type="button" class="fmini launch" onclick={() => openTimer()}><Timer size={18} aria-hidden="true" />{t('Stopwatch')}</button>
 {/if}
 
 {#if ui.toast}
@@ -99,17 +95,6 @@
     transform: translateY(-64px);
   }
   .fmini :focus-visible {
-    outline-color: var(--focus-on-dark);
-  }
-  .launch {
-    gap: 8px;
-    min-height: 48px;
-    padding: 0 18px;
-    font: inherit;
-    font-weight: 500;
-    cursor: pointer;
-  }
-  .launch:focus-visible {
     outline-color: var(--focus-on-dark);
   }
   .open {

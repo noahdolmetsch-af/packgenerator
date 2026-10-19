@@ -65,9 +65,15 @@ test('Setup: photos, weight, bag plan, log, compare, races and own links on one 
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
   await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
-  for (const h of ['Taschen-Setups', 'Fotos', 'Gesamtgewicht', 'Taschen-Plan', 'Setup-Logbuch', 'Dein Velo im Vergleich', 'Deine Rennen', 'Ideen von anderen']) await expect(page.getByRole('heading', { level: 2, name: h })).toBeVisible();
+  // Impeccable Runde 2 (Setup 1+3): its own head «Mein Setup» (Taschen-Setups TS: the tab's name); «Fotos vom Setup»;
+  // compare, races and ideas in a fold «Ideen und Rennen · n Links», open because links are there.
+  await expect(page.getByRole('heading', { level: 1, name: 'Mein Setup', exact: true })).toBeVisible();
+  await expect(page.locator('main h1:visible')).toHaveCount(1);
+  await expect(page.locator('.ifold details.fold')).toHaveAttribute('open', '');
+  await expect(page.locator('.ifold summary')).toContainText('Ideen und Rennen');
+  for (const h of ['Taschen-Setups', 'Fotos vom Setup', 'Gesamtgewicht', 'Taschen-Plan', 'Setup-Logbuch', 'Dein Velo im Vergleich', 'Deine Rennen', 'Ideen von anderen']) await expect(page.getByRole('heading', { level: 2, name: h })).toBeVisible();
   // Total of «Standard»: bike 9.4 + bags 1.02 + contents 2.32 (the lamp sits in the fork, a place
-  // without a bag) = 12.7 kg; the saved rig had 6 kg luggage.
+  // without a bag) = 12.7 kg; the saved rig had 6 kg luggage. The weights name the last used setup (TS 3b).
   await expect(page.getByText('Setup «Standard»')).toBeVisible();
   await expect(page.locator('.tot b').first()).toHaveText('12.7 kg');
   await expect(page.getByLabel('Deine gespeicherten Rigs')).toContainText('du leichter');

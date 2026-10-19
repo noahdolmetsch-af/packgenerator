@@ -4,6 +4,7 @@
 // chips in «Sort and filter», «Up next» beside the weighing card. 44 px buttons, no sideways scroll.
 // Fictional data only (material0472-fixture.js); screenshots go to the test's output folder.
 import { test, expect } from '@playwright/test';
+import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
 
@@ -22,7 +23,8 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
   // list first (Noah «5a»): the groups, no cards; the choice stays «List · Cards»
   await expect(page.locator('section.cat').first()).toBeVisible();
   await expect(page.locator('.cards')).toHaveCount(0);
-  await expect(page.getByRole('group', { name: 'Zeigen als' }).getByRole('button', { name: 'Liste' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(await lookButton(page, 'Zeigen als', 'Liste')).toHaveAttribute('aria-pressed', 'true');
+  await closeLook(page);
   // one white card around all groups, with the soft corner of the colour world
   const card = await page.locator('.cats').evaluate((el) => {
     const s = getComputedStyle(el);
@@ -44,17 +46,21 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
   const vc = await page.locator('.vcard').boundingBox();
   if (desktop(info)) {
     expect(vc.x, 'the views on the right of the list').toBeGreaterThan(list.x + list.width);
-    // the chosen item on the right, with «Open and edit» and «Assign …»
-    const panel = page.getByRole('complementary', { name: 'Bike computer' });
-    await expect(panel.getByRole('button', { name: 'Öffnen' })).toBeVisible();
-    await expect(panel.getByRole('button', { name: 'Zuordnen …' })).toBeVisible();
+    // Impeccable runde 2 (Material 2, changed on purpose): nothing chosen at the start, a calm card says what a tap shows
+    await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toContainText('sein Jahr auf Tour und leichtere Alternativen');
+    await expect(page.getByRole('complementary', { name: 'Bike computer' })).toHaveCount(0);
     // a row of the list opens the item as before and becomes the chosen one (SL2, changed on purpose: the
     // categories start closed on a computer too, «Expand all» opens them)
     await page.getByRole('button', { name: 'Alle aufklappen' }).click();
     await page.locator('li.gr[data-item="RA01"] button.main').click();
     await expect(page.locator('dialog[open]').getByRole('heading', { name: 'Rain jacket' })).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(page.getByRole('complementary', { name: 'Rain jacket' })).toBeVisible();
+    const panel = page.getByRole('complementary', { name: 'Rain jacket' });
+    await expect(panel).toBeVisible();
+    await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toHaveCount(0);
+    // the chosen item on the right, with «Open and edit» and «Assign …»
+    await expect(panel.getByRole('button', { name: 'Öffnen' })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Zuordnen …' })).toBeVisible();
     await expect(page.locator('li.gr[data-item="RA01"]')).toHaveClass(/chosen/);
   } else {
     expect(vc.y, 'the views under the list on a phone').toBeGreaterThan(list.y + list.height);

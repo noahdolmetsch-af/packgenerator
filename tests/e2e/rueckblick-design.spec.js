@@ -247,7 +247,8 @@ test('Vergangene Touren (T21): «In diesem Zeitraum» as tiles, the table in a w
 test('Fahrten (T22): the dashed card to choose a file, the saved rides, «Gut zu wissen» and «Mehr»', async ({ page, context }, info) => {
   await start(page, context);
   await page.goto('./#/debrief/ride');
-  await expect(page.getByRole('heading', { level: 1, name: T('Upload ride') })).toBeVisible();
+  // Impeccable Runde 2 (Fahrten 1): the page is «Fahrten», uploading is the button in the dashed card
+  await expect(page.getByRole('heading', { level: 1, name: T('Rides|page') })).toBeVisible();
   await expect(page.locator('.drop .pickbtn input[type=file]')).toHaveCount(1);
   const saved = page.getByRole('list', { name: T('Saved rides') });
   await expect(saved.locator('a.rv-row').first()).toBeVisible();

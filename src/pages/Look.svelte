@@ -6,6 +6,9 @@
    * shown, «All 8 fonts» opens the rest), the colour world (Salbei new, the earlier ones stay), the text
    * size and light or dark. Everything only on this device and a suggestion: any choice can be changed
    * back. On a computer a small preview of the Material page shows the choice at once.
+   * Impeccable Runde 2: «Open the app at» has a visible name and line («What you see first after opening»);
+   * «Handling» says what it holds (start, keyboard shortcuts, night quiet, vibration); «Links to other sites»
+   * shows only while a link is switched off (LinksOff).
    */
   import { t } from '../lib/i18n.svelte.js';
   import { theme, FONTS, PALETTES, SIZES, MODES, setFont, setPalette, setSize, setMode } from '../lib/theme.svelte.js';
@@ -75,9 +78,10 @@
       <!-- Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockup): small helps, each one can be switched off -->
       <section aria-labelledby="look-ops" data-ops>
         <h2 id="look-ops">{t('Handling')}</h2>
-        <p class="note">{t('Small helps, each one can be switched off')}</p>
-        <div class="segs">
-          <Seg label={t('Open the app at')} value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
+        <p class="note">{t('Start, keyboard shortcuts, night quiet, vibration')}</p>
+        <div class="startrow">
+          <p class="oplbl"><b id="look-start">{t('Open the app at')}</b><small>{t('What you see first after opening')}</small></p>
+          <Seg labelledby="look-start" value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
         </div>
         <ul class="ops">
           {#each OPS as o (o.key)}
@@ -223,6 +227,22 @@
   .segs {
     display: grid;
     gap: var(--sp-3);
+  }
+  .startrow {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .oplbl {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+  }
+  .oplbl b {
+    font-weight: 600;
+  }
+  .oplbl small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .ops {
     display: grid;

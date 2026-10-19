@@ -174,7 +174,10 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
 
   // the goal: all optional
   const goal = page.locator('[data-section="goal"]');
-  await expect(goal).toContainText('Ein Ziel für dein Training?');
+  // Impeccable runde 2: an hour goal, said apart from «Ziele»; «Woche planen» explains the + above the days
+  await expect(goal).toContainText('Ein Stundenziel für dein Training?');
+  await expect(goal).toContainText('Anders als unter «Ziele» zählt hier die Zeit');
+  await expect(page.locator('#plan-h').locator('..')).toContainText('Tippe + bei einem Tag, um eine Einheit zu planen.');
   await goal.getByRole('button', { name: 'Ziel setzen' }).click();
   await goal.locator('[data-goal-name]').fill(`${P}Jura im Juni`);
   await goal.locator('[data-goal-hours]').fill('8');
@@ -193,7 +196,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Intervalle` });
   await expect(chip).toContainText('1:15');
   await expect(chip).toContainText('Z4');
-  await expect(page.locator('#plan-h').locator('..').locator('..')).toContainText('geplant 1:15 von 8:00 Std.');
+  await expect(plan.locator('[data-week-range]')).toContainText('geplant 1:15 von 8:00 Std.');
   await shot(page, info, 'TR4');
 
   // the look back: six weeks, this week with the goal

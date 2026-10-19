@@ -2,11 +2,21 @@
  * SN2/SN4 «Seiten neu» (mockups approved 13.10.2026): the state of every row of the look-back pages
  * (Rückblick, Logbuch, Vergangene Touren), the same rule as everywhere (tripstate.js). A row of
  * tripFacts (rueckblick.js) is a trip that happened, so it is Completed or Rated; an uploaded ride on
- * its own is Completed, with «GPX» or «Strava» as its small extra (rating it comes with TZ-3).
+ * its own is Completed, with «GPX» or «Strava» as its small extra; Rated after «Kurz: Alles gut» (rideOpen).
  * Pure, tested in tests/review-state.test.js.
  */
 import { tripStateInfo, stateExtra } from '../tripstate.js';
 import { localDay } from '../localday.js';
+
+/**
+ * Impeccable Runde 2 (Fahrten 2, Noah 18.10.2026): an uploaded ride without a trip waits for its short
+ * debrief until «Kurz: Alles gut» (ride.okAt) or one of its learnings is answered (ride.answers).
+ * trip: the ride's trip when it has one (then the trip's own debrief counts, not this).
+ */
+export function rideOpen(ride, trip = null) {
+  if (!ride || trip) return false;
+  return !ride.okAt && !Object.keys(ride.answers ?? {}).length;
+}
 
 /**
  * { [row id]: { state: 'done' | 'rated', extra: stateExtra data or null, open } } for tripFacts rows.
@@ -19,7 +29,7 @@ export function factStates(facts = [], { debriefs = [], rides = [], today = loca
     const open = f.debrief === 'open' || f.debrief === 'draft';
     if (f.kind !== 'trip' || !f.trip) {
       const r = f.rides?.[0];
-      out[f.id] = { state: 'done', extra: { key: r?.source === 'strava' ? 'strava' : 'gpx' }, open: false };
+      out[f.id] = { state: r && !rideOpen(r) ? 'rated' : 'done', extra: { key: r?.source === 'strava' ? 'strava' : 'gpx' }, open: false };
       continue;
     }
     const debrief = dBy[f.trip.id] ?? null;

@@ -15,18 +15,20 @@
    * (since the start), the search, K6 «New since your last visit» (since the previous opening of the app;
    * it replaces «New for you», whose debrief and playground tips moved to K3) and the six cards, each with
    * its own small bar. K4: the «…» of a row holds «How it works», three short steps, open as text.
+   * Impeccable Runde 2: «Your top 5» and «New since your last visit» show only when they have something, so the
+   * search sits right under «Fits right now». Each row shows its own icon and a small sign in words, «new for
+   * you» (never used) or «✓ used», instead of the dashed circle; the path says «Ich › What the app can do».
    */
   import { liveQuery } from 'dexie';
   import { catalogue, findFeatures, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
-  import { sinceOf } from '../lib/know/wasneu.js';
-  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
+  import { shortVersion } from '../lib/whatsnew.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
-  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, CircleDashed, Sparkles, Star, Play, ListChecks, Mountain, Wrench, Info } from '@lucide/svelte';
+  import { ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, Sparkles, Star, Play, ListChecks, Mountain, Wrench, Info } from '@lucide/svelte';
   import { TIP } from '../lib/tips.js';
   import { TIP_ICON } from '../lib/know/icons.js';
   import { howtoOf } from '../lib/know/howto.js';
@@ -45,9 +47,6 @@
   const GROUP_ICON = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save };
   /** Rows shown per group before «All n ›» (SN6: 3, as in the mockup). */
   const SHOWN = 3;
-  /** SN6: a function that came with one of the last 3 versions and was never used shows a spark. */
-  const RECENT = new Set(WHATS_NEW.slice(0, 3).map((e) => e.version));
-  const isNew = (x) => !x.used && RECENT.has(sinceOf(x.id));
 
   // v0.110.0: the reading moved to know/featureData.js (shared with Ich › Was ist neu), unchanged
   const dataQ = liveQuery(featureData);
@@ -122,11 +121,13 @@
 </script>
 
 {#snippet body(x)}
-  <span class="fic" class:used={x.used} class:fresh={isNew(x)} aria-hidden="true">{#if x.used}<Check size={16} strokeWidth={2.5} />{:else if isNew(x)}<Sparkles size={16} />{:else}<CircleDashed size={18} />{/if}</span>
+  {@const Icon = iconOf(x)}
+  <span class="fic" aria-hidden="true"><Icon size={18} /></span>
   <span class="fm">
     <span class="ft">{t(x.title)}</span>
     <span class="fs">{t(x.text)}</span>
-    <span class="sr">{x.used ? t('Used|tips') : t('Never used|features')}</span>
+    <!-- Impeccable Runde 2: the state in words, not a sign to guess -->
+    {#if x.used}<span class="pill ok fstate">{t('used|features')}</span>{:else}<span class="pill act fstate">{t('new for you')}</span>{/if}
   </span>
 {/snippet}
 
@@ -143,7 +144,7 @@
 
 <div class="feat" data-blocks="sn6plus">
   <!-- Design-Refresh P9 (I7): the path back to Ich. SN6: «Ich › Funktionen», one line with «tap to go there». -->
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Functions')} title={t('What the app can do')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('What the app can do|crumb')} title={t('What the app can do')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
   <!-- SN6+ K1: how many functions you use, with a small bar -->
   {#if all}
     <div class="fprog" data-block="progress">
@@ -175,12 +176,11 @@
     </section>
   {/if}
   <!-- SN6+ K2 «Your top 5» since the start (answer 2b) -->
-  {#if d}
+  {#if d && top.length}
     <section class="fblock" data-block="top" aria-labelledby="ftop-h">
       <h2 id="ftop-h">{t('Your top 5')}</h2>
       <p class="fsub">{t('what you use most since the start · tap to go there')}</p>
-      {#if top.length}
-        <ol class="ftop5">
+      <ol class="ftop5">
           {#each top as x, i (x.id)}
             {@const Icon = iconOf(x)}
             <li data-top={x.id}>
@@ -191,10 +191,7 @@
               </button>
             </li>
           {/each}
-        </ol>
-      {:else}
-        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('After a few days your most used functions stand here.')}</span></p>
-      {/if}
+      </ol>
     </section>
   {/if}
   <div class="ftop" data-block="search">
@@ -206,10 +203,9 @@
     <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
   <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
-  {#if d && !hits}
+  {#if d && !hits && fresh.rows.length}
     <section class="fblock" data-block="news" aria-labelledby="fsince-h">
       <h2 id="fsince-h">{t('New since your last visit')}</h2>
-      {#if fresh.rows.length}
         <p class="fsub">{t('since {date}', { date: sinceDay(fresh.from) })} · {tn(fresh.rows.length, '{n} new function', '{n} new functions')}</p>
         <ul class="fcard fresh">
           {#each fresh.rows as x (x.id)}
@@ -222,9 +218,6 @@
             </li>
           {/each}
         </ul>
-      {:else}
-        <p class="fquiet" role="status"><Info size={16} aria-hidden="true" /><span>{t('Nothing new has come since your last visit.')}</span></p>
-      {/if}
     </section>
   {/if}
   {#if all && !groups.length}
@@ -250,7 +243,7 @@
       </section>
     {/each}
   </div>
-  <p class="legend"><CircleDashed size={16} aria-hidden="true" /><span>{t('Circle = never used, tick = used (moves down). Under «…»: try it in the playground.')}</span></p>
+  <p class="legend"><Info size={16} aria-hidden="true" /><span>{t('Used ones move down. Under «…»: how it works, and try it in the playground.')}</span></p>
   <!-- the news of the last versions, folded at the end (Ich › Was ist neu has them all) -->
   <div class="fnews"><WhatsNew /></div>
 </div>
@@ -488,14 +481,12 @@
     background: var(--paper-2);
     color: var(--ink-2);
   }
-  .tic.new,
-  .fic.fresh {
+  .tic.new {
     background: var(--warn-soft);
     color: var(--warn);
   }
   .tic.rate,
-  .tic.chain,
-  .fic.used {
+  .tic.chain {
     background: var(--ok-soft);
     color: var(--ok);
   }
@@ -617,6 +608,9 @@
   .used .ft,
   .used .fs {
     color: var(--ink-3);
+  }
+  .fstate {
+    margin-top: 2px;
   }
   .fall {
     display: inline-flex;

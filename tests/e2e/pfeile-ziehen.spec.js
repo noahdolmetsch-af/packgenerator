@@ -71,6 +71,13 @@ test('Aktiv › Ziele: arrows next to the handle', async ({ page, context }) => 
   await expect(rows.first()).toBeVisible();
   const before = await ids(rows);
   expect(before.length).toBeGreaterThan(1);
+  // Impeccable runde 2: on a phone grip and arrows come after «Reihenfolge ändern» (a computer shows them always)
+  const order = page.locator('main').getByRole('button', { name: T('Change the order') });
+  if (page.viewportSize().width < 720) {
+    await expect(rows.first().locator('[data-grip]')).toHaveCount(0);
+    await order.click();
+    await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
+  } else await expect(order).toHaveCount(0);
   await expect(page.locator('main')).toContainText(T('Tap to edit; drag the grip or use the arrows to move.'));
   const first = rows.first();
   await expect(first.getByRole('button', { name: new RegExp(`${T('Move {name} up', { name: '' }).trim()}$`) })).toBeDisabled();

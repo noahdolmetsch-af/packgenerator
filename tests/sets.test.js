@@ -176,13 +176,15 @@ describe('New trip: blocks and templates in words', () => {
 
 // v0.32.0 (finding 5, stage 1): a template in the two words of the app.
 describe('blocksLine', () => {
-  it('"Standard + Rain + 2 extra", German «Standard + Regen + 2 Extra»', () => {
+  // Impeccable 18.10.2026 (Vorlagen 1): «einzeln» instead of «Extra»
+  it('"Standard + Rain + 2 single items", German «Standard + Regen + 2 einzelne Teile»', () => {
     const rain = { key: 'u-regen', name: 'Regen', builtIn: false };
-    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 extra');
-    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 extra');
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 single items');
+    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 single item');
     expect(blocksLine({ standard: false, blocks: [], single: 0 })).toBe('0 items');
     lang.v = 'de';
-    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 Extra');
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 einzelne Teile');
+    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 einzelnes Teil');
     expect(blockLabel({ builtIn: true, name: 'Nacht: Kochen' })).toBe('Kochen');
     expect(blockLabel({ builtIn: false, name: 'Nacht: eigen' })).toBe('Nacht: eigen');
   });

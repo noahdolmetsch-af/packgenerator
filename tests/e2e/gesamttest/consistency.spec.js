@@ -171,13 +171,22 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const openPast = await page.locator('main table.tt').getByRole('link', { name: rateName }).count();
   await page.goto('./#/debrief');
   await page.reload();
-  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: rateName }).count();
+  // Impeccable Rückblick 2: on the Rückblick the button says «Rückblick schreiben» or «Rückblick weiterschreiben»
+  const writeName = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): `);
+  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: writeName }).count();
   await expect.poll(openOf, { message: `Past trips (${openPast} open) vs Rückblick` }).toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page
   await page.goto('./#/inbox');
   await page.reload();
+  // Impeccable Runde 2 (changed on purpose): «Earlier · n notes» starts folded; open it to count every note
+  const earlier = page.locator('main details.older');
+  await expect(page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).first()).toBeVisible();
+  if (await earlier.count()) {
+    await earlier.locator('summary').click();
+    await expect(earlier).toHaveAttribute('open', '');
+  }
   const inboxRows = await page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).count();
   expect(inboxRows, 'Inbox shows every open note').toBeGreaterThanOrEqual(open);
   expect(errors).toEqual([]);

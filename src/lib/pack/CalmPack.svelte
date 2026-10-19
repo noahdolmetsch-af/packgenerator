@@ -474,6 +474,8 @@
   .core-j :global(.core-a) { flex: none; color: var(--ink-3); }
   .core-c { padding: 6px 11px; border-color: var(--line); color: var(--ink-2); font-size: var(--fs-small); }
   @media (hover: hover) { .core-c:hover { border-color: var(--line-strong); color: var(--ink); } }
+  /* a phone held sideways keeps the band compact: the core line and its jump marks wait for the upright view */
+  @media (max-height: 500px) { .core { display: none; } }
   @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
