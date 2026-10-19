@@ -1584,10 +1584,13 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 
 ## 19.10.2026: Paket E Material, Velos, Merken (0.149.0)
 
-- **Ein Release aus allen E-Teilen** auf Paket D (0.148.0): P4 + P5, Geburtstage + Pflanzen, Eigene Werte, Skitour, Sportart SA1–SA3, Eigene Listen, UI-Regeln Teil 1 + 2, Impeccable Runde 1, «Was hier steht» auf 5 weiteren Seiten, Bezahl-Erinnerung, TWINT per «Teilen», Garmin Edge 850. Impeccable Runde 2 gehört zu Paket C.
+- **Ein Release aus allen E-Teilen** auf Paket D (0.148.0): P4 + P5, Geburtstage + Pflanzen, Eigene Werte, Skitour, Sportart SA1–SA3, Eigene Listen, UI-Regeln Teil 1 + 2, Impeccable Runde 1, «Was hier steht» auf 5 weiteren Seiten, Bezahl-Erinnerung, TWINT-Bildschirmfoto (QR6), Garmin Edge 850. Impeccable Runde 2 gehört zu Paket C.
 - **Garmin Edge 850 statt 540** (Noah 18.10.2026 22:31 «ersetzt 540»): die Grenze von 6 Feldern fällt weg; gespeicherte 540-Einstellungen gehen aufs 850.
 - **Eigene Funktions-ID `f.skiequipment`** für Velos › Ausrüstung; `f.equipment` bleibt das Datenblatt der Velo-Teile.
 - **«Erkenntnisse»** auch auf den Ski-Seiten (statt «Learnings»), wie im Rückblick (DK6).
+- **Noah 19.10.2026 «1a 2b»:** (1a) das SA3-Band am Handy bleibt einzeilig. (2b) Ein geteiltes Foto oder PDF geht immer zu Dokumente (share target «doc»); «pay» ist kein Bild-Ziel mehr (ein altes «pay» vom Handy geht auch zu Dokumente). Das TWINT-Bildschirmfoto wählt man in Rechnungen unter «Zahlungen erkennen» («TWINT-Bildschirmfoto wählen»).
+- **CI-Fix:** in der Wunschliste am Computer fällt das Schild «Wunschliste» bei Wunsch-Zeilen weg (wie am Handy, G007), damit der Name neben «Gekauft» und dem Teil-Fenster genug Platz hat; der Gesamttest öffnet am Handy «Alle Kennzahlen» erst mit einem Tipp (UI-Regeln «a»).
+- **CI-Fix e2e:** «Ja, erinnern» auf der Karte «Soll ich dich erinnern?» ist ein normaler Knopf; der Hauptknopf der Seite darunter bleibt der einzige orange. Der «…»-Knopf im Logbuch ist am Handy 44 px gross.
 - **Ich › Erinnerungen** zeigt unter «Wo sie erscheinen» den Weg zu «Erinnerungen aufs Handy» (#/me/push); Ich zeigt beide Zeilen untereinander.
 - **Selbst entschieden:** die zugeklappte Bausteine-Karte hat unten 16 statt 24 px Abstand (Packen 1: die erste Tasche bleibt am Handy auf dem ersten Bildschirm, auch mit «Was hier steht» darüber); die Saison-Pflege-Aufgaben haben eigene Schlüssel (`|season`); in «Teil bearbeiten» bleibt D's `Field`-Form mit dem «kalt»-Beispiel aus Eigene Werte; Ich › Daten zeigt bei «Backup» den Knopf «Backup machen» (Impeccable), bei Fitbit D's «Jetzt».
 ## 19.10.2026: Alles selbst bearbeiten
