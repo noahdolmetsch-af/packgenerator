@@ -70,22 +70,42 @@ export function actRecord(a) {
     wNorm: fin(a.wNorm),
     kj: fin(a.kj),
     effort: fin(a.effort),
+    // «Strava-Fahrt vollständig» (19.10.2026 «2a»)
+    workout: typeof a.workout === 'string' ? a.workout : null,
+    prs: fin(a.prs) ?? 0,
+    achv: fin(a.achv) ?? 0,
+    elevHigh: fin(a.elevHigh),
+    elevLow: fin(a.elevLow),
+    device: typeof a.device === 'string' ? a.device : '',
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv'];
-/** The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f). Older ones are fetched once more. */
-export const DETAIL_V = 2;
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'tempMin', 'tempMax', 'steep', 'noDetail'];
+/**
+ * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
+ * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
+ * Older ones are fetched once more, a few per fetch.
+ */
+export const DETAIL_V = 3;
 /** Has this activity the details of the current kind? */
 export const hasDetail = (a) => !!a?.detail && (a.dv ?? 1) >= DETAIL_V;
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
 
-/** The activities whose details (heart rate, kcal, best 20 min) are worth fetching now: newest first, with heart rate or a power meter, recent. */
+/**
+ * The activities whose details are worth fetching now, at most `max`: first the recent ones (within `days`)
+ * with heart rate or a power meter, newest first; then (Noah 19.10.2026 «4a»: older rides too, slowly in the
+ * background) every other one with a distance or heart rate, newest first. So after some fetches every
+ * ride has its zones, climbs, laps and splits, within Strava's limit.
+ */
 export function needDetail(acts, today, { max = DETAIL_MAX, days = DETAIL_DAYS } = {}) {
   const from = shiftDay(today, -days);
-  return acts.filter((a) => !hasDetail(a) && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
+  const open = acts.filter((a) => !hasDetail(a) && !a.noDetail);
+  const recent = open.filter((a) => (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest);
+  const ids = new Set(recent.map((a) => a.id));
+  const older = open.filter((a) => !ids.has(a.id) && (a.km > 0 || a.hrAvg != null)).sort(byNewest);
+  return [...recent, ...older].slice(0, max);
 }
 
 /** A calendar day ± n days (no clock involved). */

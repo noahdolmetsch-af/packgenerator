@@ -64,7 +64,7 @@ export function ridePoints(text) {
       const body = m[2] ?? '';
       const ele = Number(tag(body, 'ele'));
       const at = Date.parse(tag(body, 'time') ?? '');
-      if (Number.isFinite(lat) && Number.isFinite(lon)) out.push({ lat, lon, ele: Number.isFinite(ele) ? ele : null, t: Number.isFinite(at) ? at : null });
+      if (Number.isFinite(lat) && Number.isFinite(lon)) out.push({ lat, lon, ele: Number.isFinite(ele) ? ele : null, t: Number.isFinite(at) ? at : null, ...sensorsOf(body) });
     }
   } else {
     for (const m of text.matchAll(/<Trackpoint\b[^>]*>([\s\S]*?)<\/Trackpoint>/gi)) {
@@ -72,10 +72,88 @@ export function ridePoints(text) {
       const lon = Number(tag(m[1], 'LongitudeDegrees'));
       const ele = Number(tag(m[1], 'AltitudeMeters'));
       const at = Date.parse(tag(m[1], 'Time') ?? '');
-      if (Number.isFinite(lat) && Number.isFinite(lon) && tag(m[1], 'LatitudeDegrees')) out.push({ lat, lon, ele: Number.isFinite(ele) ? ele : null, t: Number.isFinite(at) ? at : null });
+      if (Number.isFinite(lat) && Number.isFinite(lon) && tag(m[1], 'LatitudeDegrees')) out.push({ lat, lon, ele: Number.isFinite(ele) ? ele : null, t: Number.isFinite(at) ? at : null, ...sensorsOf(m[1], true) });
     }
   }
   return out;
+}
+
+/**
+ * «Strava-Fahrt vollständig» (Noah 19.10.2026 «3a»): the sensor values of one point, when the file has them.
+ * GPX: Garmin's extension (<gpxtpx:hr>, <gpxtpx:cad>, <gpxtpx:atemp>) and power (<power> or <pwr:PowerInWatts>),
+ * with any prefix. TCX: <HeartRateBpm><Value>, <Cadence>, <Watts>. Only the ones there: { hr, cad, w, temp }.
+ */
+const sensorTag = (body, names) => {
+  for (const n of names) {
+    const v = body.match(new RegExp(`<(?:[\\w-]+:)?${n}>\\s*(-?[\\d.]+)\\s*</(?:[\\w-]+:)?${n}>`, 'i'))?.[1];
+    if (v != null && Number.isFinite(Number(v))) return Number(v);
+  }
+  return null;
+};
+export function sensorsOf(body, tcx = false) {
+  if (!body || body.indexOf('<') < 0) return {};
+  const out = {};
+  const hr = tcx ? Number(body.match(/<HeartRateBpm\b[^>]*>\s*<Value>\s*([\d.]+)\s*<\/Value>/i)?.[1]) : sensorTag(body, ['hr', 'heartrate']);
+  if (hr > 20 && hr < 250) out.hr = hr;
+  const cad = sensorTag(body, tcx ? ['Cadence', 'RunCadence'] : ['cad', 'cadence']);
+  if (cad != null && cad >= 0 && cad < 250) out.cad = cad;
+  const w = sensorTag(body, tcx ? ['Watts'] : ['power', 'PowerInWatts', 'watts']);
+  if (w != null && w >= 0 && w < 3000) out.w = w;
+  const temp = sensorTag(body, tcx ? ['Temperature'] : ['atemp', 'temp']);
+  if (temp != null && temp > -40 && temp < 60) out.temp = temp;
+  return out;
+}
+
+/**
+ * The sensor values of a ride while moving (a gap over 30 s is not counted), weighted by the seconds:
+ * Ø/max heart rate with seconds per beat (hist, for the zones), Ø cadence (pedalling only), Ø/max watts,
+ * Ø/min/max temperature. null when the file has none of them.
+ */
+export function rideSensors(pts, still = []) {
+  const acc = { hr: [0, 0], cad: [0, 0], w: [0, 0], temp: [0, 0] };
+  const hist = {};
+  let hrMax = null;
+  let wMax = null;
+  let tMin = null;
+  let tMax = null;
+  for (let k = 0; k < pts.length - 1; k++) {
+    if (still[k + 1]) continue;
+    const dt = (pts[k + 1].t - pts[k].t) / 1000;
+    if (!(dt > 0 && dt <= 30)) continue;
+    const p = pts[k];
+    if (p.hr != null) {
+      acc.hr[0] += p.hr * dt;
+      acc.hr[1] += dt;
+      const b = Math.round(p.hr);
+      hist[b] = (hist[b] ?? 0) + dt;
+      if (hrMax == null || p.hr > hrMax) hrMax = p.hr;
+    }
+    if (p.cad > 0) (acc.cad[0] += p.cad * dt), (acc.cad[1] += dt);
+    if (p.w != null) {
+      acc.w[0] += p.w * dt;
+      acc.w[1] += dt;
+      if (wMax == null || p.w > wMax) wMax = p.w;
+    }
+    if (p.temp != null) {
+      acc.temp[0] += p.temp * dt;
+      acc.temp[1] += dt;
+      if (tMin == null || p.temp < tMin) tMin = p.temp;
+      if (tMax == null || p.temp > tMax) tMax = p.temp;
+    }
+  }
+  const avg = ([sum, n]) => (n > 0 ? Math.round(sum / n) : null);
+  const out = {
+    hrAvg: avg(acc.hr),
+    hrMax: hrMax != null ? Math.round(hrMax) : null,
+    hist: acc.hr[1] > 0 ? Object.fromEntries(Object.entries(hist).map(([b, v]) => [b, Math.round(v)])) : null,
+    cad: avg(acc.cad),
+    wAvg: avg(acc.w),
+    wMax: wMax != null ? Math.round(wMax) : null,
+    tempAvg: avg(acc.temp),
+    tempMin: tMin != null ? Math.round(tMin) : null,
+    tempMax: tMax != null ? Math.round(tMax) : null,
+  };
+  return Object.values(out).some((v) => v != null) ? out : null;
 }
 
 /**
@@ -160,6 +238,8 @@ export function analyseRide(text, file = '') {
     parts: parts(pts, still),
     line: thin(moving),
     profile: profileOf(moving),
+    // 19.10.2026 «3a»: heart rate, cadence, power and temperature from the file itself (null without)
+    sensors: rideSensors(pts, still),
     start: { lat: round5(pts[0].lat), lon: round5(pts[0].lon) },
     end: { lat: round5(pts.at(-1).lat), lon: round5(pts.at(-1).lon) },
   };
@@ -341,7 +421,7 @@ export function learningFrom(sugg, learnings = [], source = '', rideId = null, n
  */
 export function addToPace(setting, ride, now = new Date().toISOString()) {
   const rides = [...(setting?.rides ?? [])];
-  if (!rides.some((r) => startKey(r.id) === startKey(ride.id))) rides.push({ id: ride.id, name: ride.name, date: ride.date, km: ride.km, gainM: ride.gainM, movingH: ride.movingH, totalH: ride.totalH, use: true, from: 'upload' });
+  if (!rides.some((r) => startKey(r.id) === startKey(ride.id))) rides.push({ id: ride.id, name: ride.name, date: ride.date, km: ride.km, gainM: ride.gainM, movingH: ride.movingH, totalH: ride.totalH, use: true, from: 'upload', ...(ride.sensors ? { sensors: { hrAvg: ride.sensors.hrAvg, hrMax: ride.sensors.hrMax, wAvg: ride.sensors.wAvg, wMax: ride.sensors.wMax, hist: ride.sensors.hist } } : {}) });
   const learned = learnPace(rides);
   return { ...(learned ?? { kmh: null, climbMh: null }), rides, ...(setting?.standard ? { standard: true } : {}), updatedAt: now };
 }

@@ -54,6 +54,7 @@
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
   import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
+  import { actHref } from '../strava/acthref.js';
   let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], openSugg = [], ontake = null, onno = null, onreopen = null, offer = null, notes = [], onpatch = null } = $props();
   // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
   const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
@@ -401,6 +402,18 @@
                   </tbody>
                 </table>
               </div>
+            </section>
+          {/if}
+
+          <!-- 19.10.2026 «Strava-Fahrt vollständig» (answer 1a): each Strava activity of the trip opens its own page with all values -->
+          {#if acts.length && day == null}
+            <section class="rv-sec" aria-labelledby="ta-h" data-trip-acts>
+              <div class="rv-h"><div><h2 id="ta-h">{t('Your activities from Strava')}</h2><p class="rv-sub">{t('a tap shows all values of the ride')}</p></div></div>
+              <ul class="rv-box tacts">
+                {#each acts as a (a.id)}
+                  <li><a class="rv-row" href={actHref(a.id)} data-act-link={a.id}><span class="rv-m"><span class="rv-t">{a.name || t('1 activity')}</span><span class="rv-s num">{[a.day ? longDay(a.day) : '', a.km ? `${num(a.km)} km` : ''].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+                {/each}
+              </ul>
             </section>
           {/if}
 

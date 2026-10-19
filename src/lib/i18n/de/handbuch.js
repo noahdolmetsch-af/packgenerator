@@ -577,4 +577,10 @@ export default {
   '«Whole debrief» opens the trip\'s debrief.': '«Ganzer Rückblick» öffnet den Rückblick der Tour.',
   'The score goes into the debrief; the diary draft names it for that day.': 'Die Zahl kommt in den Rückblick; der Tagebuch-Entwurf nennt sie für diesen Tag.',
   'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».': 'Beispiel: Tag 2 der Jura-Runde → 8 von 10; im Tagebuch steht «Am Abend bewertet: 8 von 10».',
+  // «Strava-Fahrt vollständig» (19.10.2026)
+  'Needs Strava on this device; an uploaded GPX shows its own values. Older rides get their details bit by bit.': 'Braucht Strava auf diesem Gerät; eine hochgeladene GPX zeigt ihre eigenen Werte. Ältere Fahrten bekommen ihre Details nach und nach.',
+  'Tap a Strava activity anywhere: Touren, Fahrten-Buch, Verlauf, the Rückblick of a trip or Aktiv › Training.': 'Tippe irgendwo eine Strava-Aktivität an: Touren, Fahrten-Buch, Verlauf, den Rückblick einer Tour oder Aktiv › Training.',
+  'At the top: kind, commute, device, new best times, «How hard was it?» and your Strava comment.': 'Oben: Art, Arbeitsweg, Gerät, neue Bestzeiten, «Wie hart war es?» und dein Strava-Kommentar.',
+  'Further down: laps, splits per km and segment times; «…» on a card hides or moves it.': 'Weiter unten: Runden, Zeiten pro km und Segmentzeiten; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
+  'Example: Saturday ride → 3 laps from the lap button, km 12 the slowest, 2 new best times.': 'Beispiel: Samstagsfahrt → 3 Runden mit der Rundentaste, km 12 der langsamste, 2 neue Bestzeiten.',
 };

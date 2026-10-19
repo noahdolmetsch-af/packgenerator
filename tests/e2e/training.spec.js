@@ -72,9 +72,10 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   page.on('pageerror', (e) => errors.push(e.message));
   const server = { log: [], app: baseURL };
   await start(page, context, server);
-  // the zones once, the heart rate of the newest activities with heart rate (the hike has none)
+  // the zones once, the heart rate of the newest activities with heart rate first; then (19.10.2026 «4a») the others,
+  // like the hike without heart rate, for its laps, splits and climbs
   expect(server.log.filter((x) => x.step === 'zones').length).toBe(1);
-  expect(server.log.filter((x) => x.step === 'detail').map((x) => x.id)).toEqual(['2001', '2002', '2004']);
+  expect(server.log.filter((x) => x.step === 'detail').map((x) => x.id)).toEqual(['2001', '2002', '2004', '2003']);
 
   // TR1: on Today the newest activity, its numbers and its zones
   await page.goto('./#/');

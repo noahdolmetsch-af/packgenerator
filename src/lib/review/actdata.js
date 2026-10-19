@@ -117,6 +117,8 @@ export function actOf(a) {
     // SN4g: the values of «Abgeschlossene Touren» on Touren › Übersicht (Training PR fields; NP only with a power meter)
     // SN4g: wire to training.js when the Training PR lands
     type: a?.type ?? null,
+    // 19.10.2026: the name too (Ich › Verlauf showed «Fahrt von Strava» for every activity)
+    name: typeof a?.name === 'string' ? a.name : '',
     wAvg: pos(a?.wAvg),
     wMax: pos(a?.wMax),
     wNorm: pos(a?.wNorm),

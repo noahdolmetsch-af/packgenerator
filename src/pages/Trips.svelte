@@ -87,6 +87,7 @@
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
+  import { actHref } from '../lib/strava/acthref.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
 
@@ -187,7 +188,7 @@
   const acts = $derived($actsQ ?? []);
   const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
   const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
-  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '' });
+  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '', list: [] });
 
   let mode = $state('12m');
   const year = today.slice(0, 4);
@@ -365,7 +366,7 @@
   {@const sv = stravaOf(r)}
   <p class="pinfo" data-pack-info>
     {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
-    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{sv.n > 1 ? t('Strava: {n} activities', { n: sv.n }) : sv.n === 1 ? t('Strava: {name}', { name: sv.name || t('1 activity') }) : t('no Strava activity')}</span>
+    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{#if sv.n === 1}<a class="actl" href={actHref(sv.list[0].id)} data-act-link={sv.list[0].id}>{t('Strava: {name}', { name: sv.name || t('1 activity') })}</a>{:else if sv.n > 1}{t('Strava: {n} activities', { n: sv.n })}{#each sv.list as a, i (a.id)}{i ? ',' : ':'} <a class="actl" href={actHref(a.id)} data-act-link={a.id}>{a.name || t('1 activity')}</a>{/each}{:else}{t('no Strava activity')}{/if}</span>
   </p>
 {/snippet}
 
@@ -1088,6 +1089,12 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .pinfo .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
   }
   .pinfo span {
     display: inline-flex;

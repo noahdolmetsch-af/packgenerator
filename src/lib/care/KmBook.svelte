@@ -7,6 +7,7 @@
    * change is its own entry with a date and a source, and every action can be undone.
    * bike: the bike (as stored); bikes: all bikes (for the buttons and «Change bike»).
    */
+  import { actHref } from '../strava/acthref.js';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
   import { MoreHorizontal, ChevronDown, ChevronRight } from '@lucide/svelte';
@@ -241,7 +242,7 @@
     <li class="row" class:open={r.state === 'open'} class:gone={r.state === 'removed'}>
       <span class="d num">{dateOf(r.date)}</span>
       <span class="w">
-        <b>{entryTitle(r)}</b>
+        <b>{#if r.stravaId}<a class="actl" href={actHref(r.stravaId)} data-act-link={r.stravaId}>{entryTitle(r)}</a>{:else}{entryTitle(r)}{/if}</b>
         {#if entryDetail(r)}<small>{entryDetail(r)}</small>{/if}
         {#if heartOf([r])}<small><HeartLine heart={heartOf([r])} size={12} /></small>{/if}
         {#if r.state === 'open'}
@@ -468,6 +469,12 @@
   .w b {
     font-weight: 600;
     overflow-wrap: break-word;
+  }
+  .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
   }
   .w small {
     color: var(--ink-3);
