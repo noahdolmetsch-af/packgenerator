@@ -7,14 +7,14 @@
  * where you live.
  *
  * Sealed on the device (AES-GCM 256): the key is made here and travels only after the # of the link,
- * which no browser sends to a server. The server (api/spur.js) keeps the sealed envelope, the device
+ * which no browser sends to a server. The server (/api/sync?action=spur, api/_lib/spur.js) keeps the sealed envelope, the device
  * keeps the delete code (trip.spurLink) to update or delete the link.
  * Pure apart from fetch and crypto (both exist in browsers and in Node), tested in tests/spur.test.js.
  */
 import { encodePolyline, decodePolyline, simplify, distKm } from './polyline.js';
 import { zurichTime } from './spur.js';
 
-export const SPUR_URL = 'https://packgen-three.vercel.app/api/spur';
+export const SPUR_URL = 'https://packgen-three.vercel.app/api/sync?action=spur';
 export const CUT_KM = 0.5;
 export const LINK_V = 1;
 
@@ -166,12 +166,12 @@ export class LinkError extends Error {
 }
 
 async function call(method, { step = null, id = null, body = null, doFetch = (...a) => fetch(...a), url = SPUR_URL } = {}) {
-  const q = new URLSearchParams();
-  if (step) q.set('step', step);
-  if (id) q.set('id', id);
+  const u = new URL(url);
+  if (step) u.searchParams.set('step', step);
+  if (id) u.searchParams.set('id', id);
   let res;
   try {
-    res = await doFetch(`${url}?${q}`, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+    res = await doFetch(String(u), { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
   } catch {
     throw new LinkError('network');
   }

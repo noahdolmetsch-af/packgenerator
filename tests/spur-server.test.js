@@ -1,22 +1,22 @@
-// Paket S «Reise-Spur» (Noah 19.10.2026 «4a»): /api/spur keeps a sealed tour behind a read link, and the
+// Paket S «Reise-Spur» (Noah 19.10.2026 «4a»): /api/sync?action=spur keeps a sealed tour behind a read link, and the
 // app's link.js makes, updates, opens and deletes it. A small fake Redis, fictional data only.
 import { describe, it, expect } from 'vitest';
-import { makeHandler } from '../api/spur.js';
-import { WRITES_PER_DAY } from '../api/_lib/spur.js';
+import { makeDispatch } from '../api/sync.js';
+import { makeSpurHandler, WRITES_PER_DAY } from '../api/_lib/spur.js';
 import { fakeRedis } from './fakeredis.js';
 import { putLink, deleteLink, openLink, LinkError } from '../src/lib/spur/link.js';
 
 function setup() {
   const r = fakeRedis();
-  const handler = makeHandler({ env: () => ({ redisUrl: 'https://redis.example.test', redisToken: 'r' }), doFetch: async (url, init) => Response.json({ result: r.run(...((a) => [a[0], a.slice(1)])(JSON.parse(init.body))) }) });
+  const handler = makeDispatch({ spur: makeSpurHandler({ env: () => ({ redisUrl: 'https://redis.example.test', redisToken: 'r' }), doFetch: async (url, init) => Response.json({ result: r.run(...((a) => [a[0], a.slice(1)])(JSON.parse(init.body))) }) }) });
   // the app's fetch goes straight to the handler
   const doFetch = (url, init = {}) => handler(new Request(url, { ...init, headers: { ...(init.headers ?? {}), origin: 'http://localhost:5173', 'x-forwarded-for': '203.0.113.7' } }));
-  return { r, handler, doFetch, opts: { doFetch, url: 'https://packgen.example.test/api/spur' } };
+  return { r, handler, doFetch, opts: { doFetch, url: 'https://packgen.example.test/api/sync?action=spur' } };
 }
 
 const tour = (km) => ({ v: 1, t: 'Testtour', d: '2026-07-03', n: 1, km, at: null, days: [{ d: '2026-07-03', km, l: ['_p~iF~ps|U_ulLnnqC'], p: [], x: [] }] });
 
-describe('/api/spur', () => {
+describe('/api/sync?action=spur', () => {
   it('makes a link, opens it, updates it under the same address and deletes it', async () => {
     const { r, opts } = setup();
     const link = await putLink(tour(10), null, opts);
@@ -39,7 +39,7 @@ describe('/api/spur', () => {
     const { opts, doFetch } = setup();
     const link = await putLink(tour(10), null, opts);
     await expect(openLink(link.id, 'x'.repeat(43), opts)).rejects.toBeInstanceOf(LinkError);
-    const res = await doFetch('https://packgen.example.test/api/spur?step=delete', { method: 'POST', body: JSON.stringify({ id: link.id, del: 'y'.repeat(32) }) });
+    const res = await doFetch('https://packgen.example.test/api/sync?action=spur&step=delete', { method: 'POST', body: JSON.stringify({ id: link.id, del: 'y'.repeat(32) }) });
     expect(res.status).toBe(403);
     expect((await openLink(link.id, link.key, opts)).km).toBe(10);
   });
@@ -54,16 +54,23 @@ describe('/api/spur', () => {
   });
   it('checks what comes in and limits the writes per day', async () => {
     const { doFetch } = setup();
-    const post = (step, body) => doFetch(`https://packgen.example.test/api/spur?step=${step}`, { method: 'POST', body: JSON.stringify(body) });
+    const post = (step, body) => doFetch(`https://packgen.example.test/api/sync?action=spur&step=${step}`, { method: 'POST', body: JSON.stringify(body) });
     expect((await post('put', { e: 'not base64 !' })).status).toBe(400);
-    expect((await doFetch('https://packgen.example.test/api/spur?id=short')).status).toBe(400);
+    expect((await doFetch('https://packgen.example.test/api/sync?action=spur&id=short')).status).toBe(400);
     for (let i = 0; i < WRITES_PER_DAY; i++) expect((await post('put', { e: 'A'.repeat(40) })).status).toBe(200);
     const res = await post('put', { e: 'A'.repeat(40) });
     expect(res.status).toBe(429);
   });
   it('without the store it says so', async () => {
-    const handler = makeHandler({ env: () => ({ redisUrl: '', redisToken: '' }) });
-    const res = await handler(new Request('https://x.test/api/spur?id=AAAAAAAAAAAAAAAAAAAAAA'));
+    const handler = makeDispatch({ spur: makeSpurHandler({ env: () => ({ redisUrl: '', redisToken: '' }) }) });
+    const res = await handler(new Request('https://x.test/api/sync?action=spur&id=AAAAAAAAAAAAAAAAAAAAAA'));
     expect(res.status).toBe(503);
+  });
+  it('without action=spur the sync answers as before (one function for both)', async () => {
+    const seen = [];
+    const handler = makeDispatch({ sync: async (req) => (seen.push('sync'), new Response('s')), spur: async () => (seen.push('spur'), new Response('p')) });
+    await handler(new Request('https://x.test/api/sync?step=status', { method: 'POST' }));
+    await handler(new Request('https://x.test/api/sync?action=spur&id=x'));
+    expect(seen).toEqual(['sync', 'spur']);
   });
 });

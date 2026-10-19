@@ -7,12 +7,14 @@
  *   POST ?step=pull   { token, since }              → { seq, items: [{ k, s, e }], next, more }
  *   POST ?step=push   { token, items: [{ k, base, e }] } → { done: [{ k, s }], conflicts: [{ k, s }] }
  *   POST ?step=forget { token }                     → { ok } (everything of this space is removed)
+ *   ?action=spur …                                  → the read link of a tour (Paket S, api/_lib/spur.js)
  *
  * Environment (names only; values only in the Vercel project «packgen»): KV_REST_API_URL and
  * KV_REST_API_TOKEN, set by the Upstash integration (the same store as the KI-Helfer and «Ich habe bezahlt»).
  */
 import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody } from './_lib/oauth.js';
+import { makeSpurHandler } from './_lib/spur.js';
 import { isToken, spaceOf, keysOf, readPush, readPushAnswer, readStored, PUSH_LUA, SPACE_TTL_S, PULL_MAX, PULL_BYTES, BODY_MAX } from './_lib/sync.js';
 
 export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(...a) } = {}) {
@@ -78,6 +80,12 @@ export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(
   );
 }
 
-const handler = makeHandler();
+/** The sync, or with ?action=spur the read link of a tour (one function for both: the free plan allows 12). */
+export function makeDispatch({ sync = makeHandler(), spur = makeSpurHandler() } = {}) {
+  return (request) => (new URL(request.url).searchParams.get('action') === 'spur' ? spur(request) : sync(request));
+}
+
+const handler = makeDispatch();
+export const GET = handler;
 export const POST = handler;
 export const OPTIONS = handler;

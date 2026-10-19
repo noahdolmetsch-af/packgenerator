@@ -34,9 +34,9 @@ function data() {
 async function open(page, context, info) {
   await context.addInitScript((id) => localStorage.setItem('pack.currentTrip', id), RUNDE);
   await openHome(page, context, info, { data: data() });
-  // the share server (api/spur.js) answered by the test: it keeps the sealed envelope only
+  // the share server (/api/sync?action=spur) answered by the test: it keeps the sealed envelope only
   const kept = new Map();
-  await context.route(/packgen-three\.vercel\.app\/api\/spur/, async (route) => {
+  await context.route(/packgen-three\.vercel\.app\/api\/sync\?action=spur/, async (route) => {
     const req = route.request();
     const url = new URL(req.url());
     if (req.method() === 'GET') {
