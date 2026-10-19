@@ -4,6 +4,11 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { bikeLinks, deleteBike, undoDeleteBike, moveTrip } from '../src/lib/bikedelete.js';
+import { applyLists } from '../src/lib/lists.js';
+import { DOMAINS, TRIP_DOMAINS, DOMAIN, domainOf } from '../src/lib/domains.js';
+import { SLOT } from '../src/lib/bikes.js';
+import { PART } from '../src/lib/care.js';
+import { listFor } from '../src/lib/standard.js';
 
 const fresh = async () => {
   const db = createDb(`alles-${Math.random().toString(36).slice(2)}`);
@@ -73,5 +78,38 @@ describe('deleting a bike', () => {
     expect(moveTrip(trip, { id: 'b', name: 'B' })).toEqual({ id: 'X', bikeId: 'b', bike: 'B' });
     expect(moveTrip(trip, null)).toEqual({ id: 'X', bikeId: null, bike: null });
     expect(trip.bikeId).toBe('a');
+  });
+});
+
+// Sports, places on the bike and care parts (Ich › Listen und Typen): the person's list reaches the app.
+
+describe('own lists: sports, places, care parts', () => {
+  const all = {
+    domains: { names: { ski: 'Testskitour' }, hidden: ['weekend'], deleted: ['travel'], own: [{ id: 'own-tennis', name: 'Testtennis' }], order: ['hiking'] },
+    bikeSlots: { names: { seat: 'Testsattel' } },
+    careParts: { names: { chain: 'Testkette' } },
+  };
+  it('renames, hides, deletes, adds and orders the sports', () => {
+    applyLists(all);
+    expect(DOMAINS[0].key).toBe('hiking');
+    expect(DOMAIN.ski.name).toBe('Testskitour');
+    expect(TRIP_DOMAINS.some((d) => d.key === 'weekend')).toBe(false);
+    expect(TRIP_DOMAINS.some((d) => d.key === 'travel')).toBe(false);
+    expect(TRIP_DOMAINS.find((d) => d.key === 'own-tennis')?.packs).toHaveLength(1);
+    // an old trip of a deleted or hidden sport keeps it
+    expect(domainOf({ domain: 'travel' })).toBe('travel');
+    expect(domainOf({ domain: 'weekend' })).toBe('weekend');
+    // the Standard list itself never changes
+    expect(listFor('domains', {}).find((e) => e.id === 'ski').name).toBe('Ski touring');
+  });
+  it('renames places and parts, and «Back to Standard» brings the names back', () => {
+    applyLists(all);
+    expect(SLOT.seat.name).toBe('Testsattel');
+    expect(PART.chain.name).toBe('Testkette');
+    applyLists({});
+    expect(SLOT.seat.name).toBe('Seat pack');
+    expect(PART.chain.name).toBe('Chain');
+    expect(DOMAIN.ski.name).toBe('Ski touring');
+    expect(TRIP_DOMAINS.some((d) => d.key === 'weekend')).toBe(true);
   });
 });

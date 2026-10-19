@@ -108,6 +108,17 @@ export const PARTS = [
   { key: 'bearings', name: 'Bearings', area: 'checks', more: true, unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
 ];
 export const PART = Object.fromEntries(PARTS.map((p) => [p.key, p]));
+/** The parts as the app comes (the Standard names); PARTS above carries the person's names (setPartNames). */
+export const STD_PARTS = PARTS.map((p) => ({ key: p.key, name: p.name }));
+/**
+ * «Alles selbst bearbeiten» (Noah 19.10.2026): the person's names for the care parts (Ich › Listen und
+ * Typen). Only the name changes: intervals, limits and the history of the part stay.
+ * list: listFor('careParts') [{ id, name, renamed? }].
+ */
+export function setPartNames(list) {
+  const mine = Object.fromEntries(list.filter((e) => e.renamed).map((e) => [e.id, e.name]));
+  for (const p of PARTS) p.name = mine[p.key] ?? STD_PARTS.find((x) => x.key === p.key).name;
+}
 
 /** v0.48.0: the areas of the part list, in this order (the spec template plus the check points). */
 export const AREAS = [

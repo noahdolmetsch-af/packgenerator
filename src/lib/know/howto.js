@@ -116,6 +116,7 @@ export const HOWTO = {
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
   // v0.134.0 «Listen und Typen»
+  'f.editall': ['Open the thing (bike: the pen «Edit»; problem: «…»; learning: tap it).', 'Rename it, or delete it: the app asks first and offers «Undo».', 'For the lists of the app: Me › «Lists and types».'],
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
   // v0.135.0
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],

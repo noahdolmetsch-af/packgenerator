@@ -124,3 +124,23 @@ test('a problem can be renamed and deleted', async ({ page }) => {
   await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect.poll(async () => (await table(page, 'maintenance')).length).toBe(0);
 });
+
+test('sports: an own sport is offered for a new trip; a place on the bike gets a new name', async ({ page }) => {
+  await page.goto('./#/me/lists?domains');
+  await page.getByRole('button', { name: T('Own sport') }).click();
+  const sheet = page.getByRole('dialog', { name: T('Own sport') });
+  await sheet.getByLabel(T('Name')).fill('test_data_gtp_ Tennis');
+  await sheet.getByRole('button', { name: T('Save') }).click();
+  await expect(page.getByRole('button', { name: T('Edit: {name}', { name: 'test_data_gtp_ Tennis' }) })).toBeVisible();
+  await expect.poll(async () => (await table(page, 'settings')).find((r) => r.key === 'listOverrides')?.value?.domains?.own?.[0]?.name).toBe('test_data_gtp_ Tennis');
+
+  // the place on the bike: only the name, no «Delete», no own entries
+  await page.goto('./#/me/lists?bikeSlots');
+  await expect(page.getByRole('button', { name: T('Own sport') })).toHaveCount(0);
+  await page.getByRole('button', { name: T('Edit: {name}', { name: T('Seat pack') }) }).click();
+  const ren = page.getByRole('dialog', { name: T('Rename place') });
+  await expect(ren.getByRole('button', { name: T('Delete') })).toHaveCount(0);
+  await ren.getByLabel(T('Name')).fill('test_data_gtp_ Sattel');
+  await ren.getByRole('button', { name: T('Save') }).click();
+  await expect(page.getByRole('button', { name: T('Edit: {name}', { name: 'test_data_gtp_ Sattel' }) })).toBeVisible();
+});

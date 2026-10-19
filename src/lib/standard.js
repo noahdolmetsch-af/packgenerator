@@ -13,11 +13,11 @@
  * Pure functions, tested in tests/standard.test.js. lists.js puts the changes in place (so far the
  * categories, v0.134.0 «Listen und Typen»).
  */
-import { DOMAINS } from './domains.js';
+import { STD_DOMAINS } from './domains.js';
 import { STD_CATEGORIES, BAGS, SETS } from './gear.js';
-import { SLOTS } from './bikes.js';
+import { STD_SLOTS } from './bikes.js';
 import { LAYERS, ZONES } from './wardrobe.js';
-import { PARTS, AREAS } from './care.js';
+import { STD_PARTS, AREAS } from './care.js';
 import { READY_DEFAULT, READY_BY_DOMAIN, CHECKS_BY_DOMAIN } from './checks.js';
 import { WEATHER, AMOUNT, BAGS_OK } from './debrief.js';
 import { FIXED, SEED_QUESTIONS } from './flowcheck.js';
@@ -49,15 +49,15 @@ function checkLists() {
  * gear, bikes, review, active), the group on the page «Listen und Typen». entries() reads the home.
  */
 export const STANDARD_LISTS = [
-  { key: 'domains', area: 'trips', name: 'Sports and areas', entries: () => keyed(DOMAINS) },
+  { key: 'domains', area: 'trips', name: 'Sports and areas', entries: () => keyed(STD_DOMAINS) },
   ...checkLists(),
   { key: 'categories', area: 'gear', name: 'Categories', entries: () => keyed(STD_CATEGORIES) },
   { key: 'bagPlaces', area: 'gear', name: 'Default places', entries: () => keyed(BAGS) },
   { key: 'blocks', area: 'gear', name: 'Building blocks', entries: () => Object.entries(SETS).map(([id, name]) => ({ id, name })) },
   { key: 'layers', area: 'gear', name: 'Clothing layers', entries: () => keyed(LAYERS) },
   { key: 'zones', area: 'gear', name: 'Body zones', entries: () => keyed(ZONES) },
-  { key: 'bikeSlots', area: 'bikes', name: 'Places on the bike', entries: () => keyed(SLOTS) },
-  { key: 'careParts', area: 'bikes', name: 'Care parts', entries: () => keyed(PARTS) },
+  { key: 'bikeSlots', area: 'bikes', name: 'Places on the bike', entries: () => keyed(STD_SLOTS) },
+  { key: 'careParts', area: 'bikes', name: 'Care parts', entries: () => keyed(STD_PARTS) },
   { key: 'careAreas', area: 'bikes', name: 'Care areas', entries: () => keyed(AREAS) },
   // «Gruppen überall» (Noah 18.10.2026): the groups the person files things in can be renamed and deleted
   { key: 'valueGroups', area: 'bikes', name: 'Groups of the bike values', entries: () => keyed(VALUE_GROUPS) },

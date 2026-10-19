@@ -346,6 +346,11 @@ export const HANDBOOK = {
     steps: ['Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.', 'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.'],
     example: 'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.',
   },
+  'f.editall': {
+    on: null,
+    steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
+    example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],

@@ -1565,3 +1565,12 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 
 - **Testlink statt Mockups (Noah, 21:52 UTC, «ab sofort … überall»):** gebaut wird ohne Mockups und ohne Bilder vor dem Merge. Zu jedem Paket bekommt Noah den Testlink (Vercel-Vorschau des Paket-PRs) mit «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Zusammengeführt wird erst nach seinem «ok» für dieses Paket. Updates von Abhängigkeiten werden sofort zusammengeführt. Ersetzt «zuerst bauen, dann Bilder» vom 14.10.2026.
 - **CLAUDE.md nachgeführt (Noah, 21:53 UTC, «bitte anweisung in claude ebenfalls integrieren und speichern»):** die Anleitung für Claude nennt jetzt die heutigen Regeln (Testlink, Pakete, Zusammenführen nach «ok», Fragen ohne ★, kein Trello). Ersetzt das «b» von 18.10.2026, 19:56 UTC.
+
+## 19.10.2026: Alles selbst bearbeiten
+
+- **Regel (Noah, 06:48 UTC, «alle daten können vom nutzer selber hinzugefügt, umbenannt oder gelöscht werden … für gesamtes projekt»):** jede Datenart lässt sich im Frontend hinzufügen, umbenennen und löschen. Löschen fragt im App-Fenster und bietet «Rückgängig»; nichts ist gesperrt, weil es noch gebraucht wird.
+- **Velos:** «Velo löschen» geht immer. Das Fenster fragt, welches Velo seine Touren bekommen («Ohne Velo» zuerst). km-Buch, Werkstatt-Besuche, Fotos und Pflege-Aufgaben gehen mit dem Velo; «Rückgängig» holt alles zurück. Ein neuer Name zeigt den Hinweis, dass Garmin-Profil und Strava-Velo gleich heissen müssen. Der Stift heisst jetzt sichtbar «Bearbeiten».
+- **Neu bearbeitbar:** Probleme (umbenennen, löschen), Learnings (hinzufügen, ändern, löschen), hochgeladene Fahrten (umbenennen), Velo-Ideen (umbenennen), alte Logbuch-Einträge (umbenennen, löschen).
+- **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
+- **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
+
