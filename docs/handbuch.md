@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 109 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 121 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -257,6 +257,17 @@ Der kleine Knopf «mehr» im dunklen Tourband zeigt alle Touren.
 2. Wähle die andere Tour.
 
 **Beispiel:** Von «Seerunde» zu «Alpen-Wochenende», ohne zurück zu Touren.
+
+### Assistent
+
+Frag die App etwas zu deinen Daten oder lass dir beim Planen einer Tour helfen. Gratis; Claude nur mit eingeschaltetem KI-Helfer.
+
+**Aufschalten:** Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.
+
+1. Frag die App: Frage tippen oder ein Beispiel antippen; die Antwort kommt aus deinen Daten, mit Link.
+2. Hilf mir planen: vier kurze Fragen beantworten, den Plan prüfen, «Tour anlegen».
+
+**Beispiel:** «Was ist an meinen Velos fällig?» → die fälligen Teile und «Velopflege öffnen».
 
 ### Frag den Helfer
 
@@ -928,6 +939,18 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
+### Angebote
+
+Gib freie Zeiten für Tennis, eine geführte Tour oder einen Velo-Service frei; die Leute buchen über einen Link, ohne App.
+
+**Aufschalten:** Braucht den Buchungs-Server; online bezahlen nur im Testmodus.
+
+1. Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.
+2. Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.
+3. Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.
+
+**Beispiel:** Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».
+
 ### Wi gaht's?
 
 Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
@@ -962,6 +985,30 @@ Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rück
 3. Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.
 
 **Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
+
+### Leistung und Analysen
+
+Mit Leistungsmesser: Leistung, Belastung und Leistungskurve auf jeder Fahrt; Analysen auf der Aktivität und über die Wochen, jede ausblendbar.
+
+**Aufschalten:** Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.
+
+1. Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.
+2. Öffne Training › Woche: die Analysen über die Wochen unter dem Rückblick.
+3. Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben; «Analysen anpassen» zeigt alle.
+
+**Beispiel:** «Erste gegen zweite Hälfte» zeigt 4 % mehr Puls in der zweiten Hälfte bei gleicher Leistung.
+
+### Wochenrückblick
+
+Deine Woche in fünf Zahlen, ein Streifen Montag bis Sonntag, Höhepunkte und ein Vorschlag für die nächste Woche; nur beobachten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.
+2. Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.
+3. Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.
+
+**Beispiel:** 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».
 
 ### Meilensteine
 
@@ -1075,6 +1122,29 @@ Probier eine Demo-Datei aus: deine eigenen Daten warten beiseite, bis du sie bee
 
 **Beispiel:** Eine Demo mit 3 erfundenen Touren; danach ist alles wie vorher.
 
+### Shop ohne Gebühren
+
+Verkaufe Downloads, Codes oder Dinge zum Verschicken: ein Shop-Link, ohne App und ohne Konto; bezahlt wird mit TWINT oder QR-Rechnung, du siehst die Bestellungen.
+
+**Aufschalten:** Nichts einzuschalten; die Bestellungen warten auf dem Server, bis die App sie abholt.
+
+1. Öffne Ich › Bezahlen › Shop und erfasse ein Produkt: einen Download, einen Code oder etwas zum Verschicken mit Porto und Vorrat.
+2. Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.
+3. Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.
+
+**Beispiel:** Eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.
+
+### Gewicht
+
+Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.
+
+**Aufschalten:** Nichts einzuschalten; es ist freiwillig.
+
+1. Öffne Ich › Gewicht und tippe «Gewicht eintragen».
+2. Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.
+
+**Beispiel:** 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.
+
 ### Such-Befehle
 
 «kette geölt gravel» trägt es direkt ein; «notiz …» schreibt eine Notiz.
@@ -1132,6 +1202,18 @@ Schick die Backup-Datei an das andere Gerät; es sagt, was neuer ist, und schlä
 
 **Beispiel:** Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.
 
+### Automatischer Abgleich
+
+Handy und Computer haben von selbst dieselben Daten, verschlüsselt mit einem Code; wurde derselbe Eintrag auf beiden geändert, fragt die App, welche Version gilt.
+
+**Aufschalten:** Braucht ab und zu Internet; es ist gratis, und der Server kann deine Daten nicht lesen.
+
+1. Am Computer: Ich › Daten und Backup › «Abgleich einschalten»; ein QR-Code und ein Code erscheinen.
+2. Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).
+3. Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.
+
+**Beispiel:** Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».
+
 ### Kamera überall
 
 Am Handy öffnet die Kamera mit einem Tipp: für Notiz, Material, Velo, Setup und Problem; ein Beleg kann mehrere Seiten haben.
@@ -1143,6 +1225,53 @@ Am Handy öffnet die Kamera mit einem Tipp: für Notiz, Material, Velo, Setup un
 3. Ein Beleg mit mehr Seiten: «Weitere Seite» nach dem ersten Foto.
 
 **Beispiel:** Eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.
+
+### Dokumente als PDF
+
+Dokument fotografieren oder Fotos aus der Galerie wählen: Die App richtet die Seiten gerade, erkennt den Text und legt ein PDF ab, auch in deinem Google Drive.
+
+**Aufschalten:** Für Google Drive: einmal «Google Drive verbinden» unter Ich › Dokumente (braucht Strava auf diesem Gerät).
+
+1. Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).
+2. Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».
+3. Das neue Dokument öffnet sich: Wähle Gruppe, «gültig bis» und «In die Packliste».
+
+**Beispiel:** Eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.
+
+### Mail aus Gmail
+
+Dein Gmail-Posteingang in der App: lesen, suchen, antworten und schreiben; die Mails zu einem Termin mit einem Tipp.
+
+**Aufschalten:** Einmal verbinden unter Ich › Mail (braucht Strava auf diesem Gerät).
+
+1. Öffne Ich › Mail und tippe «Mit Google verbinden».
+2. Tippe eine Mail an, um sie zu lesen; «Antworten» oder «Neue Mail» schreibt eine.
+3. Unter einem Termin findet «Mails dazu» die Mails dazu.
+
+**Beispiel:** Termin «Velo-Service» → «Mails dazu» zeigt die Bestätigung der Werkstatt.
+
+### Google Kalender und Aufgaben
+
+Dein Google Kalender und Google Aufgaben in der App: die nächsten 14 Tage sehen, Termine eintragen, Aufgaben abhaken und neu eintragen.
+
+**Aufschalten:** Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).
+
+1. Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».
+2. Die nächsten 14 Tage und deine offenen Aufgaben erscheinen; hake eine Aufgabe ab oder trag eine neue ein, das ändert sich auch in Google.
+3. «Termin eintragen» trägt ihn in deinen Google Kalender ein.
+
+**Beispiel:** «Kette messen» fällig am Donnerstag → steht unter «Nächste 7 Tage»; in der App abgehakt, ist sie auch in Google Aufgaben erledigt.
+
+### Fitbit-Verbindung
+
+Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten von deiner Uhr, von selbst geholt; nur zur Beobachtung.
+
+**Aufschalten:** Fitbit einmal verbinden unter Ich › Daten und Backup › Fitbit (braucht Strava auf diesem Gerät).
+
+1. Tippe «Mit Google verbinden» und erlaube die Werte.
+2. Zurück in der App zeigt «Gesundheitsdaten», wie aktuell jeder Wert ist; «Werte wählen» schaltet einzelne aus.
+
+**Beispiel:** Du öffnest die App am Morgen → der Schlaf der letzten Nacht und der Ruhepuls von heute sind da.
 
 ### Auto-Backup in einen Ordner
 
@@ -1209,6 +1338,7 @@ Der Code bleibt auf diesem Gerät, mit Monatslimit; du siehst, was an Claude geh
 
 1. Füge den Helfer-Code ein; er bleibt auf diesem Gerät.
 2. Vor jeder Anfrage siehst du, was an Claude geht; es gilt ein Monatslimit.
+3. Wähle das Modell: Sonnet 5.5 (Standard) oder das günstigere Haiku 5.5. «Nutzung und Kosten» sagt, was es kostet.
 
 **Beispiel:** Wieder ausgeschaltet → er zeigt sich nirgends, der Code bleibt gespeichert.
 
@@ -1222,6 +1352,18 @@ g h, g t … wechselt den Ort, n = Neu, / = Suche, ? = die Liste.
 2. g und ein Buchstabe wechseln den Ort; n ist Neu, / ist Suche.
 
 **Beispiel:** G t → Touren, dann n → neue Tour planen.
+
+### Erinnerungen aufs Handy
+
+Geburtstage, Pflanzen, Vorabend, Tourwetter, Werkstatt und Backup als Nachricht aufs Handy; jede einzeln eingeschaltet.
+
+**Aufschalten:** Braucht Chrome auf dem Handy. Einmal: auf dieser Seite «Adresse für cron-job.org kopieren» und in cron-job.org einfügen.
+
+1. Öffne Ich › Erinnerungen aufs Handy.
+2. Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.
+3. Schalte die gewünschten Erinnerungen einzeln ein.
+
+**Beispiel:** Am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»
 
 ### Hell, dunkel und Farben
 

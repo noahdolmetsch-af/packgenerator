@@ -66,7 +66,7 @@
   import { factStates, factCounts, matchesState } from '../lib/review/state.js';
   import { homeTrips, testTrips } from '../lib/home/heute.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
-  import { loadPastActs, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
+  import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
@@ -159,8 +159,8 @@
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   // SN4g: wire to training.js when the Training PR lands (the activities: power, NP, moving and elapsed time)
   const moreQ = liveQuery(async () => {
-    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY)]);
-    return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
+    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), zoneValues(db)]);
+    return { acts, entries, zones: zonesOf(zones, entries, acts) };
   });
   const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
 

@@ -17,6 +17,7 @@
   import { t } from '../i18n.svelte.js';
   import SearchAnswer from '../helper/SearchAnswer.svelte';
   import SearchFree from '../kisuche/SearchFree.svelte';
+  import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
@@ -261,6 +262,8 @@
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
+      <AskAnswer {q} onlink={() => { q = ''; open = false; }} />
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length}
         <p class="gh">{t('Do it now')}</p>

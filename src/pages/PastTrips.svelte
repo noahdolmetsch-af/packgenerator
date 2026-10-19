@@ -40,7 +40,7 @@
   import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sun, CloudRain, Cloud, Check, Info, CalendarHeart } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   // SN4+ «SN4 plus»: the columns from Strava, «Spalten» and «In Zahlen»
-  import { loadPastActs, loadComments, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
+  import { loadPastActs, loadComments, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, viewOf, shownCols, VIEW_KEY } from '../lib/review/inzahlen.js';
   import { bikeTypeName } from '../lib/bikes.js';
   import PastColumns from '../lib/review/PastColumns.svelte';
@@ -108,8 +108,8 @@
   /* ---- SN4+ «SN4 plus» ---- */
   // the activities (Training PR; [] until then), the ride ledger (heart rate) and the zones
   const moreQ = liveQuery(async () => {
-    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY)]);
-    return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
+    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), zoneValues(db)]);
+    return { acts, entries, zones: zonesOf(zones, entries, acts) };
   });
   const viewQ = liveQuery(() => db.settings.get(VIEW_KEY));
   let viewNow = $state(null);
@@ -127,12 +127,14 @@
   let openC = $state(null);
   const typeOf = (v) => (v?.type ? t(bikeTypeName(v.type)) : DASH);
   const secs = (s) => hours(s ? s / 3600 : null);
-  // SN4+: wire to training.js loadDetail when the Training PR lands (until then nothing is fetched)
+  // SN4+: «Kommentar laden» fetches the activity from Strava (Training's loadDetail); a no shows one line
   let loading = $state(null);
+  let failed = $state(null);
   async function loadC(r) {
     loading = r.id;
+    failed = null;
     try {
-      await loadComments(db, vals[r.id]?.comment.ids ?? []);
+      if (!(await loadComments(db, vals[r.id]?.comment.ids ?? []))) failed = r.id;
     } finally {
       loading = null;
     }
@@ -168,6 +170,7 @@
     {:else}<button type="button" class="ctog" aria-expanded="false" aria-label={t('Show the whole comment of {trip}', { trip: r.title })} onclick={() => (openC = r.id)}><span class="c1">{c.text}</span></button>{/if}
   {:else if c?.state === 'load'}
     <button type="button" class="cload" disabled={loading === r.id} onclick={() => loadC(r)}><Download size={14} aria-hidden="true" />{t('Load comment')}</button>
+    {#if failed === r.id}<small class="cfail" role="status" data-comment-failed>{t('Strava is not reachable right now. Try again later.')}</small>{/if}
   {:else}
     <span class="cnone">{#if card}<MessageSquareText size={16} aria-hidden="true" />{/if}{DASH}</span>
   {/if}
@@ -611,6 +614,11 @@
     color: var(--warn);
   }
   /* SN4+ the Strava comment: one line in the table, the whole text in the row under it */
+  .cfail {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .tt td.cm {
     max-width: 240px;
     min-width: 140px;

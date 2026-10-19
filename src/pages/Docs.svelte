@@ -8,27 +8,44 @@
    * themselves) and «For the next trip» (the papers marked for the packing list, ticked per trip).
    * #/me/docs/<id> (D4): one document: preview, open, share; details (group, valid until, reminder,
    * note) save as you type; «In the packing list»; replace the file, delete (asks, then 4 s Undo).
-   * Only on this device and in the backup file. Camera and Google Drive come later with «Dokumente-PDF».
+   * Dokumente-PDF (Paket B, Noah «1b 2a mit möglichkeiten zum sortieren … 5a», «1a 2a»): «Photograph document»
+   * (#/me/docs/scan, DocScan.svelte) first, search in the name and the recognised text, four ways to sort,
+   * and Google Drive (a subfolder per group) beside «Reminders» and «For the next trip».
+   * Paket A (Noah 18.10.2026 «1a»): each group heading has «…» with «Rename» and «Delete». A rename changes
+   * the group on every document in it (a default group only gets its own name, its key stays); a delete
+   * asks once, moves the documents to the default group and never deletes one; both have 4 s «Undo».
    */
   import { liveQuery } from 'dexie';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { db } from '../lib/db.js';
-  import { docs, DOCS_HASH, MAX_MB, addDoc, updateDoc, deleteDoc, restoreDoc, addGroup, readData, smallPhoto, pdfPages, blobOf } from '../lib/docs/client.svelte.js';
-  import { groupDocs, ownGroups, groupOf, dataBytes, fileName, reminderRows, packRows, expiry, untilOf, REMIND_MONTHS, DEFAULT_REMIND, DEFAULT_GROUP, GROUP_IDEAS } from '../lib/docs.js';
+  import Seg from '../lib/ui/Seg.svelte';
+  import GroupActions from '../lib/ui/GroupActions.svelte';
+  import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
+  import { UNDO_MS } from '../lib/ui/undo.js';
+  import { docs, DOCS_HASH, SCAN_HASH, MAX_MB, addDoc, updateDoc, renameDoc, moveDoc, deleteDoc, restoreDoc, addGroup, renameGroup, deleteGroup, undoGroup, readData, smallPhoto, pdfPages, blobOf, connectDrive, checkDrive, uploadMissing, savePrefs } from '../lib/docs/client.svelte.js';
+  import { groupDocs, ownGroups, groupOf, dataBytes, fileName, reminderRows, packRows, expiry, untilOf, defaultName, searchDocs, sortDocs, SORTS, REMIND_MONTHS, DEFAULT_REMIND, DEFAULT_GROUP, GROUP_IDEAS } from '../lib/docs.js';
+  import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { nextTrip } from '../lib/debrief.js';
   import { localDay } from '../lib/localday.js';
-  import { FileText, Upload, Bell, Lock, ExternalLink, Share2, FileUp, Trash2, Backpack, Check, ChevronRight, TriangleAlert } from '@lucide/svelte';
+  import { FileText, Upload, Bell, Lock, ExternalLink, Share2, FileUp, Trash2, Backpack, Check, ChevronRight, TriangleAlert, Camera, Search, Cloud, Database, Image as ImageIcon } from '@lucide/svelte';
   import '../lib/ich/ich.css';
   import '../lib/maintenance/maint.css';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   const today = localDay();
   const id = decodeURIComponent(location.hash.split('?')[0].slice(DOCS_HASH.length + 1));
+  const hasKey = readKey();
+  // DP: search and sort; with a search the hits stand in one list
+  let sort = $state('new');
+  let q = $state('');
+  const SORT_NAMES = { new: 'Newest', name: 'Name|sort', date: 'Date in the document', source: 'Camera / gallery' };
+  const inDrive = $derived(docs.list.filter((d) => d.drive?.id).length);
+  const total = $derived(docs.list.reduce((s, d) => s + (d.bytes || dataBytes(d.data)), 0));
   const doc = $derived(id ? docs.list.find((d) => d.id === id) ?? null : null);
   const tripsQ = liveQuery(() => db.trips.toArray());
   const next = $derived(nextTrip($tripsQ ?? [], today));
-  const groups = $derived(groupDocs(docs.list, 'name', docs.prefs.groups).filter((g) => g.rows.length || g.kind === 'own'));
+  const groups = $derived(q.trim() ? [{ key: 'hits', kind: 'hits', name: null, rows: sortDocs(searchDocs(docs.list, q), sort) }] : groupDocs(docs.list, sort, docs.prefs.groups).filter((g) => g.rows.length || g.kind === 'own'));
   const allGroups = $derived(ownGroups([...GROUP_IDEAS.map((g) => ({ group: g })), ...docs.list], docs.prefs.groups));
   const reminders = $derived(reminderRows(docs.list, today));
   const pack = $derived(packRows(docs.list));
@@ -43,7 +60,16 @@
   const mb = (b) => `${(b / 1024 / 1024).toLocaleString(locale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 })} MB`;
   const day = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const monthName = (ym) => new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' });
-  const groupName = (g) => (g.kind === 'own' ? t(g.name) : t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']));
+  /** A default group's name: its own name when it was renamed (Paket A), else «Importierte PDF/Fotos». */
+  const defName = (kind) => defaultName(kind, docs.prefs.names) ?? t(DEFAULT_GROUP[kind === 'photo' ? 'photo' : 'pdf']);
+  /**
+   * An own group's shown name: the six ideas in German, an own name as typed (Paket A: never through t(), so
+   * «Travel» is «Reisen» and not the «Federweg» of the bike pages, and a typed name stays as it is).
+   */
+  const ownLabel = (name) => (GROUP_IDEAS.includes(name) ? t(name === 'Travel' ? 'Travel|docs' : name) : name);
+  const groupName = (g) => (g.kind === 'hits' ? t('Found') : g.kind === 'own' ? ownLabel(g.name) : defName(g.kind));
+  /** A heading id without spaces (an own group's key is its folded name). */
+  const gid = (g) => `g-${g.key.replace(/[^a-z0-9]+/gi, '-')}`;
   const kindLine = (d) => (d.kind === 'photo' ? t('Photo') : `PDF · ${tn(d.pages || 1, '{n} page', '{n} pages')}`);
   /** The quiet line of a document in the list: valid until, or the note. */
   function lineOf(d) {
@@ -51,8 +77,29 @@
     if (ex?.over) return t('expired {month}', { month: monthName(ex.until) });
     if (ex?.soon) return tn(ex.left, 'expires in {n} month', 'expires in {n} months');
     if (ex) return t('valid until {month}', { month: monthName(ex.until) });
-    return d.note || day(d.createdAt);
+    return d.note || day(d.docDate ?? d.createdAt);
   }
+  // Once per visit: every answer saves the prefs, and new prefs would run this again and again.
+  let driveChecked = false;
+  $effect(() => {
+    if (driveChecked || !hasKey || !docs.loaded || !docs.prefs.drive) return;
+    driveChecked = true;
+    checkDrive().catch(() => {});
+  });
+  async function upNow() {
+    const n = await uploadMissing();
+    msg = tn(n, '{n} document is now in Google Drive.', '{n} documents are now in Google Drive.');
+  }
+  const errorText = (code) =>
+    ({
+      denied: t('The Google login was cancelled. Nothing changed.'),
+      expired: t('The login took too long. Try again.'),
+      unauthorized: t('This device has no key yet: connect Strava on this device first.'),
+      not_set_up: t('Google is not set up on the server yet.'),
+      network: t('No connection. The documents go to Drive later.'),
+      too_big: t('A document is bigger than 4 MB and stays only in the app.'),
+      google_login_needed: t('Google needs a new login.'),
+    })[code] ?? t('Google Drive answered with an error. Try again later.');
 
   /** «Add PDF» (D3): a PDF or a photo of a paper; the details open next. */
   async function addFile(event, replace = null) {
@@ -71,7 +118,7 @@
         await updateDoc(replace.id, file);
         msg = t('File replaced.');
       } else {
-        const d = await addDoc({ ...file, name: f.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 120) || t('Document') });
+        const d = await addDoc({ ...file, source: 'file', mode: 'color', name: f.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 120) || t('Document') });
         location.hash = `${DOCS_HASH}/${encodeURIComponent(d.id)}`;
       }
     } catch {
@@ -110,7 +157,7 @@
   }
   /** Delete: asks first, then 4 s «Undo» (rule «Löschen» 14.10.2026, Ü4a 15.10.2026). */
   async function remove(d) {
-    if (!confirm(t('Delete «{name}»? It is gone from this device; older backup files still have it.', { name: d.name }))) return;
+    if (!confirm(d.drive?.id ? t('Delete «{name}» from the app? A copy in Google Drive stays.', { name: d.name }) : t('Delete «{name}»? It is gone from this device; older backup files still have it.', { name: d.name }))) return;
     const row = await deleteDoc(d.id);
     clearTimeout(undo?.timer);
     undo = { row, timer: setTimeout(() => (undo = null), 4000) };
@@ -122,10 +169,41 @@
     undo = null;
     await restoreDoc(row);
   }
+  /* ---------- Paket A: rename and delete a group ---------- */
+  let groupUndo = $state.raw(null); // { text, u, timer }; raw: u goes back into IndexedDB as it is
+  async function saveRename(g, value) {
+    const own = t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']);
+    const back = g.kind !== 'own' && (!value || value === own);
+    const u = await renameGroup(g, back ? '' : value);
+    if (u) offerGroupUndo(t('Renamed to «{name}».', { name: back ? own : value }), u);
+  }
+  // Paket B «Gruppen überall»: «Löschen» opens the one delete window of the app (GroupDeleteSheet); the first
+  // choice sends the documents back to the default group, or the person picks another own group
+  let deleting = $state.raw(null); // the group row of groupDocs being deleted
+  async function removeGroup(g, to) {
+    const name = groupName(g);
+    const u = await deleteGroup(g, { to: to ?? '' });
+    if (u) offerGroupUndo(t('Group «{name}» deleted.', { name }), u);
+  }
+  const renameHelp = (g) =>
+    g.kind === 'own'
+      ? tn(g.rows.length, 'The {n} document in it gets the new name.', 'The {n} documents in it get the new name.')
+      : t(g.kind === 'photo' ? 'Only the name changes; new photos still come here. Empty: back to «{name}».' : 'Only the name changes; new PDFs still come here. Empty: back to «{name}».', { name: t(DEFAULT_GROUP[g.kind === 'photo' ? 'photo' : 'pdf']) });
+  function offerGroupUndo(text, u) {
+    clearTimeout(groupUndo?.timer);
+    groupUndo = { text, u, timer: setTimeout(() => (groupUndo = null), UNDO_MS) };
+  }
+  async function undoGroupChange() {
+    clearTimeout(groupUndo?.timer);
+    const u = groupUndo?.u;
+    groupUndo = null;
+    await undoGroup(u);
+  }
+
   async function makeGroup() {
     const g = await addGroup(newGroup);
     newGroup = null;
-    if (g && doc) await updateDoc(doc.id, { group: g });
+    if (g && doc) await moveDoc(doc.id, g);
   }
   /** A tick of «For the next trip»: kept on the trip (trip.docChecks), the same tick as in its packing list. */
   async function tick(key, on) {
@@ -163,7 +241,7 @@
     <!-- D4: one document -->
     {#if doc}
       {@const ex = expiry(doc, today)}
-      <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={doc.name} title={doc.name} sub={`${groupOf(doc) ? t(groupOf(doc)) : t(DEFAULT_GROUP[doc.kind === 'photo' ? 'photo' : 'pdf'])} · ${t('added on {date}', { date: day(doc.createdAt) })}`} />
+      <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={doc.name} title={doc.name} sub={`${groupOf(doc) ? ownLabel(groupOf(doc)) : defName(doc.kind)} · ${t('added on {date}', { date: day(doc.createdAt) })}`} />
       {#if msg}<p class="msg" role="status">{msg}</p>{/if}
       <div class="ich-cols">
         <div class="ich-main">
@@ -175,19 +253,21 @@
               <span class="ich-acts">
                 <button type="button" class="btn sm" onclick={() => openDoc(doc)}><ExternalLink size={15} aria-hidden="true" />{t('Open')}</button>
                 <button type="button" class="btn sm" onclick={() => shareDoc(doc)}><Share2 size={15} aria-hidden="true" />{t('Share')}</button>
+                {#if doc.drive?.link}<a class="btn sm" href={doc.drive.link} target="_blank" rel="noopener"><Cloud size={15} aria-hidden="true" />{t('Open in Drive')}</a>{/if}
               </span>
             </div>
+            {#if doc.text}<details class="txt"><summary>{t('Recognised text')}</summary><p>{doc.text.slice(0, 1200)}{doc.text.length > 1200 ? '…' : ''}</p></details>{/if}
           </section>
         </div>
         <div class="ich-side">
           <section class="ich-sec" aria-labelledby="dd-h">
             <div class="ich-h"><div><h2 id="dd-h">{t('Details')}</h2><p class="ich-hs">{t('Saved as you type.')}</p></div></div>
             <div class="card ich-body form">
-              <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" maxlength="120" value={doc.name} onchange={(e) => e.currentTarget.value.trim() && updateDoc(doc.id, { name: e.currentTarget.value.trim() })} /></label>
+              <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" maxlength="120" value={doc.name} onchange={(e) => e.currentTarget.value.trim() && renameDoc(doc.id, e.currentTarget.value)} /></label>
               <label class="fld"><span class="lbl">{t('Group')}</span>
-                <select class="inp" value={groupOf(doc)} onchange={(e) => (e.currentTarget.value === '+' ? (newGroup = '') : updateDoc(doc.id, { group: e.currentTarget.value }))}>
-                  <option value="">{t(DEFAULT_GROUP[doc.kind === 'photo' ? 'photo' : 'pdf'])}</option>
-                  {#each allGroups as g (g)}<option value={g}>{t(g)}</option>{/each}
+                <select class="inp" value={groupOf(doc)} onchange={(e) => (e.currentTarget.value === '+' ? (newGroup = '') : moveDoc(doc.id, e.currentTarget.value))}>
+                  <option value="">{defName(doc.kind)}</option>
+                  {#each allGroups as g (g)}<option value={g}>{ownLabel(g)}</option>{/each}
                   <option value="+">{t('New group …')}</option>
                 </select>
               </label>
@@ -236,24 +316,38 @@
     {/if}
   {:else}
     <!-- D3: the documents -->
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Documents')} title={t('Documents')} sub={t('Passport, insurance, emergency and travel in one place. Only on your device.')} />
+    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Documents')} title={t('Documents')} sub={docs.prefs.drive ? t('Passport, insurance, emergency and travel in one place. Also in your Google Drive.') : t('Passport, insurance, emergency and travel in one place. Only on your device.')} />
     {#if msg}<p class="msg" role="status">{msg}</p>{/if}
     {#if undo}<p class="msg undo" role="status">{t('Deleted «{name}».', { name: undo.row?.name ?? '' })} <button type="button" class="link" onclick={undoDelete}>{t('Undo')}</button></p>{/if}
+    {#if groupUndo}<p class="msg undo" role="status" data-group-undo>{groupUndo.text} <button type="button" class="link" onclick={undoGroupChange}>{t('Undo')}</button></p>{/if}
     <div class="ich-cols">
       <div class="ich-main">
         {#if docs.loaded && !docs.list.length}
           <Empty icon={FileText} title={t('No documents yet')} text={t('Add your passport, insurance or emergency sheet as a PDF or a photo. The app reminds you before it expires and puts «ID and cash with you?» in your packing list.')} /><!-- one main button on the page: «Add PDF» below -->
         {:else}
+          <div class="tools">
+            <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search, also in the text of the pages')} aria-label={t('Search documents')} /></label>
+            <Seg chips full={false} label={t('Sort')} value={sort} onchange={(v) => (sort = v)} options={SORTS.map((k) => ({ key: k, name: t(SORT_NAMES[k]) }))} />
+          </div>
           {#each groups as g (g.key)}
-            <section class="ich-sec" aria-labelledby={`g-${g.key}`}>
-              <div class="ich-h"><div><h2 id={`g-${g.key}`}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p></div></div>
+            <section class="ich-sec" aria-labelledby={gid(g)}>
+              {#if g.kind === 'hits'}
+                <div class="ich-h"><div><h2 id={gid(g)}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p></div></div>
+              {:else}
+              <GroupActions name={groupName(g)} count={g.rows.length} canDelete={g.kind === 'own'} allowEmpty={g.kind !== 'own'}
+                renameExplain={g.kind === 'own' ? t('every document in it gets the new name') : t('only the name changes; new files still come here')}
+                deleteExplain={t('the documents stay, in «{pdf}» or «{photo}»', { pdf: defName('pdf'), photo: defName('photo') })}
+                renameHelp={renameHelp(g)} deleteAsk="" onrename={(v) => saveRename(g, v)} ondelete={() => (deleting = g)}>
+                <h2 id={gid(g)}>{groupName(g)}</h2><p class="ich-hs">{tn(g.rows.length, '{n} document', '{n} documents')}</p>
+              </GroupActions>
+              {/if}
               {#if g.rows.length}
                 <ul class="tiles">
                   {#each g.rows as d (d.id)}
                     {@const ex = expiry(d, today)}
                     <li><a class="card tile" href={`${DOCS_HASH}/${encodeURIComponent(d.id)}`} data-doc={d.id}>
                       <span class="thumb" aria-hidden="true">{#if d.kind === 'photo'}<img src={d.data} alt="" />{:else}PDF{/if}</span>
-                      <span class="ich-m"><b>{d.name}</b><small>{lineOf(d)}</small></span>
+                      <span class="ich-m"><b>{d.name}</b><small>{lineOf(d)}{#if d.drive?.id}{' · '}{t('in Drive')}{/if}{#if q.trim() && groupOf(d)}{' · '}{ownLabel(groupOf(d))}{/if}</small></span>
                       {#if ex?.soon || ex?.over}<span class="pill warn">{ex.over ? t('expired') : t('soon|expiry')}</span>{:else}<span class="pill">{d.kind === 'photo' ? t('Photo') : d.pages > 1 ? `PDF · ${tn(d.pages, '{n} page', '{n} pages')}` : 'PDF'}</span>{/if}
                     </a></li>
                   {/each}
@@ -263,9 +357,11 @@
           {/each}
         {/if}
         <div class="ich-acts">
-          <label class="btn hi" class:busy><Upload size={16} aria-hidden="true" />{t('Add PDF')}<input bind:this={fileEl} type="file" accept="application/pdf,.pdf,image/*" onchange={(e) => addFile(e)} hidden disabled={busy} /></label>
+          <a class="btn hi" href={SCAN_HASH}><Camera size={16} aria-hidden="true" />{t('Photograph document')}</a>
+          <label class="btn" class:busy><Upload size={16} aria-hidden="true" />{t('Add PDF')}<input bind:this={fileEl} type="file" accept="application/pdf,.pdf,image/*" onchange={(e) => addFile(e)} hidden disabled={busy} /></label>
         </div>
-        <p class="ich-help">{t('A PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.')}</p>
+        <p class="ich-help">{t('Photograph the pages: the app makes a PDF and reads the text. Or add a PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.')}</p>
+        {#if docs.list.length}<p class="ich-help" data-group-help>{t('Change a group: «…» beside its name › «Rename» or «Delete». Deleting a group keeps its documents.')}</p>{/if}
       </div>
       <div class="ich-side">
         <section class="ich-sec" aria-labelledby="rem-h">
@@ -289,11 +385,53 @@
             <p class="ich-help">{t('Also in the packing list of the trip.')}</p>
           {:else}<p class="ich-help">{t('In a document: «In the packing list». Then it stands here and in every packing list.')}</p>{/if}
         </section>
-        <p class="ich-fine"><Lock size={16} aria-hidden="true" /><span>{t('Your files stay on this device and in your backup file. They never go to the internet.')}</span></p>
+        <section class="ich-sec" aria-labelledby="where-h">
+          <div class="ich-h"><div><h2 id="where-h">{t('Where your documents are')}</h2></div></div>
+          <ul class="card ich-list">
+            <li class="ich-row"><span class="ich-ib"><Lock size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('On this device')}</b><small>{tn(docs.list.length, '{n} document', '{n} documents')} · {mb(total)}</small></span><Check size={16} aria-hidden="true" /></li>
+            <li><a class="ich-row" href="#/me/data"><span class="ich-ib"><Database size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your backup file')}</b><small>{t('with «Make a backup» under Me')}</small></span><Check size={16} aria-hidden="true" /></a></li>
+            <li class="ich-row"><span class="ich-ib"><Cloud size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your Google Drive')}</b><small>{docs.prefs.drive ? `${t('Folder «Imported PDFs», a subfolder per group')} · ${t('{n} of {m} there', { n: inDrive, m: docs.list.length })}` : t('not connected yet')}</small></span>{#if docs.prefs.drive}<Check size={16} aria-hidden="true" />{/if}</li>
+          </ul>
+          <div class="card ich-body drive">
+            {#if docs.prefs.drive}
+              <label class="tg"><input type="checkbox" checked={docs.prefs.auto} onchange={(e) => savePrefs({ auto: e.currentTarget.checked })} /> {t('Upload new documents by themselves')}</label>
+              {#if inDrive < docs.list.length}<button type="button" class="btn sm" onclick={upNow} disabled={Object.keys(docs.uploading).length > 0}><Upload size={15} aria-hidden="true" />{Object.keys(docs.uploading).length ? t('Uploading…') : t('Upload now')}</button>{/if}
+            {:else if hasKey}
+              <button type="button" class="btn wide" onclick={() => connectDrive()}><Cloud size={16} aria-hidden="true" />{t('Connect Google Drive')}</button>
+              <p class="ich-help">{t('A suggestion, never a must. The same Google login as Fitbit; the app sees only the folders and files it makes itself.')}</p>
+            {:else}
+              <p class="ich-help">{t('For Google Drive, first connect Strava on this device: it gives this device the key the Google connection uses too.')}</p>
+              <a class="btn wide" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+            {/if}
+            {#if docs.error}<p class="err" role="status">{errorText(docs.error)}</p>{/if}
+          </div>
+        </section>
+        <section class="ich-sec" aria-labelledby="gal-h">
+          <div class="ich-h"><div><h2 id="gal-h">{t('Photos from the gallery')}</h2></div></div>
+          <ul class="card ich-list">
+            <li class="ich-row"><span class="ich-ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gallery › Share › Pack Generator')}</b><small>{t('when the app is on the home screen of your phone; or here «Photograph document» › «Gallery»')}</small></span></li>
+          </ul>
+        </section>
+        {#if !docs.prefs.drive}<p class="ich-fine"><Lock size={16} aria-hidden="true" /><span>{t('Your files stay on this device and in your backup file. They never go to the internet.')}</span></p>{/if}
       </div>
     </div>
   {/if}
 </div>
+
+{#if deleting}
+  {@const g = deleting}
+  <GroupDeleteSheet
+    title={t('Delete group «{name}»?', { name: groupName(g) })}
+    count={g.rows.length}
+    what={(n) => tn(n, '{n} document', '{n} documents')}
+    none={t('Back to «{pdf}» or «{photo}»', { pdf: defName('pdf'), photo: defName('photo') })}
+    noneHint={t('PDFs to «{pdf}», photos to «{photo}». No document is deleted.', { pdf: defName('pdf'), photo: defName('photo') })}
+    targets={groups.filter((x) => x.kind === 'own' && x.key !== g.key).map((x) => ({ id: x.name, name: groupName(x) }))}
+    onconfirm={(to) => removeGroup(g, to)}
+    onclose={() => (deleting = null)}
+  />
+{/if}
+
 
 <style>
   .msg {
@@ -429,6 +567,69 @@
   }
   .busy {
     opacity: 0.6;
+  }
+  .tools {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .find {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink-3);
+  }
+  .find input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--ink);
+    outline: none;
+  }
+  .txt {
+    margin-top: 10px;
+  }
+  .txt summary {
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .txt p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    max-height: 220px;
+    overflow: auto;
+  }
+  .drive {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .tg {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: var(--fs-small);
+  }
+  .wide {
+    width: 100%;
+    justify-content: center;
+  }
+  .err {
+    margin: 0;
+    color: var(--bad);
+    font-size: var(--fs-small);
   }
   @media (max-width: 719px) {
     .prev img,

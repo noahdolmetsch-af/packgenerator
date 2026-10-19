@@ -1,0 +1,28 @@
+/* TR5–TR7: the colours of the power zones (7, Coggan) and of the chart lines, light and dark.
+   The heart rate zones keep --z1…--z5 from app.css. */
+:root {
+  --pz1: #c3c9cc;
+  --pz2: #a9bccb;
+  --pz3: #2f6b4f;
+  --pz4: #d9b14a;
+  --pz5: #d9792a;
+  --pz6: #b8392b;
+  --pz7: #6a4c93;
+  --ch-hr: #b8392b;
+  --ch-w: #2f6b4f;
+  --ch-alt: #d6d9d2;
+  --ch-b: #d9792a;
+}
+:root[data-theme='dark'] {
+  --pz1: #7c8589;
+  --pz2: #9fb6c9;
+  --pz3: #5fae86;
+  --pz4: #e0b84a;
+  --pz5: #e88a3a;
+  --pz6: #e0604f;
+  --pz7: #a98bd0;
+  --ch-hr: #e0604f;
+  --ch-w: #5fae86;
+  --ch-alt: #3a4140;
+  --ch-b: #e88a3a;
+}

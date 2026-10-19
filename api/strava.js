@@ -11,7 +11,7 @@
  *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }] }
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
  *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
- *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20 } (the heart rate per second as a
+ *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs } (the heart rate per second as a
  *                           histogram { bpm: seconds }, a short curve [[minute, bpm]] and the best 20 minutes of
  *                           power from a power meter; never the route)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
@@ -201,6 +201,164 @@ export function trimStreams(streams) {
   return { hist, curve, w20, ...more };
 }
 
+/*
+ * TR5b–TR7f (Noah 14.10.2026 «TR5–TR7 freigegeben»): more from the same streams, still nothing about
+ * the route (no position): the cadence spread, a row per 5 km, the course of elevation, heart rate and
+ * power, heart rate by power, the two halves. Each a few hundred numbers at most.
+ */
+export const SECTION_KM = 5;
+const PROF_POINTS = 120;
+const avg = (sum, n) => (n ? Math.round(sum / n) : null);
+
+/** The moving seconds as [i, dt] (a gap of more than 30 s or Strava's moving false is a pause). */
+function movingSteps(time, moving) {
+  const out = [];
+  for (let i = 0; i < time.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    if (!(dt > 0 && dt <= 30) || (Array.isArray(moving) && moving[i] === false)) continue;
+    out.push([i, dt]);
+  }
+  return out;
+}
+
+export function trimMore(streams) {
+  const time = streams?.time?.data;
+  const none = { cHist: null, secs5: null, prof: null, hw: null, halves: null };
+  if (!Array.isArray(time) || time.length < 2) return none;
+  const arr = (k) => (Array.isArray(streams?.[k]?.data) && streams[k].data.length === time.length ? streams[k].data : null);
+  const hr = arr('heartrate');
+  const w = arr('watts');
+  const cad = arr('cadence');
+  const dist = arr('distance');
+  const alt = arr('altitude');
+  const steps = movingSteps(time, arr('moving'));
+  if (!steps.length) return none;
+  const num = (a, i) => (a && Number(a[i]) > 0 ? Number(a[i]) : null);
+
+  // cadence: moving seconds per 10 rpm (coasting, 0, does not count)
+  let cHist = null;
+  if (cad) {
+    cHist = {};
+    for (const [i, dt] of steps) {
+      const c = num(cad, i);
+      if (c) cHist[Math.floor(c / 10) * 10] = (cHist[Math.floor(c / 10) * 10] ?? 0) + dt;
+    }
+    if (!Object.keys(cHist).length) cHist = null;
+  }
+
+  // climbing with 2 m of slack, so the noise of the altimeter does not add up
+  const climbed = new Array(time.length).fill(0);
+  if (alt) {
+    let low = Number(alt[0]);
+    let sum = 0;
+    for (let i = 1; i < alt.length; i++) {
+      const a = Number(alt[i]);
+      if (a < low) low = a;
+      else if (a - low >= 2) (sum += a - low), (low = a);
+      climbed[i] = sum;
+    }
+  }
+
+  // one row per 5 km: moving seconds, metres climbed, Ø heart rate, Ø watts
+  let secs5 = null;
+  if (dist) {
+    secs5 = [];
+    let row = null;
+    for (const [i, dt] of steps) {
+      const k = Math.floor((Number(dist[i]) || 0) / (SECTION_KM * 1000));
+      if (!row || row.k !== k) {
+        if (row) secs5.push(row);
+        row = { k, s: 0, hmFrom: climbed[i], hmTo: climbed[i], hr: 0, nh: 0, w: 0, nw: 0, to: 0 };
+      }
+      row.s += dt;
+      row.hmTo = climbed[i + 1] ?? climbed[i];
+      row.to = Number(dist[i + 1]) || row.to;
+      const h = num(hr, i);
+      if (h) (row.hr += h * dt), (row.nh += dt);
+      if (w) (row.w += Math.max(0, Number(w[i]) || 0) * dt), (row.nw += dt);
+    }
+    if (row) secs5.push(row);
+    secs5 = secs5.map((r) => ({ from: r.k * SECTION_KM, to: Math.round(Math.max(r.to / 1000, r.k * SECTION_KM) * 10) / 10, s: r.s, hm: Math.round(r.hmTo - r.hmFrom), hr: avg(r.hr, r.nh), w: avg(r.w, r.nw) }));
+    if (!secs5.length) secs5 = null;
+  }
+
+  // the course: up to 120 points [minute, metres, beats, watts] (null where there is none), the breaks as [from, to] minutes
+  const n = Math.min(PROF_POINTS, time.length);
+  const pts = [];
+  for (let k = 0; k < n; k++) {
+    const a = Math.floor((k * time.length) / n);
+    const e = Math.max(a + 1, Math.floor(((k + 1) * time.length) / n));
+    let sa = 0, na = 0, sh = 0, nh = 0, sw = 0, nw = 0;
+    for (let i = a; i < e; i++) {
+      if (alt && Number.isFinite(Number(alt[i]))) (sa += Number(alt[i])), na++;
+      const h = num(hr, i);
+      if (h) (sh += h), nh++;
+      if (w) (sw += Math.max(0, Number(w[i]) || 0)), nw++;
+    }
+    pts.push([Math.round(Number(time[a]) / 6) / 10, avg(sa, na), avg(sh, nh), avg(sw, nw)]);
+  }
+  const breaks = [];
+  for (let i = 0; i < time.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    if (dt >= 60) breaks.push([Math.round(Number(time[i]) / 6) / 10, Math.round(Number(time[i + 1]) / 6) / 10]);
+  }
+  const prof = { pts, breaks: breaks.slice(0, 20) };
+
+  // heart rate by power: seconds per 5 beats × 20 W (the zones are drawn from it on the device)
+  let hw = null;
+  if (hr && w) {
+    hw = {};
+    for (const [i, dt] of steps) {
+      const h = num(hr, i);
+      if (!h) continue;
+      const key = `${Math.floor(h / 5) * 5}|${Math.floor(Math.max(0, Number(w[i]) || 0) / 20) * 20}`;
+      hw[key] = (hw[key] ?? 0) + dt;
+    }
+    if (!Object.keys(hw).length) hw = null;
+  }
+
+  // the two halves of the moving time: seconds, Ø watts, Ø heart rate
+  const total = steps.reduce((s, [, dt]) => s + dt, 0);
+  const halves = [0, 1].map(() => ({ s: 0, w: 0, nw: 0, hr: 0, nh: 0 }));
+  let run = 0;
+  for (const [i, dt] of steps) {
+    const half = halves[run < total / 2 ? 0 : 1];
+    run += dt;
+    half.s += dt;
+    const h = num(hr, i);
+    if (h) (half.hr += h * dt), (half.nh += dt);
+    if (w) (half.w += Math.max(0, Number(w[i]) || 0) * dt), (half.nw += dt);
+  }
+  const hv = halves.map((h) => ({ s: h.s, w: avg(h.w, h.nw), hr: avg(h.hr, h.nh) }));
+
+  return { cHist, secs5, prof, hw, halves: hv[0].s && hv[1].s ? hv : null };
+}
+
+/** The climbs of a ride (TR7f): the own segment efforts with more than 3 % and at least 30 m up. VAM = metres per hour. */
+export function trimClimbs(list) {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  return list
+    .map((e) => {
+      const g = e?.segment ?? {};
+      const km = (Number(g.distance) || Number(e?.distance) || 0) / 1000;
+      const hm = Number(g.elevation_high) - Number(g.elevation_low);
+      const s = Math.round(Number(e?.moving_time) || Number(e?.elapsed_time) || 0);
+      return {
+        name: String(e?.name ?? '').slice(0, 120),
+        km: Math.round(km * 10) / 10,
+        grade: Math.round((Number(g.average_grade) || 0) * 10) / 10,
+        hm: Number.isFinite(hm) ? Math.round(hm) : 0,
+        s,
+        w: Number(e?.average_watts) > 0 && e?.device_watts !== false ? Math.round(Number(e.average_watts)) : null,
+        hr: Number(e?.average_heartrate) > 0 ? Math.round(Number(e.average_heartrate)) : null,
+      };
+    })
+    .filter((c) => c.name && c.s > 0 && c.grade > 3 && c.hm >= 30 && !seen.has(c.name) && seen.add(c.name))
+    .map((c) => ({ ...c, vam: Math.round(c.hm / (c.s / 3600)) }))
+    .slice(0, 12);
+}
+
 export function trimBike(b) {
   return { id: String(b.id), name: b.name ?? '', km: Math.round((Number(b.distance) || 0) / 1000), primary: !!b.primary, retired: !!b.retired };
 }
@@ -317,11 +475,12 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
           const one = await stravaGet(cfg, store, `/activities/${id}?include_all_efforts=true`);
           // the streams for the breaks too (moving), so every activity; still two calls in all
-          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving&key_by_type=true`);
-          const s = trimStreams(streams);
+          // distance, altitude and cadence too (TR5b–TR7f), still no position
+          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude&key_by_type=true`);
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts) });
+          const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

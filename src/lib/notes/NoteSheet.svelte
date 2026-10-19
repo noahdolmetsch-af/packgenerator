@@ -12,7 +12,7 @@
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -132,7 +132,7 @@
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="note-h" class="title">{noteTitle(draft) || t('Note')}</h2>
-        <p class="vd-sub">{[cl.length ? `${t('Checklist')} · ${cl.filter((c) => c.done).length}/${cl.length}` : '', `${t('Topic')} ${t(TOPICS.find((x) => x.key === (draft.topic ?? 'general'))?.name ?? 'General')}`, draft.pinned ? t('pinned') : ''].filter(Boolean).join(' · ')}</p>
+        <p class="vd-sub">{[cl.length ? `${t('Checklist')} · ${cl.filter((c) => c.done).length}/${cl.length}` : '', `${t('Topic')} ${topicText(noteTopic(draft), t)}`, draft.pinned ? t('pinned') : ''].filter(Boolean).join(' · ')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={closeIt}><X size={20} aria-hidden="true" /></button>
     </div>
@@ -165,7 +165,7 @@
 
     <p class="lbl">{t('Topic')}</p>
     <div class="vd-chips topics" role="group" aria-label={t('Topic')}>
-      {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={(draft.topic ?? 'general') === x.key} onclick={() => (draft.topic = x.key)}>{t(x.name)}</button>{/each}
+      {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={noteTopic(draft) === x.key} onclick={() => (draft.topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
     </div>
 
     {#if (draft.links ?? []).length}

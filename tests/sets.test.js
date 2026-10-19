@@ -1,6 +1,6 @@
 // v0.26.0 (Noah 2a, AP10): own sets next to the built-in ones, delete plan, "+ Set" in Pack.
 import { describe, it, expect, afterEach } from 'vitest';
-import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks, blocksLine, blockLabel } from '../src/lib/sets.js';
+import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks, blocksLine, blockLabel, deletedBuiltIns, restoreSet } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { SITUATION_BLOCKS } from '../src/lib/situation.js';
 
@@ -46,13 +46,34 @@ describe('allSets', () => {
 });
 
 describe('delete plan', () => {
-  it('removes the record and the key from every item; built-in sets cannot be deleted', () => {
+  it('removes the record and the key from every item', () => {
     const value = [{ key: 'u-regen', name: 'Regen' }, { key: 'u-x', name: 'X' }];
     const items = [item('A', { sets: ['u-regen', 'sleep'] }), item('B', { sets: ['sleep'] }), item('C', { sets: ['u-regen'] })];
     const plan = deleteSetPlan(value, items, 'u-regen', 'now');
     expect(plan.value).toEqual([{ key: 'u-x', name: 'X' }]);
     expect(plan.items.map((i) => [i.id, i.sets])).toEqual([['A', ['sleep']], ['C', []]]);
-    expect(deleteSetPlan(value, items, 'bivy')).toBeNull();
+  });
+  // «Gruppen überall» (Noah 18.10.2026): built-in blocks can be deleted too, and the items can go into another block
+  it('deletes a built-in set with a mark, and Zurückholen brings it back empty', () => {
+    const value = [{ key: 'bivy', name: 'Mein Biwak', qty: { A: 2 } }];
+    const items = [item('A', { sets: ['bivy'] })];
+    const plan = deleteSetPlan(value, items, 'bivy', 'now');
+    expect(plan.value).toEqual([{ key: 'bivy', deleted: true }]);
+    expect(plan.items.map((i) => i.sets)).toEqual([[]]);
+    expect(allSets(plan.value).some((s) => s.key === 'bivy')).toBe(false);
+    expect(deletedBuiltIns(plan.value).map((s) => s.key)).toEqual(['bivy']);
+    const back = restoreSet(plan.value, 'bivy');
+    expect(allSets(back).find((s) => s.key === 'bivy')).toMatchObject({ builtIn: true, renamed: false });
+  });
+  it('moves the items and their amounts into the chosen block', () => {
+    const value = [{ key: 'u-regen', name: 'Regen', qty: { A: 2, C: 3 } }, { key: 'u-x', name: 'X', qty: { C: 1 } }];
+    const items = [item('A', { sets: ['u-regen'] }), item('C', { sets: ['u-regen', 'u-x'] })];
+    const plan = deleteSetPlan(value, items, 'u-regen', 'now', 'u-x');
+    expect(plan.items.map((i) => [i.id, i.sets])).toEqual([['A', ['u-x']], ['C', ['u-x']]]);
+    // C was already in X: it keeps its amount there
+    expect(plan.value).toEqual([{ key: 'u-x', name: 'X', qty: { C: 1, A: 2 } }]);
+    // an unknown target is no target
+    expect(deleteSetPlan(value, items, 'u-regen', 'now', 'nope').items.map((i) => i.sets)).toEqual([[], ['u-x']]);
   });
 });
 
