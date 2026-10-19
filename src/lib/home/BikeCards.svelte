@@ -9,6 +9,7 @@
   import { readyLight, quickHints, LIGHT_WORD } from '../quickcare.js';
   import { hubBike, openIdeas, IDEAS_KEY } from '../hubs.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
+  import MessenDialog from '../bikes/MessenDialog.svelte'; // «Werte messen» W5 + W6
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { bikes = [], tasks = [], visits = [], next = null, today } = $props();
@@ -33,6 +34,7 @@
       /* private mode: the section stays closed */
     }
   };
+  let messen = $state(null); // 'chain' | 'pressure'
   const ideas = $derived(bikes.map((b) => ({ bike: b, n: openIdeas(b.ideas) })).filter((x) => x.n));
 
   const rows = $derived(
@@ -67,6 +69,9 @@
       <button type="button" class="lk" onclick={() => (dialog = 'problem')}>{t('Log a problem')}</button>
       <button type="button" class="lk" onclick={() => (dialog = 'idea')}>{t('Idea')}</button>
       <button type="button" class="lk" onclick={() => (dialog = 'visit')}>{t('Log a workshop visit')}</button>
+      <!-- «Werte messen» 2b: measure the chain, record the pressure -->
+      <button type="button" class="lk" onclick={() => (messen = 'chain')}>{t('Measure the chain')}</button>
+      <button type="button" class="lk" onclick={() => (messen = 'pressure')}>{t('Record the pressure')}</button>
       <a class="lk" href="#/bikes?tab=care">{t('Workshop order')}</a>
       {#each ideas as x (x.bike.id)}<a class="lk quiet" href={bikesHash({ bike: x.bike.id })} onclick={wantIdeas}>{x.bike.name}: {tn(x.n, '{n} idea', '{n} ideas')}</a>{/each}
     </p>
@@ -74,6 +79,7 @@
       <p class="saved" role="status">{t(savedText[saved.kind])} <a href={savedHref(saved)} onclick={() => saved.kind === 'idea' && wantIdeas()}>{t('Open')}</a></p>
     {/if}
   </section>
+  {#if messen}<MessenDialog kind={messen} bikeId={hubBike(next, bikes)} onclose={() => (messen = null)} />{/if}
   {#if dialog}
     <BikeQuickDialog kind={dialog} {bikes} bikeId={hubBike(next, bikes)} tripId={next?.id ?? null} onsaved={done} onclose={() => (dialog = null)} />
   {/if}

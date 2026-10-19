@@ -1,10 +1,11 @@
 <script>
+  import { offerTrip } from '../remind/ask.svelte.js';
   import DateInput from '../ui/DateInput.svelte';
   import { backClose } from '../ui/backclose.js';
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History } from '@lucide/svelte';
+  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake, History, Route, Mountain, TrendingDown, Tent } from '@lucide/svelte';
   import { db } from '../db.js';
   import { isOnMe } from '../swap.js';
   import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched, riddenTrips, lastTripOn } from '../trips.js';
@@ -44,6 +45,8 @@
   import TourBikeAsk from '../bikes/TourBikeAsk.svelte';
   import BikeOrderSheet from '../bikes/BikeOrderSheet.svelte';
   import '../bikes/standardvelo.css';
+  import { SPORT, CYCLING, areaOf, sportForArea, orderSports, isSport, isBikeSport, sportBikeId, ownSportBike, wantsBikepacking, SPORT_BIKES } from '../sports.js';
+  import '../sports.css';
   import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { offerDone } from '../ui/rename.svelte.js';
 
@@ -182,9 +185,23 @@
   // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
   // Data cleanup 14.10.2026: which areas are in sight, their names and icons come from domains.js (DOMAINS[].sport).
   // v0.124.0: the examples' icons (also the sports) for the shared option button (ui/OptionButton.svelte).
-  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
-  const SPORTS = TRIP_DOMAINS.filter((d) => d.sport).map((d) => ({ key: d.key, name: d.sportName ?? d.name, icon: EX_ICON[d.icon] ?? BikeIcon }));
-  const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
+  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon, route: Route, mountain: Mountain, downhill: TrendingDown, tent: Tent };
+  // SA1–SA3 (Noah 14.10.2026 «SA1–SA3 freigegeben», «1a 2a 3a 4b 5b»): one sports list (sports.js). The bike
+  // sports pack from the bike area; Fahrrad is chosen (1a); the sports used most come first (5b).
+  // svelte-ignore state_referenced_locally
+  const SPORTS = orderSports(allTrips ?? []).map((s) => ({ key: s.key, name: s.name, icon: EX_ICON[s.icon] ?? BikeIcon }));
+  const otherAreas = TRIP_DOMAINS.filter((d) => d.key !== BIKEPACKING && !isSport(d.key));
+  // svelte-ignore state_referenced_locally
+  let sport = $state(isSport(sportForArea(area)) ? sportForArea(area) : null);
+  /** A sport chip: its area follows; a bike sport brings its own standard bike (2a, below). */
+  function pickSport(key) {
+    sport = key;
+    area = areaOf(key);
+  }
+  function pickArea(key) {
+    sport = null;
+    area = key;
+  }
   // svelte-ignore state_referenced_locally
   let othersOpen = $state(otherAreas.some((d) => d.key === area));
   // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
@@ -285,6 +302,23 @@
     askTourBike = false;
     await setTourBike(db, mode);
     if (!bikeOwn) draft.bikeId = tourBikeId(trips, bikes, mode) ?? draft.bikeId;
+  }
+  // SA1 (2a): every bike sport brings its own standard bike (sports.js sportBikeId: the one set with
+  // «Als Standard für …», else one whose type fits, else the bike above). A tapped bike stays.
+  const sportBikesQ = liveQuery(() => db.settings.get(SPORT_BIKES));
+  const savedSportBikes = $derived($sportBikesQ?.value ?? {});
+  const baseBikeId = $derived(tourBike.mode === 'last' ? tourBikeId(trips, bikes, 'last') : stdBike?.id ?? bikes[0]?.id);
+  $effect(() => {
+    if (!isNew || bikeOwn || bikeFromOpen || !isBikeSport(sport)) return;
+    const id = sportBikeId(sport, bikes, savedSportBikes, baseBikeId);
+    if (id && draft.bikeId !== id) draft.bikeId = id;
+  });
+  /** The chosen bike is the sport's own standard (not only the general one). */
+  const sportStd = $derived(isNew && isBikeSport(sport) && sport !== CYCLING && bikes.length > 1 && ownSportBike(sport, bikes, savedSportBikes, draft.bikeId));
+  /** A tapped bike that is not the sport's standard: «Als Standard für Gravel» saves it for the sport. */
+  const canSetSportBike = $derived(isNew && bikeOwn && isBikeSport(sport) && sport !== CYCLING && bikes.length > 1 && sportBikeId(sport, bikes, savedSportBikes, null) !== draft.bikeId);
+  async function setSportBike() {
+    await db.settings.put({ key: SPORT_BIKES, value: { ...$state.snapshot(savedSportBikes), [sport]: draft.bikeId } });
   }
   // the check at the name field: another trip has this name → a free one to take with one tap
   const clash = $derived(nameClash(draft.title, trips, trip?.id ?? null));
@@ -400,6 +434,8 @@
     return out;
   };
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
+  // SA1: the trip keeps its sport (sports.js); trips of other areas (Weekend, World trip) have none.
+  const withSport = (nt) => (sport ? { ...nt, sport } : nt);
   // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
   const warmIds = $derived(new Set((preview?.weather ?? []).filter((i) => coldLayer(i)).map((i) => i.id)));
   const builtEntries = $derived(built ? withBlocks(built).entries : []);
@@ -425,7 +461,7 @@
   /** «Übernehmen»: the chips that are left go into the form; blocks switch on; the items come along. */
   function takeProposal(p) {
     const c = p.conditions;
-    if (c.area && DOMAIN[c.area]) area = c.area;
+    if (c.area && DOMAIN[c.area]) (area = c.area), (sport = isSport(sportForArea(c.area)) ? sportForArea(c.area) : null);
     if (c.bikeId && bikes.some((b) => b.id === c.bikeId)) draft.bikeId = c.bikeId;
     if (c.days > 0) {
       draft.days = c.days;
@@ -520,8 +556,8 @@
   /** v0.39.0 (AP28): a new trip without a bike: from a template of this area, a copy of the last one, or the area's items. */
   function packTrip(readyStandard, now) {
     const snap = $state.snapshot(draft);
-    if (chosenTpl) return withExtras(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue)));
-    return withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now()));
+    if (chosenTpl) return withSport(withExtras(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue))));
+    return withSport(withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now())));
   }
 
   // «Rückmeldungen» (Noah 19.10.2026 «2a»): «Save», ✕, back and Escape say what was saved; a second tap
@@ -577,6 +613,7 @@
       rememberDomain(area);
       oncreated?.(nt.id);
       offerDone(t('"{name}" saved.', { name: nt.title }));
+      offerTrip(nt); // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): «Soll ich dich vor der Tour erinnern?»
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
@@ -585,10 +622,11 @@
       ended = true;
       clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
-      await db.trips.put(touched($state.snapshot(withBlocks(nt))));
+      await db.trips.put(touched($state.snapshot(withSport(withBlocks(nt)))));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
       offerDone(t('"{name}" saved.', { name: nt.title }));
+      offerTrip(nt); // ER2: «Soll ich dich vor der Tour erinnern?»
     } else {
       const didChange = edited();
       await applyEdit(editFn());
@@ -621,7 +659,7 @@
     if (!bike || !hoursOk) return null;
     const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
     const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
+    return $state.snapshot(withSport(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips: ridden, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow))));
   }
   let autoTimer;
   let autoBusy = Promise.resolve();
@@ -639,7 +677,7 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, autoName, chose, off, dark, extras, wxPlace]); // what the trip is made of
+    JSON.stringify([draft, ctx, start, picked, area, sport, autoName, chose, off, dark, extras, wxPlace]); // what the trip is made of
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName || chose })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
@@ -710,6 +748,14 @@
     {#if days > 1 && night === 'none'}<p class="note">{t('More than one day without a night? Choose where you sleep.')}</p>{/if}
     <!-- Noah 3a: cooking only for a night outdoors. -->
     {#if night === 'outdoor'}<label class="ck"><input type="checkbox" bind:checked={ctx.cook} /> {t('Cooking')}</label>{/if}
+    <!-- SA2 (3a): a night with a day sport: a quiet hint, nothing changes without a tap. -->
+    {#if isNew && wantsBikepacking(sport, night)}
+      <div class="sa-hint" role="note">
+        <Tent size={18} aria-hidden="true" />
+        <span class="sa-ht"><b>{t('A night out? Bikepacking may fit better.')}</b><small>{t('Only a suggestion. {sport} stays until you tap.', { sport: t(SPORT[sport].name) })}</small></span>
+        <button type="button" class="btn sm sa-hb" onclick={() => pickSport('bikepacking')}>{t('Switch to Bikepacking')}</button>
+      </div>
+    {/if}
   </fieldset>
 {/snippet}
 {#snippet weather()}
@@ -792,7 +838,7 @@
           {#each areaTemplates as tp (tp.id)}<OptionButton pressed={start === tp.id} icon={Star} label={tp.name} title={tplLine(tp)} onclick={() => pickStart(tp.id)} />{/each}
         </div>
         {#if examples.length}
-          <p class="grp-l">{t('Examples {sport}', { sport: t(SPORTS.find((x) => x.key === area)?.name ?? domainName(area)) })}</p>
+          <p class="grp-l">{t('Examples {sport}', { sport: t(SPORT[sport]?.name ?? domainName(area)) })}</p>
           <div class="obtns" role="group" aria-label={t('Examples')}>
             {#each examples as ex (ex.id)}<OptionButton pressed={example === ex.id} icon={EX_ICON[ex.icon] ?? BikeIcon} label={t(ex.name)} onclick={() => pickExample(ex)} />{/each}
           </div>
@@ -865,9 +911,9 @@
       <fieldset class="ctx area">
         <legend class="lbl">{t('Sport')}</legend>
         <div class="tp-chips areas">
-          {#each SPORTS as d (d.key)}{@const Icon = d.icon}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}><Icon size={16} aria-hidden="true" />{t(d.name)}</button>{/each}
+          {#each SPORTS as d (d.key)}{@const Icon = d.icon}<button type="button" class="tp-chip" aria-pressed={sport === d.key} onclick={() => pickSport(d.key)}><Icon size={16} aria-hidden="true" />{t(d.name)}</button>{/each}
           {#if othersOpen}
-            {#each otherAreas as d (d.key)}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+            {#each otherAreas as d (d.key)}<button type="button" class="tp-chip" aria-pressed={!sport && area === d.key} onclick={() => pickArea(d.key)}>{t(d.name)}</button>{/each}
           {:else if otherAreas.length}
             <button type="button" class="tp-chip more" aria-expanded="false" onclick={() => (othersOpen = true)}><Plus size={16} aria-hidden="true" />{t('Other|sport')}</button>
           {/if}
@@ -882,9 +928,13 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard for {sport}', { sport: t(SPORT[sport].name) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
-          {#if stdPre}
+          {#if sportStd && !bikeOwn}
+            <small class="prefrom sa-pre">{t('standard bike for {sport} · you can change it', { sport: t(SPORT[sport].name) })}</small>
+          {:else if canSetSportBike}
+            <p class="sv-hint sa-set"><span>{t('Bring {name} every time for {sport}?', { name: bike?.name ?? '', sport: t(SPORT[sport].name) })} <button type="button" class="std-link" onclick={setSportBike}>{t('Make standard for {sport}', { sport: t(SPORT[sport].name) })}</button></span></p>
+          {:else if stdPre}
             <p class="sv-hint std-pre"><Star size={14} class="sv-star" aria-hidden="true" /><span><b>{t('Standard bike')}</b> {t('is chosen. A tap on another bike counts only for this trip.')} <button type="button" class="std-link" onclick={() => (orderOpen = true)}>{t('Change standard')}</button></span></p>
           {:else if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
         </fieldset>

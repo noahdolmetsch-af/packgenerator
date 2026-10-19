@@ -3,7 +3,7 @@
 // device. Fictional data (tests/fixtures/gesamttest), German.
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
-import { start, prepare, fixture, sideways, openData, tr, esc } from './gesamttest/lib.js';
+import { start, prepare, fixture, sideways, openData, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 
 const T = tr('de');
@@ -28,7 +28,9 @@ test('DK6, DK7b: the look back page says Erkenntnisse, no internal code, the km 
   await page.goto('./#/debrief');
   const main = page.locator('main');
   await main.waitFor();
-  await expect(main.getByText(T('Learnings'), { exact: true }).first()).toBeVisible();
+  // UI-Regeln Teil 2 (Noah «a»): on a phone the Rückblick lines start closed, so the word is read where it shows
+  // (the line «Gelernt · 60 Erkenntnisse» and the link «Erkenntnisse» under «Mehr»)
+  await expect(main.getByText(T('Learnings'), { exact: true }).filter({ visible: true }).first()).toBeVisible();
   await expect(main).not.toContainText('Learnings');
   await expect(main).not.toContainText('S1');
   const ax = main.locator('.bars .ax').first();
@@ -46,7 +48,14 @@ test('DK7c: importing on an empty device says Neu hier, no older warning; the li
   await expect(page.getByText(T('New here'), { exact: true })).toBeVisible();
   await expect(page.getByText(T('Older'), { exact: true })).toHaveCount(0);
   await page.goto('./#/me/data');
-  const line = page.locator('.ich-hs').first();
-  const rows = await page.locator('#lights-h').locator('xpath=ancestor::section[1]').locator('.ich-list > li').count();
-  await expect(line).toHaveText(new RegExp(esc(T('{n} of {all} green', { n: 'NN', all: rows })).replace('NN', '\\d+')));
+  // Impeccable «Daten und Backup» (18.10.2026): the head says in words what is not in order instead of
+  // «n von 3 grün»; every row still has its light, and a yellow row makes the head name it.
+  const line = page.locator('[data-head-line]');
+  const list = page.locator('#lights-h').locator('xpath=ancestor::section[1]').locator('.ich-list > li');
+  const rows = await list.count();
+  expect(rows).toBeGreaterThanOrEqual(3);
+  await expect(list.locator('.dot')).toHaveCount(rows);
+  const warns = await list.locator('.dot.warn').count();
+  if (warns) await expect(line).not.toHaveText(T('Everything is in order.'));
+  else await expect(line).toHaveText(T('Everything is in order.'));
 });

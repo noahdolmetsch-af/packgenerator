@@ -16,6 +16,8 @@
   import { formatAmount } from '../lib/pay/qrbill.js';
   import { ChevronRight, ReceiptText, Store } from '@lucide/svelte';
   import { listOrders, ordersSummary, listProducts } from '../lib/pay/myshop.js';
+  import PayReminder from '../lib/pay/PayReminder.svelte';
+  import BillReminder from '../lib/pay/BillReminder.svelte';
   import '../lib/ich/ich.css';
 
   let invLine = $state('');
@@ -35,6 +37,10 @@
 
 <div class="ich-page pay">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Payments')} sub={t('What is prepared and what you could do with it.')} />
+
+  <!-- Reminders only here, not on Heute (Noah 15.10.2026 21:07 «4b») -->
+  <BillReminder />
+  <PayReminder />
 
   <p class="pay-band" role="note">
     <Info size={18} aria-hidden="true" />

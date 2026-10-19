@@ -99,8 +99,10 @@ test('New › Workshop visit: the visit opens with the camera for the receipt; a
   await page
     .locator('li[data-note-id]')
     .filter({ hasText: 'test_data_gtp_ Service' })
-    .getByRole('button', { name: T('File'), exact: true })
+    .getByRole('button', { name: T('More for this note') })
     .click();
+  // Impeccable (18.10.2026): the 7 targets are under ••• › «File elsewhere …»
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('File elsewhere …')}`) }).click();
   const file = page.getByRole('dialog', { name: T('File as …') });
   await file.locator('button.tile[data-target="receipt"]').click();
   await file.getByRole('button', { name: bike.name }).click();

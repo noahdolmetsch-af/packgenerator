@@ -3,11 +3,10 @@
   import { closeKeep } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
-  import { SLOTS, renameBike } from '../bikes.js';
+  import { SLOTS, renameBike, sortBikes } from '../bikes.js';
   import { withNewBike, saveOrder } from '../tourbike.svelte.js';
   import { shrinkImage } from '../photo.js';
   import { t, tn, num } from '../i18n.svelte.js';
-  import { liveQuery } from 'dexie';
   import { X, Bike, TriangleAlert, Mountain, Building2, Zap, Image, SlidersHorizontal } from '@lucide/svelte';
   import OptionButton from '../ui/OptionButton.svelte';
   import FoldRow from '../ui/FoldRow.svelte';
@@ -16,7 +15,9 @@
   import { SURFACES } from '../review/werte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
-  import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
+  import { deleteWithUndo, saveFailed, once } from '../ui/ask.js';
+  import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
+  import { bikeLinks, deleteBike, undoDeleteBike } from '../bikedelete.js'; // «Rückmeldungen» 19.10.2026
   import { offerDone } from '../ui/rename.svelte.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
@@ -60,9 +61,9 @@
   // svelte-ignore state_referenced_locally
   let moreOpen = $state(!isNew);
   let error = $state('');
-  // V2: «Delete» works only once no trip uses the bike; the window says so up front.
-  const usedQ = liveQuery(() => (bike ? db.trips.filter((x) => x.bikeId === bike.id).count() : 0));
-  const used = $derived($usedQ ?? 0);
+  // «Alles selbst bearbeiten» (coordinator 19.10.2026): rides find their bike by its name (Garmin profile,
+  // Strava bike, kmbook.js), so a new name says so once, right under the field.
+  const renamed = $derived(!isNew && draft.name.trim() !== '' && draft.name.trim() !== bike.name);
   let dialog;
 
   $effect(() => {
@@ -124,24 +125,26 @@
   // without a name there is nothing to keep. v0.72.0: also Android's own back (CloseWatcher) and Escape.
   const keepOnBack = () => (draft.name.trim() ? save({ preventDefault() {} }) : dialog.close());
 
-  // «Rückmeldungen» (Noah 19.10.2026): the app's own question, then 4 s «Undo».
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): a bike can always be deleted. The one delete window
+  // (GroupDeleteSheet) asks where its trips go, «Ohne Velo» first; its km book, workshop visits, photos and
+  // care tasks go with it. Then 4 s «Undo» (rule «Löschen» 14.10.2026).
+  let asking = $state(null); // { links, targets } while the delete window is open
   const remove = once(async () => {
-    const n = await db.trips.filter((x) => x.bikeId === bike.id).count();
-    if (n) return (error = t('{n} trip(s) use this bike. Give them another bike first (Pack → Edit trip).', { n }));
+    error = '';
+    const links = await bikeLinks(db, bike.id);
+    asking = { links, targets: sortBikes(bikes).filter((b) => b.id !== bike.id).map((b) => ({ id: b.id, name: b.name })) };
+  });
+  const goesWith = (l) => [l.km ? tn(l.km, '{n} entry in the km book', '{n} entries in the km book') : '', l.visits ? tn(l.visits, '{n} workshop visit', '{n} workshop visits') : '', l.photos ? tn(l.photos, '{n} photo', '{n} photos') : '', l.tasks ? tn(l.tasks, '{n} care task', '{n} care tasks') : ''].filter(Boolean).join(', ');
+  async function doDelete(to) {
     const name = bike.name;
-    if ((await askDelete({ title: t('Delete the bike "{name}"?', { name }), text: t('No trip uses it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const ok = await deleteWithUndo({
-      run: async () => {
-        const rec = await db.bikes.get(bike.id);
-        await db.bikes.delete(bike.id);
-        return rec;
-      },
-      undo: (rec) => rec && db.bikes.put(rec),
+      run: () => deleteBike(db, bike.id, to),
+      undo: (snap) => undoDeleteBike(db, snap),
       text: t('"{name}" deleted.', { name }),
       name,
     });
     if (ok) dialog.close();
-  });
+  }
 </script>
 
 <dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
@@ -182,7 +185,7 @@
         </div>
       </FoldRow>
     </div>
-    {#if !isNew && used}<p class="vd-note"><TriangleAlert size={16} aria-hidden="true" />{tn(used, 'You can delete it once no trip uses this bike. {n} trip uses it.', 'You can delete it once no trip uses this bike. {n} trips use it.')}</p>{/if}
+    {#if renamed}<p class="vd-note" data-testid="bike-rename-hint"><TriangleAlert size={16} aria-hidden="true" />{t('Rides are matched to a bike by its name. Name the Garmin profile and the Strava bike the same, or rides with the old name wait in Strava › To check.')}</p>{/if}
     <p class="err" role="alert">{error}</p>
     <div class="vd-foot sn7 daumen-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
@@ -191,6 +194,20 @@
     </div>
   </form>
 </dialog>
+{#if asking}
+  <GroupDeleteSheet
+    title={t('Delete the bike "{name}"?', { name: bike.name })}
+    count={asking.links.trips}
+    what={(n) => tn(n, '{n} trip', '{n} trips')}
+    none={t('No bike')}
+    noneHint={t('The trips stay, just without a bike and its bags.')}
+    targets={asking.targets}
+    empty={t('No trip uses it.')}
+    note={goesWith(asking.links) ? t('Goes with the bike: {what}.', { what: goesWith(asking.links) }) : ''}
+    onconfirm={doDelete}
+    onclose={() => (asking = null)}
+  />
+{/if}
 
 <style>
   .grid {

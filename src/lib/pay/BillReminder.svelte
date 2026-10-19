@@ -1,9 +1,9 @@
 <script>
   /**
-   * The Heute card for bills to pay (mockup QR9, Noah 14.10.2026 05:10 «1-4a», «a»): from the reminder
+   * The reminder card for bills to pay (mockup QR9, Noah 14.10.2026 05:10 «1-4a», «a»): from the reminder
    * day (3 days before the due date unless changed) until it is paid. «Bezahlt» marks it, «Zahlteil»
-   * opens it under Ich › Bezahlen › Zu zahlen, «Später» hides it for today. Shown nowhere when nothing
-   * is due, so it can sit on Heute without taking room. One card: the most urgent bill.
+   * opens it under Ich › Bezahlen › Zu zahlen, «Später» hides it for today. Hidden when nothing
+   * is due; otherwise it sits on top of Ich › Bezahlen (not on Heute, Noah 15.10.2026 21:07 «4b»). One card: the most urgent bill.
    */
   import { t, tn, dateOf } from '../i18n.svelte.js';
   import { Bell, Check, QrCode } from '@lucide/svelte';

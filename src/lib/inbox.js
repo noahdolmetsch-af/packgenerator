@@ -26,6 +26,16 @@ export const TARGETS = [
   { key: 'tour', name: 'Trip note', where: 'Into the debrief of a trip', place: 'Trip › Debrief' },
   { key: 'keep', name: 'Just keep', where: 'Becomes a note in «Notes», topic to choose', place: 'Notes' },
 ];
+/** Where each target lands, one line (German in de/pflege.js); the sheet and the row button's bubble. */
+export const LANDS = {
+  receipt: 'Workshop visit with photo',
+  problem: 'Open work in the care of the bike',
+  material: 'New item in Gear',
+  wish: 'Gear › Wishlist',
+  idea: 'Bike › What would be great',
+  tour: 'Into the debrief of a trip',
+  keep: 'Becomes a note in «Notes», topic to choose',
+};
 export const TARGET = Object.fromEntries(TARGETS.map((x) => [x.key, x]));
 
 const RECEIPT = /\b(rechnung|quittung|beleg|receipt|invoice|kassenzettel|chf\s*\d|\d+[.,]\d{2}\s*(chf|fr))/i;
