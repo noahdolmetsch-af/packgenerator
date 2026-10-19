@@ -805,7 +805,7 @@
           </div>
           {#if mstats.months && groups.length}<div class="lgd"><DotsLegend /></div>{/if}
         {:else}
-          <section class="wish" aria-label={t('Shopping|tab')}>
+          <section class="wish" id="wish-h" tabindex="-1" aria-label={t('Shopping|tab')}>
             <ul class="rows">
               {#each wishlist as { item, reasons } (item.id)}
                 <li class="fr">
