@@ -43,6 +43,8 @@
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
+  import TodoButton from '../lib/lernen/TodoButton.svelte';
+  import TodoPlace from '../lib/lernen/TodoPlace.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
@@ -543,8 +545,10 @@
             <section class="rv-sec ridenotes" aria-labelledby="notes-h">
               <div class="rv-h"><div><h2 id="notes-h">{t('Notes on the way')}</h2><p class="rv-sub">{tn(freeNotes.length, '{n} · waiting here', '{n} · waiting here')}</p></div></div>
               <ul class="rv-box">
-                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span></li>{/each}
+                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span><TodoButton note={n} {trip} /></li>{/each}
               </ul>
+              <!-- Paket M #88 (Noah «1 b und a oder andere Ablageorte»): where «Als To-do» puts a note -->
+              <TodoPlace tripId={trip.id} />
             </section>
           {/if}
 

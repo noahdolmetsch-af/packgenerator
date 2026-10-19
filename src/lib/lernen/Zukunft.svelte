@@ -15,7 +15,7 @@
 </script>
 
 <section class="rv-sec zk" aria-labelledby="zk-h" data-zukunft>
-  <div class="rv-h"><div><h2 id="zk-h"><Send size={18} aria-hidden="true" /> {t('A message to your future self')}</h2><p class="rv-sub">{t('shows up before your next trip · optional')}</p></div></div>
+  <div class="rv-h"><div><h2 id="zk-h"><Send size={18} aria-hidden="true" /> {t('A message to your future self')}</h2><p class="rv-sub">{t('waits as a letter on the way of your next trip · optional')}</p></div></div>
   <div class="rv-box pad">
     <textarea class="inp" rows="2" value={d.future?.text ?? ''} oninput={edit} placeholder={t('e.g. Take the warm gloves, the mornings were cold')} aria-label={t('A message to your future self')}></textarea>
   </div>
