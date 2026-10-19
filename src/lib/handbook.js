@@ -531,6 +531,26 @@ export const HANDBOOK = {
     steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
     example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
   },
+  'f.shopping': {
+    on: null,
+    steps: ['Open Me › Everyday life › Shopping list and type what you need.', 'Tick what is in the basket; groups sort the list like the shop and can be renamed, sorted and deleted.'],
+    example: 'Example: switch on «Together with the trip shopping»: the gels and bars of your next trip stand below your everyday points.',
+  },
+  'f.contracts': {
+    on: null,
+    steps: ['Open Me › Documents › Contracts and subscriptions, or Me › Everyday life.', 'Enter the cost, the end of the term and the notice period: the app shows the last day to cancel and reminds you in Remember.'],
+    example: 'Example: phone contract ends 31 March, 2 months notice → last day 31 January, reminder 14 days before.',
+  },
+  'f.people': {
+    on: null,
+    steps: ['Open Me › Everyday life › Not seen for a while and add a person with «every 2 months».', 'After you met, tap «Seen today»; the quiet reminder in Remember starts again.'],
+    example: 'Example: Alex, every 6 weeks, last seen 1 September → a to-do in Remember on 13 October, no alarm.',
+  },
+  'f.abroad': {
+    on: null,
+    steps: ['Give the trip a country under Plan › Pass, country, getting there.', 'Below it: the emergency numbers (change them per country), your travel insurance and «Convert» to the currency of the country.'],
+    example: 'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».',
+  },
   'f.timer': {
     on: null,
     steps: ['Open the timer page, choose a kind and tap «Start»; «Big» shows only the clock.', 'At the end a singing bowl; the log keeps every timer with an optional note.'],

@@ -24,6 +24,7 @@ export const GROUP_PLACES = [
   { name: 'Document groups', file: 'src/pages/Docs.svelte' },
   { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
   { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
+  { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

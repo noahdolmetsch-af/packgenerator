@@ -54,6 +54,8 @@ export const SINCE = {
   'f.routine': '0.150.0', 'f.insights': '0.150.0',
   // Paket T «Freie Zeit» (provisional; the bundler sets the version of its release)
   'f.frei': '0.152.0', 'f.impulse': '0.152.0',
+  // Paket V «Alltag» (provisional; the bundler sets the version of its release)
+  'f.shopping': '0.152.0', 'f.contracts': '0.152.0', 'f.people': '0.152.0', 'f.abroad': '0.152.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

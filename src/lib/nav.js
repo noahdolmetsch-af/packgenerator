@@ -204,6 +204,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/calendar/list/')) return 'list'; // Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list
   if (h.startsWith('#/calendar')) return 'calendar'; // PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken
   if (h.startsWith('#/me/frei')) return 'frei'; // Paket T «Freie Zeit»: Ich › Freie Zeit and its eight pages
+  if (h.startsWith('#/me/alltag')) return 'alltag'; // Paket V «Alltag»: Ich › Alltag (Einkauf, Verträge, Menschen)
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/routine')) return 'routine'; // Routine «Das tut mir gut» (mockup D2): the list, a page of Heute
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
@@ -345,6 +346,7 @@ export function placeOf(page) {
   if (page === 'flow') return 'active';
   if (page === 'impulse') return 'active'; // Paket T: Aktiv › Impulse
   if (page === 'frei') return 'me'; // Paket T: Ich › Freie Zeit
+  if (page === 'alltag') return 'me'; // Paket V: Ich › Alltag
   if (page === 'week') return 'week';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';

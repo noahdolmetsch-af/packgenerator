@@ -352,6 +352,7 @@
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
+    Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -453,6 +454,9 @@
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'alltag'}
+    <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
+    <LazyPage load={PAGES.Alltag} {hash} />
   {:else if page === 'routine'}
     <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
     <LazyPage load={PAGES.Routine} />
