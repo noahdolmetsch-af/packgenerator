@@ -174,6 +174,13 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   // Inbox page
   await page.goto('./#/inbox');
   await page.reload();
+  // Impeccable Runde 2 (changed on purpose): «Earlier · n notes» starts folded; open it to count every note
+  const earlier = page.locator('main details.older');
+  await expect(page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).first()).toBeVisible();
+  if (await earlier.count()) {
+    await earlier.locator('summary').click();
+    await expect(earlier).toHaveAttribute('open', '');
+  }
   const inboxRows = await page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).count();
   expect(inboxRows, 'Inbox shows every open note').toBeGreaterThanOrEqual(open);
   expect(errors).toEqual([]);
