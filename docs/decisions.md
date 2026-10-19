@@ -1603,6 +1603,14 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
 
+## 19.10.2026: Paket C Heute und Aktiv (0.150.0)
+
+- **Bündeln (Noah 18.10.2026 «1a 2b 3b 4a»):** C kommt nach E. Teile: HN4 (#177, f5ff19b), Bausteine mehr (#176, 309a0bc), Tages-Check als eigenes Fenster (j1z0kr c39b331b + ae3d24fe; Freigaben «T1, T2, T3b, T3c, T4 freigegeben» 18.10.2026 18:53 UTC und «1 a und b», «2b», «3 a und b»), Impeccable Runde 2 (fyi823 e43fe7d; Noah «ok» zum Testlink 19.10.2026 05:20), Routine «Das tut mir gut» (routine-d1 c9cdccdf; D1/D2 «d1-d5 freigeben»).
+- **Reihenfolge auf Heute (HN4):** Vorschlag, Meditation, Tageskarte, Heute wichtig, (Routine), Balance (Im Flow + Balance, «Deine 15 Fragen» danach), Diese Woche, Velo/Meilensteine, Tour, Aktiv, kleine Kacheln, Velos, Jahr, Strava. Keine Erinnerungen und Rechnungen auf Heute; Buchungen behalten ihre eine Zeile in «Heute wichtig».
+- **Gespeicherte Wand:** Tages-Check nimmt v 6 («Deine 15 Fragen» einmal nach der Balance), Routine v 7 (einmal unter den Kopf-Kacheln). Weggenommen bleibt weggenommen.
+- **Selbst entschieden:** Setup (Velos) behält die Gewichte des zuletzt benutzten Taschen-Setups (TS 3b) und bekommt aus Runde 2 nur den eigenen Kopf, die Velo-Zeile und «n kg ausserhalb der Taschen»; die Tourwahl der Runde 2 fällt weg. Notiz löschen unterwegs nutzt die Löschfrage mit Rückgängig aus «Rückmeldungen» (D). Fahrten heisst die Seite, der Satz zu GPX/TCX/CSV aus D bleibt. Der Shop (B) steht in Bezahlen über dem zugeklappten «Verkaufen und buchen». Doppelte deutsche Texte: eigener Kontext-Schlüssel, wo die Bedeutung anders ist; sonst bleibt der schon gezeigte Text.
+- **Nicht dabei:** Paket Aktiv (0.160.0-Bündel auf altem Stand, braucht eine Übertragung) und Paket Heute (baut darauf).
+
 ## 19.10.2026: Paket E Material, Velos, Merken (0.149.0)
 
 - **Ein Release aus allen E-Teilen** auf Paket D (0.148.0): P4 + P5, Geburtstage + Pflanzen, Eigene Werte, Skitour, Sportart SA1–SA3, Eigene Listen, UI-Regeln Teil 1 + 2, Impeccable Runde 1, «Was hier steht» auf 5 weiteren Seiten, Bezahl-Erinnerung, TWINT per «Teilen», Garmin Edge 850. Impeccable Runde 2 gehört zu Paket C.

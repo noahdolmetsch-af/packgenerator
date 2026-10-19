@@ -86,6 +86,8 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
+**Nachtrag 19.10.2026 (v0.150.0 «Paket C – Heute und Aktiv»):** Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2. Paket Aktiv und Paket Heute folgen nach einer Übertragung auf den heutigen Stand.
+
 **Nachtrag 19.10.2026 (v0.149.0 «Paket E – Material, Velos, Merken»):** P4 + P5 (Werte messen, Bausteine, Bezahl-Erinnerung, Garmin mit Edge 850, Taschen-Setups, Erinnerungen, Merken), Geburtstage + Pflanzen, Eigene Werte, Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Skitouren), Sportart, Eigene Listen, UI-Regeln, Impeccable Runde 1, «Was hier steht» auf 5 weiteren Seiten und TWINT per «Teilen» als ein Release auf Paket D. Offen danach: C Heute und Aktiv (mit Impeccable Runde 2), F Woche, Chronik.
 
 **Nachtrag 19.10.2026 (v0.148.0 «Paket D – Touren und Unterwegs»):** AT1 Touren-Seite, Höhenprofil HP1–HP5, GPX-Weg R3a, Planungs-Notizen, Handy kurz (Noah «1b» 18.10., «1a» 19.10.), Bugfixes 0.132.2 + H3a, W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung, Einheitliche Formulare (Notiz und Teil) und Rückmeldungen beim Speichern als ein Release auf Paket B. Offen danach: Chronik, E Material/Velos/Merken, C Heute und Aktiv, F Woche; weitere Formulare auf Form/Field.
@@ -100,6 +102,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, v0.150.0 «Paket C»:** Heute und Aktiv als ein Release auf E: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2.
 **19.10.2026, v0.149.0 «Paket E»:** Material, Velos, Merken als ein Release: Werte messen, Garmin (1040 + 850), Taschen-Setups, Erinnerungen und Merken, Geburtstage und Pflanzen, Eigene Werte, Skitour, Sportart, Eigene Listen, UI-Regeln, Impeccable Runde 1.
 **19.10.2026, v0.148.0 «Paket D»:** Touren und Unterwegs als ein Release: Strava-Fahrten auf Touren, Höhenprofil, ein Weg «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, «Deine Fahrten», einfache Wörter, Bewegung, Formulare-Pilot.
 **18.10.2026, v0.147.0 «Paket B»:** alle Server-Teile (Training, Fitbit, PDF, Google, KI, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push) als ein Release. Dazu Pulszonen eins (eine Zonenquelle für Tempo, Vergangene Touren und Training, «Kommentar laden»), Mail in der App und «Gruppen überall» (jede Gruppe umbenennen und löschen, auch Ich › Dokumente).
