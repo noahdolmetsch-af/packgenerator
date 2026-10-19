@@ -1647,3 +1647,16 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
 - **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
 
+
+## Diktat und KI-Fragen (19.10.2026)
+
+Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b», «plus alles zuvor besprochene», «1a 2a».
+
+- **Diktat bis Stopp:** Die Spracherkennung des Browsers läuft im Dauer-Modus; beendet Chrome sie nach einer Pause, startet die App sie still neu, bis du Stopp tippst (vorher hörte sie nach dem ersten Satz auf). Live-Text, roter Punkt, Uhr. Ein Mikrofon-Baustein für die ganze App (`src/lib/ui/SpeakButton.svelte`, `src/lib/dictate.js`).
+- **Sprachbefehle:** «Punkt», «Komma», «Fragezeichen», «Doppelpunkt», «neue Zeile», «neuer Absatz» (abschaltbar).
+- **Whisper im Gerät:** wählbar; lädt Transformers.js und das Modell (etwa 80 MB) beim ersten Gebrauch vom CDN, nichts davon in den App-Dateien.
+- **Antwort auf Fragen im Diktat:** nach dem Stopp oder sofort (wählbar) oder nie; die App-Regeln des Assistenten antworten, auf Wunsch vorgelesen (Browser-Stimme, gratis).
+- **Weiter fragen bei …:** Claude, ChatGPT, Perplexity, Google KI-Modus, Copilot, Le Chat, DuckDuckGo mit vorausgefüllter Frage; welche erscheinen, ist wählbar. Daten nur mit Häkchen, jedes Mal neu (2a).
+- **Gemini in der App:** über den bestehenden Server `api/helper.js` (Aufgabe «gemini», keine neue Function), Schlüssel nur in Vercel, Tageslimit.
+- **Mit Claude besprechen** auf Packliste, Velo-Pflege und Rückblick, öffnet claude.ai mit Noahs Abo. **Meine KI-Projekte:** eigene Links (Ich).
+- **Selbst entschieden:** Duck.ai und Gemini im Web lassen sich nicht zuverlässig vorausfüllen; DuckDuckGo öffnet darum die Suche mit KI-Antwort, Gemini läuft in der App. Ein Max-Abo lässt sich nicht in die App einbinden (nur claude.ai); Projekte und Chats kann die App nicht lesen.

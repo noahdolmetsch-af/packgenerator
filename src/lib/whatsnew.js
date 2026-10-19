@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.156.0 «Diktat» (Noah 19.10.2026 «1a 2a 3a 4 a oder b beides wählbar 5a», KI «a und b», «1a 2a»): dictation until
+    // you stop, the app answers questions in a note, «Weiter fragen bei …», Gemini in the app, «Mit Claude besprechen»,
+    // «Meine KI-Projekte». The bundler renumbers it when it ships in a package.
+    version: '0.156.0',
+    date: '2026-10-19',
+    title: 'Speak, and the app answers',
+    lead: 'Dictation now runs until you tap stop, and a question in a note gets an answer from your own data, read aloud if you like.',
+    points: [
+      { text: 'Dictate into a note as long as you like: the words show while you speak, «Punkt» and «neue Zeile» become signs', href: '#/notes' },
+      { text: 'Ask a question in the note: the app answers below it, and Claude, ChatGPT, Perplexity, Gemini and more are one tap away', href: '#/assistent' },
+      { text: 'My AI projects: your own links to projects and chats, and «Talk it through with Claude» on the packing list, bike care and look back', href: '#/me/ki-projekte' },
+    ],
+    small: [
+      { box: 'new', text: 'Whisper on this device: private dictation that also works offline (Me › Appearance › Handling)', href: '#/me/look' },
+      { box: 'new', text: 'The microphone also in gear notes, learnings, bike care, the look back and the ski day', href: '#/gear' },
+    ],
+    test: [
+      'Open Notes, tap the microphone and speak for a minute with pauses: it keeps listening until you tap stop.',
+      'Say «Was ist am Velo fällig» and tap stop: the answer shows under the note, with «Read aloud».',
+      'Open Me › My AI projects, add a link, rename it, move it and delete it with Undo.',
+    ],
+  },
+  {
     // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
     // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
     version: '0.152.0',

@@ -150,7 +150,7 @@
     <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp ttl" type="text" bind:value={draft.title} placeholder={t('Title')} /></label>
     <label class="fld"><span class="lbl">{t('Text')}</span><textarea class="inp" rows="3" bind:value={draft.text} placeholder={t('Text')}></textarea></label>
     <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
-    <p class="spk"><SpeakButton onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></p>
+    <div class="spk"><SpeakButton answer onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></div>
     {#if draft.link?.url}
       <p class="lk"><Link2 size={16} aria-hidden="true" /><span><b>{draft.link.title}</b><a href={draft.link.url} target="_blank" rel="noopener noreferrer">{draft.link.url}</a></span></p>
     {/if}

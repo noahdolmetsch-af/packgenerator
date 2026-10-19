@@ -19,6 +19,7 @@
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
+  import DictSettings from '../lib/ui/DictSettings.svelte'; // «Diktat und Fragen» (Noah 19.10.2026)
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -93,6 +94,7 @@
             </li>
           {/each}
         </ul>
+        {#if ops.speak}<DictSettings />{/if}
       </section>
     </div>
 

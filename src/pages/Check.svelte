@@ -14,7 +14,9 @@
    * v0.127.0 «Tages-Check» 2 (T4): a question switched off in «Deine 15 Fragen» (#/check/questions) is
    * not asked; on Sundays the evening asks question 15 «Bist du deiner Vision näher gekommen?».
    */
-  import { Sun, Clock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
+  import SpeakButton from '../lib/ui/SpeakButton.svelte';
+  import { appendSpoken } from '../lib/speak.js';
+  import { Sun, Clock, Route, Lightbulb, PenLine, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Scale from '../lib/flow/check/Scale.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
@@ -116,29 +118,6 @@
     location.hash = '#/';
   }
 
-  /* «Sprechen»: only where the browser can turn speech into text */
-  const Speech = typeof window !== 'undefined' ? (window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null) : null;
-  let rec = null;
-  let listening = $state(false);
-  function speak() {
-    if (listening) return rec?.stop();
-    try {
-      rec = new Speech();
-      rec.lang = locale();
-      rec.interimResults = false;
-      rec.onresult = (e) => {
-        const said = [...e.results].map((r) => r[0]?.transcript ?? '').join(' ').trim();
-        if (said) set({ story: [cur.story, said].filter(Boolean).join(' ') });
-      };
-      rec.onend = () => (listening = false);
-      rec.onerror = () => (listening = false);
-      rec.start();
-      listening = true;
-    } catch {
-      listening = false;
-    }
-  }
-  $effect(() => () => rec?.abort?.());
 </script>
 
 <div class="ck" data-check={part}>
@@ -293,9 +272,8 @@
       <div class="more">
         <PenLine size={16} aria-hidden="true" />
         <textarea class="st" rows="1" placeholder={t('Want to tell a bit more?')} aria-label={t('Want to tell a bit more?')} value={cur.story} onchange={(e) => set({ story: e.currentTarget.value })} data-story></textarea>
-        {#if Speech}
-          <button type="button" class="mic" aria-pressed={listening} onclick={speak} data-speak>{#if listening}<Square size={14} aria-hidden="true" />{t('Stop|speak')}{:else}<Mic size={14} aria-hidden="true" />{t('Speak')}{/if}</button>
-        {/if}
+        <!-- «Diktat» (Noah 19.10.2026): the app's one microphone, until you stop -->
+        <SpeakButton onsaid={(w) => set({ story: appendSpoken(cur.story ?? '', w) })} />
       </div>
     </div>
     {/if}
@@ -626,21 +604,6 @@
   .st:focus-visible {
     outline: 2px solid var(--hi);
     outline-offset: 2px;
-  }
-  .mic {
-    display: inline-flex;
-    flex: none;
-    margin-left: auto;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 var(--sp-3);
-    border: 0;
-    border-radius: 999px;
-    background: var(--hi);
-    color: var(--hi-ink);
-    font: 600 var(--fs-small) / 1 var(--font-body);
-    cursor: pointer;
   }
   .auto {
     display: flex;

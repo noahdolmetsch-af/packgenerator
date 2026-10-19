@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.156.0 «Diktat»
+  'Speak, and the app answers': 'Sprechen, und die App antwortet',
+  'Dictation now runs until you tap stop, and a question in a note gets an answer from your own data, read aloud if you like.': 'Das Diktat läuft jetzt, bis du Stopp tippst, und auf eine Frage in einer Notiz antwortet die App aus deinen eigenen Daten, auf Wunsch vorgelesen.',
+  'Dictate into a note as long as you like: the words show while you speak, «Punkt» and «neue Zeile» become signs': 'Diktiere so lange du willst in eine Notiz: Die Wörter erscheinen beim Sprechen, «Punkt» und «neue Zeile» werden zu Zeichen',
+  'Ask a question in the note: the app answers below it, and Claude, ChatGPT, Perplexity, Gemini and more are one tap away': 'Stelle in der Notiz eine Frage: Darunter antwortet die App, und Claude, ChatGPT, Perplexity, Gemini und mehr sind einen Tipp entfernt',
+  'My AI projects: your own links to projects and chats, and «Talk it through with Claude» on the packing list, bike care and look back': 'Meine KI-Projekte: deine eigenen Links zu Projekten und Chats, und «Mit Claude besprechen» auf Packliste, Velo-Pflege und Rückblick',
+  'Whisper on this device: private dictation that also works offline (Me › Appearance › Handling)': 'Whisper im Gerät: privates Diktat, das auch offline geht (Ich › Darstellung › Bedienung)',
+  'The microphone also in gear notes, learnings, bike care, the look back and the ski day': 'Das Mikrofon auch bei Material-Notizen, Erkenntnissen, Velo-Pflege, Rückblick und Skitag',
+  'Open Notes, tap the microphone and speak for a minute with pauses: it keeps listening until you tap stop.': 'Öffne Notizen, tippe aufs Mikrofon und sprich eine Minute mit Pausen: Es hört zu, bis du Stopp tippst.',
+  'Say «Was ist am Velo fällig» and tap stop: the answer shows under the note, with «Read aloud».': 'Sag «Was ist am Velo fällig» und tippe Stopp: Die Antwort erscheint unter der Notiz, mit «Vorlesen».',
+  'Open Me › My AI projects, add a link, rename it, move it and delete it with Undo.': 'Öffne Ich › Meine KI-Projekte, füge einen Link hinzu, benenne ihn um, verschiebe ihn und lösche ihn mit Rückgängig.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

@@ -9,6 +9,8 @@
    * bike: as stored; row: care/plan.js careRow; focus: 'note' puts the cursor into the note;
    * onsave(patch): the fields to store (careChange); onclose().
    */
+  import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../speak.js';
   import { X } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { keepTyped } from '../ui/keeptyped.js'; // P3b rule 3a: closing keeps what was typed
@@ -118,6 +120,7 @@
     <label class="grp nt"><span class="lbl">{t('Note|care')}</span>
       <textarea class="inp" rows="2" bind:this={noteEl} bind:value={note} placeholder={t('e.g. Wax: hot wax every 600 km')}></textarea>
     </label>
+    <SpeakButton wrap onsaid={(w) => (note = appendSpoken(note ?? '', w))} />
     <p class="src">{t('Shows in the care card.')}</p>
 
     <div class="foot">

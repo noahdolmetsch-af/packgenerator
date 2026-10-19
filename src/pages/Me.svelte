@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, MessageCircle } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
@@ -412,6 +412,14 @@
             <a class="ich-row" href="#/helper">
               <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects and chats -->
+          <li>
+            <a class="ich-row" href="#/me/ki-projekte" data-me-row="aiprojects">
+              <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('My AI projects')}</b><small>{t('Your own links to projects, threads and chats')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

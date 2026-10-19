@@ -9,7 +9,14 @@
  *
  * Environment (names only; Noah sets the values in Vercel, see docs/ki-helfer-einrichten.md):
  *   ANTHROPIC_API_KEY, HELPER_TOKEN, HELPER_MODEL (default claude-sonnet-5-5),
- *   HELPER_MONTHLY_CHF (default 2), KV_REST_API_URL / KV_REST_API_TOKEN (Upstash Redis).
+ *   HELPER_MONTHLY_CHF (default 2), KV_REST_API_URL / KV_REST_API_TOKEN (Upstash Redis),
+ *   GEMINI_API_KEY (free key from Google AI Studio), GEMINI_MODEL (default gemini-flash-latest),
+ *   GEMINI_DAILY (answers per day, default 200).
+ *
+ * «Gemini in der App» (Noah 19.10.2026 «a und b»): task 'gemini' with input { question, context, lang }
+ * answers { text } from Google's free Gemini tier. No money is counted (the free tier costs nothing);
+ * a day counter (helper:gemini:YYYY-MM-DD) keeps it inside the free limit and answers 429 { code:
+ * 'daily_limit' } after GEMINI_DAILY answers. The monthly cap and the Claude credit do not apply.
  *
  * Monthly cap (Noah 7a): the estimated cost of every answer is added to helper:spend:YYYY-MM;
  * from the cap on every task answers 429 { code: 'monthly_cap' } until the next month.
@@ -37,6 +44,11 @@ export const isNoCredit = (status, msg) => status === 400 && /credit balance/i.t
 const PROBE_MODEL = 'claude-haiku-5-5';
 const MAX_BODY = 400_000; // characters: 700 items with names fit easily
 const SPEND_TTL = 70 * 24 * 60 * 60; // a month's counter stays a little over two months
+export const GEMINI_URL = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
+export const GEMINI_DEFAULT_DAILY = 200;
+export const geminiKey = (day) => `helper:gemini:${day}`;
+const dayKey = (d) => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 
 /** The helper's settings from the environment (read per request, never answered). */
 export function helperEnv(e = process.env) {
@@ -46,6 +58,9 @@ export function helperEnv(e = process.env) {
     token: pick('HELPER_TOKEN', e),
     model: pick('HELPER_MODEL', e) || DEFAULT_MODEL,
     cap: Number.isFinite(cap) && cap > 0 ? cap : DEFAULT_CAP_CHF,
+    geminiKey: pick('GEMINI_API_KEY', e),
+    geminiModel: pick('GEMINI_MODEL', e) || GEMINI_DEFAULT_MODEL,
+    geminiDaily: Number(pick('GEMINI_DAILY', e)) > 0 ? Number(pick('GEMINI_DAILY', e)) : GEMINI_DEFAULT_DAILY,
     ...redisEnv(e),
   };
 }
@@ -65,8 +80,57 @@ function bearer(request) {
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
+/** The Gemini request: a short system line, the question and (when ticked) the person's own context. */
+export function geminiRequest({ question = '', context = '', lang = 'de' } = {}) {
+  const de = lang !== 'en';
+  const system = de
+    ? 'Du hilfst in der App «Pack Generator» (Bikepacking, Reisen, Velo-Pflege). Antworte auf Schweizer Hochdeutsch («ss», nie «ß»), kurz und konkret, höchstens 6 Sätze, ohne Markdown-Überschriften. Nutze die eigene Ausrüstung und Erkenntnisse der Person, wenn sie mitgegeben sind. Alles ist ein Vorschlag.'
+    : 'You help inside the app "Pack Generator" (bikepacking, travel, bike care). Answer in English, short and concrete, at most 6 sentences, no Markdown headings. Use the person\'s own gear and learnings when given. Everything is a suggestion.';
+  const text = context ? `${question}\n\n${context}` : question;
+  return { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { maxOutputTokens: 1024, temperature: 0.4 } };
+}
+/** The answer text of a Gemini response, tidied and bounded, or ''. */
+export function geminiText(msg) {
+  const parts = msg?.candidates?.[0]?.content?.parts ?? [];
+  return parts
+    .map((p) => (typeof p?.text === 'string' ? p.text : ''))
+    .join('')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, 3000);
+}
+
 /** The handler, with fetch and the environment injectable for the tests. */
 export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch(...a), now = () => new Date() } = {}) {
+  async function gemini(request, cfg, input) {
+    const question = typeof input?.question === 'string' ? input.question.trim().slice(0, 600) : '';
+    if (question.length < 3) throw new ApiError(400, 'bad_request', 'gemini needs a question.');
+    if (!cfg.geminiKey) throw new ApiError(503, 'not_set_up', 'Gemini is not set up on the server (GEMINI_API_KEY is missing).');
+    const store = needStore(cfg, doFetch);
+    const key = geminiKey(dayKey(now()));
+    const used = Number(await store.get(key)) || 0;
+    if (used >= cfg.geminiDaily) throw new ApiError(429, 'daily_limit', 'Gemini has answered enough for today.');
+    let res;
+    try {
+      res = await doFetch(GEMINI_URL(cfg.geminiModel), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': cfg.geminiKey },
+        body: JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, 2000) : '', lang: input.lang === 'en' ? 'en' : 'de' })),
+      });
+    } catch {
+      throw new ApiError(502, 'upstream_unreachable', 'Gemini could not be reached.');
+    }
+    const msg = await res.json().catch(() => null);
+    await store.incrbyfloat(key, 1);
+    await store.expire(key, 3 * 24 * 60 * 60);
+    if (res.status === 429) throw new ApiError(429, 'daily_limit', 'The free Gemini limit is reached for now.');
+    if (res.status === 503) throw new ApiError(503, 'busy', 'Gemini is busy right now. Try again in a minute.');
+    if (!res.ok || !msg) throw new ApiError(502, 'upstream_error', 'Gemini answered with an error.');
+    const text = geminiText(msg);
+    if (!text) throw new ApiError(502, 'no_answer', 'Gemini gave no usable answer.');
+    return json(request, 200, { ok: true, task: 'gemini', result: { text } });
+  }
+
   return route(
     {
       POST: async (request) => {
@@ -83,8 +147,9 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         }
         const task = body?.task;
         const input = body?.input && typeof body.input === 'object' && !Array.isArray(body.input) ? body.input : null;
-        if (task !== 'status' && (!TASK_NAMES.includes(task) || !input)) throw new ApiError(400, 'bad_request', `task must be one of ${TASK_NAMES.join(', ')}, with an input object.`);
+        if (task !== 'status' && task !== 'gemini' && (!TASK_NAMES.includes(task) || !input)) throw new ApiError(400, 'bad_request', `task must be one of ${TASK_NAMES.join(', ')}, with an input object.`);
         if (input && forbiddenKey(input)) throw new ApiError(400, 'forbidden_field', 'The request holds a field the helper never takes (photos, receipts, money, codes, health).');
+        if (task === 'gemini') return gemini(request, cfg, input);
 
         const model = pickModel(body?.model, cfg.model);
         const store = needStore(cfg, doFetch);

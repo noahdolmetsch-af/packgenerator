@@ -1,4 +1,5 @@
 <script>
+  import AskClaude from '../lib/assistent/AskClaude.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
@@ -1103,6 +1104,8 @@
   {/if}
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
   {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
+  <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the list, only with the tick -->
+  {#if trip}<AskClaude name="pack" ask={t('This is my packing list for «{trip}» ({days} days). What is missing, what is too much?', { trip: trip.title, days: trip.days ?? 1 })} lines={(trip.entries ?? []).slice(0, 80).map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.name ?? e.itemId}${e.qty > 1 ? ` × ${e.qty}` : ''}`)} />{/if}
   <PageMore page="pack" name={t('Pack')} />
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>

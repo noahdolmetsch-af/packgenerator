@@ -1,4 +1,6 @@
 <script>
+  import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../lib/speak.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
@@ -641,6 +643,7 @@
           {:else if quick === 'text'}
             <form class="noteform" onsubmit={saveNote}>
               <textarea class="inp" rows="2" bind:value={note} placeholder={t('e.g. Puncture at km 80, the rain gloves were too thin')} aria-label={t('Note for the debrief')}></textarea>
+              <SpeakButton wrap answer onsaid={(w) => (note = appendSpoken(note, w))} />
               <button type="submit" class="btn ink" disabled={!note.trim()}>{t('Save note')}</button>
             </form>
           {/if}

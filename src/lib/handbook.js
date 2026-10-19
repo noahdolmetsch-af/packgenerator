@@ -586,6 +586,21 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.dictate': {
+    on: 'On by default: Me › Appearance › Handling › «Speak instead of type»; below it «Dictation and questions».',
+    steps: ['Tap the microphone in a note field and speak; tap stop when you are done.', 'Say «Punkt», «Komma» or «neue Zeile» for the signs.', 'Ask a question in the note: the app answers from your data below it.'],
+    example: 'Example: «Chain squeaks. What is due on the gravel?» → the parts that are due.',
+  },
+  'f.askfurther': {
+    on: 'Always there under an answer; which services show: Me › Appearance › Handling.',
+    steps: ['Ask the app or dictate a question.', 'Tap a service under the answer: it opens with your question.', 'Tick «Send my gear and learnings that fit along» if you want.'],
+    example: 'Example: «Which jacket for 5 °C?» → Perplexity opens with the question.',
+  },
+  'f.aiprojects': {
+    on: null,
+    steps: ['Open Me › My AI projects.', 'Paste the address of a project or chat and give it a name.', 'Rename, delete or reorder it with the arrows or by dragging.'],
+    example: 'Example: «Pack Generator» → your project on claude.ai.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
