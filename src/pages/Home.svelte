@@ -717,7 +717,10 @@
     if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
     // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
-    return rows.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
+    // «Heute lädt nicht» (19.10.2026): a key twice would stop all of Heute (Svelte keyed each); the first one stays
+    const seen = new Set();
+    const uniq = rows.filter((r) => !seen.has(r.key) && seen.add(r.key));
+    return uniq.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   async function stepDone(goalId, stepId) {
