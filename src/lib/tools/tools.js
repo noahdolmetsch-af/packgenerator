@@ -26,6 +26,9 @@ export const TOOLS = [
   { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent' },
   { key: 'barcode', icon: 'scan', title: 'Bar code → gear', sub: 'Scan a product, find or add it in your gear' },
   { key: 'light', icon: 'flashlight', title: 'Magnifier and light', sub: 'Read small print, light up' },
+  // Paket L2 «Bilderkennung» (Noah 19.10.2026): a photo ticks the packing list or adds gear; the sitting position from a photo or video
+  { key: 'packphoto', icon: 'scaneye', title: 'Packing list by photo', sub: 'Tick off or add gear from one photo' },
+  { key: 'sitpos', icon: 'person', title: 'Sitting position', sub: 'Knee and back angles from a photo or video' },
 ];
 
 /** The tools in the order the person set (unknown keys dropped, new tools at the end). */

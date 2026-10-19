@@ -26,6 +26,7 @@
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
   import FitCard from './FitCard.svelte';
+  import SitPosCard from '../vision/SitPosCard.svelte';
   import SheetFolder from './SheetFolder.svelte';
   import Help from '../ui/Help.svelte';
   import BagDialog from './BagDialog.svelte';
@@ -477,6 +478,8 @@
               <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
               <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers. -->
               {#key bike.id}<FitCard {bike} />{/key}
+              <!-- Paket L2 «Sitzposition» (Noah 19.10.2026 «4a»): the measured sitting position with its history -->
+              {#key bike.id}<SitPosCard {bike} />{/key}
               {@render settings()}
             </SetupFold>
             <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->

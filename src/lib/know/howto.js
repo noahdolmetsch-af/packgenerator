@@ -107,6 +107,8 @@ export const HOWTO = {
   'f.level': ['Open Toolbox › Spirit level.', 'Lay the phone on the surface.', 'Read degrees and percent.'],
   'f.barcode': ['Open Toolbox › Bar code → gear.', 'Scan or type the number.', 'Open the item, or add it.'],
   'f.light': ['Open Toolbox › Magnifier and light.', 'Allow the camera.', 'Zoom or switch the light on.'],
+  'f.packphoto': ['Open Toolbox › Packing list by photo, or «Tick off by photo» in Pack.', 'Choose «Tick off» or «Add new», then take the photo.', 'Confirm the rows; answer «What is this?» once.'],
+  'f.sitpos': ['Open the bike › Sitting position, or Toolbox › Sitting position.', 'Choose photo or video and take it from the side.', 'Read the angles, type the saddle height, «Save with the bike».'],
   'f.sync': ['Send the backup from the newer device.', 'On the other device open it with Share › Pack Generator or «Open backup».', 'Follow the suggestion; a copy of before stays.'],
   'f.autosync': ['Me › Data and backup › «Switch on sync».', 'On the other device: scan the QR code, «Pair».', 'Both changed the same entry: choose which version counts.'],
   'f.camera': ['Tap «Take photo» where a photo is added.', 'New › Workshop visit: the camera opens first.', '«Another page» adds a page to a receipt.'],

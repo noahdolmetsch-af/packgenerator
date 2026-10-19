@@ -557,4 +557,15 @@ export default {
   "Tap a link; it opens in a new tab. The eye switches a suggestion off.": "Tippe einen Link an; er öffnet sich in einem neuen Tab. Das Auge schaltet einen Vorschlag ab.",
   "«Order» moves links and changes their group; groups can be renamed and deleted.": "«Anordnen» verschiebt Links und ändert ihre Gruppe; Gruppen lassen sich umbenennen und löschen.",
   "Example: SBB opens the timetable to the start of your next trip, on its day.": "Beispiel: SBB öffnet den Fahrplan zum Start deiner nächsten Tour, an ihrem Tag.",
+  // Paket L2 «Bilderkennung»: Packliste per Foto, Sitzposition
+  'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».': 'Lädt die Erkennung einmal herunter (etwa 30 MB), danach offline. KI-Helfer: braucht Internet; das Foto geht erst nach «Foto senden» hinaus.',
+  'Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).': 'Leg die Sachen nebeneinander aus und öffne Werkzeugkasten › Packliste per Foto (oder «Per Foto abhaken» beim Packen).',
+  "Choose «Tick off» (the trip's list) or «Add new» (your gear), then take the photo.": 'Wähl «Abhaken» (die Liste der Tour) oder «Neu erfassen» (dein Material) und mach das Foto.',
+  'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.': 'Wähl ab, was nicht stimmt, und bestätige; beantworte einmal «Was ist das?», die App merkt es sich auf diesem Gerät.',
+  'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».': 'Beispiel: 9 Sachen am Boden → 6 auf «Jura 3 Tage» abgehakt, der Kocher einmal als «Kocher» beigebracht.',
+  'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.': 'Lädt die Erkennung einmal herunter (etwa 20 MB); das Bild bleibt auf dem Gerät. Nur Vorschläge, keine medizinische Bewertung.',
+  'On the bike page tap «Sitting position» (or Toolbox › Sitting position).': 'Tipp auf der Velo-Seite auf «Sitzposition» (oder Werkzeugkasten › Sitzposition).',
+  'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.': 'Foto: ein Pedal ganz unten, von der Seite auf Hüfthöhe. Video: etwa 5 Sekunden ruhiges Treten von der Seite.',
+  'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.': 'Lies Knie-, Hüft- und Rückenwinkel, tipp die Sattelhöhe und tipp auf «Beim Velo speichern»; der Verlauf bleibt beim Velo.',
+  'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.': 'Beispiel: Knie unten 158° → «ein paar Millimeter tiefer»; nach 3 mm tiefer 151°.',
 };

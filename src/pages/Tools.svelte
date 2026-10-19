@@ -5,7 +5,7 @@
    * On top «Passt gerade» (big idea 1): up to 3 tools that fit the trip now; only here, not on Heute
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -33,13 +33,15 @@
   import Video from '../lib/tools/Video.svelte';
   import MapMeasure from '../lib/tools/MapMeasure.svelte';
   import Chains from '../lib/tools/Chains.svelte';
+  import PackPhoto from '../lib/vision/PackPhoto.svelte';
+  import SitPosition from '../lib/vision/SitPosition.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
   import '../lib/tools/tools.css';
 
   let { tool = '' } = $props();
-  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight };
-  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains };
+  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding };
+  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition };
   const cur = $derived(toolOf(tool));
   const ORDER_KEY = 'tools.order';
 

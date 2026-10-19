@@ -105,6 +105,13 @@ export default defineConfig({
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'google-fonts', expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
+          {
+            // Paket L2 «Bilderkennung»: the recognition (MediaPipe script, WebAssembly, models; about 30 MB) is
+            // NOT in the install-time cache; it is kept here after its first use, so it works offline after.
+            urlPattern: /^https:\/\/(cdn\.jsdelivr\.net\/npm\/@mediapipe\/|storage\.googleapis\.com\/mediapipe-models\/)/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'vision-models', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
       },
     }),

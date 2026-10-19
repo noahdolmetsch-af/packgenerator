@@ -139,8 +139,32 @@ At most 8 parts, the most urgent first. Do not invent parts. This is not a works
       parts: arr(obj({ key: S, status: { type: 'string', enum: ['soon', 'check', 'ok'] }, reason: S, check: S })),
     }),
   },
+  // Paket L2 «Bilderkennung» (Noah 19.10.2026 «5a und b»): optional, only after a tap in the app, the one
+  // photo of laid-out gear goes to the helper (input.picture: { type, data } base64). The default stays the
+  // recognition on the device; the photo is not stored anywhere by the app or this server.
+  vision: {
+    effort: 'low',
+    maxTokens: 3000,
+    system: `${COMMON}
+Task: the input comes with one photo of things laid out (gear, clothes, food) for a trip.
+- mode "tick": "items" is the person's packing list (id, name). For every thing you can see on the photo, give found with the id of the list item it is (itemId) and its name; a visible thing that is not on the list gets itemId "" and a short name.
+- mode "new": "items" is the gear the person already has. For every thing on the photo give itemId when it clearly is one of these items, else itemId "" and a short, plain name for a new item (e.g. "Stirnlampe", "Daunenjacke").
+List each thing once, at most 30. Do not guess things you cannot see. Never describe people.`,
+    schema: obj({ found: arr(obj({ itemId: S, name: S })) }),
+  },
 };
 export const TASK_NAMES = Object.keys(TASKS);
+
+/** The photo types the vision task takes, and its largest size (base64 characters). */
+export const PICTURE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const PICTURE_MAX = 1_400_000;
+/** The picture of a vision request, checked: { type, data } or null. */
+export function pictureOf(input) {
+  const p = input?.picture;
+  if (!p || typeof p !== 'object' || !PICTURE_TYPES.includes(p.type) || typeof p.data !== 'string') return null;
+  if (!p.data.length || p.data.length > PICTURE_MAX || !/^[A-Za-z0-9+/]+=*$/.test(p.data)) return null;
+  return { type: p.type, data: p.data };
+}
 
 /** The Messages API request for one task (no key in it: the header is added by the caller). */
 export function buildRequest(task, input, model = DEFAULT_MODEL) {
@@ -152,8 +176,15 @@ export function buildRequest(task, input, model = DEFAULT_MODEL) {
     system: def.system,
     tools: [{ name: 'answer', description: `Give the ${task} answer to the app.`, strict: true, input_schema: def.schema }],
     tool_choice: { type: 'auto', disable_parallel_tool_use: true },
-    messages: [{ role: 'user', content: `Input (JSON):\n${JSON.stringify(input)}` }],
+    messages: [{ role: 'user', content: task === 'vision' ? visionContent(input) : `Input (JSON):\n${JSON.stringify(input)}` }],
   };
+}
+
+/** The vision message: the photo, then the rest of the input as JSON. */
+function visionContent(input) {
+  const pic = pictureOf(input);
+  const { picture, ...rest } = input ?? {};
+  return [...(pic ? [{ type: 'image', source: { type: 'base64', media_type: pic.type, data: pic.data } }] : []), { type: 'text', text: `Input (JSON):\n${JSON.stringify(rest)}` }];
 }
 
 /* ---------- checking the answer ---------- */
@@ -234,11 +265,21 @@ export function validate(task, input = {}, out = {}) {
       .map((p) => ({ key: p.key, status: p.status, reason: str(p.reason, 160), check: str(p.check, 160) }));
     return { parts: uniq(rows, 'key').slice(0, 8) };
   }
+  if (task === 'vision') {
+    const items = new Map(list(input.items).filter((r) => r && typeof r === 'object').map((r) => [String(r.id ?? ''), str(r.name, 80)]));
+    const rows = list(o.found)
+      .map((r) => {
+        const id = items.has(r?.itemId) && r.itemId ? r.itemId : '';
+        return { itemId: id, name: id ? items.get(id) : str(r?.name, 80) };
+      })
+      .filter((r) => r.itemId || r.name);
+    return { found: uniq(rows.filter((r) => r.itemId), 'itemId').concat(rows.filter((r) => !r.itemId)).slice(0, 30) };
+  }
   return {};
 }
 
 /** Keys a request body must never carry (the app never sends them; a second line of defence). */
-const FORBIDDEN = /^(photo|photos|image|receipt|receipts|invoice|totalChf|chf|priceChf|code|token|helperCode|health|aktiv)$/i;
+const FORBIDDEN = /^(photo|photos|image|picture|receipt|receipts|invoice|totalChf|chf|priceChf|code|token|helperCode|health|aktiv)$/i;
 export function forbiddenKey(value, depth = 0) {
   if (depth > 8 || !value || typeof value !== 'object') return null;
   for (const [k, v] of Object.entries(value)) {
