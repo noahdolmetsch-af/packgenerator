@@ -1750,3 +1750,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
 - Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
 - Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.
+
+## 19.10.2026: Reparatur «Heute stabil» (0.158.0)
+
+- Heute blieb auf dem Mac grau: der Abgleich brachte einen Meilenstein doppelt, und die Liste mit Schlüsseln brach ab. Die Reparatur geht vor Paket 7 online (Wunsch aus dem Projekt, Noah «mach wie es am besten und am schnellsten geht»).
+- **Selbst entschieden:** doppelte Meilensteine zählen einmal; jede Kachel auf Heute hat eine eigene Fehler-Grenze; hält ein altes Fenster das Datenbank-Update auf, zeigt die App oben einen Hinweis und das alte Fenster gibt die Datenbank frei.

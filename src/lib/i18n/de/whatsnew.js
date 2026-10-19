@@ -5,6 +5,15 @@
  */
 export default {
   // 0.157.0 Paket 6: Velo-FAQ
+  // 0.158.0 Heute fix
+  'Today stays steady': 'Heute bleibt stabil',
+  'After an update or the exchange, Today always loads.': 'Nach einem Update oder Abgleich lädt Heute immer.',
+  'Today never stays grey or breaks after an update or the exchange': 'Heute bleibt nach einem Update oder Abgleich nie mehr grau und bricht nicht ab',
+  'When an old window holds up the update, the app says so and how to fix it': 'Hält ein altes Fenster das Update auf, sagt die App das und wie es weitergeht',
+  'A milestone that came twice through the exchange shows once': 'Ein Meilenstein, der beim Abgleich doppelt kam, steht nur einmal da',
+  'If one tile fails, the other tiles still show': 'Klemmt eine Kachel, zeigen die anderen Kacheln trotzdem an',
+  'Open Today: all tiles show.': 'Öffne Heute: Alle Kacheln zeigen an.',
+  'Open the app in two windows and reload one: Today still loads.': 'Öffne die App in zwei Fenstern und lade eines neu: Heute lädt trotzdem.',
   'Bike FAQ and training plans': 'Velo-FAQ und Trainingspläne',
   'Questions about your bike, answered with a wink, and plans to try.': 'Fragen rund ums Velo, mit Augenzwinkern beantwortet, und Pläne zum Ausprobieren.',
   'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink': 'Velo-FAQ: 48 Fragen zu Pflege, Pannen und Mythen, mit Augenzwinkern',
