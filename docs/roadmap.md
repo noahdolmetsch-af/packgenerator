@@ -105,6 +105,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, v0.155.0 «Paket 3»:** Freie Zeit (acht Seiten, Impulse) und Daten in den Erkenntnissen, als ein Release nach Paket 2.
+
 **19.10.2026, v0.154.0 «Paket 2»:** K, M, S, O/I mit Velo-Inspektion, L2, R, Trello und Strava-Fahrten als ein Release (Noah 15:14 «1a»). Danach 0.155.0 «Paket 3» mit Freie Zeit und Daten.
 
 **19.10.2026, v0.153.0 «Paket 1»:** G, L, P, N, Q, H, J als ein Release auf Tempo (Noah 15:14 «1a»): Daten kommen von selbst, Werkzeugkasten und Links, Was mir gut tut, Träume und Kompass, App klarer, Packen leichter, Berg und Notfall.

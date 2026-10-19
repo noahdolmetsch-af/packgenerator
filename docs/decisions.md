@@ -1693,3 +1693,8 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Selbst entschieden (Bündler):** Dexie-Nummern in Merge-Reihenfolge: 16 tracks (S), 17 sportItems (O), 18 inspections (Inspektion). Backup-Test ohne Verlust.
 - **Selbst entschieden (Bündler):** gleiche englische Texte mit verschiedenem Deutsch bekommen einen Zusatz: «Count|tick» (Zählen), «Level|bubble» (Gerade), «Watch|inspect» (Beobachten); «Goggles» heisst überall «Brille», «Torch» überall «Taschenlampe», «Add|row» überall «Dazu». K's Funktion «Route umwandeln» heisst f.routeconvert (L hat f.convert).
 - **Selbst entschieden (Bündler):** der Familien-Link (#/spurlink) zeigt auch keine Rückkehr- und Jahres-Fenster und keinen Tour-Start (wie «share»).
+
+## 19.10.2026: Paket 3 (0.155.0) Freie Zeit und Daten
+
+- Noah 15:17–15:31: Freie Zeit als neue Seiten statt in alten; Impulse unter Aktiv und Ich; Heute zeigt manchmal einen Impuls im «Vorschlag» (HN4-Ausnahme freigegeben); Tonaufnahmen weggelassen; Rezepte als eigene Sammlung mit Zutaten auf die Einkaufsliste.
+- **Selbst entschieden (Bündler):** Dexie 19 «frei» (nach 16–18 aus Paket 2). «Full» der Energie heisst «Full|energy» (Voll), weil die Inspektion «Full» als «Gross» übersetzt.
