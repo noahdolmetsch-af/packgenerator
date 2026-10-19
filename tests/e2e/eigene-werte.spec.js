@@ -82,7 +82,8 @@ test('the page: four sections in German, standards shown, reached from Ich', asy
   await expect(page.getByRole('heading', { level: 1, name: T('Own values') })).toBeVisible();
   for (const h of ['Pack|stage', 'Bike', 'Data', 'Suggestions']) await expect(page.locator('main').getByRole('heading', { level: 2, name: T(h) })).toBeVisible();
   await expect(row(page, 'backupDays')).toContainText(T('Standard: {value}', { value: tn(FIELD.backupDays.std, '{n} day', '{n} days') }));
-  await expect(row(page, 'checkKm')).toContainText(T('Standard: {value}', { value: T('{km} km', { km: FIELD.checkKm.std.toLocaleString('de-CH') }) }));
+  // the number as the browser writes it (CI's Node writes 1'000, Chromium 1’000)
+  await expect(row(page, 'checkKm')).toContainText(T('Standard: {value}', { value: T('{km} km', { km: await page.evaluate((n) => n.toLocaleString('de-CH'), FIELD.checkKm.std) }) }));
   await expect(row(page, 'waxKm')).toContainText(T('Standard: {value}', { value: T('{km} km', { km: String(FIELD.waxKm.std) }) }));
   await expect(row(page, 'workshopDays')).toContainText(T('Standard: {value}', { value: tn(FIELD.workshopDays.std, '{n} day', '{n} days') }));
   await expect(row(page, 'coldC')).toContainText(T('Standard: {value}', { value: T('{n} °C', { n: FIELD.coldC.std }) }));
