@@ -143,6 +143,7 @@ export function pageOf(hash = '', careTab = false) {
   const h = hash || '';
   if (h.startsWith('#/gear/import')) return 'gearimport'; // v0.36.0: "Import prüfen", the staged gear import
   if (h.startsWith('#/gear/supplies')) return 'supplies'; // Paket H (answer 2b): Material › Vorrat
+  if (h.startsWith('#/gear/power')) return 'power'; // Strombudget (Noah 19.10.2026 «2a»): Material › Strom
   if (h.startsWith('#/gear/lend')) return 'lend'; // Paket H (answer 5a+b): Material › Ausgeliehen
   if (h.startsWith('#/gear')) return 'gear';
   if (h.startsWith('#/favorites')) return 'favorites';
@@ -354,7 +355,7 @@ export function placeOf(page) {
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
   if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain'].includes(page)) return 'trips';
-  if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
+  if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
   if (page === 'me' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'insights' || page === 'wohl' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)

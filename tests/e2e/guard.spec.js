@@ -35,6 +35,7 @@ const ROUTES = [
   ['#/gear/import', 'Import prüfen'],
   ['#/gear/supplies', 'Vorrat'], // Paket H
   ['#/gear/lend', 'Ausgeliehen'], // Paket H
+  ['#/gear/power', 'Strom'], // Strombudget
   ['#/favorites', 'Favoriten'],
   ['#/blocks', 'Bausteine'],
   ['#/wardrobe', 'Kleiderschrank'],

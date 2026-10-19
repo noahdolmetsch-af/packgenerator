@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 192 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 193 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -511,6 +511,17 @@ Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zu
 2. Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.
 
 **Beispiel:** Baustein «Zug-Sachen» mit dem Velobillett → bei jeder Tour mit dem Zug vorgeschlagen.
+
+### Strombudget
+
+Reicht der Strom für die Tour? Die App zählt zusammen, was deine Geräte pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen.
+
+**Aufschalten:** Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.
+
+1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».
+2. Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.
+
+**Beispiel:** 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».
 
 ### Strecke messen
 
