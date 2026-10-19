@@ -5,7 +5,8 @@ import { buildBackup, restoreBackup } from '../src/lib/backup.js';
 import { cleanupData } from '../src/lib/cleanup.js';
 import { parseBikesHash, bikesHash } from '../src/lib/bikes.js';
 import DE from '../src/lib/i18n/de/index.js';
-import { PAGES, PAGE, MAX_FIELDS, KIND_LABEL, SENSOR_LABEL, BIKEPACKING_PAGES, garminOf, toStore, suggestPages, fieldsOf, fieldRows, toggleField, layout, togglePage, addPage, removePage, addProfile, removeProfile, setSensor, toggleDone, copyFrom, onPages, profileName } from '../src/lib/garmin.js';
+import { DEVICES, PAGES, PAGE, MAX_FIELDS, KIND_LABEL, SENSOR_LABEL, BIKEPACKING_PAGES, garminOf, toStore, suggestPages, fieldsOf, fieldRows, toggleField, layout, togglePage, addPage, removePage, addProfile, removeProfile, setSensor, toggleDone, copyFrom, onPages, profileName } from '../src/lib/garmin.js';
+import { GARMIN } from '../src/lib/kmbook.js';
 
 // «Garmin-Seiten» GA-1–GA-10 + GA-A1–A3 (Noah 14.10.2026 «1a 2b 3b 4a», «GA-A1–A3 freigegeben»). Fictional bikes only.
 const gravel = { id: 'b1', name: 'Gravel Grinder', type: 'Gravel' };
@@ -26,11 +27,18 @@ describe('the ten pages', () => {
     expect(PAGES.filter((p) => p.kind === 'deep').length).toBeGreaterThanOrEqual(3);
   });
 
-  it('2b: on the Edge 540 no page shows more than 6 fields, with every sensor', () => {
+  it('the Edge 850 (it replaced the 540) shows the whole page like the 1040, at most 8 fields', () => {
     const all = { power: true, cadence: true, speed: true, hr: true };
-    for (const p of PAGES) expect(fieldsOf(p.id, '540', all).length, p.id).toBeLessThanOrEqual(MAX_FIELDS[540]);
-    expect(fieldsOf('GA-6', '1040', all).map((x) => x.k)).toContain('if');
-    expect(fieldsOf('GA-6', '540', all).map((x) => x.k)).not.toContain('if');
+    expect(DEVICES).toEqual(['1040', '850']);
+    for (const p of PAGES) {
+      expect(fieldsOf(p.id, '850', all).length, p.id).toBeLessThanOrEqual(MAX_FIELDS[850]);
+      expect(fieldsOf(p.id, '850', all), p.id).toEqual(fieldsOf(p.id, '1040', all));
+    }
+    expect(fieldsOf('GA-6', '850', all).map((x) => x.k)).toContain('if');
+  });
+
+  it('a FIT file of the Edge 850 names its device (product 4634, Garmin FIT SDK)', () => {
+    expect(GARMIN[4634]).toBe('Edge 850');
   });
 
   it('3b: «Time in zones» is a Connect IQ field on GA-6', () => {
@@ -93,15 +101,13 @@ describe('changing pages and fields', () => {
     expect(g.profiles[0].pages.slice(0, 3)).toEqual(['GA-1', 'GA-2', 'GA-3']);
   });
 
-  it('2b: the 540 refuses a 7th field; a page keeps one field', () => {
-    let g = start();
-    expect(toggleField(g, 'GA-6', '540', 'if')).toBeNull();
-    g = toggleField(g, 'GA-6', '540', 'tss');
-    expect(g).not.toBeNull();
-    g = toggleField(g, 'GA-6', '540', 'if');
-    expect(fieldsOf('GA-6', '540', g.sensors, g.fields['GA-6']['540']).map((x) => x.k)).toContain('if');
+  it('a field hides on one Edge only; a page keeps one field', () => {
+    let g = toggleField(start(), 'GA-6', '850', 'tss');
+    expect(fieldsOf('GA-6', '850', g.sensors, g.fields['GA-6']['850']).map((x) => x.k)).not.toContain('tss');
     const rows = fieldRows(g, 'GA-6');
-    expect(rows.find((r) => r.k === 'tss').on).toEqual({ 1040: true, 540: false });
+    expect(rows.find((r) => r.k === 'tss').on).toEqual({ 1040: true, 850: false });
+    g = toggleField(g, 'GA-6', '850', 'tss');
+    expect(fieldRows(g, 'GA-6').find((r) => r.k === 'tss').on).toEqual({ 1040: true, 850: true });
     const one = toggleField(start(), 'GA-1', '1040', 'speed');
     expect(toggleField(one, 'GA-1', '1040', 'dist')).toBeNull();
   });
@@ -118,6 +124,13 @@ describe('changing pages and fields', () => {
     g = removeProfile(g, 'p1');
     g = removeProfile(g, 'own');
     expect(g.profiles.map((p) => p.id)).toEqual(['own']);
+  });
+
+  it('a setup stored with the Edge 540: its hidden fields go, its ticks move to the 850', () => {
+    const bike = { ...gravel, garmin: { ...toStore(start()), fields: { 'GA-6': { 540: ['tss'], 1040: ['ftp'] } }, done: { 'own:GA-6': { 540: '2026-10-14', ciq: '2026-10-14' } } } };
+    const g = garminOf(bike);
+    expect(g.fields['GA-6']).toEqual({ 1040: ['ftp'] });
+    expect(g.done['own:GA-6']).toEqual({ 850: '2026-10-14', ciq: '2026-10-14' });
   });
 
   it('ticks «set up on the device», copy from another bike without its ticks', () => {
@@ -143,7 +156,7 @@ describe('the address', () => {
 describe('bike.garmin in backup and cleanup', () => {
   it('comes back from a backup and stays through «Daten bereinigen»', async () => {
     const db = createDb('garmin-1');
-    const g = toggleDone(setSensor(garminOf(gravel), gravel, 'power', true), 'own', 'GA-6', '540', '2026-10-14');
+    const g = toggleDone(setSensor(garminOf(gravel), gravel, 'power', true), 'own', 'GA-6', '850', '2026-10-14');
     await db.bikes.put({ ...gravel, garmin: toStore(g) });
     const file = JSON.parse(JSON.stringify(await buildBackup(db)));
     const other = createDb('garmin-2');

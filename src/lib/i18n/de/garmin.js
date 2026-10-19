@@ -1,8 +1,8 @@
 /** «Garmin-Seiten» GA-1–GA-10 and GA-A1–A3 (Noah 14.10.2026): the model data pages per bike. */
 export default {
   // «Was die App kann», Handbuch, So geht's (f.garmin)
-  'Model data pages for the Edge 1040 and 540 per bike, with the reason for every value.': 'Muster-Datenseiten für den Edge 1040 und 540 pro Velo, mit dem Grund für jeden Wert.',
-  'Switch pages on or off, choose Edge 1040 or 540.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540.',
+  'Model data pages for the Edge 1040 and 850 per bike, with the reason for every value.': 'Muster-Datenseiten für den Edge 1040 und 850 pro Velo, mit dem Grund für jeden Wert.',
+  'Switch pages on or off, choose Edge 1040 or 850.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 850.',
   'Open a page to see why each value is there.': 'Öffne eine Seite, um zu sehen, warum jeder Wert dort steht.',
   // GA-A1 card on the bike page
   'Garmin pages': 'Garmin-Seiten',
@@ -20,14 +20,12 @@ export default {
   'Take over from another bike': 'Von anderem Velo übernehmen',
   'Take over the Garmin pages of {bike}? The pages of this bike are replaced.': 'Garmin-Seiten von {bike} übernehmen? Die Seiten dieses Velos werden ersetzt.',
   Device: 'Gerät',
-  'max. 6': 'max. 6',
   'Remove profile': 'Profil entfernen',
   'Remove the Garmin profile "{name}"?': 'Garmin-Profil «{name}» entfernen?',
   'Open {page}': '{page} öffnen',
-  '540: shortened': '540: gekürzt',
   'on the Edge': 'auf dem Edge',
   'Add a page': 'Seite dazu',
-  'A suggestion from the sensors of this bike. Every page can be switched off, swapped or replaced. On the Edge 540 every page shows at most 6 fields.': 'Vorschlag aus den Sensoren dieses Velos. Jede Seite lässt sich abwählen, umstellen oder durch eine andere ersetzen. Am Edge 540 zeigt jede Seite höchstens 6 Felder.',
+  'A suggestion from the sensors of this bike. Every page can be switched off, swapped or replaced. The Edge 1040 and the Edge 850 show the same fields; hide a field on one of them if you like.': 'Vorschlag aus den Sensoren dieses Velos. Jede Seite lässt sich abwählen, umstellen oder durch eine andere ersetzen. Edge 1040 und Edge 850 zeigen die gleichen Felder; du kannst auf einem davon ein Feld ausblenden.',
   'Sensors on this bike': 'Sensoren an diesem Velo',
   'New Garmin profile': 'Neues Garmin-Profil',
   'Rename profile': 'Profil umbenennen',
@@ -51,7 +49,7 @@ export default {
   'not on the Edge {device}': 'nicht auf dem Edge {device}',
   'A page keeps at least one field.': 'Eine Seite behält mindestens ein Feld.',
   'The Edge {device} shows at most {n} fields on a page.': 'Der Edge {device} zeigt höchstens {n} Felder pro Seite.',
-  'Tap 1040 or 540 to show or hide a field on that Edge.': 'Tippe auf 1040 oder 540, um ein Feld auf diesem Edge zu zeigen oder auszublenden.',
+  'Tap 1040 or 850 to show or hide a field on that Edge.': 'Tippe auf 1040 oder 850, um ein Feld auf diesem Edge zu zeigen oder auszublenden.',
   'Remove this page from the profile': 'Seite aus dem Profil entfernen',
   'Set up on the device?': 'Am Gerät eingerichtet?',
   'ticked on {date}': 'abgehakt am {date}',

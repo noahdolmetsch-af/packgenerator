@@ -305,7 +305,7 @@ const BASE = {
   0x0a: [1, 'u8', 0], 0x8b: [2, 'u16', 0], 0x8c: [4, 'u32', 0], 0x0d: [1, 'u8', 0xff], 0x8e: [8, 's64', null], 0x8f: [8, 'u64', null], 0x90: [8, 'u64', null],
 };
 /** Garmin units by product number (the FIT profile), for a readable name. */
-export const GARMIN = { 2713: 'Edge 1030', 3121: 'Edge 530', 3122: 'Edge 830', 3570: 'Edge 1030 Plus', 3843: 'Edge 1040', 4061: 'Edge 540', 4062: 'Edge 840' };
+export const GARMIN = { 2713: 'Edge 1030', 3121: 'Edge 530', 3122: 'Edge 830', 3570: 'Edge 1030 Plus', 3843: 'Edge 1040', 4061: 'Edge 540', 4062: 'Edge 840', 4634: 'Edge 850' };
 /** ANT+ device types that belong to a bike (not the rider: no heart rate strap). */
 const BIKE_SENSOR = { 11: 'power', 121: 'speed', 122: 'cadence', 123: 'speed', 34: 'shifting', 40: 'radar', 35: 'light' };
 const SPORT_CYCLING = new Set([2, 21]); // cycling, e-biking

@@ -5,7 +5,8 @@
  * switched off, added back and changed. The app never sends anything to the Edge.
  *
  * - 1a: a bike can have more than one Garmin profile (the bike's own and «Bikepacking», or own ones);
- * - 2b: the Edge 540 shows at most 6 fields per page (the long pages drop one field there);
+ * - 2b: the Edge 540 showed at most 6 fields per page. Noah 18.10.2026 «ersetzt 540»: the Edge 850 takes
+ *   its place and shows the whole page like the 1040 (at most 8 fields, our own limit);
  * - 3b: «Time in zones» on GA-6 comes from a free Connect IQ app (marked «Connect IQ»).
  *
  * The data lives on the bike record: bike.garmin = { sensors, profiles, fields, done }.
@@ -14,9 +15,9 @@
  * Texts are English and go through t() in the components (German in i18n/de/garmin.js).
  */
 
-export const DEVICES = ['1040', '540'];
-/** 2b: fields per page on each Edge. */
-export const MAX_FIELDS = { 1040: 8, 540: 6 };
+export const DEVICES = ['1040', '850'];
+/** Fields per page on each Edge (the 540 had 6; the 850 replaced it, Noah 18.10.2026). */
+export const MAX_FIELDS = { 1040: 8, 850: 8 };
 export const SENSORS = ['power', 'cadence', 'speed', 'hr'];
 export const SENSOR_LABEL = { power: 'Power pedals', cadence: 'Cadence sensor', speed: 'Speed sensor', hr: 'Heart rate strap' };
 
@@ -26,7 +27,7 @@ const f = (k, label, sample, unit, why, more = {}) => ({ k, label, sample, unit,
  * The ten pages. A field: k (key), label, sample value + unit (only for the drawing), why, rare
  * (rarely watched), gfx (a graphic field: line, bar3, gauge, elev, stam, zones), ciq (Connect IQ app),
  * need (a sensor; without it the field is left out or replaced by alt).
- * kind: easy (2–4 fields), mid (5–6), deep (7–8). drop540: the fields the Edge 540 leaves out (2b).
+ * kind: easy (2–4 fields), mid (5–6), deep (7–8).
  */
 export const PAGES = [
   { id: 'GA-1', name: 'Short and big', kind: 'easy', why: 'The quiet page: two big numbers, no graphic. For the way to work, descents and days without numbers.', fields: [
@@ -60,7 +61,7 @@ export const PAGES = [
     f('drank', 'Drunk', '1.2', 'l', 'Are you drinking enough?'),
     f('kj', 'Work', '1650', 'kJ', 'The energy you pedalled. About as many kcal should you eat.', { rare: true, need: 'power', alt: 'time' }),
   ] },
-  { id: 'GA-6', name: 'Power in detail', kind: 'deep', drop540: ['if'], why: 'For training rides with power pedals. The same values as in the app\'s training part, so the Edge and the app speak the same language.', fields: [
+  { id: 'GA-6', name: 'Power in detail', kind: 'deep', why: 'For training rides with power pedals. The same values as in the app\'s training part, so the Edge and the app speak the same language.', fields: [
     f('pline', 'Power graph', '226', 'W', 'The last 100 seconds or so. Steady, or spikes all the time?', { gfx: 'line', need: 'power' }),
     f('np', 'NP', '226', 'W', 'Normalized power: counts hard spikes more.', { need: 'power' }),
     f('pavg', 'Avg power', '198', 'W', 'The plain average, to compare with NP.', { need: 'power' }),
@@ -69,7 +70,7 @@ export const PAGES = [
     f('ftp', '% FTP', '88', '%', 'How close you ride to your threshold.', { need: 'power' }),
     f('zones', 'Time in zones', '', '', 'Seven bars: how long you were in each power zone. Needs a free Connect IQ app.', { gfx: 'zones', rare: true, ciq: true, need: 'power' }),
   ] },
-  { id: 'GA-7', name: 'Pedalling technique', kind: 'deep', drop540: ['phase'], why: 'What power pedals measure but hardly anyone looks at. For calm technique rides, after a change to the saddle or cleats.', fields: [
+  { id: 'GA-7', name: 'Pedalling technique', kind: 'deep', why: 'What power pedals measure but hardly anyone looks at. For calm technique rides, after a change to the saddle or cleats.', fields: [
     f('cadbar', 'Cadence bars', '88', 'rpm', 'Now, average and maximum: rounder or heavier than usual today?', { gfx: 'bar3', need: 'cadence' }),
     f('lr', 'Left/right', '48/52', '%', 'The split between the legs. More than 5 % apart can mean tiredness or the position.', { rare: true, need: 'power' }),
     f('smooth', 'Smoothness', '21/23', '%', 'How round you pedal. Higher is rounder.', { rare: true, need: 'power' }),
@@ -92,7 +93,7 @@ export const PAGES = [
     f('lap', 'Lap', '3', '', 'How many intervals you have done.'),
     f('lapcad', 'Lap avg cadence', '92', 'rpm', 'Does the cadence drop in the interval?', { rare: true, need: 'cadence' }),
   ] },
-  { id: 'GA-10', name: 'On the way and device', kind: 'deep', drop540: ['temp'], why: 'Everything you otherwise only see in Strava. Works on every bike, no sensor needed.', fields: [
+  { id: 'GA-10', name: 'On the way and device', kind: 'deep', why: 'Everything you otherwise only see in Strava. Works on every bike, no sensor needed.', fields: [
     f('elev', 'Elevation graph', '1240', 'm', 'One picture instead of three numbers: height, ascent and descent.', { gfx: 'elev' }),
     f('moving', 'Moving time', '2:46', 'h', 'Time in motion.'),
     f('elapsed', 'Total time', '3:21', 'h', 'With breaks. The gap to moving time shows how long you stood.', { rare: true }),
@@ -145,11 +146,24 @@ export const BIKEPACKING_PAGES = ['GA-1', 'GA-3', 'GA-4', 'GA-5', 'GA-10'];
 
 /** The Garmin setup of a bike: the stored one, or the suggestion (stored: false). */
 export function garminOf(bike) {
-  if (bike?.garmin?.profiles?.length) return { sensors: { ...NO_SENSORS, ...bike.garmin.sensors }, profiles: bike.garmin.profiles, fields: bike.garmin.fields ?? {}, done: bike.garmin.done ?? {}, stored: true };
+  if (bike?.garmin?.profiles?.length) return { sensors: { ...NO_SENSORS, ...bike.garmin.sensors }, profiles: bike.garmin.profiles, ...from540(bike.garmin), stored: true };
   const sensors = { ...NO_SENSORS, ...bike?.garmin?.sensors };
   const profiles = [{ id: 'own', name: bike?.name ?? '', own: true, pages: suggestPages(bike, sensors), off: [] }];
   if (isGravel(bike?.type)) profiles.push({ id: 'bp', name: 'Bikepacking', pages: [...BIKEPACKING_PAGES], off: [] });
   return { sensors, profiles, fields: {}, done: {}, stored: false };
+}
+
+/**
+ * A setup stored while the Edge 540 was the second device: its hidden fields go (the 850 shows the whole
+ * page), its «set up» ticks move to the 850 (Noah 18.10.2026 «ersetzt 540»).
+ */
+export function from540(garmin) {
+  const fields = Object.fromEntries(Object.entries(garmin.fields ?? {}).map(([id, by]) => [id, Object.fromEntries(Object.entries(by ?? {}).filter(([d]) => d !== '540'))]));
+  const done = Object.fromEntries(Object.entries(garmin.done ?? {}).map(([k, by]) => {
+    const { 540: old, ...rest } = by ?? {};
+    return [k, old && !rest[850] ? { ...rest, 850: old } : rest];
+  }));
+  return { fields, done };
 }
 
 /** What to store on the bike (bike.garmin) from a setup. */
@@ -169,22 +183,22 @@ export function fieldsOf(pageId, device, sensors = NO_SENSORS, hidden = null, li
     if (has(x.need)) list.push(x);
     else if (x.alt && ALT[x.alt] && !list.some((y) => y.k === ALT[x.alt].k) && !page.fields.some((y) => y.k === ALT[x.alt].k && has(y.need))) list.push({ ...ALT[x.alt], instead: x.k });
   }
-  const hide = hidden ?? (device === '540' ? page.drop540 ?? [] : []);
+  const hide = hidden ?? [];
   const shown = list.filter((x) => !hide.includes(x.k));
   return limit ? shown.slice(0, MAX_FIELDS[device] ?? 8) : shown;
 }
 
-/** The fields hidden on a device (stored, or the default: on the 540 the page's drop540). */
-export const hiddenOf = (g, pageId, device) => g.fields?.[pageId]?.[device] ?? (device === '540' ? PAGE[pageId]?.drop540 ?? [] : []);
+/** The fields hidden on a device (stored; none by default). */
+export const hiddenOf = (g, pageId, device) => g.fields?.[pageId]?.[device] ?? [];
 
-/** All fields a page could show with these sensors (for the field list), with on1040 / on540. */
+/** All fields a page could show with these sensors (for the field list), with on per device. */
 export function fieldRows(g, pageId) {
   const all = fieldsOf(pageId, '1040', g.sensors, []);
   const on = Object.fromEntries(DEVICES.map((d) => [d, new Set(fieldsOf(pageId, d, g.sensors, hiddenOf(g, pageId, d)).map((x) => x.k))]));
   return all.map((x) => ({ ...x, on: Object.fromEntries(DEVICES.map((d) => [d, on[d].has(x.k)])) }));
 }
 
-/** Switch one field on a device. 2b: the 540 refuses a 7th field, and a page keeps one field (both return null). */
+/** Switch one field on a device. A page shows at most MAX_FIELDS and keeps one field (both return null). */
 export function toggleField(g, pageId, device, key) {
   const hidden = [...hiddenOf(g, pageId, device)];
   const at = hidden.indexOf(key);
@@ -254,7 +268,7 @@ export function setSensor(g, bike, key, on) {
   return { ...g, sensors, profiles };
 }
 
-/** «Set up on the device?»: done[profileId:pageId] = { 1040: day, 540: day, ciq: day }. */
+/** «Set up on the device?»: done[profileId:pageId] = { 1040: day, 850: day, ciq: day }. */
 export const doneKey = (profileId, pageId) => `${profileId}:${pageId}`;
 export function toggleDone(g, profileId, pageId, what, day) {
   const k = doneKey(profileId, pageId);

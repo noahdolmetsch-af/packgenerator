@@ -390,9 +390,9 @@ export default {
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
   // f.garmin (0.146.0 «Garmin-Seiten»)
   'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
-  'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.',
+  'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.',
   'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
-  'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.',
+  'Example: tick «Power pedals» → the page «Power in detail» appears, with 8 fields on the Edge 1040 and the Edge 850.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint, mit 8 Feldern auf dem Edge 1040 und dem Edge 850.',
   // «Mehr selbst einstellen»: Ich › Eigene Werte
   'Open Me › Own values.': 'Öffne Ich › Eigene Werte.',
   'Change a number with − and + or type it.': 'Ändere eine Zahl mit − und + oder tippe sie ein.',

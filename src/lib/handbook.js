@@ -328,8 +328,8 @@ export const HANDBOOK = {
   },
   'f.garmin': {
     on: 'Needs a bike under Bikes first.',
-    steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 540, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
-    example: 'Example: tick «Power pedals» → the page «Power in detail» appears; on the Edge 540 it is shortened to 6 fields.',
+    steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
+    example: 'Example: tick «Power pedals» → the page «Power in detail» appears, with 8 fields on the Edge 1040 and the Edge 850.',
   },
   'f.bagsetups': {
     on: 'Needs a bike with bags first: Gear › Bags.',

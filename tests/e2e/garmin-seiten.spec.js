@@ -1,6 +1,6 @@
 // v0.146.0 «Garmin-Seiten» (GA-A1–A3, Noah 14.10.2026 «1a 2b 3b 4a», «GA-A1–A3 freigegeben»): the bike page
 // shows a «Garmin pages» card (GA-A1), a tap opens the pages of the profile (GA-A2), a page opens with both
-// Edges and the reasons (GA-A3). Power pedals bring the power pages; the 540 shows at most 6 fields.
+// Edges and the reasons (GA-A3). Power pedals bring the power pages; the Edge 850 (it replaced the 540) shows the same fields as the 1040.
 // Fictional fixture (test_data_gtp_), German UI.
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
@@ -40,11 +40,12 @@ test('Garmin pages: card on the bike, pages per profile, one page in detail', as
   await expect(ga6).toBeVisible();
   const ga6tile = page.locator('.tile', { has: ga6 });
   await expect(ga6tile).toContainText('Connect IQ');
-  await expect(ga6tile).not.toContainText(T('540: shortened'));
+  const on1040 = await ga6tile.locator('.badge').first().textContent();
 
-  // 2b: on the Edge 540 the long page is shortened
-  await page.getByRole('button', { name: /Edge 540/ }).click();
-  await expect(ga6tile).toContainText(T('540: shortened'));
+  // the Edge 850 shows the whole page, like the 1040
+  await page.getByRole('button', { name: 'Edge 850', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Edge 850', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(ga6tile.locator('.badge').first()).toHaveText(on1040);
 
   // a page switches off and on again
   const sw = ga6tile.getByRole('switch');
@@ -60,11 +61,12 @@ test('Garmin pages: card on the bike, pages per profile, one page in detail', as
   await expect(page).toHaveURL(/page=GA-6/);
   await expect(page.locator('figure')).toHaveCount(2);
   await expect(page.getByRole('heading', { name: T('Why these values') })).toBeVisible();
-  await expect(page.locator('figcaption').nth(1)).toContainText(T('without «{fields}»', { fields: 'IF' }));
+  await expect(page.locator('figcaption').nth(1)).toContainText('Edge 850');
+  await expect(page.locator('figcaption').nth(1)).not.toContainText(T('without «{fields}»', { fields: 'IF' }));
   await page.getByRole('button', { name: T('Change fields') }).click();
-  // the 540 is full: a 7th field is refused
-  await page.getByRole('button', { name: T('{field} on the Edge {device}', { field: T('IF'), device: '540' }) }).click();
-  await expect(page.locator('p.msg')).toBeVisible();
+  // a field hides on the 850 only
+  await page.getByRole('button', { name: T('{field} on the Edge {device}', { field: T('IF'), device: '850' }) }).click();
+  await expect(page.locator('figcaption').nth(1)).toContainText(T('without «{fields}»', { fields: T('IF') }));
   const tick = page.getByRole('checkbox', { name: /Edge 1040/ });
   await tick.click();
   await expect(tick).toHaveAttribute('aria-checked', 'true');
