@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.149.0 Paket E «Material, Velos, Merken»
+  'Remember, set up, sport by sport': 'Merken, einrichten, Sport für Sport',
+  'The app remembers your to-dos and birthdays, every bike keeps its bag setups, and each trip has its own sport.': 'Die App merkt sich deine To-dos und Geburtstage, jedes Velo behält seine Taschen-Setups, und jede Tour hat ihre eigene Sportart.',
+  'Calendar › Remember: your own to-dos and lists; after a ride or before a trip the app asks whether it should remind you': 'Kalender › Merken: deine eigenen To-dos und Listen; nach einer Fahrt oder vor einer Tour fragt die App, ob sie dich erinnern soll',
+  'Bikes: several bag setups per bike, the Garmin pages for the Edge 1040 and 850, and the main equipment such as skis with its care': 'Velos: mehrere Taschen-Setups pro Velo, die Garmin-Seiten fürs Edge 1040 und 850 und die Hauptausrüstung wie Ski mit ihrer Pflege',
+  'Every trip has a sport, a bike sport brings its standard bike; ski tours have their own page with the backpack check and the season care': 'Jede Tour hat eine Sportart, eine Velo-Sportart bringt ihr Standard-Velo mit; Skitouren haben eine eigene Seite mit Rucksack-Check und Saison-Pflege',
+  'Me › Own values: the packing step, the backup reminder, the care intervals and «cold» set by you': 'Ich › Eigene Werte: Packschritt, Backup-Erinnerung, Pflege-Abstände und «kalt» stellst du selbst ein',
+  'Share a TWINT screenshot with the app: Bills marks the right bill paid': 'Ein TWINT-Bildschirmfoto mit der App teilen: Rechnungen markiert die richtige Rechnung als bezahlt',
+  'Twelve pages are calmer: the next step first, fewer words, and «What is here» on five more pages': 'Zwölf Seiten sind ruhiger: der nächste Schritt zuerst, weniger Worte und «Was hier steht» auf fünf weiteren Seiten',
+  'Open Calendar › Remember and add a to-do; tick it off and take it back.': 'Öffne Kalender › Merken und füge ein To-do hinzu; hake es ab und nimm es zurück.',
+  'Open Bikes › Equipment and add a piece of equipment from Material; log a use.': 'Öffne Velos › Ausrüstung und füge eine Ausrüstung aus Material hinzu; trag einen Einsatz ein.',
+  'Plan a new trip and choose Gravel: the trip takes your standard bike for that sport. Then open Trips › Ski tours: the backpack check is there.': 'Plane eine neue Tour und wähle Gravel: die Tour nimmt dein Standard-Velo für diese Sportart. Öffne dann Touren › Skitouren: dort ist der Rucksack-Check.',
   // 0.148.0 Paket D «Touren und Unterwegs»
   'Every ride in its place': 'Jede Fahrt an ihrem Platz',
   'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.': 'Deine Strava-Fahrten stehen bei Touren, ein Weg lädt eine Fahrt hoch, und jede Tour zeigt ihre Steigungen.',

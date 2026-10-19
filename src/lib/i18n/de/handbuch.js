@@ -410,6 +410,19 @@ export default {
   '«Back to Standard» brings the number of the app back.': '«Auf Standard zurück» holt die Zahl der App zurück.',
   'Example: packing starts 3 days before the trip, the backup reminder after 7 days.': 'Beispiel: Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.',
   // v0.165.0 f.gipfelbuch
+  // Paket E 0.149.0: f.remember, f.reminders, f.birthdays, f.measure
+  'Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».': 'Öffne Kalender › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».',
+  'Tick a to-do off; «Undo» brings it back.': 'Hake ein To-do ab; «Rückgängig» holt es zurück.',
+  'Example: «Order new brake pads» → ticked off after the shop visit.': 'Beispiel: «Neue Bremsbeläge bestellen» → nach dem Werkstattbesuch abgehakt.',
+  'After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.': 'Nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal, ob sie dich erinnern soll; «Nie fragen» stellt das dort ab.',
+  'Open Me › Reminders to switch one off or change when it comes.': 'Öffne Ich › Erinnerungen, um eine auszuschalten oder ihre Zeit zu ändern.',
+  'Example: Yoga on Tuesday → «Remind every Tuesday at 18:00?».': 'Beispiel: Yoga am Dienstag → «Jeden Dienstag um 18:00 erinnern?».',
+  'Open Me › Reminders and add a birthday or a plant with its watering days.': 'Öffne Ich › Erinnerungen und füge einen Geburtstag oder eine Pflanze mit ihren Giesstagen hinzu.',
+  'When it is time it shows in Calendar › Remember.': 'Wenn es Zeit ist, steht es in Kalender › Merken.',
+  'Example: a fern every 5 days → «Water the fern» in Remember.': 'Beispiel: ein Farn alle 5 Tage → «Farn giessen» in Merken.',
+  'On Today tap «Record the pressure» or «Measure the chain» under the bike.': 'Tippe auf Heute unter dem Velo «Druck erfassen» oder «Kette messen».',
+  'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.': 'In Velos › Werte erfassen schlägt «Druck berechnen» einen Solldruck vor.',
+  'Example: the chain at its limit → the workshop order suggests «replace the chain».': 'Beispiel: die Kette an der Grenze → der Werkstatt-Auftrag schlägt «Kette ersetzen» vor.',
   // f.skiequipment (Skitour AU1)
   'Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.': 'Öffne Velos › Ausrüstung und tippe «Ausrüstung hinzufügen»; wähle ein Teil aus Material und seine Sportart.',
   'Tap «Log a use» after a tour; the care shows here and on Today when it is due.': 'Tippe nach einer Tour «Einsatz eintragen»; die Pflege zeigt sich hier und auf Heute, wenn sie fällig ist.',

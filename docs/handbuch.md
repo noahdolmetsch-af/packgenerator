@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 127 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 131 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -929,6 +929,17 @@ Ski, Felle, LVS und mehr für jede Sportart: ein Zähler der Einsätze und die P
 
 **Beispiel:** Tourenski alle 10 Einsätze wachsen → nach dem 10. Einsatz ist «Belag wachsen» fällig.
 
+### Druck und Kette messen
+
+Heute hält den Reifendruck fest und misst die Kette; «Werte erfassen» schlägt einen Solldruck vor, der Abhol-Check prüft beides.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf Heute unter dem Velo «Druck erfassen» oder «Kette messen».
+2. In Velos › Werte erfassen schlägt «Druck berechnen» einen Solldruck vor.
+
+**Beispiel:** Die Kette an der Grenze → der Werkstatt-Auftrag schlägt «Kette ersetzen» vor.
+
 ## Aktiv
 
 ### Heute abhaken
@@ -1202,6 +1213,39 @@ Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.
 2. Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.
 
 **Beispiel:** 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.
+
+### Merken und eigene Listen
+
+Kalender › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Kalender › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».
+2. Hake ein To-do ab; «Rückgängig» holt es zurück.
+
+**Beispiel:** «Neue Bremsbeläge bestellen» → nach dem Werkstattbesuch abgehakt.
+
+### Erinnerungen
+
+Ich › Erinnerungen: nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal; jede Erinnerung lässt sich ausschalten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal, ob sie dich erinnern soll; «Nie fragen» stellt das dort ab.
+2. Öffne Ich › Erinnerungen, um eine auszuschalten oder ihre Zeit zu ändern.
+
+**Beispiel:** Yoga am Dienstag → «Jeden Dienstag um 18:00 erinnern?».
+
+### Geburtstage und Pflanzen
+
+Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Kalender › Merken, wenn es Zeit ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Erinnerungen und füge einen Geburtstag oder eine Pflanze mit ihren Giesstagen hinzu.
+2. Wenn es Zeit ist, steht es in Kalender › Merken.
+
+**Beispiel:** Ein Farn alle 5 Tage → «Farn giessen» in Merken.
 
 ### Such-Befehle
 

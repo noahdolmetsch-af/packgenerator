@@ -150,4 +150,23 @@ export default {
   'Remind me: {name}': 'Erinnern: {name}',
   '{n} open · for your balance': '{n} offen · für deine Balance',
   'for your balance': 'für deine Balance',
+  // Paket E 0.149.0: features f.remember, f.reminders, f.birthdays, f.measure
+  'Remember and own lists': 'Merken und eigene Listen',
+  'Calendar › Remember: your own to-dos, lists like «My ideas» and what the app reminds you of, in one place.': 'Kalender › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort.',
+  'Me › Reminders: after a ride, before a trip or after bike care the app asks once; every reminder can be switched off.': 'Ich › Erinnerungen: nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal; jede Erinnerung lässt sich ausschalten.',
+  'Birthdays and plants': 'Geburtstage und Pflanzen',
+  'Birthdays and plants to water in Me › Reminders, shown in Calendar › Remember when it is time.': 'Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Kalender › Merken, wenn es Zeit ist.',
+  'Measure pressure and chain': 'Druck und Kette messen',
+  'Today records the tyre pressure and measures the chain; Enter values suggests a target pressure, the pick-up check checks both.': 'Heute hält den Reifendruck fest und misst die Kette; «Werte erfassen» schlägt einen Solldruck vor, der Abhol-Check prüft beides.',
+  // howto of the same
+  'Open Calendar › Remember.': 'Öffne Kalender › Merken.',
+  'Type a to-do or make an own list.': 'Tippe ein To-do oder mach eine eigene Liste.',
+  'Tick it off; Undo brings it back.': 'Hake es ab; Rückgängig holt es zurück.',
+  'After a ride or before a trip, answer the app’s question about a reminder.': 'Beantworte nach einer Fahrt oder vor einer Tour die Frage der App nach einer Erinnerung.',
+  'Open Me › Reminders.': 'Öffne Ich › Erinnerungen.',
+  'Switch a reminder off or change its time.': 'Schalte eine Erinnerung aus oder ändere ihre Zeit.',
+  'Add a birthday or a plant.': 'Füge einen Geburtstag oder eine Pflanze hinzu.',
+  'See it in Calendar › Remember when it is time.': 'Wenn es Zeit ist, siehst du es in Kalender › Merken.',
+  'Tap «Record the pressure» or «Measure the chain» under the bike.': 'Tippe unter dem Velo «Druck erfassen» oder «Kette messen».',
+  'The pick-up check shows both.': 'Der Abhol-Check zeigt beides.',
 };

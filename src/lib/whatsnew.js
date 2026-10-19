@@ -16,6 +16,31 @@
 
 export const WHATS_NEW = [
   {
+    // v0.149.0 Paket E «Material, Velos, Merken»: P4/P5 (Werte messen W1–W6, Bausteine, Bezahl-Erinnerung, Garmin-Seiten
+    // with the Edge 850, Taschen-Setups, Erinnerungen ER1–ER3, Merken PL3), Geburtstage + Pflanzen, Eigene Werte,
+    // Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Touren › Skitouren), Sportart SA1–SA3, Eigene Listen,
+    // UI-Regeln, Impeccable round 1 (12 pages), «Was hier steht» on 5 more pages, TWINT per «Teilen».
+    version: '0.149.0',
+    date: '2026-10-19',
+    title: 'Remember, set up, sport by sport',
+    lead: 'The app remembers your to-dos and birthdays, every bike keeps its bag setups, and each trip has its own sport.',
+    points: [
+      { text: 'Calendar › Remember: your own to-dos and lists; after a ride or before a trip the app asks whether it should remind you', href: '#/calendar' },
+      { text: 'Bikes: several bag setups per bike, the Garmin pages for the Edge 1040 and 850, and the main equipment such as skis with its care', href: '#/equipment' },
+      { text: 'Every trip has a sport, a bike sport brings its standard bike; ski tours have their own page with the backpack check and the season care', href: '#/ski' },
+    ],
+    small: [
+      { box: 'new', text: 'Me › Own values: the packing step, the backup reminder, the care intervals and «cold» set by you', href: '#/me/werte' },
+      { box: 'new', text: 'Share a TWINT screenshot with the app: Bills marks the right bill paid', href: '#/me/pay/invoices' },
+      { box: 'nicer', text: 'Twelve pages are calmer: the next step first, fewer words, and «What is here» on five more pages' },
+    ],
+    test: [
+      'Open Calendar › Remember and add a to-do; tick it off and take it back.',
+      'Open Bikes › Equipment and add a piece of equipment from Material; log a use.',
+      'Plan a new trip and choose Gravel: the trip takes your standard bike for that sport. Then open Trips › Ski tours: the backpack check is there.',
+    ],
+  },
+  {
     // v0.148.0 Paket D «Touren und Unterwegs»: AT1 (Strava activities on Trips), Höhenprofil HP1–HP5, GPX-Weg R3a
     // «Fahrt hochladen», Planungs-Notizen, Handy kurz (Noah 18.10 «1b», 19.10 «1a»), Bugfixes 0.132.2 + H3a,
     // W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung and Einheitliche Formulare (pilot in «Aus Notiz wird …»).

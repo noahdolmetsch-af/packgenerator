@@ -63,6 +63,8 @@ test('ER1: after Yoga the app asks once; yes saves a reminder on Ich › Erinner
   const sw = row.getByRole('switch');
   await expect(sw).toHaveAttribute('aria-checked', 'true');
   await fits(page, 'Ich › Erinnerungen');
+  // Paket B: «Erinnerungen aufs Handy» is one tap away from Ich › Erinnerungen
+  await expect(main.getByRole('link', { name: new RegExp(`^${T('Reminders on the phone')}`) })).toHaveAttribute('href', '#/me/push');
 
   await page.goto('./#/calendar');
   await expect(main.getByRole('heading', { name: T('Remember'), level: 1 })).toBeVisible();

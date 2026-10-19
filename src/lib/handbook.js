@@ -471,6 +471,26 @@ export const HANDBOOK = {
     example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
   },
   // v0.165.0
+  'f.remember': {
+    on: null,
+    steps: ['Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».', 'Tick a to-do off; «Undo» brings it back.'],
+    example: 'Example: «Order new brake pads» → ticked off after the shop visit.',
+  },
+  'f.reminders': {
+    on: null,
+    steps: ['After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.', 'Open Me › Reminders to switch one off or change when it comes.'],
+    example: 'Example: Yoga on Tuesday → «Remind every Tuesday at 18:00?».',
+  },
+  'f.birthdays': {
+    on: null,
+    steps: ['Open Me › Reminders and add a birthday or a plant with its watering days.', 'When it is time it shows in Calendar › Remember.'],
+    example: 'Example: a fern every 5 days → «Water the fern» in Remember.',
+  },
+  'f.measure': {
+    on: null,
+    steps: ['On Today tap «Record the pressure» or «Measure the chain» under the bike.', 'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.'],
+    example: "Example: the chain at its limit → the workshop order suggests «replace the chain».",
+  },
   'f.skiequipment': {
     on: null,
     steps: ['Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.', 'Tap «Log a use» after a tour; the care shows here and on Today when it is due.'],

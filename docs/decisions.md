@@ -1581,3 +1581,12 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Abgleich nach dem Koppeln (Noah 19.10.2026 06:29):** beim ersten Abgleich nach dem Koppeln fragt die App nur einmal, welches Gerät den richtigen Stand hat; die Antwort gilt für alle verschiedenen Einträge, «Einzeln entscheiden» bleibt möglich. Selbst entschieden: die eine Frage kommt nur nach dem Koppeln und steht im Abschnitt «Handy und Computer», nicht in einem eigenen Fenster.
 - **Einheitliche Formulare:** freiwillige Felder sagen «freiwillig», Fehler stehen direkt am Feld, Speichern lässt sich immer drücken; ein zweites Drücken während des Speicherns zählt nicht (statt den Knopf grau zu machen). Zuerst in «Aus Notiz wird …» und «Teil bearbeiten»; weitere Formulare folgen.
 - **Selbst entschieden:** die Zeile «Was hier steht ›» auf Touren am Handy zeigt nur die Worte, ohne den ersten Satz der Karte (eine Zeile statt drei); `preparation.spec` liest das DK6-Wort «(gewogen)» statt «bekannt:».
+
+## 19.10.2026: Paket E Material, Velos, Merken (0.149.0)
+
+- **Ein Release aus allen E-Teilen** auf Paket D (0.148.0): P4 + P5, Geburtstage + Pflanzen, Eigene Werte, Skitour, Sportart SA1–SA3, Eigene Listen, UI-Regeln Teil 1 + 2, Impeccable Runde 1, «Was hier steht» auf 5 weiteren Seiten, Bezahl-Erinnerung, TWINT per «Teilen», Garmin Edge 850. Impeccable Runde 2 gehört zu Paket C.
+- **Garmin Edge 850 statt 540** (Noah 18.10.2026 22:31 «ersetzt 540»): die Grenze von 6 Feldern fällt weg; gespeicherte 540-Einstellungen gehen aufs 850.
+- **Eigene Funktions-ID `f.skiequipment`** für Velos › Ausrüstung; `f.equipment` bleibt das Datenblatt der Velo-Teile.
+- **«Erkenntnisse»** auch auf den Ski-Seiten (statt «Learnings»), wie im Rückblick (DK6).
+- **Ich › Erinnerungen** zeigt unter «Wo sie erscheinen» den Weg zu «Erinnerungen aufs Handy» (#/me/push); Ich zeigt beide Zeilen untereinander.
+- **Selbst entschieden:** die zugeklappte Bausteine-Karte hat unten 16 statt 24 px Abstand (Packen 1: die erste Tasche bleibt am Handy auf dem ersten Bildschirm, auch mit «Was hier steht» darüber); die Saison-Pflege-Aufgaben haben eigene Schlüssel (`|season`); in «Teil bearbeiten» bleibt D's `Field`-Form mit dem «kalt»-Beispiel aus Eigene Werte; Ich › Daten zeigt bei «Backup» den Knopf «Backup machen» (Impeccable), bei Fitbit D's «Jetzt».

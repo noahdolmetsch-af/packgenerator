@@ -4,12 +4,13 @@
    * of the app on one page, by area (Aktiv, Touren, Velo, Eigene), each with a switch and a tap to change it.
    * Right: whether the app may ask «Soll ich dich erinnern?», the places set to «Nie fragen» (with
    * «Zurücksetzen»), and where reminders show: always in Kalender › Merken (5b: not on Heute), and as a
-   * calendar file with an alarm for the phone's calendar when switched on.
+   * calendar file with an alarm for the phone's calendar when switched on, and a link to «Erinnerungen aufs
+   * Handy» (#/me/push, Paket B) for the messages on the phone.
    * Geburtstage and Pflanzen (Noah 15.10.2026) have their own areas; their window is KindSheet, and a
    * delete there offers Undo for 4 s.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, Activity, Route, Bike, ListTodo, Bell, CalendarPlus, Cake, Sprout, BellRing } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
   import { MERKEN_KEY, updateTodo } from '../lib/merkendb.js';
@@ -152,6 +153,14 @@
             <a class="ich-row" href="#/calendar">
               <span class="ich-ib"><Bell size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Calendar › Remember')}</b><small>{t('Always')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Paket B «Erinnerungen aufs Handy» (Web-Push): the messages on the phone have their own page -->
+            <a class="ich-row" href="#/me/push" data-push-link>
+              <span class="ich-ib"><BellRing size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Reminders on the phone')}</b><small>{t('Birthdays, plants, the evening before, the weather')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
