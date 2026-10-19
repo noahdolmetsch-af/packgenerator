@@ -328,6 +328,7 @@
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
+    AiProjects: () => import('./pages/AiProjects.svelte'),
     Data: () => import('./pages/Data.svelte'),
     Docs: () => import('./pages/Docs.svelte'),
     Fitbit: () => import('./pages/Fitbit.svelte'),
@@ -527,6 +528,9 @@
   {:else if page === 'hinweise'}
     <!-- Paket Q #148: Ich › Hinweise und News -->
     <LazyPage load={PAGES.Hinweise} />
+  {:else if page === 'aiprojects'}
+    <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): Ich › own links to AI projects and chats -->
+    <LazyPage load={PAGES.AiProjects} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />

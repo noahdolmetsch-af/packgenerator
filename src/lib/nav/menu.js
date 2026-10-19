@@ -75,6 +75,8 @@ export const PAGE_GROUPS = [
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
       { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
+      // «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects, threads and chats.
+      { id: 'aiprojects', title: 'My AI projects', href: '#/me/ki-projekte', icon: 'sparkles', words: 'ai projects ki projekte claude chatgpt gemini perplexity chats threads links projekt' },
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.
       { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
       // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte.

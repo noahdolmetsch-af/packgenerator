@@ -1,4 +1,7 @@
 <script>
+  import AskClaude from '../lib/assistent/AskClaude.svelte';
+  import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../lib/speak.js';
   import { longPress } from '../lib/ui/longpress.js';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -582,6 +585,7 @@
               <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
               <label class="sentence"><span>{t('One sentence for next time')}</span>
                 <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea></label>
+              <SpeakButton wrap onsaid={(w) => ((d.note = appendSpoken(d.note ?? '', w)), persist())} />
               {#if more.length}
                 <!-- the other suggestions stay in sight: what is ticked is applied with «Fertig»; RE 3a: nothing is ticked to start with -->
                 <div class="moresugs">
@@ -681,6 +685,8 @@
             </div>
             {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
           </section>
+          <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the notes of the way, only with the tick -->
+          <AskClaude name="debrief" ask={t('These are my notes from the trip «{trip}». Help me with a short look back and learnings for next time.', { trip: trip.title })} lines={[d?.note ?? '', ...freeNotes.map((n) => n.text)].filter(Boolean).slice(0, 40)} />
           {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>

@@ -1,5 +1,7 @@
 <script>
   import { powerRole } from '../power.js'; // Strombudget (Noah 19.10.2026 «2a»)
+  import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../speak.js';
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
@@ -779,7 +781,7 @@
         </label>
       {/if}
       <Field id="it-note" class="wide" label={t('Note')} optional>
-        {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea>{/snippet}
+        {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea><SpeakButton wrap onsaid={(w) => (draft.note = appendSpoken(draft.note ?? '', w))} />{/snippet}
       </Field>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}

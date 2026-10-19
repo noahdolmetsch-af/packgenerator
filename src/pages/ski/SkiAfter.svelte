@@ -10,6 +10,8 @@
    * übernommen · alles änderbar». Without Strava everything is typed in by hand.
    * #/ski/after/<trip id> (none: the last tour without notes).
    */
+  import SpeakButton from '../../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../../lib/speak.js';
   import { ChevronLeft, Plus } from '@lucide/svelte';
   import { skiQuery, saveAfter } from '../../lib/ski/skidb.js';
   import { pointsOf } from '../../lib/skiday.js';
@@ -177,6 +179,7 @@
       <div>
         <section class="sk-note" aria-label={t('Three questions')}>
           <label class="sk-field"><h2>{t('What was good?')}</h2><textarea class="inp sk-text" bind:value={f.good} placeholder={t('e.g. «early start, perfect powder on the north slope»')}></textarea></label>
+          <SpeakButton wrap onsaid={(w) => (f.good = appendSpoken(f.good ?? '', w))} />
           <h2 id="chg-h">{t('What do I change next time, above all with the clothes?')}</h2>
           <div class="sk-chips" role="group" aria-labelledby="chg-h">
             {#each tags as x (x)}<button type="button" class="sk-chip" aria-pressed={f.changeTags.includes(x)} onclick={() => toggleTag(x)}>{tagName(x)}</button>{/each}
@@ -190,7 +193,9 @@
             {/if}
           </div>
           <textarea class="inp sk-text" bind:value={f.change} aria-labelledby="chg-h" placeholder={t('e.g. «put on the insulation jacket only at the peak»')}></textarea>
+          <SpeakButton wrap onsaid={(w) => (f.change = appendSpoken(f.change ?? '', w))} />
           <label class="sk-field"><h2>{t('Learning and notable things')}</h2><textarea class="inp sk-text" bind:value={f.learning} placeholder={t('e.g. «ski crampons needed from 2,200 m»')}></textarea></label>
+          <SpeakButton wrap onsaid={(w) => (f.learning = appendSpoken(f.learning ?? '', w))} />
         </section>
       </div>
     </div>

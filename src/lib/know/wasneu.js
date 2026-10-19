@@ -92,6 +92,8 @@ export const SINCE = {
   'f.shopping': '0.155.0', 'f.contracts': '0.155.0', 'f.people': '0.155.0', 'f.abroad': '0.155.0',
   // «Reise-Links» (v0.155.0)
   'f.travel': '0.155.0',
+  // «Diktat und Fragen» (v0.155.0)
+  'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
