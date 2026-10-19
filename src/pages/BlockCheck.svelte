@@ -11,6 +11,7 @@
    * (ui/Btn) in the step bar at the bottom; the steps themselves stay as they are.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import Empty from '../lib/ui/Empty.svelte';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -175,6 +176,7 @@
 <div class="bcheck">
   <!-- v0.72.0 (Noah 4a): first the overview, then one block after the other. SN3: the shared head. -->
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }, { label: t('Building blocks'), href: '#/blocks' }]} here={t('Check|blocks')} title={t('Check building blocks')} sub={t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')} />
+  <AreaIntro place="blockcheck" />
 
   {#if !steps}
     <Skeleton rows={4} />

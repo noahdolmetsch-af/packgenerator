@@ -124,6 +124,7 @@
     align-items: center;
     flex: 0 0 auto;
     min-height: 44px;
+    min-width: 44px; /* Paket T: Aktiv has six tabs; a short label («Ziele») stays a full tap target */
     padding: 0 var(--sp-3);
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;

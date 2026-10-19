@@ -376,6 +376,12 @@ export const HANDBOOK = {
     steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
     example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
   },
+  // 0.156.0 «Reise-Links»
+  'f.travel': {
+    on: null,
+    steps: ['Open a trip, «Plan», «Getting there and staying»: the links that fit the trip show, with its place and days filled in.', 'Type your flight number: «Flightradar24» follows the flight live.', 'All links without a trip: Trips › Travel links (search «Reise-Links»).'],
+    example: 'Example: a weekend in Lisbon with a hotel night → Booking.com for Saturday to Sunday, Google Flights, Rome2rio.',
+  },
   'f.komoot': {
     on: null,
     steps: ['In New tour or On the way tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app and create it as a planned trip.'],
@@ -436,6 +442,22 @@ export const HANDBOOK = {
     on: null,
     steps: ['On On the way › More open «Sun, moon and places».', '«Load places» asks Wikipedia about start, middle and finish.'],
     example: 'Example: dark from 18:52, full moon on Friday, and a few lines about the castle on the way.',
+  },
+  // Paket 4 (Noah 19.10.2026 «1a», «3a»)
+  'f.housecheck': {
+    on: null,
+    steps: ['On On the way tap «Before you leave»; the house check is below the way home.', '«Edit the list» to rename, delete, add or move lines.'],
+    example: 'Example: stove off, windows closed, rubbish out, and your own line «Blinds down».',
+  },
+  'f.flatsitter': {
+    on: null,
+    steps: ['On the sheet «Before you leave» write what the sitter should do, and a note.', '«Share link» or «QR code»; the list is stored only in the link.'],
+    example: 'Example: water the plants on Wednesday, empty the letterbox, the key is with the neighbour.',
+  },
+  'f.readytomorrow': {
+    on: null,
+    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.'],
+    example: 'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.',
   },
   // v0.134.0 «Inspiration»
   'f.inspiration': {
@@ -645,8 +667,38 @@ export const HANDBOOK = {
   },
   'f.insights': {
     on: null,
-    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
+    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.', 'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
+  },
+  'f.frei': {
+    on: null,
+    steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],
+    example: 'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.',
+  },
+  'f.impulse': {
+    on: null,
+    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
+  },
+  'f.shopping': {
+    on: null,
+    steps: ['Open Me › Everyday life › Shopping list and type what you need.', 'Tick what is in the basket; groups sort the list like the shop and can be renamed, sorted and deleted.'],
+    example: 'Example: switch on «Together with the trip shopping»: the gels and bars of your next trip stand below your everyday points.',
+  },
+  'f.contracts': {
+    on: null,
+    steps: ['Open Me › Documents › Contracts and subscriptions, or Me › Everyday life.', 'Enter the cost, the end of the term and the notice period: the app shows the last day to cancel and reminds you in Remember.'],
+    example: 'Example: phone contract ends 31 March, 2 months notice → last day 31 January, reminder 14 days before.',
+  },
+  'f.people': {
+    on: null,
+    steps: ['Open Me › Everyday life › Not seen for a while and add a person with «every 2 months».', 'After you met, tap «Seen today»; the quiet reminder in Remember starts again.'],
+    example: 'Example: Alex, every 6 weeks, last seen 1 September → a to-do in Remember on 13 October, no alarm.',
+  },
+  'f.abroad': {
+    on: null,
+    steps: ['Give the trip a country under Plan › Pass, country, getting there.', 'Below it: the emergency numbers (change them per country), your travel insurance and «Convert» to the currency of the country.'],
+    example: 'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».',
   },
   'f.timer': {
     on: null,
@@ -774,6 +826,11 @@ export const HANDBOOK = {
     steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
     example: 'Example: after testing with sample data → start fresh with your own gear.',
   },
+  'f.power': {
+    on: 'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.',
+    steps: ['Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».', 'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.'],
+    example: 'Example: 4 days in a bivouac with phone, light and bike computer → «Take: Power bank 20000».',
+  },
   'f.lend': {
     on: null,
     steps: ['Open Gear › Lent out and make a new list for the guest.', 'Send it as a link or PDF; tap «Back» for each thing that comes back.'],
@@ -868,6 +925,21 @@ export const HANDBOOK = {
     on: 'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.',
     steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
     example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
+  },
+  'f.dictate': {
+    on: 'On by default: Me › Appearance › Handling › «Speak instead of type»; below it «Dictation and questions».',
+    steps: ['Tap the microphone in a note field and speak; tap stop when you are done.', 'Say «Punkt», «Komma» or «neue Zeile» for the signs.', 'Ask a question in the note: the app answers from your data below it.'],
+    example: 'Example: «Chain squeaks. What is due on the gravel?» → the parts that are due.',
+  },
+  'f.askfurther': {
+    on: 'Always there under an answer; which services show: Me › Appearance › Handling.',
+    steps: ['Ask the app or dictate a question.', 'Tap a service under the answer: it opens with your question.', 'Tick «Send my gear and learnings that fit along» if you want.'],
+    example: 'Example: «Which jacket for 5 °C?» → Perplexity opens with the question.',
+  },
+  'f.aiprojects': {
+    on: null,
+    steps: ['Open Me › My AI projects.', 'Paste the address of a project or chat and give it a name.', 'Rename, delete or reorder it with the arrows or by dragging.'],
+    example: 'Example: «Pack Generator» → your project on claude.ai.',
   },
   'f.docs': {
     on: null,

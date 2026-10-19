@@ -28,6 +28,9 @@ export const GROUP_PLACES = [
   { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
   { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
   { name: 'Inspection areas', file: 'src/lib/inspect/EditList.svelte' }, // «Velo-Inspektion»: the areas of the checklist
+  { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
+  { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
+  { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

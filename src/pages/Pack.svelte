@@ -1,4 +1,5 @@
 <script>
+  import AskClaude from '../lib/assistent/AskClaude.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
@@ -42,7 +43,9 @@
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
+  import PowerLine from '../lib/pack/PowerLine.svelte'; // Strombudget (Noah 19.10.2026 «2a»)
   import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
+  import AbroadCard from '../lib/alltag/AbroadCard.svelte'; // Paket V: emergency numbers, travel insurance, currency abroad
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
@@ -915,6 +918,7 @@
         </div>
         <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
         <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
+        {#if trip.country && trip.country !== HOME_COUNTRY}<AbroadCard country={trip.country} />{/if}
       </div>
     {/snippet}
 
@@ -1110,7 +1114,7 @@
       {#if charge.length && !over}
         <details class="tp-fold calm-extra charge-fold">
           <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-          <div class="in extra-inner"><ChargeList {trip} {items} /></div>
+          <div class="in extra-inner"><PowerLine {trip} {items} /><ChargeList {trip} {items} /></div>
         </details>
       {/if}
     {/snippet}
@@ -1120,6 +1124,8 @@
   {/if}
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
   {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
+  <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the list, only with the tick -->
+  {#if trip}<AskClaude name="pack" ask={t('This is my packing list for «{trip}» ({days} days). What is missing, what is too much?', { trip: trip.title, days: trip.days ?? 1 })} lines={(trip.entries ?? []).slice(0, 80).map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.name ?? e.itemId}${e.qty > 1 ? ` × ${e.qty}` : ''}`)} />{/if}
   <PageMore page="pack" name={t('Pack')} />
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>

@@ -11,6 +11,7 @@
   import { t } from '../i18n.svelte.js';
   import { chargeList, chargeCount, chargeAll } from '../charge.js';
   import ChargeList from './ChargeList.svelte';
+  import PowerLine from '../pack/PowerLine.svelte'; // Strombudget (Noah 19.10.2026 «2a»)
   import { X, TriangleAlert } from '@lucide/svelte';
 
   let { trip, items = [], onclose } = $props();
@@ -35,6 +36,7 @@
     </div>
     <button type="button" class="x" aria-label={t('Close the window')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </header>
+  <PowerLine {trip} {items} />
   <ChargeList {trip} {items} head />
   <p class="hint"><TriangleAlert size={16} aria-hidden="true" /><span>{t('On a trip of several days, On the way has the list for every evening.')}</span></p>
   <div class="foot">

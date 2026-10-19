@@ -1,4 +1,7 @@
 <script>
+  import { powerRole } from '../power.js'; // Strombudget (Noah 19.10.2026 «2a»)
+  import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../speak.js';
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
@@ -266,6 +269,8 @@
         minStock: [draft.minStock, { field: t('Buy again below'), example: '2', kind: 'int', min: 0, max: 9999 }],
         runH: [draft.runH, { field: t('Battery lasts (h)'), example: '12', kind: 'number', min: 0.1, max: 2000 }],
         chargeH: [draft.chargeH, { field: t('Charging takes (h)'), example: '3', kind: 'number', min: 0.1, max: 200 }],
+        mah: [draft.mah, { field: t('Battery (mAh)'), example: '10000', kind: 'int', min: 10, max: 100000 }],
+        ports: [draft.ports, { field: t('Sockets'), example: '3', kind: 'int', min: 1, max: 12 }],
         ...(alsoTouched && alsoOn ? { litres: [alsoL, { field: t('Litres'), example: '12', kind: 'number', min: 0.1, max: 100 }] } : {}),
       },
       t,
@@ -685,9 +690,19 @@
       <Field id="it-chg" label={t('Charging takes (h)')} optional example={t('e.g. {x}', { x: '3' })} error={errors.chargeH}>
         {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.chargeH} />{/snippet}
       </Field>
+      <!-- Strombudget (Noah 19.10.2026 «2a»): the battery size and the sockets, for Material › Strom -->
+      <Field id="it-mah" label={t('Battery (mAh)')} optional example={t('e.g. {x}', { x: '10000' })} error={errors.mah}>
+        {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.mah} />{/snippet}
+      </Field>
+      {#if ['bank', 'charger'].includes(powerRole(draft))}
+        <Field id="it-ports" label={t('Sockets')} optional example={t('e.g. {x}', { x: '3' })} error={errors.ports}>
+          {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.ports} />{/snippet}
+        </Field>
+      {/if}
     {/if}
   </div>
   <p class="note"><a href="#/gear/supplies">{t('All supplies and the shopping list ›')}</a></p>
+  {#if charges}<p class="note"><a href="#/gear/power">{t('Does the power last? Power budget ›')}</a></p>{/if}
 {/snippet}
 
 <!-- v0.63.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
@@ -766,7 +781,7 @@
         </label>
       {/if}
       <Field id="it-note" class="wide" label={t('Note')} optional>
-        {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea>{/snippet}
+        {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea><SpeakButton wrap onsaid={(w) => (draft.note = appendSpoken(draft.note ?? '', w))} />{/snippet}
       </Field>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}

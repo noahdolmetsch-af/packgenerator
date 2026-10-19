@@ -35,6 +35,27 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.155.0 Paket 3+4 (Noah 19.10.2026 «paket 3 und 4 verbinden»): T «Freie Zeit», «Daten in der App», V «Alltag»,
+    // K extras (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?»), H «Strombudget», «Reise-Links», «Anleitungen überall», «Diktat».
+    version: '0.155.0',
+    date: '2026-10-19',
+    title: 'Free time and everyday life',
+    lead: 'For free hours, everyday life and the evening before.',
+    points: [
+      { text: 'Me › Free time: collections, ideas and travel wishes; Impulses in Active', href: '#/me/frei' },
+      { text: 'Me › Everyday life: shopping list, contracts, people you miss', href: '#/me/alltag/einkauf' },
+      { text: 'Dictate until you tap stop; the app answers questions', href: '#/notes' },
+    ],
+    small: [
+      { box: 'new', text: 'Before you leave: house check, flat-sitter list, «Ready for tomorrow?»', href: '#/ride/abfahrt' },
+      { box: 'new', text: 'Power budget, travel links and a guide on every page', href: '#/gear/power' },
+    ],
+    test: [
+      'Open Me › Free time and start a collection.',
+      'Open Me › Everyday life and add something to the shopping list.',
+    ],
+  },
+  {
     // v0.154.0 Paket 2 (Noah 19.10.2026 15:14 «1a»): K «Unterwegs», M «Aus Touren lernen» + «Neuland», S «Reise-Spur»,
     // O «Sportarten», I «Velo im Griff» + «Velo-Inspektion», L2 «Bilderkennung», R «Andere Menschen», Trello, «Strava-Fahrten».
     version: '0.154.0',

@@ -16,7 +16,7 @@ import { PART, partInfo, lastReplace } from '../care.js';
 /** Every key a helper request body may contain (at any depth). */
 export const FIELDS = new Set([
   // common
-  'lang', 'today', 'question',
+  'lang', 'today', 'question', 'tomorrow',
   // lists of things
   'areas', 'bikes', 'blocks', 'items', 'learnings', 'list', 'own', 'unusedBefore', 'notes', 'parts', 'checks', 'rides', 'unused', 'broken', 'missing',
   // fields of a thing
@@ -201,4 +201,20 @@ export function keysOf(value, out = new Set()) {
       keysOf(v, out);
     }
   return out;
+}
+
+/**
+ * Paket 4 «Bereit für morgen?»: the evening before a tour. The trip's conditions, the names not packed
+ * yet, the names of parts due and the learnings; no ids, no health data, no places.
+ */
+export function eveningPayload(trip, { open = [], due = [], learnings = [], today = '', tomorrow = '', lang = 'de' } = {}) {
+  return keep({
+    lang,
+    today,
+    tomorrow,
+    trip: tripOut(trip),
+    list: open.slice(0, 30).map((name) => ({ name: clip(name, 80) })),
+    parts: due.slice(0, 10).map((name) => ({ name: clip(name, 80) })),
+    learnings: learningTexts(learnings, 20),
+  });
 }

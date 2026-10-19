@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target, ShieldCheck } from '@lucide/svelte';
+  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target, ShieldCheck, ShoppingCart, MessageCircle } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
@@ -187,6 +187,26 @@
           </li>
         </ul>
       {/if}
+      <!-- Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): impulses, collections and six small pages -->
+      <ul class="card ich-list" data-me-frei>
+        <li>
+          <a class="ich-row" href="#/me/frei">
+            <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
+            <span class="ich-m"><b>{t('Free time')}</b><small>{t('Impulses, collections, evenings, first night and more')}</small></span>
+            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+          </a>
+        </li>
+      </ul>
+      <ul class="card ich-list" data-me-alltag>
+        <li>
+          <!-- Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a»): shopping list, contracts, «Not seen for a while» -->
+          <a class="ich-row" href="#/me/alltag">
+            <span class="ich-ib"><ShoppingCart size={18} aria-hidden="true" /></span>
+            <span class="ich-m"><b>{t('Everyday life')}</b><small>{t('Shopping list, contracts and subscriptions, people you miss')}</small></span>
+            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+          </a>
+        </li>
+      </ul>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">
@@ -249,7 +269,7 @@
             <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): what goes together in your data -->
             <a class="ich-row" href="#/me/insights" data-me-insights>
               <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, resting pulse')}</small></span>
+              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, weather, appointments')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -476,6 +496,14 @@
             <a class="ich-row" href="#/helper">
               <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects and chats -->
+          <li>
+            <a class="ich-row" href="#/me/ki-projekte" data-me-row="aiprojects">
+              <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('My AI projects')}</b><small>{t('Your own links to projects, threads and chats')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

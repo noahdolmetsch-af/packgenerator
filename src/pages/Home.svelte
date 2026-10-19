@@ -130,6 +130,7 @@
   import YearRow from '../lib/home/YearRow.svelte';
   import WeekTile from '../lib/home/WeekTile.svelte';
   import TodaySuggest from '../lib/home/TodaySuggest.svelte';
+  import ImpulseHint from '../lib/home/ImpulseHint.svelte'; // Paket T «2a»: an impulse when there is no ride idea
   import RoutineTile from '../lib/home/RoutineTile.svelte'; // Routine «Das tut mir gut» (D1)
   import BagReminder from '../lib/home/BagReminder.svelte';
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
@@ -925,6 +926,8 @@
           {#if bikes.length > 1}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
         </span>
       </div>
+    {:else if !suggestion && ready}
+      <ImpulseHint {today} />
     {/if}
   </section>
 {/snippet}

@@ -8,6 +8,7 @@
    * send the link or the PDF yourself; the link carries only the names of the things.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { isInventory } from '../lib/gear.js';
@@ -128,6 +129,7 @@
     {#if !form}<button type="button" class="btn hi" onclick={startForm}><Plus size={18} aria-hidden="true" /> {t('New lending list')}</button>{/if}
   </PathHead>
   <p class="intro">{t('A guest needs a helmet or a sleeping bag? Choose the things, send the list as a link or PDF, and the app remembers who has what. On the return day a reminder comes, if you switch it on under Me › Reminders.')}</p>
+  <AreaIntro place="lend" />
   {#if problem}<p class="err" role="alert">{problem}</p>{/if}
 
   {#if form}

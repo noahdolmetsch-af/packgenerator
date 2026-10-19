@@ -10,6 +10,7 @@
    * - "me" is no longer on every row: only the bike shop's work gets a small shop sign, explained once;
    * - folded rows: parts without data, the 1000 km check, the log, "Bike shop & 2026".
    */
+  import AskClaude from '../assistent/AskClaude.svelte';
   import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart } from '@lucide/svelte';
   import Btn from '../ui/Btn.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
@@ -514,6 +515,8 @@
           {/if}
         </details>
       </div>
+      <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the parts and their state, only with the tick -->
+      <AskClaude name="care" ask={t('This is the care state of my bike «{bike}». What should I do next, and what can wait?', { bike: bike.name })} lines={[bike.km != null ? `${num(bike.km)} km` : '', ...known.map((r) => `${partName(r)}: ${t(BADGE[r.st.state] ?? 'good|part')}${r.last?.main?.km != null ? `, ${t('last at {km} km', { km: num(r.last.main.km) })}` : ''}`)]} />
       <p class="legend foot">
         {#if hasBar}<span><span class="bar ok demo" aria-hidden="true"><i style="width:60%"></i></span>{t('Bar: how much of the interval or the wear is used')}</span>{/if}
         <span><Store size={14} aria-hidden="true" />{t('= bike shop, otherwise me.')}</span>

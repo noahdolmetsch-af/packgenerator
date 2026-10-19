@@ -11,6 +11,7 @@
    * Everything is a suggestion: counter, care and intervals can be changed and removed.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { tick } from 'svelte';
   import { Mountain, Bike, ChevronRight, Plus, Check } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
@@ -113,6 +114,7 @@
     <PageHead title={t('Equipment|place')} text={t('Your main equipment per sport, with a counter and its care. Bikes have their own place.')} />
     {#if rows.length}<CoreLine parts={[{ v: rows.length, label: tn(rows.length, 'piece of equipment', 'pieces of equipment') }, { v: due.length, label: tn(due.length, 'care step due', 'care steps due') }, { v: seasonUses, label: t('uses this season') }]} />{/if}
   </header>
+  <AreaIntro place="equipment" />
 
   {#if data}
     <nav class="chips" aria-label={t('Filter by sport')}>

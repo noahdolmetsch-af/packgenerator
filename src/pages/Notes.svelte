@@ -26,7 +26,9 @@
   import NoteSheet from '../lib/notes/NoteSheet.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn } from '@lucide/svelte';
+  import SpeakButton from '../lib/ui/SpeakButton.svelte';
+  import { appendSpoken } from '../lib/speak.js';
+  import { Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
   import { zipEntries } from '../lib/zipread.js';
@@ -151,24 +153,12 @@
   let msg = $state('');
   let saved = $state('');
   const topicNow = $derived(guessTopic(`${text} ${linkTitle}`));
-  const SR = typeof window !== 'undefined' ? window.SpeechRecognition ?? window.webkitSpeechRecognition : null;
-  let rec = null;
-  let listening = $state(false);
-  function dictate() {
-    if (!SR) return;
-    if (listening) return rec?.stop();
-    rec = new SR();
-    rec.lang = locale() === 'de-CH' ? 'de-CH' : 'en-GB';
-    rec.interimResults = false;
-    rec.onresult = (e) => {
-      const said = [...e.results].map((r) => r[0].transcript).join(' ').trim();
-      if (said) text = text ? `${text} ${said}` : said;
-      dictated = true;
-    };
-    rec.onend = () => (listening = false);
-    rec.onerror = () => ((listening = false), (msg = t('Dictation did not work. Type instead.')));
-    listening = true;
-    rec.start();
+  // «Diktat» (Noah 19.10.2026): the one microphone of the app (ui/SpeakButton.svelte): until you stop,
+  // live words, spoken commands, and the app answers a question in the note
+  let dictBar = $state(null);
+  function spoken(w) {
+    text = appendSpoken(text, w);
+    dictated = true;
   }
   async function addPhoto(e) {
     const f = e.currentTarget.files[0];
@@ -240,10 +230,11 @@
         <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={18} aria-hidden="true" /></button>
         <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={18} aria-hidden="true" /></button>
         <label class="tb" aria-label={t('Scan a QR code')} data-scan-qr><QrCode size={18} aria-hidden="true" /><input type="file" accept="image/*" capture="environment" hidden onchange={scanQr} /></label>
-        {#if SR}<button type="button" class="tb" aria-pressed={listening} aria-label={listening ? t('Stop dictation') : t('Dictate')} title={listening ? t('Stop dictation') : t('Dictate')} onclick={dictate}><Mic size={18} aria-hidden="true" /></button>{/if}
+        <SpeakButton icon answer bar={dictBar} onsaid={spoken} />
         <button type="submit" class="btn hi save">{t('Save')}</button>
       </div>
     </div>
+    <div class="dictbar" bind:this={dictBar}></div>
     {#if linkOpen}
       <div class="two">
         <input class="inp" type="url" bind:value={linkUrl} placeholder="https://…" aria-label={t('Web address')} />
@@ -455,6 +446,12 @@
   }
   .hintrow {
     margin: 4px 2px 0;
+  }
+  .dictbar:empty {
+    display: none;
+  }
+  .dictbar {
+    margin-top: 6px;
   }
   .hint {
     color: var(--ink-3);

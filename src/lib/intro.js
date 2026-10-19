@@ -11,6 +11,8 @@
  * setting (INTRO_KEY, on the device and in the backup): { visits, hidden, fold, offered } per place.
  * Pure; tested in tests/intro.test.js. The component: lib/intro/AreaIntro.svelte.
  */
+import { GUIDE_INTROS } from './guides.js';
+
 export const INTRO_KEY = 'intro';
 /** The key in pageinfo PAGES that holds the tips of an Einstieg (most use their own key). */
 export const tipsOf = (place) => INTROS[place]?.tips ?? place;
@@ -273,6 +275,9 @@ export const INTROS = {
     expect: 'After the first Sunday you see the whole week at a glance, and Today shows what the plan says for today.',
   },
 };
+
+// «Anleitungen überall» (Noah 19.10.2026): the guides of the other pages, after the places and their pages
+Object.assign(INTROS, GUIDE_INTROS);
 
 const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
 /** The stored state made whole. */

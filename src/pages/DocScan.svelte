@@ -11,6 +11,7 @@
    *   «Importierte PDF» (or the chosen group) and, when Drive is on, into Google Drive.
    */
   import DateInput from '../lib/ui/DateInput.svelte';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { onMount } from 'svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -228,6 +229,7 @@
 
 <div class="scanpage">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={t('Photograph document')} title={pages.length ? t('Check and keep as PDF') : t('Photograph document')} sub={pages.length ? tn(pages.length, '{n} page · the edge is found by itself; «Corners» moves it by hand.', '{n} pages · the edge is found by itself; «Corners» moves it by hand.') : t('Page by page: the app cuts the paper out, straightens it and makes a PDF. Or choose photos from the gallery.')} />
+  <AreaIntro place="docscan" />
 
   {#if !pages.length}
     <div class="start card ich-body" class:drop={dropping} role="region" aria-label={t('Add photos')} ondragover={(e) => (e.preventDefault(), (dropping = true))} ondragleave={() => (dropping = false)} {ondrop}>

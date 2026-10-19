@@ -8,6 +8,8 @@
    * learning: the record, or null for a new one; topics: the topics there are (stored keys);
    * topicName(key): as shown; onclose.
    */
+  import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import { appendSpoken } from '../speak.js';
   import { X } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
@@ -86,6 +88,7 @@
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
     </div>
     <label class="vd-field"><span class="lbl">{t('What you learned')}</span><textarea class="inp" rows="2" bind:value={draft.rule} placeholder={t('e.g. Take a second pair of gloves')}></textarea></label>
+    <SpeakButton wrap onsaid={(w) => (draft.rule = appendSpoken(draft.rule, w))} />
     <label class="vd-field"><span class="lbl">{t('What to do (optional)')}</span><input class="inp" bind:value={draft.action} /></label>
     <label class="vd-field"><span class="lbl">{t('Topic (optional)')}</span><input class="inp" list="learn-topics" bind:value={draft.topic} placeholder={t('No topic')} /></label>
     <datalist id="learn-topics">{#each topics.filter(Boolean) as k (k)}<option value={topicName(k)}></option>{/each}</datalist>

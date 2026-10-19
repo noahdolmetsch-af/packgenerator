@@ -1694,6 +1694,34 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Selbst entschieden (Bündler):** gleiche englische Texte mit verschiedenem Deutsch bekommen einen Zusatz: «Count|tick» (Zählen), «Level|bubble» (Gerade), «Watch|inspect» (Beobachten); «Goggles» heisst überall «Brille», «Torch» überall «Taschenlampe», «Add|row» überall «Dazu». K's Funktion «Route umwandeln» heisst f.routeconvert (L hat f.convert).
 - **Selbst entschieden (Bündler):** der Familien-Link (#/spurlink) zeigt auch keine Rückkehr- und Jahres-Fenster und keinen Tour-Start (wie «share»).
 
+## 19.10.2026: Paket 3 (0.155.0) Freie Zeit und Daten
+
+- Noah 15:17–15:31: Freie Zeit als neue Seiten statt in alten; Impulse unter Aktiv und Ich; Heute zeigt manchmal einen Impuls im «Vorschlag» (HN4-Ausnahme freigegeben); Tonaufnahmen weggelassen; Rezepte als eigene Sammlung mit Zutaten auf die Einkaufsliste.
+- **Selbst entschieden (Bündler):** Dexie 19 «frei» (nach 16–18 aus Paket 2). «Full» der Energie heisst «Full|energy» (Voll), weil die Inspektion «Full» als «Gross» übersetzt.
+## 19.10.2026: Paket K «Unterwegs»
+- **Paket 4 zu K (Noah 19.10.2026 16:53 «1a 3a»):** Haus-Check vor der Abfahrt und Liste für die Wohnungs-Hüter stehen auf dem Blatt «Vor der Abfahrt». «Bereit für morgen?» am Vorabend einer Tour mit Hinweisen aus Wetter, Packliste und fälligen Teilen; der KI-Helfer ergänzt nur auf Knopfdruck.
+- **Selbst entschieden (Paket 4 zu K):** Haus-Check startet mit 8 Vorschlägen, alles umbenennen, löschen (mit Rückgängig), hinzufügen, verschieben; Haken pro Tour, offene Zeilen kommen ins PDF. Die Hüter-Liste reist nur im Link (#/share/hueter/…, nichts auf einem Server), dazu ein QR-Code mit dem QR-Werkzeug der Rechnungen; Hinweis «keine Türcodes in den Link». «Bereit für morgen?» zeigt die Regel-Hinweise gratis und offline; der KI-Helfer (Aufgabe «evening» in der bestehenden Funktion api/helper, keine neue Datei) nur, wenn er eingerichtet und eingeschaltet ist, innerhalb der Monatsgrenze; er bekommt keine Gesundheitsdaten und keine ids.
+## 19.10.2026 «Reise-Links» (Noah «1b 2b 3a 4a 5b»)
+- **Nur Absprung-Links, keine Einbindung:** Flightradar24 und Booking.com geben ihre Daten nur gegen Geld oder als Partner heraus (Regel 0 Kosten). Die App öffnet die Seiten in einem neuen Tab, mit Ort, Tagen und Flugnummer eingefüllt; sonst geht nichts hinaus.
+- **In der Tour** («Planen», «Anreise und Unterkunft», `sk/TravelLinks.svelte`): Booking.com, Airbnb und Hostelworld (1b) bei einer Hotel-/Hütten-Nacht, Flugnummer → Flightradar24 und im Ausland Google Flights (2b), Google Maps mit dem Auto, im Ausland Rome2rio, EDA-Reisehinweise und Wikivoyage (3a), Warmshowers bei Velotouren mit Nacht, Hütten-Reservation bei Ski/Wandern mit Hütte, eigener Live-Tracking-Link bei einem Rennen (4a). Regeln in `sk/links.js travelLinks`.
+- **Seite Touren › Reise-Links** (`#/travel`, 5b): alle Links in Gruppen, ohne Ort; erreichbar über die Suche, den Link in der Tour und die Kachel «Dazunehmen» bei Vergangene Touren.
+- **Selbst entschieden:** «du wählst» (1b) heisst: alle drei Anbieter erscheinen, jeder lässt sich mit «…» ausschalten (kommt unter Ich › Darstellung zurück), statt einer eigenen Einstellung. Die Flugnummer liegt auf der Tour (`trip.flight`, keine neue Dexie-Version). Ausland = Land der Ortssuche nicht Schweiz/Liechtenstein, sonst Koordinaten ausserhalb der Schweiz. Für die Hotel-Nächte im Rennen (Paket U) gibt es `sk/StayLinks.svelte` (Ort + Nacht), der Bündler verdrahtet ihn.
+- **Was fällt weg oder rutscht tiefer:** nichts. Heute bleibt unverändert.
+## Diktat und KI-Fragen (19.10.2026)
+Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b», «plus alles zuvor besprochene», «1a 2a».
+- **Diktat bis Stopp:** Die Spracherkennung des Browsers läuft im Dauer-Modus; beendet Chrome sie nach einer Pause, startet die App sie still neu, bis du Stopp tippst (vorher hörte sie nach dem ersten Satz auf). Live-Text, roter Punkt, Uhr. Ein Mikrofon-Baustein für die ganze App (`src/lib/ui/SpeakButton.svelte`, `src/lib/dictate.js`).
+- **Sprachbefehle:** «Punkt», «Komma», «Fragezeichen», «Doppelpunkt», «neue Zeile», «neuer Absatz» (abschaltbar).
+- **Whisper im Gerät:** wählbar; lädt Transformers.js und das Modell (etwa 80 MB) beim ersten Gebrauch vom CDN, nichts davon in den App-Dateien.
+- **Antwort auf Fragen im Diktat:** nach dem Stopp oder sofort (wählbar) oder nie; die App-Regeln des Assistenten antworten, auf Wunsch vorgelesen (Browser-Stimme, gratis).
+- **Weiter fragen bei …:** Claude, ChatGPT, Perplexity, Google KI-Modus, Copilot, Le Chat, DuckDuckGo mit vorausgefüllter Frage; welche erscheinen, ist wählbar. Daten nur mit Häkchen, jedes Mal neu (2a).
+- **Gemini in der App:** über den bestehenden Server `api/helper.js` (Aufgabe «gemini», keine neue Function), Schlüssel nur in Vercel, Tageslimit.
+- **Mit Claude besprechen** auf Packliste, Velo-Pflege und Rückblick, öffnet claude.ai mit Noahs Abo. **Meine KI-Projekte:** eigene Links (Ich).
+- **Selbst entschieden:** Duck.ai und Gemini im Web lassen sich nicht zuverlässig vorausfüllen; DuckDuckGo öffnet darum die Suche mit KI-Antwort, Gemini läuft in der App. Ein Max-Abo lässt sich nicht in die App einbinden (nur claude.ai); Projekte und Chats kann die App nicht lesen.
+
+## 19.10.2026: Paket 3 und 4 zusammen (0.155.0)
+
+- Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
+- **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
 ## 19.10.2026: Mail in die App (Noah «1a 2a 3b 4a 5a», «1a oder neue Ablage erstellen vom Benutzer 2a 3a», «1a–5a», «1a–4a», «bitte umsetzen»)
 - Eine Mail kommt als **ein** Eintrag in den Eingang, mit ihren Anhängen; die App legt nie selbst ab (3b). Wege: «In die App übernehmen» unter Ich › Mail, das Gmail-Label «Packgenerator» (auch per +pack-Adresse und Gmail-Filter), die Google-Aufgabenliste «Packgenerator», Termine mit «#pack», das Lesezeichen «In den Eingang» am Mac.
 - Anhänge: PDF, Foto und Wallet-Ticket › Dokumente; Kalender-Datei › Termin; GPX › Tour oder Fahrt; QR-Rechnung › Zu zahlen; Kontakt › in die Notiz. Bilder unter 15 KB (Logos) bleiben in Gmail, ebenso Anhänge über zusammen 2,6 MB (sonst käme der Eintrag beim automatischen Abgleich nicht aufs andere Gerät).

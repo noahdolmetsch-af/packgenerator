@@ -18,6 +18,7 @@
  */
 import { meteoUrl, schweizMobilUrl, sbbUrl, safeUrl } from './sk/links.js';
 import { PAGE_TEXTS } from './pagetexts.js';
+import { GUIDE_TIPS } from './guides.js';
 
 export const PAGEINFO_KEY = 'pageInfo';
 /** Heat from this many °C, cold below this many °C, a long tour from this many km (WD3). */
@@ -273,6 +274,9 @@ Object.assign(PAGES, {
     can: [],
   },
 });
+
+// «Anleitungen überall» (Noah 19.10.2026): the tips of the guides (lib/guides.js)
+Object.assign(PAGES, GUIDE_TIPS);
 
 /** The stored state made whole. */
 export function infoOf(v) {

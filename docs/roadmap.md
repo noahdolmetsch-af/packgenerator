@@ -105,6 +105,10 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**19.10.2026, v0.155.0 «Paket 3+4»:** Paket 3 und Paket 4 sind ein Release 0.155.0 (Noah «paket 3 und 4 verbinden», «mach wie es am besten und am schnellsten geht»): Freie Zeit, Daten, V Alltag, Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI. Danach 0.156.0 «Paket 5» mit U (Rennen, Renn-Karte, Live-Karte) und Mail in die App; U3 Karte offline später. Ton-Aufnahmen bleiben gestrichen.
+
+**19.10.2026, v0.155.0 «Paket 3»:** Freie Zeit (acht Seiten, Impulse) und Daten in den Erkenntnissen, als ein Release nach Paket 2.
+
 **19.10.2026, v0.154.0 «Paket 2»:** K, M, S, O/I mit Velo-Inspektion, L2, R, Trello und Strava-Fahrten als ein Release (Noah 15:14 «1a»). Danach 0.155.0 «Paket 3» mit Freie Zeit und Daten.
 
 **19.10.2026, v0.153.0 «Paket 1»:** G, L, P, N, Q, H, J als ein Release auf Tempo (Noah 15:14 «1a»): Daten kommen von selbst, Werkzeugkasten und Links, Was mir gut tut, Träume und Kompass, App klarer, Packen leichter, Berg und Notfall.

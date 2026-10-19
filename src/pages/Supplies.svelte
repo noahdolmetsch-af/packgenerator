@@ -7,6 +7,7 @@
    * Food & drink always counts as a supply; any other item once one of these fields is set.
    */
   import { liveQuery } from 'dexie';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { CATEGORY, choosable } from '../lib/gear.js';
@@ -88,6 +89,7 @@
 <div class="page sup">
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Supplies')} sub={$itemsQ ? tn(supplies.length, '{n} supply', '{n} supplies') : ''} />
   <p class="intro">{t('Food, gels, medicines, gas: what runs out or expires. Set a best-before date and the app reminds you 2 weeks before. Count what you have at home and it puts the item on the shopping list when it runs low.')}</p>
+  <AreaIntro place="supplies" />
   {#if problem}<p class="err" role="alert">{problem}</p>{/if}
 
   <div class="cols">
