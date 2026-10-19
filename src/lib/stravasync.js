@@ -30,7 +30,7 @@ export function toRides(activities, bikes = [], { indoor = false } = {}) {
       other++;
       continue;
     }
-    rides.push({ ...(inside && !gear ? { indoor: true } : {}), source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null });
+    rides.push({ ...(inside && !gear ? { indoor: true } : {}), source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null, hm: Number.isFinite(a.hm) ? a.hm : null, ...(a.spot ? { spot: a.spot } : {}) });
   }
   return { rides, other };
 }

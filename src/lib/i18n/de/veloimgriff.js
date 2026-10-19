@@ -76,7 +76,7 @@ export default {
   'Name of the bolt': 'Name der Schraube',
   'e.g. Stem, my bike': 'z. B. Vorbau, mein Velo',
   'Value in Nm': 'Wert in Nm',
-  'Add|row': 'Hinzufügen',
+  'Add|row': 'Dazu',
   'Breakdown help': 'Pannenhilfe',
   'Short steps for the road. Open the breakdown you have.': 'Kurze Schritte für unterwegs. Öffne die Panne, die du hast.',
   'Rename row': 'Zeile umbenennen',
