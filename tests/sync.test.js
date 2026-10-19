@@ -9,7 +9,7 @@ import net from 'node:net';
 import { createDb, syncLocal, DATA_TABLES } from '../src/lib/db.js';
 import { noteKey } from '../src/lib/sync/track.js';
 import { newCode, readCode, keysOf, seal, unseal, recName } from '../src/lib/sync/code.js';
-import { startSync, stopSync, syncNow, resolve, openQuestions, readCfg, stable, CFG, autoPick } from '../src/lib/sync/engine.js';
+import { startSync, stopSync, syncNow, resolve, openQuestions, readCfg, stable, CFG, autoPick, resolveAll } from '../src/lib/sync/engine.js';
 import { makeHandler } from '../api/sync.js';
 import { spaceOf, readPush } from '../api/_lib/sync.js';
 import { fakeRedis } from './fakeredis.js';
@@ -209,6 +209,34 @@ describe('two devices (engine.js)', () => {
     expect((await openQuestions(b)).map((q) => q.id)).toEqual(['Y']);
     await syncNow(a, { api });
     expect((await a.items.get('Z')).name).toBe('nur B');
+  });
+  it('the first round after pairing: one answer for all questions (Noah 19.10.2026 06:29)', async () => {
+    const { api } = fakeServer();
+    const a = fresh();
+    const b = fresh();
+    const code = newCode();
+    await a.items.bulkPut([{ id: 'X', name: 'A1' }, { id: 'Y', name: 'A2' }, { id: 'Q', name: 'gleich' }]);
+    await b.items.bulkPut([{ id: 'X', name: 'B1' }, { id: 'Y', name: 'B2' }, { id: 'Q', name: 'gleich' }]);
+    await startSync(a, code);
+    await syncNow(a, { api });
+    await startSync(b, code);
+    expect(await syncNow(b, { api })).toMatchObject({ asks: 2 });
+    // «the other device»: all take its version, nothing is asked any more
+    expect(await resolveAll(b, 'theirs')).toBe(2);
+    expect((await openQuestions(b)).length).toBe(0);
+    expect((await b.items.bulkGet(['X', 'Y'])).map((x) => x.name)).toEqual(['A1', 'A2']);
+    expect(await syncNow(b, { api })).toMatchObject({ asks: 0, sent: 0 });
+
+    // «this device» on a third device: its versions go to the server and reach the others
+    const c = fresh();
+    await c.items.bulkPut([{ id: 'X', name: 'C1' }, { id: 'Y', name: 'C2' }]);
+    await startSync(c, code);
+    expect(await syncNow(c, { api })).toMatchObject({ asks: 2 });
+    expect(await resolveAll(c, 'mine')).toBe(2);
+    expect(await syncNow(c, { api })).toMatchObject({ asks: 0, sent: 2 });
+    await syncNow(a, { api });
+    expect((await a.items.bulkGet(['X', 'Y'])).map((x) => x.name)).toEqual(['C1', 'C2']);
+    expect(await resolveAll(a, 'mine')).toBe(0);
   });
   it('does nothing while off or while a demo runs; switching off can empty the server', async () => {
     const { api } = fakeServer();

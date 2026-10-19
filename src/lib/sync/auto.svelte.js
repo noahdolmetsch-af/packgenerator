@@ -11,8 +11,11 @@ import { syncNow, readCfg, ASK } from './engine.js';
 export const AFTER_CHANGE_MS = 20_000;
 export const EVERY_MS = 5 * 60_000;
 
-/** The question window: open, and how many questions «Later» already put aside. */
-export const syncUi = $state({ open: false, seen: 0 });
+/**
+ * The question window: open, and how many questions «Later» already put aside.
+ * first: the panel asks one question for all after pairing; the window waits meanwhile.
+ */
+export const syncUi = $state({ open: false, seen: 0, first: false });
 
 export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0, autoOpen: true, asList: false });
 
