@@ -83,7 +83,7 @@
   <div class="rtp-cols">
     <section class="rtp-mine" aria-labelledby="rtp-list-h">
       <h2 id="rtp-list-h" class="rtp-h2">{t('Your list')}</h2>
-      <p class="rtp-note">{tn(shown.length, '{n} item', '{n} items')} · {t('drag or use the arrows to sort')}</p>
+      <p class="rtp-note">{tn(shown.length, '{n} item|routine', '{n} items|routine')} · {t('drag or use the arrows to sort')}</p>
       <div class="rtp-days" role="group" aria-label={t('Days')}>
         <button type="button" class="rtp-day" aria-pressed={view === 'all'} onclick={() => (view = 'all')} data-view="all">{t('Every day')}</button>
         {#each [0, 1, 2, 3, 4, 5, 6] as w (w)}

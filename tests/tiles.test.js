@@ -90,15 +90,16 @@ describe('the stored wall', () => {
     // saved again, the record has no trace of the small «Tagescheck»
     expect(wallRecord(wallBefore5(stored)).tiles.map((x) => x.id)).not.toContain('check');
   });
-  it('Routine «Das tut mir gut» (D1, Noah 1a): right under the tiles on top of HN4; a wall of before (v 5) gets it once there', () => {
+  it('Routine «Das tut mir gut» (D1, Noah 1a): right under the tiles on top of HN4; a wall of before (v 6) gets it once there', () => {
     expect(READY.map((x) => x.id).slice(0, 4)).toEqual([...HEAD_0155, 'routine']);
     expect(TILE.routine).toMatchObject({ area: 'today', sizes: ['l', 'long'], size: 'long' });
-    const v5 = wallOf({ v: 5, tiles: [{ id: 'meditation', size: 'long' }, { id: 'daycard', size: 'long' }, { id: 'important', size: 'long' }, { id: 'flow', size: 'l' }] });
+    const v5 = wallOf({ v: 6, tiles: [{ id: 'meditation', size: 'long' }, { id: 'daycard', size: 'long' }, { id: 'important', size: 'long' }, { id: 'flow', size: 'l' }] });
     expect(v5.map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow']);
-    // without the tiles on top: on top; taken away (stored as v 6), it stays away; moved, it stays where it was put
-    expect(wallOf({ v: 5, tiles: [{ id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['routine', 'flow']);
+    // Paket C: Tages-Check is v 6, so a v 6 wall gets only the routine (a v 5 wall gets «Deine 15 Fragen» too, above)
+    // without the tiles on top: on top; taken away (stored as v 7), it stays away; moved, it stays where it was put
+    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['routine', 'flow']);
     expect(wallOf(wallRecord(v5.filter((x) => x.id !== 'routine'))).map((x) => x.id)).toEqual(['meditation', 'daycard', 'important', 'flow']);
-    expect(wallOf({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }] })).toEqual([{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }]);
+    expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }] })).toEqual([{ id: 'flow', size: 'l' }, { id: 'routine', size: 'l' }]);
   });
   it('moves, steps, resizes, removes and adds', () => {
     const w = [{ id: 'trip', size: 'long' }, { id: 'news', size: 'w' }, { id: 'play', size: 's' }];

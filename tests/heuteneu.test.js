@@ -27,9 +27,9 @@ describe('HN4: the order of Heute', () => {
     for (const id of [...HEAD_0155, 'routine', 'trip', 'aktiv']) expect(READY.find((x) => x.id === id).size, id).toBe('long');
     expect(READY.find((x) => x.id === 'balance').size).toBe('l');
     // the row of four wide tiles fills the 8 columns of a computer
-    expect(READY.slice(8, 12).every((x) => x.size === 'w')).toBe(true);
+    expect(READY.slice(9, 13).every((x) => x.size === 'w')).toBe(true);
     // between Aktiv and the bikes only small tiles
-    expect(READY.slice(14, -2).every((x) => x.size === 's')).toBe(true);
+    expect(READY.slice(15, -2).every((x) => x.size === 's')).toBe(true);
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
   });
   it('what the day card shows, «Tried it yet?» and «Next milestone» left the wall, but stay in the catalog', () => {
@@ -97,7 +97,8 @@ describe('HN4 4b: the trip card moves up on the day before a trip and on its day
     expect(tourNear([trip('b', TODAY)], TODAY)?.id).toBe('b');
     expect(tourNear([trip('c', addDay(TODAY, -1), { days: 3 })], TODAY)?.id).toBe('c');
     expect(tourNear([trip('d', addDay(TODAY, 2))], TODAY)).toBe(null);
-    expect(tourNear([{ ...trip('e', addDay(TODAY, 1)), title: 'test_data_gtp_ TEST-Runde' }], TODAY)).toBe(null);
+    // Bugfixes H3a (Paket D): only the «Test trip» switch makes a test trip, not its name
+    expect(tourNear([{ ...trip('e', addDay(TODAY, 1)), testTrip: true }], TODAY)).toBe(null);
     expect(tourNear([trip('f', addDay(TODAY, 1), { skipped: true })], TODAY)).toBe(null);
     expect(tourNear([trip('g', addDay(TODAY, 1), { archivedAt: '2026-10-01' })], TODAY)).toBe(null);
     // calendar days across the change to winter time (25.10.2026)

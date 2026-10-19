@@ -44,8 +44,8 @@ export default {
   // the page
   'Put what does you good on your list. It counts every day until you change it.': 'Nimm in deine Liste, was dir guttut. Sie gilt jeden Tag, bis du sie änderst.',
   'Your list': 'Deine Liste',
-  '{n} item': '{n} Vorsatz',
-  '{n} items': '{n} Vorsätze',
+  '{n} item|routine': '{n} Vorsatz',
+  '{n} items|routine': '{n} Vorsätze',
   Order: 'Reihenfolge',
   'drag or use the arrows to sort': 'ziehen oder mit den Pfeilen ordnen',
   'Every day': 'Jeden Tag',
