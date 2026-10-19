@@ -125,3 +125,41 @@ test('Ich › Mein Kompass: a goal gets steps with dates, «Wie läuft\'s?», an
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });
+
+test('notes: start from a template, read the format, add a sketch and a link', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  await page.goto('./#/notes');
+  await ready(page);
+  const tpls = page.locator('[data-templates]');
+  await expect(tpls.locator('button')).toHaveCount(4);
+  await tpls.locator('button').nth(3).click();
+  await expect(page.locator('form.cap textarea')).not.toHaveValue('');
+  await page.locator('form.cap textarea').fill('test_data_gtp_ Format\n## Kopf\n**fett**');
+  await page.locator('form.cap button[type="submit"]').click();
+  await page.locator('li.ncard', { hasText: 'Format' }).locator('button').first().click();
+  const sheet = page.locator('dialog.nsheet');
+  await expect(sheet).toBeVisible();
+  // a note with format opens as reading view; one tap goes back to editing
+  await expect(sheet.locator('[data-md] h4, [data-md] h3')).toHaveText('Kopf');
+  await expect(sheet.locator('[data-md] strong')).toHaveText('fett');
+  await sheet.locator('[data-reading]').click();
+  await expect(sheet.getByRole('textbox', { name: T('Text') })).toBeVisible();
+
+  await sheet.locator('[data-add-sketch]').click();
+  const box = await sheet.locator('canvas').boundingBox();
+  await page.mouse.move(box.x + 20, box.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 80, box.y + 60, { steps: 5 });
+  await page.mouse.up();
+  await sheet.getByRole('button', { name: T('Use the sketch') }).click();
+  await expect(sheet.locator('[data-note-photo]')).toHaveCount(1);
+
+  for (const u of ['https://example.org/a', 'https://example.org/b']) {
+    await sheet.locator('[data-note-adds] button', { hasText: T('Link') }).click();
+    await sheet.getByRole('textbox', { name: T('Web address') }).fill(u);
+    await sheet.locator('form.lform button[type="submit"]').click();
+  }
+  await expect(sheet.locator('[data-note-link]')).toHaveCount(2);
+  await noSideScroll(page);
+  expect(errors).toEqual([]);
+});

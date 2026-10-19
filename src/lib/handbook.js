@@ -536,6 +536,11 @@ export const HANDBOOK = {
     steps: ['Open Me › My compass and add a goal with a day.', 'Type the steps, one per line: the app spreads the dates.', 'Once a week answer «How is it going?»; boxes keep ideas and resolutions.'],
     example: 'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.',
   },
+  'f.noteformats': {
+    on: null,
+    steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],
+    example: 'Example: a rest stop with place, two photos and a sketch of the route; shared to Keep.',
+  },
   'f.next': {
     on: null,
     steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],

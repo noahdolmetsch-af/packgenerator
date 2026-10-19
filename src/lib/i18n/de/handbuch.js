@@ -488,4 +488,8 @@ export default {
   'Type the steps, one per line: the app spreads the dates.': 'Tippe die Schritte, einer pro Zeile: die App verteilt die Daten.',
   'Once a week answer «How is it going?»; boxes keep ideas and resolutions.': 'Einmal pro Woche «Wie läuft\'s?» beantworten; Ablagen halten Ideen und Vorsätze.',
   'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.': 'Beispiel: «Alpenbrevet fahren» bis 1. Juli → 5 Schritte, alle paar Wochen einer.',
+  'Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.': 'Notiz öffnen: Foto, Link, Ort und Skizze fügen hinzu; «Teilen» schickt sie an Keep oder einen Chat.',
+  'New note: «Start from» a template, or the QR button reads a code.': 'Neue Notiz: «Starten mit» einer Vorlage, oder der QR-Knopf liest einen Code.',
+  'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.': 'Notizen › Mehr › Aus Google Notizen (Keep) übernehmen: die .zip von Google Takeout wählen.',
+  'Example: a rest stop with place, two photos and a sketch of the route; shared to Keep.': 'Beispiel: ein Rastplatz mit Ort, zwei Fotos und einer Skizze der Route; an Keep geteilt.',
 };

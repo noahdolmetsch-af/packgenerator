@@ -93,6 +93,7 @@ export const HOWTO = {
   'f.dreams': ['Open Trips › Dreams.', 'Write a dream tour; the months come from its kind.', 'Tap it and «Plan the tour».'],
   'f.races': ['Open Trips › Dreams.', 'Under «Races to plan» tap «Plan as a trip».', 'Add the registration deadline.'],
   'f.compass': ['Open Me › My compass.', 'Add a goal with a day and type its steps.', 'Answer «How is it going?» once a week.'],
+  'f.noteformats': ['In a note tap Photo, Link, Place or Sketch.', 'Start a new note from a template, or scan a QR code.', 'Share sends it to Keep, a chat or a mail.'],
   'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
   'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],

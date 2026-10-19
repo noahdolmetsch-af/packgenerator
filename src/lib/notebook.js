@@ -121,6 +121,7 @@ const buildFilters = () => [
   { key: 'check', name: 'Checklist', has: true, test: (n) => (n.checklist ?? []).length > 0 },
   { key: 'link', name: 'Link', has: true, test: (n) => !!n.link?.url },
   { key: 'photo', name: 'Photo', has: true, test: (n) => !!n.photo },
+  { key: 'place', name: 'Place|location', has: true, test: (n) => !!n.place }, // Paket N N2
   { key: 'linked', name: 'Linked', has: true, test: (n) => !!n.bikeId || (n.links ?? []).length > 0 },
 ];
 FILTERS.push(...buildFilters());
@@ -140,7 +141,7 @@ export function noteList(notes, { filter = 'all', query = '' } = {}) {
     .filter(f.test)
     .filter((n) => {
       if (!words.length) return true;
-      const hay = [n.title, n.text, n.link?.title, n.link?.url, ...(n.checklist ?? []).map((c) => c.text)].filter(Boolean).join(' ').toLowerCase();
+      const hay = [n.title, n.text, n.link?.title, n.link?.url, ...(n.links2 ?? []).flatMap((l) => [l.title, l.url]), n.place?.label, ...(n.checklist ?? []).map((c) => c.text)].filter(Boolean).join(' ').toLowerCase();
       return words.every((w) => hay.includes(w.replace(/^#/, '')));
     })
     .sort((a, b) => (b.editedAt ?? b.at ?? '').localeCompare(a.editedAt ?? a.at ?? ''));
@@ -177,7 +178,8 @@ export function notesMarkdown(notes, { topicName = (k) => k, bikeName = () => ''
       out.push(`### ${noteTitle(n) || '…'}${n.pinned ? ` (${topicName('__pinned')})` : ''}`);
       out.push(`_${(n.at ?? '').slice(0, 10)}${n.bikeId && bikeName(n.bikeId) ? ` · ${bikeName(n.bikeId)}` : ''}_`, '');
       if (n.text && n.text !== noteTitle(n)) out.push(n.text, '');
-      if (n.link?.url) out.push(`[${n.link.title || n.link.url}](${n.link.url})`, '');
+      for (const l of [n.link, ...(n.links2 ?? [])]) if (l?.url) out.push(`[${l.title || l.url}](${l.url})`, '');
+      if (n.place) out.push(`📍 ${n.place.label || `${n.place.lat}, ${n.place.lon}`}`, '');
       for (const c of n.checklist ?? []) out.push(`- [${c.done ? 'x' : ' '}] ${c.text}`);
       if ((n.checklist ?? []).length) out.push('');
     }
