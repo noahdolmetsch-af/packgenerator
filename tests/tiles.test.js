@@ -146,7 +146,7 @@ describe('Paket P: the tile «Your values today»', () => {
   it('a wall of before (v < 8) gets it once, right under Aktiv; without Aktiv not; taken away it stays away', () => {
     expect(withValues([{ id: 'trip', size: 'long' }, { id: 'aktiv', size: 'long' }, { id: 'year', size: 'long' }]).map((x) => x.id)).toEqual(['trip', 'aktiv', 'values', 'year']);
     expect(withValues([{ id: 'trip', size: 'long' }]).map((x) => x.id)).toEqual(['trip']);
-    expect(wallOf({ v: 7, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv', 'values']);
+    expect(wallOf({ v: 7, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv', 'values', 'tipweek']) // v 8 also brings Paket Q's tip of the week;
     expect(wallOf({ v: 8, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv']);
     expect(TILE.values.sizes).toEqual(['l', 'long']);
   });
