@@ -45,7 +45,7 @@ export const WHATS_NEW = [
     // v0.149.0 Paket E «Material, Velos, Merken»: P4/P5 (Werte messen W1–W6, Bausteine, Bezahl-Erinnerung, Garmin-Seiten
     // with the Edge 850, Taschen-Setups, Erinnerungen ER1–ER3, Merken PL3), Geburtstage + Pflanzen, Eigene Werte,
     // Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Touren › Skitouren), Sportart SA1–SA3, Eigene Listen,
-    // UI-Regeln, Impeccable round 1 (12 pages), «Was hier steht» on 5 more pages, TWINT per «Teilen».
+    // UI-Regeln, Impeccable round 1 (12 pages), «Was hier steht» on 5 more pages, TWINT-Bildschirmfoto in Rechnungen (Noah 19.10 «2b»).
     version: '0.149.0',
     date: '2026-10-19',
     title: 'Remember, set up, sport by sport',
@@ -58,7 +58,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'new', text: 'Deleting a bike always works: the window asks which bike gets its trips; learnings, problems, rides, ideas and the logbook can be renamed and deleted', href: '#/bikes' },
       { box: 'new', text: 'Me › Own values and Lists and types: your own numbers, sports, places on the bike and care parts', href: '#/me/werte' },
-      { box: 'new', text: 'Share a TWINT screenshot with the app: Bills marks the right bill paid', href: '#/me/pay/invoices' },
+      { box: 'new', text: 'Bills › Choose a TWINT screenshot: the app marks the right bill paid', href: '#/me/pay/invoices' },
     ],
     test: [
       'Open Calendar › Remember and add a to-do; tick it off and take it back.',

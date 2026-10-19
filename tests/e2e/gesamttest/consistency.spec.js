@@ -154,8 +154,14 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await page.reload();
   const per = page.locator('main section.period');
   await expect(per).toBeVisible();
-  // SN2 «Seiten neu» answer 2b: the long table under «Alle Kennzahlen» is open as before
-  await expect(per.getByRole('button', { name: T('All figures') })).toHaveAttribute('aria-expanded', 'true');
+  // SN2 «Seiten neu» answer 2b: the long table under «Alle Kennzahlen» is open on a computer; UI-Regeln Teil 2
+  // (Noah 14.10.2026 «a», changed on purpose): on a phone it starts closed, one tap opens it
+  const allFig = per.getByRole('button', { name: T('All figures') });
+  if (info.project.name === 'phone') {
+    await expect(allFig).toHaveAttribute('aria-expanded', 'false');
+    await allFig.click();
+  }
+  await expect(allFig).toHaveAttribute('aria-expanded', 'true');
   const rvVal = async (label) => num((await per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: label, exact: true }) }).locator('td').first().textContent()).replace(/[’'\s]/g, ''));
   expect(await rvVal(T('Trips')), 'Today "Last 12 months" trips = Rückblick').toBe(yTrips);
   expect(await rvVal(T('Distance')), 'Today "Last 12 months" km = Rückblick').toBe(yKm);

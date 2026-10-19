@@ -175,7 +175,7 @@
                     <span class="facts num"><span class="when ld">{evDate(e.ev)}</span></span>
                     {#each e.notes as n (n)}<span class="note ln">{n}</span>{/each}
                   </span>
-                  <span class="evmore"><MoreActions title={e.title} label={t('More for {name}', { name: e.title || t('Entry') })} actions={evActions(e.ev)} small /></span>
+                  <span class="evmore"><MoreActions title={e.title} label={t('More for {name}', { name: e.title || t('Entry') })} actions={evActions(e.ev)} /></span>
                 </div>
               {:else}
                 <details class="row ev">

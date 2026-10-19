@@ -115,7 +115,8 @@
         <p class="done" role="status"><Check size={16} aria-hidden="true" />{t('Reminder saved.')} <button type="button" class="lnk" onclick={undoSaved}>{t('Undo')}</button></p>
       {:else}
         <div class="row">
-          <button type="button" class="btn hi" onclick={yes}>{t('Yes, remind me')}</button>
+          <!-- Paket E CI: the card sits on top of another page, whose main button stays the only orange one (guard rule) -->
+          <button type="button" class="btn" onclick={yes}>{t('Yes, remind me')}</button>
           <button type="button" class="lnk" onclick={() => declineOffer('no')}>{t('No thanks')}</button>
           <button type="button" class="lnk" onclick={() => declineOffer('never')}>{t('Never ask')}</button>
         </div>

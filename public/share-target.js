@@ -16,10 +16,9 @@
  * with it (header X-Share-Text), so the komoot link comes along. The rule is the same as
  * src/lib/komoot.js sharedKind (tests/komoot.test.js runs this worker against it).
  *
- * «Aus TWINT teilen» (mockup QR6, Noah 14.10.2026 approved 04:00 «a»): a picture (the screenshot of a
- * received TWINT payment) is kept in the Cache "pg-shared-pay" (key "shared-pay"); the app opens
- * #/me/pay/invoices?shared=pay, reads it on the phone and suggests the paid invoice. The names must
- * match src/lib/pay/twintshot.js (SHOT_CACHE, SHOT_KEY); tests/pay-share.test.js runs this worker.
+ * «Aus TWINT teilen» (mockup QR6) first kept a shared picture for Rechnungen. Noah 19.10.2026 «2b»: a shared
+ * picture always goes to «Dokumente»; the TWINT screenshot is chosen in Rechnungen. A phone that still has the
+ * old manifest may send the field "pay": it is handled like "doc".
  */
 /*
  * Dokumente-PDF (Noah 15.10.2026 «normale Fotos aus dem Galerie-Ordner senden»): photos and PDFs shared to
@@ -33,10 +32,6 @@ const SHARE_BACKUP_CACHE = 'pg-shared-backup';
 const SHARE_BACKUP_KEY = 'shared-backup';
 // SN1b: the same limit as the ride upload (gpx.js RIDE_MAX_MB): a bigger file goes to the upload, which says why
 const ROUTE_CHECK_MB = 40;
-const SHOT_CACHE = 'pg-shared-pay';
-const SHOT_KEY = 'shared-pay';
-// a phone screenshot is far smaller; anything bigger is not a TWINT screenshot
-const SHOT_MAX_MB = 15;
 
 /** SN1b: a GPX whose track has fewer than two points with a time: a planned route, not a ride. */
 function plannedRoute(text) {
@@ -64,12 +59,6 @@ self.addEventListener('fetch', (event) => {
       } catch {
         return go(`${base}#/inbox`);
       }
-      const shot = form.getAll('pay').find((f) => f && typeof f === 'object' && f.size > 0 && /^image\//.test(f.type || ''));
-      if (shot && shot.size <= SHOT_MAX_MB * 1024 * 1024) {
-        const cache = await caches.open(SHOT_CACHE);
-        await cache.put(`${base}${SHOT_KEY}`, new Response(shot, { headers: { 'Content-Type': shot.type, 'X-File-Name': encodeURIComponent(shot.name || 'twint.png') } }));
-        return go(`${base}#/me/pay/invoices?shared=pay`);
-      }
       // P3b «Abgleich Handy–Computer» (Noah 15.10.2026): a backup file (.json) waits in its own cache and
       // opens Ich › Daten und Backup, which shows «Check import» (src/lib/sharebackup.js, same names).
       const backup = form.getAll('backup').find((f) => f && typeof f === 'object' && f.size > 0);
@@ -78,7 +67,8 @@ self.addEventListener('fetch', (event) => {
         await cache.put(`${base}${SHARE_BACKUP_KEY}`, new Response(backup, { headers: { 'Content-Type': 'application/json', 'X-File-Name': encodeURIComponent(backup.name || 'backup.json') } }));
         return go(`${base}#/me/data?shared=backup`);
       }
-      const docs = form.getAll('doc').filter((f) => f && typeof f === 'object' && f.size > 0);
+      // Noah 19.10 «2b»: "pay" (old manifest) is a picture for Dokumente too
+      const docs = [...form.getAll('doc'), ...form.getAll('pay')].filter((f) => f && typeof f === 'object' && f.size > 0);
       if (docs.length) {
         const cache = await caches.open(SHARE_DOCS_CACHE);
         for (const old of await cache.keys()) await cache.delete(old);

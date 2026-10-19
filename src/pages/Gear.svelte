@@ -1817,9 +1817,14 @@
     .wish .w {
       grid-column: 4;
     }
-    /* Impeccable runde 2 (Einkauf 2): no «Wishlist» chip on a computer either; the name takes its column */
+    /* Paket E: with «Bought» in the row (Impeccable) the name kept too little room beside the item pane and long
+       words broke mid-letter. In the shop a wishlist row needs no «Wishlist» tag here either (as on the phone,
+       G007); «to buy» rows keep theirs. */
     .wish .rows button.wl {
       grid-template-columns: minmax(0, 1fr) minmax(0, 140px) 80px;
+    }
+    .wish .rows button.wl .st {
+      display: none;
     }
     .wish .rows button.wl .nm {
       grid-column: 1;
