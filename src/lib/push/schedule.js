@@ -15,6 +15,7 @@
  */
 import { t } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
+import { eatPushItems } from '../unterwegs/essen.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -34,6 +35,8 @@ export const KINDS = [
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
+  // Paket K #286 «Ess-Erinnerung» (Noah 19.10.2026 «5a b möglich»): also when the app is closed
+  { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
 ];
 
 /** The stored switches, made safe: everything off unless switched on. */
@@ -73,7 +76,7 @@ function plantNext(p) {
 }
 
 /**
- * The next reminders. data: { trips, repairs, bikes, settings: { push, ownValues, merken, homePlace },
+ * The next reminders. data: { trips, repairs, bikes, settings: { push, ownValues, merken, homePlace, eatRemind },
  * lastBackup (ISO or null), now (Date) }. → { items: [{ key, at, title, body, url }], weather: [...], texts, hotC }
  */
 export function buildList(data) {
@@ -119,6 +122,7 @@ export function buildList(data) {
     if (at <= ms) at = atMs(addDays(today, 1), BACKUP_AT);
     add({ key: `backup:${day}`, at, title: t('Backup'), body: t('Time for a backup.'), url: '#/me/data' });
   }
+  if (on('eat')) for (const x of eatPushItems(data.settings?.eatRemind, { title: t('Time to eat'), body: t('A bite now keeps the strength up.') }, ms)) add(x);
   const merken = Array.isArray(data.settings?.merken) ? data.settings.merken : [];
   for (const td of merken) {
     if (!td || td.off || td.doneAt) continue;

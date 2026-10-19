@@ -44,6 +44,8 @@ import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 import { initOps } from './lib/bedienung.svelte.js';
+import { initGlove } from './lib/unterwegs/handschuh.svelte.js'; // Paket K #285 «Handschuh-Modus»
+import './lib/unterwegs/handschuh.css';
 import { installExplain } from './lib/ui/explain.js';
 import { installBackdropClose } from './lib/ui/backdrop.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
@@ -63,6 +65,7 @@ import SyncAsk from './lib/sync/SyncAsk.svelte';
 initTheme();
 // Bedienung (Noah 13.10.2026): the small helps of Ich › Darstellung, high contrast before the first paint.
 initOps();
+initGlove();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();

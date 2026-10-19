@@ -375,7 +375,8 @@
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <PastTrips />
   {:else if page === 'ride'}
-    <Ride />
+    <!-- Paket K #87 «Blatt Vor der Abfahrt»: #/ride/abfahrt, loaded only when opened -->
+    {#if param === 'abfahrt'}{#await import('./pages/Abfahrt.svelte') then m}<m.default />{/await}{:else}<Ride />{/if}
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
   {:else if page === 'blockcheck'}

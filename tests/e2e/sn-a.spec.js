@@ -77,7 +77,8 @@ test('SN1 Unterwegs: pill with the day, «Jetzt» card, «Notiz» main button, �
   const charge = page.getByRole('region', { name: T('Charge tonight') });
   await expect(charge.getByRole('button', { name: T('All charged') })).toBeVisible();
   const more = page.getByRole('region', { name: T('More') });
-  await expect(more.locator('.mlist > details')).toHaveCount(3);
+  // Paket K added «Wasser und Essen», «Sonne, Mond und Orte», «Strecke für andere Geräte» after the evening
+  await expect(more.locator('.mlist > details')).toHaveCount(6);
   await expect(more.locator('.mlist > details').nth(0)).toContainText(T('every item and its bag'));
   await expect(more.locator('.mlist > details').nth(2)).toContainText(T('Evening'));
   // one main button: «Notiz», no «Weiter …»; on the phone the day sits next to it

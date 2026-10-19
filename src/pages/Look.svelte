@@ -16,6 +16,8 @@
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
+  import { glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
+  import { MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -78,6 +80,8 @@
         <p class="note">{t('Small helps, each one can be switched off')}</p>
         <div class="segs">
           <Seg label={t('Open the app at')} value={ops.start} options={START_PLACES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setStart} />
+          <!-- Paket K #285 «Handschuh-Modus» (Noah 19.10.2026 «4a und kann manuell geändert werden») -->
+          <Seg label={t('Glove mode')} value={glove.mode} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} onchange={setGlove} />
         </div>
         <ul class="ops">
           {#each OPS as o (o.key)}

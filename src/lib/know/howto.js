@@ -138,6 +138,18 @@ export const HOWTO = {
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
+  // Paket K «Unterwegs» (Noah 19.10.2026)
+  'f.trainhome': ['Open On the way and tap «Home».', 'Allow the location once: the next 3 trains appear.', 'Or tap car, bike or public transport for Google Maps.'],
+  'f.handlebar': ['Open On the way and tap «Handlebar view».', 'Tap «Choose numbers» to pick up to 6 and order them.', '«Measure with GPS» counts the km while the view is open.'],
+  'f.glove': ['Open Me › Look › Handling, or On the way.', 'Choose Automatic, On or Off at «Glove mode».', 'Automatic is back with the next day without cold or ski tour.'],
+  'f.eatremind': ['Open On the way and tap «Start eat reminder».', 'When it rings tap «Eaten» or «In 10 minutes».', 'For a closed app switch on «Eat on the ride» in Reminders on the phone.'],
+  'f.departsheet': ['Open On the way and tap «Before you leave».', 'Add your emergency contacts once.', 'Tap «As PDF» to print or keep it.'],
+  'f.komoottour': ['Share a tour from komoot to the app, or paste its link on On the way.', 'On On the way tap «Open the tour in komoot».', 'The link stays on the trip; the pencil changes or removes it.'],
+  'f.convert': ['Open On the way › More › «Route for other devices».', 'Choose a GPX file, or take the trip’s route.', 'Tap FIT, KML or GPX to save.'],
+  'f.waterfood': ['Open On the way › More › «Water and food».', 'Read litres, refills and kcal; set «Hot» if needed.', 'Food with «one per N hours» shows needed against packed.'],
+  'f.ready': ['Connect Fitbit or Strava once.', 'On the tour day it stands on On the way, before that in Pack.', 'Read the line and the signs; it is an observation, you decide.'],
+  'f.listentip': ['In «Ready for today?» tap «Add a listening tip».', 'Give a name and paste the link.', 'One tap on the tip opens it before you ride.'],
+  'f.skyplaces': ['Open On the way › More › «Sun, moon and places».', 'Tap «Load places» once online; the texts stay for offline.', 'Sun and moon work offline, worked out on the device.'],
 };
 
 /** The steps of a function, or [] when it has none. */
