@@ -22,11 +22,12 @@ describe('tip of the week', () => {
 
 describe('wall by time of day', () => {
   const wall = [{ id: 'trip' }, { id: 'important' }, { id: 'morningcheck' }, { id: 'week' }];
-  it('morning tiles to the front in the morning', () => {
-    expect(byTime(wall, 7).map((x) => x.id)).toEqual(['morningcheck', 'trip', 'important', 'week']);
+  it('morning tiles to the front in the morning; the top of Today keeps its place', () => {
+    expect(byTime(wall, 7).map((x) => x.id)).toEqual(['trip', 'important', 'morningcheck', 'week']);
+    expect(byTime([{ id: 'week' }, { id: 'morningcheck' }], 7).map((x) => x.id)).toEqual(['morningcheck', 'week']);
   });
   it('evening tiles in the evening, nothing changes at midday or when off', () => {
-    expect(byTime(wall, 20).map((x) => x.id)).toEqual(['morningcheck', 'trip', 'week', 'important']);
+    expect(byTime(wall, 20).map((x) => x.id)).toEqual(['trip', 'important', 'morningcheck', 'week']);
     expect(byTime(wall, 13)).toBe(wall);
     expect(byTime(wall, 7, false)).toBe(wall);
     expect(partOf(4)).toBe('day');

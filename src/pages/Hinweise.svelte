@@ -161,17 +161,17 @@
       {#each feeds as f (f.id)}
         {@const st = news.feeds[f.url]}
         <li class="ich-row hw-src" data-feed={f.id}>
-          <span class="ich-m"><b>{f.name}</b><small>{f.url}{st?.error ? ` · ${errText(st.error)}` : st?.at ? ` · ${t('{n} entries', { n: st.items.length })}` : ''}</small></span>
+          <span class="ich-m"><b>{f.name}</b><small>{f.url}{st?.error ? ` · ${errText(st.error)}` : st?.at ? ` · ${st.items.length === 1 ? t('1 entry') : t('{n} entries', { n: st.items.length })}` : ''}</small></span>
           <button type="button" class="btn sm" aria-label={t('Change {name}', { name: f.name })} onclick={() => (edit = { id: f.id, name: f.name, url: f.url, error: '' })}><Pencil size={16} aria-hidden="true" /></button>
           <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: f.name })} onclick={() => remove(f)} data-feed-delete><Trash2 size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>
-    {#if undo}<p class="msg" role="status">{t('«{name}» deleted.', { name: undo.name })} <button type="button" class="lnk" onclick={() => (saveFeeds(undo.before), (undo = null))}>{t('Undo')}</button></p>{/if}
+    {#if undo}<p class="msg" role="status">{t('«{name}» deleted.', { name: undo.name })} <button type="button" class="lnk" onclick={() => (saveFeeds($state.snapshot(undo.before)), (undo = null))}>{t('Undo')}</button></p>{/if}
     {#if edit}
       <form class="card ich-body hw-form" onsubmit={saveEdit} data-feed-form>
         <label class="hw-field">{t('Name')}<input type="text" bind:value={edit.name} data-feed-name /></label>
-        <label class="hw-field">{t('Address of the feed')}<input type="url" inputmode="url" placeholder="https://…/feed" bind:value={edit.url} data-feed-url /></label>
+        <label class="hw-field">{t('Address of the feed')}<input type="text" inputmode="url" autocomplete="url" placeholder="https://…/feed" bind:value={edit.url} data-feed-url /></label>
         {#if edit.error}<p class="msg" role="alert">{edit.error}</p>{/if}
         <div class="ich-acts"><button type="button" class="btn" onclick={() => (edit = null)}>{t('Cancel')}</button><button type="submit" class="btn hi" data-feed-save>{t('Save')}</button></div>
       </form>

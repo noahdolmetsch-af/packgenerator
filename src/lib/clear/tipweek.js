@@ -28,10 +28,17 @@ export const TIME_TILES = {
   evening: ['morningcheck', 'trip', 'week'],
 };
 
+/** Tiles that stay on top when they lead the wall. */
+export const KEEP_TOP = ['trip', 'important', 'flow'];
+
 /** The wall for this hour: the fitting tiles that are on it move to the front, in this order. */
 export function byTime(tiles = [], hour = 12, on = true) {
   const want = on ? (TIME_TILES[partOf(hour)] ?? []) : [];
   if (!want.length) return tiles;
-  const front = want.map((id) => tiles.find((x) => x.id === id)).filter(Boolean);
-  return [...front, ...tiles.filter((x) => !front.includes(x))];
+  // the top of Today keeps its place (Noah 2b and mockup A: the next trip, «Important today» and
+  // Im Flow in the first screen); the fitting tiles move up right below it
+  const head = [];
+  for (const x of tiles) if (KEEP_TOP.includes(x.id) && head.length === tiles.indexOf(x)) head.push(x);
+  const front = want.map((id) => tiles.find((x) => x.id === id)).filter((x) => x && !head.includes(x));
+  return [...head, ...front, ...tiles.filter((x) => !front.includes(x) && !head.includes(x))];
 }
