@@ -16,6 +16,29 @@
 
 export const WHATS_NEW = [
   {
+    // v0.153.0 Paket 1 (Noah 19.10.2026 15:14 «1a»): G «Daten kommen von selbst», L «Werkzeugkasten», P «Was mir gut tut»,
+    // N «Pläne und Träume», Q «App klarer», H «Packen leichter», J «Berg, Schnee und Notfall». Built on Tempo 0.152.0.
+    version: '0.153.0',
+    date: '2026-10-19',
+    title: 'Seven new parts at once',
+    lead: 'Your data comes by itself, a toolbox, dreams and goals, easier packing and help in the mountains.',
+    points: [
+      { text: 'Me › Connections: Strava, Fitbit and Google fill in the app by themselves; the weather alarm warns you before a tour', href: '#/me/connections' },
+      { text: 'Me › Toolbox and Tools and links: PDF, photos, currencies, trip costs, QR code and more, all on the device', href: '#/me/tools' },
+      { text: 'Trips › Dreams and Me › My compass: dream tours with their season, races with the sign-up date, goals in small steps', href: '#/trips/dreams' },
+    ],
+    small: [
+      { box: 'new', text: 'Packing: start from your earlier trips, Gear › Supplies and Lent out, lists as a table, the app reads the list aloud', href: '#/gear/supplies' },
+      { box: 'new', text: 'Mountains: freezing level and new snow, the swisstopo map, an emergency page with your position and an emergency QR code', href: '#/mountain' },
+      { box: 'nicer', text: 'Me › What is good for me, alerts and news, the tip of the week on Today, backup with a password', href: '#/me/wohl' },
+    ],
+    test: [
+      'Open Me › Connections: every connection with its state and switches.',
+      'Open Me › Toolbox and turn three photos into one PDF.',
+      'Open Trips › Dreams and add a dream tour with a season.',
+    ],
+  },
+  {
     // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
     // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
     version: '0.152.0',

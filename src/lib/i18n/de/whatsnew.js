@@ -4,6 +4,18 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.153.0 Paket 1: G, L, P, N, Q, H, J
+  'Seven new parts at once': 'Sieben neue Teile auf einmal',
+  'Your data comes by itself, a toolbox, dreams and goals, easier packing and help in the mountains.': 'Deine Daten kommen von selbst, ein Werkzeugkasten, Träume und Ziele, leichteres Packen und Hilfe in den Bergen.',
+  'Me › Connections: Strava, Fitbit and Google fill in the app by themselves; the weather alarm warns you before a tour': 'Ich › Verbindungen: Strava, Fitbit und Google füllen die App von selbst aus; der Wetter-Wecker warnt dich vor einer Tour',
+  'Me › Toolbox and Tools and links: PDF, photos, currencies, trip costs, QR code and more, all on the device': 'Ich › Werkzeugkasten und Werkzeuge und Links: PDF, Fotos, Währungen, Tourkosten, QR-Code und mehr, alles auf dem Gerät',
+  'Trips › Dreams and Me › My compass: dream tours with their season, races with the sign-up date, goals in small steps': 'Touren › Träume und Ich › Mein Kompass: Traumtouren mit ihrer Saison, Rennen mit Anmeldeschluss, Ziele in kleinen Schritten',
+  'Packing: start from your earlier trips, Gear › Supplies and Lent out, lists as a table, the app reads the list aloud': 'Packen: aus früheren Touren starten, Material › Vorrat und Ausgeliehen, Listen als Tabelle, die App liest die Liste vor',
+  'Mountains: freezing level and new snow, the swisstopo map, an emergency page with your position and an emergency QR code': 'Berge: Nullgradgrenze und Neuschnee, die swisstopo-Karte, eine Notfall-Seite mit deinem Standort und ein Notfall-QR-Code',
+  'Me › What is good for me, alerts and news, the tip of the week on Today, backup with a password': 'Ich › Was mir gut tut, Hinweise und News, der Tipp der Woche auf Heute, Backup mit Passwort',
+  'Open Me › Toolbox and turn three photos into one PDF.': 'Öffne Ich › Werkzeugkasten und mach aus drei Fotos ein PDF.',
+  'Open Trips › Dreams and add a dream tour with a season.': 'Öffne Touren › Träume und füge eine Traumtour mit Saison hinzu.',
+  'Open Me › Connections: every connection with its state and switches.': 'Öffne Ich › Verbindungen: jede Verbindung mit Stand und Schaltern.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',
