@@ -1,6 +1,6 @@
 // v0.94.0 «Kachel-Wand» (Noah 11.10.2026, Trello nLi5yNmS «1-5 a»): the wall of tiles (tiles.js).
 import { describe, it, expect } from 'vitest';
-import { HEAD_0155, TILES, TILE, READY, SIZES, AREAS, wallOf, wallBefore5, wallRecord, ADDED_0101, ADDED_0127, GONE, REMOVED_0155, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
+import { withValues, HEAD_0155, TILES, TILE, READY, SIZES, AREAS, wallOf, wallBefore5, wallRecord, ADDED_0101, ADDED_0127, GONE, REMOVED_0155, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
 import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 
 describe('the tiles', () => {
@@ -42,7 +42,7 @@ describe('the stored wall', () => {
     const w = wallOf({ v: 7, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
     expect(wallOf({ v: 7, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 7, tiles: w });
+    expect(wallRecord(w)).toEqual({ v: 8, tiles: w });
     expect(wallOf({ v: 7, tiles: [] })).toEqual([]);
     expect(wallOf({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'questions', 'year']);
     expect(wallOf({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'year']);
@@ -137,5 +137,16 @@ describe('the catalog and the «New» dot', () => {
     expect(isNew(tile, '2026-10-25', news)).toBe(false);
     expect(isNew({}, '2026-10-11', news)).toBe(false);
     expect(isNew({ since: '9.9.9' }, '2026-10-11', news)).toBe(false);
+  });
+});
+
+// Paket P «Daten-Widget» (Noah 19.10.2026 «2 beides»): «Your values today» on Heute as its own tile
+describe('Paket P: the tile «Your values today»', () => {
+  it('a wall of before (v < 8) gets it once, right under Aktiv; without Aktiv not; taken away it stays away', () => {
+    expect(withValues([{ id: 'trip', size: 'long' }, { id: 'aktiv', size: 'long' }, { id: 'year', size: 'long' }]).map((x) => x.id)).toEqual(['trip', 'aktiv', 'values', 'year']);
+    expect(withValues([{ id: 'trip', size: 'long' }]).map((x) => x.id)).toEqual(['trip']);
+    expect(wallOf({ v: 7, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv', 'values']);
+    expect(wallOf({ v: 8, tiles: [{ id: 'aktiv', size: 'long' }] }).map((x) => x.id)).toEqual(['aktiv']);
+    expect(TILE.values.sizes).toEqual(['l', 'long']);
   });
 });

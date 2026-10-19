@@ -274,4 +274,13 @@ export default {
   'under 10 °C': 'unter 10 °C',
   '10–20 °C': '10–20 °C',
   'over 20 °C': 'über 20 °C',
+  // Paket P after C: the Heute tile, the Morgen-/Abend-Check window, the Wochenrückblick window
+  'Km, weather at home, sleep, HRV and resting pulse, each next to your normal. Only to look at.': 'Km, Wetter zuhause, Schlaf, HRV und Ruhepuls, jeweils neben deinem Normalwert. Nur zum Anschauen.',
+  'Today on the bike: {km} km': 'Heute auf dem Velo: {km} km',
+  'pulse {n}': 'Puls {n}',
+  'Recipe of today': 'Rezept von heute',
+  'Recipe of yesterday': 'Rezept von gestern',
+  'nothing of your usual good parts': 'nichts von deinen üblichen guten Zutaten',
+  'Battery at {n}: a small suggestion': 'Akku bei {n}: ein kleiner Vorschlag',
+  'From your jar:': 'Aus deinem Glas:',
 };

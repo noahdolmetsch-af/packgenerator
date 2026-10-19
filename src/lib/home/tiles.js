@@ -76,6 +76,8 @@ export const TILES = [
   { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
   // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben», 1a: a wide tile at the top of Heute)
   { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
+  // Paket P #293 «Daten-Widget» (Noah 19.10.2026 «2 beides»): km, weather, sleep, HRV, resting pulse next to your normal
+  { id: 'values', area: 'flow', label: 'Your values today', icon: 'chart', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Km, weather at home, sleep, HRV and resting pulse, each next to your normal. Only to look at.' },
   { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
@@ -116,6 +118,7 @@ export const READY = [
   ['milestones', 'w'],
   ['trip', 'long'],
   ['aktiv', 'long'],
+  ['values', 'long'], // Paket P «Daten-Widget» (Noah «2 beides»): right under Aktiv
   ['play', 's'],
   ['news', 's'],
   ['fn:weigh', 's'],
@@ -160,7 +163,8 @@ export function wallOf(value, legacy = null) {
     const out = wallBefore5(value);
     const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
     const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
-    return (value.v ?? 1) < 7 ? withRoutine(q) : q;
+    const r = (value.v ?? 1) < 7 ? withRoutine(q) : q;
+    return (value.v ?? 1) < 8 ? withValues(r) : r;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -248,8 +252,20 @@ export function withRoutine(tiles = []) {
   out.splice(at, 0, { id: 'routine', size: TILE.routine.size });
   return out;
 }
-/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once). */
-export const wallRecord = (tiles) => ({ v: 7, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * Paket P «Daten-Widget» (Noah 19.10.2026 «2 beides»): a wall stored before (v < 8) gets «Your values today» once,
+ * right under Aktiv. Without Aktiv it is not added (the catalog «+» has it). Taken away after that, it stays away. → tiles
+ */
+export function withValues(tiles = []) {
+  if (tiles.some((x) => x.id === 'values')) return tiles;
+  const at = tiles.findIndex((x) => x.id === 'aktiv');
+  if (at < 0) return tiles;
+  const out = [...tiles];
+  out.splice(at + 1, 0, { id: 'values', size: TILE.values.size });
+  return out;
+}
+/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» came once). */
+export const wallRecord = (tiles) => ({ v: 8, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

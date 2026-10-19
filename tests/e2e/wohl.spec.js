@@ -115,3 +115,37 @@ test('Was mir gut tut: results with their source, experiment, Neuland, season, w
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+// Paket P after C (Noah «2 beides», «3a», #221): on Heute the tile «Deine Werte heute»; the Abend-Check window
+// shows today's ride in km, Hm and pulse. Fictional data (home0460-fixture.js: Friday 9 October 2026).
+test('Was mir gut tut on Heute: the values tile and the ride in the evening check', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const { openHome, D0 } = await import('./home0460-fixture.js');
+  await openHome(page, context, info, { hour: 9 });
+  await expect(page.locator('[data-tile="values"] [data-data-widget]')).toBeVisible();
+  await expect(page.locator('[data-tile="values"]')).toContainText('Deine Werte heute');
+  await page.evaluate(
+    (d) =>
+      new Promise((ok, bad) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['kmBook'], 'readwrite');
+          tx.objectStore('kmBook').put({ id: 'wohl-ride-1', bikeId: 'bike-test', date: d, kind: 'ride', km: 42.5, hm: 610, hrAvg: 131, state: 'ok' });
+          tx.oncomplete = () => (r.result.close(), ok());
+          tx.onerror = () => bad(tx.error);
+        };
+      }),
+    D0,
+  );
+  await page.clock.setFixedTime(new Date(`${D0}T20:45:00+02:00`));
+  await page.reload();
+  const win = page.locator('dialog[data-section="abfragen"][data-round="evening"]');
+  await expect(win).toHaveJSProperty('open', true);
+  await expect(win.locator('[data-check-ride]')).toContainText('Heute auf dem Velo: 42.5 km · 610 Hm · Puls 131');
+  await expect(win.locator('[data-check-ride]')).toContainText('610 Hm');
+  await expect(win.locator('[data-check-ride]')).toContainText('Puls 131');
+  await shot(page, info, 'P-abend-check');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+  expect(errors).toEqual([]);
+});

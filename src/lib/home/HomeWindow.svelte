@@ -10,7 +10,8 @@
   import { backClose } from '../ui/backclose.js';
   import { openTrip } from '../nav.js';
   import { t } from '../i18n.svelte.js';
-  import { WINDOWS_KEY, windowNow, later, notToday, done } from './windows.js';
+  import { WINDOWS_KEY, windowNow, later, notToday, done, dayOfStamp } from './windows.js';
+  import SurpriseLines from '../wohl/SurpriseLines.svelte'; // Paket P #256: surprises of the week
   import '../bikes/velo-dlg.css';
 
   // blocked (Paket C): the Tages-Check window is open or loading; this one waits and comes after it
@@ -63,6 +64,8 @@
       {:else}
         <p class="ln" data-window-packed>{t('No packing list yet.')}</p>
       {/if}
+    {:else}
+      <SurpriseLines today={dayOfStamp(now)} />
     {/if}
     <div class="ft">
       <button type="button" class="btn" onclick={away} data-window-today>{t('Not today|mask')}</button>
