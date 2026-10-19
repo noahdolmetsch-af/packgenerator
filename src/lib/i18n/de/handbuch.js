@@ -172,6 +172,12 @@ export default {
   'Open Trips.': 'Öffne Touren.',
   'The «Best values» card shows your records; «All» shows more.': 'Die Karte «Bestwerte» zeigt deine Rekorde; «Alle» zeigt mehr.',
   'Example: longest day 148 km, most climbing 2600 m.': 'Beispiel: längster Tag 148 km, meiste Höhenmeter 2600 Hm.',
+  // 0.147.0 Taschen-Setups
+  'Needs a bike with bags first: Gear › Bags.': 'Braucht zuerst ein Velo mit Taschen: Material › Taschen.',
+  'Open Bikes › My setup and tap «New setup».': 'Öffne Velos › Mein Setup und tippe «Neues Setup».',
+  'In the setup choose the bags and put your things into them.': 'Wähle im Setup die Taschen und lege deine Sachen hinein.',
+  'When planning a trip, tap «Setup: …» to take another one.': 'Beim Planen einer Tour tippe «Setup: …», um ein anderes zu nehmen.',
+  'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.': 'Beispiel: «Bikepacking 3 Tage» 12.4 kg Basisgewicht, «Tagestour leicht» 10.9 kg.',
   'Needs a bike first: Bikes › «Add bike».': 'Braucht zuerst ein Velo: Velos › «Velo hinzufügen».',
   'Open Bikes and choose a bike.': 'Öffne Velos und wähle ein Velo.',
   'Under setup, put each bag on its place with its weight.': 'Setz im Setup jede Tasche an ihren Platz, mit Gewicht.',
@@ -393,6 +399,51 @@ export default {
   'Open Bikes › Setup › «Standard bike and order» › «Change».': 'Öffne Velos › Setup › «Standard-Velo und Reihenfolge» › «Ändern».',
   'Move bikes with the arrows or tap «Make standard»; choose what a new trip brings.': 'Verschiebe Velos mit den Pfeilen oder tippe «Als Standard»; wähle, was eine neue Tour bringt.',
   'Example: gravel bike as standard → every new trip starts with it; a tap on the MTB counts for that trip only.': 'Beispiel: Gravel als Standard → jede neue Tour startet damit; ein Tipp aufs MTB gilt nur für diese Tour.',
+  // «Woche planen» (f.weekplan)
+  'Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.': 'Öffne Woche: Montag bis Sonntag mit Sport, Terminen, To-dos, Ferien und Velo-Service.',
+  'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.': 'Tippe am Sonntag auf «Woche planen»: vier Schritte, die App schlägt vor, du übernimmst oder lässt weg.',
+  'Enter holidays once under Woche › Holidays; the training plan pauses if you want.': 'Trag Ferien einmal unter Woche › Ferien ein; der Trainingsplan pausiert, wenn du willst.',
+  'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.': 'Beispiel: Freitag bis Sonntag Jura-Wochenende → die lange Ausfahrt fällt weg, «Kette messen» kommt als Vorschlag auf Mittwoch.',
+  // «Rundgang» (f.tour)
+  'Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.': 'Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.',
+  'Choose the example trip (playground) or your own data, then tap «Next» through the steps.': 'Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.',
+  'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.': 'Beispiel: oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.',
+  // f.garmin (0.146.0 «Garmin-Seiten»)
+  'Open Bikes: under «Garmin pages» tap a profile.': 'Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.',
+  'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.': 'Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.',
+  'Open a page: see why each value is there, change fields, tick «Set up on the device?».': 'Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.',
+  'Example: tick «Power pedals» → the page «Power in detail» appears, with 8 fields on the Edge 1040 and the Edge 850.': 'Beispiel: «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint, mit 8 Feldern auf dem Edge 1040 und dem Edge 850.',
+  // «Mehr selbst einstellen»: Ich › Eigene Werte
+  'Open Me › Own values.': 'Öffne Ich › Eigene Werte.',
+  'Change a number with − and + or type it.': 'Ändere eine Zahl mit − und + oder tippe sie ein.',
+  '«Back to Standard» brings the number of the app back.': '«Auf Standard zurück» holt die Zahl der App zurück.',
+  'Example: packing starts 3 days before the trip, the backup reminder after 7 days.': 'Beispiel: Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.',
+  // v0.165.0 f.gipfelbuch
+  // Paket E 0.149.0: f.remember, f.reminders, f.birthdays, f.measure
+  'Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».': 'Öffne Kalender › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».',
+  'Tick a to-do off; «Undo» brings it back.': 'Hake ein To-do ab; «Rückgängig» holt es zurück.',
+  'Example: «Order new brake pads» → ticked off after the shop visit.': 'Beispiel: «Neue Bremsbeläge bestellen» → nach dem Werkstattbesuch abgehakt.',
+  'After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.': 'Nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal, ob sie dich erinnern soll; «Nie fragen» stellt das dort ab.',
+  'Open Me › Reminders to switch one off or change when it comes.': 'Öffne Ich › Erinnerungen, um eine auszuschalten oder ihre Zeit zu ändern.',
+  'Example: Yoga on Tuesday → «Remind every Tuesday at 18:00?».': 'Beispiel: Yoga am Dienstag → «Jeden Dienstag um 18:00 erinnern?».',
+  'Open Me › Reminders and add a birthday or a plant with its watering days.': 'Öffne Ich › Erinnerungen und füge einen Geburtstag oder eine Pflanze mit ihren Giesstagen hinzu.',
+  'When it is time it shows in Calendar › Remember.': 'Wenn es Zeit ist, steht es in Kalender › Merken.',
+  'Example: a fern every 5 days → «Water the fern» in Remember.': 'Beispiel: ein Farn alle 5 Tage → «Farn giessen» in Merken.',
+  'On Today tap «Record the pressure» or «Measure the chain» under the bike.': 'Tippe auf Heute unter dem Velo «Druck erfassen» oder «Kette messen».',
+  'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.': 'In Velos › Werte erfassen schlägt «Druck berechnen» einen Solldruck vor.',
+  'Example: the chain at its limit → the workshop order suggests «replace the chain».': 'Beispiel: die Kette an der Grenze → der Werkstatt-Auftrag schlägt «Kette ersetzen» vor.',
+  // f.skiequipment (Skitour AU1)
+  'Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.': 'Öffne Velos › Ausrüstung und tippe «Ausrüstung hinzufügen»; wähle ein Teil aus Material und seine Sportart.',
+  'Tap «Log a use» after a tour; the care shows here and on Today when it is due.': 'Tippe nach einer Tour «Einsatz eintragen»; die Pflege zeigt sich hier und auf Heute, wenn sie fällig ist.',
+  'Example: touring skis waxed every 10 uses → after the 10th use «Wax the base» is due.': 'Beispiel: Tourenski alle 10 Einsätze wachsen → nach dem 10. Einsatz ist «Belag wachsen» fällig.',
+  'Open Aktiv › Aktivität › «Summit book».': 'Öffne Aktiv › Aktivität › «Gipfelbuch».',
+  'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.': 'Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.',
+  'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.': 'Beispiel: eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.',
+  // 0.156.0 Sportart statt Tourart (SA1–SA3)
+  'In New tour choose the sport: the sports you use most come first.': 'Wähle in Neue Tour die Sportart: Die meistgenutzten stehen zuerst.',
+  'A bike sport brings its standard bike; tap another bike and «Make standard for …» to keep it for that sport.': 'Eine Velo-Sportart bringt ihr Standard-Velo; tippe ein anderes Velo und «Als Standard für …», damit es für diese Sportart bleibt.',
+  'On Trips, «New: every trip has a sport» suggests a sport for your old bike trips.': 'Auf Touren schlägt «Neu: Jede Tour hat eine Sportart» eine Sportart für deine alten Velotouren vor.',
+  'Example: Gravel → the gravel bike is chosen; 2 days with a hotel → the hint «Switch to Bikepacking».': 'Beispiel: Gravel → das Gravel-Velo ist vorgewählt; 2 Tage mit Hotel → der Hinweis «Zu Bikepacking».',
   // P3b «Daten sicher»: Dokumente, Handy und Computer
   'Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).': 'Öffne Ich › Dokumente und tippe «PDF hinzufügen» (ein PDF oder ein Foto vom Papier).',
   'Choose the group and «valid until»; the reminder comes 6 months before by itself.': 'Wähle die Gruppe und «gültig bis»; die Erinnerung kommt von selbst 6 Monate vorher.',
@@ -467,4 +518,17 @@ export default {
   'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
   'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
   'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
+  // «Alles selbst bearbeiten» (19.10.2026)
+  'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
+  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  // Routine «Das tut mir gut» (D1 + D2)
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
+  'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
+  // Paket C 0.150.0: f.insights «Erkenntnisse»
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
+  'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
 };

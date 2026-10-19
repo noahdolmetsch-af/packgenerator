@@ -6,14 +6,16 @@
    * v0.102.0 Design-Refresh P4 «Touren» (T3 «Velo und Taschen», approved 12.10.2026): a heading with the
    * bike and its bags and «Taschen ändern» (onbags); the weight moved into its own light card
    * (WeightCard), so the dark weight card and the three numbers under the drawing are gone.
+   * Taschen-Setups TS5 (14.10.2026): with trips, the chip «Setup: …» to change the trip's setup.
    */
   import SetupDrawing from '../bikes/SetupDrawing.svelte';
   import Seg from '../ui/Seg.svelte';
   import { SLOTS } from '../bikes.js';
   import { t, tn, locale, bagName } from '../i18n.svelte.js';
   import { UserRound, ChevronRight } from '@lucide/svelte';
+  import SetupPick from './SetupPick.svelte';
 
-  let { trip, stats, bike, photo = null, onbag = null, onphoto = null, onbags = null } = $props();
+  let { trip, stats, bike, photo = null, onbag = null, onphoto = null, onbags = null, trips = null, items = [], readonly = false } = $props();
 
   const kgN = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const zoneOf = (key) => stats.zones.find((z) => z.key === key) ?? null;
@@ -36,6 +38,7 @@
       </div>
       {#if onbags}<button type="button" class="btn btn-link lk" onclick={onbags}>{t('Change bags')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
     </div>
+    {#if trips && bike}<SetupPick {trip} {bike} {trips} {items} {readonly} {onbags} />{/if}
     <div class="card draw">
       {#if photo}
         <div class="dh"><Seg small full={false} label={t('Drawing or photo')} value={view} options={[{ key: 'drawing', name: t('Drawing') }, { key: 'photo', name: t('Setup photo') }]} onchange={(k) => (view = k)} /></div>

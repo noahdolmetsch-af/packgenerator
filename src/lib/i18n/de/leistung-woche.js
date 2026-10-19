@@ -14,7 +14,7 @@ export default {
   'Wk {list} without activity.': 'KW {list} ohne Aktivität.',
   // TR7e Leistungskurve
   'best mean power per duration': 'beste Ø Leistung pro Dauer',
-  '{n} s': '{n} s',
+  '{n} s|span': '{n} s',
   'best of the last 90 days': 'beste der letzten 90 Tage',
   'best {year}': 'beste {year}',
   '{span}: {a} W in 90 days, {b} W in the year ({month}).': '{span}: {a} W in 90 Tagen, {b} W im Jahr ({month}).',

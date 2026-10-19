@@ -53,6 +53,11 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   if (info.project.name === 'phone') await page.setViewportSize({ width: 320, height: 720 });
   await start(page, context, info);
   await page.goto('./#/');
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the card left the ready wall; it comes back through «+»
+  await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
+  await page.getByRole('button', { name: T('Add a tile') }).click();
+  await page.getByRole('dialog', { name: T('Add a tile') }).locator('[data-add="try"]').click();
+  await page.keyboard.press('Escape');
   const card = page.getByRole('region', { name: T('Tried it yet?') });
   await expect(card.locator('.pitch')).not.toBeEmpty();
   await expect(card.locator('.tryb')).toHaveCount(1);
@@ -81,7 +86,7 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   await expect(page.locator('[data-feature]')).toHaveCount(total);
   await expect(page.locator('[data-feature].used')).toHaveCount(n);
   // the home place is set in the fixture: its tip counts as used
-  await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('Used|tips'));
+  await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('used|features')); // Impeccable Runde 2: the state in words, «✓ benutzt»
   await noSideScroll(page);
   // «Take me there» starts the thing: the weigh tab of Gear, marked as used
   const weigh = page.locator('[data-feature="weigh"]');

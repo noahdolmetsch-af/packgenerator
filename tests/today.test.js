@@ -100,7 +100,8 @@ describe('Today: the trip and its one next step', () => {
 
 describe('main places', () => {
   it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes'], ['active', '#/flow']]);
+    // «Woche planen» (Noah 15.10.2026 «1a»): «Woche» is its own place next to Heute
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes'], ['active', '#/flow']]);
   });
 
   it('every address belongs to the right place', () => {

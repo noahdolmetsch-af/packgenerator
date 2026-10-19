@@ -45,7 +45,7 @@ test('SL1 + SL4: Was ist neu by day, the jump bar, the head stays on top, back t
   await last.locator('.ls-more').click();
   expect(await page.evaluate(() => document.documentElement.scrollHeight > 3 * innerHeight)).toBe(true);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  const top = page.getByRole('button', { name: T('Back to top') });
+  const top = page.getByRole('button', { name: T('Back to top'), exact: true });
   await expect(top).toBeVisible();
   await top.click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);

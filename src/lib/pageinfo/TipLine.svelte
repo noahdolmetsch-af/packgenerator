@@ -4,7 +4,8 @@
    * one tip a day under the page title. × hides it for today, «All tips ›» opens the sheet with every tip
    * of the page (TipsSheet.svelte). WD1 + WD3 (approved 18:34, «1a»): a «Wusstest du» or «Passt zu heute»
    * tip carries its tag; a fitting «Passt zu heute» comes first on its day.
-   * page: a key of PAGES (pageinfo.js); name: the page's name for the sheet title.
+   * page: a key of PAGES (pageinfo.js); name: the page's name for the sheet title. A tip with button + href
+   * (from the Einstieg, Noah 19.10 «2a») shows its link in the small line.
    */
   import { Leaf, X } from '@lucide/svelte';
   import TipsSheet from './TipsSheet.svelte';
@@ -31,7 +32,7 @@
     <Leaf size={18} aria-hidden="true" />
     <p>
       <span>{#if tip.kind === 'tip'}<b>{t('Good to know:')}</b>{:else}<KindTag kind={tip.kind} {deg} />{/if} {tipText(tip)} <TipLink {tip} /></span>
-      <small>{#if tip.kind === 'today'}{t(tip.note)}{:else}{t('Tip {n} of {of} for {page}', { n: place.n, of: place.of, page: name })}{/if} · <button type="button" class="lk" onclick={() => (open = true)}>{t('All tips ›')}</button></small>
+      <small>{#if tip.kind === 'today'}{t(tip.note)}{:else}{t('Tip {n} of {of} for {page}', { n: place.n, of: place.of, page: name })}{/if}{#if tip.button && tip.href} · <a class="lk" href={tip.href} data-tip-go>{t(tip.button)} ›</a>{/if} · <button type="button" class="lk" onclick={() => (open = true)}>{t('All tips ›')}</button></small>
     </p>
     <button type="button" class="ib" aria-label={t('Hide the tip for today')} onclick={() => pi.save((v) => hideToday(v, page, today))}><X size={18} aria-hidden="true" /></button>
   </div>

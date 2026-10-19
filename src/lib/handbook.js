@@ -306,6 +306,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
     example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
   },
+  'f.weekplan': {
+    on: null,
+    steps: ['Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.', 'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.', 'Enter holidays once under Woche › Holidays; the training plan pauses if you want.'],
+    example: 'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.',
+  },
   'f.analyses': {
     on: 'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.',
     steps: ['Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.', 'Open Training › Week: the analyses over the weeks under the look back.', 'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.'],
@@ -345,6 +350,26 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.', 'Use the arrows for the order, the pen for name, symbol, hide and delete; «+ Own category» adds one.'],
     example: 'Example: rename «Tools & repair» to «Workshop», add «Photo» with a camera symbol.',
+  },
+  'f.garmin': {
+    on: 'Needs a bike under Bikes first.',
+    steps: ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 850, tick your sensors.', 'Open a page: see why each value is there, change fields, tick «Set up on the device?».'],
+    example: 'Example: tick «Power pedals» → the page «Power in detail» appears, with 8 fields on the Edge 1040 and the Edge 850.',
+  },
+  'f.bagsetups': {
+    on: 'Needs a bike with bags first: Gear › Bags.',
+    steps: ['Open Bikes › My setup and tap «New setup».', 'In the setup choose the bags and put your things into them.', 'When planning a trip, tap «Setup: …» to take another one.'],
+    example: 'Example: «Bikepacking 3 days» 12.4 kg base weight, «Day ride light» 10.9 kg.',
+  },
+  'f.sports': {
+    on: null,
+    steps: ['In New tour choose the sport: the sports you use most come first.', 'A bike sport brings its standard bike; tap another bike and «Make standard for …» to keep it for that sport.', 'On Trips, «New: every trip has a sport» suggests a sport for your old bike trips.'],
+    example: 'Example: Gravel → the gravel bike is chosen; 2 days with a hotel → the hint «Switch to Bikepacking».',
+  },
+  'f.editall': {
+    on: null,
+    steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
+    example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
   },
   'f.komoot': {
     on: null,
@@ -454,6 +479,47 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Aktiv › Meditation › «Look back».', 'Switch between week, month and year; filter by kind or template.'],
     example: 'Example: October with 18 of 31 days, 6 h 40 min, longest session 35 min.',
+  },
+  // v0.165.0
+  'f.remember': {
+    on: null,
+    steps: ['Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».', 'Tick a to-do off; «Undo» brings it back.'],
+    example: 'Example: «Order new brake pads» → ticked off after the shop visit.',
+  },
+  'f.reminders': {
+    on: null,
+    steps: ['After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.', 'Open Me › Reminders to switch one off or change when it comes.'],
+    example: 'Example: Yoga on Tuesday → «Remind every Tuesday at 18:00?».',
+  },
+  'f.birthdays': {
+    on: null,
+    steps: ['Open Me › Reminders and add a birthday or a plant with its watering days.', 'When it is time it shows in Calendar › Remember.'],
+    example: 'Example: a fern every 5 days → «Water the fern» in Remember.',
+  },
+  'f.measure': {
+    on: null,
+    steps: ['On Today tap «Record the pressure» or «Measure the chain» under the bike.', 'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.'],
+    example: "Example: the chain at its limit → the workshop order suggests «replace the chain».",
+  },
+  'f.skiequipment': {
+    on: null,
+    steps: ['Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.', 'Tap «Log a use» after a tour; the care shows here and on Today when it is due.'],
+    example: 'Example: touring skis waxed every 10 uses → after the 10th use «Wax the base» is due.',
+  },
+  'f.gipfelbuch': {
+    on: null,
+    steps: ['Open Aktiv › Aktivität › «Summit book».', 'Under «Found in your rides» tap «Into the summit book» and give the place a name, or enter a place by hand.'],
+    example: 'Example: a ride over a pass at 2100 m → «First pass over 2000 m» in the showcase.',
+  },
+  'f.routine': {
+    on: null,
+    steps: ['Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.', '«Change list» adds, renames, sorts or deletes items, with their days and a time.'],
+    example: 'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.',
+  },
+  'f.insights': {
+    on: null,
+    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
+    example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
   'f.timer': {
     on: null,
@@ -585,6 +651,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Clean up test data.', 'Archive it all; «Undo» brings it back.'],
     example: 'Example: «Test trip 2» and «test bike» go to the archive.',
   },
+  'f.tour': {
+    on: null,
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
+  },
   'f.playground': {
     on: null,
     steps: ['Open Me › Try it out › Playground, or «Try it» on a function.', 'Pack, ride and debrief a made-up trip; at the end all is as before.'],
@@ -604,6 +675,11 @@ export const HANDBOOK = {
     on: 'Computer with a keyboard.',
     steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.'],
     example: 'Example: g t → Trips, then n → plan a new trip.',
+  },
+  'f.ownvalues': {
+    on: null,
+    steps: ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
+    example: 'Example: packing starts 3 days before the trip, the backup reminder after 7 days.',
   },
   'f.theme': {
     on: null,

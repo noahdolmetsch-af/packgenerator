@@ -148,6 +148,8 @@ test('Today at 19:00 the evening before: the reminder opens the check on «Gepac
 test('Ich › Checks pro Reiseart: each type its own lists; «Anpassen» changes the standard of the type', async ({ page, context }) => {
   await open(page, context, [trip('Alpen', day(1))]);
   await go(page, '#/me');
+  // Impeccable Runde 2: Ich › «Lists and checks» › «Checks per trip type»
+  await page.locator('main').getByRole('link', { name: new RegExp(T('Lists and checks')) }).click();
   await page.locator('main').getByRole('link', { name: new RegExp(T('Checks per trip type')) }).click();
   await expect(page).toHaveURL(/#\/me\/checks$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Checks per trip type') })).toBeVisible();

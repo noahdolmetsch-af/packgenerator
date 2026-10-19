@@ -75,6 +75,8 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   // P2 Rückblick: the last tour with its heart rate instead of «kommt später»
   // (SN2 «Seiten neu»: the last ride's numbers are folded at the end of the Rückblick)
   await page.goto('./#/debrief');
+  // UI-Regeln Teil 2 (Noah 14.10.2026 «a», on purpose): on a phone «Letzte Fahrt» starts closed, one tap opens it
+  if (info.project.name === 'phone') await page.getByRole('button', { name: new RegExp(`^${T('Last ride')}`) }).click();
   await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
   await expect(page.locator('main .heart').first()).toContainText(T('Heart rate'));
   await shot(page, info, 'P2-rueckblick');

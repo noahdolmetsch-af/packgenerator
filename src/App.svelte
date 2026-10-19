@@ -1,30 +1,13 @@
 <script>
   import Home from './pages/Home.svelte';
-  import Gear from './pages/Gear.svelte';
-  import Bikes from './pages/Bikes.svelte';
-  import Pack from './pages/Pack.svelte';
-  import Templates from './pages/Templates.svelte';
-  import Debrief from './pages/Debrief.svelte';
-  import Share from './pages/Share.svelte';
-  import Ride from './pages/Ride.svelte';
-  import Inbox from './pages/Inbox.svelte';
-  import Notes from './pages/Notes.svelte';
-  import Favorites from './pages/Favorites.svelte';
-  import PastTrips from './pages/PastTrips.svelte';
-  import Trips from './pages/Trips.svelte';
-  import Blocks from './pages/Blocks.svelte';
-  import BlockCheck from './pages/BlockCheck.svelte';
-  import Features from './pages/Features.svelte';
-  import Helper from './pages/Helper.svelte';
-  import Assistent from './pages/Assistent.svelte';
-  import GearImport from './pages/GearImport.svelte';
-  import Rides from './pages/Rides.svelte';
-  import Wardrobe from './pages/Wardrobe.svelte';
-  import Flow from './pages/Flow.svelte';
-  import Between from './pages/Between.svelte';
+  import LazyPage from './lib/nav/LazyPage.svelte';
+  import { warmUp } from './lib/nav/lazy.js';
+  import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
+  import TourHost from './lib/tour/TourHost.svelte';
+  import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
   import KomootSheet from './lib/komoot/KomootSheet.svelte';
@@ -36,44 +19,13 @@
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { wide } from './lib/media.svelte.js';
   import { Plus, MessageCircle } from '@lucide/svelte';
-  import Me from './pages/Me.svelte';
-  import Look from './pages/Look.svelte';
-  import Data from './pages/Data.svelte';
-  import Docs from './pages/Docs.svelte';
-  import Fitbit from './pages/Fitbit.svelte';
-  import DocScan from './pages/DocScan.svelte';
-  import Agenda from './pages/Agenda.svelte';
-  import MailPage from './pages/Mail.svelte';
-  import WasNeu from './pages/WasNeu.svelte';
-  import Phone from './pages/Phone.svelte';
-  import Checks from './pages/Checks.svelte';
-  import Push from './pages/Push.svelte';
   import { startPushSync } from './lib/push/client.js';
-  import Abfragen from './pages/Abfragen.svelte';
-  import Verlauf from './pages/Verlauf.svelte';
-  import Auswertung from './pages/Auswertung.svelte';
-  import Weight from './pages/Weight.svelte';
-  import Pay from './pages/Pay.svelte';
-  import Handbook from './pages/Handbook.svelte';
-  import MiniApps from './pages/MiniApps.svelte';
-  import Inspiration from './pages/Inspiration.svelte';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
-  import Lists from './pages/Lists.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
-  import Timer from './pages/Timer.svelte';
-  import TimerFaces from './pages/TimerFaces.svelte';
-  import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
   import CreditNotice from './lib/helper/CreditNotice.svelte';
-  import Invoices from './pages/Invoices.svelte';
-  import Bills from './pages/Bills.svelte';
-  import PayLink from './pages/PayLink.svelte';
-  import Shop from './pages/Shop.svelte';
-  import ShopOrders from './pages/ShopOrders.svelte';
-  import ShopBuy from './pages/ShopBuy.svelte';
-  import InvoiceNew from './pages/InvoiceNew.svelte';
-  import Offers from './pages/Offers.svelte';
+  import RemindCard from './lib/remind/RemindCard.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -84,8 +36,12 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
+  import { OWN_KEY } from './lib/ownvalues.js';
+  import { useOwn } from './lib/ownlive.svelte.js';
+  import { checkPart } from './lib/flowcheck.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
@@ -297,9 +253,13 @@
   // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
   const rainQ = liveQuery(() => db.settings.get('sets'));
   $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
-  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
+  // «Mehr selbst einstellen» (IS 254–255): Ich › Eigene Werte, live for every page (ownlive.svelte.js).
+  const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
+  $effect(() => useOwn($ownQ?.value));
+  // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
-    const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
+    const [bikes, tasks, visits, ownRec] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray(), db.settings.get(OWN_KEY)]);
+    useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
     return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
@@ -321,6 +281,79 @@
       noteOpen = true;
     }
   });
+  // Tempo «Seiten später laden» (Noah 19.10.2026, #1045): every page but Heute loads on its first visit
+  // (nav/lazy.js); the service worker stores all parts, so they open offline too. A new page goes here.
+  const PAGES = {
+    Gear: () => import('./pages/Gear.svelte'),
+    Bikes: () => import('./pages/Bikes.svelte'),
+    Pack: () => import('./pages/Pack.svelte'),
+    Templates: () => import('./pages/Templates.svelte'),
+    Debrief: () => import('./pages/Debrief.svelte'),
+    Share: () => import('./pages/Share.svelte'),
+    Ride: () => import('./pages/Ride.svelte'),
+    Inbox: () => import('./pages/Inbox.svelte'),
+    Notes: () => import('./pages/Notes.svelte'),
+    Favorites: () => import('./pages/Favorites.svelte'),
+    PastTrips: () => import('./pages/PastTrips.svelte'),
+    Trips: () => import('./pages/Trips.svelte'),
+    Blocks: () => import('./pages/Blocks.svelte'),
+    BlockCheck: () => import('./pages/BlockCheck.svelte'),
+    Check: () => import('./pages/Check.svelte'),
+    CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
+    Routine: () => import('./pages/Routine.svelte'),
+    Woche: () => import('./pages/Woche.svelte'),
+    WochePlanen: () => import('./pages/WochePlanen.svelte'),
+    WocheFerien: () => import('./pages/WocheFerien.svelte'),
+    Erkenntnisse: () => import('./pages/Erkenntnisse.svelte'),
+    Features: () => import('./pages/Features.svelte'),
+    Helper: () => import('./pages/Helper.svelte'),
+    Assistent: () => import('./pages/Assistent.svelte'),
+    GearImport: () => import('./pages/GearImport.svelte'),
+    Rides: () => import('./pages/Rides.svelte'),
+    Wardrobe: () => import('./pages/Wardrobe.svelte'),
+    Flow: () => import('./pages/Flow.svelte'),
+    Between: () => import('./pages/Between.svelte'),
+    Me: () => import('./pages/Me.svelte'),
+    Look: () => import('./pages/Look.svelte'),
+    Data: () => import('./pages/Data.svelte'),
+    Docs: () => import('./pages/Docs.svelte'),
+    Fitbit: () => import('./pages/Fitbit.svelte'),
+    DocScan: () => import('./pages/DocScan.svelte'),
+    Agenda: () => import('./pages/Agenda.svelte'),
+    MailPage: () => import('./pages/Mail.svelte'),
+    WasNeu: () => import('./pages/WasNeu.svelte'),
+    Phone: () => import('./pages/Phone.svelte'),
+    Checks: () => import('./pages/Checks.svelte'),
+    Push: () => import('./pages/Push.svelte'),
+    Abfragen: () => import('./pages/Abfragen.svelte'),
+    Verlauf: () => import('./pages/Verlauf.svelte'),
+    Auswertung: () => import('./pages/Auswertung.svelte'),
+    Weight: () => import('./pages/Weight.svelte'),
+    Pay: () => import('./pages/Pay.svelte'),
+    Handbook: () => import('./pages/Handbook.svelte'),
+    MiniApps: () => import('./pages/MiniApps.svelte'),
+    Inspiration: () => import('./pages/Inspiration.svelte'),
+    Lists: () => import('./pages/Lists.svelte'),
+    Equipment: () => import('./pages/Equipment.svelte'),
+    Ski: () => import('./pages/Ski.svelte'),
+    OwnValues: () => import('./pages/OwnValues.svelte'),
+    Reminders: () => import('./pages/Reminders.svelte'),
+    Merken: () => import('./pages/Merken.svelte'),
+    ListPage: () => import('./pages/ListPage.svelte'),
+    Timer: () => import('./pages/Timer.svelte'),
+    TimerFaces: () => import('./pages/TimerFaces.svelte'),
+    TimerLog: () => import('./pages/TimerLog.svelte'),
+    Invoices: () => import('./pages/Invoices.svelte'),
+    Bills: () => import('./pages/Bills.svelte'),
+    PayLink: () => import('./pages/PayLink.svelte'),
+    Shop: () => import('./pages/Shop.svelte'),
+    ShopOrders: () => import('./pages/ShopOrders.svelte'),
+    ShopBuy: () => import('./pages/ShopBuy.svelte'),
+    InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
+    Offers: () => import('./pages/Offers.svelte'),
+  };
+  // once Heute is drawn, the most used pages load quietly in the background
+  $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
 </script>
 
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
@@ -348,160 +381,195 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
+  {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
+  <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
+  {#if page !== 'share' && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
-    <Gear />
+    <LazyPage load={PAGES.Gear} />
   {:else if page === 'gearimport'}
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
-    <GearImport />
+    <LazyPage load={PAGES.GearImport} />
   {:else if page === 'pack'}
-    <Pack />
+    <LazyPage load={PAGES.Pack} />
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
-    <Bikes />
+    <LazyPage load={PAGES.Bikes} />
+  {:else if page === 'equipment'}
+    <!-- AU1 «Ausrüstung» (Noah 15.10.2026 «5b», «1-5a»): the main equipment of each sport -->
+    <LazyPage load={PAGES.Equipment} />
   {:else if page === 'templates'}
-    <Templates />
+    <LazyPage load={PAGES.Templates} />
   {:else if page === 'between'}
     <!-- v0.67.0 «Übergänge 1» (Ü3a): #/trip/<id>/packed | ended | debriefed, the interstitials -->
     {@const b = parseBetween(hash)}
-    {#key hash}<Between id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
+    {#key hash}<LazyPage load={PAGES.Between} id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
-    <Trips />
+    <LazyPage load={PAGES.Trips} />
+  {:else if page === 'ski'}
+    <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
+    <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
-    <PastTrips />
+    <LazyPage load={PAGES.PastTrips} />
   {:else if page === 'ride'}
-    <Ride />
+    <LazyPage load={PAGES.Ride} />
   {:else if page === 'share'}
-    {#key param}<Share code={param} />{/key}
+    {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
   {:else if page === 'blockcheck'}
     <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
-    <BlockCheck />
+    <LazyPage load={PAGES.BlockCheck} />
   {:else if page === 'blocks'}
     <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->
-    <Blocks />
+    <LazyPage load={PAGES.Blocks} />
   {:else if page === 'features'}
     <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
-    <Features />
+    <LazyPage load={PAGES.Features} />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
-    <Favorites />
+    <LazyPage load={PAGES.Favorites} />
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
-    <Wardrobe />
+    <LazyPage load={PAGES.Wardrobe} />
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
-    <Flow sub={hash.split('/').slice(2).join('/')} />
+    <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'week'}
+    <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
+    {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}
   {:else if page === 'timer'}
     <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
-    {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
+    {#key hash}{#if hash.startsWith('#/timer/faces')}<LazyPage load={PAGES.TimerFaces} />{:else if hash.startsWith('#/timer/log')}<LazyPage load={PAGES.TimerLog} />{:else}<LazyPage load={PAGES.Timer} />{/if}{/key}
+  {:else if page === 'check'}
+    <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
+    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
+    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'routine'}
+    <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
+    <LazyPage load={PAGES.Routine} />
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
-    <Me />
+    <LazyPage load={PAGES.Me} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
-    <Look />
+    <LazyPage load={PAGES.Look} />
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
-    <Data />
+    <LazyPage load={PAGES.Data} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
-    {#key hash.split('?')[0]}<Docs />{/key}
+    {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}
   {:else if page === 'fitbit'}
     <!-- Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit -->
-    <Fitbit />
+    <LazyPage load={PAGES.Fitbit} />
   {:else if page === 'docscan'}
     <!-- Dokumente-PDF: «Dokument fotografieren», check and keep as PDF -->
-    <DocScan />
+    <LazyPage load={PAGES.DocScan} />
   {:else if page === 'agenda'}
     <!-- Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben -->
-    <Agenda />
+    <LazyPage load={PAGES.Agenda} />
   {:else if page === 'mail'}
     <!-- Google Mail (GM): Ich › Mail; keyed so «Mails dazu» from an appointment starts fresh -->
-    {#key hash}<MailPage />{/key}
+    {#key hash}<LazyPage load={PAGES.MailPage} />{/key}
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
-    {#key hash}<WasNeu />{/key}
+    {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
-    <Phone />
+    <LazyPage load={PAGES.Phone} />
   {:else if page === 'push'}
     <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
-    <Push />
+    <LazyPage load={PAGES.Push} />
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
-    <Checks />
+    <LazyPage load={PAGES.Checks} />
   {:else if page === 'handbook'}
     <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
-    <Handbook />
+    <LazyPage load={PAGES.Handbook} />
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
-    <MiniApps />
+    <LazyPage load={PAGES.MiniApps} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-    {#key hash}<Offers id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
+    {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
   {:else if page === 'abfragen'}
     <!-- AB1/AB5 «Deine Abfragen»: Ich › Deine Abfragen -->
-    <Abfragen />
+    <LazyPage load={PAGES.Abfragen} />
   {:else if page === 'history'}
     <!-- AB4: Ich › Daten › Verlauf, all values in one place -->
-    <Verlauf />
+    <LazyPage load={PAGES.Verlauf} />
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
-    <Auswertung />
+    <LazyPage load={PAGES.Auswertung} />
+  {:else if page === 'insights'}
+    <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): Ich › Erkenntnisse -->
+    <LazyPage load={PAGES.Erkenntnisse} />
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
-    <Weight />
+    <LazyPage load={PAGES.Weight} />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
-    <Pay />
+    <LazyPage load={PAGES.Pay} />
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
-    <Inspiration />
+    <LazyPage load={PAGES.Inspiration} />
+  {:else if page === 'werte'}
+    <!-- «Mehr selbst einstellen» (IS 254–258): Ich › Einstellungen › Eigene Werte -->
+    <LazyPage load={PAGES.OwnValues} />
   {:else if page === 'lists'}
     <!-- v0.134.0 «Listen und Typen» (LI1–LI4): Ich › Die App › Listen und Typen -->
-    {#key hash}<Lists />{/key}
+    {#key hash}<LazyPage load={PAGES.Lists} />{/key}
   {:else if page === 'invoices'}
     <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
-    <Invoices />
+    <LazyPage load={PAGES.Invoices} />
   {:else if page === 'paylink'}
     <!-- the payer page of an invoice link: «Ich habe bezahlt» (mockup QR5, Noah 14.10.2026 04:00 «a») -->
-    <PayLink part={param} />
+    <LazyPage load={PAGES.PayLink} part={param} />
   {:else if page === 'shop'}
     <!-- Ich › Bezahlen › Shop (mockup SHOP1, Noah 14.10.2026 04:00 «a») -->
-    <Shop />
+    <LazyPage load={PAGES.Shop} />
   {:else if page === 'shoporders'}
     <!-- Ich › Bezahlen › Shop › Bestellungen (mockup SHOP3a) -->
-    <ShopOrders />
+    <LazyPage load={PAGES.ShopOrders} />
   {:else if page === 'shopbuy'}
     <!-- the shop link: buy without app or account (mockups SHOP2a + SHOP2b) -->
-    {#key param}<ShopBuy part={param} />{/key}
+    {#key param}<LazyPage load={PAGES.ShopBuy} part={param} />{/key}
   {:else if page === 'bills'}
     <!-- Ich › Bezahlen › Zu zahlen (mockup QR9, Noah 14.10.2026 05:10 «a») -->
-    <Bills />
+    <LazyPage load={PAGES.Bills} />
   {:else if page === 'invoice'}
     <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
-    <InvoiceNew />
+    <LazyPage load={PAGES.InvoiceNew} />
+  {:else if page === 'reminders'}
+    <!-- ER3 (Noah 14.10.2026 «1a 2a 3a 4a 5b er1-er3 freigabe»): Ich › Erinnerungen -->
+    <LazyPage load={PAGES.Reminders} />
+  {:else if page === 'calendar'}
+    <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
+    <LazyPage load={PAGES.Merken} />
+  {:else if page === 'list'}
+    <!-- Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list in Kalender › Merken -->
+    {#key hash}<LazyPage load={PAGES.ListPage} id={hash.split('/')[3] ?? ''} />{/key}
   {:else if page === 'assistent'}
     <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
-    <Assistent {hash} />
+    <LazyPage load={PAGES.Assistent} {hash} />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
-    <Helper />
+    <LazyPage load={PAGES.Helper} />
   {:else if page === 'inbox'}
-    <Inbox onnew={() => (noteOpen = true)} />
+    <LazyPage load={PAGES.Inbox} onnew={() => (noteOpen = true)} />
   {:else if page === 'notes'}
     <!-- v0.48.0: Notes (kept notes) and the inbox side by side -->
-    <Notes />
+    <LazyPage load={PAGES.Notes} />
   {:else if page === 'rides'}
     <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
-    {#key sub}<Rides {sub} />{/key}
+    {#key sub}<LazyPage load={PAGES.Rides} {sub} />{/key}
   {:else if page === 'debrief'}
-    {#key param}<Debrief {param} {spot} />{/key}
+    {#key param}<LazyPage load={PAGES.Debrief} {param} {spot} />{/key}
   {:else}
     <Home />
   {/if}
@@ -514,12 +582,16 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+{#if page !== 'share'}<SkiTurn />{/if}
+<!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
 {#if page !== 'share'}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
+<!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
+{#if page !== 'share'}<TourStart /><TourHost />{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

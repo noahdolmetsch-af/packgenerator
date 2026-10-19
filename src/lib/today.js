@@ -15,6 +15,7 @@
 import { nextTrip, toDebrief, tripEnd } from './debrief.js';
 import { packStatus } from './readiness.js';
 import { hasBike } from './domains.js';
+import { own } from './ownlive.svelte.js';
 
 /** Whole days from today to an ISO date (both YYYY-MM-DD). */
 export const daysFrom = (today, date) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
@@ -62,7 +63,7 @@ export function todayFocus(trips, debriefs, today) {
   else if (fresh && (!next || days > SOON_DAYS)) (trip = waiting), (kind = 'debrief');
   else if (next) {
     const s = packStatus(next);
-    if (days > 2 || s.status === 'empty') kind = 'plan';
+    if (days > own.v.packDays || s.status === 'empty') kind = 'plan';
     else if (s.status === 'done') kind = bike ? 'ride' : 'trip';
     else kind = 'pack';
   }

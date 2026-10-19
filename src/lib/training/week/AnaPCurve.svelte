@@ -11,7 +11,7 @@
   const rows = $derived(today ? curveBests(acts, today) : []);
   const has = $derived(rows.filter((r) => r.d90 || r.year).length >= 2);
   const year = $derived(today.slice(0, 4));
-  const spanName = (s) => (s < 60 ? t('{n} s', { n: s }) : t('{n} min', { n: s / 60 }));
+  const spanName = (s) => (s < 60 ? t('{n} s|span', { n: s }) : t('{n} min', { n: s / 60 }));
   const monthName = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' });
 
   let w = $state(0);

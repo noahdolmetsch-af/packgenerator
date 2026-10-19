@@ -43,7 +43,7 @@ describe('keyboard shortcuts', () => {
   it('g and a letter open a place', () => {
     expect(shortcutOf('g')).toEqual({ wait: true });
     expect(PLACES.map((p) => shortcutOf(p.letter, true))).toEqual(PLACES.map((p) => ({ go: p.href })));
-    expect(PLACES.map((p) => p.letter)).toEqual(['h', 't', 'm', 'v', 'a']);
+    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'm', 'v', 'a']); // «Woche planen» (Noah 15.10.2026 «1a»): g w
   });
 
   it('a letter without g does nothing, except n, i, / and ?', () => {

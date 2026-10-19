@@ -86,9 +86,11 @@ const go = async (page, hash) => {
 test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder switch, then the waiting state (U001, U002, Ü3a, Ü4a, U21a, U26b)', async ({ page, context }, info) => {
   await open(page, context, info, [trip('Alpen', day(4))], { current: ID('Alpen') });
   await go(page, '#/pack?day');
-  await expect(main(page)).toHaveText(T('Finish packing'));
+  // Impeccable Packen 2: with less than half packed the main button packs the next bag
+  await expect(main(page)).toHaveText(/packen \(0 von \d+\)$/);
   await page.getByRole('button', { name: T('Everything is packed') }).click();
   await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
+  await expect(main(page)).toHaveText(T('Finish packing'));
   // U001: one «Weiter» only, «Gute Fahrt!» is not said five days early
   await expect(page.locator('.alldone')).toContainText(T('Everything is in.'));
   await expect(page.locator('.alldone .btn')).toHaveCount(0);

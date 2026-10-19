@@ -70,16 +70,28 @@ test('Ich › Handbuch: every function folded, with how to switch it on and an e
   const errors = await prep(page, context);
   await page.goto('./#/me');
   await ready(page);
+  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
+  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
   await page.locator('a.ich-row[href="#/me/handbook"]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Handbook') })).toBeVisible();
   const { FEATURES } = await import('../../src/lib/features.js').catch(() => ({ FEATURES: null }));
   const rows = page.locator('[data-hb]');
   if (FEATURES) await expect(rows).toHaveCount(FEATURES.length);
+  // Impeccable Runde 2: on a phone the sections are folded (with their count); the first one opens with a tap
+  const firstGroup = page.locator('details.hb-grp').first();
+  if (!(await firstGroup.evaluate((d) => d.open))) await firstGroup.locator(':scope > summary').click();
   const first = rows.first();
   await first.locator('summary').click();
   await expect(first.locator('.hb-body')).toBeVisible();
   await expect(first.locator('.hb-body')).toContainText(T('Switch on:'));
   await expect(first.locator('.hb-ex')).not.toBeEmpty();
+  // the search: the hits stay, the rest steps aside
+  await page.getByRole('searchbox', { name: T('Search the handbook') }).fill('Backup');
+  await expect(rows.first()).toBeVisible();
+  expect(await rows.count()).toBeLessThan(FEATURES ? FEATURES.length : 1000);
+  await page.getByRole('searchbox', { name: T('Search the handbook') }).fill('zzqxv');
+  await expect(rows).toHaveCount(0);
+  await expect(page.locator('main .hb-none')).toContainText(T('Nothing found for "{q}".').replace('{q}', 'zzqxv'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });

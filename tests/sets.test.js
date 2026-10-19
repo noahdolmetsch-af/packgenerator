@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks, blocksLine, blockLabel, deletedBuiltIns, restoreSet } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';
-import { SITUATION_BLOCKS } from '../src/lib/situation.js';
+import { SITUATION_BLOCKS, MORE_BLOCKS, STAGE_BLOCKS } from '../src/lib/situation.js';
 
 afterEach(() => (lang.v = 'en'));
 
@@ -13,7 +13,7 @@ describe('allSets', () => {
     // v0.66.0 «Bausteine neu»: the new built-in blocks; a record of an old key (sleep) is no own block.
     const own = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'bivy', qty: { SL01: 2 } }, { key: 'sleep', qty: { SL01: 2 } }];
     const list = allSets(own);
-    expect(list.map((s) => s.key)).toEqual(['bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort', ...SITUATION_BLOCKS, 'u-regen']); // SN3+: the seven blocks «je nach Lage»
+    expect(list.map((s) => s.key)).toEqual(['bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort', ...SITUATION_BLOCKS, ...MORE_BLOCKS, ...STAGE_BLOCKS, 'u-regen']); // SN3+: the seven blocks «je nach Lage»; v0.154.0: the nine new ones and the stages
     expect(list.find((s) => s.key === 'u-regen')).toMatchObject({ name: 'test_data_gtp_ Regen', builtIn: false });
     expect(list.find((s) => s.key === 'bivy')).toMatchObject({ name: 'Bivouac', builtIn: true, qty: { SL01: 2 } });
     expect(list.find((s) => s.key === 'tent').name).toBe('Tent');
@@ -21,7 +21,7 @@ describe('allSets', () => {
     expect(allSets(own).find((s) => s.key === 'bivy').name).toBe('Biwak');
     expect(allSets(own).find((s) => s.key === 'hotel').name).toBe('Hotel/Hütte');
     expect(allSets(own).find((s) => s.key === 'u-regen').name).toBe('test_data_gtp_ Regen');
-    expect(allSets(undefined)).toHaveLength(12 + SITUATION_BLOCKS.length);
+    expect(allSets(undefined)).toHaveLength(12 + SITUATION_BLOCKS.length + MORE_BLOCKS.length + STAGE_BLOCKS.length);
   });
 
   it('makes, renames and refuses names that are empty or taken', () => {
@@ -176,13 +176,15 @@ describe('New trip: blocks and templates in words', () => {
 
 // v0.32.0 (finding 5, stage 1): a template in the two words of the app.
 describe('blocksLine', () => {
-  it('"Standard + Rain + 2 extra", German «Standard + Regen + 2 Extra»', () => {
+  // Impeccable 18.10.2026 (Vorlagen 1): «einzeln» instead of «Extra»
+  it('"Standard + Rain + 2 single items", German «Standard + Regen + 2 einzelne Teile»', () => {
     const rain = { key: 'u-regen', name: 'Regen', builtIn: false };
-    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 extra');
-    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 extra');
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 single items');
+    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 single item');
     expect(blocksLine({ standard: false, blocks: [], single: 0 })).toBe('0 items');
     lang.v = 'de';
-    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 Extra');
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 einzelne Teile');
+    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 einzelnes Teil');
     expect(blockLabel({ builtIn: true, name: 'Nacht: Kochen' })).toBe('Kochen');
     expect(blockLabel({ builtIn: false, name: 'Nacht: eigen' })).toBe('Nacht: eigen');
   });

@@ -16,6 +16,7 @@ import { packStatus } from './readiness.js';
 import { STEP, daysFrom, endedOn, FRESH_DAYS } from './today.js';
 import { hasBike } from './domains.js';
 import { localDay } from './localday.js';
+import { own } from './ownlive.svelte.js';
 
 /** A trip starting within this many days is urgent (Today's packing-day rule). */
 export const PACK_DAYS = 2;
@@ -73,7 +74,7 @@ export function tripRow(trip, debrief = null, today = localDay()) {
     return { ...base, kind: 'ride', state: { key: 'ride', label: STATE.ride, day }, next: nextOf(base.bike ? 'ride' : 'trip', trip), updatedAt, date: start, rank: RANK.ride };
   }
   const days = start ? daysFrom(today, start) : null;
-  const soon = days != null && days <= PACK_DAYS;
+  const soon = days != null && days <= own.v.packDays;
   const s = packStatus(trip);
   let state;
   let step;

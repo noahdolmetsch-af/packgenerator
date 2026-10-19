@@ -90,6 +90,9 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   // «Abgeschlossene Touren» over all years: the chips «Alle» and one per state of the list with its number
   const done = page.locator('section[data-finished]');
   await done.getByRole('button', { name: T('All|period'), exact: true }).click();
+  // Tempo (19.10.2026 «3a»): a new period starts at 20 rows again; open them all to count them
+  const moreRows = done.locator('[data-pack-phone-more]');
+  for (let i = 0; i < 30 && (await moreRows.count()); i++) await moreRows.click();
   const nState = (s) => done.locator(`[data-trip-list] li[data-row][data-state="${s}"]`).count();
   await expect(page.locator('.trips .ph .cnt[data-counts]')).toHaveText([T('{n} planned', { n: counts.plan }), `${T('since the start')}: ${T('{n} completed', { n: await nState('done') })}`, T('{n} rated', { n: await nState('rated') })].join(' · '));
   const chips = done.getByRole('group', { name: T('Show trips') }).getByRole('button');
@@ -120,6 +123,7 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   await expect(chips.nth(1 + LIST_STATES.indexOf('done'))).toHaveAttribute('aria-pressed', 'true');
   await expect(done.locator('[data-trip-list] li[data-row]:not([data-state="done"])')).toHaveCount(0);
   await chips.nth(1 + LIST_STATES.indexOf('done')).click();
+  for (let i = 0; i < 30 && (await moreRows.count()); i++) await moreRows.click();
   await expect(rows).toHaveCount(all);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);

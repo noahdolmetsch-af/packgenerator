@@ -8,6 +8,9 @@
    * Everything is a suggestion: every question can be switched off, changed and switched on again.
    * WG «Wi gaht's?» takes over the daily check: «Feste Runden», the two fixed rounds (07:00 and 20:30) with
    * a switch and both times changeable; the rule is roundTime in abfragen.js.
+   * Impeccable Runde 2: the head says how often a day the app asks («31 questions on · about 34 times a day, in 2
+   * rounds (07:00 and 20:30)»), above 15 a calm hint; «so far: …» only in the interval sheet; «Where the values
+   * come from» and «Answer kinds» are one fold «How it works».
    */
   import { ChevronDown, ChevronUp, Plus, Pencil, Hand, Watch, CircleDashed, Smartphone, Info, RotateCcw, Gauge, ChartLine, ChevronRight } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
@@ -16,7 +19,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig } from '../lib/abdb.js';
-  import { AREAS, OWN_AREA, QUESTIONS, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts, stampOf, setRounds, timeOf } from '../lib/abfragen.js';
+  import { AREAS, OWN_AREA, QUESTIONS, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -31,6 +34,11 @@
   });
   const cfg = $derived(configOf(data?.cfg));
   const n = $derived(counts(cfg));
+  const day = $derived(perDay(cfg));
+  const headLine = $derived(
+    [t('{on} questions on', { on: n.on }), cfg.rounds.on ? t('about {n} times a day, in 2 rounds ({a} and {b})', { n: day, a: cfg.rounds.morning, b: cfg.rounds.evening }) : t('about {n} times a day', { n: day })].join(' · ') +
+      (day > BUSY_DAY ? `. ${t('A lot? Switch single questions off or set them to «weekly».')}` : ''),
+  );
   const groups = $derived([...AREAS.map((a) => ({ key: a.key, list: QUESTIONS.filter((x) => x.area === a.key) })), { key: OWN_AREA, list: cfg.own }]);
 
   let open = $state({ erholung: true });
@@ -60,7 +68,7 @@
 </script>
 
 <div class="ich-page abpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={t('{all} questions in {areas} areas, {on} of them on. Asked playfully, stored plainly. Every question has its own interval and can be switched off.', { all: n.all, areas: AREAS.length, on: n.on })}>
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={headLine}>
     <button type="button" class="btn" onclick={() => (ownFor = null)}><Plus size={18} aria-hidden="true" />{t('Create your own question')}</button>
   </VeloHead>
 
@@ -91,7 +99,6 @@
                   <li class="q" class:off={!s.on} data-q={q.id}>
                     <span class="qm">
                       <b>{qText(q)}</b>
-                      {#if q.was}<small>{t('so far: {q}', { q: t(q.was) })}</small>{/if}
                       <span class="ab-tags">
                         <span class="ab-kind">{kindLabel(q.form)}</span>
                         {#if kindExtra(q.form)}<span class="ab-ex">{kindExtra(q.form)}</span>{/if}
@@ -143,25 +150,25 @@
           <a class="btn" href="#/me/history">{t('See the history')}<ChevronRight size={16} aria-hidden="true" /></a>
         </div>
       </section>
-      <section class="ich-sec" aria-labelledby="ab-src-h">
-        <div class="ich-h"><div><h2 id="ab-src-h">{t('Where the values come from')}</h2></div></div>
-        <ul class="card side leg">
+      <!-- Impeccable Runde 2: the two explaining blocks in one fold -->
+      <details class="ich-sec howfold" data-how>
+        <summary class="ich-h howsum"><div><h2 id="ab-how-h">{t('How it works|ab')}</h2><p class="ich-hs">{t('Where the values come from, answer kinds')}</p></div><ChevronDown class="howchev" size={20} aria-hidden="true" /></summary>
+        <h3 class="howh" id="ab-src-h">{t('Where the values come from')}</h3>
+        <ul class="card side leg" aria-labelledby="ab-src-h">
           <li><span class="ab-src hand"><Hand size={13} aria-hidden="true" />{srcText('hand')}</span><small>{t('you enter it when the question comes')}</small></li>
           <li><span class="ab-src later"><Watch size={13} aria-hidden="true" />{srcText('later')}</span><small>{t('tested: steps, sleep, resting pulse, HRV · with the connection to Fitbit')}</small></li>
           <li><span class="ab-src open"><CircleDashed size={13} aria-hidden="true" />{srcText('open')}</span><small>{t('active zone minutes, oxygen, weight')}</small></li>
           <li><span class="ab-src only"><Hand size={13} aria-hidden="true" />{srcText('only')}</span><small>{t('e.g. screen time, Samsung Health: a web app cannot reach these data')}</small></li>
         </ul>
-      </section>
-      <section class="ich-sec" aria-labelledby="ab-kinds-h">
-        <div class="ich-h"><div><h2 id="ab-kinds-h">{t('Answer kinds')}</h2><p class="ich-hs">{t('stands as a small tag next to every question')}</p></div></div>
-        <ul class="card side forms">
+        <h3 class="howh" id="ab-kinds-h">{t('Answer kinds')} <small>· {t('stands as a small tag next to every question')}</small></h3>
+        <ul class="card side forms" aria-labelledby="ab-kinds-h">
           <li><span class="ab-kind">1–10</span><span>{t('as numbers or a battery')}</span><small>{t('saved: always 1–10')}</small></li>
           <li><span class="ab-kind">{t('Chips')}</span><span>{t('one or several choices')}</span><small>{t('saved: fixed keys')}</small></li>
           <li><span class="ab-kind">{t('yes / no')}</span><span>{t('sometimes with «partly» or «several times»')}</span><small>{t('saved: 1 · 0.5 · 0')}</small></li>
           <li><span class="ab-kind">{t('Number')}</span><span>{t('with a unit: kg, min, cups, h')}</span><small>{t('saved: the number')}</small></li>
           <li><span class="ab-kind">{t('Sentence')}</span><span>{t('text')}</span><small>{t('saved: only for the diary')}</small></li>
         </ul>
-      </section>
+      </details>
       <!-- AB6, Noah 14.10. 00:52:22 1a 2a 3b 4ab (4ab): the analysis here too, short, with a link to the whole page -->
       <div class="ich-sec" data-analysis><Auswertung compact idp="awa" /></div>
       <p class="hint"><Info size={15} aria-hidden="true" /><span>{t('If a wording changes, the old answers go on in the same history. «so far» names the earlier question that lives on in it.')}</span></p>
@@ -170,7 +177,7 @@
 </div>
 
 {#if ivFor}
-  <IntervalSheet title={qText(ivFor)} every={settingOf(cfg, ivFor).every} onsave={(e) => save(setEvery(cfg, ivFor.id, e))} onclose={() => (ivFor = null)} />
+  <IntervalSheet title={qText(ivFor)} was={ivFor.was ?? ''} every={settingOf(cfg, ivFor).every} onsave={(e) => save(setEvery(cfg, ivFor.id, e))} onclose={() => (ivFor = null)} />
 {/if}
 {#if ownFor !== undefined}
   <OwnSheet question={ownFor} onsave={saveOwn} ondelete={(id) => save(dropOwn(cfg, id))} onclose={() => (ownFor = undefined)} />
@@ -179,6 +186,38 @@
 <style>
   .abpage {
     max-width: 1180px;
+  }
+  /* Impeccable Runde 2: «How it works», folded */
+  .howsum {
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .howsum::-webkit-details-marker {
+    display: none;
+  }
+  .howsum :global(.howchev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.18s ease-out;
+  }
+  .howfold[open] > .howsum :global(.howchev) {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .howsum :global(.howchev) {
+      transition: none;
+    }
+  }
+  .howh {
+    margin: 14px 2px 8px;
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+  }
+  .howh small {
+    color: var(--ink-3);
+    font-weight: 400;
   }
   .top {
     display: flex;
@@ -253,11 +292,6 @@
   }
   .qm b {
     font-weight: 500;
-    overflow-wrap: break-word;
-  }
-  .qm small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   .q.off .qm b {

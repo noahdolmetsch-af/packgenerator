@@ -5,6 +5,7 @@
 // 3. Every control on Today, Pack and Gear has a name a screen reader can read.
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { pickLook } from './gear-look.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -33,6 +34,10 @@ function fixture(path) {
   });
   data.tables.trips.push(trip(TRIP, 'test_data_gtp_ Jura Runde mit einem recht langen Tournamen', tomorrow()));
   data.tables.trips.push(trip('trip-test_data_gtp_past', 'test_data_gtp_ Emmental', '2026-09-20'));
+  // the evening window of Heute (src/lib/home/windows.js, key homeWindows) would open from 17:00 for the trip tomorrow
+  // and take the focus; it is done for today here, the window itself is tested in its own spec
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+  data.tables.settings.push({ key: 'homeWindows', value: { eve: { done: today }, week: { done: today } } });
   data.tables.notes.push({ id: 'note-test_data_gtp_1', at: '2026-10-05T08:00:00.000Z', text: 'test_data_gtp_ Bremse quietscht', photo: null, page: 'home', tripId: null, bikeId: bike.id, status: 'open', to: null, sortedAt: null });
   writeFileSync(path, JSON.stringify(data));
 }
@@ -57,6 +62,8 @@ const view = async (page, hash) => {
   await page.goto(`./${hash}`);
   await page.reload();
   await expect(page.locator('main')).toBeVisible();
+  // Tempo (19.10.2026): a page loads on its first visit; <html data-ready> comes back once it is there
+  await expect(page.locator('html')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
 };
 
 /** Opens every gear category (a phone starts with them folded, a desktop open). */
@@ -156,7 +163,7 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   // Item dialog from the gear list
   await view(page, '#/gear');
   // v0.47.2: on the computer a card first fills the detail column; the list opens the window directly
-  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
+  await pickLook(page, T('Show as'), T('List')); // Impeccable runde 2: on a phone in «Sort and filter»
   await expandAll(page);
   await dialogKeys(page, page.getByRole('button', { name: new RegExp(LONG) }), page.locator('dialog[open]'));
 
@@ -170,7 +177,9 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
 
   // v0.29.0: Pack is a page now; its dialog is "{n} things are not ticked yet. Go anyway?" on the one orange button.
   await view(page, '#/pack?day');
-  await dialogKeys(page, page.locator('.trip-band .go'), page.locator('dialog.ask'));
+  // Impeccable Packen 2 (changed on purpose): while less than half is packed, the orange button packs the next bag;
+  // «Packen abschliessen» is the quiet link at the end of the bags, and it asks the same question
+  await dialogKeys(page, page.locator('[data-finish-quiet]'), page.locator('dialog.ask'));
 });
 
 test('every control on Today, Pack and Gear has a name', async ({ page, context }, info) => {

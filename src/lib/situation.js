@@ -22,6 +22,29 @@ import { RAIN_LIMIT } from './rainlimit.svelte.js';
 export const SITUATION_BLOCKS = ['cold', 'heat', 'climb', 'long', 'abroad', 'train', 'rain'];
 export const isSituation = (key) => SITUATION_BLOCKS.includes(key);
 
+/**
+ * v0.154.0 «Bausteine mehr» (SN3h–SN3j, Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a):
+ * nine more blocks with a rule (B7, B10, B13, B15, B20, B23–B26). They start with example parts (1a,
+ * blocksmore.js) and come as a dashed suggestion, never by themselves.
+ */
+export const MORE_BLOCKS = ['sleepwell', 'twonights', 'descent', 'recovery', 'icy', 'swim', 'sauna', 'coldwater', 'drybag'];
+/**
+ * v0.154.0: the stages of a block (4b: «Kälte» one suggestion PER stage; the extensions of Kochen, Laden,
+ * Erste Hilfe and Hygiene that only fit some trips work the same way). Each stage is its own small block
+ * with its own rule, shown inside its parent on Bausteine and as its own suggestion in Packen.
+ */
+export const STAGE_OF = { coldHands: 'cold', coldLayers: 'cold', coldEvening: 'cold', cookWarm: 'cook', chargeLong: 'charge', aidWinter: 'firstaid', hygieneCare: 'hygiene' };
+export const STAGE_BLOCKS = Object.keys(STAGE_OF);
+/** The stages of one block, in their order. */
+export const stagesOf = (key) => STAGE_BLOCKS.filter((k) => STAGE_OF[k] === key);
+/** The blocks of the new group «Baden» (by hand in Planen until there is a source). */
+export const BATHING_BLOCKS = ['swim', 'sauna', 'coldwater', 'drybag'];
+/** Every block with a rule: the seven of SN3+, the nine new ones and the stages. */
+export const RULE_BLOCKS = [...SITUATION_BLOCKS, ...MORE_BLOCKS, ...STAGE_BLOCKS];
+export const hasRule = (key) => RULE_BLOCKS.includes(key);
+/** v0.154.0: «Baden» in Planen, by hand (trip.bathe = ['lake', 'sauna', 'cold']). */
+export const BATHE = ['lake', 'sauna', 'cold'];
+
 /** The home country: a trip without a country is at home (4b). */
 export const HOME_COUNTRY = 'CH';
 /** The countries offered in Planen (ISO codes; the names come from the browser in the app's language). */
@@ -41,6 +64,13 @@ export const METRICS = {
   hours: { name: 'Riding time per day', unit: 'h', min: 0.5, max: 24 },
   abroad: { name: 'Trip abroad', bool: true },
   train: { name: 'Travel there by train', bool: true },
+  // v0.154.0 «Bausteine mehr»
+  nights: { name: 'Nights', unit: 'nights', min: 0, max: 60 },
+  lossM: { name: 'Descent per day', unit: 'm', min: 0, max: 9000 },
+  outdoor: { name: 'Night in a tent or bivouac', bool: true },
+  sauna: { name: 'Accommodation with sauna or bath', bool: true },
+  coldWater: { name: 'Water below 15 °C or winter bathing', bool: true },
+  bathing: { name: 'A bathing block comes along', bool: true },
 };
 /** The numeric values, for the choice in the rule sheet. */
 export const NUMERIC = Object.keys(METRICS).filter((k) => !METRICS[k].bool);
@@ -57,7 +87,38 @@ export const DEFAULT_RULES = {
   train: { on: true, metric: 'train' },
   // v0.144.0 RE (1a): this limit is the one rain limit of the whole app (rainlimit.svelte.js).
   rain: { on: true, metric: 'rainPct', cmp: 'gte', limit: RAIN_LIMIT },
+  // v0.154.0 «Bausteine mehr» (README SN3h): Gut schlafen, Zwei Nächte, Abfahrt warm, Erholung danach,
+  // Glatt und nass, the four of «Baden»
+  sleepwell: { on: true, metric: 'outdoor' },
+  twonights: { on: true, metric: 'nights', cmp: 'gte', limit: 2 },
+  descent: { on: true, metric: 'lossM', cmp: 'gte', limit: 1200 },
+  recovery: { on: true, metric: 'hours', cmp: 'gt', limit: 5, alt: 1500 },
+  icy: { on: true, metric: 'minC', cmp: 'lt', limit: 3 },
+  swim: { on: true, metric: 'maxC', cmp: 'gt', limit: 22 },
+  sauna: { on: true, metric: 'sauna' },
+  coldwater: { on: true, metric: 'coldWater' },
+  drybag: { on: true, metric: 'bathing' },
+  // the stages (4b): Kälte below 8 °C (hands and feet), below 0 °C (layers), the evening with a night;
+  // Kochen when cool, Laden for more than one night without power, Erste Hilfe below 0 °C, Hygiene from 2 nights
+  coldHands: { on: true, metric: 'minC', cmp: 'lt', limit: 8 },
+  coldLayers: { on: true, metric: 'minC', cmp: 'lt', limit: 0 },
+  coldEvening: { on: true, metric: 'minC', cmp: 'lt', limit: 10 },
+  cookWarm: { on: true, metric: 'minC', cmp: 'lt', limit: 10 },
+  chargeLong: { on: true, metric: 'nights', cmp: 'gte', limit: 2 },
+  aidWinter: { on: true, metric: 'minC', cmp: 'lt', limit: 0 },
+  hygieneCare: { on: true, metric: 'nights', cmp: 'gte', limit: 2 },
 };
+
+/**
+ * v0.154.0: a fixed second condition of a block (not a limit to change): «und …». night: a night on the
+ * trip; lake: «See oder Fluss» tapped in Planen (by hand); cook: cooking outdoors; outdoor: a night in a
+ * tent or bivouac.
+ */
+export const NEED = { coldEvening: 'night', swim: 'lake', cookWarm: 'cook', chargeLong: 'outdoor' };
+/** v0.154.0: a fixed «oder …» of a block: a pass (Abfahrt warm), snow (Glatt und nass). */
+export const OR = { descent: 'pass', icy: 'snow' };
+/** The blocks with a second limit «oder …» (alt): the highest point (Pass), the climbing a day (Erholung). */
+export const ALT = { climb: { fact: 'topM', min: 0, max: 9000 }, recovery: { fact: 'gainM', min: 0, max: 9000 } };
 
 const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
@@ -71,17 +132,17 @@ export function ruleOf(key, saved = null) {
   if (METRICS[metric].bool) return out;
   out.cmp = CMPS.includes(s.cmp) ? s.cmp : d.cmp ?? 'gte';
   out.limit = fin(s.limit) ?? (metric === d.metric ? d.limit : 0);
-  if (key === 'climb') out.alt = fin(s.alt) ?? d.alt;
+  if (ALT[key]) out.alt = fin(s.alt) ?? d.alt;
   return out;
 }
 
 /** Is a rule the standard one? (then «Zurücksetzen» has nothing to do) */
 export const isDefaultRule = (key, rule) => JSON.stringify(ruleOf(key, rule)) === JSON.stringify(ruleOf(key, null));
 
-/** The rules of all seven blocks from the settings «sets» value: { cold: rule, … }. */
+/** The rules of all blocks with a rule from the settings «sets» value: { cold: rule, … }. */
 export function rulesOf(setsValue) {
   const list = Array.isArray(setsValue) ? setsValue : [];
-  return Object.fromEntries(SITUATION_BLOCKS.map((k) => [k, ruleOf(k, list.find((s) => s?.key === k)?.rule)]));
+  return Object.fromEntries(RULE_BLOCKS.map((k) => [k, ruleOf(k, list.find((s) => s?.key === k)?.rule)]));
 }
 
 /**
@@ -133,7 +194,10 @@ export function tripFacts(trip) {
   const maxC = maxs.length ? Math.round(Math.max(...maxs)) : fin(trip?.wx?.max);
   const n = Math.max(1, Number(trip?.days) || 1);
   const gain = fin(trip?.route?.gainM);
+  const loss = fin(trip?.route?.lossM) ?? lossOf(trip?.route);
   const country = String(trip?.country || HOME_COUNTRY).toUpperCase();
+  const night = trip?.overnight === 'lodging' || trip?.overnight === 'outdoor';
+  const bathe = Array.isArray(trip?.bathe) ? trip.bathe : [];
   return {
     minC,
     maxC,
@@ -146,8 +210,33 @@ export function tripFacts(trip) {
     country,
     abroad: country !== HOME_COUNTRY,
     train: trip?.arrival === 'train',
+    // v0.154.0 «Bausteine mehr»
+    night,
+    nights: night ? Math.max(1, n - 1) : 0,
+    outdoor: trip?.overnight === 'outdoor',
+    cook: trip?.overnight === 'outdoor' && !!trip?.cook,
+    lossM: loss == null ? null : Math.round(loss / n),
+    // snow: no snow in the forecast data yet, so a day with at least 1 mm at 0 °C or colder counts as snow
+    snow: days.some((d) => fin(d.min) != null && d.min <= 0 && (fin(d.rainMm) ?? 0) >= 1),
+    lake: bathe.includes('lake'),
+    sauna: bathe.includes('sauna'),
+    coldWater: bathe.includes('cold'),
+    startDate: trip?.startDate ?? null,
+    days: n,
   };
 }
+
+/** The descent of a route in m from its elevation profile (a route without lossM), or null. */
+export function lossOf(route) {
+  const eles = (route?.profile ?? []).map((p) => fin(p?.[1])).filter((v) => v != null);
+  if (eles.length < 2) return null;
+  let down = 0;
+  for (let i = 1; i < eles.length; i++) if (eles[i] < eles[i - 1]) down += eles[i - 1] - eles[i];
+  return Math.round(down);
+}
+
+/** Is the fixed second condition of a block met? (NEED) */
+const needMet = (need, facts) => (need === 'night' ? !!facts.night : need === 'lake' ? !!facts.lake : need === 'cook' ? !!facts.cook : need === 'outdoor' ? !!facts.outdoor : true);
 
 /**
  * Does one block's rule fit the trip? → the reason { kind: key, … } or null.
@@ -157,6 +246,8 @@ export function tripFacts(trip) {
  */
 export function ruleHit(key, rule, facts) {
   if (!rule?.on) return null;
+  // v0.154.0: a fixed «und …» (a night, the lake by hand, cooking, a night outdoors)
+  if (NEED[key] && !needMet(NEED[key], facts)) return null;
   const m = rule.metric;
   if (METRICS[m]?.bool) return facts[m] ? (m === 'abroad' ? { kind: key, country: facts.country } : { kind: key }) : null;
   const v = facts[m];
@@ -164,8 +255,13 @@ export function ruleHit(key, rule, facts) {
     if (facts.pass) return { kind: key, by: 'pass' };
     if (rule.alt != null && facts.topM != null && facts.topM >= rule.alt) return { kind: key, by: 'top', m: facts.topM };
   }
+  // v0.154.0: Abfahrt warm also with a pass, Glatt und nass also with snow, Erholung also from 1’500 m a day
+  if (OR[key] === 'pass' && facts.pass) return { kind: key, by: 'pass', m: facts.lossM };
+  if (OR[key] === 'snow' && facts.snow) return { kind: key, by: 'snow' };
+  if (key === 'recovery' && rule.alt != null && facts.gainM != null && facts.gainM >= rule.alt && !passes(v, rule.cmp, rule.limit)) return { kind: key, by: 'gain', m: facts.gainM };
   if (passes(v, rule.cmp, rule.limit)) {
     if (m !== DEFAULT_RULES[key].metric) return { kind: key, metric: m, value: v };
+    if (MORE_BLOCKS.includes(key) || STAGE_BLOCKS.includes(key)) return { kind: key, metric: m, value: v, ...(m === 'nights' ? { from: facts.startDate, days: facts.days } : {}) };
     if (key === 'cold' || key === 'heat') return { kind: key, c: v };
     if (key === 'climb') return { kind: key, by: 'gain', m: v };
     if (key === 'long') return { kind: key, h: v };
@@ -182,5 +278,7 @@ export function situationHits(trip, setsValue) {
   if (!trip) return {};
   const facts = tripFacts(trip);
   const rules = rulesOf(setsValue);
-  return Object.fromEntries(SITUATION_BLOCKS.map((k) => [k, ruleHit(k, rules[k], facts)]).filter(([, r]) => r));
+  // v0.154.0: «Nasses trocken halten» follows the other bathing blocks (it has no limit of its own)
+  facts.bathing = BATHING_BLOCKS.some((k) => k !== 'drybag' && ruleHit(k, rules[k], facts));
+  return Object.fromEntries(RULE_BLOCKS.map((k) => [k, ruleHit(k, rules[k], facts)]).filter(([, r]) => r));
 }

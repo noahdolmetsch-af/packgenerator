@@ -297,7 +297,7 @@ test('N10, N11, v0.114.0, v0.143.0: New trip offers the last ridden trip apart f
   await expect(card).toHaveAttribute('aria-pressed', 'true');
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'false');
   const info_ = dlg.locator('.tplinfo');
-  await expect(info_).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra/);
+  await expect(info_).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 einzelnes Teil/);
   await expect(info_).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
   await page.screenshot({ path: info.outputPath('new-trip.png') });
   expect(errors).toEqual([]);
