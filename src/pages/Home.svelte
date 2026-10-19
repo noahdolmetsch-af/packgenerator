@@ -54,6 +54,7 @@
   import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
+  import { askTour } from '../lib/tour/run.js';
   import Continue from '../lib/home/Continue.svelte';
   import { stepOf, lastEvening } from '../lib/phase.js';
   import StartKarte from '../lib/home/StartKarte.svelte';
@@ -1092,6 +1093,11 @@
     <section class="card first" aria-labelledby="first-h">
       <h2 id="first-h" class="title">{t('First steps')}</h2>
       <p class="muted">{t('Three steps, then Today shows your next trip.')}</p>
+      <!-- «Rundgang» (Noah 15.10.2026 «4a», the line on Today approved): the tour through the app, on top of First steps -->
+      <div class="tourline" data-tourline>
+        <span><b>{t('New here? Take the tour')}</b><small>{t('2 minutes, with an example trip. Your data stays untouched.')}</small></span>
+        <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+      </div>
       <ol>
         <li class:done={steps.bike}>
           {@render mark(steps.bike, 1)}
@@ -2109,5 +2115,28 @@
   }
   .odot.off {
     background: var(--ink-3);
+  }
+  /* «Rundgang»: the line on top of First steps */
+  .tourline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0 4px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--hi-soft);
+    border: 2px solid var(--hi);
+  }
+  .tourline > span {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+  }
+  .tourline small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tourline .btn {
+    white-space: nowrap;
   }
 </style>

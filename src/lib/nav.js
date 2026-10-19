@@ -205,6 +205,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/routine')) return 'routine'; // Routine «Das tut mir gut» (mockup D2): the list, a page of Heute
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
+  if (h.startsWith('#/week')) return 'week'; // «Woche planen» (WP1–WP3, Noah 15.10.2026 «1a»): its own place
   return 'home';
 }
 
@@ -242,6 +243,8 @@ export function redirectOf(hash = '') {
  */
 export const PLACES = [
   { key: 'today', href: '#/', label: 'Today|place', letter: 'h' },
+  // «Woche planen» (mockup WP1, Noah 15.10.2026 21:11 «1a»): the week is its own place, next to Heute.
+  { key: 'week', href: '#/week', label: 'Week|place', letter: 'w' },
   // v0.46.1 (Noah): «Touren» opens the overview of all trips, no longer the last trip at Packen.
   { key: 'trips', href: '#/trips', label: 'Trips|place', letter: 't' },
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
@@ -255,13 +258,18 @@ export const PLACES = [
  * «Ausrüstung» (mockup AU1, Noah 15.10.2026 «5b» own place, «1-5a» with «1b»): the main equipment of
  * each sport has its own place. On a computer it stands in the sidebar under Velos (SIDE_PLACES); on a
  * phone the bottom bar keeps five places: Velos and Ausrüstung share one, a switch on top of both pages
- * changes between them (nav/PlaceSwitch). PLACES stays the five of the bar.
+ * changes between them (nav/PlaceSwitch). The bar shows BAR_PLACES (below).
  */
 export const EQUIPMENT = { key: 'equipment', href: '#/equipment', label: 'Equipment|place', shares: 'bikes' };
 /** The places of the sidebar: the five, with Ausrüstung under Velos. */
 export const SIDE_PLACES = PLACES.flatMap((p) => (p.key === 'bikes' ? [p, EQUIPMENT] : [p]));
 /** The place whose slot in the bottom bar a place uses (Ausrüstung → Velos). */
 export const barPlace = (place) => (place === EQUIPMENT.key ? EQUIPMENT.shares : place);
+/**
+ * The places in the bottom bar of a phone: five (Noah 15.10.2026 «1a»: «Woche» takes the place of «Material»
+ * there; Material stays in the sidebar, under Ich › Material and with g m). Ausrüstung shares the slot of Velos.
+ */
+export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear');
 
 /**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
@@ -270,6 +278,12 @@ export const barPlace = (place) => (place === EQUIPMENT.key ? EQUIPMENT.shares :
  */
 export const PLACE_TABS = {
   today: [],
+  // «Woche planen» WP1–WP3: the week, the Sunday planning and the holidays
+  week: [
+    { key: 'week', label: 'This week|tab', href: '#/week', match: (h) => /^#\/week\/?(\?|$)/.test(h) },
+    { key: 'plan', label: 'Plan the week|tab', href: '#/week/plan', match: (h) => h.startsWith('#/week/plan') },
+    { key: 'away', label: 'Holidays|tab', href: '#/week/away', match: (h) => h.startsWith('#/week/away') },
+  ],
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
@@ -325,6 +339,7 @@ export function placeOf(page) {
   if (page === 'check') return 'today'; // Tages-Check (Noah 18.10.2026): pages of Heute
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
+  if (page === 'week') return 'week';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';

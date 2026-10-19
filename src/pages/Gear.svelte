@@ -56,6 +56,7 @@
   import ListNav from '../lib/list/ListNav.svelte';
   import TopButton from '../lib/list/TopButton.svelte';
   import { shownRows } from '../lib/list/listen.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte';
 
   // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
@@ -637,9 +638,12 @@
       {/if}
     </div>
   </header>
+  <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»); the wishlist has its own «Einkauf» (Noah «4a»).
+    Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  {#if !mode && !items.length && $itemsQuery}{#key view === 'wish'}<AreaIntro place={view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-  {#if items.length}<HintCard page="gear" />{/if}
+  {#if items.length}{#key view === 'wish'}<HintCard page="gear" intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
   {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
 
   {#if !items.length && $itemsQuery}

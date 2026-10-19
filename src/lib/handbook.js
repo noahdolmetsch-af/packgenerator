@@ -306,6 +306,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Training: the week with your plan and the look back.', 'Tap + on a day to plan a session with duration and zone.', 'Tap «Activities» and one activity: the minutes in each heart rate zone.'],
     example: 'Example: Tuesday 60 min in Z2 planned → after the run on Strava it shows as done.',
   },
+  'f.weekplan': {
+    on: null,
+    steps: ['Open Woche: Monday to Sunday with sport, dates, to-dos, holidays and bike service.', 'On Sunday tap «Plan the week»: four steps, the app suggests, you take or leave out.', 'Enter holidays once under Woche › Holidays; the training plan pauses if you want.'],
+    example: 'Example: Friday to Sunday Jura weekend → the long ride falls away, «Measure the chain» is suggested for Wednesday.',
+  },
   'f.analyses': {
     on: 'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.',
     steps: ['Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.', 'Open Training › Week: the analyses over the weeks under the look back.', 'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.'],
@@ -645,6 +650,11 @@ export const HANDBOOK = {
     on: 'Only shows when something has «test» in its name.',
     steps: ['Open Me › Clean up test data.', 'Archive it all; «Undo» brings it back.'],
     example: 'Example: «Test trip 2» and «test bike» go to the archive.',
+  },
+  'f.tour': {
+    on: null,
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
   'f.playground': {
     on: null,

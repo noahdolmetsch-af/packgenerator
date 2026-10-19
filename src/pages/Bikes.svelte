@@ -7,6 +7,7 @@
    */
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { parseBikesHash, bikesHash } from '../lib/bikes.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
@@ -101,6 +102,7 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
+    <AreaIntro place="velos" />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />

@@ -18,6 +18,11 @@
   import { ChevronRight, ChevronDown, Search, Compass, Backpack, BookOpen, Bike, Leaf, Save } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import '../lib/ich/ich.css';
+  import { TOUR_NAMES, stepCount } from '../lib/tour.js';
+  import { askTour, startTour } from '../lib/tour/run.js';
+  import { INTRO_KEY, showAll, hiddenCount } from '../lib/intro.js';
+  import { putSetting } from '../lib/flowdb.js';
+  import { Footprints } from '@lucide/svelte';
 
   const GROUP_ICON = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save };
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -25,6 +30,11 @@
   const groups = FEATURE_GROUPS.map((g) => ({ ...g, rows: FEATURES.filter((x) => x.group === g.key) })).filter((g) => g.rows.length);
   const wanted = typeof location !== 'undefined' ? (location.hash.match(/[?&]f=([^&]+)/)?.[1] ?? null) : null;
   const wantId = wanted ? decodeURIComponent(wanted) : null;
+  // «Rundgang» (Noah 15.10.2026 «4a»): the tours start here too; «Einstieg» × comes back here
+  const introQ = liveQuery(() => db.settings.get(INTRO_KEY));
+  const introGone = $derived(hiddenCount($introQ?.value));
+  const bringBack = () => putSetting(db, INTRO_KEY, showAll($introQ?.value));
+  const PLACE_TOURS = ['aktiv', 'touren', 'material', 'velos'];
   // Impeccable Runde 2: the search (title, text, how to switch on, steps, example; English and German)
   let q = $state('');
   const hayOf = (x) => {
@@ -48,6 +58,19 @@
 <div class="ich-page hb">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Handbook')} sub={t('How to switch on every function, with an example')} />
 
+  <section class="ich-sec hb-tour" aria-labelledby="hb-tour" data-hb-tour>
+    <div class="ich-h"><div><h2 id="hb-tour"><Footprints size={18} aria-hidden="true" /> {t('Tour|short')}</h2></div></div>
+    <div class="card hb-tc">
+      <div class="hb-tmain">
+        <span><b>{t(TOUR_NAMES.app)}</b><small>{t('{n} short steps, about 2 minutes', { n: stepCount('app') })}</small></span>
+        <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+      </div>
+      <p class="hb-tsmall">
+        {#each PLACE_TOURS as id, i (id)}{#if i}{' · '}{/if}<button type="button" class="lk" onclick={() => startTour(id)}>{t(TOUR_NAMES[id])}</button>{/each}
+      </p>
+      {#if introGone}<p class="hb-tsmall"><button type="button" class="lk" onclick={bringBack}>{t('Show the introductions on top of the places again ({n})', { n: introGone })}</button></p>{/if}
+    </div>
+  </section>
   <label class="hb-find">
     <Search size={18} aria-hidden="true" />
     <span class="sr">{t('Search the handbook')}</span>
@@ -203,5 +226,37 @@
   }
   .hb-ex {
     font-style: italic;
+  }
+  .hb-tc {
+    padding: 14px 16px;
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .hb-tmain {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hb-tmain > span {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+  }
+  .hb-tmain small,
+  .hb-tsmall {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    margin: 0;
+  }
+  .hb-tsmall .lk {
+    min-height: 44px;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
   }
 </style>

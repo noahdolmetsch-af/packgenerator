@@ -25,6 +25,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import Section from '../lib/ui/Section.svelte';
   import '../lib/ui/daumen.css'; // FE1
   import Btn from '../lib/ui/Btn.svelte';
@@ -189,7 +190,9 @@
       <!-- FE1: on a phone «New template» sits at the bottom, in reach of the thumb -->
       <span class="daumen"><Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} /></span>
     </PathHead>
-    <HintCard page="templates" />
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Vorlagen» lives in the card «Was hier steht» -->
+    <HintCard page="templates" intro="templates" />
+    <TipLine page="templates" name={t('Templates')} />
 
     {#if showSwitch}
       <div class="areas">

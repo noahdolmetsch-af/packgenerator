@@ -87,6 +87,7 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 → AP10–AP11 → AP17–AP24. Die IDs bleiben für dauerhafte Referenzen unverändert. Die Tourverbesserungen verwenden zunächst bestehende Rollen, Nachtsets und Vorlagen; eine neue Bausteinverwaltung blockiert sie nicht. AP03/AP04/AP05 sind nach AP02 weitgehend unabhängig. Bei AP10/AP11 werden die bestehenden Auswahlverträge integriert und erneut geprüft. AP21 beginnt bereits mit frühen Ansichten und wird am Ende vollständig abgeschlossen. Die spätere Ausbaustufe wird nicht zur Voraussetzung für den Kernrelease gemacht.
 
 **Nachtrag 19.10.2026 (v0.152.0 «Tempo – Seiten später laden»):** Seiten laden beim ersten Öffnen, Build-Wächter 3 MB pro Datei, damit die App offline speicherbar bleibt. Kommt direkt nach F, vor G.
+**Nachtrag 19.10.2026 (v0.151.0 «Paket F – Woche»):** Ort Woche mit «Woche planen» und Ferien, Google Kalender und Aufgaben in der Woche, Rundgang und Einstieg, eine Karte pro Seite (Noah «2a»), als ein Release auf C. Offen danach: Chronik, Paket Aktiv, Paket Heute.
 
 **Nachtrag 19.10.2026 (v0.150.0 «Paket C – Heute und Aktiv»):** Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2. Paket Aktiv und Paket Heute folgen nach einer Übertragung auf den heutigen Stand.
 
@@ -105,6 +106,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
 **19.10.2026, v0.152.0 «Tempo»:** Seiten später laden; grösste JS-Datei 5,2 MB → rund 1 MB.
+**19.10.2026, v0.151.0 «Paket F»:** Woche als ein Release auf C: Ort Woche, Woche planen, Ferien, Google in der Woche, Rundgang und Einstieg, eine Karte pro Seite.
 **19.10.2026, v0.150.0 «Paket C»:** Heute und Aktiv als ein Release auf E: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check als eigenes Fenster mit grossem Balance-Ring und «Deine 15 Fragen», Routine «Das tut mir gut», Impeccable Runde 2.
 **19.10.2026, v0.149.0 «Paket E»:** Material, Velos, Merken als ein Release: Werte messen, Garmin (1040 + 850), Taschen-Setups, Erinnerungen und Merken, Geburtstage und Pflanzen, Eigene Werte, Skitour, Sportart, Eigene Listen, UI-Regeln, Impeccable Runde 1.
 **19.10.2026, v0.148.0 «Paket D»:** Touren und Unterwegs als ein Release: Strava-Fahrten auf Touren, Höhenprofil, ein Weg «Fahrt hochladen», Planungs-Notizen, Handy kurz, Fehlerbehebungen, «Deine Fahrten», einfache Wörter, Bewegung, Formulare-Pilot.
