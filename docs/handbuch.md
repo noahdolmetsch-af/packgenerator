@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 132 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 134 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -1134,6 +1134,28 @@ Pässe, Gipfel, Trails und Hallen, die du erreicht hast, für jede Sportart; die
 2. Tippe unter «In deinen Fahrten gefunden» auf «Ins Gipfelbuch» und gib dem Ort einen Namen, oder trag einen Ort von Hand ein.
 
 **Beispiel:** Eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.
+
+### Das tut mir gut
+
+Eine kurze Liste für jeden Tag auf Heute: abhaken, Tage in Folge sehen; Meditation hakt sich selbst ab.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.
+2. «Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.
+
+**Beispiel:** «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.
+
+### Erkenntnisse
+
+Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation und Ruhepuls; die stärksten drei in der Auswertung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.
+2. Ich › Wi gaht's? › Auswertung zeigt die stärksten drei und führt zu allen.
+
+**Beispiel:** An Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.
 
 ### Timer
 

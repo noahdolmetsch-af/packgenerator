@@ -125,8 +125,9 @@ test('the item: its year on tour, the learned rule, the last trips, the lighter 
 test('desktop: cards with the chosen one in the detail column, Cards or List', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'desktop', 'the detail column is for the computer');
   await openGear(page, context, info);
-  const panel = page.getByRole('complementary', { name: 'Bike computer' });
-  await expect(panel).toBeVisible(); // the first card is chosen at the start
+  // Impeccable runde 2 (Material 2, changed on purpose): no card is chosen at the start; a calm card says what a tap shows
+  await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Bike computer' })).toHaveCount(0);
   await page.locator('.mcard[data-id="RA01"] .mopen').click();
   const rj = page.getByRole('complementary', { name: 'Rain jacket' });
   await expect(rj).toBeVisible();

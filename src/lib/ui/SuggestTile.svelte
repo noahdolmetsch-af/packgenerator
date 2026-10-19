@@ -10,12 +10,15 @@
    * onchallenge() (opens the sheet).
    * v0.105.0 Design-Refresh P8 «Aktiv» (A7): sub, an optional quiet line under the head (why suggested).
    */
-  import { Check, Trophy, Plus } from '@lucide/svelte';
+  import { Check, Trophy, Plus, ChevronRight } from '@lucide/svelte';
   import TileHead from '../home/TileHead.svelte';
   import { t, num, locale } from '../i18n.svelte.js';
 
-  let { title, icon, id = 'sg-h', side = '', sub = '', options = [], pick = null, done = false, label = (x) => x, challenge = null, reached = null, onpick, onadd, ontick, onchallenge } = $props();
+  // Impeccable runde 2 (distill, Aktiv › Aktivität): fold = the alternatives wait behind «Anderer Vorschlag ›»
+  let { title, icon, id = 'sg-h', side = '', sub = '', options = [], pick = null, done = false, label = (x) => x, challenge = null, reached = null, onpick, onadd, ontick, onchallenge, fold = false } = $props();
   let adding = $state(false);
+  let altOpen = $state(false);
+  const showAlt = $derived(!fold || altOpen || !pick);
   let own = $state('');
   const until = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
   function addOwn(e) {
@@ -29,7 +32,12 @@
 <section class="sg surf" aria-labelledby={id} data-suggest>
   <TileHead {icon} {id} {title} {side} />
   {#if sub}<p class="sub">{sub}</p>{/if}
-  <div class="chips" role="group" aria-label={t('Alternatives')}>
+  {#if fold && pick}
+    <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={18} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
+    <button type="button" class="alt" aria-expanded={altOpen} aria-controls="{id}-alt" onclick={() => (altOpen = !altOpen)} data-alt>{t('Another suggestion')}<ChevronRight size={16} aria-hidden="true" /></button>
+  {/if}
+  {#if showAlt}
+  <div class="chips" id="{id}-alt" role="group" aria-label={t('Alternatives')}>
     {#each options as o (o)}
       <button type="button" class="chip" aria-pressed={o === pick} onclick={() => onpick?.(o)}>{label(o)}</button>
     {/each}
@@ -43,7 +51,8 @@
       <button type="button" class="chip add" onclick={() => (adding = true)}><Plus size={14} aria-hidden="true" />{t('own|suggestion')}</button>
     {/if}
   </div>
-  {#if pick}
+  {/if}
+  {#if pick && !fold}
     <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={18} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
   {/if}
   {#if reached}
@@ -104,6 +113,24 @@
   }
   .tick {
     align-self: flex-start;
+  }
+  /* the quiet link that opens the alternatives (fold) */
+  .alt {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin: -6px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .alt[aria-expanded='true'] :global(svg) {
+    transform: rotate(90deg);
   }
   .tick.on {
     border-color: transparent;

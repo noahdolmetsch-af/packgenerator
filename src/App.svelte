@@ -21,6 +21,8 @@
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
+  import Check from './pages/Check.svelte';
+  import CheckQuestions from './pages/CheckQuestions.svelte';
   import Between from './pages/Between.svelte';
   import Ski from './pages/Ski.svelte';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
@@ -54,6 +56,7 @@
   import Abfragen from './pages/Abfragen.svelte';
   import Verlauf from './pages/Verlauf.svelte';
   import Auswertung from './pages/Auswertung.svelte';
+  import Erkenntnisse from './pages/Erkenntnisse.svelte';
   import Weight from './pages/Weight.svelte';
   import Pay from './pages/Pay.svelte';
   import Handbook from './pages/Handbook.svelte';
@@ -65,6 +68,7 @@
   import OwnValues from './pages/OwnValues.svelte';
   import { listsReady } from './lib/listsready.svelte.js';
   import Timer from './pages/Timer.svelte';
+  import Routine from './pages/Routine.svelte';
   import TimerFaces from './pages/TimerFaces.svelte';
   import TimerLog from './pages/TimerLog.svelte';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
@@ -93,6 +97,7 @@
   import { localDay } from './lib/localday.js';
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
+  import { checkPart } from './lib/flowcheck.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
@@ -363,7 +368,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -424,6 +429,13 @@
   {:else if page === 'timer'}
     <!-- «Timer» (mockups Z2–Z5): #/timer, #/timer/faces (Z3), #/timer/log (Z5), pages of Heute -->
     {#key hash}{#if hash.startsWith('#/timer/faces')}<TimerFaces />{:else if hash.startsWith('#/timer/log')}<TimerLog />{:else}<Timer />{/if}{/key}
+  {:else if page === 'check'}
+    <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
+    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
+    {#key hash}{#if checkPart(hash) === 'questions'}<CheckQuestions />{:else}<Check part={checkPart(hash)} />{/if}{/key}
+  {:else if page === 'routine'}
+    <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
+    <Routine />
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
@@ -481,6 +493,9 @@
   {:else if page === 'analysis'}
     <!-- AB6: Ich › Daten › Auswertung (Noah 4ab: also on «Deine Abfragen») -->
     <Auswertung />
+  {:else if page === 'insights'}
+    <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): Ich › Erkenntnisse -->
+    <Erkenntnisse />
   {:else if page === 'weight'}
     <!-- TR6/TR6b: Ich › Meine Daten › Gewicht, only on this device -->
     <Weight />

@@ -37,9 +37,15 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   }
   // … and "Important today" names each bike with something due (the same number, or one job
   // "lube the chain" / "top up the sealant" with its own button)
+  // v0.155.0 «Heute neu geordnet» (2a, changed on purpose): one line with two rows; the rows arrive one source
+  // after the other, so open «Show all» whenever it is there and closed, until a row per due bike shows
   const more = page.locator('[data-section="today"] button.more');
-  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   const careRows = page.locator('[data-section="today"] li[data-row="care"]');
+  const dueBikes = Object.values(today).filter((n) => n > 0).length;
+  await expect(async () => {
+    if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+    await expect(careRows).toHaveCount(dueBikes, { timeout: 1000 });
+  }).toPass({ timeout: 15000 });
   const fromRows = {};
   for (const row of await careRows.all()) {
     const text = (await row.locator('.tx').textContent()).trim();
@@ -171,13 +177,22 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const openPast = await page.locator('main table.tt').getByRole('link', { name: rateName }).count();
   await page.goto('./#/debrief');
   await page.reload();
-  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: rateName }).count();
+  // Impeccable Rückblick 2: on the Rückblick the button says «Rückblick schreiben» or «Rückblick weiterschreiben»
+  const writeName = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): `);
+  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: writeName }).count();
   await expect.poll(openOf, { message: `Past trips (${openPast} open) vs Rückblick` }).toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page
   await page.goto('./#/inbox');
   await page.reload();
+  // Impeccable Runde 2 (changed on purpose): «Earlier · n notes» starts folded; open it to count every note
+  const earlier = page.locator('main details.older');
+  await expect(page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).first()).toBeVisible();
+  if (await earlier.count()) {
+    await earlier.locator('summary').click();
+    await expect(earlier).toHaveAttribute('open', '');
+  }
   const inboxRows = await page.locator('main li').filter({ hasText: 'test_data_gtp_ note' }).count();
   expect(inboxRows, 'Inbox shows every open note').toBeGreaterThanOrEqual(open);
   expect(errors).toEqual([]);

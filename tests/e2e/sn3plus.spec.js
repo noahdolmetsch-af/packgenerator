@@ -114,10 +114,11 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   await expect(sit).toContainText(/\d+ (Baustein ist|Bausteine sind) noch leer/);
   await expect(sit.getByRole('listitem', { name: NAME('climb'), exact: true })).toContainText(`${T('from|rule')} 1’200 ${T('m climbing a day')} ${T('or a pass')}`);
   // the other groups are one row each with their count; one tap opens them
-  const ride = main.getByRole('region', { name: T('On the ride') });
-  await expect(ride.locator(':scope > details > summary')).toContainText('5');
+  // v0.154.0 «Bausteine mehr» (Gesamtliste, 3a): «Auf jeder Fahrt» = Standard, Erste Hilfe, Reparatur, Laden
+  const ride = main.getByRole('region', { name: T('On every ride') });
+  await expect(ride.locator(':scope > details > summary')).toContainText('4');
   await expect(ride.getByRole('listitem', { name: T('Repair|block'), exact: true })).toHaveCount(0);
-  for (const name of [T('Always with you'), T('With the night'), T('To add')]) await expect(main.getByRole('region', { name }).locator(':scope > details')).not.toHaveAttribute('open', '');
+  for (const name of [T('Overnight|group'), T('To add')]) await expect(main.getByRole('region', { name }).locator(':scope > details')).not.toHaveAttribute('open', '');
   await tap(ride.locator(':scope > details > summary'), info);
   await expect(ride.getByRole('listitem', { name: T('Repair|block'), exact: true })).toBeVisible();
   await tap(ride.locator(':scope > details > summary'), info);
@@ -126,7 +127,7 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   await shot(page, info, 'SN3e-bausteine');
 
   // the rule sheet: the limit 5 → 2 °C
-  await tap(cold.getByRole('button'), info);
+  await tap(cold.getByRole('button').first(), info); // v0.154.0: the Kälte stages are buttons in the row too
   const dlg = page.getByRole('dialog', { name: NAME('cold') });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByRole('switch', { name: T('Suggest|rule') })).toHaveAttribute('aria-checked', 'true');
@@ -143,7 +144,7 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   await expect(cold).toContainText(`${T('below|rule')} 2 °C`);
   await expect.poll(() => ruleOn(page, 'cold')).toEqual({ on: true, metric: 'minC', cmp: 'lt', limit: 2 });
   // a wrong limit is refused at the field
-  await tap(cold.getByRole('button'), info);
+  await tap(cold.getByRole('button').first(), info); // v0.154.0: the Kälte stages are buttons in the row too
   await dlg.getByLabel(T('Limit')).fill('abc');
   await tap(dlg.getByRole('button', { name: T('Save'), exact: true }), info);
   await expect(dlg.getByRole('alert')).toBeVisible();
@@ -170,7 +171,8 @@ test('Packen: a fitting block is dashed with its reason; one tap adds it, Undo t
   const card = await openBlocks(page, info);
   const on = card.getByRole('group', { name: T('On the trip|blocks') });
   const add = card.getByRole('group', { name: T('Add|blocks') });
-  const cold = add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: 3 }))} ${NAME('cold')}`) });
+  // v0.154.0 (4b): «Kälte: Hände und Füsse» is its own suggestion, so the name is followed by the count
+  const cold = add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: 3 }))} ${NAME('cold')} \\d`) });
   await expect(cold).toHaveAttribute('aria-pressed', 'false');
   await expect(cold).toHaveClass(/sug/);
   await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: up to {m} m', { m: '1’650' }))} ${esc(NAME('climb'))}`) })).toBeVisible();
@@ -194,7 +196,7 @@ test('Packen: a fitting block is dashed with its reason; one tap adds it, Undo t
   await expect(card.getByRole('status')).toContainText(T('{block} added to this trip.', { block: NAME('cold') }));
   await expect.poll(async () => (await onTrip(page)).has('test_data_gtp_SWH')).toBe(true);
   await tap(card.getByRole('button', { name: T('Undo'), exact: true }), info);
-  await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: 3 }))}`) })).toBeVisible();
+  await expect(add.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: lowest {c} °C', { c: 3 }))} ${NAME('cold')} \\d`) })).toBeVisible();
   await expect.poll(async () => (await onTrip(page)).has('test_data_gtp_SWH')).toBe(false);
   expect(errors).toEqual([]);
 });
@@ -203,7 +205,7 @@ test('Planen: «Pass», «Land» and «Anreise» are stored on the trip and brin
   const errors = await start(page, context, info, './#/pack?weather');
   const sheet = page.locator('dialog[open]');
   await expect(sheet.getByRole('heading', { name: T('Edit trip conditions') })).toBeVisible();
-  const lage = sheet.getByRole('group', { name: T('Pass, country and getting there') });
+  const lage = sheet.getByRole('group', { name: T('Pass, country, getting there and bathing') });
   await lage.scrollIntoViewIfNeeded();
   const pass = lage.getByRole('button', { name: T('Pass|trip'), exact: true });
   await expect(pass).toHaveAttribute('aria-pressed', 'false');

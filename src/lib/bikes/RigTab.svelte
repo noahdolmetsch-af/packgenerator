@@ -34,6 +34,12 @@
   import SetupCompare from './SetupCompare.svelte';
   import SetupTable from './SetupTable.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  // Impeccable Runde 2 (18.10.2026, Setup 1-3; Ausstattung 2): an own head «‹ Velo › {bike} › Setup», the
+  // bike choice as one row to swipe on a phone, the bag plan says what is outside the bags (Paket C: the
+  // weights stay those of the last used setup, TS 3b, so there is no trip choice), the rarely used parts in one fold at the end.
+  import VeloHead from './VeloHead.svelte';
+  import BikeChips from './BikeChips.svelte';
+  import Fold from '../ui/Fold.svelte';
 
   let { bikeId = null, view = null, setupId = null, a = null, b = null, onbike } = $props();
 
@@ -83,6 +89,8 @@
   const kg = (g) => num(Math.round(g / 100) / 10);
   const shares = $derived(calc?.shares ?? null);
   const withLoad = $derived(links.filter((l) => l.kind !== 'race' && l.packKg));
+  // what the setup's luggage weighs outside the bike's bags: things without a bag (Impeccable Setup 2 on TS 3b)
+  const outsideG = $derived(calc ? (calc.loose ?? []).reduce((a, x) => a + (x.grams ?? 0), 0) : 0);
 
   /* ---------- the setup log, newest three ---------- */
   const log = $derived(bike ? logView(bike, { trips, debriefs: $debriefsQ ?? [], kmBook: $kmQ ?? [], today }).slice(0, 3) : []);
@@ -117,10 +125,19 @@
   const saveLink = (l) => saveLinks(links.some((x) => x.id === l.id) ? links.map((x) => (x.id === l.id ? { ...x, ...l } : x)) : [...links, l]);
   const deleteLink = (l) => saveLinks(links.filter((x) => x.id !== l.id).map((x) => (x.raceId === l.id ? { ...x, raceId: null } : x)));
   const toggleStar = (l) => saveLinks(links.map((x) => (x.id === l.id ? { ...x, star: !x.star } : x)));
+  // the fold «Ideas and races» stands open once something is in it
+  let ideasOpen = $state(false);
+  let ideasSet = false;
+  $effect(() => {
+    if (ideasSet || $linksQ === undefined || !bike) return;
+    ideasSet = true;
+    ideasOpen = links.length > 0 || (bike.rigCompare ?? []).length > 0;
+  });
   const raceDays = (r) => [r.raceDate ? dateOf(r.raceDate) : '', r.raceEnd && r.raceEnd !== r.raceDate ? dateOf(r.raceEnd) : ''].filter(Boolean).join(' – ');
 </script>
 
 {#if !bikes.length && $bikesQ}
+  <h1 class="title">{t('My setup|tab')}</h1>
   <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
@@ -133,18 +150,19 @@
 {:else if bike && view === 'table'}
   <SetupTable {bike} {trips} {items} {containers} />
 {:else if bike}
-  {#if bikes.length > 1}
-    <div class="bchips" role="group" aria-label={t('Bike')}>
-      {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}><Bike size={16} aria-hidden="true" />{b.name}</button>{/each}
-    </div>
-  {/if}
-  <p class="lead">{t('Your bag setups for this bike, with photos, changes and ideas from others.')}</p>
+  <VeloHead
+    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
+    here={t('My setup|tab')}
+    title={t('My setup|tab')}
+    sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
+  />
+  {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
   <HintCard page="rig" />
 
   <SetupList {bike} {bikes} {trips} {items} {containers} />
 
   <section class="card blk" aria-labelledby="rg-photos">
-    <header class="bh"><h2 id="rg-photos">{t('Photos')}</h2><p>{t('your photos, only on this device')}</p></header>
+    <header class="bh"><h2 id="rg-photos">{t('Photos of the setup')}</h2><p>{t('your photos, only on this device')}</p></header>
     <div class="shots">
       {#each photos as p (p.id)}
         <figure><img src={p.src} alt={p.name} /><figcaption>{photoDate(p)}</figcaption></figure>
@@ -185,7 +203,7 @@
     </section>
 
     <section class="card blk" aria-labelledby="rg-bags">
-      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if calc}<p>{t('{kg} kg in {n} bags', { kg: kg(calc.loadG), n: calc.list.length })}</p>{/if}</header>
+      <header class="bh"><h2 id="rg-bags">{t('Bag plan')}</h2>{#if calc}<p>{t('{kg} kg in {n} bags', { kg: kg(calc.loadG), n: calc.list.length })}{#if outsideG > 0}{' · '}{t('{kg} kg outside the bags', { kg: kg(outsideG) })}{/if}</p>{/if}</header>
       {#if calc && calc.list.length}
         <RigBike bags={calc.list} label={t('Bike with {n} bags', { n: calc.list.length })} />
         <div class="sides">
@@ -214,6 +232,9 @@
     <a class="more" href={bikesHash({ tab: 'rig', view: 'log', bike: bike.id })}>{t('Whole log')}<ChevronRight size={16} aria-hidden="true" /></a>
   </section>
 
+  <!-- Setup 3: «Your bike compared», «Your races» and «Ideas from others» in one fold at the end -->
+  <div class="ifold">
+  <Fold label={tn(links.length, 'Ideas and races · {n} link', 'Ideas and races · {n} links')} summary={t('Rigs of others, your races and what you want to compare')} bind:open={ideasOpen}>
   <section class="card blk" aria-labelledby="rg-cmp">
     <header class="bh"><h2 id="rg-cmp">{t('Your bike compared')}</h2><p>{t('{bike} · your own rows', { bike: bike.name })}</p></header>
     {#each rows as r (r.id)}
@@ -299,6 +320,8 @@
     {/if}
     <p class="foot">{t('Other pages only as a link, no text or photos from them in the app.')}</p>
   </section>
+  </Fold>
+  </div>
 {/if}
 
 {#if dialog}
@@ -306,33 +329,8 @@
 {/if}
 
 <style>
-  .bchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 12px;
-  }
-  .bchip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: inherit;
-    cursor: pointer;
-  }
-  .bchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .lead {
-    color: var(--ink-3);
-    margin: 0 0 16px;
+  .ifold {
+    margin: 8px 0 0;
   }
   .blk {
     display: flex;

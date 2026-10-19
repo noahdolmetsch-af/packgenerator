@@ -107,7 +107,7 @@ test('In Bearbeitung: pill, sheet / popover, rows, ••• with Undo, a row op
   await page.goto('./#/pack');
   await expect(band(page).locator('h1')).toContainText('test_data_gtp_ Jura-Wochenende');
   // B (planning) and C (debrief open) are the others; D is skipped and not counted.
-  await expect(pill(page)).toHaveText(T('{n} more|progress', { n: 2 }));
+  await expect(pill(page)).toHaveText(T('{n} more trips open', { n: 2 }));
   const box = await pill(page).boundingBox();
   expect(box.height).toBeLessThan(40); // small to the eye (the tap area is 44 px through ::after)
   await fits(page, info);
@@ -158,7 +158,7 @@ test('In Bearbeitung: pill, sheet / popover, rows, ••• with Undo, a row op
   await expect(list(page)).toBeHidden();
   await expect(band(page).locator('h1')).toContainText('test_data_gtp_ Herbsttour');
   expect(await page.evaluate(() => [location.hash, localStorage.getItem('pack.currentTrip')])).toEqual(['#/pack', B]);
-  await expect(pill(page)).toHaveText(T('{n} more|progress', { n: 2 }));
+  await expect(pill(page)).toHaveText(T('{n} more trips open', { n: 2 }));
   await fits(page, info);
   expect(errors).toEqual([]);
 });

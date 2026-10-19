@@ -14,12 +14,19 @@
   import { formatVolume, bikeTypeName } from '../bikes.js';
   import { formatWeight } from '../gear.js';
   import './standardvelo.css';
+  import MoreActions from '../ui/MoreActions.svelte';
 
-  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null, menu = [], link = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
   let strip = $state();
+  let row = $state();
+  // the chosen bike stands first on a phone: show the row from its start again
+  $effect(() => {
+    void bike.id;
+    if (row) row.scrollLeft = 0;
+  });
   function keys(e) {
     const i = bikes.findIndex((b) => b.id === bike.id);
     const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
@@ -33,7 +40,7 @@
 
 <section class="setup-band" aria-label={t('Bike')}>
   {#if sub}<p class="page-sub vb-sub">{sub}</p>{/if}
-  <div class="tabsrow">
+  <div class="tabsrow" bind:this={row}>
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
         <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</button>
@@ -47,6 +54,8 @@
   <h2 class="name">
     <span>{bike.name}</span>
     <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /><span class="et" aria-hidden="true">{t('Edit')}</span></button>
+    <!-- Impeccable Runde 2 (Velos 2): the bike's «…», with «Link zu Hersteller und Garantie eintragen» -->
+    {#if menu.length}<span class="bmenu"><MoreActions title={bike.name} label={t('More for {title}', { title: bike.name })} actions={menu} /></span>{/if}
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}
@@ -54,6 +63,7 @@
     <span><Weight size={15} aria-hidden="true" />{#if kind === 'missing'}{t('bike not weighed')}{:else}<b>{kind === 'estimate' ? '~' : ''}{kg(bike.weightG)}</b> {kind === 'estimate' ? t('estimate') : t('measured')}{/if}</span>
     <span><Briefcase size={15} aria-hidden="true" />{tn(setup.bagCount, '{n} bag', '{n} bags')} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
     {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
+    {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
 </section>
@@ -191,6 +201,32 @@
     color: var(--ink-2);
     font-weight: 600;
   }
+  .bmenu {
+    flex: none;
+    display: inline-flex;
+    font: 400 var(--fs-body) / 1 var(--font-body);
+  }
+  /* quiet like the pencil beside it: no frame until hover or focus */
+  .bmenu :global(.btn.dots) {
+    border-color: transparent;
+    background: none;
+    color: var(--ink-3);
+  }
+  .bmenu :global(.btn.dots:hover),
+  .bmenu :global(.btn.dots:focus-visible) {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .vb-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    overflow-wrap: break-word;
+  }
   .nw {
     display: inline-flex;
     align-items: center;
@@ -202,7 +238,8 @@
     position: relative;
     text-decoration: none;
   }
-  /* 44 px tap area around the small badge, without moving the layout. */
+  /* 44 px tap area around the small badge and the link, without moving the layout. */
+  .vb-link::after,
   .due::after {
     content: '';
     position: absolute;
@@ -211,6 +248,34 @@
     top: 50%;
     height: 44px;
     transform: translateY(-50%);
+  }
+  /* Impeccable Runde 2 (Ausstattung 2): on a phone the bikes are one row to swipe, the chosen one first
+     and the right end fading out, like BikeChips on the other Velo pages. */
+  @media (max-width: 599px) {
+    .tabsrow {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      padding-right: 32px;
+      -webkit-mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
+      mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
+    }
+    .tabsrow::-webkit-scrollbar {
+      display: none;
+    }
+    .tabsrow button {
+      flex: none;
+      max-width: 80vw;
+    }
+    .strip .bn {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .strip button[aria-selected='true'] {
+      order: -1;
+    }
   }
   @media print {
     .tabsrow {

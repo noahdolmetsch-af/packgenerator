@@ -31,7 +31,7 @@
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
-  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY } from '../lib/situation.js';
+  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY, BATHE } from '../lib/situation.js';
   import { remindersFor } from '../lib/review/ganz.js';
   import { countryName } from '../lib/situationtext.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
@@ -55,7 +55,7 @@
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
   import { undoSteps, keepUndoSteps } from '../lib/pack/undostack.js';
-  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car, Waves, Bath, Droplets, Hand } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -891,7 +891,7 @@
       <!-- SN3+ «Bausteine je nach Lage» (answers 3b, 4b): a pass by hand, the country and how you get there.
            Only facts of the trip; the blocks Pass, Ausland and Zug come as a suggestion in Packen, never by themselves. -->
       <div class="lage" role="group" aria-labelledby="lage-h">
-        <span class="lbl" id="lage-h">{t('Pass, country and getting there')}</span>
+        <span class="lbl" id="lage-h">{t('Pass, country, getting there and bathing')}</span>
         <div class="lgrow">
           <OptionButton pressed={trip.pass === true} icon={Mountain} label={t('Pass|trip')} explain={t('A pass on the route')} onclick={() => change((cur) => ({ pass: cur.pass !== true }))} />
           <label class="lcountry"><span class="sub">{t('Country')}</span>
@@ -904,7 +904,13 @@
           <span class="sub">{t('Getting there')}</span>
           {#each ARRIVALS as a (a)}<OptionButton pressed={trip.arrival === a} icon={a === 'bike' ? BikeIc : a === 'train' ? TrainFront : Car} label={a === 'bike' ? t('Bike|arrival') : a === 'train' ? t('Train|arrival') : t('Car|arrival')} onclick={() => change((cur) => ({ arrival: cur.arrival === a ? null : a }))} />{/each}
         </div>
-        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train. Tap again to take it off.')}</p>
+        <!-- v0.154.0 «Bausteine mehr» (mockup SN3i-b): «Baden» by hand (trip.bathe), the same kind as «Pass» -->
+        <div class="lgrow" role="group" aria-label={t('Bathing|trip')}>
+          <span class="sub">{t('Bathing|trip')}</span>
+          {#each BATHE as b (b)}<OptionButton pressed={(trip.bathe ?? []).includes(b)} icon={b === 'lake' ? Waves : b === 'sauna' ? Bath : Droplets} label={b === 'lake' ? t('Lake or river') : b === 'sauna' ? t('Sauna or bath') : t('Cold water|trip')} onclick={() => change((cur) => { const have = Array.isArray(cur.bathe) ? cur.bathe : []; const next = have.includes(b) ? have.filter((x) => x !== b) : [...have, b]; return { bathe: next.length ? next : null }; })} />{/each}
+        </div>
+        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
+        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
       </div>
     {/snippet}
 
@@ -1177,6 +1183,7 @@
   .lage { display: grid; gap: 10px; margin-top: 20px; }
   .lgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
   .lgrow .sub { font-size: var(--fs-small); color: var(--ink-2); }
+  .hchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border: 1px dashed var(--line-strong); border-radius: 999px; color: var(--ink-2); font-size: var(--fs-small); }
   .lcountry { display: flex; align-items: center; gap: 8px; }
   .lcountry .sel { max-width: 220px; }
   .hint { font-size: 14px; color: var(--ink-3); }

@@ -59,7 +59,8 @@
               <button type="button" class="ofb num" onclick={() => (editing = g.key)} aria-label={t('Change the goal for {name}', { name: t(g.label) })}><Pencil size={12} aria-hidden="true" />{s.of == null ? t('No goal · set one') : r ? t('{have} of {of}', { have: unitText(g, r.have), of: num(s.of) }) : t('Goal {of}', { of: unitText(g, s.of) })}</button>
             {/if}
           </span>
-          <label class="sw"><input type="checkbox" role="switch" checked={s.on} onchange={(e) => save(g.key, { on: e.currentTarget.checked })} /><span class="vh">{t('Show the goal for {name}', { name: t(g.label) })}</span></label>
+          <!-- Impeccable runde 2 (clarify): the switch says «zeigen», so the green box no longer reads as «reached» -->
+          <label class="ygsw"><input type="checkbox" role="switch" checked={s.on} aria-label={t('Show the goal for {name}', { name: t(g.label) })} onchange={(e) => save(g.key, { on: e.currentTarget.checked })} /><span class="swt" aria-hidden="true">{t('show|goal')}</span></label>
         </div>
         {#if s.on && s.of != null}
           {#if r}
@@ -151,17 +152,21 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .sw input {
+  .ygsw {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .ygsw input {
     width: 20px;
     height: 20px;
+    margin: 0;
     accent-color: var(--hi);
-  }
-  .vh {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
   }
   .bar {
     position: relative;

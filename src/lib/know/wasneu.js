@@ -50,8 +50,10 @@ export const SINCE = {
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
   // Paket G «Daten kommen von selbst» (the bundler sets the final version)
-  'f.connections': '0.149.0', 'f.owncal': '0.149.0', 'f.notestasks': '0.149.0', 'f.fitbitold': '0.149.0', 'f.stravaticks': '0.149.0', 'f.lake': '0.149.0', 'f.datastars': '0.149.0', 'f.wxwatch': '0.149.0', 'f.tourhints': '0.149.0', 'f.rainsoon': '0.149.0', 'f.air': '0.149.0', 'f.routepois': '0.149.0',
+  'f.connections': '0.150.0', 'f.owncal': '0.150.0', 'f.notestasks': '0.150.0', 'f.fitbitold': '0.150.0', 'f.stravaticks': '0.150.0', 'f.lake': '0.150.0', 'f.datastars': '0.150.0', 'f.wxwatch': '0.150.0', 'f.tourhints': '0.150.0', 'f.rainsoon': '0.150.0', 'f.air': '0.150.0', 'f.routepois': '0.150.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
+  // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
+  'f.routine': '0.150.0', 'f.insights': '0.150.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
@@ -176,19 +178,28 @@ export function tileDaysLeft(update, today, current = WHATS_NEW[0]?.version) {
 /**
  * I11e: after an update the tile «New» goes on top of the wall, as a whole row. → { tiles, from }:
  * from = where it stood before ({ i, size }) or null when it was not on the wall.
+ * 0.155.0 HN4 (Noah 21:27 «meditation, dann Tageskarte, dann Tourkarte»): «on top» is under the tiles that
+ * lead the page (head: meditation, the day card, «Important today»), so their order stays.
  */
-export function pinNews(tiles) {
+export function pinNews(tiles, head = []) {
   const i = tiles.findIndex((x) => x.id === 'news');
   const from = i < 0 ? null : { i, size: tiles[i].size };
-  return { tiles: [{ id: 'news', size: 'long' }, ...tiles.filter((x) => x.id !== 'news')], from };
+  const rest = tiles.filter((x) => x.id !== 'news');
+  let at = 0;
+  while (at < rest.length && head.includes(rest[at].id)) at++;
+  rest.splice(at, 0, { id: 'news', size: 'long' });
+  return { tiles: rest, from };
 }
 /**
  * After the 14 days the tile goes back where it stood (or away when it was not there), but only when
- * it is still on top as a whole row; moved, resized or taken away by hand it stays as it is (null).
+ * it is still on top as a whole row (right under the head tiles); moved, resized or taken away by hand
+ * it stays as it is (null).
  */
-export function unpinNews(tiles, from) {
-  if (tiles[0]?.id !== 'news' || tiles[0].size !== 'long') return null;
-  const rest = tiles.slice(1);
+export function unpinNews(tiles, from, head = []) {
+  let at = 0;
+  while (at < tiles.length && head.includes(tiles[at].id)) at++;
+  if (tiles[at]?.id !== 'news' || tiles[at].size !== 'long') return null;
+  const rest = tiles.filter((_, k) => k !== at);
   if (from && Number.isInteger(from.i)) rest.splice(Math.max(0, Math.min(from.i, rest.length)), 0, { id: 'news', size: from.size });
   return rest;
 }

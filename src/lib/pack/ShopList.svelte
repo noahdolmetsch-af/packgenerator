@@ -13,6 +13,8 @@
   import { t, tn } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { shopList, shopCount, toggleShop, shopText, shopLine } from '../shop.js';
+  import { flip } from '../ui/flip.js';
+  import { laterSort, glide } from '../ui/latersort.svelte.js';
 
   let { trip, itemsById } = $props();
 
@@ -34,7 +36,11 @@
     if (open && el && !el.open) el.showModal();
   });
 
+  // «Bewegung» 4b (Noah 19.10.2026 «1a»): bought items slide down a moment after the last tap
+  const sort = laterSort((r) => r.itemId, (r) => r.done);
+  $effect(() => () => sort.stop());
   async function tick(itemId) {
+    sort.tap(rows);
     const id = trip.id;
     await db.transaction('rw', db.trips, async () => {
       const cur = await db.trips.get(id);
@@ -74,8 +80,8 @@
     {#if rows.length}
       <p class="sub">{t('{open} of {total} still to buy.', { open: count.open, total: count.total })}</p>
       <ul class="shop" aria-label={t('Shopping list')}>
-        {#each rows as r (r.itemId)}
-          <li class:done={r.done}>
+        {#each sort.order(rows) as r (r.itemId)}
+          <li class:done={r.done} animate:flip={glide()}>
             <label>
               <input type="checkbox" checked={r.done} onchange={() => tick(r.itemId)} />
               <span class="nm">{r.name}</span>

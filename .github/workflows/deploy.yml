@@ -37,13 +37,17 @@ jobs:
           path: dist
 
   # v0.30.0 (Noah 1a): phone and desktop run side by side, so a check takes about half as long.
-  e2e:
+  e2e-part:
     runs-on: ubuntu-latest
+    # 30 like the Gesamttest: the phone run has 583 tests and stopped at 582 after 20 min (18.10.2026)
+    # Noah 19.10.2026 «können wir diese tests in zukunft kürzen?»: each project runs in three parts at
+    # the same time (about 10 instead of 30 minutes). Every test still runs; GitHub is free for public repos.
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         project: [phone, desktop]
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,7 +56,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e -- --project=${{ matrix.project }}
+      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/3
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs in its own job below
       # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).
@@ -61,9 +65,21 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-results-${{ matrix.project }}
+          name: e2e-results-${{ matrix.project }}-${{ matrix.shard }}
           path: test-results
           retention-days: 1 # Noah 11.10.2026: 0 costs; the free 0.5 GB Actions storage filled up with 7-day test results
+
+  # The branch rule asks for the checks «e2e (desktop)» and «e2e (phone)»: one summary job per
+  # device that is green only when all three parts passed (a skipped job would count as green).
+  e2e:
+    if: always()
+    needs: [e2e-part]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [phone, desktop]
+    steps:
+      - run: test "${{ needs.e2e-part.result }}" = "success"
 
   # v0.45.1 (Noah: browser tests stay in CI): the Gesamttest with the big fictional data set
   # (tests/e2e/gesamttest, 700 items): every page at 390/320/1366 px in German and English, the

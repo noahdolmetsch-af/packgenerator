@@ -65,7 +65,9 @@ const ex = (d) => ({ ...d, extra: true });
 /** The pages with a tile row and their tiles, in the order of the mockups (SK1–SK5, SKX4). */
 export const SK_PAGES = {
   past: [T.velocare, T.flow, T.bp, T.analyses, T.nexttrip, T.weather, T.lighter, ex(T.learnings), ex(T.logbook), ex(T.compare), ex(T.x12)],
-  debrief: [T.tpl, T.logbook, T.pace, T.learnings, T.past, T.packnext, ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
+  // Impeccable Runde 2 (18.10.2026, Rückblick 1, ★ a): Logbook, Pace, Learnings and Past trips are a section or a row
+  // of the debrief already; as tiles only after «Add a tile»
+  debrief: [T.tpl, T.packnext, ex(T.logbook), ex(T.pace), ex(T.learnings), ex(T.past), ex(T.compare), ex(T.flow), ex(T.velocare), ex(T.bp), ex(T.trophies), ex(T.ms)],
   // Impeccable (18.10.2026, Velos 1): Workshop and Compare bikes are a tab and a row of the page already; as tiles only after «Add a tile»
   bikes: [T.pack, T.stravacheck, T.kmbook, T.tomorrow, ex(T.workshop), ex(T.bikecompare), ex(T.velocare), ex(T.bp), ex(T.x12)],
   // Impeccable (18.10.2026): Building blocks, Clothes and Shopping are the tabs above; their tiles only after «Dazunehmen»

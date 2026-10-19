@@ -29,8 +29,8 @@ test('DK6, DK7b: the look back page says Erkenntnisse, no internal code, the km 
   const main = page.locator('main');
   await main.waitFor();
   // UI-Regeln Teil 2 (Noah «a»): on a phone the Rückblick lines start closed, so the word is read where it shows
-  // (the line «Gelernt · 60 Erkenntnisse» and the link «Erkenntnisse» under «Mehr»)
-  await expect(main.getByText(T('Learnings'), { exact: true }).filter({ visible: true }).first()).toBeVisible();
+  // (the line «Gelernt · 60 Erkenntnisse»; since Impeccable round 2 the «Erkenntnisse» tile is only an extra tile)
+  await expect(main.getByText(new RegExp(`^\\d+ ${T('Learnings')}$`)).filter({ visible: true }).first()).toBeVisible();
   await expect(main).not.toContainText('Learnings');
   await expect(main).not.toContainText('S1');
   const ax = main.locator('.bars .ax').first();
