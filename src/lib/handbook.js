@@ -620,6 +620,52 @@ export const HANDBOOK = {
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],
     example: 'Example: after an update read the 3 new things in one minute.',
   },
+  // Paket M «Aus Touren lernen»
+  'f.diary': {
+    on: 'Photos stay on this device; they are not in the backup.',
+    steps: ['Open the debrief of a trip: the draft from Strava rides, weather and notes is there.', 'Change anything; «New draft» writes it again.', '«Photos of those days» adds photos of the trip days; «Copy» or «Share» the text.'],
+    example: 'Example: «Day 1 · Saturday: 84 km, 1,240 m up in 4 h 10 min. Weather: 14 to 24 °C, dry.»',
+  },
+  'f.extraq': {
+    on: null,
+    steps: ['Open the debrief of a trip.', 'Under «More to learn» the 2 questions that fit the trip best are open; «Ask more» shows the others.', '«Adjust questions»: switch off, change the text, add your own, delete, order with arrows or by dragging.'],
+    example: 'Example: after a rainy trip: «What helped you in the rain, and what did not?»',
+  },
+  'f.notetodo': {
+    on: 'Google Tasks shows as a place once it is switched on under Me › Calendar and tasks.',
+    steps: ['Open the debrief of a trip; the notes on the way are listed.', 'Choose under «To-dos go to»: a new checklist, one of your notes or a Google Tasks list.', 'Tap «As to-do» beside a note.'],
+    example: 'Example: «brake squeaks» → checklist «To-dos after Jura round».',
+  },
+  'f.future': {
+    on: null,
+    steps: ['In the debrief write a sentence under «A message to your future self».', 'On the way of your next trip a closed letter «Mail from you!» waits.', 'Open it; «Read» puts it away.'],
+    example: 'Example: «Take the warm gloves, the mornings were cold.»',
+  },
+  'f.quiz': {
+    on: null,
+    steps: ['The evening before a trip, tap «Quiz the evening before» on «Packed».', 'Answer the three questions; the streak counts the trips with a quiz before them.', 'Add, order, switch off or delete your own questions; hide kinds of suggestions; switch the quiz off at the top.'],
+    example: 'Example: «In which bag is the stove?» → Frame bag. 2 of 3 right · Streak: 4 trips.',
+  },
+  'f.observations': {
+    on: 'Needs data: Strava rides, Fitbit days or «How are you?» answers; with too little data it says so.',
+    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they stay the same afterwards.', 'Hide a kind with «Do not show this kind any more»; earlier weeks are under «Older weeks».'],
+    example: 'Example: «After a day on the bike you slept 35 min longer: 7:55 h against 7:20 h on the other nights.»',
+  },
+  'f.chronik': {
+    on: 'Grows with every debrief, ride and learning.',
+    steps: ['Open Trips › Look back › Chronicle, or the tile «Earlier at this time» on Today.', 'Choose «All», «Bike», «Trips», «Care», «Meditation» or «Notes»; the arrows and the month buttons change the month.', 'Tap a trip or ride to open its look back.'],
+    example: 'Example: 19 October: «Jura heights» 2025, 132 km, «Too many tools with me».',
+  },
+  'f.gelernt': {
+    on: null,
+    steps: ['Open Trips › Look back › What the app learned.', '«Month»: up to 6 lines with numbers; the arrows go to other months.', '«Year»: the letter «Your year»; «Print» also saves it as PDF.'],
+    example: 'Example: October: 2 trips, 121 km · 1 new learning · 1 thing stays at home now.',
+  },
+  'f.jahr': {
+    on: 'Photos stay on this device; without a photo the route is drawn.',
+    steps: ['Open Trips › Look back › Your year as pictures, from 1 December also the hint.', 'Tap, swipe or use the arrow keys; the cover chooses another year.', 'The last picture «Thank you for this year» leads to the year letter.'],
+    example: 'Example: 21 trips, 1,746 km, 55 days on the way.',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

@@ -189,6 +189,16 @@ const OWN = [
   // v0.117.0 «Knöpfe neu» (N1–N4): every button explains itself; «…» lists the rest with a line each
   { id: 'f.explain', group: 'data', title: 'Buttons explain', text: 'Point at a button or hold it: it says what it does; «…» lists the rest, each with one line.', href: '#/bikes?tab=care', words: 'knöpfe erklärung tooltip lange drücken mehr rückgängig' },
   { id: 'f.news', group: 'data', title: 'What is new', text: 'The newest version, every function one by one and all versions by month.', href: '#/me/news', words: 'neu neuigkeiten update version was ist neu top 10' },
+  // Paket M «Aus Touren lernen» (Noah 19.10.2026)
+  { id: 'f.diary', group: 'after', title: 'Tour diary', text: 'When you open the debrief, a draft of a diary is there: Strava rides, weather, notes and what was new; photos of those days stay on the device.', href: '#/debrief', words: 'tagebuch tour entwurf fotos strava wetter notizen erinnerung' },
+  { id: 'f.extraq', group: 'after', title: 'More questions in the debrief', text: '10 optional questions; the 2 that fit the trip best show open; change, switch off or add your own.', href: '#/debrief', words: 'zusatzfragen fragen rückblick lernen moment anders' },
+  { id: 'f.notetodo', group: 'after', title: 'Notes become to-dos', text: 'A note on the way becomes a to-do with one tap: in a checklist, one of your notes or Google Tasks.', href: '#/debrief', words: 'notiz to-do aufgabe checkliste google tasks erledigen nach der tour' },
+  { id: 'f.future', group: 'after', title: 'A message to your future self', text: 'Write a sentence in the debrief; on the way of your next trip a letter «Mail from you!» waits.', href: '#/debrief', words: 'nachricht zukunft brief ich tipp nächste tour' },
+  { id: 'f.quiz', group: 'before', title: 'Quiz the evening before', text: 'Three questions about your gear and route the evening before a trip, with a streak; add your own questions.', href: '#/quiz', words: 'quiz vorabend fragen serie tasche gewicht route lernen eigene' },
+  { id: 'f.observations', group: 'active', title: 'Three observations a week', text: 'Every Sunday three observations from your data in the week review, e.g. sleep after riding or the days after a long tour, each with a small chart.', href: '#/flow/review', words: 'beobachtungen woche wochenrückblick schlaf ruhepuls nachwirkung auswertung diagramm sonntag' },
+  { id: 'f.chronik', group: 'after', title: 'Chronicle', text: 'Everything on one time line, one page per month: trips, rides, bike care, meditation, notes; «Earlier at this time» shows this day in earlier years.', href: '#/chronik', words: 'chronik zeitachse früher vor einem jahr monat velo pflege meditation notizen' },
+  { id: 'f.gelernt', group: 'after', title: 'What the app learned', text: 'A month card and a letter for the year: new learnings, changed templates, your pace, the clothing border, km and trips.', href: '#/gelernt', words: 'gelernt monatskarte jahresbrief fortschritt jahr brief drucken' },
+  { id: 'f.jahr', group: 'after', title: 'Your year as pictures', text: 'Your year of trips as slides: photos or routes, numbers and a thank-you; for every year.', href: '#/jahr', words: 'jahr bildgeschichte story fotos jahresrückblick dezember' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */

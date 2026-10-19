@@ -115,7 +115,7 @@
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
-  import YearAgoTile from '../lib/home/YearAgoTile.svelte';
+  import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -1018,7 +1018,8 @@
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
-  {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
+  <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
+  {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />

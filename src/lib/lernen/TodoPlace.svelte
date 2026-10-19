@@ -34,7 +34,7 @@
     align-items: center;
     gap: 6px 10px;
     margin: 10px 0 0;
-    font-size: var(--fs-small, 0.9rem);
+    font-size: var(--fs-small);
   }
   .tdp select {
     flex: 1;

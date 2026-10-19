@@ -66,7 +66,8 @@ export const TILES = [
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
-  { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
+  // Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the id stays so a stored wall keeps it
+  { id: 'yearago', area: 'trips', label: 'Earlier at this time', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trips and rides of this day and month in earlier years, on a small map.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];

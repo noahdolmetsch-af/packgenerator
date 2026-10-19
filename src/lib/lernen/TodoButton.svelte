@@ -53,6 +53,6 @@
     align-items: center;
     gap: 4px;
     color: var(--ink-2);
-    font-size: var(--fs-small, 0.9rem);
+    font-size: var(--fs-small);
   }
 </style>

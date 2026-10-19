@@ -181,8 +181,8 @@
     height: 28px;
     border-radius: 50%;
     border: 0;
-    background: var(--surface, #fff);
-    color: var(--ink, #222);
+    background: var(--paper);
+    color: var(--ink);
     display: grid;
     place-items: center;
     cursor: pointer;

@@ -81,7 +81,7 @@
     align-items: center;
     gap: 6px;
     margin: 0 0 6px;
-    font-size: var(--fs-section, 1.1rem);
+    font-size: var(--fs-section);
   }
   .zkh ul {
     list-style: none;
@@ -92,7 +92,7 @@
   }
   .zkh-t {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: var(--fs-sub);
     font-style: italic;
   }
 </style>
