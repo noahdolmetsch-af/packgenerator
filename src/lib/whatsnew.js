@@ -23,8 +23,13 @@ export const WHATS_NEW = [
     lead: 'How much to eat and drink on each part of the route.',
     points: [
       { text: 'Trips › Food and water: carbohydrates and water per section', href: '#/trips/fuel' },
-      { text: 'Warnings for long gaps, small bottles and closed shops', href: '#/trips/fuel' },
-      { text: 'Your own values and products, as grams or as bars and gels', href: '#/trips/fuel' },
+      { text: 'Link a training plan to a race: it moves along when the race day changes', href: '#/flow/plans' },
+      { text: 'The tile «What does me good»: a ring instead of a bar, done things move down', href: '#/routine' },
+    ],
+    small: [
+      { box: 'new', text: 'Warnings for long gaps, small bottles and closed shops', href: '#/trips/fuel' },
+      { box: 'new', text: 'Your own values and products, as grams or as bars and gels', href: '#/trips/fuel' },
+      { box: 'new', text: 'Seven dots for the week and «Did it do you good?»', href: '#/routine' },
     ],
     test: [
       'Open Trips › Food and water and choose a trip with a GPX route.',
