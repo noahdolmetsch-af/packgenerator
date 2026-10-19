@@ -500,6 +500,15 @@
   {:else if page === 'rides'}
     <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
     {#key sub}<Rides {sub} />{/key}
+  {:else if page === 'chronik'}
+    <!-- Paket M #1027 «Chronik»: #/chronik, #/chronik/<YYYY-MM> (lazy, its own chunk) -->
+    {#key hash}{#await import('./pages/Chronik.svelte') then m}<m.default month={hash.split('?')[0].split('/')[2] ?? null} />{/await}{/key}
+  {:else if page === 'gelernt'}
+    <!-- Paket M #38 «Was die App gelernt hat»: #/gelernt, #/gelernt/<YYYY-MM>, #/gelernt/<YYYY> (lazy) -->
+    {#key hash}{#await import('./pages/Gelernt.svelte') then m}<m.default sub={hash.split('?')[0].split('/')[2] ?? ''} />{/await}{/key}
+  {:else if page === 'jahr'}
+    <!-- Paket M #208 «Dein Jahr als Bildgeschichte»: #/jahr, #/jahr/<YYYY> (lazy, full screen) -->
+    {#key hash}{#await import('./pages/JahrStory.svelte') then m}<m.default {hash} />{/await}{/key}
   {:else if page === 'debrief'}
     {#key param}<Debrief {param} {spot} />{/key}
   {:else}
