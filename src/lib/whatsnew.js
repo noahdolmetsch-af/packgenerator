@@ -37,6 +37,26 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.158.0 fix: Heute stayed grey or broke on a computer after an update or the exchange
+    // (a milestone came twice through sync; an old window held up the database update).
+    version: '0.158.0',
+    date: '2026-10-19',
+    title: 'Today stays steady',
+    lead: 'After an update or the exchange, Today always loads.',
+    points: [
+      { text: 'Today never stays grey or breaks after an update or the exchange', href: '#/me/data' },
+      { text: 'When an old window holds up the update, the app says so and how to fix it', href: '#/' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A milestone that came twice through the exchange shows once', href: '#/' },
+      { box: 'fixed', text: 'If one tile fails, the other tiles still show', href: '#/' },
+    ],
+    test: [
+      'Open Today: all tiles show.',
+      'Open the app in two windows and reload one: Today still loads.',
+    ],
+  },
+  {
     // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»), «Trainingspläne»
     // (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»); whole row of finished trips opens.
     version: '0.157.0',

@@ -89,7 +89,8 @@
 <div class="wall" class:editing bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
   {#each shown as x, i (x.id)}
     <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
-      <div class="body" inert={editing}>{@render body(x)}</div>
+      <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
+      <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
       {#if editing}
         <button type="button" class="pick" aria-pressed={picked === x.id} aria-label={t('{name}: move or change the size', { name: name(x.id) })} onclick={() => (picked = picked === x.id ? null : x.id)}></button>
         <button type="button" class="grip" aria-label={t('Drag {name}', { name: name(x.id) })} onpointerdown={(e) => dragStart(e, x.id)}><GripVertical size={16} aria-hidden="true" /></button>
@@ -114,6 +115,12 @@
 {/if}
 
 <style>
+  .tile-err {
+    margin: 0;
+    padding: var(--sp-3);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
   .wall {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));

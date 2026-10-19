@@ -228,13 +228,21 @@ export function milestoneStep(state, cur, today = localDay()) {
   const prev = state.levels;
   const events = (state.events ?? []).filter((e) => e.day >= addDays(today, -7));
   let changed = events.length !== (state.events ?? []).length;
-  if (cur.trips > (prev.trips ?? 0)) events.push({ key: 'trips', n: cur.trips, day: today });
+  // «Heute lädt nicht» (19.10.2026): a second step of the same kind on the same day (two trips in one day, or the
+  // levels of the other device after the exchange) replaces the first one; two of them crashed Heute (same key)
+  const push = (e) => {
+    const i = events.findIndex((x) => sameMilestone(x, e));
+    if (i >= 0) events.splice(i, 1);
+    events.push(e);
+    changed = true;
+  };
+  if (cur.trips > (prev.trips ?? 0)) push({ key: 'trips', n: cur.trips, day: today });
   for (const [id, k] of Object.entries(cur.bikes)) {
-    if (prev.bikes?.[id] != null && k > prev.bikes[id]) events.push({ key: 'bikeKm', bikeId: id, bike: cur.names?.[id] ?? '', km: k * 1000, day: today });
+    if (prev.bikes?.[id] != null && k > prev.bikes[id]) push({ key: 'bikeKm', bikeId: id, bike: cur.names?.[id] ?? '', km: k * 1000, day: today });
   }
-  if (cur.nights && !prev.nights) events.push({ key: 'firstNight', day: today });
+  if (cur.nights && !prev.nights) push({ key: 'firstNight', day: today });
   // the series: celebrated when it reaches a higher step than ever stored (not the first time it is counted)
-  if (cur.series != null && prev.series != null && cur.series > prev.series) events.push({ key: 'series', n: cur.series, day: today });
+  if (cur.series != null && prev.series != null && cur.series > prev.series) push({ key: 'series', n: cur.series, day: today });
   const series = cur.series != null ? Math.max(cur.series, prev.series ?? 0) : prev.series;
   const levels = { trips: Math.max(cur.trips, prev.trips ?? 0), bikes: { ...prev.bikes, ...cur.bikes }, nights: !!(cur.nights || prev.nights), ...(series != null ? { series } : {}) };
   if (events.length !== (state.events ?? []).length || JSON.stringify(levels) !== JSON.stringify(prev)) changed = true;
@@ -242,7 +250,14 @@ export function milestoneStep(state, cur, today = localDay()) {
 }
 
 /** The milestones to show today (newest first). */
-export const milestonesNow = (state, today = localDay()) => (state?.events ?? []).filter((e) => e.day <= today && e.day > addDays(today, -MILESTONE_DAYS)).reverse();
+export const milestonesNow = (state, today = localDay()) => {
+  const out = [];
+  // newest first; a step stored twice (before 0.157) shows once, the newer one
+  for (const e of [...(state?.events ?? [])].reverse()) if (e && e.day <= today && e.day > addDays(today, -MILESTONE_DAYS) && !out.some((x) => sameMilestone(x, e))) out.push(e);
+  return out;
+};
+/** The same milestone: same kind, same bike, same day (one row on Heute). */
+export const sameMilestone = (a, b) => a.key === b.key && (a.bikeId ?? '') === (b.bikeId ?? '') && a.day === b.day;
 
 /** The words of a milestone. */
 export function milestoneText(e) {

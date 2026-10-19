@@ -107,6 +107,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **19.10.2026, v0.159.0 «Paket 7»:** U «Rennen» mit Renn-Karte, feinem Höhenprofil, Anstiegen, Karte offline und der Live-Karte für jede Fahrt (Orte suchen, Wetter-Zeitleiste, GPX). Ton-Aufnahmen gestrichen (Noah). Danach: Trainingsplan-Kopplung (Rennen › Vorbereiten verlinkt schon auf Trainingspläne).
 
+**19.10.2026, v0.158.0 «Heute stabil»:** Reparatur für den Mac (Heute blieb grau). Danach 0.159.0 U «Rennen», 0.160.0 Paket 8 (Verpflegung, Training zum Rennen, Kachel «Das tut mir gut»), 0.161.0 Paket 9 Tour-Seite.
+
 **19.10.2026, v0.157.0 «Paket 6»:** Velo-FAQ (Noah «bitte velo faq in neues paket 6 tun») und die ganze Zeile bei abgeschlossenen Touren. Danach 0.158.0 U «Rennen».
 
 **19.10.2026, v0.156.0 «Paket 5»:** Mail in die App, Grösse und der Abgleich-Hinweis. U «Rennen» wächst weiter (Noah sagt ja zu mehr Karten-Teilen) und kommt als Paket 7 (0.158.0); die Velo-FAQ als Paket 6 (0.157.0). So geht Fertiges schneller online (Noah «am besten und am schnellsten»).
