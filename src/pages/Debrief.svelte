@@ -27,7 +27,7 @@
   import { endedTooEarly } from '../lib/tripstate.js';
   import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen, ChevronLeft } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen, ChevronLeft, ArrowDown } from '@lucide/svelte';
   import '../lib/review/review.css';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
@@ -37,6 +37,7 @@
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
   import TripSaved from '../lib/review/TripSaved.svelte';
+  import UndoToast from '../lib/review/UndoToast.svelte';
   import { packedList } from '../lib/review/ganz.js';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
@@ -52,7 +53,7 @@
   import { debriefPayload } from '../lib/helper/payload.js';
   import { helperLearning } from '../lib/helper/logic.js';
   import { isDe } from '../lib/i18n.svelte.js';
-  import { tick } from 'svelte';
+  import { tick, onDestroy } from 'svelte';
   import '../lib/helper/helper.css';
 
   let { param = '', spot = '' } = $props();
@@ -313,22 +314,28 @@
   // ticked ones, and the next suggestion takes its place. A quick second tap does nothing.
   let rememberMsg = $state('');
   let remembering = $state(false);
+  // Impeccable: one suggestion applied at once (shared by «Ja, merken» and «Übernehmen» on the saved debrief)
+  let applyN = 0;
+  async function applyOne(s) {
+    if (!s || d.applied.includes(s.id)) return;
+    const stamp = `${Date.now().toString(36).toUpperCase()}${(applyN++).toString(36).toUpperCase()}`;
+    const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(freeNotes) }, trip, items, learnings, templates, [s.id], { newItemId: (n) => `W${stamp}${n}` });
+    const now = new Date().toISOString();
+    await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.settings, db.notes], async () => {
+      for (const n of out.notes) await db.notes.update(n.id, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: n.learningId }, sortedAt: now });
+      if (out.items.length) await db.items.bulkPut(out.items);
+      if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
+      if (out.templates) await saveTemplates(db, out.templates);
+      d.applied = [...d.applied, s.id];
+      d.updatedAt = now;
+      await db.debriefs.put($state.snapshot(d));
+    });
+  }
   async function remember(s) {
     if (remembering || !s || d.applied.includes(s.id)) return;
     remembering = true;
     try {
-      const stamp = Date.now().toString(36).toUpperCase();
-      const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(freeNotes) }, trip, items, learnings, templates, [s.id], { newItemId: (n) => `W${stamp}${n}` });
-      const now = new Date().toISOString();
-      await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.settings, db.notes], async () => {
-        for (const n of out.notes) await db.notes.update(n.id, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: n.learningId }, sortedAt: now });
-        if (out.items.length) await db.items.bulkPut(out.items);
-        if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
-        if (out.templates) await saveTemplates(db, out.templates);
-        d.applied = [...d.applied, s.id];
-        d.updatedAt = now;
-        await db.debriefs.put($state.snapshot(d));
-      });
+      await applyOne(s);
       rememberMsg = t('Remembered: {label}', { label: s.label });
     } catch {
       rememberMsg = t('Could not save. Please try again.');
@@ -393,6 +400,58 @@
     Object.assign(d, patch);
     await persist();
   }
+  // Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the saved debrief shows its open suggestions, each
+  // with «Übernehmen» and «Nein, danke». A tap hides the row at once and «Rückgängig» stays for 4 s; only
+  // then is it applied (or stored as «Nein, danke» on the debrief). «Antworten ändern» still shows every one.
+  let held = $state({});
+  let heldNote = $state(null);
+  const heldT = {};
+  let heldChain = Promise.resolve();
+  const openSugg = $derived(sugg.filter((s) => !(d?.dismissed ?? []).includes(s.id) && !held[s.id]));
+  function commitHeld(id) {
+    const kind = held[id];
+    clearTimeout(heldT[id]);
+    delete heldT[id];
+    if (heldNote?.id === id) heldNote = null;
+    if (!kind) return;
+    const s = sugg.find((x) => x.id === id);
+    heldChain = heldChain.then(async () => {
+      try {
+        if (kind === 'take') await applyOne(s);
+        else if (!(d.dismissed ?? []).includes(id)) {
+          d.dismissed = [...(d.dismissed ?? []), id];
+          await persist();
+        }
+      } catch {
+        rememberMsg = t('Could not save. Please try again.');
+      } finally {
+        const { [id]: _gone, ...rest } = held;
+        held = rest;
+      }
+    });
+  }
+  function holdSugg(s, kind) {
+    for (const id of Object.keys(heldT)) commitHeld(id);
+    held = { ...held, [s.id]: kind };
+    heldNote = { id: s.id, text: kind === 'take' ? t('Taken over: {label}', { label: s.label }) : t('No, thanks: {label}', { label: s.label }) };
+    heldT[s.id] = setTimeout(() => commitHeld(s.id), 4000);
+  }
+  function undoHeld() {
+    const id = heldNote?.id;
+    if (!id) return;
+    clearTimeout(heldT[id]);
+    delete heldT[id];
+    const { [id]: _gone, ...rest } = held;
+    held = rest;
+    heldNote = null;
+  }
+  // leaving the page within the 4 s keeps the answer
+  onDestroy(() => {
+    for (const id of Object.keys(heldT)) commitHeld(id);
+  });
+  function showSugg() {
+    window.dispatchEvent(new CustomEvent('rv-suggestions'));
+  }
   async function reopen() {
     d.status = 'draft';
     saved = false;
@@ -437,7 +496,7 @@
       </section>
     </div>
   {:else if d}
-    {#snippet go()}{#if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={18} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish} data-done-take>{doneLabel}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {#snippet go()}{#if saved && openSugg.length}<button type="button" class="btn go" onclick={showSugg} data-show-sugg>{tn(openSugg.length, 'See {n} suggestion', 'See {n} suggestions')}<ArrowDown size={18} aria-hidden="true" /></button>{:else if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={18} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish} data-done-take>{doneLabel}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">
@@ -447,7 +506,8 @@
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
-        <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
+        <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {openSugg} ontake={(s) => holdSugg(s, 'take')} onno={(s) => holdSugg(s, 'no')} onreopen={reopen} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
+        {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" />
       {:else}

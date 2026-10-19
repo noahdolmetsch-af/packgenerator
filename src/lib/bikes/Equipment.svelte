@@ -23,6 +23,7 @@
   import { Columns3, ChevronRight, ChevronDown, PencilLine, Bike as BikeIcon } from '@lucide/svelte';
   import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
+  import HintCard from '../pageinfo/HintCard.svelte';
 
   let { bikeId = null, onbike } = $props();
 
@@ -87,6 +88,7 @@
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
+    <HintCard page="equipment" />
     {#if bikes.length > 1}
       <div class="bchips" role="group" aria-label={t('Bike')}>
         {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}>{b.name}</button>{/each}
@@ -97,7 +99,7 @@
 
     <div class="cols">
       <div class="parts">
-        <h2 class="sh">{t('Components')}</h2>
+        <h2 class="sh" id="eq-parts">{t('Components')}</h2>
         <Seg full={false} label={t('Part area|filter')} options={[{ key: 'all', name: t('All') }, ...groups.map((g) => ({ key: g.area, name: t(g.name) }))]} value={area} onchange={(k) => (area = k)} />
         {#each shown as g (g.area)}
           <section class="grp" aria-labelledby="eq-{g.area}">

@@ -21,6 +21,8 @@
  */
 import { t as tr } from './i18n.svelte.js';
 import { localDay } from './localday.js';
+import { own } from './ownlive.svelte.js';
+import { partStdOf } from './ownvalues.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -108,6 +110,17 @@ export const PARTS = [
   { key: 'bearings', name: 'Bearings', area: 'checks', more: true, unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
 ];
 export const PART = Object.fromEntries(PARTS.map((p) => [p.key, p]));
+/** The parts as the app comes (the Standard names); PARTS above carries the person's names (setPartNames). */
+export const STD_PARTS = PARTS.map((p) => ({ key: p.key, name: p.name }));
+/**
+ * «Alles selbst bearbeiten» (Noah 19.10.2026): the person's names for the care parts (Ich › Listen und
+ * Typen). Only the name changes: intervals, limits and the history of the part stay.
+ * list: listFor('careParts') [{ id, name, renamed? }].
+ */
+export function setPartNames(list) {
+  const mine = Object.fromEntries(list.filter((e) => e.renamed).map((e) => [e.id, e.name]));
+  for (const p of PARTS) p.name = mine[p.key] ?? STD_PARTS.find((x) => x.key === p.key).name;
+}
 
 /** v0.48.0: the areas of the part list, in this order (the spec template plus the check points). */
 export const AREAS = [
@@ -132,9 +145,10 @@ export const attrsOf = (key) => PART[key]?.attrs ?? [];
 export const CHECK_KM = 1000;
 /**
  * v0.144.0 RE «Pflege selbst einstellen» (Noah 14.10.2026, 4a 5a): the km of the check on this bike.
- * bike.checkKm: a number (own interval), null (switched off: no reminder) or missing (the standard).
+ * bike.checkKm: a number (own interval), null (switched off: no reminder) or missing (the standard:
+ * «Eigene Werte» checkKm, else CHECK_KM).
  */
-export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (typeof bike.checkKm === 'number' && bike.checkKm > 0 ? bike.checkKm : null) : CHECK_KM);
+export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (typeof bike.checkKm === 'number' && bike.checkKm > 0 ? bike.checkKm : null) : own.v.checkKm);
 
 /**
  * v0.144.0 RE (answer 5a «km und/oder Tage, was zuerst kommt, gilt»): one interval by km and/or by days.
@@ -181,7 +195,9 @@ export function ensureParts(bike) {
 }
 
 /** The part's definition merged with what the bike stores (model, history). */
-export const partInfo = (stored) => ({ ...PART[stored.key], ...stored });
+export const partInfo = (stored) => ({ ...PART[stored.key], ...partStd(stored.key), ...stored });
+/** «Eigene Werte»: the care interval Noah set as the standard of every bike (chain wax, sealant, fork), {} for other parts. */
+export const partStd = (key) => partStdOf(own.v, key);
 
 const lastOf = (part, test) => [...(part.history ?? [])].reverse().find(test) ?? null;
 /** The last time it was replaced (or first recorded). */

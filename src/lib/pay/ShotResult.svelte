@@ -1,7 +1,7 @@
 <script>
   /**
-   * «Bild gelesen» (mockup QR6, way B, Noah 14.10.2026 approved 04:00 «a»): a TWINT screenshot shared
-   * to the app is read on the phone; the app suggests the open invoice (by the number in the message,
+   * «Bild gelesen» (mockup QR6, way B, Noah 14.10.2026 approved 04:00 «a»): a TWINT screenshot chosen
+   * in Rechnungen (Noah 19.10.2026 «2b») is read on the phone; the app suggests the open invoice (by the number in the message,
    * else the only one with that amount): «Ja, bezahlt» or «Andere Rechnung». The picture is not kept.
    */
   import { untrack } from 'svelte';

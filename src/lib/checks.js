@@ -12,6 +12,7 @@
  * this trip or all trips of the type, and Ich › Checks pro Reiseart shows the lists of every type.
  */
 import { BIKEPACKING, domainOf } from './domains.js';
+import { START_CHECKS } from './ski.js';
 
 // Data cleanup 14.10.2026 (Noah 2a–4a): every suggested check list lives here, in one place: the ready
 // check (bike trips and per area), the evening before and back home. Keys of areas are written out
@@ -43,13 +44,9 @@ export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'ty
 
 /** The ready check suggested for a trip without a bike (the bike one speaks of helmet and tyres). */
 export const READY_BY_DOMAIN = {
-  ski: [
-    { id: 'lvs', label: 'Avalanche transceiver on and tested' },
-    { id: 'bulletin', label: 'Avalanche bulletin read' },
-    { id: 'skins', label: 'Skins, crampons, poles' },
-    { id: 'charged', label: 'Devices charged' },
-    { id: 'wallet', label: 'Phone, wallet, keys' },
-  ],
+  // «Skitouren» (mockup C): the five checks of the Start-Check (lib/ski.js START_CHECKS) for new ski
+  // trips; a trip made before keeps its own list (the Start-Check adds what is missing).
+  ski: START_CHECKS.map((c) => ({ id: c.id, label: c.label })),
   weekend: [
     { id: 'tickets', label: 'Tickets or route checked' },
     { id: 'charged', label: 'Devices charged' },

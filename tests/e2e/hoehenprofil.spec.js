@@ -28,6 +28,8 @@ test('Elevation profile: debrief, saved debrief, ride, Touren tile, past trips',
   // HP1: «Letzte Fahrt» draws the profile of its GPX ride
   await go(page, '#/debrief');
   const last = page.locator('.rv-box.lastride');
+  // UI-Regeln Teil 2 (Noah 14.10.2026 «a», on purpose): on a phone «Letzte Fahrt» starts closed, one tap opens it
+  if (info.project.name === 'phone') await page.getByRole('button', { name: new RegExp(`^${T('Last ride')}`) }).click();
   // SN2: the numbers of the last ride are folded; open them
   await last.locator('button.fold-btn').click();
   await expect(last.locator('svg.prof')).toHaveCount(1);

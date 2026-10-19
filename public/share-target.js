@@ -15,6 +15,10 @@
  * times (or a TCX) stays a ride, as before. What was shared with the file (title, text, a link) is kept
  * with it (header X-Share-Text), so the komoot link comes along. The rule is the same as
  * src/lib/komoot.js sharedKind (tests/komoot.test.js runs this worker against it).
+ *
+ * «Aus TWINT teilen» (mockup QR6) first kept a shared picture for Rechnungen. Noah 19.10.2026 «2b»: a shared
+ * picture always goes to «Dokumente»; the TWINT screenshot is chosen in Rechnungen. A phone that still has the
+ * old manifest may send the field "pay": it is handled like "doc".
  */
 /*
  * Dokumente-PDF (Noah 15.10.2026 «normale Fotos aus dem Galerie-Ordner senden»): photos and PDFs shared to
@@ -63,7 +67,8 @@ self.addEventListener('fetch', (event) => {
         await cache.put(`${base}${SHARE_BACKUP_KEY}`, new Response(backup, { headers: { 'Content-Type': 'application/json', 'X-File-Name': encodeURIComponent(backup.name || 'backup.json') } }));
         return go(`${base}#/me/data?shared=backup`);
       }
-      const docs = form.getAll('doc').filter((f) => f && typeof f === 'object' && f.size > 0);
+      // Noah 19.10 «2b»: "pay" (old manifest) is a picture for Dokumente too
+      const docs = [...form.getAll('doc'), ...form.getAll('pay')].filter((f) => f && typeof f === 'object' && f.size > 0);
       if (docs.length) {
         const cache = await caches.open(SHARE_DOCS_CACHE);
         for (const old of await cache.keys()) await cache.delete(old);

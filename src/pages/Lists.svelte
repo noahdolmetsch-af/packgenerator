@@ -23,18 +23,20 @@
   import { moveItems, moveNotes, targetsOf, writeGroupChange, undoGroupChange } from '../lib/groups.js';
   import ListEntrySheet from '../lib/ich/ListEntrySheet.svelte';
   import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import UndoToast from '../lib/review/UndoToast.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const overQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
   const itemsQ = liveQuery(() => db.items.toArray());
   const notesQ = liveQuery(() => db.notes.toArray());
   const fieldsQ = liveQuery(() => db.settings.get(FIELDS_KEY));
+  const tripsQ = liveQuery(() => db.trips.toArray());
   const checksQ = liveQuery(() => db.settings.where('key').startsWithAnyOf(['eveStandard', 'afterStandard']).toArray());
 
   // One config per list of groups: the words, how many things each group holds, and where they go
@@ -75,6 +77,41 @@
       deleteTitle: (name) => t('Delete group «{name}»?', { name }),
       words: (count) => ({ edit: t('Edit group'), own: t('Own group'), empty: t('Give the group a name.'), warn: count ? tn(count, 'Delete: {n} field is in this group. The app then asks where it goes.', 'Delete: {n} fields are in this group. The app then asks where they go.') : t('Delete: no field is in this group.') }),
     },
+    // «Alles selbst bearbeiten» (Noah 19.10.2026): sports (rename, own, hide, order, delete), the places on
+    // the bike and the care parts (rename only: the drawing and the care rules need each of them)
+    domains: {
+      full: false,
+      hideable: true,
+      icon: Mountain,
+      place: 'Trips|place',
+      sub: 'The kinds of trip you choose for a new trip. Drag or use the arrows to change the order.',
+      ownWord: 'Own sport',
+      none: 'Bikepacking',
+      noneHint: 'The trips then count as Bikepacking.',
+      what: (n) => tn(n, '{n} trip', '{n} trips'),
+      deleteTitle: (name) => t('Delete sport «{name}»?', { name }),
+      words: (count) => ({ edit: t('Edit sport'), own: t('Own sport'), empty: t('Give the sport a name.'), warn: count ? tn(count, 'Delete: {n} trip has this sport. Hidden and deleted sports are no longer offered for a new trip.', 'Delete: {n} trips have this sport. Hidden and deleted sports are no longer offered for a new trip.') : t('Delete: no trip has this sport.') }),
+    },
+    bikeSlots: {
+      full: false,
+      renameOnly: true,
+      icon: Briefcase,
+      place: 'Bikes|place',
+      sub: 'The places for bags on every bike. Only the name changes; the bags stay where they are.',
+      ownWord: '',
+      what: (n) => tn(n, '{n} bag', '{n} bags'),
+      words: () => ({ edit: t('Rename place'), own: '', empty: t('Give the place a name.'), warn: '' }),
+    },
+    careParts: {
+      full: false,
+      renameOnly: true,
+      icon: Wrench,
+      place: 'Bikes|place',
+      sub: 'The parts in bike care. Only the name changes; intervals and history stay.',
+      ownWord: '',
+      what: () => '',
+      words: () => ({ edit: t('Rename part'), own: '', empty: t('Give the part a name.'), warn: '' }),
+    },
   };
   const q = location.hash.split('?')[1] ?? '';
   const KEY = Object.hasOwn(KINDS, q) ? q : 'categories';
@@ -86,6 +123,8 @@
   const list = $derived(listFor(KEY, all));
   const countsOf = (key) => {
     if (key === 'categories') return ($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {});
+    if (key === 'domains') return ($tripsQ ?? []).reduce((m, x) => ((m[x.domain ?? 'bikepacking'] = (m[x.domain ?? 'bikepacking'] ?? 0) + 1), m), {});
+    if (key === 'bikeSlots' || key === 'careParts') return {};
     if (key === 'noteTopics') return ($notesQ ?? []).filter(isKept).reduce((m, n) => ((m[noteTopic(n)] = (m[noteTopic(n)] ?? 0) + 1), m), {});
     return groupCounts($fieldsQ?.value);
   };
@@ -112,6 +151,7 @@
   // LI3 «Gilt für»: a category for some trip areas only says which, on a line of its own
   const only = (e) => (e.areas?.length ? t('Only {areas}', { areas: e.areas.map((k) => t(domainName(k))).join(', ') }) : '');
   const sub = (e) => {
+    if (K.renameOnly) return e.renamed ? t('Standard name: {name}', { name: t(e.std) }) : t('Standard');
     const n = K.what(count[e.id] ?? 0);
     if (e.hidden) return `${t('Hidden')} · ${n}`;
     if (e.own) return `${t(K.ownWord)} · ${n}`;
@@ -133,20 +173,39 @@
     const settings = [{ key: OVERRIDES_KEY, value: nextAll }];
     let items = [];
     let notes = [];
+    let trips = [];
     if (KEY === 'categories') items = moveItems(await db.items.toArray(), e.id, to);
     else if (KEY === 'noteTopics') notes = moveNotes(await db.notes.toArray(), e.id, to);
+    else if (KEY === 'domains' && e.own) {
+      // an own sport goes for good: its trips and items move to the chosen sport (none: Bikepacking)
+      const dest = to ?? 'bikepacking';
+      trips = (await db.trips.toArray()).filter((x) => x.domain === e.id).map((x) => ({ ...x, domain: dest }));
+      items = (await db.items.toArray()).filter((i) => i.domains?.includes(e.id)).map((i) => ({ ...i, domains: [...new Set(i.domains.map((d) => (d === e.id ? dest : d)))] }));
+    }
     else if (to) settings.push({ key: FIELDS_KEY, value: moveGroupFields((await db.settings.get(FIELDS_KEY))?.value, e.id, to) });
     const snap = await writeGroupChange(db, { settings, items, notes });
+    // trips (own sports only): written after, with their own snapshot inside the same Undo
+    if (trips.length) {
+      snap.trips = (await db.trips.bulkGet(trips.map((x) => x.id))).filter(Boolean);
+      await db.trips.bulkPut(trips);
+    }
     applyLists(nextAll);
     clearTimeout(timer);
     undo = { text: t('«{name}» deleted.', { name: shown(e) }), snap };
     timer = setTimeout(() => (undo = null), 8000);
+  }
+  // a Standard sport: its trips and items keep it, it is only no longer offered; ask, then Undo
+  async function deleteStdDomain(e) {
+    if ((await askDelete({ title: t('Delete sport «{name}»?', { name: shown(e) }), text: t('Trips and items keep it; it is no longer offered for a new trip. «Back to Standard» brings it back.') })) !== 'delete') return;
+    const before = value;
+    await deleteWithUndo({ run: () => save(remove(value, e)), undo: () => save(before ?? {}), text: t('«{name}» deleted.', { name: shown(e) }), name: shown(e) });
   }
   async function doUndo() {
     const snap = undo?.snap;
     clearTimeout(timer);
     undo = null;
     await undoGroupChange(db, snap);
+    if (snap?.trips?.length) await db.trips.bulkPut(snap.trips);
   }
 </script>
 
@@ -156,7 +215,7 @@
     <p class="info card"><Lightbulb size={18} aria-hidden="true" /><span>{t('Standard = how the app comes. Adapted = you changed something. Every list can go back to Standard.')}</span></p>
 
     <div class="grid">
-      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups']], ['notes', 'Notes', ['noteTopics']]] as [area, head, keys] (area)}
+      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts']], ['notes', 'Notes', ['noteTopics']]] as [area, head, keys] (area)}
         <section class="ich-sec card box" aria-labelledby="ls-{area}-h">
           <h2 id="ls-{area}-h">{t(head)}</h2>
           <ul class="ich-list">
@@ -179,6 +238,14 @@
         <h2 id="ls-trips-h">{t('Trips|place')}</h2>
         <ul class="ich-list">
           <li>
+            <a class="ich-row" href="#/me/lists?domains">
+              <span class="ich-ib"><Mountain size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t(STANDARD_LIST.domains.name)}</b><small>{lineOf('domains')}</small></span>
+              <span class="badge" class:mine={isChanged(all.domains)}>{isChanged(all.domains) ? t('Adapted') : t('Standard')}</span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <a class="ich-row" href="#/me/checks">
               <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Checks per trip type')}</b><small>{t('The evening before and after the trip')}</small></span>
@@ -189,7 +256,7 @@
         </ul>
       </section>
     </div>
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('More lists follow one by one: sports, places on the bike, questions.')}</span></p>
+    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('More lists follow one by one: questions and the choices in the debrief.')}</span></p>
   {:else}
     <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
     <div class="card box">
@@ -209,7 +276,7 @@
               {#if e.own}<span class="badge own">{t('Own|entry')}</span>{:else if adapted(e)}<span class="badge mine">{t('Adapted')}</span>{/if}
               <span class="pen" aria-hidden="true"><Pencil size={18} /></span>
             </button>
-            {#if K.full}
+            {#if K.full || K.hideable}
               <button type="button" class="ib eye" aria-pressed={e.hidden} aria-label={e.hidden ? t('Show again: {name}', { name: shown(e) }) : t('Hide: {name}', { name: shown(e) })} onclick={() => save(toggleHidden(value, e.id))}>
                 {#if e.hidden}<EyeOff size={18} aria-hidden="true" />{:else}<Eye size={18} aria-hidden="true" />{/if}
               </button>
@@ -217,10 +284,10 @@
           </li>
         {/each}
       </ul>
-      <button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={18} aria-hidden="true" />{t(K.ownWord)}</button>
+      {#if !K.renameOnly}<button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={18} aria-hidden="true" />{t(K.ownWord)}</button>{/if}
     </div>
     {#if changed}<button type="button" class="btn reset" onclick={reset}><Undo2 size={16} aria-hidden="true" />{t('Back to Standard|list')}</button>{/if}
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{K.full ? t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.') : t('Rename and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
+    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{K.renameOnly ? t('Tap an entry to rename it. «Back to Standard» brings the Standard names back.') : K.full ? t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.') : t('Rename and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
   {/if}
 
   {#if sheet}
@@ -230,11 +297,12 @@
       entry={e}
       count={n}
       full={K.full}
+      hideable={!!K.hideable}
       words={K.words ? K.words(n) : null}
       stdIcon={e && K.full ? stdIconName(e.id) : 'Tag'}
       onsave={(v) => save(e ? edit(value, e, K.full ? { ...v, stdIcon: stdIconName(e.id) } : v) : addOwn(value, v).value)}
       onhide={() => save(toggleHidden(value, e.id))}
-      onremove={() => (deleting = { entry: e })}
+      onremove={K.renameOnly ? null : () => (KEY === 'domains' && !e.own ? deleteStdDomain(e) : (deleting = { entry: e }))}
       onclose={() => (sheet = null)}
     />
   {/if}

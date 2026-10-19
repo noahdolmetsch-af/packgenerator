@@ -50,7 +50,8 @@
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
   // SN1: stateMore adds to the pill's extra («unterwegs, Tag 2 von 3»); stepText replaces «Schritt 3 von 4» in the bar.
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '', note = false, ontemplate = null } = $props();
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '', note = false, ontemplate = null, below = null } = $props();
+  // Impeccable 18.10.2026 (Planen 1): `below` is a snippet drawn right under the step bar (the core line of Plan)
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -169,6 +170,7 @@
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
   <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
+  {@render below?.()}
   {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
 </section>
 {#if tz2.ask === trip.id}<ReopenSheet {trip} rated={stInfo?.state === 'rated'} onclose={() => (tz2.ask = null)} />{/if}

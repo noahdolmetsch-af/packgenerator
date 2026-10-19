@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
-import { PLACES } from '../../src/lib/nav.js';
+import { PLACES, SIDE_PLACES } from '../../src/lib/nav.js';
 import { openData, settle } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
@@ -55,7 +55,9 @@ for (const lang of ['en', 'de']) {
       await expect(nav, hash).toHaveCount(1);
       // the same places (v0.76.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
       const places = page.locator('nav.bottom a, .side li.pl > a.pa');
-      await expect(places, hash).toHaveText(PLACES.map((p) => T(p.label)));
+      // AU1 «1b» (Noah 15.10.2026): the sidebar has «Ausrüstung» under Velos; the bottom bar keeps five
+      const side = await page.locator('.side li.pl').first().isVisible();
+      await expect(places, hash).toHaveText((side ? SIDE_PLACES : PLACES).map((p) => T(p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
       if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);

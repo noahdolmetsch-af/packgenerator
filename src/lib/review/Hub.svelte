@@ -44,6 +44,8 @@
   import { factStates, factCounts, PERIOD_KEY } from './state.js';
   import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
+  import ListGroup from '../list/ListGroup.svelte';
+  import { phone } from '../media.svelte.js';
 
   let { spot = '' } = $props();
 
@@ -105,9 +107,16 @@
   const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
   const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
   const extraOf = (id) => stateExtraText(states[id]?.extra);
-  let allFigures = $state(true); // SN2 answer 2b (Noah 13.10.2026): the long table is open as before
+  // SN2 answer 2b (Noah 13.10.2026): the long table is open as before; 0.159.1 (Noah 14.10.2026 «a»): on a phone it starts closed
+  let allFigures = $state(!phone.matches);
   let allColumns = $state(false);
   let lastOpen = $state(false);
+  // 0.159.1: the closed lines on a phone (all closed when the page opens)
+  let cmpOpen = $state(false);
+  let lastFold = $state(false);
+  let paceOpen = $state(false);
+  let learnOpen = $state(false);
+  let moreOpen = $state(false);
   // SN2: «Nicht gefahren» on the trip whose debrief is missing: it leaves every count (skipped), with Undo
   let undo = $state(null);
   let undoTimer;
@@ -209,7 +218,10 @@
   const pct = (v, top) => (v == null ? 0 : Math.max(2, Math.round((v / top) * 100)));
 
   $effect(() => {
-    if (spot === 'compare' && data) queueMicrotask(() => document.getElementById('compare')?.scrollIntoView());
+    if (spot === 'compare' && data) {
+      cmpOpen = true; // 0.159.1: on a phone the old address opens the closed line «Touren im Vergleich»
+      queueMicrotask(() => document.getElementById('compare')?.scrollIntoView());
+    }
     // Regeln der App (14.10.2026): the old link «12 months» (#/review) lands at the period part
     if (spot === 'period' && data) queueMicrotask(() => document.getElementById('per-h')?.closest('section')?.scrollIntoView());
   });
@@ -265,13 +277,17 @@
         </span>
         {#if openList.length > 1}
           <ul class="more-open">
-            {#each openList.slice(1) as o (o.id)}
+            {#each phone.matches && !moreOpen ? openList.slice(1, 2) : openList.slice(1) as o (o.id)}
               <li>
                 <span class="rv-m"><span class="rv-t">{o.title}</span><span class="rv-s">{[dates(o.start, o.end), extraOf(o.id)].filter(Boolean).join(' · ')}</span></span>
                 <Btn label={t('Rate|debrief')} href="#/debrief/{encodeURIComponent(o.id)}" onclick={() => openTrip(o.id)} aria="{t('Rate|debrief')}: {o.title}" />
               </li>
             {/each}
           </ul>
+          <!-- 0.159.1: on a phone one more open debrief shows, the rest behind one tap -->
+          {#if phone.matches && openList.length > 2}
+            <button type="button" class="fold-btn" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}>{moreOpen ? t('Show fewer') : tn(openList.length - 2, '{n} more to rate', '{n} more to rate')}<ChevronRight size={15} aria-hidden="true" /></button>
+          {/if}
         {/if}
       </section>
     {/if}
@@ -316,8 +332,67 @@
         </section>
 
         <!-- 2. trips compared: name, state, km, weather; the small charts and all columns folded -->
+        <!-- 0.159.1 «UI-Regeln» Teil 2 (UI1, UI5, Noah «Seiten kürzer am Handy»): on a phone the lower sections are
+             one closed line each (SL ListGroup), with what is inside; on a computer they stay open as before. -->
+        {#if phone.matches}
+          <div id="compare"><ListGroup id="rv-compare" title={t('Trips compared')} count={cmp.rows.length >= 2 ? tn(cmp.rows.length, '{n} trip', '{n} trips') : ''} peek={cmp.rows.slice(0, 3).map((r) => r.title).join(' · ')} bind:open={cmpOpen}>{@render cmpBody()}</ListGroup></div>
+        {:else}
         <section class="rv-sec cmp" id="compare" aria-labelledby="cmp-h">
           <div class="rv-h"><div><h2 id="cmp-h">{t('Trips compared')}</h2><p class="rv-sub">{cmp.rows.length >= 2 ? t('the last {n}, newest first', { n: cmp.rows.length }) : ''}</p></div></div>
+          {@render cmpBody()}
+        </section>
+        {/if}
+
+        <!-- 3. the last ride: its numbers, weather, plan against real, heart rate and learnings, folded (SN2) -->
+        {#if last}
+          {#if phone.matches}
+            <ListGroup id="rv-last" title={t('Last ride')} peek={[last.title, dates(last.start, last.end)].join(' · ')} sum={last.km ? `${n0(last.km)} km` : ''} bind:open={lastFold}>{@render lastBody()}</ListGroup>
+          {:else}
+          <section class="rv-sec" aria-labelledby="last-h">
+            <div class="rv-h"><div><h2 id="last-h">{t('Last ride')}</h2><p class="rv-sub">{[last.title, dates(last.start, last.end), last.trip ? t(ARTNAME[last.art]) : t('Uploaded ride')].join(' · ')}</p></div></div>
+            {@render lastBody()}
+          </section>
+          {/if}
+        {/if}
+      </div>
+
+      <!-- 4. one level below -->
+      <div class="rv-col below">
+        {#if phone.matches}
+          <ListGroup id="rv-pace" title={t('Your pace')} peek={t('{kmh} km/h · 1 h per {m} Hm', { kmh: num(rule && pace.mine ? rule.kmh : pace.kmh), m: num(rule && pace.mine ? rule.climbMh : pace.climbMh) })} bind:open={paceOpen}>{@render paceBody()}</ListGroup>
+        {:else}
+        <section class="rv-sec sub" aria-labelledby="pace-h">
+          <div class="rv-h"><div><h2 id="pace-h">{t('Your pace')}</h2><p class="rv-sub">{pace.mine ? tn(pace.n, 'your rule, from {n} ride', 'your rule, from {n} rides') : pace.need ? tn(pace.need + pace.n, 'standard rule, until {n} ride is there', 'standard rule, until {n} rides are there') : t('standard rule, as you chose')}</p></div></div>
+          {@render paceBody()}
+        </section>
+        {/if}
+        {#if phone.matches}
+          <ListGroup id="rv-learned" title={t('Learned|review')} count={data.learnings.length ? tn(data.learnings.length, '{n} learning', '{n} learnings') : ''} peek={newest[0]?.rule ?? ''} bind:open={learnOpen}>
+            {@render learnBody()}
+            {#if data.learnings.length}<a class="rv-more lg-all" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+          </ListGroup>
+        {:else}
+        <section class="rv-sec" aria-labelledby="learn-h">
+          <div class="rv-h"><div><h2 id="learn-h">{t('Learned|review')}</h2><p class="rv-sub num">{data.learnings.length ? tn(data.learnings.length, '{n} learning', '{n} learnings') : t('from every debrief')}</p></div>{#if data.learnings.length}<a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}</div>
+          {@render learnBody()}
+        </section>
+        {/if}
+        <section class="rv-sec" aria-labelledby="hmore-h">
+          <div class="rv-h"><div><h2 id="hmore-h">{t('More')}</h2></div></div>
+          <ul class="rv-box">
+            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  {/if}
+</div>
+
+
+<!-- 0.159.1: the bodies of the sections that fold on a phone -->
+{#snippet cmpBody()}
           <div class="rv-box pad">
             {#if cmp.rows.length < 2}
               <p class="muted">{t('Two trips are needed to compare.')}</p>
@@ -382,12 +457,9 @@
               {/if}
             {/if}
           </div>
-        </section>
+{/snippet}
 
-        <!-- 3. the last ride: its numbers, weather, plan against real, heart rate and learnings, folded (SN2) -->
-        {#if last}
-          <section class="rv-sec" aria-labelledby="last-h">
-            <div class="rv-h"><div><h2 id="last-h">{t('Last ride')}</h2><p class="rv-sub">{[last.title, dates(last.start, last.end), last.trip ? t(ARTNAME[last.art]) : t('Uploaded ride')].join(' · ')}</p></div></div>
+{#snippet lastBody()}
             <div class="rv-box pad lastride">
               <button type="button" class="fold-btn top" aria-expanded={lastOpen} aria-controls="last-all" onclick={() => (lastOpen = !lastOpen)}>{t('Numbers of the last ride')}<ChevronRight size={15} aria-hidden="true" /></button>
               {#if lastOpen}
@@ -428,39 +500,34 @@
                 </div>
               {/if}
             </div>
-          </section>
-        {/if}
-      </div>
+{/snippet}
 
-      <!-- 4. one level below -->
-      <div class="rv-col below">
-        <section class="rv-sec sub" aria-labelledby="pace-h">
-          <div class="rv-h"><div><h2 id="pace-h">{t('Your pace')}</h2><p class="rv-sub">{pace.mine ? tn(pace.n, 'your rule, from {n} ride', 'your rule, from {n} rides') : pace.need ? tn(pace.need + pace.n, 'standard rule, until {n} ride is there', 'standard rule, until {n} rides are there') : t('standard rule, as you chose')}</p></div></div>
+{#snippet paceBody()}
           <ul class="rv-box">
             <li><a class="rv-row" href="#/debrief/pace" aria-label={t('Your pace')}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('{kmh} km/h · 1 h per {m} Hm', { kmh: num(rule && pace.mine ? rule.kmh : pace.kmh), m: num(rule && pace.mine ? rule.climbMh : pace.climbMh) })}</span><span class="rv-s">{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride, then your own pace counts', '{n} more rides, then your own pace counts') : t('The riding time uses the standard rule, as you chose.')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
           </ul>
-        </section>
-        <section class="rv-sec" aria-labelledby="learn-h">
-          <div class="rv-h"><div><h2 id="learn-h">{t('Learned|review')}</h2><p class="rv-sub num">{data.learnings.length ? tn(data.learnings.length, '{n} learning', '{n} learnings') : t('from every debrief')}</p></div>{#if data.learnings.length}<a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}</div>
+{/snippet}
+
+{#snippet learnBody()}
           <ul class="rv-box">
             {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{l.source === 'import' ? t('From the import') : l.source}</span>{/if}</span></li>
             {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Rate» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
           </ul>
-        </section>
-        <section class="rv-sec" aria-labelledby="hmore-h">
-          <div class="rv-h"><div><h2 id="hmore-h">{t('More')}</h2></div></div>
-          <ul class="rv-box">
-            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-          </ul>
-        </section>
-      </div>
-    </div>
-  {/if}
-</div>
+{/snippet}
 
 <style>
+  /* 0.159.1: inside a closed-line group (phone) the section's own box gives way to the group's */
+  .rv-lay :global(.ls-g) {
+    margin: 0 0 12px;
+  }
+  .rv-lay :global(.ls-gb > .rv-box) {
+    border: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .lg-all {
+    margin: 4px 16px 12px;
+  }
   .crumb {
     display: flex;
     align-items: center;
