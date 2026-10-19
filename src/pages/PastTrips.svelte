@@ -19,6 +19,7 @@
    * settings 'pastView'). On a phone each trip is a card with these values. Under the table «In Zahlen»: 10
    * blocks in 4 groups that follow the period and filters (review/InZahlen.svelte).
    */
+  import NeulandLine from '../lib/wohl/NeulandLine.svelte'; // Paket P #253 «Neuland im Jahresheft»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { homeTrips } from '../lib/home/heute.js';
   import { liveQuery } from 'dexie';
@@ -205,6 +206,7 @@
           <small>{t('Year in review')}</small>
           <b id="yr-h">{t('Your {year}: {trips}, {km} km, {rain}', { year, trips: tn(yearNum('trips') ?? 0, '{n} trip', '{n} trips'), km: n0(yearNum('km')), rain: t('{n} with rain', { n: num(yearNum('rain') ?? 0) }) })}</b>
           <small>{t('Best values, the months and what you learned')}</small>
+          <NeulandLine {year} />
         </span>
         <span class="rowacts"><a class="btn k" href="#/debrief" onclick={() => keepPeriod('year')}><span class="kl">{t('View|review')}</span><ChevronRight size={17} aria-hidden="true" /></a></span>
       </section>

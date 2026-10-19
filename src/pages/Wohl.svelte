@@ -37,6 +37,9 @@
     PHASES_KEY, phasesOf, suggestedPhases, addPhase, renamePhase, dropPhase, phaseRows,
   } from '../lib/wohl.js';
   import { dailyValues } from '../lib/abauswertung.js';
+  import { albumOf, ALBUM_KEY, albumCfgOf } from '../lib/wohl.js';
+  import PhotoPick from '../lib/ui/PhotoPick.svelte';
+  import { shrinkImage } from '../lib/photo.js';
   import '../lib/ich/ich.css';
   import '../lib/ui/daumen.css';
 
@@ -234,6 +237,39 @@
     const before = ex?.phases ?? null;
     await save(PHASES_KEY, dropPhase(ex?.phases, p.id));
     offerDone(t('«{name}» removed.', { name: p.name }), () => save(PHASES_KEY, before ?? {}));
+  }
+
+  // #79 Fotoalbum: your photos greet you on Heute (photos table, album: true)
+  const albumQ = liveQuery(async () => {
+    const [photos, cfg] = await Promise.all([db.photos.toArray(), db.settings.get(ALBUM_KEY)]);
+    return { album: albumOf(photos), cfg: albumCfgOf(cfg?.value) };
+  });
+  const album = $derived($albumQ?.album ?? []);
+  const albumCfg = $derived($albumQ?.cfg ?? { greet: true });
+  let busy = $state(false);
+  let photoErr = $state('');
+  async function addPhoto(file) {
+    busy = true;
+    photoErr = '';
+    try {
+      const data = await shrinkImage(file, 1000, 0.8);
+      const id = `album-${Date.now().toString(36)}`;
+      await db.photos.put({ id, bikeId: null, tripId: null, album: true, name: '', data, addedAt: new Date().toISOString() });
+      offerDone(t('Photo added to your album.'), () => db.photos.delete(id));
+    } catch (e) {
+      photoErr = e?.message ?? String(e);
+    } finally {
+      busy = false;
+    }
+  }
+  async function delPhoto(p) {
+    const rec = await db.photos.get(p.id);
+    await db.photos.delete(p.id);
+    offerDone(t('Photo removed.'), () => rec && db.photos.put(rec));
+  }
+  let capEdit = $state(null);
+  async function saveCaption(name) {
+    await db.photos.update(capEdit.id, { name: String(name ?? '').trim().slice(0, 60) });
   }
 
   // #252 Alleinsein, #257 Gutes Umplanen
@@ -474,6 +510,31 @@
         <button type="button" class="btn wl-add" onclick={() => (nlEdit = { name: '' })} data-neuland-add><Plus size={18} aria-hidden="true" />{t('Add Neuland')}</button>
       </Section>
 
+      <!-- #79 Fotoalbum -->
+      <Section title={t('Photo album')} sub={t('Your own photo greets you on Today, another one each time')}>
+        <div class="card wl-box" data-wohl-album id="album">
+          {#if album.length}
+            <ul class="wl-album">
+              {#each album as p (p.id)}
+                <li>
+                  <img src={p.data} alt={p.name || t('Your photo')} />
+                  <span class="wl-iacts">
+                    <button type="button" class="btn ic" aria-label={t('Caption')} onclick={() => (capEdit = { id: p.id, name: p.name ?? '' })}><Pencil size={16} aria-hidden="true" /></button>
+                    <button type="button" class="btn ic" aria-label={t('Remove photo')} onclick={() => delPhoto(p)}><Trash2 size={16} aria-hidden="true" /></button>
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <p class="muted">{t('No photo yet. Add one and it greets you at the top of Today.')}</p>
+          {/if}
+          <PhotoPick onfile={addPhoto} {busy} has={album.length > 0} camera="Take photo" again="Another photo" />
+          {#if photoErr}<p class="err" role="alert">{photoErr}</p>{/if}
+          <label class="wl-switch"><input type="checkbox" checked={albumCfg.greet} onchange={(e) => save(ALBUM_KEY, { greet: e.currentTarget.checked })} /><span>{t('Show a photo on Today')}</span></label>
+          <p class="muted small">{t('The photos stay on this device and in your backup.')}</p>
+        </div>
+      </Section>
+
       <!-- #89 Saisonwechsel -->
       <Section title={t('Season switch')} sub={sNow ? t('Now is the time: tick off what is done') : t('Next: {season}', { season: t(seasonPick === 'spring' ? 'Spring' : 'Autumn') })}>
         <div class="card wl-box" data-wohl-season>
@@ -552,6 +613,9 @@
 
 {#if expEdit}
   <RenameSheet kicker={t('Small experiment')} title={t('Rename experiment')} value={expEdit.name} max={80} onsave={renameExp} onclose={() => (expEdit = null)} />
+{/if}
+{#if capEdit}
+  <RenameSheet kicker={t('Photo album')} title={t('Caption')} value={capEdit.name} max={60} empty={t('no caption')} hint={t('A few words, shown on the photo.')} onsave={saveCaption} onclose={() => (capEdit = null)} />
 {/if}
 {#if nlEdit}
   <RenameSheet kicker={t('Neuland {year}', { year })} title={nlEdit.id ? t('Rename Neuland') : t('Add Neuland')} value={nlEdit.name} max={80} hint={t('A new place or a new thing, in a few words.')} onsave={saveNeuland} onclose={() => (nlEdit = null)} />
@@ -690,6 +754,24 @@
   .wl-season li.done span {
     color: var(--ink-2);
     text-decoration: line-through;
+  }
+  .wl-album {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+  .wl-album li {
+    display: grid;
+    gap: 4px;
+  }
+  .wl-album img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
   }
   .wl-iacts {
     display: flex;

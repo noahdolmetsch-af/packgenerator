@@ -232,3 +232,30 @@ describe('life phases', () => {
     expect(r).toMatchObject({ n: 30, goodShare: 50, top: 'outside' });
   });
 });
+
+import { widgetValues, albumOf, greetPhoto, albumCfgOf } from '../src/lib/wohl.js';
+
+describe('the data widget', () => {
+  it('km of today and the week, the weather, sleep and HRV with your normal', () => {
+    const km = [{ date: T, km: 12.5, kind: 'ride' }, { date: addDays(T, -3), km: 30, kind: 'ride' }, { date: addDays(T, -9), km: 50, kind: 'ride' }];
+    const health = lastDays(addDays(T, -1), 20).map((d, i) => ({ date: d, hrvMs: 40 + (i % 2) * 10, restingHr: 52, sleep: { asleepMin: 420 } }));
+    health.push({ date: T, hrvMs: 61, restingHr: 50, sleep: { asleepMin: 390 } });
+    const w = widgetValues({ km, health, forecast: { days: [{ date: T, min: 6.4, max: 14.6, rain: 'showers' }] }, today: T });
+    expect(w).toMatchObject({ kmToday: 12.5, kmWeek: 42.5, weather: { min: 6, max: 15, rain: 'showers' }, sleepH: 6.5, sleepNormal: 7, hrv: 61, restingHr: 50, restingNormal: 52, day: T });
+    expect(w.hrvNormal).toBeCloseTo(45, 0);
+  });
+  it('without data: zeros and nulls, nothing invented', () => {
+    expect(widgetValues({ today: T })).toMatchObject({ kmToday: 0, kmWeek: 0, weather: null, sleepH: null, hrv: null, day: null });
+  });
+});
+
+describe('the photo album', () => {
+  it('only album photos, one per visit; the greeting can be switched off', () => {
+    const photos = [{ id: 'a', album: true, data: 'x', addedAt: '2' }, { id: 'b', bikeId: 'v', data: 'y' }, { id: 'c', album: true, data: 'z', addedAt: '1' }];
+    expect(albumOf(photos).map((p) => p.id)).toEqual(['c', 'a']);
+    expect(greetPhoto(albumOf(photos), 0.9).id).toBe('a');
+    expect(greetPhoto([], 0.5)).toBe(null);
+    expect(albumCfgOf(null).greet).toBe(true);
+    expect(albumCfgOf({ greet: false }).greet).toBe(false);
+  });
+});

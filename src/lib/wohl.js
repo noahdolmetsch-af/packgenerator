@@ -561,3 +561,47 @@ export function phaseRows(phases = [], data = []) {
     return { id: p.id, from: p.from, until: p.until, n: sc.length, mean: r1(mean(sc.map((d) => d.score))), goodShare: sc.length ? Math.round((good.length / sc.length) * 100) : null, km: Math.round(in_.reduce((s, d) => s + (d.values.km || 0), 0)), top: rec };
   });
 }
+
+/* ---------- #293 Daten-Widget (Noah 19.10.2026 «2 beides»): km, weather, sleep, HRV at a glance ---------- */
+/**
+ * The values of the widget, observation only, each with your normal (the 30 days before) where it has one.
+ * km: kmBook rows; health: healthDays rows; forecast: homeForecast() or null; today: YYYY-MM-DD.
+ * → { kmToday, kmWeek, weather: { min, max, rain } | null, sleepH, sleepNormal, hrv, hrvNormal, restingHr, restingNormal, day }
+ * day: the day of the last health values (sleep belongs to the night before it).
+ */
+export function widgetValues({ km = [], health = [], forecast = null, today } = {}) {
+  const week = lastDays(today, 7);
+  const rides = km.filter(isRide);
+  const sum = (list) => Math.round(list.reduce((s, e) => s + Number(e.km), 0) * 10) / 10;
+  const byDay = Object.fromEntries(health.filter((h) => h?.date).map((h) => [h.date, h]));
+  const last = Object.keys(byDay).filter((d) => d <= today).sort().at(-1) ?? null;
+  const h = last ? byDay[last] : null;
+  const before = last ? lastDays(last, 31).slice(0, -1) : [];
+  const norm = (pick) => {
+    const xs = before.map((d) => (byDay[d] ? pick(byDay[d]) : null)).filter((v) => Number.isFinite(v));
+    return xs.length >= 7 ? r1(mean(xs)) : null;
+  };
+  const sleepOf = (x) => (Number(x?.sleep?.asleepMin) > 0 ? x.sleep.asleepMin / 60 : null);
+  const w = forecast?.days?.find((d) => d.date === today) ?? null;
+  return {
+    kmToday: sum(rides.filter((e) => e.date === today)),
+    kmWeek: sum(rides.filter((e) => week.includes(e.date))),
+    weather: w ? { min: Math.round(w.min), max: Math.round(w.max), rain: w.rain ?? null } : null,
+    sleepH: r1(sleepOf(h)),
+    sleepNormal: norm(sleepOf),
+    hrv: Number.isFinite(h?.hrvMs) ? Math.round(h.hrvMs) : null,
+    hrvNormal: norm((x) => x.hrvMs),
+    restingHr: Number.isFinite(h?.restingHr) ? Math.round(h.restingHr) : null,
+    restingNormal: norm((x) => x.restingHr),
+    day: last,
+  };
+}
+
+/* ---------- #79 Fotoalbum (Noah 19.10.2026 «3a»): your own photo greets you on Heute ---------- */
+/** The album photos live in the photos table (in every backup) with album: true and no bike. */
+export const albumOf = (photos = []) => photos.filter((p) => p?.album && p.data).sort((a, b) => String(a.addedAt ?? '').localeCompare(String(b.addedAt ?? '')));
+/** The photo of this visit: a different one each time the app opens (r: a number 0–1, fixed per visit). */
+export const greetPhoto = (album = [], r = 0) => (album.length ? album[Math.min(album.length - 1, Math.floor(r * album.length))] : null);
+/** settings: { greet: true } — the photo on Heute can be switched off. */
+export const ALBUM_KEY = 'album';
+export const albumCfgOf = (v) => ({ greet: !(v && typeof v === 'object' && v.greet === false) });
