@@ -61,7 +61,7 @@
   // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
-  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog } from '@lucide/svelte';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation } from '@lucide/svelte';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -655,8 +655,10 @@
       <!-- Paket K «Unterwegs»: the helpers for the day on the bike, big buttons (also with gloves) -->
       <section class="uwh" aria-labelledby="uwh-h" data-uw-helpers>
         <h2 id="uwh-h" class="sh">{t('Helpers on the way')}</h2>
-        <p class="ssub">{t('Home, handlebar view, the sheet for the start')}</p>
+        <p class="ssub">{t('Live map, home, handlebar view, the sheet for the start')}</p>
         <div class="uw-helpers">
+          <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»): start the ride with the live map of this trip -->
+          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
           <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
           <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>

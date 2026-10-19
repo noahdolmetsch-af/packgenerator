@@ -58,7 +58,7 @@ export const DATA_TABLES = [
  * user's data (tips shown, the Helfer-Code). They never go into a backup (backup.js) and the automatic
  * sync (P8, sync/track.js) never sends them.
  */
-export const DEVICE_SETTINGS = ['tips', 'helper'];
+export const DEVICE_SETTINGS = ['tips', 'helper', 'offline-strips']; // offline-strips: the map strips kept on this device (U3), their tiles exist only here
 
 /**
  * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and

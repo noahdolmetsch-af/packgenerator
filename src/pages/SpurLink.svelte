@@ -12,6 +12,8 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { parseLink, openLink, LINK_ERRORS } from '../lib/spur/link.js';
   import TourMap from '../lib/spur/TourMap.svelte';
+  import { zurichTime } from '../lib/spur/spur.js';
+  import { liveOf, liveFresh } from '../lib/live/familylive.js';
 
   let { hash = '' } = $props();
   let tour = $state(null);
@@ -29,7 +31,14 @@
   });
   const dayName = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' }) : '');
   const lines = $derived((tour?.days ?? []).flatMap((d) => d.lines.map((pts, i) => ({ id: `${d.day}-${i}`, pts, n: d.n, day: d.day, src: 'strava' }))));
-  const points = $derived((tour?.days ?? []).flatMap((d) => [...d.places.map((p, i) => ({ id: `p-${d.day}-${i}`, kind: 'place', pos: p.pos, text: p.text, n: d.n, day: d.day, at: null, time: p.time })), ...d.notes.filter((x) => x.pos).map((x, i) => ({ id: `x-${d.day}-${i}`, kind: 'note', pos: x.pos, text: x.text, n: d.n, day: d.day, time: x.time }))]));
+  // Paket U3 «Live-Karte» (Noah «4a»): while the rider's live map runs, the place now (under 30 min old)
+  const live = $derived.by(() => {
+    const l = liveOf(tour);
+    return l && liveFresh(l) ? { ...l, time: zurichTime(Date.parse(l.at)) } : null;
+  });
+  const livePt = $derived(live ? [{ id: 'live', kind: 'place', pos: live.pos, text: t('Live: here at {time}', { time: live.time }), n: tour.days.length, day: null, time: live.time }] : []);
+  const dayPoints = $derived((tour?.days ?? []).flatMap((d) => [...d.places.map((p, i) => ({ id: `p-${d.day}-${i}`, kind: 'place', pos: p.pos, text: p.text, n: d.n, day: d.day, at: null, time: p.time })), ...d.notes.filter((x) => x.pos).map((x, i) => ({ id: `x-${d.day}-${i}`, kind: 'note', pos: x.pos, text: x.text, n: d.n, day: d.day, time: x.time }))]));
+  const points = $derived([...dayPoints, ...livePt]);
   const focus = $derived.by(() => {
     const d = tour?.days.find((x) => x.day === dayPick);
     return d ? { lines: d.lines, points: d.places.map((p) => p.pos) } : null;
@@ -47,6 +56,7 @@
       <p class="kick">{t('Travel track')}</p>
       <h1 data-page-title tabindex="-1">{tour.title}</h1>
       <p class="sub num">{[tour.days.length > 1 ? `${dayName(tour.days[0].day)} – ${dayName(tour.days.at(-1).day)}` : dayName(tour.days[0]?.day), tour.km ? `${num(tour.km)} km` : '', tn(tour.days.length, '{n} day', '{n} days')].filter(Boolean).join(' · ')}</p>
+      {#if live}<p class="live" role="status" data-family-live><span class="dot" aria-hidden="true"></span>{t('Live: here at {time}', { time: live.time })}</p>{/if}
       {#if tour.at}<p class="tp-small tp-muted">{t('Updated {when}', { when: new Date(tour.at).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' }) })}</p>{/if}
     </header>
     {#if tour.days.length > 1}
@@ -56,7 +66,7 @@
       </div>
     {/if}
     {#if lines.length || points.length}
-      <TourMap lines={dayPick ? lines.filter((l) => l.day === dayPick) : lines} points={dayPick ? points.filter((p) => p.day === dayPick) : points} {focus} height={460} onpick={(p) => (picked = p)} />
+      <TourMap lines={dayPick ? lines.filter((l) => l.day === dayPick) : lines} points={dayPick ? points.filter((p) => p.day === dayPick || p.id === 'live') : points} {focus} height={460} onpick={(p) => (picked = p)} />
     {/if}
     {#if picked}<p class="card pick">{t('Day {n}', { n: picked.n })}{picked.time ? ` · ${picked.time}` : ''}: {picked.text || t('I am here')} <button type="button" class="tp-link" onclick={() => (picked = null)}>{t('Close')}</button></p>{/if}
     <ol class="days">
@@ -122,6 +132,20 @@
     min-width: 44px;
     color: var(--ink-2);
     font-weight: 600;
+  }
+  .live {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0 0;
+    font-weight: 600;
+    color: var(--ok);
+  }
+  .live .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ok);
   }
   .foot {
     text-align: center;

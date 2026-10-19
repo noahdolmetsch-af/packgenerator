@@ -139,6 +139,8 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 19.10.2026, 0.159.0 «Paket 7»: neue Seiten Touren › Rennen (#/race, mit Karte, Anstiege) und Live-Karte (#/live). Live-Karte im Vollbild mit Zahlenband oben (Pfeile und Ziehen zum Ordnen), Panel unten mit 3 Höhen, «⋯»-Menü; Profil 180 px am Handy, Knöpfe 44 px; Orts-Chips scrollen in ihrer Zeile, die Seite nie seitlich; nur hell. Getestet bei 130 % Grösse.
+
 - 19.10.2026, 0.158.0 «Heute stabil»: neue Hinweis-Zeile oben (nur bei blockiertem Update, unter der Offline-Zeile); sonst keine sichtbare Änderung.
 - 19.10.2026, 0.157.0 «Paket 6»: neue Ansicht Velos › Pflege › Velo-FAQ (Themen als Abschnitte, Fragen zum Aufklappen, lädt beim Öffnen); Link in der Pflege-Übersicht und auf jeder Pflege-Karte. «Abgeschlossene Touren»: die ganze Zeile ist der Link.
 - 19.10.2026, 0.156.0 «Paket 5»: Ich › Darstellung bekommt einen Schieber «Grösse» (80–130 %, Schritte 5 %) statt drei Knöpfe und «Kompakt»; der Eingang zeigt Mails mit Tipps und Knöpfen pro Anhang; unter Ich ein Hinweis, solange nicht abgeglichen wird.

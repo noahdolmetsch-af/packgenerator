@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // Paket U «Bikepacking und Ultra-Rennen» (Noah 19.10.2026, ideas 1–40): Touren › Rennen with Plan, Strategie,
+    // Vorbereiten, Strecke, Unterwegs, Danach, the sample race and the countdown on Heute («3b»).
+    // Paket 7.
+    version: '0.159.0',
+    date: '2026-10-19',
+    title: 'Races and the live map',
+    lead: 'Plan a long race and ride with the live map.',
+    points: [
+      { text: 'Trips › Races: plan, map, climbs and a sample race', href: '#/race' },
+      { text: 'Live map for every ride: where you are, next stops, SOS', href: '#/live' },
+      { text: 'Map offline: a strip along the route on your phone', href: '#/race' },
+    ],
+    small: [
+      { box: 'new', text: 'Today: «Race in X days» and the tile «Start a ride»', href: '#/' },
+    ],
+    test: [
+      'Open Trips › Races › «See the sample race» and tap «Map».',
+      'Tap «Start a ride» on Active: the live map shows your km.',
+    ],
+  },
+  {
     // v0.158.0 fix: Heute stayed grey or broke on a computer after an update or the exchange
     // (a milestone came twice through sync; an old window held up the database update).
     version: '0.158.0',
@@ -58,7 +79,7 @@ export const WHATS_NEW = [
   },
   {
     // v0.156.0 Paket 5: «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»), «Grösse» (Noah «1b 2b»), Abend-Runde sync hint.
-    // U «Rennen» follows as Paket 7 (0.158.0).
+    // U «Rennen» follows as Paket 7 (0.159.0).
     version: '0.156.0',
     date: '2026-10-19',
     title: 'Mails into the app and the size',

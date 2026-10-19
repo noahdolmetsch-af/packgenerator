@@ -1,7 +1,7 @@
 {
   "name": "packgenerator",
   "private": true,
-  "version": "0.158.0",
+  "version": "0.159.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -32,6 +32,7 @@
     "@lucide/svelte": "^1.52.0",
     "dexie": "^4.4.6",
     "leaflet": "1.9.4",
+    "maplibre-gl": "6.11.2",
     "pdf-lib": "1.17.1",
     "qrcode-generator": "^2.0.4",
     "tesseract.js": "7.0.0"

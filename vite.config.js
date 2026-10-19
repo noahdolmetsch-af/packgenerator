@@ -64,7 +64,8 @@ export default defineConfig({
         ],
         // Quick note (v0.19.3, answer 3a): long-press the app icon → "New note"; and Pack Generator
         // in the Android share sheet (text and links; a photo is added in the note itself).
-        shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
+        // Paket U3 «Live-Karte» (Noah 19.10.2026 «2a»): long-press the app icon → «Start a ride»
+        shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }, { name: 'Start a ride', short_name: 'Ride', url: `${base}#/live`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
         // v0.41.0 (Noah 5): a GPX file shared from another app ("Teilen an Pack Generator") opens the
         // ride upload. A file needs POST with multipart/form-data; the service worker answers that POST
         // (public/share-target.js): a file goes to #/debrief/ride/shared, text and links still go to
@@ -99,7 +100,7 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
         // Erinnerungen aufs Handy (Web-Push): show the messages of api/push.js and open the app on a tap.
-        importScripts: ['share-target.js', 'push-sw.js'],
+        importScripts: ['share-target.js', 'push-sw.js', 'offline-map-sw.js'],
         // 19.10.2026: the server project «packgen» serves this app too; its service worker must never answer
         // /api/… (the Google and Strava logins come back to /api/…/callback and would land in the app instead).
         navigateFallbackDenylist: [/^\/api\//],

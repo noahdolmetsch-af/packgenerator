@@ -86,11 +86,13 @@ describe('Regen unterwegs', () => {
   });
   it('the app sends the expected places every 30 minutes of the ride, the light alarm the evening before', () => {
     const now = new Date(2026, 6, 3, 10, 0);
-    const trips = [{ id: 'a', title: 'Testtour', status: 'planned', startDate: '2026-07-04', days: 1, rideStart: ['16:00'], hours: 6, route: { km: 60, start: { lat: 47, lon: 8 }, line: [[47, 8], [47.2, 8.2], [47.4, 8.4]] } }];
+    // 19:00 + 4 h riding (60 km): after sunset at 47° N 8° E in every time zone (21:26 in Zurich, 19:26 in UTC).
+    // It started at 16:00 before and arrived at 20:00: dark only when the test ran in UTC, not in Zurich.
+    const trips = [{ id: 'a', title: 'Testtour', status: 'planned', startDate: '2026-07-04', days: 1, rideStart: ['19:00'], hours: 6, route: { km: 60, start: { lat: 47, lon: 8 }, line: [[47, 8], [47.2, 8.2], [47.4, 8.4]] } }];
     const all = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])) };
     const l = buildList({ trips, repairs: [], bikes: [], settings: { push: all, air: { pollen: ['grass'] } }, lastBackup: null, now });
     expect(l.rain).toHaveLength(1);
-    expect(l.rain[0].points[0]).toMatchObject({ at: atMs('2026-07-04', '16:00'), lat: 47, lon: 8 });
+    expect(l.rain[0].points[0]).toMatchObject({ at: atMs('2026-07-04', '19:00'), lat: 47, lon: 8 });
     expect(l.rain[0].points.length).toBeGreaterThan(3);
     expect(l.items.find((i) => i.key.startsWith('dark:'))).toMatchObject({ at: atMs('2026-07-03', '19:00') });
     expect(l.air).toEqual({ ozone: true, pollen: ['grass'] });

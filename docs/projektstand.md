@@ -14,9 +14,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 3 | Paket 3+4 | 0.155.0 | Freie Zeit, Daten in der App, V Alltag (Einkauf, Verträge, Menschen, Ausland, Flug), Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI | PR #202; Paket 3 und 4 verbunden (Noah 19.10.2026) |
 | 4 | Paket 5 | 0.156.0 | Mail in die App, Grösse (Schieber 80–130 %, Kompakt), Abgleich-Hinweis unter Ich | live mit 0.157.0 (PR #203) |
 | 5 | Paket 6 | 0.157.0 | Velo-FAQ (48 Fragen), Trainingspläne mit gefühlter Anstrengung, ganze Zeile bei abgeschlossenen Touren | live |
-| 5b | Reparatur | 0.158.0 | Heute stabil: lädt nach Update oder Abgleich immer | dieser PR |
-| 6 | Paket 7 | 0.158.0 | U Rennen (U1 Strategie-Rechner und Muster-Rennen, U2 Renn-Karte und Anstiege, Live-Karte) | im Bau; Ton-Aufnahmen gestrichen |
-| 7 | danach | – | U3 Karte offline | geplant |
+| 6 | Reparatur | 0.158.0 | Heute stabil: lädt nach Update oder Abgleich immer | PR #204 |
+| 7 | Paket 7 | 0.159.0 | U Rennen: Strategie-Rechner, Muster-Rennen, Renn-Karte mit feinem zoombarem Höhenprofil, Anstiege, Karte offline, Live-Karte für jede Fahrt (Vollbild, Orte suchen, Wetter-Zeitleiste, GPX öffnen, SOS im «⋯»-Menü) | dieser PR; Ton-Aufnahmen gestrichen |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

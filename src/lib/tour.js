@@ -48,6 +48,18 @@ export const TOURS = {
     { href: '#/wardrobe', place: 'gear', target: ['main h1'], title: 'Clothes|tab', text: 'Clothes by temperature. The app suggests layers for the weather of the trip.' },
     { href: '#/blocks', place: 'gear', target: ['main h1'], title: 'Building blocks', text: 'A block is a ready package for a situation, like «Rain». One tap adds the whole package to a trip.' },
   ],
+  // Paket U › Muster-Rennen (Noah «6a»): the sample race step by step
+  race: [
+    { href: '#/race/race-sample/prepare', place: 'trips', target: ['[data-race-box="prep-route"]', 'main h1'], title: 'The route|race', text: 'The route comes from your GPX files, one per sector. The sample has 11 sectors and made-up stops along the way.' },
+    { href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="plan-assume"]', 'main h1'], title: 'The assumptions|race', text: 'Every number behind the plan, with its source. Change one and the whole plan recalculates.' },
+    { href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="dayplan"]', 'main h1'], title: 'The day plan', text: 'Day by day: km, metres up, riding time, arrival and the bed. Sundays are marked.' },
+    { href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="plan-ways"]', 'main h1'], title: 'Hotel, mixed or tent?', text: 'The three ways side by side with a recommendation. You choose; the plan follows.' },
+    { href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="summary"]', 'main h1'], title: 'The gaps', text: 'Where there is no shop for a long time, and which days are Sundays: buy before.' },
+    { href: '#/pack', place: 'trips', prep: 'raceSample', target: ['.bag-groups', '.calm-pack', 'main h1'], title: 'The packing list|race', text: 'The race is a trip: its packing list comes from your own gear, as for every tour.' },
+    { href: '#/race/race-sample/ride', place: 'trips', target: ['[data-race-box="ride-next"]', 'main h1'], title: 'On the way|race', text: 'Race mode shows only what you need on the bike: next shop, next bed, ride on or sleep.' },
+    { href: '#/race/race-sample/after', place: 'trips', target: ['[data-race-box="after-sections"]', 'main h1'], title: 'After the race', text: 'Plan against what happened, per sector, your stops, recovery and the report.' },
+    { href: '#/race/race-sample', place: 'trips', end: true, target: ['[data-race-box="tasks"]'], title: 'Now you try', text: 'The tasks on top tick themselves. Reset makes the sample new again, Delete removes it.' },
+  ],
   velos: [
     { href: '#/bikes', place: 'bikes', target: ['section.draw', '.setup', 'main h1'], title: 'Your bike|intro', text: 'The drawing shows where each bag sits on the bike. Tap a place to change it.' },
     { href: '#/bikes', place: 'bikes', target: ['section.std', '.setup'], title: 'Bags|tour', text: 'These bags come along on every new trip with this bike, with their weight.' },
@@ -57,7 +69,7 @@ export const TOURS = {
 };
 
 /** The tour's name for buttons and the Handbook. */
-export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes' };
+export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes', race: 'Tour of the sample race' };
 
 /** How many steps a tour shows with «Step n of m» (the end card does not count). */
 export const stepCount = (id) => (TOURS[id] ?? []).filter((s) => !s.end).length;

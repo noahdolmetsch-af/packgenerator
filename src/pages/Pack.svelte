@@ -23,6 +23,8 @@
   import CalmPack from '../lib/pack/CalmPack.svelte';
   import TripAlert from '../lib/clear/TripAlert.svelte';
   import OfflineSave from '../lib/clear/OfflineSave.svelte';
+  import LiveStart from '../lib/live/LiveStart.svelte';
+  import { todayTrip } from '../lib/live/start.js';
   import Onion from '../lib/pack/Onion.svelte';
   import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
@@ -1039,6 +1041,8 @@
   <TripAlert {trip} />
   <!-- Paket Q Zusatz 3: from 3 days before the trip, «Für unterwegs offline speichern» -->
   <OfflineSave {trip} />
+  <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»: start on every tour): on the trip's days one small line -->
+  {#if todayTrip([trip], today)}<LiveStart {trip} />{/if}
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}

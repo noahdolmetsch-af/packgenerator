@@ -92,6 +92,8 @@ export const SINCE = {
   'f.here': '0.154.0', 'f.record': '0.154.0', 'f.spurmap': '0.154.0', 'f.spurlink': '0.154.0', 'f.travelbook': '0.154.0',
   // Paket L2 «Bilderkennung» (v0.154.0)
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
+  // Paket U «Rennen» (provisional version, the bundler renumbers)
+  'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)

@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.159.0 Paket 7 U «Rennen»
+  'Races and the live map': 'Rennen und Live-Karte',
+  'Plan a long race and ride with the live map.': 'Plane ein langes Rennen und fahr mit der Live-Karte.',
+  'Trips › Races: plan, map, climbs and a sample race': 'Touren › Rennen: Plan, Karte, Anstiege und ein Muster-Rennen',
+  'Live map for every ride: where you are, next stops, SOS': 'Live-Karte für jede Fahrt: wo du bist, nächste Stopps, SOS',
+  'Map offline: a strip along the route on your phone': 'Karte offline: ein Streifen entlang der Strecke auf dem Handy',
+  'Today: «Race in X days» and the tile «Start a ride»': 'Heute: «Rennen in X Tagen» und die Kachel «Ausfahrt starten»',
+  'Open Trips › Races › «See the sample race» and tap «Map».': 'Öffne Touren › Rennen › «Muster-Rennen ansehen» und tippe «Karte».',
+  'Tap «Start a ride» on Active: the live map shows your km.': 'Tippe «Ausfahrt starten» auf Aktiv: die Live-Karte zeigt deine km.',
   // 0.157.0 Paket 6: Velo-FAQ
   // 0.158.0 Heute fix
   'Today stays steady': 'Heute bleibt stabil',

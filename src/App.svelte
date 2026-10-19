@@ -318,6 +318,8 @@
     Favorites: () => import('./pages/Favorites.svelte'),
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
+    Race: () => import('./pages/Race.svelte'),
+    Live: () => import('./pages/Live.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
     Check: () => import('./pages/Check.svelte'),
@@ -464,6 +466,9 @@
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
+  {:else if page === 'race'}
+    <!-- Paket U «Rennen»: #/race, #/race/<trip>/<part>, #/race/brief/<trip> -->
+    <LazyPage load={PAGES.Race} {hash} />
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
@@ -480,6 +485,9 @@
     <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
     {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
     {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
+  {:else if page === 'live'}
+    <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->
+    {#key param}<LazyPage load={PAGES.Live} id={decodeURIComponent((param ?? '').split('?')[0])} />{/key}
   {:else if page === 'spur'}
     <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
     {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}
