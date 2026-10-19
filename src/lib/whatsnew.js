@@ -25,11 +25,11 @@ export const WHATS_NEW = [
     points: [
       { text: 'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»', href: '#/me/mail' },
       { text: 'The Inbox shows tips (bill, booking, deadline) and a button per attachment', href: '#/inbox' },
-      { text: '«File as …» with 13 targets and your own new places', href: '#/inbox' },
       { text: 'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)', href: '#/me/look' },
     ],
     small: [
       { box: 'new', text: 'Mail a packing list or a document from the app', href: '#/me/mail' },
+      { box: 'new', text: '«File as …» with 13 targets and your own new places', href: '#/inbox' },
       { box: 'new', text: 'Compact: the same text with less space between', href: '#/me/look' },
       { box: 'new', text: 'Me shows a hint while phone and computer do not sync', href: '#/me' },
     ],
