@@ -9,7 +9,6 @@
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
-  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
@@ -69,8 +68,9 @@
   />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of
     the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
-  <HintCard page="workshop" />
-  <AreaIntro place="workshop">{#snippet hidden()}<TipLine page="workshop" name={t('Workshop & receipts')} />{/snippet}</AreaIntro>
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="workshop" intro="workshop" />
+  <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   {#if bikes.length > 1}
     <div class="fchips" role="group" aria-label={t('Bike')}>

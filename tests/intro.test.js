@@ -2,7 +2,7 @@
 // open on the computer until folded, × and back, the tour offered once; the tip that fits the month and the
 // «Did you know» with its source (pageinfo.js).
 import { describe, it, expect } from 'vitest';
-import { INTROS, OPEN_VISITS, introOf, visit, isOpen, setFold, hide, showAll, hiddenCount, isHidden, offerTour, setOffered } from '../src/lib/intro.js';
+import { INTROS, tipsOf, OPEN_VISITS, introOf, visit, isOpen, setFold, hide, showAll, hiddenCount, isHidden, offerTour, setOffered } from '../src/lib/intro.js';
 import { PAGES, tipOfDay, factOfDay, contextOf } from '../src/lib/pageinfo.js';
 import { TOURS } from '../src/lib/tour.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -22,10 +22,11 @@ describe('the words', () => {
       expect(x.things, place).toHaveLength(3);
       if (x.page) expect(x.tour, place).toBeUndefined();
       else expect(TOURS[x.tour], place).toBeTruthy();
-      expect(PAGES[place]?.tips.length, place).toBeGreaterThan(2);
+      // Noah 19.10 «2a»: Touren, Material, Einkauf and Pflege share the tips of their card «Was hier steht»
+      expect(PAGES[tipsOf(place)]?.tips.length, place).toBeGreaterThan(2);
       for (const k of [x.name, x.title, x.expect, ...x.things.flatMap((y) => [y.title, y.text])]) expect(de(k), k).toBeTruthy();
       for (const y of x.things) if (y.href) expect(y.href, place).toMatch(/^#\//);
-      for (const tip of PAGES[place].tips) {
+      for (const tip of PAGES[tipsOf(place)].tips) {
         expect(de(tip.text), tip.text).toBeTruthy();
         if (tip.source) expect(de(tip.source), tip.source).toBeTruthy();
         if (tip.button) expect(de(tip.button), tip.button).toBeTruthy();
@@ -80,20 +81,20 @@ describe('the tip and the «Did you know» (2a, 3a)', () => {
   });
   it('a «Did you know» always has its source, never the tip of the day twice, off with the switch', () => {
     for (const place of [...PLACES, 'meditation', 'training', 'goals', 'activity', 'rest', 'week', 'templates', 'debrief', 'wardrobe', 'past', 'pflege', 'workshop', 'ausstattung', 'einkauf', 'weekplan']) {
-      const f = factOfDay(undefined, place, '2026-10-15');
+      const f = factOfDay(undefined, tipsOf(place), '2026-10-15');
       expect(f?.source, place).toBeTruthy();
     }
-    const only = PAGES.touren.tips.filter((x) => x.source);
-    expect(factOfDay(undefined, 'touren', '2026-10-15', only[0].id)).toBe(null);
+    const only = PAGES.trips.tips.filter((x) => x.source);
+    expect(factOfDay(undefined, 'trips', '2026-10-15', only[0].id)).toBe(null);
     expect(factOfDay({ knowOn: false }, 'aktiv', '2026-10-15')).toBe(null);
   });
   it('in the Einstieg the tip of the day is never the «Did you know», so both boxes show every day', () => {
     for (const place of Object.keys(INTROS)) {
       for (let k = 0; k < 14; k++) {
         const day = `2026-06-${String(k + 1).padStart(2, '0')}`;
-        const tip = tipOfDay(undefined, place, day, {}, { sourced: false });
+        const tip = tipOfDay(undefined, tipsOf(place), day, {}, { sourced: false });
         expect(tip?.source, `${place} ${day}`).toBeFalsy();
-        if (PAGES[place].tips.some((x) => x.source)) expect(factOfDay(undefined, place, day, tip?.id)?.source, place).toBeTruthy();
+        if (PAGES[tipsOf(place)].tips.some((x) => x.source)) expect(factOfDay(undefined, tipsOf(place), day, tip?.id)?.source, place).toBeTruthy();
       }
     }
   });

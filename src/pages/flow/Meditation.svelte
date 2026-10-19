@@ -16,7 +16,6 @@
   import PageMore from '../../lib/pageinfo/PageMore.svelte';
   import TipLine from '../../lib/pageinfo/TipLine.svelte';
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
-  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import Face from '../../lib/timer/Face.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
@@ -132,11 +131,11 @@
       <p class="sub">
         {t('Goal|flow')} {actGoalText(act, today)}{#if str.now}{' · '}{tn(str.now, 'streak {n} day', 'streak {n} days')}{/if}{' · '}{doneToday ? t('done today') : t('still open today')}{#if st?.resting}{' · '}{t('resting')}{/if}
       </p>
-      {#if actId === 'meditation'}<AreaIntro place="meditation" mini />{/if}
     </header>
 
     <!-- IF2 (Noah 14.10.2026, approved 04:32) on the central meditation page: the tip of the day, at the end the fold -->
-    <HintCard page="meditation" />
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+    <HintCard page="meditation" intro={actId === 'meditation' ? 'meditation' : null} />
     <TipLine page="meditation" name={actName(act)} />
     <div class="cols">
       <section class="surf pad tcard" aria-labelledby="m-timer">

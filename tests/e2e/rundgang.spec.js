@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOURS, stepCount } from '../../src/lib/tour.js';
+import { INTROS } from '../../src/lib/intro.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -56,22 +57,27 @@ test('Tour with the example trip runs in the playground; Esc ends it', async ({ 
   await expect(page.locator('.tour')).toHaveCount(0);
 });
 
-test('Einstieg on top of Active: tip and source, × brings the tip line back, the Handbook brings it back', async ({ page }) => {
+// Noah 19.10 «2a»: one card per page. On Aktiv the Einstieg lives in the card «Was hier steht»: the offer of
+// the small tour, its three things, what to expect and the «Did you know» with its source; the tip line stays.
+test('Einstieg in the card on top of Active; a page with only the Einstieg: × and the Handbook bring it back', async ({ page }) => {
   await page.goto('./#/flow');
-  const intro = page.locator('[data-intro="aktiv"]');
-  await expect(intro).toContainText(T('Movement, rest and recovery in everyday life'));
-  await expect(intro).toContainText(T('What to expect:'));
-  await expect(intro.locator('[data-fact]')).toContainText(T('Source: {source}', { source: '' }).trim());
-  await expect(intro.locator('[data-offer]')).toBeVisible(); // first visit: the small tour is offered
-  await intro.getByRole('button', { name: T('No thanks') }).click();
-  await expect(intro.locator('[data-offer]')).toHaveCount(0);
-  await intro.getByRole('button', { name: T('Hide the introduction') }).click();
-  await expect(page.locator('[data-intro="aktiv"]')).toHaveCount(0);
-  await expect(page.locator('.tipl')).toBeVisible();
+  const card = page.locator('[data-hint="aktiv"][data-intro-in="aktiv"]');
+  await expect(card.locator('[data-intro-things="aktiv"]')).toContainText(T(INTROS.aktiv.things[0].title));
+  await expect(card).toContainText(T('What to expect:'));
+  await expect(card.locator('[data-fact]')).toContainText(T('Source: {source}', { source: '' }).trim());
+  await expect(card.locator('[data-offer]')).toBeVisible(); // first visit: the small tour is offered
+  await card.getByRole('button', { name: T('No thanks') }).click();
+  await expect(card.locator('[data-offer]')).toHaveCount(0);
+  await expect(page.locator('main [data-tip]')).toHaveCount(1); // one tip of the day: the tip line
+  await expect(page.locator('[data-intro="aktiv"]')).toHaveCount(0); // no second card
+  // Goals has no card «Was hier steht»: its own Einstieg, × and back from the Handbook
+  await page.goto('./#/flow/goals');
+  await page.locator('[data-intro="goals"]').getByRole('button', { name: T('Hide the introduction') }).click();
+  await expect(page.locator('[data-intro="goals"]')).toHaveCount(0);
   await page.goto('./#/me/handbook');
   await page.getByRole('button', { name: T('Show the introductions on top of the places again ({n})', { n: 1 }) }).click();
-  await page.goto('./#/flow');
-  await expect(page.locator('[data-intro="aktiv"]')).toBeVisible();
+  await page.goto('./#/flow/goals');
+  await expect(page.locator('[data-intro="goals"]')).toBeVisible();
 });
 
 test('The small tour of Trips from the Einstieg', async ({ page }) => {
@@ -112,9 +118,6 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     ['#/flow/goals', 'goals', 'Goals that fit your week'],
     ['#/flow/rest', 'rest', 'The pause has its place too'],
     ['#/pack/templates', 'templates', 'The next trip starts packed'],
-    ['#/debrief', 'debrief', 'What the last trips taught you'],
-    ['#/wardrobe', 'wardrobe', 'Clothes by temperature, layer by layer'],
-    ['#/bikes?tab=shop', 'workshop', 'What waits for the bike shop, and every visit'],
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
@@ -122,6 +125,20 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     await expect(box.locator('.kick'), place).toHaveText(new RegExp(`^${T('This is {place}', { place: '' })}`));
     await expect(box.locator('[data-offer]'), place).toHaveCount(0);
     await expect(box.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+  }
+  // Noah 19.10 «2a»: where the page has the card «Was hier steht» the Einstieg lives in it (no tour of its own)
+  for (const [hash, key, place] of [
+    ['#/debrief', 'debrief', 'debrief'],
+    ['#/wardrobe', 'wardrobe', 'wardrobe'],
+    ['#/bikes?tab=shop', 'workshop', 'workshop'],
+  ]) {
+    await page.goto(`./${hash}`);
+    const card = page.locator(`[data-hint="${key}"][data-intro-in="${place}"]`);
+    await expect(card.locator(`[data-intro-things="${place}"]`), place).toContainText(T(INTROS[place].things[0].title));
+    await expect(card.locator('[data-offer]'), place).toHaveCount(0);
+    await expect(card.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+    await expect(page.locator(`[data-intro="${place}"]`), place).toHaveCount(0);
+    await expect(page.locator('main [data-tip]'), place).toHaveCount(1);
   }
   // Care and the wishlist start as one line (what is due / the list first); a tap opens them
   for (const [hash, place, title] of [
@@ -132,9 +149,9 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     await page.locator(`[data-intro="${place}"][data-open="false"]`).click();
     await expect(page.locator(`[data-intro="${place}"][data-open="true"]`), place).toContainText(T(title));
   }
-  // Meditation stays a short page: folded, only a round «i» in the head; a tap opens the Einstieg
+  // Meditation: the Einstieg lives in the card «Was hier steht» (no round «i» in the head any more)
   await page.goto('./#/flow/act/meditation');
-  await page.locator('.ai-mini[data-intro="meditation"]').click();
-  await expect(page.locator('[data-intro="meditation"][data-open="true"]')).toContainText(T('Sit, breathe, come back'));
+  await expect(page.locator('[data-hint="meditation"] [data-intro-things="meditation"]')).toContainText(T(INTROS.meditation.things[0].title));
+  await expect(page.locator('[data-intro="meditation"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

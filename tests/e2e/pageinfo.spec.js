@@ -20,8 +20,7 @@ async function open(page, context, hash) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`./${hash}`);
-  // «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a») carries the tip on top of Aktiv; taken away, the tip line is back
-  if (hash === '#/flow') await page.locator('[data-intro="aktiv"]').getByRole('button', { name: T('Hide the introduction') }).click();
+  // Noah 19.10 «2a»: the Einstieg of Aktiv lives in the card «Was hier steht»; the tip line is always there
   return errors;
 }
 async function fits(page, where) {

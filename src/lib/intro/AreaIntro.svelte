@@ -11,7 +11,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { putSetting } from '../flowdb.js';
-  import { INTRO_KEY, INTROS, introOf, visit, isOpen, setFold, hide, offerTour, setOffered } from '../intro.js';
+  import { INTRO_KEY, INTROS, tipsOf, introOf, visit, isOpen, setFold, hide, offerTour, setOffered } from '../intro.js';
   import { tipOfDay, factOfDay } from '../pageinfo.js';
   import { pageInfo, dayContext } from '../pageinfo/store.svelte.js';
   import KindTag from '../pageinfo/KindTag.svelte';
@@ -56,8 +56,8 @@
   const gone = $derived(!!st.hidden[place]);
   const open = $derived(isOpen(raw, place, phone.matches, !!intro?.folded));
   const offer = $derived(offerTour(raw, place));
-  const tip = $derived(pi.loaded ? tipOfDay(pi.info, place, today, dc.ctx, { sourced: false }) : null);
-  const fact = $derived(pi.loaded ? factOfDay(pi.info, place, today, tip?.id) : null);
+  const tip = $derived(pi.loaded ? tipOfDay(pi.info, tipsOf(place), today, dc.ctx, { sourced: false }) : null);
+  const fact = $derived(pi.loaded ? factOfDay(pi.info, tipsOf(place), today, tip?.id) : null);
   const deg = $derived(tip?.when === 'heat' || tip?.when === 'cold' ? dc.ctx.max : null);
   const tipText = (x) => (x.own ? x.text : t(x.text));
   const name = $derived(intro ? t(intro.name) : '');
@@ -147,7 +147,7 @@
   {/if}
 {/snippet}
 
-{#if tips}<TipsSheet page={place} {name} onclose={() => (tips = false)} />{/if}
+{#if tips}<TipsSheet page={tipsOf(place)} {name} onclose={() => (tips = false)} />{/if}
 
 <style>
   .ai {

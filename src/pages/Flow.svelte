@@ -311,9 +311,9 @@
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
-      <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): it carries the tip of the day; the tip line only when it is taken away -->
-      <AreaIntro place="aktiv">{#snippet hidden()}<TipLine page="aktiv" name={t('Active|place')} />{/snippet}</AreaIntro>
-      <HintCard page="aktiv" />
+      <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+      <HintCard page="aktiv" intro="aktiv" />
+      <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">

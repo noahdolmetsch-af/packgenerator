@@ -395,9 +395,9 @@
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
-    <AreaIntro place="pflege" />
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-    {#if bikes.length}<HintCard page="care" />{/if}
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+    {#if bikes.length}<HintCard page="care" intro="pflege" />{:else if $bikesQ}<AreaIntro place="pflege" />{/if}
     {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
   {/if}
   {#if !bikes.length && $bikesQ}

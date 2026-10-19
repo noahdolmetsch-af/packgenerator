@@ -21,7 +21,6 @@
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { homeTrips } from '../lib/home/heute.js';
-  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { loadReview } from '../lib/review/load.js';
@@ -187,9 +186,9 @@
     </div>
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
-  <AreaIntro place="past" />
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
-  <HintCard page="past" />
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="past" intro="past" />
 
   {#if $dataQ && !facts.length}
     <!-- v0.127.0 A-U2: the one empty building block -->

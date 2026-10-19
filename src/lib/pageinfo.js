@@ -65,28 +65,6 @@ export const PAGES = {
       { id: 'counts', title: '«Counts too»', sub: 'Commuting and trip days count by themselves', href: '#/flow/goals' },
     ],
   },
-  touren: {
-    tips: [
-      { id: 'touren-template', text: 'A good trip becomes a template: the next weekend starts with the right list.', button: 'Templates', href: '#/pack/templates' },
-      { id: 'touren-weather', text: 'Fetch the weather about three days before: then the clothes on the list fit the forecast.' },
-      { id: 'touren-debrief', text: 'Look back the day after: what you did not use gets quieter on the next list.', button: 'Look back|page', href: '#/debrief' },
-      { id: 'touren-blocks', text: 'Building blocks like «Rain» add a whole package to a trip with one tap.', button: 'Building blocks', href: '#/blocks' },
-      { id: 'know-veloland', kind: 'know', text: 'Switzerland has nine national cycle routes, signposted in red and white.', source: 'SwitzerlandMobility' },
-      ...TODAY_TIPS.filter((x) => x.when === 'long' || x.when === 'cold' || x.when === 'heat'),
-    ],
-    can: [],
-  },
-  material: {
-    tips: [
-      { id: 'material-weigh', text: 'Weigh the heavy things first: three items often make half of the base weight.' },
-      { id: 'material-bag', text: 'Give each item its usual bag. Packing then shows the weight per bag.' },
-      { id: 'material-block', text: 'Three items you always take together make a good building block.', button: 'Building blocks', href: '#/blocks' },
-      { id: 'material-wish', text: 'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.', button: 'Shopping|tab', href: '#/gear?view=wish' },
-      { id: 'know-ultralight', kind: 'know', text: 'In bikepacking and hiking a base weight under 4.5 kg (10 lb) is usually called «ultralight».', source: 'common definition of the ultralight community' },
-      ...TODAY_TIPS.filter((x) => x.when === 'cold'),
-    ],
-    can: [],
-  },
   meditation: {
     tips: [
       { id: 'med-short', text: 'Short and often carries further than rare and long. 5 minutes count.' },
@@ -115,6 +93,47 @@ export const PAGES = {
  * top of each page (lib/intro.js). A «know» tip with a `source` is the «Did you know» of the page.
  */
 Object.assign(PAGES, {
+  // Noah 19.10 «2a»: one card per page. Where the page has the card «Was hier steht» (Paket A) the Einstieg
+  // lives in it (HintCard intro=…) and its tips join the tips of that page: Touren → trips, Material and
+  // Einkauf → gear, Pflege → care (INTROS[…].tips). «A good trip becomes a template» was there twice: one row.
+  trips: {
+    ...PAGES.trips,
+    tips: [
+      ...PAGES.trips.tips.map((x) => (x.id === 'trips-template' ? { ...x, button: 'Templates', href: '#/pack/templates' } : x)),
+      { id: 'touren-weather', text: 'Fetch the weather about three days before: then the clothes on the list fit the forecast.' },
+      { id: 'touren-debrief', text: 'Look back the day after: what you did not use gets quieter on the next list.', button: 'Look back|page', href: '#/debrief' },
+      { id: 'touren-blocks', text: 'Building blocks like «Rain» add a whole package to a trip with one tap.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'know-veloland', kind: 'know', text: 'Switzerland has nine national cycle routes, signposted in red and white.', source: 'SwitzerlandMobility' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long' || x.when === 'cold' || x.when === 'heat'),
+    ],
+  },
+  gear: {
+    ...PAGES.gear,
+    tips: [
+      ...PAGES.gear.tips,
+      { id: 'material-weigh', text: 'Weigh the heavy things first: three items often make half of the base weight.' },
+      { id: 'material-bag', text: 'Give each item its usual bag. Packing then shows the weight per bag.' },
+      { id: 'material-block', text: 'Three items you always take together make a good building block.', button: 'Building blocks', href: '#/blocks' },
+      { id: 'material-wish', text: 'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.', button: 'Shopping|tab', href: '#/gear?view=wish' },
+      { id: 'know-ultralight', kind: 'know', text: 'In bikepacking and hiking a base weight under 4.5 kg (10 lb) is usually called «ultralight».', source: 'common definition of the ultralight community' },
+      { id: 'wish-wait', text: 'Leave a wish on the list for a week: if you still want it then, it is a good buy.' },
+      { id: 'wish-weight', text: 'Enter the weight of a wish: you see what it would save against the old part.' },
+      { id: 'wish-debrief', text: 'If something was missing on a trip, the wish shows it as its reason.' },
+      { id: 'know-repair', kind: 'know', text: 'Repairing instead of buying new saves resources: the right to repair goods has been strengthened in the EU since 2024.', source: 'European Union, Right to Repair Directive (2024)' },
+      ...TODAY_TIPS.filter((x) => x.when === 'cold'),
+    ],
+  },
+  care: {
+    ...PAGES.care,
+    tips: [
+      ...PAGES.care.tips,
+      { id: 'care-wet', text: 'After a rainy ride wipe and oil the chain the same day: then it does not rust.' },
+      { id: 'care-trip', text: 'Check tyres, brakes and chain a few days before a long tour: then there is time for a spare part.' },
+      { id: 'care-strava', text: 'With Strava connected the km of every ride count by themselves.' },
+      { id: 'know-latex', kind: 'know', text: 'Latex inner tubes lose air faster than butyl tubes: they often need pumping every day or two.', source: 'Schwalbe, tube guide' },
+      ...TODAY_TIPS.filter((x) => x.when === 'long'),
+    ],
+  },
   velos: {
     tips: [
       { id: 'velo-pressure', text: 'Check the tyre pressure once a week: tyres lose a little air even without a puncture.' },
@@ -217,16 +236,6 @@ Object.assign(PAGES, {
     ],
     can: [],
   },
-  pflege: {
-    tips: [
-      { id: 'care-wet', text: 'After a rainy ride wipe and oil the chain the same day: then it does not rust.' },
-      { id: 'care-trip', text: 'Check tyres, brakes and chain a few days before a long tour: then there is time for a spare part.' },
-      { id: 'care-strava', text: 'With Strava connected the km of every ride count by themselves.' },
-      { id: 'know-latex', kind: 'know', text: 'Latex inner tubes lose air faster than butyl tubes: they often need pumping every day or two.', source: 'Schwalbe, tube guide' },
-      ...TODAY_TIPS.filter((x) => x.when === 'long'),
-    ],
-    can: [],
-  },
   // the Einstieg of Workshop & receipts uses the page of «Mehr Inhalt» (PAGE_TEXTS.workshop) and adds two tips
   workshop: {
     ...PAGES.workshop,
@@ -242,15 +251,6 @@ Object.assign(PAGES, {
       { id: 'eq-frame', text: 'Note the frame number: it helps if the bike is ever stolen.' },
       { id: 'eq-date', text: 'Enter the date of a new part: then care knows how old it is.' },
       { id: 'know-uci', kind: 'know', text: 'In road races a bike must weigh at least 6.8 kg.', source: 'UCI technical regulations' },
-    ],
-    can: [],
-  },
-  einkauf: {
-    tips: [
-      { id: 'wish-wait', text: 'Leave a wish on the list for a week: if you still want it then, it is a good buy.' },
-      { id: 'wish-weight', text: 'Enter the weight of a wish: you see what it would save against the old part.' },
-      { id: 'wish-debrief', text: 'If something was missing on a trip, the wish shows it as its reason.' },
-      { id: 'know-repair', kind: 'know', text: 'Repairing instead of buying new saves resources: the right to repair goods has been strengthened in the EU since 2024.', source: 'European Union, Right to Repair Directive (2024)' },
     ],
     can: [],
   },

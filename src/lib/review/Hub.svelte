@@ -20,7 +20,6 @@
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
-  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../db.js';
   import { loadReview } from './load.js';
   import { tripFacts, periodStats, compareSet, planVsReal, ARTS } from './rueckblick.js';
@@ -239,8 +238,9 @@
   </header>
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card «Was hier steht» under the title; the Einstieg carries
     the tip of the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
-  <HintCard page="debrief" />
-  <AreaIntro place="debrief">{#snippet hidden()}<TipLine page="debrief" name={t('Look back|page')} />{/snippet}</AreaIntro>
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="debrief" intro="debrief" />
+  <TipLine page="debrief" name={t('Look back|page')} />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}

@@ -12,6 +12,8 @@
  * Pure; tested in tests/intro.test.js. The component: lib/intro/AreaIntro.svelte.
  */
 export const INTRO_KEY = 'intro';
+/** The key in pageinfo PAGES that holds the tips of an Einstieg (most use their own key). */
+export const tipsOf = (place) => INTROS[place]?.tips ?? place;
 /** 1a: the phone shows it open on this many visits, then as one line. */
 export const OPEN_VISITS = 3;
 
@@ -32,6 +34,7 @@ export const INTROS = {
     tour: 'aktiv',
   },
   touren: {
+    tips: 'trips', // Noah 19.10 «2a»: the tips (pageinfo PAGES) of the page, shared with its card «Was hier steht»
     name: 'Trips|place',
     title: 'Plan, pack, ride and look back',
     things: [
@@ -45,6 +48,7 @@ export const INTROS = {
     folded: true,
   },
   material: {
+    tips: 'gear', // Noah 19.10 «2a»: the tips (pageinfo PAGES) of the page, shared with its card «Was hier steht»
     name: 'Gear|place',
     title: 'Everything you own, entered once',
     things: [
@@ -194,6 +198,7 @@ export const INTROS = {
     expect: 'With a handful of blocks a new list is ready in a few taps, and changes reach every trip.',
   },
   pflege: {
+    tips: 'care', // Noah 19.10 «2a»: the tips (pageinfo PAGES) of the page, shared with its card «Was hier steht»
     page: true,
     name: 'Care|tab',
     title: 'Keep every bike ready to ride',
@@ -229,6 +234,7 @@ export const INTROS = {
     expect: 'Once the parts are entered you know what each bike weighs and what a part cost.',
   },
   einkauf: {
+    tips: 'gear', // Noah 19.10 «2a»: the tips (pageinfo PAGES) of the page, shared with its card «Was hier steht»
     page: true,
     name: 'Shopping|tab',
     title: 'Your wish list, with prices',

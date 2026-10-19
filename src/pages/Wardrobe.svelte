@@ -15,7 +15,6 @@
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
-  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { db } from '../lib/db.js';
   import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
@@ -305,12 +304,9 @@
   </header>
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, the tip of the day, at the end the example «Was trage ich bei wie viel Grad?».
     Without an open trip the Einstieg carries the tip of the day (as on Aktiv), the tip line only when it is taken away. -->
-  <HintCard page="wardrobe" />
-  {#if !trip}
-    <AreaIntro place="wardrobe">{#snippet hidden()}<TipLine page="wardrobe" name={t('Wardrobe')} />{/snippet}</AreaIntro>
-  {:else}
-    <TipLine page="wardrobe" name={t('Wardrobe')} />
-  {/if}
+  <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+  <HintCard page="wardrobe" intro={trip ? null : 'wardrobe'} />
+  <TipLine page="wardrobe" name={t('Wardrobe')} />
 
   {#if trip}
     <!-- v0.59.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->

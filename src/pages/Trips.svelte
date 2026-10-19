@@ -270,17 +270,17 @@
     </div>
     <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
   </header>
-  <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»): what you do here, the tip of the day, the small tour -->
-  <AreaIntro place="touren" />
   {#if view}
     {#if view.empty}
+      <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+      <AreaIntro place="touren" />
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
       </Empty>
     {:else}
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
-      <HintCard page="trips" />
+      <HintCard page="trips" intro="touren" />
       <TipLine page="trips" name={t('Trips|place')} />
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden'}
