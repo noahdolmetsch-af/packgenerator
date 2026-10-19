@@ -23,10 +23,13 @@ export const TAKEN_KEY = 'mail.taken';
 export const TAKEN_MAX = 500;
 /** settings key: how each sender was filed ({ address: { kind, n } }), for 4a. */
 export const SENDERS_KEY = 'mail.senders';
-/** The largest attachment the app fetches (the server says the same: api/_lib/googlemail.js FILE_MAX). */
-export const FILE_MAX = 3 * 1024 * 1024;
-/** All attachments of one mail together. */
-export const FILES_MAX = 10 * 1024 * 1024;
+/**
+ * The attachments of one mail together (and so the largest one): the entry must stay under the automatic
+ * exchange's limit of one record (sync/engine.js RECORD_MAX, about 3.9 MB as text), else the other device
+ * would never get it. The server allows a bit more (api/_lib/googlemail.js FILE_MAX). Bigger files stay in Gmail.
+ */
+export const FILES_MAX = 2.6 * 1024 * 1024;
+export const FILE_MAX = FILES_MAX;
 /** Pictures smaller than this are logos and signatures: left out. */
 export const SMALL_PICTURE = 15 * 1024;
 /** The text kept on the entry. */

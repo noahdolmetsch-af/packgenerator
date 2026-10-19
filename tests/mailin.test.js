@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import {
   fileKind, fileAction, keepFile, filesToFetch, mailNote, vcfLines, passLines, plusAddress, takenWith, findBooking, tripFor,
-  findDeadline, senderKind, learnSender, tipOf, amountOf, ibanOf, eventFrom, dayOfNote, TAKEN_KEY, TAKEN_MAX, FILE_MAX, SMALL_PICTURE, LABEL_QUERY,
+  findDeadline, senderKind, learnSender, tipOf, amountOf, ibanOf, eventFrom, dayOfNote, TAKEN_KEY, TAKEN_MAX, FILE_MAX, FILES_MAX, SMALL_PICTURE, LABEL_QUERY,
 } from '../src/lib/mailin.js';
 import { guessTarget, TARGETS, targetHref } from '../src/lib/inbox.js';
 import { takeMail, fetchLabelled, fetchTaskList, fetchPackEvents, fetchOutside } from '../src/lib/mail/intake.svelte.js';
@@ -29,14 +29,16 @@ describe('files of a mail', () => {
     expect(fileAction({ name: 'karte.vcf' })).toBe('contact');
     expect(fileAction({ name: 'a.zip' })).toBe(null);
   });
-  it('leaves logos, unknown and too big files in Gmail; at most 10 MB together', () => {
+  it('leaves logos, unknown and too big files in Gmail; together small enough for the exchange', () => {
     expect(keepFile({ name: 'logo.png', size: SMALL_PICTURE - 1 })).toBe(false);
     expect(keepFile({ name: 'foto.jpg', size: 200_000 })).toBe(true);
     expect(keepFile({ name: 'a.pdf', size: FILE_MAX + 1 })).toBe(false);
     const big = (n) => ({ name: `${n}.pdf`, size: FILE_MAX - 10, att: n });
     const { take, skip } = filesToFetch([big('a'), big('b'), big('c'), big('d'), { name: 'logo.png', size: 2000, att: 'l' }, { name: 'x.zip', size: 10, att: 'z' }]);
-    expect(take.map((f) => f.name)).toEqual(['a.pdf', 'b.pdf', 'c.pdf']);
-    expect(skip).toEqual(['d.pdf']);
+    expect(take.map((f) => f.name)).toEqual(['a.pdf']);
+    expect(skip).toEqual(['b.pdf', 'c.pdf', 'd.pdf']);
+    const small = (n) => ({ name: `${n}.pdf`, size: 500_000, att: n });
+    expect(filesToFetch([small('a'), small('b'), small('c')]).take.length).toBe(3);
   });
   it('a mail becomes one open entry with sender, subject and its files', () => {
     const n = mailNote(MAIL, [{ name: 'Bestätigung.pdf', type: 'application/pdf', size: 9, data: 'data:application/pdf;base64,AA==' }], { id: 'n1', now: '2026-10-19T09:00:00.000Z', skipped: ['Plan.pdf'] });
@@ -56,6 +58,8 @@ describe('files of a mail', () => {
     expect(takenWith(['a', 'b'], 'b')).toEqual(['b', 'a']);
     expect(takenWith(Array.from({ length: TAKEN_MAX }, (_, i) => `x${i}`), 'new').length).toBe(TAKEN_MAX);
     expect(LABEL_QUERY).toContain('label:packgenerator');
+    // an entry with its files as text stays under the exchange's record limit (sync/engine.js RECORD_MAX)
+    expect((FILES_MAX * 4) / 3 + 60_000).toBeLessThan(3_900_000);
   });
 });
 
