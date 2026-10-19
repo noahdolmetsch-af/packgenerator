@@ -665,7 +665,12 @@ export const HANDBOOK = {
     on: 'Photos stay on this device; without a photo the route is drawn.',
     steps: ['Open Trips › Look back › Your year as pictures, from 1 December also the hint.', 'Tap, swipe or use the arrow keys; the cover chooses another year.', 'The last picture «Thank you for this year» leads to the year letter.'],
     example: 'Example: 21 trips, 1,746 km, 55 days on the way.',
+  },  'f.neuland': {
+    on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
+    example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
   },
+
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

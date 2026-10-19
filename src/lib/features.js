@@ -199,6 +199,7 @@ const OWN = [
   { id: 'f.chronik', group: 'after', title: 'Chronicle', text: 'Everything on one time line, one page per month: trips, rides, bike care, meditation, notes; «Earlier at this time» shows this day in earlier years.', href: '#/chronik', words: 'chronik zeitachse früher vor einem jahr monat velo pflege meditation notizen' },
   { id: 'f.gelernt', group: 'after', title: 'What the app learned', text: 'A month card and a letter for the year: new learnings, changed templates, your pace, the clothing border, km and trips.', href: '#/gelernt', words: 'gelernt monatskarte jahresbrief fortschritt jahr brief drucken' },
   { id: 'f.jahr', group: 'after', title: 'Your year as pictures', text: 'Your year of trips as slides: photos or routes, numbers and a thank-you; for every year.', href: '#/jahr', words: 'jahr bildgeschichte story fotos jahresrückblick dezember' },
+  { id: 'f.neuland', group: 'after', title: 'New ground', text: 'New ground: cantons, municipalities, countries, passes, huts, peaks and lakes you reached for the first time, with a map and the canton bingo; own collections too.', href: '#/neuland', words: 'neuland kantone gemeinden länder pässe hütten sac gipfel viertausender seen bingo karte sammlung erstes mal neu' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */

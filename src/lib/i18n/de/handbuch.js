@@ -509,4 +509,10 @@ export default {
   "Tap, swipe or use the arrow keys; the cover chooses another year.": "Tippen, wischen oder Pfeiltasten; auf dem ersten Bild wählst du ein anderes Jahr.",
   "The last picture «Thank you for this year» leads to the year letter.": "Das letzte Bild «Danke für dieses Jahr» führt zum Jahresbrief.",
   "Example: 21 trips, 1,746 km, 55 days on the way.": "Beispiel: 21 Touren, 1746 km, 55 Tage unterwegs.",
+  // Neuland (Paket M)
+  'Open Trips › Look back › New ground.': 'Öffne Touren › Rückblick › Neuland.',
+  'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.': 'Wähle eine Sammlung: Kantone, Gemeinden, Länder, Pässe, Hütten, Gipfel, Seen oder eine eigene.',
+  'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.': 'Die App färbt ein, was deine Routen erreicht haben; tippe einen Eintrag an für Tag und Tour, oder hake ihn von Hand ab.',
+  'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.': 'Beispiel: eine Tagestour über den Klausenpass → Uri und Glarus neu, der Klausenpass abgehakt, zwei Bingo-Reihen näher.',
+  'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.': 'Geht mit einer GPX-Route an der Tour oder einer hochgeladenen Fahrt; ohne sie hakst du von Hand ab.',
 };

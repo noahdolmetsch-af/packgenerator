@@ -16,7 +16,7 @@
   import { BookHeart, RefreshCw, Copy, Share2, ImagePlus, X } from '@lucide/svelte';
 
   /** trip, d: the debrief being edited (its state object), persist: saves d, notes: tripNotes(...), rides: db.rides of the trip, neu: «Was war neu?» lines */
-  let { trip, d, persist, notes = [], rides = [], neu = [] } = $props();
+  let { trip, d, persist, notes = [], rides = [], neu = [] } = $props(); // neu: null while it loads
 
   const prefQ = liveQuery(() => db.settings.get(DIARY_KEY).then((r) => r ?? null)); // null = no record yet (on)
   const on = $derived($prefQ === undefined ? null : $prefQ?.value?.on !== false);
@@ -38,10 +38,10 @@
 
   // The draft comes when the debrief is opened (Frage 1 «1b»), once: after that it is the user's text.
   $effect(() => {
-    if (on !== true || !d || ready || !$actsQ) return;
+    if (on !== true || !d || ready || !$actsQ || neu === null) return;
     ready = true;
     if (!d.diary?.text) {
-      d.diary = { text: diaryDraft({ trip, facts, neu, photos: photos.length }), at: new Date().toISOString(), edited: false };
+      d.diary = { text: diaryDraft({ trip, facts, neu: neu ?? [], photos: photos.length }), at: new Date().toISOString(), edited: false };
       persist();
     }
   });
@@ -63,7 +63,7 @@
 
   function redraft() {
     if (d.diary?.edited && !confirm(t('Write the draft again? Your changes to the diary are replaced.'))) return;
-    d.diary = { text: diaryDraft({ trip, facts, neu, photos: photos.length }), at: new Date().toISOString(), edited: false };
+    d.diary = { text: diaryDraft({ trip, facts, neu: neu ?? [], photos: photos.length }), at: new Date().toISOString(), edited: false };
     persist();
     msg = t('New draft written.');
   }

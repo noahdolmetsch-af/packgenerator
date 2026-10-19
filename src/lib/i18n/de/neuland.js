@@ -124,14 +124,8 @@ export default {
 
   // features.js, howto.js, handbook.js (the integrator adds the entries)
   'New ground: cantons, municipalities, countries, passes, huts, peaks and lakes you reached for the first time, with a map and the canton bingo; own collections too.': 'Neuland: Kantone, Gemeinden, Länder, Pässe, Hütten, Gipfel und Seen, die du zum ersten Mal erreicht hast, mit Karte und Kantons-Bingo; auch eigene Sammlungen.',
-  'Open Trips › Look back › New ground.': 'Öffne Touren › Rückblick › Neuland.',
   'Choose a collection; the app colours in what your routes reached.': 'Wähle eine Sammlung; die App färbt ein, was deine Routen erreicht haben.',
   'Tick or untick by hand; «Choose collections» switches them on and off.': 'Hake von Hand ab oder weg; «Sammlungen wählen» schaltet sie ein und aus.',
-  'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.': 'Wähle eine Sammlung: Kantone, Gemeinden, Länder, Pässe, Hütten, Gipfel, Seen oder eine eigene.',
-  'The app colours in what your trip routes and uploaded rides reached; tap an entry for its first day and trip, tick or untick it by hand.': 'Die App färbt ein, was deine Tourrouten und hochgeladenen Fahrten erreicht haben; tippe einen Eintrag an für den ersten Tag und die Tour, hake ihn von Hand ab oder weg.',
-  '«Choose collections» switches each on or off, sorts them and adds your own, e.g. «Favourite cafés».': '«Sammlungen wählen» schaltet jede ein oder aus, sortiert sie und fügt eigene hinzu, z. B. «Lieblingscafés».',
-  'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.': 'Beispiel: eine Tagestour über den Klausenpass → Uri und Glarus neu, der Klausenpass abgehakt, zwei Bingo-Reihen näher.',
-  'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.': 'Geht mit einer GPX-Route an der Tour oder einer hochgeladenen Fahrt; ohne sie hakst du von Hand ab.',
 
   // «Was war neu?»
   'What was new?': 'Was war neu?',
