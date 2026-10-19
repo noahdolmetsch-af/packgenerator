@@ -9,7 +9,7 @@
    */
   import { weightByPlace } from '../touren.js';
   import { isConsumable } from '../gear.js';
-  import { zoneName } from '../trips.js';
+  import { packSteps } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
 
   // v0.106.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
@@ -19,9 +19,11 @@
   const kgN = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const eats = (i) => isConsumable(i) || i.waterL > 0;
   const w = $derived(weightByPlace(stats, itemsById, eats));
-  const zones = $derived(Object.fromEntries((stats?.zones ?? []).map((z) => [z.key, z])));
-  const name = (key) => (key === 'food' ? t('Food and water') : trip.purpose?.[key] || (key === 'body' ? t('On me') : zones[key] ? zoneName(zones[key]) : key));
-  const rows = $derived(w.rows.filter((r) => r.g > 0 || r.missing).map((r, n) => ({ ...r, c: COLORS[n % COLORS.length], name: name(r.key) })));
+  // Impeccable 18.10.2026 (Packen 3): the same bag name as in «Taschen» (trips.js packSteps), the model small
+  // after it: «Lenkerrolle · Front roll 14 L»
+  const bags = $derived(stats?.zones ? Object.fromEntries(packSteps(stats, trip.purpose ?? {}).map((s) => [s.key, s])) : {});
+  const name = (key) => (key === 'food' ? t('Food and water') : key === 'body' ? t('On me') : (bags[key]?.title ?? key));
+  const rows = $derived(w.rows.filter((r) => r.g > 0 || r.missing).map((r, n) => ({ ...r, c: COLORS[n % COLORS.length], name: name(r.key), sub: r.key === 'food' || r.key === 'body' ? '' : (bags[r.key]?.sub ?? '') })));
 </script>
 
 <section class="wc" aria-labelledby="wc-h">
@@ -32,7 +34,7 @@
     {#if w.total > 0}
       <div class="bar" aria-hidden="true">{#each rows as r (r.key)}{#if r.g}<i style:flex={r.g} style:background={r.c}></i>{/if}{/each}</div>
       <ul class="rows">
-        {#each rows as r (r.key)}<li><span class="dot" style:background={r.c} aria-hidden="true"></span><span class="nm">{r.name}</span><span class="g num">{r.missing && !r.g ? t('not weighed') : `${r.missing ? '~' : ''}${kgN(r.g)} kg`}</span></li>{/each}
+        {#each rows as r (r.key)}<li><span class="dot" style:background={r.c} aria-hidden="true"></span><span class="nm">{r.name}{#if r.sub}<small>{` · ${r.sub}`}</small>{/if}</span><span class="g num">{r.missing && !r.g ? t('not weighed') : `${r.missing ? '~' : ''}${kgN(r.g)} kg`}</span></li>{/each}
       </ul>
     {/if}
     <p class="foot">
@@ -97,6 +99,10 @@
     flex: 1;
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  .nm small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .g {
     flex: none;

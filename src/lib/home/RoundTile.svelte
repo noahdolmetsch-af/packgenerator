@@ -7,12 +7,14 @@
    * sleep, energy and mood (erholung.schlaf, erholung.akku, spass.stimmung; else the day's check). In the
    * morning a line about the evening round, in the evening the satisfaction (erreicht.zufrieden).
    * Observation only: plain numbers, no judgement. The whole tile opens «Wi gaht's?» (#/me/abfragen).
+   * Tages-Check back (Noah 18.10.2026 «1 a und b»): it opens the page of its round, Morgen-Check (#/check/morning) or
+   * Abend-Rückblick (#/check/evening); the answers stay in «Wi gaht's?».
    */
   import { Sun, Moon, ChevronRight } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
   import { abQuery } from '../abdb.js';
   import { QUESTION, configOf, dueList, fromChecks, isEveningRound, lastAnswer, partOf, stampOf } from '../abfragen.js';
-  import { checkOf } from '../flowcheck.js';
+  import { checkOf, GOALS } from '../flowcheck.js';
   import { t } from '../i18n.svelte.js';
 
   let { today, size = 'l', isnew = false } = $props();
@@ -29,11 +31,15 @@
   // today's answers of «Wi gaht's?» (the greeting's two questions are not part of a round)
   const todays = $derived((data?.answers ?? []).filter((a) => a.day === today && !QUESTION[a.qid]?.hello));
   const mine = $derived(todays.filter((a) => partOf(a, rounds) === part));
-  const done = $derived(mine.length > 0);
+  // Noah 18.10.2026 «1 a und b»: the morning and evening pages are back; what they saved counts too
+  const row = $derived(data?.checks.find((c) => c.day === today) ?? null);
+  const byPage = $derived(!!row && (part === 'evening' ? row.sat != null : ['sleep', 'energy', 'mood', 'extra'].some((k) => row[k] != null)));
+  const done = $derived(mine.length > 0 || byPage);
   const at = $derived(mine.map((a) => String(a.at ?? '').slice(11, 16)).filter(Boolean).sort()[0] ?? '');
-  const goal = $derived(lastAnswer(todays, 'ziele.ziel')?.value ?? '');
-  const sat = $derived(lastAnswer(todays, 'erreicht.zufrieden')?.value ?? null);
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
+  const pageGoal = $derived(check.goal ? (check.goal.id ? t(GOALS.find((g) => g.id === check.goal.id)?.label ?? '') : check.goal.text) : '');
+  const goal = $derived(lastAnswer(todays, 'ziele.ziel')?.value ?? pageGoal);
+  const sat = $derived(lastAnswer(todays, 'erreicht.zufrieden')?.value ?? row?.sat ?? null);
   const NUMS = [
     { key: 'sleep', qid: 'erholung.schlaf', label: 'Sleep|flow' },
     { key: 'energy', qid: 'erholung.akku', label: 'Energy' },
@@ -57,7 +63,7 @@
 </script>
 
 {#if data}
-  <a class="rt surf {size}" href="#/me/abfragen" aria-labelledby="rt-h" data-section="morningcheck" data-part={part} data-done={done}>
+  <a class="rt surf {size}" href={part === 'evening' ? '#/check/evening' : '#/check/morning'} aria-labelledby="rt-h" data-section="morningcheck" data-part={part} data-done={done}>
     <TileHead icon={evening ? Moon : Sun} id="rt-h" title={evening ? t('Evening round') : t('Morning round')} {isnew} />
     <p class="sub">{sub}</p>
     {#if known}

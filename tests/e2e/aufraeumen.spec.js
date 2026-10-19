@@ -63,6 +63,8 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
 
   // F: Ich › Testdaten aufräumen: the test trip and the fixture's «Test …» bags, archived.
   await page.goto('./#/me');
+  // Impeccable (18.10.2026, changed on purpose): «More» is folded on Ich; one tap opens it
+  await page.locator('main summary').filter({ has: page.getByRole('heading', { name: T('More'), exact: true }) }).click();
   await page.getByRole('button', { name: new RegExp(T('Clean up test data')) }).click();
   const sheet = page.getByRole('dialog', { name: T('Clean up test data') });
   await expect(sheet.getByText(T('Found: everything with «test» in its name. Untick what should stay.'))).toBeVisible();
@@ -81,6 +83,8 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
 
   // Undo brings it back.
   await page.goto('./#/me');
+  // Impeccable (18.10.2026, changed on purpose): «More» is folded on Ich; one tap opens it
+  await page.locator('main summary').filter({ has: page.getByRole('heading', { name: T('More'), exact: true }) }).click();
   await page.getByRole('button', { name: new RegExp(T('Clean up test data')) }).click();
   await sheet.getByRole('button', { name: /^Rückgängig: / }).click();
   await expect(sheet.getByRole('status')).toContainText(/zurück/);
@@ -123,6 +127,8 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
 
   // G: the playground with a weekend trip; ending it puts the data back.
   await page.goto('./#/me');
+  // Impeccable (18.10.2026, changed on purpose): «More» is folded on Ich; one tap opens it
+  await page.locator('main summary').filter({ has: page.getByRole('heading', { name: T('More'), exact: true }) }).click();
   await page.getByRole('button', { name: new RegExp(T('Try it out')) }).click();
   const play = page.getByRole('dialog', { name: T('Try it out') });
   // the start reloads the app (the demo day applies before it starts): wait for that load first

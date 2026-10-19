@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { openMore } from './bike-more.js';
+import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
 
 // calendar days (no 24 h steps): the date at noon UTC plus n days
 const cal = (n) => {
@@ -69,9 +70,11 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // mockup A: the 16 functions are small tiles further down the wall)
   if (phone) await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => window.scrollTo(0, 0));
-  await expect(page.locator('.wall [data-fn]')).toHaveCount(16);
+  // v0.155.0 «Heute neu geordnet» (HN4 4b, changed on purpose): meditation and the day card come first; on a
+  // trip day the trip card stands right under the day card; nine functions left the wall (back through «+»)
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
-  expect(await firstScreen(page.locator('section.trip h2, #next-h').first())).toBe(true);
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 3))).toEqual(['meditation', 'daycard', 'trip']);
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More

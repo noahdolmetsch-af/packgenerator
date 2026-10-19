@@ -1,3 +1,10 @@
+<script module>
+  // a visit of the Einstieg counts once per opening of a page (each hash change is a new opening)
+  const seenIntro = new Set();
+  let nav = 0;
+  if (typeof window !== 'undefined') window.addEventListener('hashchange', () => nav++);
+</script>
+
 <script>
   /**
    * Hinweistexte HT1–HT2 (Noah 14.10.2026, mockups approved 20:31 «HT1–HT2 freigegeben», answers «1a 2b 3a»):
@@ -6,19 +13,66 @@
    * there) and «Das kann die App hier» (opens the fold at the page end). × folds the card to the quiet line
    * «Was hier steht ›», which opens it again (1a). Data in hints.js; the state in the setting of pageinfo.
    * page: a key of HINTS (and of PAGES for the fold).
+   * intro (Noah 19.10 «2a»: one card per page): a key of INTROS (lib/intro.js). The «Einstieg» of that page
+   * then lives in this card instead of its own: the small tour offered on the first visit, «So geht's hier»
+   * (its three things, with links), «Was dich erwartet», one «Wusstest du» with its source, the small tour
+   * and the Handbook. The tip of the day stays in the tip line (TipLine) under the card.
    * foldedOnPhone (Paket D, Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line.
    * only: '' draws both states here; 'line' only the folded line, as a small chip «Was hier steht ›» (for a page
    * head); 'card' only the open card. A page may place the two in different spots (Trips on a phone).
    */
-  import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell } from '@lucide/svelte';
+  import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell, Upload, Link2, Flag } from '@lucide/svelte';
   import { pageInfo } from './store.svelte.js';
   import { hintOf } from '../hints.js';
   import { canRows, canShown, setHint, hintShown, hintShownFolded } from '../pageinfo.js';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { putSetting } from '../flowdb.js';
+  import { dayContext } from './store.svelte.js';
+  import KindTag from './KindTag.svelte';
+  import { tipOfDay, factOfDay } from '../pageinfo.js';
+  import { localDay } from '../localday.js';
+  import { INTRO_KEY, INTROS, tipsOf, visit, offerTour, setOffered } from '../intro.js';
+  import { TOURS, stepCount } from '../tour.js';
+  import { startTour } from '../tour/run.js';
+  import { Map as MapIcon, Backpack, History, Boxes, ShoppingCart, ListChecks, Timer, CalendarDays, Star, Copy, Thermometer } from '@lucide/svelte';
 
-  let { page, foldedOnPhone = false, only = '' } = $props();
-  const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell };
+  let { page, intro: introKey = null, foldedOnPhone = false, only = '' } = $props();
+  // svelte-ignore state_referenced_locally
+  const intro = introKey ? INTROS[introKey] : null;
+  const ICON_INTRO = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
+  const today = localDay();
+  const dc = dayContext(today);
+  // the Einstieg's state (visits, offered) lives in its own setting, as before (in the backup)
+  let introRaw = $state(undefined);
+  $effect(() => {
+    if (!intro) return;
+    const sub = liveQuery(() => db.settings.get(INTRO_KEY)).subscribe({ next: (x) => (introRaw = x?.value) });
+    return () => sub.unsubscribe();
+  });
+  const saveIntro = (fn) =>
+    db.transaction('rw', db.settings, async () => {
+      const next = fn((await db.settings.get(INTRO_KEY))?.value);
+      if (next) await putSetting(db, INTRO_KEY, next);
+    });
+  // one visit per opening of the page: a re-mount of the card (the data of the page loads) is no new visit
+  $effect(() => {
+    if (!intro || seenIntro.has(`${introKey}:${nav}`)) return;
+    seenIntro.add(`${introKey}:${nav}`);
+    saveIntro((v) => visit(v, introKey));
+  });
+  const hasTour = $derived(!!intro?.tour && !!TOURS[intro.tour]);
+  const offer = $derived(hasTour && offerTour(introRaw, introKey));
+  const introName = $derived(intro ? t(intro.name) : '');
+  // the «Wusstest du» with its source; never the tip the tip line shows today
+  const fact = $derived(intro && pi.loaded ? factOfDay(pi.info, tipsOf(introKey), today, tipOfDay(pi.info, page, today, dc.ctx)?.id) : null);
+  function tour() {
+    saveIntro((v) => setOffered(v, introKey));
+    startTour(intro.tour);
+  }
+  const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell, upload: Upload, link: Link2, flag: Flag };
   const pi = pageInfo();
   const hint = $derived(hintOf(page));
   const open = $derived(pi.loaded && (foldedOnPhone && phone.matches ? hintShownFolded(pi.info, page) : hintShown(pi.info, page)));
@@ -50,12 +104,21 @@
 
 {#if hint && pi.loaded}
   {#if open && only !== 'line'}
-    <section class="hint" data-hint={page} aria-label={t('What is here')}>
+    <section class="hint" data-hint={page} data-intro-in={introKey} aria-label={t('What is here')}>
       <div class="h">
         <Info size={20} aria-hidden="true" />
         <p><b>{t(hint.lead[0])}</b> {t(hint.lead[1])}</p>
         <button type="button" class="ib" aria-label={t('Fold the explanation')} onclick={() => pi.save((v) => setHint(v, page, false))}><X size={18} aria-hidden="true" /></button>
       </div>
+      {#if offer}
+        <div class="offer" data-offer>
+          <span>{t('New here? A short tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</span>
+          <span class="oacts">
+            <button type="button" class="btn sm" onclick={() => saveIntro((v) => setOffered(v, introKey))}>{t('No thanks')}</button>
+            <button type="button" class="btn sm" onclick={tour}>{t('Start ›|tour')}</button>
+          </span>
+        </div>
+      {/if}
       {#snippet uses()}
         <ul class="uc">
           {#each hint.uses as [icon, title, text] (title)}
@@ -72,6 +135,38 @@
       {:else}
         <p class="jl">{t('Typical here')}</p>
         {@render uses()}
+      {/if}
+      {#if intro}
+        {#snippet einstieg()}
+          <ul class="uc" data-intro-things={introKey}>
+            {#each intro.things as x (x.title)}
+              {@const Icon = ICON_INTRO[x.icon] ?? Check}
+              <li><Icon size={18} aria-hidden="true" /><span><b>{#if x.href}<a href={x.href}>{t(x.title)}</a>{:else}{t(x.title)}{/if}</b>{t(x.text)}</span></li>
+            {/each}
+          </ul>
+          <p class="expect" data-expect><b>{t('What to expect:')}</b> {t(intro.expect)}</p>
+          {#if fact}
+            <div class="fact" data-fact={fact.id}>
+              <p><KindTag kind="know" />{t(fact.text)}</p>
+              <p class="src">{t('Source: {source}', { source: t(fact.source) })}</p>
+            </div>
+          {/if}
+          <div class="links">
+            {#if hasTour}<button type="button" class="lk" onclick={tour}>{t('Tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</button>{/if}
+            <a class="lk" href="#/me/handbook">{t('Handbook')}</a>
+          </div>
+        {/snippet}
+        <!-- on a phone, and where the list comes first (Touren, Material, Einkauf, Pflege: intro.folded), the
+          Einstieg is one closed row of the card; on a computer otherwise open -->
+        {#if phone.matches || intro.folded}
+          <details class="fold" data-intro-more={introKey}>
+            <summary><ChevronDown class="chev" size={16} aria-hidden="true" />{t('How to use {place}', { place: introName })} · {t('3 things')}</summary>
+            <div class="inner">{@render einstieg()}</div>
+          </details>
+        {:else}
+          <p class="jl">{t('How to use {place}', { place: introName })}</p>
+          {@render einstieg()}
+        {/if}
       {/if}
       {#if jumps.length}
         <p class="jl">{t('Further down')}</p>
@@ -98,6 +193,74 @@
 {/if}
 
 <style>
+  /* Noah 19.10 «2a»: the Einstieg inside the card */
+  .offer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-right: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--paper);
+    font-size: var(--fs-small);
+  }
+  .oacts {
+    display: flex;
+    gap: 6px;
+  }
+  .oacts .btn {
+    min-height: 44px;
+  }
+  .fold .inner {
+    display: grid;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .uc a {
+    color: inherit;
+  }
+  .expect {
+    margin: 0;
+    padding-right: 8px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .fact {
+    margin-right: 8px;
+    padding: 9px 11px;
+    border-radius: 12px;
+    background: var(--info-soft);
+    font-size: var(--fs-small);
+  }
+  .fact p {
+    margin: 0;
+  }
+  .fact .src {
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding-right: 8px;
+  }
+  .links .lk {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: inherit;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
   .hint {
     display: grid;
     gap: 10px;

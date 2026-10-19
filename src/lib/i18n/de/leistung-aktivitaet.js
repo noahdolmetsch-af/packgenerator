@@ -4,7 +4,7 @@
 export default {
   // the values card
   'Moving time|act': 'Dauer in Bewegung',
-  'Elapsed time': 'Zeit verstrichen',
+  'Elapsed time|act': 'Zeit verstrichen',
   'Ø / max km/h': 'Ø / max km/h',
   'Ø / max heart rate': 'Ø / max Puls',
   'Ø cadence': 'Ø Kadenz',
@@ -43,7 +43,7 @@ export default {
   'Power curve|act': 'Leistungskurve',
   'best Ø power per duration · grey = best of the last 90 days': 'beste Ø Leistung pro Dauer · grau = beste der letzten 90 Tage',
   'Power curve: {list}': 'Leistungskurve: {list}',
-  '{n} s': '{n} s',
+  '{n} s|span': '{n} s',
   // «Mehr aus der Leistung»
   'W/kg, work, intensity, evenness': 'W/kg, Arbeit, Intensität, Gleichmässigkeit',
   'W/kg Ø / NP': 'W/kg Ø / NP',

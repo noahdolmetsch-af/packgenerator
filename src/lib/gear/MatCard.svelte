@@ -13,7 +13,7 @@
   import { catIcon, catColor } from './caticon.js';
   import { t, nameOf } from '../i18n.svelte.js';
 
-  let { item, u, alt = null, proven = false, view = 'all', selected = false, reasons = [], onopen, onhome = null } = $props();
+  let { item, u, alt = null, proven = false, view = 'all', selected = false, reasons = [], onopen, onhome = null, onbought = null } = $props();
   const Icon = $derived(catIcon(item.category));
   const wish = $derived(item.ownership === 'wishlist' || item.ownership === 'to-buy');
   const share = $derived(u?.taken ? Math.round((u.used / u.taken) * 100) : null);
@@ -51,6 +51,12 @@
   {#if view === 'never' && onhome}
     <div class="acts">
       {#if leaveHome(item)}<span class="home">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => onhome(item)} data-explain={t('Leave at home')}>{t('Leave home|short')}</button>{/if}
+    </div>
+  {/if}
+  {#if wish && onbought}
+    <!-- Impeccable (18.10.2026): «Bought» on a wish, as in the list of «Shopping» -->
+    <div class="acts">
+      <button type="button" class="btn sm" aria-label={t('Bought: {name}', { name: nameOf(item) })} onclick={() => onbought(item)}>{t('Bought|shop')}</button>
     </div>
   {/if}
 </article>

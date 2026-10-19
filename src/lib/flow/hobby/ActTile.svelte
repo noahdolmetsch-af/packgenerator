@@ -36,6 +36,9 @@
      and its one line; a nudge («heute wäre gut») framed dashed. Renaming moved to «Kacheln ändern». -->
 <a class="tile {a.ring}" class:nudge={line?.kind === 'nudge'} class:rest={state.resting} data-tile={a.id} data-kind={line?.kind ?? 'week'} {href} aria-label="{tileName(a)} · {actName(a)}{line?.kind ? ` · ${t(TILE_LINE_NAMES[line.kind])}` : ''}">
   <span class="top"><ActIcon icon={a.icon} ring={a.ring} dim={state.resting} /><span class="sd num" aria-hidden="true">{state.resting ? '' : `${state.stand.n}/${state.stand.of}`}</span></span>
+  <!-- Impeccable runde 2 (clarify): the activity's own name, small and grey right above the playful name, when it differs
+       (its own line: next to the symbol it broke words on a 320 px phone) -->
+  {#if tileName(a) !== actName(a)}<small class="own" data-own-name aria-hidden="true">{actName(a)}</small>{/if}
   <b class="tn">{tileName(a)}</b>
   {#if line?.kind === 'spark'}
     <svg class="spark" viewBox="0 0 100 24" preserveAspectRatio="none" role="img" aria-label={tn(line.vars.n, '{n} time in 8 weeks', '{n} times in 8 weeks')}><polyline points={spark} /></svg>
@@ -79,8 +82,15 @@
     margin-bottom: 4px;
   }
   .sd {
+    flex: none;
     color: var(--ink-3);
     font-size: var(--fs-tiny);
+  }
+  .own {
+    margin-bottom: -4px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    line-height: 1.3;
   }
   .tn {
     font: 600 var(--fs-body) / 1.3 var(--font-body);

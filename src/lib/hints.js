@@ -135,6 +135,51 @@ export const HINTS = {
     ],
     jumps: [['To file', 'tofile-h'], ['Recently filed', 'recent-h']],
   },
+  templates: {
+    lead: ['Here are your templates for new trips.', 'A template keeps blocks and single items, so the next trip starts already packed.'],
+    uses: [
+      ['plus', 'A new kind of trip', 'make a template once, use it every time'],
+      ['bag', 'After a good trip', 'turn its packing list into a template'],
+      ['save', 'Not needed now', 'archive it, it comes back with one tap'],
+    ],
+    jumps: [['Your templates', 'tpl-all-h'], ['From your trips', 'tpl-src-h'], ['Archived', 'tpl-arch-h']],
+  },
+  rides: {
+    lead: ['Here you upload a recorded ride as GPX.', 'The app shows pauses, planned against real and what you can learn from it.'],
+    uses: [
+      ['upload', 'After the ride', 'load the GPX file from your bike computer'],
+      ['clock', 'Planning better', 'planned against real makes the next time plan closer'],
+      ['book', 'Something learned', 'keep it with one tap, it goes to the debrief'],
+    ],
+    jumps: [['Saved rides', 'saved-h'], ['Good to know', 'know-h']],
+  },
+  inspiration: {
+    lead: ['Here are your own links: rigs, packing lists, videos, routes and races.', 'The app recognises the kind of link; you take over what helps you.'],
+    uses: [
+      ['link', 'Found something', 'paste the link, the app sorts it'],
+      ['bag', 'A good idea', 'take it over as a packing rule, a wish or a note'],
+      ['flag', 'A race', 'with its dates, it shows up at Setup'],
+    ],
+    jumps: [['Add link|insp', 'if-add'], ['Taken over lately', 'if-rec-h'], ['Your links', 'if-list']],
+  },
+  equipment: {
+    lead: ['Here are the parts of your bike with weight and price.', 'Values you enter once help with weight, wear and comparing bikes.'],
+    uses: [
+      ['wrench', 'A new part', 'tap the row and enter model, weight and price'],
+      ['scale', 'Getting lighter', 'the weight per area shows where it adds up'],
+      ['columns', 'Two bikes', '«Compare bikes» puts them side by side'],
+    ],
+    jumps: [['Components', 'eq-parts'], ['Weight per area', 'eq-w'], ['Most expensive parts', 'eq-p']],
+  },
+  rig: {
+    lead: ['Here is your setup for one bike: photos, weight, bags and changes.', 'Ideas from others stay links you added yourself.'],
+    uses: [
+      ['camera', 'Before a trip', 'a photo of the packed bike'],
+      ['bag', 'Bags', 'the bag plan shows what goes where'],
+      ['note', 'Changed something', 'the setup log keeps it with the date'],
+    ],
+    jumps: [['My setup', 'rg-photos'], ['Total weight', 'rg-weight'], ['Bag plan', 'rg-bags'], ['Setup log', 'rg-log'], ['Your races', 'rg-races']],
+  },
 };
 
 /** The hint of a page, or null. */

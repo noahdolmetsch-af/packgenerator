@@ -6,7 +6,7 @@
 
 /** { featureId: [step 1, step 2, step 3] } */
 export const HOWTO = {
-  dayride: ['Open Today.', 'Tap «Plan a day ride».', 'The ride comes like your last one, with the weather; change what you like.'],
+  dayride: ['Open Today.', 'Tap «Quick start».', 'The ride comes like your last one, with the weather; change what you like.'],
   blocks: ['Open Gear › Building blocks.', 'Look at a block such as sleep, cook or rain.', 'In a new trip, tick the blocks: their items come along.'],
   templates: ['Open a good trip in Packen.', 'Under «…» choose «Save as template».', 'For the next trip start from this template.'],
   gpx: ['Open a trip, e.g. your next one.', 'At «Route» tap «Load GPX».', 'Choose the file: km, climbing and riding time come along.'],
@@ -102,18 +102,22 @@ export const HOWTO = {
   'f.camera': ['Tap «Take photo» where a photo is added.', 'New › Workshop visit: the camera opens first.', '«Another page» adds a page to a receipt.'],
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file is written there.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],
+  'f.tour': ['Open Me › Handbook › Tour.', 'Choose the example trip or your own data.', 'Tap «Next» through the steps.'],
   'f.playground': ['Open the playground.', 'Pack, ride and debrief a made-up trip.', 'Afterwards everything is as before.'],
   'f.push': ['Open Me › Reminders on the phone.', 'Switch on «On the phone»; Chrome asks once.', 'Switch on one reminder and tap «Send a test».'],
   'f.helper': ['Open Me › Helper.', 'Enter the helper code; it stays on this device.', 'Before sending you see what goes out.'],
   'f.shortcuts': ['On a computer press ?.', 'The list of shortcuts opens.', 'Try g h, g t, n or /.'],
+  'f.ownvalues': ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
   'f.news': ['Open Me › What is new.', 'The newest version stands on top.', 'Below every function and all versions by month.'],
   // Tagespaket #151 functions (Velos › Setup, Jahresziele)
+  'f.bagsetups': ['Open Bikes › My setup and tap «New setup».', 'Choose the bags and put your things into them.', 'When planning a trip, tap «Setup: …» to switch.'],
   'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
   'f.standardbike': ['Open Bikes › Setup › «Standard bike and order».', 'Move a bike with the arrows or tap «Make standard».', 'Choose what a new trip brings and save.'],
   'f.bagplan': ['Open Bikes › Setup › «Whole bag plan».', 'See the weight front, middle and rear.', 'Tap «Move» on a hint.'],
   'f.setuplog': ['Open Bikes › Setup › log and add what you changed.', 'After the next trip, note how it felt.', 'Each entry shows the km since the change.'],
+  'f.garmin': ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 850.', 'Open a page to see why each value is there.'],
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
   'f.offers': ['Open Me › Offers and start an offer.', 'Tap + on a day to open a free time.', 'Send the link; new bookings show on Today.'],
@@ -122,17 +126,28 @@ export const HOWTO = {
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
   // v0.134.0 «Listen und Typen»
+  'f.editall': ['Open the thing (bike: the pen «Edit»; problem: «…»; learning: tap it).', 'Rename it, or delete it: the app asks first and offers «Undo».', 'For the lists of the app: Me › «Lists and types».'],
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
   // v0.135.0
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.remember': ['Open Calendar › Remember.', 'Type a to-do or make an own list.', 'Tick it off; Undo brings it back.'],
+  'f.reminders': ['After a ride or before a trip, answer the app’s question about a reminder.', 'Open Me › Reminders.', 'Switch a reminder off or change its time.'],
+  'f.birthdays': ['Open Me › Reminders.', 'Add a birthday or a plant.', 'See it in Calendar › Remember when it is time.'],
+  'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
+  'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
+  'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
+  'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],
+  'f.insights': ['Open Me › Insights.', 'Read the sentences: what goes together in your last 90 days.', 'Pairs with fewer than 14 days say «still collecting days».'],
   'f.timer': ['Open «What the app can do» › Timer, or search «Timer».', 'Choose a kind and a time, tap «Start».', 'Open «Log» to add a note.'],
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
+  'f.weekplan': ['Open Woche: the whole week in one place.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
   'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
+  'f.sports': ['Open New tour.', 'Choose the sport: a bike sport brings its own standard bike.', 'Tap another bike and «Make standard for …» to keep it for that sport.'],
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
   'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],

@@ -44,14 +44,16 @@ export const SINCE = {
   setup: '0.5.0', care: '0.7.0', order: '0.19.3', receipt: '0.57.0', km: '0.38.0', 'f.kmimport': '0.16.0', 'f.problem': '0.45.2', 'f.workshop': '0.17.0', 'f.equipment': '0.83.0', 'f.bikecompare': '0.57.0',
   'f.folder': '0.69.0', 'f.breakin': '0.70.0', 'f.repairkit': '0.70.0', 'f.warranty': '0.70.0', 'f.theft': '0.70.0', 'f.partstart': '0.68.0', 'f.prep': '0.18.0',
   'f.tick': '0.51.0', 'f.check': '0.51.0', 'f.stopwatch': '0.51.0', 'f.goals': '0.51.0', 'f.milestones': '0.79.0', 'f.meditation': '0.81.0', 'f.medlog': '0.84.0', 'f.medmore': '0.86.0',
-  backup: '0.2.0', install: '0.1.0', lang: '0.20.0', demo: '0.18.0', 'f.search': '0.46.0', 'f.inbox': '0.19.3', 'f.notes': '0.57.0', 'f.autobackup': '0.2.0', 'f.tidy': '0.88.0', 'f.playground': '0.88.0',
-  'f.standardbike': '0.145.0', 'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0', 'f.tripstate': '0.132.0', 'f.yeargoals': '0.132.0', 'f.velosetup': '0.132.0', 'f.bagplan': '0.132.0', 'f.setuplog': '0.132.0', 'f.abfragen': '0.133.0', 'f.komoot': '0.133.0', 'f.inspiration': '0.134.0', 'f.lists': '0.134.0', 'f.medreview': '0.135.0', 'f.timer': '0.135.0', 'f.pagetips': '0.135.0', 'f.training': '0.135.0', 'f.invoices': '0.135.0', 'f.bills': '0.135.0',
+  backup: '0.2.0', install: '0.1.0', lang: '0.20.0', demo: '0.18.0', 'f.search': '0.46.0', 'f.inbox': '0.19.3', 'f.notes': '0.57.0', 'f.autobackup': '0.2.0', 'f.tidy': '0.88.0', 'f.playground': '0.88.0', 'f.tour': '0.151.0',
+  'f.weekplan': '0.151.0', 'f.standardbike': '0.145.0', 'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0', 'f.tripstate': '0.132.0', 'f.yeargoals': '0.132.0', 'f.velosetup': '0.132.0', 'f.bagplan': '0.132.0', 'f.setuplog': '0.132.0', 'f.abfragen': '0.133.0', 'f.komoot': '0.133.0', 'f.inspiration': '0.134.0', 'f.lists': '0.134.0', 'f.medreview': '0.135.0', 'f.timer': '0.135.0', 'f.pagetips': '0.135.0', 'f.training': '0.135.0', 'f.invoices': '0.135.0', 'f.bills': '0.135.0', 'f.garmin': '0.149.0', 'f.bagsetups': '0.149.0', 'f.ownvalues': '0.149.0', 'f.gipfelbuch': '0.149.0', 'f.skiequipment': '0.149.0', 'f.remember': '0.149.0', 'f.reminders': '0.149.0', 'f.birthdays': '0.149.0', 'f.measure': '0.149.0', 'f.editall': '0.149.0', 'f.sports': '0.149.0',
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
   // Paket N «Pläne und Träume»: the bundler sets the package version when it goes into a release
-  'f.notelinks': '0.148.0', 'f.next': '0.148.0', 'f.dreams': '0.148.0', 'f.races': '0.148.0', 'f.compass': '0.148.0', 'f.noteformats': '0.148.0',
+  'f.notelinks': '0.151.0', 'f.next': '0.151.0', 'f.dreams': '0.151.0', 'f.races': '0.151.0', 'f.compass': '0.151.0', 'f.noteformats': '0.151.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
+  // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
+  'f.routine': '0.150.0', 'f.insights': '0.150.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
@@ -176,19 +178,28 @@ export function tileDaysLeft(update, today, current = WHATS_NEW[0]?.version) {
 /**
  * I11e: after an update the tile «New» goes on top of the wall, as a whole row. → { tiles, from }:
  * from = where it stood before ({ i, size }) or null when it was not on the wall.
+ * 0.155.0 HN4 (Noah 21:27 «meditation, dann Tageskarte, dann Tourkarte»): «on top» is under the tiles that
+ * lead the page (head: meditation, the day card, «Important today»), so their order stays.
  */
-export function pinNews(tiles) {
+export function pinNews(tiles, head = []) {
   const i = tiles.findIndex((x) => x.id === 'news');
   const from = i < 0 ? null : { i, size: tiles[i].size };
-  return { tiles: [{ id: 'news', size: 'long' }, ...tiles.filter((x) => x.id !== 'news')], from };
+  const rest = tiles.filter((x) => x.id !== 'news');
+  let at = 0;
+  while (at < rest.length && head.includes(rest[at].id)) at++;
+  rest.splice(at, 0, { id: 'news', size: 'long' });
+  return { tiles: rest, from };
 }
 /**
  * After the 14 days the tile goes back where it stood (or away when it was not there), but only when
- * it is still on top as a whole row; moved, resized or taken away by hand it stays as it is (null).
+ * it is still on top as a whole row (right under the head tiles); moved, resized or taken away by hand
+ * it stays as it is (null).
  */
-export function unpinNews(tiles, from) {
-  if (tiles[0]?.id !== 'news' || tiles[0].size !== 'long') return null;
-  const rest = tiles.slice(1);
+export function unpinNews(tiles, from, head = []) {
+  let at = 0;
+  while (at < tiles.length && head.includes(tiles[at].id)) at++;
+  if (tiles[at]?.id !== 'news' || tiles[at].size !== 'long') return null;
+  const rest = tiles.filter((_, k) => k !== at);
   if (from && Number.isInteger(from.i)) rest.splice(Math.max(0, Math.min(from.i, rest.length)), 0, { id: 'news', size: from.size });
   return rest;
 }

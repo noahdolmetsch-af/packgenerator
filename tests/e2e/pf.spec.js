@@ -553,7 +553,7 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
     const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
     await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
     // v0.102.0 Design-Refresh P3: the button shows a short line under the name too; its name stays «view count»
-    await rec.check(`${when}: the number is explained (the view "Favourite things" with its count)`, () => expect(fav).toHaveAccessibleName(new RegExp(`^${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
+    await rec.check(`${when}: the number is explained (the view "Favourites" with its count)`, () => expect(fav).toHaveAccessibleName(new RegExp(`^${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
     await rec.check(`${when}: exactly the favourites are listed`, async () => {
       for (const i of favs) await expect(page.locator('main').getByText(LANG === 'de' ? i.nameDe : i.name).first()).toBeVisible({ timeout: 3000 });
       await expect(page.locator('main').getByText(nm('WZ02'))).toHaveCount(0);
@@ -584,7 +584,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await rec.click(data.getByRole('button', { name: T('Export backup') }));
+  await rec.click(data.getByRole('button', { name: T('Save backup') }));
   const file = info.outputPath('pf09-export.json');
   await (await wait).saveAs(file);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
@@ -889,9 +889,19 @@ test('PF15: core screens at 320 and 390 px, keyboard, labels and status texts', 
   }
   // Keyboard: Tab reaches "New", Enter opens it, Escape closes it; the focus is visible.
   await page.goto('./#/');
+  // Paket C: when questions are due, the Tages-Check comes as a window on Heute first (focus stays inside it);
+  // Escape is its «Später», after that the page itself takes the Tab
+  const round = page.locator('dialog[data-section="abfragen"]');
+  await round.waitFor({ state: 'attached', timeout: 3000 }).catch(() => {});
+  if ((await round.count()) && (await round.evaluate((d) => d.open))) {
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+  }
   let found = false;
+  // Paket C: the walk starts in the page content (after the header), and Heute now holds more than 80 stops (day card,
+  // routine, balance …); the header with «New» sits right before the content, so Shift+Tab reaches it in a few steps
   for (let n = 0; n < 80 && !found; n++) {
-    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
     found = await page.evaluate((name) => document.activeElement?.getAttribute('aria-label') === name || document.activeElement?.textContent?.trim() === name, T('New'));
   }
   await rec.check('keyboard: Tab reaches "New"', () => expect(found).toBe(true));
@@ -988,7 +998,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await endToDebrief(page, T);
   await rec.check('debrief: the ride note is shown for this trip', () => expect(page.locator('.ridenotes')).toContainText(`${P} PF16 note`, { timeout: 3000 }));
   await page.getByRole('button', { name: T('Done|debrief') }).click();
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  await expect(page.locator('[data-saved]')).toBeVisible();
   await rec.check('debrief: saved for this trip', async () => expect((await table(page, 'debriefs')).map((d) => d.tripId)).toContain(tripId));
   await rec.shot('debrief');
   // Backup round trip. v0.94.0: Today first (it stores its milestone levels when it is seen), then the
@@ -999,7 +1009,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await data.getByRole('button', { name: T('Export backup') }).click();
+  await data.getByRole('button', { name: T('Save backup') }).click();
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
@@ -1071,7 +1081,10 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
   // v0.46.0: the first button of "What do you want to do?".
   // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip on Today (green card), «Öffnen» goes to it.
-  await rec.click(page.locator('.wall [data-fn="dayride"]'));
+  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «Quick start» is in the
+  // day card (its part «Tag», one tap on the clock at another time of day)
+  await rec.click(page.locator('[data-daycard] [data-clock="day"]'));
+  await rec.click(page.locator('[data-daycard] [data-daycard-quick]'));
   const bar = page.locator('[data-quick-made]');
   await expect(bar).toBeVisible();
   await rec.click(bar.getByRole('link', { name: T('Open'), exact: true }));
@@ -1105,7 +1118,7 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   // v0.67.0: «Tour abschliessen» (it asks while the ride is still ahead), «Tour beendet», the debrief
   await endToDebrief(page, T);
   await rec.click(page.getByRole('button', { name: T('Done|debrief') }));
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  await expect(page.locator('[data-saved]')).toBeVisible();
   rec.stop();
   const done = (await table(page, 'trips')).find((x) => x.id === trip0.id);
   rec.r.counts.lostTicks = done.entries.filter((e) => !e.packed).length;
@@ -1195,7 +1208,9 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): the km are a quick button of the bike on Today.
   // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
-  await rec.click(page.locator('.wall [data-fn="km"]'));
+  // v0.155.0 (HN4 3a, changed on purpose): «Log km» lives in the day card's evening (one tap on the clock by day)
+  await rec.click(page.locator('[data-daycard] [data-clock="evening"]'));
+  await rec.click(page.locator('[data-daycard] [data-cell="km"]').getByRole('button', { name: T('Log km') }));
   const km = page.getByRole('dialog', { name: T('km for a bike') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');

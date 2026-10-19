@@ -428,12 +428,12 @@
           <summary><Store size={18} aria-hidden="true" /><span class="fl">{t('Bike shop & {year}', { year: year.year })}</span><span class="r num">{#if c.order?.rows.length}<span class="badge n">{tn(c.order.rows.length, '{n} job', '{n} jobs')}</span>{/if}{t('me|by')} {year.self} · {t('bike shop|by')} {year.shop}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if shopOpen}
             <section class="sub-sec" aria-labelledby="shop-h-{bike.id}">
-              <h3 id="shop-h-{bike.id}" class="ch">{t('For the bike shop')}</h3>
+              <h3 id="shop-h-{bike.id}" class="ch">{t('Order for the bike shop')}</h3>
               {#if c.order?.rows.length}
                 <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total}{' · '}{t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
                 <Btn label={t('Send|order')} explain={explain('Send|order')} onclick={onorder} />
               {:else}
-                <p class="quiet">{t('Nothing for the bike shop right now.')}</p>
+                <p class="quiet">{t('No order for the bike shop right now. Due work and problems marked «bike shop» come here by themselves.')}</p>
               {/if}
               <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet, and the check at the pick-up -->
               <p class="sheetlinks">

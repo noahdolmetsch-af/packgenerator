@@ -349,6 +349,24 @@ export function counts(cfg) {
   return { all: list.length, on, per };
 }
 
+/**
+ * Impeccable Runde 2 «Tageslast»: about how many times a day the app asks, from the questions that are on:
+ * «3× daily» counts 3, daily 1, weekly 1/7, monthly 1/30; rounded to a whole number.
+ */
+export function perDay(cfg) {
+  const c = configOf(cfg);
+  let n = 0;
+  for (const x of allQuestions(c)) {
+    const s = settingOf(c, x);
+    if (!s.on) continue;
+    const e = everyOf(s.every);
+    n += e.kind === 'times' ? e.times.length : e.kind === 'daily' ? 1 : e.kind === 'weekly' ? 1 / 7 : e.kind === 'monthly' ? 1 / 30 : 0;
+  }
+  return Math.round(n);
+}
+/** More than this many a day: a calm hint how to ask less. */
+export const BUSY_DAY = 15;
+
 /* ---------------------------------------------------------------- what is due */
 
 // Noah 14.10. 00:52:22 1a 2a 3b 4ab — 3b: a value that later comes from Fitbit does not switch its question
@@ -390,7 +408,16 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
-/** «Jetzt nicht» (tapped away): every shown question put away until its next time. */
+/** «Später» on the window of the round (Noah 19.10.2026): kept in the snooze record under this key, until when. */
+export const LATER_KEY = '_later';
+/** The stamp one hour after `now` (a stamp 'YYYY-MM-DDTHH:MM', local time). */
+export function laterStamp(now) {
+  const [d, hm] = String(now).split('T');
+  const [y, m, dd] = d.split('-').map(Number);
+  const [h, mi] = hm.split(':').map(Number);
+  return stampOf(new Date(y, m - 1, dd, h + 1, mi));
+}
+/** «Heute nicht» (was «Jetzt nicht»): every shown question put away until its next time. */
 export const snoozeAll = (snooze = {}, due = []) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, d.last ?? d.slot])) });
 
 /* ---------------------------------------------------------------- answers */

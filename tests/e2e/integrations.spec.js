@@ -301,7 +301,7 @@ for (const lang of ['de', 'en']) {
 
     // Export.
     const data = await openData(page);
-    const [download] = await Promise.all([page.waitForEvent('download'), data.getByRole('button', { name: T('Export backup') }).click()]);
+    const [download] = await Promise.all([page.waitForEvent('download'), data.getByRole('button', { name: T('Save backup') }).click()]);
     const exported = info.outputPath('export.json');
     await download.saveAs(exported);
     const file = JSON.parse(readFileSync(exported, 'utf8'));
