@@ -467,4 +467,10 @@ export default {
   'Copy the shop link and send it; people buy without the app or an account.': 'Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.',
   'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.': 'Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.',
   'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.': 'Beispiel: eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.',
+  // Paket P «Was mir gut tut»
+  'Nothing to switch on; results show after about 10 days with a day score.': 'Nichts einzuschalten; Ergebnisse erscheinen nach etwa 10 Tagen mit Tagesbewertung.',
+  'Open Me › What does me good.': 'Öffne Ich › Was mir gut tut.',
+  'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.': 'Lies dein Rezept, was dir gut tut und die guten Kombinationen; «Wie kommt die App darauf?» zeigt die Tage hinter jeder Zeile.',
+  'Start a small experiment, set your wished mix, add Neuland, phases or season points.': 'Starte ein kleines Experiment, leg deine Wunsch-Mischung fest, füge Neuland, Phasen oder Saisonpunkte hinzu.',
+  'Example: «Days with at least 30 min outside: 8 instead of 6».': 'Beispiel: «Tage mit mind. 30 Min draussen: 8 statt 6».',
 };

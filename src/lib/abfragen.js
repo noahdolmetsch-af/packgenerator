@@ -61,7 +61,7 @@ const NO = ['no', 'no', 0];
 const q = (area, key, textEn, form, every, src = ['hand'], was = null) => ({ id: `${area}.${key}`, area, key, text: textEn, form, every, src, ...(was ? { was } : {}) });
 
 /**
- * The 50 questions (notes/deine-abfragen/lustige-fragen-2026-10-13.md, Noah «ok» 13.10.2026 23:37–23:40).
+ * The 50 questions (Paket P adds 4 evening questions: 54) (notes/deine-abfragen/lustige-fragen-2026-10-13.md, Noah «ok» 13.10.2026 23:37–23:40).
  * `was` names the earlier question that lives on in it («bisher: …»).
  */
 export const QUESTIONS = [
@@ -71,6 +71,8 @@ export const QUESTIONS = [
   q('erholung', 'koerper', 'Does your body feel more like a freshly oiled bike or a rusty chain today?', scale(), daily('08:00'), ['hand'], 'How rested does your body feel?'),
   q('erholung', 'kaffee', 'How many coffees do you need today to be human?', number('cups'), at('12:00', '18:00'), ['only'], 'own question «Coffee»'),
   q('erholung', 'sofa', 'Sofa or saddle: what is your body calling for today?', chips([['sofa', 'Sofa', 0], ['ratherSofa', 'rather sofa', 0.25], ['either', 'either', 0.5], ['ratherSaddle', 'rather saddle', 0.75], ['saddle', 'Saddle', 1]]), daily('08:00')),
+  // Paket P «Was mir gut tut» (Noah 19.10.2026 «4a»): fixed in the evening check, each one can be switched off
+  q('erholung', 'raeuber', 'What took energy from you today?', chips([['work', 'Work|drain'], ['screen', 'Screen|drain'], ['people', 'People|drain'], ['sleep', 'Little sleep|drain'], ['stress', 'Rush|drain'], ['weather', 'Weather|drain'], ['nothing', 'Nothing|drain']], { multi: true, note: true }), daily('20:00')),
   // 2 Spass
   q('spass', 'grinser', 'How many grins did the day have?', scale(), daily('20:00'), ['hand'], 'How much fun did you have?'),
   q('spass', 'emoji', 'Which emoji was your day today?', chips([['laugh', '😄'], ['cool', '😎'], ['crazy', '🤪'], ['sleepy', '😴'], ['upsideDown', '🙃'], ['starstruck', '🤩']], { style: 'emoji' }), daily('20:00')),
@@ -95,6 +97,8 @@ export const QUESTIONS = [
   q('freunde', 'runde', 'Who would you most like to ride a round with today?', chips([['alone', 'alone'], ['friends', 'with friends'], ['family', 'with family'], ['group', 'with a group']]), weekly(6, '09:00')),
   q('freunde', 'laecheln', 'Did you coax a smile out of someone today?', yesno([YES, NO, ['several', 'several', 1]]), daily('20:00')),
   q('freunde', 'gespraeche', 'How many real conversations instead of messages were there today?', number(''), daily('20:00')),
+  q('freunde', 'allein', 'Were you alone on purpose today?', yesno([YES, NO]), daily('20:00')),
+  q('freunde', 'alleingut', 'If you were alone: how good did it do you?', scale(), daily('20:00')),
   // 6 Natur
   q('natur', 'draussen', 'How long were you outside: cave dweller or marmot on the alp?', chips([['m0', '0', 0], ['m30', 'up to 30', 15], ['m90', '30–90', 60], ['more', 'over 90 min', 120]]), daily('20:00'), ['hand', 'app'], 'How much time did you spend outside?'),
   q('natur', 'wetter', 'Which weather did you have in your face?', chips([['sun', 'Sun'], ['wind', 'Wind'], ['rain', 'Rain'], ['fog', 'Fog'], ['snow', 'Snow']], { multi: true }), daily('20:00')),
@@ -113,6 +117,7 @@ export const QUESTIONS = [
   q('ziele', 'kette', 'What is your «chain lube» today, the small thing you otherwise put off?', text(), daily('08:00')),
   q('ziele', 'tempo', 'How much do you want to get done today: snail mail or express train?', scale(), daily('08:00')),
   q('ziele', 'liegen', 'What may stay undone today, for once?', text(), daily('08:00')),
+  q('ziele', 'umplanen', 'Did you replan something on purpose today?', chips([['good', 'yes, and it was good', 1], ['notgood', 'yes, not so good', 0], ['no', 'no|replan']], { note: true }), daily('20:00')),
   // 9 Erreicht
   q('erreicht', 'zufrieden', 'How happy are you with the day: the best of both worlds?', scale(), daily('20:00'), ['hand'], 'How happy are you with the day?'),
   q('erreicht', 'ziel', 'Did you reach your goal from this morning?', yesno([YES, ['partly', 'partly', 0.5], NO]), daily('20:00'), ['hand'], 'Did you reach your goal?'),
@@ -129,7 +134,7 @@ export const QUESTIONS = [
 // HG1 2b: the answers to the greeting on Today land in the same history, so the lookup knows their questions too
 export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS].map((x) => [x.id, x]));
 
-/** Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3). */
+/** Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3); Paket P adds its 4 evening questions, on: 35. */
 export const ON_AT_START = new Set([
   'erholung.schlaf', 'erholung.akku', 'erholung.koerper', 'erholung.kaffee',
   'spass.grinser', 'spass.emoji', 'spass.stimmung', 'spass.coolstes',
@@ -141,6 +146,8 @@ export const ON_AT_START = new Set([
   'ziele.ziel', 'ziele.freude', 'ziele.liegen',
   'erreicht.zufrieden', 'erreicht.ziel', 'erreicht.stolz', 'erreicht.pokal',
   'koerper.waage', 'koerper.ruhepuls', 'koerper.wochenschlaf',
+  // Paket P (Noah 19.10.2026 «4a»): the four evening questions of «Was mir gut tut»
+  'erholung.raeuber', 'freunde.allein', 'freunde.alleingut', 'ziele.umplanen',
 ]);
 
 /** The units an answer can have (AB2 quick choice kg, min, h, km; cups and bpm from the list). */

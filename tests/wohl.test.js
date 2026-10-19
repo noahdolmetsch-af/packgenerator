@@ -133,3 +133,102 @@ describe('short versions and the ride of a day', () => {
     expect(rideNumbers(km, addDays(T, -1))).toBe(null);
   });
 });
+
+import { neulandYear, addNeuland, renameNeuland, dropNeuland, neulandOf, seasonOf, nextSeason, seasonListOf, tickSeason, addSeasonItem, renameSeasonItem, dropSeasonItem, moveSeasonItem, SEASON_STD, wohlOf } from '../src/lib/wohl.js';
+
+describe('Neuland of the year', () => {
+  it('your own entries and the «New» evenings with a note, newest first', () => {
+    let own = addNeuland([], 'Lake path to the old mill', '2026-05-02', 'a');
+    own = addNeuland(own, 'Old year', '2025-08-01', 'b');
+    const rows = [row('2026-07-10', 'spass.coolstes', ['new', 'fun'], 'chips'), { ...row('2026-07-11', 'spass.coolstes', ['new'], 'chips'), note: 'First time on the pass' }];
+    const list = neulandYear(own, rows, 2026);
+    expect(list.map((x) => x.name)).toEqual(['First time on the pass', 'Lake path to the old mill']);
+    expect(list[0].auto).toBe(true);
+  });
+  it('rename and delete your own entries', () => {
+    const own = addNeuland([], 'X', '2026-05-02', 'a');
+    expect(renameNeuland(own, 'a', 'Y')[0].name).toBe('Y');
+    expect(dropNeuland(own, 'a')).toEqual([]);
+    expect(neulandOf([{ id: 'x', name: '', day: '2026-01-01' }, null])).toEqual([]);
+  });
+});
+
+describe('season switch', () => {
+  it('spring March–May, autumn September–November', () => {
+    expect(seasonOf('2026-04-10')).toBe('spring');
+    expect(seasonOf('2026-10-19')).toBe('autumn');
+    expect(seasonOf('2026-07-01')).toBe(null);
+    expect(nextSeason('2026-07-01')).toBe('autumn');
+    expect(nextSeason('2026-12-24')).toBe('spring');
+  });
+  it('starts with the start lists; tick, add, rename, move and delete', () => {
+    let v = seasonListOf(null);
+    expect(v.autumn.items).toHaveLength(SEASON_STD.autumn.length);
+    v = tickSeason(v, 'autumn', '2026', 'autumn-1');
+    expect(v.autumn.done['2026']).toEqual(['autumn-1']);
+    v = addSeasonItem(v, 'autumn', 'Winter tyres on the car', 'own-1');
+    v = renameSeasonItem(v, 'autumn', 'autumn-2', 'Lights: the new ones');
+    expect(v.autumn.items.find((i) => i.id === 'autumn-2')).toEqual({ id: 'autumn-2', name: 'Lights: the new ones' });
+    v = moveSeasonItem(v, 'autumn', 'own-1', -1);
+    expect(v.autumn.items.at(-2).id).toBe('own-1');
+    v = dropSeasonItem(v, 'autumn', 'autumn-1');
+    expect(v.autumn.done['2026']).toEqual([]);
+    expect(v.autumn.items.some((i) => i.id === 'autumn-1')).toBe(false);
+  });
+  it('the energy drains are off until you switch them on', () => {
+    expect(wohlOf(null).drains).toBe(false);
+    expect(wohlOf({ drains: true }).drains).toBe(true);
+  });
+});
+
+import { EXP_IDEAS, expSuggestion, experimentsOf, startExperiment, tickExperiment, stopExperiment, dropExperiment, renameExperiment, experimentState, phasesOf, suggestedPhases, addPhase, renamePhase, dropPhase, phaseRows } from '../src/lib/wohl.js';
+
+describe('small experiments', () => {
+  it('the app suggests one for the lowest area', () => {
+    expect(expSuggestion('mind').fact).toBe('moment');
+    expect(expSuggestion('nope')).toBe(EXP_IDEAS[0]);
+  });
+  it('start, tick, rename, stop and delete; own length 3, 7 or 14 days', () => {
+    let l = startExperiment([], { what: 'Cold shower', days: 3 }, T, 'e1');
+    expect(experimentsOf(l)[0]).toMatchObject({ what: 'Cold shower', days: 3, ticks: [] });
+    l = tickExperiment(l, 'e1', T);
+    expect(experimentsOf(l)[0].ticks).toEqual([T]);
+    l = renameExperiment(l, 'e1', 'Cold shower, 1 minute');
+    expect(experimentsOf(l)[0].what).toBe('Cold shower, 1 minute');
+    expect(experimentsOf(stopExperiment(l, 'e1'))[0].stopped).toBe(true);
+    expect(dropExperiment(l, 'e1')).toEqual([]);
+    expect(experimentsOf([{ id: 'x', what: 'a', from: T, days: 5 }])[0].days).toBe(7);
+  });
+  it('compares the days of the experiment with the same days before; a fact counts as a tick', () => {
+    const from = addDays(T, -6);
+    const rows = lastDays(T, 14).map((d) => row(d, 'erreicht.zufrieden', d >= from ? 8 : 6));
+    const out = lastDays(T, 14).filter((d) => d >= from).map((d) => row(d, 'natur.draussen', 'm90', 'chips'));
+    const data = dayData({ rows: [...rows, ...out], days: lastDays(T, 14) });
+    const [x] = experimentsOf(startExperiment([], { what: '10 minutes outside every day', std: true, fact: 'outside', days: 7 }, from, 'e'));
+    const s = experimentState(x, data, T);
+    expect(s).toMatchObject({ day: 7, end: T, done: false, ticks: 7, diff: 2 });
+    expect(experimentState(x, data, addDays(T, 1)).done).toBe(true);
+  });
+});
+
+describe('life phases', () => {
+  it('the app suggests the last 4 seasons, the one now first', () => {
+    const s = suggestedPhases('2026-10-19');
+    expect(s.map((p) => p.id)).toEqual(['season-2026-autumn', 'season-2026-summer', 'season-2026-spring', 'season-2025-winter']);
+    expect(s[0]).toMatchObject({ from: '2026-09-01', until: '2026-10-19' });
+    expect(s[3]).toMatchObject({ from: '2025-12-01', until: '2026-02-28', year: '2025/26' });
+  });
+  it('own phases; suggestions can be renamed and removed', () => {
+    let v = addPhase(null, { name: 'New job', from: '2026-03-01', until: '2026-06-30' }, 'p1');
+    v = renamePhase(v, 'p1', 'New job, first months');
+    v = renamePhase(v, 'season-2026-summer', 'Summer of the long tour');
+    v = dropPhase(v, 'season-2026-spring');
+    expect(phasesOf(v)).toEqual({ own: [{ id: 'p1', name: 'New job, first months', from: '2026-03-01', until: '2026-06-30' }], names: { 'season-2026-summer': 'Summer of the long tour' }, hidden: ['season-2026-spring'] });
+    expect(phasesOf(dropPhase(v, 'p1')).own).toEqual([]);
+  });
+  it('compares the phases by their days', () => {
+    const data = dayData({ rows: sample(), days });
+    const [r] = phaseRows([{ id: 'a', from: days[0], until: T }], data);
+    expect(r).toMatchObject({ n: 30, goodShare: 50, top: 'outside' });
+  });
+});

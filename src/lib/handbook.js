@@ -316,6 +316,11 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
+  'f.wohl': {
+    on: 'Nothing to switch on; results show after about 10 days with a day score.',
+    steps: ['Open Me › What does me good.', 'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.', 'Start a small experiment, set your wished mix, add Neuland, phases or season points.'],
+    example: 'Example: «Days with at least 30 min outside: 8 instead of 6».',
+  },
   'f.weight': {
     on: 'Nothing to switch on; it is voluntary.',
     steps: ['Open Me › Weight and tap «Enter weight».', 'Type your weight and save; the curve shows from the second entry.'],

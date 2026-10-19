@@ -137,6 +137,7 @@ export const HOWTO = {
   // v0.147.0 Paket B «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
+  'f.wohl': ['Open Me › What does me good.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
 };
 

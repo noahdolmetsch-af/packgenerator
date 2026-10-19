@@ -83,8 +83,8 @@ export function dayData({ rows = [], km = [], health = [], days = [] } = {}) {
   const essen = dailyValues(rows, 'koerper.essen');
   const screen = dailyValues(rows, 'koerper.bildschirm');
   const coffee = dailyValues(rows, 'erholung.kaffee');
-  const alone = pick(rows, 'wohl.allein');
-  const replan = pick(rows, 'wohl.umplanen');
+  const alone = pick(rows, 'freunde.allein');
+  const replan = pick(rows, 'ziele.umplanen');
   const strava = {};
   for (const r of rows) if (r.kind === 'ride' && Number(r.value) > 0) strava[r.day] = (strava[r.day] ?? 0) + Number(r.value);
   const ledger = {};
@@ -118,7 +118,7 @@ export function dayData({ rows = [], km = [], health = [], days = [] } = {}) {
       screen: screen[day] != null ? screen[day] > 4 : null,
       coffee: coffee[day] != null ? coffee[day] >= 3 : null,
       alone: yes(alone[day]),
-      replan: yes(replan[day]),
+      replan: replan[day] == null ? null : ['good', 'notgood'].includes(first(replan[day])),
     };
     return {
       day,
@@ -324,3 +324,240 @@ export function rideNumbers(km = [], day) {
 
 /** How many days have a day score (for «noch n Tage» before results show). */
 export const scoredDays = (data = []) => data.filter((d) => d.score != null).length;
+
+/* ---------- #253 Neuland: new places and things of the year ---------- */
+/** settings: [{ id, name, day }] typed by you (names never go through t()). */
+export const NEULAND_KEY = 'neuland';
+const isDay = (x) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x);
+export function neulandOf(value) {
+  return (Array.isArray(value) ? value : [])
+    .filter((x) => x && typeof x.id === 'string' && String(x.name ?? '').trim() && isDay(x.day))
+    .map((x) => ({ id: x.id, name: String(x.name).trim().slice(0, 80), day: x.day }));
+}
+/**
+ * The Neuland of a year: your own entries and the evenings whose «coolest thing» was «New» with a
+ * note (auto: true, from the history). Newest first.
+ */
+export function neulandYear(own = [], rows = [], year) {
+  const y = String(year);
+  const auto = rows
+    .filter((r) => r.qid === 'spass.coolstes' && r.day?.startsWith(y) && (Array.isArray(r.value) ? r.value : [r.value]).includes('new') && String(r.note ?? '').trim())
+    .map((r) => ({ id: `auto-${r.day}`, name: String(r.note).trim().slice(0, 80), day: r.day, auto: true }));
+  return [...neulandOf(own).filter((x) => x.day.startsWith(y)), ...auto].sort((a, b) => b.day.localeCompare(a.day) || a.name.localeCompare(b.name));
+}
+export const addNeuland = (list, name, day, id = `nl-${Date.now().toString(36)}`) => [...neulandOf(list), { id, name: String(name).trim().slice(0, 80), day }];
+export const renameNeuland = (list, id, name) => neulandOf(list).map((x) => (x.id === id ? { ...x, name: String(name).trim().slice(0, 80) } : x));
+export const dropNeuland = (list, id) => neulandOf(list).filter((x) => x.id !== id);
+
+/* ---------- #89 Saisonwechsel: a checklist in spring and in autumn ---------- */
+export const SEASON_KEY = 'seasonSwitch';
+/** The lists to start with: English keys for t() (std: true); your own and renamed ones are typed text. */
+export const SEASON_STD = {
+  spring: ['Summer clothes to the front', 'Check the bike tyres and chain', 'Put the lights and fenders away or keep them', 'Sunscreen and bottles ready', 'Book the bike service'],
+  autumn: ['Winter clothes to the front', 'Lights on the bike and charged', 'Fenders on', 'Gloves, cap and overshoes ready', 'Wash and oil the bike before winter'],
+};
+/** Spring March–May, autumn September–November; between them null. */
+export const seasonOf = (day) => {
+  const m = Number(String(day).slice(5, 7));
+  return m >= 3 && m <= 5 ? 'spring' : m >= 9 && m <= 11 ? 'autumn' : null;
+};
+/** The next season switch from a day (for the line «next: in autumn»). */
+export const nextSeason = (day) => seasonOf(day) ?? (Number(String(day).slice(5, 7)) <= 2 || Number(String(day).slice(5, 7)) === 12 ? 'spring' : 'autumn');
+/**
+ * The stored record made safe: { spring: { items: [{ id, name, std? }], done: { [year]: [id] } }, autumn: … }.
+ * Without one the start lists.
+ */
+export function seasonListOf(value) {
+  const v = value && typeof value === 'object' ? value : {};
+  const out = {};
+  for (const s of ['spring', 'autumn']) {
+    const x = v[s] && typeof v[s] === 'object' ? v[s] : {};
+    const items = Array.isArray(x.items)
+      ? x.items.filter((i) => i && typeof i.id === 'string' && String(i.name ?? '').trim()).map((i) => ({ id: i.id, name: String(i.name).trim().slice(0, 80), ...(i.std ? { std: true } : {}) }))
+      : SEASON_STD[s].map((name, i) => ({ id: `${s}-${i + 1}`, name, std: true }));
+    const done = {};
+    for (const [y, ids] of Object.entries(x.done && typeof x.done === 'object' ? x.done : {})) if (/^\d{4}$/.test(y) && Array.isArray(ids)) done[y] = [...new Set(ids.filter((id) => items.some((i) => i.id === id)))];
+    out[s] = { items, done };
+  }
+  return out;
+}
+export function tickSeason(value, season, year, id) {
+  const v = seasonListOf(value);
+  const list = v[season].done[year] ?? [];
+  v[season].done[year] = list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
+  return v;
+}
+export function addSeasonItem(value, season, name, id = `own-${Date.now().toString(36)}`) {
+  const v = seasonListOf(value);
+  v[season].items = [...v[season].items, { id, name: String(name).trim().slice(0, 80) }];
+  return v;
+}
+/** A renamed start item becomes your own text (std falls away). */
+export function renameSeasonItem(value, season, id, name) {
+  const v = seasonListOf(value);
+  v[season].items = v[season].items.map((i) => (i.id === id ? { id, name: String(name).trim().slice(0, 80) } : i));
+  return v;
+}
+export function dropSeasonItem(value, season, id) {
+  const v = seasonListOf(value);
+  v[season].items = v[season].items.filter((i) => i.id !== id);
+  for (const y of Object.keys(v[season].done)) v[season].done[y] = v[season].done[y].filter((x) => x !== id);
+  return v;
+}
+export function moveSeasonItem(value, season, id, dir) {
+  const v = seasonListOf(value);
+  const list = [...v[season].items];
+  const i = list.findIndex((x) => x.id === id);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= list.length) return v;
+  [list[i], list[j]] = [list[j], list[i]];
+  v[season].items = list;
+  return v;
+}
+
+/* ---------- the page settings ---------- */
+/** settings: { drains: false } — the energy drains show only when you switch them on (#251, «freiwillig»). */
+export const WOHL_KEY = 'wohl';
+export const wohlOf = (value) => ({ drains: !!(value && typeof value === 'object' && value.drains) });
+
+/* ---------- #245 Kleine Experimente (Noah 19.10.2026 «1 a und b»): a suggestion for 7 days, or your own ---------- */
+/** settings: [{ id, what, std?, fact?, days, from, stopped? , ticks: [day] }]. */
+export const EXP_KEY = 'experiments';
+export const EXP_DAYS = [3, 7, 14];
+/** The suggestions, one per balance category: English keys for t(); fact: the fact the app can see by itself. */
+export const EXP_IDEAS = [
+  { cat: 'nature', what: '10 minutes outside every day', fact: 'outside' },
+  { cat: 'mind', what: 'A mindful moment every day', fact: 'moment' },
+  { cat: 'friends', what: 'Talk to someone every day, not only messages', fact: 'friends' },
+  { cat: 'rest', what: 'In bed half an hour earlier', fact: 'sleep' },
+  { cat: 'sport', what: 'A short ride or walk every day', fact: 'ride' },
+  { cat: 'fun', what: 'Something just for fun every day', fact: 'laugh' },
+  { cat: 'vision', what: 'Five minutes a day for a dream', fact: null },
+  { cat: 'goals', what: 'One small goal every morning', fact: 'goal' },
+  { cat: 'done', what: 'Finish one small thing every day', fact: null },
+  { cat: 'rest', what: 'No screen after 21:00', fact: 'screen' },
+];
+/** The suggestion for the area lowest in your balance (or the first). */
+export function expSuggestion(least) {
+  return EXP_IDEAS.find((x) => x.cat === least) ?? EXP_IDEAS[0];
+}
+export function experimentsOf(value) {
+  return (Array.isArray(value) ? value : [])
+    .filter((x) => x && typeof x.id === 'string' && String(x.what ?? '').trim() && isDay(x.from))
+    .map((x) => ({
+      id: x.id,
+      what: String(x.what).trim().slice(0, 80),
+      ...(x.std ? { std: true } : {}),
+      fact: FACT[x.fact] ? x.fact : null,
+      days: EXP_DAYS.includes(Number(x.days)) ? Number(x.days) : 7,
+      from: x.from,
+      ...(x.stopped ? { stopped: true } : {}),
+      ticks: [...new Set((Array.isArray(x.ticks) ? x.ticks : []).filter(isDay))].sort(),
+    }));
+}
+export const startExperiment = (list, { what, std = false, fact = null, days = 7 }, from, id = `exp-${Date.now().toString(36)}`) => [...experimentsOf(list), { id, what, ...(std ? { std: true } : {}), fact, days, from, ticks: [] }];
+export const tickExperiment = (list, id, day) => experimentsOf(list).map((x) => (x.id === id ? { ...x, ticks: x.ticks.includes(day) ? x.ticks.filter((d) => d !== day) : [...x.ticks, day].sort() } : x));
+export const stopExperiment = (list, id) => experimentsOf(list).map((x) => (x.id === id ? { ...x, stopped: true } : x));
+export const dropExperiment = (list, id) => experimentsOf(list).filter((x) => x.id !== id);
+export const renameExperiment = (list, id, what) => experimentsOf(list).map((x) => (x.id === id ? { id: x.id, what: String(what).trim().slice(0, 80), fact: x.fact, days: x.days, from: x.from, ticks: x.ticks, ...(x.stopped ? { stopped: true } : {}) } : x));
+
+/**
+ * Where an experiment stands and what it showed: the days of the experiment against the same number of
+ * days before it. → { day (1-based, capped), end, done, ticks, during: { mean, n }, before: { mean, n }, diff }
+ * diff only when both have at least 2 days with a day score. A fact the app sees (e.g. outside) counts as a tick too.
+ */
+export function experimentState(x, data = [], today) {
+  const span = lastDays(addDayStr(x.from, x.days - 1), x.days);
+  const end = span.at(-1);
+  const before = lastDays(addDayStr(x.from, -1), x.days);
+  const by = Object.fromEntries(data.map((d) => [d.day, d]));
+  const scoreOf = (list) => list.map((d) => by[d]?.score).filter((v) => v != null);
+  const dur = scoreOf(span.filter((d) => d <= today));
+  const bef = scoreOf(before);
+  const seen = x.fact ? span.filter((d) => d <= today && by[d]?.facts[x.fact] === (x.fact === 'screen' ? false : true)) : [];
+  const ticks = [...new Set([...x.ticks.filter((d) => span.includes(d)), ...seen])].length;
+  const ready = dur.length >= 2 && bef.length >= 2;
+  return {
+    day: Math.max(1, Math.min(x.days, span.filter((d) => d <= today).length)),
+    end,
+    done: today > end || !!x.stopped,
+    ticks,
+    during: { mean: r1(mean(dur)), n: dur.length },
+    before: { mean: r1(mean(bef)), n: bef.length },
+    diff: ready ? r1(mean(dur) - mean(bef)) : null,
+  };
+}
+function addDayStr(day, n) {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/* ---------- #255 Lebensphasen (Noah 19.10.2026 «5a und b»): your own phases and the app's suggestions ---------- */
+/** settings: { own: [{ id, name, from, until }], names: { [suggestion id]: name }, hidden: [suggestion id] }. */
+export const PHASES_KEY = 'lifePhases';
+const SEASON_OF_MONTH = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'];
+export const SEASON_NAMES = { spring: 'Spring {year}', summer: 'Summer {year}', autumn: 'Autumn {year}', winter: 'Winter {year}' };
+export function phasesOf(value) {
+  const v = value && typeof value === 'object' ? value : {};
+  const own = (Array.isArray(v.own) ? v.own : [])
+    .filter((x) => x && typeof x.id === 'string' && String(x.name ?? '').trim() && isDay(x.from) && isDay(x.until) && x.from <= x.until)
+    .map((x) => ({ id: x.id, name: String(x.name).trim().slice(0, 60), from: x.from, until: x.until }));
+  const names = {};
+  for (const [k, n] of Object.entries(v.names && typeof v.names === 'object' ? v.names : {})) if (String(n ?? '').trim()) names[k] = String(n).trim().slice(0, 60);
+  const hidden = [...new Set((Array.isArray(v.hidden) ? v.hidden : []).filter((x) => typeof x === 'string'))];
+  return { own, names, hidden };
+}
+/**
+ * The app's suggestions: the last 4 seasons up to today (the one now included), newest first.
+ * → [{ id: 'season-2026-autumn', key: 'Autumn {year}', year, from, until }] (key: English for t(); a renamed one has name).
+ */
+export function suggestedPhases(today, n = 4) {
+  const out = [];
+  let y = Number(today.slice(0, 4));
+  let m = Number(today.slice(5, 7)) - 1;
+  let s = SEASON_OF_MONTH[m];
+  for (let i = 0; i < n; i++) {
+    // the season s that contains month m of year y; winter starts in December of the year before
+    const startM = { spring: 2, summer: 5, autumn: 8, winter: 11 }[s];
+    const startY = s === 'winter' && m <= 1 ? y - 1 : y;
+    const from = `${startY}-${String(startM + 1).padStart(2, '0')}-01`;
+    const endD = new Date(Date.UTC(startY, startM + 3, 0));
+    const until = endD.toISOString().slice(0, 10);
+    const label = s === 'winter' ? `${startY}/${String(startY + 1).slice(2)}` : String(startY);
+    out.push({ id: `season-${startY}-${s}`, key: SEASON_NAMES[s], year: label, from, until: until > today ? today : until });
+    // one season back
+    const prev = new Date(Date.UTC(startY, startM - 1, 1));
+    y = prev.getUTCFullYear();
+    m = prev.getUTCMonth();
+    s = SEASON_OF_MONTH[m];
+  }
+  return out;
+}
+export const addPhase = (value, { name, from, until }, id = `ph-${Date.now().toString(36)}`) => {
+  const v = phasesOf(value);
+  return { ...v, own: [...v.own, { id, name: String(name).trim().slice(0, 60), from, until }] };
+};
+export function renamePhase(value, id, name) {
+  const v = phasesOf(value);
+  if (v.own.some((x) => x.id === id)) return { ...v, own: v.own.map((x) => (x.id === id ? { ...x, name: String(name).trim().slice(0, 60) } : x)) };
+  return { ...v, names: { ...v.names, [id]: String(name).trim().slice(0, 60) } };
+}
+export function dropPhase(value, id) {
+  const v = phasesOf(value);
+  if (v.own.some((x) => x.id === id)) return { ...v, own: v.own.filter((x) => x.id !== id) };
+  return { ...v, hidden: [...new Set([...v.hidden, id])] };
+}
+/**
+ * One row per phase: { id, from, until, n (days with a day score), mean, goodShare (0–100), km, top (fact key or null) }.
+ * data: dayData over the whole span.
+ */
+export function phaseRows(phases = [], data = []) {
+  return phases.map((p) => {
+    const in_ = data.filter((d) => d.day >= p.from && d.day <= p.until);
+    const sc = in_.filter((d) => d.score != null);
+    const good = sc.filter((d) => d.score >= GOOD);
+    const rec = goodRecipes(in_)[0]?.key ?? null;
+    return { id: p.id, from: p.from, until: p.until, n: sc.length, mean: r1(mean(sc.map((d) => d.score))), goodShare: sc.length ? Math.round((good.length / sc.length) * 100) : null, km: Math.round(in_.reduce((s, d) => s + (d.values.km || 0), 0)), top: rec };
+  });
+}
