@@ -230,7 +230,8 @@ export function favouriteCounts(items = []) {
 export function matches(item, { q = '', category = '', role = '', fav = false, domain = '' } = {}) {
   if (fav && !item.favorite) return false;
   // v0.21.0: the area (item.domains; none set = bikepacking)
-  if (domain && !(item.domains?.length ? item.domains : ['bikepacking']).includes(domain)) return false;
+  // Paket H (#55): an item for «Everywhere» ('all') fits every area
+  if (domain && !(item.domains?.length ? item.domains : ['bikepacking']).some((d) => d === domain || d === 'all')) return false;
   if (category && item.category !== category) return false;
   // v0.32.0 (finding 5, stage 1): the filter "Comes along": Standard (with On me), On me, in a
   // building block, stays at home, nothing set. v0.33.0: read through blocks2026.js (the key
@@ -305,11 +306,17 @@ export function parseGrams(text) {
  * of the layer rules become text while editing, the weight goes into `grams`. A new item starts
  * without a category (it has to be chosen) and with the preset (search text, filter, tab).
  */
+/**
+ * Paket H «Packen leichter»: where it is at home (#372), supplies (answer 2b: expiry date, stock, buy
+ * again below) and how long a battery lasts and charges (#346). Typed as text in the window.
+ */
+const storeFields = (src) => ({ homeSpot: src.homeSpot ?? '', expires: src.expires ?? '', stock: src.stock ?? '', minStock: src.minStock ?? '', runH: src.runH ?? '', chargeH: src.chargeH ?? '' });
+
 export function itemDraft(item, preset = {}) {
   const layerFields = (src) => ({ ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' });
   return item
-    ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: item.domains?.length ? item.domains : ['bikepacking'], favNote: item.favNote ?? '', ...layerFields(item) }
-    : { id: '', name: '', brand: '', model: '', category: '', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) };
+    ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: item.domains?.length ? item.domains : ['bikepacking'], favNote: item.favNote ?? '', ...layerFields(item), ...storeFields(item) }
+    : { id: '', name: '', brand: '', model: '', category: '', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], domains: ['bikepacking'], ...preset, ...layerFields(preset), ...storeFields(preset) };
 }
 
 const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
@@ -342,6 +349,12 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     perHours: numOrNull(rest.perHours),
     waterL: numOrNull(rest.waterL),
     maxQty: numOrNull(rest.maxQty),
+    homeSpot: String(rest.homeSpot ?? '').trim() || null,
+    expires: /^\d{4}-\d{2}-\d{2}$/.test(rest.expires ?? '') ? rest.expires : null,
+    stock: numOrNull(rest.stock),
+    minStock: numOrNull(rest.minStock),
+    runH: numOrNull(rest.runH),
+    chargeH: numOrNull(rest.chargeH),
     replaces: rest.replaces || null,
     altFor: rest.altFor || null,
     weightG,

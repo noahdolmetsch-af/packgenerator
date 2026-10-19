@@ -162,3 +162,25 @@ describe('5 lending to guests', () => {
     expect(sortLends([{ ...l, doneAt: '2026-10-01' }, { ...l, id: 'y' }])[0].id).toBe('y');
   });
 });
+
+describe('reminders on the phone for Paket H', async () => {
+  const { buildList, KINDS, atMs } = await import('../src/lib/push/schedule.js');
+  const allOn = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])) };
+  const now = new Date(2026, 9, 19, 10, 0);
+  it('supply 2 weeks before, lend on the return day, shopping 2 days before a trip', () => {
+    const l = buildList({
+      now,
+      settings: { push: allOn },
+      items: [{ id: 'g', name: 'Gel', expires: '2026-11-01', ownership: 'owned' }, { id: 'k', name: 'Gas', expires: '2026-12-31', ownership: 'owned' }, { id: 'h', name: 'Old', expires: '2026-10-01', ownership: 'owned' }],
+      lends: [{ id: 'l', person: 'Gast', due: '2026-10-25', items: [{ itemId: 'A' }] }, { id: 'm', person: 'X', due: '2026-10-25', items: [{ itemId: 'A', back: true }], doneAt: '2026-10-20' }],
+      trips: [{ id: 't', title: 'Tour', status: 'planned', startDate: '2026-10-24' }],
+    });
+    const by = Object.fromEntries(l.items.map((i) => [i.key, i.at]));
+    expect(by['supply:g:2026-11-01']).toBe(atMs('2026-10-20', '08:00')); // 2 weeks before was yesterday: the next morning
+    expect(Object.keys(by).some((k) => k.startsWith('supply:k'))).toBe(false); // more than 14 days ahead
+    expect(Object.keys(by).some((k) => k.startsWith('supply:h'))).toBe(false);
+    expect(by['lend:l:2026-10-25']).toBe(atMs('2026-10-25', '08:00'));
+    expect(Object.keys(by).some((k) => k.startsWith('lend:m'))).toBe(false);
+    expect(by['shop:t:2026-10-24']).toBe(atMs('2026-10-22', '08:00'));
+  });
+});

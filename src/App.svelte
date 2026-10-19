@@ -40,6 +40,7 @@
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
   import Docs from './pages/Docs.svelte';
+  import LazyPage from './lib/ui/LazyPage.svelte'; // Paket H: new pages load only when opened
   import Fitbit from './pages/Fitbit.svelte';
   import DocScan from './pages/DocScan.svelte';
   import Agenda from './pages/Agenda.svelte';
@@ -348,7 +349,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
@@ -387,6 +388,12 @@
   {:else if page === 'features'}
     <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
     <Features />
+  {:else if page === 'supplies'}
+    <!-- Paket H (answer 2b): Material › Vorrat, loaded only when opened -->
+    <LazyPage load={() => import('./pages/Supplies.svelte')} />
+  {:else if page === 'lend'}
+    <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
+    <LazyPage load={() => import('./pages/Lend.svelte')} />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <Favorites />

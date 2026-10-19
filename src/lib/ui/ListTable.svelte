@@ -74,6 +74,7 @@
   async function saveCell(row, col, raw) {
     const value = parseCell(col, raw);
     if (value === undefined) return (problem = col.type === 'date' ? t('Please enter a date like 2026-10-31.') : t('Please enter a number.'));
+    if (col.required && value === '') return (problem = t('This field cannot be empty.'));
     if (!changes(row, col, value)) return;
     await write([{ before: row, after: withCell(row, col, value) }], t('«{field}» saved for {name}.', { field: col.label, name: nameOf(row) }));
   }
@@ -82,6 +83,7 @@
     if (!bulkCol || !chosen.length) return;
     const value = parseCell(bulkCol, bulkCol.type === 'check' ? bulkVal === 'yes' : bulkVal);
     if (value === undefined) return (problem = bulkCol.type === 'date' ? t('Please enter a date like 2026-10-31.') : t('Please enter a number.'));
+    if (bulkCol.required && value === '') return (problem = t('This field cannot be empty.'));
     const pairs = applyToAll(rows, chosen.map(idOf), bulkCol, value, idOf);
     if (!pairs.length) return offerDone(t('Nothing to change: all of them have it already.'));
     await write(pairs, tn(pairs.length, '«{field}» changed for {n} entry.', '«{field}» changed for {n} entries.', { field: bulkCol.label }));

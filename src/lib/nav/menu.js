@@ -34,6 +34,9 @@ export const PAGE_GROUPS = [
       // v0.66.0 (Noah 4a): one block after the other, keep / out / elsewhere.
       { id: 'blockcheck', title: 'Check building blocks', href: '#/blocks/check', icon: 'layers', words: 'check building blocks bausteine prüfen pruefen review blocks aufräumen tidy' },
       // v0.42.0 (Noah 1): the clothing by layer and body zone.
+      // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»): supplies with expiry and what is lent out
+      { id: 'supplies', title: 'Supplies', href: '#/gear/supplies', icon: 'calendar', words: 'supplies vorrat vorräte ablauf ablaufdatum haltbar mindesthaltbar best before expiry bestand stock nachkaufen buy again einkauf einkaufsliste shopping list' },
+      { id: 'lend', title: 'Lent out', href: '#/gear/lend', icon: 'user', words: 'lent out ausgeliehen ausleihen leihen leihliste lend borrow gast gäste guests rückgabe return wer hat was' },
       { id: 'wardrobe', title: 'Wardrobe', href: '#/wardrobe', icon: 'shirt', words: 'wardrobe clothing clothes layers onion kleiderschrank kleider kleidung schicht schichten zwiebel' },
     ],
   },
