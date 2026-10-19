@@ -269,4 +269,16 @@ export default {
   'charges {h} h': 'lädt {h} h',
   'Use|values': 'Übernehmen',
   'Lent to {person}': 'Ausgeliehen an {person}',
+  // «Neu beginnen» (Noah «1a … alle Daten jederzeit auf null setzen»)
+  'Start fresh': 'Neu beginnen',
+  'Start fresh …': 'Neu beginnen …',
+  'Delete all data and begin from zero, as on the first day.': 'Alle Daten löschen und bei null beginnen, wie am ersten Tag.',
+  'Really delete all data?': 'Wirklich alle Daten löschen?',
+  'Gear, trips, bikes, notes, lists and settings on this device are deleted. A copy stays under «Before updates», so you can go back. With automatic sync on, the other device starts fresh too.': 'Material, Touren, Velos, Notizen, Listen und Einstellungen auf diesem Gerät werden gelöscht. Eine Kopie bleibt unter «Vor Updates», du kannst also zurück. Ist der automatische Abgleich an, beginnt auch das andere Gerät neu.',
+  'Delete everything': 'Alles löschen',
+  'Deleting …': 'Lösche …',
+  'Everything is deleted. A copy stays under «Before updates».': 'Alles ist gelöscht. Eine Kopie bleibt unter «Vor Updates».',
+  'Your data is back.': 'Deine Daten sind zurück.',
+  'Back to the state before starting fresh': 'Zurück zum Stand vor «Neu beginnen»',
+  'Before starting fresh': 'Vor «Neu beginnen»',
 };
