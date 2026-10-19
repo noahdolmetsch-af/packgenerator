@@ -13,6 +13,7 @@
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
+  import StartFresh from './maintenance/StartFresh.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
   import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
@@ -477,6 +478,8 @@
 
     <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
     <BeforeUpdates />
+    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero -->
+    <StartFresh />
 
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">

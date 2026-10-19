@@ -40,6 +40,7 @@
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
+  import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
@@ -323,6 +324,7 @@
   const resetPacked = () => confirm(t('Untick every item, to pack again from the start?')) && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('frame'); // the bag that is open
+  let reading = $state(false); // Paket H: «Read aloud» open
   let dialog = $state(null); // { trip } or { trip: null, startFrom? }
   // "New trip from it" on the Templates page opens the new-trip dialog with that template.
   // v0.19.6: also "New → Packing list" from any page (nav.js newTrip), even when Pack is open.
@@ -1021,8 +1023,14 @@
   {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
+  <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
+  {#if reading}
+    {#await import('../lib/pack/ReadAloud.svelte') then m}
+      <m.default groups={stats.zones.map((z) => ({ key: z.key, name: z.key === 'body' ? t('On me') : trip.purpose?.[z.key] || zoneName(z), entries: z.entries }))} {itemsById} ontick={(id) => change((x) => ({ entries: x.entries.map((e) => (e.itemId === id ? { ...e, packed: true } : e)) }))} onclose={() => (reading = false)} />
+    {/await}
+  {/if}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{
@@ -1099,7 +1107,7 @@
       {/if}
     {/snippet}
     <!-- v0.34.0 A (L3): the shopping list, a row in the folds and its sheet (#/pack?shop opens it). -->
-    {#snippet ballastContent()}<ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
+    {#snippet ballastContent()}<StarterList {trip} {items} {fixed} onadd={(id) => addTo(zone?.key, id)} onremove={removeEntry} /><ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->

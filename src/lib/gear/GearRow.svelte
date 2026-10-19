@@ -19,7 +19,7 @@
 
   // v0.102.0 Design-Refresh P3 (M1): u (the usage of materialStats) adds the last trip and a dot per trip;
   // selected marks the item shown in the right column.
-  let { item, u = null, selected = false, showBag = false, used = false, touch = false, swiped = null, onswipe, onopen, onmenu, onassign, onarchive, ondelete } = $props();
+  let { item, u = null, lent = null, selected = false, showBag = false, used = false, touch = false, swiped = null, onswipe, onopen, onmenu, onassign, onarchive, ondelete } = $props();
 
   let offset = $state(0);
   let rest = $state(0);
@@ -140,7 +140,7 @@
     <FavStar {item} describedby="gn-{item.id}" />
     <button type="button" class="main" onclick={() => onopen(item)}>
       <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-      {#if showBag || u?.last}<span class="sub">{#if showBag}<span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>{/if}{#if showBag && u?.last}{' · '}{/if}{#if u?.last}<span class="last">{t('last: {trip}', { trip: u.last.title })}</span>{/if}</span>{/if}
+      {#if showBag || u?.last || lent}<span class="sub">{#if lent}<span class="lent">{t('Lent to {person}', { person: lent.person })}</span>{#if showBag || u?.last}{' · '}{/if}{/if}{#if showBag}<span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>{/if}{#if showBag && u?.last}{' · '}{/if}{#if u?.last}<span class="last">{t('last: {trip}', { trip: u.last.title })}</span>{/if}</span>{/if}
       {#if u?.dots?.length}<span class="dw"><Dots dots={u.dots} /></span>{/if}
       {#if item.weightG == null}<span class="w num nw"><span aria-hidden="true">–</span><span class="sr">{t('not weighed')}</span></span>{:else}<span class="w num">{formatWeight(itemWeight(item))}</span>{/if}
     </button>
@@ -341,4 +341,6 @@
     background: var(--bad);
     flex: 1;
   }
+  /* Paket H «5 a und b»: who has it right now (Material › Ausgeliehen) */
+  .lent { color: var(--ink); font-weight: 600; }
 </style>

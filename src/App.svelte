@@ -333,6 +333,8 @@
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
     Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
+    Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
+    Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
     Pay: () => import('./pages/Pay.svelte'),
     Handbook: () => import('./pages/Handbook.svelte'),
     MiniApps: () => import('./pages/MiniApps.svelte'),
@@ -385,7 +387,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week'} class:bar={!wide.matches || !!mini}>
   {#if !calm && page !== 'share' && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot; the switch on top changes between them -->
   {#if (place === 'bikes' || place === 'equipment') && !mini}<PlaceSwitch {place} />{/if}
@@ -434,6 +436,12 @@
   {:else if page === 'features'}
     <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
     <LazyPage load={PAGES.Features} />
+  {:else if page === 'supplies'}
+    <!-- Paket H (answer 2b): Material › Vorrat, loaded only when opened -->
+    <LazyPage load={PAGES.Supplies} />
+  {:else if page === 'lend'}
+    <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
+    <LazyPage load={PAGES.Lend} />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <LazyPage load={PAGES.Favorites} />

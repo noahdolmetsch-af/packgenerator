@@ -52,7 +52,13 @@ export const KINDS = [
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
+  // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»; #90)
+  { key: 'supply', label: 'Supplies expire', hint: '2 weeks before the best-before date, at 08:00.' },
+  { key: 'lend', label: 'Lent things come back', hint: 'On the return day at 08:00.' },
+  { key: 'shop', label: 'Shopping before a trip', hint: '2 days before a trip, when its shopping list or charging still has open rows.' },
 ];
+/** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
+export const SHOP_BEFORE = 2;
 
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
@@ -192,6 +198,33 @@ export function buildList(data) {
       if (tr.skipped || tr.event?.signedUp || !DAY.test(by ?? '') || by < today) continue;
       for (const back of RACE_BEFORE)
         add({ key: `race:${tr.id}:${by}:${back}`, at: atMs(addDays(by, -back), DAY_AT), title: t('Race registration'), body: back === 1 ? t('Tomorrow is the last day to sign up for {trip}.', { trip: tourName(tr) }) : t('{n} days left to sign up for {trip}.', { n: back, trip: tourName(tr) }), url: '#/trips/dreams' });
+    }
+  // Paket H (answer 2a): a supply 2 weeks before its best-before date (today when that day has passed)
+  if (on('supply'))
+    for (const it of data.items ?? []) {
+      // an expired one is on the shopping list (Vorrat), no more pushes
+      if (it.ownership === 'gone' || !DAY.test(it.expires ?? '') || it.expires < today) continue;
+      let day = addDays(it.expires, -14);
+      if (day < today) day = today;
+      let at = atMs(day, DAY_AT);
+      if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
+      if (at > atMs(it.expires, '23:59')) continue; // the day itself has passed
+      add({ key: `supply:${it.id}:${it.expires}`, at, title: t('Supplies'), body: t('{name} expires on {date}.', { name: it.nameDe || it.name, date: it.expires }), url: '#/gear/supplies' });
+    }
+  // Paket H (answer 5a): lent things on their return day
+  if (on('lend'))
+    for (const l of data.lends ?? []) {
+      if (l.doneAt || !DAY.test(l.due ?? '') || !(l.items ?? []).some((x) => !x.back)) continue;
+      const day = l.due < today ? today : l.due;
+      let at = atMs(day, DAY_AT);
+      if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
+      add({ key: `lend:${l.id}:${l.due}`, at, title: t('Lent out'), body: t('{person} brings your things back today.', { person: l.person }), url: '#/gear/lend' });
+    }
+  // Paket H (#90): 2 days before a trip, shopping and charging as a to-do
+  if (on('shop'))
+    for (const tr of upcoming) {
+      const at = atMs(addDays(tr.startDate, -SHOP_BEFORE), DAY_AT);
+      add({ key: `shop:${tr.id}:${tr.startDate}`, at, title: t('Before your trip'), body: t('{trip} in 2 days: time to shop and charge.', { trip: tourName(tr) }), url: '#/pack?shop' });
     }
   const merken = Array.isArray(data.settings?.merken) ? data.settings.merken : [];
   for (const td of merken) {

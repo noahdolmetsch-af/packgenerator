@@ -9,12 +9,13 @@
 import Dexie from 'dexie';
 import { buildBackup, restoreBackup, countRows } from '../backup.js';
 import { readMaint } from './settings.js';
+import { DATA_TABLES, DEVICE_SETTINGS } from '../db.js';
 
 export const SNAP_DB = 'pack-generator-snapshots';
 // P3b «Daten sicher» (Noah 15.10.2026, rule 5a): also a copy before every import of a backup file
 // («Replace all data» and «Merge»), the last 3 of them.
 // P8 «Automatischer Abgleich»: one copy before the first sync with another device.
-export const KEEP = { update: 3, restore: 1, import: 3, sync: 1 };
+export const KEEP = { update: 3, restore: 1, import: 3, sync: 1, reset: 1 };
 /** The version this device started with last time (in the snapshot database, never exported). */
 export const VERSION_KEY = 'version';
 
@@ -98,4 +99,32 @@ export async function restoreSnapshot(db, sdb, id, { current, now = new Date() }
 export async function snapshotFor(sdb, version) {
   const list = await listSnapshots(sdb);
   return list.find((s) => s.kind === 'update' && s.to === version) ?? null;
+}
+
+/**
+ * Paket H (Noah 19.10.2026 «1a aber nutzer kann alle daten jederzeit reseten also auf null setzen und so
+ * frisch beginnen mit allem»): «Start fresh». First a copy of now (kind 'reset', it stands under «Before
+ * updates» with «Back to the state before starting fresh»), then every data table is emptied. What only
+ * belongs to this device (language, tips, helper) stays. Returns the id of the copy, for «Undo».
+ */
+export async function resetAll(db, sdb, { current = null, now = new Date() } = {}) {
+  const id = await takeSnapshot(db, sdb, { version: current, kind: 'reset', now });
+  const tables = DATA_TABLES.map((n) => db.table(n));
+  await db.transaction('rw', tables, async () => {
+    for (const name of DATA_TABLES) {
+      const table = db.table(name);
+      const keep = name === 'settings' ? (await table.toArray()).filter((r) => DEVICE_SETTINGS.includes(r?.key)) : [];
+      await table.clear();
+      if (keep.length) await table.bulkPut(keep);
+    }
+  });
+  return id;
+}
+
+/** «Undo» right after starting fresh: the copy comes back as it was (no second copy of the empty state). */
+export async function undoReset(db, sdb, id) {
+  const snap = await sdb.snaps.get(id);
+  if (!snap?.data) throw new Error('snapshot not found');
+  await restoreBackup(db, snap.data, 'replace');
+  return snap;
 }

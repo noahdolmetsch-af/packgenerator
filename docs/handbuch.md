@@ -8,7 +8,7 @@ Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, p
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 134 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 139 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -415,6 +415,28 @@ komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte T
 
 **Beispiel:** Eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.
 
+### Startliste pro Sportart
+
+Eine neue Tour kann mit deinen früheren Touren der gleichen Sportart starten; eine fertige Vorschlagsliste pro Sportart zeigt, was meist dazugehört und was von dir passt.
+
+**Aufschalten:** Für «Aus deinen Touren» braucht es mindestens zwei gefahrene Touren der gleichen Sportart.
+
+1. Plane eine neue Tour und tippe «Aus deinen Touren».
+2. Öffne in Packen die «Vorschlagsliste» und kreuze an, was du mitnimmst; «Brauche ich nicht» blendet eine Zeile aus.
+
+**Beispiel:** Drei Skitouren → die neue Skitour startet mit Fellen, LVS-Set und Thermosflasche.
+
+### Eigene Regeln für Bausteine
+
+Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zug» oder «unter 5 °C»: dann wird er in Packen vorgeschlagen, wenn die Tour passt.
+
+**Aufschalten:** Braucht einen eigenen Baustein mit Teilen darin (Material › Bausteine).
+
+1. Öffne den Baustein und tippe «Regel festlegen».
+2. Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.
+
+**Beispiel:** Baustein «Zug-Sachen» mit dem Velobillett → bei jeder Tour mit dem Zug vorgeschlagen.
+
 ## Packen und unterwegs
 
 ### Tasche für Tasche packen
@@ -537,6 +559,28 @@ Beendet die Tour, auch früher, mit Rückgängig; dann der nächste Schritt.
 2. «Rückgängig», wenn es ein Versehen war; dann kommt der nächste Schritt.
 
 **Beispiel:** Regen an Tag 2 von 3 → Tour früher beenden, dann der Rückblick.
+
+### Vorrat
+
+Essen und Verbrauchsmaterial mit Ablaufdatum und Bestand; eine Erinnerung zwei Wochen vor dem Ablauf, und was knapp wird, kommt unter «Nachkaufen».
+
+**Aufschalten:** Gib einem Teil ein Ablaufdatum oder einen Bestand (Fenster › «Zu Hause und Vorrat»); Essen zählt von selbst.
+
+1. Öffne Material › Vorrat und trag ein, was du hast.
+2. Zwei Wochen vor dem Ablauf erinnert dich die App; was knapp wird, steht unter «Nachkaufen».
+
+**Beispiel:** 2 von mindestens 6 Energie-Gels → «Nachkaufen: 4 Energie-Gels».
+
+### Liste vorlesen
+
+Die App liest das nächste Teil vor, das noch nicht eingepackt ist; sag «ok» zum Abhaken oder nimm den grossen Knopf.
+
+**Aufschalten:** «ok» sagen braucht ein Mikrofon und Internet (Chrome hört über Google zu); der grosse Knopf geht immer.
+
+1. Öffne eine Tour in Packen und tippe «Vorlesen».
+2. Wähle «‹ok› sagen» oder «Nur Knopf»; die App liest ein Teil nach dem anderen vor.
+
+**Beispiel:** «In die Rahmentasche: Reifenheber» → «ok» → nächstes Teil.
 
 ## Nach der Tour
 
@@ -1313,6 +1357,39 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
+
+### Tabelle und mehrere ändern
+
+Am Computer eine Liste als Tabelle direkt in den Zellen bearbeiten; mehrere Zeilen ankreuzen und ein Feld für alle auf einmal ändern, oder sie löschen, mit Rückgängig.
+
+**Aufschalten:** Geht auf einem breiten Bildschirm (Computer); auf dem Handy bekommt die Liste Kästchen zum Ankreuzen.
+
+1. Stell die Liste auf «Tabelle» und bearbeite in den Zellen.
+2. Kreuze Zeilen an, wähle ein Feld und «Für alle setzen»; «Rückgängig» holt die alten Werte zurück.
+
+**Beispiel:** 12 Teile angekreuzt → Tasche «Satteltasche» für alle in einem Schritt.
+
+### Neu beginnen
+
+Alle Daten löschen und bei null beginnen; eine Kopie bleibt, und «Rückgängig» holt alles zurück.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Ich › Daten und Backup › «Neu beginnen …» › «Alles löschen».
+2. Doch nicht? «Rückgängig», oder später «Vor Updates».
+
+**Beispiel:** Nach dem Testen mit Beispieldaten → neu beginnen mit deinem eigenen Material.
+
+### Leihliste
+
+Sachen an einen Gast ausleihen: die Liste als Link oder PDF schicken, am Rückgabetag eine Erinnerung bekommen und sehen, wer was hat.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.
+2. Schick sie als Link oder PDF; tippe «Zurück» bei jeder Sache, die zurückkommt.
+
+**Beispiel:** Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.
 
 ### Dokumente
 
