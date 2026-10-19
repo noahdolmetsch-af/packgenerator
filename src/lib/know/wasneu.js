@@ -49,6 +49,8 @@ export const SINCE = {
   // v0.146.0 P3b «Daten sicher»: Dokumente, the exchange phone–computer and the camera everywhere (P3c)
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
+  // Paket Q «App klarer»: placeholder, the bundler sets the version of the release
+  'f.alerts': '0.148.0', 'f.backuplock': '0.148.0', 'f.yearcheck': '0.148.0', 'f.suggestoff': '0.148.0', 'f.tipweek': '0.148.0', 'f.comeback': '0.148.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';

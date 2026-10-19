@@ -615,6 +615,37 @@ export const HANDBOOK = {
     steps: ['Point at a button, or hold it on a phone: it says what it does.', '«…» lists the other buttons, each with one line.'],
     example: 'Example: hold «Undo» → «Takes back the last change».',
   },
+  // Paket Q «App klarer»
+  'f.alerts': {
+    on: null,
+    steps: ["Open Me › Alerts and news.", "Type your region and tick your passes; weather and avalanche switch on or off.", "Under «Your sources» add, change or delete news sites with a feed."],
+    example: "Example: region «Testtal» → an orange storm warning shows as one line on Today.",
+  },
+  'f.backuplock': {
+    on: "Off at the start; if you forget the password, nobody can open these backups.",
+    steps: ["Open Me › Data and backup › «Backup with a password».", "Switch it on and type the password twice.", "Export, Send and the folder backup are locked; opening asks for the password."],
+    example: "Example: backup in Google Drive locked → on the phone «Import backup» asks for the password.",
+  },
+  'f.yearcheck': {
+    on: null,
+    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Any time: Me › Data and backup › «Still right?»."],
+    example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
+  },
+  'f.suggestoff': {
+    on: null,
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want."],
+    example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
+  },
+  'f.tipweek': {
+    on: null,
+    steps: ["Look at the tile «Tip of the week» on Today.", "Tap its button to try it; next Monday a new tip comes."],
+    example: "Example: «Templates» this week → «Open templates».",
+  },
+  'f.comeback': {
+    on: null,
+    steps: ["Open the app after three weeks or more away.", "The window «Welcome back» lists what is due and what is new.", "Tap a line to go there, or «Later» / «Not today»."],
+    example: "Example: back from holiday → 2 care points and 3 new versions.",
+  },
   'f.news': {
     on: null,
     steps: ['Open Me › What is new.', 'See the newest version, every function and all versions by month.'],

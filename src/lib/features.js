@@ -188,6 +188,13 @@ const OWN = [
   // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu, the newest version, every function and all versions
   // v0.117.0 «Knöpfe neu» (N1–N4): every button explains itself; «…» lists the rest with a line each
   { id: 'f.explain', group: 'data', title: 'Buttons explain', text: 'Point at a button or hold it: it says what it does; «…» lists the rest, each with one line.', href: '#/bikes?tab=care', words: 'knöpfe erklärung tooltip lange drücken mehr rückgängig' },
+  // Paket Q «App klarer» (Noah 19.10.2026)
+  { id: 'f.alerts', group: 'data', title: "Alerts and news", text: "Weather warnings for your region, avalanche danger in winter, your passes and news from your own sources; important things as one line on Today.", href: '#/me/hinweise', words: "hinweise warnung wetterwarnung lawine lawinenbulletin pass pässe news nachrichten feed rss quelle" },
+  { id: 'f.backuplock', group: 'data', title: "Backup with a password", text: "Switch it on and every backup file is locked with your password, e.g. in Google Drive.", href: '#/me/data', words: "passwort verschlüsseln sicherung backup schutz drive" },
+  { id: 'f.yearcheck', group: 'data', title: "Still right?", text: "Once a year one window asks whether weight, home place, name and papers are still right.", href: '#/me/data?yearcheck', words: "stimmt das noch prüfen jährlich gewicht wohnort ausweis gültig" },
+  { id: 'f.suggestoff', group: 'data', title: "Suggestions on or off", text: "Switch off what the app suggests by itself, area by area: clothing for the weather, inspiration rules, ideas in Active.", href: '#/me/look', words: "vorschläge aus ausschalten an einschalten bereich" },
+  { id: 'f.tipweek', group: 'data', title: "Tip of the week", text: "One thing the app can do, a new one every week, as a tile on Today and in the playground.", href: '#/', words: "tipp woche kachel heute tageszeit" },
+  { id: 'f.comeback', group: 'data', title: "Welcome back", text: "After three weeks away, a window first shows what is due and what is new.", href: '#/', words: "wiedereinstieg pause zurück fällig neu offline" },
   { id: 'f.news', group: 'data', title: 'What is new', text: 'The newest version, every function one by one and all versions by month.', href: '#/me/news', words: 'neu neuigkeiten update version was ist neu top 10' },
 ];
 

@@ -102,6 +102,13 @@ export const HOWTO = {
   'f.shortcuts': ['On a computer press ?.', 'The list of shortcuts opens.', 'Try g h, g t, n or /.'],
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
+  // Paket Q «App klarer»
+  'f.alerts': ["Open Me › Alerts and news.", "Type your region and tick your passes.", "Add, change or delete your news sources."],
+  'f.backuplock': ["Open Me › Data and backup.", "Switch on «Lock backups with a password».", "Type the password twice and save it."],
+  'f.yearcheck': ["Open Me › Data and backup.", "Tap «Still right?».", "Tick what is right, change the rest."],
+  'f.suggestoff': ["Open Me › Appearance.", "Go to «Suggestions».", "Switch off what you do not want."],
+  'f.tipweek': ["Open Today.", "Look at «Tip of the week».", "Tap its button to try it."],
+  'f.comeback': ["Come back after three weeks away.", "Read «Welcome back».", "Tap a line to go there."],
   'f.news': ['Open Me › What is new.', 'The newest version stands on top.', 'Below every function and all versions by month.'],
   // Tagespaket #151 functions (Velos › Setup, Jahresziele)
   'f.velosetup': ['Open Bikes › Setup and choose the bike.', 'Add photos and check the total weight.', 'Add race-rig links with your own key words.'],
