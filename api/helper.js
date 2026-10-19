@@ -2,7 +2,7 @@
  * POST /api/helper (v0.77.0 «KI-Helfer», Noah's answers 1–8 ★a, 10.10.2026)
  *
  * Authorization: Bearer <HELPER_TOKEN> (the «Helfer-Code» Noah types into the app's settings).
- * Body: { task: 'trip'|'search'|'debrief'|'checklist'|'maintenance'|'status', input: {...}, model? }.
+ * Body: { task: 'trip'|'search'|'debrief'|'checklist'|'maintenance'|'vision'|'status', input: {...}, model? }.
  * model (optional, 15.10.2026): one of MODEL_CHOICES; anything else uses HELPER_MODEL.
  * Answer: { ok: true, task, result, spend: { month, chf, cap } } — `status` only checks the code
  * and returns the month's spend (no call to Claude, no cost).
@@ -21,7 +21,7 @@
  */
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { route, json, needStore, redisEnv, pick, ApiError } from './_lib/core.js';
-import { TASKS, TASK_NAMES, DEFAULT_MODEL, DEFAULT_CAP_CHF, pickModel, buildRequest, validate, costChf, monthKey, spendKey, forbiddenKey } from './_lib/helper.js';
+import { TASKS, TASK_NAMES, DEFAULT_MODEL, DEFAULT_CAP_CHF, pickModel, buildRequest, validate, costChf, monthKey, spendKey, forbiddenKey, pictureOf, PICTURE_MAX } from './_lib/helper.js';
 
 export const MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
 /**
@@ -63,6 +63,9 @@ function bearer(request) {
   return m ? m[1] : null;
 }
 
+/** The input without its photo (the one field only the vision task may carry). */
+const withoutPicture = ({ picture, ...rest }) => rest;
+
 const round2 = (n) => Math.round(n * 100) / 100;
 
 /** The handler, with fetch and the environment injectable for the tests. */
@@ -74,7 +77,8 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         if (!cfg.token) throw new ApiError(503, 'not_set_up', 'The helper is not set up on the server (HELPER_TOKEN is missing).');
         if (!sameToken(bearer(request), cfg.token)) throw new ApiError(401, 'unauthorized', 'Wrong or missing helper code.');
         const text = await request.text();
-        if (text.length > MAX_BODY) throw new ApiError(413, 'too_large', 'The request is too large.');
+        // Paket L2: the vision task carries one photo, so its body may be larger (checked again below).
+        if (text.length > MAX_BODY + PICTURE_MAX) throw new ApiError(413, 'too_large', 'The request is too large.');
         let body;
         try {
           body = JSON.parse(text);
@@ -84,7 +88,9 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
         const task = body?.task;
         const input = body?.input && typeof body.input === 'object' && !Array.isArray(body.input) ? body.input : null;
         if (task !== 'status' && (!TASK_NAMES.includes(task) || !input)) throw new ApiError(400, 'bad_request', `task must be one of ${TASK_NAMES.join(', ')}, with an input object.`);
-        if (input && forbiddenKey(input)) throw new ApiError(400, 'forbidden_field', 'The request holds a field the helper never takes (photos, receipts, money, codes, health).');
+        if (task !== 'vision' && text.length > MAX_BODY) throw new ApiError(413, 'too_large', 'The request is too large.');
+        if (task === 'vision' && !pictureOf(input)) throw new ApiError(400, 'bad_request', 'The vision task needs one photo (JPEG, PNG or WebP).');
+        if (input && forbiddenKey(task === 'vision' ? withoutPicture(input) : input)) throw new ApiError(400, 'forbidden_field', 'The request holds a field the helper never takes (photos, receipts, money, codes, health).');
 
         const model = pickModel(body?.model, cfg.model);
         const store = needStore(cfg, doFetch);

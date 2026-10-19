@@ -19,6 +19,7 @@
   import { formatWeight } from '../gear.js';
   import { t } from '../i18n.svelte.js';
   import FitCard from './FitCard.svelte';
+  import SitPosCard from '../vision/SitPosCard.svelte';
   import Seg from '../ui/Seg.svelte';
   import { Columns3, ChevronRight, ChevronDown, PencilLine, Bike as BikeIcon } from '@lucide/svelte';
   import { wantBike } from '../nav.js';
@@ -99,6 +100,8 @@
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}
+    <!-- Paket L2 «Sitzposition» (Noah 19.10.2026 «4a»): the measured sitting position with its history -->
+    {#key bike.id}<SitPosCard {bike} />{/key}
 
     <div class="cols">
       <div class="parts">

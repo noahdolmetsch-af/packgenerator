@@ -859,6 +859,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Toolbox › Magnifier and light.', 'Tap «Magnifier and light» and allow the camera.', 'Zoom, «Hold picture», or switch the light on.'],
     example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
+  'f.packphoto': {
+    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
+    example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
+  },
+  'f.sitpos': {
+    on: 'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.',
+    steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
+    example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
+  },
   'f.docs': {
     on: null,
     steps: ['Open Me › Documents and tap «Add PDF» (a PDF or a photo of the paper).', 'Choose the group and «valid until»; the reminder comes 6 months before by itself.', 'Switch on «In the packing list»: every trip asks «ID and cash with you?».'],
