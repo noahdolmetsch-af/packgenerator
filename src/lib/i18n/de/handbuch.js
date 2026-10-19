@@ -651,4 +651,21 @@ export default {
   'Me › Data and backup › «Start fresh …» › «Delete everything».': 'Ich › Daten und Backup › «Neu beginnen …» › «Alles löschen».',
   'Changed your mind? «Undo», or later «Before updates».': 'Doch nicht? «Rückgängig», oder später «Vor Updates».',
   'Example: after testing with sample data → start fresh with your own gear.': 'Beispiel: nach dem Testen mit Beispieldaten → neu beginnen mit deinem eigenen Material.',
+  // Paket J «Berg, Schnee und Notfall»: f.snow, f.swissmap, f.sos, f.sosqr, f.scales
+  'Plan a ski tour or hike with start place and date; from 16 days before, freezing level and fresh snow show under «Forecast».': 'Plane eine Skitour oder Wanderung mit Startort und Datum; ab 16 Tagen vorher stehen Nullgradgrenze und Neuschnee unter «Vorhersage».',
+  'The Ski tours page shows the line for the next tour; «Hide» takes the box away for one trip.': 'Die Seite Skitouren zeigt die Zeile für die nächste Tour; «Ausblenden» nimmt das Feld bei einer Tour weg.',
+  'Example: 0° at 2400 m, 15 cm fresh snow in the 3 days before → read the avalanche bulletin with that in mind.':
+    'Beispiel: 0° auf 2400 m, 15 cm Neuschnee in den 3 Tagen davor → das Lawinenbulletin mit diesem Wissen lesen.',
+  'Open Ski tours › Mountain and emergency › «Map with steep slopes», or the button in a mountain trip.': 'Öffne Skitouren › Berg und Notfall › «Karte mit steilen Hängen» oder den Knopf bei einer Bergtour.',
+  'Switch the layers: slopes over 30°, ski touring routes, hiking trails; summer or winter map.': 'Schalte die Ebenen: Hangneigung über 30°, Skitouren, Wanderwege; Sommer- oder Winterkarte.',
+  'Example: the ski route crosses a violet slope → there it is steeper than 40°.': 'Beispiel: Die Skiroute quert einen violetten Hang → dort ist es steiler als 40°.',
+  'Open Ski tours › Mountain and emergency › «Emergency: show my position».': 'Öffne Skitouren › Berg und Notfall › «Notfall: meinen Standort zeigen».',
+  'Call Rega 1414 or 112 with one tap and read out the position shown big.': 'Ruf mit einem Tipp die Rega 1414 oder 112 an und lies den gross gezeigten Standort vor.',
+  'Example: LV95 2’600’000 / 1’200’000 at 1850 m → you tell Rega exactly where you are.': 'Beispiel: LV95 2’600’000 / 1’200’000 auf 1850 m → du sagst der Rega genau, wo du bist.',
+  'Open Mountain and emergency › «Emergency QR», fill in the contact (or take one from a .vcf) and save.': 'Öffne Berg und Notfall › «Notfall-QR», füll den Kontakt aus (oder übernimm ihn aus einer .vcf) und speichere.',
+  'Tap «Save the lock-screen image» and set it as the lock screen.': 'Tipp auf «Sperrbild speichern» und setz es als Sperrbildschirm.',
+  'Example: a helper scans the code on the locked phone and sees whom to call and your allergies.': 'Beispiel: Ein Helfer scannt den Code am gesperrten Handy und sieht, wen er anrufen soll und deine Allergien.',
+  'Open Mountain and emergency › «Signposts and grades».': 'Öffne Berg und Notfall › «Wegweiser und Schwierigkeit».',
+  'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).': 'Lies die Farbe am Wegweiser oder die Schwierigkeit aus dem Führer (T1–T6, L–EX).',
+  'Example: white-blue-white → alpine hiking trail, T4 to T6.': 'Beispiel: weiss-blau-weiss → Alpinwanderweg, T4 bis T6.',
 };

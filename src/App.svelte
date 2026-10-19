@@ -333,6 +333,7 @@
     Auswertung: () => import('./pages/Auswertung.svelte'),
     Weight: () => import('./pages/Weight.svelte'),
     Wohl: () => import('./pages/Wohl.svelte'), // Paket P «Was mir gut tut»
+    Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
     Pay: () => import('./pages/Pay.svelte'),
@@ -420,6 +421,9 @@
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'mountain'}
+    <!-- Paket J «Berg, Schnee und Notfall»: #/mountain, /sos, /qr, /map, /scales; loads only when opened -->
+    <LazyPage load={PAGES.Mountain} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <LazyPage load={PAGES.PastTrips} />

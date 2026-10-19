@@ -106,6 +106,12 @@ export default defineConfig({
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'google-fonts', expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
+          {
+            // Paket J #161: the swisstopo map tiles you looked at stay for the mountains without the internet.
+            urlPattern: /^https:\/\/wmts\.geo\.admin\.ch\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
       },
     }),

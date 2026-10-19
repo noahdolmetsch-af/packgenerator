@@ -8,8 +8,10 @@
    * card; SKB5 on the tour day, once started, the card «Unterwegs» on top: the time to the turnaround and
    * the decision points, each ticked with its time (lib/skiday.js).
    */
-  import { MountainSnow, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus, Sunrise, History, Check } from '@lucide/svelte';
-  import { skiQuery, setSki } from '../../lib/ski/skidb.js';
+  import { MountainSnow, Siren, Phone, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus, Sunrise, History, Check } from '@lucide/svelte';
+  import { skiQuery, setSki, setTripFields } from '../../lib/ski/skidb.js';
+  import SnowBox from '../../lib/mountain/SnowBox.svelte';
+  import { CALLS, telOf } from '../../lib/mountain/sos.js';
   import { lastHere, daylight, underWay, reachPoint, clockOf, leftText, pointsOf } from '../../lib/skiday.js';
   import { durationText, nextSkiTrip, checkGroups, checkCount, seasonStats, careTasks, careState, careDue, seasonHm, lastWithoutNotes, lastPastSki, hmOf, CARE_PHASES, SKI } from '../../lib/ski.js';
   import { newTrip } from '../../lib/nav.js';
@@ -104,6 +106,8 @@
             <div class="sk-count chk"><b>{t('Backpack check')}</b><span class="num">{t('{n} of {m}', { n: count.packed, m: count.total })}</span></div>
             <span class="sk-bar" role="progressbar" aria-label={t('Backpack check')} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct}><i style:width="{pct}%"></i></span>
             {#if before}<p class="sk-quiet line" data-last-here><History size={16} aria-hidden="true" /><span>{t('Last time here: {day}', { day: longDay(before.day) })}{#if before.activeMin}{' · '}{t('{time} moving', { time: durationText(before.activeMin) })}{/if}{#if before.note}{' · «'}{before.note}{'»'}{/if}</span></p>{/if}
+            <!-- Paket J #160 (Noah «… als sichtbar auf der skitouren seite»): freezing level and fresh snow -->
+            {#if nx.upcoming}<SnowBox trip={trip} compact save={(f) => setTripFields(trip.id, f)} />{/if}
             {#if light}<p class="sk-quiet line num" data-daylight><Sunrise size={16} aria-hidden="true" /><span>{light.rough ? t('Light from {rise} to {set} (roughly, in Switzerland)', light) : t('Light from {rise} to {set}', light)}</span></p>{/if}
             <a class="btn hi sk-go" href="#/ski/check/{encodeURIComponent(trip.id)}" data-to="check">{t('Open the backpack check')}<ChevronRight size={20} aria-hidden="true" /></a>
             {#if open.length}
@@ -146,7 +150,16 @@
               <ChevronRight size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <a class="sk-row" href="#/mountain" data-row="mountain">
+              <span class="sk-ri" aria-hidden="true"><Siren size={20} /></span>
+              <span class="sk-rt"><b>{t('Mountain and emergency')}</b><small>{t('Emergency position, map with steep slopes, emergency QR, grades')}</small></span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
+        <!-- Paket J #217: the emergency numbers, also offline -->
+        <p class="sk-quiet sos-line" data-sos-line><Phone size={15} aria-hidden="true" /><span>{t('Emergency:')}</span>{#each CALLS as c, i (c.key)}{#if i}<span aria-hidden="true">·</span>{/if}<a href={telOf(c.number)} data-call={c.number}>{t(c.label)}</a>{/each}</p>
 
         <details class="surf more">
           <summary class="sk-row">
@@ -250,5 +263,20 @@
   }
   .late {
     color: var(--warn);
+  }
+  .sos-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 14px;
+  }
+  .sos-line a {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink);
+    font-weight: 600;
   }
 </style>

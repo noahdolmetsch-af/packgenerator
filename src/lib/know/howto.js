@@ -141,6 +141,12 @@ export const HOWTO = {
   'f.reminders': ['After a ride or before a trip, answer the app’s question about a reminder.', 'Open Me › Reminders.', 'Switch a reminder off or change its time.'],
   'f.birthdays': ['Open Me › Reminders.', 'Add a birthday or a plant.', 'See it in Calendar › Remember when it is time.'],
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
+  // Paket J «Berg, Schnee und Notfall»
+  'f.snow': ['Open a ski tour or hike in Pack › Plan.', 'Set the start place under «Forecast».', 'From 16 days before: freezing level and fresh snow show below.'],
+  'f.swissmap': ['Open Touren › Ski tours › «Mountain and emergency».', 'Tap «Map with steep slopes».', 'Switch the layers on or off.'],
+  'f.sos': ['Open Touren › Ski tours › «Mountain and emergency».', 'Tap «Emergency: show my position».', 'Tap «Rega 1414» or «Emergency 112» and read out the position.'],
+  'f.sosqr': ['Open «Mountain and emergency» › «Emergency QR».', 'Fill in your emergency card and tap «Save card».', 'Tap «Save the lock-screen image» and set it as the lock screen.'],
+  'f.scales': ['Open «Mountain and emergency».', 'Tap «Signposts and grades».', 'Read the colours and the SAC grades.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
   'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],

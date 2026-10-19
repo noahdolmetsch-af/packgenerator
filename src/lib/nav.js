@@ -156,6 +156,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?')) return 'ski'; // v0.97.0 «Skitouren»
+  if (h === '#/mountain' || h.startsWith('#/mountain/') || h.startsWith('#/mountain?')) return 'mountain'; // Paket J «Berg, Schnee und Notfall»
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
@@ -298,7 +299,7 @@ export const PLACE_TABS = {
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
-    { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') },
+    { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') || h === '#/mountain' || h.startsWith('#/mountain/') },
   ],
   gear: [
     { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => (h.startsWith('#/gear') && !/[?&]view=wish\b/.test(h)) || h.startsWith('#/favorites') },
@@ -349,7 +350,7 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

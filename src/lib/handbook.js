@@ -506,6 +506,32 @@ export const HANDBOOK = {
     steps: ['On Today tap «Record the pressure» or «Measure the chain» under the bike.', 'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.'],
     example: "Example: the chain at its limit → the workshop order suggests «replace the chain».",
   },
+  // Paket J «Berg, Schnee und Notfall»
+  'f.snow': {
+    on: null,
+    steps: ['Plan a ski tour or hike with start place and date; from 16 days before, freezing level and fresh snow show under «Forecast».', 'The Ski tours page shows the line for the next tour; «Hide» takes the box away for one trip.'],
+    example: 'Example: 0° at 2400 m, 15 cm fresh snow in the 3 days before → read the avalanche bulletin with that in mind.',
+  },
+  'f.swissmap': {
+    on: null,
+    steps: ['Open Ski tours › Mountain and emergency › «Map with steep slopes», or the button in a mountain trip.', 'Switch the layers: slopes over 30°, ski touring routes, hiking trails; summer or winter map.'],
+    example: 'Example: the ski route crosses a violet slope → there it is steeper than 40°.',
+  },
+  'f.sos': {
+    on: null,
+    steps: ['Open Ski tours › Mountain and emergency › «Emergency: show my position».', 'Call Rega 1414 or 112 with one tap and read out the position shown big.'],
+    example: 'Example: LV95 2’600’000 / 1’200’000 at 1850 m → you tell Rega exactly where you are.',
+  },
+  'f.sosqr': {
+    on: null,
+    steps: ['Open Mountain and emergency › «Emergency QR», fill in the contact (or take one from a .vcf) and save.', 'Tap «Save the lock-screen image» and set it as the lock screen.'],
+    example: 'Example: a helper scans the code on the locked phone and sees whom to call and your allergies.',
+  },
+  'f.scales': {
+    on: null,
+    steps: ['Open Mountain and emergency › «Signposts and grades».', 'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).'],
+    example: 'Example: white-blue-white → alpine hiking trail, T4 to T6.',
+  },
   'f.skiequipment': {
     on: null,
     steps: ['Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.', 'Tap «Log a use» after a tour; the care shows here and on Today when it is due.'],

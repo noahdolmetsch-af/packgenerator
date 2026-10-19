@@ -1658,3 +1658,10 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - **Listen und Typen:** Sportarten (umbenennen, eigene, ausblenden, Reihenfolge, löschen; eine Standard-Sportart bleibt bei alten Touren erhalten, eine eigene gibt ihre Touren an eine andere Sportart), Plätze am Velo und Pflege-Teile (nur umbenennen, die App braucht jeden davon).
 - **Selbst entschieden:** km-Buch und Werkstatt gehen mit dem gelöschten Velo, statt an ein anderes Velo (sonst stimmen dessen km nicht). Vorlagen, die ein gelöschtes Velo nennen, bieten einfach keines an.
 
+
+## 19.10.2026 · Paket J «Berg, Schnee und Notfall» (Noah «1a und b … 2a 3a 4a, 5 nicht»)
+
+- Nullgradgrenze und Neuschnee (#160) kommen von Open-Meteo (gratis, ohne Schlüssel), nur der Kartenpunkt geht hinaus. Sie stehen bei jeder Skitour und Wanderung, bei einer Velotour ab 1500 m auf der Route, und auf der Seite Skitouren. Nur Zahlen, keine Bewertung; pro Tour ausblendbar.
+- Die swisstopo-Karte (#161) läuft in der App mit Leaflet, das erst beim Öffnen der Karte lädt (main.js wächst nicht). Ebenen Hangneigung über 30°, Skitouren, Wanderwege; Winterkarte November bis April. Angeschaute Kacheln bleiben offline (Service-Worker-Cache, max. 800).
+- Neue Seite Touren › Skitouren › «Berg und Notfall» (#/mountain): Notfall mit Standort gross (Grad und LV95) und Anruf Rega 1414 / 112 (#325, #217), Notfall-QR als Sperrbild (#311) mit Kontakt aus .vcf (#1001), Wegweiser und SAC-Skalen (#220), Schweizer Seiten nach Sportart, jede ausblendbar (#219). Kompass nur verlinkt (Paket L).
+- Privat-Zone #138 fällt weg (Noah «5 nicht»). Heute bleibt unverändert.
