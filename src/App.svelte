@@ -296,6 +296,7 @@
     Favorites: () => import('./pages/Favorites.svelte'),
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
+    Race: () => import('./pages/Race.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
     Check: () => import('./pages/Check.svelte'),
@@ -411,6 +412,9 @@
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
     <LazyPage load={PAGES.Trips} />
+  {:else if page === 'race'}
+    <!-- Paket U «Rennen»: #/race, #/race/<trip>/<part>, #/race/brief/<trip> -->
+    <LazyPage load={PAGES.Race} {hash} />
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />

@@ -112,6 +112,7 @@
   import TileCatalog from '../lib/home/TileCatalog.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
   import IntroKT from '../lib/home/IntroKT.svelte';
+  import RaceLine from '../lib/race/RaceLine.svelte'; // Paket U «3b»: «Race in X days»
   import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
@@ -871,6 +872,7 @@
         <h1 id="hello-h" class="hello">{hello}</h1>
         {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        {#if loaded}<RaceLine {today} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1097,6 +1099,11 @@
       <div class="tourline" data-tourline>
         <span><b>{t('New here? Take the tour')}</b><small>{t('2 minutes, with an example trip. Your data stays untouched.')}</small></span>
         <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+      </div>
+      <!-- Paket U «Muster-Rennen» (Noah «7b»): also findable in First steps -->
+      <div class="tourline soft" data-tourline-race>
+        <span><b>{t('Planning a race?')}</b><small>{t('See a made-up sample race and try what you can change.')}</small></span>
+        <a class="btn sm" href="#/race?sample">{t('See the sample race')}</a>
       </div>
       <ol>
         <li class:done={steps.bike}>
@@ -2138,5 +2145,9 @@
   }
   .tourline .btn {
     white-space: nowrap;
+  }
+  .tourline.soft {
+    border-width: 1px;
+    background: transparent;
   }
 </style>

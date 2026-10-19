@@ -52,6 +52,8 @@ export const SINCE = {
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»
   'f.routine': '0.150.0', 'f.insights': '0.150.0',
+  // Paket U «Rennen» (provisional version, the bundler renumbers)
+  'f.race': '0.156.0', 'f.racesample': '0.156.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

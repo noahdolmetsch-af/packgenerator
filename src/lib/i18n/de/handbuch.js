@@ -531,4 +531,11 @@ export default {
   'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // Paket U «Rennen»
+  'Open Trips › Races and tap «New race», or make one of your trips a race.': 'Öffne Touren › Rennen und tippe «Neues Rennen», oder mach eine deiner Touren zum Rennen.',
+  'Under «Prepare» load the route files and the stops; «Plan» and «Strategy» play the race through with your assumptions.': 'Unter «Vorbereiten» lädst du die Strecken-Dateien und Stopps; «Plan» und «Strategie» spielen das Rennen mit deinen Annahmen durch.',
+  'Example: climbing 650 → 550 m/h with luggage → the plan grows from 10 to 12 days, the beds move with it.': 'Beispiel: Steigleistung 650 → 550 Hm/h mit Gepäck → der Plan wächst von 10 auf 12 Tage, die Betten wandern mit.',
+  'Open Trips › Races › «See the sample race».': 'Öffne Touren › Rennen › «Muster-Rennen ansehen».',
+  'Tap «Show me around» for the tour, then do the small tasks in «Plan».': 'Tippe «Rundgang starten», dann mach die kleinen Aufgaben im «Plan».',
+  'Example: choose the tent → 2.2 kg more and the risks change at once.': 'Beispiel: Zelt wählen → 2.2 kg mehr, und die Risiken ändern sich sofort.',
 };

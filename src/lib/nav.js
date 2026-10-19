@@ -150,6 +150,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
+  if (h === '#/race' || h.startsWith('#/race/') || h.startsWith('#/race?')) return 'race'; // Paket U «Rennen»: Touren › Rennen
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?')) return 'ski'; // v0.97.0 «Skitouren»
@@ -340,7 +341,7 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'week') return 'week';
-  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
+  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'race'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

@@ -501,6 +501,16 @@ export const HANDBOOK = {
     steps: ['On Today tap «Record the pressure» or «Measure the chain» under the bike.', 'In Bikes › Enter values «Calculate the pressure» suggests a target pressure.'],
     example: "Example: the chain at its limit → the workshop order suggests «replace the chain».",
   },
+  'f.race': {
+    on: null,
+    steps: ['Open Trips › Races and tap «New race», or make one of your trips a race.', 'Under «Prepare» load the route files and the stops; «Plan» and «Strategy» play the race through with your assumptions.'],
+    example: 'Example: climbing 650 → 550 m/h with luggage → the plan grows from 10 to 12 days, the beds move with it.',
+  },
+  'f.racesample': {
+    on: null,
+    steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
+    example: 'Example: choose the tent → 2.2 kg more and the risks change at once.',
+  },
   'f.skiequipment': {
     on: null,
     steps: ['Open Velos › Ausrüstung and tap «Add equipment»; pick a piece from Material and its sport.', 'Tap «Log a use» after a tour; the care shows here and on Today when it is due.'],

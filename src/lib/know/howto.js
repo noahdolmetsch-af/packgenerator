@@ -128,6 +128,8 @@ export const HOWTO = {
   'f.reminders': ['After a ride or before a trip, answer the app’s question about a reminder.', 'Open Me › Reminders.', 'Switch a reminder off or change its time.'],
   'f.birthdays': ['Open Me › Reminders.', 'Add a birthday or a plant.', 'See it in Calendar › Remember when it is time.'],
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
+  'f.race': ['Open Trips › Races.', 'Create a race or make a trip a race.', 'Load the route under «Prepare», then look at «Plan».'],
+  'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
   'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],

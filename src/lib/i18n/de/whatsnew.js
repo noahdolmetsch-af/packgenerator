@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.156.0 Paket U «Rennen» (provisional version)
+  'Ready for the long race': 'Bereit fürs lange Rennen',
+  'Trips › Races plays a bikepacking race through: stages that end at a bed, hotel, mixed or tent side by side, and every assumption is yours to change.': 'Touren › Rennen spielt ein Bikepacking-Rennen durch: Etappen, die an einem Bett enden, Hotel, Misch oder Zelt nebeneinander, und jede Annahme kannst du ändern.',
+  'Races: the plan day by day, the three ways with a recommendation, scenarios side by side and all 40 functions in one list': 'Rennen: der Plan Tag für Tag, die drei Varianten mit Empfehlung, Szenarien nebeneinander und alle 40 Funktionen in einer Liste',
+  'A made-up sample race with a tour and small tasks: see what you can change before you plan your own': 'Ein erfundenes Muster-Rennen mit Rundgang und kleinen Aufgaben: sieh, was du anpassen kannst, bevor du dein eigenes planst',
+  'Along the route and race mode: shops with opening hours, water, beds, trains, weather, light and climbs, only what you need on the bike': 'Strecke und Unterwegs: Läden mit Öffnungszeiten, Wasser, Betten, Züge, Wetter, Licht und Anstiege, nur was du auf dem Velo brauchst',
+  'Today shows a small line «Race in X days» when a race of yours is coming': 'Heute zeigt eine kleine Zeile «Rennen in X Tagen», wenn ein Rennen von dir kommt',
+  'Open Trips › Races › «See the sample race»: the plan shows the days, the three ways and the gaps.': 'Öffne Touren › Rennen › «Muster-Rennen ansehen»: der Plan zeigt die Tage, die drei Varianten und die Lücken.',
+  'Change the climbing rate from 650 to 550 m/h: the plan gets longer at once.': 'Ändere die Steigleistung von 650 auf 550 Hm/h: der Plan wird sofort länger.',
   // 0.152.0 Tempo «Seiten später laden»
   'Lighter on the phone': 'Leichter auf dem Handy',
   'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.': 'Die App lädt jede Seite erst, wenn du sie zum ersten Mal öffnest. So bleibt sie klein genug, um ganz auf dem Handy gespeichert zu bleiben, auch offline.',

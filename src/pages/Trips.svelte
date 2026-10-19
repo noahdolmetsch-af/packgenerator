@@ -380,6 +380,8 @@
     <!-- Paket D (Noah 19.10.2026 «1a»): on a phone the folded «Was hier steht ›» sits in the head beside «Fahrt hochladen» -->
     <div class="ph-acts">
       {#if phone.matches && view && !view.empty}<HintCard page="trips" foldedOnPhone only="line" />{/if}
+      <!-- Paket U «Rennen» (Noah 19.10.2026 «1b»): the races have their own area under Touren -->
+      <Btn icon={Flag} label={t('Races')} href="#/race" data-to-races />
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>

@@ -47,6 +47,7 @@
     nav = null;
     el = null;
     if (s.prep === 'playTrip' && run?.play) openTrip('play-trip');
+    if (s.prep === 'raceSample') openTrip('race-sample');
     if (location.hash !== s.href && !(s.href === '#/' && (location.hash === '' || location.hash === '#'))) location.hash = s.href;
     let tries = 0;
     let alive = true;
