@@ -94,6 +94,12 @@
   {:else if route.tab === 'care' && route.view === 'strava-check'}
     <!-- v0.116.0 (S5): the rides from Strava that wait for a bike -->
     <StravaCheck bikeId={route.bike} />
+  {:else if route.tab === 'care' && route.view === 'spick'}
+    <!-- «Velo im Griff» #327: the workshop cheat sheet (torque, breakdowns); loaded only when opened -->
+    {#await import('../lib/care/SpickPage.svelte') then m}<m.default bikeId={route.bike} />{/await}
+  {:else if route.tab === 'care' && route.view === 'templates'}
+    <!-- «Velo im Griff» #1009: the part template per bike kind; loaded only when opened -->
+    {#await import('../lib/care/TemplatePage.svelte') then m}<m.default bikeId={route.bike} />{/await}
   {:else if route.tab === 'care' && route.view === 'import'}
     <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
     <KmImport bikeId={route.bike} />

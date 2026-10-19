@@ -14,7 +14,7 @@
   import { keepTyped } from '../ui/keeptyped.js'; // P3b rule 3a: closing keeps what was typed
   import { t, num } from '../i18n.svelte.js';
   import { PART } from '../care.js';
-  import { CARE_ITEM, careChange, checkCare } from './plan.js';
+  import { CARE_ITEM, careChange, checkCare, careHoursHint } from './plan.js';
   import { careStdText } from './plantext.js';
 
   let { bike, row, focus = null, onsave, onclose } = $props();
@@ -31,6 +31,10 @@
   let on = $state(r.on);
   let km = $state(show(start.everyKm));
   let days = $state(show(start.everyDays));
+  // «Velo im Griff» #193: fork and shock also by riding hours (empty: not by hours; the hint offers 50 h)
+  const byHours = 'everyHours' in r.std;
+  const hoursHint = careHoursHint(r.key);
+  let hours = $state(show(start.everyHours));
   let warn = $state(show(start.warnAt));
   let limit = $state(show(start.limit));
   let note = $state(r.note);
@@ -47,16 +51,17 @@
     on = true;
     km = show(r.std.everyKm);
     days = show(r.std.everyDays);
+    hours = show(r.std.everyHours);
     warn = show(r.std.warnAt);
     limit = show(r.std.limit);
     error = '';
   }
-  const intervalStd = () => ((km = show(r.std.everyKm)), (days = show(r.std.everyDays)), (error = ''));
+  const intervalStd = () => ((km = show(r.std.everyKm)), (days = show(r.std.everyDays)), (hours = show(r.std.everyHours)), (error = ''));
   const wearStd = () => ((warn = show(r.std.warnAt)), (limit = show(r.std.limit)), (error = ''));
 
   async function save(e) {
     e?.preventDefault();
-    const values = r.kind === 'wear' ? { warnAt: toNum(warn), limit: toNum(limit) } : r.kind === 'check' ? { everyKm: toNum(km) } : { everyKm: toNum(km), everyDays: toNum(days) };
+    const values = r.kind === 'wear' ? { warnAt: toNum(warn), limit: toNum(limit) } : r.kind === 'check' ? { everyKm: toNum(km) } : { everyKm: toNum(km), everyDays: toNum(days), ...(byHours ? { everyHours: toNum(hours) } : {}) };
     const res = checkCare(r.key, values, on);
     if (res.error) {
       error = res.error === 'interval' ? t('Give km, days or both.') : res.error === 'wear' ? (low ? t('The warning has to be above the replace limit.') : t('The warning has to be below the replace limit.')) : t('Only numbers above 0.');
@@ -92,7 +97,15 @@
             <span class="andor">{t('and/or')}</span>
             <span>{t('every|interval')}</span>
             <input class="inp num" type="text" inputmode="numeric" aria-label={t('Every … days')} placeholder="–" bind:value={days} oninput={() => (error = '')} /><span class="unit">{t('days')}</span>
+            {#if byHours}
+              <span class="andor">{t('and/or')}</span>
+              <span>{t('every|interval')}</span>
+              <input class="inp num" type="text" inputmode="numeric" aria-label={t('Every … riding hours')} placeholder="–" bind:value={hours} oninput={() => (error = '')} data-care-hours /><span class="unit">h</span>
+            {/if}
           </div>
+          {#if byHours && hoursHint && !String(hours).trim()}
+            <p class="src">{t('Suggestion: every {n} riding hours (fork: lower legs, shock: air can).', { n: hoursHint })} <button type="button" class="tp-link" onclick={() => ((hours = show(hoursHint)), (error = ''))} data-care-hours-use>{t('Use {n} h', { n: hoursHint })}</button></p>
+          {/if}
           <p class="src">{t('Whichever comes first counts.')} {t('Standard: {v}', { v: careStdText(r) })} · <button type="button" class="tp-link" onclick={intervalStd}>{t('reset|care')}</button></p>
         {:else if r.kind === 'check'}
           <legend class="lbl">{t('Interval')}</legend>

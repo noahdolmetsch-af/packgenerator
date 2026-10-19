@@ -10,6 +10,9 @@ import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, 
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 import { own } from './ownlive.svelte.js';
+import { vig } from './veloimgriff.svelte.js';
+import { hoursSince, hoursText } from './bikehours.js';
+import { serviceState } from './bikeservice.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -213,6 +216,22 @@ export function bikeDue(bike, trip, setup, today, end) {
     if (since >= p.everyKm) rows.push({ key: p.key, name, when: 'now', late: true, detail: tr('{since} km since the last time (every {every} km)', { since, every: p.everyKm }) });
     else if (tripKm != null && since + tripKm >= p.everyKm) rows.push({ key: p.key, name, when: 'during', detail: tr('due after {km} km of the route', { km: p.everyKm - since }) });
   }
+  // «Velo im Griff» #193: services by riding hours (fork, shock: off unless set), not twice with a row by time.
+  const series = vig.hours[bike.id] ?? null;
+  for (const p of (bike.parts ?? []).map(partInfo).filter((x) => x.everyHours > 0 && fits(bike, x))) {
+    if (rows.some((r) => r.key === p.key)) continue;
+    const h = hoursSince(series, lastServiceOf(p));
+    if (h && h.hours >= p.everyHours) rows.push({ key: p.key, name: p.due ? tr(p.due) : serviceName(p), when: 'now', late: true, detail: tr('{since} since the last time (every {every} h)', { since: hoursText(h.hours, h.est), every: num(p.everyHours) }) });
+  }
+  // «Velo im Griff» #193: the service of the whole bike, by km, hours or days, whichever comes first.
+  const sv = serviceState(bike, series, today);
+  if (sv.due) {
+    const detail = sv.by === 'km' ? tr('{since} km since the last service (every {every} km)', { since: num(sv.sinceKm), every: num(sv.values.everyKm) }) : sv.by === 'hours' ? tr('{since} since the last service (every {every} h)', { since: hoursText(sv.sinceHours, sv.hoursEst), every: num(sv.values.everyHours) }) : overdueFor(sv.next, today);
+    rows.push({ key: 'service', name: tr('Bike service'), when: 'now', late: true, service: true, detail });
+  } else if (sv.on && !sv.never) {
+    if (sv.next && sv.next <= end) rows.push({ key: 'service', name: tr('Bike service'), when: sv.next < trip.startDate ? 'now' : 'during', service: true, detail: sv.next < trip.startDate ? tr('due {date}, before the start', { date: sv.next }) : tr('due {date}, on the trip', { date: sv.next }) });
+    else if (tripKm != null && sv.kmLeft != null && tripKm >= sv.kmLeft) rows.push({ key: 'service', name: tr('Bike service'), when: 'during', service: true, detail: tr('due after {km} km of the route', { km: sv.kmLeft }) });
+  }
   // The 1000 km check: due now, or reached on the way.
   const check = checkState(bike);
   if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(check.every) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });
@@ -290,6 +309,7 @@ const DE = {
   fork: 'Gabel-Service', shock: 'Dämpfer-Service', tyres: 'Dichtmilch nachfüllen', check: '1000-km-Check (Bremsen, Kette, Reifen, Schrauben, Schaltung, Lager)',
   chain: 'Kette', chainring: 'Kettenblatt', cassette: 'Kassette', padsF: 'Bremsbeläge vorne', padsR: 'Bremsbeläge hinten', rotorF: 'Bremsscheibe vorne', rotorR: 'Bremsscheibe hinten', brakeF: 'Bremse vorne', brakeR: 'Bremse hinten', wheelF: 'Vorderrad', wheelR: 'Hinterrad',
   frame: 'Rahmen', seatclamp: 'Sattelstützklemme', battery: 'Akku', shifter: 'Schalthebel', crank: 'Kurbel', bb: 'Innenlager', axles: 'Steckachsen', grips: 'Griffe', seatpost: 'Sattelstütze', charger: 'Ladegerät',
+  service: 'Velo-Service (ganzes Velo)',
   linkage: 'Hinterbau-Lager', saddle: 'Sattel', shifting: 'Schaltwerk', brakes: 'Bremsen', wheels: 'Laufräder', cockpit: 'Cockpit', bolts: 'Schrauben', bearings: 'Lager',
 };
 
@@ -341,7 +361,7 @@ export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { fro
     const measured = r.worn && r.key === 'chain' ? chainMeasured(bike) : null;
     const de = measured ? `Kette ersetzen (gemessen ${String(measured).replace('.', ',')} %)` : r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
     // v0.69.0 «Velo-Blätter»: part and action too, so the pick-up check can record the work done.
-    return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price, part: r.key, action };
+    return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price, part: r.service ? null : r.key, action };
   });
   // v0.45.2: a problem I fix myself (fix 'self' or 'guide') stays out of the order for the shop.
   for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed') && !['self', 'guide'].includes(x.fix))) {

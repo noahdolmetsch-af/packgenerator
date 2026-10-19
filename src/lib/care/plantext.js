@@ -19,8 +19,12 @@ export function careText(row, values = row.values) {
   }
   const km = values.everyKm != null ? `${num(values.everyKm)} km` : '';
   const days = values.everyDays != null ? t('{n} days', { n: num(values.everyDays) }) : '';
-  if (km && days) return t('every {a} or {b}, whichever comes first', { a: km, b: days });
-  return t('every {v}', { v: km || days });
+  // «Velo im Griff» #193: riding hours as the third measure (fork, shock)
+  const hours = values.everyHours != null ? `${num(values.everyHours)} h` : '';
+  const all = [km, days, hours].filter(Boolean);
+  if (all.length === 3) return t('every {a}, {b} or {c}, whichever comes first', { a: all[0], b: all[1], c: all[2] });
+  if (all.length === 2) return t('every {a} or {b}, whichever comes first', { a: all[0], b: all[1] });
+  return t('every {v}', { v: all[0] ?? '' });
 }
 /** What counts now. */
 export const careValue = (row) => careText(row, row.values);

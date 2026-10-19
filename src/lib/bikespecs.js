@@ -32,6 +32,8 @@ export const GEOMETRY = [
   { key: 'reach', name: 'Reach', unit: 'mm' },
   { key: 'standover', name: 'Standover', unit: 'mm' },
   { key: 'bbDrop', name: 'Bottom bracket offset', unit: 'mm' },
+  // «Velo im Griff» (Noah 19.10.2026): every bike starts with the same 12 geometry values
+  { key: 'trail', name: 'Trail|geometry', unit: 'mm' },
 ];
 
 /**
@@ -272,7 +274,7 @@ export function attrKey(key, name) {
 /** The geometry key for a name in the import («Sitzwinkel», «seat angle», «seatAngle»), or null. */
 export function geoKey(name) {
   const n = low(name).replace(/\s*\((mm|°)\)$/, '').replace(/ °$/, '');
-  const extra = { bbDrop: ['tretlager-offset', 'tretlagerabsenkung', 'bb drop', 'bb offset'], headAngle: ['lenkwinkel'], seatAngle: ['sitzwinkel'], chainstay: ['kettenstreben', 'kettenstrebe', 'chainstay'], standover: ['überstand', 'ueberstand', 'überstandshöhe'], seatHeight: ['sitzhöhe'], seatTube: ['sitzrohr'], topTube: ['oberrohr'], headTube: ['steuerrohr'], wheelbase: ['radstand'] };
+  const extra = { bbDrop: ['tretlager-offset', 'tretlagerabsenkung', 'bb drop', 'bb offset'], headAngle: ['lenkwinkel'], seatAngle: ['sitzwinkel'], chainstay: ['kettenstreben', 'kettenstrebe', 'chainstay'], standover: ['überstand', 'ueberstand', 'überstandshöhe'], seatHeight: ['sitzhöhe'], seatTube: ['sitzrohr'], topTube: ['oberrohr'], headTube: ['steuerrohr'], wheelbase: ['radstand'], trail: ['nachlauf', 'trail', 'trail (mm)'] };
   return GEOMETRY.find((g) => n === low(g.key) || names(g.name).includes(n) || (extra[g.key] ?? []).includes(n))?.key ?? null;
 }
 

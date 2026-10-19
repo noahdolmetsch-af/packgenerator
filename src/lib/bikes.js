@@ -256,7 +256,8 @@ export function parseBikesHash(hash = '') {
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
   // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
   // v0.116.0 «Strava-Verbindung»: &view=strava is the Strava page (S1–S3), &view=strava-check «Zum Prüfen» (S5).
-  if (tab === 'care' && ['import', 'strava', 'strava-check'].includes(q.get('view'))) out.view = q.get('view');
+  // «Velo im Griff» (19.10.2026): &view=spick is the «Werkstatt-Spick», &view=templates the part templates per kind.
+  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates'].includes(q.get('view'))) out.view = q.get('view');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   // «Bugfix Dateneingabe» D2: &view=enter is «Enter values», every value of one bike on one page.
   if (tab === 'compare' && ['all', 'enter'].includes(q.get('view'))) out.view = q.get('view');
@@ -311,7 +312,7 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
     if (a) q.set('a', a);
     if (b) q.set('b', b);
   }
-  if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
+  if (['import', 'strava', 'strava-check', 'spick', 'templates'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
   if (tab === 'garmin' && view) q.set('view', view);
