@@ -14,6 +14,7 @@
   import { localDay } from '../localday.js';
   import { t, tn } from '../i18n.svelte.js';
   import { qText, areaName, dayShort, dayName, srcText } from './words.js';
+  import Insights from '../erkenntnisse/Insights.svelte';
   import './ab.css';
 
   let { compact = false, idp = 'aw' } = $props();
@@ -90,6 +91,8 @@
 </script>
 
 <div class="aw" class:compact>
+  <!-- Erkenntnisse (Noah 19.10.2026 «4b»): the strongest three first, all on Ich › Erkenntnisse -->
+  <Insights compact idp="{idp}-ek" />
   <section class="ich-sec" aria-labelledby="{idp}-n-h">
     <div class="ich-h"><div><h2 id="{idp}-n-h">{t('History and your own normal')}</h2><p class="ich-hs">{t('day value, mean of 7 days and your normal of the last 30 days')}</p></div></div>
     <div class="card pad">

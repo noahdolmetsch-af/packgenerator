@@ -1,5 +1,6 @@
 <script>
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
+  import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { offerCare } from '../remind/ask.svelte.js';
   import HintCard from '../pageinfo/HintCard.svelte';
   import PageMore from '../pageinfo/PageMore.svelte';
@@ -22,7 +23,7 @@
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import { tickPrep, untickPrep } from './prep.js';
-  import { shopSkip } from './last.js';
+  import { orderOf as orderFor } from './orders.js';
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
   import ProblemList from './ProblemList.svelte';
@@ -37,7 +38,7 @@
   import PartDialog from './PartDialog.svelte';
   import VisitDialog from './VisitDialog.svelte';
   import OrderDialog from './OrderDialog.svelte';
-  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
+  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice } from '../workshop.js';
   import { hasBike } from '../domains.js';
   import { daysFrom } from '../today.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
@@ -119,11 +120,9 @@
   );
   const checks = $derived(
     views.map((b) => {
-      const tyres = tyreSetup(b, visits);
-      // N15: one order for the shop, for this bike's next trip (or what is due today).
-      const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
-      // v0.31.0: only what I do not usually do myself (care/last.js shopSkip).
-      const order = workshopOrder(b, trip, tasks, visits, tyres, today, { skip: shopSkip(b) });
+      // N15: one order for the shop, for this bike's next trip (or what is due today); v0.31.0: only what
+      // I do not usually do myself. Impeccable (Velopflege 3): the same order as in Workshop & receipts.
+      const { tyres, order, orderTrip: trip } = orderFor(b, $tripsQ ?? [], tasks, visits, today);
       const care = bikeCare(b, { tasks, visits, today });
       return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip, care };
     }),
@@ -403,7 +402,8 @@
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-    {#if bikes.length}<HintCard page="care" />{/if}
+    <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+    {#if bikes.length}<HintCard page="care" intro="pflege" />{:else if $bikesQ}<AreaIntro place="pflege" />{/if}
     {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
   {/if}
   {#if !bikes.length && $bikesQ}

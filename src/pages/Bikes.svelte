@@ -7,6 +7,7 @@
    */
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { parseBikesHash, bikesHash } from '../lib/bikes.js';
+  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
@@ -59,7 +60,8 @@
 <div class="bikes">
   <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
        equipment, compare) has its own path back and title (VeloHead). -->
-  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin'].includes(route.tab) && !(route.tab === 'rig' && route.view)}
+  <!-- Impeccable Runde 2 (Setup 1): Setup has its own head «‹ Velo › {bike} › Setup» too -->
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin', 'rig'].includes(route.tab)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
     </header>
@@ -100,6 +102,7 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
+    <AreaIntro place="velos" />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />

@@ -115,7 +115,7 @@
     return out;
   });
   // Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the head says in words what is missing, no count
-  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.'), keep: () => t('The browser does not keep the data for good yet.') }; // keep: P3b «Daten sicher» (Paket A)
+  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.'), keep: () => t('The browser does not keep your data for sure yet.') }; // keep: P3b «Daten sicher» (Paket A)
   const headLine = $derived.by(() => {
     const warns = lights.filter((l) => l.state === 'warn');
     if (!warns.length) return t('Everything is in order.');

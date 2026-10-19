@@ -54,11 +54,11 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   expect((await pillN(0)) + (await pillN(1)), 'Abgeschlossen + Bewertet = the trips of the period').toBe(trips);
   await expect(page.locator('.hub .head .page-sub')).toHaveText(`${T('12 months')} · ${T('{n} trips ridden', { n: trips })}`);
 
-  // the trip whose debrief is missing: one main button «Bewerten», a quiet «Nicht gefahren»
+  // the trip whose debrief is missing: one main button «Rückblick schreiben» (Impeccable Rückblick 2), a quiet «Nicht gefahren»
   const hero = page.locator('[data-open-debrief]');
   const name = (await hero.locator('.hname').textContent()).trim();
   expect(name).toMatch(/^test_data_gtp_/);
-  await expect(hero.getByRole('link', { name: `${T('Rate|debrief')}: ${name}` })).toBeVisible();
+  await expect(hero.getByRole('link', { name: new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): ${esc(name)}$`) })).toBeVisible();
   await expect(hero.locator('[data-state="done"]')).toBeVisible();
   await expect(page.locator('.hub .btn.hi:visible')).toHaveCount(1);
   await shot(page, info, 'SN2-rueckblick');

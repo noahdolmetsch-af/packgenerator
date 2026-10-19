@@ -138,9 +138,16 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
 // WG «Wi gaht's?» takes over the daily check: the row leads to «Wi gaht's?», its answers show as the numbers
 test('WG the daily check (was «four taps on its page»): the row leads to «Wi gaht\'s?», its answers show on Today', async ({ page, context }) => {
   await open(page, context, '#/', '[data-section="flow"]');
-  const card = page.locator('[data-section="flow"]');
-  await card.getByRole('link', { name: T('Start|check') }).click();
-  await expect(page).toHaveURL(/#\/me\/abfragen$/);
+  // v0.155.0 «Heute neu geordnet» (release analysis D3, changed on purpose): the round shows once on Heute, in
+  // the day card (morning and evening); Im Flow leaves its row out. By day one tap on the clock shows it.
+  await expect(page.locator('[data-check-entry]')).toHaveCount(0);
+  const dk = page.locator('[data-daycard]');
+  await dk.locator('[data-clock="morning"]').click();
+  const card = dk.locator('[data-section="morningcheck"]');
+  await expect(card).toContainText(T('Start|check'));
+  await card.click();
+  // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
+  await expect(page).toHaveURL(/#\/check\/morning$/);
   // «Wi gaht's?» started yesterday evening (fictional): the morning round is due on Today
   await page.evaluate(
     () =>
@@ -158,8 +165,12 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   await ab.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '7', exact: true }).click();
   await ab.locator('[data-q="erholung.akku"]').getByRole('button', { name: '6', exact: true }).click();
   await ab.locator('[data-ab-save]').click();
-  await expect(card.locator('.nums')).toContainText('7');
-  await expect(card.locator('.nums li')).toHaveCount(3);
+  // Noah 19.10.2026: the window of the round; what is still due waits with «Später»
+  if (await ab.count()) await ab.locator('[data-ab-later]').click();
+  await expect(ab).toBeHidden();
+  await dk.locator('[data-clock="morning"]').click();
+  await expect(card.locator('[data-val]')).toHaveCount(3);
+  await expect(card.locator('[data-val="sleep"]')).toContainText('7');
   await expect(card.locator('[data-val="energy"]')).toContainText('6');
   await expect(card.locator('[data-val="mood"]')).toContainText('–'); // asked at 13:00, not yet
 });

@@ -27,6 +27,13 @@
    * functions as small buttons, the bikes and the 12 months. «Customise the start page» (or a long
    * press on a phone) moves, resizes and removes tiles; «+» adds any tile (TileCatalog.svelte); «Reset»
    * brings the ready wall back. Stored in «homeWall» (in every backup). «Your data» lives under Me now.
+   *
+   * 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 21:51 «1a 2a 3a 4b HN4 freigegeben»; HN4b 22:13): the
+   * greeting with «Vorschlag für heute», then the small meditation card (MedCard), the day card
+   * (TagesKarte), «Important today» as one line, Im Flow with the compact balance, This week with «Swim or
+   * sauna?», the bike month, the series, a year ago, the milestones, the trip card (4b: on the day before a
+   * trip and on its days right under the day card, tiles.js tripUp), Aktiv (AktivTile), the small tiles, the
+   * bikes, the 12 months and «Connect Strava» at the very bottom while Strava is not connected.
    */
   import { equipmentRows, dueCare } from '../lib/maingear.js';
   import { todayNotes } from '../lib/notebook.js';
@@ -47,6 +54,7 @@
   import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
+  import { askTour } from '../lib/tour/run.js';
   import Continue from '../lib/home/Continue.svelte';
   import { stepOf, lastEvening } from '../lib/phase.js';
   import StartKarte from '../lib/home/StartKarte.svelte';
@@ -85,7 +93,11 @@
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { tourNear } from '../lib/home/heuteneu.js';
+  import MedCard from '../lib/home/MedCard.svelte';
+  import TagesKarte from '../lib/home/TagesKarte.svelte';
+  import AktivTile from '../lib/home/AktivTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
@@ -105,6 +117,7 @@
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
+  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
@@ -113,6 +126,7 @@
   import YearRow from '../lib/home/YearRow.svelte';
   import WeekTile from '../lib/home/WeekTile.svelte';
   import TodaySuggest from '../lib/home/TodaySuggest.svelte';
+  import RoutineTile from '../lib/home/RoutineTile.svelte'; // Routine «Das tut mir gut» (D1)
   import BagReminder from '../lib/home/BagReminder.svelte';
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
@@ -121,6 +135,8 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
+  import { stampOf } from '../lib/abfragen.js';
+  import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
@@ -224,7 +240,7 @@
   function pinNewsTile() {
     const v = WHATS_NEW[0].version;
     if (readPin()?.v === v) return;
-    const { tiles, from } = pinNews(wall);
+    const { tiles, from } = pinNews(wall, HEAD_0155);
     writePin({ v, from, done: false });
     saveWall(tiles);
   }
@@ -232,7 +248,7 @@
     const p = readPin();
     if (!p || p.done || p.v !== WHATS_NEW[0].version || tileDaysLeft(readUpdate(), localDay()) > 0) return;
     writePin({ ...p, done: true });
-    const back = unpinNews(wall, p.from);
+    const back = unpinNews(wall, p.from, HEAD_0155);
     if (back) saveWall(back);
   }
 
@@ -367,23 +383,27 @@
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
-    // v0.137.0 (Noah «3a», release check «1-5a»): the big line shows the base weight, without food,
-    // water and worn items (as the bag setups); the small line under it gives the whole trip.
-    const w = stats.baseG ? knownWeight(stats.baseG, stats.baseMissing) : null;
+    // HN0 check H1 (Noah «3a»): the weight is a number box of its own now (base weight big, all in a small line)
     const km = shown.route?.km ? `${num(Math.round(shown.route.km))} km` : null;
     // once packing has started, how far it is (the same words as Pack)
     const es = shown.entries ?? [];
     const pk = es.filter((e) => e.packed).length;
     const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
-    return [who, tn(stats.count, '{n} item', '{n} items'), w, km, pct].filter(Boolean).join(' · ');
+    return [who, tn(stats.count, '{n} item', '{n} items'), km, pct].filter(Boolean).join(' · ');
   });
-  // v0.137.0 (Durchklick H1, Noah 14.10.2026 «3a»): the big line keeps the weight as before; a small
-  // line under it gives the whole trip with food, water and worn items, the same as the trip head.
-  const kg1 = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`; // as the trip head
-  const packLine = $derived(shown && stats?.packG && stats.packG > stats.baseG ? t('with food, water and worn items {w}', { w: knownWeight(stats.packG, stats.packMissing, kg1) }) : '');
+  // v0.137.0 (Durchklick DK3, Noah 2a): the whole trip with food, water and worn items is the number of the trip head.
+  const kgTrip = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`; // as the trip head
   // v0.101.0 Design-Refresh P2 (H1): number boxes (days, hours, open steps), the packing bar and,
   // with a route, its distance, climbing and profile on the right.
   const left = $derived(shown && !ask ? timeLeft(shown, now) : null);
+  // HN0 check H1 (Noah 14.10.2026 «3a») with Durchklick 0.137.0 («3a», DK3 «2a»): the base weight big (gear without
+  // food, water and what you wear, as the line of 0.137.0), and in a small line the whole trip, the same as the trip head
+  const weight = $derived.by(() => {
+    if (!stats || !stats.packG) return null;
+    const base = knownWeight(stats.baseG, stats.baseMissing);
+    const all = knownWeight(stats.packG, stats.packMissing, kgTrip); // HN4b: always, also when nothing is added
+    return { base, all };
+  });
   const openSteps = $derived(bars.filter((s) => s.state !== 'done' && s.state !== 'skip').length);
   const packed = $derived(shown ? packedOf(shown, itemsById, nameOf) : null);
   const prof = $derived(shown?.route?.km && shown.route.profile?.length > 1 ? shown.route.profile : null);
@@ -584,7 +604,7 @@
       if (c?.status === 'due') {
         const one = c.rows.length === 1 ? c.rows[0] : null;
         const kind = one?.part === 'chain' && one.kind === 'km' ? 'chain' : one?.part === 'tyres' && one.kind === 'time' ? 'sealant' : null;
-        const text = kind === 'chain' ? t('{bike}: lube the chain', { bike: b.name }) : kind === 'sealant' ? t('{bike}: top up the sealant', { bike: b.name }) : tn(c.rows.length, '{bike}: {n} point due', '{bike}: {n} points due', { bike: b.name });
+        const text = kind === 'chain' ? t('{bike}: lube the chain', { bike: b.name }) : kind === 'sealant' ? t('{bike}: top up the sealant', { bike: b.name }) : tn(c.rows.length, '{bike}: {n} due', '{bike}: {n} due', { bike: b.name }); // HN0 check H2 (Noah «4a»): «3 fällig», as on the bike row
         out.push({ key: `care:${b.id}`, tone: 'bad', text, act: kind ? { label: kind === 'chain' ? t('Lubed ✓') : t('Done ✓'), care: { bikeId: b.id, kind } } : { label: t('View|care'), href: c.href } });
         continue;
       }
@@ -652,7 +672,7 @@
     // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
-    if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
+    if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
     rows.push(...careRows.filter((r) => r.tone !== 'bad'));
@@ -684,6 +704,8 @@
   }
   let allRows = $state(false);
   const rowsShown = $derived(allRows ? important : important.slice(0, 3));
+  // HN4 2a: «Important today» as one line under the day card: the first two rows, «Show all {n} ›»
+  const lineRows = $derived(allRows ? important : important.slice(0, 2));
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
   function say(text, undo) {
@@ -735,7 +757,21 @@
   // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
   const hiddenTiles = $derived([...(isShown() ? [] : HELPER_TILES), ...(newsBanner.length && !editing ? ['news'] : [])]);
-  const shownWall = $derived(hideTiles(wall, hiddenTiles));
+  // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
+  const near = $derived(loaded ? tourNear(allTrips, today) : null);
+  // the day card at night: the trip of tomorrow, with how far it is packed
+  const tomorrowTrip = $derived.by(() => {
+    if (!near || near.startDate === today) return null;
+    const p = packedOf(near, itemsById, nameOf);
+    return { title: near.title, href: stepHere(near).href, packed: p ? { packed: p.packed, of: p.of } : null };
+  });
+  // 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 «4a»): Im Flow with the balance right after it is one card over the
+  // whole row; while customising they are two tiles again (each moves, resizes and goes on its own)
+  const joinFlow = (list) => {
+    const i = list.findIndex((x) => x.id === 'flow');
+    return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
+  };
+  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, hiddenTiles), !!near)));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -777,6 +813,8 @@
   }
   // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
   let stravaCard = $state(false);
+  // Paket C: the Tages-Check window (AbCard) is open or loading; the other window of Heute (HomeWindow) waits
+  let roundOpen = $state(true);
   // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
   let maintHint = $state(false);
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
@@ -883,15 +921,15 @@
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
           <p class="meta num">{meta}{#if startLine && !phone.matches}{' · '}{startLine}{/if}</p>
-          {#if packLine && !ask}<p class="meta pack num" data-pack-weight>{packLine}</p>{/if}
         </div>
-        {#if !ask && (left || openSteps)}
+        {#if !ask && (left || openSteps || weight)}
           <dl class="boxes num" data-boxes>
             {#if left}
               {#if left.days}<div><dt>{left.days === 1 ? t('day|left') : t('days|left')}</dt><dd>{left.days}</dd></div>{/if}
               <div><dt>{left.hours === 1 ? t('hour|left') : t('hours|left')}</dt><dd>{left.hours}</dd></div>
             {/if}
             <div><dt>{t('open|steps')}</dt><dd>{openSteps}</dd></div>
+            {#if weight}<div class="wt" data-weight><dt>{t('Base weight|box')}<span class="ws" data-pack-weight>{t('with food, water and worn items {w}', { w: weight.all })}</span></dt><dd>{weight.base}</dd></div>{/if}
           </dl>
         {/if}
         {#if !ask && packed}
@@ -954,9 +992,9 @@
 {/snippet}
 
 <!-- 4. Important today and Tried it yet? -->
-{#snippet todayS()}
-  <div class="impw" data-section="today">
-    <section class="imp" aria-labelledby="imp-h">
+{#snippet todayS(line = false)}
+  <div class="impw" class:line data-section="today">
+    <section class="imp" class:ln={line} class:open={line && allRows} aria-labelledby="imp-h">
       <div class="ih"><span class="ico" aria-hidden="true"><TriangleAlert size={16} /></span><h2 id="imp-h">{t('Important today')}</h2>{#if important.length}<span class="cnt num" aria-hidden="true">{important.length}</span>{/if}</div>
       {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
       {#if quick}
@@ -965,14 +1003,14 @@
       {/if}
       {#if important.length}
         <ul>
-          {#each rowsShown as r (r.key)}
+          {#each line ? lineRows : rowsShown as r (r.key)}
             <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
               {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else}<span class="dot" aria-hidden="true"></span>{/if}
               {#if r.key === 'tests' && cleanAsk}
                 <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
               {:else}
-                <span class="tx">{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{r.text}</span>
+                <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
                 {#if r.act2?.run}
                   <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
                   <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
@@ -989,7 +1027,7 @@
             </li>
           {/each}
         </ul>
-        {#if important.length > 3}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: important.length })}</button>{/if}
+        {#if important.length > (line ? 2 : 3)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: important.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
       {:else if ready}
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
       {/if}
@@ -1002,11 +1040,19 @@
   {#if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
-  {:else if x.id === 'important'}{@render todayS()}
-  {:else if x.id === 'flow'}<FlowCard {today} />
+  {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
+  {:else if x.id === 'flow'}
+    {#if x.join}
+      <!-- 4a: the balance inside; its own data-tile so a long press on it customises the balance -->
+      <!-- Tages-Check T3b (Noah 18.10.2026 «2b»): the big balance ring first, in place of the 3 small Im-Flow rings -->
+      {#snippet balAside()}<div class="joined" data-tile="balance" data-size={x.join}><BalanceTile {today} size="l" isnew={newTile('balance')} {bikes} {tripsDone} bare big /></div>{/snippet}
+      <FlowCard {today} round={!onWall.has('daycard')} aside={balAside} rings={false} asideFirst />
+    {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
+  {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
+  {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
-  {:else if x.id === 'meditation'}<MedTile {today} size={x.size} isnew={newTile('meditation')} />
+  {:else if x.id === 'meditation'}{#if x.size === 'long'}<MedCard {today} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'ski'}<SkiTile {today} size={x.size} isnew={newTile('ski')} />
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
@@ -1019,11 +1065,13 @@
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
+  {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
-  {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} />
+  {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
+  {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
@@ -1046,6 +1094,11 @@
     <section class="card first" aria-labelledby="first-h">
       <h2 id="first-h" class="title">{t('First steps')}</h2>
       <p class="muted">{t('Three steps, then Today shows your next trip.')}</p>
+      <!-- «Rundgang» (Noah 15.10.2026 «4a», the line on Today approved): the tour through the app, on top of First steps -->
+      <div class="tourline" data-tourline>
+        <span><b>{t('New here? Take the tour')}</b><small>{t('2 minutes, with an example trip. Your data stays untouched.')}</small></span>
+        <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+      </div>
       <ol>
         <li class:done={steps.bike}>
           {@render mark(steps.bike, 1)}
@@ -1077,9 +1130,9 @@
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
-  {#if !editing && ready}<AbCard {today} />{/if}
-  <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
-  {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
+  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} />{/if}
+  <!-- Fenster (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's review, only after the round window -->
+  {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
@@ -1093,6 +1146,9 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
+  <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
+       0.155.0 HN4: at the very bottom, under the wall (was on top) -->
+  {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
 
   <div class="custom">
     {#if editing}
@@ -1434,10 +1490,22 @@
   .boxes dt {
     color: var(--ink-2);
     font-size: var(--fs-tiny);
+    text-align: center;
+  }
+  .boxes .ws {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   @media (max-width: 719px) {
     .boxes div {
       padding: 6px;
+    }
+    .boxes:has(> [data-weight]) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .boxes div[data-weight] {
+      grid-column: 1 / -1;
     }
     .boxes dd {
       font-size: 20px;
@@ -1545,11 +1613,6 @@
     margin: 4px 0 0;
     color: var(--ink-2);
     overflow-wrap: break-word;
-  }
-  .meta.pack {
-    margin: 0;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
   }
   @media (max-width: 719px) {
     .meta {
@@ -1818,6 +1881,100 @@
     margin: 8px 0;
     color: var(--ink-2);
   }
+  /* 0.155.0 HN4 2a: «Important today» as one line under the day card; «Show all» opens the list below */
+  .imp.ln {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 18px;
+    padding: 6px 16px;
+  }
+  .imp.ln .ih {
+    padding: 0;
+    border: 0;
+  }
+  .imp.ln .ih h2 {
+    flex: none;
+  }
+  .imp.ln ul {
+    display: flex;
+    flex: 1 1 320px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 18px;
+    min-width: 0;
+  }
+  .imp.ln .row {
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-height: 44px;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    font-size: var(--fs-small);
+  }
+  .imp.ln .row .tx {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .imp.ln .row.party {
+    margin: 0;
+    padding: 0 10px;
+  }
+  .imp.ln .row .btn.sm {
+    min-height: 44px;
+    padding-inline: 12px;
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .imp.ln .more {
+    align-self: center;
+    margin-left: auto;
+    gap: 2px;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .imp.ln .notice,
+  .imp.ln .calm {
+    flex-basis: 100%;
+  }
+  .imp.ln .calm {
+    flex-basis: auto;
+    margin: 0;
+    font-size: var(--fs-small);
+  }
+  .imp.ln.open ul {
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .imp.ln.open .row {
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+  }
+  .imp.ln.open .row .tx {
+    flex: 1 1 200px;
+    white-space: normal;
+  }
+  @media (max-width: 719px) {
+    .imp.ln {
+      padding: 6px 12px;
+    }
+    .imp.ln .row {
+      flex-wrap: wrap;
+      padding: 4px 0;
+    }
+    .imp.ln .row .tx {
+      flex: 1 1 140px;
+      white-space: normal;
+    }
+    .imp.ln .more {
+      margin-left: 0;
+    }
+  }
 
   .custom {
     display: flex;
@@ -1959,5 +2116,28 @@
   }
   .odot.off {
     background: var(--ink-3);
+  }
+  /* «Rundgang»: the line on top of First steps */
+  .tourline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0 4px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--hi-soft);
+    border: 2px solid var(--hi);
+  }
+  .tourline > span {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+  }
+  .tourline small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tourline .btn {
+    white-space: nowrap;
   }
 </style>

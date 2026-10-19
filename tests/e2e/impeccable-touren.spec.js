@@ -50,8 +50,8 @@ test('Packen 1: the chosen blocks are one line; «Bausteine ändern» opens the 
   await expect(card.locator('.fon')).toContainText(T('Building blocks on the trip:'));
   await expect(card.locator('.fon')).toContainText(/\d+ weitere zur Wahl/);
   await expect(card.getByRole('group')).toHaveCount(0);
-  // Paket A (HT1–HT2, changed on purpose): «Was hier steht» comes first; once read and folded, the first bag
-  // is on the first screen (above the bar at the thumb on a phone)
+  // the first bag is on the first screen (above the bar at the thumb on a phone), once the card «Was hier
+  // steht» and the tip of the day are folded (Paket A HT1–HT2, as in the other first-screen specs)
   await foldPageInfo(page);
   const bag = page.locator('#bags-h');
   const box = await bag.boundingBox();

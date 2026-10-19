@@ -42,7 +42,8 @@ export const TILES = [
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
   // v0.110.0 Design-Refresh P10 (I11e): also a whole row, as it sits on top for 14 days after an update
   { id: 'news', area: 'app', label: 'New in the app', icon: 'sparkles', sizes: ['s', 'w', 'long'], size: 'w', since: '0.94.0', pitch: 'What the last update brought, with «Try it».' },
-  { id: 'meditation', area: 'flow', label: 'Meditation', icon: 'lotus', sizes: ['s', 'w'], size: 's', since: '0.94.0', pitch: 'Start a meditation like last time, in one tap.' },
+  // 0.155.0 HN4 (Noah 14.10.2026 «1a»): as a whole row it is the small meditation card on top (MedCard.svelte)
+  { id: 'meditation', area: 'flow', label: 'Meditation', icon: 'lotus', sizes: ['s', 'w', 'long'], size: 's', since: '0.94.0', pitch: 'Start a meditation like last time, in one tap.' },
   { id: 'play', area: 'app', label: 'Playground', icon: 'flask', sizes: ['s', 'w'], size: 's', since: '0.88.0', pitch: 'Try everything with made-up data; afterwards all is as before.' },
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),
   { id: 'milestones', area: 'flow', label: 'Milestones', icon: 'star', sizes: ['s', 'w'], size: 's', pitch: 'All milestones of all areas on one page.' },
@@ -65,12 +66,19 @@ export const TILES = [
   // v0.127.0 «Tages-Check» 2 (mockup T3, Noah «T1–T4 freigegeben»): the balance ring, the morning check, the 15 questions
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
+  // Tages-Check back (Noah 18.10.2026 «3 a und b», mockup T3c): the questions folded on Heute, with their page
+  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
   // v0.97.0 «Skitouren»: Touren › Skitouren (home/SkiTile.svelte; in season November–May, quiet outside it)
   { id: 'ski', area: 'trips', label: 'Ski tour', icon: 'bag', sizes: ['s', 'w'], size: 's', since: '0.97.0', pitch: 'Your next ski tour with its backpack check, November to May.' },
+  // 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 «1a 2a 3a 4b HN4 freigegeben»; HN3a, HA1b)
+  { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
+  // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben», 1a: a wide tile at the top of Heute)
+  { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
+  { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
   // Paket L «Werkzeugkasten» (Noah 19.10.2026 «zb auf home»): only from the tile catalog, not on the ready wall; the bundler sets «since» to the release
-  { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.148.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
+  { id: 'tools', area: 'app', label: 'Toolbox', icon: 'wrench', sizes: ['s', 'w'], size: 's', since: '0.151.0', pitch: 'Calculator, units, time zones, compass, phrases, PDF and photos.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
@@ -82,30 +90,61 @@ export const ADDED_0127 = ['balance', 'morningcheck'];
  * WG «Wi gaht's?» takes over the daily check: the old daily-check tiles (the small «Tagescheck» and
  * «Deine 15 Fragen») are gone; a stored wall that still has them loses them when it is read.
  */
-export const GONE = ['check', 'questions'];
+export const GONE = ['check'];
+/** Tages-Check back (Noah 18.10.2026 «3 a und b»): «Deine 15 Fragen» comes back; a wall stored before (v < 6) gets it once, after the balance. */
+export const ADDED_TC = ['questions'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
-/** The ready wall (mockup A, Noah 3a): the trip, what is important, Im Flow, the series, the news, then the buttons. */
+/**
+ * 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 21:51 «1a 2a 3a 4b HN4 freigegeben», HN4b 22:13): the
+ * ready wall, top to bottom: the small meditation card, the day card, «Important today» as one line, Im Flow
+ * with the compact balance beside it, This week beside «Swim or sauna?», the bike month, the series, a year
+ * ago and the milestones, the trip card, Aktiv over the whole row, the small tiles, the bikes and the 12 months.
+ * These tiles left it (they are still in the catalog, «+» brings any of them back): REMOVED_0155.
+ */
 export const READY = [
-  ['trip', 'long'],
-  ['important', 'l'],
+  ['meditation', 'long'],
+  ['daycard', 'long'],
+  ['important', 'long'],
+  ['routine', 'long'], // Routine «Das tut mir gut» (D1 1a «ganz oben»): right under the head of HN4, which stays as it is
   ['flow', 'l'],
   ['balance', 'l'],
-  ['morningcheck', 'l'],
-  ['suggest', 'l'],
+  ['questions', 'long'],
   ['week', 'l'],
+  ['suggest', 'l'],
   ['month', 'w'],
-  ['nextms', 'w'],
-  ['yearago', 'w'],
   ['series', 'w'],
-  ['news', 'w'],
-  ['try', 'l'],
-  ['meditation', 's'],
+  ['yearago', 'w'],
+  ['milestones', 'w'],
+  ['trip', 'long'],
+  ['aktiv', 'long'],
   ['play', 's'],
-  ...FUNCTIONS.map((f) => [`fn:${f.id}`, 's']),
+  ['news', 's'],
+  ['fn:weigh', 's'],
+  ['fn:ride', 's'],
+  ['fn:gear', 's'],
+  ['fn:templates', 's'],
+  ['fn:wish', 's'],
+  ['fn:note', 's'],
+  ['fn:blocks', 's'],
+  ['fn:favorites', 's'],
+  ['features', 's'],
+  ['helper', 's'],
+  ['inbox', 's'],
+  ['data', 's'],
   ['bikes', 'long'],
   ['year', 'long'],
 ].map(([id, size]) => ({ id, size }));
+/**
+ * 0.155.0 (HN4 README «Was fällt weg»): the day card shows the round, the quick start and the plan, what to
+ * wear, the look back, the km and the bike care in the course of the day; «Tried it yet?» gives its place to
+ * Aktiv; «Next milestone» lives in the balance now (HN4b 3a). A stored wall loses them once.
+ */
+export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear', 'fn:wardrobe', 'fn:review', 'fn:debriefs', 'fn:km', 'fn:care', 'try', 'nextms'];
+/** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
+export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
+/** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
+export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
 // the old sections (0.46 «Customise the start page») and the tiles they became
 const FROM_SECTION = { trip: ['trip'], flow: ['flow'], actions: FUNCTIONS.map((f) => `fn:${f.id}`), today: ['important', 'try'], bikes: ['bikes'], year: ['year'] };
@@ -120,34 +159,99 @@ export const sizeFor = (id, size) => (TILE[id]?.sizes.includes(size) ? size : TI
  */
 export function wallOf(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
-    const seen = new Set();
-    // WG: the old daily-check tiles (GONE) are filtered out like any tile that is no more
-    const out = value.tiles.filter((x) => x && TILE[x.id] && !GONE.includes(x.id) && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
-    // v0.101.0 (H1 «neue Bausteine kommen als Kacheln dazu»): a wall stored before gets the new tiles
-    // once, after Im Flow (else at the end); taken away later, they stay away (the wall is v 2 then).
-    if ((value.v ?? 1) < 2) {
-      const add = ADDED_0101.filter((id) => !seen.has(id)).map((id) => ({ id, size: TILE[id].size }));
-      const at = out.findIndex((x) => x.id === 'flow');
-      out.splice(at < 0 ? out.length : at + 1, 0, ...add);
-    }
-    // v0.102.0: the suggestion tile once, right after Im Flow (else at the end)
-    if ((value.v ?? 1) < 3 && !seen.has('suggest')) {
-      const at = out.findIndex((x) => x.id === 'flow');
-      out.splice(at < 0 ? out.length : at + 1, 0, { id: 'suggest', size: TILE.suggest.size });
-    }
-    // v0.127.0 «Tages-Check» 2: the balance and the morning check once, after Im Flow (WG: now the round tile)
-    if ((value.v ?? 1) < 4) {
-      const add = ADDED_0127.filter((id) => !out.some((x) => x.id === id)).map((id) => ({ id, size: TILE[id].size }));
-      const at = out.findIndex((x) => x.id === 'flow');
-      out.splice(at < 0 ? out.length : at + 1, 0, ...add);
-    }
-    return out;
+    const out = wallBefore5(value);
+    const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
+    const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
+    return (value.v ?? 1) < 7 ? withRoutine(q) : q;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
-/** The record to store. */
-export const wallRecord = (tiles) => ({ v: 4, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+
+/**
+ * 0.155.0 HN4: a wall stored before (v < 5) in the new order. The tiles of the ready wall that it has (and the
+ * new ones, ADDED_0155) come in the order and size of HN4; the removed ones (REMOVED_0155) go; the tiles it has
+ * beyond the ready wall (added by hand, e.g. Strava) keep their order and stand after the small tiles, before
+ * the bikes. A tile taken away by hand before stays away. → [{ id, size }]
+ */
+export function toHN4(tiles = []) {
+  const had = new Set(tiles.map((x) => x.id));
+  const known = new Set(READY.map((x) => x.id));
+  const main = READY.filter((x) => had.has(x.id) || ADDED_0155.includes(x.id)).map((x) => ({ ...x }));
+  const extra = tiles.filter((x) => !known.has(x.id) && !REMOVED_0155.includes(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
+  const at = main.findIndex((x) => x.id === 'bikes' || x.id === 'year');
+  main.splice(at < 0 ? main.length : at, 0, ...extra);
+  return main;
+}
+
+/**
+ * HN4 4b (Noah «4b»): on the day before a trip and on its days the trip card moves up, right under the day
+ * card (else under the tiles on top). Only what shows moves; the stored wall stays as it is. → tiles
+ */
+export function tripUp(tiles, near) {
+  const i = tiles.findIndex((x) => x.id === 'trip');
+  if (!near || i < 0) return tiles;
+  const rest = tiles.filter((x) => x.id !== 'trip');
+  const d = rest.findIndex((x) => x.id === 'daycard');
+  let at = d + 1;
+  if (d < 0) {
+    at = 0;
+    while (at < rest.length && HEAD_0155.includes(rest[at].id)) at++;
+  }
+  if (at >= i) return tiles; // already high enough
+  rest.splice(at, 0, tiles[i]);
+  return rest;
+}
+
+/** The steps of the walls stored before 0.155.0 (v 1–4), as they were. */
+export function wallBefore5(value) {
+  const seen = new Set();
+  // WG: the old daily-check tiles (GONE) are filtered out like any tile that is no more
+  const out = value.tiles.filter((x) => x && TILE[x.id] && !GONE.includes(x.id) && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
+  // v0.101.0 (H1 «neue Bausteine kommen als Kacheln dazu»): a wall stored before gets the new tiles
+  // once, after Im Flow (else at the end); taken away later, they stay away (the wall is v 2 then).
+  if ((value.v ?? 1) < 2) {
+    const add = ADDED_0101.filter((id) => !seen.has(id)).map((id) => ({ id, size: TILE[id].size }));
+    const at = out.findIndex((x) => x.id === 'flow');
+    out.splice(at < 0 ? out.length : at + 1, 0, ...add);
+  }
+  // v0.102.0: the suggestion tile once, right after Im Flow (else at the end)
+  if ((value.v ?? 1) < 3 && !seen.has('suggest')) {
+    const at = out.findIndex((x) => x.id === 'flow');
+    out.splice(at < 0 ? out.length : at + 1, 0, { id: 'suggest', size: TILE.suggest.size });
+  }
+  // v0.127.0 «Tages-Check» 2: the balance and the morning check once, after Im Flow (WG: now the round tile)
+  if ((value.v ?? 1) < 4) {
+    const add = ADDED_0127.filter((id) => !out.some((x) => x.id === id)).map((id) => ({ id, size: TILE[id].size }));
+    const at = out.findIndex((x) => x.id === 'flow');
+    out.splice(at < 0 ? out.length : at + 1, 0, ...add);
+  }
+  return out;
+}
+/** Tages-Check back: «Deine 15 Fragen» once into a wall of before (v < 6), after the balance (else after Im Flow, else at the end). */
+export function withQuestions(tiles = []) {
+  if (tiles.some((x) => x.id === 'questions')) return tiles;
+  const out = [...tiles];
+  const b = out.findIndex((x) => x.id === 'balance');
+  const at = b >= 0 ? b : out.findIndex((x) => x.id === 'flow');
+  out.splice(at < 0 ? out.length : at + 1, 0, { id: 'questions', size: TILE.questions.size });
+  return out;
+}
+/**
+ * Routine «Das tut mir gut» (D1, Noah 1a): a wall stored before (v < 7) gets the routine once, right under the
+ * tiles on top (HEAD_0155: meditation, day card, Important today; without them: on top). Taken away after that
+ * (the wall is v 7 then), it stays away. Paket C: Tages-Check took v 6, so the routine is v 7. → tiles
+ */
+export function withRoutine(tiles = []) {
+  if (tiles.some((x) => x.id === 'routine')) return tiles;
+  let at = 0;
+  while (at < tiles.length && HEAD_0155.includes(tiles[at].id)) at++;
+  const out = [...tiles];
+  out.splice(at, 0, { id: 'routine', size: TILE.routine.size });
+  return out;
+}
+/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once). */
+export const wallRecord = (tiles) => ({ v: 7, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

@@ -4,6 +4,30 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.151.0 Paket F «Woche»
+  'Your week, and a tour of the app': 'Deine Woche und ein Rundgang durch die App',
+  'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.': 'Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche, und ein kurzer Rundgang, der dir alles zeigt.',
+  'The place «Week»: Monday to Sunday with your training, dates, Google calendar and tasks, holidays and bike service; on Sunday «Plan the week» suggests, you decide': 'Der Ort «Woche»: Montag bis Sonntag mit Training, Terminen, Google Kalender und Aufgaben, Ferien und Velo-Service; am Sonntag schlägt «Woche planen» vor, du entscheidest',
+  'Tour of the app: six short steps with an example trip or your own data, and a small tour per place': 'Rundgang durch die App: sechs kurze Schritte mit einer Beispieltour oder deinen Daten, dazu ein kleiner Rundgang pro Ort',
+  'On top of every page one card says what it is for, with three things to do, what to expect and a «Did you know» with its source': 'Oben auf jeder Seite sagt eine Karte, wofür sie da ist, mit drei Dingen, was dich erwartet und einem «Wusstest du» mit Quelle',
+  'Holidays once under Week › Holidays: the app suggests pausing the plan, servicing the bike before and a packing list': 'Ferien einmal unter Woche › Ferien eintragen: die App schlägt vor, den Plan zu pausieren, das Velo vorher zu warten und eine Packliste',
+  'The card «This week» on Today shows a dot per day and what the plan says for today': 'Die Karte «Diese Woche» auf Heute zeigt einen Punkt pro Tag und was der Plan für heute vorsieht',
+  'Open Week: your week from Monday to Sunday; hide a kind with its chip.': 'Öffne Woche: deine Woche von Montag bis Sonntag; blende eine Art mit ihrem Chip aus.',
+  'Tap «Plan the week» and take or skip a suggestion in each of the four steps.': 'Tippe «Woche planen» und übernimm oder überspring in jedem der vier Schritte einen Vorschlag.',
+  'Open Me › Handbook › Tour and go through the six steps with the example trip.': 'Öffne Ich › Handbuch › Rundgang und geh die sechs Schritte mit der Beispieltour durch.',
+  // 0.150.0 Paket C «Heute und Aktiv»
+  'Today in a calm order': 'Heute in ruhiger Reihenfolge',
+  'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.': 'Heute folgt der Tageszeit: oben eine Tageskarte, der Tages-Check in einem eigenen Fenster, deine Balance als ein Ring und eine kurze Liste, was dir guttut.',
+  'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care; below it Aktiv with sleep, last activity and next fixed date': 'Die Tageskarte: am Morgen das Wetter und was anziehen, am Tag Schnellstart und deine Velos, am Abend Rückblick, km und Velopflege; weiter unten Aktiv mit Schlaf, letzter Aktivität und nächstem festem Termin',
+  'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas': 'Morgen-Check, Abend-Rückblick, Packen am Vorabend einer Tour und der Wochenrückblick am Sonntag kommen als Fenster, eins nach dem anderen, mit «Später» (in einer Stunde wieder) und «Heute nicht»; der grosse Ring zeigt deine neun Bereiche',
+  '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak': '«Das tut mir gut»: eine kurze Liste auf Heute, Tag für Tag abgehakt; ein leerer Tag unterbricht die Serie',
+  'Me › Insights: what goes together in your data; and nine new building blocks': 'Ich › Erkenntnisse: was in deinen Daten zusammenhängt; dazu neun neue Bausteine',
+  'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list': 'Abgehakte Teile rutschen kurz nach dem letzten Tipp nach unten: beim Packen, Laden, in den Checks und der Einkaufsliste',
+  'Gear search reacts at once (first 5 hits per group); Trips shows 20 trips first': 'Suche in Material reagiert sofort (erst 5 Treffer pro Gruppe); Touren-Liste zeigt zuerst 20 Touren',
+  'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».': 'Öffne Heute am Morgen: die Meditationskarte, dann die Tageskarte «Morgen»; tippe in ihrer kleinen Uhr auf «Tag»: Schnellstart und «Velos bereit?».',
+  'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.': 'Öffne den Morgen-Check aus der Tageskarte und tippe «Später»: das Fenster schliesst sich und kommt in einer Stunde wieder; «Heute nicht» lässt es bis morgen.',
+  'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.': 'Tippe auf Heute eine Zeile der Kachel «Das tut mir gut» an: sie ist abgehakt; öffne «Liste ändern» und füge einen Vorsatz hinzu.',
+  'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.': 'Öffne Material › Bausteine: fünf Gruppen; «Je nach Lage» und «Baden» sind offen.',
   // 0.149.0 Paket E «Material, Velos, Merken»
   'Remember, set up, sport by sport': 'Merken, einrichten, Sport für Sport',
   'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.': 'Die App merkt sich deine To-dos und Geburtstage, jedes Velo behält seine Taschen-Setups, jede Tour hat ihre eigene Sportart, und alles kannst du selbst umbenennen und löschen.',

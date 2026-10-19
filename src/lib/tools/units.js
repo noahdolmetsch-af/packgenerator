@@ -7,7 +7,7 @@ export const UNIT_KINDS = [
   { key: 'length', label: 'Length', units: [['km', 1000], ['m', 1], ['cm', 0.01], ['mi', 1609.344], ['ft', 0.3048], ['in', 0.0254]] },
   { key: 'weight', label: 'Weight|unit', units: [['kg', 1], ['g', 0.001], ['lb', 0.45359237], ['oz', 0.028349523125]] },
   { key: 'temp', label: 'Temperature', units: [['°C'], ['°F']] },
-  { key: 'speed', label: 'Speed', units: [['km/h', 1], ['m/s', 3.6], ['mph', 1.609344], ['min/km'], ['kn', 1.852]] },
+  { key: 'speed', label: 'Speed|unit', units: [['km/h', 1], ['m/s', 3.6], ['mph', 1.609344], ['min/km'], ['kn', 1.852]] },
   { key: 'volume', label: 'Volume', units: [['l', 1], ['dl', 0.1], ['ml', 0.001], ['gal', 3.785411784], ['fl oz', 0.0295735295625]] },
   { key: 'pressure', label: 'Tyre pressure', units: [['bar', 1], ['psi', 0.0689475729], ['kPa', 0.01]] },
   { key: 'height', label: 'Climbing', units: [['m', 1], ['ft', 0.3048]] },

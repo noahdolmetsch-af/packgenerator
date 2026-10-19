@@ -102,7 +102,7 @@
 {#if renaming}
   <RenameSheet
     kicker={t('Time zones')}
-    title={t('Rename place')}
+    title={t('Rename place|zone')}
     value={renaming.name}
     max={40}
     hint={t('The time zone stays the same.')}

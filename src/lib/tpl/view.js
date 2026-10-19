@@ -70,7 +70,7 @@ export function extraRows(tpl, items, setsValue = []) {
     });
 }
 
-/** "Standard + Rain + 2 extra" (an older template: its item count). */
+/** "Standard + Rain + 2 single items" (an older template: its item count). */
 export function lineOf(tpl, setsValue = []) {
   const parts = templateParts(tpl, setsValue);
   return parts ? blocksLine(parts, blockLabel) : tn((tpl?.entries ?? []).length, '{n} item', '{n} items');
@@ -125,7 +125,7 @@ export function zonesOf(tpl, items, setsValue = [], bags = []) {
 
 /**
  * SN3 «Seiten neu»: the trips to make a template from («Aus deinen Touren»): the next planned ones
- * (up to 2) and the last ridden ones (up to 3), only trips with a packing list and not already the
+ * (up to 2) and the last ridden ones (up to 3; listed first), only trips with a packing list and not already the
  * source of a template. A completed trip (not rated) shows too: it can be saved after its debrief.
  * infos: tripstate.js tripStates(); templates: the template list. → [{ trip, state }]
  */
@@ -136,7 +136,11 @@ export function tripSources(trips, infos, templates = [], today = '') {
   const past = live
     .filter((x) => infos[x.id].state !== 'plan' && (x.startDate ?? '') <= (today || '9999'))
     .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''));
-  return [...plan.slice(0, 2), ...past.slice(0, 3)].map((trip) => ({ trip, state: infos[trip.id].state }));
+  // Impeccable 18.10.2026 (Vorlagen 3): the ridden ones first (they know what was really needed), rated
+  // before completed; the planned ones after them, under «Noch geplant»
+  const rank = { rated: 0, done: 1 };
+  const ridden = past.slice(0, 3).sort((a, b) => rank[infos[a.id].state] - rank[infos[b.id].state]);
+  return [...ridden, ...plan.slice(0, 2)].map((trip) => ({ trip, state: infos[trip.id].state }));
 }
 
 /**

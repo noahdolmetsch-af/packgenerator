@@ -232,15 +232,13 @@ test('a «Woanders» row opens in a new tab and sends only the place and the day
   expect(errors).toEqual([]);
 });
 
-test('an own link not entered yet is dashed with «eintragen»; entering one keeps it on the device', async ({ page, context }, info) => {
+test('an own link not entered yet is entered from the bike’s «…»; entering one keeps it on the device', async ({ page, context }, info) => {
   const errors = await start(page, context, info, HREF.bikes);
-  const enter = page.locator('[data-sk-link="x9"][data-sk-enter]');
-  await expect(enter).toBeVisible();
-  await expect(enter).toContainText(T('own link · enter'));
-  await expect(enter).toContainText(T('Maker and warranty'));
-  expect(await enter.evaluate((el) => getComputedStyle(el).borderTopStyle)).toBe('dashed');
-  await shot(page, info, 'SKX3-eintragen', enter.locator('xpath=ancestor::*[@data-sk-woanders]'));
-  await tap(enter, info);
+  // Impeccable Runde 2 (18.10.2026, Velos 2): no empty «eintragen» box under the bike's name any more;
+  // «Link zu Hersteller und Garantie eintragen» is in the bike's «…», the link shows once it is there.
+  await expect(page.locator('[data-sk-link="x9"]')).toHaveCount(0);
+  await tap(page.locator('section.setup-band .bmenu .btn.dots'), info);
+  await tap(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Enter a link to maker and warranty'))}`) }), info);
   const sheet = page.locator('dialog[open][data-sk-own]');
   await expect(sheet.getByRole('heading', { name: T('Enter a link') })).toBeVisible();
   // only http and https
@@ -256,7 +254,8 @@ test('an own link not entered yet is dashed with «eintragen»; entering one kee
   await expect(link).toHaveAttribute('href', 'https://example.org/garantie');
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-  await expect(link).toContainText(T('your link'));
+  await expect(link).toHaveText(`${T('Maker and warranty')} ↗`);
+  await expect(page.locator('section.setup-band .meta [data-sk-link="x9"]')).toHaveCount(1);
   const own = await setting(page, 'sk.links');
   expect(Object.values(own)).toEqual([{ url: 'https://example.org/garantie', name: T('Maker and warranty') }]);
   expect(Object.keys(own)[0]).toMatch(/^x9:test_data_gtp_/);

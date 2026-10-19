@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
+import { PAGES, TODAY_TIPS, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -126,7 +126,9 @@ describe('«Mehr Inhalt» on ten more places (1a–5a)', () => {
   it('every place has about six tips, each id once in the whole app', () => {
     for (const p of PLACES) expect(PAGES[p].tips.filter((x) => x.kind !== 'today').length, p).toBeGreaterThanOrEqual(6);
     const ids = Object.values(PAGES).flatMap((p) => p.tips.map((x) => x.id));
-    const shared = new Set(PAGES.meditation.tips.filter((x) => x.kind === 'today').map((x) => x.id)); // the sauna tip is shared with Aktiv
+    // a «Passt zu heute» of TODAY_TIPS is shared on purpose (the sauna tip with Aktiv; the Einstieg of Paket F
+    // brings heat, cold and long tours onto Touren, Material, Velos, Pflege, Training and the wardrobe)
+    const shared = new Set([...PAGES.meditation.tips, ...TODAY_TIPS].filter((x) => x.kind === 'today').map((x) => x.id));
     expect(ids.filter((id) => !shared.has(id)).length).toBe(new Set(ids.filter((id) => !shared.has(id))).size);
   });
   it('the examples and the today notes have German too', () => {

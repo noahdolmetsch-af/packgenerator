@@ -24,7 +24,7 @@ export default {
   'Last calculations': 'Letzte Rechnungen',
   // Masse
   'Weight|unit': 'Gewicht',
-  Speed: 'Tempo',
+  'Speed|unit': 'Tempo',
   Volume: 'Volumen',
   'min/km is the pace: minutes for one kilometre.': 'min/km ist die Pace: Minuten für einen Kilometer.',
   // Zeitzonen
@@ -32,7 +32,7 @@ export default {
   'No places yet. Add one.': 'Noch keine Orte. Füge einen hinzu.',
   'Time zone, e.g. Asia/Tokyo': 'Zeitzone, z. B. Asia/Tokyo',
   'Add place': 'Ort hinzufügen',
-  'Rename place': 'Ort umbenennen',
+  'Rename place|zone': 'Ort umbenennen',
   'The time zone stays the same.': 'Die Zeitzone bleibt gleich.',
   'Please type a name.': 'Bitte gib einen Namen ein.',
   // Kompass

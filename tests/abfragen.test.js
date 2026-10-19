@@ -6,11 +6,11 @@ import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
-  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
+  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
 } from '../src/lib/abfragen.js';
-import { redirectOf, pageOf, OLD_CHECK } from '../src/lib/nav.js';
+import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
 import { addDays } from '../src/lib/flow.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -197,8 +197,12 @@ describe('WG: the two fixed rounds 07:00 and 20:30', () => {
     expect(isEveningRound(`${D0}T19:00`, { evening: '19:00' })).toBe(true);
   });
 
-  it('the old daily-check pages lead to «Wi gaht\'s?»', () => {
-    for (const h of [...OLD_CHECK, '#/check']) {
+  it('the daily-check pages are pages of Heute again (Noah 18.10.2026 «1 a und b»); any other #/check leads to «Wi gaht\'s?»', () => {
+    for (const h of CHECK_PAGES) {
+      expect(redirectOf(h)).toBe(null);
+      expect(pageOf(h)).toBe('check');
+    }
+    for (const h of ['#/check', '#/check/other']) {
       expect(redirectOf(h)).toEqual({ hash: '#/me/abfragen', spot: '', old: null });
       expect(pageOf(h)).toBe('abfragen');
     }
@@ -246,6 +250,16 @@ describe('what is due now (AB3)', () => {
     const snooze = snoozeAll({}, due);
     expect(dueList(start, [], `${D0}T09:30`, snooze)).toEqual([]);
     expect(dueList(start, [], `${D0}T13:00`, snooze).map((x) => x.q.id)).toContain('erholung.akku');
+  });
+
+  // Noah 19.10.2026: the window of the round with «Später» (one hour) and «Heute nicht»
+  it('«Später» is one hour later, over midnight and month ends too; it never hides a question by itself', () => {
+    expect(laterStamp('2026-10-19T07:05')).toBe('2026-10-19T08:05');
+    expect(laterStamp('2026-10-31T23:30')).toBe('2026-11-01T00:30');
+    const due = dueList(start, [], `${D0}T09:00`);
+    expect(dueList(start, [], `${D0}T09:00`, { [LATER_KEY]: laterStamp(`${D0}T09:00`) })).toEqual(due);
+    // «Heute nicht» keeps a waiting «Später»
+    expect(snoozeAll({ [LATER_KEY]: 'x' }, due)[LATER_KEY]).toBe('x');
   });
 
   // Noah 14.10. 00:52:22 1a 2a 3b 4ab
@@ -417,5 +431,19 @@ describe('the analyses (AB6), only to look at', () => {
 
   it('where the values come from', () => {
     expect(sourceCounts([{ src: 'hand' }, { src: 'hand' }, { src: 'strava' }, { src: 'x' }])).toEqual({ hand: 2, fitbit: 0, strava: 1, app: 0 });
+  });
+});
+
+// Impeccable Runde 2 «Tageslast»: about how many times a day the app asks
+describe('perDay', () => {
+  it('counts the times of the questions that are on: 3× daily 3, daily 1, a question switched off nothing', () => {
+    const at = new Date(Date.UTC(2026, 9, 9, 10));
+    const base = perDay(null);
+    // the 31 on at the start ask more than once a day in sum
+    expect(base).toBeGreaterThan(BUSY_DAY);
+    const three = putOwn(null, newOwn({ text: 'Drei', form: { kind: 'scale' }, every: { kind: 'times', times: ['08:00', '13:00', '20:00'] } }, at), `${D0}T10:00`);
+    expect(perDay(three)).toBe(base + 3);
+    const off = setOn(three, three.own[0].id, false, `${D0}T11:00`);
+    expect(perDay(off)).toBe(base);
   });
 });

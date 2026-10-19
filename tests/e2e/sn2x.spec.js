@@ -80,11 +80,11 @@ test('a) a day trip: five groups that fold, map, timeline, notes, quiet lines an
   await page.goto(`./#/debrief/${encodeURIComponent(SEE)}`);
   const trip = DATA.tables.trips.find((x) => x.id === SEE);
   const bike = DATA.tables.bikes.find((b) => b.id === trip.bikeId);
-  // five groups, only «Die Tour» open; a day trip has no day switch
+  // five groups, «Die Tour» and «Weiter» open (Impeccable Runde 2); a day trip has no day switch
   await expect(page.locator('section[data-group]')).toHaveCount(5);
   for (const [key, name] of [['tour', 'The trip|review'], ['body', 'Body and performance'], ['way', 'On the way|review'], ['pack', 'Luggage and bike'], ['next', 'Next|review']]) {
     await expect(head(page, key)).toContainText(T(name));
-    await expect(head(page, key)).toHaveAttribute('aria-expanded', key === 'tour' ? 'true' : 'false');
+    await expect(head(page, key)).toHaveAttribute('aria-expanded', key === 'tour' || key === 'next' ? 'true' : 'false');
   }
   await expect(page.locator('[data-days]')).toHaveCount(0);
   // a closed group shows one line with the most important
