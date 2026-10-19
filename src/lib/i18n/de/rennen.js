@@ -397,4 +397,10 @@ export default {
   yours: 'deine',
   'your loaded rides': 'deine beladenen Fahrten',
   'your rides': 'deine Fahrten',
+  // Paket U2/U3 features (Was die App kann)
+  'Race map': 'Rennkarte',
+  'The race route on a map: sectors in colour, stops by zoom, your own points for every trip, the elevation profile below, rain, wind and snow.': 'Die Rennstrecke auf der Karte: Sektoren in Farbe, Stopps je nach Zoom, deine eigenen Punkte für jede Tour, das Höhenprofil darunter, Regen, Wind und Schnee.',
+  'Every climb of a race on its own: length, height, gradient per 100 m, how hard it is and when you are there.': 'Jeder Anstieg eines Rennens einzeln: Länge, Höhe, Steigung pro 100 m, wie schwer er ist und wann du dort bist.',
+  'Keep a strip of the map along the route on your phone: swisstopo in Switzerland, the free map everywhere, with the size shown first.': 'Einen Streifen der Karte entlang der Strecke aufs Handy holen: swisstopo in der Schweiz, die freie Karte überall, mit der Grösse vorher.',
+  'For every ride: where you are, km done and to go, arrival and light, the next stops with distance and hours, the next climb and an SOS button.': 'Für jede Fahrt: wo du bist, km gefahren und bis zum Ziel, Ankunft und Licht, die nächsten Stopps mit Distanz und Öffnungszeit, der nächste Anstieg und ein SOS-Knopf.',
 };

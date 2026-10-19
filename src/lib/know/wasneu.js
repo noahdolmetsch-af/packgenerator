@@ -84,7 +84,7 @@ export const SINCE = {
   // Paket L2 «Bilderkennung» (v0.154.0)
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
   // Paket U «Rennen» (provisional version, the bundler renumbers)
-  'f.race': '0.156.0', 'f.racesample': '0.156.0',
+  'f.race': '0.156.0', 'f.racesample': '0.156.0', 'f.racemap': '0.156.0', 'f.climbs': '0.156.0', 'f.mapoffline': '0.156.0', 'f.live': '0.156.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

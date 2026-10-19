@@ -21,19 +21,19 @@ export const WHATS_NEW = [
     // Provisional version: the bundler renumbers it (Paket 5 with Mail).
     version: '0.156.0',
     date: '2026-10-19',
-    title: 'Ready for the long race',
-    lead: 'Trips › Races plays a bikepacking race through: stages that end at a bed, hotel, mixed or tent side by side, and every assumption is yours to change.',
+    title: 'Races and the live map',
+    lead: 'Plan a long race and ride with the live map.',
     points: [
-      { text: 'Races: the plan day by day, the three ways with a recommendation, scenarios side by side and all 40 functions in one list', href: '#/race' },
-      { text: 'A made-up sample race with a tour and small tasks: see what you can change before you plan your own', href: '#/race?sample' },
-      { text: 'Along the route and race mode: shops with opening hours, water, beds, trains, weather, light and climbs, only what you need on the bike', href: '#/race' },
+      { text: 'Trips › Races: plan, map, climbs and a sample race', href: '#/race' },
+      { text: 'Live map for every ride: where you are, next stops, SOS', href: '#/live' },
+      { text: 'Map offline: a strip along the route on your phone', href: '#/race' },
     ],
     small: [
-      { box: 'new', text: 'Today shows a small line «Race in X days» when a race of yours is coming', href: '#/' },
+      { box: 'new', text: 'Today: «Race in X days» and the tile «Start a ride»', href: '#/' },
     ],
     test: [
-      'Open Trips › Races › «See the sample race»: the plan shows the days, the three ways and the gaps.',
-      'Change the climbing rate from 650 to 550 m/h: the plan gets longer at once.',
+      'Open Trips › Races › «See the sample race» and tap «Map».',
+      'Tap «Start a ride» on Active: the live map shows your km.',
     ],
   },
   {

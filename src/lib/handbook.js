@@ -633,6 +633,26 @@ export const HANDBOOK = {
     steps: ['Open Trips › Races and tap «New race», or make one of your trips a race.', 'Under «Prepare» load the route files and the stops; «Plan» and «Strategy» play the race through with your assumptions.'],
     example: 'Example: climbing 650 → 550 m/h with luggage → the plan grows from 10 to 12 days, the beds move with it.',
   },
+  'f.racemap': {
+    on: null,
+    steps: ['Open a race and tap «Map».', 'Tap the profile to see a spot on the map; press long on the map to set your own point.'],
+    example: 'Example: the snow layer shows the pass at km 670 above the snow line.',
+  },
+  'f.climbs': {
+    on: null,
+    steps: ['Open a race and tap «Climbs».', 'Tap a climb: its gradient per 100 m, the numbers and when you are there.'],
+    example: 'Example: the steepest 100 m at 12 % come right after a water fountain.',
+  },
+  'f.mapoffline': {
+    on: null,
+    steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
+    example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
+  },
+  'f.live': {
+    on: null,
+    steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],
+    example: 'Example: km 412 → the next shop in 2 km, open until 19:00.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
