@@ -88,7 +88,10 @@ test('The small tour of Trips from the Einstieg', async ({ page }) => {
   await intro.locator('[data-offer]').getByRole('button', { name: T('Start ›|tour') }).click();
   await expect(page.locator('.tour')).toHaveAttribute('data-tour', 'touren');
   await expect(page.locator('#tour-h')).toHaveText(T(TOURS.touren[0].title));
-  for (let i = 1; i < TOURS.touren.length; i++) await page.locator('.tcard .btn.hi').click();
+  for (let i = 1; i < TOURS.touren.length; i++) {
+    await page.locator('.tcard .btn.hi').click();
+    await expect(page.locator('#tour-h')).toHaveText(T(TOURS.touren[i].title));
+  }
   await expect(page.locator('.tcard .btn.hi')).toHaveText(T('Done ›|tour'));
   await page.locator('.tcard .btn.hi').click();
   await expect(page.locator('.tour')).toHaveCount(0);
@@ -117,7 +120,6 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
   for (const [hash, place, title] of [
     ['#/flow/goals', 'goals', 'Goals that fit your week'],
     ['#/flow/rest', 'rest', 'The pause has its place too'],
-    ['#/pack/templates', 'templates', 'The next trip starts packed'],
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
@@ -131,6 +133,8 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     ['#/debrief', 'debrief', 'debrief'],
     ['#/wardrobe', 'wardrobe', 'wardrobe'],
     ['#/bikes?tab=shop', 'workshop', 'workshop'],
+    // since E the card «Was hier steht» is also on Templates (Ausstattung needs a bike, this test has none)
+    ['#/pack/templates', 'templates', 'templates'],
   ]) {
     await page.goto(`./${hash}`);
     const card = page.locator(`[data-hint="${key}"][data-intro-in="${place}"]`);
