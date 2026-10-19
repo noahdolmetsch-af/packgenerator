@@ -1,6 +1,6 @@
 // «Erkenntnisse» (Noah 19.10.2026 «4b» + own page): fictional data only, calendar days.
 import { describe, it, expect } from 'vitest';
-import { seriesOf, spearman, look, insights, rhrHigh, lastDays, PAIRS, MIN_DAYS } from '../src/lib/erkenntnisse.js';
+import { seriesOf, spearman, look, insights, rhrHigh, lastDays, ownNumberQuestions, ownPairs, PAIRS, MIN_DAYS } from '../src/lib/erkenntnisse.js';
 
 const TODAY = '2026-10-19';
 const days = lastDays(TODAY, 30);
@@ -65,5 +65,43 @@ describe('Erkenntnisse', () => {
     health.at(-2).restingHr = 54;
     expect(rhrHigh(health, TODAY)).toBe(null);
     expect(rhrHigh(health.slice(-3), TODAY)).toBe(null); // no normal yet
+  });
+
+  it('weather, appointments and own number questions become series (Noah 19.10.2026 «2a 3a 4a und b»)', () => {
+    const own = [
+      { id: 'own-a', text: 'Kaffee', form: { kind: 'number', unit: 'cups' } },
+      { id: 'own-b', text: 'Ruhig', form: { kind: 'scale' } },
+      { id: 'own-c', text: 'Notiz', form: { kind: 'text' } },
+    ];
+    expect(ownNumberQuestions(own).map((q) => q.id)).toEqual(['own-a', 'own-b']);
+    expect(ownNumberQuestions(own, ['own-b']).map((q) => q.id)).toEqual(['own-a']);
+    const rows = [
+      { qid: 'own-a', day: days[0], value: 2 },
+      { qid: 'own-a', day: days[0], value: 4 },
+    ];
+    const s = seriesOf({ rows, days, weather: { [days[0]]: { sunH: 6, lightH: 11, rainMm: 0, tmax: 15 } }, events: { [days[0]]: 3 }, own: ownNumberQuestions(own) });
+    expect(s.sunH[days[0]]).toBe(6);
+    expect(s.rainMm[days[0]]).toBe(0);
+    expect(s.evts[days[0]]).toBe(3);
+    expect(s['own:own-a'][days[0]]).toBe(3);
+    expect(ownPairs([own[0]]).map((p) => p.id)).toEqual(['own-own-a-mood', 'own-own-a-battery']);
+  });
+
+  it('sunny days with a better mood show; appointments look at the night after', () => {
+    const sunH = {};
+    const mood = {};
+    days.forEach((d, i) => ((sunH[d] = i % 2 ? 8 : 1), (mood[d] = i % 2 ? 8 : 5)));
+    const r = look(PAIRS.find((p) => p.id === 'sun-mood'), { sunH, mood }, days);
+    expect(r).toMatchObject({ shown: true, hi: { mean: 8 }, lo: { mean: 5 } });
+    expect(PAIRS.find((p) => p.id === 'evts-sleepfelt').lag).toBe(1);
+    // two values only, the higher one more often: the split moves down so both groups have days
+    const evts = {};
+    days.forEach((d, i) => (evts[d] = i % 2 ? 1 : 6));
+    const e = look(PAIRS.find((p) => p.id === 'evts-mood'), { evts, mood }, days.slice(0, 29)); // 15 × 6, 14 × 1: the median is 6
+    expect(e).toMatchObject({ shown: true, cut: 1, hi: { mean: 5 }, lo: { mean: 8 } });
+    const coffee = {};
+    days.forEach((d, i) => (coffee[d] = i % 2 ? 4 : 1));
+    const all = insights({ 'own:own-a': coffee, mood }, days.at(-1), { own: [{ id: 'own-a', text: 'Kaffee' }] });
+    expect(all.find((x) => x.id === 'own-own-a-mood')).toMatchObject({ shown: true, name: 'Kaffee' });
   });
 });

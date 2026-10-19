@@ -14,6 +14,7 @@ import { call } from '../health.js';
 import { readKey } from '../strava/client.svelte.js';
 import { localDay } from '../localday.js';
 import { AGENDA_KEY, BACK_DAYS, AHEAD_DAYS, prefsOf, calsToFetch, addDays } from '../agenda.js';
+import { keepDayEvents } from '../daydata.js';
 
 export const AGENDA_HASH = '#/me/agenda';
 /** db.meta (this device only): when this device last tried to fetch. */
@@ -89,6 +90,8 @@ export function fetchNow({ db = appDb, c = call, today = localDay() } = {}) {
         const to = addDays(today, AHEAD_DAYS);
         const { events } = await c('cal-events', { params: { from, to, cal: cals.join(',') } });
         await keepEvents(db, events);
+        // «Erkenntnisse» (Noah 19.10.2026 «3a»): the appointments per day, kept beyond the 7 days of the copy
+        await keepDayEvents(db, events, from, to, today).catch(() => {});
       }
       if (p.tasks) {
         const { lists } = await c('task-lists');

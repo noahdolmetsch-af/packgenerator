@@ -531,4 +531,6 @@ export default {
   'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
+  // Noah 19.10.2026 «2a 3a 4a und b möglich»
+  'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.': 'Auch Wetter, Kalendertermine und eigene Zahlen-Fragen werden verglichen; jede eigene Frage lässt sich ausschalten.',
 };
