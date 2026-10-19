@@ -55,7 +55,7 @@ export default {
   'Delete link': 'Link löschen',
   'Link deleted.': 'Link gelöscht.',
   'The travel book could not be made. Try again.': 'Das Reisebuch konnte nicht erstellt werden. Versuche es nochmals.',
-  'It may have been deleted.': 'Sie wurde vielleicht gelöscht.',
+  'It may have been deleted.': 'Vielleicht wurde sie gelöscht.',
   'To the trips': 'Zu den Touren',
   'The line of each day comes from Strava or Garmin by itself; «I am here» and your own recording add to it. Photos stay on this device.': 'Die Linie jedes Tages kommt von selbst aus Strava oder Garmin; «Hier bin ich» und deine eigene Aufzeichnung kommen dazu. Fotos bleiben auf diesem Gerät.',
   'Fetch lines from Strava': 'Linien von Strava holen',
