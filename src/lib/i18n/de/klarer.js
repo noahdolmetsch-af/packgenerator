@@ -121,4 +121,20 @@ export default {
   "October": "Oktober",
   "November": "November",
   "December": "Dezember",
+  // #137 Stimmt das noch?
+  "Still right?": "Stimmt das noch?",
+  "Once a year: are these values still right?": "Einmal im Jahr: Stimmen diese Werte noch?",
+  "All checked": "Alles geprüft",
+  "Right|check": "Stimmt",
+  "Still right": "Stimmt",
+  "Nothing to check: no weight, home place or papers with an end date yet.": "Nichts zu prüfen: noch kein Gewicht, Wohnort oder Papier mit Ablaufdatum.",
+  "Your weight": "Dein Gewicht",
+  "{kg} kg": "{kg} kg",
+  "{v}": "{v}",
+  "valid until {v}": "gültig bis {v}",
+  "Weight, home place, name and papers: check once a year": "Gewicht, Wohnort, Name und Papiere: einmal im Jahr prüfen",
+  // #74 Tipp der Woche, Wand nach Tageszeit
+  "Tip of the week": "Tipp der Woche",
+  "One thing the app can do, a new one every week, with one button.": "Eine Sache, die die App kann, jede Woche eine neue, mit einem Knopf.",
+  "Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)": "Kacheln nach Tageszeit ordnen (Morgen-Kacheln am Morgen, Abend-Kacheln am Abend)",
 };

@@ -1,6 +1,8 @@
 <script>
   import { UNDO_MS } from '../lib/ui/undo.js';
   import AlertLine from '../lib/clear/AlertLine.svelte';
+  import TipWeek from '../lib/clear/TipWeek.svelte';
+  import { WALL_TIME_KEY, byTime } from '../lib/clear/tipweek.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -143,7 +145,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
+  const SKEYS = [WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -732,6 +734,9 @@
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
   const hiddenTiles = $derived([...(isShown() ? [] : HELPER_TILES), ...(newsBanner.length && !editing ? ['news'] : [])]);
   const shownWall = $derived(hideTiles(wall, hiddenTiles));
+  // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
+  const timeOn = $derived(S[WALL_TIME_KEY] !== false);
+  const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1013,6 +1018,7 @@
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
+  {:else if x.id === 'tipweek'}<TipWeek used={tipUsed} />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
@@ -1087,7 +1093,7 @@
     </p>
   {/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
-  {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
 
   <div class="custom">
@@ -1096,6 +1102,7 @@
         <label><span class="lbl">{t('Your name for the greeting')}</span><input class="inp" type="text" bind:value={nameIn} autocomplete="given-name" maxlength="40" /></label>
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
+      <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
     {:else if phone.matches}
       <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
@@ -1132,6 +1139,12 @@
 </dialog>
 
 <style>
+  .bytime {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: var(--sp-3);
+  }
   /* v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, a calm yellow line */
   .lphint {
     display: flex;

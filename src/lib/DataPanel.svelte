@@ -12,7 +12,7 @@
   import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
-  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen } from '@lucide/svelte';
+  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
@@ -554,6 +554,8 @@
       <ul class="card ich-list">
         <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
         <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
+        <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
+        <li><a class="ich-row" href="#/me/data?yearcheck" data-row="yearcheck"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Still right?')}</b><small>{t('Weight, home place, name and papers: check once a year')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>

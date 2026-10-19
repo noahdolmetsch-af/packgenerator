@@ -66,6 +66,8 @@ export const TILES = [
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
+  // Paket Q #74 (Noah 19.10.2026 «4a»): one tip of «Good to know» per week
+  { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l'], size: 'w', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
@@ -96,6 +98,7 @@ export const READY = [
   ['series', 'w'],
   ['news', 'w'],
   ['try', 'l'],
+  ['tipweek', 'w'],
   ['meditation', 's'],
   ['play', 's'],
   ...FUNCTIONS.map((f) => [`fn:${f.id}`, 's']),
@@ -137,13 +140,18 @@ export function wallOf(value, legacy = null) {
       const at = out.findIndex((x) => x.id === 'flow');
       out.splice(at < 0 ? out.length : at + 1, 0, ...add);
     }
+    // Paket Q #74: the tip of the week once, after «Tried it yet?» (else at the end)
+    if ((value.v ?? 1) < 5 && !out.some((x) => x.id === 'tipweek')) {
+      const at = out.findIndex((x) => x.id === 'try');
+      out.splice(at < 0 ? out.length : at + 1, 0, { id: 'tipweek', size: TILE.tipweek.size });
+    }
     return out;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
 /** The record to store. */
-export const wallRecord = (tiles) => ({ v: 4, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+export const wallRecord = (tiles) => ({ v: 5, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
