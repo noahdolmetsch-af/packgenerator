@@ -231,7 +231,7 @@ const OWN = [
   { id: 'f.travelbook', group: 'after', title: 'Travel book as PDF', text: 'The tour as a PDF: the whole line, then one page per day with places, notes and photos.', href: '#/debrief', words: 'reisebuch buch pdf drucken fotobuch tagebuch' },
   // Data and app
   { id: 'f.search', group: 'data', title: 'Search commands', text: '«kette geölt gravel» enters it right away; «notiz …» writes a note.', run: 'search', words: 'suche befehl befehle' },
-  { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes by day; «File as …» with 7 targets; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
+  { id: 'f.inbox', group: 'data', title: 'Inbox', text: 'Notes, mails and web pages by day; «File as …» with 13 targets and own places; a receipt becomes a workshop visit.', href: '#/inbox', words: 'eingang ablegen' },
   // Paket N (19.10.2026): notes linked with each other, and the plan of the app
   { id: 'f.notelinks', group: 'data', title: 'Linked notes|f', text: 'Link notes with each other; see at a glance what your notes hold, a #tag finds them all.', href: '#/notes', words: 'notizen verknüpfen verknuepfen verbinden auswerten stichwort tags überblick' },
   { id: 'f.dreams', group: 'before', title: 'Dream tours', text: 'Your dream tours with the months they fit; the year band shows what fits when, one tap makes a trip.', href: '#/trips/dreams', words: 'träume traum wunschliste wunsch tour jahresplan saison monate abenteuer kompass' },
@@ -288,6 +288,7 @@ const OWN = [
   // v0.147.0 Paket B: «Fitbit verbinden» (G1–G2)
   { id: 'f.docscan', group: 'data', title: 'Documents as PDF', text: 'Photograph a document or choose photos from the gallery: the app straightens the pages, reads the text and keeps a PDF, also in your Google Drive.', href: '#/me/docs', words: 'dokument pdf scan scannen foto fotografieren quittung brief garantie ablage drive google galerie text' },
   // v0.147.0 Paket B: GM «Mail in der App»
+  { id: 'f.mailin', group: 'data', title: 'Mails into the app', text: 'A mail with its attachments into the Inbox: with one tap, by a Gmail label or a +pack address; tips for bills, bookings and deadlines.', href: '#/inbox', words: 'mail gmail label weiterleiten anhang pdf ticket termin rechnung buchung frist eingang lesezeichen' },
   { id: 'f.mail', group: 'data', title: 'Mail from Gmail', text: 'Your Gmail inbox in the app: read, search, answer and write; the mails to an appointment with one tap.', href: '#/me/mail', words: 'mail email e-mail gmail google posteingang senden antworten schreiben' },
   { id: 'f.agenda', group: 'data', title: 'Google calendar and tasks', text: 'Your Google calendar and Google Tasks in the app: see the next 14 days, enter appointments, tick and add tasks.', href: '#/me/agenda', words: 'google kalender termine termin aufgaben tasks to-do todo agenda woche planen' },
   { id: 'f.trello', group: 'data', title: 'Trello', text: 'Your to-dos and the lists you choose also on your Trello board «Packgenerator»: a tick there is a tick here, and back.', href: '#/calendar', words: 'trello board karten karte liste to-do todo merken abgleich' },

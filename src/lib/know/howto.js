@@ -214,6 +214,7 @@ export const HOWTO = {
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
   'f.mail': ['Open Me › Mail and tap «Connect with Google».', 'Tap a mail to read it; «Answer» or «New mail» writes one.', 'Under an appointment, «Mails to it» finds the mails about it.'],
+  'f.mailin': ['Open a mail under Me › Mail and tap «Into the app».', 'In the Inbox tap the button of an attachment or «File as …».', 'Or give mails the Gmail label «Packgenerator»: they come by themselves.'],
   'f.connections': ['Open Me › Connections.', 'Each connection shows its state and when data last came.', 'Switch on or off what the app may do with it.'],
   'f.stravaticks': ['Open Me › Connections.', 'Under «Strava ticks Aktiv» choose «Tick by itself» or «Suggest first».', 'Change which Strava sport counts for which activity.'],
   'f.owncal': ['Open Me › Connections and switch on the calendar «Packgenerator».', 'Tap «Allow in Google» once.', 'Your tours appear in the calendar, with a reminder two days before.'],

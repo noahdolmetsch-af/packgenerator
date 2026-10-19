@@ -8,6 +8,8 @@ export const MAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'h
 export const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me';
 /** Mails per page in the list. */
 export const MAIL_PAGE = 20;
+/** «Mail in die App»: the largest attachment the app fetches (a function's answer may be 4.5 MB, base64 adds a third). */
+export const FILE_MAX = 3 * 1024 * 1024;
 /** The longest text the app shows or sends. */
 export const MAIL_TEXT_MAX = 50_000;
 
@@ -54,7 +56,8 @@ export function bodyOf(payload) {
   const files = [];
   const walk = (p) => {
     if (!p) return;
-    if (p.filename) files.push({ name: oneLine(p.filename, 200), size: Number(p.body?.size) || 0 });
+    // «Mail in die App»: the type and Gmail's attachment id too, so the app can fetch one file (step mail-file)
+    if (p.filename) files.push({ name: oneLine(p.filename, 200), size: Number(p.body?.size) || 0, type: oneLine(p.mimeType, 100), ...(p.body?.attachmentId ? { att: String(p.body.attachmentId) } : {}) });
     else if (p.mimeType === 'text/plain' && !plain) plain = fromB64url(p.body?.data);
     else if (p.mimeType === 'text/html' && !html) html = fromB64url(p.body?.data);
     for (const c of p.parts ?? []) walk(c);
@@ -104,9 +107,26 @@ export function addresses(v, { max = 20 } = {}) {
 /** A header value in RFC 2047 when it is not plain ASCII. */
 export const encodeHeader = (v) => (/^[\x20-\x7e]*$/.test(v) ? v : `=?UTF-8?B?${Buffer.from(v, 'utf8').toString('base64')}?=`);
 
+/** «Aus der App mailen» (Noah 19.10.2026 «5a»): one attachment's name in the header (no quotes, no line breaks). */
+const fileHeaderName = (n) => encodeHeader(oneLine(n, 120).replace(/["\\]/g, '') || 'datei');
+/** The attachments a mail from the app may carry: at most 3, together at most FILE_MAX. Throws 'files'. */
+export function mailFiles(list) {
+  if (list == null) return [];
+  if (!Array.isArray(list) || list.length > 3) throw new Error('files');
+  let sum = 0;
+  return list.map((f) => {
+    const data = String(f?.data ?? '').replace(/\s+/g, '');
+    if (!data || !/^[A-Za-z0-9+/]+=*$/.test(data)) throw new Error('files');
+    sum += Math.floor((data.length * 3) / 4);
+    if (sum > FILE_MAX) throw new Error('files');
+    const type = /^[\w.+-]+\/[\w.+-]+$/.test(String(f?.type ?? '')) ? f.type : 'application/octet-stream';
+    return { name: fileHeaderName(f?.name), type, data };
+  });
+}
+
 /**
- * The raw message Gmail sends (base64url). { to, cc?, subject, text, inReplyTo?, references? }
- * Throws 'to', 'address', 'text' or 'too_many' when something is missing or wrong.
+ * The raw message Gmail sends (base64url). { to, cc?, subject, text, inReplyTo?, references?, files? }
+ * Throws 'to', 'address', 'text', 'files' or 'too_many' when something is missing or wrong.
  */
 export function rawMail(v) {
   const to = addresses(v?.to);
@@ -115,12 +135,22 @@ export function rawMail(v) {
   const text = String(v?.text ?? '').replace(/\r\n/g, '\n');
   if (!text.trim()) throw new Error('text');
   if (text.length > MAIL_TEXT_MAX) throw new Error('text');
+  const files = mailFiles(v?.files);
   const subject = oneLine(v?.subject, 300);
-  const lines = [`To: ${to.join(', ')}`, ...(cc.length ? [`Cc: ${cc.join(', ')}`] : []), `Subject: ${encodeHeader(subject)}`, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64'];
+  const lines = [`To: ${to.join(', ')}`, ...(cc.length ? [`Cc: ${cc.join(', ')}`] : []), `Subject: ${encodeHeader(subject)}`, 'MIME-Version: 1.0'];
   if (v?.inReplyTo) {
     const id = oneLine(v.inReplyTo, 300);
     lines.push(`In-Reply-To: ${id}`, `References: ${oneLine(`${v.references ?? ''} ${id}`, 2000)}`);
   }
-  const body = Buffer.from(text.replace(/\n/g, '\r\n'), 'utf8').toString('base64').replace(/.{76}/g, '$&\r\n');
-  return toB64url(`${lines.join('\r\n')}\r\n\r\n${body}`);
+  const wrap = (b64) => b64.replace(/.{76}/g, '$&\r\n');
+  const body = wrap(Buffer.from(text.replace(/\n/g, '\r\n'), 'utf8').toString('base64'));
+  if (!files.length) {
+    lines.push('Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64');
+    return toB64url(`${lines.join('\r\n')}\r\n\r\n${body}`);
+  }
+  const b = `pg-${Buffer.from(subject + text.length).toString('hex').slice(0, 16)}-${files.length}`;
+  lines.push(`Content-Type: multipart/mixed; boundary="${b}"`);
+  const parts = [`--${b}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${body}`];
+  for (const f of files) parts.push(`--${b}\r\nContent-Type: ${f.type}; name="${f.name}"\r\nContent-Disposition: attachment; filename="${f.name}"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap(f.data)}`);
+  return toB64url(`${lines.join('\r\n')}\r\n\r\n${parts.join('\r\n')}\r\n--${b}--\r\n`);
 }

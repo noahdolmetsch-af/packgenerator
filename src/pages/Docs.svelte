@@ -33,7 +33,8 @@
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { nextTrip } from '../lib/debrief.js';
   import { localDay } from '../lib/localday.js';
-  import { FileText, Upload, Bell, Lock, ExternalLink, Share2, FileUp, Trash2, Backpack, Check, ChevronRight, TriangleAlert, Camera, Search, Cloud, Database, Image as ImageIcon } from '@lucide/svelte';
+  import { FileText, Upload, Bell, Lock, ExternalLink, Share2, FileUp, Trash2, Backpack, Check, ChevronRight, TriangleAlert, Camera, Search, Cloud, Database, Mail, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
+  import { tipOf } from '../lib/mailin.js';
   import '../lib/ich/ich.css';
   import '../lib/maintenance/maint.css';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
@@ -169,6 +170,11 @@
     }
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
+  /** Round 4 «2a»: the document's text as an Eingang entry (the document itself stays here). */
+  async function toInbox(d) {
+    await db.notes.put({ id: `doc-${Date.now().toString(36)}`, at: new Date().toISOString(), text: `${d.name}\n\n${d.note ? `${d.note}\n\n` : ''}${String(d.text ?? '').slice(0, 4000)}`, photo: null, page: 'docs', tripId: null, bikeId: null, status: 'open', to: null, sortedAt: null, docRef: d.id });
+    location.hash = '#/inbox';
+  }
   async function shareDoc(d) {
     const file = fileOf(d);
     if (navigator.canShare?.({ files: [file] })) {
@@ -283,9 +289,19 @@
               <span class="ich-acts">
                 <button type="button" class="btn sm" onclick={() => openDoc(doc)}><ExternalLink size={15} aria-hidden="true" />{t('Open')}</button>
                 <button type="button" class="btn sm" onclick={() => shareDoc(doc)}><Share2 size={15} aria-hidden="true" />{t('Share')}</button>
+                <!-- «Aus der App mailen» (Noah 19.10.2026 «5a»): a new mail under Ich › Mail with this document attached -->
+                <a class="btn sm" href={`#/me/mail?attach=doc:${encodeURIComponent(doc.id)}`}><Mail size={15} aria-hidden="true" />{t('By mail')}</a>
                 {#if doc.drive?.link}<a class="btn sm" href={doc.drive.link} target="_blank" rel="noopener"><Cloud size={15} aria-hidden="true" />{t('Open in Drive')}</a>{/if}
               </span>
             </div>
+            <!-- «Mail in die App» round 4 «2a»: the same tips as for mails, from the recognised text; one tap puts
+                 it into the Eingang, where it is sorted like a mail (bill, appointment, deadline) -->
+            {#if doc.text}
+            {@const tip = tipOf({ text: `${doc.name}\n${doc.note ?? ''}\n${doc.text}` })}
+            {#if tip && tip.kind !== 'sender'}
+              <p class="dtip"><Lightbulb size={15} aria-hidden="true" /><span>{tip.kind === 'booking' ? t('Looks like a booking') : tip.kind === 'bill' ? t('Looks like a bill') : t('Deadline: {day}', { day: tip.deadline.day.split('-').reverse().join('.') })}</span><button type="button" class="btn sm" onclick={() => toInbox(doc)}>{t('Sort in the Inbox')}</button></p>
+            {/if}
+            {/if}
             {#if doc.text}<details class="txt"><summary>{t('Recognised text')}</summary><p>{doc.text.slice(0, 1200)}{doc.text.length > 1200 ? '…' : ''}</p></details>{/if}
           </section>
         </div>
@@ -478,6 +494,22 @@
 
 
 <style>
+  .dtip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 10px 0 0;
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--accent-soft);
+    color: var(--ok);
+    font-size: var(--fs-small);
+  }
+  .dtip span {
+    flex: 1;
+    min-width: 10em;
+  }
   .doc-ablage {
     display: grid;
     gap: var(--sp-4);

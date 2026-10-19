@@ -72,8 +72,10 @@ self.addEventListener('fetch', (event) => {
       if (docs.length) {
         const cache = await caches.open(SHARE_DOCS_CACHE);
         for (const old of await cache.keys()) await cache.delete(old);
+        // «Mail in die App» (Noah 19.10.2026 «5a»): text shared with the file stays with it (the document's note)
+        const said = ['title', 'text', 'url'].map((k) => form.get(k)).filter((v) => typeof v === 'string' && v.trim()).join('\n').slice(0, 2000);
         for (const [i, f] of docs.slice(0, 30).entries()) {
-          await cache.put(`${base}shared-doc-${i}`, new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(f.name || `shared-${i}`) } }));
+          await cache.put(`${base}shared-doc-${i}`, new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(f.name || `shared-${i}`), 'X-Share-Text': encodeURIComponent(said) } }));
         }
         return go(`${base}#/me/docs/scan?shared=1`);
       }

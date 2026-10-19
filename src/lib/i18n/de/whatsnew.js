@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.156.0 Paket 5: Mail in die App
+  'Mails into the app': 'Mails in die App',
+  'From Gmail into the Inbox, and from the app into a mail.': 'Von Gmail in den Eingang und aus der App in eine Mail.',
+  'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»': 'Mails in die App: «In die App übernehmen» unter Ich › Mail oder das Gmail-Label «Packgenerator»',
+  'The Inbox shows tips (bill, booking, deadline) and a button per attachment': 'Der Eingang zeigt Tipps (Rechnung, Buchung, Frist) und einen Knopf pro Anhang',
+  '«File as …» with 13 targets and your own new places': '«Ablegen als …» mit 13 Zielen und eigenen neuen Ablagen',
+  'Mail a packing list or a document from the app': 'Packliste oder Dokument aus der App mailen',
+  'Open the Inbox and tap the button of an attachment.': 'Öffne den Eingang und tippe den Knopf eines Anhangs.',
+  'Open Me › Mail, open a mail and tap «Into the app».': 'Öffne Ich › Mail, öffne eine Mail und tippe auf «In die App übernehmen».',
   // 0.155.0 Paket 3+4
   'Free time and everyday life': 'Freie Zeit und Alltag',
   'For free hours, everyday life and the evening before.': 'Für freie Stunden, den Alltag und den Vorabend.',

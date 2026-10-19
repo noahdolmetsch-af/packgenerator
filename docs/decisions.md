@@ -1722,3 +1722,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+## 19.10.2026: Mail in die App (Noah «1a 2a 3b 4a 5a», «1a oder neue Ablage erstellen vom Benutzer 2a 3a», «1a–5a», «1a–4a», «bitte umsetzen»)
+- Eine Mail kommt als **ein** Eintrag in den Eingang, mit ihren Anhängen; die App legt nie selbst ab (3b). Wege: «In die App übernehmen» unter Ich › Mail, das Gmail-Label «Packgenerator» (auch per +pack-Adresse und Gmail-Filter), die Google-Aufgabenliste «Packgenerator», Termine mit «#pack», das Lesezeichen «In den Eingang» am Mac.
+- Anhänge: PDF, Foto und Wallet-Ticket › Dokumente; Kalender-Datei › Termin; GPX › Tour oder Fahrt; QR-Rechnung › Zu zahlen; Kontakt › in die Notiz. Bilder unter 15 KB (Logos) bleiben in Gmail, ebenso Anhänge über zusammen 2,6 MB (sonst käme der Eintrag beim automatischen Abgleich nicht aufs andere Gerät).
+- «Ablegen als …» hat 13 Ziele (neu: Neue Tour, Rechnung, Termin, Aufgabe, Dokument, Liste) und «Neue Ablage» (ein eigenes Notiz-Thema, umbenennen und löschen unter Listen und Typen).
+- Tipp in der Zeile: Buchung (mit Tag und passender Tour), Rechnung, Frist; ein Absender, zweimal gleich abgelegt, wird so vorgeschlagen. Eine Buchung vor der Tour wird eine Planungs-Notiz der Tour.
+- Mailen aus der App: Packliste und Plan einer Tour (PDF) oder ein Dokument anhängen, höchstens 3, zusammen 3 MB.
+- Keine neue Server-Datei: Schritt `mail-file` und Anhänge bei `mail-send` in `api/_lib/google.js`. Keine neue Dexie-Version: Einträge bekommen die Felder `mail`, `files`, `plan`.

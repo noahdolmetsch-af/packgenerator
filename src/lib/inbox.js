@@ -15,6 +15,7 @@
 import { localDay } from './localday.js';
 import { guessKind } from './notes.js';
 import { newVisit } from './hubs.js';
+import { tipOf, senderKind } from './mailin.js';
 
 /** The 7 targets of «Ablegen als …», in this order (English keys for t()). */
 export const TARGETS = [
@@ -24,6 +25,13 @@ export const TARGETS = [
   { key: 'wish', name: 'Wishlist', where: 'Gear › Wishlist', place: 'Gear › Wishlist' },
   { key: 'idea', name: 'Idea', where: 'Bike › What would be great, or a note', place: 'Bike › Ideas' },
   { key: 'tour', name: 'Trip note', where: 'Into the debrief of a trip', place: 'Trip › Debrief' },
+  // «Mail in die App» (Noah 19.10.2026 «1a»): six more targets for what comes from mail, calendar and tasks
+  { key: 'newtrip', name: 'New trip', where: 'A new trip with its packing list', place: 'Trips' },
+  { key: 'bill', name: 'Bill to pay', where: 'Me › Pay › To pay, with a reminder', place: 'Me › Pay › To pay' },
+  { key: 'event', name: 'Appointment', where: 'Into your Google calendar', place: 'Me › Appointments' },
+  { key: 'task', name: 'Task|target', where: 'Into your Google tasks, with a day', place: 'Me › Appointments' },
+  { key: 'doc', name: 'Document', where: 'Me › Documents, as a PDF', place: 'Me › Documents' },
+  { key: 'list', name: 'List|target', where: 'A point on one of your lists', place: 'Calendar › Lists' },
   { key: 'keep', name: 'Just keep', where: 'Becomes a note in «Notes», topic to choose', place: 'Notes' },
 ];
 /** Where each target lands, one line (German in de/pflege.js); the sheet and the row button's bubble. */
@@ -34,6 +42,12 @@ export const LANDS = {
   wish: 'Gear › Wishlist',
   idea: 'Bike › What would be great',
   tour: 'Into the debrief of a trip',
+  newtrip: 'A new trip with its packing list',
+  bill: 'Me › Pay › To pay, with a reminder',
+  event: 'Into your Google calendar',
+  task: 'Into your Google tasks, with a day',
+  doc: 'Me › Documents, as a PDF',
+  list: 'A point on one of your lists',
   keep: 'Becomes a note in «Notes», topic to choose',
 };
 export const TARGET = Object.fromEntries(TARGETS.map((x) => [x.key, x]));
@@ -42,9 +56,25 @@ const RECEIPT = /\b(rechnung|quittung|beleg|receipt|invoice|kassenzettel|chf\s*\
 const IDEA = /\b(idee|idea|wäre|waere|geil|vielleicht|maybe|könnte|koennte|später)\b/i;
 const PLACE = /(^|[^\p{L}])(café|cafe|beiz|restaurant|aussicht|view|route|pass|camping|brunnen|see)(?![\p{L}])/iu;
 
-/** The target the app suggests for an entry (the first highlighted row of «Ablegen als …»). */
-export function guessTarget(note) {
+/**
+ * The target the app suggests for an entry (the first highlighted row of «Ablegen als …»).
+ * «Mail in die App»: an entry from a mail, a task list or the calendar is guessed by its tip (mailin.js
+ * tipOf: a sender filed the same way twice, a booking, a deadline, a bill); opts: { trips, rules }.
+ */
+export function guessTarget(note, opts = {}) {
   const text = note?.text ?? '';
+  if (note?.plan) return 'newtrip';
+  if (note?.mail || note?.page === 'tasks') {
+    const fixed = senderKind(opts.rules, note);
+    if (fixed && TARGET[fixed]) return fixed;
+    const tip = tipOf(note, opts);
+    if (tip?.kind === 'bill') return 'bill';
+    if (tip?.kind === 'booking') return tip.trip ? 'tour' : 'event';
+    if (tip?.kind === 'deadline') return 'task';
+    if (note.page === 'tasks') return note.due ? 'task' : 'list';
+    if ((note.files ?? []).some((f) => ['pdf', 'photo', 'pkpass'].includes(f.kind) && !f.done)) return 'doc';
+    if (note.mail) return 'keep';
+  }
   if (RECEIPT.test(text) || (note?.photo && /foto|photo|bild/i.test(text) && RECEIPT.test(`${text} rechnung`) && /rechnung|beleg|quittung/i.test(text))) return 'receipt';
   const k = guessKind(note ?? { text: '' });
   if (k === 'repair') return 'problem';
@@ -93,7 +123,9 @@ export const FILED_FILTERS = [
   { key: 'receipts', name: 'Receipts', kinds: ['receipt'] },
   { key: 'bikes', name: 'Bikes', kinds: ['problem', 'repair', 'idea'] },
   { key: 'gear', name: 'Gear', kinds: ['material', 'wish'] },
-  { key: 'trips', name: 'Trips', kinds: ['tour', 'trip', 'learning'] },
+  { key: 'trips', name: 'Trips', kinds: ['tour', 'trip', 'newtrip', 'learning'] },
+  { key: 'agenda', name: 'Appointments and bills', kinds: ['event', 'task', 'bill', 'list'] },
+  { key: 'docs', name: 'Documents', kinds: ['doc'] },
   { key: 'kept', name: 'Kept', kinds: ['keep', 'done'] },
 ];
 
@@ -229,7 +261,12 @@ export function targetHref(to, { visits = [], tasks = [], items = [], trips = []
   if (kind === 'wish' || kind === 'material') return items.some((i) => i.id === to.ref) ? `#/gear?item=${enc(to.ref)}` : null;
   if (kind === 'idea') return bikes.some((b) => b.id === to.bikeId) ? `#/bikes?bike=${enc(to.bikeId)}` : null;
   if (kind === 'learning') return '#/debrief/learnings';
+  if (kind === 'newtrip' || (kind === 'tour' && to.plan)) return trips.some((tr) => tr.id === to.ref) ? '#/trips' : null;
   if (kind === 'tour' || kind === 'trip') return trips.some((tr) => tr.id === to.ref) ? `#/debrief/${enc(to.ref)}` : null;
   if (kind === 'keep') return '#/notes';
+  if (kind === 'doc') return '#/me/docs';
+  if (kind === 'bill') return '#/me/pay/bills';
+  if (kind === 'event' || kind === 'task') return '#/me/agenda';
+  if (kind === 'list') return to.ref ? `#/calendar/list/${enc(to.ref)}` : '#/calendar';
   return null;
 }
