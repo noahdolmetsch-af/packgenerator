@@ -645,7 +645,7 @@ export const HANDBOOK = {
   },
   'f.insights': {
     on: null,
-    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.'],
+    steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.', 'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
   'f.frei': {

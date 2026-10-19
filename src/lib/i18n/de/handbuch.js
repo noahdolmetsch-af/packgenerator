@@ -981,4 +981,6 @@ export default {
   'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Ich › Freie Zeit › Impulse.',
   'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
   'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
+  // Noah 19.10.2026 «2a 3a 4a und b möglich»
+  'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.': 'Auch Wetter, Kalendertermine und eigene Zahlen-Fragen werden verglichen; jede eigene Frage lässt sich ausschalten.',
 };

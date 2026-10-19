@@ -259,7 +259,7 @@
             <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): what goes together in your data -->
             <a class="ich-row" href="#/me/insights" data-me-insights>
               <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, resting pulse')}</small></span>
+              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, weather, appointments')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
