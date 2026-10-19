@@ -1678,3 +1678,11 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - Pakete mit geänderter Daten-Ablage werden vorher mit einer Backup-Kopie geprüft.
 - «zurück» nimmt ein Paket sofort wieder raus.
 - Grund: schneller von der Freigabe bis online.
+
+## 19.10.2026: Mail in die App (Noah «1a 2a 3b 4a 5a», «1a oder neue Ablage erstellen vom Benutzer 2a 3a», «1a–5a», «1a–4a», «bitte umsetzen»)
+- Eine Mail kommt als **ein** Eintrag in den Eingang, mit ihren Anhängen; die App legt nie selbst ab (3b). Wege: «In die App übernehmen» unter Ich › Mail, das Gmail-Label «Packgenerator» (auch per +pack-Adresse und Gmail-Filter), die Google-Aufgabenliste «Packgenerator», Termine mit «#pack», das Lesezeichen «In den Eingang» am Mac.
+- Anhänge: PDF, Foto und Wallet-Ticket › Dokumente; Kalender-Datei › Termin; GPX › Tour oder Fahrt; QR-Rechnung › Zu zahlen; Kontakt › in die Notiz. Bilder unter 15 KB (Logos) und Dateien über 3 MB bleiben in Gmail.
+- «Ablegen als …» hat 13 Ziele (neu: Neue Tour, Rechnung, Termin, Aufgabe, Dokument, Liste) und «Neue Ablage» (ein eigenes Notiz-Thema, umbenennen und löschen unter Listen und Typen).
+- Tipp in der Zeile: Buchung (mit Tag und passender Tour), Rechnung, Frist; ein Absender, zweimal gleich abgelegt, wird so vorgeschlagen. Eine Buchung vor der Tour wird eine Planungs-Notiz der Tour.
+- Mailen aus der App: Packliste und Plan einer Tour (PDF) oder ein Dokument anhängen, höchstens 3, zusammen 3 MB.
+- Keine neue Server-Datei: Schritt `mail-file` und Anhänge bei `mail-send` in `api/_lib/google.js`. Keine neue Dexie-Version: Einträge bekommen die Felder `mail`, `files`, `plan`.
