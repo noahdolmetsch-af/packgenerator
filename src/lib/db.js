@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { trackSync } from './sync/track.js';
 
 /**
  * The app's database. It lives in IndexedDB, inside the browser on this device.
@@ -13,9 +14,11 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 12; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente)
+export const SCHEMA_VERSION = 15; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none)
 
 /** Tables that belong to the user's data and go into every backup file. */
+/** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
+export const NOT_IN_BACKUP = ['gEvents', 'gTasks'];
 export const DATA_TABLES = [
   'items', // gear inventory and wishlist
   'kits', // named setups, e.g. "Training ride"
@@ -43,7 +46,26 @@ export const DATA_TABLES = [
   'timerLog', // «Timer» (Z5): every timer that ran, with its kind, length and an optional note (timer.js)
   'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
   'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
+  'healthDays', // Fitbit via Google Health: one row per day (health.js), observation only
 ];
+
+/**
+ * v0.45.1 (G015a) / v0.77.0: settings records that are the app's own memory on this device, not the
+ * user's data (tips shown, the Helfer-Code). They never go into a backup (backup.js) and the automatic
+ * sync (P8, sync/track.js) never sends them.
+ */
+export const DEVICE_SETTINGS = ['tips', 'helper'];
+
+/**
+ * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
+ * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
+ */
+export const syncLocal = (table, key) => table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'));
+/*
+ * Paket B (Noah 19.10.2026 «1b»): the Fitbit days (healthDays) and the Fitbit and calendar connection
+ * (settings 'health' and 'agenda') sync like everything else. Both devices fetch the same data from Google,
+ * so the sync engine settles those copies by itself and never asks about them (sync/engine.js autoPick).
+ */
 
 /**
  * @typedef {Object} Item
@@ -176,6 +198,20 @@ export function createDb(name = 'pack-generator') {
   db.version(12).stores({
     docs: 'id, kind, group, createdAt',
   });
+  // Version 13 (Fitbit über Google Health) only adds the daily values, so existing data stays as it is.
+  db.version(13).stores({
+    healthDays: 'date',
+  });
+  // Version 15 (Google Kalender und Aufgaben, GA): a copy of Google's events and tasks on this device (NOT_IN_BACKUP).
+  // Not in DATA_TABLES: Google keeps the truth, a backup would only carry an old copy. 14 is a gap
+  // (Dokumente-PDF needs no version of its own, A's 12 has the documents); Dexie allows it.
+  db.version(15).stores({
+    gEvents: 'id, day, cal',
+    gTasks: 'id, list, due, done',
+  });
+  // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
+  // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.
+  trackSync(db, { tables: DATA_TABLES, skip: syncLocal });
   return db;
 }
 

@@ -27,6 +27,7 @@
   import { n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
   import { paceOf, ruleOf } from '../pace.js';
   import { logEntries } from './logbook.js';
+  import { logbookLine } from '../sk/pages.js';
   import { openTrip } from '../nav.js';
   import { heartBetween, heartOfRide } from '../kmbook.js';
   import HeartLine from '../strava/HeartLine.svelte';
@@ -38,6 +39,7 @@
   import Skeleton from '../ui/Skeleton.svelte';
   import { Upload, ChevronRight, ChevronLeft, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Clock, Gauge, BookOpen, Mountain, Archive, Flag, Star } from '@lucide/svelte';
   import TripState from '../ui/TripState.svelte';
+  import Profile from '../ui/Profile.svelte';
   import Btn from '../ui/Btn.svelte';
   import { factStates, factCounts, PERIOD_KEY } from './state.js';
   import { stateExtraText } from '../tripstatetext.js';
@@ -405,6 +407,8 @@
                     {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {num(last.pauses.min)} min</li>{/if}
                     {#if highest(last.profile)}<li><Mountain size={16} aria-hidden="true" />{t('GPX · {m} m highest point', { m: num(highest(last.profile)) })}</li>{/if}
                   </ul>
+                  <!-- v0.151.0 HP1 (F13, Noah «1a»): the profile of the ridden GPX, the planned route dashed over it -->
+                  {#if last.rideProfile}<div class="lprof"><Profile points={last.rideProfile} plan={last.planProfile} label="Elevation of the ride" /></div>{/if}
                   {#if lastPlan}
                     {@const mins = Math.round(lastPlan.diff * 60)}
                     <p class="plan"><Gauge size={16} aria-hidden="true" /><span>{t('Planned {plan} h, ridden {real} h:', { plan: hours(lastPlan.plan), real: hours(lastPlan.real) })} <b>{mins < 0 ? t('{n} min faster', { n: -mins }) : mins > 0 ? t('{n} min slower', { n: mins }) : t('right on time')}</b>.</span></p>
@@ -448,7 +452,7 @@
         <section class="rv-sec" aria-labelledby="hmore-h">
           <div class="rv-h"><div><h2 id="hmore-h">{t('More')}</h2></div></div>
           <ul class="rv-box">
-            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? t('every trip with its state') : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
           </ul>
@@ -1035,5 +1039,9 @@
   }
   .rv-h :global(.seg) {
     flex: none;
+  }
+  /* v0.151.0 HP1 */
+  .lprof {
+    margin: 4px 0 14px;
   }
 </style>

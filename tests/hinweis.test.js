@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HINTS, hintOf } from '../src/lib/hints.js';
-import { setHint, hintShown, infoOf } from '../src/lib/pageinfo.js';
+import { setHint, hintShown, hintShownFolded, infoOf } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 const files = (dir) => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? files(join(dir, f)) : f.endsWith('.svelte') ? [join(dir, f)] : []));
@@ -29,5 +29,11 @@ describe('the hint cards', () => {
     expect(hintShown(off, 'gear')).toBe(true);
     expect(hintShown(setHint(off, 'care', true), 'care')).toBe(true);
     expect(infoOf({ hintOff: 'x' }).hintOff).toEqual({});
+  });
+  it('Paket D (Noah 19.10.2026 «1a»): a card that starts folded opens only after a tap on its line', () => {
+    expect(hintShownFolded(undefined, 'trips')).toBe(false);
+    const opened = setHint(undefined, 'trips', true);
+    expect(hintShownFolded(opened, 'trips')).toBe(true);
+    expect(hintShownFolded(setHint(opened, 'trips', false), 'trips')).toBe(false);
   });
 });

@@ -13,7 +13,7 @@ describe('language', () => {
 
   it('German from the dictionary, unknown texts stay English', () => {
     lang.v = 'de';
-    expect(t('Gear')).toBe('Ausrüstung');
+    expect(t('Gear')).toBe('Material');
     expect(t('{n} to do', { n: 3 })).toBe('3 offen');
     expect(t('Done|task')).toBe('Erledigt');
     expect(t('Done')).toBe('Fertig');

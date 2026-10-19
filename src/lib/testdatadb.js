@@ -5,11 +5,11 @@
 import { TEMPLATES_KEY } from './templates.js';
 import { findTestData, tidyWrites, undoWrites, tidiedCount } from './testdata.js';
 
-const TABLES = ['trips', 'debriefs', 'items', 'settings'];
+const TABLES = ['trips', 'debriefs', 'items', 'settings', 'learnings'];
 
 async function readAll(db) {
-  const [trips, debriefs, items, rec] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.items.toArray(), db.settings.get(TEMPLATES_KEY)]);
-  return { trips, debriefs, items, templates: rec?.value ?? [], rec };
+  const [trips, debriefs, items, rec, learnings] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.items.toArray(), db.settings.get(TEMPLATES_KEY), db.learnings.toArray()]);
+  return { trips, debriefs, items, templates: rec?.value ?? [], rec, learnings };
 }
 
 /** What the sheet shows: { found, tidied } (tidied: how many can come back with «Undo»). */
@@ -22,6 +22,7 @@ async function write(db, plan, rec) {
   for (const x of plan.trips) await db.trips.update(x.id, x.changes);
   for (const x of plan.debriefs) await db.debriefs.update(x.tripId, x.changes);
   for (const x of plan.items) await db.items.update(x.id, x.changes);
+  for (const x of plan.learnings) await db.learnings.update(x.id, x.changes);
   if (rec) await db.settings.put({ ...rec, value: plan.templates });
 }
 
@@ -31,7 +32,7 @@ export async function tidyTestData(db, chosen, now = new Date().toISOString()) {
     const all = await readAll(db);
     const plan = tidyWrites(all, chosen, now);
     await write(db, plan, all.rec);
-    return plan.trips.length + plan.items.length + all.templates.filter((x, i) => plan.templates[i] !== x).length;
+    return plan.trips.length + plan.items.length + plan.learnings.length + all.templates.filter((x, i) => plan.templates[i] !== x).length;
   });
 }
 

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { tripStates, stateCounts, STATES, STATE_NAMES } from '../../src/lib/tripstate.js';
 import { importAndSettle, settle } from './settle.js';
+import { openShort } from './kurz-open.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const TODAY = '2026-10-13'; // a Tuesday without a ride: Today does not move on to «On the way»
@@ -63,14 +64,17 @@ async function openTrip(page, id) {
 // legend of the two colours; every card and row keeps its pill (icon + word, never colour alone).
 const LIST_STATES = STATES.filter((s) => s !== 'plan');
 
-test('Touren: the three states on cards and rows, chips with numbers, a pill on every trip, the legend', async ({ page, context }) => {
+test('Touren: the three states on cards and rows, chips with numbers, a pill on every trip, the legend', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
   await page.goto('./#/trips');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   expect(counts.plan * counts.done * counts.rated, 'the fixture has trips in every state').toBeGreaterThan(0);
-  await expect(page.locator('.trips .ph .cnt')).toHaveText([T('{n} planned', { n: counts.plan }), T('{n} completed', { n: counts.done }), T('{n} rated', { n: counts.rated })].join(' · '));
+  // 0.161.0 (Bugfixes 0.132.2 B1, Noah 2a): completed and rated count the chosen period and say which (checked below)
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toContainText(T('{n} planned', { n: counts.plan }));
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toContainText(T('in 12 months'));
 
   // «Geplant»: every card carries the pill «Geplant»; the next trip says «Morgen»
   const planned = page.locator('section[data-planned]');
@@ -86,6 +90,8 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   // «Abgeschlossene Touren» over all years: the chips «Alle» and one per state of the list with its number
   const done = page.locator('section[data-finished]');
   await done.getByRole('button', { name: T('All|period'), exact: true }).click();
+  const nState = (s) => done.locator(`[data-trip-list] li[data-row][data-state="${s}"]`).count();
+  await expect(page.locator('.trips .ph .cnt[data-counts]')).toHaveText([T('{n} planned', { n: counts.plan }), `${T('since the start')}: ${T('{n} completed', { n: await nState('done') })}`, T('{n} rated', { n: await nState('rated') })].join(' · '));
   const chips = done.getByRole('group', { name: T('Show trips') }).getByRole('button');
   await expect(chips).toHaveCount(1 + LIST_STATES.length);
   await expect(chips.first()).toHaveAttribute('aria-pressed', 'true');
@@ -104,7 +110,9 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   await expect(done.locator('li[data-row="test_data_gtp_trip90"] .tst')).toHaveText(`${T('Completed|state')} · GPX`);
 
   // the legend of the two colours under the list
-  await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
+  // 0.163.0 «Handy kurz»: on a phone the legend goes (the star and the stripe stay on the rows)
+  if (info.project.name === 'phone') await expect(done.locator('ul.legend')).toBeHidden();
+  else await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
 
   // one chip shows one state only; tapping it again shows all
   const all = await rows.count();

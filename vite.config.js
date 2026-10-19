@@ -26,6 +26,8 @@ export default defineConfig({
         meditation: 'apps/meditation/index.html',
         packliste: 'apps/packliste/index.html',
         velopflege: 'apps/velopflege/index.html',
+        // Termine buchen (BU2 + BU3): the page the people who book open, without the app
+        buchen: 'buchen/index.html',
       },
     },
   },
@@ -66,6 +68,8 @@ export default defineConfig({
             files: [
               { name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] },
               { name: 'backup', accept: ['.json', 'application/json'] },
+              // Dokumente-PDF: photos and PDFs from the gallery or other apps go to «Dokumente» (field "doc")
+              { name: 'doc', accept: ['image/jpeg', 'image/png', 'image/webp', 'image/*', 'application/pdf', '.pdf', '.jpg', '.jpeg', '.png'] },
             ],
           },
         },
@@ -80,7 +84,11 @@ export default defineConfig({
         // 6 MiB keeps the app stored on the device and offline.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
-        importScripts: ['share-target.js'],
+        // Erinnerungen aufs Handy (Web-Push): show the messages of api/push.js and open the app on a tap.
+        importScripts: ['share-target.js', 'push-sw.js'],
+        // 19.10.2026: the server project «packgen» serves this app too; its service worker must never answer
+        // /api/… (the Google and Strava logins come back to /api/…/callback and would land in the app instead).
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
             // Trail Journal fonts: cached after the first online visit.
@@ -91,6 +99,16 @@ export default defineConfig({
         ],
       },
     }),
+    // Termine buchen (BU2 + BU3): the booking page is a plain web page for the people who book: no
+    // manifest and no service worker (they should not install the app or get its offline files).
+    {
+      name: 'booking-page-plain',
+      enforce: 'post',
+      transformIndexHtml: {
+        order: 'post',
+        handler: (html) => (html.includes('<title>Termin buchen</title>') ? html.replace(/<link rel="manifest"[^>]*>/g, '').replace(/<script id="vite-plugin-pwa:register-sw"[^>]*><\/script>/g, '') : html),
+      },
+    },
     // Kleine Apps: a small app's page keeps only its own manifest (the PWA plugin adds the big app's one too).
     {
       name: 'mini-app-manifest',

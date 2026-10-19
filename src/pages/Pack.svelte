@@ -1017,6 +1017,8 @@
       pack: goPack, ride: goRide, packAndGo, end: endTrip,
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
+      // 0.161.0 (Noah H3a): only this switch hides a trip as a test, also a finished one (with Undo)
+      testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
     {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{/snippet}

@@ -57,7 +57,8 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.amount span')).toHaveText('3');
   // Preserve v0.22.0's honest sums and shared readiness statements after integrating main.
   await list.locator('.weight-details > summary').click();
-  await expect(list.locator('.weight-grid').getByText('bekannt:', { exact: true }).first()).toBeVisible();
+  // DK6 (Wörter): «bekannt: 2,69 kg» says «2,69 kg (gewogen)» now; the sum still shows its gaps.
+  await expect(list.locator('.weight-grid').getByText('(gewogen)', { exact: true }).first()).toBeVisible();
   await expect(list.locator('.weight-grid .miss').first()).toContainText('nicht gewogen');
   // v0.25.0 (Noah 10): a short ride (1 day, no event) shows no bike care before the trip, only the ready check.
   await expect(list.locator('.calm-extra > summary').filter({hasText:'Velopflege'})).toHaveCount(0);

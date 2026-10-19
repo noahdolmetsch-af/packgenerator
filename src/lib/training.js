@@ -73,7 +73,11 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv'];
+/** The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f). Older ones are fetched once more. */
+export const DETAIL_V = 2;
+/** Has this activity the details of the current kind? */
+export const hasDetail = (a) => !!a?.detail && (a.dv ?? 1) >= DETAIL_V;
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
@@ -81,7 +85,7 @@ export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} $
 /** The activities whose details (heart rate, kcal, best 20 min) are worth fetching now: newest first, with heart rate or a power meter, recent. */
 export function needDetail(acts, today, { max = DETAIL_MAX, days = DETAIL_DAYS } = {}) {
   const from = shiftDay(today, -days);
-  return acts.filter((a) => !a.detail && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
+  return acts.filter((a) => !hasDetail(a) && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
 }
 
 /** A calendar day ± n days (no clock involved). */
@@ -100,6 +104,18 @@ export function boundsOfStrava(z) {
 }
 /** Four whole numbers, rising, between 60 and 230. */
 export const validBounds = (b) => Array.isArray(b) && b.length === 4 && b.every((x, i) => Number.isInteger(x) && x >= 60 && x <= 230 && (i === 0 || x > b[i - 1]));
+
+/** The older own zones of Rückblick › Tempo (settings 'hrZones': { bounds: top of Z1–Z4 }); read, then replaced by OWN_ZONES_KEY. */
+export const LEGACY_ZONES_KEY = 'hrZones';
+/**
+ * One set of zones for the whole app: Noah's own bounds from Training ({ own: first beat of Z2–Z5 }), else the
+ * older ones from Rückblick › Tempo (top of Z1–Z4, so one beat more). → { own } or null.
+ */
+export function ownOf(own, legacy) {
+  if (validBounds(own?.own)) return own;
+  const b = Array.isArray(legacy?.bounds) ? legacy.bounds.map((x) => Math.round(Number(x)) + 1) : null;
+  return validBounds(b) ? { own: b } : null;
+}
 
 /** The zones in use: own (changed), else Strava's, else the standard. → { bounds, source: 'own'|'strava'|'default' } */
 export function zonesOf(stravaZones, own) {

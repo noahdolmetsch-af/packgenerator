@@ -27,6 +27,7 @@ These replace «Principle No. 1» of 10.10.2026 (mockups first, ★, Trello, «N
 - Small decisions you take yourself go in the PR under «Selbst entschieden».
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
 - A Vercel rate-limit red does not block. Renumber open PRs when main moves on. After a merge, tell Noah in one short German line what is new online.
+- **Groups everywhere** (Noah, 18.10.2026 «grundsätzlich überall»): every group the user sees or chooses can be renamed and deleted. Deleting asks where the contents go, with «Ohne Gruppe» preselected, and then offers Undo. It never deletes the contents. Names the user typed never go through `t()`. A new kind of group comes with rename and delete and goes in `GROUP_PLACES` (`src/lib/groups.js`), which the guard test `tests/groups.test.js` checks. Use `src/lib/ui/GroupDeleteSheet.svelte` for the delete question.
 - **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order; if not, ask Noah. About every five releases, send Noah a short course check with a/b questions.
 
 ## Privacy (never break)

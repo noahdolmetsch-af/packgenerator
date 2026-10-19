@@ -9,7 +9,8 @@
   import { payload, formatIban, formatReference, formatAmount } from './qrbill.js';
 
   /** account: { iban, name, street, house, zip, town, twint }; bill: { no, name, amount, purpose, ref, refType, ways } */
-  let { account, bill } = $props();
+  /** heading: the line above (the shop link shows its own) */
+  let { account, bill, heading = null } = $props();
 
   const text = $derived(payload(account, { amount: bill.amount, ref: bill.ref, refType: bill.refType, message: [bill.purpose, bill.no].filter(Boolean).join(' · ') }));
   let code = $state(null);
@@ -27,7 +28,7 @@
 </script>
 
 <div class="bp" data-testid="bill-preview">
-  <h3>{t('This is what {name} sees in the invoice', { name: bill.name || t('the payer') })}</h3>
+  <h3>{heading ?? t('This is what {name} sees in the invoice', { name: bill.name || t('the payer') })}</h3>
   {#if bill.ways?.twint && account.twint}
     <div class="bp-way">
       <span class="bp-twint" aria-hidden="true">TWINT</span>

@@ -191,6 +191,7 @@ import training from './training.js';
 
 // Ich › Bezahlen › Rechnungen: QR bill and TWINT (mockups QR1–QR9)
 import rechnungen from './rechnungen.js';
+import push from './push.js';
 
 // SL «Scrollen und Listen»: groups, jump bar, «Nach oben»
 import listen from './listen.js';
@@ -218,6 +219,8 @@ import datensicher from './datensicher.js';
 import dokumente from './dokumente.js';
 // P3b Teil 2 «Bedienregeln»
 import bedienregeln from './bedienregeln.js';
+// P8 «Automatischer Abgleich»
+import abgleich from './abgleich.js';
 
 // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): tips, rows and examples on ten more places
 import pagetexts from './pagetexts.js';
@@ -225,10 +228,67 @@ import pagetexts from './pagetexts.js';
 // Hinweistexte HT1–HT2 (Noah 14.10.2026, «1a 2b 3a»): the cards «Was hier steht»
 import hinweis from './hinweis.js';
 
+// Fitbit über Google Health (mockups G1–G2)
+import fitbit from './fitbit.js';
+
+// «Leistung und Analysen» TR5–TR7: power, weight, analyses on the activity and in the week
+import leistung from './leistung.js';
+import leistungAktivitaet from './leistung-aktivitaet.js';
+import leistungAnalysen from './leistung-analysen.js';
+import gewicht from './gewicht.js';
+import leistungWoche from './leistung-woche.js';
+
+// «Mehr Inhalt» Training T1–T5 and Wochenrückblick W1–W6
+import trainingInhalt from './training-inhalt.js';
+
+// Google Kalender und Aufgaben (GA): Ich › Termine und Aufgaben
+import agenda from './agenda.js';
+// Google Mail (GM): Ich › Mail
+import mail from './mail.js';
+
+// «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
+import assistent from './assistent.js';
+
+// Termine buchen (BU1–BU5): Ich › Angebote, freie Termine, Buchungsseite
+import termine from './termine.js';
+
+// Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
+import shop from './shop.js';
+
+// «Gruppen überall» (Noah 18.10.2026): rename and delete every group
+import gruppen from './gruppen.js';
+
+// AT1 «Abgeschlossene Touren aus Strava»
+import aktivitaeten from './aktivitaeten.js';
+
+// Höhenprofil HP1–HP5
+import hoehenprofil from './hoehenprofil.js';
+
+// GPX-Weg (Noah 15.10.2026 «1-5 a»): the way after the first GPX upload
+import gpxweg from './gpxweg.js';
+
+// Planungs-Notizen im Tour-Entwurf (IS 246–249)
+import plannotes from './plannotes.js';
+
+// Handy kurz: at most three phone screens for Trips, Favourites and What is new
+import handykurz from './handykurz.js';
+
+// Bugfixes 0.132.2 + H3a: the same number everywhere, the «Test trip» switch
+import bugfixes01322 from './bugfixes01322.js';
+
+// W1 «Deine Fahrten»: compact rows in «Dein Tempo»
+import deinefahrten from './deinefahrten.js';
+
+// Einheitliche Formulare (19.10.2026): Form, Field, ChipChoice, formchecks.js
+import formular from './formular.js';
+
+// «Rückmeldungen» (Noah 19.10.2026 «1a 2a 3a 4b»): the delete question, Undo, lines after saving
+import rueckmeldungen from './rueckmeldungen.js';
+
 // «Woche planen» WP1–WP4: the place «Woche», the Sunday planning, the holidays, «Diese Woche» on Heute
 import wocheplanen from './wocheplanen.js';
 
 // «Rundgang» and «Einstieg» on top of the places
 import rundgang from './rundgang.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...wocheplanen, ...rundgang };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...deinefahrten, ...rueckmeldungen, ...formular, ...wocheplanen, ...rundgang };

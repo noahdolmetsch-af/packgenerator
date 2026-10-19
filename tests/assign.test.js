@@ -88,7 +88,11 @@ describe('writes with undo', () => {
     expect(del.n).toBe(1);
     expect((await db.items.get('B')).sets).toEqual([]);
     expect((await db.settings.get('sets')).value).toEqual([]);
-    expect((await deleteSet(db, 'bivy')).error).toBe('builtIn');
+    // «Gruppen überall» (Noah 18.10.2026): a built-in block can be deleted too (a mark, Undo takes it back)
+    const bivy = await deleteSet(db, 'bivy');
+    expect((await db.settings.get('sets')).value).toEqual([{ key: 'bivy', deleted: true }]);
+    await undoBulk(db, bivy.snap);
+    expect((await db.settings.get('sets')).value).toEqual([]);
     await undoBulk(db, del.snap);
     expect((await db.items.get('B')).sets).toEqual(['u-regen']);
     expect((await db.settings.get('sets')).value[0].name).toBe('Nass');

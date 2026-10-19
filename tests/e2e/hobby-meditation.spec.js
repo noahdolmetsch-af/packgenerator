@@ -89,6 +89,8 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   const sess = page.locator('dialog.sess[open]');
   await expect(sess).toBeVisible();
   await expect(page.locator('dialog[data-med-sheet][open]')).toHaveCount(0);
+  // Bewegung (Paket D): the window pops in; measure it once its opening animation has ended
+  await sess.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
   const box = await sess.boundingBox();
   expect(box.width).toBeGreaterThanOrEqual(page.viewportSize().width - 1);
   expect(box.height).toBeGreaterThanOrEqual(page.viewportSize().height - 1);

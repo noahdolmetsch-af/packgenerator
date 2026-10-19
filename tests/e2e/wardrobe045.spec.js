@@ -205,7 +205,8 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   await expect(form.getByLabel(T('to °C'))).toHaveValue('7');
   await noSideScroll(page);
   await form.getByRole('button', { name: T('Save kit') }).click();
-  await expect(page.getByRole('status')).toContainText(T('Kit {name} ({range}) saved. Pack suggests it.', { name: `${P}Kuehler Morgen`, range: '1–7 °C' }));
+  // «Rückmeldungen» 19.10.2026: the photo save before says «Änderungen … gespeichert.» in its own line for 4 s
+  await expect(page.getByRole('status').filter({ hasText: `${P}Kuehler Morgen` })).toContainText(T('Kit {name} ({range}) saved. Pack suggests it.', { name: `${P}Kuehler Morgen`, range: '1–7 °C' }));
   const sets = (await table(page, 'settings')).find((s) => s.key === 'sets').value;
   const kit = sets.find((s) => s.name === `${P}Kuehler Morgen`);
   expect(kit).toMatchObject({ minC: 1, maxC: 7 });

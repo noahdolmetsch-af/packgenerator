@@ -10,12 +10,17 @@
    * each item «zuletzt dabei: <trip> · <date>» (a tap opens the trip) or a quiet «noch auf keiner Tour»;
    * F2 «Oft dabei»: items on at least half of the trips of a kind without a star, «Favorit» stars it
    * (Undo), «…» → «Nicht mehr vorschlagen»; F4 «Als Baustein» per kind opens FavBlockSheet (a copy).
+   * 0.163.0 «Handy kurz» (Durchklick 2, Noah 15.10.2026 «freigabe», answer 1 «wo sinnvoll»): on a phone every
+   * kind of trip and «Oft dabei» is one closed line (name, count, weight, the first names); open, a kind shows
+   * its first PHONE_ROWS items, then «Show n more». A computer and the print keep everything open.
    */
   import { liveQuery } from 'dexie';
+  import { tick } from 'svelte';
   import { db } from '../lib/db.js';
   import { favoritesByDomain, domainName } from '../lib/domains.js';
   import { favBars, lastTrips, oftenTaken, saveFavBlock, suggestOff, FAV_OFF } from '../lib/favplus.js';
   import { localDay } from '../lib/localday.js';
+  import { homeTrips } from '../lib/home/heute.js';
   import { switchTrip } from '../lib/nav.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import FavBlockSheet from '../lib/gear/FavBlockSheet.svelte';
@@ -28,13 +33,32 @@
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
-  import { Star, Printer, StarOff, PenLine, ExternalLink, Flag, Blocks, Info, EyeOff } from '@lucide/svelte';
+  import { Star, Printer, StarOff, PenLine, ExternalLink, Flag, Blocks, Info, EyeOff, ChevronRight, ChevronDown } from '@lucide/svelte';
+  import { phone } from '../lib/media.svelte.js';
+  import { PHONE_ROWS } from '../lib/touren/kurz.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
-  const groups = $derived(favoritesByDomain($itemsQ ?? []));
+  // 0.163.0: on a phone the kinds start closed; an open kind shows PHONE_ROWS items until «Show n more»
+  let openG = $state({});
+  let allG = $state({});
+  const shut = (key) => phone.matches && !openG[key];
+  /** Print: every kind open and whole first (0.163.0, a phone starts closed). */
+  async function printAll() {
+    const all = Object.fromEntries([...groups.map((g) => [g.key, true]), ['often', true]]);
+    openG = all;
+    allG = all;
+    await tick();
+    window.print();
+  }
+  const rowsOf = (g) => (phone.matches && !allG[g.key] && g.items.length > PHONE_ROWS + 1 ? g.items.slice(0, PHONE_ROWS) : g.items);
+  // 0.161.0 B1 (Noah 3a): your own favourites; the wishlist ones only when switched on
+  let withWish = $state(false);
+  const wishFavs = $derived(($itemsQ ?? []).filter((i) => i.favorite && (i.ownership === 'wishlist' || i.ownership === 'to-buy')).length);
+  const groups = $derived(favoritesByDomain($itemsQ ?? [], { wishlist: withWish }));
   const count = $derived(new Set(groups.flatMap((g) => g.items.map((i) => i.id))).size);
   // SN5+: the trips (zuletzt dabei, oft dabei) and the items not to suggest any more.
-  const tripsQ = liveQuery(() => db.trips.toArray());
+  // 0.161.0 B1 (Noah 1b): a test trip is never «zuletzt dabei» nor counts for «Oft dabei»
+  const tripsQ = liveQuery(async () => homeTrips(await db.trips.toArray()));
   const offQ = liveQuery(() => db.settings.get(FAV_OFF));
   const today = localDay();
   const bars = $derived(favBars(groups));
@@ -108,19 +132,28 @@
 <div class="favs">
   <!-- v0.40.0 (design check): one name for the page, as in the menu: Favourites. -->
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Favourites')} sub={$itemsQ ? [tn(count, '{n} item', '{n} items'), count ? t('your favourite things per kind of trip') : ''].filter(Boolean).join(' · ') : ''}>
-    {#if count}<Btn icon={Printer} label={t('Print|pdf')} explain={t('Print or save as PDF')} onclick={() => window.print()} />{/if}
+    {#if count}<Btn icon={Printer} label={t('Print|pdf')} explain={t('Print or save as PDF')} onclick={printAll} />{/if}
   </PathHead>
+  {#if wishFavs}<label class="wishsw no-print" data-fav-wish><input type="checkbox" bind:checked={withWish} /> {tn(wishFavs, 'Show {n} from the wishlist', 'Show {n} from the wishlist')}</label>{/if}
   {#if $itemsQ}
     {#if count}
       <div class="fgrid">
         {#each groups as g (g.key)}
+          {#if shut(g.key)}
+            <!-- 0.163.0: a closed kind on a phone -->
+            <button type="button" class="fline" aria-expanded="false" onclick={() => (openG[g.key] = true)} data-fav-line={g.key}>
+              <ChevronRight size={18} aria-hidden="true" />
+              <span class="fl-t"><b>{t(g.name)}</b><small>{g.items.slice(0, 3).map((i) => nameOf(i)).join(' · ')}</small></span>
+              <span class="fl-n num">{tn(g.items.length, '{n} item', '{n} items')}{#if g.grams}<small>{formatWeight(g.grams)}</small>{/if}</span>
+            </button>
+          {:else}
           <div class="grp">
             <Section title={t(g.name)} sub={`${tn(g.items.length, '{n} item', '{n} items')}${g.grams ? ` · ${formatWeight(g.grams)}` : ''}`} id="fav-{g.key}">
               {#snippet more()}<span class="no-print"><Btn icon={Blocks} label={t('As building block')} explain={t('Save the favourites of {kind} as a building block', { kind: t(g.name) })} aria={t('Save the favourites of {kind} as a building block', { kind: t(g.name) })} onclick={() => (blocking = g)} /></span>{/snippet}
               <!-- SN5+ F1: this kind's favourite weight against the other kinds (the heaviest is full) -->
               {#if groups.length > 1}<div class="fbar" role="img" aria-label={t('{w}: {p} % of the heaviest kind', { w: formatWeight(g.grams), p: Math.round((bars[g.key] ?? 0) * 100) })}><span style:width="{(bars[g.key] ?? 0) * 100}%"></span></div>{/if}
               <ul class="card slist">
-                {#each g.items as i (i.id)}
+                {#each rowsOf(g) as i (i.id)}
                   {@const Icon = catIcon(i.category)}
                   <!-- v0.40.0 (design check R2): the whole name opens the item; the category in words. -->
                   <li class="srow frow">
@@ -137,12 +170,14 @@
                   </li>
                 {/each}
               </ul>
+              {#if rowsOf(g).length < g.items.length}<button type="button" class="fmore no-print" onclick={() => (allG[g.key] = true)} data-fav-more={g.key}><ChevronDown size={16} aria-hidden="true" />{t('Show {n} more|list', { n: g.items.length - rowsOf(g).length })}</button>{/if}
             </Section>
           </div>
+          {/if}
         {/each}
       </div>
       {@render oftenSec()}
-      <p class="hint no-print"><Star size={15} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
+      <p class="hint no-print hide-phone"><Star size={15} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
     {:else}
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Star} title={t('No favourites yet')} text={t('No favourites yet. In Gear tap the ☆ in front of an item.')} action={{ label: t('Open Gear'), href: '#/gear' }} />
@@ -153,6 +188,13 @@
 
 {#snippet oftenSec()}
   <!-- SN5+ F2 «Oft dabei»: on at least half of the trips of a kind, no star yet; a suggestion only -->
+  {#if shut('often')}
+    <button type="button" class="fline often-line no-print" aria-expanded="false" onclick={() => (openG.often = true)} data-fav-line="often">
+      <ChevronRight size={18} aria-hidden="true" />
+      <span class="fl-t"><b>{t('Often with you')}</b><small>{often.length ? often.slice(0, 3).map((o) => nameOf(o.item)).join(' · ') : t('Nothing yet that is often with you and has no star.')}</small></span>
+      {#if often.length}<span class="fl-n num">{tn(often.length, '{n} item', '{n} items')}</span>{/if}
+    </button>
+  {:else}
   <div class="often no-print">
     <Section title={t('Often with you')} sub={often.length ? t('on many trips, but no star yet · a tap makes it a favourite') : ''} id="fav-often">
       {#if often.length}
@@ -174,6 +216,7 @@
       {/if}
     </Section>
   </div>
+  {/if}
 {/snippet}
 
 {#if blocking}
@@ -194,8 +237,76 @@
 {/if}
 
 <style>
+  /* 0.163.0 «Handy kurz»: a closed kind and «Show n more» on a phone */
+  .fline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 56px;
+    padding: 12px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .fl-t {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+  }
+  .fl-t small {
+    overflow: hidden;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fl-n {
+    display: grid;
+    justify-items: end;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .often-line {
+    margin-top: var(--sp-4);
+  }
+  .fmore {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin: var(--sp-2) 0 0;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    cursor: pointer;
+  }
+  @media (max-width: 719px) {
+    .favs .hint.hide-phone {
+      display: none;
+    }
+    .fgrid:has(> .fline) {
+      gap: var(--sp-2);
+    }
+  }
   .favs {
     max-width: 1240px;
+  }
+  .wishsw {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 var(--sp-3);
+    color: var(--ink-2);
   }
   .fgrid {
     display: grid;

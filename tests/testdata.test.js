@@ -5,13 +5,14 @@ import { isTestName, findTestData, tidyWrites, undoWrites, tidiedCount, debriefC
 import { testDataState, tidyTestData, undoTestData } from '../src/lib/testdatadb.js';
 import { TEMPLATES_KEY } from '../src/lib/templates.js';
 import { tripsOverview, endedTooEarly } from '../src/lib/tripsoverview.js';
+import { learningsFor, tipsByItem } from '../src/lib/debrief.js';
 import { planAgainChanges } from '../src/lib/trip/ending.js';
 
 // v0.88.0 «Aufräumen und Ausprobieren»: fictional data only.
 const trips = [
-  { id: 't1', title: 'Testtour Regen', startDate: '2026-09-01', days: 1, entries: [{ itemId: 'i1' }] },
+  { id: 't1', title: 'Testtour Regen', startDate: '2026-09-01', days: 1, entries: [{ itemId: 'i1' }], testTrip: true },
   { id: 't2', title: 'Jura loop', startDate: '2026-09-05', days: 1, entries: [{ itemId: 'i1' }] },
-  { id: 't3', title: 'test3', startDate: '2026-09-08', days: 1, entries: [] },
+  { id: 't3', title: 'test3', startDate: '2026-09-08', days: 1, entries: [], testTrip: true },
 ];
 const debriefs = [
   { tripId: 't1', status: 'done', items: {} },
@@ -35,6 +36,10 @@ describe('test data: what counts', () => {
     expect(isTestName('Contest')).toBe(false);
     expect(isTestName('latest')).toBe(false);
     expect(isTestName('test_data_gtp_ Rain jacket')).toBe(false);
+    // 0.161.0 B2: glued on with a capital counts (Today and the clean-up use the same rule)
+    expect(isTestName('realTest Skitour')).toBe(true);
+    expect(isTestName('In7days3hTestLicht')).toBe(true);
+    expect(isTestName('ContestJura')).toBe(false);
   });
   it('finds trips (with their debriefs), gear and templates', () => {
     const f = findTestData({ trips, debriefs, items, templates });
@@ -82,6 +87,49 @@ describe('test data: archive and undo', () => {
     expect((await db.settings.get(TEMPLATES_KEY)).value.find((x) => x.id === 'p1').archivedAt).toBeNull();
     expect(tidiedCount({ trips: await db.trips.toArray(), items: await db.items.toArray(), templates: (await db.settings.get(TEMPLATES_KEY)).value })).toBe(0);
     expect(undoWrites({}).trips).toEqual([]);
+  });
+});
+
+// 0.161.0 (Bugfixes 0.132.2 B3): an old test note turned up in a new trip, also after the tidy-up
+describe('test data: learnings', () => {
+  const now = '2026-10-15T10:00:00.000Z';
+  const learnings = [
+    { id: 1, topic: 'Debrief', rule: 'test note for the debrief', source: 'Jura loop', itemIds: [], priority: 'medium', createdAt: '2026-10-05T01:00:00.000Z' },
+    { id: 2, topic: 'Debrief', rule: 'Take the lock next time', source: 'Testtour Regen', itemIds: ['i1'], priority: 'medium', createdAt: '2026-10-08T11:00:00.000Z' },
+    { id: 3, topic: 'Debrief', rule: 'Lamp too weak', tripId: 't3', source: 'renamed', itemIds: [], priority: 'medium', createdAt: '2026-10-09T11:00:00.000Z' },
+    { id: 4, topic: 'Sleep', rule: 'Test sleep setups before a race', source: 'import', itemIds: [], priority: 'low', importedAt: '2026-10-08T23:00:00.000Z' },
+    { id: 5, topic: 'Night', rule: 'Night glasses are a must', source: 'Test rides', itemIds: ['i4'], priority: 'high' },
+  ];
+  const all = { trips, debriefs, items, templates, learnings };
+  it('finds the test notes a debrief wrote, not imported or older ones', () => {
+    const f = findTestData(all);
+    expect(f.learnings.map((x) => x.id)).toEqual(['learning:1', 'learning:2']);
+    expect(f.n).toBe(7);
+  });
+  it('archives the chosen notes and every note of a chosen trip; undo brings them back', () => {
+    const w = tidyWrites(all, new Set(['learning:1', 't1', 't3']), now);
+    expect(w.learnings.map((x) => x.id)).toEqual([1, 2, 3]);
+    expect(w.learnings[0].changes).toEqual({ archivedAt: now, tidiedAt: now });
+    expect(tidyWrites(all, new Set(['i1', 'p1']), now).learnings).toEqual([]);
+    const done = learnings.map((l) => (l.id <= 3 ? { ...l, archivedAt: now, tidiedAt: now } : l));
+    expect(tidiedCount({ learnings: done })).toBe(3);
+    expect(undoWrites({ learnings: done }).learnings.map((x) => x.id)).toEqual([1, 2, 3]);
+  });
+  it('an archived note never shows in a trip again', () => {
+    const done = learnings.map((l) => (l.id <= 3 ? { ...l, archivedAt: now } : l));
+    const trip = { id: 'n1', title: 'New trip', startDate: '2026-10-20', entries: [{ itemId: 'i1' }] };
+    expect(learningsFor(trip, done, 5, new Date(now)).map((l) => l.id)).toEqual([5, 4]);
+    expect(Object.keys(tipsByItem(done))).toEqual(['i4']);
+  });
+  it('the database tidy-up writes the learnings too', async () => {
+    const db = createDb('testdata-2');
+    await db.trips.bulkPut(trips);
+    await db.learnings.bulkPut(learnings);
+    expect(await tidyTestData(db, new Set(['t1', 'learning:1']), now)).toBe(3);
+    expect((await db.learnings.get(2)).archivedAt).toBe(now);
+    expect((await db.learnings.get(5)).archivedAt).toBeUndefined();
+    expect(await undoTestData(db)).toBe(3);
+    expect((await db.learnings.get(1)).archivedAt).toBeNull();
   });
 });
 

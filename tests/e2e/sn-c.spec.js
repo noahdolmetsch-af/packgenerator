@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { openMore } from './bike-more.js';
+import { openShort } from './kurz-open.js';
 
 // SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
 const openGroups = async (page) => {
@@ -132,6 +133,7 @@ test('SN3 Bausteine: grouped sections of rows, «Prüfen» and «Neuer Baustein�
 test('SN5 Favoriten: one card per area, «…» takes the star away with Undo', async ({ page, context }, info) => {
   const errors = await load(page, context, TPL);
   await page.goto('./#/favorites');
+  await openShort(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Favourites') })).toBeVisible();
   const row = page.locator('li.frow', { hasText: `${P} Taschenbuch` }).first();
   await expect(row).toBeVisible();
@@ -149,10 +151,11 @@ test('SN5 Favoriten: one card per area, «…» takes the star away with Undo', 
 /** On a phone the new windows come from below, full width. */
 async function fromBelow(page, dlg, info) {
   if (info.project.name !== 'phone') return;
-  const box = await dlg.boundingBox();
   const vp = page.viewportSize();
+  // Bewegung (Paket D): the window slides in from below, so read its place once the slide has ended
+  await expect.poll(async () => { const b = await dlg.boundingBox(); return Math.abs(b.y + b.height - vp.height); }).toBeLessThanOrEqual(1);
+  const box = await dlg.boundingBox();
   expect(Math.round(box.width)).toBe(vp.width);
-  expect(Math.abs(box.y + box.height - vp.height)).toBeLessThanOrEqual(1);
 }
 
 test('SN7 Velo: the kind as option buttons, the details folded, «Hinzufügen»', async ({ page, context }, info) => {

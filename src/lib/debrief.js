@@ -12,6 +12,7 @@
  *     km, kmApplied }   km of this trip (answer 7a); kmApplied: what was already added to the bike
  * Pure functions only, so the rules are easy to test.
  */
+import { isTestTrip, isArchived } from './testname.js';
 import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { NEVER_USED_MIN } from './neverused.js';
@@ -73,7 +74,8 @@ export function toDebrief(trips, debriefs, today = localDay()) {
 
 /** The next trip: the first one that has not ended yet. A trip marked "Not riding" (skipped) does not count. */
 export function nextTrip(trips, today = localDay()) {
-  return [...trips].filter((t) => !t.skipped && !t.finished && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
+  // 0.161.0 (Bugfixes 0.132.2, Noah 1b): a test or archived trip is never «the next trip», on any page
+  return [...trips].filter((t) => !t.skipped && !isArchived(t) && !isTestTrip(t) && !t.finished && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
 }
 
 /** An empty debrief for a trip. */
@@ -207,7 +209,7 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
 
   // Learnings: old ones that this trip confirms, and the sentence from step 1 as a new one.
   const touched = new Set([...unusedIds, ...debrief.missing.map((m) => m.itemId).filter(Boolean)]);
-  for (const l of learnings.filter((x) => x.itemIds?.some((id) => touched.has(id))))
+  for (const l of learnings.filter((x) => !x.archivedAt && x.itemIds?.some((id) => touched.has(id))))
     out.push({ id: `confirm:${l.id}`, group: 'learn', label: t('Confirmed again: "{rule}"', { rule: short(l.rule) }), detail: l.confirmed ? t('Confirmed {n} times now.', { n: l.confirmed + 1 }) : t('First confirmation.') });
   if (debrief.note.trim()) out.push({ id: 'learn:note', group: 'learn', label: t('New: "{rule}"', { rule: short(debrief.note.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
   // v0.26.1 (AP20, Noah 20a): what was missing becomes "Take … next time" (only when ticked).
@@ -263,7 +265,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
   const learnOut = [];
   for (const l of learnings) if (on.has(`confirm:${l.id}`)) learnOut.push({ ...l, confirmed: (l.confirmed ?? 0) + 1, lastConfirmed: trip.title });
   let next = Math.max(0, ...learnings.map((l) => (typeof l.id === 'number' ? l.id : 0))) + 1;
-  const learn = (rule, topic) => learnOut.push({ id: next++, topic, rule, action: '', itemIds: [], source: trip.title, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now });
+  const learn = (rule, topic) => learnOut.push({ id: next++, topic, rule, action: '', itemIds: [], source: trip.title, tripId: trip.id, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now });
   if (on.has('learn:note') && debrief.note.trim()) learn(debrief.note.trim(), 'Debrief');
   // v0.26.1 (Noah 20a): "Take … next time", linked to the item when it is in the gear.
   for (const m of debrief.missing)
@@ -332,7 +334,7 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
   };
   // «Inspiration» UC2-2: a packing rule from your inspiration has its own hint (inspiration/PackHints)
   return learnings
-    .filter((l) => l.topic !== 'Open question' && !l.inspo)
+    .filter((l) => l.topic !== 'Open question' && !l.inspo && !l.archivedAt)
     .map((l) => ({ l, s: score(l) }))
     .sort((a, b) => b.s - a.s || String(a.l.id).localeCompare(String(b.l.id), undefined, { numeric: true }))
     .slice(0, n)
@@ -347,7 +349,7 @@ export function tipsByItem(learnings) {
   const out = {};
   const rank = (l) => (PRIO[l.priority] ?? 1) * 10 + Math.min(9, l.confirmed ?? 0);
   for (const l of learnings) {
-    if (l.topic === 'Open question') continue;
+    if (l.topic === 'Open question' || l.archivedAt) continue;
     for (const id of l.itemIds ?? []) if (!out[id] || rank(l) > rank(out[id])) out[id] = l;
   }
   return out;

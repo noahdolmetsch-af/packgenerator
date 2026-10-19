@@ -11,8 +11,8 @@ export default {
   'Phone and computer': 'Handy und Computer',
   'Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.':
     'Jedes Gerät hat seine eigenen Daten. Eine Backup-Datei bringt das eine Gerät auf den Stand des anderen, gratis und ohne Konto. Nichts geht an einen Server.',
-  'Last exchange on this device: {when}.': 'Letzter Abgleich auf diesem Gerät: {when}.',
-  'No exchange on this device yet.': 'Auf diesem Gerät noch kein Abgleich.',
+  'Last exchange on this device: {when}.': 'Letzter Austausch per Datei auf diesem Gerät: {when}.',
+  'No exchange on this device yet.': 'Auf diesem Gerät noch kein Austausch per Datei.',
   'On the device with the newer state: «{send}».': 'Auf dem Gerät mit dem neueren Stand: «{send}».',
   'On the other device: tap the file › Share › Pack Generator, or «Open backup» here.': 'Auf dem anderen Gerät: Datei antippen › Teilen › Pack Generator, oder hier «Backup öffnen».',
   'The app says which state is newer and suggests what to do. A copy of the data before is always kept.': 'Die App sagt, welcher Stand neuer ist, und schlägt vor, was zu tun ist. Eine Kopie der Daten von vorher bleibt immer.',

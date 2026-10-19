@@ -13,13 +13,14 @@
 
   let { g, missing = 0, fmt = formatWeight, miss = '', estimate = false } = $props();
   // "known: {w}" split around the number, so the number keeps its own weight and size.
+  // DK6: German says «2,69 kg (gewogen)», the label after the number; no empty label span in front then.
   const parts = $derived(t('known: {w}', { w: '\u0000' }).split('\u0000'));
   const value = $derived(`${estimate ? '~' : ''}${fmt(g)}`);
 </script>
 
 <span class="sum">
   {#if missing}
-    <span class="kn">{parts[0]}</span><b class="num">{value}</b>{#if parts[1]}<span class="kn">{parts[1]}</span>{/if}
+    {#if parts[0]}<span class="kn">{parts[0]}</span>{/if}<b class="num">{value}</b>{#if parts[1]}<span class="kn">{parts[1]}</span>{/if}
     <small class="miss">{miss || t('{n} not weighed', { n: missing })}</small>
   {:else}
     <b class="num">{value}</b>

@@ -53,8 +53,8 @@ Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026). Was gebaut ist und no
 | --- | --- | --- | --- | --- |
 | 1 | P3 Navigation und Standard-Velo | 0.145.0 | 1 | PR #182, Noah «ok», wird nach grünem Test zusammengeführt |
 | 2 | A Daten sicher und Bedienung (P3b, P3c, Mehr Inhalt + HT1–HT2) | 0.146.0 | 1, 3 | gebündelt (lokal, 18.10.2026), PR nach #182, Noah merged |
-| 3 | B Server (Training, Fitbit, Dokument als PDF, Google, KI-Deckel, Assistent, Termine, Shop, Abgleich, Push) | ab 0.147.0 | 2, 3, 4 | fast alles gebaut; Abgleich und Push im Bau |
-| 4 | D Touren und Unterwegs | danach | 3, 4 | gebaut |
+| 3 | B Server (Training, Pulszonen eins, Fitbit, Dokument als PDF, Google mit Mail, KI-Deckel, Assistent, Termine, Shop, Abgleich, Selbstwartung, Push, Gruppen überall) | 0.147.0 | 2, 3, 4 | gebündelt (lokal, 18.10.2026), PR nach A (#184), Noah merged |
+| 4 | D Touren und Unterwegs (AT1, Höhenprofil, Fahrt hochladen, Planungs-Notizen, Handy kurz, Bugfixes, Deine Fahrten, Wörter, Bewegung, Formulare, Rückmeldungen) | 0.148.0 | 3, 4 | gebündelt (lokal, 19.10.2026), PR nach B (#186), Noah merged; Chronik später |
 | 5 | E Material, Velos, Merken (mit Skitour und Ausrüstung) | danach | 1, 2 | gebaut |
 | 6 | C Heute und Aktiv | danach | 3, 4 | gebaut; Balance-Ring und Routine im Bau |
 | 7 | F Woche | danach | 3 | Woche gebaut, braucht Google aus B |

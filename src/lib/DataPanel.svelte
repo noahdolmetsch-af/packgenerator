@@ -13,6 +13,8 @@
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
+  import SyncPanel from './sync/SyncPanel.svelte';
+  import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
@@ -21,6 +23,8 @@
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
+  import HealthCard from './health/HealthCard.svelte';
+  import { health } from './health/client.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
   const counts = liveQuery(async () => {
@@ -39,7 +43,7 @@
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
-    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks',
+    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days',
   };
 
   async function refreshFolder() {
@@ -100,7 +104,14 @@
       const pct = Math.min(100, Math.round((storage.used / storage.quota) * 100));
       out.push({ key: 'storage', name: 'Storage', state: pct < 80 ? 'ok' : 'warn', line: t('{pct} % used · {mb} MB', { pct, mb: mb(storage.used) }) });
     }
+    // P8 «Automatischer Abgleich»: only while it is switched on (it is a suggestion, never a must)
+    if (autoSync.on) out.push({ key: 'sync', name: 'Automatic sync', state: autoSync.error || autoSync.asks ? 'warn' : 'ok', line: autoSync.asks ? tn(autoSync.asks, '{n} entry changed on both devices.', '{n} entries changed on both devices.') : autoSync.error ? t('could not sync last time; the app tries again.') : autoSync.last ? t('last synced {when}', { when: when(autoSync.last) }) : t('not synced yet') });
     if (keep !== 'unknown') out.push({ key: 'keep', name: 'Kept by the browser', state: keep === 'kept' ? 'ok' : 'warn', line: keep === 'kept' ? t('Your data stays, even when the device runs low on space.') : t('When space runs low, the browser may delete it without asking.') });
+    // Fitbit (mockup G2): grey while not connected (a suggestion, never a must), yellow when the last fetch failed.
+    if (health.prefs.connected) {
+      const sync = health.prefs.lastSync;
+      out.push({ key: 'fitbit', name: 'Fitbit', state: ['google_login_needed', 'not_connected'].includes(health.error) ? 'warn' : 'ok', line: sync ? t('connected · as of {when}', { when: when(sync) }) : t('connected|fitbit') });
+    } else out.push({ key: 'fitbit', name: 'Fitbit', state: 'off', line: t('not connected|fitbit') });
     return out;
   });
   const greens = $derived(lights.filter((l) => l.state === 'ok').length);
@@ -176,7 +187,9 @@
       for (const k of DATA_TABLES) existing[k] = await db.table(k).toCollection().primaryKeys();
       // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
       const localAt = await lastChangeOf(db);
-      const state = compareStates(data.lastChange ?? null, localAt, data.exportedAt ?? null);
+      // v0.137.0 (Durchklick DK7c): a device without trips and gear has nothing to lose: no «older» warning.
+      const fresh = !existing.trips?.length && !existing.items?.length;
+      const state = fresh ? { kind: 'fresh' } : compareStates(data.lastChange ?? null, localAt, data.exportedAt ?? null);
       // P3b «Abgleich»: what changed since the last exchange, and what the app suggests
       const sync = syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
       const hasData = existing.items.length + existing.trips.length + existing.bikes.length > 0;
@@ -301,7 +314,7 @@
 <div class="datapanel ich-cols">
   <div class="ich-main">
     <section class="ich-sec" aria-labelledby="lights-h">
-      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs">{t('{n} of {all} green', { n: greens, all: lights.filter((l) => l.state !== 'off').length })} · {t('If something is yellow, its button is beside it.')}</p></div></div>
+      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs">{t('{n} of {all} green', { n: greens, all: lights.length })} · {t('If something is yellow, its button is beside it.')}</p></div></div>
       <ul class="card ich-list">
         {#each lights as l (l.key)}
           <li class="ich-row ich-wrap light">
@@ -309,8 +322,10 @@
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
             {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Now|do')}</button>
+            {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
-            {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>{/if}
+            {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>
+            {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => { if (autoSync.asks) { syncUi.seen = 0; syncUi.open = true; } else runSync(); }}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
       </ul>
@@ -390,7 +405,9 @@
               <strong>{pending.name}</strong> {t('contains {items}, {trips} and {learnings}.', { items: tn(pending.counts.items, '{n} gear item', '{n} gear items'), trips: tn(pending.counts.trips, '{n} trip', '{n} trips'), learnings: tn(pending.counts.learnings, '{n} learning', '{n} learnings') })}
             </p>
             <!-- v0.34.0 (L10): is the file newer or older than this device? -->
-            {#if pending.state.kind !== 'unknown'}
+            {#if pending.state.kind === 'fresh'}
+              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has no trips and no gear yet, so nothing is lost.')}</p>
+            {:else if pending.state.kind !== 'unknown'}
               <p class="state"><i class="badge {pending.state.kind}">{pending.state.kind === 'newer' ? t('Newer') : pending.state.kind === 'older' ? t('Older') : t('Same state')}</i>
                 {pending.state.kind === 'newer' ? t('This file is newer than the data on this device (file {file}, this device {local}).', { file: when(pending.state.file), local: when(pending.state.local) }) : pending.state.kind === 'older' ? t('This file is older than the data on this device (file {file}, this device {local}). Replace would put the older state here.', { file: when(pending.state.file), local: when(pending.state.local) }) : t('This file has the same state as this device ({file}).', { file: when(pending.state.file) })}</p>
             {:else if pending.state.exported}
@@ -432,8 +449,10 @@
     <!-- P3b «Abgleich Handy–Computer» (Noah 15.10.2026 «1a»): free, no server. The newer device sends its
          backup file, the other one opens it; the app says which is newer and suggests what to do. -->
     <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
-      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p></Help></div></div>
+      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p><p>{t('The automatic sync goes through a small free server; every entry is sealed on the device with your code before it leaves, so the server cannot read it.')}</p></Help></div></div>
       <div class="card ich-body">
+        <!-- P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): on top; the file way stays below -->
+        <SyncPanel />
         <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
         <ol class="steps">
           <li>{t('On the device with the newer state: «{send}».', { send: phone.matches ? t('Send to computer') : t('Send to phone') })}</li>
@@ -476,6 +495,8 @@
   </div>
 
   <div class="ich-side">
+    <!-- Fitbit über Google (mockup G2): how current each value is, fetch, choose values, disconnect -->
+    <HealthCard />
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}

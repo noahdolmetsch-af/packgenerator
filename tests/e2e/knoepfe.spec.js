@@ -235,6 +235,8 @@ test('phone: actions under the text, full width; long press explains and does no
   await row.locator('.btn.dots').tap();
   const sheet = page.locator('dialog.ma-sheet[open]');
   await expect(sheet).toBeVisible();
+  // Bewegung (Paket D): measure the sheet once its opening animation has ended
+  await sheet.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
   const box = await sheet.boundingBox();
   expect(Math.round(box.x)).toBe(0);
   expect(Math.round(box.x + box.width)).toBe(390);

@@ -99,6 +99,7 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Week')} />
     <MoreAktiv items={pages} on="week" />
     <PageHead title={t('Week')} text={t('{range} · suggestions from your goals, fixed dates and the weather. Everything can be changed.', { range })} />
+    <a class="btn btn-link sm" style="align-self: flex-start" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
   </header>
   <AreaIntro place="week" />
 

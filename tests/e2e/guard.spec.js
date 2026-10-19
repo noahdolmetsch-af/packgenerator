@@ -46,6 +46,10 @@ const ROUTES = [
   ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
   ['#/helper', 'Helfer'], // v0.77.0 KI-Helfer (K1a): Ich › Helfer, before the setup
+  ['#/me/docs', 'Dokumente'], // Dokumente-PDF: Ich › Dokumente
+  ['#/me/docs/scan', 'Dokument fotografieren'],
+  ['#/me/agenda', 'Termine und Aufgaben'], // GA: Google Kalender und Aufgaben
+  ['#/me/mail', 'Mail'], // GM: Google Mail
   // v0.67.0 «Übergänge 1»: the Pack tab, a saved debrief and the three interstitials (strict, see below)
   ['#/pack?day', 'Packen (Tab)'],
   ['#/debrief/test_data_gtp_Napf', 'Rückblick einer Tour'],
@@ -91,6 +95,7 @@ const ROUTES = [
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
+  ['#/me/push', 'Erinnerungen aufs Handy'],
   // AB «Deine Abfragen»: Ich › Deine Abfragen and Ich › Daten › Verlauf, strict like their files
   ['#/me/abfragen', "Wi gaht's?"], // Noah 14.10.2026 01:34:32: the page is called «Wi gaht's?»
   ['#/me/history', 'Verlauf'],

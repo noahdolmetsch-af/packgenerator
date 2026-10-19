@@ -15,6 +15,7 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints, dupOf } from '../kmbook.js';
   import { loadRules, saveRules, applyImport } from '../kmbookdb.js';
+  import { takeHanded } from '../ridelist.js';
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
@@ -69,6 +70,9 @@
     busy = false;
     if (input) input.value = '';
   }
+  // GPX-Weg R3: a list chosen in «Upload ride» arrives here already (no second choosing)
+  const handed = takeHanded();
+  if (handed.length) add(handed);
   const removeFile = (id) => (files = files.filter((f) => f.id !== id));
   const records = $derived(files.flatMap((f) => f.records));
   const csvFiles = $derived(files.filter((f) => f.kind === 'csv'));

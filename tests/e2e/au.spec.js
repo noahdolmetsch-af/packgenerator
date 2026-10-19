@@ -13,6 +13,7 @@ import { openHome, homeFixture, trip, day, tr } from './home0460-fixture.js';
 import { newButton } from './newbutton.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
+import { openShort } from './kurz-open.js';
 
 const SRC = readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8');
 const BANNER_DAYS = Number(SRC.match(/export const BANNER_DAYS = (\d+);/)[1]);
@@ -67,6 +68,7 @@ test('A-U1: after an update a calm banner on Today, no window; View opens the ne
 
   // switched on again under Ich: × closes it, it stays away after a reload
   await page.goto('./#/me/news');
+  await openShort(page); // 0.163.0: on a phone the switch sits in a closed line
   await page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) }).check();
   await page.goto('./#/');
   await expect(banner).toBeVisible();

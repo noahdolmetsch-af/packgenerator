@@ -10,6 +10,9 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { openData as openDataFold, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
 
+// the device-only copies (GA: Google's events and tasks) never go into the file; the list comes from db.js
+const NOT_IN_BACKUP = JSON.parse(readFileSync(new URL('../../src/lib/db.js', import.meta.url), 'utf8').match(/export const NOT_IN_BACKUP = (\[[^\]]*\])/)[1].replace(/'/g, '"'));
+
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -304,7 +307,8 @@ for (const lang of ['de', 'en']) {
     const file = JSON.parse(readFileSync(exported, 'utf8'));
     expect(file.app).toBe('pack-generator');
     // v0.45.1 (G015a): the tips memory ("tips") stays on the device, never in the file
-    for (const [name, keys] of Object.entries(before)) {
+    for (const name of NOT_IN_BACKUP) expect(file.tables[name], name).toBeUndefined();
+    for (const [name, keys] of Object.entries(before).filter(([n]) => !NOT_IN_BACKUP.includes(n))) {
       const key = name === 'settings' ? 'key' : name === 'debriefs' ? 'tripId' : 'id';
       expect(file.tables[name].map((r) => String(r[key])).sort(), name).toEqual(name === 'settings' ? keys.filter((k) => k !== 'tips') : keys);
     }

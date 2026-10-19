@@ -1,0 +1,28 @@
+# Paket B «Server», automatische Updates (Noah 18.10.2026 «2 immer sofort ohne bilder und ohne mein ok»):
+# GitHub proposes library updates every day, all in one pull request per kind; the tests check them and
+# .github/workflows/dependabot-automerge.yml merges them once the required checks are green.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+      time: '04:00'
+      timezone: Europe/Zurich
+    open-pull-requests-limit: 5
+    groups:
+      alle-bibliotheken:
+        patterns: ['*']
+    commit-message:
+      prefix: 'deps'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: '04:00'
+      timezone: Europe/Zurich
+    groups:
+      alle-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: 'ci'

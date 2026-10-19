@@ -425,6 +425,11 @@ export const setHint = (info, page, on) => {
   return { ...i, hintOff: { ...i.hintOff, [page]: !on } };
 };
 export const hintShown = (info, page) => !infoOf(info).hintOff[page];
+/**
+ * Paket D (Noah 19.10.2026 «1a»): on a phone the Handy-kurz pages start with the card folded to its quiet line;
+ * it is open only after a tap on that line opened it (hintOff[page] === false), and × folds it again.
+ */
+export const hintShownFolded = (info, page) => infoOf(info).hintOff[page] === false;
 
 /* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
 export const EARTH_KM = 40075;

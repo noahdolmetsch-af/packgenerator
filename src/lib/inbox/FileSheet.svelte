@@ -203,7 +203,7 @@
     {:else if kind === 'keep'}
       <p class="lbl">{t('Topic')}</p>
       <div class="vd-chips chips" role="group" aria-label={t('Topic')}>
-        {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={topic === x.key} onclick={() => (topic = x.key)}>{t(x.name)}</button>{/each}
+        {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={topic === x.key} onclick={() => (topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
       </div>
     {/if}
 

@@ -13,7 +13,7 @@
   let { worn, itemsById, range = null, reasons = {}, wardrobeHref, onswap } = $props();
 
   const LN = { base: 1, mid: 2, outer: 3, accessory: 4 };
-  const zoneName = (key) => (key === 'other' ? t('More clothing') : t(ZONES.find((z) => z.key === key)?.name ?? key));
+  const zoneName = (key) => (key === 'gear' ? t('More on me') : key === 'other' ? t('More clothing') : t(ZONES.find((z) => z.key === key)?.name ?? key));
   const grams = $derived(worn.zones.reduce((s, z) => s + z.rows.reduce((g, r) => g + (itemWeight(r.item) ?? 0) * (r.entry.qty || 1), 0), 0));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const CLASS = { warm: 'warm|temp', mittel: 'medium|temp', kalt: 'cold|temp' };
@@ -37,6 +37,14 @@
       {#each z.rows as r (r.entry.itemId)}
         {@const was = r.entry.swappedFrom ? itemsById[r.entry.swappedFrom] : null}
         <li class:changed={!!was}>
+          <!-- 0.161.0 B1 (4a): a watch or the hip bag is on me too; only clothing has «Swap» -->
+          {#if !r.cloth}
+          <div class="wrow plain" data-item={r.entry.itemId}>
+            <span class="dot" aria-hidden="true"></span>
+            <span class="mid"><span class="nm">{nameOf(r.item)}{(r.entry.qty || 1) > 1 ? ` × ${r.entry.qty}` : ''}</span></span>
+            <span class="w num">{r.item.weightG == null ? '–' : formatWeight(itemWeight(r.item) * (r.entry.qty || 1))}</span>
+          </div>
+          {:else}
           <button type="button" class="wrow" data-item={r.entry.itemId} aria-label={t('Swap {name}', { name: nameOf(r.item) })} onclick={() => onswap(r.entry, r.item)}>
             <span class="dot" style="background: var(--l{LN[r.layer] ?? 4})" aria-hidden="true"></span>
             <span class="mid">
@@ -46,6 +54,7 @@
             <span class="w num">{r.item.weightG == null ? '–' : formatWeight(itemWeight(r.item) * (r.entry.qty || 1))}</span>
             <span class="swi" aria-hidden="true"><ArrowLeftRight size={18} /></span>
           </button>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -71,6 +80,9 @@
   .wrows li:first-child { border-top: 0; }
   .wrow { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 4px; border: 0; border-radius: 8px; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
   @media (hover: hover) { .wrow:hover { background: var(--paper-2); } }
+  .wrow.plain { cursor: default; }
+  @media (hover: hover) { .wrow.plain:hover { background: none; } }
+  .wrow.plain .dot { background: var(--line); }
   .wrow:focus-visible { outline: 3px solid var(--hi); outline-offset: 2px; }
   .changed .wrow { background: var(--hi-soft); }
   .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; }

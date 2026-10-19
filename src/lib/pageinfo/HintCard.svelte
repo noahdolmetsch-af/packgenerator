@@ -17,11 +17,14 @@
    * then lives in this card instead of its own: the small tour offered on the first visit, «So geht's hier»
    * (its three things, with links), «Was dich erwartet», one «Wusstest du» with its source, the small tour
    * and the Handbook. The tip of the day stays in the tip line (TipLine) under the card.
+   * foldedOnPhone (Paket D, Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line.
+   * only: '' draws both states here; 'line' only the folded line, as a small chip «Was hier steht ›» (for a page
+   * head); 'card' only the open card. A page may place the two in different spots (Trips on a phone).
    */
   import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell } from '@lucide/svelte';
   import { pageInfo } from './store.svelte.js';
   import { hintOf } from '../hints.js';
-  import { canRows, canShown, setHint, hintShown } from '../pageinfo.js';
+  import { canRows, canShown, setHint, hintShown, hintShownFolded } from '../pageinfo.js';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
@@ -36,7 +39,7 @@
   import { startTour } from '../tour/run.js';
   import { Map as MapIcon, Backpack, History, Boxes, ShoppingCart, ListChecks, Timer, CalendarDays, Star, Copy, Thermometer } from '@lucide/svelte';
 
-  let { page, intro: introKey = null } = $props();
+  let { page, intro: introKey = null, foldedOnPhone = false, only = '' } = $props();
   // svelte-ignore state_referenced_locally
   const intro = introKey ? INTROS[introKey] : null;
   const ICON_INTRO = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
@@ -72,7 +75,7 @@
   const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell };
   const pi = pageInfo();
   const hint = $derived(hintOf(page));
-  const open = $derived(pi.loaded && hintShown(pi.info, page));
+  const open = $derived(pi.loaded && (foldedOnPhone && phone.matches ? hintShownFolded(pi.info, page) : hintShown(pi.info, page)));
   const canN = $derived(pi.loaded && canShown(pi.info, page) ? canRows(page).length : 0);
 
   // «Weiter unten»: only the parts that are on the page now (they come with the data, so look a few times)
@@ -100,7 +103,7 @@
 </script>
 
 {#if hint && pi.loaded}
-  {#if open}
+  {#if open && only !== 'line'}
     <section class="hint" data-hint={page} data-intro-in={introKey} aria-label={t('What is here')}>
       <div class="h">
         <Info size={20} aria-hidden="true" />
@@ -178,7 +181,11 @@
         </div>
       {/if}
     </section>
-  {:else}
+  {:else if !open && only === 'line'}
+    <button type="button" class="mini chip" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
+      <span><b>{t('What is here')}</b></span><ChevronRight size={16} aria-hidden="true" />
+    </button>
+  {:else if !open && only !== 'card'}
     <button type="button" class="mini" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
       <Info size={18} aria-hidden="true" /><span><b>{t('What is here')}</b> · {t(hint.lead[0])}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
@@ -414,5 +421,13 @@
   }
   .mini span {
     flex: 1;
+  }
+  /* Paket D «1a»: the folded line as a small chip in a page head (one line, no lead) */
+  .mini.chip {
+    width: auto;
+    margin: 0;
+    gap: 4px;
+    padding: 8px 12px;
+    white-space: nowrap;
   }
 </style>

@@ -93,19 +93,34 @@
     downAt = now();
     cancelJump();
   }
+  // «Bewegung» Stelle 1 (Noah 19.10.2026 «alle 1-3»): when a full bag moves on by itself, its row in «Taschen»
+  // lights up green for a moment, so the eye sees where the finished bag went (also with reduced motion).
+  let flash = $state('');
+  let flashT = null;
+  function moved(from) {
+    clearTimeout(flashT);
+    flash = from;
+    flashT = setTimeout(() => (flash = ''), 900);
+  }
   function advance(from, delay = JUMP_MS, at = now()) {
     cancelJump();
     const to = nextAfter(from);
     note = { from, to };
     if (!delay) {
-      if (cur === from) cur = to; // "Whole bag packed": no tick to show, move on at once
+      if (cur === from) {
+        cur = to; // "Whole bag packed": no tick to show, move on at once
+        moved(from);
+      }
       return;
     }
     if (downAt > at) return; // touched again while the tick was saved
     timer = setTimeout(() => {
       timer = null;
       const s = stepOf(from);
-      if (cur === from && (!s || full(s)) && downAt <= at) cur = to;
+      if (cur === from && (!s || full(s)) && downAt <= at) {
+        cur = to;
+        moved(from);
+      }
     }, delay);
   }
   // v0.30.1 (Noah B7): Undo puts back the open bag too (a whole bag or a full bag had moved on).
@@ -232,6 +247,7 @@
     return () => {
       lock?.release?.();
       clearTimeout(timer);
+      clearTimeout(flashT);
       document.removeEventListener('visibilitychange', again);
     };
   });
@@ -274,7 +290,7 @@
       <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span></span>
     </button></li>
   {:else}
-    <li class="brow pbag" class:done aria-labelledby="pb-{s.key}">
+    <li class="brow pbag" class:done class:flash={flash === s.key} aria-labelledby="pb-{s.key}">
       <button type="button" class="bagh" aria-expanded="false" onclick={() => pick(s.key)}>
         <span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="pb-{s.key}">{s.title}</b><small>{subOf(s)}</small></span>
         <span class="r">{#if done}<span class="num">{s.done}/{s.entries.length}</span><span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{:else}<span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span>{/if}</span>
@@ -471,6 +487,21 @@
   @media (max-width: 359px) { .mini { display: none; } }
   /* the open bag: its own section, the items with check boxes */
   .pbag.cur { scroll-margin-top: 72px; }
+  /* «Bewegung» Stelle 1 (Noah 19.10.2026 «alle 1-3», notes/bewegung-2026-10-19): the bag that opens comes up
+     from 8 px below and fades in (260 ms); a tick fills the box in 120 ms and the ✓ grows from 80 %. Transitions,
+     not keyframes: a quick second tap turns the move round from where it is. Nothing waits for a move.
+     Reduced motion: no moving or growing, the colours still change softly and the green row still shows. */
+  section.pbag.cur { transition: opacity 260ms var(--ease-out), translate 260ms var(--ease-out); }
+  @starting-style { section.pbag.cur { opacity: 0; translate: 0 8px; } }
+  .box { transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }
+  .box :global(svg) { transition: scale 120ms var(--ease-out), opacity 120ms var(--ease-out); }
+  @starting-style { .box :global(svg) { scale: 0.8; opacity: 0; } }
+  .nm { transition: color 150ms ease-out; }
+  .brow.flash { animation: bag-done 900ms ease-out; }
+  @keyframes bag-done { from, 30% { background: var(--ok-soft); } }
+  @media (prefers-reduced-motion: reduce) {
+    section.pbag.cur, .box :global(svg) { transition: none; }
+  }
   .pbag.cur .bagh { display: block; min-height: 0; padding: 0; cursor: default; }
   .ibox { padding-top: 4px; padding-bottom: 4px; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
