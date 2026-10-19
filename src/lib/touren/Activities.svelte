@@ -603,6 +603,11 @@
       grid-column: 3;
       grid-row: 1;
     }
+    /* Paket D (CI 19.10.2026): on a phone the grey line uses the whole row width, so it needs fewer lines
+       and Trips keeps room under the three screens on every device (it wrapped one line more on CI) */
+    .aline {
+      grid-column: 1 / 4;
+    }
     .av {
       grid-column: 1 / 4;
       /* three columns: «Verstrichen» with its «?» needs the room of a third */
