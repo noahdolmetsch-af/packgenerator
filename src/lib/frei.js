@@ -1,3 +1,5 @@
+import { soundOf } from './frei/sound.js';
+
 /**
  * Paket T «Freie Zeit» (Noah 19.10.2026: 30 content ideas from his Word file, «alle bauen», «1a und b 2a
  * 3 vorerst weglassen 4a 5a», texts «humorvoll, wie sonst auf der Seite»). The content and the pure rules
@@ -218,6 +220,7 @@ export const COLL_TYPES = {
       { key: 'when', kind: 'text', label: 'I like coming here when …' },
       { key: 'tags', kind: 'tags', label: 'What it has', options: ['Quiet', 'View|frei', 'Water', 'Company'] },
       { key: 'sound', kind: 'text', label: 'Sound name (optional)' },
+      { key: 'rec', kind: 'sound', label: 'Recording (optional, up to 30 s)' }, // Noah 19.10.2026 «4b wenn nicht zu gross»
       { key: 'place', kind: 'place', label: 'Where it is' },
       { key: 'photos', kind: 'photos', label: 'Photos' },
     ],
@@ -323,7 +326,7 @@ export const fieldsOf = (c) => COLL_TYPES[c?.type]?.fields ?? COLL_TYPES.free.fi
 
 /** A new entry of a collection (a record of the table «frei», kind 'entry'). */
 export function newEntry(coll, fields = {}, { id = uid('fe'), now = new Date().toISOString(), day } = {}) {
-  return { id, kind: 'entry', coll, day: day ?? now.slice(0, 10), at: now, title: clean(fields.title, 120), data: cleanData(fields.data ?? {}), photos: Array.isArray(fields.photos) ? fields.photos : [], place: fields.place ?? null };
+  return { id, kind: 'entry', coll, day: day ?? now.slice(0, 10), at: now, title: clean(fields.title, 120), data: cleanData(fields.data ?? {}), photos: Array.isArray(fields.photos) ? fields.photos : [], place: fields.place ?? null, sound: soundOf(fields.sound) };
 }
 function cleanData(data) {
   const out = {};

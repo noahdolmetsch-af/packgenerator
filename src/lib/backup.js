@@ -1,4 +1,5 @@
 import { DATA_TABLES, SCHEMA_VERSION, DEVICE_SETTINGS } from './db.js';
+import { backupSounds } from './frei/sound.js';
 import { t } from './i18n.svelte.js';
 import { own } from './ownlive.svelte.js';
 
@@ -27,9 +28,10 @@ const deviceOnly = (name, row) => name === 'settings' && DEVICE_SETTINGS.include
 export async function buildBackup(db) {
   const tables = {};
   for (const name of DATA_TABLES) tables[name] = (await db.table(name).toArray()).filter((r) => !deviceOnly(name, r));
+  const out = backupSounds(tables); // Freie Zeit: recordings at places can stay out of the backup
   // v0.34.0 (L10): when the data in this file last changed, so the other device can say "newer" or "older".
   const lastChange = await lastChangeOf(db);
-  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...(lastChange ? { lastChange } : {}), tables };
+  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...(lastChange ? { lastChange } : {}), tables: out };
 }
 
 /**

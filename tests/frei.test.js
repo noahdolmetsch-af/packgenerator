@@ -150,3 +150,23 @@ describe('«For next time»', () => {
     expect(markLine('missing')).toBe('Take {name} next time');
   });
 });
+
+describe('sound at a favourite place («4b wenn nicht zu gross»)', async () => {
+  const { soundOf, soundType, backupSounds, SOUND_MAX_SEC } = await import('../src/lib/frei/sound.js');
+  it('only an audio data URL, at most 30 s; opus first', () => {
+    expect(soundOf({ src: 'data:audio/webm;base64,AAA', sec: 99, day: '2026-10-19' })).toEqual({ src: 'data:audio/webm;base64,AAA', sec: SOUND_MAX_SEC, day: '2026-10-19' });
+    expect(soundOf({ src: 'https://x/y.mp3' })).toBeNull();
+    expect(soundOf(null)).toBeNull();
+    expect(soundType((x) => x === 'audio/mp4')).toBe('audio/mp4');
+    expect(soundType(() => true)).toBe('audio/webm;codecs=opus');
+    expect(soundType()).toBe('');
+    expect(newEntry('places', { title: `${P}Bach`, sound: { src: 'data:audio/webm;base64,AAA', sec: 5 } }).sound.sec).toBe(5);
+  });
+  it('the backup leaves recordings out only when switched off', () => {
+    const frei = [{ id: 'a', sound: { src: 'data:audio/webm;base64,AAA' } }, { id: 'b' }];
+    expect(backupSounds({ settings: [], frei })).toEqual({ settings: [], frei });
+    const off = backupSounds({ settings: [{ key: 'frei', value: { soundsBackup: false } }], frei });
+    expect(off.frei[0].sound).toBeNull();
+    expect(frei[0].sound).toBeTruthy(); // the device keeps its own
+  });
+});

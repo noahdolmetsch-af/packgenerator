@@ -537,4 +537,18 @@ export default {
   'on {n} trips': 'auf {n} Touren',
   '{n} time': '{n} Mal',
   '{n} times': '{n} Mal',
+
+  /* ---------- Töne an Lieblingsorten (Noah «4b wenn nicht zu gross») ---------- */
+  'Recording (optional, up to 30 s)': 'Aufnahme (freiwillig, bis 30 s)',
+  'This browser cannot record sound.': 'Dieser Browser kann keinen Ton aufnehmen.',
+  'No access to the microphone. Allow it in the browser, then try again.': 'Kein Zugriff aufs Mikrofon. Erlaub es im Browser und versuch es nochmals.',
+  'The recording did not work. Try again.': 'Die Aufnahme hat nicht geklappt. Versuch es nochmals.',
+  'Stop ({n} of {max} s)': 'Stopp ({n} von {max} s)',
+  'Recording …': 'Nimmt auf …',
+  'Record again': 'Neu aufnehmen',
+  'Remove the recording': 'Aufnahme entfernen',
+  'Record up to {max} s': 'Bis {max} s aufnehmen',
+  'Sound of {name}': 'Klang von {name}',
+  'Recordings in the backup': 'Aufnahmen im Backup',
+  'Off: backup files stay small, but the recordings are only on this device. A backup loaded later has no recordings.': 'Aus: Die Backup-Datei bleibt klein, aber die Aufnahmen gibt es nur auf diesem Gerät. Ein später geladenes Backup hat keine Aufnahmen.',
 };
