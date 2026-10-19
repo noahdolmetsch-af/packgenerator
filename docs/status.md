@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.161.0 «Paket 9» Tour-Seite:** jede abgeschlossene Tour (Strava, verbunden, Packmodus) öffnet eine eigene Seite mit Karte, Profil, Werten, Gepäck, Tagebuch und Fotos; Strava-Werte korrigierbar («geändert · Strava: …»), umbenennen, ausblenden, löschen mit Rückgängig; Liste als Zeilen, Kacheln, Karte oder Kalender; mehrere Fahrten zu einer Tour verbinden.
+
 **0.160.0 «Verpflegung» (Paket 8):** Dazu: Trainingsplan an ein Rennen koppeln (zieht mit, wenn sich der Renntag ändert) und die Kachel «Das tut mir gut» mit Kreis, sieben Wochenpunkten und «Hat gut getan?». Touren › Verpflegung rechnet pro Abschnitt zwischen Läden Kohlenhydrate (eigene g pro Stunde) und Wasser (1–2 l pro Stunde nach Temperatur und Steigung), warnt bei zu kleinen Flaschen, langen Lücken und geschlossenen Läden und zeigt auf Wunsch eigene Produkte. Link auch auf der Strecken-Karte in Packen.
 **0.159.0 «Paket 7» (19.10.2026, nach 0.158.0):** Touren › Rennen (Plan, Strategie, Vorbereiten, Strecke, Unterwegs, Danach, Muster-Rennen), Renn-Karte mit feinem Höhenprofil (ein Punkt alle 100 m, nach Steigung gefärbt, zoombar, Karte zeigt dieselbe Strecke), Anstiege, Karte offline (swisstopo und OpenFreeMap), Live-Karte für jede Fahrt (#/live: Vollbild, oben bis 6 Zahlen, du als Pfeil, Stopps als Symbole, Panel unten, SOS im «⋯»-Menü), Orte auf der Karte (16 Arten, Umkreis 2–20 km, «Hier suchen», entlang der Strecke, offline mitgespeichert, Abstecher, Teilen), Wetter-Zeitleiste entlang der Strecke, GPX auf der Live-Karte, Kachel «Ausfahrt starten» und Kurzbefehl am App-Symbol.
 
@@ -67,6 +69,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
+
+**Tour-Seite (19.10.2026, Branch claude/touren-abgeschlossen-61zfat):** jede abgeschlossene Tour hat eine eigene Seite (Karte, Höhenprofil, Kennzahlen, Werte korrigieren, Tagebuch, Fotos, Bewertung, umbenennen, ausblenden, löschen). Liste als Zeilen, Kacheln, Karte, Kalender; Fahrten verbinden. Gebaut, geht über den Bündler online.
 
 **Stand 18.10.2026:** Was fertig gebaut ist, ist in sechs Pakete gebündelt (Noah 18.10.2026, «1a 2b 3b 4a»). Reihenfolge und Inhalt:
 

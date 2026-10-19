@@ -1772,3 +1772,9 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 19.10.2026: Paket 8 gebündelt (0.160.0)
 
 - Verpflegung, die Kopplung Trainingsplan an Rennen und die Kachel «Das tut mir gut» (Noah «1a 2a 3a 4a 5a») gehen zusammen online. Was fällt weg: der dünne Fortschrittsbalken der Kachel, ersetzt durch den Kreis.
+
+## 19.10.2026: Tour-Seite für abgeschlossene Touren
+
+- Noah 20:33 «abgeschlossene touren … weder anklicken noch etwas damit machen»: Fehler behoben, die ganze Zeile öffnet die Tour.
+- Noah 21:05 «1a 2 beides 3b 4 beides 5a»: eine neue Seite «Tour» für Strava- und Packmodus-Touren (Rückblick ist ein Teil davon); Reiter und Sprungleiste umschaltbar; Strava-Werte korrigierbar mit «geändert» und dem Strava-Wert daneben; Liste als Zeilen, Kacheln, Karte oder Kalender; mehrere Fahrten zu einer Tour verbinden (Mehrfachauswahl) und wieder trennen.
+- **Selbst entschieden:** Eigene Änderungen liegen bei der Fahrt (`own`), nie im Strava-Wert; gelöschte Strava-Fahrten kommen beim nächsten Abruf nicht wieder. Verbundene Touren liegen in den Einstellungen (`tourGroups`), keine neue Datenbank-Stufe. Die Sprungleiste bleibt am Computer oben stehen, am Handy nicht (dort liegt der App-Kopf oben).

@@ -14,6 +14,7 @@
  * Values only to look at, no rating. Pure functions, tested in tests/aktivitaeten.test.js.
  */
 import { activitiesForTrip, kindOf as kindOfType, zoneSecs, powerLoad, byNewest } from '../training.js';
+import { withOwn, rowWithOwn, tourHref } from './tour.js';
 
 /** 4b: how many rows show at first, and how many more each «Mehr laden» adds. */
 export const PAGE = 20;
@@ -45,14 +46,17 @@ const round1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
 const cadOf = (a) => (fin(a.cad) == null ? null : a.kind === 'run' ? Math.round(a.cad * 2) : Math.round(a.cad));
 
 /** One activity as a row (without the Packmodus mark). bounds: the HR zones in use; ftp: estimated FTP. */
-export function actRow(a, { bounds = null, ftp = null, bikeOf = () => null } = {}) {
+export function actRow(raw, { bounds = null, ftp = null, bikeOf = () => null } = {}) {
+  // Tour-Seite (Noah 19.10.2026 «3b»): the person's own name, kind and corrected values count
+  const a = withOwn(raw);
   const power = !!a.wDevice;
   const km = fin(a.km) ?? 0;
   const movingS = fin(a.movingS) ?? 0;
   return {
     id: `a:${a.id}`,
     actIds: [a.id],
-    href: `#/flow/training/a/${encodeURIComponent(a.id)}`,
+    // Tour-Seite (Noah 19.10.2026 «1a»): a finished activity opens its page «Tour»
+    href: tourHref(`a:${a.id}`),
     day: a.day,
     endDay: a.day,
     time: a.time ?? '',
@@ -79,6 +83,9 @@ export function actRow(a, { bounds = null, ftp = null, bikeOf = () => null } = {
     commute: !!a.commute,
     power,
     pm: null,
+    changed: a.changed,
+    strava: a.strava,
+    hidden: !!a.hidden,
   };
 }
 
@@ -101,7 +108,7 @@ export function mergeRows(rows, trip) {
   return {
     id: `t:${trip.id}`,
     actIds: list.flatMap((r) => r.actIds),
-    href: list[0].href,
+    href: tourHref(`t:${trip.id}`),
     day: list[0].day,
     endDay: list.at(-1).day,
     time: list[0].time,
@@ -127,6 +134,9 @@ export function mergeRows(rows, trip) {
     commute: list.every((r) => r.commute),
     power: list.some((r) => r.power),
     pm: null,
+    changed: [...new Set(list.flatMap((r) => r.changed ?? []))],
+    strava: {},
+    hidden: list.every((r) => r.hidden),
   };
 }
 
@@ -141,8 +151,10 @@ export function bikeMap(kmBook = []) {
  * All rows of «Abgeschlossene Touren», newest first.
  * acts: db.activities; packed: [{ trip, state }] the trips of the Packmodus that happened (state 'done' |
  * 'rated'); kmBook: the ride ledger (the bike of an activity, a ride the ledger put on a trip).
+ * Tour-Seite (Noah 19.10.2026): groups: the joined tours (5a, touren/tour.js), each one row «g:<id>»;
+ * a hidden activity is left out unless showHidden (then it carries `hidden`).
  */
-export function tourRows(acts = [], { packed = [], kmBook = [], bounds = null, ftp = null } = {}) {
+export function tourRows(acts = [], { packed = [], kmBook = [], bounds = null, ftp = null, groups = [], showHidden = false } = {}) {
   const bikeOf = bikeMap(kmBook);
   const used = new Set();
   const out = [];
@@ -151,11 +163,19 @@ export function tourRows(acts = [], { packed = [], kmBook = [], bounds = null, f
     if (!mine.length) continue;
     for (const a of mine) used.add(a.id);
     const rows = mine.map((a) => actRow(a, { bounds, ftp, bikeOf }));
-    const row = rows.length === 1 ? rows[0] : mergeRows(rows, trip);
-    out.push({ ...row, pm: { tripId: trip.id, title: trip.title ?? '', state } });
+    const row = rows.length === 1 ? { ...rows[0], href: tourHref(`t:${trip.id}`) } : mergeRows(rows, trip);
+    out.push({ ...rowWithOwn(row, trip.own), pm: { tripId: trip.id, title: trip.title ?? '', state } });
+  }
+  const byId = new Map(acts.map((a) => [String(a.id), a]));
+  for (const g of groups) {
+    const mine = (g.acts ?? []).map((id) => byId.get(String(id))).filter((a) => a && !used.has(a.id));
+    if (mine.length < 2) continue;
+    for (const a of mine) used.add(a.id);
+    const row = mergeRows(mine.map((a) => actRow(a, { bounds, ftp, bikeOf })), { id: g.id, title: g.name });
+    out.push({ ...rowWithOwn(row, g.own), id: `g:${g.id}`, href: tourHref(`g:${g.id}`), grp: { id: g.id }, hidden: !!g.hidden });
   }
   for (const a of acts) if (!used.has(a.id)) out.push(actRow(a, { bounds, ftp, bikeOf }));
-  return out.sort((a, b) => byNewest({ day: a.day, time: a.time }, { day: b.day, time: b.time }));
+  return out.filter((r) => showHidden || !r.hidden).sort((a, b) => byNewest({ day: a.day, time: a.time }, { day: b.day, time: b.time }));
 }
 
 /** The rows of a period { from, to } (from null: since the beginning); a tour counts by its first day. */
