@@ -20,6 +20,9 @@
   import PathHead from '../lib/ui/PathHead.svelte';
   import { EMERGENCY, CONTACTS_KEY, sheetDocs, contactsOf, addContact, editContact, dropContact, telHref, routePath } from '../lib/unterwegs/abfahrt.js';
   import { FileDown, Phone, FileText, Plus, Pencil, Trash2, Check, House, Printer } from '@lucide/svelte';
+  import { HOUSE_KEY, houseOf, houseLabel, doneOf } from '../lib/unterwegs/haus.js';
+  import HausCheck from '../lib/unterwegs/HausCheck.svelte';
+  import HueterListe from '../lib/unterwegs/HueterListe.svelte';
   import '../lib/unterwegs/unterwegs.css';
 
   const today = localDay();
@@ -27,6 +30,7 @@
   const docsQ = liveQuery(() => db.docs.toArray());
   const contactsQ = liveQuery(() => db.settings.get(CONTACTS_KEY));
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
+  const houseQ = liveQuery(() => db.settings.get(HOUSE_KEY));
   const chosen = (() => {
     try {
       return localStorage.getItem('pack.currentTrip');
@@ -49,6 +53,16 @@
   const path = $derived(routePath(trip?.route?.line));
   const docs = $derived(sheetDocs($docsQ ?? [], trip?.sheetDocs ?? []));
   const contacts = $derived(contactsOf($contactsQ?.value));
+  /* Paket 4: the house check (open lines go on the PDF) and the dates for the flat sitter */
+  const house = $derived(houseOf($houseQ?.value));
+  const houseOpen = $derived(trip ? house.items.filter((x) => !doneOf(house, trip.id).has(x.id)).map((x) => houseLabel(x, t)) : []);
+  const fromDay = $derived(typeof trip?.startDate === 'string' ? trip.startDate.slice(0, 10) : '');
+  const untilDay = $derived.by(() => {
+    if (!fromDay) return '';
+    const d = new Date(`${fromDay}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + Math.max(1, Number(trip?.days) || 1) - 1);
+    return d.toISOString().slice(0, 10);
+  });
   const openChecks = $derived(trip ? (trip.ready ?? []).filter((r) => !r.itemId && !readyDone(r, trip)) : []);
 
   /* own emergency contacts */
@@ -92,6 +106,7 @@
         { head: t('Emergency numbers'), rows: [...EMERGENCY.map((x) => `${x.nr}  ${t(x.label)}`), ...contacts.map((c) => `${c.phone}  ${c.name}`)] },
         ...(docs.length ? [{ head: t('Tickets and papers'), rows: docs.map((d) => d.name) }] : []),
         ...(openChecks.length ? [{ head: t('Still open'), rows: openChecks.map((r) => t(r.label)) }] : []),
+        ...(houseOpen.length ? [{ head: t('House check'), rows: houseOpen.map((x) => `[  ]  ${x}`) }] : []),
       ];
       const bytes = await sheetPdf({ title: t('Before you leave: {trip}', { trip: trip.title || t('Your trip') }), sub: t('Made with the Pack Generator on {date}', { date: new Date().toLocaleDateString(locale()) }), facts, path, sections });
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
@@ -197,6 +212,9 @@
       <p class="tp-small tp-muted">{t('Set your home place in Me › Settings, then the way home shows here.')}</p>
     {/if}
   </section>
+  <!-- Paket 4 (Noah 19.10.2026 «1a»): the house check and the list for the flat sitter, next to the sheet -->
+  <HausCheck tripId={trip?.id ?? null} />
+  <HueterListe from={fromDay} until={untilDay} />
   <p class="uw-fine"><Printer size={14} aria-hidden="true" /> {t('Tip: save the PDF on the phone too, then it opens even when the app does not.')}</p>
 </div>
 

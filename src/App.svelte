@@ -292,6 +292,7 @@
     Share: () => import('./pages/Share.svelte'),
     Ride: () => import('./pages/Ride.svelte'),
     Abfahrt: () => import('./pages/Abfahrt.svelte'),
+    Hueter: () => import('./pages/Hueter.svelte'),
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
     Favorites: () => import('./pages/Favorites.svelte'),
@@ -422,7 +423,9 @@
     <!-- Paket K #87 «Blatt Vor der Abfahrt»: #/ride/abfahrt -->
     {#if param === 'abfahrt'}<LazyPage load={PAGES.Abfahrt} />{:else}<LazyPage load={PAGES.Ride} />{/if}
   {:else if page === 'share'}
-    {#key param}<LazyPage load={PAGES.Share} code={param} />{/key}
+    <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
+    {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
+    {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
   {:else if page === 'blockcheck'}
     <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
     <LazyPage load={PAGES.BlockCheck} />

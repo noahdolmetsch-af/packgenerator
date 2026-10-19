@@ -139,6 +139,23 @@ At most 8 parts, the most urgent first. Do not invent parts. This is not a works
       parts: arr(obj({ key: S, status: { type: 'string', enum: ['soon', 'check', 'ok'] }, reason: S, check: S })),
     }),
   },
+  /**
+   * Paket 4 «Bereit für morgen?» (Noah 19.10.2026 «3a»: KI freiwillig): the evening before a tour, a few
+   * hints from the weather, the packing list, parts due and the person's learnings. Low effort, short answer.
+   */
+  evening: {
+    effort: 'low',
+    maxTokens: 3000,
+    system: `${COMMON}
+Task: it is the evening before a tour ("trip" starts "tomorrow"). Give at most 5 short hints for tonight, the most important first, only real ones (none is fine):
+- from the weather of the trip (tempMin, tempMax, rain): what to wear or pack, e.g. "5 °C am Morgen: Winterhandschuhe oben einpacken";
+- from "list" (things not packed yet): what to pack tonight, by name;
+- from "parts" (due on the bike): what to look at before riding;
+- from "learnings": a lesson that fits tomorrow, say so;
+- otherwise a calm hint for the evening (charge lights and phone, sleep).
+Each hint: text (one line) and kind ("weather", "pack", "bike", "learning" or "rest").`,
+    schema: obj({ hints: arr(obj({ text: S, kind: { type: 'string', enum: ['weather', 'pack', 'bike', 'learning', 'rest'] } })) }),
+  },
 };
 export const TASK_NAMES = Object.keys(TASKS);
 
@@ -233,6 +250,13 @@ export function validate(task, input = {}, out = {}) {
       .filter((p) => p && parts.has(p.key) && ['soon', 'check', 'ok'].includes(p.status))
       .map((p) => ({ key: p.key, status: p.status, reason: str(p.reason, 160), check: str(p.check, 160) }));
     return { parts: uniq(rows, 'key').slice(0, 8) };
+  }
+  if (task === 'evening') {
+    const kinds = ['weather', 'pack', 'bike', 'learning', 'rest'];
+    const hints = list(o.hints)
+      .filter((h) => h && str(h.text))
+      .map((h) => ({ text: str(h.text, 160), kind: kinds.includes(h.kind) ? h.kind : 'rest' }));
+    return { hints: uniq(hints, 'text').slice(0, 5) };
   }
   return {};
 }
