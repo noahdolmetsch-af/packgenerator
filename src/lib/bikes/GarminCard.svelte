@@ -31,7 +31,7 @@
     {/each}
     <div class="sens">
       {#each SENSORS.filter((s) => g.sensors[s]) as s (s)}<span><Radio size={12} aria-hidden="true" />{t(SENSOR_LABEL[s])}</span>{/each}
-      <span><Smartphone size={12} aria-hidden="true" />Edge 1040 · Edge 540</span>
+      <span><Smartphone size={12} aria-hidden="true" />Edge 1040 · Edge 850</span>
     </div>
   </div>
   <p class="hint">{t('A suggestion from your sensors. Every page can be switched on and off.')}</p>

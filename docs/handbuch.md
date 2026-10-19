@@ -776,15 +776,15 @@ Was du am Velo geändert hast, die km seither und wie sich die erste Tour danach
 
 ### Garmin-Seiten
 
-Muster-Datenseiten für den Edge 1040 und 540 pro Velo, mit dem Grund für jeden Wert.
+Muster-Datenseiten für den Edge 1040 und 850 pro Velo, mit dem Grund für jeden Wert.
 
 **Aufschalten:** Braucht zuerst ein Velo unter Velos.
 
 1. Öffne Velos: Tippe unter «Garmin-Seiten» auf ein Profil.
-2. Schalte Seiten ein oder aus, wähle Edge 1040 oder 540 und hake deine Sensoren an.
+2. Schalte Seiten ein oder aus, wähle Edge 1040 oder 850 und hake deine Sensoren an.
 3. Öffne eine Seite: Sieh, warum jeder Wert dort steht, ändere Felder und hake «Am Gerät eingerichtet?» ab.
 
-**Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint; auf dem Edge 540 ist sie auf 6 Felder gekürzt.
+**Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint, mit 8 Feldern auf dem Edge 1040 und dem Edge 850.
 
 ### Problem am Velo
 

@@ -1,7 +1,7 @@
 <script>
   /**
    * «Garmin-Seiten» GA-A2 (Noah 14.10.2026 «GA-A1–A3 freigegeben»): the model pages of one Garmin
-   * profile of a bike, drawn for the Edge 1040 or the Edge 540 (2b: at most 6 fields there).
+   * profile of a bike, drawn for the Edge 1040 or the Edge 850 (the 850 replaced the 540, Noah 18.10.2026).
    * Profiles as chips (1a: the bike's own and «Bikepacking», own ones by «+ Profile»), each page
    * with «on the Edge», more pages below. The sensors of the bike decide the suggestion.
    * Everything is stored on the bike (bike.garmin) at the first change.
@@ -85,7 +85,7 @@
       <span class="sp"></span>
       <div class="chips" role="group" aria-label={t('Device')}>
         <button type="button" class="chip" aria-pressed={device === '1040'} onclick={() => (device = '1040')}>Edge 1040</button>
-        <button type="button" class="chip" aria-pressed={device === '540'} onclick={() => (device = '540')}>Edge 540 <small>{t('max. 6')}</small></button>
+        <button type="button" class="chip" aria-pressed={device === '850'} onclick={() => (device = '850')}>Edge 850</button>
       </div>
     </div>
     {#if !prof.own}
@@ -97,12 +97,11 @@
         {@const p = PAGE[id]}
         {@const on = !(prof.off ?? []).includes(id)}
         {@const n = fieldsOf(id, device, g.sensors, hiddenOf(g, id, device)).length}
-        {@const short = device === '540' && fieldsOf(id, '540', g.sensors, [], false).length > n}
         <div class="tile" class:off={!on}>
           <a class="shot" href={bikesHash({ tab: 'garmin', bike: bike.id, view: prof.id, page: id })} aria-label={t('Open {page}', { page: `${id} ${t(p.name)}` })}><EdgeScreen pageId={id} {device} {g} width={150} idx={i} total={prof.pages.length} /></a>
           <div class="tt">
             <a class="nm" href={bikesHash({ tab: 'garmin', bike: bike.id, view: prof.id, page: id })}>{id} {t(p.name)}</a>
-            <div class="badges"><span class="badge k-{p.kind}">{t(KIND_LABEL[p.kind])} · {n}</span>{#if p.fields.some((x) => x.ciq)}<span class="badge">Connect IQ</span>{/if}{#if short}<span class="badge">{t('540: shortened')}</span>{/if}</div>
+            <div class="badges"><span class="badge k-{p.kind}">{t(KIND_LABEL[p.kind])} · {n}</span>{#if p.fields.some((x) => x.ciq)}<span class="badge">Connect IQ</span>{/if}</div>
             <button type="button" class="tgl" role="switch" aria-checked={on} onclick={() => save(togglePage(g, prof.id, id))}><span class="knob" class:no={!on}></span>{t('on the Edge')}</button>
           </div>
         </div>
@@ -118,7 +117,7 @@
     <div class="note">
       <Info size={18} aria-hidden="true" />
       <div>
-        <p>{t('A suggestion from the sensors of this bike. Every page can be switched off, swapped or replaced. On the Edge 540 every page shows at most 6 fields.')}</p>
+        <p>{t('A suggestion from the sensors of this bike. Every page can be switched off, swapped or replaced. The Edge 1040 and the Edge 850 show the same fields; hide a field on one of them if you like.')}</p>
         <div class="sens" role="group" aria-label={t('Sensors on this bike')}>
           {#each SENSORS as s (s)}<button type="button" class="chip sm" aria-pressed={g.sensors[s]} onclick={() => save(setSensor(g, bike, s, !g.sensors[s]))}>{t(SENSOR_LABEL[s])}</button>{/each}
         </div>

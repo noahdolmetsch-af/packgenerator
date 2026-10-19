@@ -1,7 +1,7 @@
 <script>
   /**
    * «Garmin-Seiten» GA-A3 (Noah 14.10.2026 «GA-A1–A3 freigegeben»): one model page in detail. The
-   * Edge 1040 and the Edge 540 side by side (2b: the 540 shows at most 6 fields), why each field is
+   * Edge 1040 and the Edge 850 side by side (the 850 replaced the 540, Noah 18.10.2026), why each field is
    * there and on which device it shows, and ticks «set up on the device». «Change fields» switches
    * a field on or off per device. Nothing is sent to the Edge: the ticks are only a note for you.
    */
@@ -25,9 +25,9 @@
   const page = $derived(PAGE[pageId]);
   const rows = $derived(g && page ? fieldRows(g, pageId) : []);
   const count = (d) => fieldsOf(pageId, d, g.sensors, hiddenOf(g, pageId, d)).length;
-  const left540 = $derived(rows.filter((r) => r.on['1040'] && !r.on['540']).map((r) => t(r.label)));
+  const left850 = $derived(rows.filter((r) => r.on['1040'] && !r.on['850']).map((r) => t(r.label)));
   const done = $derived(g?.done?.[doneKey(prof?.id, pageId)] ?? {});
-  const hasCiq = $derived(rows.some((r) => r.ciq && (r.on['1040'] || r.on['540'])));
+  const hasCiq = $derived(rows.some((r) => r.ciq && (r.on['1040'] || r.on['850'])));
   const index = $derived(prof ? prof.pages.indexOf(pageId) : -1);
   const listHref = $derived(bike && prof ? bikesHash({ tab: 'garmin', bike: bike.id, view: prof.id }) : '#/bikes');
 
@@ -64,7 +64,7 @@
         {#each DEVICES as d (d)}
           <figure>
             <EdgeScreen pageId={pageId} device={d} {g} width={180} idx={Math.max(0, index)} total={prof.pages.length} />
-            <figcaption>Edge {d} · {t('{n} fields', { n: count(d) })}{#if d === '540' && left540.length}<br />{t('without «{fields}»', { fields: left540.join(', ') })}{/if}</figcaption>
+            <figcaption>Edge {d} · {t('{n} fields', { n: count(d) })}{#if d === '850' && left850.length}<br />{t('without «{fields}»', { fields: left850.join(', ') })}{/if}</figcaption>
           </figure>
         {/each}
       </div>
@@ -91,7 +91,7 @@
             {/each}
           </ul>
           {#if msg}<p class="msg" role="status">{msg}</p>{/if}
-          {#if editing}<p class="hint">{t('Tap 1040 or 540 to show or hide a field on that Edge.')} <button type="button" class="link" onclick={drop}>{t('Remove this page from the profile')}</button></p>{/if}
+          {#if editing}<p class="hint">{t('Tap 1040 or 850 to show or hide a field on that Edge.')} <button type="button" class="link" onclick={drop}>{t('Remove this page from the profile')}</button></p>{/if}
         </section>
 
         <section class="card">

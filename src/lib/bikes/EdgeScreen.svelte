@@ -1,7 +1,7 @@
 <script>
   /**
    * «Garmin-Seiten» (GA-A1–A3, Noah 14.10.2026): one data page drawn as on a Garmin Edge, with sample
-   * values. The 1040 is tall (3:5), the 540 shorter (2b: at most 6 fields). The screen keeps its own
+   * values. The 1040 is tall (3:5), the 850 a little smaller (it replaced the 540, Noah 18.10.2026). The screen keeps its own
    * light colours in dark mode too: it is a picture of the device. Graphic fields as the Edge draws them:
    * line (last ~100 s), bars now/avg/max, zone gauge, elevation, stamina, time in zones (Connect IQ).
    */
@@ -14,7 +14,7 @@
   const rows = $derived(layout(fields));
   // drawn at one size (260 px wide, the type-scale tokens fit it) and zoomed to the width asked for
   const DESIGN = 260;
-  const zoom = $derived(((device === '540' ? 0.82 : 1) * width) / DESIGN);
+  const zoom = $derived(((device === '850' ? 0.82 : 1) * width) / DESIGN);
   const size = (cols) => (cols === 1 ? (fields.length <= 2 ? 'v-xl' : 'v-l') : cols === 2 ? 'v-m' : 'v-s');
   const Z = ['#9aa4ae', '#2f80c8', '#36a456', '#e2b422', '#ea7a22', '#d8402f', '#8d3fb0'];
   function line(seed) {
@@ -29,7 +29,7 @@
   const ELEV = [50, 46, 40, 34, 30, 26, 20, 16, 14, 18, 26, 34, 38, 30, 22, 14, 10, 12, 20, 30, 38, 44, 48].map((y, i) => `${(i * 200) / 22},${y}`).join(' ');
 </script>
 
-<div class="edge" class:d540={device === '540'} style:zoom={zoom} role="img" aria-label={label || t('Edge {device}: {page}', { device, page: pageId })}>
+<div class="edge" class:d850={device === '850'} style:zoom={zoom} role="img" aria-label={label || t('Edge {device}: {page}', { device, page: pageId })}>
   <div class="scr">
     <div class="top num"><span>14:18</span><span>{pageId}</span><span>64 %</span></div>
     <div class="grid">
@@ -96,7 +96,7 @@
     flex-direction: column;
     overflow: hidden;
   }
-  .d540 .scr {
+  .d850 .scr {
     aspect-ratio: 3 / 3.9;
   }
   .top {
