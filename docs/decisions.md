@@ -1731,8 +1731,35 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - Noah 19:06 «paket 3 und 4 verbinden», 18:56 «mach wie es am besten und am schnellsten geht»: Freie Zeit, Daten, V Alltag, K-Zusätze, Strombudget, Reise-Links, Anleitungen und Diktat sind ein Release 0.155.0; U und Mail kommen als 0.156.0.
 - **Selbst entschieden:** gleiche englische Texte haben überall dasselbe Deutsch («Erinnern», «Resultat», «Sanität», «Person hinzufügen»). Reise-Links stehen in Planen › Anreise; das Einbinden in die Renn-Seite kommt mit U.
+## 19.10.2026: Paket 6 Velo-FAQ (0.157.0)
 
-## 19.10.2026: Verpflegungsstrategie (0.159.0, vorläufig)
+- Noah 19:58 «bitte velo faq in neues paket 6 tun». Trainingspläne (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4») kommen mit, weil sie fertig sind und nicht vom Rennen abhängen. Dazu die kleine Korrektur «ganze Zeile antippen» bei abgeschlossenen Touren.
+
+## 19.10.2026: Paket 5 ohne Rennen (0.156.0)
+
+- Noah «mach wie es am besten und am schnellsten geht»; U wächst (Profil, Live-Karte, Suche, POIs …). Darum geht Paket 5 mit Mail, Grösse und dem Abgleich-Hinweis online; Velo-FAQ wird 0.157.0, U 0.158.0.
+- **Selbst entschieden:** Grösse in Schritten von 5 %, die App ändert sich beim Loslassen; die frühere Wahl (Klein/Normal/Gross) bleibt als 90/100/115 %.
+
+## 19.10.2026: Mail in die App (Noah «1a 2a 3b 4a 5a», «1a oder neue Ablage erstellen vom Benutzer 2a 3a», «1a–5a», «1a–4a», «bitte umsetzen»)
+- Eine Mail kommt als **ein** Eintrag in den Eingang, mit ihren Anhängen; die App legt nie selbst ab (3b). Wege: «In die App übernehmen» unter Ich › Mail, das Gmail-Label «Packgenerator» (auch per +pack-Adresse und Gmail-Filter), die Google-Aufgabenliste «Packgenerator», Termine mit «#pack», das Lesezeichen «In den Eingang» am Mac.
+- Anhänge: PDF, Foto und Wallet-Ticket › Dokumente; Kalender-Datei › Termin; GPX › Tour oder Fahrt; QR-Rechnung › Zu zahlen; Kontakt › in die Notiz. Bilder unter 15 KB (Logos) bleiben in Gmail, ebenso Anhänge über zusammen 2,6 MB (sonst käme der Eintrag beim automatischen Abgleich nicht aufs andere Gerät).
+- «Ablegen als …» hat 13 Ziele (neu: Neue Tour, Rechnung, Termin, Aufgabe, Dokument, Liste) und «Neue Ablage» (ein eigenes Notiz-Thema, umbenennen und löschen unter Listen und Typen).
+- Tipp in der Zeile: Buchung (mit Tag und passender Tour), Rechnung, Frist; ein Absender, zweimal gleich abgelegt, wird so vorgeschlagen. Eine Buchung vor der Tour wird eine Planungs-Notiz der Tour.
+- Mailen aus der App: Packliste und Plan einer Tour (PDF) oder ein Dokument anhängen, höchstens 3, zusammen 3 MB.
+- Keine neue Server-Datei: Schritt `mail-file` und Anhänge bei `mail-send` in `api/_lib/google.js`. Keine neue Dexie-Version: Einträge bekommen die Felder `mail`, `files`, `plan`.
+## 19.10.2026: Hinweis «Abgleich aus» unter Ich (für Paket 5, 0.156.0)
+- Noah «1a»: Solange der automatische Abgleich aus ist, zeigt Ich › «Wartet auf dich» die Zeile «Abgleich Handy und Computer: aus» mit «Einschalten» (öffnet Daten und Backup bei «Handy und Computer»).
+- Selbst entschieden: nur mit eigenen Daten und nicht in der Demo; «Nur ein Gerät» blendet die Zeile auf diesem Gerät aus (meta `syncNudge`, wird nie abgeglichen). Heute bleibt unverändert.
+
+## 19.10.2026: Paket 7 (0.159.0) Rennen und Live-Karte
+- Noah «1a 2a 3a und b möglich»: U2 im Paket, Anstiege eigene Seite, offline swisstopo (CH) und OpenFreeMap. OSM/OpenTopoMap nie offline (Nutzungsregeln).
+- Live-Karte für alle Fahrten; Warnung neben der Strecke, Sprachansagen, Essens-Erinnerung, Akku sparen: alle wählbar, aus als Start.
+- Noah «1a und b 2b 3b 4b 5a»: Vollbild, oben 3 Zahlen (bis 6 wählbar), Norden oben, erste Ansicht die nächsten 20 km, ich als Pfeil, Gefahrenes blass, Panel unten, SOS im «⋯»-Menü, Stopps als Symbole, quer: Karte links, Zahlen rechts.
+- Noah «detailierteres profil … zoombar … analog komoot»: `route.profileFine` (Höhe alle 0.05–1 km je Länge, als Differenzen, etwa 26 KB bei 1000 km).
+- Noah «1a 2a 3a 4a 5a»: Orte entlang der Strecke offline automatisch mit dem Kartenstreifen, Wetter-Zeitleiste, Abstecher in km und Hm, GPX auf der Live-Karte, Orte teilen.
+- Selbst entschieden: Orte mit access=private/no fallen weg; Hütten zählen als Hotel; die geöffnete GPX ist eine normale Einstellung (`live-route`, im Backup und Abgleich); `offline-strips` bleibt nur auf dem Gerät; kein neuer Server-Teil, keine neue Dexie-Version.
+
+## 19.10.2026: Verpflegungsstrategie (0.160.0, Paket 8)
 
 - Noah 21:11 «1a 2a 3a und b 4a 5a», 21:12 «auch alle anderen auswählbar wie camping und alle zuvor genannten»: eigene Seite Touren › Verpflegung; Wasser automatisch 1–2 l pro Stunde nach Temperatur und Steigung; Anzeige als Gramm/Liter oder als eigene Produkte, umschaltbar; an der Strecke auch Läden, Tankstellen, Bäckereien, Camping, Unterkünfte, Restaurants und Bahnhöfe wählbar; bei nachts geschlossenen Läden ein Kaufvorschlag mit Menge.
 - **Selbst entschieden:** ein Abschnitt endet beim weitesten offenen Laden innerhalb von etwa 3 h (änderbar); steile Anstiege (600 Hm pro Stunde) geben bis zur Hälfte des Unterschieds kühl→heiss dazu; ohne Prognose rechnet die App mit 20 °C; Uhrzeit = Fahrzeit plus 15 % für kurze Halte. Die Ortssuche wird nicht doppelt gebaut: Läden, Öffnungszeiten und die weiteren Ortsarten kommen aus der Suche des Rennen-Pakets (Paket 7), bis dahin nutzt der Plan die Brunnen der Streckensuche.

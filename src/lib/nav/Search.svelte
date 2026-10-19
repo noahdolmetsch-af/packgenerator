@@ -1,4 +1,5 @@
 <script>
+  import { uiZoom } from '../uizoom.js'; // «Grösse»: the header box in the page's own pixels
   import { UNDO_MS } from '../ui/undo.js';
   /**
    * Search everything from the top bar (v0.19.6, start page answer 1a): gear, trips, templates,
@@ -184,7 +185,7 @@
   function toggle() {
     open = !open;
     if (open) {
-      top = Math.round(root?.closest('header')?.getBoundingClientRect().bottom ?? 64);
+      top = Math.round((root?.closest('header')?.getBoundingClientRect().bottom ?? 64 * uiZoom()) / uiZoom());
       queueMicrotask(() => input?.focus());
     }
   }
@@ -322,7 +323,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    width: min(460px, 32vw);
+    width: min(460px, calc(32vw / var(--ui-zoom, 1)));
     height: 40px;
     padding: 0 12px;
     border-radius: 10px;
@@ -389,8 +390,8 @@
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    width: min(420px, 90vw);
-    max-height: 70vh;
+    width: min(420px, calc(90vw / var(--ui-zoom, 1)));
+    max-height: calc(70vh / var(--ui-zoom, 1));
     overflow: auto;
     padding: 10px;
     border: 1px solid var(--line);
@@ -406,7 +407,7 @@
   .short .res {
     left: 0;
     right: auto;
-    width: min(640px, calc(100vw - 290px));
+    width: min(640px, calc(calc(100vw / var(--ui-zoom, 1)) - 290px));
   }
   .sheet .res {
     position: static;

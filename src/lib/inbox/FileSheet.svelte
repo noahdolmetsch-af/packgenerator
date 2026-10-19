@@ -20,21 +20,30 @@
   import { ICONS } from './icons.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import { shrinkImage } from '../photo.js';
-  import { ReceiptText, Check, X } from '@lucide/svelte';
+  import { ReceiptText, Check, X, Plus, Paperclip } from '@lucide/svelte';
+  import { tipOf, amountOf, ibanOf, eventFrom, dayOfNote } from '../mailin.js';
+  import { db } from '../db.js';
+  import { loadLists } from '../listsdb.js';
+  import { saveList } from '../lists.js';
+  import { OVERRIDES_KEY, overrideOf } from '../standard.js';
   import '../bikes/velo-dlg.css';
 
-  let { note, direct = false, bikes = [], trips = [], visits = [], onclose, onfiled } = $props();
+  let { note, direct = false, bikes = [], trips = [], visits = [], rules = null, start = null, onclose, onfiled } = $props();
 
   /** The main button of each form, named by where the entry lands (U1). */
-  const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', keep: 'Keep as note' };
+  const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', newtrip: 'Make the trip', bill: 'Into «To pay»', event: 'Into the calendar', task: 'Into the tasks', doc: 'Into Documents', list: 'Onto the list', keep: 'Keep as note' };
   /** Jobs a receipt often lists (optional); since v0.125.0 shared with the workshop visit window (inbox.js). */
   const JOBS = VISIT_JOBS;
 
   let dialog;
   // svelte-ignore state_referenced_locally
-  const suggest = guessTarget(note);
+  const suggest = guessTarget(note, { trips, rules });
+  // «Mail in die App» 3a: the tip under the title (a booking, a deadline, a bill); it only fills the form
+  // svelte-ignore state_referenced_locally
+  const tip = tipOf(note, { trips, rules });
   // Design-Refresh P9 (I4): the suggestion is chosen from the start; one tap on another tile changes it.
-  let kind = $state(suggest);
+  // svelte-ignore state_referenced_locally
+  let kind = $state(start && TARGET[start] ? start : suggest);
   // svelte-ignore state_referenced_locally
   let tiles = $state(!direct);
   // svelte-ignore state_referenced_locally
@@ -50,11 +59,41 @@
   let category = $state('tools');
   let grams = $state('');
   // svelte-ignore state_referenced_locally
-  let trip = $state(note.tripId ?? null);
+  let trip = $state(note.tripId ?? tip?.trip?.id ?? null);
   // svelte-ignore state_referenced_locally
   let topic = $state(guessTopic(note.text ?? ''));
   let msg = $state('');
   let busy = $state(false);
+  // «Mail in die App»: the fields of the six new targets, filled once from the entry
+  // svelte-ignore state_referenced_locally
+  const first = note;
+  const head = (first.mail?.subject || (first.text ?? '').split('\n')[0] || '').trim().slice(0, 120);
+  const ev = eventFrom(first, today);
+  const docable = (first.files ?? []).filter((f) => ['pdf', 'photo', 'pkpass'].includes(f.kind) && !f.done);
+  let docName = $state(head);
+  let docFiles = $state(docable.map((f) => f.id));
+  let docText = $state(!docable.length);
+  let billTo = $state(first.mail?.fromName || '');
+  let billAmount = $state(amountOf(first.text) != null ? String(amountOf(first.text)) : '');
+  let billDue = $state(tip?.deadline?.day ?? '');
+  let billIban = $state(ibanOf(first.text));
+  let billPdf = $state((first.files ?? []).some((f) => f.kind === 'pdf' && !f.done));
+  let evTitle = $state(ev.title);
+  let evDay = $state(tip?.booking?.day ?? ev.day);
+  let evFrom = $state(ev.from);
+  let taskTitle = $state(head);
+  let taskDue = $state(tip?.deadline?.day ?? first.due ?? '');
+  let lists = $state([]);
+  let listId = $state('');
+  let newListName = $state('');
+  loadLists(db).then((l) => ((lists = l), (listId = l[0]?.id ?? '')));
+  let tripTitle = $state(first.plan?.title ?? head);
+  let tripStart = $state(dayOfNote(first, today));
+  let tripDays = $state(String(first.plan?.days ?? 1));
+  // «oder neue Ablage erstellen» (Noah 19.10.2026): an own place for notes, made here (a note topic, so it can be
+  // renamed and deleted under «Listen und Typen» like every group)
+  let newTopic = $state(false);
+  let topicName = $state('');
   // Kamera-Knopf (Noah, 14.10.2026 «bei Belegen immer»): a receipt note without a photo gets one here
   let photo = $state(null);
   let reading = $state(false);
@@ -109,7 +148,35 @@
       const tr = trips.find((x) => x.id === trip);
       if (!tr) return (msg = t('There is no trip to put this note on.'));
       opts = { trip: tr };
-    } else opts = { topic };
+    } else if (kind === 'doc') {
+      if (!docFiles.length && !docText) return (msg = t('Choose at least one file or the text.'));
+      opts = { name: docName.trim(), files: docFiles, text: docText };
+    } else if (kind === 'bill') {
+      const a = billAmount.trim() ? parseChf(billAmount) : null;
+      if (Number.isNaN(a)) return (msg = t('Type the cost in CHF, e.g. 120.50.'));
+      opts = { to: billTo.trim(), amount: a, due: billDue, iban: billIban.trim(), purpose: head, keepPdf: billPdf };
+    } else if (kind === 'event') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(evDay)) return (msg = t('Choose the day.'));
+      opts = { title: evTitle.trim(), day: evDay, from: evFrom };
+    } else if (kind === 'task') {
+      opts = { title: taskTitle.trim(), due: taskDue };
+    } else if (kind === 'list') {
+      if (!listId && !newListName.trim()) return (msg = t('Give the list a name.'));
+      opts = listId ? { listId } : { newName: newListName.trim() };
+    } else if (kind === 'newtrip') {
+      if (!b) return (msg = t('Choose a bike.'));
+      opts = { title: tripTitle.trim(), startDate: tripStart, days: Math.max(1, Math.min(60, Number(tripDays) || 1)), bike: b, trips };
+    } else {
+      let tp = topic;
+      if (newTopic) {
+        if (!topicName.trim()) return (msg = t('Give the new place a name.'));
+        const all = (await db.settings.get(OVERRIDES_KEY))?.value ?? {};
+        const o = overrideOf(all.noteTopics);
+        tp = `own-${Date.now().toString(36)}`;
+        await saveList(db, 'noteTopics', { ...o, own: [...o.own, { id: tp, name: topicName.trim() }] });
+      }
+      opts = { topic: tp };
+    }
     busy = true;
     try {
       const stored = await fileTo({ ...$state.snapshot(note), ...(photo ? { photo } : {}) }, kind, opts);
@@ -158,7 +225,10 @@
 
   {#if kind}
     <p class="lands">{t(LANDS[kind])}</p>
-    {#if ['receipt', 'problem', 'idea'].includes(kind)}
+    {#if tip && ['booking', 'deadline', 'bill', 'sender'].includes(tip.kind)}
+      <p class="tip">{tip.kind === 'booking' ? t('Looks like a booking') + (tip.booking.day ? ` · ${tip.booking.day.split('-').reverse().join('.')}` : '') + (tip.booking.code ? ` · ${tip.booking.code}` : '') + (tip.trip ? ` · ${t('for the trip «{name}»', { name: tip.trip.title })}` : '') : tip.kind === 'sender' ? t('You filed this sender like this twice.') : tip.kind === 'bill' ? t('Looks like a bill') + (tip.deadline?.day ? ` · ${t('due {day}', { day: tip.deadline.day.split('-').reverse().join('.') })}` : '') : t('Deadline: {day}', { day: tip.deadline.day.split('-').reverse().join('.') })}</p>
+    {/if}
+    {#if ['receipt', 'problem', 'idea', 'newtrip'].includes(kind)}
       <p class="lbl">{t('Bike')}</p>
       <div class="vd-chips chips" role="group" aria-label={t('Bike')}>
         {#each bikes as b (b.id)}<button type="button" class="vd-chip" aria-pressed={bike === b.id} onclick={() => (bike = b.id)}>{b.name}</button>{/each}
@@ -202,7 +272,48 @@
     {:else if kind === 'keep'}
       <p class="lbl">{t('Topic')}</p>
       <div class="vd-chips chips" role="group" aria-label={t('Topic')}>
-        {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={topic === x.key} onclick={() => (topic = x.key)}>{x.raw ? x.name : t(x.name)}</button>{/each}
+        {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={!newTopic && topic === x.key} onclick={() => ((topic = x.key), (newTopic = false))}>{x.raw ? x.name : t(x.name)}</button>{/each}
+        <button type="button" class="vd-chip" aria-pressed={newTopic} onclick={() => (newTopic = true)}><Plus size={14} aria-hidden="true" />{t('New place')}</button>
+      </div>
+      {#if newTopic}<label class="fld"><span class="lbl">{t('Name of the new place')}</span><input class="inp" type="text" bind:value={topicName} maxlength="40" autocomplete="off" placeholder={t('e.g. Flat, Club, Holidays')} /></label><p class="q small">{t('You can rename or delete it later under Me › Lists and types › Note topics.')}</p>{/if}
+    {:else if kind === 'doc'}
+      <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" type="text" bind:value={docName} maxlength="80" autocomplete="off" /></label>
+      {#if docable.length}
+        <p class="lbl">{t('Files')}</p>
+        <div class="vd-chips chips" role="group" aria-label={t('Files')}>
+          {#each docable as f (f.id)}{@const on = docFiles.includes(f.id)}<button type="button" class="vd-chip" aria-pressed={on} onclick={() => (docFiles = on ? docFiles.filter((x) => x !== f.id) : [...docFiles, f.id])}><Paperclip size={14} aria-hidden="true" />{f.name}</button>{/each}
+        </div>
+      {/if}
+      <label class="check"><input type="checkbox" bind:checked={docText} /> {t('The text as a PDF too')}</label>
+    {:else if kind === 'bill'}
+      <label class="fld"><span class="lbl">{t('To whom')}</span><input class="inp" type="text" bind:value={billTo} maxlength="120" autocomplete="off" /></label>
+      <div class="two">
+        <label class="fld"><span class="lbl">{t('Amount CHF')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={billAmount} placeholder={t('not known')} /></label>
+        <label class="fld"><span class="lbl">{t('Due on')}</span><DateInput bind:value={billDue} /></label>
+      </div>
+      <label class="fld"><span class="lbl">{t('IBAN')} <span class="q">{t('optional')}</span></span><input class="inp" type="text" bind:value={billIban} autocomplete="off" /></label>
+      {#if (note.files ?? []).some((f) => f.kind === 'pdf')}<label class="check"><input type="checkbox" bind:checked={billPdf} /> {t('Keep the PDF in Documents too')}</label>{/if}
+    {:else if kind === 'event'}
+      <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp" type="text" bind:value={evTitle} maxlength="120" autocomplete="off" /></label>
+      <div class="two">
+        <label class="fld"><span class="lbl">{t('Day')}</span><DateInput bind:value={evDay} /></label>
+        <label class="fld"><span class="lbl">{t('Time')} <span class="q">{t('optional')}</span></span><input class="inp num" type="time" bind:value={evFrom} /></label>
+      </div>
+    {:else if kind === 'task'}
+      <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp" type="text" bind:value={taskTitle} maxlength="200" autocomplete="off" /></label>
+      <label class="fld"><span class="lbl">{t('Reminder on')} <span class="q">{t('optional')}</span></span><DateInput bind:value={taskDue} /></label>
+    {:else if kind === 'list'}
+      <p class="lbl">{t('List')}</p>
+      <div class="vd-chips chips" role="group" aria-label={t('List')}>
+        {#each lists as l (l.id)}<button type="button" class="vd-chip" aria-pressed={listId === l.id} onclick={() => (listId = l.id)}>{l.name}</button>{/each}
+        <button type="button" class="vd-chip" aria-pressed={!listId} onclick={() => (listId = '')}><Plus size={14} aria-hidden="true" />{t('New list')}</button>
+      </div>
+      {#if !listId}<label class="fld"><span class="lbl">{t('Name of the new list')}</span><input class="inp" type="text" bind:value={newListName} maxlength="60" autocomplete="off" /></label>{/if}
+    {:else if kind === 'newtrip'}
+      <label class="fld"><span class="lbl">{t('Title')}</span><input class="inp" type="text" bind:value={tripTitle} maxlength="80" autocomplete="off" /></label>
+      <div class="two">
+        <label class="fld"><span class="lbl">{t('Start')}</span><DateInput bind:value={tripStart} /></label>
+        <label class="fld"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={tripDays} /></label>
       </div>
     {/if}
 
@@ -347,6 +458,25 @@
   .name span {
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  .tip {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--accent-soft);
+    color: var(--ok);
+    font-size: var(--fs-small);
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 6px;
+  }
+  .small {
+    margin: -4px 0 10px;
+    font-size: var(--fs-small);
   }
   .err {
     margin: 8px 0 0;

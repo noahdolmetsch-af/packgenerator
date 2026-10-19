@@ -1,4 +1,5 @@
 <script>
+  import { uiZoom } from '../uizoom.js';
   import { askDelete } from '../ui/ask.js';
   /**
    * v0.38.0 (Noah 1a-4a): one gear row in one line: star, name, (bag on wish), weight, •••.
@@ -40,8 +41,8 @@
   }
   function move(e) {
     if (!start || e.pointerType !== 'touch') return;
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
+    const dx = (e.clientX - start.x) / uiZoom(); // «Grösse»: in the page's own pixels
+    const dy = (e.clientY - start.y) / uiZoom();
     if (!start.dir) {
       start.dir = direction(dx, dy);
       if (start.dir === 'swipe') {

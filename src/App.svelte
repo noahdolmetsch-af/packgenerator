@@ -162,6 +162,14 @@
     const q = new URLSearchParams(location.search);
     if (['title', 'text', 'url'].some((k) => q.get(k))) {
       notePrefill = ['title', 'text', 'url'].map((k) => q.get(k)?.trim()).filter(Boolean).join('\n');
+      // «Mail in die App» round 4 «1a»: the Mac bookmark «In den Eingang» (…?title=…&url=…&to=inbox) keeps the page
+      // straight away as an Eingang entry, without a window (sorted there like everything else)
+      if (q.get('to') === 'inbox') {
+        db.notes.put({ id: `web-${Date.now().toString(36)}`, at: new Date().toISOString(), text: notePrefill.slice(0, 4000), photo: null, page: 'web', tripId: null, bikeId: null, status: 'open', to: null, sortedAt: null }).catch(() => {});
+        history.replaceState(null, '', `${location.pathname}#/inbox`);
+        hash = '#/inbox';
+        return;
+      }
       // «Inspiration» UC2-4: a shared link (browser «Teilen» › Pack Generator) opens «Link hinzufügen» on
       // the Inspiration page; its window offers «Into the Inbox instead». Text without a link: Inbox as before.
       const shared = linkFrom(notePrefill);
@@ -309,6 +317,8 @@
     Favorites: () => import('./pages/Favorites.svelte'),
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
+    Race: () => import('./pages/Race.svelte'),
+    Live: () => import('./pages/Live.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
     Check: () => import('./pages/Check.svelte'),
@@ -455,6 +465,9 @@
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
+  {:else if page === 'race'}
+    <!-- Paket U «Rennen»: #/race, #/race/<trip>/<part>, #/race/brief/<trip> -->
+    <LazyPage load={PAGES.Race} {hash} />
   {:else if page === 'ski'}
     <!-- v0.97.0 «Skitouren»: Touren › Skitouren; #/ski/check, /start, /care, /after/<trip> -->
     <LazyPage load={PAGES.Ski} sub={hash.split('/').slice(2).join('/')} />
@@ -471,6 +484,9 @@
     <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
     {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
     {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
+  {:else if page === 'live'}
+    <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->
+    {#key param}<LazyPage load={PAGES.Live} id={decodeURIComponent((param ?? '').split('?')[0])} />{/key}
   {:else if page === 'spur'}
     <!-- Paket S «Reise-Spur»: a tour's map, days, read link and travel book; loaded only when opened (with its map) -->
     {#key param}<LazyPage load={PAGES.Spur} id={decodeURIComponent(param.split('?')[0])} />{/key}

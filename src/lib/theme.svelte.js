@@ -9,14 +9,22 @@
  * v0.97.0 Design-Refresh R1 (G1 neu, Noah 11.10 23:10 «Runde 1 alles ★ und G1–G12 freigegeben»; 12.10
  * «1a 2a»): Ich › Darstellung chooses the font (8, Inter by default), the colour world (Salbei by default,
  * four calm new ones, the three old ones stay) and the text size (small, normal, large); light or dark
- * stays. Everything only on this device. <html> also gets data-font and data-size.
+ * stays. Everything only on this device. <html> also gets data-font.
+ *
+ * «Grösse» (Noah 19.10.2026 «1b 2b»): one slider from 80 to 130 % makes the whole app smaller or larger
+ * (text, tiles, buttons and spacing together, like the browser zoom but kept), and «Kompakt» keeps the
+ * text and takes away spacing. <html> gets --ui-zoom and data-dense. Each device keeps its own choice.
+ * The old three text sizes become 90, 100 and 115 % once.
  */
 
 /** Noah may still switch the default colour world: one line. */
 export const DEFAULT_PALETTE = 'salbei';
 export const DEFAULT_MODE = 'system';
 export const DEFAULT_FONT = 'inter';
-export const DEFAULT_SIZE = 'normal';
+export const DEFAULT_SCALE = 100;
+export const SCALE_MIN = 80;
+export const SCALE_MAX = 130;
+export const SCALE_STEP = 5;
 
 /**
  * The colour worlds: the five of the mockup first (Salbei ★), then the two older ones (Noah 2a).
@@ -42,11 +50,8 @@ export const FONTS = [
   { key: 'manrope', name: 'Manrope', family: "'Manrope'" },
   { key: 'atkinson', name: 'Atkinson Hyperlegible', family: "'Atkinson Hyperlegible'" },
 ];
-export const SIZES = [
-  { key: 'small', name: 'Small|size' },
-  { key: 'normal', name: 'Normal|size' },
-  { key: 'large', name: 'Large|size' },
-];
+/** The old text sizes (until 0.154) and the size they become. */
+export const OLD_SIZES = { small: 90, normal: 100, large: 115 };
 export const MODES = [
   { key: 'system', name: 'System|theme' },
   { key: 'light', name: 'Light|theme' },
@@ -55,7 +60,9 @@ export const MODES = [
 export const PALETTE_KEY = 'theme.palette';
 export const MODE_KEY = 'theme.mode';
 export const FONT_KEY = 'theme.font';
-export const SIZE_KEY = 'theme.size';
+export const SIZE_KEY = 'theme.size'; // until 0.154: small, normal or large
+export const SCALE_KEY = 'theme.scale';
+export const DENSE_KEY = 'theme.dense';
 /** v0.97.0: set once when Salbei became the default (see refreshPalette). */
 export const REFRESH_KEY = 'theme.refresh97';
 
@@ -63,7 +70,12 @@ export const REFRESH_KEY = 'theme.refresh97';
 export const paletteOf = (v) => (PALETTES.some((p) => p.key === v) ? v : DEFAULT_PALETTE);
 export const modeOf = (v) => (MODES.some((m) => m.key === v) ? v : DEFAULT_MODE);
 export const fontOf = (v) => (FONTS.some((f) => f.key === v) ? v : DEFAULT_FONT);
-export const sizeOf = (v) => (SIZES.some((z) => z.key === v) ? v : DEFAULT_SIZE);
+/** A stored size in % (or an old size name) → a step of 5 between 80 and 130. */
+export function scaleOf(v) {
+  const n = typeof v === 'string' && v in OLD_SIZES ? OLD_SIZES[v] : Number(v);
+  if (v === null || v === undefined || v === '' || !Number.isFinite(n)) return DEFAULT_SCALE;
+  return Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round(n / SCALE_STEP) * SCALE_STEP));
+}
 /**
  * The colour world after the update to the new look: Gletscher was the default until 0.96, so a stored
  * Gletscher becomes Salbei once (Noah approved Salbei as the new default); any other choice stays, and
@@ -90,7 +102,7 @@ const put = (k, v) => {
 const darkQuery = () => (typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null);
 
 /** The current choice: { palette, mode, dark } (dark: what shows now). */
-export const theme = $state({ palette: DEFAULT_PALETTE, mode: DEFAULT_MODE, font: DEFAULT_FONT, size: DEFAULT_SIZE, dark: false });
+export const theme = $state({ palette: DEFAULT_PALETTE, mode: DEFAULT_MODE, font: DEFAULT_FONT, scale: DEFAULT_SCALE, dense: false, dark: false });
 
 function apply() {
   if (typeof document === 'undefined') return;
@@ -99,7 +111,9 @@ function apply() {
   root.dataset.palette = theme.palette;
   root.dataset.theme = theme.dark ? 'dark' : 'light';
   root.dataset.font = theme.font;
-  root.dataset.size = theme.size;
+  root.style.setProperty('--ui-zoom', String(theme.scale / 100));
+  if (theme.dense) root.dataset.dense = '1';
+  else delete root.dataset.dense;
   // the browser bar on a phone takes the brand colour of the world shown
   const brand = getComputedStyle(root).getPropertyValue('--brand').trim();
   if (brand) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', brand);
@@ -115,7 +129,8 @@ export function initTheme() {
   }
   theme.mode = modeOf(get(MODE_KEY));
   theme.font = fontOf(get(FONT_KEY));
-  theme.size = sizeOf(get(SIZE_KEY));
+  theme.scale = scaleOf(get(SCALE_KEY) ?? get(SIZE_KEY));
+  theme.dense = get(DENSE_KEY) === '1';
   apply();
   darkQuery()?.addEventListener?.('change', () => theme.mode === 'system' && apply());
 }
@@ -135,15 +150,19 @@ export function setFont(key) {
   put(FONT_KEY, theme.font);
   apply();
 }
-export function setSize(key) {
-  theme.size = sizeOf(key);
-  put(SIZE_KEY, theme.size);
+export function setScale(v) {
+  theme.scale = scaleOf(v);
+  put(SCALE_KEY, String(theme.scale));
   apply();
 }
-/** The short line of the row «Darstellung» on Ich: font · colour world · size. tr is t(). */
+export function setDense(on) {
+  theme.dense = !!on;
+  put(DENSE_KEY, theme.dense ? '1' : '0');
+  apply();
+}
+/** The short line of the row «Darstellung» on Ich: font · colour world · size (· Compact). tr is t(). */
 export function lookLine(tr = (x) => x) {
   const font = FONTS.find((f) => f.key === theme.font)?.name;
   const pal = PALETTES.find((p) => p.key === theme.palette)?.name;
-  const size = SIZES.find((z) => z.key === theme.size)?.name;
-  return [font, pal && tr(pal), size && tr(size)].filter(Boolean).join(' · ');
+  return [font, pal && tr(pal), `${theme.scale} %`, theme.dense && tr('Compact|size')].filter(Boolean).join(' · ');
 }

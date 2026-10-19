@@ -10,6 +10,7 @@
    * Observation only: no value is rated.
    */
   import { liveQuery } from 'dexie';
+  import FeelPick from '../../lib/training/plans/FeelPick.svelte';
   import { ExternalLink } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -166,6 +167,13 @@
                 </li>
               {/each}
             </ul>
+          </Sec>
+        {/if}
+
+        {#if act.kind === 'bike'}
+          <!-- «Trainingspläne»: the felt effort 1–10, changeable here -->
+          <Sec id="feel-h" title={t('How hard was it?')} sub={t('Your own answer, 1 to 10. Only on this device.')}>
+            <div class="card nt" data-section="feel"><FeelPick {act} /></div>
           </Sec>
         {/if}
 

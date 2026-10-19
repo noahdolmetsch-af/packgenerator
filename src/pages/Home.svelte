@@ -116,6 +116,7 @@
   import TileCatalog from '../lib/home/TileCatalog.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
   import IntroKT from '../lib/home/IntroKT.svelte';
+  import RaceLine from '../lib/race/RaceLine.svelte'; // Paket U «3b»: «Race in X days»
   import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
@@ -152,6 +153,7 @@
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
+  import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome } from '../lib/bedienung.svelte.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
@@ -906,6 +908,7 @@
         <h1 id="hello-h" class="hello">{hello}</h1>
         {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        {#if loaded}<RaceLine {today} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1099,6 +1102,7 @@
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
+  {:else if x.id === 'liveride'}{@const lt = todayTrip(trips, today)}<SmallTile tile={TILE.liveride} size={x.size} href={liveHref(lt)} isnew={newTile('liveride')} sub={lt ? lt.title : t('a free ride, without a trip')} />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
@@ -1140,6 +1144,11 @@
       <div class="tourline" data-tourline>
         <span><b>{t('New here? Take the tour')}</b><small>{t('2 minutes, with an example trip. Your data stays untouched.')}</small></span>
         <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+      </div>
+      <!-- Paket U «Muster-Rennen» (Noah «7b»): also findable in First steps -->
+      <div class="tourline soft" data-tourline-race>
+        <span><b>{t('Planning a race?')}</b><small>{t('See a made-up sample race and try what you can change.')}</small></span>
+        <a class="btn sm" href="#/race?sample">{t('See the sample race')}</a>
       </div>
       <ol>
         <li class:done={steps.bike}>
@@ -2190,5 +2199,9 @@
   }
   .tourline .btn {
     white-space: nowrap;
+  }
+  .tourline.soft {
+    border-width: 1px;
+    background: transparent;
   }
 </style>

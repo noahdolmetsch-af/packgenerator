@@ -50,7 +50,12 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
-**Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, eigenes Paket nach Paket 7, nutzt dessen Ortssuche.
+**Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, Paket 8 (0.160.0), nutzt dessen Ortssuche.
+**Nachtrag 19.10.2026 24 Uhr:** 0.159.0 «Paket 7» bringt U «Rennen» und die Live-Karte für jede Fahrt (Ziel Touren planen und fahren). Ideenliste U geschlossen; Weiteres in die Ideen-Sammlung.
+
+**Nachtrag 19.10.2026 23 Uhr:** 0.157.0 «Paket 6» bringt die Velo-FAQ (Ziel Velo pflegen, Alltag). Danach 0.158.0 U «Rennen».
+
+**Nachtrag 19.10.2026 22 Uhr:** 0.156.0 «Paket 5» bringt Mail in die App, Grösse (Schieber und Kompakt) und den Abgleich-Hinweis. Danach 0.157.0 Velo-FAQ, dann 0.158.0 U «Rennen». Ziel «Eine App, die mich im Alltag unterstützt».
 
 **Nachtrag 19.10.2026 21 Uhr:** Paket 3 und Paket 4 sind ein Release 0.155.0 (Noah «paket 3 und 4 verbinden», «mach wie es am besten und am schnellsten geht»): Freie Zeit, Daten, V Alltag, Haus-Check, Wohnungs-Hüter, «Bereit für morgen?», Strombudget, Reise-Links, Anleitungen überall, Diktat und KI. Danach 0.156.0 «Paket 5» mit U (Rennen, Renn-Karte, Live-Karte) und Mail in die App; U3 Karte offline später. Ton-Aufnahmen bleiben gestrichen.
 
