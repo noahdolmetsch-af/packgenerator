@@ -212,6 +212,9 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»;
     // AT1 (14.10.2026): «Abgeschlossene Touren» are the Strava activities, the trips packed in the app «Packmodus»
     await expect(page.locator('section[data-planned], section[data-activities], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Abgeschlossen/, /Packmodus/]);
+    // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; «Alle aufklappen» shows the blocks
+    const all = page.locator('[data-fold-all]').filter({ hasText: 'Alle aufklappen' });
+    if (await all.count()) await all.click();
     await expect(page.getByRole('heading', { name: 'Bestwerte', exact: true })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     for (const b of await page.locator('.trips .go, .trips .btn.hi').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);

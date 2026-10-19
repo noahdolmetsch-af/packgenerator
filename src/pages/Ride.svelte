@@ -550,7 +550,7 @@
            is one quiet line, so the days and «Jetzt» come into the first screen. -->
       {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
       <!-- Paket K #280 + #206 «Bereit für heute?» with the listening tip, on the tour day -->
-      {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{/await}{/if}
+      {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{:catch}{/await}{/if}
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}

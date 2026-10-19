@@ -1083,7 +1083,7 @@
     {/snippet}
     {#snippet preparation()}
       <!-- Paket K #280 «Bereit für heute?» (Noah 12.10.2026 «immer, nicht nur am Tourmorgen»): on every planned trip -->
-      {#if trip && !trip.finished && trip.startDate && trip.startDate >= today}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} title={trip.startDate === today ? '' : t('Ready for the tour?')} />{/await}{/if}
+      {#if trip && !trip.finished && trip.startDate && trip.startDate >= today}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} title={trip.startDate === today ? '' : t('Ready for the tour?')} />{:catch}{/await}{/if}
       {#if before}
         <details class="tp-fold calm-extra" bind:open={beforeOpen} bind:this={beforeEl}>
           <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
