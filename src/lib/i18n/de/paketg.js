@@ -197,4 +197,6 @@ export default {
   'Open the trip in Packen › Plan; the route card needs a GPX route.': 'Öffne die Tour in Packen › Plan; die Strecken-Karte braucht eine GPX-Strecke.',
   'Tap «Search fountains and workshops» under the map.': 'Tippe unter der Karte auf «Brunnen und Werkstätten suchen».',
   'Filter with Water, Workshop, Pump; a tap on a row opens the place in OpenStreetMap.': 'Filtere mit Wasser, Werkstatt, Pumpe; ein Tipp auf eine Zeile öffnet den Ort in OpenStreetMap.',
+  // #226 Termine heute im Tages-Check
+  'Google calendar': 'Google Kalender',
 };
