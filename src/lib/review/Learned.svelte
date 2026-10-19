@@ -12,7 +12,8 @@
   import { learnedOn } from '../yearreview.js';
   import { dayLong } from './fmt.js';
   import { t, tn, num } from '../i18n.svelte.js';
-  import { Lightbulb, Search, Pencil, Trash2 } from '@lucide/svelte';
+  import { Lightbulb, Search, Pencil, Trash2, Plus } from '@lucide/svelte';
+  import LearningSheet from './LearningSheet.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import UndoToast from './UndoToast.svelte';
@@ -38,6 +39,8 @@
   });
   // «Gruppen überall»: rename and delete a topic (the whole topic, not only what the search shows)
   let renaming = $state(null); // the topic
+  // «Alles selbst bearbeiten» (Noah 19.10.2026): a tap on a learning opens it; «+ Learning» adds one
+  let editing = $state(null); // { learning } (learning null: new)
   let deleting = $state(null);
   let undo = $state.raw(null); // raw: IndexedDB cannot store a reactive proxy
   let timer;
@@ -67,7 +70,10 @@
      comes from, «hoch» and «n× bestätigt» on the right. -->
 <section id="learnings" class="learned" aria-labelledby="learn-h">
   <h2 id="learn-h" class="sr">{t('Learnings')}</h2>
-  <p class="count num">{t('{n} learnings in {k} topics', { n: num(learnings.length), k: num(topics.length) })}</p>
+  <div class="lhead">
+    <p class="count num">{t('{n} learnings in {k} topics', { n: num(learnings.length), k: num(topics.length) })}</p>
+    <button type="button" class="btn" onclick={() => (editing = { learning: null })}><Plus size={16} aria-hidden="true" />{t('Learning')}</button>
+  </div>
   <label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
   {#each topics as g (g.topic)}
     <section class="topic rv-sec" aria-label={topicName(g.topic)}>
@@ -82,7 +88,8 @@
       </div>
       <ul class="rv-box">
         {#each g.ls as l (l.id)}
-          <li class="rv-row">
+          <li class="rv-row lrn-row">
+            <button type="button" class="ltap" aria-label={t('Edit learning: {name}', { name: l.rule })} onclick={() => (editing = { learning: l })}></button>
             <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
             <span class="rv-m"><span class="rv-t rule">{l.rule}</span>{#if l.action}<span class="rv-s do">→ {l.action}</span>{/if}{#if meta(l)}<span class="rv-s">{meta(l)}</span>{/if}</span>
             {#if l.priority === 'high' || l.confirmed}<span class="rv-v tags">{#if l.priority === 'high'}<span class="rv-tag">{t('high')}</span>{/if}{#if l.confirmed}<span>{t('confirmed {n}×', { n: l.confirmed })}</span>{/if}</span>{/if}
@@ -118,9 +125,35 @@
     onclose={() => (deleting = null)}
   />
 {/if}
+{#if editing}
+  <LearningSheet learning={editing.learning} topics={allTopics} {topicName} onclose={() => (editing = null)} />
+{/if}
 {#if undo}<UndoToast text={undo.text} onundo={doUndo} />{/if}
 
 <style>
+  .lhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .lrn-row {
+    position: relative;
+  }
+  /* the whole row opens the learning; the button lies over it, the text stays selectable for screen readers */
+  .ltap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: inherit;
+  }
+  .ltap:hover {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
   .gacts {
     display: flex;
     flex: none;
