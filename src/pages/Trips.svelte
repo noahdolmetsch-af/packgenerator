@@ -70,7 +70,7 @@
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
-  import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
+  import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
   import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
@@ -89,6 +89,7 @@
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
+  import { actHref } from '../lib/strava/acthref.js';
   import '../lib/review/review.css';
   import '../lib/ui/daumen.css'; // FE1: the main action at the bottom on a phone
   import AreaIntro from '../lib/intro/AreaIntro.svelte';
@@ -193,7 +194,7 @@
   const acts = $derived($actsQ ?? []);
   const packed = $derived(facts.filter((r) => r.kind === 'trip' && r.trip && (states[r.id]?.state === 'done' || states[r.id]?.state === 'rated')).map((r) => ({ trip: r.trip, state: states[r.id].state })));
   const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today) }));
-  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '' });
+  const stravaOf = (r) => (r.kind === 'trip' && r.trip ? stravaOfTrip(r.trip, acts, $moreQ?.entries ?? []) : { n: 0, name: '', list: [] });
 
   let mode = $state('12m');
   const year = today.slice(0, 4);
@@ -282,7 +283,8 @@
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
   let openNow = $state(null);
   let tvNow = $state(null);
-  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [...TOUR_GROUP_KEYS] });
+  // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; each group's head keeps its main numbers
+  const izView = $derived({ ...tourViewOf(tvNow ?? $tvQ?.value ?? null), open: openNow ?? [] });
   function saveIz(next) {
     const plain = $state.snapshot(next);
     openNow = [...plain.open];
@@ -370,7 +372,7 @@
   {@const sv = stravaOf(r)}
   <p class="pinfo" data-pack-info>
     {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
-    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{sv.n > 1 ? t('Strava: {n} activities', { n: sv.n }) : sv.n === 1 ? t('Strava: {name}', { name: sv.name || t('1 activity') }) : t('no Strava activity')}</span>
+    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{#if sv.n === 1}<a class="actl" href={actHref(sv.list[0].id)} data-act-link={sv.list[0].id}>{t('Strava: {name}', { name: sv.name || t('1 activity') })}</a>{:else if sv.n > 1}{t('Strava: {n} activities', { n: sv.n })}{#each sv.list as a, i (a.id)}{i ? ',' : ':'} <a class="actl" href={actHref(a.id)} data-act-link={a.id}>{a.name || t('1 activity')}</a>{/each}{:else}{t('no Strava activity')}{/if}</span>
   </p>
 {/snippet}
 
@@ -414,6 +416,9 @@
       {#if tours.band !== 'hidden'}
         <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
+
+      <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
+      {#if $dataQ}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
       <section class="plan" aria-labelledby="trips-plan" data-planned>
@@ -586,7 +591,7 @@
       {/if}
 
       <PageMore page="trips" name={t('Trips|place')} />
-      <TourTiles {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
+      <TourTiles skip={['o2']} {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} chips={activeRow} />
       {/if}
     {/if}
   {:else}
@@ -1098,6 +1103,12 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .pinfo .actl {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
   }
   .pinfo span {
     display: inline-flex;

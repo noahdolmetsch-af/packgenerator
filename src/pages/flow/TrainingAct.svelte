@@ -5,6 +5,8 @@
    * the time with the zone bounds, «Gleiche Strecke» (same name and kind, distance within 10 %),
    * a note and «In Strava öffnen». Power (Noah 13.10.2026 «a», «überall»): Ø, max and the best 20 minutes;
    * without a power meter Strava's estimate of Ø only. The heart rate of an older activity is fetched when it opens.
+   * 19.10.2026 «Strava-Fahrt vollständig»: every list in the app that shows a Strava activity opens this page; it
+   * also shows the kind, commute/indoor, device, bests, «How hard?», Strava's comment, laps, splits and segment times.
    * Observation only: no value is rated.
    */
   import { liveQuery } from 'dexie';
@@ -52,7 +54,7 @@
   let asked = $state('');
   let fetchErr = $state('');
   $effect(() => {
-    if (!act || hasDetail(act) || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
+    if (!act || hasDetail(act) || (act.hrAvg == null && !act.wDevice && !(act.km > 0)) || !strava.key || asked === act.id) return;
     asked = act.id;
     loadDetail(db, act.id).catch((e) => (fetchErr = e?.code === 'strava_busy' ? t('Strava is busy right now; the heart rate comes with the next fetch.') : t('The heart rate could not be fetched just now.')));
   });
@@ -103,6 +105,9 @@
           {#if act.pauses?.n > 0}<span data-val="pauses"><b>{act.pauses.n} · {t('{n} min', { n: Math.round((act.pauses.secs ?? 0) / 60) })}</b><small>{t('Breaks|act')}</small></span>{/if}
           {#if !meter && act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{t('Ø power (Strava estimate)')}</small></span>{/if}
         </div>
+
+        <!-- «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): kind, commute, device, bests, «How hard?», comment; loaded only here -->
+        {#await import('../../lib/training/act/RideFacts.svelte') then m}<m.default {act} />{/await}
 
         <PowerBlock {act} all={$allQ ?? []} {today} />
 

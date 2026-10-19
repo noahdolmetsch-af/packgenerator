@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.154.0 «Paket 2» (19.10.2026, nach Paket 1):** acht Teile in einem Release: K Unterwegs (Lenker-Ansicht, Vor der Abfahrt, Ess-Erinnerung), M Aus Touren lernen und Neuland, S Reise-Spur (Hier bin ich, Aufzeichnen, Familien-Link, Reisebuch), O Sportarten, I Velo im Griff mit Velo-Inspektion, L2 Bilderkennung, R Andere Menschen (Google-Anmeldung, Datenschutz, Tagesgrenze), Trello und Strava-Fahrten. Neue Daten-Ablage Dexie 16 tracks, 17 sportItems, 18 inspections; Backup-Test ohne Verlust (notes/paket-2-0154/backup-test.md). Server: 12 Functions (Trello über api/google, Spur und Konto über api/sync).
+
 **0.153.0 «Paket 1» (19.10.2026, nach Tempo 0.152.0):** sieben Pakete in einem Release: G Daten kommen von selbst, L Werkzeugkasten, P Was mir gut tut, N Pläne und Träume, Q App klarer, H Packen leichter, J Berg, Schnee und Notfall. Keine neue Daten-Ablage (Dexie bleibt), die Startseite bekommt einmal «Deine Werte heute» und den Tipp der Woche (homeWall v8).
 
 **Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026).** Die Versionen seit dem letzten Nachführen dieses Abschnitts (alle live, Einzelheiten unter «In Arbeit» weiter unten, dort mit ihrem damaligen Stand):

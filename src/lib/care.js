@@ -18,11 +18,16 @@
  * everyDays: a service by time (Noah, 4.10.2026: fork and shock once a year, sealant every 3 months).
  *   Due by time or km, whichever comes first (answer 13a). Brakes are bled only when the lever
  *   feels soft (answer 16b), so they have no interval.
+ * everyHours: «Velo im Griff» #193 (Noah 19.10.2026): a service by riding hours (bikehours.js). Fork and
+ *   shock have it, off as the standard (null); suggestHours is the value the sheet offers (50 h: the
+ *   lower-leg service of a fork, the air can of a shock). Km, hours or days: whichever comes first.
  */
 import { t as tr } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 import { own } from './ownlive.svelte.js';
 import { partStdOf } from './ownvalues.js';
+import { vig } from './veloimgriff.svelte.js';
+import { kindOf, partOn, ownOf, bikePartOn } from './bikekind.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -71,8 +76,8 @@ const WHEEL = { hint: 'True, spoke tension, freehub', attrs: [AXLE, A('mount', '
 export const PARTS = [
   // Frame
   { key: 'frame', name: 'Frame', area: 'frame', spec: true, more: true, unit: '', attrs: [AXLE, A('clearance', 'Tyre clearance')] },
-  { key: 'fork', name: 'Fork', area: 'frame', spec: true, more: true, unit: '', suspension: 'fork', everyDays: 365, due: 'Fork service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), AXLE, A('stanchion', 'Stanchions', 'mm'), A('steerer', 'Steerer'), A('offset', 'Offset', 'mm')] },
-  { key: 'shock', name: 'Rear shock', area: 'frame', spec: true, more: true, unit: '', suspension: 'full', everyDays: 365, due: 'Shock service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), A('eye', 'Eye-to-eye length')] },
+  { key: 'fork', name: 'Fork', area: 'frame', spec: true, more: true, unit: '', suspension: 'fork', everyDays: 365, everyHours: null, suggestHours: 50, due: 'Fork service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), AXLE, A('stanchion', 'Stanchions', 'mm'), A('steerer', 'Steerer'), A('offset', 'Offset', 'mm')] },
+  { key: 'shock', name: 'Rear shock', area: 'frame', spec: true, more: true, unit: '', suspension: 'full', everyDays: 365, everyHours: null, suggestHours: 50, due: 'Shock service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), A('eye', 'Eye-to-eye length')] },
   { key: 'linkage', name: 'Rear linkage', area: 'frame', unit: '', suspension: 'full', hint: 'Pivot bolts: clean, grease, check for play' },
   { key: 'seatclamp', name: 'Seatpost clamp', area: 'frame', spec: true, more: true, unit: '' },
   // Drivetrain
@@ -152,15 +157,20 @@ export const checkKmOf = (bike) => (bike && Object.hasOwn(bike, 'checkKm') ? (ty
 
 /**
  * v0.144.0 RE (answer 5a «km und/oder Tage, was zuerst kommt, gilt»): one interval by km and/or by days.
- * sinceKm / sinceDays: since the last time (null: unknown); everyKm / everyDays: the interval (null: not by that).
- * → { due, by: 'km' | 'days' | null, kmLeft, daysLeft, frac } (frac: the larger used share, null when nothing is known).
+ * «Velo im Griff» #193: and/or by riding hours (sinceHours / everyHours), whichever of the three comes first.
+ * sinceKm / sinceDays / sinceHours: since the last time (null: unknown); everyKm / everyDays / everyHours:
+ * the interval (null: not by that).
+ * → { due, by: 'km' | 'days' | 'hours' | null, kmLeft, daysLeft, hoursLeft, frac } (frac: the largest used
+ * share, null when nothing is known). On a tie km goes before days before hours.
  */
-export function firstDue({ sinceKm = null, everyKm = null, sinceDays = null, everyDays = null } = {}) {
+export function firstDue({ sinceKm = null, everyKm = null, sinceDays = null, everyDays = null, sinceHours = null, everyHours = null } = {}) {
   const fk = everyKm > 0 && sinceKm != null ? sinceKm / everyKm : null;
   const fd = everyDays > 0 && sinceDays != null ? sinceDays / everyDays : null;
-  const frac = fk == null && fd == null ? null : Math.max(fk ?? -Infinity, fd ?? -Infinity);
-  const by = frac == null || frac < 1 ? null : (fk ?? -Infinity) >= (fd ?? -Infinity) ? 'km' : 'days';
-  return { due: by != null, by, kmLeft: fk == null ? null : everyKm - sinceKm, daysLeft: fd == null ? null : everyDays - sinceDays, frac };
+  const fh = everyHours > 0 && sinceHours != null ? sinceHours / everyHours : null;
+  const fr = [['km', fk], ['days', fd], ['hours', fh]].filter(([, f]) => f != null);
+  const frac = fr.length ? Math.max(...fr.map(([, f]) => f)) : null;
+  const by = frac == null || frac < 1 ? null : fr.find(([, f]) => f === frac)[0];
+  return { due: by != null, by, kmLeft: fk == null ? null : everyKm - sinceKm, daysLeft: fd == null ? null : everyDays - sinceDays, hoursLeft: fh == null ? null : everyHours - sinceHours, frac };
 }
 export const CHECK_PARTS = ['padsF', 'padsR', 'chain', 'tyres', 'bolts', 'shifting', 'fork', 'shock', 'bearings'];
 
@@ -175,20 +185,52 @@ export function fits(bike, p) {
 /**
  * v0.48.0 (Noah: every bike gets the full template): every spec part on every bike, missing values
  * stay empty. Care-only parts (rear linkage) only where they fit; the old brakes and wheels only with a history.
+ * «Velo im Griff» #1009 (Noah 19.10.2026): the template is the one of the bike's kind (bikekind.js: road,
+ * gravel, mountain bike; the person's own templates live in settings, vig.tpl). Rear shock and linkage
+ * still only on a full suspension (fits). Own template parts come as own parts (tpl: true).
  */
-const onBike = (bike, p) => !p.legacy && (p.spec || fits(bike, p));
+const onBike = (bike, p, tpl = vig.tpl) => {
+  if (p.legacy) return false;
+  // Noah 19.10.2026 «teile können eingeblendet werden oder ausgeblendet»: this bike's own choice wins
+  const own = bikePartOn(bike, p.key);
+  if (own != null) return own;
+  return partOn(tpl, kindOf(bike), p.key) && (p.suspension !== 'full' || fits(bike, p)) && (p.spec || fits(bike, p));
+};
+/** Is this built-in part on the bike right now (its template, or the bike's own show/hide)? */
+export const partOnBike = (bike, key, tpl = vig.tpl) => (PART[key] ? onBike(bike, PART[key], tpl) : true);
 const blank = (key) => ({ key, model: '', history: [] });
+const ownBlank = (p) => ({ key: p.key, name: p.name, area: p.area, tpl: true, model: '', history: [] });
+const CARE_FIELDS = ['everyKm', 'everyDays', 'everyHours', 'warnAt', 'limit'];
+/** A part with nothing on it: no model, no history, no value, no own care setting. */
+export const isBlank = (p) =>
+  !CARE_FIELDS.some((f) => Object.hasOwn(p, f)) &&
+  Object.entries(p).every(([k, v]) => ['key', 'name', 'area', 'tpl'].includes(k) || v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.values(v).some((x) => x != null && x !== '')));
+/** Does this stored part belong on the bike: always with data; empty only while its kind's template has it. */
+const keep = (bike, p, tpl) => {
+  if (PART[p.key]?.legacy) return !!(p.history?.length || p.model);
+  if (!isBlank(p)) return true;
+  if (PART[p.key]) return onBike(bike, PART[p.key], tpl);
+  return !p.tpl || ownOf(tpl, kindOf(bike)).some((x) => x.key === p.key);
+};
 
-/** The parts of a new bike. */
-export const defaultParts = (bike) => PARTS.filter((p) => onBike(bike, p)).map((p) => blank(p.key));
+/** The parts of a new bike (of its kind). */
+export const defaultParts = (bike, tpl = vig.tpl) => [...PARTS.filter((p) => onBike(bike, p, tpl)).map((p) => blank(p.key)), ...ownOf(tpl, kindOf(bike)).map(ownBlank)];
 
-/** The stored parts plus the template parts added since, in the template order (own parts at the end of their area). */
-export function ensureParts(bike) {
-  const stored = (bike.parts ?? []).filter((p) => !(PART[p.key]?.legacy && !p.history?.length && !p.model));
-  if (!stored.length) return defaultParts(bike);
+/**
+ * The stored parts plus the template parts added since, in the template order (own parts at the end of their area).
+ * «Velo im Griff»: a part with a history, a model or any value always stays; an empty part its kind's
+ * template does not have is left out (it comes back when the template gets it again).
+ */
+export function ensureParts(bike, tpl = vig.tpl) {
+  const all = bike.parts ?? [];
+  const stored = all.filter((p) => keep(bike, p, tpl));
+  if (!stored.length && !all.some((p) => !isBlank(p))) return defaultParts(bike, tpl);
   const have = new Set(stored.map((p) => p.key));
-  const added = PARTS.filter((p) => !have.has(p.key) && onBike(bike, p)).map((p) => blank(p.key));
-  if (!added.length && stored.length === (bike.parts ?? []).length) return stored;
+  const added = [
+    ...PARTS.filter((p) => !have.has(p.key) && onBike(bike, p, tpl)).map((p) => blank(p.key)),
+    ...ownOf(tpl, kindOf(bike)).filter((p) => !have.has(p.key)).map(ownBlank),
+  ];
+  if (!added.length && stored.length === all.length) return stored;
   const areaRank = (p) => AREAS.findIndex((a) => a.key === areaOf(p));
   const order = (p) => (PART[p.key] ? PARTS.indexOf(PART[p.key]) : PARTS.length);
   return [...stored, ...added].map((p, n) => [p, n]).sort(([a, i], [b, j]) => areaRank(a) - areaRank(b) || order(a) - order(b) || i - j).map(([p]) => p);

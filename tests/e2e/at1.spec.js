@@ -92,7 +92,9 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
     // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line; the things packed and Strava after a tap
     await expect(pm.locator('[data-pack-line]')).toContainText(T('Weather'));
   } else {
-    await expect(pm.locator('[data-strava-of="2"]')).toHaveText(T('Strava: {n} activities', { n: 2 }));
+    await expect(pm.locator('[data-strava-of="2"]')).toContainText(T('Strava: {n} activities', { n: 2 }));
+    // 19.10.2026 «1a»: each activity of the trip is a link to its page
+    await expect(pm.locator('[data-strava-of="2"] a[data-act-link]')).toHaveCount(2);
     // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
     await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
   }

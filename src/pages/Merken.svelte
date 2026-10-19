@@ -27,6 +27,8 @@
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import KindSheet from '../lib/merken/KindSheet.svelte';
   import ListSheet from '../lib/merken/ListSheet.svelte';
+  import TrelloBox from '../lib/trello/TrelloBox.svelte';
+  import { trello } from '../lib/trello/client.svelte.js';
   import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/ownlists.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
 
@@ -122,6 +124,7 @@
 
   <div class="card list">
     <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
+    {#if trello.prefs?.on && trello.prefs?.todos?.sync}<p class="intr">{t('Also in Trello: list «To-dos»')}</p>{/if}
     <div class="kinds">
       <button type="button" class="chip" onclick={() => (kindSheet = { kind: 'birthday' })}><Cake size={16} aria-hidden="true" />{t('Birthday')}</button>
       <button type="button" class="chip" onclick={() => (kindSheet = { kind: 'plant' })}><Sprout size={16} aria-hidden="true" />{t('Plant')}</button>
@@ -218,7 +221,7 @@
           <li>
             <a class="mlrow" href={`#/calendar/list/${l.id}`}>
               <ListChecks size={18} aria-hidden="true" />
-              <span class="tx"><b>{l.name}</b>{#if l.pin}<small><Pin size={13} aria-hidden="true" />{pinOf(l)}</small>{/if}</span>
+              <span class="tx"><b>{l.name}</b>{#if l.pin}<small><Pin size={13} aria-hidden="true" />{pinOf(l)}</small>{/if}{#if l.sync === 'trello'}<small class="intr">{t('Also in Trello')}</small>{/if}</span>
               <span class="due">{l.check ? t('{n} open', { n: openCount(l) }) : t('{n} notes', { n: l.items.length })}</span>
               <ChevronRight size={18} aria-hidden="true" />
             </a>
@@ -229,6 +232,8 @@
       <p class="empty">{t('No list yet. A list can hold anything: shopping before a trip, ideas, a workshop list.')}</p>
     {/if}
   </section>
+
+  <TrelloBox />
 
   {#if done.length}
     <button type="button" class="fold" aria-expanded={showDone} onclick={() => (showDone = !showDone)}>{#if showDone}<ChevronDown size={16} aria-hidden="true" />{:else}<ChevronRight size={16} aria-hidden="true" />{/if}{t('Done')} · {done.length}</button>
@@ -252,6 +257,11 @@
 {/if}
 
 <style>
+  .intr {
+    margin: 2px 0 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .mk {
     max-width: 720px;
   }

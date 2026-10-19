@@ -121,6 +121,19 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
           },
+          {
+            // Paket S «Reise-Spur»: OpenStreetMap tiles seen once stay for the tour map offline (swisstopo: Paket J's «swisstopo-tiles»).
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
+          {
+            // Paket L2 «Bilderkennung»: the recognition (MediaPipe script, WebAssembly, models; about 30 MB) is
+            // NOT in the install-time cache; it is kept here after its first use, so it works offline after.
+            urlPattern: /^https:\/\/(cdn\.jsdelivr\.net\/npm\/@mediapipe\/|storage\.googleapis\.com\/mediapipe-models\/)/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'vision-models', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
       },
     }),

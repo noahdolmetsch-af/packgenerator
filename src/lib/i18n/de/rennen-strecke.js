@@ -39,7 +39,7 @@ export default {
   'No connection found.': 'Keine Verbindung gefunden.',
   'Next train home': 'Nächster Zug nach Hause',
   '{n} change': '{n} Umstieg',
-  '{n} changes': '{n} Umstiege',
+  '{n} changes': '{n}× umsteigen',
   'Direct|train': 'Direkt',
   'Weather when you are there': 'Wetter, wenn du dort bist',
   'Forecast from {date}': 'Prognose ab {date}',

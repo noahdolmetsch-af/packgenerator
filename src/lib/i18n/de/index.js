@@ -336,6 +336,12 @@ import formular from './formular.js';
 import rueckmeldungen from './rueckmeldungen.js';
 // «Alles selbst bearbeiten» (Noah 19.10.2026): add, rename and delete every kind of data
 import allesbearbeiten from './allesbearbeiten.js';
+// Paket O «Sportarten» (Noah 19.10.2026): gleiche Bausteine, Verlauf und Fortschritt, Helfer pro Sport
+import sportbausteine from './sportbausteine.js';
+// «Velo im Griff» (Noah 19.10.2026): Velo-Service nach km/Stunden/Tagen, Teilevorlage pro Velo-Art, Werkstatt-Spick
+import veloimgriff from './veloimgriff.js';
+// «Velo-Inspektion» (Noah 19.10.2026): Checkliste, drei Stufen, So geht's, Verlauf mit Fotos
+import inspektion from './inspektion.js';
 
 // SN3h–SN3j «Bausteine mehr»: nine new blocks, the stages, the groups of the Gesamtliste, «Baden» in Planen
 import bausteinemehr from './bausteinemehr.js';
@@ -409,6 +415,33 @@ import klarer from './klarer.js';
 // Paket L «Werkzeugkasten» (Noah 19.10.2026): Rechner, Masse, Zeitzonen, Kompass, Sätze, PDF, Fotos
 import werkzeugkasten from './werkzeugkasten.js';
 
+// Paket K «Unterwegs»
+import unterwegs from './unterwegs.js';
+
+// Paket M «Aus Touren lernen» and «Neuland»
+import lernen from './lernen.js';
+import lernenquiz from './lernenquiz.js';
+import lernenrueckschau from './lernenrueckschau.js'; // Chronik, Was die App gelernt hat, Jahr als Bildgeschichte // Quiz am Vorabend, 3 Beobachtungen pro Woche
+import neuland from './neuland.js';
+
+// Paket S «Reise-Spur» (Noah 19.10.2026): Hier bin ich, Aufzeichnen, Tour-Karte, Link für die Familie, Reisebuch
+import reisespur from './reisespur.js';
+
+// Paket L2 «Bilderkennung» (Noah 19.10.2026): Packliste per Foto, Sitzposition per Foto oder Video
+import bilderkennung from './bilderkennung.js';
+
+// Paket R «Andere Menschen und Geld» (Noah 19.10.2026): Anmelden, Datenschutz, Tagesgrenze, Velomech und Guide
+import paketr from './paketr.js';
+
+
+// Trello (Noah 19.10.2026 «1a 2a 3b 4a 5a»): Merken and own lists with the board «Packgenerator»
+import trello from './trello.js';
+
+
+// «Strava-Fahrt vollständig» (Noah 19.10.2026 «1a 2a 3a 4a 5b»)
+import stravafahrt from './stravafahrt.js';
+
+
 // Paket U «Rennen»: Touren › Rennen (plan, strategy, prepare, along the route, race mode, after, sample race)
 import rennen from './rennen.js';
 import rennenVorbereiten from './rennen-vorbereiten.js';
@@ -418,4 +451,4 @@ import anstiege from './anstiege.js';
 import offlineKarte from './offline-karte.js';
 import karte from './karte.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...abholwerte, ...messen, ...bausteine, ...garmin, ...taschensetups, ...merken, ...geburtstage, ...eigenewerte, ...ausruestung, ...gipfelbuch, ...saisonstart, ...sportarten, ...uiregeln, ...impeccableUnterwegs, ...impeccableVelos, ...impeccableIch, ...impeccableMaterial, ...impeccableTouren, ...deinefahrten, ...ski, ...skitag, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...rueckmeldungen, ...formular, ...allesbearbeiten, ...bausteinemehr, ...medhome, ...heuteneu, ...tagescheck3, ...impeccable2Velos, ...impeccable2Rueckblick, ...impeccable2Ich, ...impeccable2Material, ...impeccableAktiv, ...impeccable2Aktivheute, ...impeccable2Aktiv, ...impeccable2Touren, ...routine, ...fenster, ...erkenntnisse, ...wocheplanen, ...rundgang, ...paketg, ...seetemperatur, ...sterneg, ...fitbitexport, ...routepois, ...paketn, ...wohl, ...packenleichter, ...bergnotfall, ...werkzeugkasten, ...rennen, ...rennenVorbereiten, ...rennenStrecke, ...rennenUnterwegs, ...anstiege, ...offlineKarte, ...karte, ...klarer };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...abholwerte, ...messen, ...bausteine, ...garmin, ...taschensetups, ...merken, ...geburtstage, ...eigenewerte, ...ausruestung, ...gipfelbuch, ...saisonstart, ...sportarten, ...uiregeln, ...impeccableUnterwegs, ...impeccableVelos, ...impeccableIch, ...impeccableMaterial, ...impeccableTouren, ...deinefahrten, ...ski, ...skitag, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...rueckmeldungen, ...formular, ...allesbearbeiten, ...bausteinemehr, ...medhome, ...heuteneu, ...tagescheck3, ...impeccable2Velos, ...impeccable2Rueckblick, ...impeccable2Ich, ...impeccable2Material, ...impeccableAktiv, ...impeccable2Aktivheute, ...impeccable2Aktiv, ...impeccable2Touren, ...routine, ...fenster, ...erkenntnisse, ...wocheplanen, ...rundgang, ...paketg, ...seetemperatur, ...sterneg, ...fitbitexport, ...routepois, ...paketn, ...wohl, ...packenleichter, ...bergnotfall, ...werkzeugkasten, ...unterwegs, ...lernen, ...lernenquiz, ...lernenrueckschau, ...neuland, ...reisespur, ...sportbausteine, ...veloimgriff, ...inspektion, ...bilderkennung, ...paketr, ...trello, ...stravafahrt, ...rennen, ...rennenVorbereiten, ...rennenStrecke, ...rennenUnterwegs, ...anstiege, ...offlineKarte, ...karte, ...klarer };

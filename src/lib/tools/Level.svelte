@@ -58,7 +58,7 @@
   </div>
   {#if tilt}
     <p class="tool-big" aria-live="polite" data-angle={angle}>
-      {isLevel(angle) ? t('Level') : `${Math.abs(angle).toFixed(1)}°`}
+      {isLevel(angle) ? t('Level|bubble') : `${Math.abs(angle).toFixed(1)}°`}
       <small class="tool-muted">{t('{pct} % slope', { pct: slopePct(angle) })}</small>
     </p>
     <div class="tool-row">

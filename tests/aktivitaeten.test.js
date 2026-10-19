@@ -108,8 +108,8 @@ describe('AT1 list (answer 4b)', () => {
 
   it('the Strava line of a Packmodus row', () => {
     const t1 = trip('t1', '2026-10-06');
-    expect(stravaOfTrip(t1, [act('1', '2026-10-06', { name: 'Napf' })])).toEqual({ n: 1, name: 'Napf' });
-    expect(stravaOfTrip(t1, [])).toEqual({ n: 0, name: '' });
+    expect(stravaOfTrip(t1, [act('1', '2026-10-06', { name: 'Napf' })])).toMatchObject({ n: 1, name: 'Napf' });
+    expect(stravaOfTrip(t1, [])).toMatchObject({ n: 0, name: '' });
   });
 });
 

@@ -1678,3 +1678,18 @@ Zusammengefasst aus Noahs Antworten im Projekt (ohne private Inhalte). Der heuti
 - Pakete mit geänderter Daten-Ablage werden vorher mit einer Backup-Kopie geprüft.
 - «zurück» nimmt ein Paket sofort wieder raus.
 - Grund: schneller von der Freigabe bis online.
+- **Paket K «Unterwegs» (Noah 19.10.2026 12:23 «1a und b 2 a und b möglich 4a und kann manuell geändert werden 5a und b», 12:25 «5a b möglich»):** Nach Hause zeigt die nächsten 3 Züge (transport.opendata.ch, gratis) und Knöpfe für Auto, Velo und ÖV in Google Maps; der Standort nur beim Öffnen, nie gespeichert. Lenker-Ansicht mit 4 festen Zahlen (Zeit, km, Höhenmeter, nächstes Essen), bis 6 selbst wählbar und ordnen. Handschuh-Modus automatisch unter 5 °C oder an einem Skitourentag, von Hand An/Aus. Ess-Erinnerung in der App mit Ton und Vibration, bei geschlossener App als Mitteilung (Art «Essen unterwegs»). Blatt «Vor der Abfahrt» offline und als PDF.
+- **Selbst entschieden (Paket K):** km in der Lenker-Ansicht geschätzt aus Startzeit und Tempo, mit «Mit GPS messen» gemessen (nur solange offen); Ess-Erinnerung alle 30/45/60 min, «In 10 Minuten», höchstens 12 h; Umwandeln mit der ganzen GPX-Datei oder der gekürzten Tour-Strecke (200 Punkte); Orte-Texte von Wikipedia nur auf Knopfdruck (Start, Mitte, Ziel), bei der Tour gespeichert; «Bereit für heute?» auf Unterwegs am Tourtag und beim Packen jeder geplanten Tour, Hör-Tipps pro Tourart frei hinzufügen, umbenennen, löschen; Notfallnummern der Schweiz plus eigene Notfallkontakte.
+
+## 19.10.2026: Paket R «Andere Menschen und Geld»
+
+- **Noah 13:44 «1b 2a oder b 3a und b vorbereiten 4a 5 keine inhalte von anderen»:** (1b) die App ist für alle offen. (2) Abgleich wahlweise «Mit Google anmelden» oder ohne Konto mit Code/Einladungs-Link; ohne beides bleibt alles lokal. (3) Alles gratis; Pro 29 CHF bleibt vorbereitet und aus (`PLANS.app_once`, `PAY_MODE` off, `LOCKED` false). (4a) Velomech/Guide nur als eigene Liste mit Anfrage per Mail, Link oder Telefon, kein Geld über die App. (5) Keine Inhalte von anderen: keine Follower, Kommentare, geteilten Listen.
+- **Tagesgrenze:** jeder Server-Aufruf zählt pro Schweizer Tag (`api/_lib/daycap.js`, in `route()`); über der Grenze antwortet der Server 429 «daily_cap», die App sagt «morgen wieder». Der Wächter meldet einen Tag mit erreichter Grenze (Check «tagesgrenze»).
+- **Selbst entschieden:** die Google-Anmeldung fragt nur «openid email» und nutzt die schon eingetragene Rückkehr-Adresse `/api/google/callback` (Zustand «account»). Der Server behält keine Mail-Adresse; der Code des Kontos liegt mit `ACCOUNT_SECRET` versiegelt in Redis. Strava, Fitbit, Kalender, Mail und KI bleiben Verbindungen des Server-Besitzers. Neue Seiten Ich › «Datenschutz und Nutzung» (#/me/privacy) und Ich › «Velomech und Guide» (#/me/pros, Einstellung `pros`). Kontakt auf der Datenschutz-Seite: GitHub-Issues, kein echter Name.
+
+## 19.10.2026: Paket 2 (0.154.0) als ein Release (Noah 15:14 «1a»)
+
+- K, M, S, O/I mit Velo-Inspektion, L2, R, Trello und Strava-Fahrten kommen zusammen in 0.154.0, nach Paket 1.
+- **Selbst entschieden (Bündler):** Dexie-Nummern in Merge-Reihenfolge: 16 tracks (S), 17 sportItems (O), 18 inspections (Inspektion). Backup-Test ohne Verlust.
+- **Selbst entschieden (Bündler):** gleiche englische Texte mit verschiedenem Deutsch bekommen einen Zusatz: «Count|tick» (Zählen), «Level|bubble» (Gerade), «Watch|inspect» (Beobachten); «Goggles» heisst überall «Brille», «Torch» überall «Taschenlampe», «Add|row» überall «Dazu». K's Funktion «Route umwandeln» heisst f.routeconvert (L hat f.convert).
+- **Selbst entschieden (Bündler):** der Familien-Link (#/spurlink) zeigt auch keine Rückkehr- und Jahres-Fenster und keinen Tour-Start (wie «share»).
