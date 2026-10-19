@@ -27,7 +27,7 @@ import { localDay } from './localday.js';
 import { own } from './ownlive.svelte.js';
 import { partStdOf } from './ownvalues.js';
 import { vig } from './veloimgriff.svelte.js';
-import { kindOf, partOn, ownOf } from './bikekind.js';
+import { kindOf, partOn, ownOf, bikePartOn } from './bikekind.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -189,7 +189,15 @@ export function fits(bike, p) {
  * gravel, mountain bike; the person's own templates live in settings, vig.tpl). Rear shock and linkage
  * still only on a full suspension (fits). Own template parts come as own parts (tpl: true).
  */
-const onBike = (bike, p, tpl = vig.tpl) => !p.legacy && partOn(tpl, kindOf(bike), p.key) && (p.suspension !== 'full' || fits(bike, p)) && (p.spec || fits(bike, p));
+const onBike = (bike, p, tpl = vig.tpl) => {
+  if (p.legacy) return false;
+  // Noah 19.10.2026 «teile können eingeblendet werden oder ausgeblendet»: this bike's own choice wins
+  const own = bikePartOn(bike, p.key);
+  if (own != null) return own;
+  return partOn(tpl, kindOf(bike), p.key) && (p.suspension !== 'full' || fits(bike, p)) && (p.spec || fits(bike, p));
+};
+/** Is this built-in part on the bike right now (its template, or the bike's own show/hide)? */
+export const partOnBike = (bike, key, tpl = vig.tpl) => (PART[key] ? onBike(bike, PART[key], tpl) : true);
 const blank = (key) => ({ key, model: '', history: [] });
 const ownBlank = (p) => ({ key: p.key, name: p.name, area: p.area, tpl: true, model: '', history: [] });
 const CARE_FIELDS = ['everyKm', 'everyDays', 'everyHours', 'warnAt', 'limit'];

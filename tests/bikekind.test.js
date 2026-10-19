@@ -96,3 +96,27 @@ describe('ensureParts never drops a part with data', () => {
     for (const p of PARTS.filter((x) => !x.legacy)) expect(KINDS.some((k) => partOn(null, k, p.key))).toBe(true);
   });
 });
+
+describe('one bike shows or hides a part (Noah 19.10.2026)', () => {
+  it('bikePartOn and setBikePart keep one list per choice', async () => {
+    const { bikePartOn, setBikePart } = await import('../src/lib/bikekind.js');
+    expect(bikePartOn({}, 'fork')).toBe(null);
+    let bike = { ...setBikePart({}, 'fork', false) };
+    expect(bike).toEqual({ partsOn: [], partsOff: ['fork'] });
+    expect(bikePartOn(bike, 'fork')).toBe(false);
+    bike = { ...bike, ...setBikePart(bike, 'fork', true) };
+    expect(bike).toEqual({ partsOn: ['fork'], partsOff: [] });
+    expect(bikePartOn(bike, 'fork')).toBe(true);
+  });
+  it('the bike choice wins over the template in ensureParts, a part with data always stays', async () => {
+    const { ensureParts } = await import('../src/lib/care.js');
+    const road = { id: 'b', type: 'Road', parts: [] };
+    expect(ensureParts(road).some((p) => p.key === 'fork')).toBe(false);
+    expect(ensureParts({ ...road, partsOn: ['fork'] }).some((p) => p.key === 'fork')).toBe(true);
+    const gravel = { id: 'g', type: 'Gravel', parts: [] };
+    expect(ensureParts(gravel).some((p) => p.key === 'fork')).toBe(true);
+    expect(ensureParts({ ...gravel, partsOff: ['fork'] }).some((p) => p.key === 'fork')).toBe(false);
+    const withData = { ...gravel, partsOff: ['fork'], parts: [{ key: 'fork', model: 'test_data_gtp_ Gabel', history: [] }] };
+    expect(ensureParts(withData).some((p) => p.key === 'fork')).toBe(true);
+  });
+});

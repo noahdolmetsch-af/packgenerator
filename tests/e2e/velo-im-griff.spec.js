@@ -154,3 +154,21 @@ test('workshop cheat sheet: the torque note, own rows, a breakdown', async ({ pa
   await chain.locator('summary').click();
   await expect(chain).toContainText(T('Push the damaged link out with the chain tool.'));
 });
+
+// Noah 19.10.2026 «1a und teile können eingeblendet werden oder ausgeblendet»: per bike, over the template
+test('parts of one bike: hide a part of its template, show one it does not have', async ({ page }) => {
+  await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  const card = page.locator('[data-velo-card]');
+  await card.locator('[data-parts-fold]').click();
+  const fork = card.locator('[data-bike-part="fork"] button');
+  const shock = card.locator('[data-bike-part="shock"] button');
+  await expect(fork).toHaveAttribute('aria-pressed', 'true'); // gravel: fork in the template
+  await expect(shock).toHaveAttribute('aria-pressed', 'false'); // gravel: no rear shock
+  await fork.click();
+  await expect(fork).toHaveAttribute('aria-pressed', 'false');
+  await shock.click();
+  await expect(shock).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(async () => { const b = await stored(page); return [b.partsOff, b.partsOn]; }).toEqual([['fork'], ['shock']]);
+  await fork.click();
+  await expect.poll(async () => (await stored(page)).partsOff).toEqual([]);
+});

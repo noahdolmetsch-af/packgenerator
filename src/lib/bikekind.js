@@ -69,6 +69,21 @@ export function partOn(templates, kind, key) {
 /** The own parts of a kind's template, in their order. */
 export const ownOf = (templates, kind) => normTemplates(templates)[kind]?.own ?? [];
 
+/**
+ * One bike's own choice for a built-in part (Noah 19.10.2026 «teile können eingeblendet werden oder
+ * ausgeblendet»): bike.partsOn / bike.partsOff win over the kind's template. true, false, or null (template).
+ */
+export function bikePartOn(bike, key) {
+  if (Array.isArray(bike?.partsOn) && bike.partsOn.includes(key)) return true;
+  if (Array.isArray(bike?.partsOff) && bike.partsOff.includes(key)) return false;
+  return null;
+}
+/** Show or hide a built-in part on one bike → the patch { partsOn, partsOff } for the bike. */
+export function setBikePart(bike, key, on) {
+  const drop = (list) => (Array.isArray(list) ? list.filter((k) => k !== key) : []);
+  return { partsOn: on ? [...drop(bike?.partsOn), key] : drop(bike?.partsOn), partsOff: on ? drop(bike?.partsOff) : [...drop(bike?.partsOff), key] };
+}
+
 /** Has the person changed this kind's template? */
 export function changed(templates, kind) {
   const t = normTemplates(templates)[kind];

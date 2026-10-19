@@ -8,12 +8,13 @@
    * - #327 one row to the «Werkstatt-Spick» (torque values, breakdowns), which works offline.
    * bike: the bike AS STORED; km: its km; oncare(patch): stores fields on the bike.
    */
-  import { Wrench, ChevronRight, Check, Settings2, BookOpen, Shapes } from '@lucide/svelte';
+  import { Wrench, ChevronRight, ChevronDown, Check, Settings2, BookOpen, Shapes, Eye, EyeOff } from '@lucide/svelte';
+  import { PARTS, partName, partOnBike, isBlank } from '../care.js';
   import { t, num, dateOf } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { bikesHash } from '../bikes.js';
   import { vig } from '../veloimgriff.svelte.js';
-  import { KINDS, KIND_NAME, kindOf } from '../bikekind.js';
+  import { KINDS, KIND_NAME, kindOf, setBikePart } from '../bikekind.js';
   import { hoursText, hoursOn, speedOf } from '../bikehours.js';
   import { serviceState, serviceDone, serviceSwitch } from '../bikeservice.js';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -27,6 +28,14 @@
   const kind = $derived(kindOf(bike));
   const sv = $derived(serviceState({ ...bike, km }, series, today));
   let sheet = $state(false);
+  let showParts = $state(false);
+  // the bike's own show/hide of each part (Noah 19.10.2026 «teile können eingeblendet werden oder ausgeblendet»)
+  const partRows = $derived(
+    PARTS.filter((p) => !p.legacy).map((p) => {
+      const stored = (bike.parts ?? []).find((x) => x.key === p.key);
+      return { key: p.key, name: partName(p), on: partOnBike(bike, p.key, vig.tpl), full: !!stored && !isBlank(stored) };
+    }),
+  );
   let busy = $state(false);
 
   async function store(patch) {
@@ -89,6 +98,19 @@
     <Seg options={KINDS.map((k) => ({ key: k, name: t(KIND_NAME[k]) }))} value={kind} labelledby="vig-kind-{bike.id}" full={false} small onchange={(k) => store({ kind: k })} />
   </div>
   <p class="hint">{t('The kind sets which parts the bike gets and the speed for the hour estimate.')}</p>
+
+  <button type="button" class="lnk fold" aria-expanded={showParts} onclick={() => (showParts = !showParts)} data-parts-fold><ChevronDown size={16} aria-hidden="true" />{t('Show or hide parts of this bike')}</button>
+  {#if showParts}
+    <p class="hint">{t('Hidden parts do not show on this bike. A part with entries always stays.')}</p>
+    <ul class="parts" data-bike-parts>
+      {#each partRows as r (r.key)}
+        <li data-bike-part={r.key} class:off={!r.on && !r.full}>
+          <span>{r.name}{#if r.full}<small> · {t('has entries')}</small>{/if}</span>
+          <button type="button" class="btn" aria-pressed={r.on || r.full} disabled={busy || r.full} aria-label={r.on || r.full ? t('Hide «{name}»', { name: r.name }) : t('Show «{name}»', { name: r.name })} onclick={() => store(setBikePart(bike, r.key, !r.on))}>{#if r.on || r.full}<Eye size={16} aria-hidden="true" />{t('Shown')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hidden')}{/if}</button>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 
   <nav class="links" aria-label={t('More for the bike')}>
     <a href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates><Shapes size={16} aria-hidden="true" /><span>{t('Part template')}<small>{t('Which parts a {kind} gets', { kind: t(KIND_NAME[kind]) })}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
@@ -179,6 +201,40 @@
     gap: 6px 12px;
     padding-top: 10px;
     border-top: 1px solid var(--line);
+  }
+  .fold {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+  }
+  .parts {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: grid;
+  }
+  .parts li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+  }
+  .parts li span {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .parts li.off span {
+    color: var(--ink-3);
+  }
+  .parts .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
   }
   .links {
     display: grid;

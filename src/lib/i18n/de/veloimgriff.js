@@ -155,4 +155,11 @@ export default {
   'Open Bikes › Care › a bike › «Workshop cheat sheet».': 'Öffne Velos › Pflege › ein Velo › «Werkstatt-Spick».',
   'Look up the torque; add your own values.': 'Schau das Drehmoment nach; trag deine eigenen Werte ein.',
   'Under «Breakdown help» open the breakdown you have.': 'Unter «Pannenhilfe» öffnest du die Panne, die du hast.',
+  // Noah 19.10.2026 «teile können eingeblendet werden oder ausgeblendet»
+  'Show or hide parts of this bike': 'Teile dieses Velos ein- oder ausblenden',
+  'Hidden parts do not show on this bike. A part with entries always stays.': 'Ausgeblendete Teile erscheinen bei diesem Velo nicht. Ein Teil mit Einträgen bleibt immer.',
+  'has entries': 'hat Einträge',
+  'Hide «{name}»': '«{name}» ausblenden',
+  'Show «{name}»': '«{name}» einblenden',
+  Shown: 'Eingeblendet',
 };
