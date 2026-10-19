@@ -35,8 +35,11 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
 }
 
 export async function savePrefs(patch, db = appDb) {
-  const old = (await db.settings.get(AGENDA_KEY))?.value ?? {};
-  await db.settings.put({ key: AGENDA_KEY, value: { ...old, ...patch } });
+  // read and write in one step, so a change made meanwhile is not undone
+  await db.transaction('rw', db.settings, async () => {
+    const old = (await db.settings.get(AGENDA_KEY))?.value ?? {};
+    await db.settings.put({ key: AGENDA_KEY, value: { ...old, ...patch } });
+  });
 }
 
 /** Keep Google's events (the whole span is fetched each time, so the old copy goes). */

@@ -46,8 +46,12 @@
   const writable = $derived(p.calendars.filter((c) => c.write));
   const calName = (id) => p.calendars.find((c) => c.id === id)?.name ?? '';
 
+  // The first fetch once per visit: when it fails, «Fetch now» tries again (no loop against the server).
+  let firstTried = false;
   $effect(() => {
-    if (hasKey && agenda.loaded && !agenda.busy && !p.lastSync && on) fetchNow();
+    if (firstTried || !hasKey || !agenda.loaded || agenda.busy || p.lastSync || !on) return;
+    firstTried = true;
+    fetchNow();
   });
   $effect(() => {
     if (hasKey && agenda.loaded && !on && !agenda.justConnected) checkAllowed();

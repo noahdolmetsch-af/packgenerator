@@ -40,8 +40,11 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
 }
 
 export async function savePrefs(patch, db = appDb) {
-  const old = (await db.settings.get(DOCS_KEY))?.value ?? {};
-  await db.settings.put({ key: DOCS_KEY, value: { ...old, ...patch } });
+  // read and write in one step, so a change made meanwhile (a group renamed or deleted) is not undone
+  await db.transaction('rw', db.settings, async () => {
+    const old = (await db.settings.get(DOCS_KEY))?.value ?? {};
+    await db.settings.put({ key: DOCS_KEY, value: { ...old, ...patch } });
+  });
 }
 
 const newId = () => `doc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -168,7 +171,7 @@ export async function checkDrive({ db = appDb, c = call } = {}) {
   if (!readKey()) return false;
   try {
     const st = await c('status');
-    await savePrefs({ drive: !!st.drive }, db);
+    if (prefsOf((await db.settings.get(DOCS_KEY))?.value).drive !== !!st.drive) await savePrefs({ drive: !!st.drive }, db);
     return !!st.drive;
   } catch {
     return null;

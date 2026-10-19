@@ -79,8 +79,12 @@
     if (ex) return t('valid until {month}', { month: monthName(ex.until) });
     return d.note || day(d.docDate ?? d.createdAt);
   }
+  // Once per visit: every answer saves the prefs, and new prefs would run this again and again.
+  let driveChecked = false;
   $effect(() => {
-    if (hasKey && docs.loaded && docs.prefs.drive) checkDrive().catch(() => {});
+    if (driveChecked || !hasKey || !docs.loaded || !docs.prefs.drive) return;
+    driveChecked = true;
+    checkDrive().catch(() => {});
   });
   async function upNow() {
     const n = await uploadMissing();

@@ -2,10 +2,11 @@
 // mockup»): Ich › Dokumente, two fictional gallery photos of a sheet on a dark table become one PDF in
 // «Importierte PDF», the text reading fails quietly (everything outside the preview server is blocked),
 // rename and move to an own group work, and Google Drive is connected with the same Google login as
-// Fitbit and gets the PDF. The server (packgen-three.vercel.app/api/google) is answered by the test.
+// Fitbit and gets the PDF; renaming, undoing and deleting its group moves the Drive copy along. The server (packgen-three.vercel.app/api/google) is answered by the test.
 import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
+import { renameGroupVia, deleteGroupVia } from './groups.js';
 
 const P = 'test_data_gtp_';
 const de = (en) => DE[en] ?? en;
@@ -151,6 +152,26 @@ test('Dokumente: two gallery photos become one PDF, rename, own group, then Goog
   await expect.poll(async () => (await readTable(page, 'docs'))[0].drive?.id).toBe(`${P}file1`);
   await expect(page.getByText(de('In your Google Drive'), { exact: true })).toBeVisible();
   await shot(page, info, 'D5-drive');
+  // the page asks Google once per visit whether Drive is allowed, not again on every saved setting
+  const asked = log.filter((x) => x.step === 'status').length;
+  await page.waitForTimeout(1500);
+  expect(log.filter((x) => x.step === 'status').length - asked).toBeLessThanOrEqual(1);
+
+  // the Drive copy follows its group: rename, Undo and delete each move it into the folder of the group it is in now
+  const moves = () => log.filter((x) => x.step === 'drive-move').map((x) => x.json);
+  await renameGroupVia(page, 'Belege', 'Quittungen');
+  await expect(page.getByRole('heading', { level: 2, name: 'Quittungen' })).toBeVisible();
+  await expect.poll(moves).toContainEqual({ fileId: `${P}file1`, root: 'pdf', group: 'Quittungen' });
+  const n = moves().length;
+  await page.locator('[data-group-undo]').getByRole('button', { name: de('Undo') }).click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Belege' })).toBeVisible();
+  await expect.poll(() => moves().slice(n)).toContainEqual({ fileId: `${P}file1`, root: 'pdf', group: 'Belege' });
+  const m = moves().length;
+  await deleteGroupVia(page, 'Belege');
+  await page.locator('dialog.gds[open]').getByRole('button', { name: de('Delete'), exact: true }).click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Belege' })).toHaveCount(0);
+  await expect.poll(() => moves().slice(m)).toContainEqual({ fileId: `${P}file1`, root: 'pdf', group: '' });
+  await expect.poll(async () => (await readTable(page, 'docs'))[0].group).toBe('');
 
   expect(errors).toEqual([]);
 });

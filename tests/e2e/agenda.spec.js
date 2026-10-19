@@ -29,6 +29,7 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   page.on('pageerror', (e) => errors.push(e.message));
   const log = [];
   let allowed = false;
+  let failList = 1; // the first fetch after the login fails once: the page shows it and waits for «Jetzt holen»
   const tasks = [
     { id: 't1', list: 'l1', title: 'Kette messen', notes: '', due: day(2), done: false, doneAt: null, parent: null, position: '1' },
     { id: 't2', list: 'l1', title: 'Pneu flicken', notes: 'hinten', due: day(-1), done: false, doneAt: null, parent: null, position: '2' },
@@ -46,6 +47,7 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
     const ok = (b) => route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ ok: true, ...b }) });
     if (step === 'status') return ok({ connected: allowed, calendar: allowed, tasks: allowed });
     if (step === 'start') return ok({ url: 'https://accounts.google.com/o/oauth2/v2/auth?client_id=x&state=y' });
+    if (step === 'cal-list' && failList-- > 0) return route.fulfill({ status: 503, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ error: 'google_down' }) });
     if (step === 'cal-list') return ok({ calendars: [{ id: 'cal1', name: 'Noah Muster', color: '#4a90d9', primary: true, write: true }, { id: 'cal2', name: 'Feiertage', color: '#7a9a5a', primary: false, write: false }] });
     if (step === 'cal-events') return ok({ events: [ev('Zahnarzt Muster', day(0), { where: 'Praxis Muster' }), ev('Tennis-Lektion', day(1), { start: `${day(1)}T18:00:00+02:00`, end: `${day(1)}T19:00:00+02:00` }), ev('Jura-Wochenende', day(3), { allDay: true, lastDay: day(4), start: day(3) })] });
     if (step === 'task-lists') return ok({ lists: [{ id: 'l1', title: 'Meine Aufgaben' }] });
@@ -81,6 +83,11 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await expect(page.getByRole('heading', { name: de('Appointments'), exact: true })).toBeVisible();
   expect(page.url()).not.toContain('google=');
   expect(log.find((x) => x.step === 'start').body.services).toEqual(['calendar', 'tasks']);
+  // a failed first fetch is not repeated by itself (no loop against the server); «Jetzt holen» tries again
+  await expect.poll(() => log.filter((x) => x.step === 'cal-list').length).toBe(1);
+  await page.waitForTimeout(1500);
+  expect(log.filter((x) => x.step === 'cal-list').length).toBe(1);
+  await page.getByRole('button', { name: de('Fetch now') }).click();
   await expect.poll(() => log.find((x) => x.step === 'cal-events')?.params).toMatchObject({ from: day(-7), to: day(60), cal: 'cal1' });
   expect(log.find((x) => x.step === 'cal-events').auth).toBe(`Bearer ${P}key`);
   await expect(page.getByText('Zahnarzt Muster')).toBeVisible();
