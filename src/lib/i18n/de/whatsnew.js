@@ -4,6 +4,19 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.150.0 Paket C «Heute und Aktiv»
+  'Today in a calm order': 'Heute in ruhiger Reihenfolge',
+  'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.': 'Heute folgt der Tageszeit: oben eine Tageskarte, der Tages-Check in einem eigenen Fenster, deine Balance als ein Ring und eine kurze Liste, was dir guttut.',
+  'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care': 'Die Tageskarte: am Morgen das Wetter und was anziehen, am Tag Schnellstart und deine Velos, am Abend Rückblick, km und Velopflege',
+  'Morning check and evening review come as a window with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas, the tile «Your 15 questions» which question comes when': 'Morgen-Check und Abend-Rückblick kommen als Fenster mit «Später» (in einer Stunde wieder) und «Heute nicht»; der grosse Ring zeigt deine neun Bereiche, die Kachel «Deine 15 Fragen», welche Frage wann kommt',
+  '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak': '«Das tut mir gut»: eine kurze Liste auf Heute, Tag für Tag abgehakt; ein leerer Tag unterbricht die Serie',
+  'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups': 'Neun neue Bausteine für Schlaf, Winter und Baden, je mit Beispiel-Teilen; die Bausteine in fünf Gruppen',
+  'Aktiv on Today: sleep, your last activity and the next fixed date; Aktiv › Today without the doubles, «Stopwatch ›» in the head': 'Aktiv auf Heute: Schlaf, deine letzte Aktivität und der nächste feste Termin; Aktiv › Heute ohne Doppeltes, «Stoppuhr ›» im Kopf',
+  'Calmer pages: Rides, Setup and Inspiration with their own head, Pay with Invoices first, Notes and Inbox shorter': 'Ruhigere Seiten: Fahrten, Setup und Inspiration mit eigenem Kopf, Bezahlen mit Rechnungen zuerst, Notizen und Eingang kürzer',
+  'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».': 'Öffne Heute am Morgen: die Meditationskarte, dann die Tageskarte «Morgen»; tippe in ihrer kleinen Uhr auf «Tag»: Schnellstart und «Velos bereit?».',
+  'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.': 'Öffne den Morgen-Check aus der Tageskarte und tippe «Später»: das Fenster schliesst sich und kommt in einer Stunde wieder; «Heute nicht» lässt es bis morgen.',
+  'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.': 'Tippe auf Heute eine Zeile der Kachel «Das tut mir gut» an: sie ist abgehakt; öffne «Liste ändern» und füge einen Vorsatz hinzu.',
+  'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.': 'Öffne Material › Bausteine: fünf Gruppen; «Je nach Lage» und «Baden» sind offen.',
   // 0.149.0 Paket E «Material, Velos, Merken»
   'Remember, set up, sport by sport': 'Merken, einrichten, Sport für Sport',
   'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.': 'Die App merkt sich deine To-dos und Geburtstage, jedes Velo behält seine Taschen-Setups, jede Tour hat ihre eigene Sportart, und alles kannst du selbst umbenennen und löschen.',

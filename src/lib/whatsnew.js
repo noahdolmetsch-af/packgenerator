@@ -16,6 +16,31 @@
 
 export const WHATS_NEW = [
   {
+    // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
+    // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
+    // Impeccable round 2 (Aktiv · Heute, timer and the other pages). Paket Aktiv itself comes later.
+    version: '0.150.0',
+    date: '2026-10-19',
+    title: 'Today in a calm order',
+    lead: 'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.',
+    points: [
+      { text: '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak', href: '#/routine' },
+      { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care', href: '#/' },
+      { text: 'Morning check and evening review come as a window with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas, the tile «Your 15 questions» which question comes when', href: '#/check/morning' },
+    ],
+    small: [
+      { box: 'new', text: 'Nine new building blocks for sleep, winter and bathing, each with example parts; the blocks in five groups', href: '#/blocks' },
+      { box: 'nicer', text: 'Aktiv on Today: sleep, your last activity and the next fixed date; Aktiv › Today without the doubles, «Stopwatch ›» in the head', href: '#/flow' },
+      { box: 'nicer', text: 'Calmer pages: Rides, Setup and Inspiration with their own head, Pay with Invoices first, Notes and Inbox shorter' },
+    ],
+    test: [
+      'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',
+      'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.',
+      'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.',
+      'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.',
+    ],
+  },
+  {
     // v0.149.0 Paket E «Material, Velos, Merken»: P4/P5 (Werte messen W1–W6, Bausteine, Bezahl-Erinnerung, Garmin-Seiten
     // with the Edge 850, Taschen-Setups, Erinnerungen ER1–ER3, Merken PL3), Geburtstage + Pflanzen, Eigene Werte,
     // Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Touren › Skitouren), Sportart SA1–SA3, Eigene Listen,

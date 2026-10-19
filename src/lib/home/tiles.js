@@ -67,16 +67,16 @@ export const TILES = [
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
   // Tages-Check back (Noah 18.10.2026 «3 a und b», mockup T3c): the questions folded on Heute, with their page
-  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.155.0', pitch: 'Which questions come when; each one can be switched off.' },
+  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
   // v0.97.0 «Skitouren»: Touren › Skitouren (home/SkiTile.svelte; in season November–May, quiet outside it)
   { id: 'ski', area: 'trips', label: 'Ski tour', icon: 'bag', sizes: ['s', 'w'], size: 's', since: '0.97.0', pitch: 'Your next ski tour with its backpack check, November to May.' },
   // 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 «1a 2a 3a 4b HN4 freigegeben»; HN3a, HA1b)
-  { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.155.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
+  { id: 'daycard', area: 'today', label: 'Day card', icon: 'sun', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Morning, day, evening, night: what fits the time of day, in one card.' },
   // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben», 1a: a wide tile at the top of Heute)
-  { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.156.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
-  { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.155.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
+  { id: 'routine', area: 'today', label: 'What does me good', icon: 'heart', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'A short list of what does you good, ticked off day by day, with days in a row.' },
+  { id: 'aktiv', area: 'flow', label: 'Active|place', icon: 'flow', sizes: ['l', 'long'], size: 'long', since: '0.150.0', pitch: 'Sleep, your last activity, the next fixed date and the ways into Aktiv.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
