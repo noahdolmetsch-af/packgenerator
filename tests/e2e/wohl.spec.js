@@ -9,7 +9,7 @@ const shot = async (page, info, name) => {
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 const AREA = (qid) => qid.split('.')[0];
-const KIND = { 'erreicht.zufrieden': 'scale', 'natur.draussen': 'chips', 'freunde.zeit': 'chips', 'achtsamkeit.moment': 'yesno' };
+const KIND = { 'erholung.akku': 'scale', 'achtsamkeit.dank': 'scale', 'erreicht.zufrieden': 'scale', 'natur.draussen': 'chips', 'freunde.zeit': 'chips', 'achtsamkeit.moment': 'yesno' };
 /** 30 days: every second day outside and with friends (day score 8), the others not (5); a mindful moment every third day. */
 function answers() {
   const out = [];
@@ -21,7 +21,10 @@ function answers() {
     add('natur.draussen', on ? 'm90' : 'm0');
     add('freunde.zeit', on ? 'much' : 'no');
     add('achtsamkeit.moment', i % 3 === 0 ? 'yes' : 'no');
+    if (i <= 4) out.push({ id: `wohl-dank-${d}`, qid: 'achtsamkeit.dank', area: 'achtsamkeit', day: d, at: `${d}T20:00`, slot: null, kind: 'scale', value: 7, note: `Kaffee am See ${i}`, unit: null, src: 'hand' });
   }
+  const t0 = day(0);
+  out.push({ id: `wohl-akku-${t0}`, qid: 'erholung.akku', area: 'erholung', day: t0, at: `${t0}T08:00`, slot: null, kind: 'scale', value: 3, note: null, unit: null, src: 'hand' });
   return out;
 }
 async function seed(page, rows) {
@@ -67,6 +70,10 @@ test('Was mir gut tut: results with their source, experiment, Neuland, season, w
   await expect(helps).toContainText('Aus 30 Tagen mit Tagesbewertung');
   await expect(page.locator('[data-wohl-comfort]')).toContainText('Zeit draussen: 30–90 Min');
   await expect(page.locator('[data-wohl-recipe]')).toContainText('Deine guten Tage (15) hatten am häufigsten');
+  // the jar of good moments and the morning suggestion (battery 3 today)
+  await expect(page.locator('[data-wohl-jar]')).toContainText('Kaffee am See');
+  await expect(page.locator('[data-wohl-jar]')).toContainText('4 Momente im Glas');
+  await expect(page.locator('[data-wohl-morning]')).toContainText('Weil deine guten Tage oft');
   await shot(page, info, 'P-wohl');
 
   // a small experiment: the suggestion for 7 days

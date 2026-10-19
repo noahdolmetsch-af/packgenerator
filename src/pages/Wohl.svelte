@@ -10,7 +10,7 @@
    * season switch (#89). Everything here is a suggestion: nothing is mandatory.
    */
   import { liveQuery } from 'dexie';
-  import { FlaskConical, Layers, Shuffle, User, Sparkles, HeartHandshake, Puzzle, Gauge, BatteryLow, CalendarSearch, Target, Timer, Compass, Leaf, Plus, Pencil, Trash2, ChevronUp, ChevronDown, Check } from '@lucide/svelte';
+  import { Sun, Sunrise, Shuffle as Again, FlaskConical, Layers, Shuffle, User, Sparkles, HeartHandshake, Puzzle, Gauge, BatteryLow, CalendarSearch, Target, Timer, Compass, Leaf, Plus, Pencil, Trash2, ChevronUp, ChevronDown, Check } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AreaIntro from '../lib/ui/AreaIntro.svelte';
   import Section from '../lib/ui/Section.svelte';
@@ -37,7 +37,8 @@
     PHASES_KEY, phasesOf, suggestedPhases, addPhase, renamePhase, dropPhase, phaseRows,
   } from '../lib/wohl.js';
   import { dailyValues } from '../lib/abauswertung.js';
-  import { albumOf, ALBUM_KEY, albumCfgOf } from '../lib/wohl.js';
+  import { albumOf, ALBUM_KEY, albumCfgOf, jarNotes, jarPick, lowToday, weatherDays, morningTip, fetchPastWeather, PAST_WX_KEY } from '../lib/wohl.js';
+  import { HOME_PLACE } from '../lib/know.js';
   import PhotoPick from '../lib/ui/PhotoPick.svelte';
   import { shrinkImage } from '../lib/photo.js';
   import '../lib/ich/ich.css';
@@ -166,6 +167,7 @@
 
   const dayLong = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'long' });
   const missing = $derived(Math.max(0, MIN_DAYS * 2 - n));
+  const WX_LABEL = { dry: 'dry days', rain: 'rainy days', cold: 'under 10 °C', mild: '10–20 °C', warm: 'over 20 °C' };
 
   // #245 Kleine Experimente: a suggestion for 7 days, or your own (3, 7 or 14 days)
   const exps = $derived(experimentsOf(ex?.exps));
@@ -272,6 +274,37 @@
     await db.photos.update(capEdit.id, { name: String(name ?? '').trim().slice(0, 60) });
   }
 
+  // Idee 1 «Glas der guten Momente» (Noah 19.10.2026 «1a»): on a low day three of your notes
+  const jar = $derived(jarNotes(rows));
+  let seed = $state(Math.random());
+  const jarNow = $derived(jarPick(jar, seed));
+  const low = $derived(lowToday(rows, today));
+
+  // Idee 2 «Wetter und gute Tage» («2a»): the past 60 days at home, fetched once a day (meta, not in backups)
+  let wx = $state([]);
+  let wxState = $state('');
+  $effect(() => {
+    (async () => {
+      const place = (await db.settings.get(HOME_PLACE))?.value ?? null;
+      if (!place) return (wxState = 'noplace');
+      const saved = await db.meta.get(PAST_WX_KEY);
+      if (saved?.on === today && saved.lat === place.lat && saved.lon === place.lon) return (wx = saved.days ?? []);
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return (wx = saved?.days ?? []);
+      try {
+        const days = await fetchPastWeather(place);
+        await db.meta.put({ key: PAST_WX_KEY, on: today, lat: place.lat, lon: place.lon, days });
+        wx = days;
+      } catch {
+        wx = saved?.days ?? [];
+      }
+    })().catch(() => {});
+  });
+  const wxRes = $derived(weatherDays(data, wx, rows));
+
+  // Idee 3 «Rezept am Morgen» («3a»): with a low battery, one part of your good days
+  let tipMin = $state(20);
+  const tip = $derived(morningTip(data, rows, today, tipMin));
+
   // #252 Alleinsein, #257 Gutes Umplanen
   const aloneGood = $derived(dailyValues(rows, 'freunde.alleingut'));
   const aloneN = $derived(Object.keys(aloneGood).filter((d) => d >= days60[0]).length);
@@ -303,6 +336,30 @@
 
   <div class="ich-cols">
     <div class="ich-main">
+      {#if tip}
+        <!-- Idee 3: Rezept am Morgen -->
+        <Section title={t('For your morning')} sub={t('Your battery is at {n}: one part of your good days', { n: f1(tip.akku) })}>
+          <div class="card wl-box" data-wohl-morning>
+            <p class="wl-big"><Sunrise size={18} aria-hidden="true" /><b>{t(tip.text)}</b></p>
+            <Seg full={false} small label={t('Time')} value={tipMin} onchange={(v) => (tipMin = v)} options={MINUTES.map((m) => ({ key: m, name: t('{n} min', { n: m }) }))} />
+            <p class="muted small">{t('Because your good days often had «{fact}». Only a suggestion.', { fact: fact(tip.fact) })}</p>
+          </div>
+        </Section>
+      {/if}
+
+      <!-- Idee 1: Glas der guten Momente -->
+      <Section title={t('Jar of good moments')} sub={low ? t('A lower day: three of your good moments') : t('Your notes of thanks and pride')}>
+        <div class="card wl-box" data-wohl-jar>
+          {#each jarNow as n (n.id)}
+            <p class="wl-jar"><span class="muted small">{dayLong(n.day)} · {n.kind === 'thanks' ? t('grateful') : t('proud')}</span><span>{n.text}</span></p>
+          {:else}
+            <p class="muted">{t('Still empty. Write a word at «What are you grateful for today?» or «What are you a tiny bit proud of today?» and it lands here.')}</p>
+          {/each}
+          {#if jar.length > 3}<button type="button" class="btn wl-add" onclick={() => (seed = Math.random())} data-jar-again><Again size={18} aria-hidden="true" />{t('Show others')}</button>{/if}
+          {#if jar.length}<p class="muted small">{tn(jar.length, '{n} moment in the jar', '{n} moments in the jar')}</p>{/if}
+        </div>
+      </Section>
+
       <!-- #245 Kleine Experimente -->
       <Section title={t('Small experiments')} sub={t('Try something for a few days and see what it does')}>
         <div class="card wl-box" data-wohl-exp>
@@ -449,6 +506,20 @@
     </div>
 
     <div class="ich-side">
+      <!-- Idee 2: Wetter und gute Tage -->
+      <Section title={t('Weather and good days')} sub={t('The weather at home of the last 60 days next to your day score')}>
+        <div class="card wl-box" data-wohl-weather>
+          {#if wxRes.best}
+            <p class="wl-big"><Sun size={18} aria-hidden="true" /><b>{t('Your best days: {group} ({x} instead of {y})', { group: t(WX_LABEL[wxRes.best.key]), x: f1(wxRes.best.mean), y: f1(wxRes.all) })}</b></p>
+            <details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{wxRes.groups.map((g) => `${t(g.label)}: ${f1(g.mean)} (${tn(g.n, '{n} day', '{n} days')})`).join(' · ')}. {t('Weather: Open-Meteo for your home place, else your evening answer.')}</p></details>
+          {:else if wxState === 'noplace' && !wxRes.n}
+            <p class="muted">{t('Set your home place under Me, then the app fetches the weather by itself.')}</p>
+          {:else}
+            <p class="muted">{t('Shows from 4 days in two kinds of weather with a day score.')}</p>
+          {/if}
+        </div>
+      </Section>
+
       <!-- #256 Überraschungen -->
       <Section title={t('Surprises this week')} sub={t('Far from your normal of the 30 days before')}>
         <ul class="card slist" data-wohl-surprises>
@@ -772,6 +843,13 @@
     height: 90px;
     object-fit: cover;
     border-radius: 10px;
+  }
+  .wl-jar {
+    display: grid;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--l1) 10%, var(--paper));
   }
   .wl-iacts {
     display: flex;

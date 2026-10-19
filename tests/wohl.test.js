@@ -259,3 +259,54 @@ describe('the photo album', () => {
     expect(albumCfgOf({ greet: false }).greet).toBe(false);
   });
 });
+
+import { jarNotes, jarPick, lowToday, weatherDays, morningTip, fetchPastWeather } from '../src/lib/wohl.js';
+
+describe('jar of good moments', () => {
+  const rows = [
+    { ...row('2026-10-10', 'achtsamkeit.dank', 8), note: 'Coffee in the sun' },
+    row('2026-10-12', 'erreicht.stolz', 'Fixed the chain myself', 'text'),
+    row('2026-10-13', 'achtsamkeit.dank', 6),
+    row('2026-10-14', 'erreicht.stolz', '  ', 'text'),
+  ];
+  it('collects the grateful notes and the proud sentences, newest first', () => {
+    expect(jarNotes(rows).map((n) => [n.text, n.kind])).toEqual([['Fixed the chain myself', 'proud'], ['Coffee in the sun', 'thanks']]);
+  });
+  it('picks 3, another seed another choice', () => {
+    const notes = Array.from({ length: 9 }, (_, i) => ({ id: String(i), day: T, text: `n${i}` }));
+    expect(jarPick(notes, 0)).toHaveLength(3);
+    expect(jarPick(notes, 0).map((n) => n.id)).not.toEqual(jarPick(notes, 0.5).map((n) => n.id));
+  });
+  it('a low day from the battery', () => {
+    expect(lowToday([row(T, 'erholung.akku', 3)], T)).toBe(true);
+    expect(lowToday([row(T, 'erholung.akku', 7)], T)).toBe(false);
+    expect(lowToday([], T)).toBe(null);
+  });
+});
+
+describe('weather and good days', () => {
+  it('the day score per weather group, the best one', () => {
+    const data = dayData({ rows: sample(), days });
+    const wx = days.map((d, i) => ({ date: d, max: i % 2 === 0 ? 22 : 8, rainMm: i % 2 === 0 ? 0 : 4 }));
+    const w = weatherDays(data, wx);
+    expect(w.best).toMatchObject({ key: 'dry', mean: 8, n: 15 });
+    expect(w.groups.find((g) => g.key === 'rain').mean).toBe(5);
+  });
+  it('your answer counts when there is no weather from the service', () => {
+    const rows = [...sample(), ...days.map((d, i) => row(d, 'natur.wetter', i % 2 === 0 ? ['sun'] : ['rain'], 'chips'))];
+    expect(weatherDays(dayData({ rows, days }), [], rows).best.key).toBe('dry');
+  });
+  it('reads the past days of Open-Meteo', async () => {
+    const fetcher = async (url) => ({ ok: url.includes('past_days=60'), json: async () => ({ daily: { time: [T], temperature_2m_max: [12.5], precipitation_sum: [0.2] } }) });
+    expect(await fetchPastWeather({ lat: 47.4, lon: 8.5 }, fetcher)).toEqual([{ date: T, max: 12.5, rainMm: 0.2 }]);
+  });
+});
+
+describe('recipe as a morning suggestion', () => {
+  it('on a low battery: a part of your good days in the chosen minutes', () => {
+    const rows = [...sample(), row(T, 'erholung.akku', 3)];
+    const data = dayData({ rows, days });
+    expect(morningTip(data, rows, T, 5)).toMatchObject({ fact: 'outside', cat: 'nature', text: 'Open the window and look outside' });
+    expect(morningTip(data, [...sample(), row(T, 'erholung.akku', 8)], T)).toBe(null);
+  });
+});

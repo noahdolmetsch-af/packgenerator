@@ -605,3 +605,90 @@ export const greetPhoto = (album = [], r = 0) => (album.length ? album[Math.min(
 /** settings: { greet: true } — the photo on Heute can be switched off. */
 export const ALBUM_KEY = 'album';
 export const albumCfgOf = (v) => ({ greet: !(v && typeof v === 'object' && v.greet === false) });
+
+/* ---------- Ideen 19.10.2026 (Noah «1a 2a 3a»): Glas der guten Momente, Wetter und gute Tage, Rezept am Morgen ---------- */
+/**
+ * Glas der guten Momente: your notes to «Wofür bist du dankbar?» and your sentences to «Worauf bist du
+ * stolz?», newest first. → [{ id, day, text, kind: 'thanks' | 'proud' }]
+ */
+export function jarNotes(rows = []) {
+  const out = [];
+  for (const r of rows) {
+    const text = r.qid === 'achtsamkeit.dank' ? r.note : r.qid === 'erreicht.stolz' ? (typeof r.value === 'string' ? r.value : r.note) : null;
+    if (!String(text ?? '').trim()) continue;
+    out.push({ id: r.id ?? `${r.qid}-${r.day}`, day: r.day, text: String(text).trim().slice(0, 300), kind: r.qid === 'achtsamkeit.dank' ? 'thanks' : 'proud' });
+  }
+  return out.sort((a, b) => b.day.localeCompare(a.day));
+}
+/** n notes from the jar, a different choice for another seed (0–1). */
+export function jarPick(notes = [], seed = 0, n = 3) {
+  if (notes.length <= n) return notes;
+  const start = Math.floor(seed * notes.length);
+  const step = Math.max(1, Math.floor(notes.length / n));
+  const out = [];
+  for (let i = 0; out.length < n && i < notes.length * 2; i++) {
+    const x = notes[(start + i * step) % notes.length];
+    if (!out.includes(x)) out.push(x);
+  }
+  return out;
+}
+/** A low day: today's battery or day score is 4 or less (1–10). null when nothing is known yet. */
+export function lowToday(rows = [], today) {
+  const vals = ['erholung.akku', 'erreicht.zufrieden', 'spass.stimmung'].map((q) => dailyValues(rows, q)[today]).filter((v) => v != null);
+  return vals.length ? Math.min(...vals) <= 4 : null;
+}
+
+/**
+ * Wetter und gute Tage: the past days at home from Open-Meteo (free, no key; past_days on the forecast
+ * address) → [{ date, max, rainMm }]. Cached once a day in meta (never in a backup).
+ */
+export const PAST_WX_KEY = 'wohl.pastWeather';
+export const PAST_WX_DAYS = 60;
+export async function fetchPastWeather(place, fetcher = fetch) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_max,precipitation_sum&timezone=auto&past_days=${PAST_WX_DAYS}&forecast_days=1`;
+  const res = await fetcher(url);
+  if (!res.ok) throw new Error(`weather ${res.status}`);
+  const { daily = {} } = await res.json();
+  return (daily.time ?? []).map((date, n) => ({ date, max: Number.isFinite(daily.temperature_2m_max?.[n]) ? daily.temperature_2m_max[n] : null, rainMm: Number.isFinite(daily.precipitation_sum?.[n]) ? daily.precipitation_sum[n] : null }));
+}
+/** The weather groups (English keys for t()). */
+export const WX_GROUPS = [
+  { key: 'dry', label: 'dry days', test: (w) => (w.rainMm == null ? null : w.rainMm < 1) },
+  { key: 'rain', label: 'rainy days', test: (w) => (w.rainMm == null ? null : w.rainMm >= 1) },
+  { key: 'cold', label: 'under 10 °C', test: (w) => (w.max == null ? null : w.max < 10) },
+  { key: 'mild', label: '10–20 °C', test: (w) => (w.max == null ? null : w.max >= 10 && w.max <= 20) },
+  { key: 'warm', label: 'over 20 °C', test: (w) => (w.max == null ? null : w.max > 20) },
+];
+/**
+ * The day score per weather group: [{ key, label, mean, n }] for groups with at least `min` days, and
+ * the best group. The weather of a day: Open-Meteo, else your answer «Welches Wetter hattest du im
+ * Gesicht?» (sun → dry, rain or snow → rain). → { groups, best, all (mean of all days with weather) }
+ */
+export function weatherDays(data = [], wx = [], rows = [], { min = MIN_DAYS - 1 } = {}) {
+  const byDay = Object.fromEntries(wx.filter((w) => w?.date).map((w) => [w.date, w]));
+  const said = {};
+  for (const r of rows) if (r.qid === 'natur.wetter' && r.value != null && !(r.day in said)) said[r.day] = Array.isArray(r.value) ? r.value : [r.value];
+  const wOf = (day) => byDay[day] ?? (said[day] ? { rainMm: said[day].some((k) => k === 'rain' || k === 'snow') ? 5 : said[day].includes('sun') ? 0 : null, max: null } : null);
+  const known = data.filter((d) => d.score != null && wOf(d.day));
+  const groups = WX_GROUPS.map((g) => {
+    const xs = known.filter((d) => g.test(wOf(d.day)) === true).map((d) => d.score);
+    return { key: g.key, label: g.label, mean: r1(mean(xs)), n: xs.length };
+  }).filter((g) => g.n >= min);
+  const best = groups.length >= 2 ? [...groups].sort((a, b) => b.mean - a.mean || b.n - a.n)[0] : null;
+  return { groups, best, all: r1(mean(known.map((d) => d.score))), n: known.length };
+}
+
+/** Rezept am Morgen: which balance category a fact belongs to (for the 5/20/60 versions). */
+export const FACT_CAT = { outside: 'nature', ride: 'sport', friends: 'friends', moment: 'mind', sleep: 'rest', laugh: 'fun', goal: 'goals', food: 'rest', alone: 'rest', replan: 'goals' };
+/**
+ * On a morning with a low battery (1–10, 4 or less): one part of your good days as a suggestion, in the
+ * chosen minutes. → { fact, cat, text } or null (battery fine or unknown, or no recipe yet).
+ */
+export function morningTip(data = [], rows = [], today, minutes = 20) {
+  const akku = dailyValues(rows, 'erholung.akku')[today] ?? dailyValues(rows, 'erholung.schlaf')[today];
+  if (akku == null || akku > 4) return null;
+  const parts = [...helps(data).map((h) => h.key), ...goodRecipes(data).map((r) => r.key)].filter((k) => FACT_CAT[k]);
+  const fact = parts[0];
+  if (!fact) return null;
+  return { fact, cat: FACT_CAT[fact], text: shortOf(FACT_CAT[fact], minutes), akku };
+}
