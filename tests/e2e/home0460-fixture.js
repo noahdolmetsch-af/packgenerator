@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle, replaceAll } from './settle.js';
+import { byTime } from '../../src/lib/clear/tipweek.js';
 
 export const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -82,3 +83,14 @@ export async function openHome(page, context, info, { lang = 'de', data = homeFi
   return T;
 }
 
+
+/**
+ * Paket Q #74 (Noah 19.10.2026 «4a»): the wall as Heute shows it at an hour: the morning or evening tiles move up
+ * (byTime), with Im Flow and the balance as one card (Home.svelte joinFlow), so the balance stays after Im Flow.
+ */
+export function atHour(list, hour) {
+  const i = list.findIndex((x) => x.id === 'flow');
+  const joined = i >= 0 && list[i + 1]?.id === 'balance';
+  const one = joined ? [...list.slice(0, i), { ...list[i], with: list[i + 1] }, ...list.slice(i + 2)] : list;
+  return byTime(one, hour).flatMap((x) => (x.with ? [{ ...x, with: undefined }, x.with] : [x]));
+}

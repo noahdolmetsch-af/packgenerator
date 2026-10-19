@@ -222,6 +222,9 @@
 <style>
   .ltab {
     display: grid;
+    /* the table scrolls inside its box; it never widens the page */
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 10px;
   }
   .ltop {

@@ -68,5 +68,5 @@ export function currenciesOf(rates) {
   return [...MAIN_CURRENCIES.filter((c) => all.has(c)), ...[...all].filter((c) => !MAIN_CURRENCIES.includes(c)).sort()];
 }
 
-/** «1’234.50» (de-CH) for the screen. */
-export const fmtMoney = (v, loc = 'de-CH') => (v == null || !Number.isFinite(v) ? '–' : new Intl.NumberFormat(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
+/** «1’234.50» (de-CH) for the screen. Some ICU versions group with «'» instead of «’»; the app always shows «’». */
+export const fmtMoney = (v, loc = 'de-CH') => (v == null || !Number.isFinite(v) ? '–' : new Intl.NumberFormat(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v).replace(/'/g, '’'));
