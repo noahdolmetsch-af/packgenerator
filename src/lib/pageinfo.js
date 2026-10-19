@@ -227,14 +227,14 @@ Object.assign(PAGES, {
     ],
     can: [],
   },
-  werkstatt: {
+  // the Einstieg of Workshop & receipts uses the page of «Mehr Inhalt» (PAGE_TEXTS.workshop) and adds two tips
+  workshop: {
+    ...PAGES.workshop,
     tips: [
+      ...PAGES.workshop.tips,
       { id: 'shop-list', text: 'Write the list for the workshop at home: at the counter you forget half.' },
-      { id: 'wk-receipt', text: 'Keep the receipt with the visit: for the warranty you need the date of purchase.' },
-      { id: 'wk-km', text: 'Note the km at the visit: later you know how long a part lasted.' },
       { id: 'know-warranty-or', kind: 'know', text: 'In Switzerland claims for defects in new goods are usually time-barred two years after delivery.', source: 'Swiss Code of Obligations, Art. 210' },
     ],
-    can: [],
   },
   ausstattung: {
     tips: [

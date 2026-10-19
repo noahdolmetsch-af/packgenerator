@@ -237,10 +237,10 @@
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
     </div>
   </header>
-  <AreaIntro place="debrief" />
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day under the title -->
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card «Was hier steht» under the title; the Einstieg carries
+    the tip of the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
   <HintCard page="debrief" />
-  <TipLine page="debrief" name={t('Look back|page')} />
+  <AreaIntro place="debrief">{#snippet hidden()}<TipLine page="debrief" name={t('Look back|page')} />{/snippet}</AreaIntro>
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}

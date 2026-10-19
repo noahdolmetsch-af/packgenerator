@@ -67,11 +67,10 @@
     title={t('Workshop & receipts')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}`}
   />
-  <AreaIntro place="werkstatt" />
-
-  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of
+    the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
   <HintCard page="workshop" />
-  <TipLine page="workshop" name={t('Workshop & receipts')} />
+  <AreaIntro place="workshop">{#snippet hidden()}<TipLine page="workshop" name={t('Workshop & receipts')} />{/snippet}</AreaIntro>
 
   {#if bikes.length > 1}
     <div class="fchips" role="group" aria-label={t('Bike')}>

@@ -206,7 +206,7 @@ export const INTROS = {
     // what is due comes first (a to-do list, like Material «list first»): one line until you open it
     folded: true,
   },
-  werkstatt: {
+  workshop: {
     page: true,
     name: 'Workshop & receipts',
     title: 'What waits for the bike shop, and every visit',

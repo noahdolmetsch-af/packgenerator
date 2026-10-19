@@ -114,7 +114,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     ['#/pack/templates', 'templates', 'The next trip starts packed'],
     ['#/debrief', 'debrief', 'What the last trips taught you'],
     ['#/wardrobe', 'wardrobe', 'Clothes by temperature, layer by layer'],
-    ['#/bikes?tab=shop', 'werkstatt', 'What waits for the bike shop, and every visit'],
+    ['#/bikes?tab=shop', 'workshop', 'What waits for the bike shop, and every visit'],
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
