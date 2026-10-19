@@ -23,16 +23,16 @@ export const WHATS_NEW = [
     version: '0.149.0',
     date: '2026-10-19',
     title: 'Remember, set up, sport by sport',
-    lead: 'The app remembers your to-dos and birthdays, every bike keeps its bag setups, and each trip has its own sport.',
+    lead: 'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.',
     points: [
       { text: 'Calendar › Remember: your own to-dos and lists; after a ride or before a trip the app asks whether it should remind you', href: '#/calendar' },
       { text: 'Bikes: several bag setups per bike, the Garmin pages for the Edge 1040 and 850, and the main equipment such as skis with its care', href: '#/equipment' },
       { text: 'Every trip has a sport, a bike sport brings its standard bike; ski tours have their own page with the backpack check and the season care', href: '#/ski' },
     ],
     small: [
-      { box: 'new', text: 'Me › Own values: the packing step, the backup reminder, the care intervals and «cold» set by you', href: '#/me/werte' },
+      { box: 'new', text: 'Deleting a bike always works: the window asks which bike gets its trips; learnings, problems, rides, ideas and the logbook can be renamed and deleted', href: '#/bikes' },
+      { box: 'new', text: 'Me › Own values and Lists and types: your own numbers, sports, places on the bike and care parts', href: '#/me/werte' },
       { box: 'new', text: 'Share a TWINT screenshot with the app: Bills marks the right bill paid', href: '#/me/pay/invoices' },
-      { box: 'nicer', text: 'Twelve pages are calmer: the next step first, fewer words, and «What is here» on five more pages' },
     ],
     test: [
       'Open Calendar › Remember and add a to-do; tick it off and take it back.',
