@@ -184,14 +184,14 @@
 <style>
   .ra-sheet { max-width: 560px; }
   .ra-sheet h2 { display: flex; align-items: center; gap: 8px; }
-  .how { margin: 8px 0; color: var(--ink-2); font-size: 14px; }
+  .how { margin: 8px 0; color: var(--ink-2); font-size: var(--fs-small); }
   .now { display: grid; gap: 4px; justify-items: center; text-align: center; margin: 16px 0; padding: 16px; border-radius: 12px; background: var(--paper-2); }
-  .now b { font-size: clamp(26px, 6vw, 40px); line-height: 1.15; overflow-wrap: anywhere; }
+  .now b { font-size: var(--fs-page); line-height: 1.15; overflow-wrap: break-word; }
   .now small, .cnt { color: var(--ink-2); }
-  .big { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 96px; border: 0; border-radius: 16px; background: var(--ok); color: #fff; font: 700 26px var(--font-body); cursor: pointer; }
+  .big { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 96px; border: 0; border-radius: 16px; background: var(--ok); color: var(--hi-ink); font-family: var(--font-body); font-weight: 700; font-size: var(--fs-section); cursor: pointer; }
   .big:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
   .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
-  .mic { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 12px 0 0; color: var(--ink-3); font-size: 14px; }
+  .mic { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 12px 0 0; color: var(--ink-3); font-size: var(--fs-small); }
   .mic.on { color: var(--ok); font-weight: 600; }
-  .note { text-align: center; color: var(--ink-2); font-size: 14px; }
+  .note { text-align: center; color: var(--ink-2); font-size: var(--fs-small); }
 </style>

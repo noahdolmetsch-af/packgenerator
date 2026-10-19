@@ -79,18 +79,18 @@
 {/if}
 
 <style>
-  .st-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }
+  .st-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font-family: var(--font-body); font-weight: 500; font-size: var(--fs-body); text-align: left; cursor: pointer; }
   .st-row > :global(svg:first-child) { color: var(--ink-3); flex: none; }
   .st-row .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
   .st-sheet { max-width: 560px; }
   .st-sheet > footer { margin-top: 16px; }
-  .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: 14px; }
+  .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: var(--fs-small); }
   .st { list-style: none; margin: 0; padding: 0; }
   .st li { display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
   .st label { display: flex; align-items: center; gap: 12px; flex: 1 1 auto; cursor: pointer; min-height: 48px; }
   .st input { width: 22px; height: 22px; flex: none; accent-color: var(--ok); }
   .nm { display: grid; flex: 1 1 auto; min-width: 0; }
-  .nm small { color: var(--ink-2); font-size: 14px; }
+  .nm small { color: var(--ink-2); font-size: var(--fs-small); }
   .miss { padding-left: 34px; }
   .st li.off .nm { color: var(--ink-3); text-decoration: line-through; }
   .skip { margin-left: auto; }

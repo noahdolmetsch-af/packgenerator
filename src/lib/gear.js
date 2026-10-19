@@ -332,7 +332,7 @@ const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFini
 export function itemRecord(draft, { item = null, items = [], weightG = null, now = new Date().toISOString() } = {}) {
   // Data cleanup 14.10.2026 (Noah 3a): the old fields role standard / optional, always and kits are
   // not written again; what they said goes into the blocks (blocks2026.js oldFieldsPatch).
-  const { grams, always, kits, ...old } = draft;
+  const { grams, always, kits, homeSpot, expires, stock, minStock, runH, chargeH, ...old } = draft;
   const rest = { ...old, ...oldFieldsPatch(draft) };
   return {
     ...rest,
@@ -349,19 +349,29 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     perHours: numOrNull(rest.perHours),
     waterL: numOrNull(rest.waterL),
     maxQty: numOrNull(rest.maxQty),
-    homeSpot: String(rest.homeSpot ?? '').trim() || null,
-    expires: /^\d{4}-\d{2}-\d{2}$/.test(rest.expires ?? '') ? rest.expires : null,
-    stock: numOrNull(rest.stock),
-    minStock: numOrNull(rest.minStock),
-    runH: numOrNull(rest.runH),
-    chargeH: numOrNull(rest.chargeH),
     replaces: rest.replaces || null,
     altFor: rest.altFor || null,
     weightG,
     weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
     ...boughtNow(item, rest.ownership, now),
+    ...storeRecord(draft, item),
     updatedAt: now,
   };
+}
+
+/** Paket H: the store fields as stored; an empty one is left out unless the item had it (open + save adds nothing). */
+function storeRecord(d, item) {
+  const v = {
+    homeSpot: String(d.homeSpot ?? '').trim() || null,
+    expires: /^\d{4}-\d{2}-\d{2}$/.test(d.expires ?? '') ? d.expires : null,
+    stock: numOrNull(d.stock),
+    minStock: numOrNull(d.minStock),
+    runH: numOrNull(d.runH),
+    chargeH: numOrNull(d.chargeH),
+  };
+  const out = {};
+  for (const [k, x] of Object.entries(v)) if (x != null || (item && k in item)) out[k] = x;
+  return out;
 }
 
 /** A wish (wishlist or to buy). */

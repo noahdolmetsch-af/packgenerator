@@ -127,10 +127,10 @@
   {/if}
 
   {#if phone.matches}
-    <ul class="lrows">
+    <ul class="lt-rows">
       <li class="lall"><label><input type="checkbox" checked={allOn} onchange={flipAll} /> {t('Select all')}</label></li>
       {#each shown as r (idOf(r))}
-        <li class="lrow" class:on={picked.has(idOf(r))}>
+        <li class="lt-row" class:on={picked.has(idOf(r))}>
           <input type="checkbox" checked={picked.has(idOf(r))} onchange={() => flip(idOf(r))} aria-label={nameOf(r)} />
           {#if onopen}
             <button type="button" class="lname" onclick={() => onopen(r)}>{nameOf(r)}</button>
@@ -152,7 +152,7 @@
                 <button type="button" class="sorth" onclick={() => sortBy(c)}>{c.label}{#if sortKey === c.key}{#if dir === 1}<ArrowUp size={14} aria-hidden="true" />{:else}<ArrowDown size={14} aria-hidden="true" />{/if}{/if}</button>
               </th>
             {/each}
-            {#if onopen}<th class="op"><span class="sr">{t('Open|item')}</span></th>{/if}
+            {#if onopen}<th class="op"><span class="lt-sr">{t('Open|item')}</span></th>{/if}
           </tr>
         </thead>
         <tbody>
@@ -331,7 +331,7 @@
     text-align: center;
   }
   .cb input,
-  .lrow input,
+  .lt-row input,
   .lall input,
   td.check input {
     width: 20px;
@@ -347,14 +347,14 @@
     width: 1%;
     white-space: nowrap;
   }
-  .sr {
+  .lt-sr {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip: rect(0 0 0 0);
   }
-  .lrows {
+  .lt-rows {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -362,7 +362,7 @@
     border-radius: var(--radius-card);
     background: var(--paper);
   }
-  .lrow,
+  .lt-row,
   .lall {
     display: grid;
     grid-template-columns: 32px 1fr;
@@ -379,7 +379,7 @@
     gap: 12px;
     font-weight: 600;
   }
-  .lrow.on {
+  .lt-row.on {
     background: var(--hi-soft);
   }
   .lname {

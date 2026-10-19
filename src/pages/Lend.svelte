@@ -131,7 +131,7 @@
   {#if problem}<p class="err" role="alert">{problem}</p>{/if}
 
   {#if form}
-    <form class="card form" onsubmit={save} aria-labelledby="nl-h">
+    <form class="box form" onsubmit={save} aria-labelledby="nl-h">
       <h2 id="nl-h" class="title">{t('New lending list')}</h2>
       <label class="f"><span>{t('Who borrows it')}</span><input bind:value={form.person} autocomplete="off" placeholder={t('a name')} /></label>
       <label class="f"><span>{t('Back by')}</span><input type="date" bind:value={form.due} /></label>
@@ -156,7 +156,7 @@
     <div class="cards">
       {#each open as l (l.id)}
         {@const st = dueState(l, today)}
-        <article class="card" aria-labelledby="l-{l.id}">
+        <article class="box" aria-labelledby="l-{l.id}">
           <header class="lh">
             <h2 id="l-{l.id}" class="title">{l.person}</h2>
             <span class="due" class:late={st === 'late'} class:soon={st === 'today' || st === 'soon'}>{dueText(l)}</span>
@@ -211,7 +211,7 @@
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     }
   }
-  .card {
+  .box {
     display: grid;
     gap: 10px;
     align-content: start;

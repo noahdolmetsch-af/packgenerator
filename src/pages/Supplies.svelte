@@ -91,7 +91,7 @@
   {#if problem}<p class="err" role="alert">{problem}</p>{/if}
 
   <div class="cols">
-    <section class="card" aria-labelledby="buy-h">
+    <section class="box" aria-labelledby="buy-h">
       <h2 id="buy-h" class="title"><ShoppingCart size={20} aria-hidden="true" /> {t('Buy again')} <small class="num">{buy.length}</small></h2>
       {#if buy.length}
         <ul class="rows">
@@ -108,7 +108,7 @@
       {/if}
     </section>
 
-    <section class="card" aria-labelledby="soon-h">
+    <section class="box" aria-labelledby="soon-h">
       <h2 id="soon-h" class="title"><CalendarClock size={20} aria-hidden="true" /> {t('Expires soon')} <small class="num">{soon.length}</small></h2>
       {#if soon.length}
         <ul class="rows">
@@ -178,7 +178,7 @@
       grid-template-columns: 1fr 1fr;
     }
   }
-  .card {
+  .box {
     display: grid;
     gap: 10px;
     align-content: start;
