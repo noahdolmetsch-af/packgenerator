@@ -170,3 +170,51 @@ test('the tile moves to the very top with the arrows and stays first after a rel
   await expect.poll(async () => (await ids())[0]).toBe('routine');
   expect((await ids()).slice(1, 3)).toEqual(['meditation', 'daycard']);
 });
+
+// Noah 19.10.2026 «1a 2a 3a 4a 5a» (design rules B): the head with a ring and one sentence, ticked items slide down
+// under «Schon erledigt · n», two columns on a computer, seven dots for this week, «Hat gut getan?» after a tick
+test('the tile in the design of the app: ring, sentence, done below, week dots, did it do you good', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { data: data() });
+  const tile = page.locator('.wall [data-tile="routine"]');
+  await expect(tile.locator('svg[role="progressbar"]')).toHaveAttribute('aria-valuenow', '2');
+  await expect(tile.locator('[data-routine-say]')).toHaveText(T('{n} more small things for you today.', { n: 5 }));
+  // the done ones (banana, meditation) stand under «Schon erledigt · 2», the open ones on top
+  await expect(tile.locator('[data-routine-done]')).toHaveText(T('Already done · {n}', { n: 2 }));
+  const order = () => tile.locator('.rt-list > li').evaluateAll((els) => els.map((e) => e.dataset.item ?? 'sep'));
+  expect((await order()).slice(-3)).toEqual(['sep', 'meditate', 'banana']);
+  // seven dots for this week; the walk was done Monday to Thursday, today is still open
+  const walkDots = tile.locator('li[data-item="walk"] [data-dot]');
+  await expect(walkDots).toHaveCount(7);
+  expect(await walkDots.evaluateAll((els) => els.map((e) => e.dataset.dot))).toEqual(['done', 'done', 'done', 'done', 'today', 'later', 'later']);
+  // the explanation follows the list
+  expect(await tile.evaluate((el) => el.querySelector('.rt-list').compareDocumentPosition(el.querySelector('[data-routine-hint]')) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
+  // two columns on a computer, one on a phone
+  const cols = await tile.locator('.rt-list').evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  expect(cols).toBe(info.project.name === 'phone' ? 1 : 2);
+
+  // tick the walk: it asks «Hat gut getan?», the row stays under the finger, then slides down
+  await tile.locator('li[data-item="walk"] button').click();
+  const ask = tile.locator('[data-routine-felt="walk"]');
+  await expect(ask).toContainText(T('Did «{name}» do you good?', { name: T('A walk') }));
+  await expect.poll(async () => (await order()).indexOf('walk')).toBeGreaterThan((await order()).indexOf('sep'));
+  await expect(tile.locator('[data-routine-done]')).toHaveText(T('Already done · {n}', { n: 3 }));
+  await shot(page, info, 'routine-design');
+  await ask.locator('[data-felt="2"]').click();
+  await expect(ask).toHaveCount(0);
+  // the answer is kept with the record
+  const felt = await page.evaluate(
+    () =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('settings').objectStore('settings').get('routine');
+          g.onsuccess = () => (r.result.close(), ok(g.result?.value?.felt ?? null));
+        };
+      }),
+  );
+  expect(felt).toEqual({ walk: { [D0]: 2 } });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});

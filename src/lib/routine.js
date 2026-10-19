@@ -3,7 +3,8 @@
  * tile at the top of Heute). A short list of things that do you good, ticked off day by day.
  *
  * The record is the settings key «routine» (it travels in every backup with the settings table):
- *   { items: [{ id, name, days, link, time }], ticks: { [itemId]: ['YYYY-MM-DD', …] } }
+ *   { items: [{ id, name, days, link, time }], ticks: { [itemId]: ['YYYY-MM-DD', …] }, felt: { [itemId]: { 'YYYY-MM-DD': 0 | 1 | 2 } } }
+ *   felt (Noah 19.10.2026 «5a»): the answer to «Did it do you good?» after a tick: 2 yes, 1 a little, 0 no.
  *   name: English key for t() (the examples) or the words typed; «{time}» in it is filled with `time`.
  *   days: null (every day) or the weekdays it is for, 0 = Monday … 6 = Sunday.
  *   link: null or 'meditation' (it ticks itself when Im Flow has a meditation that day).
@@ -70,7 +71,7 @@ export function normItem(x = {}) {
 }
 /** A stored record made safe; without one the seven examples and no ticks. */
 export function routineOf(value) {
-  if (!value || !Array.isArray(value.items)) return { items: seedItems(), ticks: {} };
+  if (!value || !Array.isArray(value.items)) return { items: seedItems(), ticks: {}, felt: {} };
   const seen = new Set();
   const items = value.items.filter((x) => x && x.id && !seen.has(x.id) && seen.add(x.id)).map(normItem);
   const ticks = {};
@@ -79,7 +80,13 @@ export function routineOf(value) {
     const ok = [...new Set(list.filter(isDay))].sort();
     if (ok.length) ticks[id] = ok;
   }
-  return { items, ticks };
+  const felt = {};
+  for (const [id, days] of Object.entries(value.felt ?? {})) {
+    if (!seen.has(id) || !days || typeof days !== 'object') continue;
+    const ok = Object.fromEntries(Object.entries(days).filter(([d, v]) => isDay(d) && FELT.includes(v)));
+    if (Object.keys(ok).length) felt[id] = ok;
+  }
+  return { items, ticks, felt };
 }
 
 /* ---------- which items, which day ---------- */
@@ -107,14 +114,43 @@ export function doneDays(routine, item, auto = {}) {
 export const isDone = (routine, item, day, auto = {}) => doneDays(routine, item, auto).has(day);
 /** Ticked by the link (not by hand) that day. */
 export const isAuto = (routine, item, day, auto = {}) => !!(item.link && auto[item.link]?.has(day));
-/** Tick an item for a day, or take the tick back (a second tap). → a new record */
+/** Tick an item for a day, or take the tick back (a second tap; its «Did it do you good?» answer goes too). → a new record */
 export function toggleTick(routine, id, day) {
   const list = routine.ticks[id] ?? [];
-  const next = list.includes(day) ? list.filter((d) => d !== day) : [...list, day].sort();
+  const off = list.includes(day);
+  const next = off ? list.filter((d) => d !== day) : [...list, day].sort();
   const ticks = { ...routine.ticks };
   if (next.length) ticks[id] = next;
   else delete ticks[id];
-  return { ...routine, ticks };
+  return off ? setFelt({ ...routine, ticks }, id, day, null) : { ...routine, ticks };
+}
+
+/* ---------- «Did it do you good?» (Noah 19.10.2026 «5a») ---------- */
+/** The answers: 2 yes, 1 a little, 0 no (English keys for t() in FELT_WORDS). */
+export const FELT = [2, 1, 0];
+export const FELT_WORDS = { 2: 'Yes|felt', 1: 'A little|felt', 0: 'No|felt' };
+export const feltOf = (routine, id, day) => routine.felt?.[id]?.[day] ?? null;
+/** Store an answer for a day (null takes it back). → a new record */
+export function setFelt(routine, id, day, v) {
+  const felt = { ...(routine.felt ?? {}) };
+  const days = { ...(felt[id] ?? {}) };
+  if (FELT.includes(v)) days[day] = v;
+  else delete days[day];
+  if (Object.keys(days).length) felt[id] = days;
+  else delete felt[id];
+  return { ...routine, felt };
+}
+
+/* ---------- this week (Noah 19.10.2026 «4a»: 7 small dots per item) ---------- */
+/** The days Monday … Sunday of the week of `today`. */
+export const weekDays = (today) => Array.from({ length: 7 }, (_, i) => addDays(today, i - weekdayOf(today)));
+/**
+ * One dot per day of this week: 'done', 'open' (a day of the item, gone by, not done), 'today', 'later'
+ * (still to come) or 'off' (the item is not for that day). → [{ day, state }]
+ */
+export function weekDots(routine, item, today, auto = {}) {
+  const done = doneDays(routine, item, auto);
+  return weekDays(today).map((day) => ({ day, state: !isFor(item, day) ? 'off' : done.has(day) ? 'done' : day === today ? 'today' : day < today ? 'open' : 'later' }));
 }
 /** «3 of 7»: the items done of the items for the day. */
 export function countFor(routine, day, auto = {}) {
@@ -172,7 +208,9 @@ export const patchItem = (routine, id, patch) => ({ ...routine, items: routine.i
 export function removeItem(routine, id) {
   const ticks = { ...routine.ticks };
   delete ticks[id];
-  return { items: routine.items.filter((x) => x.id !== id), ticks };
+  const felt = { ...(routine.felt ?? {}) };
+  delete felt[id];
+  return { items: routine.items.filter((x) => x.id !== id), ticks, felt };
 }
 /** Move item `id` to place `to` among the items of the list. */
 export function moveItem(routine, id, to) {
@@ -197,4 +235,4 @@ export function toggleDay(days, w) {
   return next.length && next.length < 7 ? next : null;
 }
 /** Plain for saving (no proxies). */
-export const recordOf = (routine) => JSON.parse(JSON.stringify({ items: routine.items, ticks: routine.ticks }));
+export const recordOf = (routine) => JSON.parse(JSON.stringify({ items: routine.items, ticks: routine.ticks, felt: routine.felt ?? {} }));

@@ -283,4 +283,12 @@ export default {
   'nothing of your usual good parts': 'nichts von deinen üblichen guten Zutaten',
   'Battery at {n}: a small suggestion': 'Akku bei {n}: ein kleiner Vorschlag',
   'From your jar:': 'Aus deinem Glas:',
+  // Noah 19.10.2026 «5a»: «Das tut mir gut» and your good days
+  'Your list «What does me good»': 'Deine Liste «Das tut mir gut»',
+  'Day score on the days you ticked an item, against the other days': 'Tagesbewertung an Tagen mit abgehaktem Eintrag, verglichen mit den anderen Tagen',
+  'carries your good days: {a} instead of {b}': 'trägt deine guten Tage: {a} statt {b}',
+  'day score {a} with it, {b} without': 'Tagesbewertung {a} damit, {b} ohne',
+  'did you good {yes} of {n} times, a little {little}×': 'hat {yes} von {n} Mal gut getan, ein bisschen {little}×',
+  'From your ticks on Heute and your day score: {a} days with it, {b} days without it; «Did it do you good?» you answered {n} times.': 'Aus deinen Haken auf Heute und deiner Tagesbewertung: {a} Tage damit, {b} Tage ohne; «Hat gut getan?» hast du {n} Mal beantwortet.',
+  'Tick off your list on Heute for a while; from {n} days with and {n} days without an item it shows here.': 'Hake deine Liste auf Heute eine Weile ab; ab {n} Tagen mit und {n} Tagen ohne einen Eintrag steht es hier.',
 };

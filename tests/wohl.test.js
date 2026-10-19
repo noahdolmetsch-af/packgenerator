@@ -310,3 +310,23 @@ describe('recipe as a morning suggestion', () => {
     expect(morningTip(data, [...sample(), row(T, 'erholung.akku', 8)], T)).toBe(null);
   });
 });
+
+// Noah 19.10.2026 «5a»: which items of «Das tut mir gut» carry your good days
+import { routineCarry } from '../src/lib/wohl.js';
+describe('routineCarry', () => {
+  const data = Array.from({ length: 12 }, (_, i) => ({ day: `2026-10-${String(i + 1).padStart(2, '0')}`, score: i % 2 ? 8 : 5, facts: {} }));
+  const items = [{ id: 'walk' }, { id: 'banana' }, { id: 'tea' }];
+  const opts = {
+    isFor: () => true,
+    doneOf: (item, day) => (item.id === 'walk' ? Number(day.slice(-2)) % 2 === 0 : item.id === 'banana' ? Number(day.slice(-2)) <= 6 : false),
+    feltOf: (item, day) => (item.id === 'walk' && day <= '2026-10-04' ? 2 : item.id === 'tea' && day === '2026-10-01' ? 0 : null),
+  };
+  it('the done days against the other days, with the answers; an item with nothing to say is left out', () => {
+    const r = routineCarry(items, data, opts);
+    expect(r.map((x) => x.id)).toEqual(['walk', 'banana', 'tea']);
+    expect(r[0]).toMatchObject({ withScore: 8, without: 5, nWith: 6, nWithout: 6, diff: 3, carries: true, felt: { yes: 4, n: 4 } });
+    expect(r[1]).toMatchObject({ diff: 0, carries: false });
+    expect(r[2]).toMatchObject({ diff: null, carries: false, felt: { no: 1, n: 1 } });
+    expect(routineCarry(items, data, { ...opts, feltOf: () => null, doneOf: () => false })).toEqual([]);
+  });
+});

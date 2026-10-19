@@ -692,3 +692,34 @@ export function morningTip(data = [], rows = [], today, minutes = 20) {
   if (!fact) return null;
   return { fact, cat: FACT_CAT[fact], text: shortOf(FACT_CAT[fact], minutes), akku };
 }
+
+/* ---------- Routine «Das tut mir gut» and your good days (Noah 19.10.2026 «5a») ---------- */
+/**
+ * For each item of the routine: the day score on the days it was done against the days of the item it was
+ * not (from MIN_BOTH days each), and the answers to «Did it do you good?» (2 yes, 1 a little, 0 no).
+ * isFor/doneOf come from routine.js (passed in, so this file stays free of the routine record).
+ * → [{ id, item, withScore, without, nWith, nWithout, diff, carries, felt: { yes, little, no, n } }], items with
+ * a comparison first (largest difference first), then the ones with answers only. Observation only.
+ */
+export function routineCarry(items = [], data = [], { isFor, doneOf, feltOf } = {}) {
+  const out = [];
+  for (const item of items) {
+    const days = data.filter((d) => d.score != null && isFor(item, d.day));
+    const on = days.filter((d) => doneOf(item, d.day)).map((d) => d.score);
+    const off = days.filter((d) => !doneOf(item, d.day)).map((d) => d.score);
+    const felt = { yes: 0, little: 0, no: 0, n: 0 };
+    for (const d of data) {
+      const v = feltOf(item, d.day);
+      if (v == null) continue;
+      felt.n++;
+      if (v === 2) felt.yes++;
+      else if (v === 1) felt.little++;
+      else felt.no++;
+    }
+    const both = on.length >= MIN_BOTH && off.length >= MIN_BOTH;
+    const diff = both ? mean(on) - mean(off) : null;
+    if (!both && !felt.n) continue;
+    out.push({ id: item.id, item, withScore: both ? r1(mean(on)) : null, without: both ? r1(mean(off)) : null, nWith: on.length, nWithout: off.length, diff: diff == null ? null : r1(diff), carries: diff != null && diff >= MIN_DIFF, felt });
+  }
+  return out.sort((a, b) => (b.diff ?? -99) - (a.diff ?? -99));
+}
