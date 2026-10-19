@@ -56,7 +56,7 @@
 </script>
 
 <VeloHead
-  crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: bike.id }) }, { label: t('Setup|tab'), href: bikesHash({ tab: 'rig', bike: bike.id }) }]}
+  crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: bike.id }) }, { label: t('My setup|tab'), href: bikesHash({ tab: 'rig', bike: bike.id }) }]}
   here={t('Setup log')}
   title={t('Setup log')}
   sub={`${bike.name} · ${t('what you changed and how it felt')}`}

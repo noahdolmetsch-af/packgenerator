@@ -94,9 +94,36 @@ export const DOMAINS = [
   },
   { key: 'everyday', name: 'Everyday', trip: false, words: ['everyday', 'alltag'] },
 ];
+/** The areas as the app comes (the Standard); DOMAINS below is the person's list (setDomains). */
+export const STD_DOMAINS = DOMAINS.map((d) => structuredClone(d));
 /** v0.36.0: the areas a new trip can be of (Velo and Everyday are areas of items only). */
 export const TRIP_DOMAINS = DOMAINS.filter((d) => d.trip !== false);
 export const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.key, d]));
+
+/**
+ * «Alles selbst bearbeiten» (Noah 19.10.2026): the person's sports (Ich › Listen und Typen › Sportarten),
+ * put in place like the categories (lists.js applyLists). list: listFor('domains') [{ id, name, std?, own?,
+ * hidden?, renamed? }] in the person's order.
+ * - renamed: the area shows the typed name (also in «Sportart», sportName gives way);
+ * - hidden: not offered for a new trip, old trips keep it;
+ * - deleted (a Standard area missing from the list): the same as hidden, its trips and items keep it;
+ * - own: a new area without a bike, with one bag («Bag»), shown in «Sportart».
+ * DOMAINS, TRIP_DOMAINS and DOMAIN change in place, so every page reads the same arrays.
+ */
+export function setDomains(list) {
+  const std = Object.fromEntries(STD_DOMAINS.map((d) => [d.key, d]));
+  const next = [];
+  for (const e of list) {
+    const base = std[e.id];
+    if (base) next.push({ ...structuredClone(base), ...(e.renamed ? { name: e.name, sportName: undefined, raw: true } : {}), ...(e.hidden ? { hidden: true } : {}) });
+    else if (e.own) next.push({ key: e.id, name: e.name, raw: true, own: true, packs: [{ key: 'pack', name: 'Bag', volumeL: null }], icon: 'bag', sport: true, words: [], ...(e.hidden ? { hidden: true } : {}) });
+  }
+  const gone = STD_DOMAINS.filter((d) => !next.some((x) => x.key === d.key)).map((d) => ({ ...structuredClone(d), hidden: true, gone: true }));
+  DOMAINS.splice(0, DOMAINS.length, ...next);
+  TRIP_DOMAINS.splice(0, TRIP_DOMAINS.length, ...next.filter((d) => d.trip !== false && !d.hidden));
+  for (const k of Object.keys(DOMAIN)) delete DOMAIN[k];
+  for (const d of [...next, ...gone]) DOMAIN[d.key] = d;
+}
 
 /** The area of a trip (older trips have none: bikepacking). */
 export const domainOf = (trip) => (trip?.domain && DOMAIN[trip.domain] && DOMAIN[trip.domain].trip !== false ? trip.domain : BIKEPACKING);

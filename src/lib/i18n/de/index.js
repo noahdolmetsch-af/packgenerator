@@ -168,6 +168,12 @@ import regeln from './regeln.js';
 import startkarten from './startkarten.js';
 // Standard-Velo VS1–VS4: star, order with arrows, the one question at the first trip
 import standardvelo from './standardvelo.js';
+// Werte messen Teil 1 (W1–W3): pick-up values and replaced parts on the sheets
+import abholwerte from './abholwerte.js';
+// Werte messen Teil 2 (W4–W6): tyre pressure, record the pressure, measure the chain
+import messen from './messen.js';
+// «Bausteine»: Velo-Pass und Werkstatt-Auftrag aus Bausteinen
+import bausteine from './bausteine.js';
 
 // «Inspiration» UC2-1, UC2-2, UC2-4: your own links, «Aus der Notiz wird …», the packing hint
 import inspiration from './inspiration.js';
@@ -191,6 +197,10 @@ import training from './training.js';
 
 // Ich › Bezahlen › Rechnungen: QR bill and TWINT (mockups QR1–QR9)
 import rechnungen from './rechnungen.js';
+// «Garmin-Seiten» GA-1–GA-10, GA-A1–A3: model data pages per bike
+import garmin from './garmin.js';
+// Taschen-Setups TS0–TS5: several bag setups per bike, compare, choose one when planning
+import taschensetups from './taschensetups.js';
 import push from './push.js';
 
 // SL «Scrollen und Listen»: groups, jump bar, «Nach oben»
@@ -279,13 +289,55 @@ import bugfixes01322 from './bugfixes01322.js';
 // W1 «Deine Fahrten»: compact rows in «Dein Tempo»
 import deinefahrten from './deinefahrten.js';
 
+// Merken (Kal1, PL1–PL3) and Erinnerungen (ER1–ER3): own to-dos and reminders
+import merken from './merken.js';
+// Merken: Geburtstage und Pflanzen (Noah 15.10.2026)
+import geburtstage from './geburtstage.js';
+
+// Ich › Eigene Werte «Mehr selbst einstellen» (IS 254–258)
+import eigenewerte from './eigenewerte.js';
+
+// «Ausrüstung» (AU1): main equipment per sport, its counter and care
+import ausruestung from './ausruestung.js';
+
+// Gipfelbuch für alle (Aktiv › Gipfelbuch)
+import gipfelbuch from './gipfelbuch.js';
+
+// Saisonstart-Check on a ski tour's page (October, November)
+import saisonstart from './saisonstart.js';
+
+// Sportart statt Tourart SA1–SA3: one sports list, a standard bike per sport, the old trips
+import sportarten from './sportarten.js';
+
+// 0.159.0 UI-Regeln Teil 1: the weight bar
+import uiregeln from './uiregeln.js';
+
+// Impeccable (18.10.2026): Unterwegs and the debrief of one trip
+import impeccableUnterwegs from './impeccable-unterwegs.js';
+// Impeccable (18.10.2026), Gruppe 3: Velos und Velopflege
+import impeccableVelos from './impeccable-velos.js';
+// Impeccable (18.10.2026): Eingang, Ich, Daten und Backup
+import impeccableIch from './impeccable-ich.js';
+// Impeccable 18.10.2026, Gruppe 2: Material, Bausteine, Einkauf
+import impeccableMaterial from './impeccable-material.js';
+// Impeccable 18.10.2026, Gruppe 1: Packen (blocks folded) and Planen (core line, overdue on top)
+import impeccableTouren from './impeccable-touren.js';
+
+// «Skitouren»: Touren › Skitouren and its pages
+import ski from './ski.js';
+
+// Skitour «Planen und Unterwegs» (SKB1–SKB3, SKB5, SKB6)
+import skitag from './skitag.js';
+
 // Einheitliche Formulare (19.10.2026): Form, Field, ChipChoice, formchecks.js
 import formular from './formular.js';
 
 // «Rückmeldungen» (Noah 19.10.2026 «1a 2a 3a 4b»): the delete question, Undo, lines after saving
 import rueckmeldungen from './rueckmeldungen.js';
+// «Alles selbst bearbeiten» (Noah 19.10.2026): add, rename and delete every kind of data
+import allesbearbeiten from './allesbearbeiten.js';
 
 // Paket H «Packen leichter» (Noah 19.10.2026): Tabelle, Vorräte, Ausleihen, Startlisten, Vorlesen
 import packenleichter from './packenleichter.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...deinefahrten, ...rueckmeldungen, ...formular, ...packenleichter };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...tagescheck, ...tagescheck2, ...woche, ...sporttasche, ...erholung, ...aj1, ...tz1, ...au, ...werte, ...wartung, ...bedienung, ...kisuche, ...setuprig, ...bezahlen, ...kleineapps, ...handbuch, ...datenbereinigen, ...sna, ...snb, ...tz2, ...snc, ...sn2plus, ...sn4plus, ...sn3plus, ...sn2x, ...sk, ...sn5plus, ...sn4g, ...komoot, ...sn6plus, ...abfragen, ...daumen, ...hg1, ...runden, ...kacheln, ...kamera, ...inspiration, ...lists, ...timer, ...meditationzentral, ...pageinfo, ...durchklick, ...training, ...rechnungen, ...pfeileziehen, ...paket2b, ...regeln, ...startkarten, ...standardvelo, ...listen, ...ws2schnellstart, ...ws5velokosten, ...ws6erholung, ...einheitlich, ...wiedersichtbar, ...paket3, ...aktivitaeten, ...hoehenprofil, ...gpxweg, ...plannotes, ...handykurz, ...bugfixes01322, ...abholwerte, ...messen, ...bausteine, ...garmin, ...taschensetups, ...merken, ...geburtstage, ...eigenewerte, ...ausruestung, ...gipfelbuch, ...saisonstart, ...sportarten, ...uiregeln, ...impeccableUnterwegs, ...impeccableVelos, ...impeccableIch, ...impeccableMaterial, ...impeccableTouren, ...deinefahrten, ...ski, ...skitag, ...datensicher, ...dokumente, ...bedienregeln, ...pagetexts, ...hinweis, ...fitbit, ...leistung, ...leistungAktivitaet, ...leistungAnalysen, ...gewicht, ...leistungWoche, ...trainingInhalt, ...agenda, ...assistent, ...termine, ...abgleich, ...push, ...mail, ...gruppen, ...shop, ...rueckmeldungen, ...formular, ...allesbearbeiten, ...packenleichter };

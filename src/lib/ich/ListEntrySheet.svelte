@@ -20,7 +20,9 @@
   import { X, Check, Eye, EyeOff, Trash2, Lightbulb } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { entry = null, count = 0, stdIcon = 'Tag', words = null, full = true, onsave, onhide, onremove, onclose } = $props();
+  let { entry = null, count = 0, stdIcon = 'Tag', words = null, full = true, hideable = false, onsave, onhide, onremove = null, onclose } = $props();
+  // «Alles selbst bearbeiten» (19.10.2026): hideable shows «Ausblenden» without symbol and «Gilt für» (sports);
+  // without onremove the list only renames (places on the bike, care parts: the app needs each of them)
 
   let dialog;
   $effect(() => {
@@ -88,8 +90,8 @@
 
     <div class="vd-foot">
       {#if entry}
-        <button type="button" class="btn del" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
-        {#if full}
+        {#if onremove}<button type="button" class="btn del" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>{/if}
+        {#if full || hideable}
           <button type="button" class="btn" onclick={hide}>
             {#if entry.hidden}<Eye size={16} aria-hidden="true" />{t('Show again|list')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hide')}{/if}
           </button>
@@ -97,7 +99,7 @@
       {/if}
       <button type="submit" class="btn hi"><Check size={16} aria-hidden="true" />{t('Save')}</button>
     </div>
-    {#if entry}
+    {#if entry && onremove}
       <p class="warn">
         {#if words?.warn}{words.warn}{:else}{count ? tn(count, 'Delete: {n} item has this category. The app then asks where it goes.', 'Delete: {n} items have this category. The app then asks where they go.') : t('Delete: no item has this category.')}{/if}
         {#if !entry.own}{t('«Back to Standard» brings it back.')}{/if}

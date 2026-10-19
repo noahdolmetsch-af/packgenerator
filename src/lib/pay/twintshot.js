@@ -56,22 +56,3 @@ export function matchShot(read, invoices) {
   }
   return { inv: null, how: 'none', choices: [] };
 }
-
-/** Where the service worker keeps a shared picture (public/share-target.js writes it). */
-export const SHOT_CACHE = 'pg-shared-pay';
-export const SHOT_KEY = 'shared-pay';
-
-/** The picture shared from TWINT, taken out of the cache once (null when there is none). */
-export async function takeSharedShot(base = import.meta.env?.BASE_URL ?? '/') {
-  try {
-    const cache = await caches.open(SHOT_CACHE);
-    const url = `${base}${SHOT_KEY}`;
-    const res = await cache.match(url);
-    if (!res) return null;
-    const blob = await res.blob();
-    await cache.delete(url);
-    return new File([blob], decodeURIComponent(res.headers.get('X-File-Name') ?? 'twint.png'), { type: blob.type || 'image/png' });
-  } catch {
-    return null;
-  }
-}

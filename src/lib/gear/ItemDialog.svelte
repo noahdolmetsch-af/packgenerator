@@ -22,6 +22,7 @@
   import { DOMAINS, itemDomains, domainName, EVERYWHERE } from '../domains.js';
   import { isSupply, expiryState, daysUntil } from '../supplies.js'; // Paket H: supplies with an expiry date (answer 2b)
   import { CHARGE_CATEGORIES } from '../gear.js';
+  import { SKI_GROUPS, SKI_GROUP, skiGroupOf } from '../ski.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
@@ -45,6 +46,7 @@
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
   import Woanders from '../sk/Woanders.svelte'; // SK X1, X7, X13
   import { slotOf, ifixitUrl } from '../sk/links.js';
+  import { own } from '../ownlive.svelte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import Field from '../ui/Field.svelte'; // Einheitliche Formulare (Noah 19.10.2026 «teil bearbeiten jetzt»)
   import { checkAll } from '../ui/formchecks.js';
@@ -617,7 +619,7 @@
           {#each RIDES.filter((r) => r.key !== 'every') as r (r.key)}<option value={r.key}>{t(r.name)}</option>{/each}
         </select>{/snippet}
       </Field>
-      <Field id="it-cold" label={t('Add when colder than (°C)')} optional example={t('e.g. {x}', { x: '10' })} error={errors.coldBelow}>
+      <Field id="it-cold" label={t('Add when colder than (°C)')} optional example={t('e.g. {x}', { x: String(own.v.coldC) })} error={errors.coldBelow}>
         {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.coldBelow} />{/snippet}
       </Field>
       <Field id="it-rain" label={t('When it rains')} optional>
@@ -745,6 +747,15 @@
         {/each}
         {/if}
       </fieldset>
+      <!-- v0.97.0 «Skitouren»: the group in the ski backpack check (only for items of the area ski) -->
+      {#if draft.domains?.includes('ski')}
+        <label class="wide"><span class="lbl">{t('Ski tour group')}</span>
+          <select class="sel" bind:value={draft.skiGroup}>
+            <option value="">{t('automatic: {group}', { group: t(SKI_GROUP[skiGroupOf({ ...draft, skiGroup: '' })].name) })}</option>
+            {#each SKI_GROUPS as g (g.key)}<option value={g.key}>{t(g.name)}</option>{/each}
+          </select>
+        </label>
+      {/if}
       <Field id="it-note" class="wide" label={t('Note')} optional>
         {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea>{/snippet}
       </Field>
@@ -816,6 +827,10 @@
     {:else}
       <Woanders context={nameOf(item)} links={[{ kind: 'x1', slot: slotOf('x1', item.id), icon: 'book', sub: t('Care and washing') }, { kind: 'x13', href: ifixitUrl(item), icon: 'hammer', sub: t('Guide at iFixit') }]} />
     {/if}
+  {/if}
+  {#if !isNew && draft.ownership !== 'wishlist' && draft.ownership !== 'to-buy'}
+    <!-- AU1 «Ausrüstung» (Noah 15.10.2026 «3a»): an item of Material becomes main equipment of a sport -->
+    <a class="btn mainq" href="#/equipment?add={encodeURIComponent(item.id)}" onclick={() => dialog.close()} data-main-gear>{($liveQ ?? item)?.main ? t('Main equipment: counter and care') : t('Make it main equipment')}</a>
   {/if}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
   {#if !isNew}{@render fold('more', Ellipsis, t('More|item'), [t('Rename'), canMerge ? t('Merge with …') : '', readOnly ? '' : t('Delete')].filter(Boolean).join(', '), moreBody)}{/if}
@@ -1542,5 +1557,8 @@
     margin-left: auto;
     border-color: var(--bad);
     color: var(--bad);
+  }
+  .mainq {
+    justify-self: start;
   }
 </style>

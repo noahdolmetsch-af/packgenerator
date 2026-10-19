@@ -46,7 +46,7 @@
   {/if}
   <h2 class="name">
     <span>{bike.name}</span>
-    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /></button>
+    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /><span class="et" aria-hidden="true">{t('Edit')}</span></button>
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}
@@ -146,12 +146,17 @@
     min-width: 0;
     overflow-wrap: break-word;
   }
+  /* «Alles selbst bearbeiten» (Noah 19.10.2026): the pencil says «Bearbeiten», so name, photo and delete are easy to find */
   .edit {
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 44px;
     height: 44px;
+    padding: 0 10px;
+    font-size: var(--fs-small);
+    font-weight: 500;
     border: 0;
     border-radius: var(--r-ctl);
     background: none;

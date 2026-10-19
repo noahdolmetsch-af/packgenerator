@@ -1,4 +1,5 @@
 <script>
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
@@ -42,6 +43,7 @@
   import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
+  import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
   import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
@@ -181,6 +183,14 @@
     beforeOpen = true;
     queueMicrotask(() => beforeEl?.scrollIntoView({ block: 'start' }));
   });
+  // Impeccable 18.10.2026 (Planen 1 + 2): «Aufgaben ↓» and the box «7 offen» open «Vor der Tour» and go there
+  function openBefore() {
+    beforeOpen = true;
+    queueMicrotask(() => {
+      beforeEl?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      beforeEl?.querySelector('summary')?.focus({ preventScroll: true });
+    });
+  }
   const prepBy = () => {
     try {
       return localStorage.getItem('care.by') ?? 'self';
@@ -449,7 +459,8 @@
     const visits = $visitsQ ?? [];
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
-  const useBike = (b) => change((t) => switchBike(t, b));
+  // Taschen-Setups TS5: the new bike's last used setup comes along.
+  const useBike = (b) => change((t) => switchBike(t, b, $tripsQ ?? []));
   // v0.25.1 (Noah 3a): Today's "Choose a bike for the trip" opens the comparison (#/pack?choose).
   $effect(() => {
     if (trip && location.hash.includes('choose')) {
@@ -791,7 +802,7 @@
     hours: (n) => changeContext(() => ({ hours: n })),
     days: (n) => changeContext(() => ({ days: Math.max(1, n) })),
     wx: setWx,
-    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b))),
+    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b), $tripsQ ?? [])),
     more: () => (dialog = { trip }),
     compare: () => (choosing = true),
     undo: undoLast,
@@ -1002,7 +1013,7 @@
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
-  {/if}{/snippet}
+  {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
   <!-- Paket H «4a und b»: «Read aloud» sits in the Packen step, right under the band -->
   {#snippet dayTop()}{@render blocksCard()}{#if trip.entries.some((e) => !e.packed)}<div class="ra-row"><button type="button" class="btn" onclick={() => (reading = true)}><Volume2 size={18} aria-hidden="true" /> {t('Read aloud')}</button><small>{t('The app reads, you say «ok» or tap the big button.')}</small></div>{/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
@@ -1016,7 +1027,7 @@
   {#if packTab}
     <PackDay top={fixed ? null : dayTop} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -1094,6 +1105,8 @@
     {#snippet ballastContent()}<StarterList {trip} {items} {fixed} onadd={(id) => addTo(zone?.key, id)} onremove={removeEntry} /><ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
+  <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
+  {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
   <PageMore page="pack" name={t('Pack')} />
   {#if onionAdd?.label && onionAdd.tripId === trip?.id}
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>

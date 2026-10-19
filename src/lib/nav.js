@@ -150,9 +150,11 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.66.0 (Noah 4a): «Bausteine prüfen»
   if (h.startsWith('#/blocks')) return 'blocks'; // v0.26.0 (Noah 2b): building blocks, own page
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
+  if (h.startsWith('#/equipment')) return 'equipment'; // «Ausrüstung» (AU1, Noah 15.10.2026 «5b»)
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
   if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
+  if (h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?')) return 'ski'; // v0.97.0 «Skitouren»
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
@@ -194,7 +196,11 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/abfragen') || /^#\/check(\/|\?|$)/.test(h)) return 'abfragen'; // AB1/AB5: Ich › Deine Abfragen; WG: the old check pages lead there (redirectOf)
   if (h.startsWith('#/me/history')) return 'history'; // AB4: Ich › Daten › Verlauf
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
+  if (h.startsWith('#/me/werte')) return 'werte'; // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte
   if (h.startsWith('#/me/lists')) return 'lists'; // v0.134.0 «Listen und Typen» (LI1–LI4)
+  if (h.startsWith('#/me/reminders')) return 'reminders'; // ER3 (Noah 14.10.2026 «er1-er3 freigabe»): Ich › Erinnerungen
+  if (h.startsWith('#/calendar/list/')) return 'list'; // Eigene Listen (Noah 14.10.2026 «1a und b 2 b 3a»): one list
+  if (h.startsWith('#/calendar')) return 'calendar'; // PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
   return 'home';
@@ -241,6 +247,18 @@ export const PLACES = [
 ];
 
 /**
+ * «Ausrüstung» (mockup AU1, Noah 15.10.2026 «5b» own place, «1-5a» with «1b»): the main equipment of
+ * each sport has its own place. On a computer it stands in the sidebar under Velos (SIDE_PLACES); on a
+ * phone the bottom bar keeps five places: Velos and Ausrüstung share one, a switch on top of both pages
+ * changes between them (nav/PlaceSwitch). PLACES stays the five of the bar.
+ */
+export const EQUIPMENT = { key: 'equipment', href: '#/equipment', label: 'Equipment|place', shares: 'bikes' };
+/** The places of the sidebar: the five, with Ausrüstung under Velos. */
+export const SIDE_PLACES = PLACES.flatMap((p) => (p.key === 'bikes' ? [p, EQUIPMENT] : [p]));
+/** The place whose slot in the bottom bar a place uses (Ausrüstung → Velos). */
+export const barPlace = (place) => (place === EQUIPMENT.key ? EQUIPMENT.shares : place);
+
+/**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
  * on top of each place too (nav/PlaceTabs), at most four. match: the addresses that count as this entry.
@@ -251,6 +269,8 @@ export const PLACE_TABS = {
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
+    // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
+    { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') },
   ],
   gear: [
     { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => (h.startsWith('#/gear') && !/[?&]view=wish\b/.test(h)) || h.startsWith('#/favorites') },
@@ -265,7 +285,7 @@ export const PLACE_TABS = {
     { key: 'shop', label: 'Workshop|tab', href: '#/bikes?tab=shop', match: (h) => h.startsWith('#/bikes') && /[?&]tab=shop/.test(h) },
     { key: 'fit', label: 'Equipment|tab', href: '#/bikes?tab=compare', match: (h) => h.startsWith('#/bikes') && /[?&]tab=compare/.test(h) },
     // UC3 (Noah 14.10.2026 «1-5a»): «Setup», your setup per bike and the ideas of others
-    { key: 'rig', label: 'Setup|tab', href: '#/bikes?tab=rig', match: (h) => h.startsWith('#/bikes') && /[?&]tab=rig/.test(h) },
+    { key: 'rig', label: 'My setup|tab', href: '#/bikes?tab=rig', match: (h) => h.startsWith('#/bikes') && /[?&]tab=rig/.test(h) },
   ],
   active: [
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/rest|\/bags|\/review)?\/?$/.test(h.split('?')[0]) }, // v0.130.0 the week, recovery and the sport bag belong to Heute (mockups AK1–AK3); the Wochenrückblick too
@@ -275,7 +295,7 @@ export const PLACE_TABS = {
     { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/training(\/|\?|$)/.test(h) },
     { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
-    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
+    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
   ],
 };
 
@@ -298,10 +318,11 @@ export function placeOf(page) {
   if (page === 'home') return 'today';
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'flow') return 'active';
-  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
+  if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders') return 'me';
+  if (page === 'equipment') return 'equipment';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'agenda' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 

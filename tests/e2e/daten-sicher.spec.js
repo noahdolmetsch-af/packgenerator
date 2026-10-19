@@ -108,7 +108,8 @@ test('rule 3a: closing keeps the typed text, Discard takes it back, a tap beside
   const main = page.locator('main');
   const url = 'https://example.org/test-rig';
   await main.getByPlaceholder(T('Paste a link, e.g. bikepacking.com/…')).first().fill(url);
-  await main.getByRole('button', { name: T('Add link|insp') }).click();
+  // the form's button («Was hier steht» on Inspiration has a jump mark with the same words)
+  await main.locator('#if-add').getByRole('button', { name: T('Add link|insp') }).click();
   const dlg = page.getByRole('dialog', { name: T('Add link|insp') });
   await expect(dlg).toBeVisible();
   const title = dlg.getByLabel(T('Title: what do you call it?'));
@@ -117,7 +118,8 @@ test('rule 3a: closing keeps the typed text, Discard takes it back, a tap beside
   await expect(dlg).toHaveCount(0);
   // the same link again: the title is back
   await main.getByPlaceholder(T('Paste a link, e.g. bikepacking.com/…')).first().fill(url);
-  await main.getByRole('button', { name: T('Add link|insp') }).click();
+  // the form's button («Was hier steht» on Inspiration has a jump mark with the same words)
+  await main.locator('#if-add').getByRole('button', { name: T('Add link|insp') }).click();
   await expect(title).toHaveValue('Test Jura Runde');
   const bar = dlg.locator('[data-kept-bar]');
   await expect(bar).toContainText(T('Your text from before is back.'));
@@ -129,7 +131,8 @@ test('rule 3a: closing keeps the typed text, Discard takes it back, a tap beside
   await page.mouse.click(2, 2);
   await expect(dlg).toHaveCount(0);
   await main.getByPlaceholder(T('Paste a link, e.g. bikepacking.com/…')).first().fill(url);
-  await main.getByRole('button', { name: T('Add link|insp') }).click();
+  // the form's button («Was hier steht» on Inspiration has a jump mark with the same words)
+  await main.locator('#if-add').getByRole('button', { name: T('Add link|insp') }).click();
   await expect(title).toHaveValue('Test zweiter Versuch');
   expect(errors).toEqual([]);
 });
