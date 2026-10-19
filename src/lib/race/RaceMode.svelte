@@ -111,6 +111,8 @@
     </div>
     {#if plan}<button type="button" class="btn sm" onclick={() => setKm(plan.kmAt(now))} data-race-km-plan>{t('Use the plan (km {km} now)', { km: num(Math.round(plan.kmAt(now))) })}</button>{/if}
     {#if total}<p class="rc-note">{t('{left} km to the finish', { left: num(Math.round(total - km)) })}</p>{/if}
+    <!-- Paket U3 «Live-Karte»: the km from GPS by itself, the map of the race -->
+    <a class="btn sm" href={`#/live/${encodeURIComponent(ctx.trip.id)}`} data-race-live>{t('Live map')}</a>
   </section>
 
   <section class="rc-box rm-lines" data-race-box="ride-next" aria-label={t('What comes next|race')}>

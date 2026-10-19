@@ -29,6 +29,7 @@
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
   import Ideas from './flow/Ideas.svelte';
+  import LiveStart from '../lib/live/LiveStart.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { Plus, Sun, GripVertical, Lightbulb, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
   import { inSeason } from '../lib/ski.js';
@@ -356,6 +357,8 @@
       <p class="sub" data-today-line>{todayLine}</p>
       <!-- «Skitouren»: in season (November–May) one small row to Touren › Skitouren -->
       {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+      <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a» «Aktiv „Ausfahrt starten"»): one small line to the live map -->
+      <LiveStart />
     </header>
 
     {#if data && !states.length}

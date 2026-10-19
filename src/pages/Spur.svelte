@@ -28,6 +28,7 @@
   import PlaceSheet from '../lib/spur/PlaceSheet.svelte';
   import RecordButton from '../lib/spur/RecordButton.svelte';
   import { localDay } from '../lib/localday.js';
+  import { daySum, durText } from '../lib/live/after.js';
 
   let { id = '' } = $props();
   // svelte-ignore state_referenced_locally
@@ -249,6 +250,8 @@
           <li class="card">
             <h3><button type="button" class="tp-link dayb" onclick={() => (dayPick = d.day)}>{t('Day {n}', { n: d.n })} · {dayName(d.day)}</button></h3>
             <p class="tp-small tp-muted num">{d.km ? `${num(d.km)} km` : t('No ride')}{d.sources.length ? ` · ${d.sources.map((s) => t(SRC[s])).join(', ')}` : ''}</p>
+            <!-- Paket U3 «Live-Karte» (Noah «2a»): the evening line of the day from your own recordings -->
+            {#each [daySum($tracksQ ?? [], d.day)].filter(Boolean) as ds (d.day)}<p class="tp-small eve num" data-day-sum>{t('Evening: {km} km, {ride} riding', { km: num(ds.km), ride: durText(ds.movingS) })} · {ds.n ? tn(ds.n, '{n} pause ({time})', '{n} pauses ({time})', { time: durText(ds.stoppedS) }) : t('no pause')}</p>{/each}
             {#if d.places.length || d.notes.length || d.gaps.length || d.lines.some((l) => l.src === 'rec')}
               <ul class="steps">
                 {#each [...d.places.map((p) => ({ ...p, k: 'place' })), ...d.notes.map((x) => ({ ...x, k: 'note' })), ...d.gaps.map((g, i) => ({ id: `gap-${d.day}-${i}`, at: new Date(g.from).toISOString(), k: 'gap', g }))].sort((a, b) => String(a.at).localeCompare(String(b.at))) as s (s.id)}
@@ -422,6 +425,10 @@
   }
   .rec {
     margin: 8px 0 0;
+  }
+  .eve {
+    margin: 4px 0 0;
+    color: var(--ink-2);
   }
   .opts {
     border: 0;

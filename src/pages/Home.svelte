@@ -152,6 +152,7 @@
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
+  import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome } from '../lib/bedienung.svelte.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
@@ -1098,6 +1099,7 @@
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
+  {:else if x.id === 'liveride'}{@const lt = todayTrip(trips, today)}<SmallTile tile={TILE.liveride} size={x.size} href={liveHref(lt)} isnew={newTile('liveride')} sub={lt ? lt.title : t('a free ride, without a trip')} />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
   {:else if x.id === 'suggest'}<TodaySuggest {today} />

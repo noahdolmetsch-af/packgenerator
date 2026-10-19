@@ -61,7 +61,8 @@ export default defineConfig({
         ],
         // Quick note (v0.19.3, answer 3a): long-press the app icon → "New note"; and Pack Generator
         // in the Android share sheet (text and links; a photo is added in the note itself).
-        shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
+        // Paket U3 «Live-Karte» (Noah 19.10.2026 «2a»): long-press the app icon → «Start a ride»
+        shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }, { name: 'Start a ride', short_name: 'Ride', url: `${base}#/live`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
         // v0.41.0 (Noah 5): a GPX file shared from another app ("Teilen an Pack Generator") opens the
         // ride upload. A file needs POST with multipart/form-data; the service worker answers that POST
         // (public/share-target.js): a file goes to #/debrief/ride/shared, text and links still go to

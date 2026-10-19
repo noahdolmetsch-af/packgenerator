@@ -94,6 +94,8 @@ export function readPayload(obj) {
     start: obj.d ?? null,
     km: Number(obj.km) || 0,
     at: obj.at ?? null,
+    // Paket U3 «Live-Karte» (Noah «4a»): the live point while the live map runs (familylive.js liveOf)
+    live: obj.live && Number.isFinite(obj.live.lat) && Number.isFinite(obj.live.lon) ? { lat: obj.live.lat, lon: obj.live.lon, at: String(obj.live.at ?? '') } : null,
     days: obj.days.map((x, i) => ({
       day: String(x.d ?? ''),
       n: i + 1,
