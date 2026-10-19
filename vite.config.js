@@ -86,6 +86,9 @@ export default defineConfig({
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
         // Erinnerungen aufs Handy (Web-Push): show the messages of api/push.js and open the app on a tap.
         importScripts: ['share-target.js', 'push-sw.js'],
+        // 19.10.2026: the server project «packgen» serves this app too; its service worker must never answer
+        // /api/… (the Google and Strava logins come back to /api/…/callback and would land in the app instead).
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
             // Trail Journal fonts: cached after the first online visit.
