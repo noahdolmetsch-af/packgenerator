@@ -72,7 +72,7 @@ test('Paket H: supplies, lending, table, read aloud', async ({ page, context }, 
 
   // 4. read aloud with the big button
   await page.goto('./#/pack?day');
-  const ra = main.getByRole('button', { name: T('Read aloud') });
+  const ra = page.getByRole('button', { name: T('Read aloud') }).first(); // in the main bar, next to the ring
   await expect(ra).toBeVisible();
   await ra.click();
   const dlg = page.getByRole('dialog', { name: T('Read aloud') });
