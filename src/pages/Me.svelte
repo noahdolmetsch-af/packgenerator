@@ -25,6 +25,9 @@
    * one row under Settings (the checks are one tap deeper, on that page); «Appearance and handling» names the
    * start place too.
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { LAST_BACKUP, backupDue } from '../lib/backup.js';
@@ -37,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, KeyRound, CircleHelp, Check } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, KeyRound, CircleHelp, Check, ListTree, FileText } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
@@ -56,6 +59,10 @@
   import Btn from '../lib/ui/Btn.svelte';
   import { tick } from 'svelte';
   import '../lib/ich/ich.css';
+  import { docs as docList } from '../lib/docs/client.svelte.js';
+  import { dueCount } from '../lib/docs.js';
+  // P3b (D3): how many documents expire soon (the yellow pill on «Documents»)
+  const docDue = $derived(dueCount(docList.list, localDay()));
 
   // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
   const MOVED_KEY = 'aj1.problemMoved';
@@ -151,6 +158,10 @@
     {/if}
   {/if}
 
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <HintCard page="me" />
+  <TipLine page="me" name={t('Me|place')} />
+
   <div class="ich-cols">
     <div class="ich-main">
       <section class="ich-sec" aria-labelledby="me-data-h">
@@ -160,6 +171,14 @@
             <a class="ich-row" href="#/me/data">
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- P3b «Daten sicher» (D3): passport, insurance, emergency; reminders before they expire -->
+            <a class="ich-row" href="#/me/docs">
+              <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Documents')}</b><small>{docList.list.length ? tn(docList.list.length, '{n} document', '{n} documents') : t('Passport, insurance, emergency sheet')}{docDue ? ` · ${tn(docDue, '{n} expires soon', '{n} expire soon')}` : ''}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -357,6 +376,7 @@
     </div>
   </div>
 
+  <PageMore page="me" name={t('Me|place')} />
   {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
   {#if playOpen}<PlaySheet running={!!$waitQ?.demo} onclose={() => (playOpen = false)} />{/if}
   {#if placeOpen}<HomePlaceSheet current={$waitQ?.home || null} onclose={() => (placeOpen = false)} />{/if}

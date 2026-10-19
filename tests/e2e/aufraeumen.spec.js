@@ -61,6 +61,9 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(sheet.getByRole('status')).toContainText(/archiviert/);
   await expect(sheet.getByText(T('Nothing with «test» in its name left.'))).toBeVisible();
   await sheet.getByRole('button', { name: T('Close') }).click();
+  // the window takes its history entry away a moment later (backclose.js); a next address before that is undone
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.goto('./#/trips');
   await expect(listed(REAL)).toBeVisible();
   await expect(page.getByText(TEST)).toHaveCount(0);
@@ -73,6 +76,9 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await sheet.getByRole('button', { name: /^Rückgängig: / }).click();
   await expect(sheet.getByRole('status')).toContainText(/zurück/);
   await sheet.getByRole('button', { name: T('Close') }).click();
+  // the window takes its history entry away a moment later (backclose.js); a next address before that is undone
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.goto('./#/trips');
   await expect(listed(TEST)).toBeVisible();
 

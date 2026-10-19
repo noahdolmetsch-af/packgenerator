@@ -5,6 +5,7 @@
    * preview «So fragt Heute» and «In Rückblick und Balance zeigen». An own question can only be answered
    * by hand («nur von Hand möglich»). An existing one can be changed or removed (its answers stay).
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { X, Gauge, CircleCheck, Hash, Type, Hand, Check, Trash2 } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { t } from '../i18n.svelte.js';
@@ -47,7 +48,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose {onclose} aria-labelledby="own-h">
+<dialog use:keepTyped={'abfrage:' + (question?.id ?? 'new')} class="sheet vdlg from-below" bind:this={dialog} use:backClose {onclose} aria-labelledby="own-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="own-h">{question ? t('Change your own question') : t('Create your own question')}</h2>

@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 11; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log
+export const SCHEMA_VERSION = 12; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente)
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -42,6 +42,7 @@ export const DATA_TABLES = [
   'abAnswers', // AB «Deine Abfragen»: one row per answer, the history under Ich › Daten › Verlauf (abfragen.js)
   'timerLog', // «Timer» (Z5): every timer that ran, with its kind, length and an optional note (timer.js)
   'activities', // «Training»: every Strava activity with its heart rate per zone (training.js)
+  'docs', // P3b «Daten sicher»: Ich › Dokumente, PDFs and photos of papers as data URLs (docs.js)
 ];
 
 /**
@@ -170,6 +171,10 @@ export function createDb(name = 'pack-generator') {
   // Version 11 («Timer», mockups Z1–Z5) only adds the timer log, so existing data stays as it is.
   db.version(11).stores({
     timerLog: 'id, day, mode',
+  });
+  // Version 12 (P3b «Daten sicher», Ich › Dokumente) only adds the documents, so existing data stays as it is.
+  db.version(12).stores({
+    docs: 'id, kind, group, createdAt',
   });
   return db;
 }

@@ -8,6 +8,7 @@
    * kind: the trip kind's name (shown); items: its favourites; onsave(name, ids): may return a text
    * (the error, e.g. the name is taken) to stay open; onclose().
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { tick } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { X, Check, Info } from '@lucide/svelte';
@@ -51,7 +52,7 @@
   }
 </script>
 
-<dialog class="sheet from-below favblk" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="fb-h">
+<dialog use:keepTyped={'favblock:' + kind} class="sheet from-below favblk" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="fb-h">
   <form onsubmit={save} novalidate>
     <div class="head">
       <div>

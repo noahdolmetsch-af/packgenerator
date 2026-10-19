@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -402,7 +403,6 @@
   /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
   let quick = $state(null);
   let quickTimer;
-  const UNDO_MS = 8000;
   async function allGood(of = lead) {
     const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
@@ -540,7 +540,7 @@
     if (undo) say(yes ? t('Saved: you rode {trip}. The list is fixed now.', { trip: trip.title }) : t('{trip}: marked as not ridden.', { trip: trip.title }), undo);
   }
   const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
-  const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && !x.id.startsWith('demo') && onTripDay(x, today)));
+  const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && onTripDay(x, today)));
   const prep = $derived.by(() => {
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
     return p?.total && p.status === 'open' ? p : null;
@@ -682,7 +682,7 @@
   function say(text, undo) {
     clearTimeout(noticeTimer);
     notice = { text, undo };
-    noticeTimer = setTimeout(() => (notice = null), 10000);
+    noticeTimer = setTimeout(() => (notice = null), undo ? UNDO_MS : 10000);
   }
   $effect(() => () => clearTimeout(noticeTimer));
   async function act(row) {
@@ -784,10 +784,10 @@
 
   // Ride day (answer 1a) and the last evening (v0.67.0 U22b): Start-Karten (Noah 14.10.2026, 2b/3b and
   // ST1–ST2 «1a 2a 3b»): Today no longer jumps to On the way or «Tour beendet»; a card with the trip card
-  // says it (startkarten.js). Not on the day the trip was made (v0.29.2, Noah 6a), not for demo trips.
+  // says it (startkarten.js). Not on the day the trip was made (v0.29.2, Noah 6a); demo trips count like real ones (P3c H2b).
   const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
   const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
-  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
+  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
   const rideSeenNow = (() => {
     try {
       return localStorage.getItem(RIDE_SEEN_KEY);
@@ -1118,7 +1118,7 @@
   </div>
 {/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
-<dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
     <WearToday {items} {trips} />

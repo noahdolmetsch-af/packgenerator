@@ -1,4 +1,8 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -531,7 +535,7 @@
   const flip = (id) => (picked.has(id) ? picked.delete(id) : picked.add(id));
   const pickAll = (list, on) => list.forEach((i) => (on ? picked.add(i.id) : picked.delete(i.id)));
   const allPicked = (list) => list.length > 0 && list.every((i) => picked.has(i.id));
-  function offerUndo(text, snap, { ms = 10_000, weigh = null } = {}) {
+  function offerUndo(text, snap, { ms = UNDO_MS, weigh = null } = {}) {
     clearTimeout(undoTimer);
     undo = { text, ...(snap ? { snap } : {}), ...(weigh ? { weigh } : {}) };
     undoTimer = setTimeout(() => (undo = null), ms);
@@ -625,6 +629,10 @@
       {/if}
     </div>
   </header>
+
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  {#if items.length}<HintCard page="gear" />{/if}
+  {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
 
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
@@ -898,6 +906,7 @@
       </div>
     </div>
     <TopButton />
+    {#if !selecting}<PageMore page="gear" name={t('Gear|page')} />{/if}
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PageTiles page="gear" />{/if}
   {/if}

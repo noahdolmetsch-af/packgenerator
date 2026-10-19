@@ -183,7 +183,7 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   const dlg = page.getByRole('dialog');
   // v0.63.0: the photo sits in the row «Name, brand, note», which folds away
   await dlg.locator('details.fold[data-fold="details"] > summary').click();
-  await dlg.locator('.iphoto input[type=file]').setInputFiles({ name: 'test_data_gtp_photo.png', mimeType: 'image/png', buffer: PNG });
+  await dlg.locator('.iphoto input[type=file]:not([capture])').setInputFiles({ name: 'test_data_gtp_photo.png', mimeType: 'image/png', buffer: PNG });
   await expect(dlg.locator('.iphoto img')).toBeVisible();
   await dlg.getByRole('button', { name: T('Save') }).click();
   await expect(dlg).toBeHidden();

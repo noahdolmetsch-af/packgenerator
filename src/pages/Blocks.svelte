@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * v0.26.0 (Noah 2a/2b, AP10): building blocks (code: item sets) on their own page, #/blocks.
    * v0.32.0 (finding 5, stage 1): the blocks in 3 groups, each card with "when it comes" and the
@@ -106,7 +107,7 @@
   function offer(text, snap) {
     clearTimeout(timer);
     undo = snap ? { text, snap } : { text };
-    timer = setTimeout(() => (undo = null), 10_000);
+    timer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function doUndo() {
     const snap = undo?.snap;

@@ -1,4 +1,7 @@
 <script>
+  import { longPress } from '../lib/ui/longpress.js';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { localDay } from '../lib/localday.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   /**
@@ -528,11 +531,14 @@
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
+      <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
+      <TipLine page="debrief" name={t('Debrief')} />
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {openSugg} ontake={(s) => holdSugg(s, 'take')} onno={(s) => holdSugg(s, 'no')} onreopen={reopen} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
+        <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" extrasHint />
       {:else}
       <!-- v0.109.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
@@ -542,7 +548,7 @@
       <div class="rv-lay dbf">
         <div class="rv-col">
           <section class="rv-sec unneeded" aria-labelledby="unneeded-h">
-            <div class="rv-h"><div><h2 id="unneeded-h">{t('What did you not need?')}</h2><p class="rv-sub">{t('Tap what stayed in the bag. The app learns it for next time.')}</p></div></div>
+            <div class="rv-h"><div><h2 id="unneeded-h">{t('What did you not need?')}</h2><p class="rv-sub">{t('Tap what stayed in the bag. The app learns it for next time.')} {t('Press long on an item: broken.')}</p></div></div>
             <div class="rv-box pad">
               <div class="bags" role="group" aria-labelledby="unneeded-h">
                 {#each chipGroups as g (g.slot)}
@@ -555,7 +561,7 @@
                     <div class="chips">
                       {#each g.rows as { e, item } (e.itemId)}
                         {@const st = d.items[e.itemId] ?? 'used'}
-                        <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} title={before[e.itemId] ? tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before') : undefined} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')}>{#if st === 'used'}<Check size={14} aria-hidden="true" />{:else if st === 'unused'}<Minus size={14} aria-hidden="true" />{:else}<X size={14} aria-hidden="true" />{/if}{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
+                        <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change, long press: broken.', { name: nameOf(item), state: t(STATE[st]) })} title={before[e.itemId] ? tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before') : undefined} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')} use:longPress={() => mark(e.itemId, st === 'broken' ? 'used' : 'broken')}>{#if st === 'used'}<Check size={14} aria-hidden="true" />{:else if st === 'unused'}<Minus size={14} aria-hidden="true" />{:else}<X size={14} aria-hidden="true" />{/if}{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
                       {/each}
                     </div>
                   </div>
@@ -706,6 +712,7 @@
           {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
+      <PageMore page="debrief" name={t('Debrief')} />
       {/if}
     </div>
   {/if}
@@ -730,6 +737,7 @@
 {:else}
   <!-- v0.49.0 R1 (Noah 4a): one page «Rückblick»: the last ride, the 12 months, trips compared. -->
   <Hub {spot} />
+  <PageMore page="debrief" name={t('Look back|page')} />
   <PageTiles page="debrief" extrasHint />
 {/if}
 

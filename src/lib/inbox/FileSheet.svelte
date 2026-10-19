@@ -8,6 +8,7 @@
    * Impeccable (18.10.2026): `direct` opens straight on the suggested target's form (the row's button named
    * it); the 7 tiles are folded behind «Anderes Ziel wählen». Without `direct` (••• › «Woanders ablegen …») as before.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import DateInput from '../ui/DateInput.svelte';
   import { TARGETS, TARGET, LANDS, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
@@ -127,7 +128,7 @@
 <!-- Design-Refresh P9 (I4, Noah 12.10.2026 «Runde 19 freigegeben»): the window look of the new style: the
      entry under the title, the 7 targets as tiles (the suggestion first, marked and chosen), the fields of
      the chosen target right below, the main button bottom right, named by where the entry lands. -->
-<dialog use:backClose class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
+<dialog use:backClose use:keepTyped={'file:' + (note?.id ?? '')} class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="file-h" class="title">{t('File as …')}</h2>
@@ -181,7 +182,7 @@
       </div>
       {#if !note.photo}
         <p class="lbl">{t('Photo of the receipt')}</p>
-        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
+        <div class="pick"><PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera="Photograph the receipt" big />{#if photo}<img class="th" src={photo} alt={t('Photo of the receipt')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}</div>
       {/if}
       <p class="name"><ReceiptText size={16} aria-hidden="true" /><span>{t('Name')}: {t('Receipt|target')} {receiptName(shop, date)}</span></p>
     {:else if kind === 'material' || kind === 'wish'}

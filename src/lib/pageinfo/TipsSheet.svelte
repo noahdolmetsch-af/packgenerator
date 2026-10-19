@@ -6,9 +6,11 @@
    * choice «Only useful tips / Also knowledge and fun» for all pages (knowledge on at first); each tip
    * carries its tag, a «Passt zu heute» tip says when it comes.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { X, Plus, Trash2 } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import KindTag from './KindTag.svelte';
+  import TipLink from './TipLink.svelte';
   import { pageInfo, dayContext } from './store.svelte.js';
   import { tipOfDay, allTips, setTip, setTipsOn, setKnowOn, addTip, removeTip, setCan, canShown, PAGES } from '../pageinfo.js';
   import { backClose } from '../ui/backclose.js';
@@ -36,7 +38,7 @@
   }
 </script>
 
-<dialog class="sheet from-below tips" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="tips-h" data-sheet="tips">
+<dialog use:keepTyped={'tips:' + page} class="sheet from-below tips" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="tips-h" data-sheet="tips">
   <div class="head">
     <div>
       <h2 id="tips-h">{t('Tips for {page}', { page: name })}</h2>
@@ -51,7 +53,7 @@
   <ul>
     {#each tips as x (x.id)}
       <li class:now={tip?.id === x.id} data-tip-row={x.id}>
-        <span class="tx"><span>{#if x.kind !== 'tip' || tips.some((y) => y.kind !== 'tip')}<KindTag kind={x.kind} />{/if}{tipText(x)}</span>{#if x.kind === 'today'}<small>{t(x.note)}</small>{/if}{#if tip?.id === x.id}<small>{t('today|tip')}</small>{:else if !x.on}<small>{t('hidden|tip')}</small>{/if}</span>
+        <span class="tx"><span>{#if x.kind !== 'tip' || tips.some((y) => y.kind !== 'tip')}<KindTag kind={x.kind} />{/if}{tipText(x)} <TipLink tip={x} /></span>{#if x.kind === 'today'}<small>{t(x.note)}</small>{/if}{#if tip?.id === x.id}<small>{t('today|tip')}</small>{:else if !x.on}<small>{t('hidden|tip')}</small>{/if}</span>
         {#if x.own}<button type="button" class="ib sm" aria-label={t('Delete the own tip')} onclick={() => pi.save((v) => removeTip(v, page, x.id))}><Trash2 size={16} aria-hidden="true" /></button>{/if}
         <label class="sw"><input type="checkbox" role="switch" checked={x.on} onchange={(e) => ((on) => pi.save((v) => setTip(v, x.id, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show this tip')}</span></label>
       </li>

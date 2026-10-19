@@ -12,6 +12,8 @@
    * packing list by bags: each bag shows the names of its items in one line, a tap opens it.
    * Rarely needed things (weight in detail, before the trip, ballast, weather suggestions) fold into rows with ›.
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import Empty from '../ui/Empty.svelte';
   import DecisionReview from './DecisionReview.svelte';
@@ -25,6 +27,7 @@
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
+  import DocChecks from './DocChecks.svelte';
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -237,6 +240,9 @@
   {:else}
     <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
+    <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
+    <HintCard page="pack" />
+    <TipLine page="pack" name={t('Pack')} />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
     {#if planTop}
@@ -252,6 +258,8 @@
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <LessonsCard {lessons} {reminders} />
+          <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+          <DocChecks {trip} />
         </div>
       </div>
     {/if}

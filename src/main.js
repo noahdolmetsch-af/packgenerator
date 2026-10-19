@@ -45,6 +45,7 @@ import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 import { initOps } from './lib/bedienung.svelte.js';
 import { installExplain } from './lib/ui/explain.js';
+import { installBackdropClose } from './lib/ui/backdrop.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 import { noteAppOpen } from './lib/know/wasneuStore.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
@@ -80,6 +81,8 @@ if (__PREVIEW__) {
 // v0.117.0 «Knöpfe neu» (N1, answer 2a): every button explains itself on hover, keyboard focus and a
 // long press, with one listener for the whole app (ui/explain.js).
 installExplain();
+// P3b «Daten sicher» (rule 3a): a tap beside any window closes it like Escape, and what was typed stays.
+installBackdropClose();
 // v0.116.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();

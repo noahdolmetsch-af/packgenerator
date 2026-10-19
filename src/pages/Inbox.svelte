@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../lib/ui/undo.js';
   /**
    * Eingang (v0.48.0, Noah «Eingang, Notizen, Ablage, Pflege pro Teil» 1a-8a), was the Inbox:
    * - newest on top, grouped by day (Today, Yesterday, This week, Earlier); the open entries and the
@@ -22,6 +23,7 @@
    * Impeccable Runde 2: «Today», «Yesterday» and «This week» open, «Earlier · n notes» folded («Older notes. Open
    * them when you have time.»); the head says calmly «Filed today: 3 of 25».
    */
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { PAGE_NAMES } from '../lib/notes.js';
@@ -107,7 +109,7 @@
   function filedNow(stored) {
     clearTimeout(timer);
     last = { note: stored, text: t('Filed: {where}', { where: chipText(stored) }) };
-    timer = setTimeout(() => (last = null), 10000);
+    timer = setTimeout(() => (last = null), UNDO_MS);
   }
   async function undo(n) {
     msg = '';
@@ -141,6 +143,8 @@
 
 <div class="inbox ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
+  <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
+  <HintCard page="inbox" />
   <div class="bar">
     <div class="vchips" role="group" aria-label={t('Show')}>
       <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}><span>{t('To file')}{#if openN}{' · '}<span class="num">{openN}</span>{/if}</span></button>

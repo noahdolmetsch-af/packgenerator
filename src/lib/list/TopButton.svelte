@@ -54,6 +54,13 @@
       display: none;
     }
   }
+  /* Paket 3: on a page with the Daumen bar (FE1, below 600 px) the round button sits above that bar,
+     not on top of the page's main button. Bar: 62 px over the bottom edge, 73 px high, plus 12 px air. */
+  @media (max-width: 599px) {
+    :global(main:has(.daumen:not(.off))) .ls-top {
+      bottom: calc(147px + env(safe-area-inset-bottom));
+    }
+  }
   @media print {
     .ls-top {
       display: none;

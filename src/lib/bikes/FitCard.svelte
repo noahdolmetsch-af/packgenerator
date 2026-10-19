@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.65.0 «Velo-Masse» (Noah: «zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite
    * … sowie weitere angezeigt»): the bike's fit and setup numbers at the top of its page, always open.
@@ -67,7 +68,7 @@
     await db.bikes.update(bike.id, changes);
     clearTimeout(timer);
     toast = { text: v == null ? t('{what} cleared.', { what: t(r.name) }) : t('{what}: {value}.', { what: t(r.name), value: show({ ...r, value: v }) }), prev, bikeId: bike.id };
-    timer = setTimeout(() => (toast = null), 8000);
+    timer = setTimeout(() => (toast = null), UNDO_MS);
   }
   function key(e, r) {
     if (e.key === 'Enter') {

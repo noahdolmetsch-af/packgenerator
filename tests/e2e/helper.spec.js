@@ -158,7 +158,7 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   const dlg = await openNewTrip(page);
   await expect(dlg.getByText(T('The helper is not set up yet'))).toHaveCount(0);
   await expect(dlg.getByText(T('Ask the helper'))).toHaveCount(0);
-  await dlg.getByRole('button', { name: T('Cancel') }).click();
+  await dlg.getByRole('button', { name: T('Discard') }).click();
   await expect(dlg).toBeHidden();
   await page.goto('./#/helper');
   await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
@@ -281,7 +281,7 @@ test('2a: the search answers a question only, above the hits; «Als Packliste vo
   await expect(dlg.getByRole('textbox', { name: T('Ask the helper') })).toHaveValue('wie viel wiegt meine Regenjacke');
   await expect(dlg.getByRole('region', { name: T('Suggestion from the helper') })).toBeVisible();
   expect(seen.filter((r) => r.task === 'trip')).toHaveLength(1);
-  await dlg.getByRole('button', { name: T('Discard') }).click();
+  await dlg.getByRole('region', { name: T('Suggestion from the helper') }).getByRole('button', { name: T('Discard') }).click(); // P3b: the window's own button says «Verwerfen» too
   await expect(dlg.getByRole('region', { name: T('Suggestion from the helper') })).toHaveCount(0);
   private_(seen);
   expect(errors).toEqual([]);

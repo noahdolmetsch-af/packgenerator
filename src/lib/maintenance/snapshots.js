@@ -11,7 +11,9 @@ import { buildBackup, restoreBackup, countRows } from '../backup.js';
 import { readMaint } from './settings.js';
 
 export const SNAP_DB = 'pack-generator-snapshots';
-export const KEEP = { update: 3, restore: 1 };
+// P3b «Daten sicher» (Noah 15.10.2026, rule 5a): also a copy before every import of a backup file
+// («Replace all data» and «Merge»), the last 3 of them.
+export const KEEP = { update: 3, restore: 1, import: 3 };
 /** The version this device started with last time (in the snapshot database, never exported). */
 export const VERSION_KEY = 'version';
 
@@ -42,7 +44,7 @@ export function pruneIds(list, keep = KEEP) {
 /** How many records a backup object holds. */
 export const rowsOf = (data) => Object.values(countRows(data)).reduce((n, x) => n + x, 0);
 
-/** Keep a copy of the data now. kind: 'update' (before an update) or 'restore' (before going back). */
+/** Keep a copy of the data now. kind: 'update' (before an update), 'restore' (before going back) or 'import' (before an import). */
 export async function takeSnapshot(db, sdb, { version, to = null, kind = 'update', now = new Date() }) {
   const data = await buildBackup(db);
   const id = await sdb.snaps.add({ at: now.toISOString(), version: version ?? null, to, kind, rows: rowsOf(data), data });
@@ -58,7 +60,7 @@ export async function listSnapshots(sdb) {
   return all.map(({ id, at, version, to, kind, rows }) => ({ id, at, version, to, kind, rows })).sort((a, b) => String(b.at).localeCompare(String(a.at)) || b.id - a.id);
 }
 
-const hasDataIn = async (db) => (await db.items.count()) + (await db.trips.count()) + (await db.bikes.count()) > 0;
+export const hasDataIn = async (db) => (await db.items.count()) + (await db.trips.count()) + (await db.bikes.count()) > 0;
 
 /**
  * On start, before the data updates: a copy when the version changed. seen: the version «What is new»

@@ -5,6 +5,9 @@
    * the visits by month with their receipt photo, the cost per year. A receipt filed in the Eingang
    * lands here as a visit; &visit=<id> opens it. Manuals are not built yet (docs/roadmap.md).
    */
+  import HintCard from '../pageinfo/HintCard.svelte';
+  import PageMore from '../pageinfo/PageMore.svelte';
+  import TipLine from '../pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
@@ -74,6 +77,10 @@
     title={t('Workshop & receipts')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
+
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
+  <HintCard page="workshop" />
+  <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   <!-- Impeccable Runde 2 (Ausstattung 2): the same bike choice as on every Velo page, one row to swipe on a phone -->
   {#if bikes.length > 1}<BikeChips {bikes} current={pick} all={t('All bikes')} onpick={choose} />{/if}
@@ -147,6 +154,7 @@
       <p class="tip"><Lightbulb size={16} aria-hidden="true" />{t('A photo of a receipt in the Inbox becomes a visit with «File as … Receipt».')}</p>
     </aside>
   </div>
+  <PageMore page="workshop" name={t('Workshop & receipts')} />
 </section>
 {#if shown}
   <VisitDialog visit={shown} bike={bikes.find((b) => b.id === shown.bikeId)} onclose={() => (open = null)} />

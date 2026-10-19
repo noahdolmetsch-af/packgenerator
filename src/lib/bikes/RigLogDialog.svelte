@@ -4,6 +4,7 @@
    * why, and the weight it adds or saves. entry: the entry to change, or a draft (a workshop job
    * offered for the log), or null for a new one.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { X } from '@lucide/svelte';
   import './velo-dlg.css';
@@ -37,7 +38,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="lg-h">
+<dialog use:keepTyped={'riglog:' + (entry?.id ?? 'new')} class="sheet vdlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="lg-h">
   <form onsubmit={save} novalidate>
     <div class="vd-head">
       <div class="vd-t">

@@ -1,6 +1,6 @@
 # Pack Generator: geplante Vorhaben
 
-Stand 10.10.2026. Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
+Stand 10.10.2026, nachgeführt am 18.10.2026 (Abschnitte «Stand heute» und «Reihenfolge»). Der kürzeste Überblick über den heutigen Stand steht im [Projektstand](projektstand.md). Die Übersicht über alles, was geplant ist, mit Warum, Was, Beispiel und Stand. Sie ist der Massstab für den Kurs-Check (unten). Die Beispiele sind zur Veranschaulichung erfunden (Zahlen, Orte, Zeiten).
 
 ## Kurs-Check: sind wir auf dem richtigen Weg?
 
@@ -17,6 +17,13 @@ Prüffragen:
 3. Bleiben private Daten auf dem Gerät und aus dem Repo?
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
 5. Wurde die letzte grössere Version schon echt benutzt?
+
+**Kurs-Check 18.10.2026 (Einschätzung von Claude aus Doku und Paketnotizen, nicht mit Noah durchgesprochen):**
+- **Schneller packen:** Standard-Velo, Schnellstart, Bausteine als Knöpfe und eine Regen-Grenze sind live oder in P3; mehr Bausteine kommen mit Paket E.
+- **Velo im Griff:** Strava-Verbindung, Fahrten-Buch, Velo-Blätter und Pflege pro Velo sind live; Kette messen, Reifendruck und Garmin-Seiten kommen mit Paket E.
+- **Von der Haustür bis zurück:** Heute, Tour-Zustände und Tages-Check sind live; Dokumente («ID und Cash dabei?») kommen mit A, die Woche mit F.
+- **Aus jeder Tour lernen:** Rückblick, Training und Inspiration sind live; Strava-Fahrten auf Touren und Planungs-Notizen kommen mit D. Neuland ist noch in keinem Paket.
+- **Prüffrage 5** (echt benutzt?): weiterhin offen, eine echte Tour mit der App steht noch aus.
 
 **Letzter Kurs-Check (10.10.2026, Versionen 0.68 bis 0.73, Antworten «1b 2b 3b 4a»):**
 - **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
@@ -38,7 +45,23 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (15.10.2026, 0.145.0)
+## Stand heute (18.10.2026, live 0.144.0)
+
+Live ist 0.144.0 «Regeln einheitlich» (seit 15.10.2026). Was gebaut ist und noch nicht online, ist am 18.10.2026 in sechs grosse Pakete gebündelt (Noah «1a 2b 3b 4a»):
+
+| Reihenfolge | Paket | Version (vorläufig) | Ziele | Stand |
+| --- | --- | --- | --- | --- |
+| 1 | P3 Navigation und Standard-Velo | 0.145.0 | 1 | PR #182, Noah «ok», wird nach grünem Test zusammengeführt |
+| 2 | A Daten sicher und Bedienung (P3b, P3c, Mehr Inhalt + HT1–HT2) | 0.146.0 | 1, 3 | gebündelt (lokal, 18.10.2026), PR nach #182, Noah merged |
+| 3 | B Server (Training, Fitbit, Dokument als PDF, Google, KI-Deckel, Assistent, Termine, Shop, Abgleich, Push) | ab 0.147.0 | 2, 3, 4 | fast alles gebaut; Abgleich und Push im Bau |
+| 4 | D Touren und Unterwegs | danach | 3, 4 | gebaut |
+| 5 | E Material, Velos, Merken (mit Skitour und Ausrüstung) | danach | 1, 2 | gebaut |
+| 6 | C Heute und Aktiv | danach | 3, 4 | gebaut; Balance-Ring und Routine im Bau |
+| 7 | F Woche | danach | 3 | Woche gebaut, braucht Google aus B |
+
+Inhalt jedes Pakets: [Projektstand, Abschnitt 3](projektstand.md#3-fertig-gebaut-noch-nicht-online). Die Tabelle darunter ist der Stand vom 15.10.2026 und bleibt als Verlauf stehen.
+
+### Verlauf bis 15.10.2026 (mit Paket 3, 0.145.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -135,7 +158,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 
-### Was als Nächstes ansteht
+### Was als Nächstes ansteht (Stand 10.10.2026, Verlauf)
 
 Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitsweise.md)): Mockup, Noahs Freigabe, dann Bau und PR, nach jedem Schritt dokumentieren. Die laufende Roadmap mit allen Arbeitspaketen führt Claude als Dokument, verlinkt auf der Trello-Karte «Roadmap und Arbeitspakete».
 
@@ -146,7 +169,7 @@ Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitswe
 5. **Noah packt eine echte Tour** (Tagestour genügt) und schickt die Lücken als Liste.
 6. **Fünf Orte** in zwei Releases (0.76.0, 0.78.0), KI-Helfer (0.77.0), danach nach Noahs Reihenfolge vom 10.10.2026: **Hobby-Seiten** (Teil 1 = 0.79.0 Aktivität und Meilensteine, Teil 2 Meditation, Teil 3 Liegestütze, Tennis, Yoga, Gym, Velo), E1, D5, Neuland + Inspiration, Reisearten neu.
 
-### Mockups
+### Mockups (Stand 10.10.2026, Verlauf)
 
 Alle Mockups liegen ausserhalb des Repos im Projektordner (`design/…`). Sie sind nur hell und nutzen erfundene Daten.
 
@@ -279,7 +302,35 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Entscheide (Noah 12.10.2026 «1a 2a 3b 4a 5a»):** Dunkelmodus bleibt · die bisherigen Farbwelten bleiben wählbar, Salbei ist Standard · Feier-Moment mit Konfetti · «Alle Fahrten aus Strava» bleibt Datei-Import · alle anderen Bauten pausieren, bis Welle 1 und Heute live sind.
 - **Stand:** R1 0.97.0, R2 0.98.0 und R3 0.99.0 live (12.10.2026). Noah hat die übrigen 21 Releases zu 10 Paketen gebündelt (12.10.2026 «10 Pakete»); P1 «Zurück, Schritte, Weiter-Leiste» als 0.100.0 live, P2 Heute als 0.101.0 live, die Challenge 0.102.0, P3 Material 0.103.0, P4 Touren 0.104.0, P7 Velo 0.105.0, P5 Packen und Unterwegs 0.106.0, P8 Aktiv 0.107.0, P9 Ich 0.108.0 und P6 Rückblick 0.109.0 und P10 Was ist neu 0.110.0 live; damit sind alle 10 Pakete live. Neue Regel über alle Bereiche (Noah 12.10.2026, Prio hoch): Vorschläge immer zeigen, wählbar, «als Challenge setzen»; Konzept im Thread «Mein Überblick», beim Bau von Heute und Aktiv mitdenken. Der Timer auf Heute (Mockups Z1–Z5) ist geparkt (Noah 12.10.2026). Bauplan im Projektordner `design/refresh-2026-10/bauplan.md`.
 
+### 13. Neu seit dem 12.10.2026
+
+Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem der sechs Pakete zugeteilt (siehe «Stand heute»):
+
+- **Daten sicher** (Ziel 3): Speicher fest behalten, Abgleich Handy–Computer, Ort «Dokumente» mit Ablauf-Erinnerung → Paket A, automatischer Abgleich → Paket B.
+- **Gleiche Bedienung überall** (Ziel 1): Fenster, Rückgängig, Auswahl merken, Kamera-Knopf → Paket A.
+- **Verbunden** (Ziele 2 und 4): Training mit Leistung, Fitbit, Dokument als PDF, Google Kalender und Aufgaben, Assistent «Frag die App», Erinnerungen aufs Handy, Termine buchen, Shop → Paket B.
+- **Touren und Unterwegs** (Ziele 3 und 4): Strava-Fahrten auf Touren, Höhenprofil, «Fahrt hochladen», Planungs-Notizen, Chronik → Paket D.
+- **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
+- **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
+- **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F.
+- **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
+
 ## Reihenfolge
+
+**Gilt seit 18.10.2026, 19:37 UTC (Noah «1a 2b 3b 4a», ersetzt alle Reihenfolgen weiter unten):** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. A kommt vor B wegen der Datenbank-Stufen, C nach B, weil Aktiv Fitbit und Training braucht. Neue Arbeit darf parallel weiterlaufen. Danach offen: Neuland, «Mehr selbst einstellen», Links nach aussen.
+
+```mermaid
+flowchart LR
+  P3["P3 Navigation<br/>0.145.0"] --> A["A Daten sicher<br/>+ Bedienung"]
+  A --> B["B Server"]
+  B --> D["D Touren<br/>+ Unterwegs"]
+  D --> E["E Material, Velos,<br/>Merken"]
+  E --> C["C Heute + Aktiv"]
+  C --> F["F Woche"]
+```
+
+**Frühere Reihenfolgen (Verlauf):**
+
 
 **Neu seit dem 12.10.2026 (gilt vor allem anderen, Noah «prio high» und 5a):** zuerst der Design-Refresh (Vorhaben 12), Welle 1 und Heute; alle anderen Bauten pausieren so lange. Die Skitour als Fahrplan kommt nach den neuen Touren-Seiten, gleich im neuen Stil.
 
@@ -327,6 +378,8 @@ Vor jedem Paket prüfen wir, ob die Reihenfolge noch stimmt (Kurs-Check).
 
 ## Wie wir arbeiten
 
+**Seit 18.10.2026 gelten die Regeln oben in [arbeitsweise.md](arbeitsweise.md#stand-18102026-regeln-die-heute-gelten):** zuerst bauen, dann Bilder der fertigen App; Claude führt ein Paket zusammen, wenn Noah dafür «ok» geschrieben hat; Fragen ohne ★; kein Trello mehr. Die Liste unten ist der Stand vom 10.10.2026.
+
 Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 - **Ein Paket aufs Mal,** höchstens zwei gleichzeitig.
@@ -349,7 +402,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 | Karten | swisstopo, ausserhalb der Schweiz OSM | gratis |
 | Wetter | eigene Karten aus freien Wetterdaten, Knopf zu MeteoSchweiz | gratis |
 | ÖV | transport.opendata.ch, Knopf zur SBB-App | gratis |
-| Daten zwischen Geräten | Sicherungsdatei (kein Live-Sync) | gratis |
+| Daten zwischen Geräten | Sicherungsdatei; ab Paket B automatischer Abgleich über eine Gratis-Datenbank auf Vercel, Google Drive als Ersatz (Noah 18.10.2026) | gratis |
 
 **Vercel-Vorschauen sparen (10.10.2026):** Beide Vercel-Projekte haben einen «Ignored Build Step». Er vergleicht alle Änderungen seit der letzten erfolgreichen Vorschau (`$VERCEL_GIT_PREVIOUS_SHA`), nicht nur den letzten Commit. «packgenerator» baut nur, wenn sich ausserhalb von `docs/` und `*.md` etwas geändert hat. «packgen» baut nur bei Änderungen in `api/`. Wenn keine frühere Vorschau bekannt ist, wird immer gebaut. Grund: Das Gratis-Kontingent von Vercel (etwa 100 Builds pro Tag) war am 10.10.2026 erschöpft.
 
@@ -362,7 +415,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 - Keine native App, die Web-App bleibt.
 - Keine Konten für andere. Teilen bleibt einseitig.
 - Keine fremden Einbettungen (Windy, komoot-Karten) und keine fremden Werkzeuge wie Todoist, n8n, Paperless, Dify oder Algolia. Aufgaben, Suche, Belege und Assistent sind in der App.
-- Keine Foto-KI für Material und kein Live-Sync über Drive.
+- Keine Foto-KI für Material und kein Live-Sync über Drive. (Seit 18.10.2026 überholt: der automatische Abgleich kommt mit Paket B über eine Gratis-Datenbank auf Vercel, Google Drive nur als Ersatz.)
 - Die App zieht nicht auf Vercel um, sonst blieben die Daten im Browser zurück.
 
 **Offen:**

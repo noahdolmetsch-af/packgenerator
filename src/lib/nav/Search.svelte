@@ -1,4 +1,5 @@
 <script>
+  import { UNDO_MS } from '../ui/undo.js';
   /**
    * Search everything from the top bar (v0.19.6, start page answer 1a): gear, trips, templates,
    * bikes and notes. On a phone the magnifier opens the field under the bar (v0.46.1: a full-width sheet).
@@ -110,7 +111,7 @@
       q = '';
       clearTimeout(doneTimer);
       done = r;
-      doneTimer = setTimeout(() => (done = null), 8000);
+      doneTimer = setTimeout(() => (done = null), UNDO_MS);
       return;
     }
     q = '';

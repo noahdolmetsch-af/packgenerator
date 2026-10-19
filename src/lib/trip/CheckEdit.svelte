@@ -7,6 +7,7 @@
    * «Vorschlag wiederherstellen» puts the app's suggestion back. Nothing is saved before «Speichern».
    * Without a trip (Ich › Checks pro Reiseart, V4) the standard of the type is edited.
    */
+  import { keepTyped } from '../ui/keeptyped.js';
   import { db } from '../db.js';
   import { touched } from '../trips.js';
   import { domainName } from '../domains.js';
@@ -104,7 +105,7 @@
   }
 </script>
 
-<dialog class="sheet from-below cke" bind:this={dlg} use:backClose onclose={() => onclose?.()} aria-labelledby={hid} data-check-edit={kind}>
+<dialog use:keepTyped={'checkedit:' + kind + ':' + (trip?.id ?? domain ?? '')} class="sheet from-below cke" bind:this={dlg} use:backClose onclose={() => onclose?.()} aria-labelledby={hid} data-check-edit={kind}>
   <header class="hd">
     <div class="tt">
       <h2 id={hid}>{kind === 'eve' ? t('Adjust the evening-before check') : t('Adjust the after-trip check')}</h2>

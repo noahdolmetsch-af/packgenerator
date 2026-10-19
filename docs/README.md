@@ -1,23 +1,25 @@
 # Pack Generator: Projektdokumentation
 
-Stand: 15. Oktober 2026 (live v0.133.0; dieser Kopf wurde am 15.10. nachgeführt, vorher stand hier 8.10. / v0.35.0). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
+Stand: 18. Oktober 2026 (live v0.144.0). **Einstieg: [Projektstand und Plan](projektstand.md)** (was live ist, was gebaut wartet, Reihenfolge der sechs Pakete) und [Geschichte](geschichte.md) (wie das Projekt seit dem 4.10.2026 gewachsen ist). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
 
 | Frage | Dokument | Verantwortung |
 |---|---|---|
+| Wo stehen wir heute, was kommt als Nächstes? | [Projektstand und Plan](projektstand.md) | Einstieg, Stand 18.10.2026; wird bei jedem Paket nachgeführt und gilt vor älteren Angaben |
+| Wie ist das Projekt gewachsen? | [Geschichte](geschichte.md) | Abschnitte von 0.1.0 bis heute, mit den Wendepunkten und dem, was wir gelernt haben |
 | Was wurde seit 0.96 besprochen, entschieden, gebaut und spezifiziert? | [Zwischenstand 14.10.2026](zwischenstand/README.md) | Datierter Schnappschuss für Aussenstehende, sechs Dokumente |
 | Was muss Claude bei jeder Arbeit beachten? | [CLAUDE.md](../CLAUDE.md) | Kurzanleitung für jede Claude-Sitzung: Arbeitsweise, Datenschutz, Release-Checkliste, Tests |
 | Was ist geplant und warum? Sind wir auf Kurs? | [Geplante Vorhaben](vorhaben.md) | Alle Vorhaben mit Warum, Beispiel und Stand; Kurs-Check vor jedem Paket |
-| Wie arbeiten wir zusammen (Pakete, Mockups, Freigabe)? | [Arbeitsweise](arbeitsweise.md) | Arbeitsanweisung vom 9.10.2026: Mockups und a/b-Fragen vor jedem Release. Neuere Regeln (Noah merged selbst, keine ★-Vorauswahl, Abschnitt «Was fällt weg», ein Link pro grünem PR) stehen im [Zwischenstand, Dokument 4](zwischenstand/04-entscheidungen.md) |
-| Was ist live, was ist in Arbeit, was kam in welchem Release? | [Projektstand](status.md) | Historie aller Releases, neueste zuerst. Achtung: Der Abschnitt «Aktuell live» wurde seit 0.67 nicht mehr nachgeführt; die neueren Versionen stehen unter «In Arbeit» und in der Historie. Was wirklich live ist, zeigt `src/lib/whatsnew.js` auf `main` |
+| Wie arbeiten wir zusammen (Pakete, Mockups, Freigabe)? | [Arbeitsweise](arbeitsweise.md) | Oben die Regeln, die seit 18.10.2026 gelten (zuerst bauen, dann Bilder; Claude führt ein Paket nach Noahs «ok» zusammen; Fragen ohne ★; kein Trello). Darunter die Arbeitsanweisung vom 9.10.2026 als Verlauf |
+| Was ist live, was ist in Arbeit, was kam in welchem Release? | [Projektstand](status.md) | Ausführliches Protokoll: «Aktuell live» (seit 18.10.2026 wieder nachgeführt), «In Arbeit» mit den sechs Paketen, Historie. Die genaue Versionsliste steht in `src/lib/whatsnew.js` auf `main` |
 | Was ist beschlossen und was ersetzt ältere Entscheidungen? | [Entscheidungslog](decisions.md) | Fachliche Entscheidungen und bewusste Grenzen |
-| Welche Arbeitsschritte und Abnahmen sind geplant, was kommt als Nächstes? | [Roadmap AP01–AP30](roadmap.md) | Einzige aktive Gesamtroadmap, Status/Abhängigkeiten/Erfolgskriterien; [Stand und nächste Pakete](roadmap.md#stand-und-nächste-pakete-8102026) |
+| Welche Arbeitsschritte und Abnahmen sind geplant, was kommt als Nächstes? | [Roadmap AP01–AP30](roadmap.md) | Ursprüngliche Arbeitspakete vom 7.10.2026 mit Prüffällen und Fortschrittsregister. Die heutige Reihenfolge steht im [Projektstand](projektstand.md) |
 | Was beweist eine Prüfung tatsächlich? | [Prüfregister](verification.md) | Teilnachweise, PF01–PF16, offene Messungen und Prüfgrenzen |
 | Wie arbeiten Daten und Code zusammen? | [Architektur und Datenverträge](architecture.md) | Tatsächliche Pfade, Geltungsbereiche und Speicherwege |
 | Wo liegt welche Liste, was gilt für Daten? | [Daten](daten.md) | Eine Liste, ein Ort; nichts Persönliches im Code; Besitzer jeder Tabelle (seit 14.10.2026); alle Grundlisten im Verzeichnis `src/lib/standard.js`, eigene Kategorien über `src/lib/lists.js` (seit 0.134.0) |
 | Was änderte ein Release genau? | [Releases](releases/) und die [Historie im Projektstand](status.md#historie-veröffentlichter-funktionen) | Ausführlicher Beleg bisher für [07.10.2026 / PR #32](releases/2026-10-07-calm-preparation.md); spätere Releases: Kurzeintrag im Status und Pull Request auf GitHub |
 | Was ist neu für Noah, in einfachen Worten? | `src/lib/whatsnew.js`, in der App unter „Was die App alles kann“ | Die letzten Releases mit Knopf „Ausprobieren“ |
 | Wie funktionieren die zwei neuen Screens? | [Entwürfe 2 und 3](calm-preparation.md) | Konkreter Ablauf und erfüllte Teilkriterien |
-| Welche Pakete folgen aus der Strategie (119 Fragen)? | [Strategie-Pakete](strategie-pakete.md) | Design D1–D6, Im Flow, Server S1–S5, Neuland N1 |
+| Welche Pakete folgen aus der Strategie (119 Fragen)? | [Strategie-Pakete](strategie-pakete.md) | Design D1–D6, Im Flow, Server S1–S5, Neuland N1 (Stand 9.10.2026, Verlauf) |
 | Wie prüfen wir das Design regelmässig, Screen für Screen? | [Design-Audits](design-audit.md) | Regel: vor jeder neuen Funktion ein Audit; Screen-Inventar mit Noten |
 | Wie sehen sie aus, welche Abweichungen sind bewusst? | [Design-QA](../design-qa.md) und [Bilder](../qa/) | Synthetische Beispiele; Herkunft/Vergleich/Prüfgrenzen |
 | Wie ist die Bezahlfunktion vorbereitet? | [Bezahlen](bezahlen.md) | Unsichtbar, nur Testmodus; Server, Lizenz, Codes, Shop und Buchung |
@@ -37,12 +39,13 @@ Stand: 15. Oktober 2026 (live v0.133.0; dieser Kopf wurde am 15.10. nachgeführt
 
 ## Fortschritt in GitHub
 
-Live ist v0.133.0 (15.10.2026). Jeder Release ist ein eigener Pull Request mit Vorher/Nachher, Tests und dem Abschnitt «Was fällt weg oder rutscht tiefer». Seit 14.10.2026 abends bekommt jeder grüne, freigegebene PR sofort einen eigenen Link für Noah (kein abendliches Tagespaket mehr); Noah merged jeden PR selbst. Die genaue Liste aller Versionen steht in `src/lib/whatsnew.js` (in der App unter Ich › Was ist neu) und in der Historie des [Projektstands](status.md). Ein Überblick für Aussenstehende über die Zeit seit 0.96 steht im [Zwischenstand](zwischenstand/README.md). Das [Fortschrittsregister der Roadmap](roadmap.md#fortschrittsregister) bleibt die genaue Quelle für die Arbeitspakete.
+Live ist v0.144.0 (15.10.2026). Seit 15.10.2026 werden fertige Teile zu Paketen gebündelt; jedes Paket ist ein Pull Request mit Vorher/Nachher, Tests, Bildern und dem Abschnitt «Was fällt weg oder rutscht tiefer». Claude führt ein Paket zusammen, wenn Noah die Bilder gesehen und dafür «ok» geschrieben hat und alle Prüfungen grün sind. Seit 18.10.2026 gibt es sechs grosse Pakete (siehe [Projektstand](projektstand.md)). Die genaue Liste aller Versionen steht in `src/lib/whatsnew.js` (in der App unter Ich › Was ist neu) und in der Historie des [Projektstands](status.md). Ein Überblick für Aussenstehende über die Zeit seit 0.96 steht im [Zwischenstand](zwischenstand/README.md). Das [Fortschrittsregister der Roadmap](roadmap.md#fortschrittsregister) bleibt die genaue Quelle für die Arbeitspakete.
 
 ## Dokumentationsregel für jeden Release-PR
 
 Seit 8.10.2026 auf Noahs Wunsch („immer wieder alles gut dokumentiert“). Jeder Release-PR aktualisiert im selben PR:
 
+1. **[projektstand.md](projektstand.md):** Abschnitte 2 (live), 3 (Pakete) und 5 (Entscheide) nachführen (seit 18.10.2026).
 1. **[status.md](status.md):** Stand-Datum, „Aktuell live“, „In Arbeit“ und einen kurzen Eintrag in der Historie (2 bis 5 Zeilen).
 2. **[decisions.md](decisions.md):** neue Entscheide mit Datum und Grund, wenn es welche gab; ersetzte Regel nennen, ältere Zeilen bleiben.
 3. **`src/lib/whatsnew.js`:** 2 bis 4 einfache Punkte für „Was die App alles kann“ (Deutsch und Englisch).

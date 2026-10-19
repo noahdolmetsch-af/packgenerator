@@ -41,7 +41,11 @@ async function expectThumb(page, info, button) {
     const bar = await button.evaluate((b) => b.closest('.daumen').getBoundingClientRect().top);
     expect(last).toBeLessThanOrEqual(bar + 1);
   } else {
-    expect(box.y).toBeLessThan(500);
+    // Paket A: the approved card «Was hier steht» (HT1–HT2) and the tip line «Gut zu wissen» now sit above
+    // the toolbar, so the button is lower than the old 500 px; it stays in the page's flow on the first screen.
+    const vh = await page.evaluate(() => innerHeight);
+    expect(box.y + box.height).toBeLessThanOrEqual(vh);
+    await expect(button).not.toHaveCSS('position', /fixed|sticky/);
     await expect(button.locator('xpath=..')).toHaveCSS('display', 'contents');
   }
 }

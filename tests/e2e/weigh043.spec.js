@@ -167,8 +167,8 @@ test('Mehrfachauswahl: 3 Teile in einen Baustein, Undo; im Baustein und im Kleid
   await expect(page.getByRole('region', { name: T('Selected items') })).toHaveCount(0);
   await expect(page.getByRole('checkbox')).toHaveCount(0);
   await page.getByRole('button', { name: T('Select'), exact: true }).click();
-  // On a phone the categories start folded: "Alle auswählen" per category is not needed, open them.
-  if (info.project.name === 'phone') await page.getByRole('button', { name: T('Expand all') }).click();
+  // The categories start folded (SL2, phone and computer): "Alle auswählen" per category is not needed, open them.
+  await page.getByRole('button', { name: T('Expand all') }).click();
   for (const n of PICK) await page.getByRole('checkbox', { name: n }).check();
   const bar = page.getByRole('region', { name: T('Selected items') });
   await expect(bar).toContainText(T('{n} selected', { n: 3 }));

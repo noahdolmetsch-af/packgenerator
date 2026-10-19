@@ -113,7 +113,10 @@ test('V12 to V14b: import, workshop, equipment and compare with path and title',
 
   await page.goto('./#/bikes?tab=shop');
   await onePage(page, T('Workshop & receipts'));
-  await expect(page.getByRole('group', { name: T('Bike') }).getByRole('button', { name: T('All bikes') })).toHaveAttribute('aria-pressed', 'true');
+  // P3c 4a (Noah 15.10.2026 «4a», changed on purpose): the bike chosen last (Spark, the import above) stays
+  // chosen on the Workshop tab too; «All bikes» is one tap away
+  await expect(page.getByRole('group', { name: T('Bike') }).getByRole('button', { name: NAME })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('group', { name: T('Bike') }).getByRole('button', { name: T('All bikes') })).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('main .btn.hi')).toHaveCount(1);
 
   await page.goto(`./#/bikes?tab=compare&bike=${SPARK}`);

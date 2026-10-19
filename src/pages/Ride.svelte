@@ -1,4 +1,7 @@
 <script>
+  import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { localDay } from '../lib/localday.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -505,6 +508,9 @@
     <!-- v0.67.0 (U005): ended by mistake? Until the next day it can be taken back. -->
     <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
   {/if}
+  <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day (with «Passt zu heute»), at the end the fold -->
+  <HintCard page="ride" />
+  <TipLine page="ride" name={t('On the way')} />
   <!-- v0.106.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
        day in blocks with the block of now and the weather hour by hour; right the note for the debrief,
        tonight's charging and «Mehr» (what is where, the evening, the stage). -->
@@ -738,6 +744,7 @@
       </section>
     </div>
   </div>
+  <PageMore page="ride" name={t('On the way')} />
 </div>
 {#if dropped}<UndoToast text={dropped.text} onundo={undoDrop} />{/if}
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}

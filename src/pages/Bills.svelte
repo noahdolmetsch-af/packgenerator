@@ -141,7 +141,7 @@
           <span><b>{t('Upload a bill')}</b><small>{t('Photo or screenshot with the QR code. The app reads recipient, amount and reference.')}</small></span>
         </div>
         <!-- Kamera-Knopf (0.131.3): on the phone the camera opens at once, the gallery for a screenshot -->
-        <PhotoPick onfile={pick} busy={reading} has={false} camera="Photograph the bill" />
+        <PhotoPick onfile={pick} busy={reading} has={false} camera="Photograph the bill" big />
       </div>
       {#if !form}<button class="btn btn-link sm bills-hand" type="button" onclick={() => ((form = blank()), (problem = ''), (done = ''))}><PenLine size={15} aria-hidden="true" />{t('Enter by hand')}</button>{/if}
       {#if problem}<p class="bills-err" role="alert">{problem}</p>{/if}
