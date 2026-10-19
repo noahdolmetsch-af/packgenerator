@@ -313,7 +313,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Material, Velos, Merken** (Ziele 1 und 2): Kette und Reifendruck messen, Garmin-Seiten, Taschen-Setups, To-dos mit Erinnerung, Geburtstage und Pflanzen, Sportarten, Ausrüstung, Skitour, Gipfelbuch → Paket E.
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
 - **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F.
-- **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, Was kommt → Paket N.
+- **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, neue Notiz-Formate, Was kommt → Paket N.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge
