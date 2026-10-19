@@ -371,6 +371,9 @@
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
     <Trips />
+  {:else if page === 'quiz'}
+    <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> (own chunk) -->
+    {#await import('./pages/Quiz.svelte') then m}{#key hash}<m.default tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}{/await}
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <PastTrips />
