@@ -65,7 +65,8 @@ test('one gear item from start to end: every step says what happened', async ({ 
   await dlg.getByRole('combobox', { name: new RegExp(`^${T('Category')}`) }).selectOption('elec');
   await dlg.locator('#it-grams').fill('abc');
   await dlg.getByRole('button', { name: T('Save'), exact: true }).click();
-  await expect(dlg.getByRole('alert')).toHaveText(T('Weight: whole grams from 1 to 30,000, or leave it empty.'));
+  // Einheitliche Formulare: the message stands at the weight field
+  await expect(dlg.locator('[data-field=it-grams] .fieldmsg')).toHaveText(`${T('{field}: a whole number from {min} to {max}, for example {example}.|form', { field: T('Weight'), min: 1, max: 30000, example: '320' })} ${T('Or leave it empty.|form')}`);
   await dlg.locator('#it-grams').fill('450');
   await dlg.getByRole('button', { name: T('Save'), exact: true }).dblclick();
   await expect(toast).toContainText(T('"{name}" saved, under {cat}.', { name: NEW, cat: T('Electronics') }));

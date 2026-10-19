@@ -104,3 +104,44 @@ test('Formular: bike chips work with arrow keys, «Back» returns to the note, n
   await expect(dlg.getByRole('button', { name: 'Fertig' })).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Formular: Teil bearbeiten, every message at its field, a folded row opens for it', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/gear');
+  const name = `${P} Formular-Teil`;
+  await page.getByRole('searchbox', { name: 'Ausrüstung suchen' }).fill(name);
+  await page.getByRole('button', { name: `«${name}» als neues Material erfassen` }).click();
+  const dlg = page.getByRole('dialog', { name: 'Teil hinzufügen' });
+  // 2a: only optional fields are marked; the weight keeps its «?»
+  await expect(dlg.locator('[data-field=it-grams] .lbl')).toContainText('freiwillig');
+  await expect(dlg.locator('[data-field=it-name] .lbl')).not.toContainText('freiwillig');
+  await expect(dlg.getByText('ganze Gramm, z. B. 320')).toBeVisible();
+  // 4b: no message while typing; 3a: «Save» shows them all at once
+  await dlg.getByRole('textbox', { name: /Gewicht pro Stück/ }).fill('viel');
+  await expect(dlg.locator('.fieldmsg')).toHaveCount(0);
+  await dlg.getByRole('button', { name: 'Speichern' }).click();
+  await expect(dlg.locator('[data-field=it-cat] .fieldmsg')).toHaveText('Wähle eine Kategorie, zum Beispiel Kleider auf dem Velo.');
+  await expect(dlg.locator('[data-field=it-grams] .fieldmsg')).toHaveText('Gewicht: ganze Zahl von 1 bis 30000, zum Beispiel 320. Oder leer lassen.');
+  await expect(dlg.getByText('2 Angaben fehlen oder stimmen nicht. Sie sind rot markiert.')).toBeVisible();
+  await expect(dlg.getByLabel('Kategorie', { exact: true })).toBeFocused();
+  await dlg.getByLabel('Kategorie', { exact: true }).selectOption('cook');
+  await dlg.getByRole('textbox', { name: /Gewicht pro Stück/ }).fill('85');
+  await expect(dlg.locator('.fieldmsg')).toHaveCount(0);
+  await dlg.getByRole('button', { name: 'Speichern' }).click();
+  await expect(dlg).toBeHidden();
+  await expect.poll(async () => (await table(page, 'items')).find((i) => i.name === name)?.weightG).toBe(85);
+
+  // An existing item: a wrong value in a folded row; «Save» opens the row and goes to the field.
+  await page.getByRole('button', { name: new RegExp(name) }).first().click();
+  const edit = page.getByRole('dialog', { name: new RegExp(name) });
+  const details = edit.locator('details[data-fold=details]');
+  await details.locator('> summary').click();
+  await edit.getByLabel('Anzahl', { exact: true }).fill('0');
+  await details.locator('> summary').click();
+  await expect(details).toHaveJSProperty('open', false);
+  await edit.getByRole('button', { name: 'Speichern' }).click();
+  await expect(details).toHaveJSProperty('open', true);
+  await expect(edit.getByLabel('Anzahl', { exact: true })).toBeFocused();
+  await expect(edit.locator('[data-field=it-qty] .fieldmsg')).toHaveText('Anzahl: ganze Zahl von 1 bis 999, zum Beispiel 2.');
+  expect(errors).toEqual([]);
+});

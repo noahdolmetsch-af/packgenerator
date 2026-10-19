@@ -173,10 +173,11 @@ test('FE16 Handy-Tastatur: number pad, Next to the next field, Done on the last'
   await expect(qty).toHaveAttribute('inputmode', 'numeric');
   await grams.focus();
   await expect(grams).toHaveAttribute('enterkeyhint', 'next');
-  const brand = dlg.getByRole('textbox', { name: T('Brand'), exact: true });
+  // Einheitliche Formulare (2a, 19.10.2026): optional fields say «freiwillig» after their label
+  const brand = dlg.getByRole('textbox', { name: new RegExp(`^${T('Brand')}\\b`) });
   await brand.fill('test_data_gtp_ Marke');
   await brand.press('Enter');
-  await expect(dlg.getByRole('textbox', { name: T('Model / colour'), exact: true })).toBeFocused();
+  await expect(dlg.getByRole('textbox', { name: new RegExp(`^${T('Model / colour')}`) })).toBeFocused();
   await expect(dlg).toBeVisible();
   await page.keyboard.press('Escape');
   expect(errors).toEqual([]);

@@ -30,4 +30,11 @@ export default {
   'e.g. Down jacket': 'z. B. Daunenjacke',
   'Leave it empty if you do not know yet.': 'Leer lassen, wenn du es noch nicht weisst.',
   '1 to 60': '1 bis 60',
+  // Teil bearbeiten (gear/ItemDialog)
+  'a category|field': 'eine Kategorie',
+  'Rain jacket': 'Regenjacke',
+  'Colder than': 'Kälter als',
+  'At most': 'Höchstens',
+  'whole grams, e.g. 320': 'ganze Gramm, z. B. 320',
+  'pieces you own, e.g. 2': 'Stück, die du hast, z. B. 2',
 };
