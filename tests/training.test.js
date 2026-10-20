@@ -88,7 +88,7 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, pCurve: null, pauses: null, hCurve: null });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, p25: null, pCurve: null, pauses: null, hCurve: null });
   });
   it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
     expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
@@ -113,10 +113,13 @@ describe('the server', () => {
   it('power curve and seconds per 10 W; breaks; own segment times, records first', () => {
     const time = Array.from({ length: 400 }, (_, i) => i);
     const watts = time.map((i) => (i < 300 ? 204 : 316));
-    const { pHist, pCurve } = trimPower(time, watts);
+    const { pHist, p25, pCurve } = trimPower(time, watts);
     expect(pHist).toEqual({ 200: 300, 310: 99 });
-    expect(pCurve).toEqual([[5, 316], [60, 316], [120, 296], [300, 241], [600, null], [1200, null], [3600, null]]);
-    expect(trimPower([], [])).toEqual({ pHist: null, pCurve: null });
+    // seconds per 25 W for the «25 W Leistungsverteilung» of the analysis
+    expect(p25).toEqual({ 200: 300, 300: 99 });
+    // Peak Power of the analysis: 1 s to 6 h
+    expect(pCurve).toEqual([[1, 316], [5, 316], [15, 316], [30, 316], [60, 316], [120, 296], [300, 241], [600, null], [1200, null], [1800, null], [2700, null], [3600, null], [5400, null], [7200, null], [10800, null], [14400, null], [21600, null]]);
+    expect(trimPower([], [])).toEqual({ pHist: null, p25: null, pCurve: null });
     // a stop of 90 s (moving false), a short one of 20 s (not a break), a gap of 5 min in the data
     const t = Array.from({ length: 600 }, (_, i) => (i < 500 ? i : i + 300));
     const moving = t.map((_, i) => !((i >= 100 && i < 190) || (i >= 300 && i < 320)));

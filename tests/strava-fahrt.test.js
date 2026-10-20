@@ -26,8 +26,8 @@ describe('the server sends more about an activity, never the route', () => {
   it('laps (two or more), splits per km, «How hard?»', () => {
     const laps = trimLaps([{ name: 'Lap 1', distance: 10230, moving_time: 1500, total_elevation_gain: 120.4, average_heartrate: 141.2, average_watts: 201, average_speed: 6.82 }, { name: 'test_data_gtp_ Anstieg', distance: 5000, moving_time: 900, total_elevation_gain: 300 }], true);
     expect(laps).toEqual([
-      { n: 1, name: 'Lap 1', km: 10.2, s: 1500, hm: 120, hr: 141, w: 201, kmh: 24.6 },
-      { n: 2, name: 'test_data_gtp_ Anstieg', km: 5, s: 900, hm: 300, hr: null, w: null, kmh: null },
+      { n: 1, name: 'Lap 1', km: 10.2, s: 1500, el: 0, hm: 120, hr: 141, w: 201, kmh: 24.6 },
+      { n: 2, name: 'test_data_gtp_ Anstieg', km: 5, s: 900, el: 0, hm: 300, hr: null, w: null, kmh: null },
     ]);
     expect(trimLaps([{ distance: 1 }])).toEqual([]);
     expect(trimLaps([{ distance: 1000, moving_time: 100, average_watts: 300 }, { distance: 1000, moving_time: 100 }], false)[0].w).toBe(null);

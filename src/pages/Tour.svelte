@@ -36,6 +36,11 @@
   import CorrectSheet from '../lib/touren/tour/CorrectSheet.svelte';
   import KpiSheet from '../lib/touren/tour/KpiSheet.svelte';
   import TourAnalysis from '../lib/touren/tour/TourAnalysis.svelte';
+  import TourCourse from '../lib/touren/tour/TourCourse.svelte';
+  import StravaAnalysis from '../lib/touren/strava/StravaAnalysis.svelte';
+  import { weight } from '../lib/weight.svelte.js';
+  import { kgOn } from '../lib/weight.js';
+  import { courseOf } from '../lib/touren/tourcourse.js';
   import TourGear from '../lib/touren/tour/TourGear.svelte';
   import TourLandscape from '../lib/touren/tour/TourLandscape.svelte';
   import RouteChart from '../lib/touren/tour/RouteChart.svelte';
@@ -47,7 +52,7 @@
   import { PARTS, KPIS, pageOpts, linesOf, joinedLine, profileOf, kpiOf, tourHref, shareText, TOUR_PAGE_KEY } from '../lib/touren/tour.js';
   import { fieldsOf, zoneParts } from '../lib/touren/aktivitaeten.js';
   import { pointAlong } from '../lib/spur/polyline.js';
-  import { KIND_NAMES, typeKey, sameRoute } from '../lib/training.js';
+  import { KIND_NAMES, typeKey, sameRoute, ftpEstimate } from '../lib/training.js';
   import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP } from '../lib/lernen/fotos.js';
   import { shrinkImage } from '../lib/photo.js';
   import { saveTripAsTemplate } from '../lib/templates.js';
@@ -73,6 +78,7 @@
   const lines = $derived(d && !d.missing ? linesOf(d.acts, d.trip) : []);
   const prof = $derived(d && !d.missing ? profileOf(d.acts, d.trip) : []);
   let frac = $state(null);
+  const hasCourse = $derived(d && !d.missing ? !!courseOf(d.acts, d.trip) : false);
   const marker = $derived(frac == null ? null : pointAlong(joinedLine(lines), frac));
   const own = $derived(d?.kind === 'a' ? (d.acts[0]?.own ?? {}) : d?.kind === 'g' ? (d.group?.own ?? {}) : (d?.trip?.own ?? {}));
   const notes = $derived(d?.kind === 'a' ? { diary: d.acts[0]?.note ?? '', ...(d.acts[0]?.own ?? {}) } : d?.kind === 'g' ? (d.group ?? {}) : { ...(d?.trip?.own ?? {}), diary: d?.debrief?.diary?.text ?? '' });
@@ -195,6 +201,12 @@
   const say = $derived(sayRaw ? t(sayRaw.key, { ...sayRaw.vars, ...(sayRaw.vars.day ? { day: dates(sayRaw.vars.day) } : {}) }).replace(/\.\.$/, '.') : '');
 
   /* ---- the jump bar marks the part on screen (Noah 20.10.2026 «klare aktive Markierung») ---- */
+  /* ---- Analyse wie Strava (Noah 20.10.2026 «baue es 1:1 nach»): one activity at a time, the longest first ---- */
+  let anaId = $state(null);
+  const anaActs = $derived(d && !d.missing ? [...d.acts].sort((x, y) => (y.movingS ?? 0) - (x.movingS ?? 0)) : []);
+  const anaAct = $derived(anaActs.find((a) => a.id === anaId) ?? anaActs[0] ?? null);
+  const anaFtp = $derived(anaAct && $allActsQ ? ftpEstimate($allActsQ, anaAct.day) : null);
+  const anaKg = $derived(anaAct ? kgOn(weight.entries, anaAct.day) : null);
   let seen = $state('overview');
   $effect(() => {
     if (!d || d.missing || opts.mode !== 'all' || typeof IntersectionObserver === 'undefined') return;
@@ -358,7 +370,8 @@
         {:else}
           <p class="card nomap" data-no-line><MapIcon size={20} aria-hidden="true" /><span>{t('No line yet. Strava sends it with the next fetch; an uploaded GPX ride brings its own.')}</span></p>
         {/if}
-        {#if prof.length > 1}<TourProfile points={prof} onpoint={(f) => (frac = f)} />{/if}
+        <!-- Noah 20.10.2026 «1:1 die details aus komoot»: the fine profile by gradient and the speed profile, when Strava sent the course -->
+        {#if hasCourse}<TourCourse acts={d.acts} trip={d.trip} moving={row.dauer} elapsed={row.verstr} onkm={(f) => (frac = f)} />{:else if prof.length > 1}<TourProfile points={prof} onpoint={(f) => (frac = f)} />{/if}
       </section>
     {/if}
 
@@ -461,6 +474,18 @@
 
     </div>
     </div>
+
+    {#if shows('analysis') && anaAct}
+      <section id="tour-analysis" class="part-s" aria-labelledby="th-analysis" data-tour-part="analysis">
+        <div class="sh"><h2 id="th-analysis">{t('Analysis|ana')}</h2></div>
+        {#if anaActs.length > 1}
+          <div class="chips" role="group" aria-label={t('Activity of the analysis')} data-ana-acts>
+            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || a.name || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
+          </div>
+        {/if}
+        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} />
+      </section>
+    {/if}
 
     <section class="part-s" aria-labelledby="th-make" data-tour-make>
       <div class="sh"><h2 id="th-make">{t('Make something of it')}</h2></div>
