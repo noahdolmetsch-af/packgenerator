@@ -81,7 +81,7 @@
           <span class="sq" style:background={g.color} aria-hidden="true"></span>
           <span class="gn">{t(g.name)}</span>
           <span class="gc num">{g.items.length}</span>
-          <span class="ar" aria-hidden="true">{isOpen(g.key) ? '▾' : '▸'}</span>
+          <span class="ar" class:on={isOpen(g.key)} aria-hidden="true">›</span>
         </button>
         {#if isOpen(g.key)}
           <ul>
@@ -206,8 +206,16 @@
   .gc {
     color: var(--ink-3);
   }
+  /* Gesamttest 20.10.2026 Design 4: the app's one arrow ›, turned down when open (no ▸ ▾) */
   .ar {
+    display: inline-block;
     width: 12px;
+    color: var(--ink-3);
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .ar.on {
+    transform: rotate(90deg);
   }
   ul {
     list-style: none;

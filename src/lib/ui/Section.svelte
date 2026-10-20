@@ -54,7 +54,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--sp-3);
-    margin: 0 2px 10px;
+    margin: 0 2px var(--sp-2); /* Gesamttest 20.10.2026 Design 3: heading → card 8 px everywhere */
   }
   .sst {
     min-width: 0;

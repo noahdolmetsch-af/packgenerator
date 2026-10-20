@@ -81,7 +81,6 @@
     the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
   <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
   <HintCard page="workshop" intro="workshop" />
-  <TipLine page="workshop" name={t('Workshop & receipts')} />
 
   <!-- Impeccable Runde 2 (Ausstattung 2): the same bike choice as on every Velo page, one row to swipe on a phone -->
   {#if bikes.length > 1}<BikeChips {bikes} current={pick} all={t('All bikes')} onpick={choose} />{/if}
@@ -116,6 +115,8 @@
           </ul>
         {/if}
       </section>
+      <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
+      <TipLine page="workshop" name={t('Workshop & receipts')} />
 
       <section class="ssec" aria-labelledby="visits-h">
         <h2 id="visits-h" class="sh">{t('Visits and receipts')}</h2>

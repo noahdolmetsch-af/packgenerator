@@ -81,6 +81,13 @@
   min-height: 52px;
   padding: 4px 0;
   min-width: 0;
+  /* Gesamttest 20.10.2026 C9 / Design 4: a row that is a link is a row with ›, not an underlined title */
+  color: var(--ink);
+  text-decoration: none;
+}
+.rc-row > svg:last-child {
+  flex: none;
+  color: var(--ink-3);
 }
 .rc-row-main {
   display: flex;

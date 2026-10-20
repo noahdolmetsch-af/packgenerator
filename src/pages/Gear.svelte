@@ -796,7 +796,7 @@
                     <span class="title">{t(g.name)}</span>
                     <b class="num k">{formatWeight(catStats[g.key].g)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
-                    {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
+                    {#if !searching}<span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>{/if}
                   </button>
                 </h2>
                 {#if selecting}
@@ -861,7 +861,7 @@
 
         {#if view === 'wish' && stats.gone.length}
           <details class="gone">
-            <summary>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></summary>
+            <summary><ChevronRight class="chev" size={18} aria-hidden="true" /><span>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></span></summary>
             <ul class="rows">
               {#each stats.gone as item (item.id)}
                 <li><button type="button" onclick={() => open(item)}><span class="nm">{nameOf(item)}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
@@ -872,7 +872,7 @@
         {#if view === 'all'}
           <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
           <details class="analysis" id="gear-analysis" bind:open={analysis}>
-            <summary><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
+            <summary><ChevronRight class="chev" size={18} aria-hidden="true" /><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
             {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
           </details>
         {/if}
@@ -1222,14 +1222,16 @@
     grid-row: 1;
     text-align: right;
   }
+  /* Gesamttest 20.10.2026 Design 4: the app's one arrow › (no ▶ triangle); it turns down when open */
   .ch .chev {
     grid-column: 5;
     grid-row: 1;
-    font-size: 16px;
+    display: inline-flex;
+    color: var(--ink-3);
     transition: transform 0.15s;
   }
-  .ch button[aria-expanded='false'] .chev {
-    transform: rotate(-90deg);
+  .ch button[aria-expanded='true'] .chev {
+    transform: rotate(90deg);
   }
   /* v0.45.0 (acceptance follow-up 6): on a narrow phone the count line goes under the name and the
      weight stays on the right, so the head is two lines instead of four. */
@@ -1526,12 +1528,14 @@
   .analysis summary::-webkit-details-marker {
     display: none;
   }
-  .analysis summary::before {
-    content: '▸' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
-    margin-right: 2px;
+  /* Gesamttest 20.10.2026 Design 4: the app's chevron instead of ▸ */
+  .analysis summary :global(.chev) {
+    flex: none;
+    align-self: center;
+    color: var(--ink-3);
     transition: transform 0.15s;
   }
-  .analysis[open] summary::before {
+  .analysis[open] summary :global(.chev) {
     transform: rotate(90deg);
   }
   .analysis summary .title {
@@ -1698,8 +1702,24 @@
     font-size: var(--fs-small);
   }
   .gone summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    list-style: none;
     cursor: pointer;
     font-weight: 700;
+  }
+  .gone summary::-webkit-details-marker {
+    display: none;
+  }
+  .gone summary :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .gone[open] summary :global(.chev) {
+    transform: rotate(90deg);
   }
   .gone summary small {
     font-weight: 400;

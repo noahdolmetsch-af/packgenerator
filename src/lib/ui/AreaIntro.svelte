@@ -5,14 +5,13 @@
    * …»), one title line and one sentence what the page is for, exactly the steps it gives (3), one tip,
    * one «Gut zu wissen» sentence with its source, and the links (Handbuch, Einklappen).
    *
-   * Phone: open on the first 3 visits, then one line that opens with a tap. Computer: open until you
-   * fold it. Folded is remembered per page on this device; nothing is ever mandatory.
+   * Open on the first visit, then the quiet line «ⓘ So geht's ›» that opens with a tap (Gesamttest
+   * 20.10.2026 «2a», phone and computer; before: phone 3 visits, computer always). Folded is remembered per page on this device; nothing is ever mandatory.
    * All texts arrive translated (t() at the caller).
    */
   import { onMount } from 'svelte';
   import { t } from '../i18n.svelte.js';
-  import { phone } from '../media.svelte.js';
-  import { ChevronDown, ChevronUp, Lightbulb, BookOpen } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, Lightbulb, BookOpen, Info } from '@lucide/svelte';
 
   let { key, kicker, title, sub = '', steps = [], tip = '', know = '', links = [] } = $props();
 
@@ -25,6 +24,9 @@
     }
   };
   let seen = $state(read());
+  // the visits before this opening (onMount counts this one)
+  // svelte-ignore state_referenced_locally
+  const before = seen.visits ?? 0;
   onMount(() => {
     seen = { ...seen, visits: (seen.visits ?? 0) + 1 };
     save();
@@ -36,8 +38,8 @@
       /* private mode: open for this visit */
     }
   }
-  // your own choice wins; without one: the phone folds after 3 visits, the computer stays open
-  const open = $derived(seen.folded != null ? !seen.folded : !(phone.matches && seen.visits > 3));
+  // your own choice wins; without one: open on the first visit only (2a)
+  const open = $derived(seen.folded != null ? !seen.folded : before < 1);
   const toggle = () => {
     seen = { ...seen, folded: open };
     save();
@@ -61,8 +63,7 @@
     </p>
   {:else}
     <button type="button" class="line" onclick={toggle} aria-expanded="false" id={`${id}-h`}>
-      <span><b>{kicker}</b>{#if steps.length}{' '}· {t('{n} steps', { n: steps.length })}{/if}{#if tip}{' '}· {t('Tip')}: {tip}{/if}</span>
-      <ChevronDown size={18} aria-hidden="true" />
+      <Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
   {/if}
 </section>
@@ -73,9 +74,10 @@
     gap: 8px;
     margin: 0 0 16px;
     padding: 16px 18px;
-    border: 1px solid var(--line);
-    border-radius: var(--r-card, 16px);
-    background: var(--paper);
+    /* Gesamttest 20.10 Design 2: one look for help */
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
     color: var(--ink);
   }
   .intro.shut {
@@ -126,7 +128,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: var(--paper-2);
+    background: var(--paper);
     font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--ink);
@@ -139,18 +141,15 @@
     margin: 0;
     padding: 10px 12px;
     border-radius: var(--r-ctl, 10px);
-    background: var(--paper-2);
+    background: var(--paper);
     color: var(--ink-2);
     font-size: var(--fs-small);
     line-height: 1.45;
   }
-  .tip {
-    background: var(--ok-soft);
-  }
   .tip :global(svg) {
     flex: none;
     margin-top: 2px;
-    color: var(--ok);
+    color: var(--help-icon);
   }
   .links {
     display: flex;
@@ -179,8 +178,8 @@
     justify-content: space-between;
     gap: 10px;
     width: 100%;
-    min-height: 48px;
-    padding: 10px 14px;
+    min-height: 44px;
+    padding: 8px 14px;
     border: 0;
     border-radius: inherit;
     background: none;
@@ -189,10 +188,13 @@
     text-align: left;
     cursor: pointer;
   }
-  .line b {
-    color: var(--ink);
+  .line span {
+    flex: 1;
   }
   .line :global(svg) {
     flex: none;
+  }
+  .line > :global(svg:first-child) {
+    color: var(--help-icon);
   }
 </style>

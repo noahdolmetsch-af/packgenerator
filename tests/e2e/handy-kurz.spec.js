@@ -45,7 +45,8 @@ test.describe('Handy kurz', () => {
     await start(page, context, info, { data: data() });
     await open(page, '#/trips');
     // Paket D (Noah 19.10.2026 «1a»): «Was hier steht ›» is one quiet line in the head, the card starts folded
-    await expect(page.locator('main header [data-hint-line="trips"]')).toHaveText(T('What is here'));
+    // Gesamttest 20.10.2026 «2a» (changed on purpose): the quiet line reads «So geht's»
+    await expect(page.locator('main header [data-hint-line="trips"]')).toHaveText(T('How it works|help'));
     await expect(page.locator('main [data-hint="trips"]')).toHaveCount(0);
     const acts = page.locator('section[data-activities]');
     await expect(acts.locator('[data-act-row]')).toHaveCount(PHONE_ROWS);

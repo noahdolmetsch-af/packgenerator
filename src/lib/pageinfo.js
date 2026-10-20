@@ -290,6 +290,7 @@ export function infoOf(v) {
     gone: obj(o.gone),
     canOff: obj(o.canOff),
     hintOff: obj(o.hintOff),
+    hintSeen: obj(o.hintSeen),
   };
 }
 
@@ -434,6 +435,21 @@ export const hintShown = (info, page) => !infoOf(info).hintOff[page];
  * it is open only after a tap on that line opened it (hintOff[page] === false), and × folds it again.
  */
 export const hintShownFolded = (info, page) => infoOf(info).hintOff[page] === false;
+/**
+ * Gesamttest 20.10.2026 «2a» (B2): the card is open on the first visit of a page only; after that it is the
+ * quiet line «So geht's ›». Your own choice wins: a tap on the line opens it (hintOff false), × folds it.
+ * fresh: this opening is the first visit of the page (hintSeen was not set before it).
+ */
+export const hintOpen = (info, page, fresh) => {
+  const off = infoOf(info).hintOff[page];
+  return typeof off === 'boolean' ? !off : !!fresh;
+};
+export const hintSeen = (info, page) => !!infoOf(info).hintSeen[page];
+/** The first visit of a page is over (null: nothing to save). */
+export const markHintSeen = (info, page) => {
+  const i = infoOf(info);
+  return i.hintSeen[page] ? null : { ...i, hintSeen: { ...i.hintSeen, [page]: true } };
+};
 
 /* ---------- WD2 «Erde und Everest» (approved 18:34, «2a»: always, for the period chosen) ---------- */
 export const EARTH_KM = 40075;
