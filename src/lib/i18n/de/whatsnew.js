@@ -1386,4 +1386,11 @@ export default {
   'Open Me › What is new: every version is open, grouped by month.': 'Öffne Ich › Was ist neu: Jede Version ist offen, nach Monat gruppiert.',
   'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
+  // v0.166.0 «Neueste Version laden»
+  'Always the newest version': 'Immer die neueste Version',
+  'When a page fails, one button loads the app fresh from the internet; your data stays on this device.': 'Klemmt eine Seite, lädt ein Knopf die App frisch aus dem Internet; deine Daten bleiben auf diesem Gerät.',
+  'Error page: «Reload the newest version» loads the app anew from the internet; trips, lists and notes stay': 'Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet; Touren, Listen und Notizen bleiben',
+  'An error page first looks for a newer version by itself; without internet it simply reloads': 'Eine Fehlerseite sucht zuerst selbst nach einer neueren Version; ohne Internet lädt sie einfach neu',
+  'If a page ever shows «Something went wrong here»: tap «Reload the newest version».': 'Zeigt eine Seite einmal «Hier ist etwas schiefgelaufen»: Tippe «Neueste Version laden».',
+  'After the reload, open Me › What is new: the newest version is on top, your data is still there.': 'Öffne danach Ich › Was ist neu: Die neueste Version steht oben, deine Daten sind noch da.',
 };

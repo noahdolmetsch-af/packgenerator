@@ -8,6 +8,7 @@
    */
   import { t } from '../i18n.svelte.js';
   import { openNote } from '../nav.js';
+  import { freshReload, askForUpdate } from '../freshreload.js';
 
   let { error = null, name = '', onreset } = $props();
   const text = $derived(String(error?.message ?? error ?? '').slice(0, 300));
@@ -18,6 +19,11 @@
       onreset?.();
     }
   }
+  // 20.10.2026: an error page first asks for a newer version (it may already be fixed there);
+  // src/lib/swupdate.js loads it once it has taken over. «Reload» loads the newest version from the internet.
+  $effect(() => {
+    askForUpdate();
+  });
   function report() {
     openNote(`${t('Error on the page «{page}» (version {v}): {text}', { page: name || t('Today|place'), v: __APP_VERSION__, text })}`);
   }
@@ -27,7 +33,8 @@
   <h1 id="fail-h">{t('Something went wrong here')}</h1>
   <p>{name ? t('Your data is safe. The page «{page}» could not be loaded.', { page: name }) : t('Your data is safe. This page could not be loaded.')}</p>
   <a class="btn hi fp-go" href="#/" onclick={home}>{t('To Today')}</a>
-  <button type="button" class="btn fp-go" onclick={() => location.reload()}>{t('Reload')}</button>
+  <button type="button" class="btn fp-go" onclick={() => freshReload()} data-fresh-reload>{t('Reload the newest version')}</button>
+  <p class="hint">{t('Loads the app anew from the internet. Your data stays on this device.')}</p>
   <button type="button" class="lk" onclick={report}>{t('Report a problem (the error text goes along)')}</button>
 </section>
 
@@ -52,6 +59,10 @@
     margin: 0 0 var(--sp-2);
     color: var(--ink-2);
     overflow-wrap: break-word;
+  }
+  .hint {
+    margin: calc(var(--sp-2) * -1) 0 0;
+    font-size: var(--fs-small);
   }
   .fp-go {
     justify-content: center;

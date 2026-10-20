@@ -144,7 +144,7 @@ test('A-U2: a page that throws shows the error page with three ways, never white
   // «Neu laden» reloads the page (the broken page stays broken, the card comes again)
   await page.goto('./#/me/look');
   await expect(fail).toBeVisible();
-  await Promise.all([page.waitForEvent('load'), fail.getByRole('button', { name: T('Reload') }).click()]);
+  await Promise.all([page.waitForEvent('load'), fail.getByRole('button', { name: T('Reload the newest version') }).click()]);
   await expect(page.locator('[data-error-page]')).toBeVisible();
   // nothing in the data changed (the note above was only opened, not saved)
   expect(await table(page, 'trips')).toEqual(before.trips);
