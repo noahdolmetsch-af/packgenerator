@@ -24,7 +24,7 @@
   </div>
 {:else}
   {#if standing}
-    <p class="pb-hint" role="status" style:bottom="{bottom + 8}px" data-live-pause-hint>{t('You are standing: «Pause» stops the riding time.')}</p>
+    <p class="pb-hint" role="status" style:bottom="{bottom + 64}px" data-live-pause-hint>{t('You are standing: «Pause» stops the riding time.')}</p>
   {/if}
   <button type="button" class="pb-btn" style:bottom="{bottom}px" onclick={onpause} aria-label={t('Pause the ride')} data-live-pause><Pause size={26} aria-hidden="true" /></button>
 {/if}
@@ -95,7 +95,7 @@
   }
   .pb-hint {
     position: absolute;
-    left: 74px;
+    left: 10px;
     right: 64px;
     z-index: 2;
     margin: 0;

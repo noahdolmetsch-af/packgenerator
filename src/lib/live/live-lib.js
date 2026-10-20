@@ -24,7 +24,7 @@ export function distKm(a, b) {
 export function onRoute(pts, here) {
   if (!pts?.length || !here || !Number.isFinite(here.lat)) return null;
   const s = snap(pts, here);
-  return { km: s.km, offM: Math.round(s.offKm * 1000) };
+  return { km: s.km, offM: Math.round(s.offKm * 1000), kmx: s.kmx }; // kmx: not rounded (turn hints)
 }
 
 /** Height gain between two km of a profile [[km, m], …] (linear between the points). */

@@ -131,4 +131,15 @@ export default {
   'Small map': 'Kleine Karte',
   'Data page instead of the map': 'Datenseite statt Karte',
   'After 2 minutes without a touch the first data page shows: the map is not drawn, that saves battery. A warning brings the map back.': 'Nach 2 Minuten ohne Berührung erscheint die erste Datenseite: Die Karte wird nicht gezeichnet, das spart Akku. Ein Hinweis bringt die Karte zurück.',
+  // Runden, «Gegen dich selbst», Abbiege-Hinweise (Noah 20.10.2026)
+  'New lap': 'Neue Runde',
+  'Lap distance': 'Rundendistanz',
+  'Against your last ride': 'Gegen deine letzte Fahrt',
+  'slower than your last ride on this route, in riding time': 'langsamer als deine letzte Fahrt auf dieser Strecke, in Fahrzeit',
+  'faster than your last ride on this route, in riding time': 'schneller als deine letzte Fahrt auf dieser Strecke, in Fahrzeit',
+  'Compared at the same km of the route, from where you started today. Pauses and stops do not count.': 'Verglichen am selben km der Strecke, ab da, wo du heute gestartet bist. Pausen und Stopps zählen nicht.',
+  'Turn hints': 'Abbiege-Hinweise',
+  'An arrow before each turn of the route, from 1 km before.': 'Ein Pfeil vor jeder Abzweigung der Strecke, ab 1 km vorher.',
+  'Say the turns': 'Abzweigungen ansagen',
+  'The phone says «In 200 m turn left» and «Turn left now».': 'Das Handy sagt «In 200 m links abbiegen» und «Jetzt links».',
 };
