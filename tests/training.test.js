@@ -2,7 +2,7 @@
 // zones and heart rate per beat (api/strava.js), and the fetch keeping every activity. Fictional only.
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { ftpEstimate, powerBounds, powerZoneSecs, powerLoad, wkg, activitiesForTrip, isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
+import { DETAIL_V, ftpEstimate, powerBounds, powerZoneSecs, powerLoad, wkg, activitiesForTrip, isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
 import { trimZones, trimStreams, best20, trimActivity, trimPower, pausesOf, trimEfforts } from '../api/strava.js';
 import { createDb } from '../src/lib/db.js';
 import { keepActivities, fetchTraining, loadDetail } from '../src/lib/strava/client.svelte.js';
@@ -69,7 +69,7 @@ describe('numbers and lists', () => {
     // recent with heart rate first; then (19.10.2026 «4a») the older ones and the ones without heart rate, newest first;
     // '4' has the details of an older kind (dv 2) and is fetched once more
     expect(needDetail(list, '2026-10-13').map((a) => a.id)).toEqual(['5', '1', '4', '2', '3']);
-    expect(needDetail([...list.slice(0, 4).map((a) => ({ ...a, detail: 'x', dv: 3 })), list[4]], '2026-10-13').map((a) => a.id)).toEqual(['5']);
+    expect(needDetail([...list.slice(0, 4).map((a) => ({ ...a, detail: 'x', dv: DETAIL_V })), list[4]], '2026-10-13').map((a) => a.id)).toEqual(['5']);
     expect(needDetail([{ ...list[2], noDetail: '2026-10-12' }], '2026-10-13')).toEqual([]);
     expect(needDetail(list, '2026-10-13', { max: 1 }).map((a) => a.id)).toEqual(['5']);
   });
@@ -88,7 +88,7 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, pCurve: null, pauses: null });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, pCurve: null, pauses: null, hCurve: null });
   });
   it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
     expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
@@ -115,7 +115,7 @@ describe('the server', () => {
     const watts = time.map((i) => (i < 300 ? 204 : 316));
     const { pHist, pCurve } = trimPower(time, watts);
     expect(pHist).toEqual({ 200: 300, 310: 99 });
-    expect(pCurve).toEqual([[5, 316], [60, 316], [300, 241], [1200, null], [3600, null]]);
+    expect(pCurve).toEqual([[5, 316], [60, 316], [120, 296], [300, 241], [600, null], [1200, null], [3600, null]]);
     expect(trimPower([], [])).toEqual({ pHist: null, pCurve: null });
     // a stop of 90 s (moving false), a short one of 20 s (not a break), a gap of 5 min in the data
     const t = Array.from({ length: 600 }, (_, i) => (i < 500 ? i : i + 300));
@@ -138,7 +138,7 @@ describe('the fetch keeps every activity', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push([step, params.id]);
       if (step === 'zones') return { ok: true, hr: STRAVA_Z.hr, custom: false };
-      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }] };
+      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], dv: 4 };
       return { ok: true };
     };
     const now = new Date('2026-10-13T08:00:00Z');

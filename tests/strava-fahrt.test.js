@@ -70,12 +70,12 @@ describe('the app keeps the new values', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push(params.id);
       if (params.id === '32') throw Object.assign(new Error('x'), { code: 'strava_error' });
-      return { ok: true, laps: [{ n: 1, km: 20, s: 2500 }, { n: 2, km: 20, s: 2500 }], splits: [], rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4 };
+      return { ok: true, laps: [{ n: 1, km: 20, s: 2500 }, { n: 2, km: 20, s: 2500 }], splits: [], rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 4 };
     };
     const now = new Date('2026-10-13T08:00:00Z');
     await fetchTraining(db, c, now);
     expect(log).toEqual(['31', '32', '33']);
-    expect(await db.activities.get('31')).toMatchObject({ rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 3 });
+    expect(await db.activities.get('31')).toMatchObject({ rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 4 });
     expect((await db.activities.get('33')).laps).toHaveLength(2);
     expect((await db.activities.get('32')).noDetail).toBe(now.toISOString());
     await fetchTraining(db, c, new Date('2026-10-13T09:00:00Z'));

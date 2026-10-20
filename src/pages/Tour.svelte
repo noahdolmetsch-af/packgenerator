@@ -35,6 +35,7 @@
   import TourProfile from '../lib/touren/TourProfile.svelte';
   import CorrectSheet from '../lib/touren/tour/CorrectSheet.svelte';
   import KpiSheet from '../lib/touren/tour/KpiSheet.svelte';
+  import TourAnalysis from '../lib/touren/tour/TourAnalysis.svelte';
   import TourGear from '../lib/touren/tour/TourGear.svelte';
   import TourLandscape from '../lib/touren/tour/TourLandscape.svelte';
   import RouteChart from '../lib/touren/tour/RouteChart.svelte';
@@ -369,7 +370,8 @@
             <!-- Noah 20.10.2026: the main values stand large above (Übersicht); here the details, quieter -->
             {#if !onTop('km')}<div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>{/if}
             {#if !onTop('hm')}<div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>{/if}
-            {#each fieldsOf(row).filter((f) => !onTop(f)) as f (f)}
+            <!-- Tour-Auswertung (20.10.2026): the best 20 minutes stand in the table «Best minutes» below -->
+            {#each fieldsOf(row).filter((f) => !onTop(f) && f !== 'w20') as f (f)}
               {@const [label, value, unit] = FIELD[f](row)}
               <div class="vc" data-field={f}><dt>{label}{#if f === 'dauer' || f === 'verstr'}<Help {label} text={t(FIELD_HELP[f === 'dauer' ? 'moving' : 'elapsed'])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}{#if f === 'dauer' && isChanged('dauer')}<small class="was">{t('Strava: {v}', { v: stravaWas('dauer') })}</small>{/if}</dd></div>
             {/each}
@@ -383,6 +385,7 @@
               <p class="tp-muted tp-small">{row.hf != null ? t('Comes when the activity is opened once.') : t('No heart rate.')}</p>
             {/if}
           </div>
+          <TourAnalysis {d} />
         </div>
         {#if d.acts.length > 1 || d.kind === 't'}
           <h3 class="h3">{d.acts.length ? tn(d.acts.length, '{n} activity of this tour', '{n} activities of this tour') : t('No Strava activity on these days.')}</h3>

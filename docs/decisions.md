@@ -1791,3 +1791,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 16:57 Gestaltung (7 Punkte): Kennzahlen gross (Standard jetzt Distanz, Höhenmeter, Fahrzeit, Ø HF), am Computer zwei Spalten, weniger gleiche weisse Karten, Tagebuch «Was von dieser Tour bleibt», kompakter getönter Hinweis beim leeren Gepäck, ruhigere Sprungleiste mit grüner Markierung, HF-Zonen mit Satz «x % in Zone 1–2».
 - Noah 16:59 «1a 2a 3a 4a 5a»: gezeichneter Landschaftskopf, persönlicher Satz (gleiche Strecke), Streckenvergleich als Grafik, Gepäck-Gewicht mit Vergleich zur Tour davor, «Kleidung nach Wetter» beim Packen.
 - **Selbst entschieden:** keine neue Datenbank-Stufe (neue Felder in bestehenden Tabellen). Eine neue Sache aus dem Gepäck-Fenster landet als normale Material-Sache. Die Icons der Marken zeigen nur beim gewählten den Text, ein Erklärsatz steht darüber.
+
+## Tour-Auswertung mit Garmin-Werten (20.10.2026, Noah «1a 2a 3a und b 4b 5a», «los»)
+
+- Auf der Tour-Seite unter «Werte» neu «Wie auf dem Garmin»: Stopps (Anzahl und Zeit), NP, Bestwerte 1, 2, 5, 10 und 20 Minuten für Leistung und Puls, Ruhepuls (Fitbit) an den Tour-Tagen neben «deinem Normal» (Median der 30 Tage davor), und jede Fahrt als Punkt (Ruhepuls gegen NP, ohne Wattmesser gegen Ø Puls) mit dem Zusammenhang in Worten (r ab 5 Fahrten). Nur Beobachtung, keine Wertung.
+- Server: Leistungskurve mit 2 und 10 Minuten, neue Pulskurve (1–20 Minuten). Detail-Art 4 (`DETAIL_V`); der Server meldet die Art mit (`dv`), damit eine Antwort eines älteren Servers später nochmals geholt wird. Ältere Fahrten werden im Hintergrund nach und nach neu geholt.
+- **Selbst entschieden:** Die «Max. 20 min» steht nicht mehr doppelt in der Werteliste, sondern in der Bestwerte-Tabelle. Mehrere Fahrten einer Tour: Bestwert = höchster Wert, Ø nach Fahrzeit gewichtet, NP als 4.-Potenz-Mittel nach Zeit. Beim Öffnen der Tour holt die Seite fehlende Details und die feinere Kartenlinie von Strava (höchstens 4 Fahrten je Besuch). Kein eigenes Feature im Handbuch, sondern Teil von «Eine Seite für jede abgeschlossene Tour».
+

@@ -13,7 +13,7 @@
   import { t, tn } from '../../i18n.svelte.js';
   import { hasDetail } from '../../training.js';
   import { tourValues, restOfTour, restDots, corrOf, corrWord } from '../tourana.js';
-  import { n0, n1, hours, dates, DASH } from '../../review/fmt.js';
+  import { n0, hours, dates, DASH } from '../../review/fmt.js';
   import Help from '../../ui/Help.svelte';
 
   /** d: the tour (tourdata.js loadTour). */
@@ -60,8 +60,8 @@
   });
 
   /* ---- the dots: resting heart rate (x) against NP or Ø heart rate (y) ---- */
-  const W = 320;
-  const H = 180;
+  const W = 420;
+  const H = 170;
   const PAD = { l: 38, r: 10, t: 10, b: 28 };
   const plot = $derived.by(() => {
     const ds = dotsOf.dots;
@@ -92,12 +92,10 @@
   });
 </script>
 
-<div class="card pad ana" data-tour-analysis>
+<div class="ana" data-tour-analysis>
   <h3 class="h3">{t('Like on the Garmin')}<Help label={t('Like on the Garmin')} text={t('The values your Garmin records, from Strava. The best minutes are the highest average over that time in the ride.')} /></h3>
   <dl class="vals">
     <div class="vc" data-ana="stops"><dt>{t('Stops')}</dt><dd class="num">{stopLine}</dd></div>
-    <div class="vc" data-ana="kmh"><dt>{t('Ø speed')}</dt><dd class="num">{n1(vals.time.kmh)}{#if vals.time.kmh != null}{' '}<small>km/h</small>{/if}</dd></div>
-    <div class="vc" data-ana="hm"><dt>{t('Climbing')}</dt><dd class="num">{n0(vals.time.hm)}{#if vals.time.hm != null}{' '}<small>Hm</small>{/if}</dd></div>
     {#if vals.power}<div class="vc" data-ana="np"><dt>{t('NP')}<Help label={t('NP')} text={t('Normalized Power: the power your body felt, with the hard bits weighing more than the easy ones.')} /></dt><dd class="num">{n0(vals.power.np)}{#if vals.power.np != null}{' '}<small>W</small>{/if}</dd></div>{/if}
   </dl>
 
@@ -120,7 +118,7 @@
     <ul class="rest" data-ana-rest>
       {#each rest.days.filter((x) => x.v != null) as x (x.day)}<li><span>{dates(x.day)}</span><b class="num">{n0(x.v)} <small>{t('bpm')}</small></b></li>{/each}
     </ul>
-    {#if rest.normal != null}<p class="tp-small" data-ana-normal>{rest.diff === 0 ? t('As your normal ({n} bpm).', { n: rest.normal }) : rest.diff > 0 ? t('{d} above your normal ({n} bpm).', { d: rest.diff, n: rest.normal }) : t('{d} below your normal ({n} bpm).', { d: -rest.diff, n: rest.normal })}</p>{/if}
+    {#if rest.normal != null}<p class="tp-small" data-ana-normal>{rest.diff === 0 ? t('As your normal ({n} bpm).', { n: rest.normal }) : rest.diff > 0 ? t('{d} bpm above your normal ({n}).', { d: rest.diff, n: rest.normal }) : t('{d} bpm below your normal ({n}).', { d: -rest.diff, n: rest.normal })}</p>{/if}
   {:else}
     <p class="tp-muted tp-small" data-ana-norest>{t('No resting heart rate for these days. It comes from Fitbit: Ich › Verbindungen.')}</p>
   {/if}
@@ -145,6 +143,8 @@
     display: grid;
     gap: var(--sp-2);
     margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
   }
   .h3 {
     display: flex;
@@ -181,7 +181,8 @@
   }
   .best th,
   .best td {
-    padding: 6px 4px;
+    padding: 6px 3px;
+    white-space: nowrap;
     border-bottom: 1px solid var(--line);
     text-align: right;
   }
@@ -215,7 +216,7 @@
   .dots svg {
     display: block;
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
     height: auto;
   }
   .grid {
@@ -223,14 +224,14 @@
   }
   .tick {
     fill: var(--ink-2);
-    font-size: 10px;
+    font-size: var(--fs-tiny);
   }
   circle {
-    fill: var(--ink-3, #9aa5a0);
+    fill: var(--ink-3);
     opacity: 0.75;
   }
   circle.me {
-    fill: var(--accent, #4a7360);
+    fill: var(--accent);
     opacity: 1;
     stroke: var(--paper);
     stroke-width: 2;

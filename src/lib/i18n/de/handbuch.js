@@ -1110,4 +1110,6 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // Tour-Auswertung (Noah 20.10.2026 «3a und b»)
+  'Under «Values», «Like on the Garmin» shows NP, the best minutes and your resting heart rate that day.': 'Unter «Werte» zeigt «Wie auf dem Garmin» die NP, die Bestwerte und deinen Ruhepuls an diesem Tag.',
 };
