@@ -719,7 +719,8 @@
   });
   // Gesamttest 20.10.2026 (Noah «5a»): milestones and challenges are a quiet line of their own;
   // «Heute wichtig» keeps only what is to be done
-  const cheers = $derived(allImportant.filter((r) => r.tone === 'party'));
+  // «Gut gemacht» (Noah 20.10.2026 «5a»: one quiet line): only the first congratulation shows
+  const cheers = $derived(allImportant.filter((r) => r.tone === 'party').slice(0, 1));
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   async function stepDone(goalId, stepId) {
@@ -1836,13 +1837,17 @@
     flex-direction: column;
     gap: 10px;
   }
+  /* the tile is a column: the «Well done» line on top, the card fills the rest (height 100% on the card
+     made it overflow by the height of that line onto the next tile, phone 0.165.0) */
   .impw {
+    display: flex;
+    flex-direction: column;
     height: 100%;
   }
   .imp {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1 0 auto;
     box-sizing: border-box;
     min-width: 0;
     padding: 14px 18px 8px;

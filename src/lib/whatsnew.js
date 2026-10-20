@@ -17,7 +17,7 @@
 export const WHATS_NEW = [
   {
     // N1 «Neue Leiste» (Noah 20.10.2026 «1a 2a», brainstorming): Heute · Planen · Touren · Auswerten · Velos.
-    version: '0.167.0',
+    version: '0.168.0',
     date: '2026-10-20',
     title: 'Five places for your day',
     lead: 'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.',
@@ -30,6 +30,36 @@ export const WHATS_NEW = [
     test: [
       'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
       'Tap Analysis, then the tab Rides: your Strava rides are there.',
+    ],
+  },
+  {
+    // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'No more old versions',
+    lead: 'If your phone ever hangs on an old version, the app notices it and offers to load the new one.',
+    points: [
+      { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
+    ],
+    small: [{ box: 'new', text: '«Later» hides the bar for a while; trips, lists and notes stay when you load' }],
+    test: [
+      'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
+      'Tap «Load now»: the app loads fresh from the internet, your data stays.',
+    ],
+  },
+  {
+    // v0.166.1 «Heute am Handy» (bug fix, Noah 20.10.2026 15:16 UTC «Problem ist abgeschnitten»; same look, no mockup)
+    version: '0.166.1',
+    date: '2026-10-20',
+    title: 'Nothing cut off',
+    lead: 'On a phone the card «Up now» no longer slides under your trip.',
+    points: [
+      { text: 'Congratulations show as one quiet line; the full list stays in the milestones', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'fixed', text: 'On a phone «Up now» ends where its last line ends; the next card starts below it' }],
+    test: [
+      'Open Today on a phone after reaching a milestone: «Up now» and the trip card do not overlap.',
+      'Only one congratulation line stands above «Up now».',
     ],
   },
   {
