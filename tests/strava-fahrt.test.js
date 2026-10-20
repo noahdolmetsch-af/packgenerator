@@ -26,8 +26,8 @@ describe('the server sends more about an activity, never the route', () => {
   it('laps (two or more), splits per km, «How hard?»', () => {
     const laps = trimLaps([{ name: 'Lap 1', distance: 10230, moving_time: 1500, total_elevation_gain: 120.4, average_heartrate: 141.2, average_watts: 201, average_speed: 6.82 }, { name: 'test_data_gtp_ Anstieg', distance: 5000, moving_time: 900, total_elevation_gain: 300 }], true);
     expect(laps).toEqual([
-      { n: 1, name: 'Lap 1', km: 10.2, s: 1500, hm: 120, hr: 141, w: 201, kmh: 24.6 },
-      { n: 2, name: 'test_data_gtp_ Anstieg', km: 5, s: 900, hm: 300, hr: null, w: null, kmh: null },
+      { n: 1, name: 'Lap 1', km: 10.2, s: 1500, el: 0, hm: 120, hr: 141, w: 201, kmh: 24.6 },
+      { n: 2, name: 'test_data_gtp_ Anstieg', km: 5, s: 900, el: 0, hm: 300, hr: null, w: null, kmh: null },
     ]);
     expect(trimLaps([{ distance: 1 }])).toEqual([]);
     expect(trimLaps([{ distance: 1000, moving_time: 100, average_watts: 300 }, { distance: 1000, moving_time: 100 }], false)[0].w).toBe(null);
@@ -70,12 +70,12 @@ describe('the app keeps the new values', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push(params.id);
       if (params.id === '32') throw Object.assign(new Error('x'), { code: 'strava_error' });
-      return { ok: true, laps: [{ n: 1, km: 20, s: 2500 }, { n: 2, km: 20, s: 2500 }], splits: [], rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4 };
+      return { ok: true, laps: [{ n: 1, km: 20, s: 2500 }, { n: 2, km: 20, s: 2500 }], splits: [], rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 4 };
     };
     const now = new Date('2026-10-13T08:00:00Z');
     await fetchTraining(db, c, now);
     expect(log).toEqual(['31', '32', '33']);
-    expect(await db.activities.get('31')).toMatchObject({ rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 3 });
+    expect(await db.activities.get('31')).toMatchObject({ rpe: 6, tempMin: 9, tempMax: 15, steep: 8.4, dv: 4 });
     expect((await db.activities.get('33')).laps).toHaveLength(2);
     expect((await db.activities.get('32')).noDetail).toBe(now.toISOString());
     await fetchTraining(db, c, new Date('2026-10-13T09:00:00Z'));
