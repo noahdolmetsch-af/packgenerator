@@ -152,6 +152,8 @@ test('c) tiles, map, calendar; «Mehrere wählen» joins two rides into one tour
   await expect(acts(page).locator('[data-act-cal]')).toBeVisible();
   // 5a: back to rows, choose two, join
   await acts(page).locator('[data-act-views]').getByRole('button', { name: T('Rows|view') }).click();
+  // the view is stored first; wait for the rows before asking for «Show n more» (the phone shows five rows)
+  await expect(acts(page).locator('[data-act-list] [data-act-row]').first()).toBeVisible();
   if (await acts(page).locator('[data-act-phone-more]').count()) await acts(page).locator('[data-act-phone-more]').click();
   await acts(page).locator('[data-act-pick]').click();
   await acts(page).locator(`[data-pick="a:${A}1"]`).click();
