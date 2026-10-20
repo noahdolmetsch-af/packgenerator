@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.161.0 Paket 9 «Tour-Seite» (Noah 19.10.2026 «1a 2 beides 3b 4 beides 5a»): a page for every finished tour.
+    version: '0.161.0',
+    date: '2026-10-19',
+    title: 'A page for every tour',
+    lead: 'Every finished tour opens on its own page.',
+    points: [
+      { text: 'Every finished tour has its own page: map, profile, values, diary', href: '#/trips' },
+      { text: 'Correct Strava values, rename, hide or delete tours', href: '#/trips' },
+      { text: 'The list as tiles, map or calendar; join rides into one tour', href: '#/trips' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Race map: a new map ground no longer breaks the page', href: '#/race' },
+      { box: 'fixed', text: 'Race › Climbs: a link to one climb opens it after a reload too', href: '#/race' },
+      { box: 'nicer', text: 'On a narrow phone «Views» is just its icon, so the list stays short', href: '#/trips' },
+    ],
+    test: [
+      'Open Trips and tap a finished tour.',
+      'Tap «Choose several», pick two rides and tap «Join into one tour».',
+    ],
+  },
+  {
     // Verpflegung (Noah 19.10.2026 21:11 «1a 2a 3a und b 4a 5a»): food and water plan per section. Paket 8.
     version: '0.160.0',
     date: '2026-10-19',

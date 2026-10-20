@@ -17,7 +17,7 @@ describe('AT1 rows', () => {
     const rows = tourRows([act('1', '2026-10-01'), act('2', '2026-10-05', { type: 'Run' }), act('3', '2026-09-20', { type: 'Hike' })]);
     expect(rows.map((r) => r.id)).toEqual(['a:2', 'a:1', 'a:3']);
     expect(rows.map((r) => r.kind)).toEqual(['run', 'bike', 'hike']);
-    expect(rows[0].href).toBe('#/flow/training/a/2');
+    expect(rows[0].href).toBe('#/tour/a%3A2');
   });
 
   it('a Packmodus trip marks its one activity and keeps the Strava name', () => {

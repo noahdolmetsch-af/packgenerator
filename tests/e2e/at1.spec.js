@@ -102,7 +102,7 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
   const one = row(page, `a:${A}1`);
   await expect(one.locator('[data-type="Ride"]')).toHaveText(T('Strava type «{type}»', { type: 'Ride' }));
   await expect(one.locator(`[data-bike="${ROAD}"]`)).toHaveText('Rennrad Blau');
-  await expect(one.locator('a.an')).toHaveAttribute('href', `#/flow/training/a/${A}1`);
+  await expect(one.locator('a.an')).toHaveAttribute('href', `#/tour/${encodeURIComponent(`a:${A}1`)}`); // Tour-Seite (Noah 19.10.2026 «1a»)
   await noSideways(page);
   await shot(page, info, 'AT1-touren-aktivitaeten');
   expect(errors).toEqual([]);

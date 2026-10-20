@@ -22,6 +22,7 @@ import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
 import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
+import { STRAVA_GONE_KEY } from '../touren/tour.js';
 import { localDay } from '../localday.js';
 import { saveRate } from '../maintenance/rate.js';
 
@@ -312,7 +313,10 @@ export async function disconnect({ removeRides = false, db = appDb, c = call } =
 /** «Training»: every fetched activity into db.activities; what the app added (details, note) stays. */
 export async function keepActivities(db, list) {
   if (!list.length) return;
-  const recs = list.map(actRecord);
+  // Tour-Seite (Noah 19.10.2026): an activity deleted in the app does not come back with the next fetch
+  const gone = new Set(((await db.settings.get(STRAVA_GONE_KEY))?.value ?? []).map(String));
+  const recs = list.map(actRecord).filter((r) => !gone.has(r.id));
+  if (!recs.length) return;
   const old = await db.activities.bulkGet(recs.map((r) => r.id));
   // Paket S «Reise-Spur»: a line fetched before (also the finer one of step=line) stays when the list sends none
   await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])), line: (old[i]?.lineFine && old[i]?.line) || r.line || old[i]?.line || null, ...(old[i]?.lineFine ? { lineFine: true } : {}) })));

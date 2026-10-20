@@ -806,6 +806,11 @@ export default {
   'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).': 'Lies die Farbe am Wegweiser oder die Schwierigkeit aus dem Führer (T1–T6, L–EX).',
   'Example: white-blue-white → alpine hiking trail, T4 to T6.': 'Beispiel: weiss-blau-weiss → Alpinwanderweg, T4 bis T6.',
   // Verpflegung (Noah 19.10.2026 «1a»)
+  'Works for Strava rides, joined tours and tours from the packing mode.': 'Gilt für Strava-Fahrten, verbundene Touren und Touren aus dem Packmodus.',
+  'Open Trips and tap a finished tour.': 'Öffne Touren und tippe auf eine abgeschlossene Tour.',
+  'Tap a value to correct it; the Strava value stays next to it.': 'Tippe auf einen Wert, um ihn zu korrigieren; der Strava-Wert bleibt daneben stehen.',
+  'Under «Choose several», pick rides and join them into one tour.': 'Unter «Mehrere wählen» Fahrten auswählen und zu einer Tour verbinden.',
+  'Example: two Strava rides of one weekend → join them, rename the tour, add photos.': 'Beispiel: zwei Strava-Fahrten eines Wochenendes → verbinden, die Tour umbenennen, Fotos dazu.',
   'Works best with a GPX route on the trip; the places along the route come from the route search.': 'Am besten mit einer GPX-Strecke an der Tour; die Orte an der Strecke kommen aus der Streckensuche.',
   'Search the places along the route once; change your grams per hour, water and bottles under «Your values».': 'Suche einmal die Orte an der Strecke; Gramm pro Stunde, Wasser und Flaschen änderst du unter «Deine Werte».',
   'Switch to «My products» to see how many bars and gels to take.': 'Wechsle zu «Meine Produkte», dann siehst du, wie viele Riegel und Gels du mitnimmst.',

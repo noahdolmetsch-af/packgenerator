@@ -15,7 +15,9 @@
   import { cellBounds } from './neuland.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n }]; cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = 'auto', focus = null, onpick = null, label = '' } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = 'auto', focus = null, onpick = null, label = '', marker = null } = $props();
+  // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
+  const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
 
   let box = $state();
   let w = $state(360);
@@ -144,9 +146,10 @@
       <path d={p.d} class="line" stroke={p.col} stroke-dasharray={p.dash ? '6 5' : null} />
     {/each}
     {#each ends as e (e.k)}<circle cx={e.s.x} cy={e.s.y} r="7" class="end {e.k}" />{/each}
+    {#if mark}<circle cx={mark.x} cy={mark.y} r="8" class="here" data-map-marker />{/if}
   </svg>
   {#each dots as p (p.id)}
-    <button type="button" class="dot {p.kind}" style:left="{p.s.x}px" style:top="{p.s.y}px" aria-label={p.kind === 'place' ? t('Place: {text}', { text: p.text || t('I am here') }) : p.kind === 'photo' ? t('Photo: {text}', { text: p.text || '' }) : t('Note: {text}', { text: p.text || '' })} onclick={() => pick(p)}>
+    <button type="button" class="dot {p.kind}" style:left="{p.s.x}px" style:top="{p.s.y}px" aria-label={p.kind === 'tour' ? t('Open the tour {text}', { text: p.text || '' }) : p.kind === 'place' ? t('Place: {text}', { text: p.text || t('I am here') }) : p.kind === 'photo' ? t('Photo: {text}', { text: p.text || '' }) : t('Note: {text}', { text: p.text || '' })} onclick={() => pick(p)}>
       {#if p.photo}<img src={p.photo} alt="" />{:else}<span>{p.n ?? ''}</span>{/if}
     </button>
   {/each}
@@ -196,6 +199,11 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     opacity: 0.85;
+  }
+  .here {
+    fill: var(--bad);
+    stroke: var(--tm-white);
+    stroke-width: 3;
   }
   .line {
     fill: none;

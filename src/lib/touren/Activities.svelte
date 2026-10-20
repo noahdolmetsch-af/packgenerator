@@ -14,8 +14,16 @@
    * 0.163.0 «Handy kurz» (Noah 15.10.2026, answer 2b): on a phone the newest PHONE_ROWS show, then «Show n more»;
    * a row's values are one grey line (ACT_LINE: Dauer, Verstrichen, Ø Tempo, Ø/max. HF, TSS, Ø Leistung,
    * without the missing ones), the zones and the other values after a tap on the activity. A computer keeps the full rows.
+   * Tour-Seite (Noah 19.10.2026 «4 beides 5a»): the list shows as rows, tiles, a map or a calendar (LIST_VIEWS,
+   * kept for next time); «Auswählen» chooses several to join into one tour or to hide; «Ausgeblendete zeigen»
+   * brings the hidden ones back into view. A row opens the page «Tour».
+   * view, onview(v); lineOf(row): the map lines of a row; onjoin(rows), onhide(rows), onshow(rows).
    */
   import { t, tn, num } from '../i18n.svelte.js';
+  import ActTiles from './ActTiles.svelte';
+  import ActCal from './ActCal.svelte';
+  import ActMap from './ActMap.svelte';
+  import { LIST_VIEWS } from './tour.js';
   import Seg from '../ui/Seg.svelte';
   import TripState from '../ui/TripState.svelte';
   import Empty from '../ui/Empty.svelte';
@@ -30,9 +38,27 @@
   import { n0, n1, hours, dates, monthLong, DASH } from '../review/fmt.js';
   import { phone } from '../media.svelte.js';
   import { PHONE_ROWS, ACT_LINE, shortLine, capGroups } from './kurz.js';
-  import { ChevronRight, ChevronDown, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search } from '@lucide/svelte';
+  import { ChevronRight, ChevronDown, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search, Check, ListChecks, Link2, EyeOff, Eye, LayoutGrid } from '@lucide/svelte';
 
-  let { rows = [], bikes = [], today, periodOf, connected = true, saved = [], onsave, ondrop } = $props();
+  let { rows: allRows = [], bikes = [], today, periodOf, connected = true, saved = [], onsave, ondrop, view = 'rows', onview, lineOf: mapLines = () => [], onjoin, onhide, onshow } = $props();
+
+  // Tour-Seite: hidden tours stay out unless «Ausgeblendete zeigen»
+  let showHid = $state(false);
+  const hiddenN = $derived(allRows.filter((r) => r.hidden).length);
+  const rows = $derived(showHid ? allRows : allRows.filter((r) => !r.hidden));
+  const VIEWS = $derived(LIST_VIEWS.map((v) => ({ key: v.key, name: t(v.name) })));
+  // 5a: choose several (not the trips of the Packmodus: they are a tour already)
+  let picking = $state(false);
+  let picked = $state(new Set());
+  const canPick = (r) => !r.pm;
+  const togglePick = (r) => {
+    if (!canPick(r)) return;
+    const next = new Set(picked);
+    next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+    picked = next;
+  };
+  const pickedRows = $derived(allRows.filter((r) => picked.has(r.id)));
+  const endPick = () => ((picking = false), (picked = new Set()));
 
   let mode = $state('12m');
   let kind = $state('all');
@@ -99,6 +125,17 @@
     </div>{/if}
     {#if rows.length}<button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-act-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if fchips.length}<span class="fn num" data-act-filter-n>{fchips.length}</span>{/if}</button>{/if}
   </div>
+  <!-- «Handy kurz»: on a phone the views wait behind «Ansicht und Auswahl» under the five rows (page at most 3 screens) -->
+  {#if allRows.length && !(short && view === 'rows' && list.length > PHONE_ROWS)}
+    <div class="views" data-act-views>
+      <Seg full={false} label={t('View')} value={view} options={VIEWS} onchange={(v) => (endPick(), onview?.(v))} />
+      <div class="vb">
+        {#if hiddenN}<button type="button" class="btn btn-link" aria-pressed={showHid} onclick={() => (showHid = !showHid)} data-show-hidden>{#if showHid}<EyeOff size={16} aria-hidden="true" />{t('Leave out hidden')}{:else}<Eye size={16} aria-hidden="true" />{tn(hiddenN, 'Show {n} hidden', 'Show {n} hidden')}{/if}</button>{/if}
+        {#if view === 'rows' || view === 'tiles'}<button type="button" class="btn btn-link" aria-pressed={picking} onclick={() => (picking ? endPick() : (picking = true))} data-act-pick>{#if picking}{t('Done')}{:else}<ListChecks size={16} aria-hidden="true" />{t('Choose several')}{/if}</button>{/if}
+      </div>
+    </div>
+    {#if picking}<p class="pickhint tp-small" data-pick-hint>{t('Tap the activities that belong together, then «Join into one tour». Trips of the Packmodus are a tour already.')}</p>{/if}
+  {/if}
   {#if saved.length}
     <div class="mine" role="group" aria-label={t('My filters')} data-act-my-filters>
       <span class="al"><Bookmark size={14} aria-hidden="true" />{t('My filters')}</span>
@@ -119,6 +156,13 @@
     <div class="none"><Empty icon={Search} title={t('No activity matches.')} text={t('Another filter or period shows more.')} action={{ label: t('Clear filters'), onclick: () => setFilter(emptyActFilter()), explain: t('Show all activities of the period') }} /></div>
   {:else if !list.length}
     <div class="none"><Empty icon={Activity} title={t('No activity in this period.')} text={t('Another period or sport shows more.')} action={mode !== 'all' ? { label: t('Show all|filter'), onclick: () => setMode('all'), explain: t('Show all years') } : null} /></div>
+  {:else if view === 'tiles'}
+    <ActTiles rows={list.slice(0, shown)} lineOf={mapLines} {picking} {picked} onpick={togglePick} />
+    {#if list.length > shown}<button type="button" class="btn k loadmore" onclick={() => (shown += PAGE)} data-load-more>{t('Load more')}<span class="num">{t('{n} of {all}', { n: num(shown), all: num(list.length) })}</span></button>{/if}
+  {:else if view === 'map'}
+    <ActMap rows={list} lineOf={mapLines} />
+  {:else if view === 'cal'}
+    <ActCal rows={list} start={list[0].day.slice(0, 7)} />
   {:else}
     <div class="list" data-act-list>
       {#each groups as g (g.month)}
@@ -126,11 +170,15 @@
         <ul class="rows">
           {#each g.rows as r (r.id)}
             {@const parts = zoneParts(r.zones)}
-            <li class="ar" data-act-row={r.id} data-kind={r.kind}>
-              <span class="aic" aria-hidden="true"><KindIcon kind={r.kind} size={18} /></span>
+            <li class="ar" class:picking class:on={picked.has(r.id)} class:hid={r.hidden} data-act-row={r.id} data-kind={r.kind}>
+              {#if picking && canPick(r)}<button type="button" class="pickhit" aria-pressed={picked.has(r.id)} aria-label={t('Choose {name}', { name: r.name || t(typeKey(r.type)) })} onclick={() => togglePick(r)} data-pick={r.id}></button>{/if}
+              <span class="aic" aria-hidden="true">{#if picking && canPick(r)}<span class="ck">{#if picked.has(r.id)}<Check size={16} />{/if}</span>{:else}<KindIcon kind={r.kind} size={18} />{/if}</span>
               <div class="am">
                 <div class="at">
                   <a class="an" href={r.href}>{r.name || t(typeKey(r.type))}</a>
+                  {#if r.grp}<span class="pm grp" data-grp={r.grp.id}><Link2 size={13} aria-hidden="true" />{t('joined')}</span>{/if}
+                  {#if r.changed?.length}<span class="chg">{t('changed')}</span>{/if}
+                  {#if r.hidden}<span class="chg"><EyeOff size={12} aria-hidden="true" />{t('hidden')}</span>{/if}
                   {#if r.pm}<span class="pm" data-pm={r.pm.tripId}><Backpack size={13} aria-hidden="true" />{t('Pack mode: {name}', { name: r.pm.title })}<TripState state={r.pm.state} /></span>{/if}
                 </div>
                 <p class="as">
@@ -170,11 +218,22 @@
       {/each}
     </div>
     {#if short && list.length > PHONE_ROWS}
-      <button type="button" class="phone-more" onclick={() => (phoneAll = true)} data-act-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(list.length - PHONE_ROWS, 'Show {n} more activity', 'Show {n} more activities')}</button>
+      <div class="pmrow">
+        <button type="button" class="phone-more" onclick={() => (phoneAll = true)} data-act-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(list.length - PHONE_ROWS, 'Show {n} more activity', 'Show {n} more activities')}</button>
+        <button type="button" class="phone-more pmv" onclick={() => (phoneAll = true)} aria-label={t('Views|act')} title={t('Views|act')} data-act-views-open><LayoutGrid size={16} aria-hidden="true" /><span class="pmvt">{t('Views|act')}</span></button>
+      </div>
     {:else if !short && list.length > shown}
       <button type="button" class="btn k loadmore" onclick={() => (shown += PAGE)} data-load-more>{t('Load more')}<span class="num">{t('{n} of {all}', { n: num(shown), all: num(list.length) })}</span></button>
     {/if}
     <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('All values from Strava. TSS from power and your FTP: without a power meter «–». A multi-day trip of the Packmodus is one row with all its activities. Only to look at, no rating.')}</span></p>
+  {/if}
+  {#if picking && allRows.length}
+    <div class="pickbar" role="region" aria-label={t('Chosen')} data-pick-bar>
+      <span class="num">{tn(picked.size, '{n} chosen', '{n} chosen')}</span>
+      <button type="button" class="btn" disabled={picked.size < 1} onclick={() => (onhide?.(pickedRows), endPick())} data-pick-hide><EyeOff size={16} aria-hidden="true" />{t('Hide')}</button>
+      {#if showHid}<button type="button" class="btn" disabled={!pickedRows.some((r) => r.hidden)} onclick={() => (onshow?.(pickedRows), endPick())} data-pick-show><Eye size={16} aria-hidden="true" />{t('Show again')}</button>{/if}
+      <button type="button" class="btn hi" disabled={picked.size < 2} onclick={() => (onjoin?.(pickedRows), endPick())} data-pick-join><Link2 size={16} aria-hidden="true" />{t('Join into one tour')}</button>
+    </div>
   {/if}
 </section>
 
@@ -365,6 +424,97 @@
     text-decoration: underline;
   }
   /* bug fix (Noah 19.10.2026 «kann ich nicht anklicken»): the whole row opens the activity, not only its name */
+  .views {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin: 0 0 var(--sp-3);
+  }
+  .vb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+  .vb .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+  }
+  .pickhint {
+    margin: -4px 0 var(--sp-2);
+    color: var(--ink-2);
+  }
+  .pickhit {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .pickhit:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -3px;
+  }
+  .ar.on {
+    background: var(--paper-2);
+  }
+  .ar.hid {
+    opacity: 0.7;
+  }
+  .ck {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+  }
+  .ar.on .ck {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .chg {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .pm.grp {
+    padding: 2px 10px;
+  }
+  .pickbar {
+    position: sticky;
+    bottom: 12px;
+    z-index: 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-top: var(--sp-3);
+    padding: 10px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .pickbar .num {
+    flex: 1;
+    font-weight: 600;
+  }
+  .pickbar .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
   .an::after {
     content: '';
     position: absolute;
@@ -565,6 +715,23 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .pmrow {
+    display: flex;
+    gap: var(--sp-2);
+  }
+  .pmrow .phone-more {
+    flex: 1 1 auto;
+  }
+  .pmrow .pmv {
+    flex: none;
+    width: auto;
+  }
+  /* a narrow phone: «Ansichten» as its icon, so «Noch n Aktivitäten zeigen» stays on one line (Handy kurz) */
+  @media (max-width: 420px) {
+    .pmrow .pmvt {
+      display: none;
+    }
   }
   .phone-more {
     display: flex;

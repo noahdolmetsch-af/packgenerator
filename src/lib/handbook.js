@@ -871,6 +871,11 @@ export const HANDBOOK = {
     steps: ['Me › Data and backup › «Start fresh …» › «Delete everything».', 'Changed your mind? «Undo», or later «Before updates».'],
     example: 'Example: after testing with sample data → start fresh with your own gear.',
   },
+  'f.tourpage': {
+    on: 'Works for Strava rides, joined tours and tours from the packing mode.',
+    steps: ['Open Trips and tap a finished tour.', 'Tap a value to correct it; the Strava value stays next to it.', 'Under «Choose several», pick rides and join them into one tour.'],
+    example: 'Example: two Strava rides of one weekend → join them, rename the tour, add photos.',
+  },
   'f.fuel': {
     on: 'Works best with a GPX route on the trip; the places along the route come from the route search.',
     steps: ['Open Trips › Food and water and choose the trip.', 'Search the places along the route once; change your grams per hour, water and bottles under «Your values».', 'Switch to «My products» to see how many bars and gels to take.'],
