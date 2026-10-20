@@ -270,6 +270,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px; /* a short title («Teile») still gets a full tap target */
     margin: -11px 0;
   }
   .things small {
