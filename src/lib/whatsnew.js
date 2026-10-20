@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.167.0 «Heute neu» N2 (Noah 20.10.2026 15:49 «1a 2a 3a und b 4b 5a»; built without mockups)
-    version: '0.167.0',
+    // v0.168.0 «Heute neu» N2 (Noah 20.10.2026 15:49 «1a 2a 3a und b 4b 5a»; built without mockups)
+    version: '0.168.0',
     date: '2026-10-20',
     title: 'Today, rebuilt',
     lead: 'On top your body of today and the check, right under it your activities to tick off.',
@@ -30,6 +30,21 @@ export const WHATS_NEW = [
     test: [
       'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.',
       'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
+    ],
+  },
+  {
+    // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'No more old versions',
+    lead: 'If your phone ever hangs on an old version, the app notices it and offers to load the new one.',
+    points: [
+      { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
+    ],
+    small: [{ box: 'new', text: '«Later» hides the bar for a while; trips, lists and notes stay when you load' }],
+    test: [
+      'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
+      'Tap «Load now»: the app loads fresh from the internet, your data stays.',
     ],
   },
   {

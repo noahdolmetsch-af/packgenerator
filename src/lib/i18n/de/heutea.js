@@ -66,7 +66,7 @@ export default {
   'All {n} in Aktiv': 'Alle {n} in Aktiv',
   'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.': 'Ruhepuls, Schlaf, Schlaf-Score und Aktivzonen-Minuten neben gestern, mit dem Morgen- oder Abend-Check.',
   'Your activities to tick off in one tap; meditation opens its start.': 'Deine Aktivitäten zum Abhaken mit einem Tipp; Meditation öffnet ihren Start.',
-  // whatsnew 0.167.0
+  // whatsnew 0.168.0
   'Today, rebuilt': 'Heute neu aufgebaut',
   'On top your body of today and the check, right under it your activities to tick off.': 'Oben dein Körper heute und der Check, gleich darunter deine Aktivitäten zum Abhaken.',
   '«Your body today»: resting pulse, sleep, sleep score and active zone minutes next to yesterday': '«Dein Körper heute»: Ruhepuls, Schlaf, Schlaf-Score und Aktivzonen-Minuten neben gestern',
