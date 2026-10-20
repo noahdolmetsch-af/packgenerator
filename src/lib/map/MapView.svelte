@@ -203,7 +203,7 @@
     else
       loadSymbols().then(() => {
         addSymbols();
-        styleVer++; // draw the points and the arrow again, now with their images
+        if (styleVer) styleVer++; // draw the points and the arrow again, now with their images (a new ground still loading does it on its own)
       });
     styleVer++;
   }
@@ -367,16 +367,19 @@
     void arrows;
     if (v && map) untrack(syncArrows);
   });
-  // a new ground: a new style (our layers follow on style.load)
+  // a new ground: a new style (our layers follow on style.load). Until then styleVer is 0, so the data
+  // effects wait: adding a source while the style loads throws «Style is not done loading».
+  function newStyle(g) {
+    active = g.key;
+    styleVer = 0;
+    map.setStyle(styleOf(g), { diff: false });
+  }
   $effect(() => {
     void ground;
     if (!map || phase !== 'ready') return;
     untrack(() => {
       const g = groundAt();
-      if (g.key !== active) {
-        active = g.key;
-        map.setStyle(styleOf(g), { diff: false });
-      }
+      if (g.key !== active) newStyle(g);
     });
   });
 
@@ -444,10 +447,7 @@
           }
           if (ground !== 'auto') return;
           const g2 = groundAt();
-          if (g2.key !== active) {
-            active = g2.key;
-            map.setStyle(styleOf(g2), { diff: false });
-          }
+          if (g2.key !== active) newStyle(g2);
         });
         map.on('click', (e) => {
           const ids = (map.getStyle()?.layers ?? []).filter((l) => l.id.startsWith('pts-z')).map((l) => l.id);
