@@ -32,7 +32,7 @@
   import Ideas from './flow/Ideas.svelte';
   import LiveStart from '../lib/live/LiveStart.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
-  import { Plus, Sun, GripVertical, Lightbulb, Timer, Mountain, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Lightbulb, Timer, Snowflake, ChevronRight } from '@lucide/svelte';
   import { inSeason } from '../lib/ski.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
@@ -53,16 +53,17 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
-  import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
-  import { heartBetween, withStravaRides, waitingThisMonth, bikeActs } from '../lib/kmbook.js';
+  import { seasonNow, goalPath } from '../lib/flow/aktiv.js';
+  import { msContext, allMilestones, TUNE_KEY } from '../lib/flowms.js';
+  import { waitingThisMonth } from '../lib/kmbook.js';
   import { CHECK_HASH } from '../lib/strava/client.svelte.js';
-  import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
+  import GoneActs from '../lib/flow/GoneActs.svelte';
+  import WeekNumbers from '../lib/flow/WeekNumbers.svelte';
   import Activity from './flow/Activity.svelte';
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
@@ -140,27 +141,9 @@
   /* v0.105.0 Design-Refresh P8 «Aktiv» (A1): the season, the bike month, the «Mehr» rows */
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   const seasonal = $derived(states.filter((s) => s.act.season));
-  const ridesQ = liveQuery(() => db.rides.toArray());
-  // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
-  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
-  const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point count too
-  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? [], $actQ ?? []), today));
-  const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
   // 0.136.0: Strava rides of this month without a bike wait in «Zum Prüfen» and count after «Passt»
   const kmWaiting = $derived(waitingThisMonth($kmBookQ ?? [], today));
-  const prevMonth = $derived.by(() => {
-    const [y, m] = today.split('-').map(Number);
-    return new Date(Date.UTC(y, m - 2, 15)).toISOString().slice(0, 10);
-  });
-  // the line of the weeks so far: x from week 1 to week 4, y from the most km
-  const pts = $derived.by(() => {
-    const w = km.weeks.filter((v) => v != null);
-    const max = Math.max(1, ...w);
-    return w.map((v, i) => [(i * 300) / 3, 56 - (v / max) * 48]);
-  });
-  const sparkLine = $derived(pts.map(([x, y]) => `${x},${y}`).join(' '));
-  const sparkArea = $derived(pts.length ? `M0,60 ${pts.map(([x, y]) => `L${x},${y}`).join(' ')} L${pts.at(-1)[0]},60 Z` : '');
   let seasonOpen = $state(false);
   // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
   const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
@@ -297,8 +280,8 @@
 {:else if route[0] === 'goals'}
   <div class="flow">
     <header class="ph">
-      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Goals|flow')} />
-      <h1 class="title">{t('Goals|flow')}</h1>
+      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activities|flow')} />
+      <h1 class="title">{t('Activities|flow')}</h1>
       <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
     </header>
     <AreaIntro place="goals" />
@@ -348,6 +331,8 @@
             <div class="card"><GoalPath {path} unit={pathMs.m.unit} label={pathName} /></div>
           </Sec>
         {/if}
+        <!-- Noah 20.10.2026 «3a»: activities deleted with «Keep the history», to restore -->
+        <GoneActs />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
         {#if !phone.matches}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
@@ -375,8 +360,9 @@
       <div class="lay">
         <div class="col">
           <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
-          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
-            <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
+          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/goals', label: t('Edit|acts') }} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
+            <!-- «Aktiv neu» (Noah 20.10.2026 «1a»): small tiles, the symbol and the name in one line -->
+            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
           <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
@@ -399,32 +385,32 @@
               {/if}
               <!-- Impeccable runde 2 made the active zone minutes one place under the rings; G (Noah 19.10.2026 «1b»): this week from Fitbit, one bar per day -->
               <AzmWeek {today} />
+              <!-- «Aktiv neu» (Noah 20.10.2026): what the rings and the minutes mean -->
+              <details class="restf" data-ring-help>
+                <summary><span>{t('What do the rings mean?')}</span></summary>
+                <p class="rhelp">{t('Each ring shows the last 7 days against your goals: Move (sport and training), Mindful (meditation) and Recovery (sauna, walks, sleep). A full ring means every goal of that ring is on track.')}</p>
+                <p class="rhelp">{t('Active zone minutes come from your Fitbit: minutes your pulse was in the fat burn, cardio or peak zone (one minute in cardio or peak counts twice). The WHO suggests 150 a week. Tap the goal to change it.')}</p>
+              </details>
             </div>
           </Sec>
-          <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
-            <a class="card kmc" href="#/debrief/ride" data-section="km">
-              <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
-              <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>
-              <!-- «Werte überall» WU2 (Noah 13.10.2026 «1-5a»): the metres climbed this month, with the Everest as a picture -->
-              {#if km.hm}<small class="kmhm" data-month-hm><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(km.hm) })}</b>{#if km.hm >= 885}{' · '}{t('≈ {x}× Everest', { x: num(Math.round((km.hm / 8849) * 10) / 10) })}{/if}</small>{/if}
-              {#if km.weeks.some((v) => v)}
-                <svg class="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
-                  <path class="area" d={sparkArea} />
-                  <polyline class="line" points={sparkLine} />
-                </svg>
-                <span class="wk" aria-hidden="true">{#each km.weeks as _, i (i)}<span>{t('W {n}', { n: i + 1 })}</span>{/each}</span>
-              {:else}
-                <small>{t('No ride this month yet. Upload a ride ›')}</small>
-              {/if}
-              {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
-            </a>
+          <!-- «Aktiv neu» (Noah 20.10.2026 «2a»): «Deine Woche in Zahlen» replaces «Velo diesen Monat» -->
+          <Sec id="km-h" title={t('Your week in numbers')} sub={t('last 7 days · compared with your usual week')}>
+            <WeekNumbers {today} />
             {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
           </Sec>
         </div>
         <aside class="col">
           <!-- WG: the daily check is «Wi gaht's?» now; the section keeps today's values and the 7 days -->
           <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')}>
-            <div class="card">{@render checkRow()}</div>
+            <div class="card">
+              {@render checkRow()}
+              <!-- «Aktiv neu» (Noah 20.10.2026: «warum fragen wir, was passiert mit den Daten, wo werden sie angezeigt») -->
+              <ul class="why" data-check-why>
+                <li><b>{t('Why|check')}</b> {t('a few seconds a day show you over weeks what does you good.')}</li>
+                <li><b>{t('Your data|check')}</b> {t('stays on your devices; nobody else sees it.')}</li>
+                <li><b>{t('Where you see it')}</b> <a href="#/me/history">{t('in the history')}</a>, <a href="#/me/insights">{t('in your insights')}</a> {t('and in the Rückblick of a trip.')}</li>
+              </ul>
+            </div>
           </Sec>
           <!-- package G #9: the lake temperature (Mythenquai) with the Eawag preview -->
           <LakeCard headingLevel={2} />
@@ -453,7 +439,8 @@
   {:else}
     <div class="crow" data-check-row="open">
       <span class="ct"><b>{t('Still open today')}</b></span>
-      <a class="btn hi" href="#/me/abfragen">{t('Start|check')}</a>
+      <!-- 20.10.2026 (Noah: «Was startet das überhaupt?»): «Start» opens the questions themselves, not their settings -->
+      <a class="btn hi" href="#/check/morning" data-check-start>{t('Start|check')}</a>
     </div>
   {/if}
   {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}
@@ -562,54 +549,29 @@
     align-items: center;
     min-height: 44px;
   }
-  .kmc {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .kmc:hover {
-    background: var(--paper-2);
-  }
-  .kmc small {
+  .rhelp {
+    margin: 0 0 var(--sp-2);
     color: var(--ink-2);
     font-size: var(--fs-small);
+    line-height: 1.45;
   }
-  .kmc .kmhm {
-    display: inline-flex;
-    align-items: center;
+  .why {
+    display: grid;
     gap: 4px;
+    margin: var(--sp-3) 0 0;
+    padding: var(--sp-2) 0 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
   }
-  .kmn {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-3);
+  .why b {
+    color: var(--ink);
+    font-weight: 600;
   }
-  .kmn b {
-    font: 700 var(--fs-title) / 1.15 var(--font-body);
-  }
-  .spark {
-    display: block;
-    width: 100%;
-    height: 48px;
-    margin-top: var(--sp-3);
-  }
-  .spark .area {
-    fill: var(--hi-soft);
-  }
-  .spark .line {
-    fill: none;
-    stroke: var(--hi);
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-  }
-  .wk {
-    display: flex;
-    justify-content: space-between;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
+  .why a {
+    color: var(--ink);
   }
   .crow {
     display: flex;

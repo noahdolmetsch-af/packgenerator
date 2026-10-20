@@ -6,7 +6,9 @@
  * - swisstopo: free Open Government Data with «© swisstopo»; fair use, so a narrow strip is fetched
  *   slowly and capped (offline.js), never the whole country.
  * - OpenFreeMap: no request limits, attribution required.
- * - tile.openstreetmap.org and OpenTopoMap forbid bulk or offline download: view only.
+ * - tile.openstreetmap.org, OpenTopoMap and CyclOSM forbid bulk or offline download: view only.
+ * - Google Maps is not here on purpose: its tiles need a paid key and its terms forbid using them
+ *   directly. OsmAnd is an app, not a tile service; CyclOSM is the nearest free map.
  * Pure, tested in tests/map-sources.test.js.
  */
 export const SWISS_WMTS = 'https://wmts.geo.admin.ch/1.0.0';
@@ -29,6 +31,7 @@ export const GROUNDS = [
   { key: 'swissimage', name: 'Aerial photo', sub: 'swisstopo SWISSIMAGE', kind: 'raster', url: swiss('ch.swisstopo.swissimage'), attribution: '© swisstopo', maxZoom: 19, swiss: true, offline: true },
   { key: 'vector', name: 'Free map', sub: 'OpenFreeMap, all countries, can be kept offline', kind: 'vector', style: OFM_STYLE, attribution: '© OpenFreeMap © OpenMapTiles © OpenStreetMap', maxZoom: 18, offline: true },
   { key: 'osm', name: 'OpenStreetMap', sub: 'Only with the internet', kind: 'raster', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap', maxZoom: 19, offline: false },
+  { key: 'cyclo', name: 'Cycling map', sub: 'CyclOSM: cycle paths and road surfaces, close to OsmAnd; only with the internet', kind: 'raster', url: 'https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', attribution: '© CyclOSM © OpenStreetMap', maxZoom: 18, offline: false },
   { key: 'topo', name: 'OpenTopoMap', sub: 'Contour lines; only with the internet', kind: 'raster', url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap (CC-BY-SA) © OpenStreetMap', maxZoom: 17, offline: false },
 ];
 export const groundOf = (key) => GROUNDS.find((g) => g.key === key) ?? GROUNDS[0];
@@ -46,3 +49,15 @@ export function pickGround(key, lat, lon, month = new Date().getMonth() + 1) {
 
 /** The address of one raster tile. */
 export const tileUrl = (g, z, x, y) => g.url.replace('{z}', z).replace('{x}', x).replace('{y}', y);
+
+/** The grounds a plain tile map can draw (all but the vector map). Kartenlayer 20.10.2026. */
+export const RASTER_GROUNDS = GROUNDS.filter((g) => g.kind !== 'vector');
+
+/**
+ * The ground for a plain tile map (tour map, still map, measuring map): like pickGround, but the vector
+ * map, which only maplibre can draw, becomes OpenStreetMap (the same data).
+ */
+export function rasterGround(key, lat, lon, month = new Date().getMonth() + 1) {
+  const g = pickGround(key, lat, lon, month);
+  return g.kind === 'vector' ? groundOf('osm') : g;
+}

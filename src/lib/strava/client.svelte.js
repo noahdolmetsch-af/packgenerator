@@ -19,8 +19,8 @@ import { db as appDb } from '../db.js';
 import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries, restoreEntries, syncBikes } from '../kmbookdb.js';
-import { rematchOpen } from '../kmbook.js';
-import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
+import { rematchOpen, inStart, ledgerStart } from '../kmbook.js';
+import { planSync, suggestBike, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
 import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
 import { STRAVA_GONE_KEY } from '../touren/tour.js';
@@ -385,8 +385,11 @@ export async function answerChange(db, change, take) {
 }
 
 /** A ride from «Zum Prüfen»: «Passt» / another bike (bikeId) / «Zählt nicht» (null). Returns the entry as it was. */
-export function checkRide(db, entry, bikeId) {
+export async function checkRide(db, entry, bikeId) {
   if (bikeId === null) return updateEntry(db, entry.id, { state: 'removed' });
+  // a ride inside the bike's start value is already in its km: on the bike, but not counted twice
+  const mine = await db.kmBook.where('bikeId').equals(bikeId).toArray();
+  if (inStart(ledgerStart(mine, bikeId), entry.date)) return updateEntry(db, entry.id, { bikeId, state: 'removed', by: 'user', sure: 'user', reason: { code: 'start', bike: bikeId } });
   return updateEntry(db, entry.id, { bikeId, state: 'counted', by: 'user', sure: 'user', reason: null });
 }
 
@@ -399,27 +402,42 @@ let matching = null;
  * marked noAuto and stays for you. A second call while one runs waits for it (and finds nothing).
  */
 export function autoAssign(db = appDb) {
-  if (matching) return matching.then(() => ({ n: 0, put: [], bikes: [] }));
+  if (matching) return matching.then(() => ({ n: 0, counted: 0, typed: 0, already: 0, put: [], bikes: [] }));
   matching = (async () => {
     const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
     const skipGear = prefs.gear.filter((g) => prefs.ignore.includes(String(g.id))).map((g) => g.name).filter(Boolean);
     const rules = await loadRules(db);
     let put = [];
     let before = [];
+    let counted = 0;
+    let typed = 0;
     await db.transaction('rw', db.kmBook, db.bikes, async () => {
       const entries = await db.kmBook.toArray();
       const bikes = await db.bikes.toArray();
-      const hits = rematchOpen(entries, { bikes, rules, skipGear });
+      const hits = rematchOpen(entries, { bikes, rules, skipGear, suggest: (e) => suggestBike(e, { bikes, rules, entries }), byType: prefs.noBike === 'auto' });
       if (!hits.length) return;
       const ids = new Set(hits.map((h) => h.bikeId));
       before = bikes.filter((b) => ids.has(b.id)).map((b) => ({ id: b.id, km: b.km ?? null, kmDate: b.kmDate ?? null }));
       put = hits.map((h) => JSON.parse(JSON.stringify(h.entry)));
-      await db.kmBook.bulkPut(hits.map((h) => ({ ...JSON.parse(JSON.stringify(h.entry)), bikeId: h.bikeId, state: 'counted', by: 'gear', sure: 'likely', reason: null })));
+      // a ride already in the start value or counted by its twin: on the bike, left out, with the reason
+      const row = (h) => (h.as === 'count' ? { state: 'counted', reason: null } : { state: 'removed', reason: { code: h.as, bike: h.bikeId } });
+      await db.kmBook.bulkPut(hits.map((h) => ({ ...JSON.parse(JSON.stringify(h.entry)), bikeId: h.bikeId, by: h.by === undefined ? 'gear' : h.by, sure: h.bikeId ? 'likely' : 'unclear', ...row(h) })));
+      counted = hits.filter((h) => h.as === 'count' && h.by !== 'type').length;
+      typed = hits.filter((h) => h.as === 'count' && h.by === 'type').length;
       await syncBikes(db, [...ids]);
     });
-    return { n: put.length, put, bikes: before };
+    return { n: put.length, counted, typed, already: put.length - counted - typed, put, bikes: before };
   })().finally(() => (matching = null));
   return matching;
+}
+
+/** The line after autoAssign: how many count now, how many were already in (start value or twin). */
+export function autoText(r) {
+  const parts = [];
+  if (r?.counted) parts.push(tn(r.counted, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.'));
+  if (r?.typed) parts.push(tn(r.typed, '{n} ride without a bike in Strava assigned by its ride type.', '{n} rides without a bike in Strava assigned by their ride type.'));
+  if (r?.already) parts.push(tn(r.already, '{n} older ride is already in the km of your bikes (start value or counted): it does not count twice.', '{n} older rides are already in the km of your bikes (start value or counted): they do not count twice.'));
+  return parts.join(' ');
 }
 
 /**

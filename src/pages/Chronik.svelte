@@ -74,6 +74,10 @@
     return { title: e.title, sub: t('Note|chronik') };
   }
   const value = (e) => (e.km ? `${num(Math.round(e.km))} km` : e.min ? t('{n} min', { n: num(e.min) }) : '');
+  // Gesamttest 20.10.2026 (C11): a busy month was 10 phone screens: 7 days first, then «n weitere zeigen»
+  const PER_MONTH = 7;
+  let openMonth = $state(null);
+  const daysShown = $derived(openMonth === `${page.month}|${filter}` ? page.days : page.days.slice(0, PER_MONTH));
   const filterName = $derived(t(CHRONIK_FILTERS.find((f) => f.key === filter)?.name ?? 'All|chronik'));
 </script>
 
@@ -107,7 +111,7 @@
           {/each}
         </nav>
         <p class="rv-sub num">{tn(page.n, '{n} entry', '{n} entries')} · {filterName}</p>
-        {#each page.days as d (d.date)}
+        {#each daysShown as d (d.date)}
           <section class="day" aria-label={dates(d.date)}>
             <h4 class="dh num">{dates(d.date)}</h4>
             <ul class="rv-box">
@@ -125,6 +129,7 @@
             </ul>
           </section>
         {/each}
+        {#if daysShown.length < page.days.length}<button type="button" class="dmore" onclick={() => (openMonth = `${page.month}|${filter}`)} data-days-more>{tn(page.days.length - daysShown.length, 'Show {n} more day', 'Show {n} more days')}</button>{/if}
       {:else}
         <Empty icon={History} text={filter === 'all' ? t('Nothing in the chronicle yet. Trips, rides, bike care, meditation and notes show up here by themselves.') : t('Nothing of this kind yet. Choose «All» to see everything.')} />
       {/if}
@@ -133,6 +138,18 @@
 </div>
 
 <style>
+  .dmore {
+    min-height: 44px;
+    margin-top: var(--sp-2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .chronik {
     display: flex;
     flex-direction: column;
