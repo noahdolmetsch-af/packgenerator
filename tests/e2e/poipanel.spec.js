@@ -17,6 +17,7 @@ const PLACES = [
   { type: 'node', id: 2, lat: 46.958, lon: 7.46, tags: { amenity: 'drinking_water' } },
   { type: 'node', id: 3, lat: 46.952, lon: 7.452, tags: { amenity: 'toilets', name: 'test_data_gtp_ WC Platz', opening_hours: 'Mo-Su 06:00-22:00' } },
   { type: 'node', id: 4, lat: 46.953, lon: 7.449, tags: { shop: 'bakery', name: 'test_data_gtp_ Beck', opening_hours: 'Mo-Fr 07:00-08:30; Sa 07:00-12:00', phone: '+41 00 000 00 00' } },
+  { type: 'node', id: 5, lat: 46.9505, lon: 7.4502, tags: { amenity: 'bench', name: 'test_data_gtp_ Bank am Weg' } },
 ];
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 const phone = (info) => info.project.name === 'phone';
@@ -235,4 +236,145 @@ test('keeping an offline strip also keeps the places along the route', async ({ 
   // the count stays after a reload
   await page.reload();
   await expect(page.locator('[data-race-box="map-offline"] [data-poi-keep="done"]')).toContainText('4');
+});
+
+// «Weitere Quellen» (Noah 20.10.2026 «… individuell auch einen Radius eingeben … weitere Quellen anbinden», 1a+b 2a+b)
+
+test('an own radius: typed, checked, used for the query and remembered', async ({ page, context }, info) => {
+  const { T, st, panel } = await openLive(page, context, info);
+  await tap(panel.locator('[data-poi-chip="water"]'), info);
+  await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
+  expect(st.calls.at(-1)).toContain('around:10000');
+  const own = panel.locator('[data-poi-radius-own]');
+  await expect(own).toBeVisible();
+  expect((await own.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  // out of range: a line says what fits, nothing is asked
+  await own.fill('80');
+  await own.press('Enter');
+  await expect(panel.locator('[data-poi-radius-bad]')).toContainText(T('Type a radius from {min} to {max} km, e.g. 15 or 7.5.|poi', { min: 1, max: 50 }));
+  // 25 km: bigger than the kept answer, one query with 25000 m, no radius button pressed
+  const before = st.calls.length;
+  await own.fill('25');
+  await own.press('Enter');
+  await expect(panel.locator('[data-poi-radius-bad]')).toHaveCount(0);
+  await expect.poll(() => st.calls.length).toBe(before + 1);
+  expect(st.calls.at(-1)).toContain('around:25000');
+  await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
+  await expect(panel.getByRole('button', { name: T('{km} km', { km: 10 }), exact: true })).toHaveAttribute('aria-pressed', 'false');
+  // 7,5 km (with a comma): smaller, the kept answer serves it, no query
+  await own.fill('7,5');
+  await own.press('Enter');
+  await page.waitForTimeout(900);
+  expect(st.calls.length).toBe(before + 1);
+  await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
+  // a radius button again empties the own field
+  await tap(panel.getByRole('button', { name: T('{km} km', { km: 5 }), exact: true }), info);
+  await expect(own).toHaveValue('');
+  await own.fill('25');
+  await own.press('Enter');
+  await expect(own).toHaveValue('25');
+  await page.reload();
+  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-poi-radius-own]')).toHaveValue('25');
+  await noSideways(page, 'radius');
+});
+
+test('the kinds: rename, take out and Undo, put more in, sort, an own kind with OpenStreetMap tags', async ({ page, context }, info) => {
+  const { T, st, panel } = await openLive(page, context, info);
+  const chips = panel.locator('[data-poi-chips]');
+  await tap(panel.locator('[data-poi-kinds-edit]'), info);
+  const box = panel.locator('[data-poi-kinds]');
+  await expect(box).toBeVisible();
+  await expect(box.locator('[data-poi-kind-row]')).toHaveCount(16);
+  // rename: the chip shows your name
+  const name = box.locator('[data-poi-kind-name="water"]');
+  await name.fill('test_data_gtp_ Brünneli');
+  await name.press('Enter');
+  await expect(chips.locator('[data-poi-chip="water"]')).toContainText('test_data_gtp_ Brünneli');
+  // take «Laundry» out of the row, Undo brings it back
+  await tap(box.locator('[data-poi-kind-remove="laundry"]'), info);
+  await expect(chips.locator('[data-poi-chip="laundry"]')).toHaveCount(0);
+  await expect(box.locator('[data-poi-kind-add="laundry"]')).toBeVisible();
+  await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(chips.locator('[data-poi-chip="laundry"]')).toHaveCount(1);
+  // a more kind into the row, then one place up with the arrow
+  await tap(box.locator('[data-poi-kind-add="bench"]'), info);
+  await expect(chips.locator('[data-poi-chip]').last()).toHaveAttribute('data-poi-chip', 'bench');
+  await tap(box.locator('[data-poi-kind-row="bench"]').getByRole('button', { name: T('Move {name} up', { name: T('Bench|poi') }) }), info);
+  await expect(chips.locator('[data-poi-chip]').nth(15)).toHaveAttribute('data-poi-chip', 'bench');
+
+  // an own kind: a wrong tag is refused with its line, then saved, switched on and asked
+  await tap(box.locator('[data-poi-cat-new]'), info);
+  await box.locator('[data-poi-cat-name]').fill('test_data_gtp_ Ruhebänke');
+  await tap(box.locator('[data-poi-cat-icon="bench"]'), info);
+  await box.locator('[data-poi-cat-tags]').fill('["amenity"="bench"]\n["fee"!="yes"]');
+  await tap(box.locator('[data-poi-cat-save]'), info);
+  await expect(box.locator('[data-poi-cat-errors]')).toContainText(T('Line {n}: add a tag with = or ~ too; with != alone almost everything fits.|poi', { n: 2 }));
+  await box.locator('[data-poi-cat-tags]').fill('["amenity"="bench"]\nleisure=picnic_table');
+  const before = st.calls.length;
+  await tap(box.locator('[data-poi-cat-save]'), info);
+  const mine = chips.locator('[data-poi-chip^="my-"]');
+  await expect(mine).toHaveCount(1);
+  await expect(mine).toContainText('test_data_gtp_ Ruhebänke');
+  await expect(mine).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => st.calls.length).toBe(before + 1);
+  expect(st.calls.at(-1)).toContain('nwr["amenity"="bench"](around:10000');
+  expect(st.calls.at(-1)).toContain('nwr["leisure"="picnic_table"](around:10000');
+  const row = panel.locator('[data-poi-row^="my-"]');
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText('test_data_gtp_ Bank am Weg');
+  await noSideways(page, 'kinds');
+  // remembered after a reload
+  await page.reload();
+  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-poi-chips] [data-poi-chip^="my-"]')).toContainText('test_data_gtp_ Ruhebänke');
+  await expect(page.locator('[data-poi-chip="water"]')).toContainText('test_data_gtp_ Brünneli');
+  // delete the own kind: asked first, then gone
+  const p2 = page.locator('[data-poi-panel]');
+  await tap(p2.locator('[data-poi-kinds-edit]'), info);
+  await tap(p2.locator('[data-poi-kind-remove^="my-"]'), info);
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(p2.locator('[data-poi-chips] [data-poi-chip^="my-"]')).toHaveCount(0);
+});
+
+test('own places: a CSV file loads as one source, a place by hand, rename and remove the file', async ({ page, context }, info) => {
+  const { T, panel } = await openLive(page, context, info);
+  await tap(panel.locator('[data-poi-own-toggle]'), info);
+  const own = panel.locator('[data-poi-own]');
+  await expect(own.locator('[data-poi-own-empty]')).toBeVisible();
+  const csv = 'name;lat;lon;category\ntest_data_gtp_ Verpflegung 1;46,951;7,451;Verpflegung\ntest_data_gtp_ Quelle;46,96;7,44;Wasser\nohne Ort;;\n';
+  await own.locator('[data-poi-own-file]').setInputFiles({ name: 'test_data_gtp_ rennen.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await expect(own.locator('[data-poi-own-msg="ok"]')).toContainText(T('Loaded from «{name}»: {n} places.|poi', { name: 'test_data_gtp_ rennen', n: 2 }));
+  await expect(own.locator('[data-poi-own-msg="ok"]')).toContainText(T('{n} without a usable position were left out.|poi', { n: 1 }));
+  await expect(own.locator('[data-poi-own-row]')).toHaveCount(2);
+  await expect(own.locator('[data-poi-own-row]').first()).toContainText('test_data_gtp_ Verpflegung 1');
+  await expect(own.locator('[data-poi-src]')).toHaveCount(1);
+  // the same file again replaces its places
+  await own.locator('[data-poi-own-file]').setInputFiles({ name: 'test_data_gtp_ rennen.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await expect(own.locator('[data-poi-own-msg="ok"]')).toContainText(T('The {n} from before are replaced.|poi', { n: 2 }));
+  await expect(own.locator('[data-poi-own-row]')).toHaveCount(2);
+
+  // a place by hand where I am, with a name
+  await tap(own.locator('[data-poi-own-add-here]'), info);
+  const sheet = page.locator('dialog[open]');
+  await sheet.locator('[data-own-name]').fill('test_data_gtp_ Mein Rastplatz');
+  await sheet.getByRole('button', { name: T('Save'), exact: true }).click();
+  await expect(own.locator('[data-poi-own-row]')).toHaveCount(3);
+  await expect(own.locator('[data-poi-own-row]').last()).toContainText('test_data_gtp_ Mein Rastplatz');
+
+  // rename the file, then remove all its places (asked, Undo)
+  const srcName = own.locator('[data-poi-src-name]');
+  await srcName.fill('test_data_gtp_ Rennen 2026');
+  await srcName.press('Enter');
+  await expect(own.locator('[data-poi-own-row]').first()).toContainText('test_data_gtp_ Rennen 2026');
+  await tap(own.locator('[data-poi-src-remove]'), info);
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Remove'), exact: true }).click();
+  await expect(own.locator('[data-poi-own-row]')).toHaveCount(1);
+  await expect(own.locator('[data-poi-src]')).toHaveCount(0);
+  await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(own.locator('[data-poi-own-row]')).toHaveCount(3);
+  // a file that is not a place file says so
+  await own.locator('[data-poi-own-file]').setInputFiles({ name: 'test_data_gtp_ liste.csv', mimeType: 'text/csv', buffer: Buffer.from('name;ort\nx;y\n') });
+  await expect(own.locator('[data-poi-own-msg="bad"]')).toContainText(T('No columns lat and lon found. The first line must name them, e.g. name;lat;lon.|poi'));
+  await noSideways(page, 'own places');
 });
