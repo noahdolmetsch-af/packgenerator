@@ -564,13 +564,26 @@ export function assignRide(ride, ctx) {
  * - not undone by you before (noAuto), not a Strava bike you ignore (skipGear: names).
  * Everything else keeps waiting for you.
  */
-export function rematchOpen(entries = [], { bikes = [], rules = [], skipGear = [] } = {}) {
+export function rematchOpen(entries = [], { bikes = [], rules = [], skipGear = [], suggest = null, byType = false } = {}) {
   const usual = usualKm(entries);
   const ctx = { bikes, rules, usual };
   const starts = {};
+  const startOf = (id) => (id in starts ? starts[id] : (starts[id] = ledgerStart(entries, id)));
+  const allStarts = Object.fromEntries(bikes.map((b) => [b.id, startOf(b.id)]).filter(([, st]) => st));
+  const twinOn = (e, id) => entries.some((x) => x.id !== e.id && x.bikeId === id && x.kind === 'ride' && counts(x) && (sameRide(x, e) || inSpan(x, e.date)));
   const out = [];
   for (const e of entries) {
-    if (e.kind !== 'ride' || e.state !== 'open' || e.noAuto || !e.gear) continue;
+    if (e.kind !== 'ride' || e.state !== 'open' || e.noAuto) continue;
+    // Noah 20.10.2026 «hat es geklappt?»: a ride without a Strava bike from before the start values
+    // (of its suggested bike, or of all bikes) is already in the km; with «assign by ride type» the
+    // newer ones go to the suggested bike (suggest: ride → { bikeId } | null, from stravasync)
+    if (!e.gear) {
+      if (e.source !== 'strava') continue;
+      const id = suggest?.(e)?.bikeId ?? null;
+      if (id ? inStart(startOf(id), e.date) : beforeAll(allStarts, e.date)) out.push({ entry: e, bikeId: id, as: 'start', by: id ? 'type' : null });
+      else if (byType && id) out.push({ entry: e, bikeId: id, as: twinOn(e, id) ? 'twin' : 'count', by: 'type' });
+      continue;
+    }
     if (e.reason && e.reason.code !== 'none') continue;
     if (skipGear.some((g) => same(g, e.gear))) continue;
     const ride = { ...e, sensors: (e.sensors ?? []).map((fp) => (typeof fp === 'string' ? { fp } : fp)) };
@@ -578,14 +591,13 @@ export function rematchOpen(entries = [], { bikes = [], rules = [], skipGear = [
     if (!s.gear) continue;
     const a = assignRide(ride, ctx);
     if (a.bikeId !== s.gear || a.sure === 'unclear') continue;
-    if (!(a.bikeId in starts)) starts[a.bikeId] = ledgerStart(entries, a.bikeId);
     // Noah 20.10.2026 «Fehler oder?»: a ride inside the start value, or with a counted twin, never counts
     // again, but it no longer waits either: it is marked «already in» (as: 'start' | 'twin')
-    if (inStart(starts[a.bikeId], e.date)) {
+    if (inStart(startOf(a.bikeId), e.date)) {
       out.push({ entry: e, bikeId: a.bikeId, as: 'start' });
       continue;
     }
-    if (entries.some((x) => x.id !== e.id && x.bikeId === a.bikeId && x.kind === 'ride' && counts(x) && (sameRide(x, e) || inSpan(x, e.date)))) {
+    if (twinOn(e, a.bikeId)) {
       out.push({ entry: e, bikeId: a.bikeId, as: 'twin' });
       continue;
     }

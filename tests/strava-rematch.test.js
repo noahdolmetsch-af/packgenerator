@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { makeEntry, rematchOpen } from '../src/lib/kmbook.js';
 import { createDb } from '../src/lib/db.js';
-import { autoAssign, undoAutoAssign, autoText, PREFS_KEY } from '../src/lib/strava/client.svelte.js';
+import { autoAssign, undoAutoAssign, autoText, checkRide, PREFS_KEY } from '../src/lib/strava/client.svelte.js';
 import { RULES_KEY } from '../src/lib/kmbookdb.js';
 
 // Gesamttest 20.10.2026 B1 (Noah «1a»): rides waiting with a Strava bike the app did not know at
@@ -56,6 +56,25 @@ describe('rematchOpen: which waiting rides fit a bike now', () => {
   });
 });
 
+describe('rematchOpen: rides without a Strava bike (Noah 20.10.2026 «hat es geklappt?»)', () => {
+  const start = makeEntry({ bikeId: GRAVEL, kind: 'start', date: '2026-09-01', km: 500, source: 'hand', state: 'counted', inclusive: true }, at);
+  const trailStart = makeEntry({ bikeId: TRAIL, kind: 'start', date: '2026-09-03', km: 100, source: 'hand', state: 'counted', inclusive: true }, at);
+  const bare = (f) => open({ gear: '', reason: { code: 'none', gear: '', profile: '' }, ...f });
+  const toGravel = () => ({ bikeId: GRAVEL });
+  it('before every start value: already in the km, also with no suggestion', () => {
+    const old = bare({ date: '2026-08-01' });
+    const hits = rematchOpen([start, trailStart, old], { bikes: BIKES });
+    expect(hits.map((h) => [h.entry.id, h.bikeId, h.as])).toEqual([[old.id, null, 'start']]);
+  });
+  it('a newer one waits, unless «assign by ride type» is on and there is a suggestion', () => {
+    const fresh = bare({ date: '2026-09-10' });
+    expect(rematchOpen([start, trailStart, fresh], { bikes: BIKES, suggest: toGravel })).toEqual([]);
+    const hits = rematchOpen([start, trailStart, fresh], { bikes: BIKES, suggest: toGravel, byType: true });
+    expect(hits.map((h) => [h.bikeId, h.as, h.by])).toEqual([[GRAVEL, 'count', 'type']]);
+    expect(rematchOpen([start, trailStart, fresh], { bikes: BIKES, suggest: () => null, byType: true })).toEqual([]);
+  });
+});
+
 describe('autoAssign: one batch, Undo, idempotent', () => {
   let db;
   beforeEach(async () => {
@@ -94,5 +113,14 @@ describe('autoAssign: one batch, Undo, idempotent', () => {
     await undoAutoAssign(db, r.put, r.bikes);
     expect(await db.kmBook.where('state').equals('open').count()).toBe(2);
     expect((await db.bikes.get(GRAVEL)).km).toBe(500);
+  });
+  it('«Fits» on a ride inside the start value puts it on the bike without counting it twice', async () => {
+    const start = makeEntry({ bikeId: GRAVEL, kind: 'start', date: '2026-09-01', km: 500, source: 'hand', state: 'counted', inclusive: true }, at);
+    const old = open({ gear: '', date: '2026-08-20', km: 40, noAuto: true });
+    await db.kmBook.bulkPut([start, old]);
+    await checkRide(db, old, GRAVEL);
+    const e = await db.kmBook.get(old.id);
+    expect([e.state, e.bikeId, e.reason]).toEqual(['removed', GRAVEL, { code: 'start', bike: GRAVEL }]);
+    expect((await db.bikes.get(GRAVEL)).km ?? 500).toBe(500);
   });
 });
