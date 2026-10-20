@@ -192,6 +192,9 @@ test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo i
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
   // v0.48.0: a row of the part table opens the part.
+  // Gesamttest 20.10.2026 C11 (changed on purpose): on a phone the part table shows five rows, then «Noch n zeigen»
+  await spark.locator('.ptable').waitFor();
+  if (await spark.locator('[data-parts-more]').count()) await spark.locator('[data-parts-more]').click();
   await spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(T('Chain'), { exact: true }) }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   // SN7 «Seiten neu»: measuring sits in the fold «Messen und Modell»; choose what you did, then «Eintragen».

@@ -96,7 +96,6 @@
     </VeloHead>
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
     <HintCard page="equipment" intro="ausstattung" />
-    <TipLine page="ausstattung" name={t('Equipment|tab')} />
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}
@@ -150,6 +149,8 @@
             </ul>
           </section>
         {/each}
+        <!-- Gesamttest: the tip of the day comes after the parts, not under the help box -->
+        <TipLine page="ausstattung" name={t('Equipment|tab')} />
       </div>
 
       <aside class="side">

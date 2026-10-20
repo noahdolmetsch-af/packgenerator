@@ -338,7 +338,6 @@
     Without an open trip the Einstieg carries the tip of the day (as on Aktiv), the tip line only when it is taken away. -->
   <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
   <HintCard page="wardrobe" intro={trip ? null : 'wardrobe'} />
-  <TipLine page="wardrobe" name={t('Wardrobe')} />
 
   {#if trip}
     <!-- v0.59.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
@@ -577,6 +576,8 @@
       {/if}
     </div>
   </div>
+  <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
+  <TipLine page="wardrobe" name={t('Wardrobe')} />
   <PageMore page="wardrobe" name={t('Wardrobe')} />
 </div>
 

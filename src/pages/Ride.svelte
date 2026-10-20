@@ -543,7 +543,6 @@
   {/if}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day (with «Passt zu heute»), at the end the fold -->
   <HintCard page="ride" />
-  <TipLine page="ride" name={t('On the way')} />
   <!-- v0.106.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
        day in blocks with the block of now and the weather hour by hour; right the note for the debrief,
        tonight's charging and «Mehr» (what is where, the evening, the stage). -->
@@ -812,6 +811,8 @@
       </section>
     </div>
   </div>
+  <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
+  <TipLine page="ride" name={t('On the way')} />
   <PageMore page="ride" name={t('On the way')} />
 </div>
 {#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}

@@ -246,7 +246,6 @@
     {@render notice?.()}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
-    <TipLine page="pack" name={t('Pack')} />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
     {#if planTop}
@@ -271,6 +270,8 @@
     {:else}
       <PlanNotesCard {trip} {bike} {fixed} />
     {/if}
+    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
+    <TipLine page="pack" name={t('Pack')} />
     <div class="tp-grid2">
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->

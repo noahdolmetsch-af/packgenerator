@@ -443,7 +443,8 @@
     <div class="ph-acts">
       {#if !onRides && phone.matches && view && !view.empty}<HintCard page="trips" foldedOnPhone only="line" />{/if}
       <!-- Paket U «Rennen» (Noah 19.10.2026 «1b»): the races have their own area under Touren -->
-      {#if !onRides}<Btn icon={Flag} label={t('Races')} href="#/race" data-to-races />{/if}
+      <!-- Gesamttest 20.10.2026 Design 1: one head with at most one button; «Races» is a quiet link beside it -->
+      {#if !onRides}<a class="btn btn-link racelink" href="#/race" data-to-races><Flag size={16} aria-hidden="true" />{t('Races')} ›</a>{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
