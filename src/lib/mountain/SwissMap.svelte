@@ -59,7 +59,9 @@
         if (gone) return;
         L = mod.default ?? mod;
         const view = startView(point, place);
-        map = L.map(el, { center: view.center, zoom: view.zoom, maxBounds: L.latLngBounds(CH_BOUNDS).pad(0.3), zoomControl: true, attributionControl: true });
+        map = L.map(el, { center: view.center, zoom: view.zoom, maxBounds: L.latLngBounds(CH_BOUNDS).pad(0.3), zoomControl: false, attributionControl: true });
+        // Nacht-Rundgang 20.10.2026: Leaflet's own zoom buttons were titled in English («Zoom in»)
+        L.control.zoom({ zoomInTitle: t('Zoom in'), zoomOutTitle: t('Zoom out') }).addTo(map);
         map.attributionControl.setPrefix(false);
         const p = [point, place].find((x) => x && Number.isFinite(x.lat) && Number.isFinite(x.lon));
         if (p) L.circleMarker([p.lat, p.lon], { radius: 8, color: '#1d3b30', weight: 3, fillColor: '#4a7360', fillOpacity: 0.9 }).addTo(map).bindTooltip(label || t('Start place'));
