@@ -206,6 +206,7 @@ export const HOWTO = {
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
   'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],
   'f.frei': ['Open Me › Free time.', 'Choose a page, for example «What am I up for?».', 'Tap what fits; your own entries stay on this device and in the backup.'],
+  'f.journal': ['Open Me › Diary.', 'Tap «New entry» or answer the question of the day.', 'Settings (top right): lock with a code, tags, download.'],
   'f.impulse': ['Open Active › Impulses.', 'Tap an area, then «Try it».', 'Your own impulse: «Your own impulse» at the end of the list.'],
   'f.shopping': ['Open Me › Everyday life › Shopping list.', 'Type a point and tap «Add»; tick it in the shop.', 'Groups: «Groups» at the end of the page.'],
   'f.contracts': ['Open Me › Documents › Contracts and subscriptions.', 'Tap «New contract» and enter the end of the term and the notice period.', 'The reminder comes in Calendar › Remember, before the last day to cancel.'],

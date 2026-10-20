@@ -111,6 +111,8 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
   'f.heatmap': '0.167.0',
+  // «Tagebuch» (provisional; the bundler sets the version of its release)
+  'f.journal': '0.166.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

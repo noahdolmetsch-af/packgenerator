@@ -730,6 +730,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],
     example: 'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.',
   },
+  'f.journal': {
+    on: null,
+    steps: ['Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
+    example: 'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.',
+  },
   'f.impulse': {
     on: null,
     steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],

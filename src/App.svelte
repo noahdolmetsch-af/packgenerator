@@ -49,6 +49,7 @@
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
+  import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
@@ -103,7 +104,8 @@
     return () => window.removeEventListener('hashchange', update);
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
-  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  // «Tagebuch» (20.10.2026): #/tagebuch is its own page; the nav thread adds it to pageOf/placeOf with the new bar
+  const page = $derived(hash.startsWith('#/tagebuch') ? 'tagebuch' : pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
   const guest = $derived(page === 'share' || page === 'spurlink');
@@ -402,6 +404,7 @@
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
+    Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
@@ -434,7 +437,7 @@
 <DemoBar />
 <OfflineLine />
 <DbWaitLine />
-{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
+{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
@@ -545,6 +548,9 @@
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'tagebuch'}
+    <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
+    <LazyPage load={PAGES.Tagebuch} {hash} />
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />
