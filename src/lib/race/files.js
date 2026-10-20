@@ -109,7 +109,7 @@ export const SYM_KIND = {
   'train station': 'station',
 };
 
-/** The waypoints of a GPX text → [{ name, lat, lon, sym, desc }] (works without a browser). */
+/** The waypoints of a GPX text → [{ name, lat, lon, sym, type, desc }] (works without a browser). */
 export function parseWaypoints(text = '') {
   if (!/<gpx[\s>]/i.test(text)) throw new Error('not-gpx');
   const out = [];
@@ -118,7 +118,7 @@ export function parseWaypoints(text = '') {
     const lon = Number(m[1].match(/lon\s*=\s*["']([^"']+)["']/i)?.[1]);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     const tag = (n) => m[2].match(new RegExp(`<${n}>\\s*(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?\\s*</${n}>`, 'i'))?.[1]?.trim() ?? '';
-    out.push({ name: decode(tag('name')), lat, lon, sym: tag('sym'), desc: decode(tag('desc') || tag('cmt')) });
+    out.push({ name: decode(tag('name')), lat, lon, sym: tag('sym'), type: decode(tag('type')), desc: decode(tag('desc') || tag('cmt')) });
   }
   return out;
 }

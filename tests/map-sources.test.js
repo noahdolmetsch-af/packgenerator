@@ -69,3 +69,13 @@ describe('grounds for plain tile maps', () => {
     expect(rasterGround('swissimage', 46.8, 8.2).key).toBe('swissimage');
   });
 });
+
+describe('SchweizMobil on top of the map (Noah 20.10.2026)', () => {
+  it('the cycling routes of SchweizMobil from swisstopo: a png layer, view only', async () => {
+    const { SWISS_OVERLAYS, SWISS_WMTS, OFFLINE_HOSTS } = await import('../src/lib/map/sources.js');
+    const v = SWISS_OVERLAYS.find((o) => o.id === 'veloland');
+    expect(v.url).toBe(`${SWISS_WMTS}/ch.astra.veloland/default/current/3857/{z}/{x}/{y}.png`);
+    expect(v.attribution).toContain('swisstopo');
+    expect(v.opacity).toBeGreaterThan(0);
+  });
+});
