@@ -113,7 +113,7 @@
 
 <div class="wrv">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/week', label: t('Week') }]} here={t('Week in review')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/week', label: t('Week') }]} here={t('Week in review')} />
     <PageHead title={t('Week in review')} text={t('Observation only: what was, nothing is rated.')} />
     <nav class="wnav" aria-label={t('Choose the week')}>
       <a class="wstep" href={prevHref} aria-label={t('Week before')} data-week-prev><ChevronLeft size={18} aria-hidden="true" /></a>

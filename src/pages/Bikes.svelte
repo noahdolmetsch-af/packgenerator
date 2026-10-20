@@ -67,6 +67,8 @@
       <h1 class="title">{t('Bikes')}</h1>
       <!-- Gesamttest 20.10.2026 B7: on a phone Ausrüstung shares the slot of Velos; this quiet link replaces the switch Velos | Ausrüstung -->
       <a class="eqlink" href="#/equipment" data-equipment-link>{t('Equipment|place')}<ChevronRight size={16} aria-hidden="true" /></a>
+      <!-- N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Material belongs to Velos; on a phone it shares this slot -->
+      <a class="eqlink" href="#/gear" data-gear-link>{t('Gear|place')}<ChevronRight size={16} aria-hidden="true" /></a>
     </header>
   {/if}
   {#if route.sheet && route.bike}
@@ -146,6 +148,9 @@
       color: var(--ink-2);
       font: 500 var(--fs-small) / 1.3 var(--font-body);
       text-decoration: none;
+    }
+    .eqlink + .eqlink {
+      margin-left: 0;
     }
   }
   .head .title {

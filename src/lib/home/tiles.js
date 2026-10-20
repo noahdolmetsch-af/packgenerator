@@ -42,8 +42,8 @@ export const TILES = [
   { id: 'important', area: 'today', label: 'Up now', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is up now: the morning check, meditation, an idea for today, a bike job, the backup.' },
   // «Heute neu» A (Noah «3a»): one calm card in place of Im Flow + Balance, the body, Aktiv and «Your values»
   // «Heute neu» N2 (Noah 20.10.2026 15:49 «5a»): on top the body of today with the check, then the Aktiv tiles
-  { id: 'body', area: 'flow', label: 'Your body today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.168.0', pitch: 'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.' },
-  { id: 'acts', area: 'flow', label: 'Active today', icon: 'flame', sizes: ['l', 'long'], size: 'l', since: '0.168.0', pitch: 'Your activities to tick off in one tap; meditation opens its start.' },
+  { id: 'body', area: 'flow', label: 'Your body today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.' },
+  { id: 'acts', area: 'flow', label: 'Active today', icon: 'flame', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Your activities to tick off in one tap; meditation opens its start.' },
   { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.165.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },

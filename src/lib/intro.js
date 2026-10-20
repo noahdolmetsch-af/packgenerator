@@ -28,7 +28,7 @@ export const OPEN_VISITS = 1;
  */
 export const INTROS = {
   aktiv: {
-    name: 'Active|place',
+    name: 'Analysis|place',
     title: 'Movement, rest and recovery in everyday life',
     things: [
       { icon: 'check', title: 'Tick off', text: 'One tile per sport. A long press enters the duration, place or stopwatch.' },
@@ -268,7 +268,7 @@ export const INTROS = {
   weekplan: {
     page: true,
     folded: true,
-    name: 'Week|place',
+    name: 'Plan|place',
     title: 'Your week at a glance',
     things: [
       { icon: 'calendar', title: 'Everything in one week', text: 'Sport, dates, to-dos, holidays and bike service, each in its colour. Hide a kind with its chip.' },

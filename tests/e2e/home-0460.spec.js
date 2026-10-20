@@ -62,7 +62,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await page.locator('[data-name-ask] [data-name-later]').click();
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
-  // «Heute neu» N2 (0.168.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
+  // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
   // trip of tomorrow right under them, «Up now» after the trip
   await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
   const bodyTop = await page.locator('[data-section="body"]').evaluate((el) => el.getBoundingClientRect().top);

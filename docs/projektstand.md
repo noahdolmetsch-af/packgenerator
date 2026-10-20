@@ -25,7 +25,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 15 | Neueste Version laden | 0.166.0 | Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet (Service Worker und App-Dateien weg, Daten bleiben); Fehlerseite sucht zuerst selbst nach Update; zwei Test-Wettläufe behoben (Listen, Abend-Check) | live (PR #216) |
 | 16 | Heute am Handy | 0.166.1 | «Jetzt dran» rutschte am Handy unter die Tourkarte, wenn Glückwünsche darüber standen; Glückwünsche nur noch eine Zeile | dieser PR |
 | 17 | Balken «Jetzt laden» | 0.167.0 | Jeder Build schreibt version.json; hängt ein Gerät 15 Minuten hinter der Online-Version, zeigt die App oben «Jetzt laden» und «Später» | dieser PR |
-| 18 | Heute neu N2 | 0.168.0 | Noah «5a»: oben «Dein Körper heute» (Ruhepuls, Schlaf, Schlaf-Score, Aktivzonen-Minuten neben gestern) mit Morgen- bzw. Abend-Check, daneben/darunter «Aktiv heute» zum Antippen; dann Woche, Balance-Ring, Tour, «Jetzt dran» (nur wenn etwas dran ist), Velos, 8 Abkürzungen | dieser PR (Bündler) |
+| 18 | N1 Neue Leiste | 0.168.0 | Leiste Heute · Planen · Touren · Auswerten · Velos (Brainstorming 20.10.2026, Noah «1a 2a»): Planen = Woche, Woche planen, Ferien, Termine, Notizen; Auswerten = Aktiv mit Fahrten und Erkenntnissen; Material und Ausrüstung teilen am Handy den Platz von Velos (Umschalter Velos · Ausrüstung · Material); alle Adressen bleiben | dieser PR |
+| 19 | Heute neu N2 | 0.169.0 | Noah «5a»: oben «Dein Körper heute» (Ruhepuls, Schlaf, Schlaf-Score, Aktivzonen-Minuten neben gestern) mit Morgen- bzw. Abend-Check, daneben/darunter «Aktiv heute» zum Antippen; dann Woche, Balance-Ring, Tour, «Jetzt dran» (nur wenn etwas dran ist), Velos, 8 Abkürzungen | dieser PR (Bündler) |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

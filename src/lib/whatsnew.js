@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.168.0 «Heute neu» N2 (Noah 20.10.2026 15:49 «1a 2a 3a und b 4b 5a»; built without mockups)
-    version: '0.168.0',
+    // v0.169.0 «Heute neu» N2 (Noah 20.10.2026 15:49 «1a 2a 3a und b 4b 5a»; built without mockups) and UI-Ziele #12 #15 #16 #17 (Noah 17:05 «freigabe»)
+    version: '0.169.0',
     date: '2026-10-20',
     title: 'Today, rebuilt',
     lead: 'Your body and the check on top, your activities right under it.',
@@ -25,10 +25,27 @@ export const WHATS_NEW = [
       { text: '«Your body today»: pulse, sleep and active minutes next to yesterday', href: '#/me/insights' },
       { text: '«Active today»: tick off in one tap', href: '#/flow' },
     ],
-    small: [{ box: 'nicer', text: 'Then week, ring, trip, bikes' }],
+    small: [{ box: 'nicer', text: 'Chips under the greeting; the check in 5 steps' }],
     test: [
       'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.',
       'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
+    ],
+  },
+  {
+    // N1 «Neue Leiste» (Noah 20.10.2026 «1a 2a», brainstorming): Heute · Planen · Touren · Auswerten · Velos.
+    version: '0.168.0',
+    date: '2026-10-20',
+    title: 'Five places for your day',
+    lead: 'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.',
+    points: [
+      { text: 'Plan: your week, appointments and notes in one place', href: '#/week' },
+      { text: 'Analysis: activity, training, Strava rides and insights together', href: '#/flow' },
+      { text: 'Bikes: equipment and gear are one tap away on top', href: '#/bikes' },
+    ],
+    small: [{ box: 'nicer', text: 'Old links and bookmarks keep working' }],
+    test: [
+      'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
+      'Tap Analysis, then the tab Rides: your Strava rides are there.',
     ],
   },
   {

@@ -77,7 +77,7 @@
 
 <div class="hob sp" style="--sc:{color}">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('Sports|page') }]} here={sport ? sportName(sport) : ''} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/sports', label: t('Sports|page') }]} here={sport ? sportName(sport) : ''} />
     {#if sport}
       <PageHead title={sportName(sport)} text={t('Your blocks for this sport. Everything is a suggestion: switch off, rename or add blocks.')}>
         <p class="shead"><span class="swatch" style="background:{color}"></span><ActIcon icon={sport.icon} ring={sport.ring} /><button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)} data-adjust><SlidersHorizontal size={16} aria-hidden="true" />{t('Adjust blocks')}</button></p>

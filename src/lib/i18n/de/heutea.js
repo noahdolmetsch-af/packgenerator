@@ -66,12 +66,12 @@ export default {
   'All {n} in Aktiv': 'Alle {n} in Aktiv',
   'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.': 'Ruhepuls, Schlaf, Schlaf-Score und Aktivzonen-Minuten neben gestern, mit dem Morgen- oder Abend-Check.',
   'Your activities to tick off in one tap; meditation opens its start.': 'Deine Aktivitäten zum Abhaken mit einem Tipp; Meditation öffnet ihren Start.',
-  // whatsnew 0.168.0
+  // whatsnew 0.169.0
   'Today, rebuilt': 'Heute neu aufgebaut',
   'Your body and the check on top, your activities right under it.': 'Oben dein Körper und der Check, darunter deine Aktivitäten.',
   '«Your body today»: pulse, sleep and active minutes next to yesterday': '«Dein Körper heute»: Puls, Schlaf, Aktivminuten neben gestern',
   '«Active today»: tick off in one tap': '«Aktiv heute»: mit einem Tipp abhaken',
-  'Then week, ring, trip, bikes': 'Danach Woche, Ring, Tour, Velos',
+  'Chips under the greeting; the check in 5 steps': 'Chips unter dem Gruss; der Check in 5 Stufen',
   'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.': 'Öffne Heute: «Dein Körper heute» steht oben mit vier Werten und einem Pfeil zu gestern.',
   'Tap an activity under «Active today»: it is ticked; tap again to take it back.': 'Tippe eine Aktivität unter «Aktiv heute» an: Sie ist abgehakt; nochmals tippen nimmt es zurück.',
   // UI-Ziele #17 (Noah 20.10.2026 «freigabe»): goal chips under the greeting
