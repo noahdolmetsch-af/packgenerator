@@ -1,0 +1,98 @@
+# Nacht-Rundgang (Noah 20.10.2026 «1a»): every night a robot opens every page of the app that the
+# links reach, on a phone (390 px) and a computer (1440 px), with the big fictional data set
+# (tests/e2e/nachtrundgang/rundgang.spec.js). Only when it finds something (an error in the browser, an
+# error page, a page that pushes sideways, English text that has a German one) it opens an issue
+# (or adds to the open one), so Noah gets a mail and Claude repairs it. When all is fine again, it
+# closes the issue. Only GITHUB_TOKEN, no secret. Free on a public repository.
+name: Nacht-Rundgang
+
+on:
+  schedule:
+    - cron: '37 1 * * *' # every night 01:37 UTC (03:37 in Zurich in summer)
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: nacht-rundgang
+  cancel-in-progress: false
+
+jobs:
+  walk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Walk through every page
+        run: npx playwright test tests/e2e/nachtrundgang/ --project=${{ matrix.project }} --workers=1 --retries=0
+        env:
+          RUNDGANG: '1'
+      - name: Keep the findings
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rundgang-${{ matrix.project }}
+          path: test-results/rundgang/
+          retention-days: 3 # Noah 11.10.2026: 0 costs, small storage
+          if-no-files-found: warn
+
+  report:
+    needs: walk
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: rundgang
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: rundgang-*
+          merge-multiple: true
+          path: found
+      - name: Write the report
+        id: sum
+        run: |
+          {
+            echo "### Nacht-Rundgang $(date -u +'%Y-%m-%d %H:%M') UTC"
+            echo
+            for f in found/phone.md found/desktop.md; do
+              if [ -f "$f" ]; then cat "$f"; else echo "Für ${f#found/} kam kein Bericht (der Lauf brach vorher ab: siehe ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."; echo; fi
+            done
+          } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          echo "ok=${{ needs.walk.result == 'success' && 'yes' || 'no' }}" >> "$GITHUB_OUTPUT"
+      - name: Open or update the issue
+        if: steps.sum.outputs.ok != 'yes'
+        run: |
+          gh label create "$LABEL" --color D93F0B --description 'Der Nacht-Rundgang hat etwas gefunden' 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file report.md
+          else
+            {
+              echo 'Der Nacht-Rundgang hat heute Nacht etwas gefunden. Claude repariert es und bringt dir die Lösung.'
+              echo
+              cat report.md
+            } > body.md
+            gh issue create --title 'Nacht-Rundgang: etwas gefunden' --label "$LABEL" --body-file body.md
+          fi
+      - name: Close the issue when all is fine again
+        if: steps.sum.outputs.ok == 'yes'
+        run: |
+          for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Alles wieder in Ordnung.$(printf '\n\n')$(cat report.md)"
+          done
