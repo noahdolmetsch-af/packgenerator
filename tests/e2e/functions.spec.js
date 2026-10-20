@@ -93,6 +93,6 @@ test('Im Flow: one tap from its card on Today, two taps through More', async ({ 
   // v0.76.0 «Fünf Orte»: Aktiv is a place of its own, one tap from every page
   await page.locator('nav.bottom a[data-place="active"], .side li[data-place="active"] > a.pa').click(); // 1
   await expect(page).toHaveURL(/#\/flow$/);
-  await expect(page.locator('main h1')).toHaveText(/^(Aktiv|Active)$/);
+  await expect(page.locator('main h1')).toHaveText(/^(Auswerten|Analysis)$/); // N1
   expect(errors).toEqual([]);
 });

@@ -23,7 +23,7 @@ test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips'
   await expect(page.locator('section[data-planned]')).toBeVisible();
   await expect(page.locator('section[data-activities]')).toHaveCount(0);
   // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): the tabs of Touren no longer have «Fahrten»
-  await expect(page.locator(`a[href="#/trips/rides"]`).filter({ hasText: T('Rides|tab') }).filter({ visible: true })).toHaveCount(0);
+  await expect(page.locator(`nav.ptabs a[href="#/trips/rides"], .side .tabs a[href="#/trips/rides"]`).filter({ visible: true })).toHaveCount(0);
   // Auswerten (the place of Aktiv) has the tab «Fahrten», same address as before
   await page.locator('nav.bottom a[data-place="active"], .side li[data-place="active"] > a.pa').filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/#\/flow/);

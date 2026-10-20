@@ -48,7 +48,7 @@ test('Aktiv pages: one look, no sideways scroll, no page error', async ({ page, 
   const errors = await open(page, context);
   const main = page.locator('main');
   const pages = [
-    ['#/flow', T('Active|place')],
+    ['#/flow', T('Analysis|place')], // N1 «Neue Leiste»: the page is titled «Auswerten»
     ['#/flow/goals', T('Goals|flow')],
     ['#/flow/activity', null],
     ['#/flow/milestones', T('Milestones')],
