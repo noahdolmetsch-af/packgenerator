@@ -189,4 +189,10 @@ export default {
   // Handy-Längenbudget: «Überblick» and «Letzte 7 Tage» folded on a phone
   'Overview and last 7 days': 'Überblick und letzte 7 Tage',
   '{n} bpm at rest': '{n} bpm in Ruhe',
+  // Fitbit überall (Noah 20.10.2026): Erholung and the data widget
+  '{what}: no value yet': '{what}: noch kein Wert',
+  '{what}: connect Fitbit': '{what}: Fitbit verbinden',
+  'From your Fitbit, the latest night; only to look at.': 'Von deiner Fitbit, die letzte Nacht; nur zum Anschauen.',
+  'Fitbit is connected; sleep, resting pulse and HRV appear after the next fetch.': 'Fitbit ist verbunden; Schlaf, Ruhepuls und HRV erscheinen nach dem nächsten Abholen.',
+  'for sleep, resting pulse and HRV, as observation only.': 'für Schlaf, Ruhepuls und HRV, nur als Beobachtung.',
 };

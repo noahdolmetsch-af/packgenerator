@@ -212,3 +212,14 @@ test('Körperwerte: groups, tabs, own entries', async ({ page, context }) => {
   await page.screenshot({ path: 'qa/form-uebersicht/koerperwerte.png', fullPage: true });
   expect(errors).toEqual([]);
 });
+
+test('Fitbit everywhere: Erholung shows the latest night next to your normal', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, '#/flow/rest');
+  const fit = page.locator('[data-rest-fitbit]');
+  await expect(fit.locator('[data-fit="pulse"] b')).toHaveText(/^5\d$/);
+  await expect(fit.locator('[data-fit="sleep"]')).toContainText(' h');
+  await expect(fit.locator('[data-fit="hrv"]')).toContainText('ms');
+  await fits(page, 'Erholung');
+  expect(errors).toEqual([]);
+});
