@@ -680,6 +680,11 @@ export const HANDBOOK = {
     steps: ['Enter your weight under Me › Weight and your values under Trips › Supplies.', 'Plan a tour with a route: the tour card, the race and the live map show what you use, eat and drink.'],
     example: 'Example: 4 h, 72 km, 1000 m up, 75 kg → about 2600 kcal used, eat 240 g carbohydrates.',
   },
+  'f.gpxstops': {
+    on: null,
+    steps: ['Search the places along the route on the route card, under Supplies or on the race map.', 'Tap «GPX with … stops» and copy the file to the Garmin or import it in the Wahoo app.'],
+    example: 'Example: 3 shops and 5 fountains on 120 km → on the Edge as 8 pins along the track.',
+  },
   'f.weather': {
     on: null,
     steps: ['Open Me › Weather, or tap the weather line on Today or a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],

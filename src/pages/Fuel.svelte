@@ -15,6 +15,7 @@
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { RIDER_KEY } from '../lib/weight.js';
+  import GpxStops from '../lib/route/GpxStops.svelte';
   import { energyFor, riderKg } from '../lib/energie.js';
   import { upcomingTrips } from '../lib/gear/assign.js';
   import { nextTrip } from '../lib/debrief.js';
@@ -87,6 +88,13 @@
   // Paket X: the one energy rule, what the ride uses next to what you eat
   const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
   const used = $derived(plan && trip ? energyFor({ hours: plan.totals.hours, km: totalKm, gainM: Number(trip.route?.gainM) || 0, kg: riderKg($kgQ?.value), fuel: $fuelQ?.value ?? null }) : null);
+  // Paket X: the places along the route as GPX waypoints; a planned stop says what to buy there
+  const gpxPoints = $derived(
+    source.pois.map((p) => {
+      const sec = plan?.sections.find((x) => x.from && x.from.km === p.km && x.from.name === p.name);
+      return { ...p, note: sec ? t('Stop: buy {g} for {km} km', { g: g(sec.carbs), km: num(Math.round(sec.toKm - sec.fromKm)) }) : p.km != null ? `km ${num(Math.round(p.km))}` : '' };
+    }),
+  );
   const plain = $derived(trip && !totalKm ? { hours: Math.round(rideH * days * 10) / 10 } : null);
 
   let problem = $state('');
@@ -267,6 +275,7 @@
         {/if}
         {#if keepFailed}<p class="err" role="alert">{t('The places along the route could not be kept now (OpenStreetMap busy). Keep the strip again later.|poi')}</p>{/if}
         <p class="note">{t('On the map you choose every kind: camping, hotels, stations, WC, bike shops and more.')}</p>
+        {#if source.pois.length}<GpxStops {route} points={gpxPoints} name={trip.title} />{/if}
       </section>
     {/if}
   {/if}

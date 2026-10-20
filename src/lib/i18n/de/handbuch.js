@@ -1125,4 +1125,7 @@ export default {
   'Enter your weight under Me › Weight and your values under Trips › Supplies.': 'Trag dein Gewicht unter Ich › Gewicht ein und deine Werte unter Touren › Verpflegung.',
   'Plan a tour with a route: the tour card, the race and the live map show what you use, eat and drink.': 'Plane eine Tour mit Route: Tour, Rennen und Live-Karte zeigen, was du verbrauchst, isst und trinkst.',
   'Example: 4 h, 72 km, 1000 m up, 75 kg → about 2600 kcal used, eat 240 g carbohydrates.': 'Beispiel: 4 h, 72 km, 1000 Hm, 75 kg → etwa 2600 kcal verbraucht, 240 g Kohlenhydrate essen.',
+  'Search the places along the route on the route card, under Supplies or on the race map.': 'Suche die Orte entlang der Strecke bei der Route, unter Verpflegung oder auf der Rennkarte.',
+  'Tap «GPX with … stops» and copy the file to the Garmin or import it in the Wahoo app.': 'Tippe «GPX mit … Stopps» und kopiere die Datei auf den Garmin oder importiere sie in der Wahoo-App.',
+  'Example: 3 shops and 5 fountains on 120 km → on the Edge as 8 pins along the track.': 'Beispiel: 3 Läden und 5 Brunnen auf 120 km → auf dem Edge 8 Stecknadeln entlang der Strecke.',
 };

@@ -18,4 +18,18 @@ export default {
   'Enter your weight (Me › Weight).': 'Trag dein Gewicht ein (Ich › Gewicht).',
   'Set carbohydrates and water per hour under Supplies.': 'Stell Kohlenhydrate und Wasser pro Stunde unter Verpflegung ein.',
   'Read the energy line on the tour card, the race or the live map.': 'Lies die Energie-Zeile bei der Tour, beim Rennen oder auf der Live-Karte.',
+  // Stopps als Wegpunkte (gpxstops.js, GpxStops.svelte)
+  'Shared.': 'Geteilt.',
+  'Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.': 'Gespeichert. Auf den Garmin: mit Garmin Express oder der Connect-App kopieren; auf den Wahoo: in der App importieren.',
+  'The route with the stops as waypoints, for Garmin and Wahoo.': 'Die Route mit den Stopps als Wegpunkte, für Garmin und Wahoo.',
+  'Which stops': 'Welche Stopps',
+  'GPX with {n} stop': 'GPX mit {n} Stopp',
+  'GPX with {n} stops': 'GPX mit {n} Stopps',
+  'GPX of the route': 'GPX der Route',
+  'Stop: buy {g} for {km} km': 'Stopp: {g} für {km} km kaufen',
+  'Stops as waypoints': 'Stopps als Wegpunkte',
+  'Save the route with its shops, water, food and beds as one GPX for the Garmin or the Wahoo: on the route card, under Supplies and on the race map.': 'Speichere die Route mit Läden, Wasser, Essen und Betten als ein GPX für den Garmin oder den Wahoo: bei der Route, unter Verpflegung und auf der Rennkarte.',
+  'Open a trip with a route and search the places along it.': 'Öffne eine Tour mit Route und suche die Orte entlang der Strecke.',
+  'Choose the kinds of stops.': 'Wähle die Arten von Stopps.',
+  'Tap «GPX with … stops» and copy it to the bike computer.': 'Tippe «GPX mit … Stopps» und kopiere es auf den Velocomputer.',
 };

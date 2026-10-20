@@ -106,6 +106,7 @@ export const SINCE = {
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
   // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
   'f.energy': '0.168.0',
+  'f.gpxstops': '0.168.0',
   'f.weather': '0.168.0',
   'f.webcams': '0.168.0',
   'f.reroute': '0.167.0',

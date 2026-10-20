@@ -200,6 +200,7 @@ export const HOWTO = {
   'f.climbs': ['Open Trips › Races and a race.', 'Tap «Climbs».', 'Tap a climb for its gradient per 100 m.'],
   'f.mapoffline': ['Open a race › «Map».', 'Scroll to «Map offline».', 'Tap «Keep for offline».'],
   'f.energy': ['Enter your weight (Me › Weight).', 'Set carbohydrates and water per hour under Supplies.', 'Read the energy line on the tour card, the race or the live map.'],
+  'f.gpxstops': ['Open a trip with a route and search the places along it.', 'Choose the kinds of stops.', 'Tap «GPX with … stops» and copy it to the bike computer.'],
   'f.weather': ['Open the weather page (Me › Weather or the weather line).', 'Choose how long you ride.', 'Read the best start and the warnings; «Landi rain radar» shows the rain.'],
   'f.webcams': ['Open the weather page › «My webcams».', 'Paste the address and tap «Add webcam».', 'Tap «Make home cam» to show it on Today.'],
   'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
