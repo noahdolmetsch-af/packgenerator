@@ -1110,4 +1110,17 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026)
+  'Choose your emergency contacts once in Before you leave.': 'Wähle deine Notfallkontakte einmal unter Vor der Abfahrt.',
+  'Open On the way, tap «Arrived safely», then «Share».': 'Öffne Unterwegs, tippe «Gut angekommen», dann «Teilen».',
+  'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»': 'Beispiel: auf dem Zeltplatz im Jura → «Gut angekommen» → «Hallo Anna und Ben, ich bin gut in Saignelégier angekommen, um 18:10.»',
+  'Set a shorter GPX or «Train home» in Planen.': 'In Planen eine kürzere GPX oder «Zug nach Hause» festlegen.',
+  'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.': 'Bei Starkregen oder Sturm unterwegs «Plan B nehmen» tippen; Rückgängig bringt die geplante Route zurück.',
+  'Example: 14 mm of rain on Saturday → the 60 km variant instead of 110 km.': 'Beispiel: Samstag 14 mm Regen → die 60-km-Variante statt 110 km.',
+  'In Planen set until when you can check in each night.': 'In Planen pro Nacht eintragen, bis wann du einchecken kannst.',
+  'Read the warning; call ahead with the number of the accommodation.': 'Lies die Warnung; ruf mit der Nummer der Unterkunft vorher an.',
+  'Example: check-in until 20:00, arrival 20:40 → you would need 24 km/h instead of 19.': 'Beispiel: Check-in bis 20:00, Ankunft 20:40 → du bräuchtest 24 statt 19 km/h.',
+  'On On the way tap «Bike parked»: photo, lock, save.': 'Unterwegs «Velo abgestellt» tippen: Foto, Schloss, speichern.',
+  'Later tap it again: the photo, the lock and «Way to the bike».': 'Später nochmals tippen: das Foto, das Schloss und «Weg zum Velo».',
+  'Example: at the station in a big town → back after the museum with the map link.': 'Beispiel: am Bahnhof einer grossen Stadt → nach dem Museum mit dem Kartenlink zurück.',
 };
