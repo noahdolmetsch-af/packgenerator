@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { makeEntry, rematchOpen } from '../src/lib/kmbook.js';
 import { createDb } from '../src/lib/db.js';
-import { autoAssign, undoAutoAssign, PREFS_KEY } from '../src/lib/strava/client.svelte.js';
+import { autoAssign, undoAutoAssign, autoText, PREFS_KEY } from '../src/lib/strava/client.svelte.js';
 import { RULES_KEY } from '../src/lib/kmbookdb.js';
 
 // Gesamttest 20.10.2026 B1 (Noah «1a»): rides waiting with a Strava bike the app did not know at
@@ -47,7 +47,12 @@ describe('rematchOpen: which waiting rides fit a bike now', () => {
     const twin = makeEntry({ bikeId: GRAVEL, date: '2026-09-10', km: 31, source: 'fit', state: 'counted' }, at);
     const later = open({ date: '2026-09-20' });
     const hits = rematchOpen([start, old, fresh, twin, later], { bikes: BIKES });
-    expect(hits.map((h) => h.entry.id)).toEqual([later.id]);
+    // Noah 20.10.2026 «Fehler oder?»: the two no longer wait, they are marked «already in» instead of counted
+    expect(hits.map((h) => [h.entry.id, h.as])).toEqual([
+      [old.id, 'start'],
+      [fresh.id, 'twin'],
+      [later.id, 'count'],
+    ]);
   });
 });
 
@@ -73,5 +78,21 @@ describe('autoAssign: one batch, Undo, idempotent', () => {
     expect((await db.kmBook.get(list[0].id)).state).toBe('open');
     expect((await db.bikes.get(GRAVEL)).km).toBeNull();
     expect((await autoAssign(db)).n).toBe(0);
+  });
+  it('a ride already in the start value leaves «Zum Prüfen» but does not count twice; Undo brings it back', async () => {
+    const start = makeEntry({ bikeId: GRAVEL, kind: 'start', date: '2026-09-01', km: 500, source: 'hand', state: 'counted', inclusive: true }, at);
+    const old = open({ date: '2026-08-20', km: 40 });
+    const fresh = open({ date: '2026-09-05', km: 12 });
+    await db.kmBook.bulkPut([start, old, fresh]);
+    const r = await autoAssign(db);
+    expect([r.n, r.counted, r.already]).toEqual([2, 1, 1]);
+    expect(autoText(r)).toContain('1 older ride');
+    const e = await db.kmBook.get(old.id);
+    expect([e.state, e.bikeId, e.reason]).toEqual(['removed', GRAVEL, { code: 'start', bike: GRAVEL }]);
+    expect((await db.bikes.get(GRAVEL)).km).toBe(512);
+    expect(await db.kmBook.where('state').equals('open').count()).toBe(0);
+    await undoAutoAssign(db, r.put, r.bikes);
+    expect(await db.kmBook.where('state').equals('open').count()).toBe(2);
+    expect((await db.bikes.get(GRAVEL)).km).toBe(500);
   });
 });

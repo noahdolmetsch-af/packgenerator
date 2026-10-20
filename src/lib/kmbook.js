@@ -480,7 +480,7 @@ export function mergeRides(a, b) {
 
 // v0.72.0: spaces inside count once too («Mtb  Fully Spark» is «mtb fully spark»)
 const norm = (x) => String(x ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
-const same = (x, y) => norm(x) === norm(y) && norm(x) !== '';
+export const same = (x, y) => norm(x) === norm(y) && norm(x) !== '';
 
 /**
  * The rules (Q1.5, changeable at any time), each { id, kind: 'sensor' | 'profile' | 'gear' | 'type', value, bikeIds }.
@@ -579,9 +579,17 @@ export function rematchOpen(entries = [], { bikes = [], rules = [], skipGear = [
     const a = assignRide(ride, ctx);
     if (a.bikeId !== s.gear || a.sure === 'unclear') continue;
     if (!(a.bikeId in starts)) starts[a.bikeId] = ledgerStart(entries, a.bikeId);
-    if (inStart(starts[a.bikeId], e.date)) continue;
-    if (entries.some((x) => x.id !== e.id && x.bikeId === a.bikeId && x.kind === 'ride' && counts(x) && (sameRide(x, e) || inSpan(x, e.date)))) continue;
-    out.push({ entry: e, bikeId: a.bikeId });
+    // Noah 20.10.2026 «Fehler oder?»: a ride inside the start value, or with a counted twin, never counts
+    // again, but it no longer waits either: it is marked «already in» (as: 'start' | 'twin')
+    if (inStart(starts[a.bikeId], e.date)) {
+      out.push({ entry: e, bikeId: a.bikeId, as: 'start' });
+      continue;
+    }
+    if (entries.some((x) => x.id !== e.id && x.bikeId === a.bikeId && x.kind === 'ride' && counts(x) && (sameRide(x, e) || inSpan(x, e.date)))) {
+      out.push({ entry: e, bikeId: a.bikeId, as: 'twin' });
+      continue;
+    }
+    out.push({ entry: e, bikeId: a.bikeId, as: 'count' });
   }
   return out;
 }
@@ -828,6 +836,8 @@ export function reasonText(reason, nameOf = (id) => id) {
   if (reason.code === 'conflict' && reason.strava) return t('Contradiction: Strava says {bike}, the rule for {profile} says {said}.', { bike: nameOf(reason.bike), said: nameOf(reason.said), profile: reason.profile });
   if (reason.code === 'conflict') return t('Contradiction: the sensor says {bike}, the profile {profile} says {said}.', { bike: nameOf(reason.bike), said: nameOf(reason.said), profile: reason.profile });
   if (reason.code === 'several') return t('The profile {profile} fits {bikes}: only Strava or a sensor can tell.', { profile: reason.profile, bikes: reason.bikes.map(nameOf).join(' · ') });
+  if (reason.code === 'start') return t('Already in the start value of {bike}: does not count twice.', { bike: nameOf(reason.bike) });
+  if (reason.code === 'twin') return t('Already counted: the same ride is in the ledger of {bike}.', { bike: nameOf(reason.bike) });
   if (reason.code === 'long') return t('Longer than usual: with {bike} mostly under {km} km.', { bike: nameOf(reason.bike), km: num(reason.under) });
   // v0.69.1 G: a Strava ride has no profile: no «rule for the profile «–»»
   if (reason.gear && !reason.profile) return t('Strava bike «{gear}» is unknown here.', { gear: reason.gear });
