@@ -6,6 +6,7 @@
  *   (c) the outside addresses (links.js, through api/linkcheck.js).
  * The result lives on this device (db.meta CHECK_KEY, never exported). Offline or without an answer a
  * part says «not checked», never an error. What needs attention (and a Strava limit from 80 %, rate.js)
+ * (never the keys: those show only in Ich › App maintenance, Noah 20.10.2026)
  * becomes one calm line on Today, until closed (HINT_CLOSED_KEY remembers what was closed).
  */
 import { rateHot } from './rate.js';
@@ -40,16 +41,15 @@ export function linkSummary(links = []) {
 }
 
 /**
- * What needs attention now: [{ kind: 'rate' | 'keys' | 'links' | 'strava', … }].
- * check: the stored check (null: none ran yet), keys: the key list, rate: the stored Strava numbers.
+ * What needs attention now: [{ kind: 'rate' | 'links' | 'strava', … }].
+ * check: the stored check (null: none ran yet), rate: the stored Strava numbers.
+ * Keys with an end date are not in it (Noah 20.10.2026 «nie im Front-End, höchstens unter Ich»): they
+ * show only in Ich › App maintenance (MaintenanceCard), never on Today or in «Waiting for you».
  */
-export function attention({ check = null, keys = [], rate = null, today, now = new Date() }) {
+export function attention({ check = null, rate = null, now = new Date() }) {
   const out = [];
   const hot = rateHot(rate, now);
   if (hot) out.push({ kind: 'rate', pct: hot.pct, window: hot.key });
-  // the keys count once a monthly check has run (a first install waits a month, like the links)
-  const due = check ? keyRows(keys, today).filter((k) => k.due) : [];
-  if (due.length) out.push({ kind: 'keys', names: due.map((k) => k.name), days: Math.min(...due.map((k) => k.days)) });
   if (check?.links) {
     const l = linkSummary(check.links);
     if (l.broken.length) out.push({ kind: 'links', names: l.broken });
@@ -60,7 +60,7 @@ export function attention({ check = null, keys = [], rate = null, today, now = n
 
 /** A short mark of what the line says, so a closed line comes back only when something new is due. */
 export function signature(list = [], today = '') {
-  return list.map((a) => (a.kind === 'rate' ? `rate:${today}` : a.kind === 'keys' ? `keys:${a.names.join('|')}` : a.kind === 'links' ? `links:${a.names.join('|')}` : a.kind)).join(';');
+  return list.map((a) => (a.kind === 'rate' ? `rate:${today}` : a.kind === 'links' ? `links:${a.names.join('|')}` : a.kind)).join(';');
 }
 
 /**
@@ -92,10 +92,6 @@ export async function runCheck({ links, today, status, probe }) {
 export function hintLine(list = [], { t, tn }) {
   const parts = list.map((a) => {
     if (a.kind === 'rate') return t('Strava requests: {pct} % of the free limit used', { pct: a.pct });
-    if (a.kind === 'keys') {
-      const name = a.names.length === 1 ? `«${t(a.names[0])}»` : tn(a.names.length, '{n} key', '{n} keys');
-      return a.days < 0 ? t('{name} has run out', { name }) : a.days === 0 ? t('{name} runs out today', { name }) : tn(a.days, '{name} runs out in {n} day', '{name} runs out in {n} days', { name });
-    }
     if (a.kind === 'links') return tn(a.names.length, '{n} link does not answer', '{n} links do not answer');
     return t('Strava needs a new login');
   });

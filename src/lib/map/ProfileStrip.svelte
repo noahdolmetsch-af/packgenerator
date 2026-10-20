@@ -14,7 +14,8 @@
    * Props: profile [[km, m]], fine (route.profileFine), sectors [{ name, fromKm, toKm }],
    * nights / snow [{ fromKm, toKm }], marks [{ km }], cursorKm (bindable), etaOf(km) → ms, onmove(km),
    * view (bindable { from, to } or null = whole), onview(view, how) after a zoom, move or selection of yours,
-   * follow (bindable) with canFollow: the «Follow map» switch, meKm: your place (live page).
+   * follow (bindable) with canFollow: the «Follow map» switch, meKm: your place (live page),
+   * withMap: false where no map is next to it (the route of a planned tour, «Tour planen mit GPX»).
    * Touch: one finger scrolls the page up and down (touch-action pan-y) and moves sideways; two fingers zoom.
    */
   import { Plus, Minus, Maximize2, ScanLine, Link2 } from '@lucide/svelte';
@@ -38,6 +39,7 @@
     follow = $bindable(true),
     canFollow = false,
     meKm = null,
+    withMap = true,
   } = $props();
 
   const W = 1000;
@@ -304,7 +306,7 @@
         {#if turn}<span data-profile-turn>{turn.kind === 'summit' ? t('summit in {d} km ({m} m)', { d: fmtKm(turn.distKm), m: num(turn.m) }) : t('valley in {d} km ({m} m)', { d: fmtKm(turn.distKm), m: num(turn.m) })}</span>{/if}
         {#if eta}<span>{t('there {when}', { when: when(eta) })}</span>{/if}
       {:else}
-        {t('Tap or drag on the profile: the map shows the place.')}
+        {withMap ? t('Tap or drag on the profile: the map shows the place.') : t('Tap or drag on the profile: you see the height and the gradient there.')}
       {/if}
     </p>
     <details class="ps-help">
@@ -314,7 +316,7 @@
         {#if nights.length}<span class="ps-ki"><span class="ps-k ps-k-night"></span>{t('in the dark (your plan)')}</span>{/if}
         {#if snow.length}<span class="ps-ki"><span class="ps-k ps-k-snow"></span>{t('snow or above the snow line')}</span>{/if}
       </p>
-      <p class="ps-note">{t('Zoom with «+» and «−», two fingers or the mouse wheel. Drag sideways to move along. «Select stretch» (or Shift and drag): drag over a stretch to see it large; the map shows the same stretch.')}</p>
+      <p class="ps-note">{withMap ? t('Zoom with «+» and «−», two fingers or the mouse wheel. Drag sideways to move along. «Select stretch» (or Shift and drag): drag over a stretch to see it large; the map shows the same stretch.') : t('Zoom with «+» and «−», two fingers or the mouse wheel. Drag sideways to move along. «Select stretch» (or Shift and drag): drag over a stretch to see it large.')}</p>
       {#if f.coarse}<p class="ps-note" data-profile-coarse>{t('This route has only a coarse profile. Load its GPX file again: then the profile has a point every 50 to 100 m.')}</p>{/if}
     </details>
   </div>

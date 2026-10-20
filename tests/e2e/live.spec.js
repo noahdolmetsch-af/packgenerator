@@ -201,3 +201,38 @@ test('Live map without a tour: the stops around you', async ({ page, context }, 
   await tap(page.locator('[data-live-stop]'), info);
   await expect(page.locator('[data-live-after]')).toBeVisible();
 });
+
+// Noah 20.10.2026 «abgestürzt und zurück in die Live-Karte-Maske»: the page loads anew in the middle of a
+// ride (a new version took over) → the ride goes on by itself, the kept points are still there.
+test('Live map: after a reload in the middle of a ride, it goes on by itself', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await tiles(context);
+  await context.route(/overpass/, (route) => route.fulfill({ json: { elements: [] } }));
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 46.95, longitude: 7.45, accuracy: 8 });
+  await page.goto('./#/live');
+  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-full]')).toBeVisible();
+  await context.setGeolocation({ latitude: 46.952, longitude: 7.452, accuracy: 8 });
+  await page.waitForTimeout(1500);
+  await page.reload();
+  await expect(page.locator('[data-live-full]')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-live-resumed-full]')).toBeVisible();
+  const pts = await page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('pack-generator');
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => {
+          const g = req.result.transaction('tracks').objectStore('tracks').getAll();
+          g.onsuccess = () => resolve(g.result.filter((r) => r.kind === 'rec' && r.open).map((r) => r.pts.length));
+          g.onerror = () => reject(g.error);
+        };
+      }),
+  );
+  expect(pts.length).toBe(1);
+  expect(pts[0]).toBeGreaterThan(0);
+  await tap(page.locator('[data-live-resumed-full] button'), info);
+  await expect(page.locator('[data-live-resumed-full]')).toBeHidden();
+  await noSideways(page, 'resumed');
+});

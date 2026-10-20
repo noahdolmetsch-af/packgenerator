@@ -3,9 +3,12 @@
    * v0.102.0 Design-Refresh P4 «Touren» (T3, baustein «Karte mit Strecke», approved 12.10.2026): a still
    * map of a route. The OpenStreetMap tiles under it load only online (they tell OpenStreetMap the map
    * section, never a name); offline, or when a tile does not come, the line stands on a calm ground.
+   * The tiles follow the app's map ground (Kartenlayer 20.10.2026).
    * line: [[lat, lon], …]; marks: [{ lat, lon, label, kind: 'start' | 'camp' | 'end' }]; label: the map's name.
    */
   import { mapView, linePath } from '../staticmap.js';
+  import { rasterGround } from '../map/sources.js';
+  import { mapGround } from '../map/groundpref.svelte.js';
   import { t } from '../i18n.svelte.js';
 
   let { line = [], marks = [], label = '', w = 600, h = 280 } = $props();
@@ -21,7 +24,9 @@
     };
   });
   const pts = $derived([...(line ?? []).map(([lat, lon]) => ({ lat, lon })), ...marks]);
-  const view = $derived(mapView(pts, w, h));
+  const mid = $derived(pts.length ? { lat: (Math.min(...pts.map((p) => p.lat)) + Math.max(...pts.map((p) => p.lat))) / 2, lon: (Math.min(...pts.map((p) => p.lon)) + Math.max(...pts.map((p) => p.lon))) / 2 } : null);
+  const g = $derived(rasterGround(mapGround.key, mid?.lat, mid?.lon));
+  const view = $derived(mapView(pts, w, h, { url: g.url, maxZoom: Math.min(15, g.maxZoom ?? 15) }));
   const d = $derived(view ? linePath(line, view.px) : '');
   const at = $derived(view ? marks.map((m) => ({ ...m, ...view.px(m) })) : []);
   let failed = $state(0);
@@ -42,7 +47,7 @@
         </g>
       {/each}
     </svg>
-    {#if tiles.length}<span class="osm">© OpenStreetMap</span>{/if}
+    {#if tiles.length}<span class="osm">{g.attribution}</span>{/if}
   </div>
 {/if}
 

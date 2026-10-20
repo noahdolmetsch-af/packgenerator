@@ -16,6 +16,73 @@
 
 export const WHATS_NEW = [
   {
+    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
+    version: '0.168.0',
+    date: '2026-10-20',
+    title: 'Tours and Aktiv',
+    lead: 'Gear, climbs, Aktiv anew.',
+    points: [
+      { text: 'Add gear to a ride, with notes', href: '#/trips/rides' },
+      { text: 'Tour page: big values, a landscape, the weather of the day', href: '#/trips' },
+      { text: 'Plan a tour: profile and climbs', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Aktiv: week in numbers; map ground on every map' },
+      { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
+    ],
+    test: [
+      'Tours › Rides: tap «Enter the gear» on a ride.',
+      'Plan a tour with GPX, tap a climb.',
+    ],
+  },
+  {
+    // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'No more old versions',
+    lead: 'If your phone ever hangs on an old version, the app notices it and offers to load the new one.',
+    points: [
+      { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
+    ],
+    small: [{ box: 'new', text: '«Later» hides the bar for a while; trips, lists and notes stay when you load' }],
+    test: [
+      'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
+      'Tap «Load now»: the app loads fresh from the internet, your data stays.',
+    ],
+  },
+  {
+    // v0.166.1 «Heute am Handy» (bug fix, Noah 20.10.2026 15:16 UTC «Problem ist abgeschnitten»; same look, no mockup)
+    version: '0.166.1',
+    date: '2026-10-20',
+    title: 'Nothing cut off',
+    lead: 'On a phone the card «Up now» no longer slides under your trip.',
+    points: [
+      { text: 'Congratulations show as one quiet line; the full list stays in the milestones', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'fixed', text: 'On a phone «Up now» ends where its last line ends; the next card starts below it' }],
+    test: [
+      'Open Today on a phone after reaching a milestone: «Up now» and the trip card do not overlap.',
+      'Only one congratulation line stands above «Up now».',
+    ],
+  },
+  {
+    // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
+    version: '0.166.0',
+    date: '2026-10-20',
+    title: 'Always the newest version',
+    lead: 'When a page fails, one button loads the app fresh from the internet; your data stays on this device.',
+    points: [
+      { text: 'Error page: «Reload the newest version» loads the app anew from the internet; trips, lists and notes stay' },
+    ],
+    small: [
+      { box: 'fixed', text: 'An error page first looks for a newer version by itself; without internet it simply reloads' },
+    ],
+    test: [
+      'If a page ever shows «Something went wrong here»: tap «Reload the newest version».',
+      'After the reload, open Me › What is new: the newest version is on top, your data is still there.',
+    ],
+  },
+  {
     // v0.165.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
     version: '0.165.0',
     date: '2026-10-20',
