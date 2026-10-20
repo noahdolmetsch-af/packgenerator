@@ -33,7 +33,7 @@
 {#if b}
   <a class="lchip num" {href} data-lake-chip data-scale={b.scale} aria-label={t('{name} {w} °C, {scale}. Open the lake card.', { name: t(LAKE_NAME), w: one(b.water), scale: t(SCALE_WORDS[b.scale]) })}>
     <Waves size={14} aria-hidden="true" />
-    <span>{t(LAKE_NAME)} <b>{one(b.water)} °C</b> · {t(SCALE_WORDS[b.scale])}{#if b.stale} · {t('older value')}{/if}</span>
+    <span>{t(LAKE_NAME)} <b>{one(b.water)} °C</b> · {t(SCALE_WORDS[b.scale])}{#if b.stale}{' · '}{t('older value')}{/if}</span>
   </a>
 {/if}
 

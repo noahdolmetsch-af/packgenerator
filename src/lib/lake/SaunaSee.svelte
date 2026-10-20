@@ -63,7 +63,7 @@
   <p class="ss-h">{t('Sauna and lake today?')}</p>
   {#if cur}
     <p class="ss-l num">
-      {t('Water {w} °C', { w: one(cur.water) })}{#if scale} · <b class="ss-sc {scale}" data-scale={scale}>{t(SCALE_WORDS[scale])}</b>{/if}{#if cur.air != null} · {t('Air {v} °C', { v: one(cur.air) })}{/if}
+      {t('Water {w} °C', { w: one(cur.water) })}{#if scale}{' · '}<b class="ss-sc {scale}" data-scale={scale}>{t(SCALE_WORDS[scale])}</b>{/if}{#if cur.air != null}{' · '}{t('Air {v} °C', { v: one(cur.air) })}{/if}
     </p>
   {/if}
   <div class="ss-b" role="group" aria-label={t('Sauna and lake today?')}>
@@ -76,7 +76,7 @@
   </div>
   {#if stats && stats.season > 0}
     <p class="ss-stat" data-swims={stats.season}>
-      {tn(stats.season, '{n} swim since 1 September', '{n} swims since 1 September')}{#if stats.coldest} · {t('coldest {w} °C on {day}', { w: one(stats.coldest.water), day: dayOf(stats.coldest.day) })}{/if}
+      {tn(stats.season, '{n} swim since 1 September', '{n} swims since 1 September')}{#if stats.coldest}{' · '}{t('coldest {w} °C on {day}', { w: one(stats.coldest.water), day: dayOf(stats.coldest.day) })}{/if}
     </p>
   {:else}
     <p class="ss-stat">{t('Tick a swim and the app keeps the water temperature with it: your swims this season and the coldest one.')}</p>
