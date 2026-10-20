@@ -53,6 +53,7 @@ export function newEntry(e = {}, { id, now = new Date().toISOString(), today = n
     place: e.place && (e.place.name || Number.isFinite(e.place.lat)) ? { name: clean(e.place.name, 80).trim(), ...(Number.isFinite(e.place.lat) ? { lat: e.place.lat, lon: e.place.lon } : {}) } : null,
     weather: e.weather && Number.isFinite(e.weather.temp) ? { temp: Math.round(e.weather.temp), code: Number.isFinite(e.weather.code) ? e.weather.code : null } : null,
     star: !!e.star,
+    mood: Number.isInteger(e.mood) && e.mood >= 1 && e.mood <= 5 ? e.mood : null,
     q: Number.isInteger(e.q) ? e.q : null,
     refs: (e.refs ?? []).filter((r) => r?.key).map((r) => ({ key: String(r.key), text: clean(r.text, 300) })),
   };
@@ -216,6 +217,7 @@ export const WEATHER_WORDS = { sun: 'Sunny', partly: 'Partly cloudy', cloud: 'Cl
 export function entryMarkdown(e, { t = (s) => s, fmt = (d) => d } = {}) {
   const head = headOf(e);
   const meta = [`${fmt(e.day)}${e.time ? `, ${e.time}` : ''}`];
+  if (e.mood) meta.push(t(['Heavy|mood', 'Meh|mood', 'Okay|mood', 'Good|mood', 'Great|mood'][e.mood - 1]));
   if (e.place?.name) meta.push(e.place.name);
   if (e.weather) meta.push(`${e.weather.temp} °C ${t(WEATHER_WORDS[weatherKind(e.weather.code)])}`);
   const lines = [`## ${e.title?.trim() ? e.title.trim() : head.title || fmt(e.day)}`, '', `_${meta.join(' · ')}_`, ''];
@@ -230,6 +232,8 @@ export function journalMarkdown(list = [], { t = (s) => s, fmt = (d) => d, title
   const items = sortEntries(list).reverse();
   return [`# ${title}`, '', ...items.map((e) => entryMarkdown(e, { t, fmt }))].join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
+/** The years that have entries, newest first (year book). */
+export const yearsOf = (entries) => [...new Set(entries.map((e) => e.day.slice(0, 4)))].sort().reverse();
 /** File name for a download: tagebuch-2026-10-20.md */
 export const fileName = (base, day) => `${base}-${day}.md`;
 

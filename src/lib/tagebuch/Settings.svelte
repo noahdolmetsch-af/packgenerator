@@ -4,14 +4,15 @@
    * the tags (groups: rename, delete with «where do the entries go», Undo; rule «Gruppen überall»), and
    * the download of the whole diary as one Markdown file («2b … mit möglichkeit zum download»).
    */
-  import { X, Pencil, Trash2, Download, LockKeyhole } from '@lucide/svelte';
+  import { X, Pencil, Trash2, Download, LockKeyhole, BellRing, BookOpen } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import { backClose } from '../ui/backclose.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { validCode, hashCode, newSalt, allTags } from './journal.js';
+  import { validCode, hashCode, newSalt, allTags, yearsOf } from './journal.js';
   import { changeCfg, changeTag, restoreRows } from './journaldb.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { remindOf } from './insights.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
   let { cfg = {}, entries = [], ondownload, onclose } = $props();
@@ -23,6 +24,39 @@
 
   /* ---------- question of the day ---------- */
   const setQuestions = (on) => changeCfg((c) => ({ ...c, questions: on }));
+
+  /* ---------- evening reminder (Noah «3a») ---------- */
+  const remind = $derived(remindOf(cfg));
+  const setRemind = (r) => changeCfg((c) => ({ ...c, remind: { ...remindOf(c), ...r } }));
+
+  /* ---------- year book (Noah «5a») ---------- */
+  const years = $derived(yearsOf(entries));
+  let year = $state('');
+  const pickedYear = $derived(year || years[0] || '');
+  let bookBusy = $state(false);
+  async function yearBook() {
+    if (bookBusy || !pickedYear) return;
+    bookBusy = true;
+    try {
+      const { makeYearBook } = await import('./book.js');
+      const long = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const monthName = (m) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', month: 'long' });
+      const bytes = await makeYearBook(entries, pickedYear, { tr: t, long, monthName, title: t('Diary') });
+      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${t('diary')}-${pickedYear}.pdf`;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      offerDone(t('Your year book is downloaded.'));
+    } catch {
+      offerDone(t('The year book could not be made here.'));
+    } finally {
+      bookBusy = false;
+    }
+  }
 
   /* ---------- lock ---------- */
   let code1 = $state('');
@@ -79,6 +113,17 @@
     </section>
 
     <section class="tbs-sec">
+      <h3><BellRing size={18} aria-hidden="true" />{t('Evening reminder')}</h3>
+      <label class="tbs-row">
+        <input type="checkbox" checked={remind.on} onchange={(e) => setRemind({ on: e.currentTarget.checked })} data-tb-remind-on />
+        <span>{t('When today has no entry yet, ask once in the evening. «Later» asks again in an hour, «Not today» waits until tomorrow.')}</span>
+      </label>
+      {#if remind.on}
+        <label class="tbs-row tbs-time">{t('From|reminder')}<input class="inp" type="time" value={remind.time} onchange={(e) => e.currentTarget.value && setRemind({ time: e.currentTarget.value })} data-tb-remind-time /></label>
+      {/if}
+    </section>
+
+    <section class="tbs-sec">
       <h3><LockKeyhole size={18} aria-hidden="true" />{t('Lock')}</h3>
       {#if cfg.lock?.hash}
         <p class="tbs-p">{t('The diary asks for your code on this and your other devices. It locks again when you leave it or the app is in the background for a minute.')}</p>
@@ -115,6 +160,19 @@
     <section class="tbs-sec">
       <h3>{t('Download it')}</h3>
       <p class="tbs-p">{t('All entries in one text file (Markdown), oldest first, to keep or print. Photos stay in the app and in the backup.')}</p>
+      <h4 class="tbs-h4"><BookOpen size={16} aria-hidden="true" />{t('Year book (PDF)')}</h4>
+      <p class="tbs-p">{t('One year as a book: a cover, then every month with its entries and up to three photos each. Made on this device.')}</p>
+      {#if years.length}
+        <div class="tbs-lockf">
+          {#if years.length > 1}
+            <select class="inp" bind:value={year} aria-label={t('Year')} data-tb-book-year>
+              {#each years as y (y)}<option value={y}>{y}</option>{/each}
+            </select>
+          {/if}
+          <button type="button" class="btn" onclick={yearBook} disabled={bookBusy} data-tb-book><BookOpen size={16} aria-hidden="true" />{bookBusy ? t('Making the year book …') : t('Year book {year}', { year: pickedYear })}</button>
+        </div>
+      {/if}
+      <h4 class="tbs-h4">{t('Text file')}</h4>
       <button type="button" class="btn" onclick={ondownload} disabled={!entries.length} data-tb-download-all><Download size={16} aria-hidden="true" />{tn(entries.length, 'Download {n} entry', 'Download {n} entries')}</button>
     </section>
   </div>
@@ -175,6 +233,21 @@
     height: 20px;
     margin-top: 2px;
     flex: none;
+  }
+  .tbs-time {
+    align-items: center;
+  }
+  .tbs-row.tbs-time input {
+    width: auto;
+    height: auto;
+    margin: 0;
+  }
+  .tbs-h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+    font-size: var(--fs-body);
   }
   .tbs-lockf {
     display: flex;

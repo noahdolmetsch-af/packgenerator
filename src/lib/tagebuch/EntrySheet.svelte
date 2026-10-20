@@ -6,7 +6,7 @@
    * and appointments of that day, chosen with a tick and added as lines. What was typed stays when the
    * window closes without saving (keepTyped), until «Discard».
    */
-  import { X, Trash2, Check, Star, MapPin, Tag, Plus, CloudSun, LayoutGrid } from '@lucide/svelte';
+  import { X, Trash2, Check, Star, MapPin, Tag, Plus, CloudSun, LayoutGrid, Sparkles } from '@lucide/svelte';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import DateInput from '../ui/DateInput.svelte';
@@ -20,7 +20,10 @@
   import { cleanTag, cleanTags, isEmpty, WEATHER_WORDS, weatherKind, wordCount } from './journal.js';
   import { saveEntry, deleteEntry, restoreEntry, dayThings, weatherPlace, weatherNow } from './journaldb.js';
   import { QUESTIONS } from './fragen.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { MOODS } from './insights.js';
+  import { diaryAi, cleanTitle } from './ai.js';
+  import { geminiError } from '../assistent/gemini.js';
+  import { t, tn, lang } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
   /** entry: the entry to change, or a new one ({ day, time, q, … }); tags: all tags (suggestions); dictate: start listening at once. */
@@ -28,7 +31,7 @@
   let dialog;
   // a copy to edit (the saved row only changes on «Save»)
   // svelte-ignore state_referenced_locally
-  let e = $state(JSON.parse(JSON.stringify({ title: '', text: '', photos: [], tags: [], place: null, weather: null, star: false, refs: [], ...entry })));
+  let e = $state(JSON.parse(JSON.stringify({ title: '', text: '', photos: [], tags: [], place: null, weather: null, star: false, mood: null, refs: [], ...entry })));
   // svelte-ignore state_referenced_locally
   const isNew = !entry.id;
   let error = $state('');
@@ -139,6 +142,31 @@
     }
     things = null;
   }
+  /* ---------- Gemini (Noah «1a»: only with a tick, each time) ---------- */
+  let aiOk = $state(false);
+  let aiBusy = $state('');
+  let aiMsg = $state('');
+  let tidy = $state(null); // the tidied text waiting for «Use it» or «Discard»
+  async function ai(mode) {
+    if (!aiOk || aiBusy) return;
+    if (!String(e.text ?? '').trim()) return (aiMsg = t('Write or dictate some text first.'));
+    aiBusy = mode;
+    aiMsg = '';
+    const r = await diaryAi(mode, { context: String(e.text).slice(0, 11000), lang: lang.v === 'en' ? 'en' : 'de' });
+    aiBusy = '';
+    aiOk = false;
+    if (!r.ok) return (aiMsg = geminiError(r.error));
+    if (mode === 'title') {
+      const s = cleanTitle(r.text);
+      if (s) e.title = s;
+      else aiMsg = geminiError('error');
+    } else tidy = r.text.trim();
+  }
+  function useTidy() {
+    e.text = tidy;
+    tidy = null;
+  }
+
   const GROUPS = { Activities: 'Activities', Body: 'Body', Tours: 'Tours', Notes: 'Notes', Active: 'Active', Calendar: 'Calendar', Weather: 'Weather' };
 </script>
 
@@ -157,11 +185,36 @@
         <label class="tbe-lab">{t('Day')}<DateInput bind:value={e.day} required data-tb-day /></label>
         <label class="tbe-lab">{t('Time')}<input class="inp" type="time" bind:value={e.time} data-tb-time /></label>
       </div>
+      <div class="tbe-moods" role="group" aria-label={t('How was your day?')}>
+        <span class="tbe-mood-q">{t('How was your day?')}</span>
+        {#each MOODS as m (m.v)}
+          <button type="button" class="tbe-mood" aria-pressed={e.mood === m.v} aria-label={t(m.name)} title={t(m.name)} onclick={() => (e.mood = e.mood === m.v ? null : m.v)} data-tb-mood={m.v}><span aria-hidden="true">{m.emoji}</span></button>
+        {/each}
+      </div>
       <input class="inp tbe-title" maxlength="140" bind:value={e.title} placeholder={t('Title (optional)')} aria-label={t('Title')} data-tb-title />
       <textarea class="inp tbe-text" bind:this={textEl} bind:value={e.text} rows="9" placeholder={question ? t('Your answer …') : t('What happened today? What is on your mind?')} aria-label={t('Text')} data-tb-text></textarea>
       <div class="tbe-tools">
         <SpeakButton onsaid={said} wrap always autostart={dictate} />
         <span class="tbe-count" aria-live="polite">{tn(words, '{n} word', '{n} words')}</span>
+      </div>
+
+      <div class="tbe-ai" data-tb-ai>
+        <label class="tbe-aiok"><input type="checkbox" bind:checked={aiOk} data-tb-ai-ok /><span><Sparkles size={16} aria-hidden="true" /> {t('Send the text of this entry to Gemini (Google) for one step. Free; photos and place stay here.')}</span></label>
+        <div class="tbe-inline">
+          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('title')} data-tb-ai-title>{aiBusy === 'title' ? t('Gemini is thinking …') : t('Suggest a title')}</button>
+          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('tidy')} data-tb-ai-tidy>{aiBusy === 'tidy' ? t('Gemini is thinking …') : t('Tidy up the text')}</button>
+        </div>
+        {#if aiMsg}<p class="tbe-note" role="status" data-tb-ai-msg>{aiMsg}</p>{/if}
+        {#if tidy !== null}
+          <div class="tbe-tidy" data-tb-ai-tidied>
+            <span class="tbe-note">{t('Tidied up by Gemini. Check it before you use it.')}</span>
+            <p>{tidy}</p>
+            <div class="tbe-inline">
+              <button type="button" class="btn sm hi" onclick={useTidy} data-tb-ai-use>{t('Use it')}</button>
+              <button type="button" class="btn sm" onclick={() => (tidy = null)}>{t('Discard')}</button>
+            </div>
+          </div>
+        {/if}
       </div>
 
       <div class="tbe-sec">
@@ -295,6 +348,64 @@
     gap: 4px;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .tbe-moods {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .tbe-mood-q {
+    margin-right: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .tbe-mood {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: var(--fs-section);
+    cursor: pointer;
+    filter: grayscale(0.7);
+    opacity: 0.75;
+  }
+  .tbe-mood[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    filter: none;
+    opacity: 1;
+  }
+  .tbe-ai {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--paper-2);
+  }
+  .tbe-aiok {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .tbe-aiok input {
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    flex: none;
+  }
+  .tbe-tidy p {
+    margin: 6px 0 8px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
   }
   .tbe-title {
     font-weight: 600;

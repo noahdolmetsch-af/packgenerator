@@ -158,3 +158,23 @@ export async function weatherNow(place, fetcher = fetch) {
     return null;
   }
 }
+
+/**
+ * What the mood is compared with in «Rückblick» (Noah «2a»): the days with a ride or workout (activities)
+ * and the minutes asleep of each day (Fitbit, healthDays). Quiet when a table is empty or missing.
+ */
+export async function moodContext(db = appDb) {
+  const rideDays = new Set();
+  const sleep = {};
+  try {
+    for (const a of await db.activities.toArray()) if (a.day) rideDays.add(a.day);
+  } catch {
+    /* no rides */
+  }
+  try {
+    for (const h of await db.healthDays.toArray()) if (h.date && Number.isFinite(h.sleep?.asleepMin)) sleep[h.date] = h.sleep.asleepMin;
+  } catch {
+    /* no sleep */
+  }
+  return { rideDays, sleep };
+}

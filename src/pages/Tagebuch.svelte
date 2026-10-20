@@ -17,6 +17,8 @@
   import EntrySheet from '../lib/tagebuch/EntrySheet.svelte';
   import Settings from '../lib/tagebuch/Settings.svelte';
   import LockScreen from '../lib/tagebuch/LockScreen.svelte';
+  import Rueckblick from '../lib/tagebuch/Rueckblick.svelte';
+  import { moodOf } from '../lib/tagebuch/insights.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { entriesQuery, cfgQuery, changeCfg, deleteEntry, restoreEntry } from '../lib/tagebuch/journaldb.js';
@@ -196,6 +198,7 @@
       {#if h.preview}<span class="tb-prev">{h.preview}</span>{/if}
       <small class="tb-meta">
         {#if e.time}<span>{e.time}</span>{/if}
+        {#if e.mood}<span title={t(moodOf(e.mood).name)} data-tb-card-mood={e.mood}>{moodOf(e.mood).emoji}</span>{/if}
         {#if e.place?.name}<span><MapPin size={12} aria-hidden="true" />{e.place.name}</span>{/if}
         {#if e.weather}{@const W = WX[weatherKind(e.weather.code)]}<span><W size={12} aria-hidden="true" />{e.weather.temp} °C</span>{/if}
         {#each e.tags ?? [] as x (x)}<span class="tb-tagmini">#{x}</span>{/each}
@@ -219,7 +222,7 @@
     {:else}
       {@const h = headOf(reading)}
       <article class="tb-article" data-tb-reading={reading.id}>
-        <p class="tb-kick">{long(reading.day)}{#if reading.time}{` · ${reading.time}`}{/if}</p>
+        <p class="tb-kick">{long(reading.day)}{#if reading.time}{` · ${reading.time}`}{/if}{#if reading.mood}{` · ${moodOf(reading.mood).emoji} ${t(moodOf(reading.mood).name)}`}{/if}</p>
         <h1 class="tb-h1" tabindex="-1" data-page-title>{reading.title?.trim() || h.title || t('Untitled')}{#if reading.star}<Star class="tb-starbig" size={22} fill="currentColor" aria-label={t('Favourite')} />{/if}</h1>
         {#if Number.isInteger(reading.q) && QUESTIONS[reading.q]}<p class="tb-askq">{t(QUESTIONS[reading.q][0])}</p>{/if}
         {#if reading.place?.name || reading.weather}
@@ -299,9 +302,9 @@
 
     {#if all.length}
       <div class="tb-bar">
-        <Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'list', name: t('Entries') }, { key: 'cal', name: t('Calendar') }, { key: 'photos', name: t('Photos') }]} />
+        <Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'list', name: t('Entries') }, { key: 'cal', name: t('Calendar') }, { key: 'photos', name: t('Photos') }, { key: 'look', name: t('Review') }]} />
       </div>
-      {#if view !== 'cal'}
+      {#if view === 'list' || view === 'photos'}
         <div class="tb-filter">
           <label class="tb-search"><Search size={18} aria-hidden="true" /><input class="inp" type="search" bind:value={q} placeholder={t('Search the diary')} aria-label={t('Search the diary')} data-tb-search /></label>
           <div class="tb-chips" role="group" aria-label={t('Filter')}>
@@ -356,6 +359,8 @@
           <button type="button" class="btn" onclick={() => write({ day: pickedDay, time: pickedDay === today ? now() : '20:00' })} data-tb-write-day><Plus size={16} aria-hidden="true" />{t('Write about this day')}</button>
         {/if}
       </section>
+    {:else if view === 'look'}
+      <Rueckblick entries={all} {today} />
     {:else if view === 'photos'}
       {#if photos.length}
         <div class="tb-wall" data-tb-wall>

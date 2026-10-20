@@ -154,3 +154,53 @@ test('tags are groups: rename one, then delete it; the entries stay', async ({ p
   await expect(page.locator('[data-tb-entry]')).not.toContainText('#Rad');
   expect(errors).toEqual([]);
 });
+
+test('mood, review with cloud and series, Gemini only with a tick, evening reminder, year book', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  // an entry for yesterday with a mood, written from the calendar
+  await page.locator('[data-tb-new]').click();
+  await page.locator('[data-tb-editor] [data-tb-text]').fill('Velo und Berge, dann Velo und Kaffee.');
+  await page.locator('[data-tb-editor] [data-tb-mood="4"]').click();
+  await expect(page.locator('[data-tb-editor] [data-tb-mood="4"]')).toHaveAttribute('aria-pressed', 'true');
+  // Gemini buttons wait for the tick
+  await expect(page.locator('[data-tb-editor] [data-tb-ai-title]')).toBeDisabled();
+  await page.locator('[data-tb-editor] [data-tb-ai-ok]').check();
+  await page.locator('[data-tb-editor] [data-tb-ai-title]').click();
+  await expect(page.locator('[data-tb-editor] [data-tb-ai-msg]')).toBeVisible(); // no helper code here: a calm line
+  await expect(page.locator('[data-tb-editor] [data-tb-ai-ok]')).not.toBeChecked(); // the tick goes off again
+  await shot(page, info, 'tagebuch-stimmung');
+  await page.locator('[data-tb-editor] [data-tb-day]').fill('2026-10-19');
+  await page.locator('[data-tb-editor] [data-tb-save]').click();
+  await expect(page.locator('[data-tb-editor]')).toBeHidden();
+  await expect(page.locator('[data-tb-card-mood="4"]')).toBeVisible();
+
+  // Rückblick: curve hint, word cloud of October, series
+  await page.locator('.tb-bar button[data-key="look"]').click();
+  await expect(page.locator('[data-tb-review]')).toBeVisible();
+  await expect(page.locator('[data-tb-mood-curve]')).toContainText(T('Choose a smiley when you write. After a few days, your mood curve shows here.'));
+  await expect(page.locator('[data-tb-word="velo"]')).toBeVisible();
+  await expect(page.locator('[data-tb-milestone="entries-1"]')).toHaveText(T('First entry'));
+  await expect(page.locator('[data-tb-ai-ask]')).toBeDisabled();
+  expect(await noScroll(page)).toBe(true);
+  await shot(page, info, 'tagebuch-rueckblick');
+
+  // settings: evening reminder and the year book
+  await page.locator('[data-tb-settings-open]').click();
+  await expect(page.locator('[data-tb-remind-on]')).toBeChecked();
+  await expect(page.locator('[data-tb-remind-time]')).toHaveValue('21:00');
+  const down = page.waitForEvent('download');
+  await page.locator('[data-tb-book]').click();
+  expect((await down).suggestedFilename()).toBe('tagebuch-2026.pdf');
+  await page.keyboard.press('Escape');
+
+  // the evening window: today has no entry, after 21:00 on another page
+  await page.goto('./#/me');
+  await ready(page);
+  await page.clock.fastForward('40:00');
+  const win = page.getByRole('dialog', { name: T('A few lines for your diary?') });
+  await expect(win).toBeVisible();
+  await shot(page, info, 'tagebuch-erinnerung');
+  await win.locator('[data-cw-main]').click();
+  await expect(page.locator('[data-tb-editor]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
