@@ -8,6 +8,7 @@
  * same km of the route, in riding time (pauses and stops left out on both sides).
  */
 import { snap } from '../race/race.js';
+import { pausedS } from './live-lib.js';
 
 /** The laps of a recording with their numbers so far: [{ n, km, movingS, at }] (the running one last). */
 export function lapsOf(laps = [], { km = 0, movingS = 0, now = Date.now(), startAt = 0 } = {}) {
@@ -35,7 +36,6 @@ export function ghostOf(row, routePts = [], { max = 1500, offKm = 0.3 } = {}) {
   if (p.length < 10 || routePts.length < 2) return [];
   const step = Math.max(1, Math.ceil(p.length / max));
   const breaks = row.breaks ?? [];
-  const inBreak = (ms) => breaks.some(([f, t]) => ms >= f && ms <= (t ?? Infinity));
   const out = [];
   let moving = 0;
   let lastKm = -Infinity;
@@ -44,7 +44,8 @@ export function ghostOf(row, routePts = [], { max = 1500, offKm = 0.3 } = {}) {
       const dt = (p[i][2] ?? 0) - (p[i - 1][2] ?? 0);
       const ms = (row.startAt ?? 0) + p[i][2] * 1000;
       const stood = dt >= 120 && dist(p[i - 1], p[i]) < 0.04;
-      if (dt > 0 && !stood && !inBreak(ms)) moving += dt;
+      // the part of this step inside a pause does not count
+      if (dt > 0 && !stood) moving += Math.max(0, dt - pausedS(ms - dt * 1000, ms, breaks));
     }
     if (i % step && i !== p.length - 1) continue;
     const s = snap(routePts, { lat: p[i][0], lon: p[i][1] });
