@@ -1129,4 +1129,11 @@ export default {
   'Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.': 'Wähle die Sprache und «Mit Beispielen starten» oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
   'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.',
   'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.': 'Beispiel: Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.',
+  // «Form und Erholung» and the Garmin-like overview: f.form and f.overview
+  'Open Active: the card on top shows your readiness from 0 to 100 and what today suits.': 'Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft von 0 bis 100 und was heute passt.',
+  'Tap it for the page «Form and recovery»: what counts today, 12 weeks of fitness and form, and the tour readiness.': 'Tipp sie an für die Seite «Form und Erholung»: was heute zählt, 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
+  'Example: resting pulse 6 above your normal and a short night → 38, «Today suits an easy ride».': 'Beispiel: Ruhepuls 6 über deinem Normal und eine kurze Nacht → 38, «Heute passt eine lockere Fahrt».',
+  'Open Active and scroll to «In focus» and «Overview».': 'Öffne Aktiv und scroll zu «Im Fokus» und «Überblick».',
+  'Tap a sport for its page (7 days, 4 weeks, 1 year), or the heart rate tile for resting and highest pulse per day.': 'Tipp eine Sportart an für ihre Seite (7 Tage, 4 Wochen, 1 Jahr) oder die Puls-Kachel für Ruhepuls und höchsten Puls pro Tag.',
+  'Example: «In focus» Bike shows 100.7 km and 5:54:01 in the last 7 days, one bar per day.': 'Beispiel: «Im Fokus» Velo zeigt 100.7 km und 5:54:01 in den letzten 7 Tagen, ein Balken pro Tag.',
 };

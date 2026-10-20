@@ -705,6 +705,16 @@ export const HANDBOOK = {
     steps: ['Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.', 'Me › Your questions › Analysis shows the strongest three and leads to all of them.', 'Weather, calendar appointments and own number questions are compared too; each own question can be switched off.'],
     example: 'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.',
   },
+  'f.form': {
+    on: null,
+    steps: ['Open Active: the card on top shows your readiness from 0 to 100 and what today suits.', 'Tap it for the page «Form and recovery»: what counts today, 12 weeks of fitness and form, and the tour readiness.'],
+    example: 'Example: resting pulse 6 above your normal and a short night → 38, «Today suits an easy ride».',
+  },
+  'f.overview': {
+    on: null,
+    steps: ['Open Active and scroll to «In focus» and «Overview».', 'Tap a sport for its page (7 days, 4 weeks, 1 year), or the heart rate tile for resting and highest pulse per day.'],
+    example: 'Example: «In focus» Bike shows 100.7 km and 5:54:01 in the last 7 days, one bar per day.',
+  },
   'f.trainplans': {
     on: null,
     steps: ['Open Active › Training › Training plans and pick one of the four plans.', 'Set the start (back from the race day or from a day) and the hours per week, then «Try it».', 'Missed a session? The plan in use suggests a free day of this week.'],

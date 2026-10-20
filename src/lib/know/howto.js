@@ -282,6 +282,8 @@ export const HOWTO = {
   'f.record': ['Open On the way and tap «Record».', 'Read the battery hint and tap «Start recording»; the screen stays on.', 'Tap «Stop» at the end; a Strava ride of the same time counts first.'],
   'f.spurmap': ['Open a trip’s debrief and tap «Travel track».', 'Drag and pinch the map; tap a day or a dot.', 'Tick «Show Neuland» to see the land you rode for the first time.'],
   'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
+  'f.form': ['Open Active: the card on top shows your readiness.', 'Tap it for the page «Form and recovery».', 'Answer the morning check: your felt sleep and energy count too.'],
+  'f.overview': ['Open Active and scroll to «In focus».', 'Swipe for the next sport; tap a card for its page.', 'Tap the heart rate tile for the pulse per day.'],
   'f.trainplans': ['Open Active › Training › Training plans.', 'Pick a plan, choose «Back from the race day» and set the day.', 'Tap «Try it»: the sessions stand in your week plan.'],
   'f.feel': ['Open Active › Training after a ride.', 'Tap a number from 1 to 10 under «How hard was your ride?».', 'Change it later on the page of the ride.'],
   'f.heatmap': ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines, and a year, sport or bike if you like.', 'Tap a coloured line: the rides there show below the map.'],
