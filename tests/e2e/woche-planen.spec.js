@@ -27,13 +27,13 @@ function weekFixture() {
 test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a date added', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { data: weekFixture() });
   const phone = info.project.name === 'phone';
-  // the phone bar keeps five places, Woche instead of Material (Noah 1a); Material sits under Ich
+  // the phone bar keeps five places (Noah 1a); N1 (Noah 20.10.2026 «2a»): Material sits with Velos (its link on Velos)
   if (phone) {
     const bar = page.locator('nav.bottom a[data-place]');
     await expect(bar).toHaveCount(BAR_PLACES.length);
     for (const [i, p] of BAR_PLACES.entries()) await expect(bar.nth(i)).toContainText(T(p.label));
-    await page.goto('./#/me');
-    await expect(page.locator('[data-me-gear] a[href="#/gear"]')).toBeVisible();
+    await page.goto('./#/bikes');
+    await expect(page.locator('a[data-gear-link][href="#/gear"]')).toBeVisible();
     await page.locator('nav.bottom a[data-place="week"]').click();
   } else {
     await page.locator('.side li[data-place="week"] > a.pa').click();

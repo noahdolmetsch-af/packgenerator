@@ -21,7 +21,7 @@ export default {
   'FTP estimated = 95 % of your best 20 minutes of the last 90 days.': 'FTP geschätzt = 95 % deiner besten 20 Minuten der letzten 90 Tage.',
   'W/kg with your weight from Me (stays on this device).': 'W/kg mit deinem Gewicht aus Ich (bleibt auf diesem Gerät).',
   'For W/kg, enter your weight under': 'Für W/kg trägst du dein Gewicht ein unter',
-  'Me › My data › Weight': 'Ich › Meine Daten › Gewicht',
+  'Me › My data › Weight': 'Auswerten › Gewicht',
   // «Zeit in Leistungsbereichen»
   'Time in power zones': 'Zeit in Leistungsbereichen',
   'from FTP {n} W': 'aus FTP {n} W',

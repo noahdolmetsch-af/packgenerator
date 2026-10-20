@@ -323,12 +323,16 @@ export const PLACE_TABS = {
   today: [],
   // «Woche planen» WP1–WP3: the week, the Sunday planning and the holidays
   week: [
-    { key: 'week', label: 'This week|tab', href: '#/week', match: (h) => /^#\/week\/?(\?|$)/.test(h) },
-    { key: 'plan', label: 'Plan the week|tab', href: '#/week/plan', match: (h) => h.startsWith('#/week/plan') },
-    { key: 'away', label: 'Holidays|tab', href: '#/week/away', match: (h) => h.startsWith('#/week/away') },
-    // N1 «Planen» (Noah 20.10.2026): appointments and tasks (Google) and the notes, same addresses as before
-    { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') },
+    // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
+    // Woche planen and Ferien are one tap from the week (its buttons), so «Woche» covers all of #/week.
+    { key: 'week', label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
+    { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') || h.startsWith('#/calendar') },
     { key: 'notes', label: 'Notes|tab', href: '#/notes', match: (h) => h.startsWith('#/notes') },
+    { key: 'inbox', label: 'Inbox|tab', href: '#/inbox', match: (h) => h.startsWith('#/inbox') },
+    { key: 'mail', label: 'Mail|tab', href: '#/me/mail', match: (h) => h.startsWith('#/me/mail') },
+    { key: 'compass', label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
+    { key: 'alltag', label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
+    { key: 'frei', label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
   ],
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !isRidesHash(h) },
@@ -369,6 +373,10 @@ export const PLACE_TABS = {
     { key: 'impulse', label: 'Impulses', href: '#/flow/impulse', match: (h) => /^#\/flow\/impulse/.test(h) },
     // N1: Erkenntnisse (resting pulse, sleep and rides together) under Auswerten, same address
     { key: 'insights', label: 'Insights|tab', href: '#/me/insights', match: (h) => h.startsWith('#/me/insights') },
+    // UI-Ziele #6: the answers of «Wi gaht's?», what does you good and the weight are Auswerten too
+    { key: 'history', label: 'How you are|tab', href: '#/me/abfragen', match: (h) => h.startsWith('#/me/history') || h.startsWith('#/me/abfragen') || h.startsWith('#/me/analysis') },
+    { key: 'wohl', label: 'Good for me|tab', href: '#/me/wohl', match: (h) => h.startsWith('#/me/wohl') },
+    { key: 'weight', label: 'Weight|tab', href: '#/me/weight', match: (h) => h.startsWith('#/me/weight') },
   ],
 };
 
@@ -394,10 +402,9 @@ export function placeOf(page) {
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
   if (page === 'flow') return 'active';
   if (page === 'impulse') return 'active'; // Paket T: Aktiv › Impulse
-  if (page === 'frei') return 'me'; // Paket T: Ich › Freie Zeit
-  if (page === 'alltag') return 'me'; // Paket V: Ich › Alltag
-  if (page === 'week' || page === 'agenda' || page === 'notes') return 'week'; // N1: Planen
-  if (page === 'stravarides' || page === 'insights') return 'active'; // N1: Auswerten
+  // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
+  if (['week', 'agenda', 'calendar', 'notes', 'inbox', 'mail', 'compass', 'alltag', 'frei'].includes(page)) return 'week';
+  if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'active';
   if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'tour', 'travel', 'race', 'live', 'fuel'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';

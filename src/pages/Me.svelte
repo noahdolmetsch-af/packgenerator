@@ -207,38 +207,10 @@
 
   <div class="ich-cols">
     <div class="ich-main">
-      {#if !wide.matches}
-        <!-- «Woche planen» (Noah 15.10.2026 «1a»): on a phone «Woche» sits in the bottom bar, Material is here -->
-        <ul class="card ich-list" data-me-gear>
-          <li>
-            <a class="ich-row" href="#/gear">
-              <span class="ich-ib"><Backpack size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Gear|place')}</b><small>{t('Everything you own, clothes, building blocks, shopping')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-        </ul>
-      {/if}
-      <!-- Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): impulses, collections and six small pages -->
-      <ul class="card ich-list" data-me-frei>
-        <li>
-          <a class="ich-row" href="#/me/frei">
-            <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
-            <span class="ich-m"><b>{t('Free time')}</b><small>{t('Impulses, collections, evenings, first night and more')}</small></span>
-            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-          </a>
-        </li>
-      </ul>
-      <ul class="card ich-list" data-me-alltag>
-        <li>
-          <!-- Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a»): shopping list, contracts, «Not seen for a while» -->
-          <a class="ich-row" href="#/me/alltag">
-            <span class="ich-ib"><ShoppingCart size={18} aria-hidden="true" /></span>
-            <span class="ich-m"><b>{t('Everyday life')}</b><small>{t('Shopping list, contracts and subscriptions, people you miss')}</small></span>
-            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-          </a>
-        </li>
-      </ul>
+      <!-- UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Ich keeps data, settings and help. Freie Zeit, Alltag,
+           Termine, Mail, Notizen, Eingang and Kompass are under Planen; Wi gaht's?, Erkenntnisse, Was mir gut tut
+           and Gewicht under Auswerten; Material under Velos. One quiet line says where they went. -->
+      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/flow">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>.</span></p>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">
@@ -258,14 +230,6 @@
             </a>
           </li>
           <li>
-            <!-- Google Kalender und Aufgaben (GA): appointments and tasks from Google, also for «Woche planen» -->
-            <a class="ich-row" href="#/me/agenda">
-              <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Appointments and tasks')}</b><small>{agendaOn ? t('from your Google calendar and Google Tasks') : t('Connect Google Calendar and Google Tasks')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
             <!-- package G #155: every connection in one place (Strava, Fitbit, Google, lake), with its switches -->
             <a class="ich-row" href="#/me/connections" data-row="connections">
               <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
@@ -274,89 +238,10 @@
             </a>
           </li>
           <li>
-            <!-- Google Mail (GM): the Gmail inbox, read and send -->
-            <a class="ich-row" href="#/me/mail">
-              <span class="ich-ib"><Mail size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Mail')}</b><small>{t('Your Gmail: read, search, answer, write')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- AB1/AB5 «Deine Abfragen»: what the app asks you and how often -->
-            <a class="ich-row" href="#/me/abfragen">
-              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Your questions')}</b><small>{t('What the app asks you and how often')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- AB4: all values in one history -->
-            <a class="ich-row" href="#/me/history">
-              <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('History')}</b><small>{t('All values in one place: answers, Fitbit, Strava')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Erkenntnisse (Noah 19.10.2026 «4b» + own page): what goes together in your data -->
-            <a class="ich-row" href="#/me/insights" data-me-insights>
-              <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Insights')}</b><small>{t('What goes together: sleep, battery, rides, weather, appointments')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <a class="ich-row" href="#/inbox">
-              <span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Inbox')}</b><small>{$waitQ?.inbox ? `${t('{n} to sort', { n: $waitQ.inbox })} · ${t('Notes from on the way')}` : t('Notes from on the way, to sort')}</small></span>
-              {#if $waitQ?.inbox}<span class="pill act num" aria-hidden="true">{$waitQ.inbox}</span>{/if}
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- PL3 (Noah 14.10.2026 «PL1-PL3 freigeben», «1a»): Kalender › Merken, the own to-dos -->
-            <a class="ich-row" href="#/calendar">
-              <span class="ich-ib"><ListTodo size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Calendar › Remember')}</b><small>{t('Your to-dos and reminders')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <a class="ich-row" href="#/notes">
-              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Notes')}</b><small>{t('Kept notes, topics and checklists')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket N (Noah 19.10.2026 «4b»): Ich › Mein Kompass, goals in steps and the boxes -->
-            <a class="ich-row" href="#/me/compass" data-row="compass">
-              <span class="ich-ib"><Target size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('My compass')}</b><small>{t('Goals in steps, resolutions, dreams, ideas')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
             <!-- «Inspiration» UC2-1: on a phone Ich › Inspiration (on a computer also in the sidebar) -->
             <a class="ich-row" href="#/inspiration">
               <span class="ich-ib"><Compass size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Inspiration')}</b><small>{t('Your own links, key words and notes')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- TR6/TR6b: Ich › Meine Daten › Gewicht -->
-            <a class="ich-row" href="#/me/weight" data-row="weight">
-              <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Weight|place')}</b><small>{weightLine}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket P «Was mir gut tut» (Noah 19.10.2026) -->
-            <a class="ich-row" href="#/me/wohl" data-row="wohl">
-              <span class="ich-ib"><HeartHandshake size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('What is good for me')}</b><small>{t('Good days, experiments, life phases')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -619,6 +504,20 @@
     font-size: var(--fs-small);
   }
   .moved :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  /* UI-Ziele #6: one quiet line where the moved rows went */
+  .moved-to {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0 0 var(--sp-4);
+    padding: 10px 14px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .moved-to :global(svg) {
     flex: none;
     margin-top: 2px;
   }
