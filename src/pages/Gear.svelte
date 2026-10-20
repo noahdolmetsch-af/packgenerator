@@ -651,7 +651,7 @@
   {#if !mode && !items.length && $itemsQuery}{#key view === 'wish'}<AreaIntro place={view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
-  {#if items.length}{#key view === 'wish'}<HintCard page="gear" intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
+  {#if items.length}{#key view === 'wish'}<HintCard page={view === 'wish' ? 'einkauf' : 'gear'} intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
 
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
@@ -914,12 +914,14 @@
             </div>
           </aside>
         {/if}
+        {#if view !== 'wish'}
         <section class="vcard" aria-labelledby="views-h">
           <h2 id="views-h" class="title">{t('Views')}</h2>
           <!-- Impeccable (18.10.2026): the views filter; the places (Clothes, Building blocks, Shopping) are the tabs above -->
           <p class="vnote">{t('Filters the list above. To switch place, pick it at the top: Clothes, Building blocks, Shopping.')}</p>
           {@render viewButtons('vrows')}
         </section>
+        {/if}
         <!-- SL2 (answer 2a): the jump bar beside the list on a computer, it stays in view -->
         {#if tab === 'inventory' && display === 'list' && !searching}<div class="jump-dt"><ListNav groups={catJumps} active={activeCat} onjump={jump} mode="toc" /></div>{/if}
       </div>
@@ -930,7 +932,7 @@
     {#if !selecting}<PageMore page="gear" name={t('Gear|page')} />{/if}
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PinnedLists place="gear" />{/if}
-    {#if !selecting}<PageTiles page="gear" />{/if}
+    {#if !selecting && view !== 'wish'}<PageTiles page="gear" />{/if}
   {/if}
 </div>
 

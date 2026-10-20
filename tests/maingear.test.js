@@ -30,6 +30,13 @@ describe('the sports', () => {
     expect(keys).not.toContain('act:spin');
     expect(keys).not.toContain('dom:bikepacking');
   });
+  it('leaves out habits and names that are there already', () => {
+    const more = [...acts, { id: 'test_med', name: 'Meditation', ring: 'mind' }, { id: 'test_sauna', name: 'Sauna', ring: 'rest' }, { id: 'test_hike', name: 'Hiking', ring: 'move' }];
+    const keys = sportsOf(more).map((s) => s.key);
+    expect(keys).not.toContain('act:test_med');
+    expect(keys).not.toContain('act:test_sauna');
+    expect(keys).not.toContain('act:test_hike'); // the area «Hiking» is there already
+  });
   it('suggests care and a counter by sport and name', () => {
     expect(careSuggest('dom:ski', 'Felle Test')[0]).toMatchObject({ every: 20, unit: 'uses' });
     expect(careSuggest('dom:ski', 'LVS Test')[0]).toMatchObject({ every: 365, unit: 'days' });

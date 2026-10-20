@@ -24,7 +24,10 @@
   const today = localDay();
   const dataQ = liveQuery(async () => {
     const [trips, debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.rides.toArray(), db.activities.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.flowLog.toArray(), db.notes.toArray(), db.bikes.toArray()]);
-    return { trips: homeTrips(trips), debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes };
+    // Impeccable bug: a report from the error page («Error on the page …») is no part of your chronicle
+    const report = /^(Error on the page|Fehler auf der Seite) «/;
+    const own = notes.filter((n) => !report.test(String(n.text ?? n.body ?? n.title ?? '').trim()));
+    return { trips: homeTrips(trips), debriefs, rides, activities, visits, maintenance, flowLog, notes: own, bikes };
   });
   const data = $derived($dataQ);
   const entries = $derived(data ? timeline({ ...data, today }) : []);

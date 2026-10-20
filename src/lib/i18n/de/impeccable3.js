@@ -124,4 +124,15 @@ export default {
   // P6 Fitbit
   "Fitbit needs the Strava connection first.": "Fitbit braucht zuerst die Strava-Verbindung.",
   "Connect Strava ›": "Strava verbinden ›",
+
+  // Bugs: race date, Einkauf hint
+  "The last day comes before the first day.": "Der letzte Tag liegt vor dem ersten Tag.",
+  "Here is what you still want to buy.": "Hier steht, was du noch kaufen willst.",
+  "Each wish says its price and why it is on the list; «Bought» moves it to your gear.": "Jeder Wunsch sagt seinen Preis und warum er auf der Liste ist; «Gekauft» legt ihn zu deinem Material.",
+  "An idea for later": "Eine Idee für später",
+  "put it on the list with a price": "setz sie mit Preis auf die Liste",
+  "Before buying": "Vor dem Kauf",
+  "compare it with what you own already": "vergleich mit dem, was du schon hast",
+  "Bought": "Gekauft",
+  "one tap and it is part of your gear": "ein Tipp und es gehört zu deinem Material",
 };

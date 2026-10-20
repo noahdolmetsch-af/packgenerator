@@ -768,12 +768,14 @@
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
   const daysTo = (day) => Math.round((Date.parse(`${day}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5);
+  // Impeccable: a title that ends with a full stop gets no second one («Heute: Tour..»)
+  const bare = (x) => String(x ?? '').replace(/[.!?…]+\s*$/, '');
   const sentence = $derived.by(() => {
     if (!ready || night) return null;
     const parts = [];
     const d = next?.startDate ? daysTo(next.startDate) : null;
-    if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: next.title }) });
-    else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: next.title }) });
+    if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
+    else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
     parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
   });
