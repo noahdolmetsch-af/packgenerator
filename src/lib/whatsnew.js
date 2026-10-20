@@ -20,16 +20,15 @@ export const WHATS_NEW = [
     version: '0.168.0',
     date: '2026-10-20',
     title: 'Five places for your day',
-    lead: 'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.',
+    lead: 'The bar: Today, Plan, Trips, Analysis, Bikes; old links still work.',
     points: [
       { text: 'Plan: week, appointments, notes, Inbox, mail, compass, everyday life', href: '#/week' },
-      { text: 'Analysis: activity, training, rides, insights, «Wi gaht\'s?», weight', href: '#/flow' },
-      { text: 'Me keeps only data, settings and help', href: '#/me' },
+      { text: 'Analysis: activity, training, rides, weight and more', href: '#/flow' },
+      { text: 'Me: data, settings, help', href: '#/me' },
     ],
     small: [
-      { box: 'nicer', text: 'Shorter on the phone: week, bike care and workshop show five rows first' },
-      { box: 'nicer', text: 'Old links and bookmarks keep working' },
-      { box: 'new', text: 'A test keeps every page at most three phone screens, or makes it shorter step by step' },
+      { box: 'nicer', text: 'Phone: week, bike care and workshop show five rows first' },
+      { box: 'new', text: 'A test keeps every page short on the phone' },
     ],
     test: [
       'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.',

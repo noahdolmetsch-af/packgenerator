@@ -1388,13 +1388,12 @@ export default {
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
   // N1 «Neue Leiste»
   'Five places for your day': 'Fünf Orte für deinen Tag',
-  'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.': 'Die Leiste heisst jetzt Heute, Planen, Touren, Auswerten und Velos; jede Seite hat ihre alte Adresse.',
+  'The bar: Today, Plan, Trips, Analysis, Bikes; old links still work.': 'Die Leiste: Heute, Planen, Touren, Auswerten, Velos; alte Links gehen weiter.',
   'Plan: week, appointments, notes, Inbox, mail, compass, everyday life': 'Planen: Woche, Termine, Notizen, Eingang, Mail, Kompass, Alltag',
-  'Analysis: activity, training, rides, insights, «Wi gaht\'s?», weight': 'Auswerten: Aktivität, Training, Fahrten, Erkenntnisse, «Wi gaht\'s?», Gewicht',
-  'Me keeps only data, settings and help': 'Ich hat nur noch Daten, Einstellungen und Hilfe',
-  'Shorter on the phone: week, bike care and workshop show five rows first': 'Kürzer am Handy: Woche, Velopflege und Werkstatt zeigen zuerst fünf Zeilen',
-  'A test keeps every page at most three phone screens, or makes it shorter step by step': 'Ein Test hält jede Seite bei höchstens drei Handy-Bildschirmen oder macht sie Schritt für Schritt kürzer',
-  'Old links and bookmarks keep working': 'Alte Links und Lesezeichen gehen weiter',
+  'Analysis: activity, training, rides, weight and more': 'Auswerten: Aktivität, Training, Fahrten, Gewicht und mehr',
+  'Me: data, settings, help': 'Ich: Daten, Einstellungen, Hilfe',
+  'Phone: week, bike care and workshop show five rows first': 'Handy: Woche, Velopflege, Werkstatt zeigen zuerst fünf Zeilen',
+  'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
   // v0.166.0 «Neueste Version laden»
