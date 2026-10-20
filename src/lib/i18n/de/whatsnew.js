@@ -1393,7 +1393,7 @@ export default {
   'Plan a tour: profile and climbs': 'Tour planen: Profil und Anstiege',
   'Aktiv: week in numbers, tiles to change': 'Aktiv: Woche in Zahlen, Kacheln selbst ändern',
   'Map ground on every map, with a bike map': 'Kartengrund überall, neu Velokarte',
-  'AI key: no wrong hint': 'KI-Schlüssel: kein falscher Hinweis',
+  'No wrong hints: AI key, Strava': 'Keine falschen Hinweise: KI-Schlüssel, Strava',
   'Plan a tour with a GPX route and tap a climb under «Climbs».': 'Plane eine Tour mit GPX-Strecke und tippe unter «Anstiege» auf einen Anstieg.',
   'Add gear to a ride, with notes': 'Gepäck nachtragen, mit Notiz',
   'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».': 'Öffne Touren › Fahrten, wähle eine Fahrt ohne Packliste und tippe «Gepäck eintragen».',

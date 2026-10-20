@@ -31,6 +31,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 21 | KI-Schlüssel-Hinweis | 0.168.0 | Kein falscher Hinweis «KI-Helfer-Schlüssel läuft ab» mehr auf Heute und in «Wartet auf dich»; Schlüssel-Hinweise nur unter Ich › App-Wartung | dieser PR |
 | 22 | Aktiv neu | 0.168.0 | «Deine Woche in Zahlen» (Schlaf, Ruhepuls, Aktivzonen-Minuten) statt «Velo diesen Monat», Verlauf als Tagebuch mit Fitbit, Puls und Watt, Kacheln abhaken kleiner, Auswertung zeigt Messwerte | dieser PR |
 | 23 | Kartengrund wählen | 0.168.0 | Ein Kartengrund für alle Karten (Rennen, Live, Tour, Spur, Messen, Standbilder), neu «Velokarte» (CyclOSM); Google Maps und OsmAnd gehen bei 0 Kosten nicht | dieser PR |
+| 24 | Strava «Zum Prüfen» und Chronik | 0.168.0 | Ältere Fahrten im Startwert des Velos oder mit gezähltem Zwilling gehen als «nicht gezählt» zum Velo (mit Rückgängig) statt in «Zum Prüfen»; Chronik zeigt in vollen Monaten 7 Tage, dann «n weitere Tage zeigen» | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

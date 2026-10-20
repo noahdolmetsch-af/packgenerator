@@ -29,7 +29,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'new', text: 'Aktiv: week in numbers, tiles to change' },
       { box: 'new', text: 'Map ground on every map, with a bike map' },
-      { box: 'fixed', text: 'AI key: no wrong hint' },
+      { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
     ],
     test: [
       'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
