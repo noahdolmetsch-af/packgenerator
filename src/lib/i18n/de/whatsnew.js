@@ -1387,6 +1387,11 @@ export default {
   'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
   // v0.166.0 «Neueste Version laden»
+  'No more old versions': 'Keine alten Versionen mehr',
+  'If your phone ever hangs on an old version, the app notices it and offers to load the new one.': 'Hängt dein Handy an einer alten Version fest, merkt die App das und bietet die neue an.',
+  'If your phone ever hangs on an old version, a bar on top offers «Load now»': 'Hängt dein Handy an einer alten Version fest, zeigt die App oben einen Balken mit «Jetzt laden»',
+  'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.': 'Nichts zu tun: Ist eine neuere Version seit 15 Minuten online und dein Handy zeigt noch die alte, erscheint oben ein Balken.',
+  'Tap «Load now»: the app loads fresh from the internet, your data stays.': 'Tippe «Jetzt laden»: Die App lädt frisch aus dem Internet, deine Daten bleiben.',
   'Always the newest version': 'Immer die neueste Version',
   'When a page fails, one button loads the app fresh from the internet; your data stays on this device.': 'Klemmt eine Seite, lädt ein Knopf die App frisch aus dem Internet; deine Daten bleiben auf diesem Gerät.',
   'Error page: «Reload the newest version» loads the app anew from the internet; trips, lists and notes stay': 'Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet; Touren, Listen und Notizen bleiben',

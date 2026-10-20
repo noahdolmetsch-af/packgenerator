@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'No more old versions',
+    lead: 'If your phone ever hangs on an old version, the app notices it and offers to load the new one.',
+    points: [
+      { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
+    ],
+    test: [
+      'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
+      'Tap «Load now»: the app loads fresh from the internet, your data stays.',
+    ],
+  },
+  {
     // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
     version: '0.166.0',
     date: '2026-10-20',
