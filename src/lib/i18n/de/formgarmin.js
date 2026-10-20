@@ -186,4 +186,7 @@ export default {
   'Minutes in your pulse zones (Training › Zones), from the pulse of your Strava activities.': 'Minuten in deinen Pulszonen (Training › Zonen), aus dem Puls deiner Strava-Aktivitäten.',
   'Your meditation ticks in Aktiv; a tick without minutes counts as 10.': 'Deine Meditations-Häkchen in Aktiv; ein Häkchen ohne Minuten zählt 10.',
   'Your rides with a temperature from the device (Strava or FIT file). Warm rides often have a higher pulse.': 'Deine Fahrten mit einer Temperatur vom Gerät (Strava oder FIT-Datei). Bei Wärme ist der Puls oft höher.',
+  // Handy-Längenbudget: «Überblick» and «Letzte 7 Tage» folded on a phone
+  'Overview and last 7 days': 'Überblick und letzte 7 Tage',
+  '{n} bpm at rest': '{n} bpm in Ruhe',
 };

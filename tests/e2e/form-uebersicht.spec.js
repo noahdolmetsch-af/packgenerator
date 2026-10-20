@@ -11,6 +11,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
+import { openOverview } from './ov-fold.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const P = 'test_data_fu_';
@@ -76,6 +77,7 @@ test('Aktiv: readiness on top, then the Garmin overview', async ({ page, context
   await expect(focus.locator('.b')).toHaveCount(7);
   await expect(focus.locator('.dots i')).toHaveCount(28);
   await expect(page.locator('[data-focus-card="run"]')).toHaveCount(1);
+  await openOverview(page);
   const ov = page.locator('[data-overview]');
   await expect(ov.locator('[data-ov="hr"]')).toContainText('bpm');
   await expect(ov.locator('[data-section="azm"] [data-azm-sum]')).not.toBeEmpty();

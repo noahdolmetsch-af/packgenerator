@@ -6,8 +6,10 @@
    * the calories and «Deine Woche in Zahlen» with the comparison to your usual week).
    * The values come from Strava, the rides of the app and Fitbit (messwerte.js, uebersicht.js).
    */
-  import { Heart, Flame, Moon, ChevronRight } from '@lucide/svelte';
+  import { Heart, Flame, Moon, ChevronRight, LayoutGrid } from '@lucide/svelte';
   import Sec from '../kit/Sec.svelte';
+  import FoldRow from '../../ui/FoldRow.svelte';
+  import { phone } from '../../media.svelte.js';
   import TodayActs from './TodayActs.svelte';
   import Focus from './Focus.svelte';
   import AzmWeek from '../../health/AzmWeek.svelte';
@@ -47,6 +49,12 @@
   const nights = $derived(Array.from({ length: 7 }, (_, i) => table.get(addDays(today, i - 6))?.sleep ?? null));
   const nightTop = $derived(Math.max(480, ...nights.map((v) => v ?? 0)));
   const fitbitOff = $derived(!health.prefs.connected);
+  // Handy-Längenbudget (coordinator 20.10.2026, Aktiv 6.8 screens in 0.170): on a phone «Überblick» and «Letzte 7
+  // Tage» wait behind one row with the main numbers; a computer shows them open
+  let more = $state(false);
+  const foldSum = $derived(
+    [rhr ? t('{n} bpm at rest', { n: num(rhr.v) }) : '', sleep ? `${t('Sleep|metric')} ${shown('sleep', sleep.v, num)}` : '', week.kinds.length ? tn(week.kinds.reduce((x, k) => x + k.n, 0), '{n} activity', '{n} activities') : ''].filter(Boolean).join(' · '),
+  );
   const kcalPct = $derived(kcal.total && kcal.active != null ? Math.max(3, Math.min(97, Math.round((kcal.active / kcal.total) * 100))) : null);
 </script>
 
@@ -62,6 +70,7 @@
   </Sec>
 {/if}
 
+{#snippet body()}
 <Sec id="overview-h" title={t('Overview|garmin')} sub={t('from Fitbit and Strava · tap a tile for more')}>
   <div class="ov" data-overview>
     <a class="card tile" href="#/flow/stats/hr" data-ov="hr">
@@ -114,10 +123,26 @@
     <li data-l7="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{week.kcal == null ? '–' : t('avg {n}', { n: num(week.kcal) })}</b></li>
   </ul>
   <WeekNumbers {today} />
-  {@render children?.()}
+  {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
+{/snippet}
+
+{#if phone.matches}
+  <div class="card ovfold" data-ov-fold>
+    <FoldRow icon={LayoutGrid} label={t('Overview and last 7 days')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
+  </div>
+  {@render children?.()}
+{:else}
+  {@render body()}
+{/if}
 
 <style>
+  .ovfold {
+    padding: 0 14px;
+  }
+  .ovfold :global(.foldrow) {
+    border-top: 0;
+  }
   .ov {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
