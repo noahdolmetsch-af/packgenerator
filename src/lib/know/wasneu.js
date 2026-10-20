@@ -104,6 +104,8 @@ export const SINCE = {
   'f.travel': '0.155.0',
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
+  // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
+  'f.reroute': '0.167.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
 };

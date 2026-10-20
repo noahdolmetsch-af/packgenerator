@@ -199,6 +199,7 @@ export const HOWTO = {
   'f.racemap': ['Open Trips › Races and a race.', 'Tap «Map».', 'Switch the layers and tap the profile.'],
   'f.climbs': ['Open Trips › Races and a race.', 'Tap «Climbs».', 'Tap a climb for its gradient per 100 m.'],
   'f.mapoffline': ['Open a race › «Map».', 'Scroll to «Map offline».', 'Tap «Keep for offline».'],
+  'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
   'f.live': ['Tap «Start a ride» on Active.', 'Allow the location.', 'Keep the page open while you ride.'],
   'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],

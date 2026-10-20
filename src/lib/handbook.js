@@ -675,6 +675,11 @@ export const HANDBOOK = {
     steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
     example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
   },
+  'f.reroute': {
+    on: null,
+    steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
+    example: 'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.',
+  },
   'f.live': {
     on: null,
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],

@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
@@ -47,6 +47,9 @@
   import PlaceSheet from '../lib/spur/PlaceSheet.svelte';
   import Essen from '../lib/unterwegs/Essen.svelte';
   import SosSheet from '../lib/live/SosSheet.svelte';
+  import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR } from '../lib/reroute.js';
+  import { saveGpx } from '../lib/gpxout.js';
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
@@ -225,6 +228,7 @@
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
     { key: 'stops', label: t('Stops') },
@@ -408,7 +412,7 @@
       }
     }
     // off-route
-    if (cfg.offRoute && at) {
+    if (cfg.offRoute && at && !onDetour(detour, me)) {
       const r = offRouteStep(at.offM, offState, 100);
       offState = r.state;
       offWarn = r.state === 'off';
@@ -502,6 +506,31 @@
   /* ---------- sheets ---------- */
   let sos = $state(false);
   let place = $state(false);
+
+  /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
+  let reroute = $state(false);
+  let picked = $state(null); // a point pressed long on the map
+  let detour = $state(loadDetour());
+  let gpxMsg = $state('');
+  const setDetour = (d) => {
+    detour = d;
+    gpxMsg = '';
+    saveDetour(d);
+    if (d?.line?.length > 1) {
+      follow = false;
+      mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), sheetPx);
+    }
+  };
+  // back on the route past the rejoin point (or at the place): the detour has done its job
+  $effect(() => {
+    if (detour && detourDone(detour, { km, here: me })) untrack(() => setDetour(null));
+  });
+  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
+  async function detourToGarmin() {
+    const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
+    const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
+    gpxMsg = r === 'cancelled' ? '' : t('GPX saved: open it in Garmin Connect, Wahoo or komoot and send it to the bike computer.');
+  }
   let profileKm = $state(null);
   $effect(() => {
     if (km != null) profileKm = km;
@@ -803,7 +832,7 @@
             points={allPoints}
             me={meOnMap}
             {done}
-            {grades}
+            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
             {overlays}
             fill
             bar={false}
@@ -813,6 +842,7 @@
             ondrag={() => (follow = false)}
             onmove={(b) => (mapBounds = b)}
             onpick={pickPoint}
+            onlongpress={(p) => ((picked = p), (reroute = true))}
           />
         {/snippet}
         {#snippet smallMap()}
@@ -828,6 +858,18 @@
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
+        {#if detour}
+          <div class="lvf-alert lv-detour" role="status" data-live-detour>
+            <Route size={18} aria-hidden="true" />
+            <span class="lv-detour-main">
+              <b>{t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
+              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
+              {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
+            </span>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+          </div>
+        {/if}
         {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
         {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
@@ -844,6 +886,7 @@
             <button type="button" class="lvf-ic" onclick={() => (menu = false)} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>
             {#if DICTATION}
@@ -1104,6 +1147,7 @@
   </details>
 {/snippet}
 
+{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -1390,6 +1434,30 @@
   }
   .lvf-bad {
     border-left: 4px solid var(--bad);
+  }
+  .lv-detour {
+    border-left: 4px solid var(--l3);
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+  .lv-detour-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+  .lv-detour small {
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .lv-detour-main .btn {
+    margin-top: 4px;
+  }
+  .lv-detour .lv-detour-x {
+    width: 36px;
+    height: 36px;
   }
   .lvf-menu-btn {
     position: absolute;
