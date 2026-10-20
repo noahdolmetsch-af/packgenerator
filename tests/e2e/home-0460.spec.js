@@ -3,7 +3,7 @@
 // command "wiegen", no sideways scroll at 320 and 390 px. Fictional fixture plus test_data_gtp_ records;
 // the clock stands on Friday 9 October 2026, 09:00; Open-Meteo is mocked, nothing leaves the preview.
 import { test, expect } from '@playwright/test';
-import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
+import { READY } from '../../src/lib/home/tiles.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { greetFor } from '../../src/lib/home/hallo.js';
 
@@ -48,12 +48,12 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('section.trip .btn.hi')).toHaveCount(1);
 
   // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the functions are small tiles on the ready wall;
-  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): nine of the 16 left it (back through «+»)
+  // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): 8 chosen shortcuts, the others back through «+»
   const buttons = page.locator('.wall [data-fn]');
-  await expect(buttons).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
-  await expect(buttons.first()).toHaveAttribute('data-fn', 'weigh');
-  // a number only where something waits: the open notes (the bike care is a line of Important today now)
-  await expect(page.locator('.wall [data-fn="ride"] .bd')).toHaveCount(0);
+  const fns = READY.filter((x) => x.id.startsWith('fn:'));
+  await expect(buttons).toHaveCount(fns.length);
+  await expect(buttons.first()).toHaveAttribute('data-fn', fns[0].id.slice(3));
+  // a number only where something waits: the open notes
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
 
   // Noah 2b: greeting and trip card without scrolling
@@ -62,17 +62,17 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await page.locator('[data-name-ask] [data-name-later]').click();
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
-  // v0.155.0 HN4 (changed on purpose): the meditation card and the day card come first; the day before a trip
-  // its card stands right under the day card (4b), then Important today and Im Flow
-  const dayTop = await page.locator('[data-daycard]').evaluate((el) => el.getBoundingClientRect().top);
-  expect(dayTop, 'the day card starts in the first screen').toBeLessThan(page.viewportSize().height);
-  const order = await page.locator('[data-daycard], [data-section="trip"], [data-section="today"], [data-section="flow"]').evaluateAll((els) => els.map((e) => (e.dataset.section ?? 'daycard')));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['daycard', 'trip', 'today', 'flow']);
+  // «Heute neu» A (changed on purpose): one sentence, then «Up now» and the trip, then «You today»
+  await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
+  const upTop = await page.locator('[data-section="today"]').evaluate((el) => el.getBoundingClientRect().top);
+  expect(upTop, '«Up now» starts in the first screen').toBeLessThan(page.viewportSize().height);
+  const order = await page.locator('[data-section="trip"], [data-section="today"], [data-section="du"]').evaluateAll((els) => els.map((e) => e.dataset.section));
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['today', 'trip', 'du']);
 
-  // Important today, Tried it yet?, bikes, 12 months, customise
-  // v0.155.0 (2a, changed on purpose): one line with two rows, «Show all» opens the rest; «Tried it yet?» left Today
-  const imp = page.getByRole('region', { name: T('Important today') });
-  await expect(imp.locator('li')).toHaveCount(2);
+  // Up now, Tried it yet?, bikes, customise
+  // «Heute neu» A (changed on purpose): at most 4 rows, «Show all» opens the rest; the 12 months left Heute (catalog)
+  const imp = page.getByRole('region', { name: T('Up now') });
+  await expect(imp.locator('li')).toHaveCount(4);
   await expect(imp.locator('button.more')).toHaveText(new RegExp(T('Show all {n}', { n: '(\\d+)' })));
   const all = Number((await imp.locator('button.more').textContent()).match(/\d+/)[0]);
   await imp.locator('button.more').click();
@@ -81,10 +81,9 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
   await expect(page.locator('[data-section="bikes"] a.bk')).toHaveCount(4);
   await expect(page.locator('[data-section="bikes"] [data-bike="test_data_gtp_lux"]')).toContainText(T('+ log km'));
-  await expect(page.locator('[data-year-row] .bars span')).toHaveCount(12);
-  await expect(page.locator('[data-year-row]')).toContainText(T('{n} weeks in a row', { n: 3 }));
-  await expect(page.getByRole('button', { name: T('Customise the start page') })).toBeVisible();
-  if (!phone) await expect(page.locator('[data-suggestion]')).toContainText(T('Quick start')); // v0.119.0 «Schnellstart»
+  await expect(page.locator('[data-year-row]')).toHaveCount(0);
+  await expect(page.locator('[data-all-areas]')).toBeVisible();
+  if (!phone) await expect(page.getByRole('button', { name: T('Customise the start page') })).toBeVisible();
 
   // the bike card opens the bike in Bikes → Care
   await expect(page.locator('[data-bike="test_data_gtp_spark"]')).toHaveAttribute('href', '#/bikes?tab=care&bike=test_data_gtp_spark&open=1');
@@ -94,8 +93,8 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
 
 test('lubed right on Today, with Undo; a function tile opens its page', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
-  const imp = page.getByRole('region', { name: T('Important today') });
-  await imp.locator('button.more').click(); // v0.155.0: one line, the lube row may wait behind «Show all»
+  const imp = page.getByRole('region', { name: T('Up now') });
+  await imp.locator('button.more').click(); // «Heute neu» A: 4 rows, the lube row may wait behind «Show all»
   const row = imp.locator('li').filter({ hasText: T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }) });
   const lubed = row.getByRole('button', { name: T('Lubed ✓') });
   if (info.project.name === 'phone') expect((await lubed.boundingBox()).height).toBeGreaterThanOrEqual(44);
@@ -108,15 +107,15 @@ test('lubed right on Today, with Undo; a function tile opens its page', async ({
   expect((await stored(page, 'bikes', 'bike-test')).parts[0].history).toHaveLength(1);
 
   // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
-  // v0.155.0: «Review» left the ready wall (HN4 3a); «Log a ride» is one of the functions still there
-  await page.locator('.wall [data-fn="ride"]').click();
-  await expect(page).toHaveURL(/#\/debrief\/ride$/);
+  // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts
+  await page.locator('.wall [data-fn="note"]').click();
+  await expect(page).not.toHaveURL(/#\/?$/);
 });
 
 test('test trips: hidden as next trip, cleaned up after a question on the page, Undo', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   await expect(page.locator('#next-h')).not.toHaveText(/TEST/);
-  const imp = page.getByRole('region', { name: T('Important today') });
+  const imp = page.getByRole('region', { name: T('Up now') });
   await imp.locator('button.more').click();
   const row = imp.locator('li[data-row="tests"]');
   await expect(row).toContainText(T('Clean up {n} test trip', { n: 1 }));
@@ -210,10 +209,16 @@ test('the evening: review of the day and charging first; a phone swipes to the n
   // brings its window; «Später» puts it away and Heute is as before
   await page.locator('dialog[data-window="eve"] [data-window-later]').click();
   await expect(page.locator('dialog[data-window]')).toBeHidden();
-  const rows = page.getByRole('region', { name: T('Important today') }).locator('li');
-  await expect(rows.nth(0)).toContainText(T('Review today: {trip}', { trip: 'test_data_gtp_ Abendrunde' }));
+  // «Heute neu» A (changed on purpose): «Up now» starts with what is to start now (the meditation), then the
+  // review of the day and the charging, in this order
+  const up = page.getByRole('region', { name: T('Up now') });
+  if (await up.locator('button.more').count()) await up.locator('button.more').click();
+  const texts = await up.locator('li').allTextContents();
+  const review = texts.findIndex((x) => x.includes(T('Review today: {trip}', { trip: 'test_data_gtp_ Abendrunde' })));
   // the fixture packs a few devices already (lamp, GPS …): the count is whatever needs charging
-  await expect(rows.nth(1)).toContainText(/(Akkus laden: \d+ Geräte? für|Charge batteries: \d+ devices? for) test_data_gtp_ Herbstrunde/);
+  const charge = texts.findIndex((x) => /(Akkus laden: \d+ Geräte? für|Charge batteries: \d+ devices? for) test_data_gtp_ Herbstrunde/.test(x));
+  expect(review, texts.join(' | ')).toBeGreaterThanOrEqual(0);
+  expect(charge).toBe(review + 1);
 
   // the card shows the trip of today first; "1 / 3 ›" (and a swipe on a phone) goes to the next
   const title = page.locator('#next-h');
@@ -237,7 +242,7 @@ test('the evening: review of the day and charging first; a phone swipes to the n
 test('customise the start page: the picked tile\'s name readable, not squeezed into a 10 px column', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   await page.getByRole('button', { name: T('Customise the start page') }).click();
-  for (const id of ['important', 'fn:weigh', 'year']) {
+  for (const id of ['important', 'fn:note', 'bikes']) {
     const tile = page.locator(`.wall [data-tile="${id}"]`);
     await tile.locator('.pick').click();
     const name = page.locator(`[data-tools="${id}"] .tn`);

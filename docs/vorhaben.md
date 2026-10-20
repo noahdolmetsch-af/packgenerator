@@ -50,7 +50,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
-**Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren (Ziel «Eine App, die mich im Alltag unterstützt»).
+**Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren, 0.165.0 Heute neu A «Ein Blick» (Ziel «Eine App, die mich im Alltag unterstützt»).
 
 **Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, Paket 8 (0.160.0), nutzt dessen Ortssuche.
 **Nachtrag 19.10.2026 24 Uhr:** 0.159.0 «Paket 7» bringt U «Rennen» und die Live-Karte für jede Fahrt (Ziel Touren planen und fahren). Ideenliste U geschlossen; Weiteres in die Ideen-Sammlung.

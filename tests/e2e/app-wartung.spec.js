@@ -67,6 +67,10 @@ test('a copy before an update, the line in the news banner, and back to the stat
   await page.reload();
   await settle(page, { sameTrips: false });
 
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner «New in …» is under Ich, not on Today
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
+  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
   await expect(banner.locator('[data-news-snapshot]')).toContainText(T('Your data was backed up before the update. Something wrong?'));
   await banner.getByRole('link', { name: T('Back to the state before the update') }).click();
@@ -120,7 +124,7 @@ test('App maintenance shows the two Strava bars from the stored numbers', async 
   expect(errors).toEqual([]);
 });
 
-test('from 80 % one calm line on Heute; × closes it and the long-press tip comes back', async ({ page, context }) => {
+test('from 80 % one calm line on Heute; × closes it', async ({ page, context }) => {
   const errors = await open(page, context);
   await put(page, { meta: [rate], settings: [{ key: 'strava.card', value: 'later' }] });
   await page.reload();
@@ -131,7 +135,8 @@ test('from 80 % one calm line on Heute; × closes it and the long-press tip come
   await expect(page.locator('[data-hint]')).toHaveCount(1);
   await hint.getByRole('button', { name: T('Close the hint') }).click();
   await expect(hint).toHaveCount(0);
-  await expect(page.locator('[data-hint="longpress"]')).toBeVisible();
+  // «Heute neu» A 5b (changed on purpose): the tip about the long press left Today; nothing else comes
+  await expect(page.locator('[data-hint]')).toHaveCount(0);
   await page.reload();
   await settle(page, { sameTrips: false });
   await expect(page.locator('[data-hint="maintenance"]')).toHaveCount(0);

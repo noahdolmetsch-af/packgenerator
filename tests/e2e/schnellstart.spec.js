@@ -43,9 +43,9 @@ test('Q1 Q2a: Schnellstart makes a trip for today, Noah stays on Today; Undo del
   const before = (await dbTrips(page)).length;
 
   // Q1: the suggestion of today with the one button
-  const sugg = page.locator('.greet [data-suggestion]');
-  await expect(sugg).toContainText(T('Idea for today'));
-  await expect(sugg).toContainText(pattern(T('Ride up to {h} h with the {bike}, today', { h: '2,5', bike: '§' })));
+  // «Heute neu» A (0.165.0, changed on purpose): the suggestion is one row of «Up now»
+  const sugg = page.locator('[data-section="today"] li[data-row="idea"]');
+  await expect(sugg).toContainText(pattern(T('Idea: ride up to {h} h with the {bike}, today', { h: '2,5', bike: '§' })));
   const go = sugg.getByRole('button', { name: T('Quick start'), exact: true });
   await expect(go).toBeVisible();
   await expect(page.getByRole('button', { name: T('Start day ride') })).toHaveCount(0);
@@ -66,7 +66,7 @@ test('Q1 Q2a: Schnellstart makes a trip for today, Noah stays on Today; Undo del
   expect(made).toMatchObject({ startDate: D0, hours: 2.5, days: 1, overnight: 'none', wxFrom: 'forecast' });
   expect(made.copiedFrom ?? null).toBeNull();
   // the suggestion goes away: there is a trip today now
-  await expect(page.locator('[data-suggestion]')).toHaveCount(0);
+  await expect(page.locator('[data-section="today"] li[data-row="idea"]')).toHaveCount(0);
   await shot(page, info, 'Q2a-heute-tour-geplant');
 
   // «Rückgängig» deletes the new trip
@@ -76,7 +76,7 @@ test('Q1 Q2a: Schnellstart makes a trip for today, Noah stays on Today; Undo del
   expect((await dbTrips(page)).length).toBe(before);
 
   // again, then «Öffnen» goes to the trip
-  await page.locator('.greet [data-suggestion]').getByRole('button', { name: T('Quick start'), exact: true }).click();
+  await page.locator('[data-section="today"] li[data-row="idea"]').getByRole('button', { name: T('Quick start'), exact: true }).click();
   await expect(card).toContainText(STAMP);
   // a second quick start in the same minute would get « (2)»: the Touren list shows this one
   await card.getByRole('link', { name: T('Open'), exact: true }).click();
@@ -91,7 +91,7 @@ test('Q1 Q2a: Schnellstart makes a trip for today, Noah stays on Today; Undo del
 test('Q3: a trip name field marks the whole name on focus; a second click places the caret', async ({ page, context }, info) => {
   const phone = info.project.name === 'phone';
   const T = await openHome(page, context, info, { hour: 9 });
-  await page.locator('.greet [data-suggestion]').getByRole('button', { name: T('Quick start'), exact: true }).click();
+  await page.locator('[data-section="today"] li[data-row="idea"]').getByRole('button', { name: T('Quick start'), exact: true }).click();
   await page.locator('[data-quick-made]').getByRole('link', { name: T('Open'), exact: true }).click();
   await settle(page);
   const sel = (loc) => loc.evaluate((el) => [el.selectionStart, el.selectionEnd, el.value.length]);

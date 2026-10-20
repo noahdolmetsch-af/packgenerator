@@ -71,9 +71,8 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
-  import { messageOn, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
-  import { readUpdate, writeUpdate, readMute, readPin, writePin } from '../lib/know/wasneuStore.js';
-  import NewsBanner from '../lib/know/NewsBanner.svelte';
+  import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
@@ -148,14 +147,18 @@
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
-  import StravaConnect from '../lib/strava/StravaConnect.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome } from '../lib/bedienung.svelte.js';
-  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
+  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
+  import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
+  import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
+  import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
+  import { flowStates } from '../lib/flow.js';
+  import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { MERKEN_KEY } from '../lib/merkendb.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
@@ -217,7 +220,6 @@
   // version, the one before, the day); the message comes at each start until «Do not show again»
   // (until the next update) and the tile «New» goes on top of the wall for 14 days.
   let newsN = $state(0);
-  let newsBanner = $state([]);
   let newsChecked = false;
   let newsUpdate = $state(readUpdate());
   $effect(() => {
@@ -241,22 +243,13 @@
     if (h.show && seen) {
       writeUpdate({ v: h.mark, from: seen, at: localDay() });
       newsUpdate = readUpdate();
-      pinNewsTile();
+      // «Heute neu» A 5b: no tile «New» pinned on Heute any more; the news stay under Ich
     } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
-    const u = readUpdate();
-    // v0.127.0 A-U1 (Noah 3a): a calm banner on top instead of the window, for 7 days or until ×
-    if (messageOn({ update: u, mute: readMute(), today: localDay() })) newsBanner = newerThan(u.from ?? BEFORE);
+    // v0.127.0 A-U1: the calm banner after an update; «Heute neu» A 5b: it shows under Ich (Me.svelte)
     unpinNewsTile();
   });
   const newsDays = $derived(tileDaysLeft(newsUpdate, today));
-  // I11e: on top of the wall, a whole row, once per update; back where it stood after the 14 days
-  function pinNewsTile() {
-    const v = WHATS_NEW[0].version;
-    if (readPin()?.v === v) return;
-    const { tiles, from } = pinNews(wall, HEAD_0155);
-    writePin({ v, from, done: false });
-    saveWall(tiles);
-  }
+  // I11e: a tile «New» pinned by an earlier version goes back where it stood after the 14 days
   function unpinNewsTile() {
     const p = readPin();
     if (!p || p.done || p.v !== WHATS_NEW[0].version || tileDaysLeft(readUpdate(), localDay()) > 0) return;
@@ -309,7 +302,8 @@
   });
   // v0.73.0 (Noah, Heute ruhiger 1a 3a): with a trip today the suggestion is one slim row under the
   // trip card; without one it stays big beside the greeting (then it is the main thing).
-  const slim = $derived(!!suggestion && on('trip') && tripToday(trips, today));
+  // «Heute neu» A: the idea for today is one row of «Up now»; no slim row under the trip card any more
+  const slim = false;
   // v0.119.0 «Schnellstart» (mockups Q1, Q2a): one click makes the trip and Noah stays on Today; the
   // green card says what was made, «Open» goes to it, «Undo» deletes it again.
   let made = $state(null); // { id, title, line }
@@ -715,7 +709,6 @@
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
     for (const r of sheetReminders(bikes, { visits, today })) rows.push({ key: `sheet:${r.bikeId}:${r.key}`, tone: r.tone, text: r.text, act: { label: t('Open the sheet'), href: r.href }, later: () => sheetLater(r) });
     for (const n of $bookingNotes) rows.push(bookingRow(n));
-    if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });
     if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
     // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
@@ -744,9 +737,41 @@
     if (bike) await db.bikes.update(r.bikeId, { sheets: laterChanges(bike, r.key, today) });
   }
   let allRows = $state(false);
-  const rowsShown = $derived(allRows ? important : important.slice(0, 3));
-  // HN4 2a: «Important today» as one line under the day card: the first two rows, «Show all {n} ›»
-  const lineRows = $derived(allRows ? important : important.slice(0, 2));
+
+  /* ---------- «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b») ---------- */
+  // «Up now»: the round (when it waits), meditation and the idea for today first, then what is due (important)
+  let abDue = $state(0); // questions of the round due now (AbCard)
+  let abEvening = $state(false);
+  let abAsk = $state(false); // set → AbCard opens its window again
+  const medQ = $derived(flowQuery(today));
+  const medSt = $derived($medQ ? (flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).find((x) => isMedAct(x.act) && !x.act.paused) ?? null) : null);
+  let medOpen = $state(false);
+  // the ready activities (meditation …) are written on the first start, as the tile «Im Flow» did before
+  $effect(() => {
+    if ($medQ) seedIfNeeded($medQ);
+  });
+  const nowRows = $derived.by(() => {
+    if (!ready) return [];
+    const rows = [];
+    if (abDue && !roundOpen) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (medSt && !medSt.todayDone && !night) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
+    if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
+    return rows;
+  });
+  const upRows = $derived([...nowRows, ...important]);
+  const UP_N = 4;
+  const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
+  // the personal sentence under the greeting: the next trip and how much is up today
+  const daysTo = (day) => Math.round((Date.parse(`${day}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5);
+  const sentence = $derived.by(() => {
+    if (!ready || night) return null;
+    const parts = [];
+    const d = next?.startDate ? daysTo(next.startDate) : null;
+    if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: next.title }) });
+    else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: next.title }) });
+    parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
+    return parts;
+  });
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
   function say(text, undo) {
@@ -797,7 +822,7 @@
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
   // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
-  const hiddenTiles = $derived([...(isShown() ? [] : HELPER_TILES), ...(newsBanner.length && !editing ? ['news'] : [])]);
+  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
   // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
   const near = $derived(loaded ? tourNear(allTrips, today) : null);
   // the day card at night: the trip of tomorrow, with how far it is packed
@@ -911,7 +936,7 @@
 
 <!-- 1. greeting and weather, the suggestion of the day -->
 {#snippet greetingS()}
-  <section class="greet" class:solo={!suggestion || slim} aria-labelledby="hello-h" data-section="greeting">
+  <section class="greet solo" aria-labelledby="hello-h" data-section="greeting">
     <div class="ghead">
       <div class="hi-text">
         <h1 id="hello-h" class="hello">{hello}</h1>
@@ -928,26 +953,15 @@
       </div>
       {#if !phone.matches && !editing}<button type="button" class="btn adapt" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
-    {#if suggestion && !slim}
-      <div class="sugg" data-suggestion>
-        <span class="kick">{t('Idea for today')}</span>
-        <span class="sq">{t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name })}</span>
-        {#if !phone.matches}<span class="ss">{t('One click: standard items, weather from the forecast, all planned')}</span>{/if}
-        <span class="sa">
-          <Btn kind="hi" label={t('Quick start')} explain={explain('Quick start')} onclick={startQuick} data-quickstart />
-          {#if bikes.length > 1}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
-        </span>
-      </div>
-    {:else if !suggestion && ready}
-      <ImpulseHint {today} />
-    {/if}
+    <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
+    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
   </section>
 {/snippet}
 
 <!-- 2. the next trip -->
-{#snippet tripS()}
+{#snippet tripS(half = false)}
   {#if focus || shown}
-    <section class="trip noswipe" class:wide2={!!prof} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+    <section class="trip noswipe" class:wide2={!!prof && !half} class:half aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
       <div class="tc">
         <div class="kl">
           <Route size={16} aria-hidden="true" />
@@ -1012,7 +1026,7 @@
           {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
         </div>
       </div>
-      {#if prof}
+      {#if prof && !half}
         <div class="route" data-route>
           <dl class="boxes sm num">
             <div><dt>{t('Distance')}</dt><dd>{num(Math.round(shown.route.km))} km</dd></div>
@@ -1052,17 +1066,17 @@
       </section>
     {/if}
     <section class="imp" class:ln={line} class:open={line && allRows} aria-labelledby="imp-h">
-      <div class="ih"><span class="ico" aria-hidden="true"><TriangleAlert size={16} /></span><h2 id="imp-h">{t('Important today')}</h2>{#if important.length}<span class="cnt num" aria-hidden="true">{important.length}</span>{/if}</div>
+      <div class="ih"><span class="ico" aria-hidden="true"><Sun size={16} /></span><h2 id="imp-h">{t('Up now')}</h2>{#if upRows.length}<span class="cnt num" aria-hidden="true">{upRows.length}</span>{/if}</div>
       {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
       {#if quick}
         <div class="notice" role="status"><span>{t('Saved: {trip}.', { trip: quick.trip.title })}</span>{#if quick.undo}<button type="button" class="btn sm" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
         {#if quick.offer}<TemplateOffer trip={quick.trip} name={quick.offer} />{/if}
       {/if}
-      {#if important.length}
+      {#if upRows.length}
         <ul>
-          {#each line ? lineRows : rowsShown as r (r.key)}
+          {#each line ? (allRows ? upRows : upRows.slice(0, 2)) : upShown as r (r.key)}
             <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else}<span class="dot" aria-hidden="true"></span>{/if}
+              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
               {#if r.key === 'tests' && cleanAsk}
                 <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
@@ -1084,10 +1098,11 @@
             </li>
           {/each}
         </ul>
-        {#if important.length > (line ? 2 : 3)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: important.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
+        {#if upRows.length > (line ? 2 : UP_N)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: upRows.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
       {:else if ready}
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
       {/if}
+      {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
 {/snippet}
@@ -1096,7 +1111,7 @@
 {#snippet tileBody(x)}
   {#if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
-    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
+    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
     {#if x.join}
@@ -1106,6 +1121,7 @@
       <FlowCard {today} round={!onWall.has('daycard')} aside={balAside} rings={false} asideFirst />
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
+  {:else if x.id === 'du'}<DuTile {today} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1142,7 +1158,7 @@
 {/snippet}
 
 <div class="home">
-  {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
+  <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
   <!-- Paket P «Fotoalbum» (Noah 19.10.2026 «3a»): an own photo on top, only with photos in the album -->
@@ -1198,27 +1214,20 @@
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
-  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} />{/if}
+  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} bind:due={abDue} bind:evening={abEvening} bind:ask={abAsk} />{/if}
   <!-- Fenster (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's review, only after the round window -->
   {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
   {#if !editing}<AlertLine />{/if}
-  <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
-  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard && !maintHint && !hush}
-    <p class="lphint" role="note" data-hint="longpress">
-      <Hand size={18} aria-hidden="true" />
-      <span><b>{t('Tip:')}</b> {t('Press a tile long to change its size. Or «{customise}».', { customise: t('Customise the start page') })}</span>
-      <button type="button" class="lpx" aria-label={t('Close the tip')} onclick={closeHint}><X size={18} aria-hidden="true" /></button>
-    </p>
-  {/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
+  <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
+  {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
-  {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
 
   <div class="custom">
     {#if editing}
@@ -1227,8 +1236,10 @@
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
-    {:else if phone.matches}
-      <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+    {:else}
+      <!-- «Heute neu» A (Noah «3a»): everything that left Heute is one tap away -->
+      <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+      {#if phone.matches}<button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     {/if}
   </div>
 
@@ -1253,6 +1264,7 @@
     <button type="button" class="qx" aria-label={t('Close')} onclick={() => (made = null)}>×</button>
   </div>
 {/if}
+{#if medOpen && medSt}<MedStartSheet st={medSt} {today} onclose={() => (medOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
@@ -2073,6 +2085,9 @@
     }
   }
 
+  .kmrow {
+    margin-top: var(--sp-3);
+  }
   .custom {
     display: flex;
     flex-direction: column;
@@ -2242,5 +2257,43 @@
   .tourline.soft {
     border-width: 1px;
     background: transparent;
+  }
+  /* «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A»): the personal sentence, the row icons of «Up now» */
+  .say {
+    margin: 6px 0 0;
+    max-width: 60ch;
+    font: 650 var(--fs-sub) / 1.4 var(--font-body);
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .say .hi {
+    color: var(--hi);
+  }
+  .rico {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .row.now .tx {
+    font-weight: 600;
+  }
+  .impl {
+    margin-top: auto;
+    padding: 10px 0 6px;
+  }
+  .impl :global(.ih) {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+  }
+  .trip.half {
+    height: 100%;
+    box-sizing: border-box;
   }
 </style>

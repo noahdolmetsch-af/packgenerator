@@ -3,6 +3,7 @@
 // daily check answers four questions (v0.127.0: on its own page; WG: «Wi gaht's?» took it over). The app seeds its own fictional activities; no personal data.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -137,7 +138,11 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
 
 // WG «Wi gaht's?» takes over the daily check: the row leads to «Wi gaht's?», its answers show as the numbers
 test('WG the daily check (was «four taps on its page»): the row leads to «Wi gaht\'s?», its answers show on Today', async ({ page, context }) => {
-  await open(page, context, '#/', '[data-section="flow"]');
+  await open(page, context, '#/', '[data-section="greeting"]');
+  // «Heute neu» A (0.165.0): the day card left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
+  await expect(page.locator('[data-section="flow"]')).toBeVisible();
   // v0.155.0 «Heute neu geordnet» (release analysis D3, changed on purpose): the round shows once on Heute, in
   // the day card (morning and evening); Im Flow leaves its row out. By day one tap on the clock shows it.
   await expect(page.locator('[data-check-entry]')).toHaveCount(0);
@@ -162,6 +167,9 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   );
   await page.goto('./#/');
   const ab = page.locator('[data-section="abfragen"]');
+  // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, the others on «Show more questions»
+  await expect(ab).toHaveJSProperty('open', true);
+  if (await ab.locator('[data-ab-more]').count()) await ab.locator('[data-ab-more]').click();
   await ab.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '7', exact: true }).click();
   await ab.locator('[data-q="erholung.akku"]').getByRole('button', { name: '6', exact: true }).click();
   await ab.locator('[data-ab-save]').click();

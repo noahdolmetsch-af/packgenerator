@@ -10,6 +10,7 @@ import { eveningTurn } from '../../src/lib/flowcheck.js';
 import { ON_AT_START } from '../../src/lib/abfragen.js';
 import { ready } from './settle.js';
 import { put, addDays } from './aktiv-fixture.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -31,7 +32,11 @@ async function open(page, context, time, { speech = false } = {}) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
   await ready(page);
-  await expect(page.locator('[data-section="flow"]')).toBeVisible(); // the flow seed is written
+  await flowSeeded(page); // the flow seed is written
+  // «Heute neu» A (0.165.0): the day card and «Deine 15 Fragen» left the ready wall; a wall with them
+  await putWall(page);
+  await ready(page);
+  await expect(page.locator('[data-section="flow"]')).toBeVisible();
   return errors;
 }
 
@@ -346,6 +351,9 @@ test('mask: the evening check at 20:30, the link to the whole evening review', a
   await expect(mask).toHaveJSProperty('open', true);
   await expect(mask).toHaveAttribute('data-round', 'evening');
   await expect(mask.getByRole('heading', { name: T('Evening check') })).toBeVisible();
+  // Noah 20.10.2026 «2» (changed on purpose): 3 questions first, the others on «Show more questions»
+  expect(await mask.locator('[data-q]').count()).toBeLessThanOrEqual(3);
+  if (await mask.locator('[data-ab-more]').count()) await mask.locator('[data-ab-more]').click();
   await expect(mask.locator('[data-q="erreicht.zufrieden"]')).toBeVisible();
   await shot(page, 'maske-abend-check');
   await mask.getByRole('link', { name: T('Whole evening review') }).click();

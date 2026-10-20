@@ -52,26 +52,30 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   await start(page, context, info);
   const hm = /\d[\d'’ .]*\sHm/;
 
-  // SV1: the card «Strava verbinden» on top of Today; «Später» hides it for good
+  // SV1: the card «Strava verbinden»; «Später» hides it for good. «Heute neu» A 5b (0.165.0, changed on purpose): on
+  // top of Ich, no longer on Today
   await page.goto('./');
+  await expect(page.locator('[data-section="week"]')).toBeVisible();
+  await expect(page.locator('[data-section="strava-connect"]')).toHaveCount(0);
+  await page.goto('./#/me');
   const card = page.locator('[data-section="strava-connect"]');
   await expect(card).toBeVisible();
   await expect(card.getByRole('link', { name: T('Connect') })).toHaveAttribute('href', '#/bikes?tab=care&view=strava');
   await shot(page, info, 'SV1-strava-karte');
+  await card.getByRole('button', { name: T('Later') }).click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('.ich-cols')).toBeVisible();
+  await expect(page.locator('[data-section="strava-connect"]')).toHaveCount(0);
 
   // WU1: «This week» with km, metres climbed and heart rate in one line; «Bike this month» with metres
+  // («Heute neu» A: the month left Today, its metres are checked on Aktiv below)
+  await page.goto('./');
   const vals = page.locator('[data-week-values]');
   await expect(vals).toContainText(hm);
   await expect(vals).toContainText(T('Minutes come with Fitbit'));
   await expect(vals).toContainText('140');
-  await expect(page.locator('[data-month-hm]').first()).toContainText(hm);
   await shot(page, info, 'WU1-heute-woche', '[data-section="week"]');
-
-  await card.getByRole('button', { name: T('Later') }).click();
-  await expect(card).toHaveCount(0);
-  await page.reload();
-  await expect(page.locator('[data-section="week"]')).toBeVisible();
-  await expect(page.locator('[data-section="strava-connect"]')).toHaveCount(0);
 
   // WU2: Aktiv «Bike this month» with metres climbed; without Fitbit the minutes point to the page Fitbit
   await page.goto('./#/flow');

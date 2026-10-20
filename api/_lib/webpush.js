@@ -20,8 +20,11 @@ const hkdf = (ikm, salt, info, len) => Buffer.from(hkdfSync('sha256', ikm, salt,
 export function newVapidKeys() {
   const ecdh = createECDH('prime256v1');
   ecdh.generateKeys();
-  return { publicKey: b64u(ecdh.getPublicKey()), privateKey: b64u(ecdh.getPrivateKey()) };
+  return { publicKey: b64u(ecdh.getPublicKey()), privateKey: b64u(pad32(ecdh.getPrivateKey())) };
 }
+
+/** The private key as 32 bytes: Node drops leading zero bytes (about 1 key in 256), which vapidOk would refuse. */
+export const pad32 = (buf) => (buf.length >= 32 ? buf : Buffer.concat([Buffer.alloc(32 - buf.length), buf]));
 
 /** Is this a usable key pair (right lengths)? */
 export const vapidOk = (v) => fromB64u(v?.publicKey).length === 65 && fromB64u(v?.privateKey).length === 32 && /^(mailto:|https:)/.test(v?.subject ?? '');

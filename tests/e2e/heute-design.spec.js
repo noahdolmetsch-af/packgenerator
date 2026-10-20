@@ -52,7 +52,9 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
 
   // the four new tiles on the wall (their «neu» sign counts from the release day: tests/tiles.test.js)
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Next milestone» left the ready wall; three stay
-  for (const id of ['week', 'month', 'yearago']) await expect(page.locator(`.wall [data-tile="${id}"] h2`)).toBeVisible();
+  // «Heute neu» A (0.165.0, Noah «3a», changed on purpose): only the week stays; the month and «A year ago» are in the catalog
+  await expect(page.locator('.wall [data-tile="week"] h2')).toBeVisible();
+  for (const id of ['month', 'yearago']) await expect(page.locator(`.wall [data-tile="${id}"]`)).toHaveCount(0);
   await expect(page.locator('.wall [data-tile="nextms"]')).toHaveCount(0);
   await expect(page.locator('[data-section="week"] li')).toHaveCount(7);
   await page.screenshot({ path: info.outputPath(`heute-${phone ? 390 : 1440}.png`), fullPage: true });

@@ -177,8 +177,11 @@ test('Notizen: capture with a checklist, a wish made from a note, one line on To
   await shot(page, info, 'notizen');
   // Today: one line for the pinned note with an open checklist.
   await page.goto('./');
-  const all = page.getByRole('region', { name: 'Heute wichtig' }).getByRole('button', { name: /^Alle \d+ zeigen/ });
-  await all.click();
+  // «Heute neu» A (0.165.0): «Jetzt dran» shows 4 rows, the rest behind «Alle n zeigen»
+  const up = page.getByRole('region', { name: 'Jetzt dran' });
+  await expect(up.locator('li').first()).toBeVisible();
+  const all = up.getByRole('button', { name: /^Alle \d+ zeigen/ });
+  if (await all.count()) await all.click();
   await expect(page.getByText(`Notiz «${P} Jura-Wochenende: noch besorgen»: 1 Punkt offen`)).toBeVisible();
   expect(errors).toEqual([]);
 });

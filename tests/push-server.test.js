@@ -2,7 +2,7 @@
 // a fake push service and a fake Open-Meteo. Fictional values only (keys are made here, never real ones).
 import { describe, it, expect, vi } from 'vitest';
 import { createECDH, createDecipheriv, createPublicKey, hkdfSync, randomBytes, verify } from 'node:crypto';
-import { newVapidKeys, vapidOk, vapidHeader, encrypt } from '../api/_lib/webpush.js';
+import { newVapidKeys, vapidOk, vapidHeader, encrypt, pad32 } from '../api/_lib/webpush.js';
 import { cleanList, split, weatherReasons, weatherMessage, devKey, nextAt, STALE_MS, dayGood, watchVerdict, watchNews, watchMessage, keepWatch, watchUrl, WATCH_EVERY_MS } from '../api/_lib/push.js';
 import { makeHandler, sameToken, VAPID_KEY, TICK_KEY, LAST_TICK, DEFAULT_SUBJECT, pushEnv } from '../api/push.js';
 import { hash, KEYS } from '../api/_lib/oauth.js';
@@ -101,6 +101,15 @@ describe('web push building blocks', () => {
     expect(weatherReasons(daily(3, 30, 28), '2026-10-22', 28).reasons).toEqual([]);
     const msg = weatherMessage({ key: 'wx', title: 'Testtour', url: '#/pack' }, { reasons: ['heat'], tmax: 31.4 }, { heat: 'Heute bis {temp} °C.' });
     expect(msg).toEqual({ title: 'Testtour', body: 'Heute bis 31 °C.', url: '#/pack', tag: 'wx' });
+  });
+  it('keeps a private key with a leading zero byte at 32 bytes', () => {
+    const short = Buffer.alloc(31, 7);
+    const p = pad32(short);
+    expect(p.length).toBe(32);
+    expect(p[0]).toBe(0);
+    expect(p.subarray(1).equals(short)).toBe(true);
+    const full = Buffer.alloc(32, 9);
+    expect(pad32(full)).toBe(full);
   });
   it('compares codes safely', () => {
     expect(sameToken(TICK, TICK)).toBe(true);

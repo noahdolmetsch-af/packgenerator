@@ -7,11 +7,16 @@
 // SHOTS=<folder> saves full-page screenshots (light) of the morning, the day and the day before a trip.
 import { test, expect } from '@playwright/test';
 import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
-import { READY, REMOVED_0155, HEAD_0155 } from '../../src/lib/home/tiles.js';
+import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
+import { HN4, withWall } from './wall-fixture.js';
+
+// «Heute neu» A «Ein Blick» (0.165.0, Noah 20.10.2026 «1A … 3a») replaced HN4 as the ready wall. The HN4 tiles
+// (meditation card, day card, Im Flow + balance, Aktiv …) stay in the catalog: these tests run on a device
+// that keeps the HN4 wall, the last one checks that an old stored wall becomes the new ready wall once.
 
 /** The fixture without the trip of tomorrow: the ordinary order (the next trip is in 5 days). */
 function noTripTomorrow() {
-  const data = homeFixture();
+  const data = withWall(homeFixture());
   data.tables.trips = data.tables.trips.filter((x) => !x.id.endsWith('Herbstrunde'));
   return data;
 }
@@ -35,7 +40,7 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
 
   // the wall in the order of HN4 (the helper is hidden while the AI helper is off)
   // Paket Q #74: at 08:00 the morning tiles move up right under the head (byTime, changed on purpose)
-  await expect.poll(() => order(page)).toEqual(atHour(READY.filter((x) => x.id !== 'helper'), 8).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(atHour(HN4().filter((x) => x.id !== 'helper'), 8).map((x) => x.id));
   expect((await order(page)).slice(0, 3)).toEqual(HEAD_0155);
   for (const id of REMOVED_0155) await expect(page.locator(`.wall [data-tile="${id}"]`), id).toHaveCount(0);
 
@@ -91,12 +96,8 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
   await expect(ak.getByText(/Ruhepuls|Resting pulse|Aktivzonen|zone min/)).toHaveCount(0);
   await expect(ak.locator('a[href="#/flow/week"]')).toBeVisible();
 
-  // release analysis F2: Quick start high on the page (it was at 74 %)
-  const q = page.locator('[data-quickstart]').first();
-  await expect(q).toBeVisible();
-  const pct = await share(q);
-  console.log(`Schnellstart ${info.project.name}: ${Math.round(pct * 1000) / 10} % of the page height`);
-  expect(pct).toBeLessThan(0.1);
+  // release analysis F2 «Quick start high on the page»: since «Heute neu» A on the ready wall (heute-a.spec.js HA1)
+  await expect(page.locator('[data-section="today"] li[data-row="idea"]')).toHaveCount(1);
 
   // «Connect Strava» under the wall, at the bottom
   const sc = page.locator('[data-section="strava-connect"]');
@@ -133,7 +134,7 @@ test('day: the day card Tag with Quick start, Plan a trip and the bikes; the clo
 });
 
 test('4b: the day before a trip its card stands right under the day card; base weight big, all in a small line', async ({ page, context }, info) => {
-  await openHome(page, context, info, { hour: 13 }); // the fixture: «Herbstrunde» tomorrow
+  await openHome(page, context, info, { hour: 13, data: withWall(homeFixture()) }); // the fixture: «Herbstrunde» tomorrow
   // the wall fills in after the first paint: compare with expect.poll
   await expect.poll(async () => (await order(page)).slice(0, 4)).toEqual(['meditation', 'daycard', 'trip', 'important']);
   const card = page.locator('[data-tile="trip"] section.trip');
@@ -148,14 +149,16 @@ test('4b: the day before a trip its card stands right under the day card; base w
 });
 
 test('a stored wall of before (v 4) gets the new order once; Try it of a wide New tile is not cut off', async ({ page, context }, info) => {
-  const data = noTripTomorrow();
+  const data = homeFixture();
+  data.tables.trips = data.tables.trips.filter((x) => !x.id.endsWith('Herbstrunde'));
   const old = ['trip', 'important', 'flow', 'balance', 'morningcheck', 'suggest', 'week', 'news', 'try', 'meditation', 'fn:dayride', 'fn:weigh', 'year'];
   data.tables.settings.push({ key: 'homeWall', value: { v: 4, tiles: old.map((id) => ({ id, size: id === 'news' ? 'w' : id === 'trip' || id === 'year' || id === 'important' ? (id === 'important' ? 'l' : 'long') : id === 'meditation' || id.startsWith('fn:') ? 's' : 'l' })) } });
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
-  await expect.poll(() => order(page)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'balance', 'questions', 'week', 'suggest', 'trip', 'aktiv', 'values', 'tipweek', 'news', 'fn:weigh', 'year']); // Paket P and Q (homeWall v8): «Your values today» and the tip of the week once after Aktiv
-  // put «New» wide (as it was) and check its button stays inside the tile at 390 px too
-  const v5 = { v: 5, tiles: READY.map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
+  // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
+  await expect.poll(() => order(page)).toEqual(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), false), 13).map((x) => x.id));
+  // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
+  const v5 = { v: 9, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {
     const req = indexedDB.open('pack-generator');
     const db = await new Promise((r) => (req.onsuccess = () => r(req.result)));

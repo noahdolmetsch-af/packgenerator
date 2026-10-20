@@ -69,7 +69,7 @@ async function narrow(page, info, what) {
 
 /** v0.46.0 (Noah 34b): "Also to do" and "Good to know" are rows of "Important today" (all shown). */
 async function imp(page, T) {
-  const sec = page.getByRole('region', { name: T('Important today') });
+  const sec = page.getByRole('region', { name: T('Up now') });
   await expect(sec.locator('li').first()).toBeVisible();
   const more = sec.locator('button.more');
   if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();

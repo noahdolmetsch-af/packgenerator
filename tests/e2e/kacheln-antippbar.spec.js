@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { STEPS, INTRO_KEY } from '../../src/lib/home/introkt.js';
 import { settle } from './settle.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -24,6 +25,10 @@ async function open(page, context, { update = false } = {}) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
+  await settle(page, { sameTrips: false });
+  // «Heute neu» A (0.165.0): Im Flow left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   await settle(page, { sameTrips: false });
   await expect(page.locator('[data-section="flow"] [data-act="pushups"]')).toBeVisible();
   return errors;

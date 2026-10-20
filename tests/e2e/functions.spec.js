@@ -5,7 +5,8 @@
 // home0460-fixture.js (test_data_gtp_ records), clock on Friday 9 October 2026, Open-Meteo mocked.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
-import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
+import { READY } from '../../src/lib/home/tiles.js';
 
 /** id → where it must lead: an address, or a window ([selector of the open dialog], and the address). */
 const EXPECTED = {
@@ -44,7 +45,8 @@ test('all 16 functions: two taps from Today at most, each page opens without an 
   const listed = await sheet.locator('[data-add^="fn:"]').evaluateAll((els) => els.map((e) => e.dataset.add.slice(3)));
   expect(listed.sort()).toEqual(Object.keys(EXPECTED).sort());
   // v0.155.0 «Heute neu geordnet» (HN4 3a): nine of them left the ready wall; they come back through «+»
-  const gone = REMOVED_0155.filter((id) => id.startsWith('fn:'));
+  // «Heute neu» A (0.165.0, changed on purpose): the ready wall keeps 8 shortcuts; every other function comes back through «+»
+  const gone = Object.keys(EXPECTED).map((id) => `fn:${id}`).filter((id) => !READY.some((x) => x.id === id));
   for (const id of gone) {
     await expect(page.locator(`.wall [data-fn="${id.slice(3)}"]`), `${id} is not on the ready wall`).toHaveCount(0);
     await sheet.locator(`[data-add="${id}"]`).click();
@@ -79,6 +81,9 @@ test('Im Flow: one tap from its card on Today, two taps through More', async ({ 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
+  // «Heute neu» A (0.165.0, changed on purpose): Im Flow left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   const card = page.locator('[data-section="flow"]');
   await card.getByRole('link', { name: /Aktiv|In the flow/ }).click(); // 1 tap
   await expect(page).toHaveURL(/#\/flow$/);

@@ -19,6 +19,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ON_AT_START } from '../../src/lib/abfragen.js';
 import { ready } from './settle.js';
 import { put, addDays } from './aktiv-fixture.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -40,7 +41,11 @@ async function open(page, context, time, { speech = false } = {}) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
   await ready(page);
-  await expect(page.locator('[data-section="flow"]')).toBeVisible(); // the flow seed is written
+  await flowSeeded(page); // the flow seed is written
+  // «Heute neu» A (0.165.0): Im Flow, the balance and the round tile left the ready wall; a wall with them
+  await putWall(page);
+  await ready(page);
+  await expect(page.locator('[data-section="flow"]')).toBeVisible();
   return errors;
 }
 
@@ -139,6 +144,10 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
 
   // the morning round on Heute: all four at 07:00 (mood moved from its own 08:00)
   const card = page.locator('[data-section="abfragen"]');
+  // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, «Show 1 more question» brings the fourth
+  await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
+  await expect(card.locator('[data-q]')).toHaveCount(3);
+  await card.locator('[data-ab-more]').click();
   await expect(card.getByText(T('{n} due now', { n: 4 }))).toBeVisible();
   for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
   await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '6', exact: true }).click();
@@ -349,21 +358,13 @@ test('the Sunday question (was question 15): «Näher an deiner Vision?» in the
   await expect(page.locator('[data-q="visionen.vision"]')).toHaveCount(0);
 });
 
-test('the tip about the long press closes for good; a long press shows the sizes of the tile', async ({ page, context }, info) => {
+test('no tip about the long press on Today; a long press shows the sizes of the tile', async ({ page, context }, info) => {
   const errors = await open(page, context, '07:52');
   const hint = page.locator('[data-hint="longpress"]');
-  // one hint on top at a time: while «Connect Strava» shows, the tip waits; «Later» brings it
-  const sc = page.locator('[data-section="strava-connect"]');
-  await expect(sc).toBeVisible();
-  await expect(hint).toHaveCount(0);
-  await sc.getByRole('button', { name: T('Later') }).click();
-  await expect(hint).toContainText(T('Press a tile long to change its size. Or «{customise}».', { customise: T('Customise the start page') }));
-  await hint.getByRole('button', { name: T('Close the tip') }).click();
-  await expect(hint).toHaveCount(0);
-  await expect.poll(() => setting(page, 'homeHintLongPress')).toBe(true);
-  await page.reload();
-  await ready(page);
+  // «Heute neu» A 5b (Noah 20.10.2026, changed on purpose): no hints on Today any more: neither «Connect Strava»
+  // (now on top of Ich) nor the tip about the long press; the long press itself stays
   await expect(page.locator('[data-section="balance"]')).toBeVisible();
+  await expect(page.locator('[data-section="strava-connect"]')).toHaveCount(0);
   await expect(hint).toHaveCount(0);
 
   // a long press (finger on a phone, mouse on a computer) on «Deine Balance»: its sizes at once

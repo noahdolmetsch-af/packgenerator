@@ -16,7 +16,7 @@
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
   import { dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
   import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
   import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
@@ -25,7 +25,9 @@
 
   // Paket C: busy tells Heute that this window is open or still loading, so the window of windows.js
   // (HomeWindow: Vorabend, Wochenrückblick) waits; the round comes first, never two windows at once.
-  let { today, busy = $bindable(false) } = $props();
+  // «Heute neu» A (Noah 20.10.2026 «2»): due and evening tell Heute's «Up now» how many questions wait; ask = true
+  // (the row's «Start») opens the window again after «Later»
+  let { today, busy = $bindable(false), due = $bindable(0), evening: eveOut = $bindable(false), ask = $bindable(false) } = $props();
   let now = $state(stampOf());
   $effect(() => {
     const id = setInterval(() => (now = stampOf()), 60_000);
@@ -45,7 +47,7 @@
 
   let draft = $state({});
   let notes = $state({});
-  const filled = $derived(shown.some((d) => (draft[d.q.id] != null && draft[d.q.id] !== '') || String(notes[d.q.id] ?? '').trim()));
+  const filled = $derived(visible.some((d) => (draft[d.q.id] != null && draft[d.q.id] !== '') || String(notes[d.q.id] ?? '').trim()));
   let saving = $state(false);
 
   // the weight: the last answer, else the body weight under Ich › Meine Daten
@@ -61,8 +63,11 @@
     saving = true;
     try {
       const at = stampOf();
-      const rows = shown.map((d) => answerRow(d.q, draft[d.q.id], { at, slot: d.slot, note: notes[d.q.id] })).filter(Boolean);
+      const rows = visible.map((d) => answerRow(d.q, draft[d.q.id], { at, slot: d.slot, note: notes[d.q.id] })).filter(Boolean);
+      const folded = ordered.slice(visible.length);
       await saveAnswers(rows);
+      if (folded.length) await saveSnooze(snoozeAll(data?.snooze, folded));
+      more = false;
       for (const r of rows) {
         delete draft[r.qid];
         delete notes[r.qid];
@@ -78,6 +83,24 @@
   const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
   const open = $derived(shown.length > 0 && !waiting);
+  $effect(() => {
+    due = Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
+    eveOut = evening;
+  });
+  $effect(() => {
+    if (!ask) return;
+    ask = false;
+    const { [LATER_KEY]: _, ...rest } = data?.snooze ?? {};
+    saveSnooze(rest);
+  });
+  // «Heute neu» A (Noah 20.10.2026 «2 Morgen-Check mit nur 3 Fragen, wobei andere Fragen optional eingeblendet und
+  // beantwortet werden können»): the window shows 3 questions (today's first); «Show more questions» shows the rest.
+  // «Save» puts the ones not shown away until their next time, so the window does not come back for them.
+  const FIRST = 3;
+  let more = $state(false);
+  const ordered = $derived([...shown].sort((a, b) => (dayOf(b.slot) === today) - (dayOf(a.slot) === today)));
+  const visible = $derived(more ? ordered : ordered.slice(0, FIRST));
+  const hiddenN = $derived(Math.max(0, ordered.length - visible.length));
   $effect(() => {
     busy = !data?.stored || open;
   });
@@ -100,11 +123,11 @@
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
       <div class="vd-t">
         <h2 id="abc-h">{evening ? t('Evening check') : t('Morning check')}</h2>
-        <p class="vd-sub">{t('{n} due now', { n: shown.length })} · {t('one tap each, all can be skipped')}</p>
+        <p class="vd-sub">{t('{n} due now', { n: visible.length })} · {t('one tap each, all can be skipped')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Later|mask')} onclick={later}><X size={20} aria-hidden="true" /></button>
     </div>
-    {#each shown as d, i (d.q.id)}
+    {#each visible as d, i (d.q.id)}
       {@const qid = `abc-q-${i}`}
       <div class="dq" data-q={d.q.id}>
         <div class="dqh">
@@ -120,6 +143,7 @@
         {/if}
       </div>
     {/each}
+    {#if hiddenN}<button type="button" class="btn more" onclick={() => (more = true)} data-ab-more>{tn(hiddenN, 'Show {n} more question', 'Show {n} more questions')}</button>{/if}
     <CheckLine {today} {evening} />
     <div class="lks">
       <a class="ab-lnk" href={evening ? '#/check/evening' : '#/check/morning'} data-ab-page>{evening ? t('Whole evening review') : t('Whole morning check')}<ChevronRight size={14} aria-hidden="true" /></a>
@@ -183,6 +207,10 @@
     margin-top: 6px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .more {
+    margin-top: 12px;
+    width: 100%;
   }
   .lks {
     display: flex;

@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { openMore } from './bike-more.js';
-import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
+import { READY } from '../../src/lib/home/tiles.js';
 
 // calendar days (no 24 h steps): the date at noon UTC plus n days
 const cal = (n) => {
@@ -70,11 +70,11 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // mockup A: the 16 functions are small tiles further down the wall)
   if (phone) await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => window.scrollTo(0, 0));
-  // v0.155.0 «Heute neu geordnet» (HN4 4b, changed on purpose): meditation and the day card come first; on a
-  // trip day the trip card stands right under the day card; nine functions left the wall (back through «+»)
-  await expect(page.locator('.wall [data-fn]')).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
+  // «Heute neu» A (0.165.0, Noah «1A 4a», changed on purpose): «Up now» and the trip card come first; 8 chosen
+  // shortcuts (the other functions back through «+»)
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(READY.filter((x) => x.id.startsWith('fn:')).length);
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
-  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 3))).toEqual(['meditation', 'daycard', 'trip']);
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 2))).toEqual(['important', 'trip']);
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More
@@ -85,7 +85,7 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   expect(errors).toEqual([]);
 });
 
-test('no trip today: the suggestion stays big beside the greeting; no photo; Continue for another trip', async ({ page, context }, info) => {
+test('no trip today: the suggestion is a row of Up now; no photo; Continue for another trip', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const data = homeFixture();
@@ -101,10 +101,11 @@ test('no trip today: the suggestion stays big beside the greeting; no photo; Con
   await expect(page.locator('#next-h')).toHaveText(T('How was {trip}?', { trip: 'test_data_gtp_ Albula' }));
   await expect(page.locator('[data-row="continue"]')).toContainText('test_data_gtp_ Fern');
   await expect(page.locator('[data-photo]')).toHaveCount(0);
-  const sugg = page.locator('[data-suggestion]');
-  await expect(sugg).toHaveCount(1);
-  await expect(sugg).not.toHaveAttribute('data-slim');
-  await expect(page.locator('.greet [data-suggestion]')).toContainText(T('Quick start'));
+  // «Heute neu» A (changed on purpose): the suggestion is one row of «Up now» with «Quick start», the greeting is one sentence
+  await expect(page.locator('[data-suggestion]')).toHaveCount(0);
+  const idea = page.locator('[data-section="today"] li[data-row="idea"]');
+  await expect(idea).toHaveCount(1);
+  await expect(idea.getByRole('button', { name: T('Quick start'), exact: true })).toBeVisible();
   await expect(page.locator('#hello-h br')).toHaveCount(0);
   await shot(page, info, 'heute-ohne-tour');
   expect(errors).toEqual([]);

@@ -39,58 +39,62 @@ async function updated(page) {
   await page.goto('./#/me');
   await page.evaluate((v) => localStorage.setItem('whatsnew.seen', v), WHATS_NEW[1].version);
   await page.goto('./#/');
+  // Today notes the update once (the banner itself is under Ich since «Heute neu» A)
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
 }
 
-test('A-U1: after an update a calm banner on Today, no window; View opens the news, × closes it, gone after 7 days', async ({ page, context }, info) => {
+// «Heute neu» A 5b (Noah 20.10.2026, changed on purpose): the banner «New in …» moved from Today to Ich
+test('A-U1: after an update a calm banner under Ich, no window, not on Today; View opens the news, × closes it, gone after 7 days', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
+  await expect(page.locator('div.home')).toBeVisible();
+  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
+  // Today stays calm: no banner, no window
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
   await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(NEWEST.version) }) })).toBeVisible();
   await expect(banner.locator('p')).toHaveText(T(NEWEST.title));
-  // no window: nothing modal, Today can be used at once (the banner sits above the greeting)
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  const hello = page.locator('#hello-h');
-  expect((await banner.boundingBox()).y).toBeLessThan((await hello.boundingBox()).y);
-  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
+  expect((await banner.boundingBox()).y).toBeLessThan((await page.locator('.ich-cols').boundingBox()).y);
   await noSideways(page);
-  await shot(page, info, 'au1-heute-banner');
+  await shot(page, info, 'au1-ich-banner');
 
   // «Ansehen» opens Ich › Was ist neu (the whole news stay there) and closes the banner for this update
   await banner.getByRole('link', { name: T('View|news') }).click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   await expect(page.getByRole('heading', { level: 1, name: T('What is new'), exact: true })).toBeVisible();
   await shot(page, info, 'au1-was-ist-neu');
-  await page.goto('./#/');
-  await expect(page.locator('div.home')).toBeVisible();
+  await page.goto('./#/me');
+  await expect(page.locator('.ich-cols')).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
 
   // switched on again under Ich: × closes it, it stays away after a reload
   await page.goto('./#/me/news');
   await openShort(page); // 0.163.0: on a phone the switch sits in a closed line
   await page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) }).check();
-  await page.goto('./#/');
+  await page.goto('./#/me');
   await expect(banner).toBeVisible();
   await banner.getByRole('button', { name: T('Close the hint') }).click();
   await expect(banner).toHaveCount(0);
-  await shot(page, info, 'au1-heute-ohne');
   await page.reload();
-  await expect(page.locator('div.home')).toBeVisible();
+  await expect(page.locator('.ich-cols')).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
 
   // on again, but the update is 7 calendar days old: the banner is gone by itself (6 days: still there)
   await page.evaluate(() => localStorage.removeItem('wasneu.mute'));
   const age = async (n) => {
     await page.evaluate((at) => localStorage.setItem('wasneu.update', JSON.stringify({ ...JSON.parse(localStorage.getItem('wasneu.update')), at })), day(-n));
-    await page.goto('./#/me');
     await page.goto('./#/');
-    await expect(page.locator('div.home')).toBeVisible();
+    await page.goto('./#/me');
+    await expect(page.locator('.ich-cols')).toBeVisible();
   };
   await age(BANNER_DAYS - 1);
   await expect(banner).toBeVisible();
   await age(BANNER_DAYS);
-  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   expect(day(0)).toBe('2026-10-09');
   expect(errors).toEqual([]);
@@ -139,6 +143,7 @@ test('A-U2: a page that throws shows the error page with three ways, never white
   await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   // «Neu laden» reloads the page (the broken page stays broken, the card comes again)
   await page.goto('./#/me/look');
+  await expect(fail).toBeVisible();
   await Promise.all([page.waitForEvent('load'), fail.getByRole('button', { name: T('Reload') }).click()]);
   await expect(page.locator('[data-error-page]')).toBeVisible();
   // nothing in the data changed (the note above was only opened, not saved)

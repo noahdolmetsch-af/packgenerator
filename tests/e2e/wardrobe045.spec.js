@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
@@ -124,6 +125,9 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   // v0.46.0: the card opens from the button "What do I wear?" of "What do you want to do?".
   await page.goto('./');
   await page.reload();
+  // «Heute neu» A (0.165.0, changed on purpose): the day card left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «What to wear» is in the
   // day card's morning (one tap on the clock at another time of day)
   await page.locator('[data-daycard] [data-clock="morning"]').click();
@@ -228,6 +232,9 @@ test('Today without a home place: a short hint with the place search', async ({ 
   const errors = await start(page, context, info, { home: false });
   await page.goto('./');
   await page.reload();
+  // «Heute neu» A (0.165.0, changed on purpose): the day card left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the tile left the wall; «What to wear» is in the
   // day card's morning (one tap on the clock at another time of day)
   await page.locator('[data-daycard] [data-clock="morning"]').click();

@@ -8,8 +8,13 @@ export async function openShort(page) {
   if (hash.startsWith('#/trips/rides')) {
     // Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities on their own; open the phone's five rows
     await expect(page.locator('section[data-activities], main .empty, main [data-empty]').first()).toBeAttached({ timeout: 15_000 });
+    // the stored view (tiles, map, calendar) can arrive a moment after the rows: then the button goes away before the
+    // click. Done when it is clicked or gone, so a view switch in between no longer waits for a button that left.
     const b = page.locator('[data-act-phone-more]');
-    if (await b.count()) await b.first().click();
+    await expect(async () => {
+      if (await b.count()) await b.first().click({ timeout: 2_000 });
+      await expect(b).toHaveCount(0, { timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
   } else if (hash.startsWith('#/trips')) {
     // the page is there once the Packmodus (open or as its line) or the empty page shows
     await expect(page.locator('[data-packmode-open], [data-packmode], main .empty, main [data-empty]').first()).toBeAttached({ timeout: 15_000 });

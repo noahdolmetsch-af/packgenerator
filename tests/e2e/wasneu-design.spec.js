@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
 import { D0, openHome, tr, atHour } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
-import { READY, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
+import { READY, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { openShort } from './kurz-open.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
@@ -64,6 +64,9 @@ async function updated(page) {
   await page.goto('./#/me');
   await page.evaluate((v) => localStorage.setItem('whatsnew.seen', v), BEFORE);
   await page.goto('./#/');
+  // Today has noted the update once its wall shows (the banner itself is under Ich since «Heute neu» A)
+  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
 }
 
 test('I11: Ich, Was ist neu: the newest version, every function, all versions and the side column', async ({ page, context }, info) => {
@@ -71,9 +74,11 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
-  // v0.127.0 A-U1 (changed on purpose): a banner on Today instead of the window, nothing to close first
-  await expect(page.locator('[data-news-banner]')).toBeVisible();
+  // v0.127.0 A-U1 (changed on purpose): a banner instead of the window, nothing to close first;
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner is under Ich, not on Today
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await page.goto('./#/me');
+  await expect(page.locator('[data-news-banner]')).toBeVisible();
   await page.locator('main').getByRole('link', { name: new RegExp(T('What is new')) }).click();
   await expect(page).toHaveURL(/#\/me\/news$/);
   await expect(page.getByRole('heading', { level: 1, name: T('What is new'), exact: true })).toBeVisible();
@@ -206,6 +211,8 @@ test('I11b: the message after an update: the banner closes with × until the nex
   const T = await openHome(page, context, info);
   await updated(page);
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner shows under Ich
+  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
   await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();
   await expect(banner.getByText(T(NEWEST.title))).toBeVisible();
@@ -216,8 +223,8 @@ test('I11b: the message after an update: the banner closes with × until the nex
   expect(await page.evaluate(() => localStorage.getItem('wasneu.mute'))).toBe(NEWEST.version);
   // the next start (a new tab): it stays away
   const next = await context.newPage();
-  await next.goto('./#/');
-  await expect(next.locator('.home')).toBeVisible();
+  await next.goto('./#/me');
+  await expect(next.locator('.ich-cols')).toBeVisible();
   await expect(next.locator('[data-news-banner]')).toHaveCount(0);
 
   // switched on again under Ich › Was ist neu: the next start shows it
@@ -228,52 +235,34 @@ test('I11b: the message after an update: the banner closes with × until the nex
   await sw.check();
   await expect(sw).toBeChecked();
   const third = await context.newPage();
-  await third.goto('./#/');
+  await third.goto('./#/me');
   await expect(third.locator('[data-news-banner]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('I11e: the tile New on top of Today for 14 days, Take away and back in its place afterwards', async ({ page, context }, info) => {
+// «Heute neu» A 5b (Noah 20.10.2026 «5b», changed on purpose): hints like «New in …» only under Ich; the tile
+// «New» no longer goes on top of Today after an update (it stays in the catalog, «Add a tile»)
+test('I11e: after an update Today stays as it is; the news wait under Ich', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   await updated(page);
-  await expect(page.locator('[data-news-banner]')).toBeVisible(); // v0.127.0 A-U1: the banner, no window
-  const tile = page.locator('.wall [data-tile="news"]');
-  // A-U1 (Noah «Nur das Banner ★», 13.10.2026): one «new» on Today; while the banner shows, the tile waits
-  await expect(tile).toHaveCount(0);
-  await page.locator('[data-news-banner]').getByRole('button', { name: T('Close the hint') }).click();
+  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
-  // v0.155.0 (changed on purpose): on top right under the head tiles (meditation, day card, Important today)
-  // Paket Q #74: at 09:00 the morning tiles then move up right below the head tiles (byTime, changed on purpose)
-  const base = READY.filter((x) => !HELPER_TILES.includes(x.id) && x.id !== 'news');
-  const pinned = tripUp([...base.slice(0, HEAD_0155.length), { id: 'news' }, ...base.slice(HEAD_0155.length)], true);
-  const newsAt = atHour(pinned, 9).filter((x) => x.id !== 'trip').findIndex((x) => x.id === 'news');
-  await expect.poll(async () => (await ids(page)).filter((id) => id !== 'trip').indexOf('news')).toBe(newsAt);
-  await expect(tile).toHaveAttribute('data-size', 'long');
-  await expect(tile.getByText(T('New in {v} · {n} days left', { v: V, n: TILE_DAYS }))).toBeVisible();
-  await expect(tile.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();
-  await expect(tile.getByRole('link', { name: T('What is new') })).toHaveAttribute('href', '#/me/news');
-  await expect(tile.getByRole('link', { name: T('Try it') })).toHaveAttribute('href', NEWEST.points[0].href);
-  await noSideways(page);
-  await shot(page, info, 'I11e-kachel-heute');
-
-  // after the 14 days (calendar days from the update) it goes back where it stood
-  await page.evaluate((at) => {
-    const u = JSON.parse(localStorage.getItem('wasneu.update'));
-    localStorage.setItem('wasneu.update', JSON.stringify({ ...u, at }));
-  }, dayFrom(-TILE_DAYS));
-  await page.reload();
-  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
-  await expect(tile).toHaveAttribute('data-size', READY.find((x) => x.id === 'news').size);
-
-  // «Take away» takes it off the wall; v0.155.0 (changed on purpose): back in its place it is a small tile
-  // without the button, so × in «Customise» does it
-  await page.getByRole('button', { name: T('Customise the start page') }).click();
-  await page.getByRole('button', { name: T('Take {name} off the start page', { name: T('New in the app') }) }).click();
   await expect(page.locator('.wall [data-tile="news"]')).toHaveCount(0);
+  await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
+  await noSideways(page);
+  await page.goto('./#/me');
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();
+  await expect(banner.getByRole('link', { name: T('View|news') })).toHaveAttribute('href', '#/me/news');
+  // the tile stays in the catalog
+  await page.goto('./#/');
+  await page.getByRole('button', { name: T('Add a tile') }).click();
+  await expect(page.getByRole('dialog', { name: T('Add a tile') }).locator('[data-add="news"]')).toHaveCount(1);
   expect(D0).toBe('2026-10-09');
+  expect(TILE_DAYS).toBeGreaterThan(0);
   expect(errors).toEqual([]);
 });
 

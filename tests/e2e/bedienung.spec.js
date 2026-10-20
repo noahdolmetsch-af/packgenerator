@@ -4,6 +4,7 @@
 // quiet: at 23:00 Today keeps its tip back, switched off it shows. The search offers «Daten und
 // Backup» on top and Enter opens it. The start place «Packen» opens the packing list after a reload.
 // German UI, the clock fixed in Europe/Zurich, no network, fictional data only (an empty app).
+import { INTRO_KEY } from '../../src/lib/home/introkt.js';
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
@@ -89,20 +90,36 @@ test('high contrast (outdoors): off by default, the switch sets data-contrast on
 
 test('night quiet: at 23:00 Today keeps the tip back; switched off it shows', async ({ page, context }) => {
   const errors = await open(page, context, '23:00');
-  const hint = page.locator('[data-hint="longpress"]');
-  const sc = page.locator('[data-section="strava-connect"]');
-  await expect(sc).toBeVisible();
-  await sc.getByRole('button', { name: T('Later') }).click();
-  await expect(sc).toHaveCount(0);
-  await expect(page.locator('[data-section="balance"]')).toBeVisible();
-  await expect(hint).toHaveCount(0);
+  // «Heute neu» A (0.165.0, changed on purpose): the long-press tip and the Strava card left Heute; what night quiet
+  // still keeps back there is the short intro of the start page, here due as after an update
+  await page.evaluate(
+    (row) =>
+      new Promise((res, rej) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = () => rej(r.error);
+        r.onsuccess = () => {
+          const tx = r.result.transaction('settings', 'readwrite');
+          tx.objectStore('settings').put(row);
+          tx.oncomplete = () => (r.result.close(), res());
+          tx.onerror = () => rej(tx.error);
+        };
+      }),
+    { key: INTRO_KEY, value: false },
+  );
+  await page.reload();
+  await ready(page);
+  const intro = page.locator('[data-intro-step]');
+  await expect(page.locator('[data-section="du"]')).toBeVisible();
+  await page.clock.runFor(1500); // the intro waits a moment for the tiles
+  await expect(intro).toHaveCount(0);
 
   await page.goto('./#/me/look');
   await expect(sw(page, 'quiet')).toBeChecked();
   await sw(page, 'quiet').uncheck();
   await page.goto('./#/');
   await ready(page);
-  await expect(hint).toBeVisible();
+  await page.clock.runFor(1500);
+  await expect(intro.first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
