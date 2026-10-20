@@ -51,6 +51,78 @@ export async function deleteAct(db, id) {
     await db.flowSessions.where('actId').equals(id).delete();
   });
 }
+/**
+ * Noah 20.10.2026 «3a»: deleting asks about the history. keep: the activity leaves every list, its ticks
+ * and sessions stay, and the activity waits in the setting flow.goneActs (Aktiv › Aktivitäten, «Gelöscht,
+ * Verlauf behalten») to come back with restoreAct. Without keep it goes with its history (deleteAct).
+ * → what undoAct needs to put everything back.
+ */
+export const GONE_KEY = 'flow.goneActs';
+export async function removeAct(db, id, { keep = false } = {}) {
+  return db.transaction('rw', db.flowActs, db.flowLog, db.flowSessions, db.settings, async () => {
+    const act = await db.flowActs.get(id);
+    if (!act) return null;
+    const gone = (await db.settings.get(GONE_KEY))?.value ?? [];
+    if (keep) {
+      await db.flowActs.delete(id);
+      await db.settings.put({ key: GONE_KEY, value: JSON.parse(JSON.stringify([...gone.filter((x) => x.id !== id), { ...act, goneAt: new Date().toISOString() }])) });
+      return { act, keep: true };
+    }
+    const log = await db.flowLog.where('actId').equals(id).toArray();
+    const sessions = await db.flowSessions.where('actId').equals(id).toArray();
+    await deleteAct(db, id);
+    return { act, log, sessions, keep: false };
+  });
+}
+/** «Rückgängig» after removeAct: everything back as it was. */
+export async function undoAct(db, saved) {
+  if (!saved?.act) return;
+  await db.transaction('rw', db.flowActs, db.flowLog, db.flowSessions, db.settings, async () => {
+    await db.flowActs.put(saved.act);
+    if (saved.keep) {
+      const gone = (await db.settings.get(GONE_KEY))?.value ?? [];
+      await db.settings.put({ key: GONE_KEY, value: gone.filter((x) => x.id !== saved.act.id) });
+    } else {
+      if (saved.log?.length) await db.flowLog.bulkPut(saved.log);
+      if (saved.sessions?.length) await db.flowSessions.bulkPut(saved.sessions);
+    }
+  });
+}
+/** Back from «Gelöscht, Verlauf behalten»: the activity with all its ticks, at the end of the order. */
+export async function restoreAct(db, id) {
+  await db.transaction('rw', db.flowActs, db.settings, async () => {
+    const gone = (await db.settings.get(GONE_KEY))?.value ?? [];
+    const act = gone.find((x) => x.id === id);
+    const acts = await db.flowActs.toArray();
+    if (!act || acts.some((x) => x.id === id)) return;
+    const { goneAt: _, ...rest } = act;
+    await db.flowActs.put(JSON.parse(JSON.stringify({ ...rest, order: acts.reduce((m, x) => Math.max(m, x.order ?? 0), -1) + 1 })));
+    await db.settings.put({ key: GONE_KEY, value: gone.filter((x) => x.id !== id) });
+  });
+}
+/** For good: an activity of «Gelöscht, Verlauf behalten» goes with its history too. → what undoDrop needs. */
+export async function dropGone(db, id) {
+  return db.transaction('rw', db.flowLog, db.flowSessions, db.settings, async () => {
+    const gone = (await db.settings.get(GONE_KEY))?.value ?? [];
+    const act = gone.find((x) => x.id === id) ?? null;
+    const log = await db.flowLog.where('actId').equals(id).toArray();
+    const sessions = await db.flowSessions.where('actId').equals(id).toArray();
+    await db.flowLog.where('actId').equals(id).delete();
+    await db.flowSessions.where('actId').equals(id).delete();
+    await db.settings.put({ key: GONE_KEY, value: gone.filter((x) => x.id !== id) });
+    return { act, log, sessions };
+  });
+}
+/** «Rückgängig» after dropGone. */
+export async function undoDrop(db, saved) {
+  if (!saved?.act) return;
+  await db.transaction('rw', db.flowLog, db.flowSessions, db.settings, async () => {
+    const gone = (await db.settings.get(GONE_KEY))?.value ?? [];
+    await db.settings.put({ key: GONE_KEY, value: JSON.parse(JSON.stringify([...gone.filter((x) => x.id !== saved.act.id), saved.act])) });
+    if (saved.log.length) await db.flowLog.bulkPut(saved.log);
+    if (saved.sessions.length) await db.flowSessions.bulkPut(saved.sessions);
+  });
+}
 /** Save a new order (moveAct in flow.js gives the list). */
 export const saveOrder = (db, list) => db.flowActs.bulkPut(list.map((a) => JSON.parse(JSON.stringify(a))));
 

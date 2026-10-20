@@ -63,6 +63,7 @@
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
+  import GoneActs from '../lib/flow/GoneActs.svelte';
   import Activity from './flow/Activity.svelte';
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
@@ -297,8 +298,8 @@
 {:else if route[0] === 'goals'}
   <div class="flow">
     <header class="ph">
-      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Goals|flow')} />
-      <h1 class="title">{t('Goals|flow')}</h1>
+      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activities|flow')} />
+      <h1 class="title">{t('Activities|flow')}</h1>
       <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
     </header>
     <AreaIntro place="goals" />
@@ -348,6 +349,8 @@
             <div class="card"><GoalPath {path} unit={pathMs.m.unit} label={pathName} /></div>
           </Sec>
         {/if}
+        <!-- Noah 20.10.2026 «3a»: activities deleted with «Keep the history», to restore -->
+        <GoneActs />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
         {#if !phone.matches}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit; drag the grip or use the arrows to move.')}</span></p>{/if}
@@ -375,7 +378,7 @@
       <div class="lay">
         <div class="col">
           <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
-          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
+          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/goals', label: t('Edit|acts') }} more={phone.matches ? { label: t('Stopwatch'), onclick: () => openTimer() } : null}>
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
@@ -453,7 +456,8 @@
   {:else}
     <div class="crow" data-check-row="open">
       <span class="ct"><b>{t('Still open today')}</b></span>
-      <a class="btn hi" href="#/me/abfragen">{t('Start|check')}</a>
+      <!-- 20.10.2026 (Noah: «Was startet das überhaupt?»): «Start» opens the questions themselves, not their settings -->
+      <a class="btn hi" href="#/check/morning" data-check-start>{t('Start|check')}</a>
     </div>
   {/if}
   {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}

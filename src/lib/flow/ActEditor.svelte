@@ -4,7 +4,8 @@
    * name, symbol, ring, the goal (count × rolling window, sub-goals like Yoga Studio + Zuhause), how
    * much one tap counts, the minimum duration, the season (tap a month to move it between summer and
    * winter; a season without a goal rests) and «zählt auch» (commute, bike trips, another activity).
-   * A new activity is the same form, empty. Pause keeps the history; delete removes it too.
+   * A new activity is the same form, empty. Pause keeps the history. Delete (Noah 20.10.2026 «2a 3a») asks in
+   * the app's window: «Keep the history» (flowdb removeAct keep) or «Delete with history», then «Undo».
    */
   import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
   import Crumb from './kit/Crumb.svelte';
@@ -13,7 +14,8 @@
   import Seg from '../ui/Seg.svelte';
   import ActIcon, { ACT_ICONS, ACT_ICON_NAMES } from './ActIcon.svelte';
   import { db } from '../db.js';
-  import { saveAct, deleteAct } from '../flowdb.js';
+  import { saveAct, removeAct, undoAct } from '../flowdb.js';
+  import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { normAct, blankAct, actState, toggleMonth, halfOf, WINDOWS, SUMMER } from '../flow.js';
   import { actName, goalName } from './ui.svelte.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
@@ -37,7 +39,6 @@
   let name = $state('');
   let half = $state('summer');
   let minOwn = $state('');
-  let asking = $state(false);
   let moreCounts = $state(false);
   let err = $state('');
 
@@ -136,14 +137,23 @@
     location.hash = '#/flow/goals';
   }
   async function remove() {
-    await deleteAct(db, a.id);
+    const nm = actName(orig);
+    const answer = await askDelete({
+      title: t('Delete «{name}»?', { name: nm }),
+      text: t('Keep the history: the tile goes, your ticks stay and it can come back under «Deleted». Delete with history: the ticks go too.'),
+      archive: t('Keep the history'),
+      label: t('Delete with history'),
+    });
+    if (!answer) return;
+    const id = a.id;
     location.hash = '#/flow/goals';
+    await deleteWithUndo({ run: () => removeAct(db, id, { keep: answer === 'archive' }), undo: (saved) => undoAct(db, saved), text: t('«{name}» deleted.', { name: nm }), name: nm });
   }
 </script>
 
 {#if a}
   <div class="ed">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Goals|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Activities|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
     <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 
@@ -227,11 +237,7 @@
         <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
         <div class="more">
           <button type="button" class="btn" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
-          {#if asking}
-            <span class="ask">{t('Delete with its history?')} <button type="button" class="btn sm" onclick={remove}>{t('Delete')}</button> <button type="button" class="lk" onclick={() => (asking = false)}>{t('Cancel')}</button></span>
-          {:else}
-            <button type="button" class="btn" onclick={() => (asking = true)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
-          {/if}
+          <button type="button" class="btn" onclick={remove} data-act-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
       </details>
     {/if}
@@ -586,12 +592,5 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--sp-2);
-  }
-  .ask {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    color: var(--ink-2);
   }
 </style>
