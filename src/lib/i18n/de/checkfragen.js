@@ -18,6 +18,7 @@ export default {
   'Add group': 'Bereich hinzufügen',
   'own|question': 'eigene',
   'changed|question': 'geändert',
+  'sample|question': 'Muster',
   'Delete «{q}»': '«{q}» löschen',
   'Delete «{q}»?': '«{q}» löschen?',
   'New question in «{name}»': 'Neue Frage in «{name}»',

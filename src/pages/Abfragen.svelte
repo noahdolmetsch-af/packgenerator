@@ -230,6 +230,7 @@
                       <b>{qText(q)}</b>
                       <span class="ab-tags">
                         <span class="ab-kind">{kindLabel(q.form)}</span>
+                        {#if q.sample}<span class="ab-ex" data-sample>{t('sample|question')}</span>{/if}
                         {#if kindExtra(q.form)}<span class="ab-ex">{kindExtra(q.form)}</span>{/if}
                         {#each q.src as k (k)}{@const I = ICON_SRC[k] ?? Hand}<span class="ab-src {k}"><I size={13} aria-hidden="true" />{srcText(k)}</span>{/each}
                       </span>

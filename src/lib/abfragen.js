@@ -64,7 +64,7 @@ const q = (area, key, textEn, form, every, src = ['hand'], was = null) => ({ id:
  * The 50 questions (Paket P adds 4 evening questions: 54) (notes/deine-abfragen/lustige-fragen-2026-10-13.md, Noah «ok» 13.10.2026 23:37–23:40).
  * `was` names the earlier question that lives on in it («bisher: …»).
  */
-export const QUESTIONS = [
+const BASE_QUESTIONS = [
   // 1 Erholung
   q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'later'], 'How well did you sleep?'),
   q('erholung', 'akku', 'How full is your battery right now?', scale({ style: 'battery' }), at('08:00', '13:00', '20:00'), ['hand'], 'How much energy do you have?'),
@@ -131,6 +131,75 @@ export const QUESTIONS = [
   q('koerper', 'wochenschlaf', 'How was your sleep this week overall?', scale(), weekly(0, '19:00'), ['hand'], 'Sleep of the week'),
   q('koerper', 'bildschirm', 'How many hours did a screen look at you today?', number('h'), daily('20:00'), ['only'], 'own question «Screen time»'),
 ];
+/**
+ * The 50 sample questions (Noah 20.10.2026 «zudem möchte ich von dir 50 neue fragen, die als muster hinterlegt
+ * sind»; list notes/check-fragen/50-musterfragen.md, «1a 2a» taken as default with «3a»): 5 per area, all off
+ * at the start (`sample`), each can be switched on, changed, moved or deleted like every other question.
+ */
+const s = (area, key, textEn, form, every) => ({ ...q(area, key, textEn, form, every), sample: true });
+export const SAMPLE_QUESTIONS = [
+  // Musterfragen erholung
+  s('erholung', 'lider', 'How heavy are your eyelids right now: feather or lead lid?', scale(), daily('08:00')),
+  s('erholung', 'pause', 'Did you take a real break today, without any screen?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0], ['several', 'several|cf', 1]]), daily('20:00')),
+  s('erholung', 'stunden', 'How many hours did you sleep?', number('h'), daily('07:00')),
+  s('erholung', 'bett', 'When do you go to bed tonight?', chips([['before22', 'before 22:00|cf'], ['22to23', '22–23:00|cf'], ['after23', 'after 23:00|cf']]), daily('20:00')),
+  s('erholung', 'augenzu', 'How long did you simply close your eyes today?', number('min'), daily('20:00')),
+  // Musterfragen spass
+  s('spass', 'ohrwurm', 'Which song ran in your head on repeat today?', text(), daily('20:00')),
+  s('spass', 'erstesmal', 'What did you do for the first time today?', text(), daily('20:00')),
+  s('spass', 'verspielt', 'How playful were you today: file folder or puppy?', scale(), daily('20:00')),
+  s('spass', 'lust', 'What would you feel like today, if anything went?', chips([['icecream', 'Ice cream|cf'], ['bike', 'Bike|cf'], ['sofa', 'Sofa|cf'], ['party', 'Party|cf'], ['calm', 'Calm|cf'], ['adventure', 'Adventure|cf']], { multi: true }), daily('08:00')),
+  s('spass', 'basteln', 'How much time did you have today for playing or tinkering?', chips([['none', 'none|cf', 0], ['short', 'short|cf', 0.5], ['much', 'a lot|cf', 1]]), daily('20:00')),
+  // Musterfragen sport
+  s('sport', 'km', 'How many kilometres did you ride today?', number('km'), daily('20:00')),
+  s('sport', 'zwickt', 'Where does it pinch today?', chips([['nowhere', 'nowhere|cf'], ['knee', 'Knee|cf'], ['back', 'Back|cf'], ['neck', 'Neck|cf'], ['seat', 'Seat|cf'], ['hands', 'Hands|cf'], ['feet', 'Feet|cf']], { multi: true }), daily('08:00')),
+  s('sport', 'dehnen', 'Did you stretch or roll today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('sport', 'hart', 'How hard was today’s session: a stroll or a hill time trial?', scale(), daily('20:00')),
+  s('sport', 'trainingslust', 'How keen on training are you today: couch potato or chain eater?', scale(), daily('08:00')),
+  // Musterfragen achtsamkeit
+  s('achtsamkeit', 'kopfwetter', 'What is the weather in your head right now?', chips([['sun', 'Sun|cf'], ['clouds', 'Clouds|cf'], ['fog', 'Fog|cf'], ['storm', 'Thunderstorm|cf'], ['rainbow', 'Rainbow|cf']]), daily('13:00')),
+  s('achtsamkeit', 'atmen', 'How often did you take a deep breath on purpose today?', chips([['never', 'not at all|cf', 0], ['once', 'once|cf', 0.5], ['often', 'several times|cf', 1]]), daily('20:00')),
+  s('achtsamkeit', 'unruhe', 'What threw you off balance today?', text(), daily('20:00')),
+  s('achtsamkeit', 'fuermich', 'How much time did you have just for yourself today?', number('min'), daily('20:00')),
+  s('achtsamkeit', 'sinne', 'What did you smell, hear or taste in a special way today?', text(), daily('20:00')),
+  // Musterfragen freunde
+  s('freunde', 'nachricht', 'Who would you like to send a message to today?', text(), daily('08:00')),
+  s('freunde', 'gutgetan', 'Did someone do you good today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0], ['several', 'several|cf', 1]]), daily('20:00')),
+  s('freunde', 'geholfen', 'Did you help someone today, even if only with chain oil?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('freunde', 'gesellschaft', 'How much company do you need today: quiet island or festival tent?', scale(), daily('08:00')),
+  s('freunde', 'bald', 'Who would you like to spend time with again soon?', text(), weekly(0, '19:00')),
+  // Musterfragen natur
+  s('natur', 'himmel', 'Did you really look up at the sky today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('natur', 'geraschelt', 'What bloomed, rustled or chirped today?', text(), daily('20:00')),
+  s('natur', 'wo', 'Where were you outside today?', chips([['forest', 'Forest|cf'], ['lake', 'Lake|cf'], ['mountain', 'Mountain|cf'], ['town', 'Town|cf'], ['garden', 'Garden|cf'], ['field', 'Field|cf']], { multi: true }), daily('20:00')),
+  s('natur', 'sonne', 'Did you see the sun rise or set today?', chips([['rise', 'Sunrise|cf'], ['set', 'Sunset|cf'], ['both', 'both|cf'], ['none', 'neither|cf']]), daily('20:00')),
+  s('natur', 'boden', 'Did you have grass, earth or rock under your feet today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  // Musterfragen visionen
+  s('visionen', 'pass', 'Which pass do you absolutely still want to ride?', text(), monthly('19:00')),
+  s('visionen', 'gelernt', 'What did you learn this week?', text(), weekly(0, '19:00')),
+  s('visionen', 'fernweh', 'How big is your wanderlust right now: sofa cushion or world map?', scale(), weekly(6, '09:00')),
+  s('visionen', 'faehigkeit', 'Which skill do you want to practise next?', text(), monthly('19:00')),
+  s('visionen', 'traum', 'What did you dream of, at night or during the day?', text(), daily('08:00')),
+  // Musterfragen ziele
+  s('ziele', 'schritt', 'What is your smallest doable step today?', text(), daily('08:00')),
+  s('ziele', 'plan', 'How clear is your plan for today: fog or satnav?', scale(), daily('08:00')),
+  s('ziele', 'woche', 'What do you want to get done this week?', text(), weekly(1, '08:00')),
+  s('ziele', 'liste', 'How much of your list did you get done today?', chips([['nothing', 'nothing|cf', 0], ['some', 'some|cf', 0.25], ['half', 'half|cf', 0.5], ['most', 'almost all|cf', 0.75], ['all', 'all|cf', 1]]), daily('20:00')),
+  s('ziele', 'verzicht', 'What do you do without on purpose today?', text(), daily('08:00')),
+  // Musterfragen erreicht
+  s('erreicht', 'besser', 'What went better than expected today?', text(), daily('20:00')),
+  s('erreicht', 'endlich', 'Which little thing did you finally get done today?', text(), daily('20:00')),
+  s('erreicht', 'rueckenwind', 'How much tailwind did you have today: headwind or a push from behind?', scale(), daily('20:00')),
+  s('erreicht', 'highlight', 'What was your best moment this week?', text(), weekly(0, '19:00')),
+  s('erreicht', 'monat', 'What did you get done this month that makes you happy?', text(), monthly('19:00')),
+  // Musterfragen koerper
+  s('koerper', 'trinken', 'How much did you drink today?', number('l'), daily('20:00')),
+  s('koerper', 'schritte', 'How many steps does your counter show today?', number(''), daily('20:00')),
+  s('koerper', 'sitzen', 'How many hours did you sit today?', number('h'), daily('20:00')),
+  s('koerper', 'bauch', 'How does your belly feel: calm or roller coaster?', scale(), daily('20:00')),
+  s('koerper', 'gemuese', 'How many portions of vegetables and fruit were there today?', number(''), daily('20:00')),
+];
+export const QUESTIONS = [...BASE_QUESTIONS, ...SAMPLE_QUESTIONS];
 // HG1 2b: the answers to the greeting on Today land in the same history, so the lookup knows their questions too
 export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS].map((x) => [x.id, x]));
 
