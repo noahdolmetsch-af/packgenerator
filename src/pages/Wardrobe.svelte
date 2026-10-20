@@ -714,7 +714,7 @@
     min-height: 48px;
     padding: 10px 20px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .num {
     font-variant-numeric: tabular-nums;
@@ -815,7 +815,7 @@
     text-transform: none;
     letter-spacing: 0;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   /* The onion figure and its zone pins (Noah 1a). */
@@ -856,7 +856,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 13px/1.2 var(--font-body);
+    font: 500 var(--fs-small)/1.2 var(--font-body);
     box-shadow: 0 1px 3px var(--shadow);
     cursor: pointer;
     white-space: nowrap;
@@ -952,7 +952,7 @@
   .lt small,
   .lv small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .lv {
     align-items: flex-end;
@@ -1023,7 +1023,7 @@
       color: var(--ink-2);
     }
     .ltile .lv b {
-      font-size: 14px;
+      font-size: var(--fs-small);
     }
   }
   /* A small phone: the zone pins go next to the figure and the four layer tiles take the full width
@@ -1056,7 +1056,7 @@
     gap: 8px;
     margin: 0;
     color: var(--brand-ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .th :global(svg) {
     color: var(--hi-bright);
@@ -1068,11 +1068,11 @@
     margin: 4px 0 10px;
   }
   .big {
-    font: 800 52px/1 var(--font-brand);
+    font: 800 var(--fs-page)/1 var(--font-brand);
   }
   .feel {
     color: var(--brand-ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .tchips {
     display: flex;
@@ -1089,7 +1089,7 @@
     padding: 4px 10px;
     border-radius: 999px;
     background: color-mix(in srgb, var(--brand-ink) 12%, transparent);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .tchips .d {
     width: 8px;
@@ -1102,7 +1102,7 @@
   .tmsg {
     margin: 8px 0 12px;
     color: var(--brand-ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .btn.ghost {
     background: var(--paper);
@@ -1139,7 +1139,7 @@
   }
   .kt small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   /* To sort (Noah 3b): a compact list, one suggestion chip per row. */
   .sort {
@@ -1155,7 +1155,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 19px var(--font-body);
+    font: 500 var(--fs-sub) var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -1172,7 +1172,7 @@
   .hint {
     margin: 0 0 6px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .srows,
   .rows {
@@ -1204,7 +1204,7 @@
   }
   .sname small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .chip {
     display: inline-flex;
@@ -1216,7 +1216,7 @@
     border-radius: 12px;
     background: var(--accent-soft);
     color: var(--ink);
-    font: 500 15px/1.2 var(--font-body);
+    font: 500 var(--fs-body)/1.2 var(--font-body);
     cursor: pointer;
   }
   .chip :global(svg) {
@@ -1232,7 +1232,7 @@
     border-radius: 12px;
     background: var(--paper);
     color: var(--ink-2);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .other[aria-expanded='true'] {
@@ -1453,7 +1453,7 @@
     display: flex;
     flex-direction: column;
     margin: 0;
-    font-size: 19px;
+    font-size: var(--fs-sub);
     font-weight: 400;
     line-height: 1.25;
   }
@@ -1462,7 +1462,7 @@
   }
   .lh small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .lnum {
     display: flex;
@@ -1473,7 +1473,7 @@
   }
   .lnum small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .zh {
     margin: 14px 0 2px;
@@ -1535,7 +1535,7 @@
   }
   .badge {
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 500;
     margin-left: 6px;
     padding: 1px 8px;
@@ -1546,7 +1546,7 @@
   }
   .tc {
     color: var(--ink-3);
-    font-size: 12.5px;
+    font-size: var(--fs-tiny);
     white-space: nowrap;
   }
   .tl .w {
@@ -1601,7 +1601,7 @@
     border-radius: 12px;
     background: var(--warn-soft);
     color: var(--ink);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .gaprow > :global(svg) {
     color: var(--warn);
@@ -1616,7 +1616,7 @@
     align-items: center;
     gap: 4px;
     color: var(--ok);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .gaprow .btn {
     min-height: 44px;
@@ -1630,7 +1630,7 @@
     gap: 6px 10px;
     margin: 0 0 24px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   /* v0.59.0 (OP2a): the trip band, the one dark card of the page in trip mode (like today's suggestion) */
   .tband {
@@ -1850,7 +1850,7 @@
       bottom: calc(76px + env(safe-area-inset-bottom));
     }
     .tc {
-      font-size: 12px;
+      font-size: var(--fs-tiny);
     }
   }
 </style>

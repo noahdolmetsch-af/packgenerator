@@ -1,72 +1,33 @@
 {
   "_readme": "Wächter baseline (docs/design-audit.md «Wächter»): the violations that existed when the checks came in. A check fails only when a file or route gets MORE than listed here. The numbers may only shrink; a PR that raises one explains why. style: file → rule → count (scripts/style-lint.mjs --update). layout: route@width → rule → count (GUARD_UPDATE=1 playwright run, then scripts/style-lint.mjs --merge-e2e).",
   "style": {
-    "src/app.css": {
-      "fontsize": 10
-    },
     "src/lib/DemoBar.svelte": {
-      "colour": 3,
-      "fontsize": 3
-    },
-    "src/lib/QuickNote.svelte": {
-      "fontsize": 6
-    },
-    "src/lib/bikes/IdeasFold.svelte": {
-      "fontsize": 1
-    },
-    "src/lib/bikes/SetupDrawing.svelte": {
-      "fontsize": 6
+      "colour": 3
     },
     "src/lib/bikes/SetupTab.svelte": {
       "colour": 2
     },
     "src/lib/bikes/WhoCard.svelte": {
-      "colour": 1,
-      "fontsize": 6
+      "colour": 1
     },
     "src/lib/care/BikeCare.svelte": {
-      "colour": 2,
-      "fontsize": 33
-    },
-    "src/lib/care/CareTab.svelte": {
-      "fontsize": 6
+      "colour": 2
     },
     "src/lib/care/OrderDialog.svelte": {
       "colour": 4,
-      "fontsize": 6
-    },
-    "src/lib/care/PartDialog.svelte": {
-      "fontsize": 6
+      "fontsize": 2
     },
     "src/lib/care/TripCare.svelte": {
-      "fontsize": 10,
       "global": 2
     },
-    "src/lib/care/VisitDialog.svelte": {
-      "fontsize": 5
-    },
-    "src/lib/debrief/TemplateOffer.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/gear/FavStar.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/gear/ItemDialog.svelte": {
-      "fontsize": 12
-    },
     "src/lib/gear/MergeSheet.svelte": {
-      "fontsize": 2,
       "global": 1
     },
     "src/lib/gear/ReviewMode.svelte": {
-      "fontsize": 2,
       "global": 1
     },
     "src/lib/gear/WeighMode.svelte": {
       "global": 2
-    },
-    "src/lib/gear/WeightOverview.svelte": {
-      "fontsize": 1
     },
     "src/lib/home/BikeCards.svelte": {
       "fontsize": 3
@@ -81,18 +42,10 @@
       "fontsize": 4
     },
     "src/lib/hubs/BikeQuickDialog.svelte": {
-      "fontsize": 3,
       "global": 1
     },
-    "src/lib/know/HomePlaceForm.svelte": {
-      "fontsize": 1
-    },
-    "src/lib/know/TipButton.svelte": {
-      "fontsize": 1
-    },
     "src/lib/know/WhatsNew.svelte": {
-      "breakword": 1,
-      "fontsize": 4
+      "breakword": 1
     },
     "src/lib/nav/ProblemForm.svelte": {
       "breakword": 1,
@@ -103,112 +56,32 @@
       "breakword": 1,
       "fontsize": 5
     },
-    "src/lib/pack/BikeChoice.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/pack/CalmPack.svelte": {
-      "fontsize": 10
-    },
-    "src/lib/pack/NotPacked.svelte": {
-      "fontsize": 6
-    },
-    "src/lib/pack/Onion.svelte": {
-      "fontsize": 4
-    },
-    "src/lib/pack/PackStage.svelte": {
-      "fontsize": 5
-    },
-    "src/lib/pack/PlaceSuggest.svelte": {
-      "fontsize": 4
-    },
-    "src/lib/pack/ShopList.svelte": {
-      "fontsize": 4
-    },
-    "src/lib/pack/TemplateDialog.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/pack/TripRoute.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/pack/calm-pack.css": {
-      "fontsize": 19
-    },
-    "src/lib/tpl/BagSplit.svelte": {
-      "fontsize": 6
-    },
-    "src/lib/tpl/DaysFields.svelte": {
-      "fontsize": 1
-    },
-    "src/lib/tpl/ItemPicker.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/tpl/Menu.svelte": {
-      "fontsize": 1
-    },
-    "src/lib/tpl/ReadyFields.svelte": {
-      "fontsize": 1
-    },
     "src/lib/trip/ChargeList.svelte": {
       "global": 1
     },
     "src/lib/trip/InProgress.svelte": {
       "colour": 2,
-      "fontsize": 4,
       "global": 1
     },
-    "src/lib/trip/ProgressRows.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/trip/trip.css": {
-      "fontsize": 9
-    },
-    "src/lib/ui/Fold.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/ui/Help.svelte": {
-      "fontsize": 2
-    },
     "src/lib/ui/Lightbox.svelte": {
-      "colour": 9,
-      "fontsize": 3
-    },
-    "src/lib/ui/Profile.svelte": {
-      "fontsize": 1
+      "colour": 9
     },
     "src/lib/ui/Seg.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/ui/Sum.svelte": {
-      "fontsize": 2
-    },
-    "src/pages/Blocks.svelte": {
-      "fontsize": 4
+      "fontsize": 1
     },
     "src/pages/Debrief.svelte": {
       "global": 1
     },
-    "src/pages/Gear.svelte": {
-      "fontsize": 8
-    },
     "src/pages/GearImport.svelte": {
-      "fontsize": 4,
       "global": 3
     },
     "src/pages/Home.svelte": {
       "fontsize": 21
     },
-    "src/pages/Pack.svelte": {
-      "fontsize": 10
-    },
     "src/pages/Share.svelte": {
-      "colour": 2,
-      "fontsize": 2
-    },
-    "src/pages/TemplateNew.svelte": {
-      "fontsize": 12
+      "colour": 2
     },
     "src/pages/Wardrobe.svelte": {
-      "fontsize": 25,
       "global": 3
     }
   },

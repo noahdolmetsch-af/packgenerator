@@ -260,7 +260,7 @@
   .badge {
     flex: none;
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     padding: 1px 8px;
     border-radius: 99px;
@@ -273,7 +273,7 @@
     min-width: 4.5em;
     text-align: right;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     white-space: nowrap;
   }
   .num {

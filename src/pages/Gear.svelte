@@ -657,7 +657,7 @@
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
-      {t('Or import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}
+      {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
     </Empty>
   {/if}
 
@@ -1207,7 +1207,7 @@
     min-width: 0;
   }
   .ch .k {
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .ch .m {
     grid-column: 3;
@@ -1382,7 +1382,7 @@
   /* v0.27.0 (Noah 1a): hint in the group of unknown categories */
   .unknown-cat {
     margin: 4px 0 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .rows .muted {
@@ -1401,7 +1401,7 @@
     .rows .bg {
       grid-column: 2;
       grid-row: 1;
-      font-size: 15px;
+      font-size: var(--fs-body);
     }
     .rows .w {
       grid-column: 3;
@@ -1435,7 +1435,7 @@
     border: 0;
     background: var(--paper);
     color: var(--ink);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .seg button + button {
@@ -1470,7 +1470,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 16px var(--font-body);
+    font: 500 var(--fs-body) var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -2030,7 +2030,7 @@
   }
   .gmenu .badge {
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     padding: 1px 8px;
     border-radius: 99px;
@@ -2269,7 +2269,7 @@
   }
   .count {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 6px 0 12px;
   }
   .favlink {

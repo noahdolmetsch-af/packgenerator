@@ -81,7 +81,7 @@
   {#if !bikes.length && $bikesQ}
     <h1 class="title">{t('Equipment|tab')}</h1>
     <!-- v0.127.0 A-U2: the one empty building block -->
-    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
     <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
          «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->
