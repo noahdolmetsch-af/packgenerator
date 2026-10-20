@@ -247,7 +247,7 @@
 
     <div class="ich-side">
       <section class="ich-sec" id="lake" aria-label={t('Lake temperature')}>
-        <LakeCard headingLevel={2} />
+        <LakeCard headingLevel={2} saunaSee={false} />
       </section>
       <section class="ich-sec" data-section="fitbit-file">
         <FitbitImport />
