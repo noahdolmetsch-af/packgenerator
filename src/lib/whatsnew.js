@@ -26,6 +26,11 @@ export const WHATS_NEW = [
       { text: 'Correct Strava values, rename, hide or delete tours', href: '#/trips' },
       { text: 'The list as tiles, map or calendar; join rides into one tour', href: '#/trips' },
     ],
+    small: [
+      { box: 'fixed', text: 'Race map: a new map ground no longer breaks the page', href: '#/race' },
+      { box: 'fixed', text: 'Race › Climbs: a link to one climb opens it after a reload too', href: '#/race' },
+      { box: 'nicer', text: 'On a narrow phone «Views» is just its icon, so the list stays short', href: '#/trips' },
+    ],
     test: [
       'Open Trips and tap a finished tour.',
       'Tap «Choose several», pick two rides and tap «Join into one tour».',

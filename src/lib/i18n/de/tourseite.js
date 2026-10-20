@@ -115,4 +115,7 @@ export default {
   'Correct Strava values, rename, hide or delete tours': 'Strava-Werte korrigieren, Touren umbenennen, ausblenden, löschen',
   'The list as tiles, map or calendar; join rides into one tour': 'Liste als Kacheln, Karte oder Kalender; Fahrten zu einer Tour verbinden',
   'Tap «Choose several», pick two rides and tap «Join into one tour».': 'Tippe auf «Mehrere wählen», wähle zwei Fahrten und tippe auf «Zu einer Tour verbinden».',
+  'Race map: a new map ground no longer breaks the page': 'Rennkarte: eine andere Kartengrundlage bringt die Seite nicht mehr zum Absturz',
+  'Race › Climbs: a link to one climb opens it after a reload too': 'Rennen › Anstiege: ein Link auf einen Anstieg öffnet ihn auch nach dem Neuladen',
+  'On a narrow phone «Views» is just its icon, so the list stays short': 'Auf einem schmalen Handy ist «Ansichten» nur noch ein Symbol, so bleibt die Liste kurz',
 };
