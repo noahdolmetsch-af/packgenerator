@@ -12,7 +12,7 @@
  */
 import { distKm } from '../route.js';
 
-import { queued } from './overpassqueue.js';
+import { queued } from './oneatatime.js';
 
 export const OVERPASS_URLS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
 export const AROUND_M = 250;

@@ -7,7 +7,7 @@
  * not fit any more. The fetcher is passed in for tests.
  */
 import { OVERPASS, POI_CACHE, fetchPois, poisFrom } from '../race/outside.js';
-import { queued } from '../route/overpassqueue.js';
+import { queued } from '../route/oneatatime.js';
 import { cacheGet, cacheSet } from '../race/store.js';
 import { aroundQuery, aroundFresh } from './live-lib.js';
 

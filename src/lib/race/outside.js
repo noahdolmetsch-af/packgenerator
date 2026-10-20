@@ -10,7 +10,7 @@
  * Pure parsers are tested in tests/race.test.js; the fetchers take a fetcher for tests.
  */
 import { snap } from './race.js';
-import { queued } from '../route/overpassqueue.js';
+import { queued } from '../route/oneatatime.js';
 
 export const OVERPASS = 'https://overpass-api.de/api/interpreter';
 export const POI_CACHE = 'race-poi:';

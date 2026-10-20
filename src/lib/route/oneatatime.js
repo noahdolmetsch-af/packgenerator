@@ -2,6 +2,8 @@
 // «busy» (429). The live map asked twice at once (the stops around you and the place search), so the
 // place search said «OpenStreetMap ist gerade ausgelastet» (Noah 20.10.2026, picture). Now every
 // Overpass request of the app waits for the one before it.
+//
+// The file name must not contain «overpass»: the browser tests answer every address with that word as Overpass.
 
 let chain = Promise.resolve();
 
