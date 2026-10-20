@@ -52,8 +52,8 @@ export const WHATS_NEW = [
       { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
     ],
     test: [
-      'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
-      'Plan a tour with a GPX route and tap a climb under «Climbs».',
+      'Tours › Rides: tap «Enter the gear» on a ride.',
+      'Plan a tour with GPX, tap a climb.',
     ],
   },
   {
