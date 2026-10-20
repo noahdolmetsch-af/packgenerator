@@ -1116,4 +1116,10 @@ export default {
   'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one away. Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine weg. Ich › Daten › Verlauf zeigt alle Antworten.',
   // Tour-Auswertung (Noah 20.10.2026 «3a und b»)
   'Under «Values», «Like on the Garmin» shows NP, the best minutes and your resting heart rate that day.': 'Unter «Werte» zeigt «Wie auf dem Garmin» die NP, die Bestwerte und deinen Ruhepuls an diesem Tag.',
+  // «Heatmap» (20.10.2026)
+  'Works with Strava rides, uploaded GPX rides and routes recorded in the app.': 'Geht mit Strava-Fahrten, hochgeladenen GPX-Fahrten und in der App aufgezeichneten Strecken.',
+  'Open Trips › Look back › Heatmap.': 'Öffne Touren › Rückblick › Heatmap.',
+  'Choose clouds or lines; filter by year, sport, bike or tour and everyday.': 'Wähle Wolken oder Linien; filtere nach Jahr, Sportart, Velo oder Tour und Alltag.',
+  'Tap a coloured line: the rides there show below, each with its page.': 'Tippe auf eine farbige Linie: Die Fahrten dort stehen darunter, jede mit ihrer Seite.',
+  'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.': 'Beispiel: 2026, nur Velo → dein Arbeitsweg leuchtet dunkelrot, die Jura-Tour ist eine feine orange Linie.',
 };

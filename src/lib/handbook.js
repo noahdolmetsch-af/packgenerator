@@ -1292,6 +1292,11 @@ export const HANDBOOK = {
     on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
     steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
     example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
+  },
+  'f.heatmap': {
+    on: 'Works with Strava rides, uploaded GPX rides and routes recorded in the app.',
+    steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
+    example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
   },  'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
     steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
