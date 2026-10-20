@@ -75,7 +75,9 @@ test('the folder: eight sheets on a new bike, the Break-in plan first and marked
   await expect(folder.getByRole('heading', { name: `${SHEETS.length} Blätter zu diesem Velo` })).toBeVisible();
   await expect(folder.locator('a.sheet .nm')).toHaveText(SHEETS.map((s) => DE[s.name]));
   await expect(folder.locator('a.sheet .nm').first()).toHaveText(DE['Break-in plan']);
-  for (const s of SHEETS) await expect(folder.locator(`a[data-sheet="${s.key}"] .new`)).toHaveCount(s.since ? 1 : 0);
+  // Gesamttest 20.10.2026 Design 5 (Noah «alle B, C und Design umsetzen»): one «neu» per page, on the first new sheet
+  const fresh = SHEETS.filter((s) => s.since).map((s) => s.key);
+  for (const s of SHEETS) await expect(folder.locator(`a[data-sheet="${s.key}"] .new`)).toHaveCount(s.key === fresh[0] ? 1 : 0);
   await expect(folder.locator('[data-sheet="breakin"] .st')).toHaveText('Schritt 1 fällig');
   await expect(folder.locator('[data-sheet="warranty"] .st')).toHaveText(/^Rahmen bis \d{4}$/);
   await expect(folder.locator('[data-sheet="theft"] .st')).toHaveText('Rahmennummer fehlt');
@@ -93,12 +95,13 @@ test('the folder: eight sheets on a new bike, the Break-in plan first and marked
   await folder.getByRole('checkbox', { name: 'Diebstahl-Blatt' }).check();
   await expect(folder.locator('a.sheet')).toHaveCount(SHEETS.length);
 
-  // opened once, a new sheet is no longer «neu»
-  await folder.locator('a[data-sheet="kit"]').click();
-  await expect(page.locator('article.paper[data-sheet="kit"]')).toBeVisible();
+  // opened once, a new sheet is no longer «neu»; the next new one carries it
+  await folder.locator(`a[data-sheet="${fresh[0]}"]`).click();
+  await expect(page.locator(`article.paper[data-sheet="${fresh[0]}"]`)).toBeVisible();
   // Design-Refresh P7 (V5): the way back is the path «‹ Velo › Demo XC › Mappe › …» now.
   await page.getByRole('navigation', { name: 'Pfad' }).getByRole('link', { name: 'Demo XC', exact: true }).click();
-  await expect(folder.locator('a[data-sheet="kit"] .new')).toHaveCount(0);
+  await expect(folder.locator(`a[data-sheet="${fresh[0]}"] .new`)).toHaveCount(0);
+  await expect(folder.locator(`a[data-sheet="${fresh[1]}"] .new`)).toHaveCount(1);
 
   // an old bike: no Break-in plan, but «Blätter wählen» can switch it on
   await page.goto(`./#/bikes?bike=${TRAIL}`);
