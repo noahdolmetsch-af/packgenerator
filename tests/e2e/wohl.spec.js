@@ -140,6 +140,23 @@ test('Was mir gut tut on Heute: the values tile and the ride in the evening chec
       }),
     D0,
   );
+  // Heute writes when «Deine Abfragen» began (abdb.js ensureConfig) a moment after the import; jumping to the
+  // evening before that makes the evening the start, and then no question is due yet
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise((ok) => {
+            const r = indexedDB.open('pack-generator');
+            r.onsuccess = () => {
+              const g = r.result.transaction('settings').objectStore('settings').get('abfragen');
+              g.onsuccess = () => (r.result.close(), ok(g.result?.value?.since ?? null));
+              g.onerror = () => (r.result.close(), ok(null));
+            };
+          }),
+      ),
+    )
+    .toMatch(new RegExp(`^${D0}T09`));
   await page.clock.setFixedTime(new Date(`${D0}T20:45:00+02:00`));
   await page.reload();
   const win = page.locator('dialog[data-section="abfragen"][data-round="evening"]');
