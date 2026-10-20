@@ -6,6 +6,9 @@
 // - when the app comes back to the screen, and every hour while it is open, it asks for a new version;
 // - when a new version has taken over, the page loads anew, but never while the person types: then it
 //   waits until the app goes to the background or the field is left.
+// - when the new version still has not arrived 15 minutes after it went online, a bar says so (behind.js).
+
+import { warnIfBehind } from './behind.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -19,7 +22,7 @@ const typing = (d) => {
  * Starts the watcher. `w` is the window (tests pass a fake one).
  * Returns { check, reloadPending } for the tests.
  */
-export function watchUpdates(w = globalThis, { every = HOUR } = {}) {
+export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind } = {}) {
   const sw = w.navigator?.serviceWorker;
   if (!sw) return null;
   const d = w.document;
@@ -34,6 +37,11 @@ export function watchUpdates(w = globalThis, { every = HOUR } = {}) {
       await reg?.update();
     } catch {
       /* offline or no worker: next time */
+    }
+    try {
+      await behind(w);
+    } catch {
+      /* next time */
     }
   };
   const reloadNow = () => {
@@ -61,5 +69,7 @@ export function watchUpdates(w = globalThis, { every = HOUR } = {}) {
     if (pending) w.setTimeout(() => pending && !typing(d) && reloadNow(), 0);
   });
   w.setInterval(() => d.visibilityState === 'visible' && check(), every);
+  // on start too (the browser itself looks for a new worker on a start; this only asks for the version)
+  w.setTimeout?.(() => behind(w).catch(() => {}), 20_000);
   return { check, reloadPending: () => pending };
 }
