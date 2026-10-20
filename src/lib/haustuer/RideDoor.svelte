@@ -57,7 +57,7 @@
       <div class="row" class:warn={check?.late} data-ride-checkin>
         <BedDouble size={20} aria-hidden="true" />
         <div class="txt">
-          <b>{stay.name || t('Accommodation tonight')}{#if stay.until} · {t('check-in until {until}', { until: stay.until })}{/if}</b>
+          <b>{stay.name || t('Accommodation tonight')}{#if stay.until}{' · '}{t('check-in until {until}', { until: stay.until })}{/if}</b>
           {#if check}
             {#if check.late}<span class="tp-small"><TriangleAlert size={14} aria-hidden="true" /> {t('Planned arrival {arrive}, {min} min too late.', { arrive: check.arrive, min: check.lateMin })} {t('Call ahead, or start earlier tomorrow.')}</span>
             {:else}<span class="tp-small">{t('Planned arrival {arrive}: in time.', { arrive: check.arrive })}</span>{/if}

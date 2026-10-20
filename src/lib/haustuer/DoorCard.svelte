@@ -96,7 +96,7 @@
         <Seg full={false} label={t('Plan B')} options={PLANB_KINDS.map((k) => ({ key: k.key, name: t(k.name) }))} value={kind} onchange={setKind} />
         {#if kind === 'short'}
           <label class="lk"><Upload size={16} aria-hidden="true" />{trip.planB?.route ? t('Replace GPX') : t('Add a shorter GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} class="sr" /></label>
-          {#if trip.planB?.route}<p class="tp-small" data-door-route>{trip.planB.route.name || t('Shorter variant')} · {num(Math.round(trip.planB.route.km))} km{#if trip.planB.route.gainM} · {num(Math.round(trip.planB.route.gainM))} Hm{/if}</p>{/if}
+          {#if trip.planB?.route}<p class="tp-small" data-door-route>{trip.planB.route.name || t('Shorter variant')} · {num(Math.round(trip.planB.route.km))} km{#if trip.planB.route.gainM}{' · '}{num(Math.round(trip.planB.route.gainM))} Hm{/if}</p>{/if}
           {#if gpxMsg}<p class="tp-small" role="alert">{gpxMsg}</p>{/if}
         {:else if kind === 'train'}
           <p class="tp-small">{t('On the way, «Home» shows the next 3 trains from where you are.')}</p>
@@ -116,7 +116,7 @@
           <p class="tp-small tp-muted">{t('Until when can you check in? The app compares it with your planned arrival.')}</p>
           {#each rows as r (r.n)}
             <fieldset class="night" data-night={r.n}>
-              <legend class="tp-small"><b>{t('Night {n}', { n: r.n + 1 })}</b>{#if placeOf(r.n)} · {placeOf(r.n)}{/if}</legend>
+              <legend class="tp-small"><b>{t('Night {n}', { n: r.n + 1 })}</b>{#if placeOf(r.n)}{' · '}{placeOf(r.n)}{/if}</legend>
               <div class="grid">
                 <input class="inp" value={r.stay.name} onchange={(e) => setField(r.n, 'name', e.currentTarget.value)} placeholder={t('Accommodation, e.g. Hotel Post')} aria-label={t('Accommodation of night {n}', { n: r.n + 1 })} />
                 <input class="inp" type="time" value={r.stay.until} onchange={(e) => setField(r.n, 'until', e.currentTarget.value)} aria-label={t('Check-in until (night {n})', { n: r.n + 1 })} data-checkin-until />
@@ -124,7 +124,7 @@
               </div>
               {#if r.check}
                 {#if r.check.late}
-                  <p class="warn" role="note" data-checkin-late><TriangleAlert size={16} aria-hidden="true" />{t('Planned arrival {arrive}, {min} min after check-in ends at {until}.', { arrive: r.check.arrive, min: r.check.lateMin, until: r.check.until })}{#if r.check.needKmh != null} {t('You would need {need} km/h instead of {plan} km/h; start earlier or call ahead.', { need: kmh(r.check.needKmh), plan: num(r.check.planKmh ?? 0) })}{/if}</p>
+                  <p class="warn" role="note" data-checkin-late><TriangleAlert size={16} aria-hidden="true" />{t('Planned arrival {arrive}, {min} min after check-in ends at {until}.', { arrive: r.check.arrive, min: r.check.lateMin, until: r.check.until })}{#if r.check.needKmh != null}{' '}{t('You would need {need} km/h instead of {plan} km/h; start earlier or call ahead.', { need: kmh(r.check.needKmh), plan: num(r.check.planKmh ?? 0) })}{/if}</p>
                 {:else}
                   <p class="tp-small ok" data-checkin-ok><Check size={14} aria-hidden="true" />{t('Planned arrival {arrive}, check-in until {until}.', { arrive: r.check.arrive, until: r.check.until })}</p>
                 {/if}
