@@ -152,7 +152,8 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
     d.remove();
     return c;
   });
-  expect(await bg()).toBe('rgb(244, 245, 241)');
+  // v0.169.0 UI-Grundlagen (UI-Ziele, Noah 17:05 «freigabe für alles», changed on purpose): Salbei ground is warmer, #f6f2ea
+  expect(await bg()).toBe('rgb(246, 242, 234)');
 
   // v0.76.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
   await page.getByRole('link', { name: /^(Me|Ich)\b/ }).first().click();

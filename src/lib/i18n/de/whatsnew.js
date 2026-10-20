@@ -1425,4 +1425,9 @@ export default {
   'Five places, your body on top.': 'Fünf Orte, dein Körper zuoberst.',
   'Bar: Today, Plan, Trips, Analysis, Bikes': 'Leiste: Heute, Planen, Touren, Auswerten, Velos',
   'Warmer colours, one font, round buttons': 'Wärmere Farben, eine Schrift, runde Knöpfe',
+  'Today: your body and the check on top': 'Heute: dein Körper und der Check zuoberst',
+  'Me: only data, settings, help': 'Ich: nur Daten, Einstellungen, Hilfe',
+  'Warmer colours, round buttons': 'Wärmere Farben, runde Knöpfe',
+  'Tap Plan in the bar: Week, Appointments, Notes and more.': 'Tippe in der Leiste auf Planen: Woche, Termine, Notizen und mehr.',
+  'Open Today: your body stands on top.': 'Öffne Heute: Dein Körper steht zuoberst.',
 };

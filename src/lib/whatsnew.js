@@ -23,16 +23,13 @@ export const WHATS_NEW = [
     lead: 'Five places, your body on top.',
     points: [
       { text: 'Bar: Today, Plan, Trips, Analysis, Bikes', href: '#/week' },
-      { text: '«Your body today»: pulse, sleep and active minutes next to yesterday', href: '#/me/insights' },
-      { text: '«Active today»: tick off in one tap', href: '#/flow' },
+      { text: 'Today: your body and the check on top', href: '#/' },
+      { text: 'Me: only data, settings, help', href: '#/me' },
     ],
-    small: [
-      { box: 'nicer', text: 'Warmer colours, one font, round buttons' },
-      { box: 'nicer', text: 'Chips under the greeting; the check in 5 steps' },
-    ],
+    small: [{ box: 'nicer', text: 'Warmer colours, round buttons' }],
     test: [
-      'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
-      'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
+      'Tap Plan in the bar: Week, Appointments, Notes and more.',
+      'Open Today: your body stands on top.',
     ],
   },
   {
