@@ -274,8 +274,9 @@ test('an own radius: typed, checked, used for the query and remembered', async (
   await own.fill('25');
   await own.press('Enter');
   await expect(own).toHaveValue('25');
+  // the ride goes on by itself after the reload (live-resume): no start tap
   await page.reload();
-  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-resumed-full]')).toBeVisible();
   await expect(page.locator('[data-poi-radius-own]')).toHaveValue('25');
   await noSideways(page, 'radius');
 });
@@ -326,8 +327,9 @@ test('the kinds: rename, take out and Undo, put more in, sort, an own kind with 
   await expect(row).toContainText('test_data_gtp_ Bank am Weg');
   await noSideways(page, 'kinds');
   // remembered after a reload
+  // the ride goes on by itself after the reload (live-resume): no start tap
   await page.reload();
-  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-resumed-full]')).toBeVisible();
   await expect(page.locator('[data-poi-chips] [data-poi-chip^="my-"]')).toContainText('test_data_gtp_ Ruhebänke');
   await expect(page.locator('[data-poi-chip="water"]')).toContainText('test_data_gtp_ Brünneli');
   // delete the own kind: asked first, then gone
