@@ -8,7 +8,7 @@ import { pickLook } from './gear-look.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { openData, settle } from './settle.js';
+import { closeDialog, openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -105,7 +105,8 @@ test('LI1 + LI2 + LI3: rename, symbol, hide, own category and back to Standard r
   expect(opts).toContain('test_data_gtp_ Fotografie');
   expect(opts).toContain('test_data_gtp_ Strom');
   expect(opts).not.toContain(T(B.name));
-  await page.keyboard.press('Escape');
+  // the dialog takes its history entry away a moment after Escape; a next address before that is undone
+  await closeDialog(page);
 
   // back to Standard: everything as the app comes
   await page.goto('./#/me/lists?categories');
