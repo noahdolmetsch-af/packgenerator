@@ -27,6 +27,7 @@ export const WHATS_NEW = [
       { text: 'Plan a tour: the GPX route shows a fine profile coloured by gradient and every climb in a list', href: '#/trips' },
     ],
     small: [
+      { box: 'new', text: 'Aktiv: «Your week in numbers» with sleep, resting pulse and active zone minutes; the history reads like a diary' },
       { box: 'nicer', text: 'Aktiv: edit, hide or delete an activity tile, with Undo' },
       { box: 'fixed', text: 'No more wrong hint that the AI helper key runs out' },
     ],

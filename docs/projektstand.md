@@ -29,6 +29,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 19 | Aktiv «Sport-Kacheln» | 0.168.0 | Kacheln unter «Heute abhaken»: Bearbeiten ›, Löschen im App-Fenster mit «Verlauf behalten» und Rückgängig, «Kachel ausblenden»; Reiter «Ziele» heisst «Aktivitäten»; «Wie geht's? Starten» öffnet den Morgen-Check | dieser PR |
 | 20 | Tour planen mit GPX | 0.168.0 | Planen › Strecke: feines, zoombares Profil nach Steigung gefärbt, Liste «Anstiege» mit Mindesthöhe, Steigung pro 100 m und Notiz pro Anstieg | dieser PR |
 | 21 | KI-Schlüssel-Hinweis | 0.168.0 | Kein falscher Hinweis «KI-Helfer-Schlüssel läuft ab» mehr auf Heute und in «Wartet auf dich»; Schlüssel-Hinweise nur unter Ich › App-Wartung | dieser PR |
+| 22 | Aktiv neu | 0.168.0 | «Deine Woche in Zahlen» (Schlaf, Ruhepuls, Aktivzonen-Minuten) statt «Velo diesen Monat», Verlauf als Tagebuch mit Fitbit, Puls und Watt, Kacheln abhaken kleiner, Auswertung zeigt Messwerte | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

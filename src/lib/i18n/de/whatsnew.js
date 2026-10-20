@@ -1391,6 +1391,7 @@ export default {
   'Add the gear to a past ride, plan with every climb, and change your activity tiles yourself.': 'Trag das Gepäck zu einer vergangenen Fahrt nach, plane mit jedem Anstieg und ändere deine Aktiv-Kacheln selbst.',
   'Tour page new: big values, a landscape on top, the weather of the day': 'Tour-Seite neu: grosse Werte, Landschaft, Wetter des Tages',
   'Plan a tour: the GPX route shows a fine profile coloured by gradient and every climb in a list': 'Tour planen: Die GPX-Strecke zeigt ein feines Profil nach Steigung gefärbt und alle Anstiege in einer Liste',
+  'Aktiv: «Your week in numbers» with sleep, resting pulse and active zone minutes; the history reads like a diary': 'Aktiv: «Deine Woche in Zahlen» mit Schlaf, Ruhepuls und Aktivzonen-Minuten; der Verlauf liest sich wie ein Tagebuch',
   'Aktiv: edit, hide or delete an activity tile, with Undo': 'Aktiv: Kacheln bearbeiten, ausblenden oder löschen, mit Rückgängig',
   'Plan a tour with a GPX route and tap a climb under «Climbs».': 'Plane eine Tour mit GPX-Strecke und tippe unter «Anstiege» auf einen Anstieg.',
   'No more wrong hint that the AI helper key runs out': 'Kein falscher Hinweis mehr, dass der KI-Helfer-Schlüssel abläuft',
