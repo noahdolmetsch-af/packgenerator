@@ -44,6 +44,8 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(fri.locator('[data-entry]')).toHaveCount(4); // the session, the dentist, the to-do and the fixture's test trip
   await expect(fri.locator('[data-entry]').first()).toContainText('07:45');
   await expect(page.locator('[data-filter]')).toHaveCount(KINDS.length);
+  // the filter chips sit in a fold (Impeccable P5)
+  await page.locator('[data-week-filters] > summary').click();
   // the to-do without a day waits under «Still to plan»
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
   // hide the to-dos, show them again

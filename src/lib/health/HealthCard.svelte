@@ -74,11 +74,12 @@
       </ul>
       {#if health.error}<p class="err" role="status">{errorText(health.error)}</p>{/if}
       <div class="ich-acts">
-        <button type="button" class="btn hi" onclick={() => fetchNow()} disabled={health.busy || !readKey()}>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>
+        <!-- Impeccable P6: without the Strava key no grey button, the line below says what to do -->
+        {#if readKey()}<button type="button" class="btn hi" onclick={() => fetchNow()} disabled={health.busy}>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>{/if}
         <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose values')}</button>
         <button type="button" class="btn" onclick={() => (asking = !asking)}>{t('Disconnect|fitbit')}</button>
       </div>
-      {#if !readKey()}<p class="ich-help">{t('This device has no key yet: connect Strava on this device first.')} <a href={STRAVA_HASH}>{t('To Strava')}</a></p>{/if}
+      {#if !readKey()}<p class="ich-help" data-fitbit-needs-strava>{t('Fitbit needs the Strava connection first.')} <a href={STRAVA_HASH}>{t('Connect Strava ›')}</a></p>{/if}
       {#if choosing}
         <fieldset class="vals">
           <legend class="ich-help">{t('Only the chosen values are fetched and kept.')}</legend>

@@ -108,4 +108,20 @@ export default {
   // P5 Velos: what is up now, under the bike name
   "Up now: {n} job · See": "Jetzt dran: {n} Arbeit · Ansehen",
   "Up now: {n} jobs · See": "Jetzt dran: {n} Arbeiten · Ansehen",
+
+  // P5 Woche
+  "«{name}» planned for {day}.": "«{name}» geplant für {day}.",
+  "«{name}» left out of the training plan.": "«{name}» aus dem Trainingsplan weggelassen.",
+  "«{name}» waits until next week.": "«{name}» wartet bis nächste Woche.",
+  "Filter|week": "Filter",
+  "Filter · {n} hidden": "Filter · {n} ausgeblendet",
+  "Filter · {n} hidden|pl": "Filter · {n} ausgeblendet",
+
+  // P6 Ich › Daten
+  "Delete everything|section": "Alles löschen",
+  "Deletes all data on this device. Save a backup first.": "Löscht alle Daten auf diesem Gerät. Speichere vorher ein Backup.",
+
+  // P6 Fitbit
+  "Fitbit needs the Strava connection first.": "Fitbit braucht zuerst die Strava-Verbindung.",
+  "Connect Strava ›": "Strava verbinden ›",
 };

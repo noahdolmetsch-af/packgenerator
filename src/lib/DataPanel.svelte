@@ -521,8 +521,6 @@
 
     <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
     <BeforeUpdates />
-    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero -->
-    <StartFresh />
 
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">
@@ -581,6 +579,9 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
       </ul>
     </section>
+    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.
+         Impeccable P6: its own last section «Delete everything», away from the backup buttons -->
+    <StartFresh />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>
