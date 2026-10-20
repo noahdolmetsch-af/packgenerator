@@ -687,7 +687,7 @@ export default {
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
-  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Was mir gut tut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
@@ -1062,7 +1062,7 @@ export default {
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
-  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
+  'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Was mir gut tut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
@@ -1111,4 +1111,7 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // Noah 20.10.2026 «Check-Fragen selbst bearbeiten»
+  'Tap «Edit questions and groups»: change, delete, sort and add questions and areas.': 'Tippe «Fragen und Bereiche bearbeiten»: Fragen und Bereiche ändern, löschen, sortieren und hinzufügen.',
+  'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one away. Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine weg. Ich › Daten › Verlauf zeigt alle Antworten.',
 };

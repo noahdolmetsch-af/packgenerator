@@ -66,7 +66,7 @@ export default {
   "Every item can have its days and a time, for example «stretch, Mon and Thu».": "Jede Sache kann ihre Tage und eine Zeit haben, zum Beispiel «Dehnen, Mo und Do».",
   "Tick off on Today|guide": "Auf Heute abhaken",
   "The list shows on Today. One tap ticks it, a second tap takes it back.": "Die Liste erscheint auf Heute. Ein Tipp hakt ab, ein zweiter nimmt es zurück.",
-  "What does me good|guide": "Das tut mir gut",
+  "What does me good|guide": "Was mir gut tut",
   "Your small list of good habits": "Deine kleine Liste guter Gewohnheiten",
   "After a few weeks you see what really became a habit, and what can go.": "Nach ein paar Wochen siehst du, was wirklich zur Gewohnheit wurde und was gehen darf.",
   "Three items are a habit, twelve are a second job. Start small.": "Drei Sachen sind eine Gewohnheit, zwölf sind ein Nebenjob. Fang klein an.",

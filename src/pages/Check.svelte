@@ -58,6 +58,12 @@
     saveCheck(db, $state.snapshot(cur));
   }
   const evening = $derived(part === 'evening');
+  // Noah 20.10.2026 «frage überspringen button, sehr klein und dezent»: a skipped question hides for today
+  const sk = (key) => !!cur?.skip?.includes(key);
+  const skipQ = (key) => set({ skip: [...(cur.skip ?? []).filter((k) => k !== key), key] });
+  const skippedHere = $derived((cur?.skip ?? []).filter((k) => (evening ? EVENING_KEYS : MORNING_KEYS).includes(k)));
+  const MORNING_KEYS = ['sleep', 'energy', 'mood', 'extra', 'joy', 'goal'];
+  const EVENING_KEYS = ['sat', 'best', 'goalDone', 'outside', 'people', 'fun', 'mindful', 'vision'];
   const rot = $derived(data ? rotatingFor(data.pool, off, today) : null);
   const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -167,26 +173,27 @@
   {/if}
 </div>
 
-{#snippet head(n, id, text, small, tag)}
+{#snippet head(n, id, text, small, tag, key = null)}
   <div class="qh">
     <!-- Gesamttest 20.10.2026 (B10): counted on screen 1, 2, 3 … (CSS counter), not the number of the 15 questions -->
     <span class="qn num" aria-hidden="true" data-n={n}></span>
     <span class="qt"><b id={id}>{text}</b>{#if small}<small>{small}</small>{/if}</span>
     <span class="pill">{tag}</span>
+    {#if key}<button type="button" class="skip" onclick={() => skipQ(key)} aria-label={t('Skip «{q}»', { q: text })} data-skip={key}>{t('Skip|question')}</button>{/if}
   </div>
 {/snippet}
 
 {#snippet morningQs()}
   <section class="card qs" aria-label={t('Morning check')}>
     {#each fixedQs as f (f.key)}
-      <div class="q" data-q={f.key}>
-        {@render head(f.n, `cq-${f.key}`, f.text, `${f.lo} … ${f.hi}`, t('daily|check'))}
+      <div class="q" data-q={f.key} hidden={sk(f.key)}>
+        {@render head(f.n, `cq-${f.key}`, f.text, `${f.lo} … ${f.hi}`, t('daily|check'), f.key)}
         <Scale value={cur[f.key]} yesterday={ydot(f.key)} label="cq-{f.key}" onpick={(v) => set({ [f.key]: v })} />
       </div>
     {/each}
     {#if rot}
-      <div class="q" data-q="extra">
-        {@render head(rot.q.id === 'calm' ? 5 : 4, 'cq-extra', qText(rot.q), [qText(rot.q, 'lo'), qText(rot.q, 'hi')].filter(Boolean).join(' … ') + ` · ${t('changes daily')}`, t('today|check'))}
+      <div class="q" data-q="extra" hidden={sk('extra')}>
+        {@render head(rot.q.id === 'calm' ? 5 : 4, 'cq-extra', qText(rot.q), [qText(rot.q, 'lo'), qText(rot.q, 'hi')].filter(Boolean).join(' … ') + ` · ${t('changes daily')}`, t('today|check'), 'extra')}
         <Scale value={cur.q === rot.q.id || cur.q == null ? cur.extra : null} yesterday={ydot('extra', rot.q.id)} label="cq-extra" onpick={(v) => set({ extra: v, q: rot.q.id })} />
         {#if editPool}
           <div class="pe"><PoolEditor pool={data.pool} onclose={() => (editPool = false)} /></div>
@@ -196,14 +203,14 @@
       </div>
     {/if}
     {#if on(6)}
-    <div class="q" data-q="joy">
-      {@render head(6, 'cq-joy', t('What are you looking forward to today?'), t('several possible'), t('daily|check'))}
+    <div class="q" data-q="joy" hidden={sk('joy')}>
+      {@render head(6, 'cq-joy', t('What are you looking forward to today?'), t('several possible'), t('daily|check'), 'joy')}
       <Chips name="joy" label="cq-joy" multi items={withOwn(JOYS, cur.joy)} value={cur.joy} own={t('own|chip')} onpick={(id) => set({ joy: toggleId(cur.joy, id) })} onown={(s) => set({ joy: cur.joy.includes(s) ? cur.joy : [...cur.joy, s] })} />
     </div>
     {/if}
     {#if on(7)}
-    <div class="q" data-q="goal">
-      {@render head(7, 'cq-goal', t('Your most important goal for today'), t('a suggestion or one sentence of your own'), t('daily|check'))}
+    <div class="q" data-q="goal" hidden={sk('goal')}>
+      {@render head(7, 'cq-goal', t('Your most important goal for today'), t('a suggestion or one sentence of your own'), t('daily|check'), 'goal')}
       <Chips name="goal" label="cq-goal" items={goalItems} value={goalValue} own={t('own sentence')} onpick={pickGoal} onown={(s) => set({ goal: { text: s } })} />
     </div>
     {/if}
@@ -270,14 +277,14 @@
     <!-- Paket M #223: on a trip day, rate the trip while it is fresh (nothing shows on other days) -->
     <AbendTour trips={data.trips} {today} />
     {#if on(8)}
-    <div class="q" data-q="sat">
-      {@render head(8, 'cq-sat', t('How happy are you with the day?'), `${t('not at all|sat')} … ${t('very|sat')}`, t('daily|check'))}
+    <div class="q" data-q="sat" hidden={sk('sat')}>
+      {@render head(8, 'cq-sat', t('How happy are you with the day?'), `${t('not at all|sat')} … ${t('very|sat')}`, t('daily|check'), 'sat')}
       <Scale value={cur.sat} yesterday={ydot('sat')} label="cq-sat" onpick={(v) => set({ sat: v })} />
     </div>
     {/if}
     {#if on(9)}
-    <div class="q" data-q="best">
-      {@render head(9, 'cq-best', t('What was the best part of today?'), t('several possible'), t('daily|check'))}
+    <div class="q" data-q="best" hidden={sk('best')}>
+      {@render head(9, 'cq-best', t('What was the best part of today?'), t('several possible'), t('daily|check'), 'best')}
       <Chips name="best" label="cq-best" multi items={withOwn(BEST, cur.best)} value={cur.best} own={t('own|chip')} onpick={(id) => set({ best: toggleId(cur.best, id) })} onown={(s) => set({ best: cur.best.includes(s) ? cur.best : [...cur.best, s] })} />
       <div class="more">
         <PenLine size={16} aria-hidden="true" />
@@ -288,32 +295,32 @@
     </div>
     {/if}
     {#if cur.goal && on(10)}
-      <div class="q" data-q="goalDone">
-        {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(cur.goal) }), t('reached?'), t('daily|check'))}
+      <div class="q" data-q="goalDone" hidden={sk('goalDone')}>
+        {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(cur.goal) }), t('reached?'), t('daily|check'), 'goalDone')}
         <Chips name="goalDone" label="cq-gd" items={GOAL_DONE.map((x) => ({ id: x, label: t(DONE_LABEL[x]) }))} value={cur.goalDone} onpick={(id) => set({ goalDone: cur.goalDone === id ? null : id })} />
       </div>
     {/if}
     {#if on(11)}
-    <div class="q" data-q="outside">
-      {@render head(11, 'cq-out', t('How long were you outside?'), outsidePre && cur.outside == null ? t('filled in from your ride, changeable') : '', t('daily|check'))}
+    <div class="q" data-q="outside" hidden={sk('outside')}>
+      {@render head(11, 'cq-out', t('How long were you outside?'), outsidePre && cur.outside == null ? t('filled in from your ride, changeable') : '', t('daily|check'), 'outside')}
       <Chips name="outside" label="cq-out" items={OUTSIDE.map((x) => ({ id: x, label: t(OUT_LABEL[x]) }))} value={outsideNow} onpick={(id) => set({ outside: outsideNow === id && cur.outside != null ? null : id })} />
     </div>
     {/if}
     {#if turn === 'people'}
-      <div class="q" data-q="people">
-        {@render head(12, 'cq-ppl', t('Time with friends or family?'), on(13) ? t('takes turns with question 13') : '', t('today|check'))}
+      <div class="q" data-q="people" hidden={sk('people')}>
+        {@render head(12, 'cq-ppl', t('Time with friends or family?'), on(13) ? t('takes turns with question 13') : '', t('today|check'), 'people')}
         <Chips name="people" label="cq-ppl" items={PEOPLE.map((x) => ({ id: x, label: t(PEOPLE_LABEL[x]) }))} value={cur.people} onpick={(id) => set({ people: cur.people === id ? null : id })} />
       </div>
     {:else if turn === 'fun'}
-      <div class="q" data-q="fun">
-        {@render head(13, 'cq-fun', t('How much fun did you have?'), `${t('little|fun')} … ${t('a lot|fun')}${on(12) ? ` · ${t('takes turns with question 12')}` : ''}`, t('today|check'))}
+      <div class="q" data-q="fun" hidden={sk('fun')}>
+        {@render head(13, 'cq-fun', t('How much fun did you have?'), `${t('little|fun')} … ${t('a lot|fun')}${on(12) ? ` · ${t('takes turns with question 12')}` : ''}`, t('today|check'), 'fun')}
         <Scale value={cur.fun} label="cq-fun" onpick={(v) => set({ fun: v })} />
       </div>
     {/if}
     {#if !on(14)}
       <!-- question 14 switched off -->
     {:else if medToday}
-      <div class="q" data-q="mindful">
+      <div class="q" data-q="mindful" hidden={sk('mindful')}>
         <div class="auto" data-mindful-auto>
           <Flower2 size={18} aria-hidden="true" />
           <span><b>{t('Mindful moment')}</b> {zurichTime(medToday.at) ? t('found by itself: meditation {min} min at {time}', { min: medToday.min, time: zurichTime(medToday.at) }) : t('found by itself: meditation {min} min', { min: medToday.min })}</span>
@@ -321,15 +328,15 @@
         </div>
       </div>
     {:else}
-      <div class="q" data-q="mindful">
-        {@render head(14, 'cq-mind', t('Did you have a mindful moment?'), t('a meditation counts by itself'), t('daily|check'))}
+      <div class="q" data-q="mindful" hidden={sk('mindful')}>
+        {@render head(14, 'cq-mind', t('Did you have a mindful moment?'), t('a meditation counts by itself'), t('daily|check'), 'mindful')}
         <Chips name="mindful" label="cq-mind" items={[{ id: 'yes', label: t('Yes|goal') }, { id: 'no', label: t('No|goal') }]} value={cur.mindful} onpick={(id) => set({ mindful: cur.mindful === id ? null : id })} />
       </div>
     {/if}
     {#if vision}
       <!-- v0.127.0 «Tages-Check» 2: question 15, on Sundays -->
-      <div class="q" data-q="vision">
-        {@render head(15, 'cq-vis', t('Did you get closer to your vision?'), `${t('not at all|vision')} … ${t('a big step')}`, t('Sunday|check'))}
+      <div class="q" data-q="vision" hidden={sk('vision')}>
+        {@render head(15, 'cq-vis', t('Did you get closer to your vision?'), `${t('not at all|vision')} … ${t('a big step')}`, t('Sunday|check'), 'vision')}
         <Scale value={cur.vision} label="cq-vis" onpick={(v) => set({ vision: v })} />
         <div class="more">
           <PenLine size={16} aria-hidden="true" />
@@ -342,6 +349,9 @@
 {/snippet}
 
 {#snippet allQs()}
+  {#if skippedHere.length}
+    <button type="button" class="lk" onclick={() => set({ skip: (cur.skip ?? []).filter((k) => !skippedHere.includes(k)) })} data-skip-back>{tn(skippedHere.length, 'Show {n} skipped question again', 'Show {n} skipped questions again')}</button>
+  {/if}
   <a class="lk all" href="#/check/questions" data-all-questions><ListChecks size={16} aria-hidden="true" />{t('Your 15 questions')}<ChevronRight size={16} aria-hidden="true" /></a>
 {/snippet}
 
@@ -503,6 +513,28 @@
   }
   .pe {
     margin-top: var(--sp-3);
+  }
+  /* «Überspringen»: small and quiet; the hit area is bigger than the word */
+  .skip {
+    position: relative;
+    flex: none;
+    align-self: center;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: 400 var(--fs-tiny) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .skip::after {
+    content: '';
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .skip:hover {
+    color: var(--ink-2);
   }
   .big {
     width: 100%;
