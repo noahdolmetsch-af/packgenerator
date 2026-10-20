@@ -281,7 +281,7 @@
     {#if picked}
       <p class="rm-picked" data-map-picked>
         <b>{picked.name}</b>
-        <span>{kindName(picked.kind)}{#if picked.km != null} · {t('km {km}', { km: Math.round(picked.km) })}{/if}{#if pickedEta} · {t('there {when}', { when: when(pickedEta) })}{/if}</span>
+        <span>{kindName(picked.kind)}{#if picked.km != null}{' '}· {t('km {km}', { km: Math.round(picked.km) })}{/if}{#if pickedEta}{' '}· {t('there {when}', { when: when(pickedEta) })}{/if}</span>
       </p>
     {/if}
     {#if poiPicked}
@@ -387,7 +387,7 @@
             <SortGrip name={ownLabel(p, t)} onstep={(dir) => move(i, i + dir)} />
             <button type="button" class="rc-row-main" onclick={() => (sheet = { point: p, fresh: false })}>
               <b>{ownLabel(p, t)}</b>
-              <small>{t(OWN_KINDS.find((x) => x.key === p.kind)?.name ?? 'Note|point')}{#if k != null} · {t('km {km} of this route', { km: Math.round(k) })}{/if}{#if p.note} · {p.note}{/if}</small>
+              <small>{t(OWN_KINDS.find((x) => x.key === p.kind)?.name ?? 'Note|point')}{#if k != null}{' '}· {t('km {km} of this route', { km: Math.round(k) })}{/if}{#if p.note}{' '}· {p.note}{/if}</small>
             </button>
             <button type="button" class="rc-icon" aria-label={t('Show {name} on the map', { name: ownLabel(p, t) })} onclick={() => showOnMap(p)}><MapPin size={18} aria-hidden="true" /></button>
             <SortArrows name={ownLabel(p, t)} {i} n={own.length} onstep={(dir) => move(i, i + dir)} />

@@ -12,7 +12,7 @@
   import { untrack } from 'svelte';
   import { RefreshCw, Plus, Pencil, Trash2, ExternalLink, TriangleAlert, Mountain, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, locale } from '../lib/i18n.svelte.js';
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -27,7 +27,7 @@
   const prefs = $derived($q?.prefs ?? alertsOf(null));
   const now = new Date();
   const month = now.getMonth() + 1;
-  const when = (iso) => (iso ? new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
   const ERR = { offline: 'Offline: this is the last state.', source_unreachable: 'The source does not answer right now.', source_failed: 'The source does not answer right now.', bad_address: 'This address cannot be read. Check it under «Change».', failed: 'Could not load just now. Try again later.' };
   const errText = (code) => t(ERR[code] ?? ERR.failed);
 

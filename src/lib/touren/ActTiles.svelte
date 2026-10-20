@@ -32,7 +32,7 @@
       </svg>
       <div class="tb">
         <p class="tn"><KindIcon kind={r.kind} size={15} /><span>{r.name || t(typeKey(r.type))}</span>{#if picking}<span class="ck" aria-hidden="true">{#if picked.has(r.id)}<Check size={14} />{/if}</span>{/if}</p>
-        <p class="tw">{when(r)}{#if r.changed?.length} · {t('changed')}{/if}</p>
+        <p class="tw">{when(r)}{#if r.changed?.length}{' '}· {t('changed')}{/if}</p>
         {#if r.pm}<p class="tpm"><TripState state={r.pm.state} /></p>{/if}
         <p class="tv num"><span><b>{r.km > 0 ? n1(r.km) : DASH}</b> km</span><span><b>{n0(r.hm)}</b> {t('Hm|col')}</span><span><b>{secs(r.dauer)}</b></span></p>
       </div>

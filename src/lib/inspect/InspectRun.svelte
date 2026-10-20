@@ -115,7 +115,7 @@
   <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax={prog.total} aria-valuenow={prog.done} aria-label={t('Progress')}>
     <span style="width: {prog.total ? Math.round((prog.done / prog.total) * 100) : 0}%"></span>
   </div>
-  <p class="prog" data-inspect-progress>{t('{done} of {total} points', { done: prog.done, total: prog.total })}{#if insp?.date && insp.date !== today} · {t('started {date}', { date: dateOf(insp.date) })}{/if}</p>
+  <p class="prog" data-inspect-progress>{t('{done} of {total} points', { done: prog.done, total: prog.total })}{#if insp?.date && insp.date !== today}{' '}· {t('started {date}', { date: dateOf(insp.date) })}{/if}</p>
   <p class="hint">{t('Tap a state for every point. «So geht’s» shows tools, steps and when the bike shop is better. Everything is saved at once.')}</p>
 
   {#each groups as g (g.area.id)}
@@ -132,7 +132,7 @@
             <div class="top">
               <div class="nm">
                 <b>{pointName(p)}</b>
-                <small>{t(WHO.find((w) => w.key === p.who)?.name ?? 'Yourself')}{#if p.measure?.limit != null} · {limitText(p.measure)}{/if}</small>
+                <small>{t(WHO.find((w) => w.key === p.who)?.name ?? 'Yourself')}{#if p.measure?.limit != null}{' '}· {limitText(p.measure)}{/if}</small>
               </div>
               <button type="button" class="btn sm how" onclick={() => (howto = p)} data-howto-open><BookOpen size={16} aria-hidden="true" />{t('How it works')}</button>
             </div>
@@ -154,7 +154,7 @@
               {/each}
             </div>
             <button type="button" class="more" aria-expanded={!!open[p.id] || !!r?.note || !!r?.photos?.length} onclick={() => (open = { ...open, [p.id]: !open[p.id] })} data-point-more>
-              <ChevronDown size={14} aria-hidden="true" />{t('Note and photo')}{#if r?.photos?.length} · <Camera size={14} aria-hidden="true" /> {r.photos.length}{/if}
+              <ChevronDown size={14} aria-hidden="true" />{t('Note and photo')}{#if r?.photos?.length}{' '}· <Camera size={14} aria-hidden="true" /> {r.photos.length}{/if}
             </button>
             {#if open[p.id] || r?.note || r?.photos?.length}
               <div class="extra">

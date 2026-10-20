@@ -76,7 +76,7 @@
     await db.settings.delete(GOAL_KEY);
     goalForm = null;
   }
-  const goalLine = $derived(goal ? [goal.hours ? t('{n} h per week', { n: num(goal.hours) }) : '', goal.base != null ? t('{n} % in Z1–Z2', { n: goal.base }) : '', goal.until ? t('{n} weeks to go', { n: weeksTo(goal.until, today) }) : ''].filter(Boolean).join(' · ') : '');
+  const goalLine = $derived(goal ? [goal.hours ? t('{n} h per week', { n: num(goal.hours) }) : '', goal.base != null ? t('{n} % in Z1–Z2', { n: goal.base }) : '', goal.until ? tn(weeksTo(goal.until, today), '{n} week to go', '{n} weeks to go') : ''].filter(Boolean).join(' · ') : '');
 
   // the look back: six weeks up to the shown one
   const weeks = $derived(

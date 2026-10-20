@@ -124,7 +124,7 @@
         <div class="kh-chips">
           {#each chips as c (c.key)}
             {@const l = label(c)}
-            <button type="button" class="kh-chip" aria-expanded={editing === c.key} onclick={() => (editing = editing === c.key ? null : c.key)}>{l.text}{#if l.sub} <small>{l.sub}</small>{/if}<span class="kh-ic"><Pencil size={14} aria-hidden="true" /></span></button>
+            <button type="button" class="kh-chip" aria-expanded={editing === c.key} onclick={() => (editing = editing === c.key ? null : c.key)}>{l.text}{#if l.sub}{' '}<small>{l.sub}</small>{/if}<span class="kh-ic"><Pencil size={14} aria-hidden="true" /></span></button>
           {/each}
         </div>
         {#if editing}

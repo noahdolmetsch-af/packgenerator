@@ -348,7 +348,7 @@
                     {#each stats.stats as s (s.key)}
                       <tr>
                         <th scope="row">{t(LABEL[s.key])}</th>
-                        <td class="n v num"><b>{value(s)}</b>{#if unit(s)} <span class="u">{unit(s)}</span>{/if}</td>
+                        <td class="n v num"><b>{value(s)}</b>{#if unit(s)}{' '}<span class="u">{unit(s)}</span>{/if}</td>
                         {#if mode !== 'all'}<td class="n d num" class:up={s.delta > 0}>{deltaText(s)}</td>{/if}
                         <td class="a">{avgText(s)}</td>
                         <td class="b">{bestText(s)}</td>
@@ -463,7 +463,7 @@
                     {#each cmp.metrics as m (m.key)}
                       <li class="mini">
                         <span class="ml">{t(CMP[m.key])}</span>
-                        <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null} <span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
+                        <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null}{' '}<span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
                         <MiniBars values={m.values} mark={cmp.latest?.id} avg={m.avg} label={t(CMP[m.key])} />
                         <span class="mf num">{cmpFoot(m)}</span>
                       </li>

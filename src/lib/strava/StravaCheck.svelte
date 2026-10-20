@@ -45,6 +45,9 @@
     return reasonText(e.reason, nameOf);
   }
 
+  // Gesamttest 20.10.2026: with 1300 waiting rides the page was 400 screens long: 20 at a time, then «n weitere zeigen»
+  const STEP = 20;
+  let limit = $state(STEP);
   let other = $state(null); // the entry whose «Anderes Velo» is open
   let notice = $state(null); // { text, put }
   let timer;
@@ -83,7 +86,7 @@
         <Empty icon={Check} text={t('Nothing to check. Every ride from Strava has its bike.')} action={{ label: t('Back to Strava'), href: STRAVA_HASH }} />
       {:else}
         <ul class="rides">
-          {#each list as e (e.id)}
+          {#each list.slice(0, limit) as e (e.id)}
             <li class="card ride" data-ride={e.stravaId}>
               <div class="rh">
                 <span class="m"><b>{#if e.stravaId}<a class="actl" href={actHref(e.stravaId)} data-act-link={e.stravaId}>{e.name || t('Ride')}</a>{:else}{e.name || t('Ride')}{/if}</b><small class="num">{dateOf(e.date)} · {num(e.km)} km</small></span>
@@ -111,6 +114,7 @@
             </li>
           {/each}
         </ul>
+        {#if list.length > limit}<button type="button" class="btn more" onclick={() => (limit += STEP)} data-more>{t('Show {n} more', { n: Math.min(STEP, list.length - limit) })}</button>{/if}
         {#if withSug.length > 1}
           <p class="allrow"><button type="button" class="btn" onclick={all}><Check size={16} aria-hidden="true" />{tn(withSug.length, 'Take over the {n} suggestion', 'Take over all {n} suggestions')}</button><small>{t('changeable later')}</small></p>
         {/if}
@@ -169,6 +173,9 @@
     margin: 2px 0 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .more {
+    margin-top: 12px;
   }
   .rides {
     display: grid;

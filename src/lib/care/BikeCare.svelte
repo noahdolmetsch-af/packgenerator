@@ -242,7 +242,7 @@
     </span>
     {#if x && hmap.get(key)}
       {@const h = hmap.get(key)}
-      <span class="kh-why"><span class="kh-ic"><Sparkles size={14} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span><b>{t(HSTATUS[h.status])}</b> · {h.reason}{#if h.check} → {h.check}{/if}</span><button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(key) })} onclick={() => hmark('dismissed', h)}><XIcon size={16} aria-hidden="true" /></button></span>
+      <span class="kh-why"><span class="kh-ic"><Sparkles size={14} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span><b>{t(HSTATUS[h.status])}</b> · {h.reason}{#if h.check}{' '}→ {h.check}{/if}</span><button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(key) })} onclick={() => hmark('dismissed', h)}><XIcon size={16} aria-hidden="true" /></button></span>
     {/if}
     {#if isOpen}
       <div class="extra" id="px-{bike.id}-{key}">
@@ -361,7 +361,7 @@
           <li class="pt due kh-pt">
             <span class="pn"><span class="kh-ic"><Sparkles size={16} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span class="kh-pn">{hname(h.key)}</span></span>
             <span class="st"><span class="badge {h.status === 'soon' ? 'warn' : 'n'}">{t(HSTATUS[h.status])}</span></span>
-            <span class="last"><span class="lt">{h.reason}{#if h.check} → {h.check}{/if}</span></span>
+            <span class="last"><span class="lt">{h.reason}{#if h.check}{' '}→ {h.check}{/if}</span></span>
             <span class="act kh-care-acts"><span class="rowacts">
               <Btn icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={hname(h.key)} onclick={() => hmark('done', h)} />
               <MoreActions title={[hname(h.key), bike.name].join(' · ')} label={t('More for {title}', { title: hname(h.key) })} actions={[

@@ -113,7 +113,7 @@
 
   <ol class="fzn-steps" aria-label={t('Steps')}>
     {#each NIGHT_STEPS as s, i (s.key)}
-      <li><button type="button" class="fz-chip" aria-pressed={night.step === i} aria-current={night.step === i ? 'step' : undefined} onclick={() => go(i)} data-night-step={s.key}>{i + 1}. {t(s.name)}{#if answered[i]} ✓{/if}</button></li>
+      <li><button type="button" class="fz-chip" aria-pressed={night.step === i} aria-current={night.step === i ? 'step' : undefined} onclick={() => go(i)} data-night-step={s.key}>{i + 1}. {t(s.name)}{#if answered[i]}{' '}✓{/if}</button></li>
     {/each}
   </ol>
 
@@ -142,7 +142,7 @@
       {:else if night.step === 2}
         <h2 class="fz-h2"><Hand size={18} aria-hidden="true" /> {t('Pack your day in your head')}</h2>
         <p class="fz-note">{t('Walk through the day once, from getting up to falling asleep. What do you need, where is it, can you reach it without unpacking everything?')}</p>
-        {#if sum.n}<p class="fz-note" data-night-sum>{tn(sum.n, '{n} thing', '{n} things')} · {t('{n} within reach', { n: sum.reach })}{#if sum.noPlace} · {tn(sum.noPlace, '{n} without a place yet', '{n} without a place yet')}{/if}</p>{/if}
+        {#if sum.n}<p class="fz-note" data-night-sum>{tn(sum.n, '{n} thing', '{n} things')} · {t('{n} within reach', { n: sum.reach })}{#if sum.noPlace}{' '}· {tn(sum.noPlace, '{n} without a place yet', '{n} without a place yet')}{/if}</p>{/if}
         {#each PHASES as p (p.key)}
           {@const list = night.phases[p.key]}
           <div class="fzn-phase" data-phase={p.key}>

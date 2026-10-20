@@ -28,7 +28,7 @@
 
   <p class="ds-l" id="ds-engine">{t('Speech model')}</p>
   <Seg labelledby="ds-engine" value={dict.engine} options={ENGINES.map((e) => ({ key: e.key, name: t(e.name) }))} onchange={(k) => setDict('engine', k)} />
-  <p class="note">{t(engineText)}{#if dict.engine === 'browser' && !hasBrowser} {t('This browser has no speech recognition of its own: choose «On this device».')}{/if}</p>
+  <p class="note">{t(engineText)}{#if dict.engine === 'browser' && !hasBrowser}{' '}{t('This browser has no speech recognition of its own: choose «On this device».')}{/if}</p>
 
   <p class="ds-l" id="ds-answer">{t('The app answers a question in a note')}</p>
   <Seg labelledby="ds-answer" value={dict.answer} options={ANSWERS.map((a) => ({ key: a.key, name: t(a.name) }))} onchange={(k) => setDict('answer', k)} />

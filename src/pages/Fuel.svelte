@@ -201,7 +201,7 @@
           <span><Droplet size={18} aria-hidden="true" /><b class="num">{l(plan.totals.waterL)}</b><small>{t('water')}</small></span>
         </div>
         {#if v.view === 'products'}<p class="note" data-fuel-pack>{t('In all: {list}', { list: packText(plan.totals.carbs) })}</p>{/if}
-        <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp} {t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate} {t('Without a start day the app cannot check the weather and the opening hours.')}{/if}</p>
+        <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp}{' '}{t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate}{' '}{t('Without a start day the app cannot check the weather and the opening hours.')}{/if}</p>
       {:else if plain}
         <div class="sum">
           <span><Clock size={18} aria-hidden="true" /><b class="num">{h(plain.hours)}</b><small>{t('riding')}</small></span>
@@ -220,8 +220,8 @@
             <li class="sec" data-fuel-section={s.n} class:warn={s.warn.length}>
               <div class="fu-head">
                 <b class="num">km {kmOf(s.fromKm)} → {kmOf(s.toKm)}</b>
-                <span>{placeName(s.from, false)} → {placeName(s.to, true)}{#if s.to?.state?.closes} <small>({t('open until {time}', { time: s.to.state.closes })})</small>{/if}</span>
-                <small class="num">{h(s.hours)}{#if s.leaveMs} · {when(s.leaveMs)} → {when(s.arriveMs)}{/if}{#if s.temp != null} · {s.temp} °C{/if}</small>
+                <span>{placeName(s.from, false)} → {placeName(s.to, true)}{#if s.to?.state?.closes}{' '}<small>({t('open until {time}', { time: s.to.state.closes })})</small>{/if}</span>
+                <small class="num">{h(s.hours)}{#if s.leaveMs}{' '}· {when(s.leaveMs)} → {when(s.arriveMs)}{/if}{#if s.temp != null}{' '}· {s.temp} °C{/if}</small>
               </div>
               <p class="line"><Cookie size={16} aria-hidden="true" /><span>{t('Eat: {what}', { what: carbsText(s.carbs) })}</span></p>
               <p class="line"><Droplet size={16} aria-hidden="true" /><span>{t('Drink: {l} ({lh} per hour).', { l: l(s.waterL), lh: l(s.waterLh) })} {s.waterStops ? tn(s.waterStops, 'Carry {c} to the first of {n} water stop on the way.', 'Carry {c} to the first of {n} water stops on the way.', { c: l(s.carryL) }) : t('No water on the way: carry {c}.', { c: l(s.carryL) })}</span></p>

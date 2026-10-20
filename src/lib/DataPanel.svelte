@@ -411,7 +411,7 @@
               {#if !s.bike}
                 <p><strong>{s.entry.bike || '–'}</strong>: {t('no bike with this name. Nothing is changed for it.')}</p>
               {:else}
-                <p><strong>{s.bike.name}</strong>: {t('{fills} empty fields get a value, {same} are the same already.', { fills: s.plan.fills.length, same: s.plan.same })}{#if s.plan.added.length} {t('New own parts: {names}.', { names: s.plan.added.join(', ') })}{/if}</p>
+                <p><strong>{s.bike.name}</strong>: {t('{fills} empty fields get a value, {same} are the same already.', { fills: s.plan.fills.length, same: s.plan.same })}{#if s.plan.added.length}{' '}{t('New own parts: {names}.', { names: s.plan.added.join(', ') })}{/if}</p>
                 {#if s.plan.conflicts.length}
                   <p class="small">{t('These fields already have another value. Tick the ones the file may overwrite:')}</p>
                   <ul class="specc">

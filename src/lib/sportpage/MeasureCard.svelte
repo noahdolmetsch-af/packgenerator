@@ -131,7 +131,7 @@
     {#if open}
       <ul class="ilist">
         {#each newest.slice(0, 60) as x (x.id)}
-          <li><span class="ent"><b class="num">{show(x.v)}{#if x.sets || x.reps} · {[x.sets, x.reps].filter(Boolean).join(' × ')}{/if}</b><small>{dayText(x.day)}</small></span>{#if !measure.auto}<button type="button" class="ibtn" aria-label={t('Delete the value of {date}', { date: dayText(x.day) })} onclick={() => delValue(x)}><Trash2 size={16} aria-hidden="true" /></button>{/if}</li>
+          <li><span class="ent"><b class="num">{show(x.v)}{#if x.sets || x.reps}{' '}· {[x.sets, x.reps].filter(Boolean).join(' × ')}{/if}</b><small>{dayText(x.day)}</small></span>{#if !measure.auto}<button type="button" class="ibtn" aria-label={t('Delete the value of {date}', { date: dayText(x.day) })} onclick={() => delValue(x)}><Trash2 size={16} aria-hidden="true" /></button>{/if}</li>
         {/each}
       </ul>
     {/if}

@@ -310,7 +310,7 @@
               <th scope="row">{r.label}</th>
               <td data-l={t('Warranty')}>{r.yearsText}</td>
               <td data-l={t('Until')}>
-                <span class="until">{dateOf(r.end)}{#if r.badge} {@render badge({ text: r.badge, tone: r.tone })}{/if}</span>
+                <span class="until">{dateOf(r.end)}{#if r.badge}{' '}{@render badge({ text: r.badge, tone: r.tone })}{/if}</span>
                 <span class="pbar {r.tone}" role="img" aria-label={t('{n} % of the warranty left', { n: Math.round(r.fill * 100) })}><i style:width="{Math.max(3, Math.round(r.fill * 100))}%"></i></span>
               </td>
             </tr>

@@ -237,7 +237,7 @@
 
 {#snippet card(i, big = false)}
   <article class="fz-box fzi-card" class:fz-soft={big} class:fzi-off={i.hidden} data-impulse={i.id}>
-    <span class="fz-kick">{nameOfArea(i.area) || t('Without an area')}{#if i.hidden} · {t('hidden')}{/if}</span>
+    <span class="fz-kick">{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{/if}</span>
     <h3 class={big ? 'fz-big' : 'fzi-t'}>{title(i)}</h3>
     {#if text(i)}<p class="fz-text">{text(i)}</p>{/if}
     {#if big || i.go?.inline}{@render helper(i)}{/if}

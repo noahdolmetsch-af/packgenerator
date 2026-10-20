@@ -19,7 +19,7 @@
   import SampleBar from './SampleBar.svelte';
   import { withSampleFine } from './sample.js';
   import { setBox } from './view.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
   import './race.css';
 
   let { id, part = 'plan', box = '' } = $props();
@@ -103,8 +103,8 @@
     <Crumb path={[{ href: '#/trips', label: t('Trips|place') }, { href: '#/race', label: t('Races') }]} here={trip.title} />
     <h1 class="rc-h1" tabindex="-1" data-page-title>{trip.title}</h1>
     <p class="rc-intro">
-      {#if route?.km}{t('{km} km · {up} m up', { km: Math.round(route.km), up: Math.round(route.gainM ?? 0).toLocaleString() })}{:else}{t('No route yet: load it under «Prepare».')}{/if}
-      {#if cd && cd.days >= 0} · {tn(cd.days, 'starts in {n} day', 'starts in {n} days')}{/if}
+      {#if route?.km}{t('{km} km · {up} m up', { km: Math.round(route.km), up: num(Math.round(route.gainM ?? 0)) })}{:else}{t('No route yet: load it under «Prepare».')}{/if}
+      {#if cd && cd.days >= 0}{' '}· {tn(cd.days, 'starts in {n} day', 'starts in {n} days')}{/if}
     </p>
     {#if stored.sample}<SampleBar {stored} />{/if}
     <nav class="rc-tabs" aria-label={t('Parts of the race')}>

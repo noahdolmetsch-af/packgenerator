@@ -62,7 +62,7 @@
   </div>
   <h1 class="rc-h1" tabindex="-1" data-page-title>{ctx.trip.title}</h1>
   <p class="rc-intro">
-    {report ? t('Race report') : t('Briefing sheet')}{#if ctx.trip.startDate} · {dateOf(ctx.trip.startDate)}{#if days.length > 1} – {dateOf(days.at(-1))}{/if}{/if}{#if total} · {num(Math.round(total))} km{/if}
+    {report ? t('Race report') : t('Briefing sheet')}{#if ctx.trip.startDate}{' '}· {dateOf(ctx.trip.startDate)}{#if days.length > 1}{' '}– {dateOf(days.at(-1))}{/if}{/if}{#if total}{' '}· {num(Math.round(total))} km{/if}
   </p>
   {#if report}<p class="rc-text">{t('A report of your race, made from what you logged.')}</p>{/if}
   <div class="rc-acts bf-noprint">

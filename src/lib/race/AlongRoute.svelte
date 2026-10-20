@@ -208,7 +208,7 @@
             <li class="rc-row">
               <div class="rc-row-main">
                 <b>{t('km {km}', { km: Math.round(p.km) })} · {nameOfPoi(p)}</b>
-                <small>{kindName(p.kind)}{#if eta} · {when(eta(p.km))}{/if} · <span class:rc-ok={s.tone === 'ok'} class:rc-warn={s.tone === 'warn'}>{t(s.key, s.vars)}</span></small>
+                <small>{kindName(p.kind)}{#if eta}{' '}· {when(eta(p.km))}{/if} · <span class:rc-ok={s.tone === 'ok'} class:rc-warn={s.tone === 'warn'}>{t(s.key, s.vars)}</span></small>
               </div>
             </li>
           {:else}
@@ -256,7 +256,7 @@
           {#each stops as n (n.key)}
             {@const beds = sleepNear(pois, n.km, 20)}
             <li data-race-bed-night={n.i + 1}>
-              <p class="rc-text"><b>{t('Night {n}', { n: n.i + 1 })}</b> · {t('km {km}', { km: n.km })}{#if n.from} · {when(n.from)}{/if}</p>
+              <p class="rc-text"><b>{t('Night {n}', { n: n.i + 1 })}</b> · {t('km {km}', { km: n.km })}{#if n.from}{' '}· {when(n.from)}{/if}</p>
               {#if !beds.length}
                 <p class="rc-warn">{t('No bed within 20 km: plan a bivy or move the night.')}</p>
               {:else}
@@ -265,7 +265,7 @@
                     <li class="rc-row">
                       <div class="rc-row-main">
                         <b>{nameOfPoi(b)}</b>
-                        <small>{t('km {km}', { km: Math.round(b.km) })}{#if SUB[b.sub]} · {t(SUB[b.sub])}{/if}</small>
+                        <small>{t('km {km}', { km: Math.round(b.km) })}{#if SUB[b.sub]}{' '}· {t(SUB[b.sub])}{/if}</small>
                       </div>
                       {#if b.phone}<a class="rc-icon" href="tel:{b.phone.replace(/[^\d+]/g, '')}" aria-label={t('Call {name}', { name: nameOfPoi(b) })}><Phone size={18} aria-hidden="true" /></a>{/if}
                     </li>
@@ -292,7 +292,7 @@
             <li class="rc-row" data-race-station>
               <div class="rc-row-main">
                 <b>{s.name}</b>
-                <small>{t('km {km}', { km: Math.round(s.km) })}{#if eta} · {t('you are there {at}', { at: when(eta(s.km)) })}{/if}</small>
+                <small>{t('km {km}', { km: Math.round(s.km) })}{#if eta}{' '}· {t('you are there {at}', { at: when(eta(s.km)) })}{/if}</small>
                 {#if r?.r}<small class="rc-ok">{t('{dep} → {arr}', { dep: r.r.dep.slice(11, 16), arr: r.r.arr?.slice(11, 16) ?? '?' })} · {r.r.transfers ? tn(r.r.transfers, '{n} change', '{n} changes') : t('Direct|train')}</small>{/if}
                 {#if r?.none}<small class="rc-warn">{t('No connection found.')}</small>{/if}
                 {#if r?.err}<small class="rc-warn">{r.err}</small>{/if}
@@ -348,7 +348,7 @@
               <div class="rc-row-main">
                 <b>{t('Night {n}', { n: n.i + 1 })} · {t('km {km}', { km: n.km })}</b>
                 <small>
-                  {#if n.low != null}{t('low {t}', { t: deg(n.low) })} · {/if}
+                  {#if n.low != null}{t('low {t}', { t: deg(n.low) })}{' · '}{/if}
                   {#if n.state}<span class:rc-ok={n.state === 'warm' || n.state === 'bed'} class:rc-warn={n.state === 'cold'}>{t(COMFORT[n.state])}</span>{:else}{wx ? t('Not in the forecast yet.') : t('Load the weather above.')}{/if}
                 </small>
               </div>
@@ -370,7 +370,7 @@
             {@const a = uvAdvice(d.uv)}
             <li class="rc-row" data-race-uv>
               <div class="rc-row-main">
-                <b>{t('Day {n}', { n: d.n })} · {dayLabel(d.day)}{#if d.uv != null} · {t('UV {uv}', { uv: d.uv })}{/if}</b>
+                <b>{t('Day {n}', { n: d.n })} · {dayLabel(d.day)}{#if d.uv != null}{' '}· {t('UV {uv}', { uv: d.uv })}{/if}</b>
                 <small>{a ? t(a.key) : t('Not in the forecast yet.')}</small>
               </div>
             </li>
@@ -413,7 +413,7 @@
             <li class="rc-row" data-race-climb={c.mark ?? 'ok'}>
               <div class="rc-row-main">
                 <b>{t('km {a}–{b} · {m} m up · {g} %', { a: c.fromKm, b: c.toKm, m: c.gain, g: c.grade })}</b>
-                {#if c.a}<small>{when(c.a)}–{hhmm(c.b)}{#if c.temp != null} · {deg(c.temp)}{/if}</small>{/if}
+                {#if c.a}<small>{when(c.a)}–{hhmm(c.b)}{#if c.temp != null}{' '}· {deg(c.temp)}{/if}</small>{/if}
                 {#if MARK[c.mark]}<small class="rc-warn">{t(MARK[c.mark])}</small>{/if}
               </div>
             </li>

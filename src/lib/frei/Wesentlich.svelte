@@ -129,7 +129,7 @@
           {#if m.why}<p class="fz-text"><b>{t('Why it draws me:')}</b> {m.why}</p>{/if}
           {#if m.step}
             <div class="fzw-step">
-              <span class="fz-kick">{t('Next step')}{#if m.stepDue} · {fmtDay(m.stepDue)}{/if}</span>
+              <span class="fz-kick">{t('Next step')}{#if m.stepDue}{' '}· {fmtDay(m.stepDue)}{/if}</span>
               <p class="fz-text">{m.step}</p>
               <div class="fz-acts"><button type="button" class="btn sm" onclick={() => finishStep(m)} data-step-done><Check size={16} aria-hidden="true" />{t('Step done')}</button></div>
             </div>

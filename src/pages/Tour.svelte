@@ -17,7 +17,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { t, tn, num } from '../lib/i18n.svelte.js';
+  import { t, tn, num, nameOf } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { zones } from '../lib/strava/zones.svelte.js';
@@ -112,7 +112,7 @@
   const sub = $derived(row ? [dates(row.day, row.endDay ?? row.day), kindName, row.bikeId && bikeName[row.bikeId] ? bikeName[row.bikeId] : '', row.n > 1 ? tn(row.n, '{n} activity', '{n} activities') : ''].filter(Boolean).join(' · ') : '');
 
   /* ---- Gepäck (a trip of the Packmodus) ---- */
-  const itemName = $derived(Object.fromEntries((d?.items ?? []).map((i) => [i.id, i.name])));
+  const itemName = $derived(Object.fromEntries((d?.items ?? []).map((i) => [i.id, nameOf(i)])));
   const gear = $derived.by(() => {
     const ents = d?.trip?.entries ?? [];
     const st = d?.debrief?.items ?? {};
@@ -382,7 +382,7 @@
             </ul>
           {/if}
           <label class="btn addp"><ImagePlus size={16} aria-hidden="true" />{t('Add photos')}<input type="file" accept="image/*" multiple onchange={addPhotos} data-tour-photos /></label>
-          <p class="tp-muted tp-small">{t('Photos stay on this device.')}{#if photoMsg} <span role="status">{photoMsg}</span>{/if}</p>
+          <p class="tp-muted tp-small">{t('Photos stay on this device.')}{#if photoMsg}{' '}<span role="status">{photoMsg}</span>{/if}</p>
         </div>
       </section>
     {/if}

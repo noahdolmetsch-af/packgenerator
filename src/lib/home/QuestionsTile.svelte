@@ -64,7 +64,7 @@
         {/each}
       </div>
       <div class="ft">
-        <small class="rot">{#if rotating.length}{t('rotating: {list}', { list: rotating.map((x) => `${x.n} ${t(x.short)}`).join(', ') })} · {/if}{t('all can be switched off')}</small>
+        <small class="rot">{#if rotating.length}{t('rotating: {list}', { list: rotating.map((x) => `${x.n} ${t(x.short)}`).join(', ') })}{' · '}{/if}{t('all can be switched off')}</small>
         <a class="lk" href="#/check/questions" data-questions-page>{t('Adjust questions')}<ChevronRight size={16} aria-hidden="true" /></a>
       </div>
     </div>

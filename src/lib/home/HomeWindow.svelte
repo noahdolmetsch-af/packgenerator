@@ -64,7 +64,7 @@
     {#if win.id === 'eve'}
       {#if win.packed}
         <div class="bar" role="progressbar" aria-label={t('Packed')} aria-valuemin="0" aria-valuemax={win.packed.of} aria-valuenow={win.packed.packed}><span style:width="{Math.round((win.packed.packed / win.packed.of) * 100)}%"></span></div>
-        <p class="ln" data-window-packed><b>{t('{n} of {m} packed', { n: win.packed.packed, m: win.packed.of })}</b>{#if win.packed.left.length} · {t('Still: {list}', { list: win.packed.left.join(', ') })}{/if}</p>
+        <p class="ln" data-window-packed><b>{t('{n} of {m} packed', { n: win.packed.packed, m: win.packed.of })}</b>{#if win.packed.left.length}{' '}· {t('Still: {list}', { list: win.packed.left.join(', ') })}{/if}</p>
       {:else}
         <p class="ln" data-window-packed>{t('No packing list yet.')}</p>
       {/if}

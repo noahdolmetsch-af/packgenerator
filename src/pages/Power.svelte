@@ -117,7 +117,7 @@
       <label class="fld"><span>{t('Hours with a light a day')}</span><input class="inp num" type="number" min="0" max="24" step="0.5" inputmode="decimal" value={inputs.nightH} onchange={(e) => setInput('nightH', e.currentTarget.value)} /></label>
     </div>
     {#if trip}
-      <p class="note">{t('The days come from the trip. A night in a hotel or hut counts as a night with a socket, a bivouac without.')}{#if trip.power} <button type="button" class="text-button" onclick={resetInputs}>{t('Use the values from the trip')}</button>{/if}</p>
+      <p class="note">{t('The days come from the trip. A night in a hotel or hut counts as a night with a socket, a bivouac without.')}{#if trip.power}{' '}<button type="button" class="text-button" onclick={resetInputs}>{t('Use the values from the trip')}</button>{/if}</p>
     {/if}
     {#if inputs.cold}<p class="note">{t('Below 5 °C a power bank gives about 10 % less; that is counted.')}</p>{/if}
   </section>
@@ -149,7 +149,7 @@
             <Plug size={22} aria-hidden="true" />
             <div>
               <b>{budget.charger.pick ? t('Charger: {name}', { name: nameOf(budget.charger.pick) }) : t('Charger: one with {n} sockets', { n: Math.min(budget.charger.n, 3) })}</b>
-              <span>{tn(budget.charger.n, 'Charging {n} thing takes about {h} h a night.', 'Charging {n} things takes about {h} h a night.', { h: budget.charger.hours })}{#if budget.charger.tooLong} {t('That is too long for one night: take a charger with more sockets.')}{/if}</span>
+              <span>{tn(budget.charger.n, 'Charging {n} thing takes about {h} h a night.', 'Charging {n} things takes about {h} h a night.', { h: budget.charger.hours })}{#if budget.charger.tooLong}{' '}{t('That is too long for one night: take a charger with more sockets.')}{/if}</span>
             </div>
           </div>
         {/if}
@@ -167,7 +167,7 @@
             <li class:off={r.off}>
               {#if !trip}<input type="checkbox" checked={!r.off} aria-label={t('Count {name}', { name: nameOf(r.item) })} onchange={(e) => (without = { ...without, [r.item.id]: !e.currentTarget.checked })} />{/if}
               <span class="nm">{r.qty > 1 ? `${r.qty} × ` : ''}{nameOf(r.item)}
-                {#if !r.off}<small>{t('Battery {wh}', { wh: wh(r.wh) })} · {t('lasts {n} h', { n: r.runH })} · {t(USE[r.use])} · {t('{wh} a day', { wh: wh(r.daily) })}{#if r.fromBank > 0} · {t('{wh} from the power bank', { wh: wh(r.fromBank) })}{/if}{#if r.guessed} · <i>{t('estimated')}</i>{/if}</small>{/if}
+                {#if !r.off}<small>{t('Battery {wh}', { wh: wh(r.wh) })} · {t('lasts {n} h', { n: r.runH })} · {t(USE[r.use])} · {t('{wh} a day', { wh: wh(r.daily) })}{#if r.fromBank > 0}{' '}· {t('{wh} from the power bank', { wh: wh(r.fromBank) })}{/if}{#if r.guessed}{' '}· <i>{t('estimated')}</i>{/if}</small>{/if}
               </span>
               <button type="button" class="btn sm" onclick={() => (open = r.item)}>{r.guessed ? t('Add values') : t('Open|item')}</button>
             </li>

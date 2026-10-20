@@ -197,7 +197,7 @@
                 <span class="rc-row-main">
                   <b>{t('Climb {n}', { n: c.n })} · {t('km {a}–{b}', { a: num(c.fromKm, 1), b: num(c.toKm, 1) })}</b>
                   <small>{t('{m} m up · {l} km · {avg} % average, {max} % at most', { m: num(c.gain), l: num(c.lengthKm, 1), avg: num(c.avg, 1), max: num(c.max, 1) })}</small>
-                  <small>{levelName(c.level)} ({num(c.score, 1)}){#if c.eta != null} · {t('foot {at}', { at: when(c.eta) })}{/if}{#if notes[c.key]} · {t('with note')}{/if}</small>
+                  <small>{levelName(c.level)} ({num(c.score, 1)}){#if c.eta != null}{' '}· {t('foot {at}', { at: when(c.eta) })}{/if}{#if notes[c.key]}{' '}· {t('with note')}{/if}</small>
                 </span>
                 <span class="cl-chev" class:cl-up={isOpen} aria-hidden="true"><ChevronDown size={20} /></span>
               </button>
@@ -207,7 +207,7 @@
                 {@const mp = miniPath(profile, c.fromKm, c.toKm)}
                 <div class="cl-card" id="cl-card-{c.n}" data-climb-card={c.n}>
                   <!-- gradient per 100 m -->
-                  <h3 class="cl-h3">{t('Gradient per 100 m')}{#if c.estimated} <span class="cl-est">{t('estimated')}</span>{/if}</h3>
+                  <h3 class="cl-h3">{t('Gradient per 100 m')}{#if c.estimated}{' '}<span class="cl-est">{t('estimated')}</span>{/if}</h3>
                   <figure class="cl-fig">
                     <svg class="cl-chart" viewBox="0 0 {c.bars.length * BAR_W} {CH_H}" preserveAspectRatio="none" role="img" aria-label={t('Gradient of climb {n} per 100 m: {avg} % average, {max} % at most', { n: c.n, avg: num(c.avg, 1), max: num(c.max, 1) })} data-climb-chart>
                       {#each [3, 6, 9, 12].filter((g) => g < top) as g (g)}
@@ -248,7 +248,7 @@
                   <h3 class="cl-h3">{t('When you are there')}</h3>
                   {#if c.eta != null}
                     <p class="rc-text" data-climb-when>
-                      {t('Foot {a}, top {b}', { a: when(c.eta), b: when(c.etaTop) })}{#if c.planH != null} · {t('{h} on the climb in your plan', { h: hm(c.planH) })}{/if}
+                      {t('Foot {a}, top {b}', { a: when(c.eta), b: when(c.etaTop) })}{#if c.planH != null}{' '}· {t('{h} on the climb in your plan', { h: hm(c.planH) })}{/if}
                     </p>
                     <p class="cl-flags">
                       {#if c.dark?.foot || c.dark?.top}<span class="cl-flag"><Moon size={16} aria-hidden="true" />{c.dark.foot && c.dark.top ? t('In the dark') : c.dark.foot ? t('Dark at the foot') : t('Dark at the top')}</span>{:else}<span class="cl-flag"><Sun size={16} aria-hidden="true" />{t('In daylight')}</span>{/if}

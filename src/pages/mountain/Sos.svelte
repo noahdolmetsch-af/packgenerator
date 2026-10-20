@@ -61,7 +61,7 @@
     {#if pos}
       <p class="coord num" data-wgs>{deg(pos.lat)}<br />{deg(pos.lon)}</p>
       {#if ch}<p class="coord ch num" data-lv95>{swissNum(ch.e)} / {swissNum(ch.n)}<small>{t('Swiss coordinates (LV95), Rega asks for these')}</small></p>{/if}
-      <p class="sk-quiet num">{#if Number.isFinite(pos.alt)}{t('Height about {m} m', { m: num(Math.round(pos.alt)) })} · {/if}{t('accurate to {m} m', { m: num(Math.round(pos.acc ?? 0)) })} · {t('at {time}', { time: time(pos.at) })}</p>
+      <p class="sk-quiet num">{#if Number.isFinite(pos.alt)}{t('Height about {m} m', { m: num(Math.round(pos.alt)) })}{' · '}{/if}{t('accurate to {m} m', { m: num(Math.round(pos.acc ?? 0)) })} · {t('at {time}', { time: time(pos.at) })}</p>
       <button type="button" class="btn" onclick={copy} data-copy><Copy size={18} aria-hidden="true" />{copied ? t('Copied') : t('Copy position')}</button>
     {:else if status === 'denied'}
       <p class="sk-quiet" role="alert">{t('The position is switched off for this app. Allow «Location» in the browser settings, or read your place from the map.')}</p>

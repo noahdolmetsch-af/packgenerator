@@ -103,7 +103,7 @@
       {#each tiles as k (k)}
         {@const v = vals[k]}
         <li data-tile={k}>
-          <span class="lab">{t(TILE[k].label)}{#if v.guess} · {t('about|guess')}{/if}</span>
+          <span class="lab">{t(TILE[k].label)}{#if v.guess}{' '}· {t('about|guess')}{/if}</span>
           <b class="num">{v.value}{#if TILE[k].unit && v.value !== '–'}<small>{TILE[k].unit}</small>{/if}</b>
         </li>
       {/each}

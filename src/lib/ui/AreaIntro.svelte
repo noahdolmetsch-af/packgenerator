@@ -61,7 +61,7 @@
     </p>
   {:else}
     <button type="button" class="line" onclick={toggle} aria-expanded="false" id={`${id}-h`}>
-      <span><b>{kicker}</b>{#if steps.length} · {t('{n} steps', { n: steps.length })}{/if}{#if tip} · {t('Tip')}: {tip}{/if}</span>
+      <span><b>{kicker}</b>{#if steps.length}{' '}· {t('{n} steps', { n: steps.length })}{/if}{#if tip}{' '}· {t('Tip')}: {tip}{/if}</span>
       <ChevronDown size={18} aria-hidden="true" />
     </button>
   {/if}

@@ -23,7 +23,7 @@
   <p class="spark" data-spark={s.kind}>
     <Sparkles size={16} aria-hidden="true" />
     {#if s.kind === 'learning'}
-      <span>{t('From your trips:')} «{s.text}»{#if s.from} <small>({s.from})</small>{/if}</span>
+      <span>{t('From your trips:')} «{s.text}»{#if s.from}{' '}<small>({s.from})</small>{/if}</span>
     {:else}
       <span>{t('From your inspiration:')} <a href={s.href} target="_blank" rel="noopener">{s.text}</a></span>
     {/if}
