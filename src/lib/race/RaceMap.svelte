@@ -176,7 +176,11 @@
   let sheet = $state(null); // { point, fresh }
   const ownKm = (p) => kmNear(pts, p, 2);
 
+  // the place search's own places: «Add: tap the map» and «Move» wait for a tap here
+  let poiPanel = $state(null);
+  let poiTapping = $state(false);
   function mapTap(e) {
+    if (poiPanel?.tapMap(e)) return;
     if (moving) {
       const p = moving;
       moving = null;
@@ -266,7 +270,7 @@
       {arrows}
       {overlays}
       {toggles}
-      adding={adding || !!moving}
+      adding={adding || !!moving || poiTapping}
       label={t('Map of the route')}
       {highlight}
       onview={mapView2}
@@ -289,7 +293,7 @@
     {/if}
     <details class="rm-find" data-map-places>
       <summary>{t('Find places')}</summary>
-      <PoiPanel center={cursor ? { lat: cursor.lat, lon: cursor.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={ctx.trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+      <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => (poiTapping = v)} center={cursor ? { lat: cursor.lat, lon: cursor.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={ctx.trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
     </details>
     {#if kinds.length && shown.stops}
       <div class="rm-kinds">
