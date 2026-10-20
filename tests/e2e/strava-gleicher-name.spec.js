@@ -64,7 +64,9 @@ test('Strava «Zum Prüfen»: same name → assigned automatically, Undo brings 
   await page.goto('./');
   await ready(page);
   await writeTables(page, seed());
-  await page.goto('./#/bikes?tab=care&view=strava-check');
+  // set the address without a hash change: the check must open only after the reload, with the new tables
+  // (a hash change would mount it at once and it could assign the rides before the reload)
+  await page.evaluate(() => history.replaceState(null, '', '#/bikes?tab=care&view=strava-check'));
   await page.reload();
   await ready(page);
   const main = page.locator('main');
