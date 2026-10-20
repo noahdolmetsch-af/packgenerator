@@ -1,9 +1,17 @@
+<script module>
+  // Gesamttest 20.10 «2a»: the visits before this opening of the page, kept per opening (a re-mount while the
+  // page loads, or a {#key}, is no new visit and keeps the first visit open)
+  const beforeOf = new Map();
+  let nav = 0;
+  if (typeof window !== 'undefined') window.addEventListener('hashchange', () => nav++);
+</script>
+
 <script>
   /**
    * «Einstieg» on top of a place (Noah 15.10.2026 «1a 2a 3a 4a», mockups design/bereich-einstieg A1, A2):
    * what you do here, what to expect, the tip of the day (pageinfo.js, «Passt zu heute» first, with its
-   * button), one «Did you know» with its source, the small tour of the place and the Handbook. Phone: open
-   * on the first 3 visits, then one line; computer: open until folded. × takes it away; then the page's
+   * button), one «Did you know» with its source, the small tour of the place and the Handbook. Open on the
+   * first visit, then the quiet line «So geht's ›» (Gesamttest 20.10.2026 «2a», phone and computer). × takes it away; then the page's
    * own tip line (the `hidden` snippet) shows as before. Words and rules: lib/intro.js.
    * mini: folded it is only a round «i» in the top corner of the page head (the head needs position: relative).
    * place: a key of INTROS (= the page key in pageinfo.js); a page below a place (intro.page) has no tour.
@@ -21,7 +29,7 @@
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
-  import { Check, Target, Moon, Map as MapIcon, Backpack, History, Scale, Boxes, ShoppingCart, Info, ChevronDown, ChevronUp, X, Lightbulb, ChevronRight, Bike, Wrench, ListChecks, Timer, ChartLine, CalendarDays, Heart, Star, ShoppingBag, Sun, Copy, Shirt, Thermometer } from '@lucide/svelte';
+  import { Check, Target, Moon, Map as MapIcon, Backpack, History, Scale, Boxes, ShoppingCart, Info, ChevronUp, X, Lightbulb, ChevronRight, Bike, Wrench, ListChecks, Timer, ChartLine, CalendarDays, Heart, Star, ShoppingBag, Sun, Copy, Shirt, Thermometer } from '@lucide/svelte';
 
   let { place, hidden: hiddenSnippet = null, mini = false } = $props();
   const ICON = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
@@ -44,17 +52,23 @@
       if (next) await putSetting(db, INTRO_KEY, next);
     });
 
-  // one visit per opening of the page (a re-render is no new visit)
-  let counted = false;
+  // one visit per opening of the page (a re-render or a re-mount is no new visit)
+  let before = $state(null);
   $effect(() => {
-    if (!intro || counted) return;
-    counted = true;
+    if (!intro || !loaded || before !== null) return;
+    const k = `${place}:${nav}`;
+    if (beforeOf.has(k)) {
+      before = beforeOf.get(k);
+      return;
+    }
+    before = introOf(raw).visits[place] ?? 0;
+    beforeOf.set(k, before);
     save((v) => visit(v, place));
   });
 
   const st = $derived(introOf(raw));
   const gone = $derived(!!st.hidden[place]);
-  const open = $derived(isOpen(raw, place, phone.matches, !!intro?.folded));
+  const open = $derived(isOpen(raw, place, phone.matches, !!intro?.folded, before));
   const offer = $derived(offerTour(raw, place));
   const tip = $derived(pi.loaded ? tipOfDay(pi.info, tipsOf(place), today, dc.ctx, { sourced: false }) : null);
   const fact = $derived(pi.loaded ? factOfDay(pi.info, tipsOf(place), today, tip?.id) : null);
@@ -70,17 +84,18 @@
   }
 </script>
 
-{#if intro && loaded}
+{#if intro && loaded && before !== null}
   {#if gone}
     {@render hiddenSnippet?.()}
   {:else if !open && mini}
     <!-- a short page (Meditation): folded, only a round «i» in the corner of the head, no extra row -->
     <button type="button" class="ai-mini" data-intro={place} data-open="false" aria-expanded="false" aria-label={t('How to use {place}', { place: name })} onclick={() => save((v) => setFold(v, place, false))}><Info size={20} aria-hidden="true" /></button>
   {:else if !open}
-    <button type="button" class="card ai-line" data-intro={place} data-open="false" aria-expanded="false" onclick={() => save((v) => setFold(v, place, false))}>
-      <span class="ic"><Info size={18} aria-hidden="true" /></span>
-      <span class="tx"><b>{t('How to use {place}', { place: name })}</b><small>{t('3 things')}{#if tip}{' · '}{t('Tip:')} {tipText(tip)}{/if}</small></span>
-      <ChevronDown size={18} aria-hidden="true" />
+    <!-- Gesamttest 20.10 «2a»: one quiet line «ⓘ So geht's ›», a tap opens the Einstieg in place -->
+    <button type="button" class="ai-line" data-intro={place} data-open="false" aria-expanded="false" onclick={() => save((v) => setFold(v, place, false))}>
+      <Info size={18} aria-hidden="true" />
+      <span class="tx">{t('How it works|help')}</span>
+      <ChevronRight size={16} aria-hidden="true" />
     </button>
   {:else}
     <section class="card ai" class:wide={!phone.matches} data-intro={place} data-open="true" aria-labelledby="ai-{place}">
@@ -154,6 +169,11 @@
     padding: 0;
     overflow: hidden;
     margin-bottom: var(--sp-3, 16px);
+    /* Design 2: one look for help */
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
+    box-shadow: none;
   }
   .ai.wide {
     display: grid;
@@ -235,7 +255,7 @@
     display: flex;
     gap: 12px;
     padding: 9px 0;
-    border-bottom: 1px solid var(--paper-2);
+    border-bottom: 1px solid var(--help-line);
   }
   .wide .things li {
     border: 0;
@@ -265,7 +285,7 @@
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: var(--paper-2);
+    background: var(--paper);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -310,8 +330,8 @@
   }
   .side {
     position: relative;
-    background: var(--hi-soft);
-    border-left: 1px solid var(--line);
+    background: var(--paper);
+    border-left: 1px solid var(--help-line);
     padding: 18px 18px 16px;
   }
   .tip p,
@@ -357,7 +377,7 @@
     margin-top: 12px;
     padding: 12px 14px;
     border-radius: 14px;
-    background: var(--hi-soft);
+    background: var(--paper);
   }
   .fact {
     margin-top: 14px;
@@ -373,39 +393,29 @@
     color: var(--ink-3);
     font-size: var(--fs-label);
   }
+  /* Gesamttest 20.10 «2a» + Design 2: the quiet line, the same look as the help card's line (HintCard .mini) */
   .ai-line {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
-    margin-bottom: var(--sp-3, 16px);
-    padding: 12px 16px;
+    min-height: 44px;
+    margin-bottom: var(--sp-3, 12px);
+    padding: 8px 14px;
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
     text-align: left;
     font: inherit;
-    color: var(--ink);
+    color: var(--ink-2);
     cursor: pointer;
   }
-  .ai-line .ic {
+  .ai-line > :global(svg:first-child) {
     flex: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: var(--paper-2);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    color: var(--help-icon);
   }
   .ai-line .tx {
     flex: 1;
     min-width: 0;
-    display: grid;
-    gap: 2px;
-  }
-  .ai-line small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 </style>

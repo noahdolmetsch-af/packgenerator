@@ -419,7 +419,6 @@
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
     {#if bikes.length}<HintCard page="care" intro="pflege" />{:else if $bikesQ}<AreaIntro place="pflege" />{/if}
-    {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
   {/if}
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
@@ -441,6 +440,8 @@
       onrepair={repairResult}
       onwork={() => ((workBike = openId ?? bikes[0]?.id ?? null), (workOpen = true))}
     />
+    <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
+    {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
     {/if}
 
     {#snippet trip(x, soon = null)}

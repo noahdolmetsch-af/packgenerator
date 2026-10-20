@@ -1,7 +1,8 @@
 // SN4g–SN4i «Touren-Seite, Runde 2» (mockups seiten-neu-touren-2, Noah 13.10.2026 22:24 «SN4g–SN4i
 // freigegeben»), German UI, phone 390 and desktop 1440, fictional data (sn4plus-fixture.js plus one uploaded
 // ride on its own):
-// a) the band «Packmodus» in both states, «Geplant» as a short list, a tap on the band opens Packmodus;
+// a) the band «Packen»: a pack draft that stands in «Geplant» is not said twice (Gesamttest 20.10.2026 B4), its card
+//    there opens Packen; nothing open: the band with «Neue Tour»; «Geplant» as a short list;
 // b) «Packmodus» (AT1, 14.10.2026: was «Abgeschlossene Touren», now the Strava activities): all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
 //    Ø Tempo, Ø and max. Puls, Wetter, Temp.), «ohne Wattwerte» without a power meter, «Bewerten» /
 //    «Kurz bewerten» on the grey rows, every trip a card on a phone;
@@ -74,30 +75,26 @@ async function start(page, context, info, d = DATA) {
 const list = (page) => page.locator('[data-trip-list]');
 const rowOf = (page, title) => list(page).locator('li[data-row]').filter({ has: page.getByRole('link', { name: title, exact: true }) });
 
-test('a) the band «Packmodus» above the list in both states, «Geplant» as a short list', async ({ page, context }, info) => {
+test('a) the pack draft is said once, at its card in «Geplant»; «Geplant» as a short list', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  const band = page.locator('[data-pack-band]');
-  await expect(band).toHaveAttribute('data-pack-band', 'draft');
-  await expect(band).toContainText(T('Pack mode'));
-  await expect(band).toContainText(T('pack draft exists'));
-  await expect(band).toContainText(NEXT.title);
-  await expect(band).toContainText(T('{done} of {n} packed', { done: NEXT.entries.filter((e) => e.packed).length, n: NEXT.entries.length }));
-  // the band stands above «Geplant», «Geplant» above the finished trips
+  // Gesamttest 20.10.2026 B4: the trip being packed stands in «Geplant», so no band above repeats it
+  await expect(page.locator('[data-pack-band]')).toHaveCount(0);
+  // «Geplant» above the trips with a packing list
   const y = async (l) => (await l.boundingBox()).y;
   const planned = page.locator('section[data-planned]');
-  expect(await y(band)).toBeLessThan(await y(planned));
   expect(await y(planned)).toBeLessThan(await y(page.locator('section[data-finished]')));
   await expect(planned.getByRole('heading', { level: 2, name: T('Planned|group') })).toBeVisible();
   const card = planned.locator(`li[data-trip="${NEXT.id}"]`);
   await expect(card).toContainText(NEXT.title);
-  // 0.163.0 «Handy kurz»: on a phone the pill goes, the band above already says it
-  if (info.project.name === 'phone') await expect(card.locator('[data-in-pack-mode]')).toHaveCount(0);
-  else await expect(card.locator('[data-in-pack-mode]')).toHaveText(T('in pack mode'));
+  await expect(card).toContainText(T('{done} of {n} packed', { done: NEXT.entries.filter((e) => e.packed).length, n: NEXT.entries.length }));
+  const pill = card.locator('a[data-in-pack-mode]');
+  await expect(pill).toHaveText(`${T('being packed')} · ${T('Open packing')}`);
+  expect((await pill.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await expect(card.locator('.tst[data-state="plan"]')).toBeVisible();
   await shot(page, info, 'SN4g-touren-liste-entwurf');
   await noSideways(page);
-  // a tap on the band opens Packmodus (the packing day of that trip)
-  await band.getByRole('link', { name: new RegExp(esc(T('Open pack mode'))) }).click();
+  // a tap on the pill opens Packen (the packing day of that trip)
+  await pill.click();
   await expect(page).toHaveURL(/#\/pack\?day$/);
   expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe(NEXT.id);
   expect(errors).toEqual([]);
@@ -116,11 +113,11 @@ test('a2) nothing open: «Gerade wird keine Tour gepackt» with «Neue Tour» an
   await expect(page.locator('[data-no-plan]')).toContainText(T('No trip planned.'));
   await shot(page, info, 'SN4g-touren-liste-nichts-offen');
   // a suggestion: «×» hides it, the quiet link brings it back (kept in the settings)
-  await band.getByRole('button', { name: T('Hide the pack mode band') }).click();
+  await band.getByRole('button', { name: T('Hide the packing band') }).click();
   await expect(band).toHaveCount(0);
   await page.reload();
   await expect(page.locator('[data-pack-band]')).toHaveCount(0);
-  await page.getByRole('button', { name: T('Show the pack mode band') }).click();
+  await page.getByRole('button', { name: T('Show the packing band') }).click();
   await expect(page.locator('[data-pack-band]')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -129,8 +126,8 @@ test('b) every finished trip of the period by month with its values; grey rows k
   const errors = await start(page, context, info);
   const phone = info.project.name === 'phone';
   // AT1 (Noah 14.10.2026 21:19): «Abgeschlossene Touren» lists the Strava activities (tests/e2e/at1.spec.js);
-  // the trips packed in the app are the section «Packmodus», with their values (answer 4a, 14.10.2026 «1-5a»)
-  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Pack mode|section') })).toBeVisible();
+  // the trips packed in the app are the section «Mit Packliste» (was «Packmodus»), with their values (answer 4a, 14.10.2026 «1-5a»)
+  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('With packing list|section') })).toBeVisible();
   // the month heads, newest first
   const heads = await list(page).locator('h3.mh').allTextContents();
   expect(heads.length).toBeGreaterThan(3);

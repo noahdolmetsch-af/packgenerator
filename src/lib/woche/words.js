@@ -24,6 +24,8 @@ export function subOf(e) {
   if (s.src) return s.src === 'google' ? t('Google Calendar') : s.src === 'google-tasks' ? t('Google Tasks') : t('Calendar');
   if (s.away) return t(AWAY_NAMES[s.away]);
   if (s.trip) return s.of > 1 ? t('Trip · day {n} of {m}', { n: s.trip, m: s.of }) : t('Trip|week');
+  // Gesamttest 20.10.2026 B6: the bike is in the title already (the same job on two bikes)
+  if (s.bike && s.named) return s.before ? t('before the holidays') : '';
   if (s.bike) return s.before ? t('{bike} · before the holidays', { bike: s.bike }) : s.bike;
   if (s.paused) return t('Paused: holidays');
   if (s.wet) return t('rain on {day}, dry here', { day: dayName(s.wet) });

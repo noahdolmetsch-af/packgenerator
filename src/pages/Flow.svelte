@@ -124,7 +124,7 @@
       .filter(Boolean)
       .join(' · '),
   );
-  const tickSub = $derived([live.length ? t('{n} of {m} on track', { n: onTrack, m: live.length }) : '', phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')].filter(Boolean).join(' · '));
+  const tickSub = $derived([live.length ? t('{n} of {m} activities on track', { n: onTrack, m: live.length }) : '', phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')].filter(Boolean).join(' · '));
 
   // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
   const route = $derived(sub.split('?')[0].split('/'));
@@ -371,7 +371,6 @@
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
       <HintCard page="aktiv" intro="aktiv" />
-      <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
@@ -380,6 +379,8 @@
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
+          <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
+          <TipLine page="aktiv" name={t('Active|place')} />
           <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
           <TickSuggest />
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>

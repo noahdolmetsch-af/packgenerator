@@ -228,6 +228,16 @@ export function buildWeek(src) {
     const day = before && before < end ? freeDay(days.filter((d) => d.day <= before), from, away) ?? before : freeDay(days, from, away);
     suggestions.push({ ref, kind: 'bike', title: c.name, sub: { bike: c.bikeName, before: before && nextAway ? nextAway.title || true : null }, day, act: 'take', bikeId: c.bikeId, part: c.key });
   }
+  // Gesamttest 20.10.2026 B6: the same job on two bikes («Charge the gear battery» twice) carries the bike in its title
+  const lower = (x) => String(x ?? '').trim().toLowerCase();
+  const bikeJobs = suggestions.filter((s) => s.kind === 'bike');
+  const jobs = {};
+  for (const s of bikeJobs) jobs[lower(s.title)] = (jobs[lower(s.title)] ?? 0) + 1;
+  for (const s of bikeJobs) {
+    if (!s.sub.bike || jobs[lower(s.title)] < 2) continue;
+    s.title = `${s.title} · ${s.sub.bike}`;
+    s.sub = { ...s.sub, named: true };
+  }
   for (const p of paused) if (!skipped.has(p.ref)) suggestions.push({ ...p, sub: { paused: p.away.title || true }, act: 'drop' });
   const taken = new Set(items.filter((x) => x.ref).map((x) => x.ref));
   // the weather (1a): a long session outside on a wet day → the driest free day of the rest of the week

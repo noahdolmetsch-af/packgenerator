@@ -115,14 +115,19 @@ test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder 
   await expect(page).toHaveURL(/#\/$/);
   await page.goBack(); // back lands on the interstitial again
   await expect(page).toHaveURL(/\/packed$/);
-  // Ü4a: afterwards the trip shows its waiting state, the interstitial does not come again
+  // Ü4a: afterwards the trip shows its waiting state, the interstitial does not come again.
+  // Gesamttest 20.10.2026 B5 (Noah «4a»): Pack and Plan name the next step instead of «Zur Startseite»
   await go(page, '#/pack?day');
-  await expect(main(page)).toHaveText(T('To the start page'));
+  await expect(main(page)).toHaveText(T('Packed · back to Trips'));
+  await expect(main(page)).toHaveAttribute('href', '#/trips');
   await go(page, '#/ride');
   await expect(page.locator('.wait')).toContainText(T('Start in {n} days', { n: 4 }));
   await expect(main(page)).toHaveText(T('To the start page')); // U002: no «Zurück zum Packen» loop
   await go(page, '#/pack');
-  await expect(main(page)).toHaveText(T('To the start page'));
+  await expect(main(page)).toHaveText(T('Continue to Pack'));
+  await main(page).click();
+  await expect(page).toHaveURL(/#\/pack\?day$/);
+  await expect(main(page)).toHaveText(T('Packed · back to Trips'));
 });
 
 test('main button by phase on a fixed clock: under way, ending early asks, Undo and reopen (U004, U005, U008, U25a)', async ({ page, context }, info) => {

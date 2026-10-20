@@ -39,14 +39,20 @@ describe('the words', () => {
   });
 });
 
-describe('open or one line (1a)', () => {
-  it('phone: open on the first 3 visits, then one line', () => {
-    expect(isOpen(visits(1), 'aktiv', true)).toBe(true);
-    expect(isOpen(visits(OPEN_VISITS), 'aktiv', true)).toBe(true);
-    expect(isOpen(visits(OPEN_VISITS + 1), 'aktiv', true)).toBe(false);
+describe('open or one line (Gesamttest 20.10.2026 «2a», changed on purpose from 1a)', () => {
+  it('phone and computer: open on the first visit, then one line', () => {
+    expect(OPEN_VISITS).toBe(1);
+    for (const ph of [true, false]) {
+      expect(isOpen(undefined, 'aktiv', ph)).toBe(true);
+      expect(isOpen(visits(1), 'aktiv', ph)).toBe(true);
+      expect(isOpen(visits(2), 'aktiv', ph)).toBe(false);
+      expect(isOpen(visits(9), 'aktiv', ph)).toBe(false);
+      // the visits before this opening, when the caller knows them (its own count is already saved)
+      expect(isOpen(visits(1), 'aktiv', ph, false, 0)).toBe(true);
+      expect(isOpen(visits(1), 'aktiv', ph, false, 1)).toBe(false);
+    }
   });
-  it('computer: open until folded; a fold or unfold you chose wins everywhere', () => {
-    expect(isOpen(visits(9), 'aktiv', false)).toBe(true);
+  it('a fold or unfold you chose wins everywhere', () => {
     expect(isOpen(setFold(visits(1), 'aktiv', true), 'aktiv', false)).toBe(false);
     expect(isOpen(setFold(visits(9), 'aktiv', false), 'aktiv', true)).toBe(true);
   });

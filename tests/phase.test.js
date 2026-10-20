@@ -61,11 +61,14 @@ describe('mainStep: the one main button follows the phase (U001–U004, U008, U0
     expect(mainStep(trip(), D0, 'ride')).toMatchObject({ kind: 'go', href: '#/pack?day' });
     expect(mainStep(trip({ days: 1 }), D0, 'plan').kind).toBe('packgo');
   });
-  it('packed before the start: «Packen abschliessen» once, then the waiting state «Zur Startseite» (U001, U002, U013)', () => {
+  it('packed before the start: «Packen abschliessen» once, then the waiting state (U001, U002, U013); Gesamttest 20.10.2026 B5 (Noah «4a»): Plan and Pack name the next step', () => {
     const p = trip({ entries: es(10, 10) });
     expect(mainStep(p, D0, 'pack').kind).toBe('finish');
+    expect(mainStep(p, D0, 'plan')).toMatchObject({ kind: 'go', label: 'Continue to Pack', href: '#/pack?day' });
     const done = { ...p, packedAt: D0 };
-    for (const tab of ['plan', 'pack', 'ride', 'debrief']) expect(mainStep(done, D0, tab), tab).toMatchObject({ kind: 'go', label: 'To the start page', href: '#/' });
+    expect(mainStep(done, D0, 'plan')).toMatchObject({ kind: 'go', label: 'Continue to Pack', href: '#/pack?day' });
+    expect(mainStep(done, D0, 'pack')).toMatchObject({ kind: 'go', label: 'Packed · back to Trips', href: '#/trips' });
+    for (const tab of ['ride', 'debrief']) expect(mainStep(done, D0, tab), tab).toMatchObject({ kind: 'go', label: 'To the start page', href: '#/' });
     expect(mainStep(hike({ entries: es(4, 4), packedAt: D0 }), D0, 'debrief').href).toBe('#/');
   });
   it('the start day, not packed yet: packing is still the step (a day ride made this morning)', () => {

@@ -21,7 +21,7 @@ export default {
   'Your good days, explained by your own data': 'Deine guten Tage, erklärt mit deinen eigenen Daten',
   'The app compares days with a good day score (how happy you were with the day) to the others.': 'Die App vergleicht Tage mit guter Tagesbewertung (wie zufrieden du mit dem Tag warst) mit den anderen.',
   'Answer the evening question «How happy are you with the day?» now and then.': 'Beantworte ab und zu am Abend «Wie zufrieden bist du mit dem Tag?».',
-  'After about 10 days the first results show here.': 'Nach etwa 10 Tagen erscheinen hier die ersten Ergebnisse.',
+  'After about 10 days the first results show here.': 'Nach etwa 10 Tagen mit Tagesbewertung erscheinen hier die ersten Ergebnisse.',
   'Tap «How does the app know?» under a result to see where it comes from.': 'Tippe unter einem Ergebnis auf «Wie kommt die App darauf?», dann siehst du, woher es kommt.',
   'Everything here is a suggestion. Nothing is mandatory and you can ignore every line.': 'Alles hier ist ein Vorschlag. Nichts ist Pflicht, du kannst jede Zeile übergehen.',
   'Observation only: the app counts your days, it does not judge and does not diagnose.': 'Nur Beobachtung: Die App zählt deine Tage, sie wertet nicht und stellt keine Diagnose.',

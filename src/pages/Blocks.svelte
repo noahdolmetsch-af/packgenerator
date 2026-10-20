@@ -95,6 +95,8 @@
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   // SN3+: the blocks «je nach Lage» (v0.154.0: twelve, with Licht and Rennen), their rules, an own rain block that follows the rule Regen
   const sitCards = $derived(cardsOf(BLOCK_GROUPS.situation));
+  // Gesamttest 20.10.2026 Design 5: at most one «neu» per page, on the first new one (in the order of the page)
+  const firstNew = $derived([...nightCards, ...sitCards, ...bathCards].find((s) => isNewBlock(s.key))?.key ?? null);
   // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
   const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
   const rules = $derived(rulesOf($setsQ?.value));
@@ -276,7 +278,7 @@
     <button type="button" class="srow sitrow" aria-haspopup="dialog" onclick={() => (ruling = s.key)}>
       <span class="sib tone-{blockTone(s.key, s.name)}" aria-hidden="true"><Icon size={18} /></span>
       <span class="sm">
-        <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span>{#if isNewBlock(s.key)}{' '}<i class="nbadge">{t('new|block')}</i>{/if}</b>
+        <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span>{#if s.key === firstNew}{' '}<i class="nbadge">{t('new|block')}</i>{/if}</b>
         <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty: suggests nothing when packing')}{/if}</small>
         <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>{#if byHand(s.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}
       </span>

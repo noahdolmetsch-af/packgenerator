@@ -48,7 +48,7 @@
   import { rainChance } from '../wardrobe.js';
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
-  import { mainStep } from '../phase.js';
+  import { mainStep, packedAll } from '../phase.js';
   import '../trip/trip.css';
   import { Sparkles, ArrowDown } from '@lucide/svelte';
   import { packSteps } from '../trips.js';
@@ -153,7 +153,7 @@
     else show('conditions');
   });
   // v0.67.0 «Übergänge 1» (U008, U014): the main button follows the PHASE of the trip (phase.js),
-  // not the next tab: an empty list adds gear, a packed trip waits («Zur Startseite»), under way it is
+  // not the next tab: an empty list adds gear, a packed trip goes on to Pack (Gesamttest 20.10.2026 B5, was «Zur Startseite»), under way it is
   // On the way, after the trip the debrief.
   const main = $derived(mainStep(trip, localDay(), 'plan', phaseOpts));
   // v0.67.0: #/pack?add (the Pack tab of an empty list) opens «Add material» here.
@@ -239,7 +239,7 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? (packedAll(trip) ? t('Everything is packed.') : t('List ready? Then pack bag by bag.')) : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     <!-- Paket H (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): on a phone held sideways the core line and its
          jump marks stand right under the band instead of in it, so the band stays compact (D6) -->
     {@render core(true)}

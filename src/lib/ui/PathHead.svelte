@@ -17,7 +17,7 @@
   {#if crumbs.length}
     <nav class="pcrumbs" aria-label={t('Path')}>
       {#each crumbs as c, n (n)}
-        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}{c.label}</a><ChevronRight class="psep" size={12} aria-hidden="true" />
+        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={12} aria-hidden="true" />
       {/each}
       <span aria-current="page">{here || title}</span>
     </nav>
@@ -51,6 +51,9 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
+    /* Gesamttest 20.10.2026 C4: a long name without spaces wraps instead of pushing the page sideways */
+    min-width: 0;
+    max-width: 100%;
     color: var(--ink-3);
     text-decoration: none;
   }
@@ -92,6 +95,7 @@
   }
   .ptitle {
     margin: 0;
+    overflow-wrap: break-word;
   }
   .psub {
     margin: 4px 0 0;
@@ -108,6 +112,8 @@
   @media (max-width: 719px) {
     .prow {
       flex-direction: column;
+      /* Gesamttest 20.10.2026 C4: one column, one line; with wrap a long title would size the line, not the screen */
+      flex-wrap: nowrap;
       align-items: stretch;
     }
     .pleft {

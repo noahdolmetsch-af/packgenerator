@@ -64,6 +64,9 @@
     await undoGroupChange(db, snap);
   }
   const meta = (l) => [l.source === 'import' ? t('From the import') : l.source, learnedOn(l) ? dayLong(learnedOn(l)) : ''].filter(Boolean).join(' · ');
+  // Gesamttest 20.10.2026 (C11): 79 learnings made the page 18 phone screens long; 5 per topic, then «n weitere» (a search shows all)
+  const PER_TOPIC = 5;
+  let openTopics = $state({});
 </script>
 
 <!-- v0.109.0 Design-Refresh P6 (T18 «Gelernt», approved 12.10.2026): the count line, the search with its icon,
@@ -88,7 +91,7 @@
         {/if}
       </div>
       <ul class="rv-box">
-        {#each g.ls as l (l.id)}
+        {#each lq.trim() || openTopics[g.topic] ? g.ls : g.ls.slice(0, PER_TOPIC) as l (l.id)}
           <li class="rv-row lrn-row">
             <button type="button" class="ltap" aria-label={t('Edit learning: {name}', { name: l.rule })} onclick={() => (editing = { learning: l })}></button>
             <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
@@ -97,6 +100,7 @@
           </li>
         {/each}
       </ul>
+      {#if !lq.trim() && !openTopics[g.topic] && g.ls.length > PER_TOPIC}<button type="button" class="lmore" onclick={() => (openTopics = { ...openTopics, [g.topic]: true })} data-topic-more>{t('Show {n} more', { n: g.ls.length - PER_TOPIC })}</button>{/if}
     </section>
   {:else}
     <Empty icon={Lightbulb} text={learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')} action={learnings.length ? null : { label: t('To the look back'), href: '#/debrief' }} />
@@ -132,6 +136,18 @@
 {#if undo}<UndoToast text={undo.text} onundo={doUndo} />{/if}
 
 <style>
+  .lmore {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .lhead {
     display: flex;
     flex-wrap: wrap;

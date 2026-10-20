@@ -38,14 +38,14 @@ test('a suggestion with alternatives becomes a challenge that counts by itself',
   await tile.getByRole('button', { name: T('{what}: done today', { what: T('Sauna') }) }).click();
   await expect(tile.locator('[data-challenge]')).toContainText(T('{n} of {m}', { n: 0, m: 2 }));
 
-  // change it to once: reached at the next tick, celebrated on the tile and under «Heute wichtig»
+  // change it to once: reached at the next tick, celebrated on the tile and in the quiet «Gut gemacht» line (Noah 5a, 20.10.2026)
   await tile.locator('[data-challenge]').click();
   const mine = page.getByRole('dialog', { name: T('Your challenge') });
   await mine.getByLabel(T('How often')).fill('1');
   await mine.getByRole('button', { name: T('Save') }).click();
   await tick.click();
   await expect(tile.locator('[data-challenge-done]')).toContainText(T('Challenge reached!'));
-  await expect(page.getByRole('region', { name: T('Important today') })).toContainText(T('Challenge reached: {n}× {what}', { n: 1, what: T('Sauna') }));
+  await expect(page.getByRole('region', { name: T('Well done') })).toContainText(T('Challenge reached: {n}× {what}', { n: 1, what: T('Sauna') }));
 
   // it stays after a reload (stored, goes into the backup)
   await page.reload();

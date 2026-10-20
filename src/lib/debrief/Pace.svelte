@@ -240,13 +240,16 @@
       </ul>
     </section>
     {#if rides.length}
+      {@const shownRides = openRides(rides, { all: allRides, isNew })}
+      <!-- Gesamttest 20.10.2026 Design 5: at most one «neu» per page, on the first new ride -->
+      {@const firstNew = shownRides.find((x) => isNew(x))?.id}
       <section class="rv-sec" aria-labelledby="rides-h">
         <div class="rv-h"><div><h2 id="rides-h">{t('Your rides')}</h2><p class="rv-sub num">{tn(pace.n, '{n} counts', '{n} count')}</p></div></div>
         <!-- W1 (Noah 15.10.2026 «1-5 a»): a compact row per ride: title with the surface chip, one line of
              facts, the riding time against the guess as a small bar (green faster, orange slower), the
              switch «counts» and «Remove» in «…»; the newest five open, «Show all n» for the rest. -->
         <ul class="rv-box rides">
-          {#each openRides(rides, { all: allRides, isNew }) as r (r.id)}
+          {#each shownRides as r (r.id)}
             {@const x = tempoOf(r.id)}
             {@const rb = x?.bikeId ? bikeById[x.bikeId] ?? null : null}
             {@const sf = x ? surfaceOf(x, rb) : null}
@@ -255,7 +258,7 @@
             <li class:off={r.use === false} class:fresh={isNew(r)} data-ride={r.id}>
               <div class="rtop">
                 <span class="rtt">
-                <span class="rv-t">{r.name}{#if isNew(r)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span>
+                <span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span>
                 {#if W}
                   <select class="schip" value={sf ?? ''} aria-label={t('Surface of {name}', { name: r.name })} onchange={(ev) => setSurface(r, ev.currentTarget.value)}>
                     {#if !sf}<option value="">{t('Surface?')}</option>{/if}

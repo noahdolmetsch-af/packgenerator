@@ -15,7 +15,7 @@
 }
 .rv-lay {
   display: grid;
-  gap: 22px 24px;
+  gap: var(--sp-5); /* Gesamttest 20.10.2026 Design 3: 24 px between sections, heading → card 8 px (.rv-h) */
   align-items: start;
 }
 @media (min-width: 1100px) {
@@ -26,7 +26,7 @@
 .rv-col {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: var(--sp-5);
   min-width: 0;
 }
 .rv-sec {

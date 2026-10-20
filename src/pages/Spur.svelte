@@ -331,6 +331,9 @@
 <style>
   .spur-page {
     display: grid;
+    /* Gesamttest 20.10.2026 C4: the column never grows wider than the screen (a long trip name wraps) */
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 18px;
     max-width: 960px;
   }

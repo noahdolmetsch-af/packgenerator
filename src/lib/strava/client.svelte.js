@@ -18,7 +18,8 @@ import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
-import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
+import { loadRules, applyImport, updateEntry, deleteEntries, restoreEntries, syncBikes } from '../kmbookdb.js';
+import { rematchOpen } from '../kmbook.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
 import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
@@ -387,4 +388,50 @@ export async function answerChange(db, change, take) {
 export function checkRide(db, entry, bikeId) {
   if (bikeId === null) return updateEntry(db, entry.id, { state: 'removed' });
   return updateEntry(db, entry.id, { bikeId, state: 'counted', by: 'user', sure: 'user', reason: null });
+}
+
+let matching = null;
+/**
+ * Gesamttest 20.10.2026 B1 (Noah «1a»): open rides whose Strava bike now has an app bike of the same
+ * name (or a gear rule) are assigned in one go (kmbook.js rematchOpen), like «Fits» but by the Strava
+ * bike (by 'gear', sure 'likely'). Returns { n, put, bikes }: the entries and bike km as they were,
+ * for «Undo» (undoAutoAssign). Idempotent: an assigned ride is no longer open; a ride you undid is
+ * marked noAuto and stays for you. A second call while one runs waits for it (and finds nothing).
+ */
+export function autoAssign(db = appDb) {
+  if (matching) return matching.then(() => ({ n: 0, put: [], bikes: [] }));
+  matching = (async () => {
+    const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
+    const skipGear = prefs.gear.filter((g) => prefs.ignore.includes(String(g.id))).map((g) => g.name).filter(Boolean);
+    const rules = await loadRules(db);
+    let put = [];
+    let before = [];
+    await db.transaction('rw', db.kmBook, db.bikes, async () => {
+      const entries = await db.kmBook.toArray();
+      const bikes = await db.bikes.toArray();
+      const hits = rematchOpen(entries, { bikes, rules, skipGear });
+      if (!hits.length) return;
+      const ids = new Set(hits.map((h) => h.bikeId));
+      before = bikes.filter((b) => ids.has(b.id)).map((b) => ({ id: b.id, km: b.km ?? null, kmDate: b.kmDate ?? null }));
+      put = hits.map((h) => JSON.parse(JSON.stringify(h.entry)));
+      await db.kmBook.bulkPut(hits.map((h) => ({ ...JSON.parse(JSON.stringify(h.entry)), bikeId: h.bikeId, state: 'counted', by: 'gear', sure: 'likely', reason: null })));
+      await syncBikes(db, [...ids]);
+    });
+    return { n: put.length, put, bikes: before };
+  })().finally(() => (matching = null));
+  return matching;
+}
+
+/**
+ * «Undo» of autoAssign: the rides wait again, marked noAuto so they are not assigned again by
+ * themselves; each bike's km are the ledger's again (or, without entries left, what they were).
+ */
+export async function undoAutoAssign(db, put = [], bikes = []) {
+  await restoreEntries(db, { put: put.map((e) => ({ ...e, noAuto: true })) });
+  await db.transaction('rw', db.kmBook, db.bikes, async () => {
+    for (const b of bikes) {
+      if (await db.kmBook.where('bikeId').equals(b.id).count()) await syncBikes(db, [b.id]);
+      else await db.bikes.update(b.id, { km: b.km, kmDate: b.kmDate });
+    }
+  });
 }

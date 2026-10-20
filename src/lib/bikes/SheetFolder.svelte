@@ -38,6 +38,8 @@
   const breakinOn = $derived(shown.some((s) => s.key === 'breakin'));
   const ICON = { breakin: Gauge, pass: IdCard, plan: CalendarCheck, order: ClipboardList, pickup: ListChecks, kit: Wrench, warranty: ReceiptText, theft: ShieldAlert };
   const seen = seenSheets();
+  // Gesamttest 20.10.2026 Design 5: at most one «neu» per page, on the first new one
+  const firstNew = $derived(shown.find((s) => s.since && !seen.includes(s.key))?.key ?? null);
   const href = (key) => bikesHash({ tab: 'setup', bike: bike.id, sheet: key, from });
 
 
@@ -88,7 +90,7 @@
                 <span class="nm">{t(s.name)}</span>
                 {#if state[s.key]}<span class="st {state[s.key].tone}">{state[s.key].text}</span>{:else}<span class="sb">{t(s.sub)}</span>{/if}
               </span>
-              {#if s.since && !seen.includes(s.key)}<span class="new">{t('new|sheet')}</span>{/if}
+              {#if s.key === firstNew}<span class="new">{t('new|sheet')}</span>{/if}
               <ChevronRight class="chev" size={18} aria-hidden="true" />
             </a>
           </li>

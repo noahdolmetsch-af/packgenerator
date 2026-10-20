@@ -27,6 +27,8 @@
   const full = $derived(fullLayout(bike, sheet, glob));
   const list = $derived(full.filter((x) => !x.lib).map((x) => ({ ...x, def: blockDef(x.id, glob) })).filter((x) => x.def));
   const lib = $derived(full.filter((x) => x.lib).map((x) => ({ ...x, def: blockDef(x.id, glob) })).filter((x) => x.def));
+  // Gesamttest 20.10.2026 Design 5: at most one «neu» per page, on the first new one
+  const firstNew = $derived([...list, ...lib].find((x) => x.def.isNew)?.id ?? null);
   const nameOf = (def) => (def.own ? def.title : t(def.name));
   const both = (def) => def.sheets.length > 1;
 
@@ -92,7 +94,7 @@
 {#snippet badges(x)}
   {#if both(x.def)}<span class="bdg">{t('on both sheets')}</span>{/if}
   {#if x.def.own}<span class="bdg">{t('own|block')}</span>{/if}
-  {#if x.def.isNew}<span class="bdg new">{t('new|block')}</span>{/if}
+  {#if x.def.isNew && x.id === firstNew}<span class="bdg new">{t('new|block')}</span>{/if}
 {/snippet}
 
 {#if part !== 'library'}

@@ -21,6 +21,9 @@
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
+  import { racesQuery } from '../../lib/race/store.js';
+  import { raceTrips, daysBetween } from '../../lib/race/race.js';
+  import { raceHref } from '../../lib/race/parts.js';
 
   let { acts = [] } = $props();
 
@@ -29,6 +32,10 @@
   const goalQ = liveQuery(async () => (await db.settings.get(GOAL_KEY))?.value ?? null);
   const plan = $derived(planOf($planQ));
   const goal = $derived(goalOf($goalQ));
+  // Gesamttest 20.10.2026 (journey): from the training back to the next race (the race already links to its plan)
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const racesQ = racesQuery();
+  const nextRace = $derived(raceTrips($tripsQ ?? [], $racesQ ?? {}, today).coming.find((r) => r.startDate && r.startDate >= today) ?? null);
 
   let monday = $state(mondayOf(today));
   const days = $derived(weekOf(monday));
@@ -125,6 +132,10 @@
       <button type="button" class="btn sm" onclick={openGoal}>{t('Set a goal')}</button>
     {/if}
   </section>
+  {#if nextRace}
+    {@const d = daysBetween(today, nextRace.startDate)}
+    <a class="race-row" href={raceHref(nextRace.id)} data-next-race>{t('Your race: {name} · {when}', { name: nextRace.title, when: d === 0 ? t('today') : tn(d, 'in {n} day', 'in {n} days') })}<ChevronRight size={16} aria-hidden="true" /></a>
+  {/if}
 
   <div class="lay">
     <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
@@ -214,6 +225,21 @@
 <AnaSheet />
 
 <style>
+  .race-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    min-height: 44px;
+    margin: var(--sp-2) 0;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
   .wk {
     display: flex;
     flex-direction: column;

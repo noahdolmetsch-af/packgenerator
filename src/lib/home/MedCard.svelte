@@ -169,9 +169,15 @@
     .acts {
       width: 100%;
     }
+    .acts {
+      flex-wrap: wrap;
+      gap: 4px 12px;
+    }
+    /* Gesamttest 20.10.2026 (C1): «Wie letztes Mal · 20 Min» broke into two lines beside «Andere Dauer» */
     .acts .btn {
-      flex: 1;
+      flex: 1 1 auto;
       justify-content: center;
+      white-space: nowrap;
     }
   }
 </style>

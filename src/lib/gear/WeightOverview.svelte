@@ -143,11 +143,17 @@
       border-bottom: 1px solid var(--line-strong);
       font-weight: 700;
     }
+    /* Gesamttest 20.10.2026 Design 4: the app's one arrow ›, turned down when open (no ▾ ▴) */
     .fold > summary::after {
-      content: ' ▾' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
+      content: '›' / ''; /* only a picture, screen readers skip it */
+      display: inline-block;
+      margin-left: 6px;
+      color: var(--ink-3);
+      font-weight: 400;
+      transition: transform 0.15s;
     }
     .fold[open] > summary::after {
-      content: ' ▴' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
+      transform: rotate(90deg);
     }
     .fold > summary .h {
       display: inline;

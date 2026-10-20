@@ -5,11 +5,15 @@ import { expect } from '@playwright/test';
 
 export async function openShort(page) {
   const hash = await page.evaluate(() => location.hash);
-  if (hash.startsWith('#/trips')) {
+  if (hash.startsWith('#/trips/rides')) {
+    // Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities on their own; open the phone's five rows
+    await expect(page.locator('section[data-activities], main .empty, main [data-empty]').first()).toBeAttached({ timeout: 15_000 });
+    const b = page.locator('[data-act-phone-more]');
+    if (await b.count()) await b.first().click();
+  } else if (hash.startsWith('#/trips')) {
     // the page is there once the Packmodus (open or as its line) or the empty page shows
     await expect(page.locator('[data-packmode-open], [data-packmode], main .empty, main [data-empty]').first()).toBeAttached({ timeout: 15_000 });
-    if (!(await page.locator('main [data-empty]').count())) await page.locator('section[data-activities]').waitFor({ state: 'attached', timeout: 5_000 }).catch(() => {});
-    for (const sel of ['[data-packmode-open]', '[data-trips-extras]', '[data-act-phone-more]']) {
+    for (const sel of ['[data-packmode-open]', '[data-trips-extras]']) {
       const b = page.locator(sel);
       if (await b.count()) await b.first().click();
     }

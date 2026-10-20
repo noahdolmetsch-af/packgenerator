@@ -18,7 +18,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 7 | Paket 7 | 0.159.0 | U Rennen: Strategie-Rechner, Muster-Rennen, Renn-Karte mit feinem zoombarem Höhenprofil, Anstiege, Karte offline, Live-Karte für jede Fahrt (Vollbild, Orte suchen, Wetter-Zeitleiste, GPX öffnen, SOS im «⋯»-Menü) | dieser PR; Ton-Aufnahmen gestrichen |
 | 8 | Paket 8 Verpflegung | 0.160.0 | Touren › Verpflegung: Kohlenhydrate und Wasser pro Abschnitt zwischen Läden, Warnungen, eigene Werte und Produkte; mit Läden, Öffnungszeiten und Orten aus der Ortssuche von Paket 7 ; Trainingsplan an Rennen gekoppelt; Kachel «Das tut mir gut» (Kreis, Wochenpunkte, «Hat gut getan?») | Bündler |
 | 10 | Paket 9 | 0.161.0 | Tour-Seite: jede abgeschlossene Tour antippbar, mit Karte, Profil, Werten, Tagebuch; Fahrten verbinden | live (PR #208) |
-| 11 | Gesamttest-Korrekturen | 0.162.0 | Zehn kleine Korrekturen aus dem Rundgang vom 20.10.2026: fehlende Leerzeichen, Unterwegs ohne Tour, Heute ohne «Geplant» bei laufender Tour, Strava «Zum Prüfen» 20 auf einmal, Daten und Gepäck auf Deutsch | dieser PR |
+| 11 | Gesamttest-Korrekturen | 0.162.0 | Zehn kleine Korrekturen aus dem Rundgang vom 20.10.2026: fehlende Leerzeichen, Unterwegs ohne Tour, Heute ohne «Geplant» bei laufender Tour, Strava «Zum Prüfen» 20 auf einmal, Daten und Gepäck auf Deutsch | live (PR #209, #210) |
+| 12 | Gesamttest Runde 2 | 0.163.0 | Strava gleicher Velo-Name selbst zugeordnet, Reiter «Fahrten» in Touren, Hilfe als eine Zeile, «Gut gemacht» auf Heute, Velopflege ohne Doppelungen | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

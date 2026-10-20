@@ -14,4 +14,15 @@ export default {
   'The offline box puts its button below the sentence on a phone': 'Das Offline-Feld setzt seinen Knopf auf dem Handy unter den Satz',
   'Open On the way on a day without a trip: it leads to your trips.': 'Öffne Unterwegs an einem Tag ohne Tour: es führt zu deinen Touren.',
   'Open Bikes › Care › Strava «To check»: 20 rides, then «Show 20 more».': 'Öffne Velos › Pflege › Strava «Zum Prüfen»: 20 Fahrten, dann «20 weitere zeigen».',
+  // 0.163.0 whatsnew
+  'Calmer and clearer': 'Ruhiger und klarer',
+  'Round two of the walk through the whole app: Strava rides on their own tab, shorter help, a quiet word of praise.': 'Zweite Runde des Rundgangs durch die ganze App: Strava-Fahrten im eigenen Reiter, kürzere Hilfe, ein ruhiges Lob.',
+  'Strava rides whose bike has the name of one of your bikes are assigned by themselves, with «Undo»': 'Strava-Fahrten, deren Velo wie eines deiner Velos heisst, werden selbst zugeordnet, mit «Rückgängig»',
+  'Trips has its own tab «Rides» for Strava activities; the button on Plan and Pack names the next step': 'Touren hat einen eigenen Reiter «Fahrten» für Strava-Aktivitäten; der Knopf auf Planen und Packen nennt den nächsten Schritt',
+  'Help boxes shrink to one line «How it works» after the first visit; praise gets its own quiet line «Well done» on Today': 'Hilfe-Felder werden nach dem ersten Besuch zu einer Zeile «So geht\'s»; Lob bekommt auf Heute eine eigene ruhige Zeile «Gut gemacht»',
+  '«Due now» shows everything due; a problem there is not repeated under «Open»': '«Jetzt fällig» zeigt alles Fällige; ein Problem dort steht nicht nochmals unter «Offen»',
+  'History and Learned show 5 rows per day or topic, then «Show more»': 'Verlauf und Gelernt zeigen 5 Zeilen pro Tag oder Thema, dann «Mehr zeigen»',
+  '«new» only on the first new item of a list': '«neu» nur beim ersten neuen Eintrag einer Liste',
+  'Open Trips › Rides: your Strava activities on their own tab.': 'Öffne Touren › Fahrten: deine Strava-Aktivitäten im eigenen Reiter.',
+  'Open a page a second time: its help is one line «How it works».': 'Öffne eine Seite ein zweites Mal: ihre Hilfe ist eine Zeile «So geht\'s».',
 };

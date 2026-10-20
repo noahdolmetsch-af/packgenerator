@@ -31,6 +31,11 @@
    * then «Show n more»; a row's values are one grey line (2b), a missing value is left out; «ohne Route», the
    * things packed, the legend, the notes and the pill «im Packmodus» under the band go; «In Zahlen» and «Weiter» are one closed line. A computer
    * keeps the page as before.
+   * Gesamttest 20.10.2026 B3 (Noah «3a»): Übersicht shows your trips first: the band, «Geplant» and the trips with a
+   * packing list («Mit Packliste», the word «Packmodus» is gone), then one quiet row «Fahrten aus Strava · n ›». The
+   * Strava activities with their filters, tiles, map and calendar moved to their own tab «Fahrten» (#/trips/rides,
+   * sub 'rides'), the same page with only that list. B4: the band no longer repeats a pack draft that stands in «Geplant»;
+   * its card there carries «wird gepackt · Packen öffnen ›».
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
@@ -52,7 +57,7 @@
   import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { switchTrip, openNew, openTrip, newTrip } from '../lib/nav.js';
+  import { switchTrip, openNew, openTrip, newTrip, RIDES_HREF } from '../lib/nav.js';
   import KomootSign from '../lib/komoot/KomootSign.svelte'; // SN1d (answer 3b)
   import { TEMPLATES_KEY, templateUse } from '../lib/templates.js';
   import { riddenTrips } from '../lib/trips.js';
@@ -102,6 +107,9 @@
   import '../lib/sports.css';
   import { oldTripSuggestions, OLD_TRIPS_DONE, oldTripsLater } from '../lib/sports.js';
 
+  // Gesamttest 20.10.2026 B3: sub 'rides' is the tab «Fahrten» (#/trips/rides), the Strava activities on their own
+  let { sub = '' } = $props();
+  const onRides = $derived(sub === 'rides');
   const tripsQ = liveQuery(() => db.trips.toArray());
   // Paket H «3a und b»: the trips as an editable table, remembered on this device
   let tableOn = $state(savedView('trips') === 'table');
@@ -161,13 +169,16 @@
   // Impeccable 18.10.2026 (Touren 1): while a trip is on the way the band shows it; the pack draft moves
   // to its row in «Geplant» (the pill «im Packmodus» there becomes the way into Packmodus)
   const ride = $derived(rideBand(plan, $tripsQ ?? [], today));
-  const topBand = $derived(ride ?? band);
   const PLAN_SHORT = 3;
+  let planAll = $state(false);
+  const planShown = $derived(planAll ? plan : plan.slice(0, PLAN_SHORT));
+  // Gesamttest 20.10.2026 B4: a pack draft whose trip stands in «Geplant» is not said twice; its card leads into Packen
+  const draftInPlan = $derived(!!bandRow && planShown.some((r) => r.tripId === bandRow.tripId));
+  const topBand = $derived(ride ?? (draftInPlan ? null : band));
   // Paket D (Noah 18.10.2026 «1b»): on a phone «Schnell starten» is one line in the head of «Geplant» (where «New trip»
   // sits on a computer); a tap opens its buttons. So Touren stays within three phone screens (Handy kurz).
   let quickOpen = $state(false);
   const quickShown = $derived(!phone.matches || quickOpen);
-  let planAll = $state(false);
   const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
   const go = (r) => switchTrip(r.tripId, r.go.href);
   const tripDays = (id) => Math.max(1, Number(byId[id]?.days) || 1);
@@ -344,6 +355,18 @@
   const tileExtra = (r) => stateExtraText(states[r.id]?.extra);
 </script>
 
+{#snippet actList()}
+  <!-- AT1: every Strava activity (answers 1a 2a 3b 4b); since Gesamttest 20.10.2026 B3 on the tab «Fahrten» -->
+  <Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} view={tourOpts.list} onview={(v) => db.settings.put({ key: TOUR_PAGE_KEY, value: { ...tourOpts, list: v } })} lineOf={lineOfRow} onjoin={(list) => (joining = list)} onhide={(list) => hideRows(list, true)} onshow={(list) => hideRows(list, false)} />
+{/snippet}
+
+{#snippet ridesRow()}
+  <!-- Gesamttest 20.10.2026 B3: one quiet row to the tab «Fahrten» -->
+  {#if $actsQ}
+    <a class="phone-more extras torides" href={RIDES_HREF} data-to-rides><Activity size={16} aria-hidden="true" /><span><b>{t('Rides from Strava')}</b><small class="num">{acts.length ? tn(acts.length, '{n} activity', '{n} activities') : t('No activity yet')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
+  {/if}
+{/snippet}
+
 {#snippet activeRow()}
   {#if chips.length}
     <div class="active" data-active-filters>
@@ -405,19 +428,29 @@
 <div class="trips">
   <header class="ph">
     <div>
+      {#if onRides}
+        <!-- Gesamttest 20.10.2026 B3: the tab «Fahrten» says what it holds and where the trips with a packing list are -->
+        <h1 class="title">{t('Rides from Strava')}</h1>
+        <p class="cnt" data-rides-intro>{t('Everything you recorded with Strava. Your trips with a packing list are under Overview.')}</p>
+      {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
       {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${periodWords}: ${tn(stCounts.done, '{n} completed', '{n} completed')}`, tn(stCounts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
+      {/if}
     </div>
     <!-- Paket D (Noah 19.10.2026 «1a»): on a phone the folded «Was hier steht ›» sits in the head beside «Fahrt hochladen» -->
     <div class="ph-acts">
-      {#if phone.matches && view && !view.empty}<HintCard page="trips" foldedOnPhone only="line" />{/if}
+      {#if !onRides && phone.matches && view && !view.empty}<HintCard page="trips" foldedOnPhone only="line" />{/if}
       <!-- Paket U «Rennen» (Noah 19.10.2026 «1b»): the races have their own area under Touren -->
-      <Btn icon={Flag} label={t('Races')} href="#/race" data-to-races />
+      {#if !onRides}<Btn icon={Flag} label={t('Races')} href="#/race" data-to-races />{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  {#if onRides}
+    <!-- Gesamttest 20.10.2026 B3 (Noah «3a»): every Strava activity, with its filters, tiles, map and calendar (AT1, Tour-Seite) -->
+    {#if $actsQ}{@render actList()}{:else}<Skeleton rows={4} />{/if}
+  {:else}
   {#if oldRows.length}
     <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
       <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
@@ -432,6 +465,7 @@
       <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
       </Empty>
+      {#if acts.length}{@render ridesRow()}{/if}
     {:else}
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the examples -->
       <!-- Paket D (Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line and the tip of the day
@@ -439,7 +473,7 @@
       <HintCard page="trips" intro="touren" foldedOnPhone only={phone.matches ? 'card' : ''} />
       {#if !phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
-      {#if tours.band !== 'hidden'}
+      {#if tours.band !== 'hidden' && topBand}
         <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
       {/if}
 
@@ -455,7 +489,7 @@
             {#if plan.length}<p class="ss">{tn(plan.length, '{n} trip', '{n} trips')} · {t('the next first')}</p>{/if}
           </div>
           <div class="sha">
-            {#if tours.band === 'hidden'}<button type="button" class="btn btn-link" onclick={() => saveTours({ band: null })} data-band-show><Backpack size={16} aria-hidden="true" />{t('Show the pack mode band')}</button>{/if}
+            {#if tours.band === 'hidden'}<button type="button" class="btn btn-link" onclick={() => saveTours({ band: null })} data-band-show><Backpack size={16} aria-hidden="true" />{t('Show the packing band')}</button>{/if}
             <!-- FE1: on a phone «New trip» sits at the bottom, in reach of the thumb -->
             <span class="daumen"><button type="button" class="btn btn-link" onclick={() => openNew('list')} data-plan-new><Plus size={16} aria-hidden="true" />{t('New trip')}</button></span>
             {#if phone.matches && (hasRidden || recentTpls.length)}<button type="button" class="btn btn-link qopen" aria-expanded={quickOpen} aria-controls="trips-quick" onclick={() => (quickOpen = !quickOpen)} data-quick-open>{t('Start quickly')}<ChevronDown size={16} aria-hidden="true" /></button>{/if}
@@ -473,7 +507,7 @@
         {/if}
         {#if plan.length}
           <ul class="pcards">
-            {#each planAll ? plan : plan.slice(0, PLAN_SHORT) as r (r.id)}
+            {#each planShown as r (r.id)}
               {@const ents = byId[r.tripId]?.entries ?? []}
               {@const packed = ents.filter((e) => e.packed).length}
               {@const p = r.kind === 'trip' && ents.length ? Math.round((100 * packed) / ents.length) : r.kind === 'ride' ? pct(r.state) : null}
@@ -499,12 +533,9 @@
                 {:else}
                   <span class="pr"><span class="num">{t(r.state.label, r.state)}</span></span>
                 {/if}
-                {#if bandRow?.tripId === r.tripId && !(phone.matches && tours.band !== 'hidden')}
-                  {#if ride && ride.tripId !== r.tripId}
-                    <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')} · {t('Open pack mode')}<ChevronRight size={13} aria-hidden="true" /></a>
-                  {:else}
-                    <span class="inpm" data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('in pack mode')}</span>
-                  {/if}
+                <!-- B4: the band above no longer repeats this trip, so its card is the way into Packen -->
+                {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
+                  <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={13} aria-hidden="true" /></a>
                 {/if}
               </li>
             {/each}
@@ -515,18 +546,16 @@
         {/if}
       </section>
 
-      <!-- AT1: «Abgeschlossene Touren», every Strava activity (answers 1a 2a 3b 4b) -->
-      {#if $actsQ}<Activities rows={actRows} {bikes} {today} {periodOf} connected={strava.key || acts.length > 0} saved={tours.actSaved} onsave={(name, f) => saveTours({ actSaved: saveActFilter(tours.actSaved, name, f) })} ondrop={(id) => saveTours({ actSaved: dropFilter(tours.actSaved, id) })} view={tourOpts.list} onview={(v) => db.settings.put({ key: TOUR_PAGE_KEY, value: { ...tourOpts, list: v } })} lineOf={lineOfRow} onjoin={(list) => (joining = list)} onhide={(list) => hideRows(list, true)} onshow={(list) => hideRows(list, false)} />{/if}
-
-      <!-- AT1: «Packmodus» (was «App-Touren»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a) -->
+      <!-- AT1: «Mit Packliste» (was «App-Touren», then «Packmodus»): the trips packed in the app, the only place to rate (SN4g answers 4a, 5a).
+           Gesamttest 20.10.2026 B3: the Strava activities above it moved to the tab «Fahrten»; one quiet row below leads there. -->
       {#if phone.matches && !packOpen}
-        <!-- 0.163.0: on a phone the Packmodus is one line with its count and what waits for a rating -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('Pack mode|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} to rate', '{n} to rate') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <!-- 0.163.0: on a phone the list is one line with its count and what waits for a rating -->
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} to rate', '{n} to rate') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
           <div>
-            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('Pack mode|section')}</h2>
+            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('With packing list|section')}</h2>
             <p class="ss">{t('Trips you packed in the app: what came along and what proved itself')}</p>
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
           </div>
@@ -607,6 +636,7 @@
         {/if}
       </section>
       {/if}
+      {@render ridesRow()}
 
       {#if phone.matches && !extrasOpen && $dataQ && facts.length}
         <!-- 0.163.0: on a phone «In Zahlen» and «Weiter» wait behind one line -->
@@ -624,6 +654,7 @@
   {:else}
     <!-- v0.127.0 A-U2: a calm placeholder while the trips load -->
     <Skeleton rows={4} />
+  {/if}
   {/if}
 </div>
 {#if shownRows}
@@ -1199,6 +1230,15 @@
   }
   .phone-more.extras {
     margin: var(--sp-4) 0 0;
+  }
+  /* B3: the row to «Fahrten» is a link that looks like the other lines */
+  a.phone-more,
+  a.phone-more:visited {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  a.phone-more:hover {
+    background: var(--paper-2);
   }
   .phone-more.extras span {
     display: grid;

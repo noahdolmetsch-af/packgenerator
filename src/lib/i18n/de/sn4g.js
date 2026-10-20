@@ -3,15 +3,10 @@
 // Puls und Leistung nur zum Anschauen, ohne Wertung.
 export default {
   // SN4g Band Packmodus
-  'Pack mode': 'Packmodus',
   'pack draft exists': 'Pack-Entwurf besteht',
-  'Open pack mode': 'Packmodus öffnen',
   'nothing open': 'nichts offen',
   'No trip is being packed right now': 'Gerade wird keine Tour gepackt',
   'From a template|band': 'Aus einer Vorlage',
-  'Hide the pack mode band': 'Band Packmodus ausblenden',
-  'Show the pack mode band': 'Band Packmodus zeigen',
-  'in pack mode': 'im Packmodus',
   // SN4g Geplant
   'Planned|group': 'Geplant',
   'the next first': 'die nächste zuerst',
@@ -21,7 +16,6 @@ export default {
   'All {n} planned trips': 'Alle {n} geplanten Touren',
   'No trip planned.': 'Keine Tour geplant.',
   // SN4g Abgeschlossene Touren
-  'Completed trips': 'Abgeschlossene Touren',
   '{n} of {all} · filtered': '{n} von {all} · gefiltert',
   'newest first, by month': 'neueste zuerst, nach Monat',
   'My filters': 'Meine Filter',

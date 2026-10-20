@@ -76,14 +76,18 @@ test('Velos vergleichen: every bike a column, empty cells «–» to fill, two t
   expect(errors).toEqual([]);
 });
 
-test('Pflege overview: a ring per bike, at most 3 due cards, problems as one flat list', async ({ page, context }, info) => {
+test('Pflege overview: a ring per bike, every due card, problems as one flat list', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes?tab=care');
   const ov = page.getByRole('region', { name: 'Pflege-Übersicht' });
   await expect(ov).toBeVisible();
   await expect(ov.locator('.ring')).toHaveCount(4);
   await expect(ov.getByRole('button', { name: `${P} Bergziege 29: noch keine Daten` })).toBeVisible();
-  expect(await ov.locator('.dcard').count()).toBeLessThanOrEqual(3);
+  // Gesamttest 20.10.2026 B6 (changed on purpose): «Due now» shows every due row (was at most 3 and «n more due»),
+  // as many as the bikes' «n due» add up to
+  const dueN = (await ov.locator('.ring small').allTextContents()).reduce((s, x) => s + Number(x.match(/(\d+) fällig/)?.[1] ?? 0), 0);
+  await expect(ov.locator('.dcard')).toHaveCount(dueN);
+  await expect(ov.getByText(/weitere fällig/)).toHaveCount(0);
   // Design-Refresh P7 (V6): «Arbeit eintragen» is a row under «Mehr». v0.117.0 «Knöpfe neu» (N1, changed on
   // purpose): a «Due now» row's «Erledigt» is its green main button; nothing else is green.
   for (const b of await ov.locator('.btn.hi').all()) await expect(b).toHaveText('Erledigt');
