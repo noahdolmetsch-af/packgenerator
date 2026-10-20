@@ -37,6 +37,7 @@
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
   import { GROUNDS } from '../lib/map/sources.js';
+  import { chooseGround } from '../lib/map/groundpref.svelte.js';
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
@@ -896,7 +897,7 @@
           </div>
           <label class="lvf-ground">
             <span><Layers size={16} aria-hidden="true" />{t('Map ground')}</span>
-            <select class="inp" bind:value={ground} data-map-ground>
+            <select class="inp" bind:value={ground} onchange={() => chooseGround(ground)} data-map-ground>
               {#each GROUNDS as x (x.key)}<option value={x.key}>{t(x.name)}</option>{/each}
             </select>
           </label>

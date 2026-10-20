@@ -4,4 +4,6 @@ export default {
   'at least {n} min': 'mind. {n} Min',
   'Your race: {name} · {when}': 'Dein Rennen: {name} · {when}',
   'Well done': 'Gut gemacht',
+  'Show {n} more day': '{n} weiteren Tag zeigen',
+  'Show {n} more days': '{n} weitere Tage zeigen',
 };
