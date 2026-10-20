@@ -534,7 +534,7 @@
   <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Live map')} />
   <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Live map')}</h1>
   <p class="rc-intro">
-    {#if trip}{trip.title}{#if hasRoute} · {t('{km} km · {up} m up', { km: Math.round(route.km || pts.at(-1).km), up: Math.round(route.gainM ?? 0).toLocaleString() })}{/if}{:else}{t('A ride without a tour: the map shows where you are and the stops around you.')}{/if}
+    {#if trip}{trip.title}{#if hasRoute}{' '}· {t('{km} km · {up} m up', { km: Math.round(route.km || pts.at(-1).km), up: num(Math.round(route.gainM ?? 0)) })}{/if}{:else}{t('A ride without a tour: the map shows where you are and the stops around you.')}{/if}
   </p>
   {#if trip && !hasRoute}<p class="rc-note" data-live-noroute>{t('This tour has no route: the map shows the stops around you. With a route (GPX) you also get km, arrival and climbs.')}</p>{/if}
 
@@ -542,7 +542,7 @@
   <section class="lv-go" aria-label={t('The ride')}>
     {#if rec.on}
       <div class="lv-go-row">
-        <span class="lv-rec" role="status"><span class="lv-dot" aria-hidden="true"></span>{t('Ride running')} · {num(rec.km)} km{#if rec.acc != null} · ± {rec.acc} m{/if}</span>
+        <span class="lv-rec" role="status"><span class="lv-dot" aria-hidden="true"></span>{t('Ride running')} · {num(rec.km)} km{#if rec.acc != null}{' '}· ± {rec.acc} m{/if}</span>
         <button type="button" class="btn hi" onclick={() => (small = false)} data-live-open><Maximize2 size={18} aria-hidden="true" />{t('Back to the live map')}</button>
       </div>
     {:else}
@@ -694,7 +694,7 @@
               {@const s = stops[0]}
               <p class="lvf-next" data-live-next>
                 <KindIcon kind={s.kind} size={20} />
-                <span><b>{s.name || kindName(s.kind)}</b><small>{t('{d} km', { d: fmtKm(s.distKm) })} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)} · <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span>{/if}</small></span>
+                <span><b>{s.name || kindName(s.kind)}</b><small>{t('{d} km', { d: fmtKm(s.distKm) })} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)}{' '}· <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span>{/if}</small></span>
               </p>
             {:else if me}
               <p class="lvf-next lvf-muted">{busy ? t('Loading…') : hasRoute ? t('No stops ahead on the route yet.') : t('No stops around you found yet.')}</p>
@@ -739,11 +739,11 @@
                 {/if}
                 {#if bed}
                   <div class="lv-bed" data-live-bed>
-                    {#if bed.planned}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name} · {bed.planned.name}{/if}{#if running && bed.planned.at} · {when(bed.planned.at)}{/if}</span></p>{/if}
+                    {#if bed.planned}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}{#if running && bed.planned.at}{' '}· {when(bed.planned.at)}{/if}</span></p>{/if}
                     {#if bed.best}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Reachable tonight: {name}, km {km}, in {d} km, about {at}', { name: bed.best.name || kindName('sleep'), km: Math.round(bed.best.km), d: fmtKm(bed.best.distKm), at: when(bed.best.eta) })}</span></p>{/if}
                   </div>
                 {/if}
-                {#if batEst}<p class="lv-line" class:rc-warn={batEst.enough === false} data-live-battery><BatteryMedium size={18} aria-hidden="true" /><span>{t('Battery {p} %: lasts about {h} h', { p: Math.round(bat.level * 100), h: num(batEst.hours) })}{#if batEst.enough != null} · {batEst.enough ? t('enough to the finish') : t('not enough to the finish: charge or save')}{/if}</span></p>{/if}
+                {#if batEst}<p class="lv-line" class:rc-warn={batEst.enough === false} data-live-battery><BatteryMedium size={18} aria-hidden="true" /><span>{t('Battery {p} %: lasts about {h} h', { p: Math.round(bat.level * 100), h: num(batEst.hours) })}{#if batEst.enough != null}{' '}· {batEst.enough ? t('enough to the finish') : t('not enough to the finish: charge or save')}{/if}</span></p>{/if}
               </div>
             {/if}
 
@@ -758,7 +758,7 @@
                       <KindIcon kind={s.kind} size={18} />
                       <span class="rc-row-main">
                         <b>{s.name || kindName(s.kind)}</b>
-                        <small>{kindName(s.kind)} · <span data-live-dist>{t('{d} km', { d: fmtKm(s.distKm) })}</span>{s.along ? '' : ` ${t('as the crow flies')}`} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)} · <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span>{/if}</small>
+                        <small>{kindName(s.kind)} · <span data-live-dist>{t('{d} km', { d: fmtKm(s.distKm) })}</span>{s.along ? '' : ` ${t('as the crow flies')}`} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)}{' '}· <span class:lv-closed={s.open?.open === false}>{openLine(s)}</span>{/if}</small>
                       </span>
                       <details class="lv-nav">
                         <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
@@ -866,7 +866,7 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.eatHm} onchange={(e) => setOpt('eatHm', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="eatHm" /><span><b>{t('Eat every 300 m up')}</b><small>{t('On top of the eat reminder by time: a vibration after 300 m of climbing.')}</small></span></label>
       </li>
       <li class="rc-row">
-        <label class="lv-opt"><input type="checkbox" checked={cfg.battery} onchange={(e) => setOpt('battery', e.currentTarget.checked)} data-live-opt="battery" /><span><b>{t('Battery saver')}</b><small>{t('A simple light map, the map moves every 10 s instead of every 2 s, and less exact GPS (from the next start).')}{#if hasBattery} {t('Shows whether the battery lasts to the finish.')}{/if}</small></span></label>
+        <label class="lv-opt"><input type="checkbox" checked={cfg.battery} onchange={(e) => setOpt('battery', e.currentTarget.checked)} data-live-opt="battery" /><span><b>{t('Battery saver')}</b><small>{t('A simple light map, the map moves every 10 s instead of every 2 s, and less exact GPS (from the next start).')}{#if hasBattery}{' '}{t('Shows whether the battery lasts to the finish.')}{/if}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>

@@ -36,7 +36,7 @@
       </ul>
     {/if}
     {#if note.place}
-      <p class="pl"><MapPin size={16} aria-hidden="true" /> {placeText(note.place)}{#if pl} · <a href={pl.maps} target="_blank" rel="noopener noreferrer">Google Maps</a> · <a href={pl.swisstopo} target="_blank" rel="noopener noreferrer">swisstopo</a>{/if}</p>
+      <p class="pl"><MapPin size={16} aria-hidden="true" /> {placeText(note.place)}{#if pl}{' '}· <a href={pl.maps} target="_blank" rel="noopener noreferrer">Google Maps</a> · <a href={pl.swisstopo} target="_blank" rel="noopener noreferrer">swisstopo</a>{/if}</p>
     {/if}
     {#each linksOf(note) as l, i (i)}<p class="lk"><a href={l.url} target="_blank" rel="noopener noreferrer">{l.title || l.url}</a></p>{/each}
   </article>

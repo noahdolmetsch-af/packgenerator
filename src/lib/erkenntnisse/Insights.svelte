@@ -112,7 +112,7 @@
     <div class="card pad">
       <b class="wh">{t('Still collecting days')}</b>
       <ul class="wl">
-        {#each waiting as x (x.id)}<li data-waiting={x.id}><span>{nameOf(x.x)} → {nameOf(x.y)}{#if x.lag} · {t('the day after')}{/if}</span><small class="num">{t('{n} of {m} days', { n: x.n, m: MIN_DAYS })}</small></li>{/each}
+        {#each waiting as x (x.id)}<li data-waiting={x.id}><span>{nameOf(x.x)} → {nameOf(x.y)}{#if x.lag}{' '}· {t('the day after')}{/if}</span><small class="num">{t('{n} of {m} days', { n: x.n, m: MIN_DAYS })}</small></li>{/each}
       </ul>
     </div>
   {/if}

@@ -18,7 +18,7 @@
 <div class="amap" data-act-map>
   {#if lines.length}
     <TourMap {lines} {points} height={phone.matches ? 360 : 480} onpick={(p) => (location.hash = p.href)} label={t('Map of the completed trips: drag to move, pinch or wheel to zoom')} />
-    <p class="tp-muted tp-small">{tn(shown.length, '{n} tour with a line. A tap on a number opens it.', '{n} tours with a line. A tap on a number opens it.')}{#if rows.length > MAX} {t('The newest {n} show.', { n: MAX })}{/if}</p>
+    <p class="tp-muted tp-small">{tn(shown.length, '{n} tour with a line. A tap on a number opens it.', '{n} tours with a line. A tap on a number opens it.')}{#if rows.length > MAX}{' '}{t('The newest {n} show.', { n: MAX })}{/if}</p>
   {:else}
     <p class="card none">{t('No tour of this list has a line yet. Strava sends the lines with the next fetch.')}</p>
   {/if}

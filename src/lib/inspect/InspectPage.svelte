@@ -100,7 +100,7 @@
                   {#each (x.results ?? []).filter((r) => r.state || r.note || r.photos?.length || r.value != null) as r (r.id)}
                     <li>
                       <span class="rn">{pointById[r.id] ? pointName(pointById[r.id]) : t('(deleted point)')}</span>
-                      <span class="rs s-{r.state ?? 'none'}">{r.state ? t(STATE_NAME[r.state]) : '–'}{#if r.value != null} · {String(r.value).replace('.', ',')} {pointById[r.id]?.measure?.unit ?? ''}{/if}</span>
+                      <span class="rs s-{r.state ?? 'none'}">{r.state ? t(STATE_NAME[r.state]) : '–'}{#if r.value != null}{' '}· {String(r.value).replace('.', ',')} {pointById[r.id]?.measure?.unit ?? ''}{/if}</span>
                       {#if r.note}<small class="rnote">{r.note}</small>{/if}
                       {#if r.photos?.length}<span class="ph">{#each r.photos as src, i (i)}<img {src} alt={t('Photo {n} of {name}', { n: i + 1, name: pointById[r.id] ? pointName(pointById[r.id]) : '' })} />{/each}</span>{/if}
                     </li>

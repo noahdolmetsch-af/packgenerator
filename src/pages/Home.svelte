@@ -797,8 +797,10 @@
   // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
   const near = $derived(loaded ? tourNear(allTrips, today) : null);
   // the day card at night: the trip of tomorrow, with how far it is packed
+  const dayAfter = (d) => ((x) => (x.setUTCDate(x.getUTCDate() + 1), x.toISOString().slice(0, 10)))(new Date(`${d}T12:00:00Z`));
   const tomorrowTrip = $derived.by(() => {
-    if (!near || near.startDate === today) return null;
+    // only a trip that starts tomorrow: a trip already on its way (started yesterday) is no «Tomorrow: …»
+    if (!near || near.startDate !== dayAfter(today)) return null;
     const p = packedOf(near, itemsById, nameOf);
     return { title: near.title, href: stepHere(near).href, packed: p ? { packed: p.packed, of: p.of } : null };
   });
@@ -945,11 +947,12 @@
       <div class="tc">
         <div class="kl">
           <Route size={16} aria-hidden="true" />
-          <TripState state={shownState} />
+          <!-- Gesamttest 20.10.2026: a trip under way is no «Geplant · Nächste Tour»; the countdown says «Unterwegs · Tag 2 von 3» -->
+          {#if !(cd?.under && shownState === 'plan')}<TripState state={shownState} />{/if}
           {#if ask}
             <span class="cdn">{t('trip ended')}</span>
           {:else if cd}
-            <span class="sub">{isLead ? t('Next trip') : t('Later trip')}</span>
+            {#if !cd.under}<span class="sub">{isLead ? t('Next trip') : t('Later trip')}</span>{/if}
             <span class="cdn" class:near={cd.near} data-countdown>{cd.text}</span>
             <!-- Paket 3 (bug from the 0.136.0 pictures): «noch 23 h · 2 Tage», with a separator -->
             {#if Number(shown.days) > 1 && !cd.under}<span class="sub" data-trip-days>{'· '}{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
@@ -986,7 +989,7 @@
             {#each bars as s (s.key)}
               {@const cur = s.key === sched.next?.key}
               <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late} aria-current={cur ? 'step' : undefined}>
-                <span>{#if s.state === 'done'}✓ {/if}{t(STEP_NAME[s.key])}</span>
+                <span>{#if s.state === 'done'}{'✓ '}{/if}{t(STEP_NAME[s.key])}</span>
               </li>
             {/each}
           </ol>

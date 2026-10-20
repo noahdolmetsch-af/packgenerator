@@ -62,7 +62,7 @@
     {#snippet sub(r)}
       <small>
         {paperDue(r, start) ? t('due {date}', { date: day(paperDue(r, start)) }) : t('no date')}
-        {#if r.id === 'pp-hotels' && hotelNights} · {t('{n} nights in a hotel in the plan', { n: hotelNights })}{/if}
+        {#if r.id === 'pp-hotels' && hotelNights}{' '}· {t('{n} nights in a hotel in the plan', { n: hotelNights })}{/if}
       </small>
     {/snippet}
     {#snippet row(r)}

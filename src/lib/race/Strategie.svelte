@@ -14,7 +14,7 @@
   import { WAYS, ASSUMPTIONS, ASSUME_GROUPS, OWN_KINDS, raceTime } from './strategy.js';
   import { hm, localOf, msOf, newId, sameRace, seriesKey, countdown } from './race.js';
   import { raceHref } from './parts.js';
-  import { t, tn, isDe } from '../i18n.svelte.js';
+  import { t, tn, isDe, num } from '../i18n.svelte.js';
 
   let { ctx } = $props();
   const learnQ = liveQuery(() => db.learnings.toArray());
@@ -170,9 +170,9 @@
               <tr data-stage={d.n}>
                 <td>{d.n} · {dayFmt(d.leave)}{#if d.sunday}{' '}<b class="rc-warn">{t('Sunday')}</b>{/if}</td>
                 <td>{d.fromKm}–{d.toKm}</td>
-                <td class="num">{(d.upM ?? 0).toLocaleString()}</td>
+                <td class="num">{num(d.upM ?? 0)}</td>
                 <td class="num">{hm(d.rideH)}</td>
-                <td class:rc-warn={d.late}>{timeOf(d.arrive)}{#if d.late} · {t('late')}{/if}</td>
+                <td class:rc-warn={d.late}>{timeOf(d.arrive)}{#if d.late}{' '}· {t('late')}{/if}</td>
                 <td>{d.bed === 'finish' ? t('Finish') : d.place || (d.bed === 'tent' ? t('Wild camp') : t('Bivy on the way'))}</td>
                 <td>
                   {#if d.bed !== 'finish'}

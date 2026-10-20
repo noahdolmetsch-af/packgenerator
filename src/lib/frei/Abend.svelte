@@ -162,7 +162,7 @@
 
   <section class="fz-box" aria-labelledby="fza-rit-h" data-rituals>
     <h2 id="fza-rit-h" class="fz-h2"><Moon size={18} aria-hidden="true" /> {t('My rituals')}</h2>
-    <p class="fz-note">{tn(rituals.length, '{n} of 3 rituals', '{n} of 3 rituals')}{#if row} · {tn(row, '{n} evening in a row', '{n} evenings in a row')}{/if}</p>
+    <p class="fz-note">{tn(rituals.length, '{n} of 3 rituals', '{n} of 3 rituals')}{#if row}{' '}· {tn(row, '{n} evening in a row', '{n} evenings in a row')}{/if}</p>
     {#if !rituals.length}<p class="fz-empty">{t('No ritual yet. Pick one below or write your own.')}</p>{/if}
     <ul class="fz-list" use:sortable={{ onmove }}>
       {#each rituals as r, n (r.id)}

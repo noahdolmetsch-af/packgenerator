@@ -91,7 +91,7 @@
   {#if q}
     <div class="hd">
       <div class="hm">
-        <p class="eyebrow">{t('Sync')}{#if list.length > 1 && !asList} · {t('{n} of {all}', { n: 1, all: list.length })}{/if}</p>
+        <p class="eyebrow">{t('Sync')}{#if list.length > 1 && !asList}{' '}· {t('{n} of {all}', { n: 1, all: list.length })}{/if}</p>
         <h2 id="sa-h">{t('Changed on both devices')}</h2>
       </div>
       <button type="button" class="x" aria-label={t('Close')} onclick={later}><X size={18} aria-hidden="true" /></button>

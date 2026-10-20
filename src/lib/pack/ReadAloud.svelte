@@ -173,7 +173,7 @@
       <button type="button" class="btn" onclick={() => go(nextIndex(queue, i, done))}><SkipForward size={18} aria-hidden="true" /> {t('Later|skip')}</button>
     </div>
     {#if mode === 'voice' && canListen}
-      <p class="mic" class:on={listening}>{#if listening}<Mic size={18} aria-hidden="true" /> {t('Listening …')}{:else}<MicOff size={18} aria-hidden="true" /> {t('Not listening right now')}{/if}{#if heardText} · <i>«{heardText}»</i>{/if}</p>
+      <p class="mic" class:on={listening}>{#if listening}<Mic size={18} aria-hidden="true" /> {t('Listening …')}{:else}<MicOff size={18} aria-hidden="true" /> {t('Not listening right now')}{/if}{#if heardText}{' '}· <i>«{heardText}»</i>{/if}</p>
     {/if}
   {:else}
     <div class="now"><b>{left ? tn(left, 'Read through. {n} item is still open.', 'Read through. {n} items are still open.') : t('Everything packed.')}</b></div>

@@ -55,7 +55,7 @@
     {#each rows as r (r.trip.id)}
       {@const own = picked[r.trip.id] !== sug[r.trip.id]}
       <li class="sa-row">
-        <span class="sa-t"><b>{r.trip.title}</b><small class="num">{[dateOf(r.trip.startDate), tn(Number(r.trip.days) || 1, '{n} day', '{n} days'), bikeName(r.trip.bikeId)].filter(Boolean).join(' · ')}{#if own} · <em>{t('changed by you')}</em>{/if}</small></span>
+        <span class="sa-t"><b>{r.trip.title}</b><small class="num">{[dateOf(r.trip.startDate), tn(Number(r.trip.days) || 1, '{n} day', '{n} days'), bikeName(r.trip.bikeId)].filter(Boolean).join(' · ')}{#if own}{' '}· <em>{t('changed by you')}</em>{/if}</small></span>
         <select class="sa-pick" class:own bind:value={picked[r.trip.id]} aria-label={t('Sport for {name}', { name: r.trip.title })}>
           {#each BIKE_SPORTS as k (k)}<option value={k}>{t(SPORT[k].name)}</option>{/each}
         </select>

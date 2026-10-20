@@ -106,7 +106,7 @@
             {#if s.photo}<img class="photo" src={s.photo} alt={s.title} />{:else if m}<svg class="route" viewBox="0 0 {m.w} {m.h}" aria-hidden="true">{#each m.paths as p (p.id)}<path d={p.d} />{/each}</svg>{/if}
             <div class="cap">
               <h2>{s.title}</h2>
-              <p class="num">{dates(s.start, s.end)}{#if s.km} · {num(s.km)} km{/if}</p>
+              <p class="num">{dates(s.start, s.end)}{#if s.km}{' '}· {num(s.km)} km{/if}</p>
               {#if s.note}<p class="nt">«{s.note}»</p>{/if}
             </div>
           {:else if s.kind === 'number'}

@@ -139,6 +139,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 20.10.2026, 0.162.0 «Gesamttest-Korrekturen»: keine neue Seite; Leerzeichen am Rand von {#if}-Blöcken (Svelte 5) an 88 Stellen ergänzt, Offline-Feld am Handy mit Knopf unter dem Satz, Strava «Zum Prüfen» zeigt 20 Fahrten und «20 weitere zeigen».
 - 19.10.2026, 0.161.0 «Paket 9»: neue Seite #/tour/<key> (Reiter oder Sprungleiste, am Computer bleibt die Leiste oben); Touren-Liste mit Ansichten Zeilen/Kacheln/Karte/Kalender, am Handy hinter «Ansichten».
 - 19.10.2026, «Verpflegung» (0.160.0, Paket 8): neue Seite Touren › Verpflegung (#/trips/fuel) im Aufbau von Material › Strom (Kopf, Karten, Felder 44 px, Falten für Werte); Produkte mit Ziehen und Pfeilen, Löschen mit eigenem Fenster und Rückgängig.
 - 19.10.2026, 0.159.0 «Paket 7»: neue Seiten Touren › Rennen (#/race, mit Karte, Anstiege) und Live-Karte (#/live). Live-Karte im Vollbild mit Zahlenband oben (Pfeile und Ziehen zum Ordnen), Panel unten mit 3 Höhen, «⋯»-Menü; Profil 180 px am Handy, Knöpfe 44 px; Orts-Chips scrollen in ihrer Zeile, die Seite nie seitlich; nur hell. Getestet bei 130 % Grösse.

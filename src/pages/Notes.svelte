@@ -328,7 +328,7 @@
           <div class="ich-h"><div><h2 id="nstat-h"><ChartColumn size={16} aria-hidden="true" /> {t('At a glance|notes')}</h2><p class="ich-hs">{t('A tap on a #tag searches for it')}</p></div></div>
           <div class="card ich-body nst">
             <p>{tn(stats.month, '{n} note this month', '{n} notes this month')} · {tn(stats.total, '{n} in total', '{n} in total')}</p>
-            {#if stats.openLists}<p>{t('{points} open points in {lists} checklists', { points: stats.openPoints, lists: stats.openLists })}{#if stats.oldestOpen} · <button type="button" class="btn-link" onclick={() => (open = stats.oldestOpen.id)}>{t('oldest: {name}', { name: stats.oldestOpen.title || t('Note') })}</button>{/if}</p>{/if}
+            {#if stats.openLists}<p>{t('{points} open points in {lists} checklists', { points: stats.openPoints, lists: stats.openLists })}{#if stats.oldestOpen}{' '}· <button type="button" class="btn-link" onclick={() => (open = stats.oldestOpen.id)}>{t('oldest: {name}', { name: stats.oldestOpen.title || t('Note') })}</button>{/if}</p>{/if}
             {#if stats.linked}<p>{tn(stats.linked, '{n} note linked with others', '{n} notes linked with others')}</p>{/if}
             {#if stats.topTags.length}
               <div class="fl">{#each stats.topTags as x (x.tag)}<button type="button" class="fchip" aria-pressed={query === `#${x.tag}`} onclick={() => (query = query === `#${x.tag}` ? '' : `#${x.tag}`)}>#{x.tag} · <span class="num">{x.n}</span></button>{/each}</div>

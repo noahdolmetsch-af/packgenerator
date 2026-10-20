@@ -71,7 +71,7 @@
   {#if areas.length > 1}
     <h3 class="lbl" id="fs-area">{t('Area')}</h3>
     <div class="fchips" role="group" aria-labelledby="fs-area">
-      {#each [{ key: '', name: t('All') }, ...areas] as a (a.key)}<button type="button" class="fchip" aria-pressed={value.domain === a.key} onclick={() => onchange({ domain: a.key })}>{a.name}{#if a.n != null} <small class="num">{a.n}</small>{/if}</button>{/each}
+      {#each [{ key: '', name: t('All') }, ...areas] as a (a.key)}<button type="button" class="fchip" aria-pressed={value.domain === a.key} onclick={() => onchange({ domain: a.key })}>{a.name}{#if a.n != null}{' '}<small class="num">{a.n}</small>{/if}</button>{/each}
     </div>
   {/if}
 

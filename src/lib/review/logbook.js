@@ -72,7 +72,8 @@ export function logEntries({ facts = [], events = [], debriefs = [], notes = [] 
 }
 
 /** The years with entries, newest first. */
-export const logYears = (entries) => [...new Set(entries.map((e) => e.year).filter(Boolean))].sort().reverse();
+// Gesamttest 20.10.2026: a broken date (year «0000») gets no chip of its own; the entry stays under «Alle»
+export const logYears = (entries) => [...new Set(entries.map((e) => e.year).filter((y) => /^(19|20)\d{2}$/.test(y ?? '')))].sort().reverse();
 /** The areas with entries, bikepacking first. */
 export const logAreas = (entries) => [...new Set(entries.map((e) => e.domain))].sort((a, b) => (a === BIKEPACKING ? -1 : b === BIKEPACKING ? 1 : a.localeCompare(b)));
 

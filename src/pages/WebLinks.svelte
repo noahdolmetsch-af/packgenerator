@@ -152,7 +152,7 @@
               {#if sorting}<SortGrip name={l.name} onstep={(d) => move(g, i, i + d)} />{/if}
               <a class="wl-a" href={l.href} target="_blank" rel="noopener noreferrer">
                 <span class="wl-letter" aria-hidden="true">{l.name.slice(0, 1).toUpperCase()}</span>
-                <span class="wl-m"><b>{l.name}{#if l.trip} <MapPin size={13} aria-label={t('with your trip')} />{/if}</b>{#if l.sub}<small>{t(l.sub)}</small>{:else if l.own}<small>{t('Own link')}</small>{/if}</span>
+                <span class="wl-m"><b>{l.name}{#if l.trip}{' '}<MapPin size={13} aria-label={t('with your trip')} />{/if}</b>{#if l.sub}<small>{t(l.sub)}</small>{:else if l.own}<small>{t('Own link')}</small>{/if}</span>
                 <ExternalLink size={15} aria-label={t('opens elsewhere')} />
               </a>
               {#if sorting}

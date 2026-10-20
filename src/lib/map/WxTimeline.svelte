@@ -108,7 +108,7 @@
 
     {#if cache}
       <p class="wt-meta num">
-        {t('As of {at}', { at: stamp(asOf) })}{#if isOld(asOf, 3)} · <span class="wt-old">{t('Older than 3 hours')}</span>{/if}
+        {t('As of {at}', { at: stamp(asOf) })}{#if isOld(asOf, 3)}{' '}· <span class="wt-old">{t('Older than 3 hours')}</span>{/if}
         · {eta ? (plan ? t('For the hour of your plan at each point.') : t('For the hour you get there at your pace.')) : t('No plan: the weather of now at each point.')}
       </p>
       {#if line}<p class="wt-sum">{line}</p>{/if}

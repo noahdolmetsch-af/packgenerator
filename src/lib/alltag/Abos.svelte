@@ -101,7 +101,7 @@
         <li class="fz-row" data-sort-id={c.id} data-abo={c.name}>
           <SortGrip name={c.name} onstep={(dir) => step(c.id, dir)} />
           <button type="button" class="fz-row-main al-open" onclick={() => openEdit(c)} data-abo-open>
-            <b class:al-stopped={c.stopped}>{c.name}{#if c.travel} <Plane size={14} aria-label={t('Travel insurance')} />{/if}</b>
+            <b class:al-stopped={c.stopped}>{c.name}{#if c.travel}{' '}<Plane size={14} aria-label={t('Travel insurance')} />{/if}</b>
             <small>{c.cost ? `${money(c.cost)} ${c.period === 'year' ? t('per year') : t('per month')}` : t('No cost entered')}{c.period === 'year' && c.cost ? ` · ${t('{sum} per month', { sum: money(perMonth(c)) })}` : ''}</small>
             <small class:al-soon={soon(c)}>{#if soon(c)}<Bell size={13} aria-hidden="true" /> {/if}{dueLine(c)}</small>
           </button>

@@ -8,7 +8,7 @@
   import { liveQuery } from 'dexie';
   import { CloudDownload } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { fetchForecast } from '../weather.js';
   import { FEEDS_KEY, feedsOf } from './news.js';
@@ -56,7 +56,7 @@
       busy = false;
     }
   }
-  const when = (iso) => new Date(iso).toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+  const when = (iso) => new Date(iso).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   const line = $derived(saved ? offlineLine(saved.parts) : null);
   const NAME = { 'the weather': 'the weather|offline', 'the alerts': 'the alerts|offline', 'the news': 'the news|offline' };
 </script>
@@ -79,6 +79,7 @@
 <style>
   .offsave {
     display: flex;
+    flex-wrap: wrap; /* Gesamttest 20.10.2026: on a phone the button goes below, the sentence keeps its width */
     align-items: center;
     gap: 10px;
     margin: 0 0 var(--sp-2);
@@ -88,7 +89,7 @@
     background: var(--paper);
   }
   .os-m {
-    flex: 1;
+    flex: 1 1 220px;
     min-width: 0;
   }
   .os-m p {

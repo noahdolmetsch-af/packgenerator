@@ -12,7 +12,7 @@
 
 <div class="seg" class:full class:small class:chips role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
   {#each options as o (o.key)}
-    <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}{#if o.n != null} <small class="n">{o.n}</small>{/if}</button>
+    <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}{#if o.n != null}{' '}<small class="n">{o.n}</small>{/if}</button>
   {/each}
 </div>
 

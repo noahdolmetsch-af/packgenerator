@@ -198,7 +198,7 @@
     <div class="c night" data-cell="night">
       {#if tomorrowTrip}
         <div class="ch"><Backpack size={16} aria-hidden="true" />{t('Tomorrow: {trip}', { trip: tomorrowTrip.title })}</div>
-        <p class="tx">{t('Quiet until 6:00.')}{#if tomorrowTrip.packed} <b>{t('{n} of {m} packed', { n: tomorrowTrip.packed.packed, m: tomorrowTrip.packed.of })}</b>{/if}</p>
+        <p class="tx">{t('Quiet until 6:00.')}{#if tomorrowTrip.packed}{' '}<b>{t('{n} of {m} packed', { n: tomorrowTrip.packed.packed, m: tomorrowTrip.packed.of })}</b>{/if}</p>
         <div class="acts"><a class="l" href={tomorrowTrip.href}>{t('Open the trip')}<ChevronRight size={14} aria-hidden="true" /></a></div>
       {:else}
         <p class="tx">{t('Quiet until 6:00. Good night.')}</p>

@@ -296,7 +296,7 @@
     <ul class="stages" aria-label={t('Stages of {block}', { block: blockLabel(s) })}>
       {#each st as g (g.key)}
         {@const r = rules[g.key]}
-        <li><button type="button" class="stchip" class:off={!r.on} aria-haspopup="dialog" aria-label={blockLabel(g)} onclick={() => (ruling = g.key)}>{#if r.on}<Plus size={14} aria-hidden="true" />{:else}<ZapOff size={14} aria-hidden="true" />{/if}<span><b>{ruleLine(g.key, r)}</b>: {stageName(g)} · {tn(g.inventory.length, '{n} item', '{n} items')}{#if !r.on} · {t('Suggestion off')}{/if}</span></button></li>
+        <li><button type="button" class="stchip" class:off={!r.on} aria-haspopup="dialog" aria-label={blockLabel(g)} onclick={() => (ruling = g.key)}>{#if r.on}<Plus size={14} aria-hidden="true" />{:else}<ZapOff size={14} aria-hidden="true" />{/if}<span><b>{ruleLine(g.key, r)}</b>: {stageName(g)} · {tn(g.inventory.length, '{n} item', '{n} items')}{#if !r.on}{' '}· {t('Suggestion off')}{/if}</span></button></li>
       {/each}
     </ul>
   {/if}

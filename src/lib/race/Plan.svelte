@@ -274,7 +274,7 @@
             {@const on = stateOf($viewQ, c.box) !== 'off'}
             <li>
               <details data-case={c.n}>
-                <summary><span class="rc-case-n">{c.n}</span> <b class:rc-done={!on}>{c.title}</b>{#if c.open} <small class="rc-src">{t('open')}</small>{/if}{#if !on} <small class="rc-src">{t('off')}</small>{/if}</summary>
+                <summary><span class="rc-case-n">{c.n}</span> <b class:rc-done={!on}>{c.title}</b>{#if c.open}{' '}<small class="rc-src">{t('open')}</small>{/if}{#if !on}{' '}<small class="rc-src">{t('off')}</small>{/if}</summary>
                 <p class="rc-text">{c.text}</p>
                 <div class="rc-acts">
                   <a class="btn sm" href={`${raceHref(ctx.trip.id, c.part)}?box=${c.box}`} data-case-go={c.n}>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>

@@ -93,7 +93,7 @@
       <div class="chips">
         {#if o.kind === 'activity'}
           <button type="button" class="chip" aria-pressed={!other} onclick={() => (other = false)}>{rhythmLabel(o.rhythm)}</button>
-          <button type="button" class="chip" aria-pressed={earlier && !other} onclick={() => ((earlier = !earlier), (other = false))}>{t('1 h before')}{#if earlier && !other} · {hourBefore(o.rhythm.at)}{/if}</button>
+          <button type="button" class="chip" aria-pressed={earlier && !other} onclick={() => ((earlier = !earlier), (other = false))}>{t('1 h before')}{#if earlier && !other}{' '}· {hourBefore(o.rhythm.at)}{/if}</button>
           <button type="button" class="chip dash" aria-pressed={other} onclick={() => (other = true)}>{t('Other time …')}</button>
           {#if other}<input class="inp time" type="time" bind:value={time} aria-label={t('Time')} />{/if}
         {:else if o.kind === 'trip'}

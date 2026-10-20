@@ -85,7 +85,7 @@
         {#each res.list as c (c.dep)}
           <li>
             <span class="tm num"><b>{c.depTime}</b>{#if c.delay}<small class="warn">+{c.delay}</small>{/if}<span aria-hidden="true">→</span>{c.arrTime}</span>
-            <span class="ln">{c.lines.join(' · ')}{#if c.platform} · {t('Platform {p}', { p: c.platform })}{/if}</span>
+            <span class="ln">{c.lines.join(' · ')}{#if c.platform}{' '}· {t('Platform {p}', { p: c.platform })}{/if}</span>
             <span class="tp-small tp-muted num">{minText(c.min)}{c.transfers ? ` · ${t('{n} changes', { n: c.transfers })}` : ` · ${t('direct')}`}</span>
           </li>
         {/each}

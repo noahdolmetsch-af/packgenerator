@@ -53,7 +53,7 @@
     </li>
     <li data-val="last">
       <span class="k"><Bike size={14} aria-hidden="true" />{t('Last activity')}</span>
-      {#if last}<span class="big num">{num(last.km)} <small>km</small></span><span class="su">{dayWord(last.date)}{#if last.hr} · {t('avg pulse {n}', { n: last.hr })}{/if}{#if last.source === 'strava'} · Strava{/if}</span>
+      {#if last}<span class="big num">{num(last.km)} <small>km</small></span><span class="su">{dayWord(last.date)}{#if last.hr}{' '}· {t('avg pulse {n}', { n: last.hr })}{/if}{#if last.source === 'strava'}{' '}· Strava{/if}</span>
       {:else}<span class="big none">–</span><span class="su">{t('no ride yet')}</span>{/if}
     </li>
   </ul>

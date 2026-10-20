@@ -105,6 +105,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**20.10.2026, v0.162.0 «Gesamttest-Korrekturen»:** zehn kleine Korrekturen aus dem Rundgang durch die ganze App (Leerzeichen an 88 Stellen mit Wächter-Test, Unterwegs ohne Tour, Strava «Zum Prüfen» in Zwanzigerschritten). Das neue Heute baut darauf auf.
+
 **19.10.2026, v0.161.0 «Paket 9»:** Tour-Seite für abgeschlossene Touren (Noah «1a 2 beides 3b 4 beides 5a»).
 
 **19.10.2026, «Verpflegung» (0.160.0, Paket 8):** neue Seite Touren › Verpflegung (Noah «1a 2a 3a und b 4a 5a»); nutzt die Ortssuche von Paket 7 mit Öffnungszeiten.

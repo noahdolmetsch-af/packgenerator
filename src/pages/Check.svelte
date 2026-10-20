@@ -240,7 +240,7 @@
     <ul class="rows">
       {#if data.weather}<li><span class="ib"><Sun size={18} aria-hidden="true" /></span><span class="rt"><b>{wxWords(data.weather)}</b><small>{t('home weather, saved forecast')}</small></span></li>{/if}
       {#if medAct}
-        <li data-row="med"><span class="ib"><Flower2 size={18} aria-hidden="true" /></span><span class="rt"><b>{t('Meditation')}</b><small>{#if medToday}{t('today {min} min', { min: medToday.min })}{:else if medYesterday}{t('yesterday {min} min', { min: medYesterday.min })}{:else}{t('not yet today')}{/if}{#if medStreak > 1} · {tn(medStreak, '{n} day in a row', '{n} days in a row')}{/if}</small></span></li>
+        <li data-row="med"><span class="ib"><Flower2 size={18} aria-hidden="true" /></span><span class="rt"><b>{t('Meditation')}</b><small>{#if medToday}{t('today {min} min', { min: medToday.min })}{:else if medYesterday}{t('yesterday {min} min', { min: medYesterday.min })}{:else}{t('not yet today')}{/if}{#if medStreak > 1}{' '}· {tn(medStreak, '{n} day in a row', '{n} days in a row')}{/if}</small></span></li>
       {/if}
       {#if nextTrip}
         <li><span class="ib"><Route size={18} aria-hidden="true" /></span><span class="rt"><b>{nextTrip.title || t('Next trip')}</b><small>{nextTrip.startDate <= today ? t('under way') : t('next trip · from {date}', { date: dayWords(nextTrip.startDate) })}</small></span></li>

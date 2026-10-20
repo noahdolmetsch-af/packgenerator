@@ -76,7 +76,7 @@
           <ul class="fl">
             {#each rows as r (r.k)}
               <li>
-                <b class:rare={r.rare}>{t(r.label)}{#if r.ciq} <span class="badge">Connect IQ</span>{/if}</b>
+                <b class:rare={r.rare}>{t(r.label)}{#if r.ciq}{' '}<span class="badge">Connect IQ</span>{/if}</b>
                 <span class="why">{t(r.why)}</span>
                 <span class="on2">
                   {#each DEVICES as d (d)}

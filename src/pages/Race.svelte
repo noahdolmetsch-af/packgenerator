@@ -20,7 +20,7 @@
   import { homeTrips } from '../lib/home/heute.js';
   import { localDay } from '../lib/localday.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import '../lib/race/race.css';
 
   let { hash = '' } = $props();
@@ -67,7 +67,7 @@
       openSample(/[?&]tour\b/.test(hash));
     }
   });
-  const dateOf = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : t('no date yet'));
+  const dateOf = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : t('no date yet'));
 </script>
 
 {#if where}
@@ -117,7 +117,7 @@
                 <li>
                   <a class="rc-row" href={raceHref(tr.id)} data-race-row={tr.id}>
                     <span class="rc-icon" aria-hidden="true"><Flag size={18} /></span>
-                    <span class="rc-row-main"><b>{tr.title}</b><small>{dateOf(tr.startDate)}{#if cd && cd.days > 0} · {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</small></span>
+                    <span class="rc-row-main"><b>{tr.title}</b><small>{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</small></span>
                     <ChevronRight size={18} aria-hidden="true" />
                   </a>
                 </li>

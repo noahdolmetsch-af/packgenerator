@@ -57,7 +57,7 @@
             <i class="dot {colorOf[e.id] ?? 'cn'}" aria-hidden="true"></i>
             <span class="m">
               <span class="tt">{e.title || (e.kind === 'ride' ? t('Ride|chronik') : t('Activity|chronik'))}</span>
-              <span class="sub num">{ymd(e)}{#if e.km} · {num(Math.round(e.km))} km{/if}</span>
+              <span class="sub num">{ymd(e)}{#if e.km}{' '}· {num(Math.round(e.km))} km{/if}</span>
               {#if e.note && (frame === 'section' || size === 'l' || i === 0)}<span class="nt">«{e.note}»</span>{/if}
             </span>
           </svelte:element>
