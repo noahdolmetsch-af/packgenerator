@@ -50,9 +50,16 @@
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import DataPages from '../lib/live/DataPages.svelte';
+  import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
+  import DataPagesEditor from '../lib/live/DataPagesEditor.svelte';
+  import { PAGES_KEY, cleanPages, fieldCatalogue } from '../lib/live/datapages.js';
+  import { statsOf } from '../lib/live/ble.js';
+  import { distKm as distKmPts } from '../lib/spur/polyline.js';
   import SensorBox from '../lib/live/SensorBox.svelte';
   import { fresh, onValue } from '../lib/live/sensors.svelte.js';
   import { limitStep } from '../lib/live/ble.js';
+
   import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
@@ -121,7 +128,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -388,7 +395,8 @@
     if (h && (!me || h.at !== me.at)) me = { ...h };
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
-    if (follow && viewSet) mapView?.keep?.(me.lat, me.lon, sheetPx);
+    // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
+    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, sheetPx);
     // voice
     if (cfg.voice) {
       const s = nextSay({ stop: stops[0] ?? null, climb, said });
@@ -422,7 +430,11 @@
       checkStorm();
     }
     // battery
-    if (cfg.battery) readBattery();
+    // the battery: with the saver every tick, else once a minute (the «Battery» field of the data pages)
+    if (hasBattery && (cfg.battery || now - batAt > 60_000)) {
+      batAt = now;
+      readBattery();
+    }
     // the family link (Reise-Spur) shows where you are, when the tour has one (familylive.js)
     if (trip?.spurLink?.id && navigator.onLine !== false && now - familyAt >= LIVE_EVERY_MS) {
       familyAt = now;
@@ -430,6 +442,7 @@
     }
   }
   let familyAt = 0;
+  let batAt = 0;
   const eatGain = $derived(cfg.eatHm && km != null && eatFromKm != null ? gainBetween(profile, eatFromKm, km) : 0);
   async function ateNow() {
     eatFromKm = km;
@@ -569,6 +582,45 @@
       clock: (ms) => hhmm(ms),
     }),
   );
+  /* «Datenseiten wie am Garmin» (datapages.js): the map is page 0, then the rider's pages */
+  const pagesQ = liveQuery(() => db.settings.get(PAGES_KEY));
+  const dpSet = $derived(cleanPages($pagesQ?.value));
+  const savePages = (v) => db.settings.put({ key: PAGES_KEY, value: $state.snapshot(v) });
+  const dpFields = fieldCatalogue(LIVE_TILES);
+  let dpIndex = $state(0);
+  let dpEdit = $state(null);
+  let dpOpen = $state(false);
+  const sn = $derived(row?.sensors ?? {});
+  // the speed of the ride from the kept points (km/h between two points)
+  const speedSeries = $derived.by(() => {
+    const p = row?.pts ?? [];
+    const out = [];
+    for (let i = 1; i < p.length; i++) {
+      const dt = (p[i][2] ?? 0) - (p[i - 1][2] ?? 0);
+      if (dt <= 0) continue;
+      const d = distKmPts(p[i - 1], p[i]);
+      const v = (d / dt) * 3600;
+      if (v < 120) out.push([p[i][2], Math.round(v * 10) / 10]);
+    }
+    return out;
+  });
+  const series = $derived({ hr: sn.hr ?? [], power: sn.power ?? [], cadence: sn.cadence ?? [], speed: speedSeries });
+  const profileAhead = $derived(km != null && profile.length > 1 ? profile.filter((x) => x[0] >= km - 0.5 && x[0] <= km + 50) : []);
+  const hrStats = $derived(statsOf(sn.hr));
+  const pwStats = $derived(statsOf(sn.power, { noZero: true }));
+  const dash = { value: '–' };
+  const vv = (x) => (x == null || !Number.isFinite(Number(x)) ? dash : { value: String(Math.round(Number(x))) });
+  const dpValues = $derived({
+    ...vals,
+    avgHr: vv(hrStats?.avg),
+    maxHr: vv(hrStats?.max),
+    avgPower: vv(pwStats?.avg),
+    maxPower: vv(pwStats?.max),
+    lap: dash,
+    battery: bat ? vv(bat.level * 100) : dash,
+    nextWp: dash,
+    upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
+  });
   const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
 
   /* the bottom sheet: three heights, drag the handle or tap it */
@@ -629,6 +681,21 @@
   let touchedAt = $state(Date.now());
   const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
   const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
+  let autoSwitched = false;
+  $effect(() => {
+    const idle = full && now - touchedAt > 120_000;
+    const warn = warning;
+    untrack(() => {
+      if (cfg.autoData && idle && !warn && dpIndex === 0 && dpSet.pages.length) {
+        dpIndex = 1;
+        autoSwitched = true;
+      } else if (autoSwitched && (warn || !cfg.autoData)) {
+        dpIndex = 0;
+        autoSwitched = false;
+      } else if (autoSwitched && dpIndex !== 1) autoSwitched = false;
+    });
+  });
   function keydown(e) {
     touchedAt = Date.now();
     if (e.key === 'Escape' && menu) {
@@ -722,26 +789,33 @@
     </div>
 
     <div class="lvf-stage" bind:clientHeight={stageH}>
-      <MapView
-        bind:this={mapView}
-        bind:ground
-        bind:shown
-        prefsKey="live"
-        line={route?.line ?? []}
-        points={allPoints}
-        me={meOnMap}
-        {done}
-        {grades}
-        {overlays}
-        fill
-        bar={false}
-        fitButton={false}
-        navAt="top-left"
-        label={t('Live map')}
-        ondrag={() => (follow = false)}
-        onmove={(b) => (mapBounds = b)}
-        onpick={pickPoint}
-      />
+      <DataPages set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
+        {#snippet map()}
+          <MapView
+            bind:this={mapView}
+            bind:ground
+            bind:shown
+            prefsKey="live"
+            line={route?.line ?? []}
+            points={allPoints}
+            me={meOnMap}
+            {done}
+            {grades}
+            {overlays}
+            fill
+            bar={false}
+            fitButton={false}
+            navAt="top-left"
+            label={t('Live map')}
+            ondrag={() => (follow = false)}
+            onmove={(b) => (mapBounds = b)}
+            onpick={pickPoint}
+          />
+        {/snippet}
+        {#snippet smallMap()}
+          <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
+        {/snippet}
+      </DataPages>
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
@@ -950,6 +1024,12 @@
               </div>
             {/if}
 
+            <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
+            <details class="lvf-part lvf-fold" bind:open={dpOpen} data-live-datapages>
+              <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Data pages')}</summary>
+              {#key dpEdit}<DataPagesEditor set={dpSet} fields={dpFields} route={hasRoute} start={dpEdit} onsave={savePages} />{/key}
+            </details>
+
             <!-- the numbers on top: choose and sort -->
             <details class="lvf-part lvf-fold" bind:open={choose} data-live-numbers>
               <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Numbers on top')}</summary>
@@ -1007,6 +1087,9 @@
           <label class="lv-num">{t('Heart rate|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="250" step="1" value={cfg.hrMax || ''} onchange={(e) => setOpt('hrMax', Math.max(0, Math.min(250, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="hrMax" /> bpm</label>
           <label class="lv-num">{t('Power|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="2500" step="5" value={cfg.powerMax || ''} onchange={(e) => setOpt('powerMax', Math.max(0, Math.min(2500, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="powerMax" /> W</label>
         </span>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.autoData} onchange={(e) => setOpt('autoData', e.currentTarget.checked)} data-live-opt="autoData" /><span><b>{t('Data page instead of the map')}</b><small>{t('After 2 minutes without a touch the first data page shows: the map is not drawn, that saves battery. A warning brings the map back.')}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>

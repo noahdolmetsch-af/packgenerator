@@ -128,4 +128,7 @@ export default {
   'Save battery: ride in flight mode': 'Akku sparen: im Flugmodus fahren',
   'Store the map along your route first (offline strips, on the race map or in the «⋯» menu of the live map). Then switch on flight mode and switch GPS and Bluetooth on again: the ride is recorded, the sensors and all numbers work. Without internet there is no weather, thunderstorm alert, public transport, family link or place search.': 'Speichere zuerst die Karte entlang deiner Route (Offline-Streifen, auf der Rennkarte oder im Menü «⋯» der Live-Karte). Dann schalte den Flugmodus ein und GPS und Bluetooth wieder an: Die Fahrt wird aufgenommen, die Sensoren und alle Werte laufen. Ohne Internet fehlen Wetter, Gewitter-Warnung, ÖV, Familien-Link und Ortssuche.',
   'Measured by your sensors during the ride, kept on this device.': 'Von deinen Sensoren während der Fahrt gemessen, auf diesem Gerät gespeichert.',
+  'Small map': 'Kleine Karte',
+  'Data page instead of the map': 'Datenseite statt Karte',
+  'After 2 minutes without a touch the first data page shows: the map is not drawn, that saves battery. A warning brings the map back.': 'Nach 2 Minuten ohne Berührung erscheint die erste Datenseite: Die Karte wird nicht gezeichnet, das spart Akku. Ein Hinweis bringt die Karte zurück.',
 };
