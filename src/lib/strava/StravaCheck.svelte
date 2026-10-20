@@ -17,7 +17,7 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { reasonText } from '../kmbook.js';
   import { restoreEntries } from '../kmbookdb.js';
-  import { strava, checkRide, STRAVA_HASH } from './client.svelte.js';
+  import { strava, checkRide, autoAssign, undoAutoAssign, STRAVA_HASH } from './client.svelte.js';
   import StravaChanges from './StravaChanges.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
 
@@ -60,9 +60,25 @@
   }
   async function undo() {
     const put = $state.snapshot(notice?.put ?? []);
+    const auto = $state.snapshot(notice?.auto ?? null);
     notice = null;
-    if (put.length) await restoreEntries(db, { put });
+    if (!put.length) return;
+    if (auto) await undoAutoAssign(db, put, auto);
+    else await restoreEntries(db, { put });
   }
+  // Gesamttest 20.10.2026 B1 (Noah «1a»): a Strava bike that now has an app bike of the same name
+  // (e.g. renamed later): its rides are assigned on opening, with «Undo» (the rides then wait here again).
+  $effect(() => {
+    autoAssign(db)
+      .then((r) => {
+        if (!r?.n) return;
+        clearTimeout(timer);
+        notice = { text: tn(r.n, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.'), put: r.put, auto: r.bikes };
+        timer = setTimeout(() => (notice = null), UNDO_MS);
+      })
+      .catch(() => {});
+    return () => clearTimeout(timer);
+  });
   async function all() {
     const put = [];
     for (const e of $state.snapshot(withSug)) {

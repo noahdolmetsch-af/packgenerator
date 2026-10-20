@@ -553,6 +553,39 @@ export function assignRide(ride, ctx) {
   return out;
 }
 
+/**
+ * Gesamttest 20.10.2026 B1 (Noah «1a»): open rides whose Strava bike now has a bike of the same name
+ * (or a gear rule), e.g. after a bike was renamed. The assignment was saved at import time and never
+ * checked again. Returns [{ entry, bikeId }] for the rides that now fit exactly:
+ * - open, a ride, with a Strava bike name (gear), the reason was «unknown Strava bike» (code 'none');
+ * - the Strava bike names one bike, and assignRide finds no contradiction (sensor, profile, ride
+ *   type) and no unusual distance;
+ * - not already counted: not in the bike's start value, no counted twin of the same ride on it;
+ * - not undone by you before (noAuto), not a Strava bike you ignore (skipGear: names).
+ * Everything else keeps waiting for you.
+ */
+export function rematchOpen(entries = [], { bikes = [], rules = [], skipGear = [] } = {}) {
+  const usual = usualKm(entries);
+  const ctx = { bikes, rules, usual };
+  const starts = {};
+  const out = [];
+  for (const e of entries) {
+    if (e.kind !== 'ride' || e.state !== 'open' || e.noAuto || !e.gear) continue;
+    if (e.reason && e.reason.code !== 'none') continue;
+    if (skipGear.some((g) => same(g, e.gear))) continue;
+    const ride = { ...e, sensors: (e.sensors ?? []).map((fp) => (typeof fp === 'string' ? { fp } : fp)) };
+    const s = signals(ride, ctx);
+    if (!s.gear) continue;
+    const a = assignRide(ride, ctx);
+    if (a.bikeId !== s.gear || a.sure === 'unclear') continue;
+    if (!(a.bikeId in starts)) starts[a.bikeId] = ledgerStart(entries, a.bikeId);
+    if (inStart(starts[a.bikeId], e.date)) continue;
+    if (entries.some((x) => x.id !== e.id && x.bikeId === a.bikeId && x.kind === 'ride' && counts(x) && (sameRide(x, e) || inSpan(x, e.date)))) continue;
+    out.push({ entry: e, bikeId: a.bikeId });
+  }
+  return out;
+}
+
 /** The km of the counted rides per bike (for the distance check). */
 export function usualKm(entries) {
   const out = {};

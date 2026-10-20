@@ -102,11 +102,17 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
   await main.locator('.undo button').click();
   await expect(main.locator('[data-mg-due]')).toBeVisible();
 
-  // the switch leads to Velos and back (phone)
+  // the switch leads to Velos (phone); Velos has no switch any more (Gesamttest 20.10.2026 B7), one quiet row leads back
   if (phone) {
     await page.locator('[data-place-switch] a[href="#/bikes"]').click();
     await expect(page).toHaveURL(/#\/bikes/);
-    await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Bikes|place'));
+    await expect(page.locator('[data-place-switch]')).toHaveCount(0);
+    await page.locator('[data-equipment-link]').click();
+    await expect(page).toHaveURL(/#\/equipment/);
+    await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Equipment|place'));
+  } else {
+    await page.goto('./#/bikes');
+    await expect(page.locator('[data-equipment-link]')).toBeHidden();
   }
   expect(errors).toEqual([]);
 });

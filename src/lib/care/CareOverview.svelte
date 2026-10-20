@@ -3,7 +3,7 @@
    * v0.48.0 «Pflege-Übersicht C» (Noah, «Drei Seiten» C 1-15 a): the top of Velopflege.
    * - one ring per bike (0-100, the share of parts with nothing due; brakes and drivetrain double),
    *   km since the last check and «n due»; a tap opens that bike;
-   * - «Due now»: at most three cards over all bikes, each with its one button and the part's flow;
+   * - «Due now»: every due row over all bikes (Gesamttest 20.10.2026 B6; was three), each with its one button and the part's flow;
    * - the problems of all bikes as one flat list (ProblemList), a milestone («8 weeks without a
    *   breakdown»), km since the last check as bars;
    * - beside: for the bike shop (the order), the costs of the year, the bike diary.
@@ -35,7 +35,9 @@
 
   const bikes = $derived(checks.map((c) => c.bike));
   const rings = $derived(checks.map((c) => ({ c, ring: ringScore(c.bike, c.time, today), km: kmSinceService(c.bike) })));
-  const due = $derived(dueCards(checks, 3));
+  // Gesamttest 20.10.2026 B6: every due row (was 3 and «n more due»: the bar said 5, the page 3)
+  const due = $derived(dueCards(checks, Infinity));
+  const dueProblems = $derived(due.cards.filter((d) => d.row.kind === 'repair' && d.row.task).map((d) => d.row.task.id));
   const calm = $derived(calmWeeks(tasks, bikes, today));
   const log = $derived(diary(bikes, tasks, 5));
   const year = $derived(today.slice(0, 4));
@@ -171,7 +173,7 @@
         </ul>
       </section>
 
-      <ProblemList repairs={problems} {bikes} {today} {bikeIdOf} {onrepair} filterable />
+      <ProblemList repairs={problems} {bikes} {today} {bikeIdOf} {onrepair} filterable above={dueProblems} />
     </div>
 
     <aside class="ovside">

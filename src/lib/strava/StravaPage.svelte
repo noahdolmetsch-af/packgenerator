@@ -11,6 +11,7 @@
    *   the file import as reserve and «Trennen» (the rides stay, unless you choose otherwise).
    * Everything is a suggestion and changeable at any time.
    */
+  import { untrack } from 'svelte';
   import { liveQuery } from 'dexie';
   import { RefreshCw, Link2, Lock, Copy, Check, Bike, FileText, Bell, ArrowRight, Unlink, ChevronRight, Lightbulb } from '@lucide/svelte';
   import VeloHead from '../bikes/VeloHead.svelte';
@@ -19,7 +20,8 @@
   import { RULES_KEY, saveRules } from '../kmbookdb.js';
   import { entryId } from '../kmbook.js';
   import { errorText } from '../stravasync.js';
-  import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, CHECK_HASH } from './client.svelte.js';
+  import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, autoAssign, undoAutoAssign, CHECK_HASH } from './client.svelte.js';
+  import { UNDO_MS } from '../ui/undo.js';
   import StravaChanges from './StravaChanges.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
@@ -65,6 +67,7 @@
     const last = await fetchNow();
     firstBusy = false;
     if (last) summary = last;
+    rematch();
   }
   const per = $derived(Object.entries(summary?.perBike ?? {}).sort((a, b) => b[1].km - a[1].km));
   const seg = (n) => (summary?.counts.found ? `${Math.max(n ? 1 : 0, Math.round((n / summary.counts.found) * 1000) / 10)}%` : '0');
@@ -74,7 +77,34 @@
   async function now() {
     fetched = null;
     fetched = await fetchNow();
+    rematch();
   }
+
+  // Gesamttest 20.10.2026 B1 (Noah «1a»): rides whose Strava bike now has an app bike of the same name
+  // (or a rule) are assigned on opening, after a fetch and after a change below, with «Undo».
+  let auto = $state(null); // { n, put }
+  let autoTimer;
+  function rematch() {
+    autoAssign(db)
+      .then((r) => {
+        if (!r?.n) return;
+        clearTimeout(autoTimer);
+        auto = r;
+        autoTimer = setTimeout(() => (auto = null), UNDO_MS);
+      })
+      .catch(() => {});
+  }
+  async function undoAuto() {
+    const put = $state.snapshot(auto?.put ?? []);
+    const bikes0 = $state.snapshot(auto?.bikes ?? []);
+    auto = null;
+    if (put.length) await undoAutoAssign(db, put, bikes0);
+  }
+  $effect(() => {
+    // right after connecting, the first fetch comes first (first() looks again after it)
+    if (!untrack(() => strava.justConnected)) rematch();
+    return () => clearTimeout(autoTimer);
+  });
   const setPref = (patch) => savePrefs(db, patch);
 
   /** Strava bike ↔ app bike: a gear rule (the import's rules) when it is not the bike of the same name; «Zählt nicht»: ignore. */
@@ -96,6 +126,7 @@
     else if (!(value && sameName(g)?.id === value)) next = [...next, { id: entryId(), kind: 'gear', value: g.name, bikeIds: value ? [value] : [] }];
     await saveRules(db, JSON.parse(JSON.stringify(next)));
     await savePrefs(db, { ignore });
+    rematch();
   }
   const gearSub = (g) => [g.primary ? t('main bike in Strava') : '', g.retired ? t('retired in Strava') : '', g.km != null ? t('{km} km in Strava', { km: num(g.km) }) : ''].filter(Boolean).join(' · ');
 
@@ -222,6 +253,9 @@
           {/if}
           {@render err()}
         </div>
+        {#if auto}
+          <p class="got auto" role="status"><span>{tn(auto.n, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.')}</span><button type="button" class="ulnk" onclick={undoAuto}>{t('Undo')}</button></p>
+        {/if}
         {#if waiting}
           <a class="card wlink" href={CHECK_HASH}><span class="m"><b>{tn(waiting, '{n} ride to check', '{n} rides to check')}</b><small>{t('no bike in Strava · one tap «Fits»')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
         {/if}
@@ -613,6 +647,28 @@
     margin: 0;
     color: var(--ok);
     font-weight: 500;
+  }
+  .got.auto {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 4px 16px;
+    border-radius: var(--radius-card);
+    background: var(--ok-soft);
+    color: var(--ink);
+  }
+  .ulnk {
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
   @media (max-width: 560px) {
     .conn {
