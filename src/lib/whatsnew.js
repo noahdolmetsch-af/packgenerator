@@ -19,17 +19,17 @@ export const WHATS_NEW = [
     // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',
-    title: 'Your tours, your activities',
-    lead: 'Gear for past rides, every climb when planning, Aktiv anew.',
+    title: 'Tours and Aktiv',
+    lead: 'Gear, climbs, Aktiv anew.',
     points: [
-      { text: 'Add the gear to a ride afterwards, with a note per item', href: '#/trips/rides' },
+      { text: 'Add gear to a ride, with notes', href: '#/trips/rides' },
       { text: 'Tour page: big values, a landscape, the weather of the day', href: '#/trips' },
-      { text: 'Plan a tour: a profile by gradient and every climb', href: '#/trips' },
+      { text: 'Plan a tour: profile and climbs', href: '#/trips' },
     ],
     small: [
-      { box: 'new', text: 'Aktiv: «Your week in numbers»; tiles can be edited, hidden and deleted' },
-      { box: 'new', text: 'Choose the map ground on every map, now with a bike map' },
-      { box: 'fixed', text: 'No wrong hint about the AI key any more' },
+      { box: 'new', text: 'Aktiv: week in numbers, tiles to change' },
+      { box: 'new', text: 'Map ground on every map, with a bike map' },
+      { box: 'fixed', text: 'AI key: no wrong hint' },
     ],
     test: [
       'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
