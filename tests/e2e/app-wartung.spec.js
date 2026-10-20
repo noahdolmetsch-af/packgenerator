@@ -67,7 +67,7 @@ test('a copy before an update, the line in the news banner, and back to the stat
   await page.reload();
   await settle(page, { sameTrips: false });
 
-  // «Heute neu» A 5b (0.164.0, changed on purpose): the banner «New in …» is under Ich, not on Today
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner «New in …» is under Ich, not on Today
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
   await page.goto('./#/me');

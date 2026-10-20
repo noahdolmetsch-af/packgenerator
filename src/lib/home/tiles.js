@@ -41,7 +41,7 @@ export const TILES = [
   // «Heute neu» A: «Important today» becomes «Up now»: the round, meditation, the idea for today and what is due
   { id: 'important', area: 'today', label: 'Up now', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is up now: the morning check, meditation, an idea for today, a bike job, the backup.' },
   // «Heute neu» A (Noah «3a»): one calm card in place of Im Flow + Balance, the body, Aktiv and «Your values»
-  { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.164.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
+  { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.165.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
   // v0.110.0 Design-Refresh P10 (I11e): also a whole row, as it sits on top for 14 days after an update

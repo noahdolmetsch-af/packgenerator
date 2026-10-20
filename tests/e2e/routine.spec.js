@@ -10,7 +10,7 @@ import { HN4, withWall } from './wall-fixture.js';
 
 const back = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => addDays(D0, -(from + i)));
 /** The examples, «A walk» ticked the 11 days before today, the banana today and yesterday, a meditation today in Im Flow. */
-// «Heute neu» A (0.164.0): the tile left the ready wall (it stays in the catalog); the device has the HN4 wall with it
+// «Heute neu» A (0.165.0): the tile left the ready wall (it stays in the catalog); the device has the HN4 wall with it
 function data() {
   const d = withWall(homeFixture());
   const items = [...seedItems(), { id: 'test_data_gtp_swim', name: 'test_data_gtp_ Schwimmen', days: [4], link: null, time: null }];
@@ -31,7 +31,7 @@ test('Heute: the routine on top, tick and take back, streak, weekday items, mile
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { data: data() });
-  // HN4: right under the tiles on top (meditation, day card, Important today); since 0.164.0 not on the ready wall
+  // HN4: right under the tiles on top (meditation, day card, Important today); since 0.165.0 not on the ready wall
   expect(HN4().map((x) => x.id).slice(0, HEAD_0155.length + 1)).toEqual([...HEAD_0155, 'routine']);
   expect(READY.map((x) => x.id)).not.toContain('routine');
   const tile = page.locator('.wall [data-tile="routine"]');

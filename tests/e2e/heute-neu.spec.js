@@ -10,7 +10,7 @@ import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
 import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { HN4, withWall } from './wall-fixture.js';
 
-// «Heute neu» A «Ein Blick» (0.164.0, Noah 20.10.2026 «1A … 3a») replaced HN4 as the ready wall. The HN4 tiles
+// «Heute neu» A «Ein Blick» (0.165.0, Noah 20.10.2026 «1A … 3a») replaced HN4 as the ready wall. The HN4 tiles
 // (meditation card, day card, Im Flow + balance, Aktiv …) stay in the catalog: these tests run on a device
 // that keeps the HN4 wall, the last one checks that an old stored wall becomes the new ready wall once.
 

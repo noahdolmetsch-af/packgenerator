@@ -44,7 +44,7 @@ test('W1: after an update a banner names the versions since the last visit, View
   await page.goto('./#/');
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
-  // «Heute neu» A 5b (0.164.0, changed on purpose): the banner is under Ich, not on Today
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner is under Ich, not on Today
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
   await page.goto('./#/me');

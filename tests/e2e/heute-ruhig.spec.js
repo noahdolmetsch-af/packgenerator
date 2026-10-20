@@ -70,7 +70,7 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // mockup A: the 16 functions are small tiles further down the wall)
   if (phone) await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => window.scrollTo(0, 0));
-  // «Heute neu» A (0.164.0, Noah «1A 4a», changed on purpose): «Up now» and the trip card come first; 8 chosen
+  // «Heute neu» A (0.165.0, Noah «1A 4a», changed on purpose): «Up now» and the trip card come first; 8 chosen
   // shortcuts (the other functions back through «+»)
   await expect(page.locator('.wall [data-fn]')).toHaveCount(READY.filter((x) => x.id.startsWith('fn:')).length);
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);

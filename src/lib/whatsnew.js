@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.164.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
-    version: '0.164.0',
+    // v0.165.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
+    version: '0.165.0',
     date: '2026-10-20',
     title: 'Today at one look',
     lead: 'Today is new: one sentence, what is up now, your trip, a calm card «You today» and eight shortcuts.',
@@ -33,6 +33,27 @@ export const WHATS_NEW = [
     test: [
       'Open Today: one sentence on top, then «Up now» beside your trip.',
       'Start the morning check: 3 questions, then «Show more questions».',
+    ],
+  },
+  {
+    // v0.164.0 «Tests automatisieren» (Noah «1a 2a 3a 4a 5a»): the app checks itself, every night and after every update.
+    version: '0.164.0',
+    date: '2026-10-20',
+    title: 'The app checks itself',
+    lead: 'Every night a robot opens all pages; after every update it checks the real app, offline too.',
+    points: [
+      { text: 'Updates now reach the phone by themselves, even when the app stays open' },
+      { text: 'Every night all pages are checked on a phone and a computer; after every update the real app too, offline included' },
+      { text: 'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Zoom buttons on the maps in your language', href: '#/trips' },
+      { box: 'nicer', text: 'Every older data version is tested to arrive complete in the new one' },
+      { box: 'nicer', text: 'The AI helpers are checked once a day' },
+    ],
+    test: [
+      'Leave the app open on the phone: after the next update it reloads by itself when you come back to it.',
+      'Open a map and point at + or −: the button says «Zoom in» in your language.',
     ],
   },
   {

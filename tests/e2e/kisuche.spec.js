@@ -32,6 +32,14 @@ async function start(page, context, info, { chromeAi = false } = {}) {
         availability: async () => 'available',
         create: async () => ({ prompt: async (s) => (window.__prompts.push(s), 'Nimm die Regenjacke oben in die Satteltasche.'), destroy() {} }),
       };
+    } else {
+      // Newer test browsers bring Chrome's own AI along; «without Chrome AI» means it is not there.
+      try {
+        delete window.LanguageModel;
+        Object.defineProperty(window, 'LanguageModel', { configurable: true, value: undefined });
+      } catch {
+        /* not there anyway */
+      }
     }
   }, chromeAi);
   const errors = [];

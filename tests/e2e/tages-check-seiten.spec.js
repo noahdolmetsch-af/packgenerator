@@ -33,7 +33,7 @@ async function open(page, context, time, { speech = false } = {}) {
   await page.goto('./#/');
   await ready(page);
   await flowSeeded(page); // the flow seed is written
-  // «Heute neu» A (0.164.0): the day card and «Deine 15 Fragen» left the ready wall; a wall with them
+  // «Heute neu» A (0.165.0): the day card and «Deine 15 Fragen» left the ready wall; a wall with them
   await putWall(page);
   await ready(page);
   await expect(page.locator('[data-section="flow"]')).toBeVisible();

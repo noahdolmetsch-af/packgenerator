@@ -123,7 +123,7 @@ test('Was mir gut tut on Heute: the values tile and the ride in the evening chec
   page.on('pageerror', (e) => errors.push(e.message));
   const { openHome, homeFixture, D0 } = await import('./home0460-fixture.js');
   const { withWall } = await import('./wall-fixture.js');
-  // «Heute neu» A (0.164.0): the values tile left the ready wall (it stays in the catalog); a wall with it
+  // «Heute neu» A (0.165.0): the values tile left the ready wall (it stays in the catalog); a wall with it
   await openHome(page, context, info, { hour: 9, data: withWall(homeFixture()) });
   await expect(page.locator('[data-tile="values"] [data-data-widget]')).toBeVisible();
   await expect(page.locator('[data-tile="values"]')).toContainText('Deine Werte heute');

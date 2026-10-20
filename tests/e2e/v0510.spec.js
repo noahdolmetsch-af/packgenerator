@@ -139,7 +139,7 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
 // WG «Wi gaht's?» takes over the daily check: the row leads to «Wi gaht's?», its answers show as the numbers
 test('WG the daily check (was «four taps on its page»): the row leads to «Wi gaht\'s?», its answers show on Today', async ({ page, context }) => {
   await open(page, context, '#/', '[data-section="greeting"]');
-  // «Heute neu» A (0.164.0): the day card left the ready wall (it stays in the catalog); a wall with it
+  // «Heute neu» A (0.165.0): the day card left the ready wall (it stays in the catalog); a wall with it
   await flowSeeded(page);
   await putWall(page);
   await expect(page.locator('[data-section="flow"]')).toBeVisible();

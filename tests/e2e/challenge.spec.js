@@ -9,7 +9,7 @@ import { withWall } from './wall-fixture.js';
 test('a suggestion with alternatives becomes a challenge that counts by itself', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // «Heute neu» A (0.164.0): the suggestion tile left the ready wall (it stays in the catalog); a wall with it
+  // «Heute neu» A (0.165.0): the suggestion tile left the ready wall (it stays in the catalog); a wall with it
   const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   const tile = page.getByRole('region', { name: T('Swim or sauna today?') });
   await tile.scrollIntoViewIfNeeded();

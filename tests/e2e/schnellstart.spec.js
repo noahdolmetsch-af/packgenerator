@@ -43,7 +43,7 @@ test('Q1 Q2a: Schnellstart makes a trip for today, Noah stays on Today; Undo del
   const before = (await dbTrips(page)).length;
 
   // Q1: the suggestion of today with the one button
-  // «Heute neu» A (0.164.0, changed on purpose): the suggestion is one row of «Up now»
+  // «Heute neu» A (0.165.0, changed on purpose): the suggestion is one row of «Up now»
   const sugg = page.locator('[data-section="today"] li[data-row="idea"]');
   await expect(sugg).toContainText(pattern(T('Idea: ride up to {h} h with the {bike}, today', { h: '2,5', bike: '§' })));
   const go = sugg.getByRole('button', { name: T('Quick start'), exact: true });

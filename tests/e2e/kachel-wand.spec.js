@@ -51,7 +51,7 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
   // the columns: a small tile is an eighth (computer) or a quarter (phone) of the wall
   const wall = await page.locator('.wall').boundingBox();
-  // «Heute neu» A (0.164.0): «Weigh» left the ready wall; «Note» is one of its 8 shortcuts
+  // «Heute neu» A (0.165.0): «Weigh» left the ready wall; «Note» is one of its 8 shortcuts
   const small = await page.locator('.wall [data-tile="fn:note"]').boundingBox();
   const cols = phone ? 4 : 8;
   expect(Math.abs(small.width - (wall.width - (cols - 1) * (phone ? 8 : 12)) / cols)).toBeLessThan(2);
@@ -70,7 +70,7 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
 test('customise: take away, resize, move, kept after a reload; Reset brings the ready wall back', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // «Heute neu» A (0.164.0): a device with the longer HN4 wall (12 months, New in the app); Reset brings the new ready wall
+  // «Heute neu» A (0.165.0): a device with the longer HN4 wall (12 months, New in the app); Reset brings the new ready wall
   const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   await expect(page.getByRole('region', { name: T('Customise the start page') })).toBeVisible();
@@ -112,7 +112,7 @@ test('customise: take away, resize, move, kept after a reload; Reset brings the 
 
 test('drag a tile by its handle onto another place', async ({ page, context }, info) => {
   test.skip(info.project.name === 'phone', 'the handle is dragged with the mouse here; the phone uses the same pointer events');
-  // «Heute neu» A (0.164.0): series and milestones left the ready wall; a device with the HN4 wall
+  // «Heute neu» A (0.165.0): series and milestones left the ready wall; a device with the HN4 wall
   const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   // v0.155.0: meditation stands first now (HN4); «Milestones», two places after the series, is dragged up instead
@@ -134,7 +134,7 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
 test('a long press on a tile opens customising on a phone', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a long press is a finger thing');
   const T = await openHome(page, context, info);
-  // «Heute neu» A (0.164.0): «Note» is one of the 8 shortcuts of the ready wall
+  // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts of the ready wall
   const tile = page.locator('.wall [data-tile="fn:note"] .st');
   await tile.scrollIntoViewIfNeeded();
   const b = await tile.boundingBox();
@@ -179,7 +179,7 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
 test('one series over everything with the next milestone, a rest week, all milestones on one page', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // «Heute neu» A (0.164.0): the series left the ready wall (it stays in the catalog); a device with the HN4 wall
+  // «Heute neu» A (0.165.0): the series left the ready wall (it stays in the catalog); a device with the HN4 wall
   const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   // the fixture: trips done 3, 9 and 16 days ago (three weeks in a row, this week nothing yet)
   const tile = page.locator('.wall [data-tile="series"] section');
@@ -205,7 +205,7 @@ test('one series over everything with the next milestone, a rest week, all miles
 });
 
 test('Data and backup lives under Me; the playground tile opens the playground there', async ({ page, context }, info) => {
-  // «Heute neu» A (0.164.0): the playground tile left the ready wall; a device with the HN4 wall
+  // «Heute neu» A (0.165.0): the playground tile left the ready wall; a device with the HN4 wall
   const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.locator('.wall [data-tile="play"] button').click();
   await expect(page).toHaveURL(/#\/me$/);

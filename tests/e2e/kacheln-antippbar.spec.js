@@ -26,7 +26,7 @@ async function open(page, context, { update = false } = {}) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
   await settle(page, { sameTrips: false });
-  // «Heute neu» A (0.164.0): Im Flow left the ready wall (it stays in the catalog); a wall with it
+  // «Heute neu» A (0.165.0): Im Flow left the ready wall (it stays in the catalog); a wall with it
   await flowSeeded(page);
   await putWall(page);
   await settle(page, { sameTrips: false });

@@ -48,7 +48,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('section.trip .btn.hi')).toHaveCount(1);
 
   // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the functions are small tiles on the ready wall;
-  // «Heute neu» A (0.164.0, Noah «4a», changed on purpose): 8 chosen shortcuts, the others back through «+»
+  // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): 8 chosen shortcuts, the others back through «+»
   const buttons = page.locator('.wall [data-fn]');
   const fns = READY.filter((x) => x.id.startsWith('fn:'));
   await expect(buttons).toHaveCount(fns.length);
@@ -107,7 +107,7 @@ test('lubed right on Today, with Undo; a function tile opens its page', async ({
   expect((await stored(page, 'bikes', 'bike-test')).parts[0].history).toHaveLength(1);
 
   // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
-  // «Heute neu» A (0.164.0): «Note» is one of the 8 shortcuts
+  // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts
   await page.locator('.wall [data-fn="note"]').click();
   await expect(page).not.toHaveURL(/#\/?$/);
 });

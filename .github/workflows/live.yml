@@ -1,0 +1,93 @@
+# Live-Check (Noah 20.10.2026 «2a»): after every going online, and every morning, a robot checks the
+# real app on GitHub Pages (tests/e2e/live/live.spec.js): Today opens, Ich shows the version that
+# went online, the app starts without network. It also plays an update on a phone that has the old
+# app stored (tests/e2e/live/update.spec.js: an «older» build, then today's, at the same address).
+# Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs it.
+# Only GITHUB_TOKEN, no secret. Free on a public repository.
+name: Live-Check
+
+on:
+  workflow_run:
+    workflows: ['Build and deploy']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '47 5 * * *' # every morning 05:47 UTC, after the Wächter
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: live-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    # after a deploy run only when it went online (a red run deployed nothing)
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: live-check
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # the version that just went online
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build an «older» app and today's app (for the update)
+        run: |
+          APP_VERSION_OVERRIDE=0.0.1 npx vite build --outDir dist-old --emptyOutDir
+          npm run build
+      - name: Check the live app and the update
+        id: test
+        shell: bash # with pipefail: a red test stays red through the tee
+        run: npx playwright test tests/e2e/live/ --project=phone --workers=1 --retries=1 2>&1 | tee live.log
+        env:
+          LIVE: '1'
+      - name: Write the report
+        if: always()
+        id: sum
+        run: |
+          {
+            echo "### Live-Check $(date -u +'%Y-%m-%d %H:%M') UTC"
+            echo
+            echo "Version: $(node -p "require('./package.json').version") · Adresse: https://noahdolmetsch-af.github.io/packgenerator/"
+            echo
+            echo '```'
+            grep -E '✓|✘|passed|failed|flaky|Error:|Expected|Received' live.log | head -40 || true
+            echo '```'
+            echo
+            echo "Ganzer Lauf: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open or update the issue
+        if: failure()
+        run: |
+          gh label create "$LABEL" --color B60205 --description 'Der Live-Check hat einen Fehler an der App gefunden' 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file report.md
+          else
+            {
+              echo 'Der Live-Check hat an der App im Netz einen Fehler gefunden. Claude repariert ihn und bringt dir die Lösung.'
+              echo
+              cat report.md
+            } > body.md
+            gh issue create --title 'Live-Check: die App im Netz braucht Hilfe' --label "$LABEL" --body-file body.md
+          fi
+      - name: Close the issue when all is fine again
+        if: success()
+        run: |
+          for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Alles wieder in Ordnung.$(printf '\n\n')$(cat report.md)"
+          done

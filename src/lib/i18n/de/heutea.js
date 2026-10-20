@@ -28,7 +28,7 @@ export default {
   'Least lately: {area}': 'Zuletzt am wenigsten: {area}',
   'Show {n} more question': 'Noch {n} Frage einblenden',
   'Show {n} more questions': 'Noch {n} Fragen einblenden',
-  // whatsnew 0.164.0
+  // whatsnew 0.165.0
   'Today at one look': 'Heute auf einen Blick',
   'Today is new: one sentence, what is up now, your trip, a calm card «You today» and eight shortcuts.': 'Heute ist neu: ein Satz, was jetzt dran ist, deine Tour, eine ruhige Karte «Du heute» und acht Abkürzungen.',
   '«Up now» gathers the morning check, meditation, the ride idea and what is due, at most four rows': '«Jetzt dran» sammelt Morgen-Check, Meditation, die Velo-Idee und was fällig ist, höchstens vier Zeilen',

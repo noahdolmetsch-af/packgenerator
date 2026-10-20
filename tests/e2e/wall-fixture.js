@@ -1,4 +1,4 @@
-// «Heute neu» A «Ein Blick» (0.164.0, Noah 20.10.2026 «1A … 3a»): the ready wall of Heute is short now; the
+// «Heute neu» A «Ein Blick» (0.165.0, Noah 20.10.2026 «1A … 3a»): the ready wall of Heute is short now; the
 // tiles that left it stay in the catalog («Kachel hinzufügen»). Tests of such a tile put the wall of
 // 0.155–0.163 (HN4) on the device first, as a user who added those tiles would have it.
 import { expect } from '@playwright/test';

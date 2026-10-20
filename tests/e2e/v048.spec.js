@@ -177,7 +177,7 @@ test('Notizen: capture with a checklist, a wish made from a note, one line on To
   await shot(page, info, 'notizen');
   // Today: one line for the pinned note with an open checklist.
   await page.goto('./');
-  // «Heute neu» A (0.164.0): «Jetzt dran» shows 4 rows, the rest behind «Alle n zeigen»
+  // «Heute neu» A (0.165.0): «Jetzt dran» shows 4 rows, the rest behind «Alle n zeigen»
   const up = page.getByRole('region', { name: 'Jetzt dran' });
   await expect(up.locator('li').first()).toBeVisible();
   const all = up.getByRole('button', { name: /^Alle \d+ zeigen/ });

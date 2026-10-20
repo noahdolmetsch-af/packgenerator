@@ -52,7 +52,7 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   await start(page, context, info);
   const hm = /\d[\d'’ .]*\sHm/;
 
-  // SV1: the card «Strava verbinden»; «Später» hides it for good. «Heute neu» A 5b (0.164.0, changed on purpose): on
+  // SV1: the card «Strava verbinden»; «Später» hides it for good. «Heute neu» A 5b (0.165.0, changed on purpose): on
   // top of Ich, no longer on Today
   await page.goto('./');
   await expect(page.locator('[data-section="week"]')).toBeVisible();

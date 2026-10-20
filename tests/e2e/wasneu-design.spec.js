@@ -75,7 +75,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const T = await openHome(page, context, info);
   await updated(page);
   // v0.127.0 A-U1 (changed on purpose): a banner instead of the window, nothing to close first;
-  // «Heute neu» A 5b (0.164.0, changed on purpose): the banner is under Ich, not on Today
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner is under Ich, not on Today
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await page.goto('./#/me');
   await expect(page.locator('[data-news-banner]')).toBeVisible();
@@ -211,7 +211,7 @@ test('I11b: the message after an update: the banner closes with × until the nex
   const T = await openHome(page, context, info);
   await updated(page);
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
-  // «Heute neu» A 5b (0.164.0, changed on purpose): the banner shows under Ich
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner shows under Ich
   await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
   await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();

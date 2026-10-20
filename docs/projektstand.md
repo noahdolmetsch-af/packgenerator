@@ -19,8 +19,9 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 8 | Paket 8 Verpflegung | 0.160.0 | Touren › Verpflegung: Kohlenhydrate und Wasser pro Abschnitt zwischen Läden, Warnungen, eigene Werte und Produkte; mit Läden, Öffnungszeiten und Orten aus der Ortssuche von Paket 7 ; Trainingsplan an Rennen gekoppelt; Kachel «Das tut mir gut» (Kreis, Wochenpunkte, «Hat gut getan?») | Bündler |
 | 10 | Paket 9 | 0.161.0 | Tour-Seite: jede abgeschlossene Tour antippbar, mit Karte, Profil, Werten, Tagebuch; Fahrten verbinden | live (PR #208) |
 | 11 | Gesamttest-Korrekturen | 0.162.0 | Zehn kleine Korrekturen aus dem Rundgang vom 20.10.2026: fehlende Leerzeichen, Unterwegs ohne Tour, Heute ohne «Geplant» bei laufender Tour, Strava «Zum Prüfen» 20 auf einmal, Daten und Gepäck auf Deutsch | live (PR #209, #210) |
-| 12 | Gesamttest Runde 2 | 0.163.0 | Strava gleicher Velo-Name selbst zugeordnet, Reiter «Fahrten» in Touren, Hilfe als eine Zeile, «Gut gemacht» auf Heute, Velopflege ohne Doppelungen | dieser PR |
-| 13 | Heute neu A «Ein Blick» | 0.164.0 | Heute auf einen Blick: ein Satz, «Jetzt dran» (Morgen-Check, Meditation, Velo-Idee, Fälliges, höchstens 4), Tour, «Du heute», Woche, Velos, 8 Abkürzungen, «Alle Bereiche»; Morgen-Check mit 3 Fragen und «Fragen einblenden»; Tipp der Woche unter Ich | dieser PR (Bündler) |
+| 12 | Gesamttest Runde 2 | 0.163.0 | Strava gleicher Velo-Name selbst zugeordnet, Reiter «Fahrten» in Touren, Hilfe als eine Zeile, «Gut gemacht» auf Heute, Velopflege ohne Doppelungen | live (PR #211) |
+| 13 | Tests automatisieren | 0.164.0 | Nacht-Rundgang über alle Seiten, Live-Prüfung nach jedem Update inkl. offline, Zeitkapsel-Test der Datenversionen, KI-Gesundheitsprüfung, Bibliotheken aktuell | live (PR #212) |
+| 14 | Heute neu A «Ein Blick» | 0.165.0 | Heute auf einen Blick: ein Satz, «Jetzt dran» (Morgen-Check, Meditation, Velo-Idee, Fälliges, höchstens 4), Tour, «Du heute», Woche, Velos, 8 Abkürzungen, «Alle Bereiche»; Morgen-Check mit 3 Fragen und «Fragen einblenden»; Tipp der Woche unter Ich | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

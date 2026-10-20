@@ -25,4 +25,15 @@ export default {
   '«new» only on the first new item of a list': '«neu» nur beim ersten neuen Eintrag einer Liste',
   'Open Trips › Rides: your Strava activities on their own tab.': 'Öffne Touren › Fahrten: deine Strava-Aktivitäten im eigenen Reiter.',
   'Open a page a second time: its help is one line «How it works».': 'Öffne eine Seite ein zweites Mal: ihre Hilfe ist eine Zeile «So geht\'s».',
+  // 0.164.0 whatsnew
+  'Every night all pages are checked on a phone and a computer; after every update the real app too, offline included': 'Jede Nacht werden alle Seiten auf Handy und Computer geprüft; nach jedem Update auch die echte App, ohne Netz inklusive',
+  'The app checks itself': 'Die App prüft sich selbst',
+  'Every night a robot opens all pages; after every update it checks the real app, offline too.': 'Jede Nacht öffnet ein Roboter alle Seiten; nach jedem Update prüft er die echte App, auch offline.',
+  'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version': 'Bibliotheken aktuell; Zahlen behalten in jeder Chrome-Version ihren Schweizer Apostroph «1’250»',
+  'Zoom buttons on the maps in your language': 'Zoom-Knöpfe auf den Karten in deiner Sprache',
+  'Every older data version is tested to arrive complete in the new one': 'Jede ältere Datenversion wird getestet, ob sie vollständig in der neuen ankommt',
+  'The AI helpers are checked once a day': 'Die KI-Helfer werden einmal am Tag geprüft',
+  'Updates now reach the phone by themselves, even when the app stays open': 'Updates kommen jetzt von selbst aufs Handy, auch wenn die App offen bleibt',
+  'Leave the app open on the phone: after the next update it reloads by itself when you come back to it.': 'Lass die App auf dem Handy offen: nach dem nächsten Update lädt sie sich neu, sobald du zurückkommst.',
+  'Open a map and point at + or −: the button says «Zoom in» in your language.': 'Öffne eine Karte und zeige auf + oder −: der Knopf sagt «Hineinzoomen» in deiner Sprache.',
 };
