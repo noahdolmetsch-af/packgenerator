@@ -76,6 +76,8 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 | Blatt «Vor der Abfahrt» offline [K] | mittel | Am Tourtag hast du Ticket, Karte und Notfallnummern offline. |
 | Sonne, Mond und Kurztexte zu Orten [K] | mittel | Du weisst, wann es dunkel wird, und lernst etwas über Orte am Weg. |
 | Gleiche Bausteine pro Sportart [O] | gross | Jede Sportart hätte die gleichen 7 Bausteine, ausschaltbar. |
+| Live-Karte: Wind auf der Route (Noah 20.10.2026) | klein | Ein Pfeil zeigt Gegen- oder Rückenwind mit km/h (Open-Meteo). |
+| Live-Karte: Kalorien live aus der Leistung (Noah 20.10.2026) | mittel | Du siehst den Verbrauch und bekommst eine Ess-Erinnerung passend zur Verpflegung. |
 | Gravel: Brunnen und Schotter-Anteil auf der Route [O] | gross | Du weisst vor der Gravel-Tour, wo es Wasser gibt und wie viel Schotter kommt. |
 | Downhill: Schutz-Check, Bikepark-Tag, Runs [O] | mittel | Am Bikepark-Tag ist Schutz und Ersatzteil schnell geprüft. |
 | Notruf-Zeile Rega 1414 und 112 [J] | klein | Im Notfall auf Skitour oder Wanderung ist die Nummer sofort da, auch offline. |
