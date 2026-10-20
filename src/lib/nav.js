@@ -366,7 +366,7 @@ export const PLACE_TABS = {
     { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) }, // Impeccable 20.10.2026: the training plans belong to Training
     // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; N1 (Noah 20.10.2026 «2a»): under Auswerten, same address
     { key: 'rides', label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
-    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
+    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new|auswertung)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
     { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|sports?(\/|\?|$)|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
     // Paket T «Freie Zeit» (Noah 19.10.2026 «1a und b»): Impulse, also under Ich › Freie Zeit
