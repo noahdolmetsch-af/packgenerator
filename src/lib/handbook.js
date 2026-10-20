@@ -981,6 +981,11 @@ export const HANDBOOK = {
     steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
     example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
   },
+  'f.localai': {
+    on: 'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.',
+    steps: ['Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».', 'Tap «Check the speed» to see how quick this device is.', 'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.'],
+    example: 'Example: no signal on the pass, «What is missing for rain?» → the AI on the phone answers from your list.',
+  },
   'f.dictate': {
     on: 'On by default: Me › Appearance › Handling › «Speak instead of type»; below it «Dictation and questions».',
     steps: ['Tap the microphone in a note field and speak; tap stop when you are done.', 'Say «Punkt», «Komma» or «neue Zeile» for the signs.', 'Ask a question in the note: the app answers from your data below it.'],

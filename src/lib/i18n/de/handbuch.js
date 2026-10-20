@@ -1111,4 +1111,13 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «KI im Gerät» (Noah 20.10.2026)
+  'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.':
+    'Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät». Mit Internet antwortet der KI-Helfer, falls eingerichtet.',
+  'Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».': 'Wähl ein Modell (klein und schnell, oder etwas klüger) und tipp «Auf dieses Gerät laden».',
+  'Tap «Check the speed» to see how quick this device is.': 'Tipp «Tempo prüfen»: So siehst du, wie schnell dieses Gerät ist.',
+  'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.':
+    'Stell eine Frage in der Suche oder tipp «KI im Gerät fragen» bei Packliste, Velo-Pflege oder Rückblick.',
+  'Example: no signal on the pass, «What is missing for rain?» → the AI on the phone answers from your list.':
+    'Beispiel: kein Netz auf dem Pass, «Was fehlt bei Regen?» → die KI im Handy antwortet aus deiner Liste.',
 };

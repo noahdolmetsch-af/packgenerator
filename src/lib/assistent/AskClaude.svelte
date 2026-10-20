@@ -9,6 +9,7 @@
   import { MessageCircle } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { claudeUrl } from './elsewhere.js';
+  import LocalAsk from '../localai/LocalAsk.svelte'; // «KI im Gerät» (Noah 20.10.2026 «5b»)
 
   let { ask = '', lines = [], name = '' } = $props();
   let withPage = $state(false);
@@ -21,6 +22,7 @@
     <a class="btn sm acl-go" {href} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" />{t('Talk it through with Claude')}</a>
     <label class="acl-tick"><input type="checkbox" bind:checked={withPage} data-ask-claude-page />{t('Send what this page shows along ({n} lines)', { n: clean.length })}</label>
     <p class="acl-note">{t('Opens claude.ai with your own subscription. The answer comes there.')}</p>
+    <div class="acl-local"><LocalAsk q={ask} lines={clean} online={withPage ? clean : []} {name} /></div>
   </div>
 {/if}
 
@@ -44,6 +46,9 @@
     gap: 8px;
     font-size: var(--fs-small);
     color: var(--ink-2);
+  }
+  .acl-local {
+    flex: 1 1 100%;
   }
   .acl-note {
     flex: 1 1 100%;

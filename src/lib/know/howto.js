@@ -95,6 +95,7 @@ export const HOWTO = {
   'f.compass': ['Open Me › My compass.', 'Add a goal with a day and type its steps.', 'Answer «How is it going?» once a week.'],
   'f.noteformats': ['In a note tap Photo, Link, Place or Sketch.', 'Start a new note from a template, or scan a QR code.', 'Share sends it to Keep, a chat or a mail.'],
   'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
+  'f.localai': ['Open Me › Appearance › Handling › «AI on this device».', 'Choose a model and tap «Load to this device».', 'Ask in the search; it works without internet.'],
   'f.dictate': ['Tap the microphone next to a note.', 'Speak; tap stop when you are done.', 'A question in it gets the app\'s answer.'],
   'f.askfurther': ['Ask the app a question.', 'Tap Claude, ChatGPT or another service.', 'It opens with your question.'],
   'f.aiprojects': ['Open Me › My AI projects.', 'Paste the address of a project or chat.', 'One tap opens it with your account.'],
