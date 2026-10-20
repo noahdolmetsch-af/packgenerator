@@ -622,7 +622,8 @@
       await db.trips.put(touched(nt));
       rememberDomain(area);
       oncreated?.(nt.id);
-      offerDone(t('"{name}" saved.', { name: nt.title }));
+      // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
+      if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): «Soll ich dich vor der Tour erinnern?»
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
@@ -635,7 +636,8 @@
       await db.trips.put(touched($state.snapshot(withSport(withBlocks(nt)))));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
-      offerDone(t('"{name}" saved.', { name: nt.title }));
+      // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
+      if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2: «Soll ich dich vor der Tour erinnern?»
     } else {
       const didChange = edited();
@@ -924,6 +926,11 @@
     {#if isNew && askPrefill && helper.loaded && isSetUp() && isOn()}
       <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
     {/if}
+    {#if isNew && byBike && lastRidden && start !== 'last'}
+      <!-- UI-Grundlagen (Noah 20.10.2026, idea 11 «Wie letztes Mal»): one tap takes the packing list of the last trip on
+           this bike; everything below stays changeable, and «Choose a template» shows the choice. -->
+      <p class="likelast"><History size={18} aria-hidden="true" /><span>{t('Like last time: {name}', { name: lastRidden.title || t('Last trip') })}{#if lastLine}<small>{lastLine}</small>{/if}</span><button type="button" class="btn sm" onclick={pickLast} data-like-last>{t('Take over')}</button></p>
+    {/if}
     {#if isNew}
       <!-- v0.114.0 (answer 2a): «Sportart», Fahrrad first; the other areas behind «+ Andere». -->
       <fieldset class="ctx area">
@@ -1051,7 +1058,10 @@
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
-      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt" data-count-split>{` · ${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}</button>
+      <!-- UI-Grundlagen (Noah 20.10.2026, idea 3): the main button says only what it does; the live count stands
+           as a quiet line above the buttons, so the button never runs over «Discard» on a phone. -->
+      {#if total}<span class="cnt" data-count-split>{`${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}
+      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}</button>
     </div>
   </form>
 </dialog>
@@ -1206,8 +1216,31 @@
     gap: 4px;
     margin-top: 8px;
   }
+  .likelast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--hi-soft);
+    color: var(--ink);
+  }
+  .likelast span {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+  }
+  .likelast small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .cnt {
-    font-weight: 500;
+    flex-basis: 100%;
+    text-align: right;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
   }
   .grid {
     display: grid;
@@ -1524,7 +1557,8 @@
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
     }
-    .foot.fnew .kept {
+    .foot.fnew .kept,
+    .foot.fnew .cnt {
       grid-column: 1 / -1;
     }
     .foot.fnew .btn {

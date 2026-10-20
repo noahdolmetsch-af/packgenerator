@@ -55,7 +55,7 @@
 
 <div class="mp">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: base, label: name }, { href: `${base}/log`, label: t('Logbook') }]} here={t('Patterns')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: base, label: name }, { href: `${base}/log`, label: t('Logbook') }]} here={t('Patterns')} />
     <h1 class="h1" tabindex="-1" data-page-title>{t('Patterns')}</h1>
     <p class="sub">{name} · {t('when it goes deepest · only observation, no rating')}</p>
   </header>

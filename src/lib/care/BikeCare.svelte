@@ -17,7 +17,7 @@
   import { explain } from '../ui/explain.js';
   import { CHECK_KM, bikeLog, EXTRA, needsWork, PART } from '../care.js';
   import { visitTotal, costByYear, costByPart } from '../workshop.js';
-  import { GROUPS, groupOf, lastWork, lastLine, partStatus, usualBy, isDueState, yearSummary, newestFirst } from './last.js';
+  import { GROUPS, groupOf, lastWork, lastLine, partStatus, usualBy, isDueState, yearSummary, newestFirst, kmPerDay } from './last.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikesHash } from '../bikes.js';
   import { bikeCareWords } from '../readiness.js';
@@ -56,11 +56,12 @@
   const mainParts = $derived(open ? partAreas(bike.parts, isMore).main.flatMap((g) => g.parts) : []);
 
   /* ---------- the parts: last work and state ---------- */
+  const pace = $derived(open ? kmPerDay(kmEntries, bike.id, today) : null);
   const rows = $derived(
     open
       ? bike.parts.map((part) => {
           const last = lastWork(part);
-          return { part, last, st: partStatus(bike, part, c.time, today), group: groupOf(part.key) };
+          return { part, last, st: partStatus(bike, part, c.time, today, pace), group: groupOf(part.key) };
         })
       : [],
   );
@@ -619,7 +620,7 @@
   }
   .sub {
     display: block;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .lnk {
@@ -650,14 +651,14 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     flex: none;
   }
   .badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     padding: 1px 8px;
     border-radius: 999px;
@@ -734,22 +735,22 @@
   }
   .saved {
     margin: 6px 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ok);
     font-weight: 700;
   }
   .err {
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
   }
   .quiet,
   .hint {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 6px 0 10px;
   }
@@ -791,7 +792,7 @@
   .last {
     grid-area: last;
     min-width: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     overflow-wrap: break-word;
   }
@@ -804,7 +805,7 @@
   .next {
     grid-area: next;
     min-width: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     overflow-wrap: break-word;
   }
@@ -845,7 +846,7 @@
     padding: 0;
     border: 0;
     background: none;
-    font: 600 16px/1.25 var(--font-body);
+    font: 600 var(--fs-body)/1.25 var(--font-body);
     color: var(--ink);
     text-align: left;
     cursor: pointer;
@@ -901,7 +902,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 15px var(--font-body);
+    font: 500 var(--fs-body) var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -924,7 +925,7 @@
   .gh h3 {
     margin: 10px 0 0;
     padding: 0 0 4px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     color: var(--ink-3);
     border-bottom: 1px solid var(--line);
@@ -943,7 +944,7 @@
     gap: 6px;
   }
   .tl {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .th {
@@ -954,7 +955,7 @@
     flex-wrap: wrap;
     gap: 4px 14px;
     align-items: center;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 10px 0 0;
   }
@@ -1020,7 +1021,7 @@
   }
   .fold.small > summary {
     min-height: 44px;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .plain li {
     display: flex;
@@ -1044,7 +1045,7 @@
     gap: 8px;
     padding: 6px 0;
     border-bottom: 1px solid var(--line);
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .checks + .btn {
     margin-top: 8px;
@@ -1058,7 +1059,7 @@
     gap: 2px 12px;
     padding: 6px 0;
     border-bottom: 1px solid var(--line);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .log li:last-child {
     border-bottom: 0;
@@ -1075,7 +1076,7 @@
   }
   .ch {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .split {
     display: flex;
@@ -1111,7 +1112,7 @@
     border: 0;
     background: none;
     font: inherit;
-    font-size: 15px;
+    font-size: var(--fs-body);
     color: var(--ink);
     text-align: left;
     cursor: pointer;
@@ -1136,7 +1137,7 @@
     justify-content: space-between;
     padding: 4px 0;
     border-top: 1px solid var(--line);
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   @media (max-width: 640px) {
     .log li {
@@ -1155,7 +1156,7 @@
       align-items: center;
     }
     .th {
-      font-size: 13px;
+      font-size: var(--fs-small);
       color: var(--ink-3);
       padding: 10px 0 4px;
       border-bottom: 1px solid var(--line);
@@ -1179,19 +1180,19 @@
     .lt {
       grid-area: last;
       min-width: 0;
-      font-size: 15px;
+      font-size: var(--fs-body);
     }
     .last .kmv {
       grid-area: km;
       text-align: right;
-      font-size: 15px;
+      font-size: var(--fs-body);
     }
     .last .kmv::before,
     .last .kmv::after {
       content: none;
     }
     .next {
-      font-size: 15px;
+      font-size: var(--fs-body);
     }
     .wear,
     .wear:empty {
@@ -1252,12 +1253,12 @@
   }
   .duecards .last {
     display: block;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .duecards .lt,
   .duecards .last .kmv,
   .duecards .next {
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .duecards .last .kmv::before {
     content: ' · ';
@@ -1328,7 +1329,7 @@
      colour without underline; one badge style (small pill: neutral, warn, bad, no data); no bold
      lists; numbers tabular. Only the look changes. */
   .ah-btn {
-    font: 500 18px/1.25 var(--font-body);
+    font: 500 var(--fs-sub)/1.25 var(--font-body);
   }
   .sub,
   .last,
@@ -1353,13 +1354,13 @@
   }
   .part-btn,
   .part-btn.row {
-    font: 500 16px/1.3 var(--font-body);
+    font: 500 var(--fs-body)/1.3 var(--font-body);
     color: var(--ink);
   }
   .part-btn small {
     margin-left: 6px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .late,
   .next.late,
@@ -1372,7 +1373,7 @@
     color: var(--warn);
   }
   .okfold {
-    font: 400 15px var(--font-body);
+    font: 400 var(--fs-body) var(--font-body);
   }
   .okfold .names {
     color: var(--ink-3);
@@ -1380,7 +1381,7 @@
   }
   .fold > summary,
   .fold.small > summary {
-    font: 500 15.5px/1.3 var(--font-body);
+    font: 500 var(--fs-body)/1.3 var(--font-body);
   }
   .badge,
   .badge.n,
@@ -1393,7 +1394,7 @@
     padding: 1px 9px;
     border: 0;
     border-radius: 999px;
-    font: 500 12.5px/1.6 var(--font-body);
+    font: 500 var(--fs-tiny)/1.6 var(--font-body);
     white-space: nowrap;
   }
   .badge,
@@ -1425,7 +1426,7 @@
   }
   .th {
     color: var(--ink-3);
-    font: 500 12px/1.3 var(--font-body);
+    font: 500 var(--fs-tiny)/1.3 var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }

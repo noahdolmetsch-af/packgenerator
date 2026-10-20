@@ -64,7 +64,7 @@
     gap: 4px;
   }
   .note {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     margin: 12px 0 0;
   }
@@ -74,7 +74,7 @@
   .err {
     color: var(--bad);
     min-height: 1.2em;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .foot {
     display: flex;

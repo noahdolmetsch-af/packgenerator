@@ -32,7 +32,7 @@ export default {
   'Open Aktiv › Training and tap a ride.': 'Öffne Aktiv › Training und tippe eine Fahrt an.',
   'Power, load and the analyses stand on its page.': 'Leistung, Belastung und die Analysen stehen auf ihrer Seite.',
   'Tap «…» on an analysis to hide or move it.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben.',
-  'Open Me › Weight.': 'Öffne Ich › Gewicht.',
+  'Open Me › Weight.': 'Öffne Auswerten › Gewicht.',
   'Tap «Enter weight», type it and save.': 'Tippe «Gewicht eintragen», gib es ein und speichere.',
   'The curve and watts per kg follow by themselves.': 'Der Verlauf und Watt pro kg folgen von selbst.',
 };

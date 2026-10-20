@@ -170,15 +170,16 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
   // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, the others on «Show more questions»
   await expect(ab).toHaveJSProperty('open', true);
   if (await ab.locator('[data-ab-more]').count()) await ab.locator('[data-ab-more]').click();
-  await ab.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '7', exact: true }).click();
-  await ab.locator('[data-q="erholung.akku"]').getByRole('button', { name: '6', exact: true }).click();
+  // UI-Ziele #12 (changed on purpose): 5 steps with words, stored as 2 … 10
+  await ab.locator('[data-q="erholung.schlaf"] [data-step="8"]').click();
+  await ab.locator('[data-q="erholung.akku"] [data-step="6"]').click();
   await ab.locator('[data-ab-save]').click();
   // Noah 19.10.2026: the window of the round; what is still due waits with «Später»
   if (await ab.count()) await ab.locator('[data-ab-later]').click();
   await expect(ab).toBeHidden();
   await dk.locator('[data-clock="morning"]').click();
   await expect(card.locator('[data-val]')).toHaveCount(3);
-  await expect(card.locator('[data-val="sleep"]')).toContainText('7');
+  await expect(card.locator('[data-val="sleep"]')).toContainText('8');
   await expect(card.locator('[data-val="energy"]')).toContainText('6');
   await expect(card.locator('[data-val="mood"]')).toContainText('–'); // asked at 13:00, not yet
 });

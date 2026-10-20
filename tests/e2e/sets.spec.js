@@ -205,8 +205,10 @@ test('New trip window: Standard in 3 clicks, no building blocks in it, the live 
   await expect(dlg.getByRole('button', { name: /^\+ test_data_gtp_ Regen/ })).toHaveCount(0);
   await expect(dlg.getByText(T('Building blocks'), { exact: true })).toHaveCount(0);
   const create = dlg.getByRole('button', { name: new RegExp(`^${T('Create trip')}`) });
-  const count = async () => Number((await create.textContent()).match(/(\d+)/)?.[1] ?? 0);
-  await expect(create).toContainText('·');
+  // UI-Grundlagen (Noah 20.10.2026, idea 3, changed on purpose): the live count stands as a quiet line above the button
+  const live = dlg.locator('[data-count-split]');
+  const count = async () => Number((await live.textContent()).match(/(\d+)/)?.[1] ?? 0);
+  await expect(live).toBeVisible();
   const shown = await list.locator('.grp li').count();
   expect(await count()).toBe(shown);
   if (info.project.name === 'phone') {

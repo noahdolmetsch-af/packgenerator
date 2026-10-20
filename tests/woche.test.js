@@ -102,15 +102,16 @@ describe('buildWeek', () => {
 
 describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'gear', 'bikes', 'active']);
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'active']);
+    // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear']);
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
-    expect(PLACE_TABS.week).toHaveLength(3);
+    expect(PLACE_TABS.week).toHaveLength(8); // N1: + Termine, Notizen; UI-Ziele #6: + Eingang, Mail, Kompass, Alltag, Freie Zeit; Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
-    expect(tabOf('week', '#/week/plan')).toBe('plan');
-    expect(tabOf('week', '#/week/away')).toBe('away');
+    expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
+    expect(tabOf('week', '#/week/away')).toBe('week');
   });
 });
 

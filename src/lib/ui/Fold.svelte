@@ -14,7 +14,7 @@
 <style>
   .fold {
     border-top: 1.5px solid var(--line);
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .fold:last-child {
     border-bottom: 1.5px solid var(--line);
@@ -38,11 +38,11 @@
     display: block;
     margin: 0;
     color: var(--ink);
-    font: 500 15.5px/1.3 var(--font-body);
+    font: 500 var(--fs-body)/1.3 var(--font-body);
   }
   .sum {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     line-height: 1.4;
     min-width: 0;
   }

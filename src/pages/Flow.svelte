@@ -288,7 +288,7 @@
 {:else if route[0] === 'goals'}
   <div class="flow">
     <header class="ph">
-      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activities|flow')} />
+      <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Activities|flow')} />
       <h1 class="title">{t('Activities|flow')}</h1>
       <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
     </header>
@@ -350,7 +350,7 @@
 {:else}
   <div class="flow">
     <header class="ph">
-      <h1 class="title">{t('Active|place')}</h1>
+      <h1 class="title">{t('Analysis|place')}</h1>
       <p class="sub" data-today-line>{todayLine}</p>
       <!-- «Skitouren»: in season (November–May) one small row to Touren › Skitouren -->
       {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
@@ -376,7 +376,7 @@
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
           <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
-          <TipLine page="aktiv" name={t('Active|place')} />
+          <TipLine page="aktiv" name={t('Analysis|place')} />
           <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
           <TickSuggest />
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
@@ -429,7 +429,7 @@
           </Sec>
         </aside>
       </div>
-      <PageMore page="aktiv" name={t('Active|place')} />
+      <PageMore page="aktiv" name={t('Analysis|place')} />
       <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
       <PinnedLists place="active" />
       <PageTiles page="flow" />
