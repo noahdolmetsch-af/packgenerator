@@ -68,15 +68,13 @@ test('Strava rides count in This week and Bike this month, a file ride once', as
   await expect(week.locator('.sub')).toContainText(T('{n} days active', { n: 3 }));
   await shot(page, info, 'SZ1-heute-woche', '[data-section="week"]');
 
-  // SZ2 Aktiv: «Bike this month» from the rides and Strava: 280 km, +40 % against September
+  // SZ2 Aktiv: «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
+  // Monat») counts the rides of the 7 days from the app and Strava: 280 km
   await page.goto('./#/flow');
-  const km = page.locator('[data-section="km"]');
-  await expect(km).toContainText('280 km');
-  await expect(km).toContainText('40 %');
-  await expect(page.getByText(T('from your rides and Strava'))).toBeVisible();
+  await expect(page.locator('[data-section="week-numbers"] [data-wn="km"]')).toContainText('280');
   // 0.136.0: the open ride (5) does not count yet, the card names it with the way to «Zum Prüfen»
   const wait = page.locator('[data-km-waiting]');
   await expect(wait).toContainText(T('{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', { n: 1 }));
   await expect(wait).toHaveAttribute('href', '#/bikes?tab=care&view=strava-check');
-  await shot(page, info, 'SZ2-aktiv-monat', '[data-section="km"]');
+  await shot(page, info, 'SZ2-aktiv-monat', '[data-section="week-numbers"]');
 });

@@ -77,12 +77,13 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   await expect(vals).toContainText('140');
   await shot(page, info, 'WU1-heute-woche', '[data-section="week"]');
 
-  // WU2: Aktiv «Bike this month» with metres climbed; without Fitbit the minutes point to the page Fitbit
+  // WU2: Aktiv «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
+  // Monat») with the metres climbed of the 7 days; without Fitbit the minutes point to the page Fitbit
   await page.goto('./#/flow');
-  await expect(page.locator('[data-section="km"] [data-month-hm]')).toContainText(hm);
+  await expect(page.locator('[data-section="week-numbers"] [data-wn="hm"]')).toContainText(/2.?700/);
   await expect(page.locator('[data-section="azm"]')).toContainText(T('Connect Fitbit: then the minutes of every activity count here.'));
   await expect(page.locator('[data-section="azm"]')).toHaveAttribute('href', '#/me/fitbit');
-  await shot(page, info, 'WU2-aktiv-monat', '[data-section="km"]');
+  await shot(page, info, 'WU2-aktiv-monat', '[data-section="week-numbers"]');
 
   // WU3: Aktiv › Goals: three year goals, each can be switched off; the footprint
   await page.goto('./#/flow/goals');

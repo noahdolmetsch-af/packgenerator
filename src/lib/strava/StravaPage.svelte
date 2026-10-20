@@ -20,7 +20,7 @@
   import { RULES_KEY, saveRules } from '../kmbookdb.js';
   import { entryId } from '../kmbook.js';
   import { errorText } from '../stravasync.js';
-  import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, autoAssign, undoAutoAssign, CHECK_HASH } from './client.svelte.js';
+  import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, autoAssign, undoAutoAssign, autoText, CHECK_HASH } from './client.svelte.js';
   import { UNDO_MS } from '../ui/undo.js';
   import StravaChanges from './StravaChanges.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
@@ -254,7 +254,7 @@
           {@render err()}
         </div>
         {#if auto}
-          <p class="got auto" role="status"><span>{tn(auto.n, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.')}</span><button type="button" class="ulnk" onclick={undoAuto}>{t('Undo')}</button></p>
+          <p class="got auto" role="status"><span>{autoText(auto)}</span><button type="button" class="ulnk" onclick={undoAuto}>{t('Undo')}</button></p>
         {/if}
         {#if waiting}
           <a class="card wlink" href={CHECK_HASH}><span class="m"><b>{tn(waiting, '{n} ride to check', '{n} rides to check')}</b><small>{t('no bike in Strava · one tap «Fits»')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
