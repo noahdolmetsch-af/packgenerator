@@ -36,7 +36,9 @@
         if (gone) return;
         L = mod.default ?? mod;
         pts = Array.isArray(saved?.pts) ? saved.pts : [];
-        map = L.map(box, { zoomControl: true, attributionControl: true });
+        map = L.map(box, { zoomControl: false, attributionControl: true });
+        // Nacht-Rundgang 20.10.2026: Leaflet's own zoom buttons were titled in English («Zoom in»)
+        L.control.zoom({ zoomInTitle: t('Zoom in'), zoomOutTitle: t('Zoom out') }).addTo(map);
         L.tileLayer(TILE_URL, { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
         line = L.polyline([], { color: '#4a7360', weight: 4 }).addTo(map);
         dots = L.layerGroup().addTo(map);

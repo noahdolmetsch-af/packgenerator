@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.164.0 «Tests automatisieren» (Noah «1a 2a 3a 4a 5a»): the app checks itself, every night and after every update.
+    version: '0.164.0',
+    date: '2026-10-20',
+    title: 'The app checks itself',
+    lead: 'Every night a robot opens all pages; after every update it checks the real app, offline too.',
+    points: [
+      { text: 'Updates now reach the phone by themselves, even when the app stays open' },
+      { text: 'Every night all pages are checked on a phone and a computer; after every update the real app too, offline included' },
+      { text: 'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Zoom buttons on the maps in your language', href: '#/trips' },
+      { box: 'nicer', text: 'Every older data version is tested to arrive complete in the new one' },
+      { box: 'nicer', text: 'The AI helpers are checked once a day' },
+    ],
+    test: [
+      'Leave the app open on the phone: after the next update it reloads by itself when you come back to it.',
+      'Open a map and point at + or −: the button says «Zoom in» in your language.',
+    ],
+  },
+  {
     // v0.163.0 «Gesamttest 20.10.2026, round 2» (Noah «1a 2a 3a 4a 5a», «alle B, C und Design umsetzen»).
     version: '0.163.0',
     date: '2026-10-20',

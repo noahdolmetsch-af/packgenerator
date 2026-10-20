@@ -2,7 +2,8 @@
 // services. Fictional values only (no real key, token or secret).
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler } from '../api/health.js';
-import { anthropicVerdict, capOf, healthEnv, CACHE_KEY, CREDIT_KEY, MESSAGES_URL, STRAVA_TOKEN_URL, GOOGLE_TOKEN_URL, ENV_NAMES } from '../api/_lib/health.js';
+import { anthropicVerdict, capOf, healthEnv, CACHE_KEY, CREDIT_KEY, MESSAGES_URL, COUNT_URL, EVENING_SAMPLE, STRAVA_TOKEN_URL, GOOGLE_TOKEN_URL, ENV_NAMES } from '../api/_lib/health.js';
+import { GEMINI_URL, GEMINI_DEFAULT_MODEL } from '../api/helper.js';
 
 const REDIS = 'https://redis.example.test';
 const NOW = Date.parse('2026-10-18T10:00:00Z');
@@ -23,7 +24,7 @@ function world({ kv = {}, sets = {}, routes = {}, ping = 'PONG' } = {}) {
       throw new Error(`redis ${cmd}`);
     }
     calls.push({ url: String(url), init });
-    const key = Object.keys(routes).find((p) => String(url).startsWith(p));
+    const key = Object.keys(routes).sort((a, b) => b.length - a.length).find((p) => String(url).startsWith(p)); // the longest address that fits
     if (!key) throw new Error(`unexpected fetch ${url}`);
     return routes[key](String(url), init);
   });
@@ -35,14 +36,17 @@ const run = async (w, e = FULL) => {
   return { status: res.status, body, by: Object.fromEntries(body.checks.map((c) => [c.id, c])) };
 };
 const claudeOk = () => Response.json({ content: [] });
+const countOk = () => Response.json({ input_tokens: 812 });
 
 describe('/api/health', () => {
   it('all fine: 200, every check ok or skipped, never a value in the answer', async () => {
-    const w = world({ routes: { [MESSAGES_URL]: claudeOk } });
+    const w = world({ routes: { [MESSAGES_URL]: claudeOk, [COUNT_URL]: countOk } });
     const { status, body, by } = await run(w);
     expect(status).toBe(200);
     expect(body.ok).toBe(true);
-    expect(Object.keys(by)).toEqual(['env', 'upstash', 'anthropic', 'ki-guthaben', 'strava', 'google', 'sync', 'push', 'tagesgrenze']);
+    expect(Object.keys(by)).toEqual(['env', 'upstash', 'anthropic', 'ki-guthaben', 'strava', 'google', 'sync', 'push', 'gemini', 'abend', 'tagesgrenze']);
+    expect(by.gemini).toMatchObject({ state: 'skip', code: 'not_set_up' });
+    expect(by.abend.state).toBe('ok');
     expect(by.env.state).toBe('ok');
     expect(by.upstash.state).toBe('ok');
     expect(by.anthropic.state).toBe('ok');
@@ -132,6 +136,36 @@ describe('/api/health', () => {
     const { body } = await run(w);
     expect(body.cached).toBe(true);
     expect(w.calls.length).toBe(before);
+  });
+
+  it('«Testfrage an die KI»: Gemini answers a real question; a wrong key or no answer fails, a full Gemini is busy', async () => {
+    const G = GEMINI_URL(GEMINI_DEFAULT_MODEL);
+    const e = { ...FULL, GEMINI_API_KEY: 'gem-test-not-real' };
+    const good = world({ routes: { [MESSAGES_URL]: claudeOk, [G]: () => Response.json({ candidates: [{ content: { parts: [{ text: 'OK' }] } }] }) } });
+    const r1 = await run(good, e);
+    expect(r1.by.gemini).toMatchObject({ state: 'ok', note: 'Testfrage beantwortet' });
+    const sent = good.calls.find((c) => c.url === G);
+    expect(sent.init.headers['x-goog-api-key']).toBe('gem-test-not-real');
+    expect(JSON.parse(sent.init.body).contents[0].parts[0].text).toContain('Testfrage');
+    expect(JSON.stringify(r1.body)).not.toContain('gem-test');
+    expect((await run(world({ routes: { [MESSAGES_URL]: claudeOk, [G]: () => new Response('no', { status: 403 }) } }), e)).by.gemini).toMatchObject({ state: 'fail', code: 'invalid_key' });
+    expect((await run(world({ routes: { [MESSAGES_URL]: claudeOk, [G]: () => Response.json({ candidates: [] }) } }), e)).by.gemini).toMatchObject({ state: 'fail', code: 'no_answer' });
+    expect((await run(world({ routes: { [MESSAGES_URL]: claudeOk, [G]: () => new Response('later', { status: 429 }) } }), e)).by.gemini).toMatchObject({ state: 'ok', code: 'busy' });
+  });
+
+  it('«Bereit für morgen?»: the helper\'s evening request goes to the free token count; a refused request fails', async () => {
+    const good = world({ routes: { [MESSAGES_URL]: claudeOk, [COUNT_URL]: countOk } });
+    const { by } = await run(good);
+    expect(by.abend).toMatchObject({ state: 'ok', code: 'ok' });
+    const sent = JSON.parse(good.calls.find((c) => c.url === COUNT_URL).init.body);
+    expect(sent.system).toContain('evening before a tour');
+    expect(sent.tools[0].name).toBe('answer');
+    expect(sent.messages[0].content).toContain(EVENING_SAMPLE.trip.name);
+    expect(sent).not.toHaveProperty('max_tokens'); // the token count takes no answer length: nothing is written, nothing costs
+    const broken = await run(world({ routes: { [MESSAGES_URL]: claudeOk, [COUNT_URL]: () => Response.json({ error: { type: 'invalid_request_error' } }, { status: 400 }) } }));
+    expect(broken.by.abend).toMatchObject({ state: 'fail', code: 'request_broken' });
+    expect(broken.body.ok).toBe(false);
+    expect((await run(world({ routes: { [MESSAGES_URL]: claudeOk, [COUNT_URL]: () => new Response('', { status: 401 }) } }))).by.abend).toMatchObject({ state: 'fail', code: 'invalid_key' });
   });
 
   it('a check that throws is a fail with code error, the others still run', async () => {

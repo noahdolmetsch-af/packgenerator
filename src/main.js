@@ -1,4 +1,6 @@
 import { mount } from 'svelte';
+// Swiss numbers stay «1’250» in every Chrome version (Noah 20.10.2026), before any page formats one.
+import './lib/swissnum.js';
 // Keep the typefaces available offline and independent of Google Fonts.
 // v0.30.1 (Noah B1): the full sets with their unicode ranges (before: only "latin", without a range),
 // so letters like č, ł, ő, ș in an item name come from the chosen font too instead of the phone's own font
@@ -60,6 +62,7 @@ import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
 import { watchSync } from './lib/sync/auto.svelte.js';
 import SyncAsk from './lib/sync/SyncAsk.svelte';
+import { watchUpdates } from './lib/swupdate.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -87,6 +90,9 @@ if (location.pathname.startsWith('/api/') && 'serviceWorker' in navigator) {
     .then((regs) => Promise.all(regs.map((r) => r.unregister())))
     .then(() => location.reload())
     .catch(() => {});
+} else {
+  // 20.10.2026: a new version also reaches an app that stays open for days (src/lib/swupdate.js)
+  watchUpdates();
 }
 
 // A pull-request preview (Vercel) says so on every page: it has its own, separate data.

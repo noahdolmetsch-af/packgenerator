@@ -9,10 +9,17 @@ const PORT = Number(process.env.E2E_PORT) || 4191;
 // v0.45.1: the Gesamttest (tests/e2e/gesamttest, 700 fictional items, ~166 checks) runs in CI as its own
 // sharded job; the regular e2e job leaves it out with E2E_SKIP_GESAMTTEST=1. Locally both run.
 const skipGesamttest = !!process.env.E2E_SKIP_GESAMTTEST;
+// Noah 20.10.2026 «1a 2a»: the nightly walk through every page (tests/e2e/nachtrundgang, RUNDGANG=1) and the
+// check of the live app (tests/e2e/live, LIVE=1) run only in their own workflows, never in a pull request.
+const ignore = [
+  ...(skipGesamttest ? ['**/gesamttest/**'] : []),
+  ...(process.env.RUNDGANG ? [] : ['**/nachtrundgang/**']),
+  ...(process.env.LIVE ? [] : ['**/live/**']),
+];
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  testIgnore: skipGesamttest ? ['**/gesamttest/**'] : [],
+  testIgnore: ignore,
   timeout: 90_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,
@@ -32,10 +39,13 @@ export default defineConfig({
     { name: 'phone', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'desktop', use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } } },
   ],
-  webServer: {
-    command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}/packgenerator/`,
-    reuseExistingServer: false, // always test a fresh build
-    timeout: 180_000,
-  },
+  // LIVE=1 (tests/e2e/live): the live app on GitHub Pages and two builds the test serves itself; no server here.
+  webServer: process.env.LIVE
+    ? undefined
+    : {
+        command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
+        url: `http://localhost:${PORT}/packgenerator/`,
+        reuseExistingServer: false, // always test a fresh build
+        timeout: 180_000,
+      },
 });

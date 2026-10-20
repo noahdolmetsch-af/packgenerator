@@ -105,6 +105,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**20.10.2026, v0.164.0 «Tests automatisieren»:** die App prüft sich selbst: jede Nacht alle Seiten, nach jedem Deploy die echte App, Zeitkapsel-Test für alle Datenversionen.
+
 **20.10.2026, v0.163.0 «Gesamttest Runde 2»:** alle B-, C- und Design-Befunde der zweiten Runde: Strava gleicher Velo-Name, Reiter «Fahrten», kürzere Hilfe, «Gut gemacht» auf Heute.
 
 **20.10.2026, v0.162.0 «Gesamttest-Korrekturen»:** zehn kleine Korrekturen aus dem Rundgang durch die ganze App (Leerzeichen an 88 Stellen mit Wächter-Test, Unterwegs ohne Tour, Strava «Zum Prüfen» in Zwanzigerschritten). Das neue Heute baut darauf auf.
