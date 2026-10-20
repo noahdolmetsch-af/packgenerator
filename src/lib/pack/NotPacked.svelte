@@ -144,7 +144,7 @@
   .m {
     flex: 1;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .create {
     display: block;
@@ -156,7 +156,7 @@
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     text-align: left;
     overflow-wrap: break-word;
     cursor: pointer;
@@ -190,7 +190,7 @@
     border-bottom: 1px solid var(--line);
     background: var(--paper-2);
     color: var(--ink);
-    font: 600 13px var(--font-body);
+    font: 600 var(--fs-small) var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -260,7 +260,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 400 14px var(--font-body);
+    font: 400 var(--fs-small) var(--font-body);
     text-decoration: underline;
     text-underline-offset: 3px;
     padding: 8px 10px;
@@ -287,7 +287,7 @@
     border-radius: 6px;
     background: var(--hi);
     color: var(--hi-ink);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     text-align: center;
     overflow-wrap: break-word;
     cursor: pointer;
@@ -322,7 +322,7 @@
     border-radius: 4px;
     background: var(--paper);
     color: var(--ink);
-    font: 700 16px/1 var(--font-body);
+    font: 700 var(--fs-body)/1 var(--font-body);
     cursor: pointer;
   }
   @media (max-width: 719px) {

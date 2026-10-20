@@ -95,7 +95,9 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   // P4 Aktiv: «Aktiv neu» (Noah 20.10.2026 «2a», 0.168.0, changed on purpose): «Deine Woche in Zahlen» replaces
   // «Velo diesen Monat» and «Puls diese Woche»; the pulse of each ride stays in P1, P3, P5 and on Today (P6)
   await page.goto('./#/flow');
-  await expect(page.getByRole('heading', { name: T('Your week in numbers') })).toBeVisible();
+  // Garmin-Übersicht (0.170.0, changed on purpose): «Deine Woche in Zahlen» now stands under «Letzte 7 Tage»
+  await expect(page.getByRole('heading', { name: T('Last 7 days') })).toBeVisible();
+  await expect(page.locator('[data-last7]')).toBeVisible();
   await shot(page, info, 'P4-aktiv');
 
   // P5 one ride: heart rate Ø / max beside the numbers (same day and km as the Strava ride)

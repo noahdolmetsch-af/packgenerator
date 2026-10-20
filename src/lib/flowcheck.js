@@ -80,6 +80,8 @@ export function checkOf(c, day) {
     // v0.127.0 «Tages-Check» 2: Q15 on Sundays (1–10 and one sentence), when the morning was first answered
     vision: v10(c?.vision),
     visionNote: typeof c?.visionNote === 'string' ? c.visionNote : '',
+    // Noah 20.10.2026 «frage überspringen»: the questions skipped today on the page (their data-q keys)
+    skip: ids(c?.skip),
     mAt: typeof c?.mAt === 'string' ? c.mAt : null,
   };
 }

@@ -121,11 +121,11 @@
   }
   h3 {
     margin: 16px 0 6px;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .facts {
     margin: 0 0 10px;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .hint {
     font-size: var(--fs-small);
@@ -178,7 +178,7 @@
   .msg {
     width: 100%;
     box-sizing: border-box;
-    font: 14px/1.4 var(--font-body);
+    font: var(--fs-small)/1.4 var(--font-body);
     resize: vertical;
   }
   .foot {
@@ -202,7 +202,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;

@@ -3,6 +3,7 @@
 // Ich › Erinnerungen) and «Not seen for a while». German, phone 390 and desktop 1440, a fixed clock in
 // Europe/Zurich, fictional data only. SHOTS=<folder> saves shots.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
 import { PARTS } from '../../src/lib/alltag.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -33,7 +34,7 @@ const noScroll = (page) => page.evaluate(() => document.documentElement.scrollWi
 
 test('Ich leads to Alltag; its three pages open in German without a wide page', async ({ page, context }, info) => {
   const errors = await open(page, context);
-  await page.locator('[data-me-alltag] a').click();
+  await viaTab(page, 'week', '#/me/alltag'); // UI-Ziele #6: Planen › Alltag
   await expect(page.getByRole('heading', { level: 1, name: T('Everyday life') })).toBeVisible();
   await expect(page.locator('[data-alltag-page]')).toHaveCount(PARTS.length);
   await shot(page, info, 'alltag-hub');

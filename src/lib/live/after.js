@@ -9,7 +9,8 @@
  * ride: the closed recording { id, kind 'rec', tripId, startAt, endAt, pts: [[lat, lon, sec]], km }.
  * Pure, tested in tests/live-after.test.js.
  */
-import { pauses, liveKmCounts, distKm, gainBetween, onRoute } from './live-lib.js';
+import { pauses, pausedS as pausedBetween, liveKmCounts, distKm, gainBetween, onRoute } from './live-lib.js';
+import { statsOf } from './ble.js';
 import { lineKm } from '../race/race.js';
 import { thin } from '../route.js';
 import { zurichDay } from '../spur/spur.js';
@@ -57,10 +58,14 @@ function kmAtStops(fixes, stops) {
  */
 export function rideSummary(ride, trip = null) {
   const fixes = fixesOf(ride);
-  const p = pauses(fixes);
+  const p = pauses(fixes, { breaks: ride?.breaks ?? [] });
   const at = kmAtStops(fixes, p.stops);
   const totalS = fixes.length > 1 ? Math.round((fixes.at(-1).at - fixes[0].at) / 1000) : 0;
-  return { km: r1(Number(ride?.km) || 0), hm: hmOf(ride, trip), movingS: p.movingS, stoppedS: p.stoppedS, totalS, stops: p.stops.map((x, i) => ({ ...x, km: r1(at[i]) })) };
+  // Pausieren und Sensoren (Noah 20.10.2026): the time in your pauses, the pulse, power and cadence of the ride
+  const pausedS = Math.round(pausedBetween(0, Number.MAX_SAFE_INTEGER, (ride?.breaks ?? []).filter((b) => b?.[1] != null)));
+  const sn = ride?.sensors ?? {};
+  const sensors = { hr: statsOf(sn.hr), power: statsOf(sn.power, { noZero: true }), cadence: statsOf(sn.cadence, { noZero: true }) };
+  return { km: r1(Number(ride?.km) || 0), hm: hmOf(ride, trip), movingS: p.movingS, stoppedS: p.stoppedS, totalS, pausedS, sensors, stops: p.stops.map((x, i) => ({ ...x, km: r1(at[i]) })) };
 }
 
 /** The id of the ride row made from a recording (one per recording, so «Debrief» twice makes it once). */
@@ -175,7 +180,7 @@ export function daySum(tracks = [], day) {
   let stoppedS = 0;
   let n = 0;
   for (const r of recs) {
-    const p = pauses(fixesOf(r));
+    const p = pauses(fixesOf(r), { breaks: r.breaks ?? [] });
     km += Number(r.km) || 0;
     movingS += p.movingS;
     stoppedS += p.stoppedS;

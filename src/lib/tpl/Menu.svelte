@@ -89,7 +89,7 @@
     min-height: 44px;
     border: 0;
     background: none;
-    font: 400 15px var(--font-body);
+    font: 400 var(--fs-body) var(--font-body);
     color: var(--ink);
     padding: 0 14px;
     text-align: left;

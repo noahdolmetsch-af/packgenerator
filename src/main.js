@@ -63,6 +63,8 @@ import { SEEN_KEY } from './lib/whatsnew.js';
 import { watchSync } from './lib/sync/auto.svelte.js';
 import SyncAsk from './lib/sync/SyncAsk.svelte';
 import { watchUpdates } from './lib/swupdate.js';
+import FirstStart from './lib/firststart/FirstStart.svelte';
+import { mayAsk } from './lib/firststart.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -167,4 +169,6 @@ settling(async () => {
     watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
     watchTrelloSync(); // Trello (Noah 19.10.2026 «2a»): Merken and the Trello lists, the same way
     autoCheck(db);
+    // «Erster Start» (Noah 20.10.2026 «2a … b auch»): a new, empty app asks once «with examples» or «empty»
+    if (mayAsk()) mount(FirstStart, { target: document.body.appendChild(document.createElement('div')) });
   });

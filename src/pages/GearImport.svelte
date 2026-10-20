@@ -932,7 +932,7 @@
   .q {
     display: block;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .add {
     flex: 1 1 14em;
@@ -950,7 +950,7 @@
   /* Small neutral badges. */
   .badge {
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     padding: 1px 8px;
     border-radius: 99px;
@@ -983,7 +983,7 @@
     min-height: 44px;
     max-width: 100%;
     padding: 6px 12px;
-    font: 500 14px/1.25 var(--font-body);
+    font: 500 var(--fs-small)/1.25 var(--font-body);
     text-align: left;
     border: 1.5px solid var(--line-strong);
     border-radius: 6px;

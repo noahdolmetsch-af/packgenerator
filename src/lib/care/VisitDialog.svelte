@@ -102,11 +102,11 @@
   }
   h3 {
     margin: 16px 0 6px;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .facts {
     margin: 0 0 10px;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .km {
     display: flex;
@@ -126,7 +126,7 @@
   }
   .err {
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 4px 0 0;
   }
   .pages {
@@ -142,7 +142,7 @@
     border: 1.5px solid var(--line);
     border-radius: 6px;
     background: var(--paper);
-    font: 600 13px var(--font-body);
+    font: 600 var(--fs-small) var(--font-body);
     color: var(--ink-2);
     cursor: pointer;
     overflow: hidden;
@@ -197,7 +197,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;

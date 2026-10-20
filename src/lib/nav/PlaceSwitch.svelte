@@ -6,12 +6,14 @@
    */
   import { t } from '../i18n.svelte.js';
 
+  // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Material shares the slot of Velos too, so the switch has three ways.
   let { place } = $props();
 </script>
 
-<nav class="psw" aria-label={t('Bikes or equipment')} data-place-switch>
+<nav class="psw" aria-label={t('Bikes, equipment or gear')} data-place-switch>
   <a href="#/bikes" aria-current={place === 'bikes' ? 'page' : undefined}>{t('Bikes|place')}</a>
   <a href="#/equipment" aria-current={place === 'equipment' ? 'page' : undefined}>{t('Equipment|place')}</a>
+  <a href="#/gear" aria-current={place === 'gear' ? 'page' : undefined}>{t('Gear|place')}</a>
 </nav>
 
 <style>
@@ -21,7 +23,7 @@
   @media (max-width: 719px) {
     .psw {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 4px;
       margin: 0 0 var(--sp-3);
       padding: 4px;

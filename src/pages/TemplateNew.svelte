@@ -239,7 +239,7 @@
     gap: 0 6px;
     margin: 0 0 8px;
     padding: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .steps li:not(:last-child)::after {
@@ -286,7 +286,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-2);
     margin: 8px 0 2px;
@@ -319,7 +319,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 400 16px var(--font-body);
+    font: 400 var(--fs-body) var(--font-body);
     text-align: left;
     padding: 4px 0;
     cursor: pointer;
@@ -349,11 +349,11 @@
   .t small {
     display: block;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .n {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     text-align: right;
     white-space: nowrap;
   }
@@ -386,7 +386,7 @@
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     padding: 3px 0;
   }
@@ -423,7 +423,7 @@
   }
   .note {
     margin: 8px 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .pick {
@@ -476,13 +476,13 @@
     flex: 1;
     min-width: 0;
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .sum b {
     display: block;
     color: var(--ink);
-    font-size: 15px;
+    font-size: var(--fs-body);
     overflow-wrap: break-word;
   }
   .sticky .btn.hi {
@@ -513,7 +513,7 @@
       padding: 14px 16px;
     }
     .side h2 {
-      font-size: 15px;
+      font-size: var(--fs-body);
       margin: 0 0 6px;
       color: var(--ink-3);
     }
@@ -521,11 +521,11 @@
       margin: 0 0 6px;
     }
     .bigw {
-      font-size: 22px;
+      font-size: var(--fs-section);
       font-weight: 700;
     }
     .small {
-      font-size: 14px;
+      font-size: var(--fs-small);
       color: var(--ink-3);
     }
     .sum {

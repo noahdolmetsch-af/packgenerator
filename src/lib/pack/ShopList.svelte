@@ -119,13 +119,13 @@
 {/if}
 
 <style>
-  .shop-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }
+  .shop-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .shop-row > :global(svg:first-child) { color: var(--ink-3); flex: none; }
   .shop-row > span:not(.r) { min-width: 0; overflow-wrap: break-word; }
   .shop-row .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
   .shop-sheet { max-width: 520px; }
   .shop-sheet > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
-  .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: 14px; }
+  .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: var(--fs-small); }
   .ppl { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
   .ppl b { min-width: 2ch; text-align: center; }
   .ppl-n { margin: 0 0 8px; }
@@ -137,6 +137,6 @@
   .shop .nm { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
   .shop .qty { flex: none; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); font-weight: 600; }
   .shop li.done .nm { color: var(--ink-3); text-decoration: line-through; }
-  .copy { display: grid; gap: 6px; margin-top: 12px; font-size: 14px; }
-  .copy textarea { width: 100%; box-sizing: border-box; font: 15px/1.4 var(--font-body); }
+  .copy { display: grid; gap: 6px; margin-top: 12px; font-size: var(--fs-small); }
+  .copy textarea { width: 100%; box-sizing: border-box; font: var(--fs-body)/1.4 var(--font-body); }
 </style>

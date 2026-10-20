@@ -425,7 +425,7 @@
   {/if}
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
-    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else}
     {#if next && nextSoon}{@render trip(next, soonDays)}{/if}
     {#if !openC}
@@ -442,9 +442,12 @@
       onorder={(id) => (orderOpen = id)}
       onrepair={repairResult}
       onwork={() => ((workBike = openId ?? bikes[0]?.id ?? null), (workOpen = true))}
-    />
-    <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
-    {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
+    >
+      {#snippet afterDue()}
+        <!-- Gesamttest 20.10.2026 Design 2: the tip of the day right under «Due now», not above the page -->
+        {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
+      {/snippet}
+    </CareOverview>
     {/if}
 
     {#snippet trip(x, soon = null)}
@@ -515,10 +518,14 @@
           <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
         {/each}
       </div>
+      <!-- UI-Grundlagen (Noah 20.10.2026, idea 4 «Fällig direkt erledigen»): what is open on this bike comes first,
+           so «3 fällig · Ansehen» on Heute lands on the work itself; km book and parts follow. -->
+      {@const openHere = bikeProblems.some((x) => taskBike(x) === openC.bike.id)}
+      {#if openHere}<ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />{/if}
       <!-- keyed: another bike is a fresh page (no part row left open from the bike before) -->
       <section class="per-bike" aria-label={t('Each bike')}>{#key openC.bike.id}{@render bikeCare(openC)}{/key}</section>
       <!-- The problems of this bike stay on its page (the overview lists those of every bike). -->
-      <ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />
+      {#if !openHere}<ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />{/if}
       {#if checks.length > 1}
         <section class="per-bike others" aria-labelledby="others-h">
           <h2 id="others-h" class="oh">{t('Other bikes')}</h2>
@@ -621,7 +628,7 @@
     border: 0;
     background: none;
     color: var(--paper);
-    font: 600 14.5px var(--font-body);
+    font: 600 var(--fs-small) var(--font-body);
     text-decoration: underline;
     text-underline-offset: 3px;
     white-space: nowrap;
@@ -645,7 +652,7 @@
     border-radius: 12px;
     background: var(--ink);
     color: var(--paper);
-    font-size: 14.5px;
+    font-size: var(--fs-small);
     box-shadow: 0 4px 16px var(--shadow);
   }
   .notice .nt {
@@ -764,7 +771,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
@@ -772,7 +779,7 @@
   .x {
     border: 0;
     background: none;
-    font-size: 20px;
+    font-size: var(--fs-section);
     line-height: 1;
     color: var(--ink-3);
     cursor: pointer;
@@ -798,7 +805,7 @@
     color: var(--ink-3);
   }
   .review .name {
-    font-size: 20px;
+    font-size: var(--fs-section);
     font-weight: 700;
     margin: 4px 0;
   }
@@ -818,7 +825,7 @@
     align-items: center;
     gap: 8px 12px;
     margin: 0 0 16px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
 

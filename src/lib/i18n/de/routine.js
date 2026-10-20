@@ -1,9 +1,9 @@
 // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben»)
 export default {
-  'What does me good': 'Das tut mir gut',
+  'What does me good': 'Was mir gut tut',
   'A short list of what does you good, ticked off day by day, with days in a row.': 'Eine kurze Liste, was dir guttut, Tag für Tag abgehakt, mit Tagen in Folge.',
   'A short daily list on Today: tick it off, see days in a row; meditation ticks itself.': 'Eine kurze Liste für jeden Tag auf Heute: abhaken, Tage in Folge sehen; Meditation hakt sich selbst ab.',
-  'Open Today: «What does me good» is on top.': 'Öffne Heute: «Das tut mir gut» ist zuoberst.',
+  'Open Today: «What does me good» is on top.': 'Öffne Heute: «Was mir gut tut» ist zuoberst.',
   'Tap a row to tick it off.': 'Tippe eine Zeile an, um sie abzuhaken.',
   'Tap «Change list» to add or delete items.': 'Tippe «Liste ändern», um Vorsätze hinzuzufügen oder zu löschen.',
   // the examples and suggestions (fictional, generic)

@@ -21,6 +21,8 @@
 
   // v0.68.0 «Q1 Jeder km zählt» (Q1.7 a): q1 on: the column «Start point» (mounted on, at bike km) and
   // «km on part» instead of «Last done» and «since»; a part without one shows «without start point · set».
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS } from '../touren/kurz.js';
   let { bike, time = [], today, onpart, compact = false, q1 = false, onstartpoint = null, bikes = [] } = $props();
 
   const SORTS = [
@@ -67,6 +69,19 @@
     return main;
   });
   const total = $derived(rows.filter((r) => !(PART[r.part.key]?.area === 'checks')).length);
+  // Gesamttest 20.10.2026 C11 / Design 6: on a phone one bike's parts show PHONE_ROWS rows, then «Show n more».
+  // What is due or soon always shows; the rest fills up in the order of the list.
+  let allRows = $state(false);
+  const order = $derived(sort === 'area' ? groups.main.flatMap((g) => g.parts.map((p) => byKey[p.key])) : flat);
+  const shortList = $derived(phone.matches && !q1 && !allRows && order.length > PHONE_ROWS);
+  const shownKeys = $derived.by(() => {
+    if (!shortList) return null;
+    const keys = new Set(order.filter((r) => isDueState(r.st.state) || r.st.state === 'soon').map((r) => r.part.key));
+    for (const r of order) if (keys.size < PHONE_ROWS) keys.add(r.part.key);
+    return keys;
+  });
+  const hiddenN = $derived(shownKeys ? order.length - shownKeys.size : 0);
+  const showRow = (key) => !shownKeys || shownKeys.has(key);
   let moreOpen = $state(false);
   const moreCount = $derived(groups.more.reduce((s, g) => s + g.parts.length, 0));
 
@@ -122,11 +137,16 @@
   <div class="cols" aria-hidden="true"><span>{t('Part')}</span><span>{q1 ? t('Start point: mounted on · at bike km') : t('Last done')}</span><span class="r">{q1 ? t('km on part') : t('since|km')}</span><span>{t('Wear|column')}</span><span>{t('Next|care')}</span><span></span></div>
   {#if sort === 'area'}
     {#each groups.main as g (g.key)}
-      <p class="zlabel">{t(g.name)}</p>
-      <ul class="plist">{#each g.parts as p (p.key)}{@render row(byKey[p.key])}{/each}</ul>
+      {#if g.parts.some((p) => showRow(p.key))}
+        <p class="zlabel">{t(g.name)}</p>
+        <ul class="plist">{#each g.parts.filter((p) => showRow(p.key)) as p (p.key)}{@render row(byKey[p.key])}{/each}</ul>
+      {/if}
     {/each}
   {:else}
-    <ul class="plist">{#each flat as r (r.part.key)}{@render row(r)}{/each}</ul>
+    <ul class="plist">{#each flat.filter((r) => showRow(r.part.key)) as r (r.part.key)}{@render row(r)}{/each}</ul>
+  {/if}
+  {#if hiddenN > 0}
+    <button type="button" class="morebtn" onclick={() => (allRows = true)} data-parts-more><ChevronDown size={18} aria-hidden="true" /><span>{t('Show {n} more|list', { n: hiddenN })}</span></button>
   {/if}
   {#if moreCount}
     <button type="button" class="morebtn" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}>

@@ -123,6 +123,7 @@ export function trimLaps(list, meter = false) {
     name: String(l?.name ?? '').slice(0, 60),
     km: r1((Number(l?.distance) || 0) / 1000),
     s: Math.round(Number(l?.moving_time) || Number(l?.elapsed_time) || 0),
+    el: Math.round(Number(l?.elapsed_time) || 0),
     hm: Math.round(Number(l?.total_elevation_gain) || 0),
     hr: posOr(l?.average_heartrate) ? Math.round(Number(l.average_heartrate)) : null,
     w: meter && posOr(l?.average_watts) ? Math.round(Number(l.average_watts)) : null,
@@ -185,6 +186,113 @@ export function trimExtra(streams) {
   return { tempMin, tempMax, steep };
 }
 
+/**
+ * Tour-Auswertung «wie komoot» (Noah 20.10.2026): the course by distance and the speed over time, still
+ * no position. dprof: the height every `step` km (50 m, coarser on very long rides, at most DPROF_MAX
+ * points), as whole metres, first value then differences; the app smooths and draws it like a planned
+ * route (map/fineprofile.js). sprof: up to SPROF_POINTS rows [minute, km/h] over the whole time, stops 0.
+ */
+export const DPROF_MAX = 6000;
+export const SPROF_POINTS = 400;
+export function trimCourse(streams) {
+  const time = streams?.time?.data;
+  const len = Array.isArray(time) ? time.length : 0;
+  const arr = (k) => (Array.isArray(streams?.[k]?.data) && streams[k].data.length === len ? streams[k].data : null);
+  const dist = arr('distance');
+  const alt = arr('altitude');
+  if (!dist || len < 2) return { dprof: null, sprof: null };
+  const totalKm = (Number(dist[len - 1]) || 0) / 1000;
+  let dprof = null;
+  if (alt && totalKm > 0.1) {
+    let step = 0.05;
+    while (totalKm / step > DPROF_MAX) step *= 2;
+    const n = Math.floor(totalKm / step) + 1;
+    const d = [];
+    let j = 0;
+    let prev = 0;
+    for (let i = 0; i < n; i++) {
+      const m = i * step * 1000;
+      while (j < len - 2 && Number(dist[j + 1]) < m) j++;
+      const [a, b] = [Number(dist[j]), Number(dist[j + 1])];
+      const [ha, hb] = [Number(alt[j]), Number(alt[j + 1])];
+      const h = Math.round(m <= a ? ha : m >= b ? hb : ha + ((hb - ha) * (m - a)) / (b - a || 1));
+      d.push(i ? h - prev : h);
+      prev = h;
+    }
+    dprof = { step, km: Math.round(totalKm * 100) / 100, d };
+  }
+  const t0 = Number(time[0]) || 0;
+  const span = (Number(time[len - 1]) || 0) - t0;
+  let sprof = null;
+  if (span > 0) {
+    const k = Math.min(SPROF_POINTS, len - 1);
+    sprof = [];
+    let j = 0;
+    for (let b = 0; b < k; b++) {
+      const from = t0 + (span * b) / k;
+      const to = t0 + (span * (b + 1)) / k;
+      while (j < len - 1 && Number(time[j + 1]) <= from) j++;
+      let e = j;
+      while (e < len - 1 && Number(time[e]) < to) e++;
+      const dt = Number(time[e]) - Number(time[j]);
+      const dd = Number(dist[e]) - Number(dist[j]);
+      sprof.push([Math.round((from - t0) / 6) / 10, dt > 0 && dd > 0 ? Math.round((dd / dt) * 36) / 10 : 0]);
+    }
+  }
+  return { dprof, sprof, ser: seriesOf(time, dist, arr) };
+}
+
+/**
+ * Strava-Analyse 1:1 (Noah 20.10.2026 «nimm das als vorlage und baue es 1:1 nach»): the curves under the
+ * profile, all on one km grid of at most SER_POINTS steps: t (seconds since the start), alt (m), spd
+ * (km/h × 10), w (W), hr, cad, temp; null where the ride has no such sensor. Mean over each step.
+ */
+export const SER_POINTS = 600;
+function seriesOf(time, dist, arr) {
+  const len = time.length;
+  const totalKm = (Number(dist[len - 1]) || 0) / 1000;
+  if (!(totalKm > 0.2)) return null;
+  let step = 0.05;
+  while (totalKm / step > SER_POINTS) step = Math.round(step * 2 * 1000) / 1000;
+  const n = Math.max(2, Math.ceil(totalKm / step));
+  const srcs = { alt: arr('altitude'), w: arr('watts'), hr: arr('heartrate'), cad: arr('cadence'), temp: arr('temp') };
+  const keys = Object.keys(srcs).filter((k) => srcs[k]);
+  const sum = Object.fromEntries(keys.map((k) => [k, new Array(n).fill(0)]));
+  const cnt = Object.fromEntries(keys.map((k) => [k, new Array(n).fill(0)]));
+  const t = new Array(n).fill(null);
+  const firstT = new Array(n).fill(null);
+  const firstD = new Array(n).fill(null);
+  const lastT = new Array(n).fill(null);
+  const lastD = new Array(n).fill(null);
+  for (let i = 0; i < len; i++) {
+    const d = Number(dist[i]) || 0;
+    const b = Math.min(n - 1, Math.floor(d / 1000 / step));
+    const ti = Number(time[i]) || 0;
+    if (firstT[b] == null) (firstT[b] = ti), (firstD[b] = d);
+    lastT[b] = ti;
+    lastD[b] = d;
+    if (t[b] == null) t[b] = ti;
+    for (const k of keys) {
+      const v = Number(srcs[k][i]);
+      if (Number.isFinite(v) && (k === 'alt' || k === 'temp' || v >= 0)) (sum[k][b] += v), cnt[k][b]++;
+    }
+  }
+  const out = { step, km: Math.round(totalKm * 100) / 100, t: [], spd: [] };
+  for (const k of keys) out[k] = [];
+  let prevT = 0;
+  for (let b = 0; b < n; b++) {
+    const tb = t[b] ?? prevT;
+    out.t.push(Math.round(tb));
+    prevT = tb;
+    // speed over the step, without the time standing still in it (gaps over 30 s)
+    const dd = (lastD[b] ?? 0) - (firstD[b] ?? 0);
+    const dt = (lastT[b] ?? 0) - (firstT[b] ?? 0);
+    out.spd.push(dd > 0 && dt > 0 && dt < 3600 ? Math.round((dd / dt) * 36) : null);
+    for (const k of keys) out[k].push(cnt[k][b] ? Math.round(sum[k][b] / cnt[k][b]) : null);
+  }
+  return out;
+}
+
 /** Strava's heart rate zones: the upper bounds in order, the last open (max -1). */
 export function trimZones(z) {
   const list = Array.isArray(z?.heart_rate?.zones) ? z.heart_rate.zones : [];
@@ -235,19 +343,43 @@ export function best20(time, watts, span = 1200) {
 }
 
 /** The power curve: the best average for each of these spans in seconds (null when too short). */
-export const POWER_SPANS = [5, 60, 300, 1200, 3600];
+// Tour-Auswertung (Noah 20.10.2026 «3a und b»): 2 and 10 minutes too, as on the Garmin
+// Strava-Analyse 1:1 (Noah 20.10.2026): Peak Power 5 s … 1 h and the curve from 1 s to 6 h
+export const POWER_SPANS = [1, 5, 15, 30, 60, 120, 300, 600, 1200, 1800, 2700, 3600, 5400, 7200, 10800, 14400, 21600];
+/** The spans of the heart rate curve in seconds: the best average heart rate over 1, 2, 5, 10 and 20 minutes. */
+export const HR_SPANS = [60, 120, 300, 600, 1200];
+
+/** The heart rate curve: the highest average heart rate for each of HR_SPANS (null when too short), or null without heart rate. */
+export function trimHrCurve(time, hr) {
+  if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return null;
+  const sec = [];
+  for (let i = 0; i < hr.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    const b = Number(hr[i]);
+    if (!(dt > 0 && dt <= 30) || !(b > 0)) continue;
+    for (let k = 0; k < dt; k++) sec.push(b);
+  }
+  if (!sec.length) return null;
+  return HR_SPANS.map((span) => [span, bestOver(sec, span)]);
+}
 export const POWER_BIN = 10;
 
 /** Power, reduced: seconds per 10 W (for the power zones, so a new FTP needs no new call) and the curve. */
 export function trimPower(time, watts) {
   const sec = powerSeconds(time, watts);
-  if (!sec.length) return { pHist: null, pCurve: null };
+  if (!sec.length) return { pHist: null, p25: null, pCurve: null };
   const pHist = {};
   for (const w of sec) {
     const b = Math.floor(w / POWER_BIN) * POWER_BIN;
     pHist[b] = (pHist[b] ?? 0) + 1;
   }
-  return { pHist, pCurve: POWER_SPANS.map((span) => [span, bestOver(sec, span)]) };
+  // the 25 W distribution of the Strava analysis: seconds per 25 W
+  const p25 = {};
+  for (const w of sec) {
+    const b = Math.floor(w / 25) * 25;
+    p25[b] = (p25[b] ?? 0) + 1;
+  }
+  return { pHist, p25, pCurve: POWER_SPANS.map((span) => [span, bestOver(sec, span)]) };
 }
 
 /** Breaks: stops of at least `min` seconds (Strava's moving flag false, or no data for more than 30 s). */
@@ -267,6 +399,9 @@ export function pausesOf(time, moving, min = 60) {
   return { n: long.length, secs: long.reduce((a, b) => a + b, 0) };
 }
 
+/** The kind of detail this server sends (the app's DETAIL_V): 4 = with 2/10 min power and the heart rate curve. */
+export const DETAIL_KIND = 4;
+
 const SEG_MAX = 40;
 /** Own segment times and best efforts (runs); personal records (rank 1–3) first. No route, no leaderboards. */
 export function trimEfforts(list) {
@@ -282,7 +417,7 @@ export function trimStreams(streams) {
   const time = streams?.time?.data;
   const hr = streams?.heartrate?.data;
   const w20 = best20(time, streams?.watts?.data);
-  const more = { ...trimPower(time, streams?.watts?.data), pauses: pausesOf(time, streams?.moving?.data) };
+  const more = { ...trimPower(time, streams?.watts?.data), pauses: pausesOf(time, streams?.moving?.data), hCurve: trimHrCurve(time, hr) };
   if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [], w20, ...more };
   const hist = {};
   for (let i = 0; i < hr.length - 1; i++) {
@@ -583,7 +718,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
           const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one) });
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, p25: pm ? s.p25 : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one), ...trimCourse(pm ? streams : { ...streams, watts: null }), dv: DETAIL_KIND });
         }
         if (step === 'line') {
           // Paket S «Reise-Spur»: one activity's line; Strava's finer line (map.polyline), else the short one

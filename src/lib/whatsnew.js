@@ -35,6 +35,40 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.170.0 «Tagebuch, Form, Heatmap»: Tagebuch, Form und Erholung + Garmin overview, Tour-Auswertung, Heatmap, Check-Fragen, Erster Start, Zürisee and sauna (Noah 20.10.2026); built without mockups
+    version: '0.170.0',
+    date: '2026-10-20',
+    title: 'Live map, diary, form',
+    lead: 'Ride, write, recover.',
+    points: [
+      { text: 'Live map: pause, sensors, turn hints, detours', href: '#/live' },
+      { text: 'Diary: write or speak, with photos', href: '#/tagebuch' },
+      { text: 'Form and recovery: readiness 0–100', href: '#/flow' },
+    ],
+    small: [{ box: 'new', text: 'Heatmap, check questions, Zürisee' }],
+    test: [
+      'Open Me › Diary and write a first entry.',
+      'Open Trips › Look back › Heatmap.',
+    ],
+  },
+  {
+    // v0.169.0 «Neue Leiste und Heute neu»: N1 bar (Noah 20.10.2026 «1a 2a»), N2 Heute (15:49 «1a 2a 3a und b 4b 5a»), UI-Grundlagen (UI-Ziele #12 #15 #16 #17, 17:05 «freigabe»); built without mockups
+    version: '0.169.0',
+    date: '2026-10-20',
+    title: 'New bar, Today anew',
+    lead: 'Five places, your body on top.',
+    points: [
+      { text: 'Bar: Today, Plan, Trips, Analysis, Bikes', href: '#/week' },
+      { text: 'Today: your body and the check on top', href: '#/' },
+      { text: 'Me: only data, settings, help', href: '#/me' },
+    ],
+    small: [{ box: 'nicer', text: 'Warmer colours, round buttons' }],
+    test: [
+      'Tap Plan in the bar: Week, Appointments, Notes and more.',
+      'Open Today: your body stands on top.',
+    ],
+  },
+  {
     // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',

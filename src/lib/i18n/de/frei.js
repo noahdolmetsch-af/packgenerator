@@ -21,7 +21,7 @@ export default {
   /* ---------- Funktionen, Handbuch, So gehts ---------- */
   'Collections, «What am I up for?», your evening, what matters to you, travel wishes, a first night and what to pack next time.': 'Sammlungen, «Worauf hab ich Lust?», dein Abend, was dir wesentlich ist, Reise-Wünsche, eine erste Nacht und was du nächstes Mal packst.',
   '30 small ideas in ten areas, also on Today when there is no ride idea; hide, change or add your own.': '30 kleine Ideen in zehn Bereichen, auch auf Heute, wenn es keine Velo-Idee gibt; ausblenden, ändern oder Eigene dazu.',
-  'Open Me › Free time.': 'Öffne Ich › Freie Zeit.',
+  'Open Me › Free time.': 'Öffne Planen › Freie Zeit.',
   'Choose a page, for example «What am I up for?».': 'Wähl eine Seite, zum Beispiel «Worauf hab ich Lust?».',
   'Tap what fits; your own entries stay on this device and in the backup.': 'Tipp an, was passt; deine Einträge bleiben auf diesem Gerät und im Backup.',
   'Open Active › Impulses.': 'Öffne Aktiv › Impulse.',

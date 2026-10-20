@@ -105,7 +105,7 @@
     border-top: 2px dashed var(--hi-bright);
   }
   .t {
-    font: 11px var(--font-body);
+    font: var(--fs-tiny) var(--font-body);
     fill: var(--ink-3);
   }
   .t.r {

@@ -76,6 +76,13 @@
       saving = false;
     }
   }
+  // Noah 20.10.2026 «eine frage überspringen button, sehr klein und dezent»: this one question is put away
+  // until its next time (like «Heute nicht», for one); the next waiting question moves up
+  function skip(d) {
+    delete draft[d.q.id];
+    delete notes[d.q.id];
+    saveSnooze({ ...(data?.snooze ?? {}), [d.q.id]: d.last ?? d.slot });
+  }
   // «Heute nicht»: every shown question put away until its next time (was «Jetzt nicht»)
   const notToday = () => saveSnooze(snoozeAll(data?.snooze, shown));
   // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
@@ -105,6 +112,15 @@
     busy = !data?.stored || open;
   });
 
+  // UI-Ziele #12 (Noah 20.10.2026 «freigabe»): yesterday's answer marked quietly; after a pick the next question comes into view
+  const yday = $derived(((d) => (d.setUTCDate(d.getUTCDate() - 1), d.toISOString().slice(0, 10)))(new Date(`${today}T12:00:00Z`)));
+  const yesterdayOf = (qid) => lastAnswer((data?.answers ?? []).filter((a) => a.day === yday), qid)?.value ?? null;
+  function next(i) {
+    const el = dialog?.querySelectorAll('[data-q]')[i + 1] ?? dialog?.querySelector('[data-ab-save]');
+    if (!el) return;
+    el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+    (el.matches('button') ? el : el.querySelector('button'))?.focus({ preventScroll: true });
+  }
   let dialog = $state();
   $effect(() => {
     if (!dialog) return;
@@ -133,11 +149,12 @@
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
+            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
             {#each (d.q.src ?? []).filter((s) => s !== 'hand') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
+            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} />
+        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>
         {/if}
@@ -201,6 +218,26 @@
     gap: 6px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* «Überspringen»: small and quiet, still 44 px to tap (the hit area is bigger than the word) */
+  .skip {
+    position: relative;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: 400 var(--fs-tiny) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .skip::after {
+    content: '';
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .skip:hover {
+    color: var(--ink-2);
   }
   .last {
     display: block;

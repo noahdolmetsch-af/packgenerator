@@ -58,6 +58,24 @@ export const KIND_TOKEN = {
   hospital: '--bad',
   atm: '--ink-2',
   view: '--l1',
+  // the MORE kinds of the POI search
+  supermarket: '--l2',
+  bakery: '--l2',
+  icecream: '--hi',
+  bench: '--ink-2',
+  picnic: '--ok',
+  charge: '--warn',
+  bikepark: '--ok',
+  rental: '--ok',
+  bus: '--ink-2',
+  transit: '--ink-2',
+  info: '--l1',
+  swim: '--l3',
+  church: '--ink-2',
+  pass: '--l1',
+  doctor: '--bad',
+  police: '--ink-2',
+  post: '--ink-2',
 };
 /** The plain colour of a kind (for the symbol images). */
 export const kindColour = (colours, kind) => colours[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK['--ink-3'];

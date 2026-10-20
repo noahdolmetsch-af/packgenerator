@@ -6,7 +6,7 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, ChevronDown, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import Seg from '../lib/ui/Seg.svelte';
@@ -21,6 +21,7 @@
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
+  import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn } from '../lib/i18n.svelte.js';
 
   const today = localDay();
@@ -70,6 +71,10 @@
     await saveItems([...items(), it]);
     form = null;
   }
+  // «Handy kürzer» (Noah 20.10.2026 «4b»): on a phone «Still to plan» shows PHONE_ROWS suggestions, then «Show n more»
+  let sgAll = $state(false);
+  const sgShown = $derived(week ? (phone.matches && !sgAll ? week.suggestions.slice(0, PHONE_ROWS) : week.suggestions) : []);
+  const sgMore = $derived(week ? week.suggestions.length - sgShown.length : 0);
   const hidden = (k) => src?.hide.includes(k);
 </script>
 
@@ -132,7 +137,7 @@
           <h2 id="wk-sg">{t('Still to plan')}</h2>
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
           <ul>
-            {#each week.suggestions as s (s.ref)}
+            {#each sgShown as s (s.ref)}
               <li class="k-{s.kind}" data-sugg={s.ref}>
                 <span class="dot" aria-hidden="true"></span>
                 <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? t('suggested: {day}', { day: dayName(s.day) }) : ''].filter(Boolean).join(' · ')}</small></span>
@@ -147,6 +152,9 @@
               <li class="none">{t('Nothing left to plan.')}</li>
             {/each}
           </ul>
+          {#if sgMore > 0}
+            <button type="button" class="phone-more" onclick={() => (sgAll = true)} data-sugg-more><ChevronDown size={16} aria-hidden="true" />{tn(sgMore, 'Show {n} more suggestion', 'Show {n} more suggestions')}</button>
+          {/if}
           <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
         </section>
 
@@ -499,5 +507,22 @@
     .chip {
       min-height: 44px;
     }
+  }
+  /* «Handy kürzer» (Noah 20.10.2026 «4b»): the rest of «Still to plan» after one tap */
+  .phone-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    margin: var(--sp-2) 0 var(--sp-3);
+    padding: 10px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-align: left;
+    cursor: pointer;
   }
 </style>
