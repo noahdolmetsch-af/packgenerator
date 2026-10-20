@@ -99,4 +99,7 @@ export default {
   'What you tick off and your answers to the check questions, evaluated like a ride: tiles, ticks per week, weekdays, time of day, course, best values and per month.': 'Was du abhakst und deine Antworten auf die Check-Fragen, ausgewertet wie eine Fahrt: Kacheln, Haken pro Woche, Wochentage, Tageszeit, Verlauf, Bestwerte und pro Monat.',
   'Choose a period and an activity, or «Your answers».': 'Wähle einen Zeitraum und eine Aktivität, oder «Deine Antworten».',
   'Tap «…» on a card to hide or move it.': 'Tippe «…» auf einer Karte, um sie auszublenden oder zu verschieben.',
+  // part 3: the ride analyses on a tour and in the Rückblick
+  'Activity of the analyses': 'Aktivität der Analysen',
+  'The whole ride in Training': 'Die ganze Fahrt im Training',
 };
