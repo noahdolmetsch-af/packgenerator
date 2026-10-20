@@ -25,6 +25,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 15 | Neueste Version laden | 0.166.0 | Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet (Service Worker und App-Dateien weg, Daten bleiben); Fehlerseite sucht zuerst selbst nach Update; zwei Test-Wettläufe behoben (Listen, Abend-Check) | live (PR #216) |
 | 16 | Heute am Handy | 0.166.1 | «Jetzt dran» rutschte am Handy unter die Tourkarte, wenn Glückwünsche darüber standen; Glückwünsche nur noch eine Zeile | dieser PR |
 | 17 | Balken «Jetzt laden» | 0.167.0 | Jeder Build schreibt version.json; hängt ein Gerät 15 Minuten hinter der Online-Version, zeigt die App oben «Jetzt laden» und «Später» | dieser PR |
+| 18 | Tour-Seite Gepäck und Gestaltung | Bündler | Gepäck nachträglich zu einer Fahrt (wird Packmodus-Tour), Markierung pro Stück mit Notiz (wird Erfahrung), Essen und Trinken, Wetter des Tages, Gewicht; Landschaft oben, persönlicher Satz, gleiche Strecke als Balken, 4 grosse Werte, zwei Spalten, HF-Zonen mit Satz, Tagebuch «Was von dieser Tour bleibt»; Packen zeigt Kleidung bei ähnlichem Wetter | gebaut, beim Bündler |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

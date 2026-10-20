@@ -70,7 +70,8 @@ test('a) a finished tour opens its page: key figures, map, profile, jump bar or 
   await acts(page).locator(`[data-act-row="a:${A}1"]`).click({ position: { x: 30, y: 30 } });
   await expect(page).toHaveURL(new RegExp(`${key(`a:${A}1`).replace(/[/?]/g, '\\$&')}$`));
   await expect(tour(page).getByRole('heading', { level: 1, name: `${A} Abendrunde mit Wattmesser` })).toBeVisible();
-  await expect(tour(page).locator('[data-kpi]')).toHaveCount(6);
+  // Noah 20.10.2026 «vier Werte hervorheben»: Distanz, Höhenmeter, Fahrzeit, Ø HF
+  await expect(tour(page).locator('[data-kpi]')).toHaveCount(4);
   await expect(tour(page).locator('[data-kpi="km"] b')).toContainText('62.4');
   // the map and the profile, linked: the finger on the profile puts a dot on the map
   await expect(tour(page).locator('.tmap')).toBeVisible();
