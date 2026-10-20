@@ -435,7 +435,8 @@
         <div class="diaryw">
           {#if d.kind === 't' && !d.debrief}
             <p class="tp-muted">{t('The diary of a trip is written with its Rückblick: the app drafts it from your rides, weather and notes.')}</p>
-            <a class="btn" href="#/debrief/{encodeURIComponent(d.id)}">{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+            <!-- Impeccable 20.10.2026: the way into the Rückblick stands once on top and in its own part; here only when that part is not shown -->
+            {#if !shows('review')}<a class="btn" href="#/debrief/{encodeURIComponent(d.id)}">{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
           {:else}
             <textarea class="inp diary" rows="6" value={notes.diary ?? ''} oninput={diaryInput} placeholder={t('Write freely …')} aria-label={t('Diary|tour')} data-tour-diary></textarea>
             {#if d.kind === 'a'}<p class="tp-muted tp-small">{t('The same text as the note in Training.')}</p>{/if}

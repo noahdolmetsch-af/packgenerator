@@ -76,4 +76,8 @@ export default {
   "compare it with what you own already": "vergleich mit dem, was du schon hast",
   "Bought": "Gekauft",
   "one tap and it is part of your gear": "ein Tipp und es gehört zu deinem Material",
+
+  // Live: the map explained once
+  "A ride without a tour.": "Eine Fahrt ohne Tour.",
+  "This tour has no route. With a route (GPX) you also get km, arrival and climbs.": "Diese Tour hat keine Route. Mit einer Route (GPX) bekommst du auch km, Ankunft und Steigungen.",
 };
