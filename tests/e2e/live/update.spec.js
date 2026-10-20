@@ -71,3 +71,17 @@ test('Update: the stored old app becomes the new one after the next start, and w
   await context.setOffline(false);
   expect(errors).toEqual([]);
 });
+
+test('Update on an app left open: coming back to the screen brings the new version, without a new start', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  folder = 'dist-old';
+  expect(await version(page)).toContain(`Version ${OLD}`);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
+
+  folder = 'dist'; // the new version is online; the app stays open, nobody reloads it
+  // the phone brings the app back to the screen (Android: back from the background)
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await expect.poll(() => page.locator('main').innerText(), { timeout: 60_000, message: 'die offene App lädt die neue Version von selbst' }).toContain(`Version ${NEW}`);
+  expect(errors).toEqual([]);
+});

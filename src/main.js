@@ -62,6 +62,7 @@ import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
 import { watchSync } from './lib/sync/auto.svelte.js';
 import SyncAsk from './lib/sync/SyncAsk.svelte';
+import { watchUpdates } from './lib/swupdate.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -89,6 +90,9 @@ if (location.pathname.startsWith('/api/') && 'serviceWorker' in navigator) {
     .then((regs) => Promise.all(regs.map((r) => r.unregister())))
     .then(() => location.reload())
     .catch(() => {});
+} else {
+  // 20.10.2026: a new version also reaches an app that stays open for days (src/lib/swupdate.js)
+  watchUpdates();
 }
 
 // A pull-request preview (Vercel) says so on every page: it has its own, separate data.
