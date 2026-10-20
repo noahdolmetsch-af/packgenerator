@@ -102,6 +102,8 @@
     display: inline;
     margin: 0;
     min-height: 0;
+    /* a 44 px tap target: inline padding grows the button, not the line */
+    padding: 8px 0;
     color: inherit;
     font: inherit;
     letter-spacing: inherit;
