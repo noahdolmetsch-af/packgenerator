@@ -101,7 +101,7 @@ test('Ich › Verlauf names the Strava activity and opens its page', async ({ pa
   await page.reload();
   await ready(page);
   const link = page.locator('main [data-act-link="3001"]');
-  await expect(link).toHaveText(`${P}Abendrunde Hügel`);
+  await expect(link).toContainText(`${P}Abendrunde Hügel`); // Aktiv neu 3a: the whole row is the link, with its values
   await link.click();
   await expect(page).toHaveURL(/#\/flow\/training\/a\/3001$/);
   await expect(page.getByRole('heading', { level: 1, name: `${P}Abendrunde Hügel` })).toBeVisible();
