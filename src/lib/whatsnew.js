@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // N1 «Neue Leiste» (Noah 20.10.2026 «1a 2a», brainstorming): Heute · Planen · Touren · Auswerten · Velos.
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'Five places for your day',
+    lead: 'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.',
+    points: [
+      { text: 'Plan: your week, appointments and notes in one place', href: '#/week' },
+      { text: 'Analysis: activity, training, Strava rides and insights together', href: '#/flow' },
+      { text: 'Bikes: equipment and gear are one tap away on top', href: '#/bikes' },
+    ],
+    small: [{ box: 'nicer', text: 'Old links and bookmarks keep working' }],
+    test: [
+      'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
+      'Tap Analysis, then the tab Rides: your Strava rides are there.',
+    ],
+  },
+  {
     // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
     version: '0.166.0',
     date: '2026-10-20',

@@ -16,25 +16,27 @@ const wideOnes = (page) =>
     return [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > w + 1).slice(0, 8).map((e) => `${e.tagName}.${e.className}`);
   });
 
-test('a) Trips: Rides is its own tab, the old address stays Overview', async ({ page, context }, info) => {
+test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
-  // the tabs of Touren (the bar on a phone, the sidebar on a computer) have «Fahrten»
+  await expect(page.locator('section[data-planned]')).toBeVisible();
+  await expect(page.locator('section[data-activities]')).toHaveCount(0);
+  // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): the tabs of Touren no longer have «Fahrten»
+  await expect(page.locator(`a[href="#/trips/rides"]`).filter({ hasText: T('Rides|tab') }).filter({ visible: true })).toHaveCount(0);
+  // Auswerten (the place of Aktiv) has the tab «Fahrten», same address as before
+  await page.locator('nav.bottom a[data-place="active"], .side li[data-place="active"] > a.pa').filter({ visible: true }).first().click();
+  await expect(page).toHaveURL(/#\/flow/);
   const tab = page.locator(`a[href="#/trips/rides"]`).filter({ hasText: T('Rides|tab') }).filter({ visible: true }).first();
   await expect(tab).toBeVisible();
   await tab.click();
   await expect(page).toHaveURL(/#\/trips\/rides$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Rides from Strava') })).toBeVisible();
   await expect(page.locator(`a[href="#/trips/rides"][aria-current="page"]`).filter({ visible: true }).first()).toBeVisible();
+  await expect(page.locator('nav.bottom a[data-place="active"][aria-current="page"], .side li[data-place="active"].on').filter({ visible: true }).first()).toBeVisible();
   await expect(page.locator('section[data-activities]')).toBeVisible();
   await expect(page.locator('section[data-planned], section[data-packmode]')).toHaveCount(0);
   expect(await sideways(page)).toBeLessThanOrEqual(0);
-  // back to Übersicht: the tab bar leads there, the planned trips are back
-  await page.locator(`a[href="#/trips"]`).filter({ hasText: T('Overview|tab') }).filter({ visible: true }).first().click();
-  await expect(page).toHaveURL(/#\/trips$/);
-  await expect(page.locator('section[data-planned]')).toBeVisible();
-  await expect(page.locator('section[data-activities]')).toHaveCount(0);
 });
 
 test('b) Races: rows with a chevron, not underlined links', async ({ page, context }, info) => {

@@ -87,8 +87,8 @@ test('Im Flow: one tap from its card on Today, two taps through More', async ({ 
   const card = page.locator('[data-section="flow"]');
   await card.getByRole('link', { name: /Aktiv|In the flow/ }).click(); // 1 tap
   await expect(page).toHaveURL(/#\/flow$/);
-  // Design-Refresh P8 (A1): the page is titled «Aktiv», like its place
-  await expect(page.locator('main h1')).toHaveText(/^(Aktiv|Active)$/);
+  // Design-Refresh P8 (A1): the page is titled like its place; N1 (Noah 20.10.2026): «Auswerten»
+  await expect(page.locator('main h1')).toHaveText(/^(Auswerten|Analysis)$/);
   await page.goto('./#/');
   // v0.76.0 «Fünf Orte»: Aktiv is a place of its own, one tap from every page
   await page.locator('nav.bottom a[data-place="active"], .side li[data-place="active"] > a.pa').click(); // 1

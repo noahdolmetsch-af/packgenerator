@@ -105,6 +105,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**20.10.2026, v0.167.0 «N1 Neue Leiste»:** Heute · Planen · Touren · Auswerten · Velos; gleiche Adressen.
 **20.10.2026, v0.166.0 «Neueste Version laden»:** Fehlerseite holt die App frisch aus dem Internet, Daten bleiben.
 **20.10.2026, v0.165.0 «Heute neu A»:** Heute auf einen Blick (ein Satz, Jetzt dran, Tour, Du heute, Woche, Velos, 8 Abkürzungen), Morgen-Check mit 3 Fragen.
 **20.10.2026, v0.164.0 «Tests automatisieren»:** die App prüft sich selbst: jede Nacht alle Seiten, nach jedem Deploy die echte App, Zeitkapsel-Test für alle Datenversionen.
