@@ -12,6 +12,8 @@ export default {
   'Waiting for the GPS …': 'Warte auf das GPS …',
   'Start the ride': 'Ausfahrt starten',
   'Continue the ride from {time}': 'Fahrt von {time} weiterführen',
+  'The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.': 'Die App hatte neu geladen: Deine Fahrt läuft weiter. Was du gefahren bist, ist gespeichert; die Zeit dazwischen ist eine Lücke in der Reise-Spur.',
+  'The app had loaded anew: your ride goes on.': 'Die App hatte neu geladen: Deine Fahrt läuft weiter.',
   'Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.': 'Dein Standort läuft nur, solange diese Seite offen ist und der Bildschirm an bleibt. Das braucht Akku: am besten mit dem Handy am Lenker und am Strom. Die Fahrt wird gleichzeitig in der Reise-Spur aufgezeichnet.',
   'Ride done': 'Fahrt beendet',
   '{km} km recorded. The line is in the travel track of the day.': '{km} km aufgezeichnet. Die Linie ist in der Reise-Spur des Tages.',

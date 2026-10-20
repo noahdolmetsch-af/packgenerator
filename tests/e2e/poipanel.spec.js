@@ -99,8 +99,9 @@ test('places around me: chips, one query per tap, list nearest first, Navigate, 
   await tap(panel.locator('[data-poi-list-toggle]'), info);
 
   // remembered after a reload (settings 'poi-search')
+  // the ride goes on by itself after the reload (live-resume): no start tap
   await page.reload();
-  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-resumed-full]')).toBeVisible();
   await expect(page.locator('[data-poi-chip="water"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-poi-chip="toilet"]')).toHaveAttribute('aria-pressed', 'false');
   await noSideways(page, 'after');

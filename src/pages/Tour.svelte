@@ -35,6 +35,11 @@
   import TourProfile from '../lib/touren/TourProfile.svelte';
   import CorrectSheet from '../lib/touren/tour/CorrectSheet.svelte';
   import KpiSheet from '../lib/touren/tour/KpiSheet.svelte';
+  import TourGear from '../lib/touren/tour/TourGear.svelte';
+  import TourLandscape from '../lib/touren/tour/TourLandscape.svelte';
+  import RouteChart from '../lib/touren/tour/RouteChart.svelte';
+  import { routeSeries, personalLine } from '../lib/touren/tourextra.js';
+  import { startPlace, fetchTourWeather, wxSummary } from '../lib/touren/tourwx.js';
   import '../lib/trip/trip.css';
   import { loadTour } from '../lib/touren/tourdata.js';
   import { renameTour, saveOwn, setHidden, saveNotes, deleteTour, undoDelete, leaveTour, restoreGroups } from '../lib/touren/touredit.js';
@@ -50,7 +55,7 @@
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
   import { n0, n1, hours, dates, DASH } from '../lib/review/fmt.js';
-  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, Backpack, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid } from '@lucide/svelte';
+  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart } from '@lucide/svelte';
 
   let { key = '' } = $props();
   const today = localDay();
@@ -69,7 +74,7 @@
   let frac = $state(null);
   const marker = $derived(frac == null ? null : pointAlong(joinedLine(lines), frac));
   const own = $derived(d?.kind === 'a' ? (d.acts[0]?.own ?? {}) : d?.kind === 'g' ? (d.group?.own ?? {}) : (d?.trip?.own ?? {}));
-  const notes = $derived(d?.kind === 'a' ? { diary: d.acts[0]?.note ?? '', ...(d.acts[0]?.own ?? {}) } : d?.kind === 'g' ? (d.group ?? {}) : { diary: d?.debrief?.diary?.text ?? '' });
+  const notes = $derived(d?.kind === 'a' ? { diary: d.acts[0]?.note ?? '', ...(d.acts[0]?.own ?? {}) } : d?.kind === 'g' ? (d.group ?? {}) : { ...(d?.trip?.own ?? {}), diary: d?.debrief?.diary?.text ?? '' });
 
   /* ---- 2 «beides»: tabs or one page with a jump bar ---- */
   let part = $state('overview');
@@ -107,28 +112,47 @@
     return f === 'movingS' ? secs(v) : f === 'km' ? `${n1(v)} km` : `${n0(v)} Hm`;
   };
   const parts = $derived(row ? zoneParts(row.zones) : null);
+  const easyPct = $derived(parts ? parts[0].pct + parts[1].pct : null);
+  // in «Alles auf einer Seite» the key figures stand large in the Übersicht; Werte shows the rest
+  const onTop = (f) => opts.mode === 'all' && opts.kpis.includes(f);
   const zmin = (m) => (m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} h` : t('{n} min', { n: m }));
   const kindName = $derived(row ? t(KIND_NAMES[row.kind] ?? 'Other|kind') : '');
   const sub = $derived(row ? [dates(row.day, row.endDay ?? row.day), kindName, row.bikeId && bikeName[row.bikeId] ? bikeName[row.bikeId] : '', row.n > 1 ? tn(row.n, '{n} activity', '{n} activities') : ''].filter(Boolean).join(' · ') : '');
 
-  /* ---- Gepäck (a trip of the Packmodus) ---- */
-  const itemName = $derived(Object.fromEntries((d?.items ?? []).map((i) => [i.id, nameOf(i)])));
-  const gear = $derived.by(() => {
-    const ents = d?.trip?.entries ?? [];
-    const st = d?.debrief?.items ?? {};
-    const out = { used: [], unused: [], broken: [], open: [] };
-    for (const e of ents) {
-      const s = st[e.itemId];
-      (out[s] ?? out.open).push({ id: e.itemId, name: itemName[e.itemId] ?? e.name ?? e.itemId, qty: e.qty ?? 1 });
+  /* ---- Wetter der Fahrt (Noah 20.10.2026 «4a»): fetched once afterwards, stored with the tour ---- */
+  const wx = $derived(d && !d.missing ? (d.kind === 't' ? (d.trip?.wxReal ?? null) : (d.acts.map((a) => a.weather).find((w) => w?.days?.length) ?? null)) : null);
+  const wxS = $derived(wxSummary(wx, d?.acts?.length === 1 ? d.acts[0] : null));
+  const deg = (a, b) => (a == null ? '' : a === b || b == null ? `${num(a)} °C` : `${num(a)}–${num(b)} °C`);
+  const wxText = $derived(
+    wxS
+      ? [wxS.ride ? t('while riding {t}', { t: deg(wxS.ride.tmin, wxS.ride.tmax) }) : deg(wxS.tmin, wxS.tmax), wxS.mm != null ? (wxS.mm >= 0.5 ? t('{mm} mm rain', { mm: num(wxS.mm) }) : t('dry')) : '', wxS.wind != null ? t('wind up to {kmh} km/h', { kmh: num(Math.max(wxS.wind, wxS.gust ?? 0)) }) : ''].filter(Boolean).join(' · ')
+      : '',
+  );
+  let wxState = $state(''); // '' | 'loading' | 'failed'
+  const tried = new Set();
+  async function loadWeather(force = false) {
+    if (!d || d.missing || d.kind === 'g' && !d.acts.length) return;
+    const k = d.key;
+    if (!force && tried.has(k)) return;
+    tried.add(k);
+    const place = startPlace(d.acts, d.trip);
+    const from = row?.day;
+    const to = row?.endDay ?? from;
+    if (!place || !from || from > today) return;
+    wxState = 'loading';
+    try {
+      const w = await fetchTourWeather(place, from, to, today);
+      if (d.kind === 't') await db.trips.update(d.id, { wxReal: w });
+      else await db.activities.update(d.acts[0].id, { weather: w });
+      wxState = '';
+    } catch {
+      wxState = 'failed';
     }
-    return out;
+  }
+  $effect(() => {
+    // once per tour, when it has none yet and the device is online
+    if (d && !d.missing && !wx && typeof navigator !== 'undefined' && navigator.onLine !== false) loadWeather();
   });
-  const GEAR_GROUPS = [
-    { k: 'used', name: 'Used' },
-    { k: 'unused', name: 'Not used' },
-    { k: 'broken', name: 'Broken' },
-    { k: 'open', name: 'Not looked at yet' },
-  ];
 
   /* ---- Tagebuch: text and photos (photos stay on this device, Paket M fotos.js) ---- */
   const photoKey = $derived(d?.kind === 't' ? d.id : key);
@@ -162,9 +186,24 @@
   }
   const setNote = (k, v) => saveNotes(db, d, { [k]: v });
 
-  /* ---- the same route (one activity) ---- */
+  /* ---- the same route (one activity): a chart (3a) and the personal sentence (2a) ---- */
   const allActsQ = liveQuery(() => db.activities.toArray());
-  const same = $derived(d?.kind === 'a' && d.acts[0] && $allActsQ ? sameRoute($allActsQ, d.acts[0]).list.filter((a) => a.id !== d.acts[0].id).slice(0, 5) : []);
+  const series = $derived(d?.kind === 'a' && d.acts[0] && $allActsQ ? routeSeries(sameRoute($allActsQ, d.acts[0]).list.slice(0, 12), d.acts[0].id) : []);
+  const sayRaw = $derived(personalLine(series, d?.kind === 'a' ? d.acts[0]?.id : null));
+  // a date that ends with a dot («9. Sept.») ends the sentence too
+  const say = $derived(sayRaw ? t(sayRaw.key, { ...sayRaw.vars, ...(sayRaw.vars.day ? { day: dates(sayRaw.vars.day) } : {}) }).replace(/\.\.$/, '.') : '');
+
+  /* ---- the jump bar marks the part on screen (Noah 20.10.2026 «klare aktive Markierung») ---- */
+  let seen = $state('overview');
+  $effect(() => {
+    if (!d || d.missing || opts.mode !== 'all' || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((ents) => {
+      const vis = ents.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (vis) seen = vis.target.dataset.tourPart;
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    for (const el of document.querySelectorAll('[data-tour-part]')) io.observe(el);
+    return () => io.disconnect();
+  });
 
   /* ---- the menu ---- */
   let renaming = $state(false);
@@ -269,6 +308,9 @@
       {/snippet}
       <MoreActions title={name} label={t('More for {what}', { what: name })} {actions} />
     </PathHead>
+    <!-- Noah 20.10.2026 «1a 2a»: a drawn landscape with the route, and one personal sentence when there is one -->
+    <TourLandscape points={prof} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
+    {#if say}<p class="say" data-tour-say>{say}</p>{/if}
     {#if d.kind === 't'}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
       <ul class="rowlist" aria-label={t('Look back|tour')}>
@@ -280,12 +322,15 @@
     <nav class="bar" aria-label={t('Parts of the tour')} data-tour-bar={opts.mode}>
       <div class="chips" role={opts.mode === 'tabs' ? 'tablist' : null}>
         {#each PARTS as p (p.key)}
-          <button type="button" class="tp-chip" role={opts.mode === 'tabs' ? 'tab' : null} aria-selected={opts.mode === 'tabs' ? part === p.key : null} aria-pressed={opts.mode === 'tabs' ? null : false} onclick={() => go(p.key)} data-part={p.key}>{t(p.name)}</button>
+          <button type="button" class="tp-chip" class:on={opts.mode === 'all' && seen === p.key} role={opts.mode === 'tabs' ? 'tab' : null} aria-selected={opts.mode === 'tabs' ? part === p.key : null} aria-pressed={opts.mode === 'tabs' ? null : false} onclick={() => go(p.key)} data-part={p.key}>{t(p.name)}</button>
         {/each}
       </div>
-      <Seg full={false} label={t('Show')} value={opts.mode} options={MODE_OPTS} onchange={(v) => saveOpts({ mode: v })} />
+      <div class="vm"><Seg full={false} label={t('Show')} value={opts.mode} options={MODE_OPTS} onchange={(v) => saveOpts({ mode: v })} /></div>
     </nav>
 
+    <!-- Noah 20.10.2026 «die seitlichen Leerflächen nutzen»: on a computer the values on the left, memories, photos and gear on the right; on a phone one below the other -->
+    <div class="cols" class:two={opts.mode === 'all'}>
+    <div class="cm">
     {#if shows('overview')}
       <section id="tour-overview" class="part-s" aria-labelledby="th-overview" data-tour-part="overview">
         <div class="sh"><h2 id="th-overview">{t('Overview|tour')}</h2><button type="button" class="btn btn-link" onclick={() => (kpiOpen = true)} data-kpi-open><LayoutGrid size={16} aria-hidden="true" />{t('Choose key figures')}</button></div>
@@ -294,12 +339,19 @@
             {@const def = KPIS.find((x) => x.key === k)}
             {@const v = kpiOf(row, k)}
             <li class="kpi" data-kpi={k}>
-              <b class="num">{KPI_FMT[k](v)}{#if def.unit && v != null}{' '}<small>{def.unit === 'bpm' ? t('bpm') : def.unit}</small>{/if}</b>
+              <b class="num">{#if k === 'hf' || k === 'hfmax'}<Heart class="hico" size={18} aria-hidden="true" />{/if}{KPI_FMT[k](v)}{#if def.unit && v != null}{' '}<small>{def.unit === 'bpm' ? t('bpm') : def.unit}</small>{/if}</b>
               <span>{t(def.name)}</span>
               {#if isChanged(k)}<small class="was" data-was={k}>{t('changed · Strava: {v}', { v: stravaWas(k) })}</small>{/if}
             </li>
           {/each}
         </ul>
+        <p class="wx" data-tour-weather>
+          <CloudSun size={18} aria-hidden="true" />
+          {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
+          {:else if wxState === 'loading'}<span class="tp-muted">{t('Getting the weather of that day …')}</span>
+          {:else if wxState === 'failed'}<span class="tp-muted">{t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
+          {:else}<span class="tp-muted">{t('No weather yet: it comes when you are online.')}</span>{/if}
+        </p>
         {#if lines.length}
           <div class="mapw"><TourMap {lines} {marker} height={phone.matches ? 300 : 400} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name })} /></div>
         {:else}
@@ -312,17 +364,18 @@
     {#if shows('values')}
       <section id="tour-values" class="part-s" aria-labelledby="th-values" data-tour-part="values">
         <div class="sh"><h2 id="th-values">{t('Values|tour')}</h2><button type="button" class="btn btn-link" onclick={() => (correcting = true)} data-correct-open><SlidersHorizontal size={16} aria-hidden="true" />{t('Correct values')}</button></div>
-        <div class="card pad">
+        <div class="card pad vcard">
           <dl class="vals" data-tour-values>
-            <div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>
-            <div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>
-            {#each fieldsOf(row) as f (f)}
+            <!-- Noah 20.10.2026: the main values stand large above (Übersicht); here the details, quieter -->
+            {#if !onTop('km')}<div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>{/if}
+            {#if !onTop('hm')}<div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>{/if}
+            {#each fieldsOf(row).filter((f) => !onTop(f)) as f (f)}
               {@const [label, value, unit] = FIELD[f](row)}
               <div class="vc" data-field={f}><dt>{label}{#if f === 'dauer' || f === 'verstr'}<Help {label} text={t(FIELD_HELP[f === 'dauer' ? 'moving' : 'elapsed'])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}{#if f === 'dauer' && isChanged('dauer')}<small class="was">{t('Strava: {v}', { v: stravaWas('dauer') })}</small>{/if}</dd></div>
             {/each}
           </dl>
           <div class="zones">
-            <p class="zl">{t('Time in HR zones')}</p>
+            <p class="zl">{t('Time in HR zones')}{#if easyPct != null}<span class="zsum" data-zone-sum>{t('{p} % of your time in zone 1–2', { p: easyPct })}</span>{/if}</p>
             {#if parts}
               <ZoneBar secs={row.zones} h={12} />
               <ul class="zv">{#each parts as p, i (i)}<li><b class="z{i + 1}">Z{i + 1}</b><span class="num">{zmin(p.min)}</span><small class="num">{p.pct} %</small></li>{/each}</ul>
@@ -342,45 +395,33 @@
           {/if}
         {/if}
         {#if d.kind === 'a'}<p class="more"><a class="btn btn-link" href="#/flow/training/a/{encodeURIComponent(d.id)}" data-training-link><Activity size={16} aria-hidden="true" />{t('All values, laps and segments in Training')}<ChevronRight size={16} aria-hidden="true" /></a></p>{/if}
-        {#if same.length}
+        {#if series.length > 1}
           <h3 class="h3">{t('Same route, other days')}</h3>
-          <ul class="card acts" data-same-route>
-            {#each same as a (a.id)}<li><a href={tourHref(`a:${a.id}`)}><span class="an">{dates(a.day)}</span><span class="tp-muted tp-small num">{secs(a.movingS)} · {n1(a.km)} km</span><ChevronRight size={16} aria-hidden="true" /></a></li>{/each}
-          </ul>
+          <RouteChart {series} hrefOf={(id) => tourHref(`a:${id}`)} fmt={secs} />
         {/if}
       </section>
     {/if}
 
+    </div>
+    <div class="cs">
     {#if shows('pack')}
       <section id="tour-pack" class="part-s" aria-labelledby="th-pack" data-tour-part="pack">
         <div class="sh"><h2 id="th-pack">{t('Gear|tour')}</h2></div>
-        {#if d.kind === 't' && (d.trip?.entries ?? []).length}
-          <div class="card pad gear" data-tour-gear>
-            {#each GEAR_GROUPS as g (g.k)}
-              {#if gear[g.k].length}
-                <h3 class="h3">{t(g.name)} <span class="tp-muted num">{num(gear[g.k].length)}</span></h3>
-                <ul class="glist">{#each gear[g.k] as it (it.id)}<li>{it.name}{#if it.qty > 1}<span class="tp-muted num"> × {it.qty}</span>{/if}</li>{/each}</ul>
-              {/if}
-            {/each}
-          </div>
-        {:else}
-          <div class="card pad" data-no-gear>
-            <p class="tp-muted"><Backpack size={18} aria-hidden="true" /> {d.kind === 't' ? t('This trip has no packing list.') : t('You did not pack this tour in the app. Next time: plan a trip with a packing list, then it shows here what came along and what you used.')}</p>
-            <button type="button" class="btn" onclick={() => openNew('list')}><Plus size={16} aria-hidden="true" />{t('New trip')}</button>
-          </div>
-        {/if}
+        <TourGear {d} {name} wxLine={wxText ? `${t('Weather')}: ${wxText}` : ''} />
       </section>
     {/if}
 
     {#if shows('diary')}
       <section id="tour-diary" class="part-s" aria-labelledby="th-diary" data-tour-part="diary">
-        <div class="sh"><h2 id="th-diary">{t('Diary|tour')}</h2></div>
-        <div class="card pad">
+        <!-- Noah 20.10.2026 «Das Tagebuch persönlicher gestalten» -->
+        <div class="sh"><h2 id="th-diary">{t('What stays of this tour')}</h2></div>
+        <p class="impulse">{t('A special moment, a meeting or something you learned.')}</p>
+        <div class="diaryw">
           {#if d.kind === 't' && !d.debrief}
             <p class="tp-muted">{t('The diary of a trip is written with its Rückblick: the app drafts it from your rides, weather and notes.')}</p>
             <a class="btn" href="#/debrief/{encodeURIComponent(d.id)}">{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
           {:else}
-            <textarea class="inp diary" rows="6" value={notes.diary ?? ''} oninput={diaryInput} placeholder={t('What was it like? Who was there, what did you see, what do you want to remember?')} aria-label={t('Diary|tour')} data-tour-diary></textarea>
+            <textarea class="inp diary" rows="6" value={notes.diary ?? ''} oninput={diaryInput} placeholder={t('Write freely …')} aria-label={t('Diary|tour')} data-tour-diary></textarea>
             {#if d.kind === 'a'}<p class="tp-muted tp-small">{t('The same text as the note in Training.')}</p>{/if}
           {/if}
           {#if photos.length}
@@ -398,7 +439,7 @@
       <section id="tour-review" class="part-s" aria-labelledby="th-review" data-tour-part="review">
         <div class="sh"><h2 id="th-review">{t('Look back|tour')}</h2></div>
         <div class="card pad">
-          {#if d.kind === 't'}
+          {#if d.kind === 't' && !d.trip?.fromActs?.length}
             <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</p>
             {#if d.debrief?.note}<p class="quote">{d.debrief.note}</p>{/if}
             <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
@@ -409,10 +450,14 @@
             </div>
             <label class="lf"><span>{t('What was good?')}</span><textarea class="inp" rows="2" value={notes.good ?? ''} onchange={(e) => setNote('good', e.currentTarget.value.trim())} data-tour-good></textarea></label>
             <label class="lf"><span>{t('Next time')}</span><textarea class="inp" rows="2" value={notes.next ?? ''} onchange={(e) => setNote('next', e.currentTarget.value.trim())} data-tour-next></textarea></label>
+            {#if d.kind === 't'}<a class="btn" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
           {/if}
         </div>
       </section>
     {/if}
+
+    </div>
+    </div>
 
     <section class="part-s" aria-labelledby="th-make" data-tour-make>
       <div class="sh"><h2 id="th-make">{t('Make something of it')}</h2></div>
@@ -445,8 +490,30 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 22px;
-    max-width: 1080px;
+    max-width: 1240px;
     margin: 0 auto;
+  }
+  /* Noah 20.10.2026: fewer white cards that all look the same: a fine line instead of a shadow */
+  .tour :global(.card) {
+    box-shadow: none;
+  }
+  .say {
+    margin: -6px 0 0;
+    font: 700 var(--fs-sub) / 1.35 var(--font-body);
+  }
+  .cols,
+  .cm,
+  .cs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 28px;
+  }
+  @media (min-width: 1100px) {
+    .cols.two {
+      grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+      gap: 32px;
+    }
   }
   .pills {
     display: flex;
@@ -493,13 +560,25 @@
     overflow-x: auto;
     scrollbar-width: none;
   }
+  /* Noah 20.10.2026 «Navigation eindeutiger»: no outlines, a clear mark in dark green where you are */
   .chips .tp-chip {
     flex: none;
+    border-color: transparent;
+    background: transparent;
+    color: var(--ink-2);
   }
-  .chips [aria-selected='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
+  .chips .tp-chip:hover {
+    background: var(--paper-2);
+  }
+  .chips [aria-selected='true'],
+  .chips .tp-chip.on {
+    border-color: var(--accent);
+    background: var(--accent);
     color: var(--paper);
+  }
+  .vm :global(button) {
+    min-height: 36px;
+    font-size: var(--fs-small);
   }
   .part-s {
     scroll-margin-top: 72px;
@@ -532,29 +611,43 @@
   .pad {
     padding: 16px;
   }
+  /* Noah 20.10.2026 «Den Zahlen eine klare Hierarchie geben»: the key figures large, without boxes */
   .kpis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px 0;
     margin: 0 0 14px;
     padding: 0;
     list-style: none;
   }
   .kpi {
     display: grid;
+    align-content: start;
     gap: 2px;
-    padding: 12px 14px;
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
+    padding: 2px 16px;
+    border-left: 1px solid var(--card-line);
+  }
+  .kpi:first-child {
+    padding-left: 0;
+    border-left: 0;
   }
   .kpi b {
-    font: 700 var(--fs-section) / 1.2 var(--font-body);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    font: 700 var(--fs-page) / 1.1 var(--font-body);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
   }
   .kpi b small {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+    color: var(--ink-3);
+    font-size: var(--fs-body);
     font-weight: 500;
+  }
+  .kpi :global(.hico) {
+    align-self: center;
+    margin-right: 4px;
+    color: var(--bad);
   }
   .kpi span {
     color: var(--ink-2);
@@ -587,7 +680,8 @@
   }
   .vc dd {
     margin: 2px 0 0;
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    color: var(--ink-2);
+    font: 500 var(--fs-body) / 1.3 var(--font-body);
   }
   .vc dd small {
     color: var(--ink-2);
@@ -597,15 +691,23 @@
     margin-top: 16px;
   }
   .zl {
-    margin: 0 0 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0 0 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .zsum {
+    color: var(--ink);
+    font-weight: 600;
   }
   .zv {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 16px;
-    margin: 8px 0 0;
+    gap: 10px 22px;
+    margin: 12px 0 0;
     padding: 0;
     list-style: none;
     font-size: var(--fs-small);
@@ -664,33 +766,45 @@
     gap: 6px;
     min-height: 44px;
   }
-  .glist {
+  .wx {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 12px 0;
+    color: var(--ink-2);
   }
-  .glist li {
-    padding: 4px 10px;
-    border: 1px solid var(--card-line);
-    border-radius: 999px;
-    background: var(--paper);
-    font-size: var(--fs-small);
+  .wx :global(svg) {
+    color: var(--ink-3);
   }
-  .gear .h3:first-child {
-    margin-top: 0;
+  .impulse {
+    margin: -4px 0 10px;
+    color: var(--ink-2);
+  }
+  /* Noah 20.10.2026 «Das Tagebuch persönlicher»: a soft writing surface, no form box */
+  .diaryw {
+    padding: 4px 0 0;
   }
   .diary {
     width: 100%;
-    min-height: 140px;
+    min-height: 180px;
+    padding: 16px 18px;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--accent-soft) 35%, var(--paper));
+    font: 400 var(--fs-sub) / 1.55 var(--font-body);
   }
+  .diary:focus {
+    border-color: var(--accent);
+  }
+  /* the photos as a row of pictures (scrolls sideways when there are many) */
   .photos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 8px;
+    grid-auto-columns: 150px;
+    grid-auto-flow: column;
+    gap: 10px;
     margin: 12px 0;
+    overflow-x: auto;
     padding: 0;
     list-style: none;
   }
@@ -702,7 +816,7 @@
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 14px;
   }
   .px {
     position: absolute;

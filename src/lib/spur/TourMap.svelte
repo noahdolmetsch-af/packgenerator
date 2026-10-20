@@ -3,19 +3,20 @@
   /**
    * Paket S «Reise-Spur» (answer 2a): the zoomable map of a tour. Drag to move, pinch or the wheel to
    * zoom, «+» «−» and «Ganze Tour». Under it swisstopo in Switzerland, OpenStreetMap elsewhere
-   * (tiles.js). The lines per day, the places, notes and photos as dots; a tap on a dot opens it.
+   * (tiles.js); the «Layers» button chooses another ground for all maps (Kartenlayer 20.10.2026). The lines per day, the places, notes and photos as dots; a tap on a dot opens it.
    * Own small map (mapmath.js), no library. Loaded only with the tour page.
    */
   import { onMount } from 'svelte';
-  import { Plus, Minus, Maximize2 } from '@lucide/svelte';
+  import { Plus, Minus, Maximize2, Layers, Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { merc, unmerc, fitView, toScreen, zoomAt, panBy, tilesFor, pathOf } from './mapmath.js';
   import { boundsOf } from './polyline.js';
-  import { groundFor, tileUrl } from './tiles.js';
+  import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
+  import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
   import { cellBounds } from './neuland.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n }]; cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = 'auto', focus = null, onpick = null, label = '', marker = null } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null } = $props();
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
   const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
 
@@ -49,7 +50,13 @@
   });
 
   const mid = $derived(unmerc({ x: view.x, y: view.y }));
-  const g = $derived(groundFor(mid[0], mid[1], ground));
+  // ground: a fixed key from the page, else the app's choice (groundpref)
+  const g = $derived(rasterGround(ground ?? mapGround.key, mid[0], mid[1]));
+  let pickOpen = $state(false);
+  const choose = (k) => {
+    chooseGround(k);
+    pickOpen = false;
+  };
   const tiles = $derived(tilesFor(view, w, h, g.maxZoom));
   // day colours, calm and distinct, from the app's tokens
   const COLS = ['var(--l3)', 'var(--l2)', 'var(--l1)', 'var(--l4)', 'var(--z5)', 'var(--z2)'];
@@ -82,7 +89,7 @@
   // «Grösse»: pointer and box in the page's own pixels (the app may be zoomed)
   const pt = (e) => ({ x: e.clientX / uiZoom(), y: e.clientY / uiZoom() });
   function down(e) {
-    if (e.target.closest('button')) return;
+    if (e.target.closest('button, .gp')) return;
     box.setPointerCapture?.(e.pointerId);
     ptrs.set(e.pointerId, pt(e));
     moved = 0;
@@ -120,6 +127,7 @@
     view = zoomAt(view, Math.exp(-e.deltaY * 0.0025), c.x - r.left, c.y - r.top, w, h, { max: g.maxZoom });
   }
   function key(e) {
+    if (e.target.closest?.('.gp')) return;
     const step = 60;
     const k = { ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step] }[e.key];
     if (k) {
@@ -157,7 +165,20 @@
     <button type="button" class="btn sm" aria-label={t('Zoom in')} onclick={() => zoom(2)}><Plus size={18} aria-hidden="true" /></button>
     <button type="button" class="btn sm" aria-label={t('Zoom out')} onclick={() => zoom(0.5)}><Minus size={18} aria-hidden="true" /></button>
     <button type="button" class="btn sm" aria-label={t('Whole tour')} onclick={fit}><Maximize2 size={18} aria-hidden="true" /></button>
+    {#if ground == null}<button type="button" class="btn sm" aria-label={t('Map ground')} aria-expanded={pickOpen} onclick={() => (pickOpen = !pickOpen)} data-map-layers><Layers size={18} aria-hidden="true" /></button>{/if}
   </div>
+  {#if pickOpen}
+    <div class="gp" role="group" aria-label={t('Map ground')} data-map-grounds>
+      <p class="gp-h">{t('Map ground')}</p>
+      {#each RASTER_GROUNDS as x (x.key)}
+        <button type="button" class="gp-row" aria-pressed={mapGround.key === x.key} onclick={() => choose(x.key)} data-map-ground-pick={x.key}>
+          <span class="gp-n">{t(x.name)}{#if x.key === 'auto'}{' · '}{t(g.name)}{/if}</span>
+          {#if mapGround.key === x.key}<Check size={16} aria-hidden="true" />{/if}
+        </button>
+      {/each}
+      <p class="gp-note">{t('Applies to all maps in the app.')}</p>
+    </div>
+  {/if}
   <p class="attr">{g.attribution}</p>
 </div>
 
@@ -265,6 +286,49 @@
     padding: 6px;
     min-width: 40px;
     justify-content: center;
+  }
+  .gp {
+    position: absolute;
+    right: 56px;
+    top: 8px;
+    max-width: min(260px, calc(100% - 72px));
+    max-height: calc(100% - 16px);
+    overflow: auto;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card, 12px);
+    box-shadow: 0 2px 10px var(--tm-shadow);
+    padding: 6px;
+    cursor: default;
+    touch-action: auto;
+  }
+  .gp-h {
+    margin: 2px 6px 4px;
+    font-weight: 600;
+  }
+  .gp-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 40px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .gp-row[aria-pressed='true'] {
+    background: var(--paper-2);
+    font-weight: 600;
+  }
+  .gp-note {
+    margin: 4px 6px 2px;
+    font-size: var(--fs-tm-attr);
+    color: var(--ink-2);
   }
   .attr {
     position: absolute;

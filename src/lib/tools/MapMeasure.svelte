@@ -2,11 +2,13 @@
   /**
    * Paket L «Werkzeugkasten» (Strecke auf Karte messen, Noah 19.10.2026): tap points on the map, see how
    * long the line is, save it as GPX. The map library comes with the app (loaded only on this page); the
-   * OpenStreetMap tiles load online and are kept by the browser for a while. The line is kept.
+   * tiles of the app's map ground (Kartenlayer 20.10.2026) load online and are kept by the browser for a
+   * while. The line is kept.
    */
   import { Undo2, Trash2, LocateFixed, Download } from '@lucide/svelte';
   import { lineLength, distText, gpxOf } from './geo.js';
-  import { TILE_URL } from '../staticmap.js';
+  import { RASTER_GROUNDS, rasterGround } from '../map/sources.js';
+  import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
   import { loadTool, saveTool } from './toolstore.js';
   import { deliver } from './tools.js';
   import { t } from '../i18n.svelte.js';
@@ -19,6 +21,20 @@
   let map = null;
   let line = null;
   let dots = null;
+  let tiles = null;
+  // the ground under the map: the app's choice; «Automatic» follows the middle of the map
+  function setGround() {
+    if (!map) return;
+    const c = map.getCenter();
+    const g = rasterGround(mapGround.key, c.lat, c.lng);
+    if (tiles?.options.gkey === g.key) return;
+    tiles?.remove();
+    tiles = L.tileLayer(g.url, { maxZoom: g.maxZoom ?? 18, attribution: g.attribution, gkey: g.key }).addTo(map);
+  }
+  $effect(() => {
+    void mapGround.key;
+    setGround();
+  });
   const len = $derived(lineLength(pts));
   const keep = () => saveTool('map', { pts }).catch(() => {});
 
@@ -39,11 +55,12 @@
         map = L.map(box, { zoomControl: false, attributionControl: true });
         // Nacht-Rundgang 20.10.2026: Leaflet's own zoom buttons were titled in English («Zoom in»)
         L.control.zoom({ zoomInTitle: t('Zoom in'), zoomOutTitle: t('Zoom out') }).addTo(map);
-        L.tileLayer(TILE_URL, { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
         line = L.polyline([], { color: '#4a7360', weight: 4 }).addTo(map);
         dots = L.layerGroup().addTo(map);
         if (pts.length > 1) map.fitBounds(pts, { padding: [24, 24] });
         else map.setView(pts[0] ?? [46.8, 8.2], pts.length ? 14 : 8);
+        setGround();
+        map.on('moveend', setGround);
         map.on('click', (e) => {
           pts = [...pts, [Math.round(e.latlng.lat * 1e6) / 1e6, Math.round(e.latlng.lng * 1e6) / 1e6]];
           draw();
@@ -59,6 +76,7 @@
       gone = true;
       map?.remove();
       map = null;
+      tiles = null;
     };
   });
   function undo() {
@@ -84,6 +102,12 @@
 <section class="tool-card mapm">
   <p class="tool-big" aria-live="polite" data-m={Math.round(len)}>{distText(len)} <small class="tool-muted">{t('{n} points', { n: pts.length })}</small></p>
   <div class="mm-map" bind:this={box} role="application" aria-label={t('Map: tap to add a point')}></div>
+  <label class="mm-ground">
+    <span>{t('Map ground')}</span>
+    <select class="inp" value={mapGround.key} onchange={(e) => chooseGround(e.currentTarget.value)} data-map-ground>
+      {#each RASTER_GROUNDS as x (x.key)}<option value={x.key}>{t(x.name)}</option>{/each}
+    </select>
+  </label>
   {#if failed}<p class="tool-status err">{t('The map could not start. Reload the page.')}</p>{/if}
   <div class="tool-row">
     <button type="button" class="btn" disabled={!pts.length} onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Last point back')}</button>
@@ -101,6 +125,16 @@
     overflow: hidden;
     background: var(--paper-2);
     z-index: 0;
+  }
+  .mm-ground {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mm-ground select {
+    flex: 1;
+    min-width: 0;
   }
   .tool-big small {
     font-weight: 500;

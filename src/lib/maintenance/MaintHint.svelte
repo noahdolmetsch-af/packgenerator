@@ -22,7 +22,7 @@
   });
   const now = new Date();
   const today = localDay(now);
-  const list = $derived($q ? attention({ check: $q.check?.first ? null : $q.check, keys: $q.set.keys, rate: $q.rate, today, now }) : []);
+  const list = $derived($q ? attention({ check: $q.check?.first ? null : $q.check, rate: $q.rate, now }) : []);
   const sig = $derived(signature(list, today));
   const show = $derived(!!$q && $q.set.hint && list.length > 0 && $q.closed !== sig && !blocked);
   $effect(() => {

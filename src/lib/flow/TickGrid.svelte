@@ -10,6 +10,8 @@
    * KT «Kacheln antippbar» (Noah 14.10.2026, 2a, mockup KT4): a small round «•••» at the top right of each
    * tile does what the long press does (the sheet for duration, place, stopwatch); a sibling of the tile
    * button, never inside it. `help` adds one quiet line under the grid (Today's «Im Flow» card).
+   * «Aktiv neu» (Noah 20.10.2026 «1a»): `compact` draws small tiles, the symbol and the name in one line
+   * (the state line goes into the button's label), for Aktiv › Heute.
    */
   import { Check, Hand, Ellipsis } from '@lucide/svelte';
   import ActIcon from './ActIcon.svelte';
@@ -18,11 +20,11 @@
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
-  let { states = [], today, cols = 2, onmed = null, big = false, help = false } = $props();
+  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false } = $props();
   const tap = (s) => (onmed && isMedAct(s.act) ? onmed(s) : tapAct(s, today));
 </script>
 
-<ul class="tg" class:big style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
+<ul class="tg" class:big class:compact style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
   {#each states as s (s.act.id)}
     <li>
       <button
@@ -31,11 +33,12 @@
         class:done={s.todayDone}
         data-act={s.act.id}
         aria-pressed={s.todayDone}
+        title={compact ? tileSub(s) : undefined}
         aria-description={t('Long press: place, amount, duration or the countdown')}
         use:press={{ tap: () => tap(s), long: () => (ui.tick = s.act.id) }}
       >
         <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.6} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
-        <span class="tx"><b>{actName(s.act)}</b><small>{tileSub(s)}</small></span>
+        <span class="tx"><b>{actName(s.act)}</b>{#if compact}<small class="sr">{tileSub(s)}</small>{:else}<small>{tileSub(s)}</small>{/if}</span>
       </button>
       <!-- KT (2a): the long press as a button, for everyone who does not know it -->
       <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={3} aria-hidden="true" /></button>
@@ -248,6 +251,24 @@
   }
   .big .tile.done small {
     color: var(--ink-2);
+  }
+  /* «Aktiv neu» «1a»: the small tiles, one line; the state line stays for screen readers */
+  .compact .tile {
+    min-height: 46px;
+    padding-block: 6px;
+    gap: 8px;
+  }
+  .compact .ic {
+    width: 26px;
+    height: 26px;
+  }
+  .compact .ic :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+  .compact .more {
+    top: 50%;
+    transform: translateY(-50%);
   }
   /* a small phone: the words need the room, the symbol goes (a done button keeps its tick) */
   @media (max-width: 359px) {

@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, KeyRound, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target, ShieldCheck, ShoppingCart, MessageCircle, BookHeart } from '@lucide/svelte';
+  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target, ShieldCheck, ShoppingCart, MessageCircle, BookHeart } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
   import NewsBanner from '../lib/know/NewsBanner.svelte';
@@ -57,12 +57,9 @@
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MaintenanceCard from '../lib/maintenance/MaintenanceCard.svelte';
-  import { MAINT_KEY, maintOf } from '../lib/maintenance/settings.js';
-  import { keyRows } from '../lib/maintenance/check.js';
   import { listBills, billsSummary } from '../lib/pay/bills.js';
   import { formatAmount } from '../lib/pay/qrbill.js';
   import Btn from '../lib/ui/Btn.svelte';
-  import { tick } from 'svelte';
   import '../lib/ich/ich.css';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { dueCount } from '../lib/docs.js';
@@ -103,13 +100,13 @@
   })();
 
   const waitQ = liveQuery(async () => {
-    const [notes, file, folder, n, demo, place, bikes, maint, bills] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count(), db.settings.get(MAINT_KEY), listBills(db)]);
+    const [notes, file, folder, n, demo, place, bikes, bills] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count(), listBills(db)]);
     const [cfg, nudge] = await Promise.all([db.meta.get('syncCfg'), db.meta.get(NUDGE_KEY)]);
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
     const due = backupDue(last);
-    // Impeccable: what waits on top: the keys that run out within 30 days, the open bills
-    const keys = keyRows(maintOf(maint?.value).keys, localDay()).filter((k) => k.due);
-    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, last, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes, keys, bills: billsSummary(bills), sync: needsNudge({ items: n, demo: !!demo, cfg, nudge }) };
+    // Impeccable: what waits on top: the open bills. Keys with an end date never come here (Noah 20.10.2026
+    // «nie im Front-End, höchstens unter Ich»): they show only in App maintenance below.
+    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, last, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes, bills: billsSummary(bills), sync: needsNudge({ items: n, demo: !!demo, cfg, nudge }) };
   });
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
@@ -133,11 +130,6 @@
   // Impeccable: «Waiting for you»: at most one line per kind, each with the button that does it
   let maintOpen = $state(false);
   let moreOpen = $state(false);
-  async function showMaint() {
-    maintOpen = true;
-    await tick();
-    document.querySelector('[data-section="maintenance"]')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-  }
   const dateShort = (day) => new Date(`${day}T12:00:00`).toLocaleDateString(lang.v === 'de' ? 'de-CH' : 'en-GB', { day: 'numeric', month: 'short' });
   const waits = $derived.by(() => {
     const w = $waitQ;
@@ -146,7 +138,6 @@
     if (w.backup) out.push({ key: 'backup', icon: Database, text: w.days != null ? tn(w.days, 'Backup: the last one {n} day ago', 'Backup: the last one {n} days ago') : t('Backup: none yet'), sub: t('everything is only on this device'), label: t('Make a backup'), href: '#/me/data' });
     if (w.inbox) out.push({ key: 'inbox', icon: Inbox, text: tn(w.inbox, 'Inbox: {n} note to file', 'Inbox: {n} notes to file'), sub: t('Notes from on the way'), label: t('File'), href: '#/inbox' });
     if (w.bills.count) out.push({ key: 'bills', icon: CreditCard, text: tn(w.bills.count, 'Bills: {n} open', 'Bills: {n} open'), sub: `${formatAmount(w.bills.sum)} CHF${w.bills.next ? ` · ${t('due {date}', { date: dateShort(w.bills.next) })}` : ''}`, label: t('Open'), href: '#/me/pay/bills' });
-    for (const k of w.keys) out.push({ key: `key-${k.id}`, icon: KeyRound, text: k.days < 0 ? t('{name} ran out', { name: t(k.name) }) : tn(k.days, '{name} runs out in {n} day', '{name} runs out in {n} days', { name: t(k.name) }), sub: t('until {date}', { date: dateShort(k.until) }), label: t('Look|maint'), onclick: showMaint });
     // Noah 19.10.2026 «1a»: while the sync is off, a line with «Switch on» (it opens Data and backup at «Phone and computer»)
     if (w.sync) out.push({ key: 'sync', icon: Link2, text: t('Sync phone and computer: off'), sub: t('New entries stay on this device'), label: t('Switch on'), onclick: openSync, skip: { label: t('Only one device'), onclick: hideSync } });
     return out;

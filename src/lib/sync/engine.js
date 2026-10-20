@@ -127,6 +127,20 @@ export async function resolve(db, key, choice) {
   });
 }
 
+/** Open questions a rule of autoPick can answer by itself: answered, the person is not asked. Returns how many. */
+export async function settleAsks(db) {
+  let n = 0;
+  for (const a of await db.meta.where('key').startsWith(ASK).toArray()) {
+    if (!known.has(a.t)) continue;
+    const local = (await db.table(a.t).get(a.id)) ?? null;
+    const pick = a.del ? null : autoPick(a.t, a.id, local, a.v);
+    if (!pick) continue;
+    await resolve(db, a.key, pick === 'theirs' ? 'theirs' : 'mine');
+    n++;
+  }
+  return n;
+}
+
 /**
  * The first round after pairing (Noah 19.10.2026 06:29): one answer for every open question at once,
  * 'mine' (this device has the right state) or 'theirs' (the other one). Returns how many it answered.
@@ -147,6 +161,10 @@ export const FETCHED = {
   healthDays: { marks: ['at', 'src'], when: (r) => r?.at ?? '' },
   'settings:health': { marks: ['lastSync', 'until'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
   'settings:agenda': { marks: ['lastSync'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
+  // Strava activities (Noah 20.10.2026: the question came after every update): both devices fetch the
+  // details from Strava by themselves, so only the time of the fetch differs. What the person added
+  // (note, feeling, own values, hidden) must be the same on both; then the newer fetch wins without asking.
+  activities: { own: ['note', 'feel', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
 };
 const fetchedRule = (t, id) => FETCHED[t] ?? FETCHED[`${t}:${id}`] ?? null;
 const withoutMarks = (r, rule) => {
@@ -155,6 +173,8 @@ const withoutMarks = (r, rule) => {
   const v = r.value && typeof r.value === 'object' ? Object.fromEntries(Object.entries(r.value).filter(([k]) => !rule.marks.includes(k))) : r.value;
   return { ...r, value: v };
 };
+/** The fields the person set, an empty one as null (a missing note and an empty note are the same). */
+const ownOf = (r, keys) => Object.fromEntries(keys.map((k) => [k, r?.[k] === '' || r?.[k] === false || r?.[k] == null ? null : r[k]]));
 /**
  * For a record changed on both devices: 'same' (only the fetch marks differ), 'theirs' or 'mine' (the copy
  * fetched later), or null (not a copy of Google, or a delete: the person is asked as before).
@@ -162,6 +182,11 @@ const withoutMarks = (r, rule) => {
 export function autoPick(t, id, mine, theirs) {
   const rule = fetchedRule(t, id);
   if (!rule || mine == null || theirs == null) return null;
+  if (rule.own) {
+    if (same(mine, theirs)) return 'same';
+    if (!same(ownOf(mine, rule.own), ownOf(theirs, rule.own))) return null;
+    return String(rule.when(theirs)) > String(rule.when(mine)) ? 'theirs' : 'mine';
+  }
   if (same(withoutMarks(mine, rule), withoutMarks(theirs, rule))) return 'same';
   return String(rule.when(theirs)) > String(rule.when(mine)) ? 'theirs' : 'mine';
 }
@@ -227,6 +252,8 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
       }
     };
     await pull();
+    // questions asked before a rule could answer them (e.g. Strava activities until 20.10.2026): answer them now
+    out.settled = await settleAsks(db);
 
     // push what changed here (not the records waiting for an answer)
     const asks = new Set((await db.meta.where('key').startsWith(ASK).primaryKeys()).map((k) => k.slice(ASK.length)));
