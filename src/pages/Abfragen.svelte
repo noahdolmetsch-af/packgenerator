@@ -54,7 +54,16 @@
 
   let open = $state({ erholung: true });
   const allOpen = $derived(areas.every((a) => open[a.key]));
-  const toggleAll = () => (open = allOpen ? {} : Object.fromEntries(areas.map((a) => [a.key, true])));
+  // 0.171 «Handy-Längenbudget»: the sample questions that are off wait folded in their area («n Musterfragen zeigen»);
+  // «Alle aufklappen» shows them too
+  let samples = $state({});
+  const folded = (g) => (samples[g.key] ? [] : g.list.filter((q) => q.sample && !settingOf(cfg, q).on));
+  const toggleAll = () => {
+    const all = Object.fromEntries(areas.map((a) => [a.key, true]));
+    const close = allOpen;
+    open = close ? {} : all;
+    samples = close ? {} : all;
+  };
 
   /* Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe erstellen, Gruppen editieren, hinzufügen, löschen»:
      «Bearbeiten» shows on every question and group: drag handle, arrows, pencil and bin. */
@@ -222,8 +231,9 @@
                   {/each}
                 </ul>
               {:else}
+              {@const hide = folded(g)}
               <ul class="ql">
-                {#each g.list as q (q.id)}
+                {#each g.list.filter((q) => !hide.includes(q)) as q (q.id)}
                   {@const s = settingOf(cfg, q)}
                   <li class="q" class:off={!s.on} data-q={q.id}>
                     <span class="qm">
@@ -244,6 +254,7 @@
                   </li>
                 {/each}
               </ul>
+              {#if hide.length}<button type="button" class="ab-lnk addq" onclick={() => (samples = { ...samples, [g.key]: true })} data-samples-show={g.key}><ChevronDown size={16} aria-hidden="true" />{t('Show {n} sample questions', { n: hide.length })}</button>{/if}
               {/if}
             {/if}
             {#if shown && (!own || editing)}
