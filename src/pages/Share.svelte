@@ -83,7 +83,7 @@
     font-size: var(--fs-sub);
   }
   .bag h2 small {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   ul {
@@ -115,7 +115,7 @@
   }
   .w {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   @media print {
     :global(nav.top) {

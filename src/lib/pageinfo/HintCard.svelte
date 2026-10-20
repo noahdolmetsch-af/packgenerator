@@ -144,15 +144,12 @@
           {/each}
         </ul>
       {/snippet}
-      {#if phone.matches}
-        <details class="fold" data-uses>
-          <summary><ChevronDown class="chev" size={16} aria-hidden="true" />{t('Typical here')} · {tn(hint.uses.length, '{n} situation', '{n} situations')}</summary>
-          {@render uses()}
-        </details>
-      {:else}
-        <p class="jl">{t('Typical here')}</p>
+      <!-- UI-Grundlagen (Noah 20.10.2026, idea 1 «Inhalt zuerst», 2b): «Typisch hier» starts folded on every screen,
+           so the first-visit card stays short and the page's own content follows sooner. -->
+      <details class="fold" data-uses>
+        <summary><ChevronDown class="chev" size={16} aria-hidden="true" />{t('Typical here')} · {tn(hint.uses.length, '{n} situation', '{n} situations')}</summary>
         {@render uses()}
-      {/if}
+      </details>
       {#if intro}
         {#snippet einstieg()}
           <ul class="uc" data-intro-things={introKey}>

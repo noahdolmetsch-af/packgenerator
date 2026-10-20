@@ -149,7 +149,7 @@
     border-radius: 6px;
     background: color-mix(in srgb, var(--accent) 18%, transparent);
     color: var(--ink-3);
-    font: 600 14px/1 var(--font-body);
+    font: 600 var(--fs-small)/1 var(--font-body);
     cursor: pointer;
   }
   /* v0.45.0: the tap area (only on touch; a mouse keeps the exact shape). */
@@ -163,10 +163,13 @@
       bottom: calc(-2px - var(--tb, 0px));
     }
   }
+  /* UI-Grundlagen (Noah 20.10.2026, idea 13): free places stay tappable but quiet, so the real bags lead the eye */
   .spot.empty {
     border-style: dashed;
-    border-color: var(--ink-3);
-    background: color-mix(in srgb, var(--paper) 60%, transparent);
+    border-color: var(--line-strong);
+    background: transparent;
+    border-width: 1.5px;
+    color: var(--ink-3);
   }
   .spot.off {
     border: 1.5px dashed var(--line);
@@ -222,22 +225,22 @@
     background: var(--hi-soft);
   }
   .lab small {
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     line-height: 1.2;
     color: var(--ink-3);
   }
   .lab b {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     line-height: 1.2;
   }
   .lab span {
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     color: var(--ink-3);
   }
   @media (min-width: 560px) {
     .lab b {
-      font-size: 14px;
+      font-size: var(--fs-small);
     }
   }
   /* A narrow drawing: the bag's name and numbers only, the place is in the list below. */
@@ -246,7 +249,7 @@
       display: none;
     }
     .lab b {
-      font-size: 12px;
+      font-size: var(--fs-tiny);
     }
   }
 </style>

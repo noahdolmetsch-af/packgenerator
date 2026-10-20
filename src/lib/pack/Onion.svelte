@@ -89,7 +89,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 15px/1.25 var(--font-body);
+    font: 500 var(--fs-body)/1.25 var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -133,7 +133,7 @@
   .what {
     min-width: 0;
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   .gap {
@@ -148,7 +148,7 @@
   }
   .badge {
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     margin-left: 6px;
     padding: 1px 8px;
@@ -183,7 +183,7 @@
   .meta {
     margin: 6px 0 4px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   #onion-rows > .meta {

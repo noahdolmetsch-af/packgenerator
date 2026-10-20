@@ -274,7 +274,7 @@
     color: var(--ink);
   }
   .ok {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .find {
@@ -309,7 +309,7 @@
     gap: 10px;
     padding: 3px 0;
     border-bottom: 1px solid var(--paper-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .days .rain {
     justify-self: end;
@@ -321,7 +321,7 @@
     background: none;
     color: var(--ink);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     text-decoration: underline;
     cursor: pointer;
   }

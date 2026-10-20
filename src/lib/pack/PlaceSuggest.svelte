@@ -42,12 +42,12 @@
     background: var(--paper-2, var(--paper));
   }
   h2 {
-    font-size: 18px;
+    font-size: var(--fs-sub);
     margin: 0 0 4px;
   }
   .ps-why {
     margin: 0 0 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   ul {
@@ -72,7 +72,7 @@
   .ps-text small {
     display: block;
     color: var(--ink-2);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .ps-acts {
     display: flex;
@@ -84,7 +84,7 @@
     border: 0;
     min-width: 44px;
     min-height: 44px;
-    font-size: 20px;
+    font-size: var(--fs-section);
     color: var(--ink-2);
     cursor: pointer;
   }

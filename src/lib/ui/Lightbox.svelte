@@ -99,7 +99,7 @@
   }
   .n {
     color: #b8c2bc;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .close {
     min-height: 44px;
@@ -108,7 +108,7 @@
     border-radius: 6px;
     background: none;
     color: #f4f6f2;
-    font: 700 15px var(--font-body);
+    font: 700 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
   .pic {
@@ -135,7 +135,7 @@
     border-radius: 6px;
     background: rgba(16, 22, 20, 0.55);
     color: #fff;
-    font-size: 40px;
+    font-size: var(--fs-page);
     line-height: 1;
     cursor: pointer;
   }
