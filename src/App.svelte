@@ -366,6 +366,7 @@
     Gelernt: () => import('./pages/Gelernt.svelte'), // Paket M «Was die App gelernt hat»
     JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
     Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
+    Heatmap: () => import('./pages/Heatmap.svelte'), // «Heatmap» (20.10.2026)
     Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
     Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
@@ -435,7 +436,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -712,6 +713,9 @@
   {:else if page === 'neuland'}
     <!-- «Neuland» (wish #1007 + #1006): Touren › Rückblick › Neuland; the page and its maps load on their own -->
     <LazyPage load={PAGES.Neuland} />
+  {:else if page === 'heatmap'}
+    <!-- «Heatmap» (Noah 20.10.2026): all rides on one map, stronger where they overlap -->
+    <LazyPage load={PAGES.Heatmap} />
   {:else}
     <Home />
   {/if}

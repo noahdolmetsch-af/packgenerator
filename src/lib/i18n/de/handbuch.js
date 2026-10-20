@@ -1110,4 +1110,10 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Heatmap» (20.10.2026)
+  'Works with Strava rides, uploaded GPX rides and routes recorded in the app.': 'Geht mit Strava-Fahrten, hochgeladenen GPX-Fahrten und in der App aufgezeichneten Strecken.',
+  'Open Trips › Look back › Heatmap.': 'Öffne Touren › Rückblick › Heatmap.',
+  'Choose clouds or lines; filter by year, sport, bike or tour and everyday.': 'Wähle Wolken oder Linien; filtere nach Jahr, Sportart, Velo oder Tour und Alltag.',
+  'Tap a coloured line: the rides there show below, each with its page.': 'Tippe auf eine farbige Linie: Die Fahrten dort stehen darunter, jede mit ihrer Seite.',
+  'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.': 'Beispiel: 2026, nur Velo → dein Arbeitsweg leuchtet dunkelrot, die Jura-Tour ist eine feine orange Linie.',
 };

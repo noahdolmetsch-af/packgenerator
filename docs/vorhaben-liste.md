@@ -13,7 +13,7 @@ Stand 19.10.2026, 19:30 UTC. Live ist 0.154.0. Diese Liste ist die Übersicht ü
 | 1 Schneller packen | 48 | 2 | 0 | 2 | 7 |
 | 2 Das Velo im Griff | 30 | 0 | 0 | 0 | 3 |
 | 3 Von der Haustür bis zurück | 50 | 2 | 33 | 1 | 13 |
-| 4 Aus jeder Tour lernen | 25 | 0 | 0 | 0 | 11 |
+| 4 Aus jeder Tour lernen | 25 | 1 | 0 | 0 | 11 |
 | 5 Alltag (seit 19.10.2026) | 169 | 1 | 1 | 5 | 26 |
 
 ## 1. Schneller packen
@@ -98,6 +98,12 @@ Währungen umrechnen · Weiter-Knöpfe und Schrittleiste · Touren als Kacheln n
 </details>
 
 ## 4. Aus jeder Tour lernen
+
+### Gebaut, wartet auf das Zusammenführen
+
+| Vorhaben | Grösse | Nutzen |
+|---|---|---|
+| Heatmap aller Fahrten (Noah 20.10.2026 «1a+b 2b+a 3 alle Fahrten 4a 5a») | mittel | Alle Fahrten auf einer Karte; wo du oft fährst, wird die Farbe kräftiger. Wolken oder Linien, Filter nach Jahr, Sportart, Velo, Tour/Alltag. |
 
 ### Ideen, noch nicht entschieden
 

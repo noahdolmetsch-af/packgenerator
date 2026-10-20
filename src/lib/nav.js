@@ -179,6 +179,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/inbox')) return 'inbox';
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
+  if (h.startsWith('#/heatmap')) return 'heatmap'; // «Heatmap» (Noah 20.10.2026): all rides on one map, Touren › Rückblick
   if (h.startsWith('#/neuland')) return 'neuland'; // «Neuland» (wish #1007): Touren › Rückblick › Neuland
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow/impulse')) return 'impulse'; // Paket T «Freie Zeit»: Impulse as a tab of Aktiv (Noah «1a und b»)
@@ -325,7 +326,7 @@ export const PLACE_TABS = {
     // Gesamttest 20.10.2026 B3 (Noah «3a»): the Strava activities have their own tab «Fahrten»; Übersicht keeps the trips with a packing list
     { key: 'rides', label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
-    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') },
+    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') || h.startsWith('#/heatmap') },
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
@@ -385,7 +386,7 @@ export function placeOf(page) {
   if (page === 'frei') return 'me'; // Paket T: Ich › Freie Zeit
   if (page === 'alltag') return 'me'; // Paket V: Ich › Alltag
   if (page === 'week') return 'week';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'spur', 'tour', 'travel', 'race', 'live', 'fuel'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
