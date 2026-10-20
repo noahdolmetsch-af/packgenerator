@@ -98,7 +98,8 @@
   }
 </script>
 
-{#if SK_PAGES[page]}
+<!-- drawn once the data is there: a «quiet» tile leaves the grid then, so the order does not jump under a tap -->
+{#if SK_PAGES[page] && $dataQ}
   <section class="sk" data-sk={page} aria-label={t('More pages')}>
     <ul class="sk-grid">
       {#each arr.shown as d, i (d.id)}
