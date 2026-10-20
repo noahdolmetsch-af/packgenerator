@@ -169,7 +169,8 @@
 
 {#snippet head(n, id, text, small, tag)}
   <div class="qh">
-    <span class="qn num" aria-hidden="true">{n}</span>
+    <!-- Gesamttest 20.10.2026 (B10): counted on screen 1, 2, 3 … (CSS counter), not the number of the 15 questions -->
+    <span class="qn num" aria-hidden="true" data-n={n}></span>
     <span class="qt"><b id={id}>{text}</b>{#if small}<small>{small}</small>{/if}</span>
     <span class="pill">{tag}</span>
   </div>
@@ -434,6 +435,15 @@
     align-items: flex-start;
     gap: var(--sp-2);
     margin-bottom: var(--sp-2);
+  }
+  .qs {
+    counter-reset: q;
+  }
+  .qs :global(.q) {
+    counter-increment: q;
+  }
+  .qn::before {
+    content: counter(q);
   }
   .qn {
     display: grid;

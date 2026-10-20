@@ -663,7 +663,7 @@
     }
     return out;
   });
-  const important = $derived.by(() => {
+  const allImportant = $derived.by(() => {
     if (!ready) return [];
     const rows = [];
     for (const m of milestones) rows.push({ key: `ms:${m.key}:${m.bikeId ?? ''}:${m.day}`, tone: 'party', text: milestoneText(m) });
@@ -724,6 +724,10 @@
     const uniq = rows.filter((r) => !seen.has(r.key) && seen.add(r.key));
     return uniq.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
+  // Gesamttest 20.10.2026 (Noah «5a»): milestones and challenges are a quiet line of their own;
+  // «Heute wichtig» keeps only what is to be done
+  const cheers = $derived(allImportant.filter((r) => r.tone === 'party'));
+  const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   async function stepDone(goalId, stepId) {
     const before = compassOf(S[COMPASS_KEY]);
@@ -1040,6 +1044,13 @@
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
+    {#if cheers.length}
+      <section class="cheers" aria-label={t('Well done')} data-cheers>
+        <ul>
+          {#each cheers as r (r.key)}<li data-row={r.key.split(':')[0]}><PartyPopper size={16} aria-hidden="true" /><span>{r.text}</span></li>{/each}
+        </ul>
+      </section>
+    {/if}
     <section class="imp" class:ln={line} class:open={line && allRows} aria-labelledby="imp-h">
       <div class="ih"><span class="ico" aria-hidden="true"><TriangleAlert size={16} /></span><h2 id="imp-h">{t('Important today')}</h2>{#if important.length}<span class="cnt num" aria-hidden="true">{important.length}</span>{/if}</div>
       {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
@@ -1899,6 +1910,26 @@
   .row.quiet .dot {
     background: transparent;
     border: 1.5px solid var(--line-strong);
+  }
+  .cheers ul {
+    display: grid;
+    gap: 2px;
+    margin: 0 0 var(--sp-2);
+    padding: 0;
+    list-style: none;
+  }
+  .cheers li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .cheers li :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--accent);
   }
   .row.party {
     margin: 4px 0;

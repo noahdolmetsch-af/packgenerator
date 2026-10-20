@@ -40,6 +40,9 @@
   const filtered = $derived(filterHistory(rows, { src: src === 'all' ? null : src }).filter((r) => (area === 'all' ? true : area === 'rides' ? r.kind === 'ride' : r.area === area && r.kind !== 'ride')));
   const from = $derived(addDays(today, -days + 1));
   const shownDays = $derived(byDay(filtered.filter((r) => r.day >= from)));
+  // Gesamttest 20.10.2026 (C11): a day with 20 answers made the page 18 phone screens long; 5 per day, then «n weitere»
+  const PER_DAY = 5;
+  let openDays = $state({});
   const older = $derived(filtered.some((r) => r.day < from));
 
   // the weight of the last 8 weeks (the answers to «Was zeigt die Waage heute»)
@@ -113,7 +116,7 @@
         <ul class="card hist">
           {#each shownDays as g (g.day)}
             <li class="hd">{dayLong(g.day)}</li>
-            {#each g.rows as r (r.id)}
+            {#each openDays[g.day] ? g.rows : g.rows.slice(0, PER_DAY) as r (r.id)}
               {@const q = qOf(r)}
               {@const I = ICON_SRC[r.src] ?? Hand}
               <li class="h" data-row={r.qid}>
@@ -125,6 +128,7 @@
                 {#if r.kind !== 'ride' && q}<button type="button" class="ed" aria-label={t('Change «{q}»', { q: rowText(r, own) })} onclick={() => openEdit(r)}><Pencil size={16} aria-hidden="true" /></button>{:else}<span class="ed"></span>{/if}
               </li>
             {/each}
+            {#if !openDays[g.day] && g.rows.length > PER_DAY}<li class="hmore"><button type="button" class="lk" onclick={() => (openDays = { ...openDays, [g.day]: true })} data-day-more>{t('Show {n} more', { n: g.rows.length - PER_DAY })}</button></li>{/if}
           {/each}
         </ul>
         {#if older}<button type="button" class="btn more" onclick={() => (days += 30)}>{t('Load older values')}</button>{/if}
@@ -183,6 +187,20 @@
 {/if}
 
 <style>
+  .hmore {
+    padding: var(--sp-2) 0;
+  }
+  .hmore .lk {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .actl {
     color: inherit;
     text-decoration: underline;

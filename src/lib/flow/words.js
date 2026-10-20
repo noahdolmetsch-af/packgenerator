@@ -29,7 +29,7 @@ export function actGoalText(act, day, { season = true, min = true } = {}) {
   const half = halfOf(act, day);
   let s = now;
   if (season && half && activeGoals(act, day).length) s = `${half === 'summer' ? t('Summer') : t('Winter')} ${now}`;
-  if (min && act.minMin) s += ` · ${t('{n} min', { n: act.minMin })}`;
+  if (min && act.minMin) s += ` · ${t('at least {n} min', { n: act.minMin })}`;
   return s;
 }
 
