@@ -111,6 +111,8 @@ export const SINCE = {
   'f.firststart': '0.170.0',
   // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
   'f.reroute': '0.170.0',
+  // Paket W «Von der Haustür bis zurück» (provisional version, the bundler renumbers)
+  'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)

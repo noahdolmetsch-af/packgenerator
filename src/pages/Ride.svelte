@@ -61,7 +61,8 @@
   // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
-  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation } from '@lucide/svelte';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike } from '@lucide/svelte';
+  import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -462,6 +463,9 @@
   /* ---------- Paket K «Unterwegs» (Noah 19.10.2026 «1a und b 2 a und b 3 5a b 4a 5a und b») ---------- */
   let homeOpen = $state(false);
   let lenkerOpen = $state(false);
+  // Paket W 1116 «Gut angekommen» and 1119 «Velo abgestellt»
+  let arrivedOpen = $state(false);
+  let parkedOpen = $state(false);
   let eatNext = $state(null);
   const tripDay = $derived(!!trip && !trip.finished && onTripDay(trip, today));
   // #285: the glove mode switches itself on below 5 °C or on a ski tour day (changeable by hand)
@@ -521,6 +525,8 @@
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
   {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
+  <!-- Paket W 1119: «Wo steht mein Velo?» also without a trip (in town, at the station) -->
+  {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
@@ -553,6 +559,8 @@
       {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
       <!-- Paket K #280 + #206 «Bereit für heute?» with the listening tip, on the tour day -->
       {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{:catch}{/await}{/if}
+      <!-- Paket W (Noah 20.10.2026 «2a 3a»): plan B when heavy rain or a storm comes, tonight's check-in -->
+      {#if !trip.finished && st}<RideDoor {trip} {st} {nextSt} onhome={() => (homeOpen = true)} />{/if}
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}
@@ -661,6 +669,8 @@
           <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
           <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
           <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (arrivedOpen = true)} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
           <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
         </div>
@@ -817,8 +827,10 @@
 </div>
 {#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}
 {#if lenkerOpen}{#await import('../lib/unterwegs/Lenker.svelte') then m}<m.default ctx={lenkerCtx} onclose={() => (lenkerOpen = false)} />{/await}{/if}
+{#if arrivedOpen && trip}{#await import('../lib/haustuer/ArrivedSheet.svelte') then m}<m.default {trip} day={cur} onclose={() => (arrivedOpen = false)} />{:catch}{/await}{/if}
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
+{#if parkedOpen}{#await import('../lib/haustuer/ParkedSheet.svelte') then m}<m.default onclose={() => (parkedOpen = false)} />{:catch}{/await}{/if}
 
 <style>
   /* v0.106.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
@@ -838,6 +850,8 @@
   .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); }
   .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
+  .parked-solo { display: flex; justify-content: center; margin: 12px 0; }
+  .parked-solo .btn { display: inline-flex; align-items: center; gap: 6px; }
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
   /* SN1: «…» of the trip at the end of the pill line */
   .rmore { margin-left: auto; }

@@ -408,6 +408,27 @@ export const HANDBOOK = {
     steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
     example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
   },
+  // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026)
+  'f.arrived': {
+    on: 'Choose your emergency contacts once in Before you leave.',
+    steps: ['Open On the way, tap «Arrived safely», then «Share».'],
+    example: 'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»',
+  },
+  'f.planb': {
+    on: null,
+    steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],
+    example: 'Example: 14 mm of rain on Saturday → the 60 km variant instead of 110 km.',
+  },
+  'f.checkin': {
+    on: null,
+    steps: ['In Planen set until when you can check in each night.', 'Read the warning; call ahead with the number of the accommodation.'],
+    example: 'Example: check-in until 20:00, arrival 20:40 → you would need 24 km/h instead of 19.',
+  },
+  'f.parked': {
+    on: null,
+    steps: ['On On the way tap «Bike parked»: photo, lock, save.', 'Later tap it again: the photo, the lock and «Way to the bike».'],
+    example: 'Example: at the station in a big town → back after the museum with the map link.',
+  },
   'f.departsheet': {
     on: null,
     steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
