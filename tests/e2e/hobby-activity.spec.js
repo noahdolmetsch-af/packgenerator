@@ -74,7 +74,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   await tabs.getByRole('link', { name: T('Activity|tab'), exact: true }).click();
   await expect(page).toHaveURL(/#\/flow\/activity$/);
   await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(tabs.getByRole('link', { name: T('Goals|tab'), exact: true })).not.toHaveAttribute('aria-current', 'page');
+  await expect(tabs.getByRole('link', { name: T('Activities|tab'), exact: true })).not.toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Activity|tab') })).toBeVisible();
 
   // the six favourites with their playful names, in the seed order

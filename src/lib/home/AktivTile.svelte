@@ -31,7 +31,7 @@
   const SHORT = [
     { href: '#/flow/act/meditation', icon: Flower2, label: 'Meditation' },
     { href: '#/flow/week', icon: CalendarDays, label: 'Week|aktiv' },
-    { href: '#/flow/goals', icon: Target, label: 'Goals|aktiv' },
+    { href: '#/flow/goals', icon: Target, label: 'Activities|aktiv' },
     { href: '#/flow/activity', icon: Star, label: 'Activity|tab' },
     { href: '#/flow/rest', icon: BedDouble, label: 'Recovery|aktiv' },
     { href: '#/flow/bags', icon: ShoppingBag, label: 'Sports bag' },

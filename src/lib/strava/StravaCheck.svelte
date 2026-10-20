@@ -15,9 +15,9 @@
   import Empty from '../ui/Empty.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
-  import { reasonText } from '../kmbook.js';
+  import { reasonText, same } from '../kmbook.js';
   import { restoreEntries } from '../kmbookdb.js';
-  import { strava, checkRide, autoAssign, undoAutoAssign, STRAVA_HASH } from './client.svelte.js';
+  import { strava, checkRide, autoAssign, undoAutoAssign, autoText, STRAVA_HASH } from './client.svelte.js';
   import StravaChanges from './StravaChanges.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
 
@@ -42,6 +42,9 @@
     const type = e.type ? t('Ride type «{type}»', { type: e.type }) : '';
     if (s?.why === 'rule') return [type, t('your rule')].filter(Boolean).join(' · ');
     if (s?.why === 'usual') return [type, tn(s.n, 'like {n} ride so far', 'like {n} rides so far')].filter(Boolean).join(' · ');
+    // Noah 20.10.2026: the reason was stored at the import; a Strava bike that has an app bike of that name now is no longer «unknown»
+    const now = e.reason?.code === 'none' && e.reason.gear ? bikes.find((b) => same(b.name, e.reason.gear) || same(b.stravaName, e.reason.gear)) : null;
+    if (now) return t('The Strava bike «{gear}» is your bike {bike} now: choose it below.', { gear: e.reason.gear, bike: now.name });
     return reasonText(e.reason, nameOf);
   }
 
@@ -73,7 +76,7 @@
       .then((r) => {
         if (!r?.n) return;
         clearTimeout(timer);
-        notice = { text: tn(r.n, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.'), put: r.put, auto: r.bikes };
+        notice = { text: autoText(r), put: r.put, auto: r.bikes };
         timer = setTimeout(() => (notice = null), UNDO_MS);
       })
       .catch(() => {});

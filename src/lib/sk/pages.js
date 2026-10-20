@@ -49,7 +49,7 @@ const T = {
   unweighed: { id: 'unweighed', label: 'Weigh|tile', icon: 'scale', href: '#/gear?view=unweighed' },
   med: { id: 'med', label: 'Meditation', icon: 'lotus', href: '#/flow' },
   x4s: { id: 'x4s', label: 'Strava', icon: 'flow', url: STRAVA_URL, link: 'x4s' },
-  goals: { id: 'goals', label: 'Goals|tile', icon: 'target', href: '#/flow/goals' },
+  goals: { id: 'goals', label: 'Activities|tile', icon: 'target', href: '#/flow/goals' },
   x4g: { id: 'x4g', label: 'GotCourts', icon: 'calendarcheck', url: GOTCOURTS_URL, link: 'x4g' },
   ms: { id: 'ms', label: 'Milestones', icon: 'star', href: '#/flow/milestones' },
   lookback: { id: 'lookback', label: 'Look back|page', icon: 'chart', href: '#/debrief' },

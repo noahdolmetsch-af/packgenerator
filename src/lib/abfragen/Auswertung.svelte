@@ -8,6 +8,7 @@
    */
   import { ArrowRight, ArrowUpRight, ArrowDownRight, Eye, Hourglass, Lock, Hand, Watch, Bike, Smartphone, ChevronRight } from '@lucide/svelte';
   import { historyQuery } from '../abdb.js';
+  import { tableQuery } from '../messwerte-data.js';
   import { QUESTION, configOf } from '../abfragen.js';
   import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP, MIN_OBS_DAYS } from '../abauswertung.js';
   import { lastDays } from '../flow.js';
@@ -44,10 +45,15 @@
   ]);
 
   // 3 felt next to measured: sleep felt / Fitbit (later), battery / resting pulse
-  const fitbitSleep = $derived(Object.fromEntries(rows.filter((r) => r.src === 'fitbit' && r.qid === 'fitbit.sleep').map((r) => [r.day, r.value])));
+  // «Aktiv neu» (20.10.2026): the Fitbit nights and the resting pulse from the day table (messwerte.js)
+  const tq = tableQuery();
+  const fitOf = (k, f = (v) => v) => Object.fromEntries([...($tq ?? new Map()).values()].filter((r) => r[k] != null).map((r) => [r.day, f(r[k])]));
+  const fitbitSleep = $derived(fitOf('sleep', (m) => Math.round((m / 60) * 10) / 10));
+  const fitbitRhr = $derived(fitOf('rhr'));
+  const handRhr = $derived(dailyValues(rows, 'koerper.ruhepuls'));
   const pairs = $derived([
     { key: 'sleep', title: t('Sleep|felt'), a: { name: t('felt 1–10'), v: dailyValues(rows, 'erholung.schlaf') }, b: { name: t('Fitbit sleep'), v: fitbitSleep }, src: ['hand', 'fitbit'] },
-    { key: 'pulse', title: t('Battery and resting pulse'), a: { name: t('Battery 1–10'), v: dailyValues(rows, 'erholung.akku') }, b: { name: t('Resting pulse'), v: dailyValues(rows, 'koerper.ruhepuls') }, src: ['hand'] },
+    { key: 'pulse', title: t('Battery and resting pulse'), a: { name: t('Battery 1–10'), v: dailyValues(rows, 'erholung.akku') }, b: { name: t('Resting pulse'), v: { ...handRhr, ...fitbitRhr } }, src: Object.keys(fitbitRhr).length ? ['hand', 'fitbit'] : ['hand'] },
   ]);
   const f1 = (v) => (v == null ? '–' : Number.isInteger(v) ? String(v) : v.toFixed(1));
 
@@ -153,7 +159,7 @@
             </table>
           </div>
         {/each}
-        <p class="note">{t('Fitbit values come with the connection to Fitbit, later. Until then only what you enter.')}</p>
+        {#if !Object.keys(fitbitSleep).length}<p class="note">{t('Connect Fitbit (Me › Fitbit): then sleep and resting pulse come by themselves.')}</p>{/if}
       </div>
     </section>
   {/if}

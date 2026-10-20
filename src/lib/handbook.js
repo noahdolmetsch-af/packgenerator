@@ -28,7 +28,7 @@ export const HANDBOOK = {
   },
   gpx: {
     on: 'Needs a trip first: «New» › «Plan a trip».',
-    steps: ['Open the trip in Pack and tap «Add GPX route».', 'Pick the file; km, climbing and riding time fill in.'],
+    steps: ['Open the trip in Pack and tap «Add GPX route».', 'Pick the file; km, climbing and riding time fill in.', 'Under the map: the profile coloured by gradient and every climb; tap a climb and the profile zooms to it.'],
     example: 'Example: a 92 km route with 1400 m climbing → about 5 h riding time.',
   },
   homeweather: {

@@ -5,6 +5,8 @@
 // A new page: add it to PAGES in App.svelte as `Name: () => import('./pages/Name.svelte')` and show it with
 // <LazyPage load={PAGES.Name} />. Only Heute (Home) is loaded at the start.
 
+import { held } from '../holdreload.js';
+
 const done = new Map(); // loader → component, once loaded
 const RELOAD_KEY = 'lazy.reloadedAt';
 
@@ -28,7 +30,8 @@ export async function loadPage(load, { reload = () => location.reload(), store =
     } catch {
       /* private mode */
     }
-    if (now - last > 60_000) {
+    // never in the middle of a recorded ride (holdreload.js): then the error page shows, the ride goes on
+    if (now - last > 60_000 && !held()) {
       try {
         store?.setItem(RELOAD_KEY, String(now));
       } catch {
