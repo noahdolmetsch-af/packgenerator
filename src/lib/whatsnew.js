@@ -16,20 +16,20 @@
 
 export const WHATS_NEW = [
   {
-    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles, GPX climbs when planning, AI key hint fix.
+    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',
     title: 'Your tours, your activities',
-    lead: 'Add the gear to a past ride, plan with every climb, and change your activity tiles yourself.',
+    lead: 'Gear for past rides, every climb when planning, Aktiv anew.',
     points: [
       { text: 'Add the gear to a ride afterwards, with a note per item', href: '#/trips/rides' },
-      { text: 'Tour page new: big values, a landscape on top, the weather of the day', href: '#/trips' },
-      { text: 'Plan a tour: the GPX route shows a fine profile coloured by gradient and every climb in a list', href: '#/trips' },
+      { text: 'Tour page: big values, a landscape, the weather of the day', href: '#/trips' },
+      { text: 'Plan a tour: a profile by gradient and every climb', href: '#/trips' },
     ],
     small: [
-      { box: 'new', text: 'Aktiv: «Your week in numbers» with sleep, resting pulse and active zone minutes; the history reads like a diary' },
-      { box: 'nicer', text: 'Aktiv: edit, hide or delete an activity tile, with Undo' },
-      { box: 'fixed', text: 'No more wrong hint that the AI helper key runs out' },
+      { box: 'new', text: 'Aktiv: «Your week in numbers»; tiles can be edited, hidden and deleted' },
+      { box: 'new', text: 'Choose the map ground on every map, now with a bike map' },
+      { box: 'fixed', text: 'No wrong hint about the AI key any more' },
     ],
     test: [
       'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
