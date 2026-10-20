@@ -1,0 +1,75 @@
+// «Datenseiten wie am Garmin» (Noah 20.10.2026): data pages on the live map (src/lib/live/datapages.js,
+// DataPages.svelte, DataPage.svelte, DpChart.svelte, DataPagesEditor.svelte).
+export default {
+  // the ready pages
+  'Ride|page': 'Fahrt',
+  'Power|page': 'Leistung',
+  'Climb|page': 'Steigung',
+
+  // the extra fields and the charts
+  'Average heart rate': 'Ø Puls',
+  'Max heart rate': 'Max Puls',
+  'Average power': 'Ø Leistung',
+  'Max power': 'Max Leistung',
+  'To the next waypoint': 'Bis zum nächsten Wegpunkt',
+  'Metres up to the summit': 'Höhenmeter bis zum Gipfel',
+  'Power over time': 'Leistung über die Zeit',
+  'Heart rate curve': 'Pulskurve',
+  'Speed curve': 'Tempokurve',
+  'Elevation profile ahead': 'Höhenprofil voraus',
+
+  // a chart
+  'now {now} · avg {avg} · max {max}': 'jetzt {now} · Ø {avg} · max {max}',
+  '{up} m up in {km} km': '{up} m hoch auf {km} km',
+  'No values yet. They come with the sensor or the GPS.': 'Noch keine Werte. Sie kommen mit dem Sensor oder dem GPS.',
+  'No profile ahead: it needs a route with heights.': 'Kein Profil voraus: Dafür braucht es eine Route mit Höhen.',
+  'Enter your max heart rate in the data pages editor, then the zones show here.': 'Trag deinen Maximalpuls bei den Datenseiten ein, dann stehen die Zonen hier.',
+  'Enter your FTP in the data pages editor, then the zones show here.': 'Trag deine FTP bei den Datenseiten ein, dann stehen die Bereiche hier.',
+
+  // a page and the pager
+  'Edit data pages': 'Datenseiten bearbeiten',
+  'The fields of this page need a route. Choose other fields in the editor, or ride with a route.': 'Die Felder dieser Seite brauchen eine Route. Wähl andere Felder oder fahr mit einer Route.',
+  'pages|dp': 'Seiten',
+  'page|dp': 'Seite',
+  'Map and data pages': 'Karte und Datenseiten',
+  'Previous page': 'Vorherige Seite',
+  'Next page': 'Nächste Seite',
+  'Page {n}: {name}': 'Seite {n}: {name}',
+
+  // the editor
+  'Swipe left and right on the live map: the map is the first page, then your data pages. Each page shows up to {n} fields in big numbers; a chart takes the space of two fields. Everything here is a suggestion: change, add or delete what you like.':
+    'Wisch auf der Live-Karte nach links und rechts: Die Karte ist die erste Seite, dann kommen deine Datenseiten. Jede Seite zeigt bis zu {n} Felder in grossen Zahlen; ein Diagramm braucht den Platz von zwei Feldern. Alles hier ist ein Vorschlag: Ändere, ergänze oder lösche, was du willst.',
+  'Data pages': 'Datenseiten',
+  'Data page': 'Datenseite',
+  'small map': 'kleine Karte',
+  '{n} chart': '{n} Diagramm',
+  '{n} charts': '{n} Diagramme',
+  'Delete the page "{name}"?': 'Seite «{name}» löschen?',
+  'Its fields and charts go with it. The map and the other pages stay. You can bring it back for 4 seconds afterwards.': 'Ihre Felder und Diagramme gehen mit. Die Karte und die anderen Seiten bleiben. Danach kannst du sie 4 Sekunden lang zurückholen.',
+  'No data pages: only the map. Add a page to see your numbers big.': 'Keine Datenseiten: nur die Karte. Füg eine Seite hinzu, dann siehst du deine Zahlen gross.',
+  'Add page': 'Seite hinzufügen',
+  'At most {n} data pages.': 'Höchstens {n} Datenseiten.',
+  'Your zones': 'Deine Zonen',
+  'For the zone charts. Heart rate: 5 zones from your max heart rate (Z1 50–60 %, Z2 60–70 %, Z3 70–80 %, Z4 80–90 %, Z5 90–100 %; lower counts to Z1). Power: the 7 Coggan zones from your FTP, the same as in Training (Z1 up to 55 %, Z2 to 75 %, Z3 to 90 %, Z4 to 105 %, Z5 to 120 %, Z6 to 150 %, Z7 above). The charts only show the time in each zone; they do not judge.':
+    'Für die Zonen-Diagramme. Puls: 5 Zonen aus deinem Maximalpuls (Z1 50–60 %, Z2 60–70 %, Z3 70–80 %, Z4 80–90 %, Z5 90–100 %; darunter zählt zu Z1). Leistung: die 7 Bereiche nach Coggan aus deiner FTP, gleich wie im Training (Z1 bis 55 %, Z2 bis 75 %, Z3 bis 90 %, Z4 bis 105 %, Z5 bis 120 %, Z6 bis 150 %, Z7 darüber). Die Diagramme zeigen nur die Zeit in jeder Zone; sie bewerten nichts.',
+  'Max heart rate (bpm)': 'Maximalpuls (Schläge/min)',
+  'FTP (W)': 'FTP (W)',
+  'All data pages': 'Alle Datenseiten',
+  'Page {n} of {all}. The map is page 1.': 'Seite {n} von {all}. Die Karte ist Seite 1.',
+  'Grid|dp': 'Raster',
+  'A suggestion like on a Garmin: how many fields and how big. Afterwards each field can still be big or small (free arrangement).': 'Ein Vorschlag wie am Garmin: wie viele Felder und wie gross. Danach kann jedes Feld weiter gross oder klein sein (frei angeordnet).',
+  'Free|dp': 'Frei',
+  'On this page': 'Auf dieser Seite',
+  '{n} of {max} places used. A small field takes one place, a big field or a chart two.': '{n} von {max} Plätzen belegt. Ein kleines Feld braucht einen Platz, ein grosses Feld oder ein Diagramm zwei.',
+  'needs a route': 'braucht eine Route',
+  'Big|dp': 'Gross',
+  'Small|dp': 'Klein',
+  'Add fields': 'Felder hinzufügen',
+  'Add charts': 'Diagramme hinzufügen',
+  'The page is full. Remove a field or make one small to add more.': 'Die Seite ist voll. Entfern ein Feld oder mach eines klein, um mehr hinzuzufügen.',
+  'Small map at the bottom': 'Kleine Karte unten',
+  'The fields get a little less room.': 'Die Felder bekommen etwas weniger Platz.',
+  'Rename page': 'Seite umbenennen',
+  'The name stands at the top of the page and next to its dot.': 'Der Name steht oben auf der Seite und beim Punkt darunter.',
+  'Empty: the page gets its own name back.': 'Leer: Die Seite bekommt ihren eigenen Namen zurück.',
+};
