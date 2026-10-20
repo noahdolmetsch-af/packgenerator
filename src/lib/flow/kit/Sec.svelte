@@ -2,11 +2,12 @@
   /**
    * v0.105.0 Design-Refresh P8 «Aktiv»: one section of an Aktiv page as in the mockups: the heading,
    * a quiet line under it and, at the right, one quiet link («Alle ›», «Ganze Liste ›», «Kacheln ändern»).
-   * more: { href, label } or { onclick, label, expanded }.
+   * more: { href, label } or { onclick, label, expanded }. edit: { href, label }, a second quiet link
+   * before it (Noah 20.10.2026 «1a»: «Bearbeiten ›» in the head of «Heute abhaken»).
    */
   import { ChevronRight } from '@lucide/svelte';
 
-  let { title, id, sub = '', more = null, children } = $props();
+  let { title, id, sub = '', more = null, edit = null, children } = $props();
 </script>
 
 <section class="sec" aria-labelledby={id}>
@@ -15,6 +16,9 @@
       <h2 {id}>{title}</h2>
       {#if sub}<p>{sub}</p>{/if}
     </div>
+    {#if edit?.href}
+      <a class="mr" href={edit.href} data-sec-edit>{edit.label}<ChevronRight size={16} aria-hidden="true" /></a>
+    {/if}
     {#if more?.href}
       <a class="mr" href={more.href}>{more.label}<ChevronRight size={16} aria-hidden="true" /></a>
     {:else if more?.onclick}

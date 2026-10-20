@@ -4,9 +4,13 @@
    * v0.51.0 «Im Flow»: the sheet of a long press on an activity, only when needed: where (Yoga
    * Studio / Zuhause), how many (Liegestütze +10 / +20 / own number), how long (optional), a commute,
    * or straight into the countdown.
+   * Noah 20.10.2026 «4a»: «Hide tile» pauses the activity (it leaves «Heute abhaken», the history stays),
+   * with «Undo»; it comes back under Aktiv › Aktivitäten (tap it, «Pause or delete» › «Resume»).
    */
   import Seg from '../ui/Seg.svelte';
-  import { Timer, Bike, X, Check } from '@lucide/svelte';
+  import { Timer, Bike, X, Check, EyeOff } from '@lucide/svelte';
+  import { db } from '../db.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { ui, tickWith, openTimer, actName, goalName, clockState } from './ui.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -39,6 +43,13 @@
     await tickWith(a, { via: 'commute', n: 1 });
     close();
   }
+  async function hide() {
+    const id = a.id;
+    const nm = actName(a);
+    close();
+    await db.flowActs.update(id, { paused: true });
+    offerDone(t('«{name}» hidden. Show it again under Aktiv › Activities.', { name: nm }), () => db.flowActs.update(id, { paused: false }));
+  }
   function clock() {
     const id = a.id;
     close();
@@ -68,6 +79,11 @@
       <span class="ib" aria-hidden="true"><Timer size={18} /></span>
       <span class="rt"><b>{t('Stopwatch')}</b><small>{t('runs until you are done, then ticks off')}</small></span>
       <button type="button" class="btn" onclick={clock}>{t('Start|check')}</button>
+    </div>
+    <div class="rw">
+      <span class="ib" aria-hidden="true"><EyeOff size={18} /></span>
+      <span class="rt"><b>{t('Hide tile')}</b><small>{t('the history stays; back under Aktiv › Activities')}</small></span>
+      <button type="button" class="btn" onclick={hide} data-tick-hide>{t('Hide')}</button>
     </div>
     <div class="acts">
       {#if a.counts.includes('commute')}<button type="button" class="btn cm" onclick={commute}><Bike size={18} aria-hidden="true" />{t('Commute')}</button>{/if}

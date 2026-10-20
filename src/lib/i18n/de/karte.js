@@ -17,6 +17,9 @@ export default {
   'Only with the internet': 'Nur mit Internet',
   OpenTopoMap: 'OpenTopoMap',
   'Contour lines; only with the internet': 'Mit Höhenlinien; nur mit Internet',
+  'Cycling map': 'Velokarte',
+  'CyclOSM: cycle paths and road surfaces, close to OsmAnd; only with the internet': 'CyclOSM: Velowege und Belag, ähnlich wie OsmAnd; nur mit Internet',
+  'Applies to all maps in the app.': 'Gilt für alle Karten in der App.',
 
   // MapView
   'Zoom in': 'Hineinzoomen',

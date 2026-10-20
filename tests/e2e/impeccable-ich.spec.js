@@ -1,7 +1,7 @@
 // Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): Eingang, Ich, Daten und Backup.
 // - Eingang: the row's button names the suggestion and opens its form; «Einfach behalten» files with one tap
 //   (toast with «Rückgängig»); ••• › «Woanders ablegen …» shows the 7 targets.
-// - Ich: «Wartet auf dich» on top (inbox, the key that runs out); «App-Wartung», «Mehr» and «Hilfe» folded.
+// - Ich: «Wartet auf dich» on top (inbox; never a key that runs out, Noah 20.10.2026); «App-Wartung», «Mehr» and «Hilfe» folded.
 // - Daten und Backup: the head in words, one main button «Backup speichern», the last backup named.
 // Fictional data only (tests/e2e/v048-fixture.js, test_data_gtp_ names); nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
@@ -80,10 +80,11 @@ test('Ich: Waiting for you on top, App maintenance, More and Help folded', async
   const inbox = wait.locator('[data-wait="inbox"]');
   await expect(inbox).toContainText(/Eingang: \d+ Notizen zum Ablegen/);
   await expect(inbox.getByRole('link', { name: T('File') })).toHaveAttribute('href', '#/inbox');
-  // the AI key that runs out within 30 days: «Ansehen» opens «App-Wartung»
+  // Noah 20.10.2026: no line about a key that runs out; keys live only in «App-Wartung» (folded)
+  await expect(wait.locator('[data-wait^="key-"]')).toHaveCount(0);
   const maint = page.locator('[data-section="maintenance"]');
   await expect(maint).not.toHaveAttribute('open', '');
-  await wait.locator('[data-wait^="key-"]').getByRole('button', { name: T('Look|maint') }).click();
+  await maint.locator('summary').first().click();
   await expect(maint).toHaveAttribute('open', '');
   await expect(maint.locator('[data-maint="keys"]')).toBeVisible();
   // «Mehr» and «Hilfe» are folded, one tap opens them

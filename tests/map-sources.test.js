@@ -49,3 +49,23 @@ describe('map grounds', () => {
     expect(styleOf(groundOf('vector'))).toBe(groundOf('vector').style);
   });
 });
+
+// Kartenlayer (Noah 20.10.2026): one ground for all maps, also the plain tile maps.
+import { RASTER_GROUNDS, rasterGround } from '../src/lib/map/sources.js';
+describe('grounds for plain tile maps', () => {
+  it('CyclOSM is there, view only', () => {
+    expect(groundOf('cyclo').kind).toBe('raster');
+    expect(groundOf('cyclo').offline).toBe(false);
+  });
+  it('a plain tile map offers every ground but the vector map', () => {
+    expect(RASTER_GROUNDS.map((g) => g.key)).toEqual(GROUNDS.filter((g) => g.kind !== 'vector').map((g) => g.key));
+    expect(RASTER_GROUNDS.some((g) => g.kind === 'vector')).toBe(false);
+  });
+  it('the vector map becomes OpenStreetMap; auto keeps swisstopo in Switzerland', () => {
+    expect(rasterGround('vector', 46.8, 8.2).key).toBe('osm');
+    expect(rasterGround('auto', 45.0, 7.0, 7).key).toBe('osm');
+    expect(rasterGround('auto', 46.8, 8.2, 7).key).toBe('swisstopo');
+    expect(rasterGround('cyclo', 46.8, 8.2).key).toBe('cyclo');
+    expect(rasterGround('swissimage', 46.8, 8.2).key).toBe('swissimage');
+  });
+});

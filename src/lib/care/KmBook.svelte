@@ -259,7 +259,7 @@
             {/if}
           </span>
         {:else if r.state === 'removed'}
-          <small class="why">{t('Left out: does not count.')}</small>
+          <small class="why">{r.reason?.code === 'start' || r.reason?.code === 'twin' ? reasonText(r.reason, nameOf) : t('Left out: does not count.')}</small>
         {/if}
       </span>
       <span class="k num" class:neg={r.km < 0}>{r.kind === 'correction' || r.kind === 'reading' ? `${r.km > 0 ? '+' : ''}${num(r.km)}` : num(r.km)} km</span>
