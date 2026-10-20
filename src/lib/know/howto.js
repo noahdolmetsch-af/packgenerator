@@ -283,6 +283,7 @@ export const HOWTO = {
   'f.spurlink': ['Open «Travel track» of a tour.', 'Choose what goes in and tap «Make a link».', 'Send it; «Update» shows the newest state, «Delete link» ends it.'],
   'f.trainplans': ['Open Active › Training › Training plans.', 'Pick a plan, choose «Back from the race day» and set the day.', 'Tap «Try it»: the sessions stand in your week plan.'],
   'f.feel': ['Open Active › Training after a ride.', 'Tap a number from 1 to 10 under «How hard was your ride?».', 'Change it later on the page of the ride.'],
+  'f.tickreview': ['Open Active › Goals and tap «Evaluate».', 'Choose a period and an activity, or «Your answers».', 'Tap «…» on a card to hide or move it.'],
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
 };
 

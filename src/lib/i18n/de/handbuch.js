@@ -1111,4 +1111,10 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Auswertung wie Training» (Noah 20.10.2026)
+  'Works with what you tick off under «Heute abhaken» and with check questions that have a number.': 'Geht mit allem, was du unter «Heute abhaken» abhakst, und mit Check-Fragen, die eine Zahl haben.',
+  'Open Active › Goals and tap «Evaluate».': 'Öffne Aktiv › Ziele und tippe «Auswerten».',
+  'Choose 30 days, 90 days or the year, and all activities or one.': 'Wähle 30 Tage, 90 Tage oder das Jahr, und alle Aktivitäten oder eine.',
+  'Switch to «Your answers» for a check question; «…» on a card hides or moves it.': 'Wechsle zu «Deine Antworten» für eine Check-Frage; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
+  'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.': 'Beispiel: Meditation, 90 Tage → am häufigsten am Dienstag, meist vor 9 Uhr, 8 Tage am Stück als beste Serie.',
 };
