@@ -109,4 +109,16 @@ export default {
   'Readiness starts at 60. Form, resting pulse, HRV and sleep against your normal, and how you felt in the morning check, add or take away points. 75 and more suits a hard ride, under 35 a rest day.':
     'Die Bereitschaft beginnt bei 60. Form, Ruhepuls, HRV und Schlaf gegen dein Normal und wie du dich im Morgen-Check gefühlt hast, geben Punkte dazu oder ziehen ab. Ab 75 passt eine harte Fahrt, unter 35 ein Ruhetag.',
   'Fitness rising by more than {n} a week is a lot: a calm hint, no rule.': 'Steigt die Fitness um mehr als {n} pro Woche, ist das viel: ein ruhiger Hinweis, keine Regel.',
+  // the catalogue, the handbook and «So geht's» (f.form, f.overview)
+  'Each morning a readiness from 0 to 100 with what today suits, from all your activities, Fitbit and the morning check; 12 weeks of fitness and form, and tour readiness.':
+    'Jeden Morgen eine Bereitschaft von 0 bis 100 und was heute passt, aus all deinen Aktivitäten, Fitbit und dem Morgen-Check; 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
+  'Overview like Garmin': 'Übersicht wie bei Garmin',
+  "Today's activities, each sport's last 7 days to swipe, heart rate, active minutes, calories and sleep, and a page per sport and for the heart rate.":
+    'Die Aktivitäten von heute, die letzten 7 Tage jeder Sportart zum Wischen, Puls, Aktivzonen-Minuten, Kalorien und Schlaf, dazu eine Seite pro Sportart und für den Puls.',
+  'Open Active: the card on top shows your readiness.': 'Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft.',
+  'Tap it for the page «Form and recovery».': 'Tipp sie an für die Seite «Form und Erholung».',
+  'Answer the morning check: your felt sleep and energy count too.': 'Beantworte den Morgen-Check: Dein gefühlter Schlaf und deine Energie zählen mit.',
+  'Open Active and scroll to «In focus».': 'Öffne Aktiv und scroll zu «Im Fokus».',
+  'Swipe for the next sport; tap a card for its page.': 'Wisch für die nächste Sportart; tipp eine Karte an für ihre Seite.',
+  'Tap the heart rate tile for the pulse per day.': 'Tipp die Puls-Kachel an für den Puls pro Tag.',
 };
