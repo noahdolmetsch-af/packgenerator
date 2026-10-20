@@ -151,6 +151,8 @@ test('Content: weather per day, the rainy long ride moves, last week, load hints
   await expect(page.locator('[data-review]')).toContainText(T('Last week: {list}', { list: '' }).trim());
   await expect(page.locator('[data-load-hint="twoHard"]')).toBeVisible();
   // 5a the trip tomorrow: packing list, weather and bike check today
+  // «Handy kürzer» (Noah 20.10.2026 «4b»): a phone shows five suggestions first; open the rest
+  if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
   for (const what of ['pack', 'wx', 'bike']) await expect(page.locator(`[data-sugg="tour:test_data_gtp_Herbstrunde:${what}"]`)).toBeVisible();
   const pack = page.locator('[data-sugg="tour:test_data_gtp_Herbstrunde:pack"]');
   await pack.getByRole('button', { name: T('Take') }).click();

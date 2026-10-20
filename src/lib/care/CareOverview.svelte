@@ -21,6 +21,9 @@
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { chfText } from '../money.js';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS } from '../touren/kurz.js';
+  import { ChevronDown } from '@lucide/svelte';
   // SK X5 + X15 (SKX3); Impeccable (18.10.2026, Velopflege 2): the links of a due row live in its «…»,
   // the workshop booking link is entered once under «More».
   import { slotOf, PARKTOOL_URL, LINKS, linkOn } from '../sk/links.js';
@@ -37,6 +40,9 @@
   const rings = $derived(checks.map((c) => ({ c, ring: ringScore(c.bike, c.time, today), km: kmSinceService(c.bike) })));
   // Gesamttest 20.10.2026 B6: every due row (was 3 and «n more due»: the bar said 5, the page 3)
   const due = $derived(dueCards(checks, Infinity));
+  // «Handy kürzer» (Noah 20.10.2026 «4b»): on a phone «Due now» shows PHONE_ROWS rows, then «Show n more»
+  let dueAll = $state(false);
+  const dueShown = $derived(phone.matches && !dueAll ? due.cards.slice(0, PHONE_ROWS) : due.cards);
   const dueProblems = $derived(due.cards.filter((d) => d.row.kind === 'repair' && d.row.task).map((d) => d.row.task.id));
   const calm = $derived(calmWeeks(tasks, bikes, today));
   const log = $derived(diary(bikes, tasks, 5));
@@ -132,7 +138,7 @@
         </div>
         {#if due.cards.length}
           <ul class="card vlist">
-            {#each due.cards as d (`${d.bike.id}:${d.row.key}`)}
+            {#each dueShown as d (`${d.bike.id}:${d.row.key}`)}
               {@const acts = [...rowActs(d), ...linkActs(d)]}
               <li class="dcard {d.row.kind === 'part' ? 'bad' : 'warn'}">
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
@@ -146,6 +152,9 @@
               </li>
             {/each}
           </ul>
+          {#if dueShown.length < due.cards.length}
+            <button type="button" class="phone-more" onclick={() => (dueAll = true)} data-due-more><ChevronDown size={16} aria-hidden="true" />{tn(due.cards.length - dueShown.length, 'Show {n} more due', 'Show {n} more due')}</button>
+          {/if}
           <!-- Regeln der App (14.10.2026): the line says «open the bike», so a tap opens the bike of the next due card -->
           {#if due.total > due.cards.length}<p class="more">{#if due.next}<button type="button" class="linkbtn" onclick={() => onopen(due.next.id)}>{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</button>{:else}{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}{/if}</p>{/if}
         {:else}
@@ -549,5 +558,22 @@
   .dt small {
     color: var(--ink-3);
     font-size: var(--fs-tiny);
+  }
+  /* «Handy kürzer» (Noah 20.10.2026 «4b»): the rest of «Due now» after one tap */
+  .phone-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    margin: var(--sp-2) 0 0;
+    padding: 10px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-align: left;
+    cursor: pointer;
   }
 </style>
