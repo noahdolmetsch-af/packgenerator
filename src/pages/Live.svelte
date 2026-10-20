@@ -48,7 +48,7 @@
   import Essen from '../lib/unterwegs/Essen.svelte';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
   import SensorBox from '../lib/live/SensorBox.svelte';
   import { fresh, onValue } from '../lib/live/sensors.svelte.js';
@@ -368,6 +368,8 @@
       limitMsg = hr.ring ? t('Heart rate above {n} bpm for a minute.', { n: cfg.hrMax }) : t('Power above {n} W for a minute.', { n: cfg.powerMax });
     }
     if (hrSt.since == null && powerSt.since == null) limitMsg = '';
+    // Stromsparen 1a: your own pause or a minute standing → the GPS asks less (an auto-pause keeps it exact, to go on at once)
+    setGpsLow((rec.paused && !rec.auto) || standing);
   }
   // the sensor values go with the recording (every 5 s)
   $effect(() => onValue((kind, v, at) => addSensor(kind, v, at)));
@@ -662,6 +664,12 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
+    {#if !rec.on}
+      <details class="lv-tip" data-live-flight-tip>
+        <summary>{t('Save battery: ride in flight mode')}</summary>
+        <p class="rc-note">{t('Store the map along your route first (offline strips, on the race map or in the «⋯» menu of the live map). Then switch on flight mode and switch GPS and Bluetooth on again: the ride is recorded, the sensors and all numbers work. Without internet there is no weather, thunderstorm alert, public transport, family link or place search.')}</p>
+      </details>
+    {/if}
   </section>
 
   {#if after}
@@ -1118,6 +1126,14 @@
     gap: 10px;
     min-height: 44px;
     width: 100%;
+  }
+  .lv-tip summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .lv-opt-col {
     flex: 1 1 auto;

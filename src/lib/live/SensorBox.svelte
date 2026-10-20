@@ -27,7 +27,7 @@
     const e = await reconnectSensor(id);
     if (e) err = t(e);
   }
-  const state = (s) => (s === 'on' ? t('Connected') : s === 'connecting' ? t('Connecting …') : t('Connection lost: the app tries again.'));
+  const stateText = (s) => (s === 'on' ? t('Connected') : s === 'connecting' ? t('Connecting …') : t('Connection lost: the app tries again.'));
   const valueOf = (kind) => {
     const v = fresh(kind, now);
     return v == null ? '–' : `${v} ${KINDS[kind].unit}`;
@@ -46,7 +46,7 @@
           {@const I = ICON[s.kind]}
           <li class="sb-row" data-live-sensor={s.kind}>
             <I size={20} aria-hidden="true" />
-            <span class="sb-name"><b>{s.name || t(KINDS[s.kind].name)}</b><small>{state(s.status)}</small></span>
+            <span class="sb-name"><b>{s.name || t(KINDS[s.kind].name)}</b><small>{stateText(s.status)}</small></span>
             <b class="sb-val" data-live-sensor-value>{valueOf(s.kind)}{#if s.kind === 'power' && fresh('cadence', now) != null}{' '}· {valueOf('cadence')}{/if}</b>
             {#if s.status === 'lost'}<button type="button" class="btn sm" onclick={() => again(s.id)} aria-label={t('Connect again')}><RefreshCw size={16} aria-hidden="true" /></button>{/if}
             <button type="button" class="btn sm" onclick={() => disconnectSensor(s.id)} aria-label={t('Disconnect {name}', { name: s.name || t(KINDS[s.kind].name) })} data-live-sensor-off><X size={16} aria-hidden="true" /></button>

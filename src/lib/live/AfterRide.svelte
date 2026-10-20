@@ -18,6 +18,7 @@
   import { PACE_KEY, paceOf } from '../pace.js';
   import { plannedFor } from '../gpx.js';
   import { kmIntoDebrief } from '../ridelist.js';
+  import SensorCurve from './SensorCurve.svelte';
   import { rideSummary, rideRowOf, bikeKmPlan, bikeEntryOf, durText } from './after.js';
 
   let { ride, trip = null } = $props();
@@ -94,7 +95,15 @@
     {#if sum.hm != null}<div><dt>{t('Climbing')}</dt><dd class="num" data-after-hm>{num(sum.hm)} m</dd></div>{/if}
     <div><dt>{t('Riding|live')}</dt><dd class="num" data-after-moving>{durText(sum.movingS)}</dd></div>
     <div><dt>{t('Stopped|live')}</dt><dd class="num" data-after-stopped>{durText(sum.stoppedS)}</dd></div>
+    {#if sum.pausedS >= 60}<div><dt>{t('Paused|ride')}</dt><dd class="num" data-after-paused>{durText(sum.pausedS)}</dd></div>{/if}
+    {#if sum.totalS}<div><dt>{t('Total time')}</dt><dd class="num" data-after-total>{durText(sum.totalS)}</dd></div>{/if}
+    {#if sum.sensors.hr}<div><dt>{t('Ø heart rate')}</dt><dd class="num" data-after-hr>{num(sum.sensors.hr.avg)} bpm</dd></div>{/if}
+    {#if sum.sensors.power}<div><dt>{t('Ø power')}</dt><dd class="num" data-after-power>{num(sum.sensors.power.avg)} W</dd></div>{/if}
+    {#if sum.sensors.cadence}<div><dt>{t('Ø cadence')}</dt><dd class="num">{num(sum.sensors.cadence.avg)} rpm</dd></div>{/if}
   </dl>
+  {#if cur.sensors?.hr?.length > 1}<SensorCurve samples={cur.sensors.hr} label={t('Heart rate')} unit="bpm" avg={sum.sensors.hr?.avg} max={sum.sensors.hr?.max} />{/if}
+  {#if cur.sensors?.power?.length > 1}<SensorCurve samples={cur.sensors.power} label={t('Power')} unit="W" avg={sum.sensors.power?.avg} max={sum.sensors.power?.max} />{/if}
+  {#if sum.sensors.hr || sum.sensors.power}<p class="tp-small tp-muted">{t('Measured by your sensors during the ride, kept on this device.')}</p>{/if}
   <p class="tp-small tp-muted">{sum.stops.length ? tn(sum.stops.length, '{n} pause of 2 minutes or more.', '{n} pauses of 2 minutes or more.') : t('No pause of 2 minutes or more.')} {sum.hm == null ? t('Height metres come with a route that has a profile, or later from Strava.') : ''}</p>
 
   <div class="row">

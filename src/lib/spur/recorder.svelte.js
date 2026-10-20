@@ -144,21 +144,45 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
   await getLock();
   onVis = () => document.visibilityState === 'visible' && rec.on && getLock();
   document.addEventListener('visibilitychange', onVis);
+  watchDb = db;
+  gpsSaver = saver;
+  gpsLow = false;
+  startWatch();
+  return '';
+}
+
+let watchDb = appDb;
+let gpsSaver = false;
+let gpsLow = false;
+// saver (Live-Karte battery saver) or low (paused / standing, Stromsparen 1a): no high accuracy, older fixes → less GPS
+const gpsOptions = () => (gpsSaver || gpsLow ? { enableHighAccuracy: false, maximumAge: 30_000, timeout: 60_000 } : { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 });
+function startWatch() {
+  if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = navigator.geolocation.watchPosition(
-    (pos) => addFix(pos, db),
+    (pos) => addFix(pos, watchDb),
     (err) => {
       rec.error = err?.code === 1 ? 'Location is not allowed. Allow it for this site in the browser settings.' : 'No GPS signal right now. Recording goes on as soon as there is one.';
     },
-    // saver (Live-Karte battery saver): no high accuracy, older fixes allowed → less GPS.
-    saver ? { enableHighAccuracy: false, maximumAge: 30_000, timeout: 60_000 } : { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
+    gpsOptions(),
   );
-  return '';
+}
+
+/**
+ * Stromsparen (Noah 20.10.2026 «1a»): while paused or standing the GPS asks less often and less exactly;
+ * riding again → as before. The recording and the sensors go on all the time.
+ */
+export function setGpsLow(low) {
+  if (!rec.on || !!low === gpsLow) return false;
+  gpsLow = !!low;
+  if (!gpsSaver) startWatch();
+  return true;
 }
 
 /** Stop recording; the recording stays (closed). Returns it, or null when it had fewer than 2 points (then it goes). */
 export async function stopRecording(db = appDb) {
   if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = null;
+  gpsLow = false;
   try {
     await lock?.release?.();
   } catch {
