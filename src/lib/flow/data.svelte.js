@@ -188,7 +188,7 @@ export async function seedMed(data, actId) {
  */
 export function checkQuery(today) {
   return liveQuery(async () => {
-    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events] = await Promise.all([
+    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events, health] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(addDays(today, -70)).toArray(),
       db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray(),
@@ -201,6 +201,8 @@ export function checkQuery(today) {
       // package G #226: the fixed dates of Aktiv › Woche and today's Google appointments («Heute im Blick»)
       db.settings.get(FIXED_KEY),
       db.gEvents.where('day').equals(today).toArray(),
+      // 0.171: the Fitbit days of 30 days (the night and the day in numbers of the check pages, with the normal)
+      db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -30)).toArray().catch(() => []) : [],
     ]);
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
@@ -215,6 +217,7 @@ export function checkQuery(today) {
       weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
       fixed: Array.isArray(fixed?.value) ? fixed.value : [],
       events,
+      health,
       seeded: acts.length > 0,
     };
   });

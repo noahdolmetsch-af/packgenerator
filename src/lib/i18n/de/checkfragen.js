@@ -44,4 +44,18 @@ export default {
   'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis. Change, delete, add and sort questions and areas yourself; skip a single question.': 'Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abendrunde, ein Verlauf und eine Auswertung. Fragen und Bereiche selbst ändern, löschen, hinzufügen und sortieren; einzelne Fragen überspringen.',
   'Switch questions on or off; «Edit questions and groups» changes and sorts them.': 'Schalte Fragen ein oder aus; «Fragen und Bereiche bearbeiten» ändert und sortiert sie.',
   'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one question away.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine Frage weg.',
+  // 0.171 Fitbit fills in
+  'Fitbit: {h} h {m} min asleep': 'Fitbit: {h} h {m} min geschlafen',
+  'Fitbit: resting pulse {v}': 'Fitbit: Ruhepuls {v}',
+  'Fitbit: {v} steps': 'Fitbit: {v} Schritte',
+  'Fitbit: {v} active zone minutes': 'Fitbit: {v} Aktivzonen-Minuten',
+  'filled in, changeable': 'eingetragen, änderbar',
+  'filled in from Fitbit: hours of sleep, resting pulse, steps, movement; you can change it': 'von Fitbit eingetragen: Schlafstunden, Ruhepuls, Schritte, Bewegung; du kannst es ändern',
+  'from Fitbit, shown in the check': 'von Fitbit, im Check angezeigt',
+  'Sleep|numbers': 'Schlaf',
+  'normal {v}': 'normal {v}',
+  'Only to look at, next to your feeling: no rating.': 'Nur zum Anschauen, neben deinem Gefühl: keine Bewertung.',
+  'No Fitbit values for last night yet. They often come a little later.': 'Noch keine Fitbit-Werte für letzte Nacht. Sie kommen oft etwas später.',
+  'Connect Fitbit once and your sleep, resting pulse and HRV show here.': 'Verbinde Fitbit einmal, dann stehen hier Schlaf, Ruhepuls und HRV.',
+  'Steps and active zone minutes show here once Fitbit is connected.': 'Schritte und Aktivzonen-Minuten stehen hier, sobald Fitbit verbunden ist.',
 };

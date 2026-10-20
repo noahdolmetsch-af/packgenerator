@@ -157,7 +157,7 @@
     const v = timeOf(value);
     if (v) save(setRounds(cfg, { [key]: v }));
   };
-  const ICON_SRC = { hand: Hand, later: Watch, open: CircleDashed, only: Hand, app: Smartphone };
+  const ICON_SRC = { hand: Hand, later: Watch, fitbit: Watch, open: CircleDashed, only: Hand, app: Smartphone };
   const exOf = (list) => list.find((q) => settingOf(cfg, q).on) ?? list[0];
 </script>
 
@@ -314,7 +314,7 @@
         <h3 class="howh" id="ab-src-h">{t('Where the values come from')}</h3>
         <ul class="card side leg" aria-labelledby="ab-src-h">
           <li><span class="ab-src hand"><Hand size={13} aria-hidden="true" />{srcText('hand')}</span><small>{t('you enter it when the question comes')}</small></li>
-          <li><span class="ab-src later"><Watch size={13} aria-hidden="true" />{srcText('later')}</span><small>{t('tested: steps, sleep, resting pulse, HRV · with the connection to Fitbit')}</small></li>
+          <li><span class="ab-src fitbit"><Watch size={13} aria-hidden="true" />{srcText('fitbit')}</span><small>{t('filled in from Fitbit: hours of sleep, resting pulse, steps, movement; you can change it')}</small></li>
           <li><span class="ab-src open"><CircleDashed size={13} aria-hidden="true" />{srcText('open')}</span><small>{t('active zone minutes, oxygen, weight')}</small></li>
           <li><span class="ab-src only"><Hand size={13} aria-hidden="true" />{srcText('only')}</span><small>{t('e.g. screen time, Samsung Health: a web app cannot reach these data')}</small></li>
         </ul>
