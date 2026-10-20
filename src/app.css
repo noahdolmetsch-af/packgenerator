@@ -1706,3 +1706,12 @@ html:root[data-contrast='high'][data-theme='dark'] {
 .help-line[aria-expanded='true'] > .hl-chev {
   transform: rotate(90deg);
 }
+
+/* ---------- «Anpassen» (Noah 20.10.2026 «1a»): a part you hid, and a holder you sorted (anpassen/parts.js) ---------- */
+[data-anp-hide] {
+  display: none !important;
+}
+[data-anp-flex] {
+  display: flex !important;
+  flex-direction: column;
+}

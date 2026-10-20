@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.173.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; built without mockups
+    version: '0.173.0',
+    date: '2026-10-21',
+    title: 'Make it your own',
+    lead: 'Change every page yourself.',
+    points: [
+      { text: 'Every page: «Customise this page» at the end', href: '#/trips' },
+      { text: 'Menu: hide and sort the places', href: '#/me/look' },
+    ],
+    test: [
+      'Scroll to the end of Trips and tap «Customise this page».',
+      'Hide a part and rename one; «As at the start» puts it back.',
+    ],
+  },
+  {
     // v0.169.0 «Neue Leiste und Heute neu»: N1 bar (Noah 20.10.2026 «1a 2a»), N2 Heute (15:49 «1a 2a 3a und b 4b 5a»), UI-Grundlagen (UI-Ziele #12 #15 #16 #17, 17:05 «freigabe»); built without mockups
     version: '0.169.0',
     date: '2026-10-20',

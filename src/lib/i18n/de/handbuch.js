@@ -1111,4 +1111,11 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Anpassen» (Noah 20.10.2026)
+  'At the end of a page tap «Customise this page».': 'Tippe am Ende einer Seite auf «Diese Seite anpassen».',
+  'Switch a part off to hide it, tap the pencil to rename it, sort with the arrows or by dragging.':
+    'Schalte einen Teil aus, um ihn zu verstecken, tippe auf den Stift zum Umbenennen und sortiere mit den Pfeilen oder durch Ziehen.',
+  'Tabs: choose «Opens with»; Menu: hide or sort the places. «As at the start» puts the page back.':
+    'Reiter: Wähle «Öffnet mit»; Menü: Bereiche verstecken oder sortieren. «Wie am Anfang» stellt die Seite zurück.',
+  'Example: hide «Suggestions» on Appearance and put «Colour world» first.': 'Beispiel: Auf Darstellung «Vorschläge» verstecken und «Farbwelt» nach oben nehmen.',
 };

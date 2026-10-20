@@ -1430,4 +1430,11 @@ export default {
   'Warmer colours, round buttons': 'Wärmere Farben, runde Knöpfe',
   'Tap Plan in the bar: Week, Appointments, Notes and more.': 'Tippe in der Leiste auf Planen: Woche, Termine, Notizen und mehr.',
   'Open Today: your body stands on top.': 'Öffne Heute: Dein Körper steht zuoberst.',
+  // 0.173.0 «Anpassen»
+  'Make it your own': 'Mach sie zu deiner',
+  'Change every page yourself.': 'Jede Seite selbst anpassen.',
+  'Every page: «Customise this page» at the end': 'Jede Seite: «Diese Seite anpassen» am Ende',
+  'Menu: hide and sort the places': 'Menü: Bereiche verstecken und sortieren',
+  'Scroll to the end of Trips and tap «Customise this page».': 'Scrolle ans Ende von Touren und tippe auf «Diese Seite anpassen».',
+  'Hide a part and rename one; «As at the start» puts it back.': 'Verstecke einen Teil und benenne einen um; «Wie am Anfang» stellt alles zurück.',
 };
