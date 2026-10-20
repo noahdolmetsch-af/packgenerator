@@ -103,3 +103,26 @@ test('after a ride the app asks how hard it was', async ({ page, context }) => {
   await page.goto('./#/flow/training/a/9001');
   await expect(page.locator('[data-section="feel"] [data-feel="7"]')).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('coupled to a race: the plan takes its day and follows when it moves', async ({ page, context }) => {
+  await start(page, context);
+  const trip = { id: 'trip-race', title: 'Beispiel-Rennen', startDate: day(80), days: 4, domain: 'bike', status: 'planned', event: true };
+  await put(page, 'trips', trip);
+  await page.goto('./#/flow/plans/multi');
+  await page.reload(); // Dexie keeps its own cache
+  await ready(page);
+  await expect(page.locator('[data-plan-race]')).toHaveValue('trip-race');
+  await expect(page.locator('[data-plan-date]')).toHaveValue(day(80));
+  await page.locator('[data-plan-try]').click();
+  await expect(page).toHaveURL(/#\/flow\/training$/);
+
+  await put(page, 'trips', { ...trip, startDate: day(87) });
+  await page.goto('./#/flow/plans');
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-plan-for]')).toContainText('Beispiel-Rennen');
+  await page.locator('[data-plan-follow]').click();
+  await expect(page.locator('[data-plan-moved]')).toHaveCount(0);
+  const sessions = await planSessions(page);
+  expect(sessions.some((s) => s.day > day(80) && s.day < day(87))).toBe(true);
+});

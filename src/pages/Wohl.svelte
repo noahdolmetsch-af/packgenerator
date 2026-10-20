@@ -10,7 +10,7 @@
    * season switch (#89). Everything here is a suggestion: nothing is mandatory.
    */
   import { liveQuery } from 'dexie';
-  import { Sun, Sunrise, Shuffle as Again, FlaskConical, Layers, Shuffle, User, Sparkles, HeartHandshake, Puzzle, Gauge, BatteryLow, CalendarSearch, Target, Timer, Compass, Leaf, Plus, Pencil, Trash2, ChevronUp, ChevronDown, Check } from '@lucide/svelte';
+  import { Sun, Sunrise, Shuffle as Again, FlaskConical, Layers, Shuffle, User, Sparkles, Heart, HeartHandshake, Puzzle, Gauge, BatteryLow, CalendarSearch, Target, Timer, Compass, Leaf, Plus, Pencil, Trash2, ChevronUp, ChevronDown, Check } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AreaIntro from '../lib/ui/AreaIntro.svelte';
   import Section from '../lib/ui/Section.svelte';
@@ -28,7 +28,7 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import {
-    dayData, lifts, helps, drains, combos, comfort, recipe, goodRecipes, surprises, scoredDays, FACT, MIN_DAYS, GOOD,
+    dayData, lifts, helps, drains, combos, comfort, recipe, goodRecipes, surprises, scoredDays, FACT, MIN_DAYS, MIN_BOTH, GOOD,
     WISH_KEY, wishOf, wishGap, wishArcs, MINUTES, shortOf,
     NEULAND_KEY, neulandYear, addNeuland, renameNeuland, dropNeuland,
     SEASON_KEY, seasonOf, nextSeason, seasonListOf, tickSeason, addSeasonItem, renameSeasonItem, dropSeasonItem, moveSeasonItem,
@@ -41,6 +41,10 @@
   import { HOME_PLACE } from '../lib/know.js';
   import PhotoPick from '../lib/ui/PhotoPick.svelte';
   import { shrinkImage } from '../lib/photo.js';
+  import { routineQuery } from '../lib/routine-data.js';
+  import { isFor as routineFor, isDone as routineDone, feltOf as routineFelt } from '../lib/routine.js';
+  import { itemName as routineName } from '../lib/routine-words.js';
+  import { routineCarry } from '../lib/wohl.js';
   import '../lib/ich/ich.css';
   import '../lib/ui/daumen.css';
 
@@ -305,6 +309,10 @@
   let tipMin = $state(20);
   const tip = $derived(morningTip(data, rows, today, tipMin));
 
+  // Noah 19.10.2026 «5a»: which items of «Das tut mir gut» carry your good days, and «Did it do you good?»
+  const rq = routineQuery(today);
+  const carry = $derived($rq ? routineCarry($rq.routine.items, data, { isFor: routineFor, doneOf: (x, d) => routineDone($rq.routine, x, d, $rq.auto), feltOf: (x, d) => routineFelt($rq.routine, x.id, d) }) : []);
+
   // #252 Alleinsein, #257 Gutes Umplanen
   const aloneGood = $derived(dailyValues(rows, 'freunde.alleingut'));
   const aloneN = $derived(Object.keys(aloneGood).filter((d) => d >= days60[0]).length);
@@ -409,6 +417,24 @@
             <ul class="wl-chips">{#each recipes as r (r.key)}<li>{fact(r.key)} <em class="num">{r.n}×</em></li>{/each}</ul>
           {/if}
         </div>
+      </Section>
+
+      <!-- Noah 19.10.2026 «5a»: «Das tut mir gut» and your good days -->
+      <Section title={t('Your list «What does me good»')} sub={t('Day score on the days you ticked an item, against the other days')}>
+        <ul class="card slist" data-wohl-routine>
+          {#each carry as c (c.id)}
+            <li class="srow wl-row" data-carry={c.id}>
+              <span class="sib {c.carries ? 'ok' : ''}"><Heart size={18} aria-hidden="true" /></span>
+              <span class="sm"><b>{routineName(c.item)}</b>
+                {#if c.withScore != null}<small>{c.carries ? t('carries your good days: {a} instead of {b}', { a: f1(c.withScore), b: f1(c.without) }) : t('day score {a} with it, {b} without', { a: f1(c.withScore), b: f1(c.without) })}</small>{/if}
+                {#if c.felt.n}<small data-felt-n={c.felt.n}>{t('did you good {yes} of {n} times, a little {little}×', { yes: c.felt.yes, n: c.felt.n, little: c.felt.little })}</small>{/if}
+                {#if c.withScore != null}<details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{t('From your ticks on Heute and your day score: {a} days with it, {b} days without it; «Did it do you good?» you answered {n} times.', { a: c.nWith, b: c.nWithout, n: c.felt.n })}</p></details>{/if}
+              </span>
+            </li>
+          {:else}
+            <li class="srow"><span class="sm"><small>{t('Tick off your list on Heute for a while; from {n} days with and {n} days without an item it shows here.', { n: MIN_BOTH })}</small></span></li>
+          {/each}
+        </ul>
       </Section>
 
       <!-- what helps + #259 -->

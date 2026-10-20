@@ -62,6 +62,8 @@
       {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       {#if foot}<p class="foot">{foot}</p>{/if}
       <RoutePois {trip} />
+      <!-- Verpflegung (Noah 19.10.2026 «1a»): the food and water plan of this trip -->
+      <a class="fuel-lk" href={`#/trips/fuel?trip=${encodeURIComponent(trip.id)}`} data-fuel-link>{t('Food and water plan')}<ChevronRight size={16} aria-hidden="true" /></a>
     {:else if route}
       {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       <p class="foot">{foot}</p>
@@ -73,6 +75,15 @@
 </section>
 
 <style>
+  .fuel-lk {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    justify-self: start;
+    color: var(--accent);
+    font-weight: 600;
+  }
   .rc {
     min-width: 0;
   }

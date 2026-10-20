@@ -55,10 +55,13 @@ describe('demo day', () => {
     globalThis.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v), removeItem: (k) => delete store[k] };
     setClock('2026-10-14');
     applyClock(clockOffset());
-    expect(new Date().toISOString().slice(0, 10)).toBe('2026-10-14');
+    // the demo day is a local day (setClock keeps the local time of day): compare local days, not UTC ones,
+    // so the test holds between midnight and 02:00 in Zurich too
+    const day = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    expect(day(new Date())).toBe('2026-10-14');
     setClock('2026-10-15');
     const off = clockOffset();
-    expect(new Real(Real.now() + off).toISOString().slice(0, 10)).toBe('2026-10-15');
+    expect(day(new Real(Real.now() + off))).toBe('2026-10-15');
     delete globalThis.localStorage;
   });
 });

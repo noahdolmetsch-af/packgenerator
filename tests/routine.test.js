@@ -1,7 +1,7 @@
 // Routine «Das tut mir gut» (mockups D1 + D2, Noah 12.10.2026 «d1-d5 freigeben»): src/lib/routine.js.
 // Fictional data only; days are calendar days (2026-10-15 is a Thursday).
 import { describe, it, expect } from 'vitest';
-import { seedItems, routineOf, normItem, weekdayOf, addDays, isFor, itemsFor, listFor, extraOn, toggleTick, isDone, isAuto, countFor, streakOf, nextMilestone, newItem, addItem, removeItem, renameItem, patchItem, moveItem, stepItem, toggleDay, hm, recordOf, SUGGESTIONS, WEEKDAYS, STEPS } from '../src/lib/routine.js';
+import { seedItems, routineOf, normItem, weekdayOf, addDays, isFor, itemsFor, listFor, extraOn, toggleTick, setFelt, feltOf, weekDots, weekDays, isDone, isAuto, countFor, streakOf, nextMilestone, newItem, addItem, removeItem, renameItem, patchItem, moveItem, stepItem, toggleDay, hm, recordOf, SUGGESTIONS, WEEKDAYS, STEPS } from '../src/lib/routine.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 const THU = '2026-10-15';
@@ -145,7 +145,7 @@ describe('the list', () => {
     const gone = removeItem(r, x.id);
     expect(gone.items.some((y) => y.id === x.id)).toBe(false);
     expect(gone.ticks[x.id]).toBeUndefined();
-    expect(recordOf(gone)).toEqual({ items: gone.items, ticks: gone.ticks });
+    expect(recordOf(gone)).toEqual({ items: gone.items, ticks: gone.ticks, felt: {} });
   });
   it('moves an item, also one place within the shown list', () => {
     const r = r0();
@@ -155,5 +155,25 @@ describe('the list', () => {
     const up = stepItem(r, shown, 'walk', -1).items.map((x) => x.id);
     expect(up.indexOf('walk')).toBeLessThan(up.indexOf('shower'));
     expect(stepItem(r, shown, 'wake', -1)).toBe(r);
+  });
+});
+
+// Noah 19.10.2026 «4a 5a»: seven dots per item for this week; «Did it do you good?» after a tick
+describe('this week and «Did it do you good?»', () => {
+  const FRI = '2026-10-09'; // a Friday
+  it('seven dots Monday to Sunday: done, open, today, later, off', () => {
+    expect(weekDays(FRI)).toEqual(['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10', '2026-10-11']);
+    const r = toggleTick(toggleTick({ items: [normItem({ id: 'a' }), normItem({ id: 'y', days: [3] })], ticks: {}, felt: {} }, 'a', '2026-10-06'), 'y', '2026-10-08');
+    expect(weekDots(r, r.items[0], FRI).map((d) => d.state)).toEqual(['open', 'done', 'open', 'open', 'today', 'later', 'later']);
+    expect(weekDots(r, r.items[1], FRI).map((d) => d.state)).toEqual(['off', 'off', 'off', 'done', 'off', 'off', 'off']);
+  });
+  it('an answer is kept with the record, cleaned when read, and goes with an untick or a delete', () => {
+    let r = toggleTick(routineOf({ items: [{ id: 'a', name: 'A walk' }], ticks: {} }), 'a', FRI);
+    r = setFelt(r, 'a', FRI, 2);
+    expect(feltOf(r, 'a', FRI)).toBe(2);
+    expect(routineOf(recordOf(r)).felt).toEqual({ a: { [FRI]: 2 } });
+    expect(routineOf({ items: [{ id: 'a' }], felt: { a: { [FRI]: 5, nope: 1 }, gone: { [FRI]: 1 } } }).felt).toEqual({});
+    expect(feltOf(toggleTick(r, 'a', FRI), 'a', FRI)).toBe(null);
+    expect(removeItem(r, 'a').felt).toEqual({});
   });
 });

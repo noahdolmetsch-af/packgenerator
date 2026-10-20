@@ -805,6 +805,12 @@ export default {
   'Open Mountain and emergency › «Signposts and grades».': 'Öffne Berg und Notfall › «Wegweiser und Schwierigkeit».',
   'Read the colour of the signpost or the grade from the guide (T1–T6, L–EX).': 'Lies die Farbe am Wegweiser oder die Schwierigkeit aus dem Führer (T1–T6, L–EX).',
   'Example: white-blue-white → alpine hiking trail, T4 to T6.': 'Beispiel: weiss-blau-weiss → Alpinwanderweg, T4 bis T6.',
+  // Verpflegung (Noah 19.10.2026 «1a»)
+  'Works best with a GPX route on the trip; the places along the route come from the route search.': 'Am besten mit einer GPX-Strecke an der Tour; die Orte an der Strecke kommen aus der Streckensuche.',
+  'Search the places along the route once; change your grams per hour, water and bottles under «Your values».': 'Suche einmal die Orte an der Strecke; Gramm pro Stunde, Wasser und Flaschen änderst du unter «Deine Werte».',
+  'Switch to «My products» to see how many bars and gels to take.': 'Wechsle zu «Meine Produkte», dann siehst du, wie viele Riegel und Gels du mitnimmst.',
+  'Example: 120 km with shops at km 55 and 110 → three sections, each with the grams and litres to carry.': 'Beispiel: 120 km mit Läden bei km 55 und 110 → drei Abschnitte, jeder mit den Gramm und Litern zum Mitnehmen.',
+  'Open Trips › Food and water and choose the trip.': 'Öffne Touren › Verpflegung und wähle die Tour.',
   // Strombudget (Noah 19.10.2026 «2a»)
   'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.': 'Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.',
   'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».',

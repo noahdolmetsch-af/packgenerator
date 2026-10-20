@@ -76,6 +76,7 @@ export const SINCE = {
   'f.connections': '0.153.0', 'f.owncal': '0.153.0', 'f.notestasks': '0.153.0', 'f.fitbitold': '0.153.0', 'f.stravaticks': '0.153.0', 'f.lake': '0.153.0', 'f.datastars': '0.153.0', 'f.wxwatch': '0.153.0', 'f.tourhints': '0.153.0', 'f.rainsoon': '0.153.0', 'f.air': '0.153.0', 'f.routepois': '0.153.0',
   // Paket H «Packen leichter» (v0.153.0)
   'f.starters': '0.153.0', 'f.supplies': '0.153.0', 'f.table': '0.153.0', 'f.readaloud': '0.153.0', 'f.lend': '0.153.0', 'f.ownrules': '0.153.0', 'f.startfresh': '0.153.0',
+  'f.fuel': '0.160.0', // Verpflegung (Noah 19.10.2026 «1a»), Paket 8
   'f.power': '0.155.0', // Strombudget (Noah 19.10.2026 «2a»), Paket 3+4
   // Paket J «Berg, Schnee und Notfall» (v0.153.0)
   'f.snow': '0.153.0', 'f.swissmap': '0.153.0', 'f.sos': '0.153.0', 'f.sosqr': '0.153.0', 'f.scales': '0.153.0',

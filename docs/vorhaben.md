@@ -50,6 +50,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
+**Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, Paket 8 (0.160.0), nutzt dessen Ortssuche.
 **Nachtrag 19.10.2026 24 Uhr:** 0.159.0 «Paket 7» bringt U «Rennen» und die Live-Karte für jede Fahrt (Ziel Touren planen und fahren). Ideenliste U geschlossen; Weiteres in die Ideen-Sammlung.
 
 **Nachtrag 19.10.2026 23.30 Uhr:** 0.158.0 repariert Heute (Ziel Alltag: die App muss jeden Tag laden). Danach 0.159.0 U «Rennen».

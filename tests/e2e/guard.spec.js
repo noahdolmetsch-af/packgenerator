@@ -36,6 +36,7 @@ const ROUTES = [
   ['#/gear/supplies', 'Vorrat'], // Paket H
   ['#/gear/lend', 'Ausgeliehen'], // Paket H
   ['#/gear/power', 'Strom'], // Strombudget
+  ['#/trips/fuel', 'Verpflegung'], // Verpflegung (Noah 19.10.2026 «1a»)
   ['#/favorites', 'Favoriten'],
   ['#/blocks', 'Bausteine'],
   ['#/wardrobe', 'Kleiderschrank'],

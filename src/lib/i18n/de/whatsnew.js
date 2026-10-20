@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.160.0 Paket 8 Verpflegung
+  'Enough food and water': 'Genug essen und trinken',
+  'How much to eat and drink on each part of the route.': 'Wie viel du auf jedem Teil der Strecke isst und trinkst.',
+  'Trips › Food and water: carbohydrates and water per section': 'Touren › Verpflegung: Kohlenhydrate und Wasser pro Abschnitt',
+  'Link a training plan to a race: it moves along when the race day changes': 'Trainingsplan an ein Rennen koppeln: Er zieht mit, wenn sich der Renntag ändert',
+  'The tile «What does me good»: a ring instead of a bar, done things move down': 'Die Kachel «Das tut mir gut»: ein Kreis statt Balken, Erledigtes rutscht nach unten',
+  'Seven dots for the week and «Did it do you good?»': 'Sieben Punkte für die Woche und «Hat es gut getan?»',
+  'Warnings for long gaps, small bottles and closed shops': 'Warnungen bei langen Lücken, zu kleinen Flaschen und geschlossenen Läden',
+  'Your own values and products, as grams or as bars and gels': 'Eigene Werte und Produkte, als Gramm oder als Riegel und Gels',
+  'Open Trips › Food and water and choose a trip with a GPX route.': 'Öffne Touren › Verpflegung und wähle eine Tour mit GPX-Strecke.',
+  'Search the places along the route, then switch to «My products».': 'Suche die Orte an der Strecke, dann wechsle zu «Meine Produkte».',
   // 0.159.0 Paket 7 U «Rennen»
   'Races and the live map': 'Rennen und Live-Karte',
   'Plan a long race and ride with the live map.': 'Plane ein langes Rennen und fahr mit der Live-Karte.',

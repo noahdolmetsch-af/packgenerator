@@ -202,3 +202,25 @@ export function feelToAsk(acts, today) {
       .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`))[0] ?? null
   );
 }
+
+/*
+ * Coupled to a race (Noah 19.10.2026 «1a», idea 1): the races are trips with a start day ahead that Paket U
+ * «Rennen» keeps in the settings record 'races' (read only here), or trips marked as race / organised ride
+ * (trip.event). Choosing one sets the race day; when the trip's start day moves, the plan says so.
+ */
+export const RACES_KEY = 'races';
+const racesIn = (v) => (v && typeof v === 'object' && v.races && typeof v.races === 'object' ? v.races : {});
+/** The races to choose from, soonest first. → [{ id, title, day }] */
+export function raceChoices(trips = [], racesValue = null, today = '') {
+  const races = racesIn(racesValue);
+  return trips
+    .filter((t) => t && /^\d{4}-\d{2}-\d{2}$/.test(String(t.startDate ?? '')) && t.startDate > today && (races[t.id] || t.event || t.sets?.race))
+    .map((t) => ({ id: t.id, title: String(t.title ?? '').trim(), day: t.startDate }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+}
+/** The plan in use against its race: the new day when the race moved, else null. */
+export function raceMoved(active, trips = []) {
+  if (!active?.tripId || active.mode !== 'race') return null;
+  const t = trips.find((x) => x.id === active.tripId);
+  return t?.startDate && t.startDate !== active.date ? t.startDate : null;
+}
