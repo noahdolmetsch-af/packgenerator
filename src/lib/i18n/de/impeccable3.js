@@ -101,4 +101,11 @@ export default {
   // P3 Aktiv: a failed card is one quiet line
   "Ozone and pollen not reachable just now.": "Ozon und Pollen gerade nicht erreichbar.",
   "Try again|load": "Nochmals",
+
+  // P2 Touren: the short review
+  "«Rate briefly» opens the short debrief; the whole one stays in the trip.": "«Kurzer Rückblick» öffnet den kurzen Rückblick, der ganze bleibt in der Tour.",
+
+  // P5 Velos: what is up now, under the bike name
+  "Up now: {n} job · See": "Jetzt dran: {n} Arbeit · Ansehen",
+  "Up now: {n} jobs · See": "Jetzt dran: {n} Arbeiten · Ansehen",
 };

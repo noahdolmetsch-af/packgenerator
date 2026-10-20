@@ -1072,6 +1072,8 @@
     width: 100%;
     border-collapse: collapse;
     font-size: var(--fs-small);
+    /* Impeccable 20.10.2026 P4: a long name without spaces breaks, so the table stays in its column */
+    overflow-wrap: anywhere;
   }
   .st thead th {
     padding: 4px 10px 8px 0;
@@ -1135,7 +1137,6 @@
     }
     /* the name column takes the room, a long pill gives way with «…» instead of widening the page */
     .st {
-      table-layout: fixed;
     }
     .st th.n,
     .st td.n {
