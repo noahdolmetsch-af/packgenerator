@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.163.0 «Gesamttest 20.10.2026, round 2» (Noah «1a 2a 3a 4a 5a», «alle B, C und Design umsetzen»).
+    version: '0.163.0',
+    date: '2026-10-20',
+    title: 'Calmer and clearer',
+    lead: 'Round two of the walk through the whole app: Strava rides on their own tab, shorter help, a quiet word of praise.',
+    points: [
+      { text: 'Strava rides whose bike has the name of one of your bikes are assigned by themselves, with «Undo»', href: '#/bikes?tab=care&view=strava-check' },
+      { text: 'Trips has its own tab «Rides» for Strava activities; the button on Plan and Pack names the next step', href: '#/trips/rides' },
+      { text: 'Help boxes shrink to one line «How it works» after the first visit; praise gets its own quiet line «Well done» on Today', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Due now» shows everything due; a problem there is not repeated under «Open»', href: '#/bikes?tab=care' },
+      { box: 'nicer', text: 'History and Learned show 5 rows per day or topic, then «Show more»' },
+      { box: 'nicer', text: '«new» only on the first new item of a list' },
+    ],
+    test: [
+      'Open Trips › Rides: your Strava activities on their own tab.',
+      'Open a page a second time: its help is one line «How it works».',
+    ],
+  },
+  {
     // v0.162.0 «Gesamttest 20.10.2026»: ten small fixes from the click-through of the whole app.
     version: '0.162.0',
     date: '2026-10-20',

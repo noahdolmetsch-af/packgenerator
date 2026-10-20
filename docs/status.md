@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.163.0 «Gesamttest Runde 2» (20.10.2026):** Strava-Fahrten, deren Velo wie ein eigenes Velo heisst, werden selbst zugeordnet (Rückgängig möglich); Touren hat den Reiter «Fahrten» (#/trips/rides), Übersicht nur noch eine Zeile dorthin; Planen und Packen nennen den nächsten Schritt; Hilfe ab dem zweiten Besuch als eine Zeile; «Gut gemacht» als eigene Zeile auf Heute; «Jetzt fällig» zeigt alles; Verlauf und Gelernt 5 Zeilen pro Tag/Thema.
+
 **0.162.0 «Gesamttest-Korrekturen» (20.10.2026):** zehn kleine Korrekturen aus dem Rundgang: fehlende Leerzeichen in der ganzen App (88 Stellen, Wächter-Test `tests/block-spaces.test.js`), Unterwegs ohne laufende Tour führt zu den Touren, laufende Tour auf Heute ohne «Geplant», Tageskarte nachts nur «Morgen: …» für eine Tour, die morgen beginnt, Strava «Zum Prüfen» 20 Fahrten auf einmal, Rennen-Daten und Tour-Gepäck auf Deutsch, «noch 1 Woche», kein Jahr «0000» im Logbuch.
 
 **0.161.0 «Paket 9» Tour-Seite:** jede abgeschlossene Tour (Strava, verbunden, Packmodus) öffnet eine eigene Seite mit Karte, Profil, Werten, Gepäck, Tagebuch und Fotos; Strava-Werte korrigierbar («geändert · Strava: …»), umbenennen, ausblenden, löschen mit Rückgängig; Liste als Zeilen, Kacheln, Karte oder Kalender; mehrere Fahrten zu einer Tour verbinden.
