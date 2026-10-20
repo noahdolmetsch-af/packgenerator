@@ -40,7 +40,7 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   await expect(line).toHaveAttribute('data-tip', tip.id);
   await expect(line).toContainText({ know: T('Did you know|tag'), today: T('Fits today|tag') }[tip.kind] ?? T('Good to know:'));
   await expect(line).toContainText(T(tip.text));
-  await expect(line).toContainText(tip.kind === 'today' ? T(tip.note) : T('Tip {n} of {of} for {page}', { ...tipPlace(undefined, 'aktiv', TODAY, ctx), page: T('Active|place') }));
+  await expect(line).toContainText(tip.kind === 'today' ? T(tip.note) : T('Tip {n} of {of} for {page}', { ...tipPlace(undefined, 'aktiv', TODAY, ctx), page: T('Analysis|place') }));
 
   // the fold is closed; open, one row per thing the app can do, each a place in the app
   const can = main.locator('[data-section="can"]');
@@ -63,7 +63,7 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   // «Alle Tipps»: switch the tip of today off, add an own tip, hide the fold
   await line.getByRole('button', { name: T('All tips ›') }).click();
   const sheet = page.locator('[data-sheet="tips"]');
-  await expect(sheet.getByRole('heading', { name: T('Tips for {page}', { page: T('Active|place') }) })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: T('Tips for {page}', { page: T('Analysis|place') }) })).toBeVisible(); // N1
   await expect(sheet.locator('[data-tip-row]')).toHaveCount(PAGES.aktiv.tips.length);
   await sheet.locator(`[data-tip-row="${tip.id}"] input`).uncheck();
   await expect(line).not.toHaveAttribute('data-tip', tip.id);

@@ -126,7 +126,7 @@
   }
   .layer {
     margin: 0 0 8px;
-    font: 800 14px var(--font-body);
+    font: 800 var(--fs-small) var(--font-body);
     color: var(--hi);
   }
   .layer small {
@@ -176,7 +176,7 @@
     color: var(--ink-2);
   }
   .note {
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .row {
     display: flex;

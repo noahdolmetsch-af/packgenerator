@@ -281,6 +281,9 @@ test('extras: Bike care shows a part\'s history with the newest action first', a
   const errors = await start(page, context, info, { file: extrasFile(info) });
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}&open=1`);
   const care = page.locator(`#care-${SPARK}`);
+  // Gesamttest C11 (20.10.2026, changed on purpose): a phone shows a short parts list first, «Show more» opens the rest
+  await expect(care.locator('button.prow').first()).toBeVisible();
+  if (await care.locator('[data-parts-more]').count()) await care.locator('[data-parts-more]').click();
   // v0.48.0: a row of the part table opens the part.
   await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Kette', { exact: true }) }).click();
   const dlg = page.getByRole('dialog', { name: 'Kette' });

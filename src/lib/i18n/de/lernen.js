@@ -120,7 +120,7 @@ export default {
   'Under «More to learn» the 2 questions that fit the trip best are open; «Ask more» shows the others.': 'Unter «Mehr lernen» stehen die 2 passendsten Fragen offen; «Mehr fragen» zeigt die anderen.',
   '«Adjust questions»: switch off, change the text, add your own, delete, order with arrows or by dragging.': '«Fragen anpassen»: ausschalten, Text ändern, eigene dazu, löschen, mit Pfeilen oder Ziehen ordnen.',
   'Example: after a rainy trip: «What helped you in the rain, and what did not?»': 'Beispiel: nach einer Regentour: «Was hat dir im Regen geholfen, was nicht?»',
-  'Google Tasks shows as a place once it is switched on under Me › Calendar and tasks.': 'Google Aufgaben erscheint als Ort, sobald es unter Ich › Kalender und Aufgaben eingeschaltet ist.',
+  'Google Tasks shows as a place once it is switched on under Me › Calendar and tasks.': 'Google Aufgaben erscheint als Ort, sobald es unter Planen › Termine und Aufgaben eingeschaltet ist.',
   'Open the debrief of a trip; the notes on the way are listed.': 'Öffne den Rückblick einer Tour; die Notizen von unterwegs stehen da.',
   'Choose under «To-dos go to»: a new checklist, one of your notes or a Google Tasks list.': 'Wähle unter «To-dos kommen nach»: eine neue Checkliste, eine deiner Notizen oder eine Liste in Google Aufgaben.',
   'Example: «brake squeaks» → checklist «To-dos after Jura round».': 'Beispiel: «Bremse quietscht» → Checkliste «To-dos nach Jura-Runde».',

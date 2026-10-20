@@ -82,7 +82,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-2);
     margin: 8px 0 2px;
@@ -109,7 +109,7 @@
     border-bottom: 1px solid var(--line);
     background: none;
     color: var(--ink);
-    font: 400 16px var(--font-body);
+    font: 400 var(--fs-body) var(--font-body);
     text-align: left;
     padding: 4px 0;
     cursor: pointer;
@@ -137,11 +137,11 @@
   .t small {
     display: block;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .n {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     text-align: right;
   }
   .w {
@@ -164,7 +164,7 @@
     min-height: 48px;
     border-bottom: 1px solid var(--line);
     padding-left: 12px;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .moves .empty {
     color: var(--ink-3);
@@ -173,7 +173,7 @@
   }
   .note {
     margin: 6px 0 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
 </style>

@@ -293,23 +293,23 @@
   /* v0.22.0 (AP03): the bag boxes on the photo are a map. Their names keep the condensed face
      (one of the few accents), so long German words like "Oberrohrtasche" stay whole in a narrow box. */
   .n {
-    font: 800 18px/1.1 var(--font-brand);
+    font: 800 var(--fs-sub)/1.1 var(--font-brand);
     hyphens: auto;
     letter-spacing: 0.01em;
     overflow-wrap: break-word;
   }
   .small .n {
-    font-size: 17px;
+    font-size: var(--fs-sub);
   }
   .f {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .its {
     display: flex;
     flex-direction: column;
     margin-top: 2px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     line-height: 1.4;
     color: var(--ink-2);
   }
@@ -403,7 +403,7 @@
     scroll-snap-align: start;
   }
   .strip .n {
-    font-size: 17px;
+    font-size: var(--fs-sub);
     white-space: nowrap;
     overflow-wrap: normal;
   }

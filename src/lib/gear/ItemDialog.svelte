@@ -1264,7 +1264,7 @@
     border-radius: 999px;
     background: transparent;
     color: var(--ink);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     cursor: pointer;
     min-width: 0;
   }
@@ -1297,7 +1297,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     cursor: pointer;
     max-width: 100%;
     text-align: left;
@@ -1307,7 +1307,7 @@
   }
   .chip small {
     font-weight: 500;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .chip[aria-pressed='true'] {
@@ -1328,7 +1328,7 @@
     margin: 0;
   }
   .badge {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     border-radius: 99px;
     padding: 2px 10px;
@@ -1360,7 +1360,7 @@
     min-height: 44px;
     list-style: none;
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
     cursor: pointer;
   }
   .whatis > summary::-webkit-details-marker {
@@ -1374,7 +1374,7 @@
   }
   .subh {
     margin: 12px 0 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     color: var(--ink-3);
   }
@@ -1386,7 +1386,7 @@
     align-items: center;
     min-height: 44px;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     cursor: pointer;
   }
   /* Gesamttest 20.10.2026 Design 4: no native triangle, the app's one arrow › */
@@ -1492,14 +1492,14 @@
   .wl {
     margin: 0 0 8px;
     padding-left: 18px;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .wl li {
     overflow-wrap: break-word;
   }
   .moved {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     border-left: 3px solid var(--hi);
     padding-left: 8px;
@@ -1566,14 +1566,14 @@
     text-align: right;
   }
   .note {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     margin: 10px 0;
   }
   .err {
     color: var(--bad);
     min-height: 1.2em;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .foot {
     display: flex;
@@ -1586,7 +1586,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .quiet {

@@ -64,7 +64,7 @@
   .why {
     margin: 0;
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .field {
     display: grid;
@@ -77,7 +77,7 @@
   .err {
     margin: 0;
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .row {
     display: flex;
