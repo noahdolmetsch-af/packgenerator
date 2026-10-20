@@ -47,8 +47,7 @@ export const WHATS_NEW = [
       { text: 'Plan a tour: profile and climbs', href: '#/trips' },
     ],
     small: [
-      { box: 'new', text: 'Aktiv: week in numbers, tiles to change' },
-      { box: 'new', text: 'Map ground on every map, with a bike map' },
+      { box: 'new', text: 'Aktiv: week in numbers; map ground on every map' },
       { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
     ],
     test: [
