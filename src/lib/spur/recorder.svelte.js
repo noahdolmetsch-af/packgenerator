@@ -12,6 +12,7 @@ import { db as appDb } from '../db.js';
 import { localDay } from '../localday.js';
 import { keepFix, zurichDay } from './spur.js';
 import { distKm } from './polyline.js';
+import { hold } from '../holdreload.js';
 
 export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null });
 
@@ -21,6 +22,7 @@ let last = null;
 let row = null;
 let saving = Promise.resolve();
 let onVis = null;
+let release = null; // no automatic reload while recording (holdreload.js)
 
 const r6 = (v) => Math.round(v * 1e6) / 1e6;
 
@@ -82,6 +84,7 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
   }
   await db.tracks.put({ ...row, pts: row.pts.slice() });
   Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt });
+  release = hold('recording');
   await getLock();
   onVis = () => document.visibilityState === 'visible' && rec.on && getLock();
   document.addEventListener('visibilitychange', onVis);
@@ -108,6 +111,8 @@ export async function stopRecording(db = appDb) {
   lock = null;
   if (onVis) document.removeEventListener('visibilitychange', onVis);
   onVis = null;
+  release?.();
+  release = null;
   await saving;
   const done = row ? { ...row, pts: row.pts.slice(), open: false, day: row.pts.length ? zurichDay(row.startAt + row.pts[0][2] * 1000) : row.day } : null;
   row = null;

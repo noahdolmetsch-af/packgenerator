@@ -154,7 +154,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.locator('[data-row]')).toHaveCount(2); // the weight and «Essen»
     await page.getByRole('button', { name: 'Fitbit', exact: true }).click();
     await expect(page.locator('[data-row]')).toHaveCount(0);
-    await expect(page.getByText(T('Nothing from Fitbit yet: the values come with the connection to Fitbit, later.'))).toBeVisible();
+    await expect(page.getByText(T('No values from Fitbit yet. Connect Fitbit under Me › Fitbit; the values then come by themselves.'))).toBeVisible();
     await page.getByRole('group', { name: T('Source') }).getByRole('button', { name: 'Alle' }).click();
     // change the old «Schlaf»: an answer of the same day in front of it
     await page.getByRole('group', { name: T('Value') }).getByRole('button', { name: 'Alle' }).click();

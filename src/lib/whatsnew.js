@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
+    version: '0.168.0',
+    date: '2026-10-20',
+    title: 'Tours and Aktiv',
+    lead: 'Gear, climbs, Aktiv anew.',
+    points: [
+      { text: 'Add gear to a ride, with notes', href: '#/trips/rides' },
+      { text: 'Tour page: big values, a landscape, the weather of the day', href: '#/trips' },
+      { text: 'Plan a tour: profile and climbs', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Aktiv: week in numbers; map ground on every map' },
+      { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
+    ],
+    test: [
+      'Tours › Rides: tap «Enter the gear» on a ride.',
+      'Plan a tour with GPX, tap a climb.',
+    ],
+  },
+  {
     // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
     version: '0.167.0',
     date: '2026-10-20',

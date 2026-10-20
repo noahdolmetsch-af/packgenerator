@@ -59,12 +59,6 @@ export default {
   'Map tiles (OpenStreetMap)': 'Kartenbilder (OpenStreetMap)',
   // the line on Today
   'Strava requests: {pct} % of the free limit used': 'Strava-Anfragen: {pct} % der Gratis-Grenze gebraucht',
-  '{n} key': '{n} Schlüssel',
-  '{n} keys': '{n} Schlüssel',
-  '{name} has run out': '{name} ist abgelaufen',
-  '{name} runs out today': '{name} läuft heute ab',
-  '{name} runs out in {n} day': '{name} läuft in {n} Tag ab',
-  '{name} runs out in {n} days': '{name} läuft in {n} Tagen ab',
   '{n} link does not answer': '{n} Link antwortet nicht',
   '{n} links do not answer': '{n} Links antworten nicht',
   'Strava needs a new login': 'Strava braucht ein neues Login',

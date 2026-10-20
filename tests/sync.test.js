@@ -432,3 +432,50 @@ describe('Fitbit and Google copies sync without a question (Paket B, Noah 19.10 
     expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
   });
 });
+
+describe('Strava activities fetched on both devices make no question (Noah 20.10.2026: after every update)', () => {
+  const act = (detail, extra = {}) => ({ id: 'test_data_gtp_a1', day: '2026-10-20', kind: 'Ride', name: 'test_data_gtp_ ride', km: 30, kcal: 600, dv: 3, detail, ...extra });
+  it('autoPick: only the fetch time differs → the newer fetch; what the person added differs → ask', () => {
+    expect(autoPick('activities', 'test_data_gtp_a1', act('2026-10-20T18:08:00Z'), act('2026-10-20T18:09:00Z'))).toBe('theirs');
+    expect(autoPick('activities', 'test_data_gtp_a1', act('2026-10-20T18:10:00Z'), act('2026-10-20T18:09:00Z'))).toBe('mine');
+    // a newer kind of detail wins over a later fetch of the older kind
+    expect(autoPick('activities', 'test_data_gtp_a1', act('2026-10-20T18:10:00Z', { dv: 2 }), act('2026-10-20T18:09:00Z', { dv: 3 }))).toBe('theirs');
+    // an empty note is no note
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a', { note: '' }), act('b'))).toBe('theirs');
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a', { note: 'test_data_gtp_ mine' }), act('b'))).toBe(null);
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a', { feel: 3 }), act('b', { feel: 4 }))).toBe(null);
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a'), null)).toBe(null);
+  });
+  it('two devices fetch the details after an update: no question; an old open question goes by itself', async () => {
+    const { api } = fakeServer();
+    const phone = fresh();
+    const computer = fresh();
+    const code = newCode();
+    const run = (db, dev) => syncNow(db, { api, dev });
+    await startSync(computer, code);
+    await run(computer, 'computer');
+    await startSync(phone, code);
+    await run(phone, 'phone');
+    await computer.activities.put(act('2026-10-20T18:00:00Z'));
+    await run(computer, 'computer');
+    await run(phone, 'phone');
+    await computer.activities.put(act('2026-10-20T18:09:00Z', { kcal: 610 }));
+    await phone.activities.put(act('2026-10-20T18:08:00Z', { kcal: 605 }));
+    await run(computer, 'computer');
+    expect(await run(phone, 'phone')).toMatchObject({ asks: 0 });
+    expect((await phone.activities.get('test_data_gtp_a1')).kcal).toBe(610);
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    expect((await computer.activities.get('test_data_gtp_a1')).kcal).toBe(610);
+    // a question left from before this rule: the next round answers it
+    const { base } = await phone.meta.get(`sync|activities|${JSON.stringify('test_data_gtp_a1')}`);
+    await phone.meta.put({ key: `synccf|activities|${JSON.stringify('test_data_gtp_a1')}`, t: 'activities', id: 'test_data_gtp_a1', s: base, v: act('2026-10-20T17:00:00Z', { kcal: 610 }), del: false, at: null, dev: 'computer' });
+    expect(await openQuestions(phone)).toHaveLength(1);
+    expect(await run(phone, 'phone')).toMatchObject({ asks: 0, settled: 1 });
+    expect(await openQuestions(phone)).toEqual([]);
+    // a note written on both devices is still a question
+    await phone.activities.update('test_data_gtp_a1', { note: 'test_data_gtp_ phone' });
+    await computer.activities.update('test_data_gtp_a1', { note: 'test_data_gtp_ computer' });
+    await run(phone, 'phone');
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
+  });
+});

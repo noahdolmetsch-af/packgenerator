@@ -89,9 +89,13 @@ describe('BF4 copies before an update', () => {
 });
 
 describe('settings', () => {
-  it('defaults: both switches on, the AI helper key until 10 November 2026', async () => {
+  it('defaults: both switches on, no key with an end date', async () => {
     expect(maintOf(null)).toEqual({ snap: true, hint: true, keys: DEFAULT_KEYS });
-    expect(DEFAULT_KEYS[0].until).toBe('2026-11-10');
+    expect(DEFAULT_KEYS).toEqual([]);
+    // Noah 20.10.2026: the old assumed «AI helper key» until 10 Nov. goes; a changed one or another key stays
+    const old = { id: 'ai-helper', name: 'AI helper key', until: '2026-11-10' };
+    expect(maintOf({ keys: [old, { id: 'k', name: 'Test key', until: '2027-01-01' }] }).keys).toEqual([{ id: 'k', name: 'Test key', until: '2027-01-01' }]);
+    expect(maintOf({ keys: [{ ...old, until: '2027-03-01' }] }).keys).toEqual([{ ...old, until: '2027-03-01' }]);
     await saveMaint(db, { hint: false, keys: [{ id: 'k', name: 'Test key', until: '2027-01-01' }, { name: '', until: 'x' }] });
     expect(await readMaint(db)).toEqual({ snap: true, hint: false, keys: [{ id: 'k', name: 'Test key', until: '2027-01-01' }] });
     expect((await db.settings.get(MAINT_KEY)).value.keys).toHaveLength(1);
@@ -163,14 +167,13 @@ describe('BF7 monthly check', () => {
       today: TODAY,
       now,
     });
-    expect(list.map((a) => a.kind)).toEqual(['rate', 'keys', 'links', 'strava']);
+    // Noah 20.10.2026: a key that runs out is never a hint on Today (only in Ich › App maintenance)
+    expect(list.map((a) => a.kind)).toEqual(['rate', 'links', 'strava']);
     const t = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m);
     const tn = (k, one, many, v = {}) => t(k === 1 ? one : many, { n: k, ...v });
-    expect(hintLine(list, { t, tn })).toBe('Strava requests: 90 % of the free limit used · «Test key» runs out in 5 days · 1 link does not answer · Strava needs a new login');
-    expect(signature(list, TODAY)).toBe('rate:2026-10-13;keys:Test key;links:Test link;strava');
-    expect(attention({ keys: [], today: TODAY, now })).toEqual([]);
-    // before the first monthly check a key waits (a first install sees nothing for a month)
-    expect(attention({ check: null, keys: [{ id: 'k', name: 'Test key', until: addDays(TODAY, 5) }], today: TODAY, now })).toEqual([]);
+    expect(hintLine(list, { t, tn })).toBe('Strava requests: 90 % of the free limit used · 1 link does not answer · Strava needs a new login');
+    expect(signature(list, TODAY)).toBe('rate:2026-10-13;links:Test link;strava');
+    expect(attention({ today: TODAY, now })).toEqual([]);
   });
 });
 

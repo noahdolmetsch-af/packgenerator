@@ -32,7 +32,8 @@
   const checked = $derived(d?.check && !d.check.first ? d.check : null);
   const links = $derived(checked?.links ? linkSummary(checked.links) : null);
   // what the folded head counts: the same things the card shows yellow (a key within 30 days counts at once)
-  const hints = $derived(d ? attention({ check: checked ?? {}, keys: d.set.keys ?? [], rate: d.rate, today, now }).length : 0);
+  // the keys that run out count here, in Ich › App maintenance only (Noah 20.10.2026), never on Today
+  const hints = $derived(d ? attention({ check: checked ?? {}, rate: d.rate, now }).length + keys.filter((k) => k.due).length : 0);
   let busy = $state(false);
   let editing = $state(false);
 

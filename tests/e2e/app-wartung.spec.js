@@ -109,13 +109,14 @@ test('App maintenance shows the two Strava bars from the stored numbers', async 
   const card = page.locator('[data-section="maintenance"]');
   await expect(card.getByRole('heading', { name: T('App maintenance') })).toBeVisible();
   // Impeccable (18.10.2026, changed on purpose): folded on Ich, its head counts the hints (85 % of the
-  // 15-minute limit and the AI key with 26 days left)
-  await expect(card.locator('summary')).toContainText(T('{n} hints', { n: 2 }));
+  // 15-minute limit; since 20.10.2026 no assumed AI key with an end date)
+  await expect(card.locator('summary')).toContainText(T('{n} hint', { n: 1 }));
   await card.locator('summary').click();
   await expect(card.locator('[data-bar="short"]')).toContainText(T('{used} of {limit}', { used: 85, limit: 100 }));
   await expect(card.locator('[data-bar="daily"]')).toContainText(T('{used} of {limit}', { used: 400, limit: 1000 }));
-  // the AI helper key from the start, 26 days left
-  await expect(card.locator('[data-key="ai-helper"]')).toContainText(T('in {n} days', { n: 26 }));
+  // Noah 20.10.2026: his AI helper key has no end date, so the list starts empty
+  await expect(card.locator('[data-key="ai-helper"]')).toHaveCount(0);
+  await expect(card.locator('[data-maint="keys"]')).toContainText(T('none'));
   // offline: the check says «not checked», never an error
   await card.getByRole('button', { name: T('Check now') }).click();
   await expect(card.locator('[data-maint="links"]')).toContainText(T('not checked'));

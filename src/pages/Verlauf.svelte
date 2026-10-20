@@ -3,10 +3,15 @@
    * AB4 «Verlauf» (Noah 14.10.2026 «freigabe»), Ich › Daten › Verlauf (#/me/history): every value in
    * one place, by day, newest first: your answers, the old daily checks, the rides from Strava (Fitbit
    * later). A filter by area and by source; every row carries its source. An answer can be changed or
-   * removed here, the analyses follow (there is no second place). Right: the weight of the last 8
-   * weeks as a calm line and who reads this history. Only to look at, stays on this device.
+   * removed here, the analyses follow (there is no second place). Only to look at, stays on this device.
+   * «Aktiv neu» (Noah 20.10.2026 «3a 4b»): a diary, one card per day: the Fitbit values of the day (sleep,
+   * resting pulse, HRV, steps, active zone minutes), every Strava activity as a whole row with time, km,
+   * metres, pulse and power (a tap opens its page), then the answers. The weight card and «Wer diesen
+   * Verlauf liest» are gone (4b).
    */
-  import { Pencil, Hand, Watch, Bike, Smartphone, RotateCcw, Gauge, ChartLine, Info, X, Trash2, History } from '@lucide/svelte';
+  import { Pencil, Hand, Watch, Bike, Smartphone, X, Trash2, History, ChevronRight } from '@lucide/svelte';
+  import { tableQuery } from '../lib/messwerte-data.js';
+  import { METRIC, shown } from '../lib/messwerte.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -20,7 +25,7 @@
   import { actHref } from '../lib/strava/acthref.js';
   import { localDay } from '../lib/localday.js';
   import { addDays } from '../lib/flow.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, num } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
   import '../lib/abfragen/ab.css';
   import '../lib/bikes/velo-dlg.css';
@@ -37,27 +42,44 @@
   let days = $state(14);
   const rows = $derived(data?.rows ?? []);
   const areasThere = $derived([...areasOf(data?.cfg), { key: OWN_AREA }].filter((a) => rows.some((r) => r.area === a.key && r.kind !== 'ride')));
-  const hasRides = $derived(rows.some((r) => r.kind === 'ride'));
   const filtered = $derived(filterHistory(rows, { src: src === 'all' ? null : src }).filter((r) => (area === 'all' ? true : area === 'rides' ? r.kind === 'ride' : r.area === area && r.kind !== 'ride')));
   const from = $derived(addDays(today, -days + 1));
-  const shownDays = $derived(byDay(filtered.filter((r) => r.day >= from)));
   // Gesamttest 20.10.2026 (C11): a day with 20 answers made the page 18 phone screens long; 5 per day, then «n weitere»
   const PER_DAY = 5;
   let openDays = $state({});
   const older = $derived(filtered.some((r) => r.day < from));
 
-  // the weight of the last 8 weeks (the answers to «Was zeigt die Waage heute»)
-  const weights = $derived(rows.filter((r) => r.qid === 'koerper.waage' && typeof r.value === 'number' && r.day >= addDays(today, -55)).sort((a, b) => a.day.localeCompare(b.day)));
-  const W = 300;
-  const H = 90;
-  const line = $derived.by(() => {
-    if (weights.length < 2) return null;
-    const vs = weights.map((r) => r.value);
-    const lo = Math.min(...vs) - 0.5;
-    const hi = Math.max(...vs) + 0.5;
-    const pts = weights.map((r, i) => ({ x: 10 + (i * (W - 20)) / (weights.length - 1), y: 10 + ((hi - r.value) / (hi - lo)) * (H - 20), r }));
-    return { pts, d: `M${pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}` };
+  // «Aktiv neu» 3a: the Fitbit values and the Strava activities of every day (messwerte.js)
+  const tq = tableQuery();
+  const table = $derived($tq ?? new Map());
+  const FIT = ['sleep', 'rhr', 'hrv', 'steps', 'azm'];
+  const fitOf = (day) => {
+    const r = table.get(day);
+    return r ? FIT.filter((k) => r[k] != null).map((k) => ({ k, v: r[k] })) : [];
+  };
+  const actsOf = (day) => table.get(day)?.acts ?? [];
+  const showFit = $derived(src === 'all' || src === 'fitbit');
+  const showActs = $derived((src === 'all' || src === 'strava') && (area === 'all' || area === 'rides'));
+  const showAnswers = $derived(src !== 'fitbit' && area !== 'rides');
+  const hasFit = $derived([...table.values()].some((r) => FIT.some((k) => r[k] != null)));
+  const hasActs = $derived([...table.values()].some((r) => r.acts.length));
+  // the days of the diary: answers, Fitbit and activities, newest first
+  const answerRows = $derived(filtered.filter((r) => r.kind !== 'ride'));
+  const answersBy = $derived(new Map(byDay(answerRows).map((g) => [g.day, g.rows])));
+  const diary = $derived.by(() => {
+    const set = new Set();
+    if (showAnswers) for (const r of answerRows) if (r.day >= from) set.add(r.day);
+    for (const [d, r] of table) {
+      if (d < from || d > today) continue;
+      if ((showFit && FIT.some((k) => r[k] != null)) || (showActs && r.acts.length)) set.add(d);
+    }
+    return [...set].sort((a, b) => b.localeCompare(a)).map((day) => ({ day, fit: showFit && area === 'all' ? fitOf(day) : [], acts: showActs ? actsOf(day) : [], rows: showAnswers ? (answersBy.get(day) ?? []) : [] }));
   });
+  const olderAny = $derived(older || [...table.keys()].some((d) => d < from));
+  const fitText = (k, v) => `${shown(k, v, num)}${k === 'sleep' || !METRIC[k].unit ? '' : ` ${t(METRIC[k].unit)}`}`;
+  const FIT_NAME = { sleep: 'Sleep|metric', rhr: 'Resting pulse', hrv: 'HRV', steps: 'Steps', azm: 'Active zone minutes|metric' };
+  const actLine = (a) =>
+    [a.movingS ? shown('time', a.movingS, num) : '', a.km ? `${num(Math.round(a.km * 10) / 10)} km` : '', a.hm ? `${num(Math.round(a.hm))} m` : '', a.hrAvg ? `♥ ${Math.round(a.hrAvg)} ${t('bpm')}` : '', a.wAvg && a.wDevice ? `${Math.round(a.wAvg)} W` : ''].filter(Boolean).join(' · ');
 
   // change or remove one answer
   let edit = $state(null);
@@ -104,64 +126,66 @@
         <div class="chips" role="group" aria-label={t('Value')}>
           <button type="button" class="ab-opt" aria-pressed={area === 'all'} onclick={() => (area = 'all')}>{t('All|values')}</button>
           {#each areasThere as a (a.key)}<button type="button" class="ab-opt" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{areaName(a.key, data?.cfg)}</button>{/each}
-          {#if hasRides}<button type="button" class="ab-opt" aria-pressed={area === 'rides'} onclick={() => (area = 'rides')}>{t('Trips')}</button>{/if}
+          {#if hasActs}<button type="button" class="ab-opt" aria-pressed={area === 'rides'} onclick={() => (area = 'rides')}>{t('Activities|filter')}</button>{/if}
         </div>
         <div class="f2"><span class="flab" id="vh-src">{t('Source')}</span><Seg labelledby="vh-src" full={false} value={src} options={SOURCES} onchange={(k) => (src = k)} /></div>
       </div>
 
       {#if !data}
         <Skeleton rows={4} />
-      {:else if !shownDays.length}
-        <Empty icon={History} text={src === 'fitbit' ? t('Nothing from Fitbit yet: the values come with the connection to Fitbit, later.') : t('No values yet. Your answers on Today land here.')} action={{ label: t('Your questions'), href: '#/me/abfragen' }} />
+      {:else if !diary.length}
+        <Empty icon={History} text={src === 'fitbit' && !hasFit ? t('No values from Fitbit yet. Connect Fitbit under Me › Fitbit; the values then come by themselves.') : t('No values yet. Your answers on Today land here.')} action={src === 'fitbit' && !hasFit ? { label: t('Fitbit'), href: '#/me/fitbit' } : { label: t('Your questions'), href: '#/me/abfragen' }} />
       {:else}
-        <ul class="card hist">
-          {#each shownDays as g (g.day)}
-            <li class="hd">{dayLong(g.day)}</li>
-            {#each openDays[g.day] ? g.rows : g.rows.slice(0, PER_DAY) as r (r.id)}
-              {@const q = qOf(r)}
-              {@const I = ICON_SRC[r.src] ?? Hand}
-              <li class="h" data-row={r.qid}>
-                <span class="ht num">{timeText(r.at) || '–'}</span>
-                <span class="ich-ib sm">{#if r.kind === 'ride'}<Bike size={16} aria-hidden="true" />{:else}<AreaIcon area={r.area} size={16} />{/if}</span>
-                <span class="hm"><b>{#if r.kind === 'ride' && r.ride?.id != null}<a class="actl" href={actHref(r.ride.id)} data-act-link={r.ride.id}>{rowText(r, own)}</a>{:else}{rowText(r, own)}{/if}</b>{#if r.note}<small>{r.note}</small>{:else if r.from === 'check'}<small>{t('from the daily check')}</small>{/if}</span>
-                <span class="hv num">{valueText(r, q)}</span>
-                <span class="ab-src {r.src}"><I size={13} aria-hidden="true" />{srcText(r.src)}</span>
-                {#if r.kind !== 'ride' && q}<button type="button" class="ed" aria-label={t('Change «{q}»', { q: rowText(r, own) })} onclick={() => openEdit(r)}><Pencil size={16} aria-hidden="true" /></button>{:else}<span class="ed"></span>{/if}
-              </li>
-            {/each}
-            {#if !openDays[g.day] && g.rows.length > PER_DAY}<li class="hmore"><button type="button" class="lk" onclick={() => (openDays = { ...openDays, [g.day]: true })} data-day-more>{t('Show {n} more', { n: g.rows.length - PER_DAY })}</button></li>{/if}
+        <div class="diary">
+          {#each diary as g (g.day)}
+            <section class="card day" data-day={g.day} aria-label={dayLong(g.day)}>
+              <h2 class="hd">{dayLong(g.day)}</h2>
+              {#if g.fit.length}
+                <ul class="fit" data-fit={g.day}>
+                  {#each g.fit as f (f.k)}<li data-fit-k={f.k}><small>{t(FIT_NAME[f.k])}</small><b class="num">{fitText(f.k, f.v)}</b></li>{/each}
+                  <li class="fsrc"><span class="ab-src fitbit"><Watch size={13} aria-hidden="true" />{srcText('fitbit')}</span></li>
+                </ul>
+              {/if}
+              {#if g.acts.length}
+                <ul class="acts">
+                  {#each g.acts as a (a.id)}
+                    <li>
+                      <a class="act" href={actHref(a.id)} data-act-link={a.id}>
+                        <span class="ht num">{a.time || '–'}</span>
+                        <span class="ich-ib sm"><Bike size={16} aria-hidden="true" /></span>
+                        <span class="hm"><b>{a.name || t('Activity from Strava')}</b><small class="num">{actLine(a)}</small></span>
+                        <span class="ab-src strava"><Bike size={13} aria-hidden="true" />{srcText('strava')}</span>
+                        <ChevronRight size={18} aria-hidden="true" />
+                      </a>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+              {#if g.rows.length}
+                <ul class="hist">
+                  {#each openDays[g.day] ? g.rows : g.rows.slice(0, PER_DAY) as r (r.id)}
+                    {@const q = qOf(r)}
+                    {@const I = ICON_SRC[r.src] ?? Hand}
+                    <li class="h" data-row={r.qid}>
+                      <span class="ht num">{timeText(r.at) || '–'}</span>
+                      <span class="ich-ib sm"><AreaIcon area={r.area} size={16} /></span>
+                      <span class="hm"><b>{rowText(r, own)}</b>{#if r.note}<small>{r.note}</small>{:else if r.from === 'check'}<small>{t('from the daily check')}</small>{/if}</span>
+                      <span class="hv num">{valueText(r, q)}</span>
+                      <span class="ab-src {r.src}"><I size={13} aria-hidden="true" />{srcText(r.src)}</span>
+                      {#if q}<button type="button" class="ed" aria-label={t('Change «{q}»', { q: rowText(r, own) })} onclick={() => openEdit(r)}><Pencil size={16} aria-hidden="true" /></button>{:else}<span class="ed"></span>{/if}
+                    </li>
+                  {/each}
+                  {#if !openDays[g.day] && g.rows.length > PER_DAY}<li class="hmore"><button type="button" class="lk" onclick={() => (openDays = { ...openDays, [g.day]: true })} data-day-more>{t('Show {n} more', { n: g.rows.length - PER_DAY })}</button></li>{/if}
+                </ul>
+              {/if}
+            </section>
           {/each}
-        </ul>
-        {#if older}<button type="button" class="btn more" onclick={() => (days += 30)}>{t('Load older values')}</button>{/if}
+        </div>
+        {#if olderAny}<button type="button" class="btn more" onclick={() => (days += 30)}>{t('Load older values')}</button>{/if}
       {/if}
     </div>
 
     <div class="ich-side">
-      <section class="ich-sec" aria-labelledby="vh-w-h">
-        <div class="ich-h"><div><h2 id="vh-w-h">{t('Weight')}</h2><p class="ich-hs">{t('last 8 weeks · only to look at')}</p></div></div>
-        <div class="card side">
-          {#if line}
-            <svg class="spark" viewBox="0 0 {W} {H}" role="img" aria-label={t('Weight of the last 8 weeks')}>
-              <path d={line.d} />
-              {#each line.pts as p (p.r.id)}<circle cx={p.x} cy={p.y} r="4"><title>{dayShort(p.r.day)}: {p.r.value} {unitText('kg')}</title></circle>{/each}
-            </svg>
-            <div class="sl"><span>{dayShort(weights[0].day)}</span><span class="num">{t('{v} on {day}', { v: `${weights.at(-1).value} ${unitText('kg')}`, day: dayShort(weights.at(-1).day) })}</span></div>
-          {:else}
-            <p class="q">{t('Two weights and the line shows here. The question comes once a week.')}</p>
-          {/if}
-        </div>
-      </section>
-      <section class="ich-sec" aria-labelledby="vh-r-h">
-        <div class="ich-h"><div><h2 id="vh-r-h">{t('Who reads this history')}</h2></div></div>
-        <div class="card side">
-          <ul class="reads">
-            <li><RotateCcw size={16} aria-hidden="true" /><span>{t('Rückblick of a trip')}</span><small>{t('mood, sleep, resting pulse of the day')}</small></li>
-            <li><Gauge size={16} aria-hidden="true" /><span>{t('Watts per kg')}</span><small>{t('the weight of the day of the trip')}</small></li>
-            <li><ChartLine size={16} aria-hidden="true" /><span>{t('Balance')}</span><small>{t('all answers and values')}</small></li>
-          </ul>
-          <p class="hint"><Info size={15} aria-hidden="true" /><span>{t('Change a value here and the analyses change with it. There is no second place.')}</span></p>
-        </div>
-      </section>
       <p class="links"><a class="ab-lnk" href="#/me/analysis">{t('How it is analysed')}</a> <a class="ab-lnk" href="#/me/abfragen">{t('Your questions')}</a></p>
     </div>
   </div>
@@ -231,12 +255,60 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .hist {
-    list-style: none;
-    margin: 0;
+  .diary {
+    display: grid;
+    gap: 12px;
+  }
+  .day {
     padding: 4px 16px 8px;
   }
+  .hist,
+  .acts,
+  .fit {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .fit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    padding: 6px 0 10px;
+  }
+  .fit li {
+    display: grid;
+    line-height: 1.25;
+  }
+  .fit small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .fit b {
+    font-weight: 600;
+  }
+  .fit .fsrc {
+    margin-left: auto;
+  }
+  .act {
+    display: grid;
+    grid-template-columns: 48px 32px minmax(0, 1fr) auto 20px;
+    gap: 10px;
+    align-items: center;
+    min-height: 56px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .act:hover {
+    background: var(--paper-2);
+  }
+  .act :global(svg:last-child) {
+    color: var(--ink-3);
+  }
   .hd {
+    margin: 0;
     padding: 14px 0 6px;
     color: var(--ink-3);
     font: 600 var(--fs-tiny) var(--font-body);
@@ -252,8 +324,13 @@
     padding: 4px 0;
     border-top: 1px solid var(--line);
   }
-  .hd + .h {
+  .fit + .acts .act,
+  .hd + .acts .act,
+  .hd + .hist .h {
     border-top: 0;
+  }
+  .fit + .acts .act {
+    border-top: 1px solid var(--line);
   }
   .ht {
     color: var(--ink-3);
@@ -301,71 +378,6 @@
     width: 100%;
     margin-top: 10px;
   }
-  .side {
-    padding: 14px 16px;
-  }
-  .spark {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .spark path {
-    fill: none;
-    stroke: var(--ink-2);
-    stroke-width: 2;
-    stroke-linejoin: round;
-  }
-  .spark circle {
-    fill: var(--paper);
-    stroke: var(--ink-2);
-    stroke-width: 2;
-  }
-  .sl {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 4px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .q {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .reads {
-    list-style: none;
-    margin: 0 0 10px;
-    padding: 0;
-  }
-  .reads li {
-    display: grid;
-    grid-template-columns: 22px minmax(0, 1fr) auto;
-    gap: 8px;
-    align-items: center;
-    min-height: 44px;
-    border-top: 1px solid var(--line);
-  }
-  .reads li:first-child {
-    border-top: 0;
-  }
-  .reads small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    text-align: right;
-  }
-  .hint {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .hint :global(svg) {
-    flex: none;
-    margin-top: 2px;
-  }
   .links {
     display: flex;
     flex-wrap: wrap;
@@ -379,6 +391,12 @@
     margin-right: auto;
   }
   @media (max-width: 719px) {
+    .act {
+      grid-template-columns: 44px 32px minmax(0, 1fr) 20px;
+    }
+    .act > .ab-src {
+      display: none;
+    }
     .h {
       grid-template-columns: 44px 32px minmax(0, 1fr) 44px;
       row-gap: 2px;
@@ -396,15 +414,6 @@
     .ed {
       grid-column: 4;
       grid-row: 1;
-    }
-    .reads li {
-      grid-template-columns: 22px minmax(0, 1fr);
-      row-gap: 0;
-      padding: 6px 0;
-    }
-    .reads small {
-      grid-column: 2;
-      text-align: left;
     }
   }
 </style>
