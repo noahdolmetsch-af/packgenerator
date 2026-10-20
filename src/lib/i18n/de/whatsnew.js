@@ -1392,6 +1392,7 @@ export default {
   'Tour page: big values, a landscape, the weather of the day': 'Tour-Seite: grosse Werte, Landschaft, Wetter des Tages',
   'Plan a tour: profile and climbs': 'Tour planen: Profil und Anstiege',
   'Aktiv: week in numbers, tiles to change': 'Aktiv: Woche in Zahlen, Kacheln selbst ändern',
+  'Aktiv: week in numbers; map ground on every map': 'Aktiv: Woche in Zahlen; Kartengrund überall',
   'Map ground on every map, with a bike map': 'Kartengrund überall, neu Velokarte',
   'No wrong hints: AI key, Strava': 'Keine falschen Hinweise: KI-Schlüssel, Strava',
   'Plan a tour with GPX, tap a climb.': 'Tour mit GPX planen, einen Anstieg antippen.',
