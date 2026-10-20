@@ -241,6 +241,7 @@ test('SN7 Teil: the due point on top and chosen, what did you do, enter', async 
   // A part with nothing due: nothing is chosen, «Eintragen» waits for a choice.
   // Gesamttest C11 (20.10.2026, changed on purpose): a phone shows a short parts list first, «Show more» opens the rest
   const more = care.locator('[data-parts-more]');
+  await expect(care.locator('button.prow').first()).toBeVisible();
   if (await more.count()) await more.click();
   await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) }).click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
