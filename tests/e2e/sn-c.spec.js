@@ -240,10 +240,7 @@ test('SN7 Teil: the due point on top and chosen, what did you do, enter', async 
   await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === SPARK).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), action: 'check', result: 'ok' });
 
   // A part with nothing due: nothing is chosen, «Eintragen» waits for a choice.
-  const padsRow = care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) });
-  // on a phone the parts with nothing due may wait behind «Mehr …» (Handy kürzer)
-  if (!(await padsRow.count())) await care.getByRole('button', { name: /^Mehr .*…$/ }).first().click();
-  await padsRow.click();
+  await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) }).click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.locator('.dids button[aria-pressed="true"]')).toHaveCount(0);
   await expect(pads.getByRole('button', { name: T('Enter|part'), exact: true })).toBeDisabled();
