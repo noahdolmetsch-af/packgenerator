@@ -105,7 +105,7 @@ export const INTROS = {
   },
   goals: {
     page: true,
-    name: 'Goals|flow',
+    name: 'Activities|flow',
     title: 'Goals that fit your week',
     things: [
       { icon: 'goal', title: 'One goal per activity', text: 'For example «cycling 2× a week» or «meditate 10 minutes a day».', href: '#/flow/new' },

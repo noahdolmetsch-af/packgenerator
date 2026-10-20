@@ -49,7 +49,7 @@ test('Aktiv pages: one look, no sideways scroll, no page error', async ({ page, 
   const main = page.locator('main');
   const pages = [
     ['#/flow', T('Active|place')],
-    ['#/flow/goals', T('Goals|flow')],
+    ['#/flow/goals', T('Activities|flow')],
     ['#/flow/activity', null],
     ['#/flow/milestones', T('Milestones')],
     ['#/flow/act/meditation/mehr', T('More about meditation')],
@@ -78,7 +78,7 @@ test('A1 and A5: tick tiles, rings, the tab «Ziele» opens the goals with dots 
   await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('this week {k} of {n} move goals on track', { k: '\\d+', n: '\\d+' })));
   await expect(main.locator('[data-today-line]')).not.toContainText(T('Today, {date}', { date: '' }).trim());
   await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(`^${T('{n} of {m} activities on track', { n: '\\d+', m: '\\d+' })} · `));
-  await page.locator('.ptabs').getByRole('link', { name: T('Goals|tab'), exact: true }).click();
+  await page.locator('.ptabs').getByRole('link', { name: T('Activities|tab'), exact: true }).click();
   await expect(page).toHaveURL(/#\/flow\/goals$/);
   const row = main.locator('li[data-row="meditation"]');
   await expect(row.locator('.d7 i')).toHaveCount(7);
