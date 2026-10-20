@@ -318,6 +318,7 @@
   /* ---------- Pausieren, Auto-Pause, Sensoren (Noah 20.10.2026) ---------- */
   let fixNow = null;
   let fixPrev = null;
+  let fixSeenAt = 0;
   let autoSt = {};
   let standSince = null;
   let standing = $state(false);
@@ -341,6 +342,7 @@
     if (h && h.at !== fixNow?.at) {
       fixPrev = fixNow;
       fixNow = h;
+      fixSeenAt = now; // the phone's clock (the GPS time of a fix can differ)
       if (!rec.paused) {
         gainSt = gainStep(gainSt, h.alt);
         const v = speedKmh(fixNow, fixPrev);
@@ -349,7 +351,7 @@
     }
     // the speed now; no new fix for 15 s counts as standing
     let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
-    if (fixNow && now - fixNow.at > 15_000) kmhNow = 0;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
     if (cfg.autoPause && rec.on) {
       const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
       autoSt = r.st;
@@ -570,7 +572,7 @@
       gain: gainSt.gain,
       maxKmh,
       stops: pz.stops.length,
-      kmh,
+      kmh: pz.movingS >= 60 ? kmh : null, // the average only once you have ridden (not the assumed pace)
       speed: me?.speed ?? null,
       height: f && km != null ? heightAt(f, km) : null,
       grade: f && km != null ? gradeAt(f, km, 0.1) : null,
@@ -625,6 +627,7 @@
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
+  let stageW = $state(400);
   const snaps = $derived(sheetSnaps(stageH));
   let snap = $state('peek');
   let dragH = $state(null);
@@ -788,8 +791,8 @@
       <button type="button" class="lvf-ic" onclick={() => ((choose = true), openSheet('full'))} aria-label={t('Choose numbers')} data-live-choose><SlidersHorizontal size={20} aria-hidden="true" /></button>
     </div>
 
-    <div class="lvf-stage" bind:clientHeight={stageH}>
-      <DataPages set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
+    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{stageW >= 900 ? 0 : sheetPx}px">
+      <DataPages barTop set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
         {#snippet map()}
           <MapView
             bind:this={mapView}
@@ -830,7 +833,7 @@
       </div>
 
       <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
-      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full'} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- the «⋯» menu -->
       <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
@@ -870,7 +873,7 @@
         </div>
       {/if}
 
-      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full'} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{sheetPx + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{sheetPx + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
       <section class="lvf-sheet" class:lvf-dragging={dragH != null} style:height="{sheetPx}px" aria-label={t('Ahead of you')} data-live-sheet={snap}>
@@ -1362,7 +1365,7 @@
   }
   .lvf-alerts {
     position: absolute;
-    top: 8px;
+    top: 52px; /* under the bar of the data pages */
     left: 56px;
     right: 60px;
     z-index: 2;
@@ -1390,14 +1393,14 @@
   }
   .lvf-menu-btn {
     position: absolute;
-    top: 8px;
+    top: 52px;
     right: 8px;
     z-index: 3;
     box-shadow: 0 1px 4px var(--shadow);
   }
   .lvf-menu {
     position: absolute;
-    top: 8px;
+    top: 52px;
     right: 8px;
     z-index: 4;
     display: flex;

@@ -15,7 +15,7 @@
   import { pageName, hrZones, powerZones } from './datapages.js';
   import DataPage from './DataPage.svelte';
 
-  let { set, fields = [], values = {}, series = {}, profileAhead = [], route = false, map = null, smallMap = null, index = $bindable(0), onedit = null } = $props();
+  let { set, fields = [], values = {}, series = {}, profileAhead = [], route = false, map = null, smallMap = null, index = $bindable(0), onedit = null, barTop = false } = $props();
 
   const pages = $derived(set?.pages ?? []);
   const count = $derived(1 + pages.length);
@@ -102,7 +102,7 @@
   </div>
 
   {#if count > 1}
-    <nav class="dps-bar" aria-label={t('Map and data pages')}>
+    <nav class="dps-bar" class:dps-top={barTop} aria-label={t('Map and data pages')}>
       <button type="button" class="dps-ar" onclick={() => go(index - 1)} disabled={index === 0} aria-label={t('Previous page')} data-dp-prev><ChevronLeft size={22} aria-hidden="true" /></button>
       <span class="dps-dots">
         {#each Array.from({ length: count }, (_, i) => i) as i (i)}
@@ -149,6 +149,11 @@
     touch-action: pan-y;
     user-select: none;
   }
+  /* the live map's bottom sheet covers the bottom of the page: the fields stay above it */
+  .dps-page:not(.dps-mappage) {
+    padding-bottom: var(--dp-pad, 0px);
+    box-sizing: border-box;
+  }
   .dps-mappage {
     touch-action: auto;
     user-select: auto;
@@ -174,6 +179,12 @@
     gap: 4px;
     background: var(--paper);
     border-top: 1px solid var(--line);
+  }
+  /* on the live map the bar sits on top: the bottom sheet covers the bottom */
+  .dps-top {
+    order: -1;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
   }
   .dps-ar {
     display: grid;

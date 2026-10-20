@@ -82,8 +82,13 @@ test('Auto-pause with your own limit, the sensors box, the data pages', async ({
   if (can) await expect(box.locator('[data-live-sensor-add]')).toHaveCount(3);
   else await expect(box.locator('[data-live-sensors-none]')).toBeVisible();
 
-  // standing still (no new fix): the auto-pause comes by itself, the band says so
-  await expect(page.locator('[data-live-paused="auto"]')).toBeVisible({ timeout: 40_000 });
+  // standing still (no new fix for 15 s, then 10 s below the limit): the auto-pause comes by itself
+  const t0 = await page.evaluate(() => Date.now());
+  for (const s of [5, 10, 17, 20, 24, 28, 32, 36, 40]) {
+    await page.clock.setFixedTime(new Date(t0 + s * 1000));
+    await page.waitForTimeout(2200); // one tick of the live map
+  }
+  await expect(page.locator('[data-live-paused="auto"]')).toBeVisible({ timeout: 10_000 });
   await expect(page.locator('[data-live-paused="auto"]')).toContainText(T('Auto-pause'));
 
   // the data pages: the map is page 0, «next» shows the ready page «Ride»

@@ -33,9 +33,9 @@
   .pb-band {
     position: absolute;
     left: 8px;
-    right: 8px;
-    top: 8px;
-    z-index: 4;
+    right: 60px; /* the «⋯» button stays free */
+    top: var(--pb-top, 52px); /* under the bar of the data pages */
+    z-index: 2; /* over the map, under the pulled-up sheet and the «⋯» menu */
     display: flex;
     flex-direction: column;
     gap: 6px;
