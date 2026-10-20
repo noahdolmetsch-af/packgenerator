@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.171.0 «Verschleiss» (Noah 20.10.2026 «1 pro Teil, 2a+b, 3a, 4a+b, 5a»): the counter per part and bike, the page «Wear».
+    version: '0.171.0',
+    date: '2026-10-20',
+    title: 'Wear at a glance',
+    lead: 'Total km stay, each part counts anew.',
+    points: [
+      { text: 'Wear: km left per part', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Visit: replaced parts start at 0 km', href: '#/bikes?tab=shop' },
+    ],
+    small: [
+      { box: 'new', text: 'Part life learns from your changes' },
+      { box: 'new', text: 'Chain at a glance; phone reminder' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear»: look at the bars.',
+      'Log a workshop visit, add «Chain · replaced»: the chain starts at 0 km.',
+    ],
+  },
+  {
     // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',

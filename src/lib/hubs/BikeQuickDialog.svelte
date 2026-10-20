@@ -23,6 +23,10 @@
   import { localDay } from '../localday.js';
   import { visitPrefill } from '../visitprefill.js';
   import { VISIT_JOBS } from '../inbox.js';
+  import { JOB_PARTS } from '../workshop.js';
+  import { visitService } from '../visitdb.js';
+  import { vig } from '../veloimgriff.svelte.js';
+  import { hoursOn } from '../bikehours.js';
   import Btn from '../ui/Btn.svelte';
   import { explain } from '../ui/explain.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
@@ -68,6 +72,20 @@
   const kmPre = $derived(!!pre && !kmOwn && pre.km != null && km === String(pre.km));
   const shopPre = $derived(!!pre && !shopOwn && !!pre.shop && shop === pre.shop);
   const toggleJob = (j) => (jobs = jobs.some((x) => x.part === j.part) ? jobs.filter((x) => x.part !== j.part) : [...jobs, j]);
+  // «Verschleiss» (Noah 20.10.2026, answer 1): any part, replaced, serviced or checked; replaced starts
+  // the part at 0 km, serviced starts «since service» at 0. And the whole-bike counter (on by default).
+  const ACT_NAME = { replace: 'replaced', service: 'serviced', check: 'checked' };
+  let morePart = $state('');
+  let moreAct = $state('replace');
+  let wholeBike = $state(true);
+  const chipParts = new Set(VISIT_JOBS.map((j) => j.part));
+  const extraJobs = $derived(jobs.filter((j) => !chipParts.has(j.part)));
+  const partLabel = (key) => t(JOB_PARTS.find((p) => p.key === key)?.name ?? key);
+  function addMore() {
+    if (!morePart) return;
+    jobs = [...jobs.filter((x) => x.part !== morePart), { part: morePart, action: moreAct, name: '' }];
+    morePart = '';
+  }
 
   const TITLE = { problem: 'Log a problem', idea: 'Idea for a bike', visit: 'Log a workshop visit' };
   const bikeName = (id) => bikes.find((b) => b.id === id)?.name ?? '';
@@ -122,7 +140,8 @@
     if (Number.isNaN(cost)) return t('Type the cost in CHF, e.g. 120.50.');
     const id = `visit-${Date.now().toString(36)}`;
     const parts = jobs.map((j) => ({ part: j.part, action: j.action, what: '' }));
-    await db.visits.put({ ...newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photos: $state.snapshot(shots) }, { id }), parts });
+    await db.visits.put({ ...newVisit({ bikeId: bike, date, shop, km: kmN, chf: cost, photos: $state.snapshot(shots) }, { id }), parts, ...(wholeBike ? { service: true } : {}) });
+    if (wholeBike) await visitService(bike, { day: date, km: kmN, hours: hoursOn(vig.hours[bike] ?? null, date), visitId: id });
     savedId = id;
     return null;
   }
@@ -184,6 +203,25 @@
       <div class="vd-chips chips" role="group" aria-label={t('What was done?')}>
         {#each VISIT_JOBS as j (j.part)}<button type="button" class="vd-chip" aria-pressed={jobs.some((x) => x.part === j.part)} onclick={() => toggleJob(j)}>{t(j.name)}</button>{/each}
       </div>
+      {#if extraJobs.length}
+        <ul class="vd-more" aria-label={t('More parts of this visit')}>
+          {#each extraJobs as j (j.part)}<li data-visit-job={j.part}><span>{partLabel(j.part)} · {t(ACT_NAME[j.action])}</span><button type="button" class="link" aria-label={t('Remove {name}', { name: partLabel(j.part) })} onclick={() => (jobs = jobs.filter((x) => x.part !== j.part))}>×</button></li>{/each}
+        </ul>
+      {/if}
+      <div class="vd-addpart">
+        <select class="sel" aria-label={t('Another part')} bind:value={morePart} data-visit-part>
+          <option value="">{t('+ another part')}</option>
+          {#each JOB_PARTS.filter((p) => p.key !== 'other' && !jobs.some((x) => x.part === p.key)) as p (p.key)}<option value={p.key}>{t(p.name)}</option>{/each}
+        </select>
+        <select class="sel" aria-label={t('What was done with it?')} bind:value={moreAct} data-visit-act>
+          <option value="replace">{t('replaced')}</option>
+          <option value="service">{t('serviced')}</option>
+          <option value="check">{t('checked')}</option>
+        </select>
+        <button type="button" class="btn sm" disabled={!morePart} onclick={addMore} data-visit-add>{t('Add|part')}</button>
+      </div>
+      <label class="vd-whole"><input type="checkbox" bind:checked={wholeBike} data-visit-whole /> <span>{t('Service of the whole bike: set the counter to 0')}</span></label>
+      <p class="hint">{t('Replaced parts start again at 0 km, serviced parts at 0 km since the service. The total km of the bike always stay.')}</p>
       <label class="field"><span class="lbl">{t('Cost CHF (optional)')}</span><input class="inp num cost" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
     {:else}
       <label class="field">
@@ -209,6 +247,47 @@
 </dialog>
 
 <style>
+  .vd-more {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .vd-more li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px 2px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--fs-small);
+  }
+  .vd-more .link {
+    min-width: 32px;
+    min-height: 32px;
+  }
+  .vd-addpart {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 0;
+  }
+  .vd-addpart .sel {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .vd-whole {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 12px 0 0;
+    min-height: 44px;
+  }
+  .vd-whole input {
+    margin-top: 3px;
+  }
   /* A-J1: the green field with its origin (.inp.pre, .prefrom) is the shared rule in app.css since v0.127.0 A-U5 */
   .field.in {
     margin: 0;

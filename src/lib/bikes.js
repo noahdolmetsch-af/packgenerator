@@ -258,7 +258,8 @@ export function parseBikesHash(hash = '') {
   // v0.116.0 «Strava-Verbindung»: &view=strava is the Strava page (S1–S3), &view=strava-check «Zum Prüfen» (S5).
   // «Velo im Griff» (19.10.2026): &view=spick is the «Werkstatt-Spick», &view=templates the part templates per kind.
   // «Velo-FAQ» (19.10.2026): &view=faq is the «Velo-FAQ» (questions on care, breakdowns, wear, myths).
-  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq'].includes(q.get('view'))) out.view = q.get('view');
+  // «Verschleiss» (20.10.2026): &view=wear is the wear of each part, the counter and the service periods.
+  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear'].includes(q.get('view'))) out.view = q.get('view');
   // «Velo-Inspektion» (19.10.2026): &view=inspect is a bike's inspections (history, checklist); &level=quick|monthly|full runs one.
   if (out.view === 'inspect' && ['quick', 'monthly', 'full'].includes(q.get('level'))) out.level = q.get('level');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
@@ -315,7 +316,7 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
     if (a) q.set('a', a);
     if (b) q.set('b', b);
   }
-  if (['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq'].includes(view) && tab === 'care') q.set('view', view);
+  if (['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
   if (tab === 'care' && view === 'inspect' && ['quick', 'monthly', 'full'].includes(level)) q.set('level', level);

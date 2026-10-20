@@ -51,7 +51,8 @@
   import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
   import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
   import SkToast from '../sk/SkToast.svelte';
-  import { Pencil, EyeOff, ShieldCheck } from '@lucide/svelte';
+  import { Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
+  import { wearRows, wearSummary } from '../wear.js';
   import { take } from '../nav.js';
   import { strava } from '../strava/client.svelte.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
@@ -91,6 +92,17 @@
   const profile = $derived(view ? bikeProfile(view, visits, tyres, today) : null);
   // The same count as Bike care, Home and Pack (readiness.js).
   const care = $derived(view ? bikeCare(view, { tasks, visits, today }) : null);
+  // «Verschleiss» (Noah 20.10.2026, 5a): the most worn part in one line («Chain: 260 km left»)
+  const wearSum = $derived(view ? wearSummary(wearRows(view, { today })) : null);
+  const wearLine = $derived(
+    !wearSum || !wearSum.top
+      ? t('Set start points, then the app can tell')
+      : wearSum.state === 'ok'
+        ? t('All parts fine · most worn: {part}', { part: wearSum.top.name })
+        : wearSum.top.left != null && wearSum.top.left > 0
+          ? t('{part}: {km} km left', { part: wearSum.top.name, km: num(wearSum.top.left) })
+          : t('{part}: replace soon', { part: wearSum.top.name }),
+  );
   // N15: the order for the shop (for the bike's next trip, else what is due today), without what I do myself.
   const orderTrip = $derived(bike ? upcomingTrips($tripsQ ?? [], today).find((x) => x.bikeId === bike.id) ?? null : null);
   const order = $derived(view ? workshopOrder(view, orderTrip, tasks, visits, tyres, today) : null);
@@ -468,6 +480,8 @@
                 {#if message}<p class="msg" role="status">{message}</p>{/if}
               </SetupFold>
             </li>
+            <!-- «Verschleiss» (Noah 20.10.2026, 5a): how worn the parts are, one calm row to the page «Wear» -->
+            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
           </ul>
         </section>

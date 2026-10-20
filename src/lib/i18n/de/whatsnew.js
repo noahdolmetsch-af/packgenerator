@@ -1386,6 +1386,15 @@ export default {
   'Open Me › What is new: every version is open, grouped by month.': 'Öffne Ich › Was ist neu: Jede Version ist offen, nach Monat gruppiert.',
   'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
+  // v0.171.0 «Verschleiss»
+  'Wear at a glance': 'Verschleiss auf einen Blick',
+  'Total km stay, each part counts anew.': 'Gesamt-km bleiben, jedes Teil zählt neu.',
+  'Wear: km left per part': 'Verschleiss: km übrig pro Teil',
+  'Visit: replaced parts start at 0 km': 'Besuch: ersetzte Teile starten bei 0 km',
+  'Part life learns from your changes': 'Lebensdauer lernt aus deinen Wechseln',
+  'Chain at a glance; phone reminder': 'Kette auf einen Blick; Handy-Erinnerung',
+  'Bikes › Care › a bike › «Wear»: look at the bars.': 'Velos › Pflege › ein Velo › «Verschleiss»: die Balken ansehen.',
+  'Log a workshop visit, add «Chain · replaced»: the chain starts at 0 km.': 'Werkstattbesuch erfassen, «Kette · ersetzt» hinzufügen: Die Kette startet bei 0 km.',
   // v0.166.0 «Neueste Version laden»
   'Tours and Aktiv': 'Touren und Aktiv',
   'Gear, climbs, Aktiv anew.': 'Gepäck, Anstiege, Aktiv neu.',

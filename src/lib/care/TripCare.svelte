@@ -20,7 +20,7 @@
   // two named scopes with their own count. focus: opened from a link to this trip's preparation.
   // soon (Impeccable 18.10.2026, Velopflege 1): the days until a trip in the next 7 days; the row then
   // stands on top of the page with «Vor {trip} · in n Tagen», what to check and «Check before the ride».
-  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, soon = null, onorder, onresult, onundo, onevent, onall = null } = $props();
+  let { trip, rows, rules, care = null, prep = null, wear = [], focus = false, bikeName, today, order = null, soon = null, onorder, onresult, onundo, onevent, onall = null } = $props();
 
   const sum = $derived(prepSummary(rows));
   const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
@@ -30,7 +30,7 @@
     if (focus) open = prepOpen = true;
   });
   // What the row counts: the bike's rows (due now, before and on the trip) and the open preparation tasks.
-  const count = $derived(bikeRows.length + (isEvent(trip) ? sum.open : 0));
+  const count = $derived(bikeRows.length + wear.length + (isEvent(trip) ? sum.open : 0));
   const whenSoon = (n) => (n <= 0 ? t('today|when') : n === 1 ? t('tomorrow|when') : tn(n, 'in {n} day', 'in {n} days'));
   const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 </script>
@@ -58,7 +58,12 @@
       <span class="lbl">{bikeCareLine(care)}</span>
       {#if bikeRows.length}
         <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn" data-sign={r.late ? signFor('warn') : null}>{#if r.kind === 'inspect'}<a href={bikesHash({ tab: 'care', view: 'inspect', bike: care.bikeId, level: r.level ?? 'full' })} data-trip-inspect={r.level ?? 'full'}>{r.name}</a>{:else}{r.name}{/if}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
-      {:else if care.status === 'nodata'}
+      {/if}
+      {#if wear.length}
+        <!-- «Verschleiss» (Noah 20.10.2026, 5a): parts that run out before or on the trip, with the way to the page -->
+        <ul class="wear-trip" data-trip-wear>{#each wear as w (w.key)}<li class:late={w.when === 'now'}><b class="rn"><a href={bikesHash({ tab: 'care', view: 'wear', bike: care.bikeId })}>{t('{part}: replace soon', { part: w.name })}</a></b> <small>{w.when === 'during' ? `${t('on the trip')} · ` : `${t('before the start')} · `}{w.left == null ? t('worn') : w.left > 0 ? t('{km} km left', { km: w.left }) : t('{km} km over', { km: -w.left })}</small></li>{/each}</ul>
+      {/if}
+      {#if !bikeRows.length && !wear.length && care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}
       {#if order?.rows.length}<button type="button" class="btn sm" data-explain={explain('Send|order')} onclick={onorder}>{t('Workshop order · about CHF {chf}', { chf: order.total })}</button>{/if}

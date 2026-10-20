@@ -1798,3 +1798,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 20.10.2026: **Aktiv neu** (Noah «1a 2a 3a 4b 5b») im selben PR 0.168.0: «Deine Woche in Zahlen» ersetzt «Velo diesen Monat» (Monats-km bleiben in Velo › Fahrten-Buch); Verlauf ohne Gewichtskarte und ohne «Wer diesen Verlauf liest»; «3 von 7» nur noch als Tooltip.
 - 20.10.2026: **Kartengrund wählen** (Noah «kartenlayer im front end wählbar sein: swisstopo, google maps, osmand etc») im selben PR 0.168.0: ein Kartengrund pro Gerät für alle Karten, neu CyclOSM; Google Maps (bezahlter Schlüssel) und OsmAnd (keine Kacheln) nicht möglich bei 0 Kosten.
 - 20.10.2026: **Strava «kennt die App nicht»** (Noah heute gestolpert) früh mit 0.168.0: rund 320 Fahrten wandern aus «Zum Prüfen» als «nicht gezählt» ins km-Buch, mit Rückgängig. Chronik: ab Tag 8 eines Monats hinter «n weitere Tage zeigen».
+
+## 20.10.2026 · 0.171.0 «Verschleiss» (Noah «1 pro Teil, 2a+b, 3a, 4a+b, 5a», «Verschleiss immer im Griff»)
+
+- Ein Werkstattbesuch setzt pro Teil zurück: ersetzt → das Teil startet bei 0 km (das alte kommt zu «Teile davor»), gewartet → «seit Wartung» 0, geprüft → nur das Datum. Häkchen «Service am ganzen Velo» (vorgewählt) setzt den Velo-Zähler auf 0. Die Gesamt-km bleiben immer. Jeder Service bleibt in `bike.service.past`; ein gelöschter Besuch nimmt seinen Punkt mit (Rückgängig bringt beides zurück).
+- Neue Seite «Verschleiss» (`#/bikes?tab=care&view=wear`) plus kurze Karte in der Velopflege (2a+b). Lebensdauer: Startwert (`LIFE_STD` in `src/lib/wear.js`), der aus den eigenen Wechseln lernt (3a); eigener Wert pro Velo und Teil in `bike.life` (z. B. Kette 1000 km), zurück zum Vorschlag, Teil von der Seite nehmen und zurückholen.
+- Prognose mit «noch X km» und «etwa im Monat» aus den km der letzten 8 Wochen (4a+b). Hinweise auf der Velo-Seite und in der Tour-Vorbereitung, Heute bleibt unverändert (5a).
+- Kette auf den ersten Blick in jeder Velo-Zeile der Velopflege; Handy-Erinnerung «Teile abgenutzt» (Art `wear` in `push/schedule.js`), einzeln einschaltbar. Claude sieht die km nicht, darum kommt die Erinnerung über die App.

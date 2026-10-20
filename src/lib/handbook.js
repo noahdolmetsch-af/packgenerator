@@ -555,6 +555,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
     example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
   },
+  'f.partwear': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» (also on the bike page).', 'Each part: a bar, km left and about when, from your km of the last 8 weeks.', 'A workshop visit with «replaced» starts the part at 0 km; «Service of the whole bike» sets the bike counter to 0.'],
+    example: 'Example: chain 2600 of 3000 km → «400 km left · about in December».',
+  },
   'f.velofaq': {
     on: null,
     steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],

@@ -946,6 +946,11 @@ export default {
   'Own parts: add, rename, move, delete.': 'Eigene Teile: hinzufügen, umbenennen, verschieben, löschen.',
   'Example: gravel gets «Bell»; every new gravel bike starts with it.': 'Beispiel: Gravel bekommt «Klingel»; jedes neue Gravel startet damit.',
   // «Velo-FAQ» (Paket 6)
+  // «Verschleiss» (Noah 20.10.2026)
+  'Bikes › Care › a bike › «Wear» (also on the bike page).': 'Velos › Pflege › ein Velo › «Verschleiss» (auch auf der Velo-Seite).',
+  'Each part: a bar, km left and about when, from your km of the last 8 weeks.': 'Jedes Teil: ein Balken, km übrig und etwa wann, aus deinen km der letzten 8 Wochen.',
+  'A workshop visit with «replaced» starts the part at 0 km; «Service of the whole bike» sets the bike counter to 0.': 'Ein Werkstattbesuch mit «ersetzt» startet das Teil bei 0 km; «Service am ganzen Velo» setzt den Velo-Zähler auf 0.',
+  'Example: chain 2600 of 3000 km → «400 km left · about in December».': 'Beispiel: Kette 2600 von 3000 km → «noch 400 km · etwa im Dezember».',
   'Bikes › Care › «Bike FAQ» (also on every bike’s card).': 'Velos › Pflege › «Velo-FAQ» (auch auf der Karte jedes Velos).',
   'On top the question of the day; «Another question» shows the next one.': 'Oben die Frage des Tages; «Andere Frage» zeigt die nächste.',
   'Search or open a topic; «Your own questions» keeps what you learned.': 'Such oder öffne ein Thema; «Deine eigenen Fragen» behält, was du gelernt hast.',

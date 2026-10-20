@@ -7,6 +7,7 @@
    * with them the app can say what the bike costs per 1000 km.
    */
   import { db } from '../db.js';
+  import { removeVisit, restoreVisit } from '../visitdb.js';
   import { PART, parseKm } from '../care.js';
   import { visitTotal } from '../workshop.js';
   import Lightbox from '../ui/Lightbox.svelte';
@@ -37,12 +38,9 @@
     if ((await askDelete({ title: t('Remove the visit of {date}?', { date: visit.date }), text: t('Its jobs leave the part history too. You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const name = `${visit.shop}, ${visit.date}`;
     const ok = await deleteWithUndo({
-      run: async () => {
-        const rec = await db.visits.get(visit.id);
-        await db.visits.delete(visit.id);
-        return rec;
-      },
-      undo: (rec) => rec && db.visits.put(rec),
+      // «Verschleiss»: the visit's point on the whole-bike counter goes with it (visitdb.js), Undo brings both back
+      run: () => removeVisit(visit.id),
+      undo: (snap) => restoreVisit(snap),
       text: t('"{name}" removed.', { name }),
       name,
     });
