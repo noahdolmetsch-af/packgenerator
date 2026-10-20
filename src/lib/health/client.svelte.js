@@ -12,7 +12,7 @@
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { readKey, STRAVA_HASH } from '../strava/client.svelte.js';
-import { call, syncHealth, HEALTH_KEY, VALUES } from '../health.js';
+import { call, syncHealth, HEALTH_KEY, VALUES, EXTRA } from '../health.js';
 
 export const FITBIT_HASH = '#/me/fitbit';
 export const DATA_HASH = '#/me/data';
@@ -50,7 +50,8 @@ export async function savePrefs(db, patch) {
 }
 
 /** Only the values Noah chose are kept. */
-const chosen = (values) => (rows) => rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => k === 'date' || values.includes(k))));
+// the values switched off stay out; calories and the highest pulse (EXTRA) have no switch of their own
+const chosen = (values) => (rows) => rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => k === 'date' || values.includes(k) || EXTRA.includes(k))));
 
 let running = null;
 /** «Jetzt holen»: fetch the missing days. Returns the result or null (error in health.error). */

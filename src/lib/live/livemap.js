@@ -28,6 +28,14 @@ export const LIVE_TILES = [
   { key: 'stop', label: 'To the next stop', unit: 'km' },
   { key: 'light', label: 'Light left', unit: '' },
   { key: 'plan', label: 'Against the plan', unit: '', route: true },
+  // Pausieren, Sensoren (Noah 20.10.2026): the whole time, the pulse, power and cadence, metres up, stops
+  { key: 'total', label: 'Total time', unit: 'h' },
+  { key: 'hr', label: 'Heart rate', unit: 'bpm' },
+  { key: 'power', label: 'Power', unit: 'W' },
+  { key: 'cadence', label: 'Cadence', unit: 'rpm' },
+  { key: 'gain', label: 'Metres up', unit: 'm' },
+  { key: 'max', label: 'Top speed', unit: 'km/h' },
+  { key: 'stops', label: 'Stops', unit: '' },
 ];
 const KEYS = new Set(LIVE_TILES.map((x) => x.key));
 export const TILE = Object.fromEntries(LIVE_TILES.map((x) => [x.key, x]));
@@ -59,6 +67,20 @@ const r1 = (v) => (v >= 100 ? String(Math.round(v)) : (Math.round(v * 10) / 10).
  * stop ({ distKm }) | null, lightMin | null, dark, delta (min ahead + / behind −) | null, clock(ms) → 'HH:MM' }.
  * → { key: { value, sub? } }; '–' when unknown.
  */
+const hm = (sec) => `${Math.floor(sec / 3600)}:${pad(Math.floor((sec % 3600) / 60))}`;
+
+/**
+ * Metres up from the GPS height (Noah: «Höhenmeter»), without the jitter: a climb counts only once the
+ * height rose 4 m above the lowest point since the last count. st: { base, gain } → new st.
+ */
+export function gainStep(st = { base: null, gain: 0 }, alt, step = 4) {
+  if (!Number.isFinite(alt)) return st;
+  if (st.base == null) return { base: alt, gain: st.gain ?? 0 };
+  if (alt < st.base) return { base: alt, gain: st.gain };
+  if (alt - st.base >= step) return { base: alt, gain: Math.round((st.gain + alt - st.base) * 10) / 10 };
+  return st;
+}
+
 export function tileValues(c = {}) {
   const dash = { value: '–' };
   const v = (value, sub = '') => ({ value: String(value), sub });
@@ -77,6 +99,13 @@ export function tileValues(c = {}) {
     top: c.top && Number.isFinite(c.top.distKm) ? v(r1(Math.max(0, c.top.distKm))) : dash,
     stop: c.stop && Number.isFinite(c.stop.distKm) ? v(r1(Math.max(0, c.stop.distKm))) : dash,
     light: c.dark ? v('0:00') : Number.isFinite(c.lightMin) ? v(`${Math.floor(c.lightMin / 60)}:${pad(Math.round(c.lightMin % 60))}`) : dash,
+    total: Number.isFinite(c.totalS) ? v(hm(c.totalS)) : dash,
+    hr: Number.isFinite(c.hr) ? v(Math.round(c.hr)) : dash,
+    power: Number.isFinite(c.power) ? v(Math.round(c.power)) : dash,
+    cadence: Number.isFinite(c.cadence) ? v(Math.round(c.cadence)) : dash,
+    gain: Number.isFinite(c.gain) ? v(Math.round(c.gain)) : dash,
+    max: Number.isFinite(c.maxKmh) && c.maxKmh > 0 ? v(Math.round(c.maxKmh * 10) / 10) : dash,
+    stops: Number.isFinite(c.stops) ? v(c.stops) : dash,
     plan: Number.isFinite(c.delta) ? v(`${c.delta >= 0 ? '+' : '−'}${Math.floor(Math.abs(c.delta) / 60)}:${pad(Math.round(Math.abs(c.delta) % 60))}`) : dash,
   };
 }

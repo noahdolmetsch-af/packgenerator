@@ -17,6 +17,8 @@ export const GOOGLE_URL = 'https://packgen-three.vercel.app/api/google';
 export const HEALTH_KEY = 'health';
 /** The values a day can hold, in the order the app shows them. */
 export const VALUES = ['sleep', 'restingHr', 'hrvMs', 'steps', 'azm'];
+/** Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active calories, highest pulse. */
+export const EXTRA = ['kcal', 'kcalActive', 'hrMax'];
 export const FIRST_DAYS = 90;
 export const AGAIN_DAYS = 3;
 
@@ -38,7 +40,7 @@ export function addDays(iso, n) {
 export function cleanDay(r) {
   if (!r || !/^\d{4}-\d{2}-\d{2}$/.test(r.date ?? '')) return null;
   const out = { date: r.date };
-  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm']) if (Number.isFinite(r[k])) out[k] = r[k];
+  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm', ...EXTRA]) if (Number.isFinite(r[k])) out[k] = r[k];
   if (r.sleep && Number.isFinite(r.sleep.asleepMin)) out.sleep = { ...r.sleep };
   return out;
 }
@@ -46,7 +48,7 @@ export function cleanDay(r) {
 /** The old row with the new values on top (per value the newer source wins). */
 export function mergeDay(old, neu, src, at) {
   const out = { ...(old ?? {}), date: neu.date };
-  for (const k of VALUES) if (neu[k] !== undefined) out[k] = neu[k];
+  for (const k of [...VALUES, ...EXTRA]) if (neu[k] !== undefined) out[k] = neu[k];
   return { ...out, src, at };
 }
 
@@ -59,7 +61,7 @@ export async function saveDays(db, rows, { src = 'google', at = new Date().toISO
     const old = await db.healthDays.bulkGet(clean.map((r) => r.date));
     const next = clean.map((r, i) => {
       const m = mergeDay(old[i], r, src, at);
-      const same = old[i] && VALUES.every((k) => JSON.stringify(old[i][k]) === JSON.stringify(m[k]));
+      const same = old[i] && [...VALUES, ...EXTRA].every((k) => JSON.stringify(old[i][k]) === JSON.stringify(m[k]));
       if (!same) changed++;
       return same ? old[i] : m;
     });

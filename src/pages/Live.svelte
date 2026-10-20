@@ -25,9 +25,11 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers } from '@lucide/svelte';
+  import { Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
+  import OvNearby from '../lib/sources/OvNearby.svelte';
+  import { wptsOnMap } from '../lib/route/fromgpx.js';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
@@ -36,20 +38,38 @@
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { GROUNDS } from '../lib/map/sources.js';
+  import { GROUNDS, SWISS_OVERLAYS } from '../lib/map/sources.js';
   import { chooseGround } from '../lib/map/groundpref.svelte.js';
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
   import PlaceSheet from '../lib/spur/PlaceSheet.svelte';
   import Essen from '../lib/unterwegs/Essen.svelte';
   import SosSheet from '../lib/live/SosSheet.svelte';
+  import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR } from '../lib/reroute.js';
+  import { saveGpx } from '../lib/gpxout.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
+  import PauseBar from '../lib/live/PauseBar.svelte';
+  import TurnHint from '../lib/live/TurnHint.svelte';
+  import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
+  import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
+  import DataPages from '../lib/live/DataPages.svelte';
+  import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
+  import DataPagesEditor from '../lib/live/DataPagesEditor.svelte';
+  import { PAGES_KEY, cleanPages, fieldCatalogue } from '../lib/live/datapages.js';
+  import { statsOf } from '../lib/live/ble.js';
+  import { distKm as distKmPts } from '../lib/spur/polyline.js';
+  import SensorBox from '../lib/live/SensorBox.svelte';
+  import { fresh, onValue } from '../lib/live/sensors.svelte.js';
+  import { limitStep } from '../lib/live/ble.js';
+
+  import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
   import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
@@ -117,7 +137,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -180,7 +200,12 @@
   /* ---------- what follows from where you are ---------- */
   const at = $derived(me && hasRoute ? onRoute(pts, me) : null);
   const km = $derived(at?.km ?? null);
-  const pz = $derived(pauses(fixesOf(row)));
+  const pz = $derived(pauses(fixesOf(row), { breaks: rec.on ? rec.breaks : (row?.breaks ?? []) }));
+  // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
+  const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
+  const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
   const pace = $derived({ kmh, climbMh: isRace ? Number(as?.climbMh?.value) || 600 : 600 });
@@ -189,6 +214,9 @@
   const KINDS = ['shop', 'food', 'water', 'sleep', 'station', 'bike'];
   const stops = $derived(me ? stopsAhead({ pois, pts: hasRoute ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
+  // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
+  const turns = $derived(hasRoute ? turnsOf(pts) : []);
+  const turnNext = $derived(cfg.turns && at && at.offM < 100 ? nextTurn(turns, at.kmx ?? at.km) : null);
   const running = $derived(planRunning(plan, now));
   const delta = $derived(running && km != null ? planDelta(plan, km, now) : null);
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
@@ -209,11 +237,15 @@
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
+    ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
+    ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
     { key: 'stops', label: t('Stops') },
     { key: 'own', label: t('My points') },
     { key: 'radar', label: t('Rain radar') },
+    { key: 'veloland', label: t('SchweizMobil') },
   ]);
   let radar = $state(null);
   cacheGet('map-radar').then((c) => {
@@ -228,7 +260,11 @@
       })
       .catch(() => (msg = t('The rain radar could not load. Try again later.')));
   });
-  const overlays = $derived(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []);
+  const overlays = $derived([
+    // SchweizMobil (map/sources.js SWISS_OVERLAYS): the signposted cycling routes, under the rain
+    ...(shown.veloland ? SWISS_OVERLAYS.filter((o) => o.id === 'veloland') : []),
+    ...(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []),
+  ]);
   // the battery saver: the simple light free map (never dark), back to your ground afterwards
   let groundBefore = null;
   $effect(() => {
@@ -299,14 +335,98 @@
   let batteryApi = null;
   const lang = () => (locale() === 'de-CH' ? 'de-CH' : 'en-GB');
 
+  /* ---------- Pausieren, Auto-Pause, Sensoren (Noah 20.10.2026) ---------- */
+  let fixNow = null;
+  let fixPrev = null;
+  let fixSeenAt = 0;
+  let autoSt = {};
+  let standSince = null;
+  let standing = $state(false);
+  let gainSt = $state({ base: null, gain: 0 });
+  let maxKmh = $state(0);
+  let hrSt = {};
+  let powerSt = {};
+  let limitMsg = $state('');
+  const autoKmh = $derived(autoKmhOf(cfg.autoKmh));
+  async function pauseNow(auto = false) {
+    standing = false;
+    standSince = null;
+    await pauseRecording({ auto });
+  }
+  async function goOn() {
+    autoSt = {};
+    await resumeRecording();
+  }
+  function rideStep() {
+    const h = rec.here;
+    if (h && h.at !== fixNow?.at) {
+      fixPrev = fixNow;
+      fixNow = h;
+      fixSeenAt = now; // the phone's clock (the GPS time of a fix can differ)
+      if (!rec.paused) {
+        gainSt = gainStep(gainSt, h.alt);
+        const v = speedKmh(fixNow, fixPrev);
+        if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
+      }
+    }
+    // the speed now; no new fix for 15 s counts as standing
+    let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
+    if (cfg.autoPause && rec.on) {
+      const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
+      autoSt = r.st;
+      if (r.act === 'pause') pauseNow(true);
+      if (r.act === 'resume') goOn();
+    }
+    // the hint: standing a minute without a pause
+    if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
+      standSince ??= now;
+      standing = now - standSince >= HINT_S * 1000;
+    } else {
+      standSince = null;
+      standing = false;
+    }
+    // your own limits for the pulse and the power (a tone, no judgement)
+    const hr = limitStep(hrSt, { value: fresh('hr', now), limit: Number(cfg.hrMax) || 0, now });
+    hrSt = hr.st;
+    const pw = limitStep(powerSt, { value: fresh('power', now), limit: Number(cfg.powerMax) || 0, now });
+    powerSt = pw.st;
+    if (hr.ring || pw.ring) {
+      beep();
+      buzz([300, 120, 300]);
+      limitMsg = hr.ring ? t('Heart rate above {n} bpm for a minute.', { n: cfg.hrMax }) : t('Power above {n} W for a minute.', { n: cfg.powerMax });
+    }
+    if (hrSt.since == null && powerSt.since == null) limitMsg = '';
+    // Stromsparen 1a: your own pause or a minute standing → the GPS asks less (an auto-pause keeps it exact, to go on at once)
+    setGpsLow((rec.paused && !rec.auto) || standing);
+  }
+  // the sensor values go with the recording (every 5 s)
+  $effect(() => onValue((kind, v, at) => addSensor(kind, v, at)));
+  $effect(() => {
+    if (!rec.on) untrack(() => {
+      gainSt = { base: null, gain: 0 };
+      maxKmh = 0;
+      autoSt = {};
+      standing = false;
+    });
+  });
+
   function step() {
     now = Date.now();
     const h = rec.here;
     if (h && (!me || h.at !== me.at)) me = { ...h };
+    if (rec.on) rideStep();
     if (!rec.on || !me) return;
-    if (follow && viewSet) mapView?.keep?.(me.lat, me.lon, sheetPx);
+    // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
+    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, sheetPx);
+    // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
+    const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
+    if (ts) {
+      said.add(ts.id);
+      say(t(ts.key, ts.vars), lang());
+    }
     // voice
-    if (cfg.voice) {
+    if (cfg.voice && !ts) {
       const s = nextSay({ stop: stops[0] ?? null, climb, said });
       if (s) {
         said.add(s.id);
@@ -314,7 +434,7 @@
       }
     }
     // off-route
-    if (cfg.offRoute && at) {
+    if (cfg.offRoute && at && !onDetour(detour, me)) {
       const r = offRouteStep(at.offM, offState, 100);
       offState = r.state;
       offWarn = r.state === 'off';
@@ -338,7 +458,11 @@
       checkStorm();
     }
     // battery
-    if (cfg.battery) readBattery();
+    // the battery: with the saver every tick, else once a minute (the «Battery» field of the data pages)
+    if (hasBattery && (cfg.battery || now - batAt > 60_000)) {
+      batAt = now;
+      readBattery();
+    }
     // the family link (Reise-Spur) shows where you are, when the tour has one (familylive.js)
     if (trip?.spurLink?.id && navigator.onLine !== false && now - familyAt >= LIVE_EVERY_MS) {
       familyAt = now;
@@ -346,6 +470,7 @@
     }
   }
   let familyAt = 0;
+  let batAt = 0;
   const eatGain = $derived(cfg.eatHm && km != null && eatFromKm != null ? gainBetween(profile, eatFromKm, km) : 0);
   async function ateNow() {
     eatFromKm = km;
@@ -403,6 +528,31 @@
   /* ---------- sheets ---------- */
   let sos = $state(false);
   let place = $state(false);
+
+  /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
+  let reroute = $state(false);
+  let picked = $state(null); // a point pressed long on the map
+  let detour = $state(loadDetour());
+  let gpxMsg = $state('');
+  const setDetour = (d) => {
+    detour = d;
+    gpxMsg = '';
+    saveDetour(d);
+    if (d?.line?.length > 1) {
+      follow = false;
+      mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), sheetPx);
+    }
+  };
+  // back on the route past the rejoin point (or at the place): the detour has done its job
+  $effect(() => {
+    if (detour && detourDone(detour, { km, here: me })) untrack(() => setDetour(null));
+  });
+  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
+  async function detourToGarmin() {
+    const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
+    const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
+    gpxMsg = r === 'cancelled' ? '' : t('GPX saved: open it in Garmin Connect, Wahoo or komoot and send it to the bike computer.');
+  }
   let profileKm = $state(null);
   $effect(() => {
     if (km != null) profileKm = km;
@@ -465,8 +615,15 @@
       ridden: rec.km,
       left: arr?.kmLeft,
       eta: arr?.eta,
-      movingS: pz.movingS,
-      kmh,
+      movingS: movingLive,
+      totalS,
+      hr: fresh('hr', now),
+      power: fresh('power', now),
+      cadence: fresh('cadence', now),
+      gain: gainSt.gain,
+      maxKmh,
+      stops: pz.stops.length,
+      kmh: pz.movingS >= 60 ? kmh : null, // the average only once you have ridden (not the assumed pace)
       speed: me?.speed ?? null,
       height: f && km != null ? heightAt(f, km) : null,
       grade: f && km != null ? gradeAt(f, km, 0.1) : null,
@@ -478,10 +635,68 @@
       clock: (ms) => hhmm(ms),
     }),
   );
+  /* «Datenseiten wie am Garmin» (datapages.js): the map is page 0, then the rider's pages */
+  const pagesQ = liveQuery(() => db.settings.get(PAGES_KEY));
+  const dpSet = $derived(cleanPages($pagesQ?.value));
+  const savePages = (v) => db.settings.put({ key: PAGES_KEY, value: $state.snapshot(v) });
+  const dpFields = fieldCatalogue(LIVE_TILES);
+  let dpIndex = $state(0);
+  let dpEdit = $state(null);
+  let dpOpen = $state(false);
+  const sn = $derived(row?.sensors ?? {});
+  // the speed of the ride from the kept points (km/h between two points)
+  const speedSeries = $derived.by(() => {
+    const p = row?.pts ?? [];
+    const out = [];
+    for (let i = 1; i < p.length; i++) {
+      const dt = (p[i][2] ?? 0) - (p[i - 1][2] ?? 0);
+      if (dt <= 0) continue;
+      const d = distKmPts(p[i - 1], p[i]);
+      const v = (d / dt) * 3600;
+      if (v < 120) out.push([p[i][2], Math.round(v * 10) / 10]);
+    }
+    return out;
+  });
+  const series = $derived({ hr: sn.hr ?? [], power: sn.power ?? [], cadence: sn.cadence ?? [], speed: speedSeries });
+  const profileAhead = $derived(km != null && profile.length > 1 ? profile.filter((x) => x[0] >= km - 0.5 && x[0] <= km + 50) : []);
+  // Runden (laps.js): the running lap
+  const lap = $derived(rec.on ? lapNow(rec.laps, { km: rec.km, movingS: movingLive, now, startAt: rec.startAt }) : null);
+  async function newLap() {
+    await lapRecording({ movingS: movingLive });
+    buzz([120]);
+  }
+  // «Gegen dich selbst» (laps.js): your last closed ride of this tour along the route
+  const pastQ = liveQuery(() => db.tracks.where('kind').equals('rec').toArray());
+  const pastRide = $derived(hasRoute ? (lastRideOf($pastQ ?? [], { tripId: tid || null, notId: rec.id })[0] ?? null) : null);
+  const ghost = $derived(pastRide ? ghostOf(pastRide, pts) : []);
+  let ghostStart = $state(null); // the route km where this ride began
+  $effect(() => {
+    if (!rec.on) ghostStart = null;
+    else if (ghostStart == null && at && at.offM < 300) ghostStart = at.kmx ?? at.km;
+  });
+  const ghostS = $derived(ghost.length && at && at.offM < 300 && ghostStart != null ? ghostDelta(ghost, { km: at.kmx ?? at.km, movingS: movingLive, startKm: ghostStart }) : null);
+  const hrStats = $derived(statsOf(sn.hr));
+  const pwStats = $derived(statsOf(sn.power, { noZero: true }));
+  const dash = { value: '–' };
+  const vv = (x) => (x == null || !Number.isFinite(Number(x)) ? dash : { value: String(Math.round(Number(x))) });
+  const dpValues = $derived({
+    ...vals,
+    avgHr: vv(hrStats?.avg),
+    maxHr: vv(hrStats?.max),
+    avgPower: vv(pwStats?.avg),
+    maxPower: vv(pwStats?.max),
+    lap: lap ? { value: `${Math.floor(lap.movingS / 3600)}:${String(Math.floor((lap.movingS % 3600) / 60)).padStart(2, '0')}:${String(lap.movingS % 60).padStart(2, '0')}` } : dash,
+    lapKm: lap ? { value: String(Math.round(lap.km * 10) / 10) } : dash,
+    ghost: ghostS != null ? { value: deltaText(ghostS) } : dash,
+    battery: bat ? vv(bat.level * 100) : dash,
+    nextWp: dash,
+    upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
+  });
   const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
+  let stageW = $state(400);
   const snaps = $derived(sheetSnaps(stageH));
   let snap = $state('peek');
   let dragH = $state(null);
@@ -522,6 +737,9 @@
   let poiPoints = $state([]);
   let poiPicked = $state(null);
   const allPoints = $derived([...mapPoints, ...poiPoints.filter((p) => Number.isFinite(Number(p.lat))).map((p) => ({ id: `poi-${p.id}`, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind) }))]);
+  // «Weitere Quellen»: «Add a place by tapping the map» of the place search
+  let poiPanel = $state(null);
+  let poiTapping = $state(false);
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (!id.startsWith('poi-')) return;
@@ -532,7 +750,29 @@
   const showRouteBox = $derived(!isRace && !(trip?.route?.line?.length > 1));
   const groundToggles = $derived(toggles);
   const flip = (key) => (shown = { ...shown, [key]: !shown[key] });
+  // offline (like komoot's «OFFLINE»): a line over the map
+  let offline = $state(typeof navigator !== 'undefined' && navigator.onLine === false);
+  // «Save the screen»: darker after 2 min without a touch; a touch or a warning brightens it
+  let touchedAt = $state(Date.now());
+  const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
+  const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
+  let autoSwitched = false;
+  $effect(() => {
+    const idle = full && now - touchedAt > 120_000;
+    const warn = warning;
+    untrack(() => {
+      if (cfg.autoData && idle && !warn && dpIndex === 0 && dpSet.pages.length) {
+        dpIndex = 1;
+        autoSwitched = true;
+      } else if (autoSwitched && (warn || !cfg.autoData)) {
+        dpIndex = 0;
+        autoSwitched = false;
+      } else if (autoSwitched && dpIndex !== 1) autoSwitched = false;
+    });
+  });
   function keydown(e) {
+    touchedAt = Date.now();
     if (e.key === 'Escape' && menu) {
       menu = false;
       e.stopPropagation();
@@ -540,7 +780,7 @@
   }
 </script>
 
-<svelte:window onkeydown={keydown} />
+<svelte:window onkeydown={keydown} ononline={() => (offline = false)} onoffline={() => (offline = true)} />
 
 <div class="lv" data-page="live">
   <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Live map')} />
@@ -566,6 +806,12 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
+    {#if !rec.on}
+      <details class="lv-tip" data-live-flight-tip>
+        <summary>{t('Save battery: ride in flight mode')}</summary>
+        <p class="rc-note">{t('Store the map along your route first (offline strips, on the race map or in the «⋯» menu of the live map). Then switch on flight mode and switch GPS and Bluetooth on again: the ride is recorded, the sensors and all numbers work. Without internet there is no weather, thunderstorm alert, public transport, family link or place search.')}</p>
+      </details>
+    {/if}
   </section>
 
   {#if after}
@@ -602,7 +848,8 @@
 
 {#if rec.on}
   <!-- the full view while riding -->
-  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} data-live-full>
+  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
+    {#if dimmed}<div class="lvf-dim" aria-hidden="true" data-live-dim></div>{/if}
     <!-- the big numbers -->
     <div class="lvf-band" data-live-panel>
       <ul class="lvf-tiles n{tiles.length}">
@@ -616,37 +863,66 @@
       <button type="button" class="lvf-ic" onclick={() => ((choose = true), openSheet('full'))} aria-label={t('Choose numbers')} data-live-choose><SlidersHorizontal size={20} aria-hidden="true" /></button>
     </div>
 
-    <div class="lvf-stage" bind:clientHeight={stageH}>
-      <MapView
-        bind:this={mapView}
-        bind:ground
-        bind:shown
-        prefsKey="live"
-        line={route?.line ?? []}
-        points={allPoints}
-        me={meOnMap}
-        {done}
-        {grades}
-        {overlays}
-        fill
-        bar={false}
-        fitButton={false}
-        navAt="top-left"
-        label={t('Live map')}
-        ondrag={() => (follow = false)}
-        onmove={(b) => (mapBounds = b)}
-        onpick={pickPoint}
-      />
+    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{stageW >= 900 ? 0 : sheetPx}px">
+      <DataPages barTop set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
+        {#snippet map()}
+          <MapView
+            bind:this={mapView}
+            bind:ground
+            bind:shown
+            prefsKey="live"
+            line={route?.line ?? []}
+            points={allPoints}
+            me={meOnMap}
+            {done}
+            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
+            {overlays}
+            fill
+            bar={false}
+            fitButton={false}
+            navAt="top-left"
+            label={t('Live map')}
+            ondrag={() => (follow = false)}
+            onmove={(b) => (mapBounds = b)}
+            onpick={pickPoint}
+            adding={poiTapping}
+            onmapclick={(e) => poiPanel?.tapMap(e)}
+            onlongpress={(p) => ((picked = p), (reroute = true))}
+          />
+        {/snippet}
+        {#snippet smallMap()}
+          <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
+        {/snippet}
+      </DataPages>
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
+        {#if turnNext && turnNext.distM <= 1000}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
+        {#if detour}
+          <div class="lvf-alert lv-detour" role="status" data-live-detour>
+            <Route size={18} aria-hidden="true" />
+            <span class="lv-detour-main">
+              <b>{t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
+              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
+              {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
+            </span>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+          </div>
+        {/if}
+        {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
+        {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
+
+      {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{sheetPx + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- the «⋯» menu -->
       <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
@@ -657,6 +933,7 @@
             <button type="button" class="lvf-ic" onclick={() => (menu = false)} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>
             {#if DICTATION}
@@ -686,7 +963,7 @@
         </div>
       {/if}
 
-      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full'} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{sheetPx + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{sheetPx + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
       <section class="lvf-sheet" class:lvf-dragging={dragH != null} style:height="{sheetPx}px" aria-label={t('Ahead of you')} data-live-sheet={snap}>
@@ -817,7 +1094,7 @@
               {#if poiPicked}
                 <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
               {/if}
-              <PoiPanel center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+              <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
             </div>
 
             {#if showRouteBox}
@@ -826,16 +1103,46 @@
 
             <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} />
 
+            <div class="lvf-part"><SensorBox {now} /></div>
+
+            <div class="lvf-part" data-live-ov><OvNearby at={me ? { lat: me.lat, lon: me.lon } : null} /></div>
+
+            {#if ghostS != null}
+              <div class="lvf-part" data-live-ghost>
+                <h2 class="lvf-h">{t('Against your last ride')}</h2>
+                <p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your last ride on this route, in riding time') : t('faster than your last ride on this route, in riding time')}</p>
+                <p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>
+              </div>
+            {/if}
+
+            {#if rec.laps.length}
+              <div class="lvf-part" data-live-laps>
+                <h2 class="lvf-h">{t('Laps')}</h2>
+                <ol class="lvf-laps">
+                  {#each lapsOf(rec.laps, { km: rec.km, movingS: movingLive, now, startAt: rec.startAt }) as l (l.n)}
+                    <li><b>{l.n}</b><span>{num(Math.round(l.km * 10) / 10)} km</span><span>{minText(Math.round(l.movingS / 60)) || '0 min'}</span></li>
+                  {/each}
+                </ol>
+              </div>
+            {/if}
+
             {#if row?.pts?.length > 1}
               <div class="lvf-part" data-live-pauses>
                 <h2 class="lvf-h">{t('Moving and stopped')}</h2>
                 <div class="rc-stat">
-                  <div><b>{minText(Math.round(pz.movingS / 60)) || '0 min'}</b><small>{t('moving')}</small></div>
+                  <div><b>{minText(Math.round(movingLive / 60)) || '0 min'}</b><small>{t('moving')}</small></div>
+                  {#if pausedLive >= 60}<div><b>{minText(Math.round(pausedLive / 60))}</b><small>{t('paused')}</small></div>{/if}
                   <div><b>{minText(Math.round(pz.stoppedS / 60)) || '0 min'}</b><small>{tn(pz.stops.length, '{n} stop', '{n} stops')}</small></div>
                 </div>
                 <p class="rc-note">{t('A stop is 2 minutes or more within 40 m.')}</p>
               </div>
             {/if}
+
+            <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
+            <details class="lvf-part lvf-fold" bind:open={dpOpen} data-live-datapages>
+              <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Data pages')}</summary>
+              {#key dpEdit}<DataPagesEditor set={dpSet} fields={dpFields} route={hasRoute} start={dpEdit} onsave={savePages} />{/key}
+            </details>
 
             <!-- the numbers on top: choose and sort -->
             <details class="lvf-part lvf-fold" bind:open={choose} data-live-numbers>
@@ -883,12 +1190,38 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.battery} onchange={(e) => setOpt('battery', e.currentTarget.checked)} data-live-opt="battery" /><span><b>{t('Battery saver')}</b><small>{t('A simple light map, the map moves every 10 s instead of every 2 s, and less exact GPS (from the next start).')}{#if hasBattery}{' '}{t('Shows whether the battery lasts to the finish.')}{/if}</small></span></label>
       </li>
       <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.turns} onchange={(e) => setOpt('turns', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="turns" /><span><b>{t('Turn hints')}</b><small>{hasRoute ? t('An arrow before each turn of the route, from 1 km before.') : t('Needs a route.')}</small></span></label>
+        {#if cfg.turns && hasRoute}
+          <label class="lv-opt lv-sub"><input type="checkbox" checked={cfg.turnVoice} onchange={(e) => setOpt('turnVoice', e.currentTarget.checked)} data-live-opt="turnVoice" /><span><b>{t('Say the turns')}</b><small>{t('The phone says «In 200 m turn left» and «Turn left now».')}</small></span></label>
+        {/if}
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.autoPause} onchange={(e) => setOpt('autoPause', e.currentTarget.checked)} data-live-opt="autoPause" /><span><b>{t('Auto-pause')}</b><small>{t('Slower than your limit for 10 s: the riding time stands; it goes on by itself when you ride on.')}</small></span></label>
+        {#if cfg.autoPause}
+          <label class="lv-num">{t('Pause below')} <input class="inp" type="number" inputmode="decimal" min={AUTO_MIN_KMH} max={AUTO_MAX_KMH} step="0.5" value={autoKmh} onchange={(e) => setOpt('autoKmh', autoKmhOf(e.currentTarget.value))} data-live-opt="autoKmh" /> km/h</label>
+        {/if}
+      </li>
+      <li class="rc-row">
+        <span class="lv-opt lv-opt-col"><span><b>{t('Limits for the sensors')}</b><small>{t('A tone when the pulse or the power stays above your own limit for a minute. Empty: no tone.')}</small></span></span>
+        <span class="lv-nums">
+          <label class="lv-num">{t('Heart rate|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="250" step="1" value={cfg.hrMax || ''} onchange={(e) => setOpt('hrMax', Math.max(0, Math.min(250, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="hrMax" /> bpm</label>
+          <label class="lv-num">{t('Power|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="2500" step="5" value={cfg.powerMax || ''} onchange={(e) => setOpt('powerMax', Math.max(0, Math.min(2500, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="powerMax" /> W</label>
+        </span>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.autoData} onchange={(e) => setOpt('autoData', e.currentTarget.checked)} data-live-opt="autoData" /><span><b>{t('Data page instead of the map')}</b><small>{t('After 2 minutes without a touch the first data page shows: the map is not drawn, that saves battery. A warning brings the map back.')}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
+      </li>
+      <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>
       </li>
     </ul>
   </details>
 {/snippet}
 
+{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -998,6 +1331,93 @@
     min-height: 44px;
     width: 100%;
   }
+  .lv-tip summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .lv-opt-col {
+    flex: 1 1 auto;
+  }
+  .lv-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding-left: 32px;
+  }
+  .lv-num {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 32px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-nums .lv-num {
+    padding-left: 0;
+  }
+  .lv-num .inp {
+    width: 5.5em;
+    min-height: 44px;
+  }
+  .lvf-turn {
+    pointer-events: none;
+  }
+  .lvf-lap {
+    position: absolute;
+    left: 74px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 48px;
+    min-width: 48px;
+    padding: 0 10px;
+    border-radius: 24px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 4px var(--shadow);
+    cursor: pointer;
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-laps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .lvf-laps li {
+    display: grid;
+    grid-template-columns: 2em 1fr 1fr;
+    gap: 8px;
+    font-size: var(--fs-small);
+  }
+  .lv-sub {
+    padding-left: 32px;
+  }
+  .lvf-lap small {
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .lvf-photo {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: var(--scrim);
+    pointer-events: none;
+  }
   .lv-opt input {
     width: 22px;
     height: 22px;
@@ -1104,7 +1524,7 @@
   }
   .lvf-alerts {
     position: absolute;
-    top: 8px;
+    top: 52px; /* under the bar of the data pages */
     left: 56px;
     right: 60px;
     z-index: 2;
@@ -1130,16 +1550,40 @@
   .lvf-bad {
     border-left: 4px solid var(--bad);
   }
+  .lv-detour {
+    border-left: 4px solid var(--l3);
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+  .lv-detour-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+  .lv-detour small {
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .lv-detour-main .btn {
+    margin-top: 4px;
+  }
+  .lv-detour .lv-detour-x {
+    width: 36px;
+    height: 36px;
+  }
   .lvf-menu-btn {
     position: absolute;
-    top: 8px;
+    top: 52px;
     right: 8px;
     z-index: 3;
     box-shadow: 0 1px 4px var(--shadow);
   }
   .lvf-menu {
     position: absolute;
-    top: 8px;
+    top: 52px;
     right: 8px;
     z-index: 4;
     display: flex;

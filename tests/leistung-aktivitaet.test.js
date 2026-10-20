@@ -49,9 +49,9 @@ describe('power on one activity', () => {
       { day: '2026-10-12', pCurve: [[5, 999], [60, 999], [300, 999], [1200, 999], [3600, 999]] }, // after the ride
       { day: '2026-10-05', pCurve: null },
     ];
-    expect(bestCurve(acts, '2026-10-10')).toEqual([[5, 610], [60, 402], [300, 300], [1200, 248], [3600, 214]]);
-    expect(bestCurve([], '2026-10-10').map((x) => x[1])).toEqual([null, null, null, null, null]);
-    expect(CURVE_SPANS.map((s) => s[0])).toEqual([5, 60, 300, 1200, 3600]);
+    expect(bestCurve(acts, '2026-10-10')).toEqual([[5, 610], [60, 402], [120, null], [300, 300], [600, null], [1200, 248], [3600, 214]]);
+    expect(bestCurve([], '2026-10-10').map((x) => x[1])).toEqual([null, null, null, null, null, null, null]);
+    expect(CURVE_SPANS.map((s) => s[0])).toEqual([5, 60, 120, 300, 600, 1200, 3600]);
   });
 
   it('spreads the cadence in % per 10 rpm, with Ø and the main range', () => {

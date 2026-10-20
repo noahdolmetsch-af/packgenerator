@@ -1430,4 +1430,13 @@ export default {
   'Warmer colours, round buttons': 'Wärmere Farben, runde Knöpfe',
   'Tap Plan in the bar: Week, Appointments, Notes and more.': 'Tippe in der Leiste auf Planen: Woche, Termine, Notizen und mehr.',
   'Open Today: your body stands on top.': 'Öffne Heute: Dein Körper steht zuoberst.',
+  // 0.170.0
+  'Diary: write or speak, with photos': 'Tagebuch: schreiben oder sprechen, mit Fotos',
+  'Form and recovery: readiness 0–100': 'Form und Erholung: Bereitschaft 0–100',
+  'Open Me › Diary and write a first entry.': 'Öffne Ich › Tagebuch und schreibe einen ersten Eintrag.',
+  'Open Trips › Look back › Heatmap.': 'Öffne Touren › Rückblick › Heatmap.',
+  'Live map, diary, form': 'Live-Karte, Tagebuch, Form',
+  'Ride, write, recover.': 'Fahren, schreiben, erholen.',
+  'Live map: pause, sensors, turn hints, detours': 'Live-Karte: Pause, Sensoren, Abbiegehinweise, Umweg',
+  'Heatmap, check questions, Zürisee': 'Heatmap, Check-Fragen, Zürisee',
 };

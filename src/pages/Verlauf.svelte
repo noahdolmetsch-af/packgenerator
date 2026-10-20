@@ -19,7 +19,7 @@
   import AreaIcon from '../lib/abfragen/AreaIcon.svelte';
   import AnswerInput from '../lib/abfragen/AnswerInput.svelte';
   import { historyQuery, putAnswer, deleteAnswer } from '../lib/abdb.js';
-  import { AREAS, QUESTION, configOf, filterHistory, byDay, answerRow } from '../lib/abfragen.js';
+  import { QUESTION, OWN_AREA, areasOf, allQuestions, filterHistory, byDay, answerRow } from '../lib/abfragen.js';
   import { rowText, valueText, areaName, dayLong, dayShort, timeText, srcText, unitText } from '../lib/abfragen/words.js';
   import { backClose } from '../lib/ui/backclose.js';
   import { actHref } from '../lib/strava/acthref.js';
@@ -33,14 +33,15 @@
   const today = localDay();
   const query = historyQuery();
   const data = $derived($query);
-  const own = $derived(configOf(data?.cfg).own);
-  const qOf = (row) => QUESTION[row.qid] ?? own.find((x) => x.id === row.qid) ?? null;
+  // Noah 20.10.2026: the questions as the person has them (changed texts, own ones and groups)
+  const own = $derived(allQuestions(data?.cfg));
+  const qOf = (row) => own.find((x) => x.id === row.qid) ?? QUESTION[row.qid] ?? null;
 
   let area = $state('all');
   let src = $state('all');
   let days = $state(14);
   const rows = $derived(data?.rows ?? []);
-  const areasThere = $derived(AREAS.filter((a) => rows.some((r) => r.area === a.key && r.kind !== 'ride')));
+  const areasThere = $derived([...areasOf(data?.cfg), { key: OWN_AREA }].filter((a) => rows.some((r) => r.area === a.key && r.kind !== 'ride')));
   const filtered = $derived(filterHistory(rows, { src: src === 'all' ? null : src }).filter((r) => (area === 'all' ? true : area === 'rides' ? r.kind === 'ride' : r.area === area && r.kind !== 'ride')));
   const from = $derived(addDays(today, -days + 1));
   // Gesamttest 20.10.2026 (C11): a day with 20 answers made the page 18 phone screens long; 5 per day, then «n weitere»
@@ -124,7 +125,7 @@
       <div class="filt">
         <div class="chips" role="group" aria-label={t('Value')}>
           <button type="button" class="ab-opt" aria-pressed={area === 'all'} onclick={() => (area = 'all')}>{t('All|values')}</button>
-          {#each areasThere as a (a.key)}<button type="button" class="ab-opt" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{areaName(a.key)}</button>{/each}
+          {#each areasThere as a (a.key)}<button type="button" class="ab-opt" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{areaName(a.key, data?.cfg)}</button>{/each}
           {#if hasActs}<button type="button" class="ab-opt" aria-pressed={area === 'rides'} onclick={() => (area = 'rides')}>{t('Activities|filter')}</button>{/if}
         </div>
         <div class="f2"><span class="flab" id="vh-src">{t('Source')}</span><Seg labelledby="vh-src" full={false} value={src} options={SOURCES} onchange={(k) => (src = k)} /></div>

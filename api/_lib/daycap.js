@@ -28,6 +28,8 @@ export const DAY_CAPS = {
   push: 1500,
   linkcheck: 300,
   account: 300,
+  rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
+  ov: 1500, // stops and departures (api/lake.js ?action=ov-…; Vercel's cache answers most)
 };
 /** Never counted: the watcher must always be able to look. */
 export const UNCAPPED = new Set(['health']);

@@ -36,6 +36,7 @@ const WHERE = {
   quiz: '#/quiz',
   sports: '#/flow/sports',
   frei: '#/me/frei',
+  tagebuch: '#/tagebuch',
 };
 
 test.beforeEach(async ({ context }) => {
