@@ -1209,4 +1209,8 @@ export default {
   'Stop a ride on the live map.': 'Beende eine Fahrt auf der Live-Karte.',
   'Choose with or without the shape.': 'Wähle mit oder ohne Form.',
   'Tap «Share picture».': 'Tippe auf «Bild teilen».',
+  // Paket X «Umweg neu planen» (Noah 20.10.2026)
+  'On the live map tap «⋯» › «Plan a new way to …», or press long on the map.': 'Tippe auf der Live-Karte «⋯» › «Neu planen zu …» oder drücke lange auf die Karte.',
+  'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.': 'Wähle einen Laden, ein Bett, einen Bahnhof oder deinen Punkt, oder suche einen Ort; tippe «Planen». «GPX für Garmin» speichert ihn.',
+  'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.': 'Beispiel: Bei km 52 zur Bäckerei 1,2 km neben der Strecke → 2,6 km Umweg, zurück auf der Strecke bei km 54.',
 };

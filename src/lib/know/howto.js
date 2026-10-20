@@ -200,6 +200,7 @@ export const HOWTO = {
   'f.racemap': ['Open Trips › Races and a race.', 'Tap «Map».', 'Switch the layers and tap the profile.'],
   'f.climbs': ['Open Trips › Races and a race.', 'Tap «Climbs».', 'Tap a climb for its gradient per 100 m.'],
   'f.mapoffline': ['Open a race › «Map».', 'Scroll to «Map offline».', 'Tap «Keep for offline».'],
+  'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
   'f.live': ['Tap «Start a ride» on Active.', 'Allow the location.', 'Keep the page open while you ride.'],
   'f.livepause': ['Start a ride on the live map.', 'Tap the pause button, or switch on the auto-pause in the settings.', 'Type below which speed it pauses, e.g. 4 km/h.'],
   'f.sensors': ['Start a ride on the live map.', 'Open the sheet › «Sensors» and tap «Connect».', 'Choose your sensor; the values show live.'],
