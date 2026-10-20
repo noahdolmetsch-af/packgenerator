@@ -44,6 +44,7 @@ export const WHATS_NEW = [
     points: [
       { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
     ],
+    small: [{ box: 'new', text: '«Later» hides the bar for a while; trips, lists and notes stay when you load' }],
     test: [
       'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
       'Tap «Load now»: the app loads fresh from the internet, your data stays.',

@@ -1397,6 +1397,7 @@ export default {
   'Add the gear to a ride afterwards, with a note per item': 'Gepäck nachträglich zu einer Fahrt eintragen, mit Notiz pro Stück',
   'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».': 'Öffne Touren › Fahrten, wähle eine Fahrt ohne Packliste und tippe «Gepäck eintragen».',
   'No more old versions': 'Keine alten Versionen mehr',
+  '«Later» hides the bar for a while; trips, lists and notes stay when you load': '«Später» blendet den Balken eine Weile aus; Touren, Listen und Notizen bleiben beim Laden',
   'If your phone ever hangs on an old version, the app notices it and offers to load the new one.': 'Hängt dein Handy an einer alten Version fest, merkt die App das und bietet die neue an.',
   'If your phone ever hangs on an old version, a bar on top offers «Load now»': 'Hängt dein Handy an einer alten Version fest, zeigt die App oben einen Balken mit «Jetzt laden»',
   'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.': 'Nichts zu tun: Ist eine neuere Version seit 15 Minuten online und dein Handy zeigt noch die alte, erscheint oben ein Balken.',
