@@ -4,7 +4,9 @@
 // 1. Aktiv: the readiness card on top (number, sentence, the tour in 3 days); «Aktivitäten von heute»,
 //    «Im Fokus» per sport, «Überblick» 2×2 (heart rate, minutes, calories, sleep), «Letzte 7 Tage».
 // 2. The sport page: 7 days / 4 weeks / 1 year, the tabs, back in time; the heart rate page.
-// 3. The page «Form»: what counts today (the morning check too), the 12 weeks, the tour readiness.
+// 3. «Körperwerte»: five groups, the tabs of each, blood pressure and water entered and deleted (Undo),
+//    the kilometres of the year and temperature against pulse.
+// 4. The page «Form»: what counts today (the morning check too), the 12 weeks, the tour readiness.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
@@ -17,19 +19,20 @@ function rows() {
   const healthDays = [];
   for (let i = 0; i < 40; i++) {
     const date = addDays(TODAY, -i);
-    healthDays.push({ date, azm: 20 + (i % 5) * 5, restingHr: 50 + (i % 3), hrvMs: 45 + (i % 4), steps: 9000, sleep: { asleepMin: 420 + (i % 6) * 5 }, kcal: 2300 + i, kcalActive: 600, hrMax: 150 + (i % 7), src: 'google', at: `${date}T08:00:00Z` });
+    healthDays.push({ date, azm: 20 + (i % 5) * 5, restingHr: 50 + (i % 3), hrvMs: 45 + (i % 4), steps: 9000, sleep: { asleepMin: 420 + (i % 6) * 5, deepMin: 70, remMin: 90, lightMin: 230, awakeMin: 25, start: '23:05', end: '06:55', efficiency: 90 + (i % 5) }, spo2: 95 + (i % 3), breath: 14, kcal: 2300 + i, kcalActive: 600, hrMax: 150 + (i % 7), src: 'google', at: `${date}T08:00:00Z` });
   }
   const act = (id, day, kind, type, km, hm, movingS, hrAvg, effort) => ({
     id: `${P}${id}`, day, time: '07:10', start: `${day}T05:10:00Z`, name: `${P}${id}`, type, kind, km, hm, movingS, elapsedS: movingS + 300, gearId: null,
-    hrAvg, hrMax: hrAvg + 25, commute: false, trainer: false, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null,
-    tempAvg: null, wNorm: null, kj: null, effort, line: null, workout: null, prs: 0, achv: 0, elevHigh: null, elevLow: null, kcal: Math.round(movingS / 6),
+    hrAvg, hrMax: hrAvg + 25, commute: false, trainer: false, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: kind === 'bike' ? 84 : null, hist: { 120: movingS / 2, 150: movingS / 2 },
+    tempAvg: kind === 'bike' ? 4 + (km % 20) : null, wNorm: null, kj: null, effort, line: null, workout: null, prs: 0, achv: 0, elevHigh: null, elevLow: null, kcal: Math.round(movingS / 6),
   });
   const activities = [act('heute', TODAY, 'bike', 'GravelRide', 20.7, 250, 4094, 138, 70)];
   for (let i = 2; i < 70; i += 3) activities.push(act(`r${i}`, addDays(TODAY, -i), 'bike', 'Ride', 30 + (i % 4) * 5, 400, 5400, 135, 80));
   activities.push(act('lauf', addDays(TODAY, -1), 'run', 'Run', 8, 90, 2700, 150, 45));
   const trips = [{ id: `${P}trip`, title: `${P}Testtour`, startDate: addDays(TODAY, 3), days: 4, status: 'planned', entries: [], createdAt: `${TODAY}T07:00:00Z` }];
   const flowChecks = [{ day: TODAY, sleep: 8, energy: 9, mood: 7 }];
-  return { healthDays, activities, trips, flowChecks };
+  const flowLog = [{ id: `${P}med`, actId: 'meditation', day: TODAY, at: `${TODAY}T07:00:00+02:00`, min: 20 }];
+  return { healthDays, activities, trips, flowChecks, flowLog };
 }
 
 async function open(page, context) {
@@ -136,5 +139,74 @@ test('the page «Form»: what counts, 12 weeks, tour readiness', async ({ page, 
   await expect(page.locator('[data-form-tours] .td li')).toHaveCount(4);
   await fits(page, 'Form');
   await page.screenshot({ path: 'qa/form-uebersicht/form.png', fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('Körperwerte: groups, tabs, own entries', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, '#/flow/stats/hr');
+  const st = page.locator('[data-stats="hr"]');
+  const groups = st.locator('[data-bgroups] [data-key]');
+  await expect(groups).toHaveCount(5);
+  await expect(groups.nth(0)).toHaveText(T('Heart|group'));
+  await expect(st.locator('[data-btab]')).toHaveCount(5);
+  await st.locator('[data-btab="spo2"]').click();
+  await expect(st.locator('[data-body="spo2"] [data-body-mean]')).toContainText('%');
+  await fits(page, 'Herz');
+
+  // blood pressure: enter, see it, delete, undo
+  await st.locator('[data-btab="bp"]').click();
+  await st.locator('[data-bp-sys]').fill('300');
+  await st.locator('[data-bp-dia]').fill('80');
+  await st.locator('[data-bp-save]').click();
+  await expect(st.locator('[data-bp-form] .err')).toBeVisible();
+  await st.locator('[data-bp-sys]').fill('121');
+  await st.locator('[data-bp-save]').click();
+  await expect(st.locator(`[data-body-day="${TODAY}"]`)).toContainText('121/80');
+  await expect(st.locator('[data-body="bp"] [data-legend] li')).toHaveCount(2);
+  await st.locator(`[data-entry-del="${TODAY}"]`).click();
+  await page.getByRole('dialog').getByRole('button', { name: T('Delete') }).click();
+  await expect(st.locator(`[data-body-day="${TODAY}"]`)).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(st.locator(`[data-body-day="${TODAY}"]`)).toContainText('121/80');
+  await fits(page, 'Blutdruck');
+
+  // sleep: phases stacked, efficiency, bedtime with its spread
+  await st.locator('[data-bgroups] [data-key="sleep"]').click();
+  await expect(st.locator('[data-btab="sleep"]')).toHaveAttribute('aria-selected', 'true');
+  await st.locator('[data-btab="stages"]').click();
+  await expect(st.locator('[data-body="stages"] .stk')).toHaveCount(7);
+  await st.locator('[data-btab="bed"]').click();
+  await expect(st.locator('[data-body="bed"] [data-body-mean]')).toHaveText('23:05');
+  await expect(st.locator('[data-bed-spread]')).toContainText('± 0');
+
+  // activity: zones and meditation
+  await st.locator('[data-bgroups] [data-key="act"]').click();
+  await st.locator('[data-btab="zones"]').click();
+  await expect(st.locator('[data-body="zones"] [data-legend] li')).toHaveCount(5);
+  await st.locator('[data-btab="med"]').click();
+  await expect(st.locator(`[data-body-day="${TODAY}"]`)).toContainText('20');
+
+  // body: water
+  await st.locator('[data-bgroups] [data-key="body"]').click();
+  await st.locator('[data-btab="water"]').click();
+  await st.locator('[data-water-l]').fill('2,5');
+  await st.locator('[data-water-save]').click();
+  await expect(st.locator(`[data-body-day="${TODAY}"]`)).toContainText(/2[.,]5 l/);
+  await fits(page, 'Trinkmenge');
+
+  // bike: cadence, the year, temperature and pulse
+  await st.locator('[data-bgroups] [data-key="bike"]').click();
+  await st.locator('[data-btab="cad"]').click();
+  await expect(st.locator('[data-body="cad"] [data-body-mean]')).toContainText('84');
+  await st.locator('[data-btab="year"]').click();
+  await expect(st.locator('[data-ranges]')).toHaveCount(0);
+  await expect(st.locator('[data-year-now]')).toContainText('km');
+  await st.locator('[data-btab="temp"]').click();
+  await st.locator('[data-ranges] [data-key="y1"]').click();
+  await expect(st.locator('[data-temp-dot]').first()).toBeVisible();
+  await expect(st.locator('[data-band]')).toHaveCount(3);
+  await fits(page, 'Velo');
+  await page.screenshot({ path: 'qa/form-uebersicht/koerperwerte.png', fullPage: true });
   expect(errors).toEqual([]);
 });

@@ -72,7 +72,7 @@
       <ChevronRight class="go" size={16} aria-hidden="true" />
     </a>
     <AzmWeek {today} tile />
-    <div class="card tile" data-ov="kcal">
+    <a class="card tile" href="#/flow/stats/kcal" data-ov="kcal">
       <span class="th"><span class="ico fl" aria-hidden="true"><Flame size={18} /></span><span>{t('Calories burned')}</span></span>
       {#if kcal.total != null}
         <b class="num big">{num(kcal.total)}</b>
@@ -87,8 +87,9 @@
       {:else}
         <b class="num big">–</b><small class="q">{fitbitOff ? t('comes with Fitbit') : t('no value yet')}</small>
       {/if}
-    </div>
-    <a class="card tile" href="#/me/history" data-ov="sleep">
+      <ChevronRight class="go" size={16} aria-hidden="true" />
+    </a>
+    <a class="card tile" href="#/flow/stats/sleep" data-ov="sleep">
       <span class="th"><span class="ico mo" aria-hidden="true"><Moon size={18} /></span><span>{t('Sleep|metric')}</span></span>
       {#if sleep}
         <b class="num big">{shown('sleep', sleep.v, num)}</b><small class="q">{sleep.day === today ? t('last night') : t('latest night')}</small>

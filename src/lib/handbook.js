@@ -712,7 +712,7 @@ export const HANDBOOK = {
   },
   'f.overview': {
     on: null,
-    steps: ['Open Active and scroll to «In focus» and «Overview».', 'Tap a sport for its page (7 days, 4 weeks, 1 year), or the heart rate tile for resting and highest pulse per day.'],
+    steps: ['Open Active and scroll to «In focus» and «Overview».', 'Tap a sport for its page, or the heart rate tile for «Body values» in five groups; enter blood pressure and water there.'],
     example: 'Example: «In focus» Bike shows 100.7 km and 5:54:01 in the last 7 days, one bar per day.',
   },
   'f.trainplans': {

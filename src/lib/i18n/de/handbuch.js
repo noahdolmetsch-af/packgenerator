@@ -1116,6 +1116,6 @@ export default {
   'Tap it for the page «Form and recovery»: what counts today, 12 weeks of fitness and form, and the tour readiness.': 'Tipp sie an für die Seite «Form und Erholung»: was heute zählt, 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
   'Example: resting pulse 6 above your normal and a short night → 38, «Today suits an easy ride».': 'Beispiel: Ruhepuls 6 über deinem Normal und eine kurze Nacht → 38, «Heute passt eine lockere Fahrt».',
   'Open Active and scroll to «In focus» and «Overview».': 'Öffne Aktiv und scroll zu «Im Fokus» und «Überblick».',
-  'Tap a sport for its page (7 days, 4 weeks, 1 year), or the heart rate tile for resting and highest pulse per day.': 'Tipp eine Sportart an für ihre Seite (7 Tage, 4 Wochen, 1 Jahr) oder die Puls-Kachel für Ruhepuls und höchsten Puls pro Tag.',
+  'Tap a sport for its page, or the heart rate tile for «Body values» in five groups; enter blood pressure and water there.': 'Tipp eine Sportart an für ihre Seite oder die Puls-Kachel für «Körperwerte» in fünf Gruppen; Blutdruck und Trinkmenge trägst du dort ein.',
   'Example: «In focus» Bike shows 100.7 km and 5:54:01 in the last 7 days, one bar per day.': 'Beispiel: «Im Fokus» Velo zeigt 100.7 km und 5:54:01 in den letzten 7 Tagen, ein Balken pro Tag.',
 };
