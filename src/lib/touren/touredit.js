@@ -61,6 +61,14 @@ export async function saveNotes(db, d, patch) {
     return db.activities.update(d.id, { own, ...(diary !== undefined ? { note: String(diary) } : {}) });
   }
   if (d.kind === 'g') return putGroups(db, patchGroup(await groupsOf(db), d.id, patch));
+  // a trip: its own rating (a trip made from a ride, Gepäck nachtragen 1a) in trip.own
+  const { diary: _d, ...rest } = patch;
+  if (Object.keys(rest).length) {
+    const trip = await db.trips.get(d.id);
+    const own = { ...(trip?.own ?? {}), ...rest };
+    for (const k of Object.keys(rest)) if (rest[k] == null || rest[k] === '') delete own[k];
+    await db.trips.update(d.id, { own, updatedAt: now() });
+  }
   // a trip: the diary of its Rückblick (Paket M «Tour-Tagebuch»)
   if (patch.diary !== undefined) {
     const deb = await db.debriefs.get(d.id);

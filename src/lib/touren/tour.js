@@ -54,7 +54,8 @@ export const KPIS = [
   { key: 'tss', name: 'TSS', unit: '' },
   { key: 'n', name: 'Activities', unit: '' },
 ];
-export const KPI_DEFAULT = ['km', 'hm', 'dauer', 'kmh', 'hf', 'w'];
+// Noah 20.10.2026 «vier Werte hervorheben»: Distanz, Höhenmeter, Fahrzeit, Ø Herzfrequenz (changeable)
+export const KPI_DEFAULT = ['km', 'hm', 'dauer', 'hf'];
 export const KPI_MAX = 6;
 
 /** The fields 3b lets a person correct. */
