@@ -287,8 +287,8 @@ export const PLACES = [
 /**
  * «Ausrüstung» (mockup AU1, Noah 15.10.2026 «5b» own place, «1-5a» with «1b»): the main equipment of
  * each sport has its own place. On a computer it stands in the sidebar under Velos (SIDE_PLACES); on a
- * phone the bottom bar keeps five places: Velos and Ausrüstung share one, a switch on top of both pages
- * changes between them (nav/PlaceSwitch). The bar shows BAR_PLACES (below).
+ * phone the bottom bar keeps five places: Velos and Ausrüstung share one; the switch on top of Ausrüstung leads
+ * back to Velos (nav/PlaceSwitch), a row «Ausrüstung ›» on Velos leads there (Gesamttest 20.10.2026 B7). The bar shows BAR_PLACES (below).
  */
 export const EQUIPMENT = { key: 'equipment', href: '#/equipment', label: 'Equipment|place', shares: 'bikes' };
 /** The places of the sidebar: the five, with Ausrüstung under Velos. */

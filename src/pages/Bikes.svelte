@@ -23,6 +23,7 @@
   import GarminPages from '../lib/bikes/GarminPages.svelte';
   import GarminPage from '../lib/bikes/GarminPage.svelte';
   import { t } from '../lib/i18n.svelte.js';
+  import { ChevronRight } from '@lucide/svelte';
   import { lastBikeChoice, chooseBike } from '../lib/lastchoice.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -64,6 +65,8 @@
   {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare', 'garmin', 'rig'].includes(route.tab)}
     <header class="head">
       <h1 class="title">{t('Bikes')}</h1>
+      <!-- Gesamttest 20.10.2026 B7: on a phone Ausrüstung shares the slot of Velos; this quiet link replaces the switch Velos | Ausrüstung -->
+      <a class="eqlink" href="#/equipment" data-equipment-link>{t('Equipment|place')}<ChevronRight size={16} aria-hidden="true" /></a>
     </header>
   {/if}
   {#if route.sheet && route.bike}
@@ -128,6 +131,22 @@
     align-items: center;
     gap: 8px 20px;
     margin-bottom: 14px;
+  }
+  .eqlink {
+    display: none;
+  }
+  @media (max-width: 719px) {
+    .eqlink {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      min-height: 44px;
+      margin-left: auto;
+      padding: 0 4px;
+      color: var(--ink-2);
+      font: 500 var(--fs-small) / 1.3 var(--font-body);
+      text-decoration: none;
+    }
   }
   .head .title {
     font-size: var(--fs-page);

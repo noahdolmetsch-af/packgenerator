@@ -206,3 +206,18 @@ describe('Google calendar and tasks in the week', () => {
     expect(buildWeek({ ...base, no: skipFor([], 'gtask:t2', MON), google: { events, tasks, prefs: on } }).suggestions.some((x) => x.ref === 'gtask:t2')).toBe(false);
   });
 });
+
+// Gesamttest 20.10.2026 B6: the same job on two bikes is told apart by the bike in its title
+describe('buildWeek: the same bike job twice', () => {
+  it('carries the bike name in the title, only when the job is there twice', () => {
+    const care = [
+      { bikeId: 'test_data_wk_a', bikeName: 'Demo A', key: 'time:di2', part: 'di2', name: 'Charge the gear battery' },
+      { bikeId: 'test_data_wk_b', bikeName: 'Demo B', key: 'time:di2', part: 'di2', name: 'Charge the gear battery' },
+      { bikeId: 'test_data_wk_a', bikeName: 'Demo A', key: 'km:chain', part: 'chain', name: 'Measure the chain' },
+    ];
+    const w = buildWeek({ ...base, items: [], away: [], sessions: [], care });
+    const bike = w.suggestions.filter((s) => s.kind === 'bike');
+    expect(bike.map((s) => s.title)).toEqual(['Charge the gear battery · Demo A', 'Charge the gear battery · Demo B', 'Measure the chain']);
+    expect(bike.map((s) => !!s.sub.named)).toEqual([true, true, false]);
+  });
+});

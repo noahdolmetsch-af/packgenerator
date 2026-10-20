@@ -35,7 +35,29 @@
     onbike?.(bikes[to].id);
     tick().then(() => strip?.querySelector('[aria-selected="true"]')?.focus());
   }
-  const kick = $derived([bike.type ? t(bikeTypeName(bike.type)) : '', bike.use].filter(Boolean).join(' · '));
+  // Gesamttest 20.10.2026 C8: the type stays in the line; «What you use it for» (often a long note) is its
+  // own quiet line below, at most two lines, «more» shows all of it. It is changed with «Edit».
+  const kick = $derived(bike.type ? t(bikeTypeName(bike.type)) : '');
+  const use = $derived(String(bike.use ?? '').trim());
+  let useEl = $state();
+  let useOpen = $state(false);
+  let useLong = $state(false);
+  $effect(() => {
+    void use;
+    useOpen = false;
+  });
+  $effect(() => {
+    void use;
+    const el = useEl;
+    const measure = () => {
+      if (el && !el.classList.contains('open')) useLong = el.scrollHeight > el.clientHeight + 1;
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined' || !el) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
 </script>
 
 <section class="setup-band" aria-label={t('Bike')}>
@@ -66,6 +88,9 @@
     {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
+  {#if use}
+    <p class="vb-use" data-bike-use><span class="ut" class:open={useOpen} bind:this={useEl}>{use}</span>{#if useLong || useOpen}<button type="button" class="link" aria-expanded={useOpen} onclick={() => (useOpen = !useOpen)}>{useOpen ? t('less') : t('more')}</button>{/if}</p>
+  {/if}
 </section>
 
 <style>
@@ -176,6 +201,41 @@
   .edit:hover {
     color: var(--ink);
     background: var(--paper-2);
+  }
+  .vb-use {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0 8px;
+    margin: 6px 0 0;
+    max-width: 60em;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .vb-use .ut {
+    flex: 1 1 14em;
+    min-width: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: break-word;
+  }
+  .vb-use .ut.open {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: none;
+  }
+  .vb-use .link {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
   }
   .meta {
     display: flex;

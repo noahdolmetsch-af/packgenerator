@@ -15,11 +15,13 @@
   import { FIXES, stepFor, PRIORITIES, PRIORITY_NAME, isLate } from '../problems.js';
   import { setFix } from '../problemsdb.js';
   import { db } from '../db.js';
-  import { t, dateOf } from '../i18n.svelte.js';
+  import { t, tn, dateOf } from '../i18n.svelte.js';
 
   // v0.48.0 (Pflege C): filterable adds «Open | All» and «All bikes»; with «All» the solved problems
   // of the last 60 days show faint. Each row says where it came from (Inbox, a debrief, noticed myself).
-  let { repairs = [], bikes = [], today, onrepair, bikeIdOf = (r) => r.bikeId, filterable = false } = $props();
+  // Gesamttest 20.10.2026 B6: above: the ids of problems the page already shows (Velopflege «Due now»).
+  // In «Open» they are not listed a second time (one quiet line says where they are); «All» shows every one.
+  let { repairs = [], bikes = [], today, onrepair, bikeIdOf = (r) => r.bikeId, filterable = false, above = [] } = $props();
   let show = $state('open');
   let only = $state('');
   const isOpen = (r) => r.status === 'open' || r.status === 'needed';
@@ -29,7 +31,10 @@
   const bikeOf = (r) => bikes.find((b) => b.id === bikeIdOf(r)) ?? null;
   /** Newest first: by the day it was logged, then by its number (made later = higher). */
   const newer = (a, b) => (b.logDate ?? '').localeCompare(a.logDate ?? '') || (Number(b.id) || 0) - (Number(a.id) || 0);
-  const list = $derived([...repairs].filter((r) => (filterable && show === 'all' ? isOpen(r) || (r.status === 'done' && recent(r)) : isOpen(r)) && (!only || bikeIdOf(r) === only)).sort(newer));
+  const all = $derived(filterable && show === 'all');
+  const shown = $derived([...repairs].filter((r) => (all ? isOpen(r) || (r.status === 'done' && recent(r)) : isOpen(r)) && (!only || bikeIdOf(r) === only)).sort(newer));
+  const list = $derived(all ? shown : shown.filter((r) => !above.includes(r.id)));
+  const hidden = $derived(shown.length - list.length);
   const openCount = $derived(repairs.filter(isOpen).length);
   import Seg from '../ui/Seg.svelte';
 
@@ -81,7 +86,7 @@
         </div>
       {/if}
     </div>
-    {#if !list.length}<p class="none">{t('No open problem.')}</p>{/if}
+    {#if hidden}<p class="none" data-above>{tn(hidden, '{n} more is above under «Due now».', '{n} more are above under «Due now».')}</p>{:else if !list.length}<p class="none">{t('No open problem.')}</p>{/if}
     <ul class="plist" aria-label={t('Problems, newest first')}>
       {#each list as task (task.id)}
         {@const bike = bikeOf(task)}
