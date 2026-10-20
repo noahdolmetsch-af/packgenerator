@@ -92,9 +92,10 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   await hr.first().scrollIntoViewIfNeeded();
   await shot(page, info, 'P3-touren');
 
-  // P4 Aktiv: «Puls diese Woche» under «Velo diesen Monat»
+  // P4 Aktiv: «Aktiv neu» (Noah 20.10.2026 «2a», 0.168.0, changed on purpose): «Deine Woche in Zahlen» replaces
+  // «Velo diesen Monat» and «Puls diese Woche»; the pulse of each ride stays in P1, P3, P5 and on Today (P6)
   await page.goto('./#/flow');
-  await expect(page.getByText(T('Heart rate this week'))).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Your week in numbers') })).toBeVisible();
   await shot(page, info, 'P4-aktiv');
 
   // P5 one ride: heart rate Ø / max beside the numbers (same day and km as the Strava ride)
