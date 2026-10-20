@@ -75,11 +75,11 @@
 {:else}
   <div class="rc" data-page="race">
     <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Races')} />
-    <div class="rc-head">
-      <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Races')}</h1>
-      <button type="button" class="rc-icon" aria-expanded={info} aria-label={t('What is «{name}»?', { name: t('Races') })} onclick={() => (info = !info)}><Info size={20} aria-hidden="true" /></button>
-    </div>
+    <!-- Gesamttest 20.10.2026 Design 1: the common page head (title, one line, one main button); the
+      explanation is the quiet help line «ⓘ So geht's ›» under it instead of an ⓘ next to the title -->
+    <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Races')}</h1>
     <p class="rc-intro">{t('Bikepacking races and ultra rides: plan the strategy, know the route, ride with a calm head and learn afterwards.')}</p>
+    <button type="button" class="help-line" aria-expanded={info} data-race-help onclick={() => (info = !info)}><Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
     {#if info}
       <div class="rc-info" data-race-explain="hub">
         <p>{t('A race is one of your trips. Here it gets five parts: strategy, prepare, along the route, race mode and after the race.')}</p>

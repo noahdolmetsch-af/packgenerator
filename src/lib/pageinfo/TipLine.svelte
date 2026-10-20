@@ -41,24 +41,22 @@
 {#if open}<TipsSheet {page} {name} onclose={() => (open = false)} />{/if}
 
 <style>
+  /* Gesamttest 20.10 Design 2: one look for help, whatever the kind of tip (the tag names the kind) */
   .tipl {
     display: flex;
     margin-bottom: 12px; /* «Mehr Inhalt»: on pages without a grid gap the next section keeps its distance */
-    background: var(--hi-soft);
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
+    box-shadow: none;
     align-items: flex-start;
     gap: 10px;
     padding: 12px 8px 12px 16px;
   }
-  .tipl.know {
-    background: var(--info-soft);
-  }
-  .tipl.today {
-    background: var(--warn-soft);
-  }
   .tipl > :global(svg) {
     flex: none;
     margin-top: 2px;
-    color: var(--hi);
+    color: var(--help-icon);
   }
   .tipl > p {
     flex: 1;

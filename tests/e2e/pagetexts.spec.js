@@ -127,7 +127,8 @@ test('the tip line and the fold on the other places', async ({ page, context }, 
       // Paket D (Noah 19.10.2026 «1a»): on the phone the card starts folded as the quiet line «Was hier steht ›»
       // in the head; a tap opens it, then the same checks. (This fixture has no «In Zahlen · Weiter» line, so
       // the tip stands at the page end; handy-kurz.spec checks it behind that line.)
-      await expect(main.locator('[data-hint-line="trips"]'), key).toHaveText(T('What is here'));
+      // Gesamttest 20.10.2026 «2a» (changed on purpose): the quiet line reads «So geht's»
+      await expect(main.locator('[data-hint-line="trips"]'), key).toHaveText(T('How it works|help'));
       await expect(main.locator('[data-hint="trips"]'), key).toHaveCount(0);
       await expect(main.locator('[data-trips-extras]'), key).toHaveCount(0);
       await main.locator('[data-hint-line="trips"]').click();
@@ -178,10 +179,10 @@ test('HT1 Velopflege: the card with its situations, jumps, the fold at the end, 
   await page.evaluate(() => window.scrollTo(0, 0));
   await fits(page, 'Velopflege mit Hinweis');
   await page.screenshot({ path: `qa/hinweis-care-${test.info().project.name}.png`, fullPage: true });
-  // 1a: × leaves the quiet line «Was hier steht», which opens the card again
+  // 1a: × leaves the quiet line (Gesamttest 20.10.2026 «2a»: «So geht's»), which opens the card again
   await card.getByRole('button', { name: T('Fold the explanation') }).click();
   const back = main.locator('[data-hint-line="care"]');
-  await expect(back).toContainText(T('What is here'));
+  await expect(back).toContainText(T('How it works|help'));
   await expect(card).toHaveCount(0);
   await back.click();
   await expect(main.locator('[data-hint="care"]')).toBeVisible();

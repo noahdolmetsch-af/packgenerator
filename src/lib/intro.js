@@ -16,8 +16,11 @@ import { GUIDE_INTROS } from './guides.js';
 export const INTRO_KEY = 'intro';
 /** The key in pageinfo PAGES that holds the tips of an Einstieg (most use their own key). */
 export const tipsOf = (place) => INTROS[place]?.tips ?? place;
-/** 1a: the phone shows it open on this many visits, then as one line. */
-export const OPEN_VISITS = 3;
+/**
+ * Gesamttest 20.10.2026 «2a» (B2, replaces 1a «3 visits on the phone, always on the computer»): open on this
+ * many visits, then the quiet line «So geht's ›», on the phone and on the computer.
+ */
+export const OPEN_VISITS = 1;
 
 /**
  * things: three rows { icon, title, text, href? }; tour: the key in TOURS (tour.js), only on a place; page:
@@ -295,14 +298,17 @@ export function visit(v, place) {
 }
 
 /**
- * Is the Einstieg open now? A fold or unfold you chose wins; else open on the computer, on the phone the
- * first 3 visits. folded: the place starts as one line everywhere (Material: «list first»).
+ * Is the Einstieg open now? A fold or unfold you chose wins; else open on the first visit (OPEN_VISITS), on
+ * the phone and on the computer (2a). folded: the place starts as one line everywhere (Material: «list
+ * first»). before: the visits before this opening, when the caller knows them (the count of this opening
+ * may already be saved); else the saved count includes this opening.
  */
-export function isOpen(v, place, phone = false, folded = false) {
+export function isOpen(v, place, phone = false, folded = false, before = null) {
   const s = introOf(v);
   if (typeof s.fold[place] === 'boolean') return !s.fold[place];
   if (folded) return false;
-  return phone ? (s.visits[place] ?? 0) <= OPEN_VISITS : true;
+  const n = before ?? Math.max(0, (s.visits[place] ?? 0) - 1);
+  return n < OPEN_VISITS;
 }
 
 export const setFold = (v, place, folded) => {

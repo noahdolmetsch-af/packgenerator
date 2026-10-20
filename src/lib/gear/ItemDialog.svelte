@@ -1389,6 +1389,22 @@
     font-size: 14px;
     cursor: pointer;
   }
+  /* Gesamttest 20.10.2026 Design 4: no native triangle, the app's one arrow › */
+  .moreStat > summary {
+    gap: 6px;
+    list-style: none;
+  }
+  .moreStat > summary::-webkit-details-marker {
+    display: none;
+  }
+  .moreStat > summary::after {
+    content: '›' / '';
+    display: inline-block;
+    transition: transform 0.15s;
+  }
+  .moreStat[open] > summary::after {
+    transform: rotate(90deg);
+  }
   /* v0.102.0 Design-Refresh P3 (M2): flat rows with a line between, the title bold and its value beside it */
   .fold {
     margin-top: 0;
@@ -1508,7 +1524,9 @@
     display: none;
   }
   .more summary::before {
-    content: '▸' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
+    content: '›' / ''; /* Gesamttest 20.10.2026 Design 4: the app's one arrow; screen readers skip it */
+    display: inline-block;
+    color: var(--ink-3);
     transition: transform 0.15s;
   }
   .more[open] summary::before {

@@ -1,6 +1,9 @@
 <script module>
   // a visit of the Einstieg counts once per opening of a page (each hash change is a new opening)
   const seenIntro = new Set();
+  // Gesamttest 20.10 «2a»: was this opening the first visit of the page? Kept per opening, so a re-mount of the
+  // card while the page loads its data keeps it open on the first visit
+  const freshOf = new Map();
   let nav = 0;
   if (typeof window !== 'undefined') window.addEventListener('hashchange', () => nav++);
 </script>
@@ -20,11 +23,14 @@
    * foldedOnPhone (Paket D, Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line.
    * only: '' draws both states here; 'line' only the folded line, as a small chip «Was hier steht ›» (for a page
    * head); 'card' only the open card. A page may place the two in different spots (Trips on a phone).
+   * Gesamttest 20.10.2026 «2a» (B2): the card is open on the first visit of a page only; after that it is the
+   * quiet line «ⓘ So geht's ›», a tap opens it in place (and it stays open until ×). Seen per page in the
+   * setting of pageinfo (hintSeen), on the device and in the backup.
    */
   import { Info, X, ChevronDown, ChevronRight, Lightbulb, Bike, Wrench, Store, ShoppingBag, Scale, Heart, Plus, BookOpen, Cloud, Check, Clock, NotebookPen, Moon, ChartLine, Columns2, Sun, Shirt, Layers, Camera, ShieldCheck, Save, Settings, CircleQuestionMark, Target, Play, Bell, Upload, Link2, Flag } from '@lucide/svelte';
   import { pageInfo } from './store.svelte.js';
   import { hintOf } from '../hints.js';
-  import { canRows, canShown, setHint, hintShown, hintShownFolded } from '../pageinfo.js';
+  import { canRows, canShown, setHint, hintOpen, hintSeen, markHintSeen } from '../pageinfo.js';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
@@ -75,7 +81,18 @@
   const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell, upload: Upload, link: Link2, flag: Flag };
   const pi = pageInfo();
   const hint = $derived(hintOf(page));
-  const open = $derived(pi.loaded && (foldedOnPhone && phone.matches ? hintShownFolded(pi.info, page) : hintShown(pi.info, page)));
+  // the first visit (2a): decided once per opening, before this visit marks the page as seen
+  let fresh = $state(null);
+  $effect(() => {
+    if (!pi.loaded || fresh !== null) return;
+    const k = `${page}:${nav}`;
+    const seen = hintSeen(pi.info, page);
+    if (!freshOf.has(k)) freshOf.set(k, !seen);
+    fresh = freshOf.get(k);
+    if (!seen) pi.save((v) => markHintSeen(v, page));
+  });
+  // Paket D «1a»: on a phone the Handy-kurz pages start folded even on the first visit
+  const open = $derived(pi.loaded && fresh !== null && hintOpen(pi.info, page, fresh && !(foldedOnPhone && phone.matches)));
   const canN = $derived(pi.loaded && canShown(pi.info, page) ? canRows(page).length : 0);
 
   // «Weiter unten»: only the parts that are on the page now (they come with the data, so look a few times)
@@ -102,7 +119,7 @@
   }
 </script>
 
-{#if hint && pi.loaded}
+{#if hint && pi.loaded && fresh !== null}
   {#if open && only !== 'line'}
     <section class="hint" data-hint={page} data-intro-in={introKey} aria-label={t('What is here')}>
       <div class="h">
@@ -182,12 +199,12 @@
       {/if}
     </section>
   {:else if !open && only === 'line'}
-    <button type="button" class="mini chip" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
-      <span><b>{t('What is here')}</b></span><ChevronRight size={16} aria-hidden="true" />
+    <button type="button" class="mini chip" data-hint-line={page} aria-expanded="false" onclick={() => pi.save((v) => setHint(v, page, true))}>
+      <Info size={16} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
   {:else if !open && only !== 'card'}
-    <button type="button" class="mini" data-hint-line={page} onclick={() => pi.save((v) => setHint(v, page, true))}>
-      <Info size={18} aria-hidden="true" /><span><b>{t('What is here')}</b> · {t(hint.lead[0])}</span><ChevronRight size={16} aria-hidden="true" />
+    <button type="button" class="mini" data-hint-line={page} aria-expanded="false" onclick={() => pi.save((v) => setHint(v, page, true))}>
+      <Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
   {/if}
 {/if}
@@ -231,7 +248,7 @@
     margin-right: 8px;
     padding: 9px 11px;
     border-radius: 12px;
-    background: var(--info-soft);
+    background: var(--paper); /* Design 2: inside the help card like its rows, no own colour */
     font-size: var(--fs-small);
   }
   .fact p {
@@ -266,9 +283,9 @@
     gap: 10px;
     margin-bottom: 12px;
     padding: 14px 8px 14px 16px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: var(--paper-2);
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
   }
   .h {
     display: flex;
@@ -278,7 +295,7 @@
   .h > :global(svg) {
     flex: none;
     margin-top: 2px;
-    color: var(--hi);
+    color: var(--help-icon);
   }
   .h p {
     flex: 1;
@@ -408,16 +425,16 @@
     min-height: 44px;
     margin-bottom: 12px;
     padding: 8px 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--paper-2);
+    border: 1px solid var(--help-line);
+    border-radius: var(--help-r);
+    background: var(--help-bg);
     color: var(--ink-2);
     font: inherit;
     text-align: left;
     cursor: pointer;
   }
   .mini > :global(svg:first-child) {
-    color: var(--hi);
+    color: var(--help-icon);
   }
   .mini span {
     flex: 1;

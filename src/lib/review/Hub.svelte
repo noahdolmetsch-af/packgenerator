@@ -281,7 +281,6 @@
     the tip of the day (as on Aktiv), the tip line only when the Einstieg is taken away -->
   <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
   <HintCard page="debrief" intro="debrief" />
-  <TipLine page="debrief" name={t('Look back|page')} />
   {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="ulink" onclick={undoSkip}>{t('Undo')}</button></p>{/if}
 
   {#if !data}
@@ -289,6 +288,7 @@
     <Skeleton rows={3} />
   {:else if !facts.length}
     <Empty icon={Upload} title={t('Nothing to look back on yet.')} text={t('A trip shows up here the day after it ends, an uploaded ride at once.')} action={{ label: t('Upload ride'), href: '#/debrief/ride' }} />
+    <TipLine page="debrief" name={t('Look back|page')} />
   {:else}
     {#if openList.length}
       <!-- SN2: the trip whose debrief is missing, with the one main button «Bewerten» -->
@@ -321,6 +321,8 @@
         {/if}
       </section>
     {/if}
+    <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
+    <TipLine page="debrief" name={t('Look back|page')} />
     <div class="rv-lay">
       <div class="rv-col">
         <!-- 1. the period: four tiles, the bars, the long table folded (SN2, ★ 2a) -->

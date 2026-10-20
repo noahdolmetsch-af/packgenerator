@@ -60,6 +60,12 @@
   --sp-4: 16px;
   --sp-5: 24px;
   --sp-6: 32px;
+  /* Gesamttest 20.10.2026 Design 2: one look for every help box (the card «So geht's», its quiet line, the
+     tip of the day, the Einstieg), whatever the kind of tip; built on the palette's own tokens. */
+  --help-bg: var(--paper-2);
+  --help-line: var(--line);
+  --help-icon: var(--hi);
+  --help-r: 16px;
   --radius: 8px;
   /* v0.99.0 Design-Refresh R3 (G2): buttons, fields and filter chips share one soft corner. */
   --r-ctl: 10px;
@@ -1628,4 +1634,35 @@ html:root[data-contrast='high'][data-theme='dark'] {
   details[open] > :not(summary) {
     animation: mv-fade 120ms ease-out;
   }
+}
+
+/* Gesamttest 20.10.2026 «2a» + Design 2: the quiet help line «ⓘ So geht's ›» for a page without the card
+   (Rennen); the same look as the folded card (HintCard .mini, AreaIntro .ai-line). */
+.help-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--help-line);
+  border-radius: var(--help-r);
+  background: var(--help-bg);
+  color: var(--ink-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.help-line > span {
+  flex: 1;
+  min-width: 0;
+}
+.help-line > svg {
+  flex: none;
+}
+.help-line > svg:first-child {
+  color: var(--help-icon);
+}
+.help-line[aria-expanded='true'] > .hl-chev {
+  transform: rotate(90deg);
 }

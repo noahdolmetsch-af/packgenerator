@@ -56,7 +56,8 @@ test('Guides: one line first, a tap opens the steps, fold again', async ({ page 
     await page.goto(`./${hash}`);
     const line = page.locator(`[data-intro="${place}"][data-open="false"]`);
     await expect(line, place).toBeVisible();
-    await expect(line, place).toContainText(T('How to use {place}', { place: T(GUIDE_INTROS[place].name) }));
+    // Gesamttest 20.10.2026 «2a» (changed on purpose): one quiet line «So geht's» on every page
+    await expect(line, place).toContainText(T('How it works|help'));
     await line.click();
     const card = page.locator(`[data-intro="${place}"][data-open="true"]`);
     await expect(card, place).toContainText(T(GUIDE_INTROS[place].title));

@@ -725,12 +725,27 @@
   .wohl {
     max-width: 1100px;
   }
+  /* Gesamttest 20.10.2026 C3 / Design 3: one rule for spacing, heading → card 8 px (Section), 24 px between
+     sections; before, a heading sat right on the card above it */
+  .ich-main,
+  .ich-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+  }
+  @media (max-width: 999px) {
+    .ich-cols {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-5);
+    }
+  }
   .wl-wait {
     display: flex;
     gap: 10px;
     align-items: flex-start;
     padding: 12px 14px;
-    margin: 0 0 18px;
+    margin: 0 0 var(--sp-5);
   }
   .wl-box {
     padding: 14px 16px;

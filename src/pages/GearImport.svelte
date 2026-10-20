@@ -882,15 +882,17 @@
   .sec > summary::-webkit-details-marker {
     display: none;
   }
+  /* Gesamttest 20.10.2026 Design 4: the app's one arrow ›, turned down when open */
   .sec > summary::before {
-    content: '▸';
+    content: '›' / '';
     color: var(--ink-3);
-    font-size: 13px;
     width: 12px;
     flex: none;
+    text-align: center;
+    transition: transform 0.15s;
   }
   .sec[open] > summary::before {
-    content: '▾';
+    transform: rotate(90deg);
   }
   .h {
     font-weight: 600;

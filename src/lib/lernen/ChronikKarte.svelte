@@ -8,7 +8,7 @@
    * frame="section" shows it as a section of a page (Rückblick). rides / activities: read here when not given.
    */
   import { liveQuery } from 'dexie';
-  import { History } from '@lucide/svelte';
+  import { History, ChevronRight } from '@lucide/svelte';
   import TileHead from '../home/TileHead.svelte';
   import Seg from '../ui/Seg.svelte';
   import { db } from '../db.js';
@@ -68,7 +68,8 @@
   {:else}
     <p class="nt">{view.mode === 'day' ? t('Nothing on this day in earlier years.') : t('Nothing in this month in earlier years yet.')}</p>
   {/if}
-  {#if more}<a class="all" href="#/chronik">{t('Whole chronicle')}</a>{/if}
+  <!-- Gesamttest 20.10.2026 Design 4: on a page (Rückblick) the link is the app's «link ›», not an underlined word (the tile on Heute stays as it is, HN4) -->
+  {#if more}<a class="all" class:go={frame === 'section'} href="#/chronik">{t('Whole chronicle')}{#if frame === 'section'}<ChevronRight size={15} aria-hidden="true" />{/if}</a>{/if}
 </section>
 
 <style>
@@ -177,5 +178,15 @@
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  .all.go {
+    gap: 4px;
+    text-decoration: none;
+  }
+  .all.go:hover {
+    text-decoration: underline;
+  }
+  .all.go :global(svg) {
+    color: var(--ink-3);
   }
 </style>

@@ -47,6 +47,8 @@
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
 
   const rides = $derived([...($ridesQ ?? [])].sort((a, b) => (b.startAt ?? '').localeCompare(a.startAt ?? '')));
+  // Gesamttest 20.10.2026 Design 5: at most one «neu» per page, on the first new one
+  const firstNew = $derived(rides.find((r) => note?.ids.includes(r.id))?.id ?? null);
   const trips = $derived($tripsQ ?? []);
   const paceSetting = $derived($paceQ?.value ?? null);
   const pace = $derived(paceOf(paceSetting));
@@ -729,7 +731,7 @@
                 <li class="rl" data-ride={r.id} data-open={due ? '' : null}>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
                     <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
-                    <span class="rv-m"><span class="rv-t">{r.name}{#if note?.ids.includes(r.id)}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
+                    <span class="rv-m"><span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
                     <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
                   </a>
                   {#if due}<button type="button" class="link okbtn" onclick={() => allGood(r)} aria-label="{t('Short: all good')}: {r.name}">{t('Short: all good')}</button>{/if}

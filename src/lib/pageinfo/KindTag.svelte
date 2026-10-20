@@ -23,12 +23,8 @@
     text-transform: uppercase;
     vertical-align: 1px;
     color: var(--ink-2);
-    background: var(--ok-soft);
-  }
-  .know {
-    background: var(--info-soft);
-  }
-  .today {
-    background: var(--warn-soft);
+    /* Gesamttest 20.10 Design 2: one quiet tag for every kind, the word says which */
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--help-line);
   }
 </style>
