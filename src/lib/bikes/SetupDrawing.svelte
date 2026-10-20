@@ -168,7 +168,7 @@
     border-style: dashed;
     border-color: var(--line-strong);
     background: transparent;
-    border-width: 1.5px;
+    /* the 2 px border stays: the tap areas around each place are measured from it */
     color: var(--ink-3);
   }
   .spot.off {
