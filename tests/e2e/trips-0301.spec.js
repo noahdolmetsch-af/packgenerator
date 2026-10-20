@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
-import { importAndSettle } from './settle.js';
+import { importAndSettle, ready } from './settle.js';
 import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
@@ -263,6 +263,9 @@ test('N10, N11, v0.114.0, v0.143.0: New trip offers the last ridden trip apart f
   // The standard set as the app has it after its own updates of the fixture (they run on start, e.g.
   // the light set): write the template with it.
   await page.reload();
+  // 20.10.2026 (deploy of 0.162.0 red): the tidy-up of this load has to end before the template is written; it
+  // links every template that is not linked yet (templatesLinked2026), and a linked one says its blocks itself.
+  await ready(page);
   // v0.46.0: wait for the last start-up update (its marker), so no update runs while the items are read.
   await expect.poll(async () => (await table(page, 'settings')).some((r) => r.key === 'update.templatesLinked2026')).toBe(true);
   // Data cleanup 14.10.2026 (cleanup.js, after the updates): wait until no item has the old block fields.
