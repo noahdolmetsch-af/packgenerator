@@ -3,7 +3,7 @@
  * (before / during / after) and not by the tab you look at. One place decides:
  * - the phase of a trip,
  * - the step of the four (Plan · Pack · On the way · Debrief) it is in now («Schritt 2 von 4»),
- * - the ONE main button of each trip page («Weiter zu …», «Zur Startseite»),
+ * - the ONE main button of each trip page («Weiter zu …», «Fertig gepackt · zurück zu Touren», «Zur Startseite»),
  * - the addresses of the three interstitials (#/trip/<id>/packed | ended | debriefed),
  * - when the evening reminders show (from 18:00).
  * Pure functions (no database, no screen), tested in tests/phase.test.js.
@@ -133,6 +133,10 @@ export function mainStep(trip, today, tab, opts = {}) {
     // the interstitial «Gepackt» once, Ü4a); afterwards the waiting state, on the start day On the way
     if (tab === 'pack' && !trip.packedAt) return { kind: 'finish', label: 'Finish packing' };
     if (bike && trip.startDate === today && tab !== 'ride') return { kind: 'go', label: 'Continue to On the way', href: tabHref('ride', trip) };
+    // Gesamttest 20.10.2026 B5 (Noah «4a»): the big button names the next step, not «Zur Startseite»: Plan goes on to
+    // Pack; Pack, packed days ahead, is «Fertig gepackt» and says where it leads (back to the trip's card on Touren)
+    if (tab === 'plan') return { kind: 'go', label: 'Continue to Pack', href: tabHref('pack', trip) };
+    if (tab === 'pack') return { kind: 'go', label: 'Packed · back to Trips', href: '#/trips' };
     return home;
   }
   if (tab === 'pack') return { kind: 'finish', label: 'Finish packing' };

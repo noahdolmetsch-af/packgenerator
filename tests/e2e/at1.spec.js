@@ -1,7 +1,8 @@
 // AT1 «Abgeschlossene Touren aus Strava» (mockup AT1, Noah 14.10.2026 21:19 «1a 2a 3b 4b at1 freigeben»),
 // German UI, phone 390 and desktop 1440, fictional data (sn4plus-fixture.js plus the activities of at1-acts.js):
-// a) «Abgeschlossene Touren» lists every Strava activity of the period, newest first, above «Packmodus»
-//    (was «App-Touren»); a ride of a Packmodus trip shows once, with the mark, a multi-day trip is one row;
+// a) Touren › Fahrten (Gesamttest 20.10.2026 B3, Noah «3a»; before on Übersicht as «Abgeschlossene Touren») lists every
+//    Strava activity of the period, newest first; a ride of a trip with a packing list shows once, with the mark, a
+//    multi-day trip is one row; Übersicht keeps «Mit Packliste» (was «Packmodus») and one row «Fahrten aus Strava ›»;
 // b) the values Noah named, 1a TSS only with a power meter, 2a the zones as a bar with min and %, 3b a run,
 //    a hike and yoga only with the values that fit;
 // c) the sport chips and the period; 4b the newest 20, «Mehr laden» shows 20 more;
@@ -62,7 +63,7 @@ async function start(page, context, info, d = data()) {
   page.on('dialog', (x) => x.accept());
   await page.goto('./');
   await importAndSettle(page, file);
-  await page.goto('./#/trips');
+  await page.goto('./#/trips/rides');
   await openShort(page);
   await expect(page.locator('[data-act-list] [data-act-row]').first()).toBeVisible();
   return { errors, d };
@@ -71,12 +72,12 @@ const acts = (page) => page.locator('section[data-activities]');
 const row = (page, id) => acts(page).locator(`[data-act-row="${id}"]`);
 const field = (r, f) => r.locator(`[data-field="${f}"] dd`);
 
-test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row with its mark', async ({ page, context }, info) => {
+test('a) Touren › Fahrten: every Strava activity, a trip with a packing list is one row with its mark; Übersicht keeps those trips', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
-  await expect(acts(page).getByRole('heading', { level: 2, name: T('Completed trips') })).toBeVisible();
-  const pack = page.locator('section[data-packmode]');
-  await expect(pack.getByRole('heading', { level: 2, name: T('Pack mode|section') })).toBeVisible();
-  expect((await acts(page).boundingBox()).y).toBeLessThan((await pack.boundingBox()).y);
+  await expect(page.getByRole('heading', { level: 1, name: T('Rides from Strava') })).toBeVisible();
+  await expect(page.locator('[data-rides-intro]')).toHaveText(T('Everything you recorded with Strava. Your trips with a packing list are under Overview.'));
+  await expect(acts(page).getByRole('heading', { level: 2, name: T('All activities|rides') })).toBeVisible();
+  await expect(page.locator('section[data-packmode], [data-packmode-open]')).toHaveCount(0);
   // 12 months: the six recent activities and the Herbsttour (its two rides as one row); the old one is out
   const ids = await acts(page).locator('[data-act-row]').evaluateAll((els) => els.map((e) => e.dataset.actRow));
   expect(ids).toEqual([`a:${A}1`, `a:${A}2`, `a:${A}3`, `a:${A}4`, `a:${A}5`, `t:${HERBST}`, `a:${A}6`]);
@@ -84,9 +85,26 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
   // the Herbsttour: the trip's name, the mark «Packmodus: …» with its state, the km of both rides
   const herbst = row(page, `t:${HERBST}`);
   await expect(herbst.locator('a.an')).toHaveText('Herbsttour Hochland');
-  await expect(herbst.locator(`[data-pm="${HERBST}"]`)).toContainText(T('Pack mode: {name}', { name: 'Herbsttour Hochland' }));
+  await expect(herbst.locator(`[data-pm="${HERBST}"]`)).toContainText(T('With packing list: {name}', { name: 'Herbsttour Hochland' }));
   await expect(herbst.locator('.ak')).toContainText('115');
-  // the Packmodus row of that trip also names its Strava activities
+  // the Strava type and the bike the ride ledger counted it for
+  const one = row(page, `a:${A}1`);
+  await expect(one.locator('[data-type="Ride"]')).toHaveText(T('Strava type «{type}»', { type: 'Ride' }));
+  await expect(one.locator(`[data-bike="${ROAD}"]`)).toHaveText('Rennrad Blau');
+  await expect(one.locator('a.an')).toHaveAttribute('href', `#/tour/${encodeURIComponent(`a:${A}1`)}`); // Tour-Seite (Noah 19.10.2026 «1a»)
+  await noSideways(page);
+  await shot(page, info, 'AT1-touren-aktivitaeten');
+  // Übersicht: the trips with a packing list, no Strava list, one quiet row to «Fahrten» below them
+  await page.goto('./#/trips');
+  await openShort(page);
+  const pack = page.locator('section[data-packmode]');
+  await expect(pack.getByRole('heading', { level: 2, name: T('With packing list|section') })).toBeVisible();
+  await expect(acts(page)).toHaveCount(0);
+  const toRides = page.locator('a[data-to-rides]');
+  await expect(toRides).toContainText(T('Rides from Strava'));
+  await expect(toRides).toContainText(T('{n} activities', { n: 9 }));
+  expect((await pack.boundingBox()).y).toBeLessThan((await toRides.boundingBox()).y);
+  // the row of that trip also names its Strava activities
   const pm = pack.locator('li[data-row]').filter({ has: page.getByRole('link', { name: 'Herbsttour Hochland', exact: true }) });
   if (info.project.name === 'phone') {
     // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line; the things packed and Strava after a tap
@@ -98,13 +116,10 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
     // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
     await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
   }
-  // the Strava type and the bike the ride ledger counted it for
-  const one = row(page, `a:${A}1`);
-  await expect(one.locator('[data-type="Ride"]')).toHaveText(T('Strava type «{type}»', { type: 'Ride' }));
-  await expect(one.locator(`[data-bike="${ROAD}"]`)).toHaveText('Rennrad Blau');
-  await expect(one.locator('a.an')).toHaveAttribute('href', `#/tour/${encodeURIComponent(`a:${A}1`)}`); // Tour-Seite (Noah 19.10.2026 «1a»)
   await noSideways(page);
-  await shot(page, info, 'AT1-touren-aktivitaeten');
+  await toRides.click();
+  await expect(page).toHaveURL(/#\/trips\/rides$/);
+  await expect(acts(page).locator('[data-act-row]').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -224,7 +239,7 @@ test('d) part 2 «Filter»: commute, power meter, the chips to tap away, a saved
   await sheet.locator('[data-apply]').click();
   await expect(list).toHaveCount(1);
   await expect(list.first()).toHaveAttribute('data-act-row', `a:${A}1`);
-  // the filters of the Packmodus stay its own
+  // the trips with a packing list and their own filters are on Übersicht, not here (Gesamttest 20.10.2026 B3)
   await expect(page.locator('section[data-packmode] [data-active-filters]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

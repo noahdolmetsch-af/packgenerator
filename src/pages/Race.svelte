@@ -111,14 +111,15 @@
         {#if g.rows.length}
           <section class="rc-box" aria-labelledby="rc-{g.key}-h">
             <h2 id="rc-{g.key}-h" class="rc-h2">{t(g.name)}</h2>
-            <ul class="rc-list">
+            <!-- Gesamttest 20.10.2026 C9: rows like the app's other lists (title, the date small, ›; the whole row is the link) -->
+            <ul class="rowlist rc-races">
               {#each g.rows as tr (tr.id)}
                 {@const cd = countdown(tr.startDate, today)}
                 <li>
-                  <a class="rc-row" href={raceHref(tr.id)} data-race-row={tr.id}>
-                    <span class="rc-icon" aria-hidden="true"><Flag size={18} /></span>
-                    <span class="rc-row-main"><b>{tr.title}</b><small>{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</small></span>
-                    <ChevronRight size={18} aria-hidden="true" />
+                  <a class="lrow" href={raceHref(tr.id)} data-race-row={tr.id}>
+                    <span class="ic" aria-hidden="true"><Flag size={18} /></span>
+                    <span class="m"><span class="t">{tr.title}</span><span class="s">{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</span></span>
+                    <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </a>
                 </li>
               {/each}

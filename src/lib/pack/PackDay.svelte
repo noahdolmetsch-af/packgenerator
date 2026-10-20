@@ -329,7 +329,7 @@
 {/snippet}
 <!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
-     waiting «Zur Startseite», under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
+     waiting «Fertig gepackt · zurück zu Touren» (Gesamttest 20.10.2026 B5), under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
 {#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next>{t('Pack {bag}|next', { bag: nextBag.title })}<span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>

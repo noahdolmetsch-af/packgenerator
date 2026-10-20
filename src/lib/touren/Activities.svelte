@@ -18,6 +18,8 @@
    * kept for next time); «Auswählen» chooses several to join into one tour or to hide; «Ausgeblendete zeigen»
    * brings the hidden ones back into view. A row opens the page «Tour».
    * view, onview(v); lineOf(row): the map lines of a row; onjoin(rows), onhide(rows), onshow(rows).
+   * Gesamttest 20.10.2026 B3 (Noah «3a»): the list lives on its own tab Touren › Fahrten (#/trips/rides); its head
+   * says «Alle Aktivitäten», a trip packed in the app is marked «Mit Packliste: <trip>».
    */
   import { t, tn, num } from '../i18n.svelte.js';
   import ActTiles from './ActTiles.svelte';
@@ -109,8 +111,8 @@
 <section class="acts" aria-labelledby="trips-acts" data-activities>
   <div class="sh">
     <div>
-      <h2 id="trips-acts">{t('Completed trips')}</h2>
-      <p class="ss" data-acts-sub>{t('All Strava activities')} · {tn(inPeriod.length, '{n} activity', '{n} activities')}{#if !phone.matches}{' · '}{t('newest first, by month')}{/if}</p>
+      <h2 id="trips-acts">{t('All activities|rides')}</h2>
+      <p class="ss" data-acts-sub>{tn(inPeriod.length, '{n} activity', '{n} activities')}{#if !phone.matches}{' · '}{t('newest first, by month')}{/if}</p>
     </div>
     <a class="btn btn-link more" href="#/flow/training?view=list">{t('In Training')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
@@ -134,7 +136,7 @@
         {#if view === 'rows' || view === 'tiles'}<button type="button" class="btn btn-link" aria-pressed={picking} onclick={() => (picking ? endPick() : (picking = true))} data-act-pick>{#if picking}{t('Done')}{:else}<ListChecks size={16} aria-hidden="true" />{t('Choose several')}{/if}</button>{/if}
       </div>
     </div>
-    {#if picking}<p class="pickhint tp-small" data-pick-hint>{t('Tap the activities that belong together, then «Join into one tour». Trips of the Packmodus are a tour already.')}</p>{/if}
+    {#if picking}<p class="pickhint tp-small" data-pick-hint>{t('Tap the activities that belong together, then «Join into one tour». Trips with a packing list are a tour already.')}</p>{/if}
   {/if}
   {#if saved.length}
     <div class="mine" role="group" aria-label={t('My filters')} data-act-my-filters>
@@ -179,7 +181,7 @@
                   {#if r.grp}<span class="pm grp" data-grp={r.grp.id}><Link2 size={13} aria-hidden="true" />{t('joined')}</span>{/if}
                   {#if r.changed?.length}<span class="chg">{t('changed')}</span>{/if}
                   {#if r.hidden}<span class="chg"><EyeOff size={12} aria-hidden="true" />{t('hidden')}</span>{/if}
-                  {#if r.pm}<span class="pm" data-pm={r.pm.tripId}><Backpack size={13} aria-hidden="true" />{t('Pack mode: {name}', { name: r.pm.title })}<TripState state={r.pm.state} /></span>{/if}
+                  {#if r.pm}<span class="pm" data-pm={r.pm.tripId}><Backpack size={13} aria-hidden="true" />{t('With packing list: {name}', { name: r.pm.title })}<TripState state={r.pm.state} /></span>{/if}
                 </div>
                 <p class="as">
                   <span>{when(r)}</span>
@@ -225,7 +227,7 @@
     {:else if !short && list.length > shown}
       <button type="button" class="btn k loadmore" onclick={() => (shown += PAGE)} data-load-more>{t('Load more')}<span class="num">{t('{n} of {all}', { n: num(shown), all: num(list.length) })}</span></button>
     {/if}
-    <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('All values from Strava. TSS from power and your FTP: without a power meter «–». A multi-day trip of the Packmodus is one row with all its activities. Only to look at, no rating.')}</span></p>
+    <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('All values from Strava. TSS from power and your FTP: without a power meter «–». A multi-day trip with a packing list is one row with all its activities. Only to look at, no rating.')}</span></p>
   {/if}
   {#if picking && allRows.length}
     <div class="pickbar" role="region" aria-label={t('Chosen')} data-pick-bar>
