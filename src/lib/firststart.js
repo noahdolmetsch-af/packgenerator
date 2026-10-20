@@ -1,0 +1,182 @@
+/**
+ * «Erster Start» (Noah 14.10.2026 «Persönlich und Standard», decision 5 «passt»; 20.10.2026 «2a sofort und
+ * wir machen b auch»): a new, empty app asks once «Start with examples» or «Start empty», so a friend who
+ * opens the link sees full pages right away.
+ *
+ * - With examples: a made-up bike, bags, some gear and a 2-day trip in ten days (all fictional, ids «ex-»),
+ *   plus the twelve starter activities of Active that every new app gets (flowdb.js ensureSeed).
+ * - Empty: the twelve starter activities go too (they belong to the examples); nothing else changes.
+ * The answer and the ids of the examples are one setting (FIRST_KEY, in the backup), so the question never
+ * comes back and Me › Data and backup can take the examples away again (removeExamples, with Undo).
+ *
+ * Only a truly new app is asked (isFresh): every table empty except the app's own seeds, no demo, no
+ * pairing with another device. Noah's data is never touched. Window: lib/firststart/FirstStart.svelte.
+ */
+import { restoreBackup, APP_ID } from './backup.js';
+import { SCHEMA_VERSION } from './db.js';
+import { blocksAfterImport } from './updates.js';
+import { seedActs } from './flow.js';
+import { addDays } from './play.js';
+import { readCfg } from './sync/engine.js';
+import { t } from './i18n.svelte.js';
+
+export const FIRST_KEY = 'firstStart';
+/** Tables the app fills by itself on a new start (settings, its own notes, the starter activities). */
+const SEEDED = new Set(['settings', 'meta', 'flowActs']);
+/** The tables that hold the examples, in the order they are put back. */
+export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'flowActs'];
+
+// [id, name (English key for t()), category, carry, weight g, slot on the trip or null]
+const GEAR = [
+  ['ex-seat', 'Seat pack 12 L', 'bags', 'luggage', 390, null],
+  ['ex-frame', 'Frame bag', 'bags', 'luggage', 220, null],
+  ['ex-sleep', 'Down sleeping bag', 'sleep', 'luggage', 820, 'seat'],
+  ['ex-mat', 'Sleeping mat', 'sleep', 'luggage', 410, 'seat'],
+  ['ex-tent', 'Tarp|example', 'sleep', 'luggage', 480, 'seat'],
+  ['ex-jacket', 'Rain jacket|play', 'rain', 'luggage', 250, 'frame'],
+  ['ex-tool', 'Tool kit', 'tools', 'luggage', 240, 'frame'],
+  ['ex-tube', 'Spare tube|example', 'tools', 'luggage', 110, 'frame'],
+  ['ex-power', 'Power bank|play', 'elec', 'luggage', 180, 'frame'],
+  ['ex-lamp', 'Head torch', 'light', 'luggage', 90, 'frame'],
+  ['ex-bottle', 'Water bottle|example', 'food', 'luggage', 80, null],
+  ['ex-jersey', 'Jersey|play', 'onbike', 'body', 140, 'body'],
+  ['ex-fleece', 'Fleece jumper|example', 'offbike', 'luggage', 300, null],
+];
+
+/** The example data as a backup file (merged like an import). today: YYYY-MM-DD. */
+export function examplesFile(today) {
+  const now = new Date().toISOString();
+  const start = addDays(today, 10);
+  const bike = t('Gravel bike (example)');
+  const setup = { seat: 'bag-ex-seat', frame: 'bag-ex-frame' };
+  const items = GEAR.map(([id, name, category, carry, weightG]) => ({ id, name: t(name), category, carry, weightG, qty: 1, weightStatus: 'measured', ownership: 'owned', defaultBag: null, role: null, sets: [], domains: ['bikepacking'] }));
+  const containers = GEAR.filter((g) => g[2] === 'bags').map(([id, name]) => ({ id: `bag-${id}`, name: t(name), slot: id === 'ex-seat' ? 'seat' : 'frame', volumeL: id === 'ex-seat' ? 12 : 4, itemId: id, pieces: 1 }));
+  const bikes = [{ id: 'ex-bike', name: bike, weightG: 9600, slots: ['seat', 'frame'], setup, fixtures: [] }];
+  const trips = [
+    {
+      id: 'ex-trip',
+      title: t('Jura loop (example)'),
+      domain: 'bikepacking',
+      startDate: start,
+      days: 2,
+      status: 'planned',
+      bikeId: 'ex-bike',
+      bike,
+      setup,
+      overnight: 'outdoor',
+      cook: false,
+      sets: {},
+      purpose: {},
+      ready: [],
+      entries: GEAR.filter((g) => g[5]).map(([itemId, , , , , slot]) => ({ itemId, slot, qty: 1, packed: false })),
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips } };
+}
+
+const seedIds = () => new Set(seedActs().map((a) => a.id));
+
+/** Is this a truly new app that has not been asked yet? Never throws (false then). */
+export async function isFresh(db) {
+  try {
+    if (await db.settings.get(FIRST_KEY)) return false;
+    if (await db.meta.get('demo')) return false;
+    if (await readCfg(db)) return false; // paired with another device: its data comes from there
+    for (const table of db.tables) {
+      if (SEEDED.has(table.name)) continue;
+      if (await table.count()) return false;
+    }
+    const seeds = seedIds();
+    return (await db.flowActs.toArray()).every((a) => seeds.has(a.id));
+  } catch {
+    return false;
+  }
+}
+
+/** The starter activities nobody has used yet (no tick, no session). */
+async function unusedSeedActs(db, ids = null) {
+  const seeds = ids ? new Set(ids) : seedIds();
+  const acts = (await db.flowActs.toArray()).filter((a) => seeds.has(a.id));
+  const out = [];
+  for (const a of acts) {
+    const used = (await db.flowLog.where('actId').equals(a.id).count()) + (await db.flowSessions.where('actId').equals(a.id).count());
+    if (!used) out.push(a);
+  }
+  return out;
+}
+
+/**
+ * The answer: 'examples' or 'empty'. Writes the setting first, so a second tab or a reload never asks
+ * again. Returns the setting's value.
+ */
+export async function chooseStart(db, choice, today) {
+  const at = new Date().toISOString();
+  if (choice === 'examples') {
+    const file = examplesFile(today);
+    const acts = (await db.flowActs.toArray()).filter((a) => seedIds().has(a.id));
+    const ids = Object.fromEntries(Object.entries(file.tables).map(([k, rows]) => [k, rows.map((r) => r.id)]));
+    ids.flowActs = acts.map((a) => a.id);
+    const value = { choice, at, ids };
+    await db.settings.put({ key: FIRST_KEY, value });
+    await restoreBackup(db, file, 'merge');
+    await blocksAfterImport(db, file, 'merge');
+    return value;
+  }
+  const value = { choice: 'empty', at, ids: {} };
+  await db.settings.put({ key: FIRST_KEY, value });
+  const acts = await unusedSeedActs(db);
+  if (acts.length) await db.flowActs.bulkDelete(acts.map((a) => a.id));
+  return value;
+}
+
+/** The examples still in the data: { table: [rows] } (empty object when none). */
+export async function examplesLeft(db) {
+  const rec = (await db.settings.get(FIRST_KEY))?.value;
+  const ids = rec?.choice === 'examples' ? rec.ids ?? {} : {};
+  const out = {};
+  for (const name of EXAMPLE_TABLES) {
+    if (!ids[name]?.length) continue;
+    const rows = name === 'flowActs' ? await unusedSeedActs(db, ids.flowActs) : (await db.table(name).bulkGet(ids[name])).filter(Boolean);
+    if (rows.length) out[name] = rows;
+  }
+  return out;
+}
+
+/** How many example things are left (the activities count as one). */
+export const exampleCount = (left) => Object.entries(left).reduce((n, [k, rows]) => n + (k === 'flowActs' ? 1 : rows.length), 0);
+
+/** Take the examples away. Returns what undoExamples needs. */
+export async function removeExamples(db) {
+  const left = await examplesLeft(db);
+  const names = Object.keys(left);
+  if (!names.length) return left;
+  await db.transaction('rw', names.map((n) => db.table(n)), async () => {
+    for (const n of names) await db.table(n).bulkDelete(left[n].map((r) => r.id));
+  });
+  return left;
+}
+
+/** «Undo»: the examples back as they were. */
+export async function undoExamples(db, left) {
+  const names = EXAMPLE_TABLES.filter((n) => left?.[n]?.length);
+  if (!names.length) return;
+  await db.transaction('rw', names.map((n) => db.table(n)), async () => {
+    for (const n of names) await db.table(n).bulkPut(left[n]);
+  });
+}
+
+/**
+ * Should the window ask? Browser tests (webdriver) start empty on purpose and never see it, unless a test
+ * asks for it with localStorage «firstStart.ask» = '1'. A shared page (#/share/…, #/spur-link/…) never asks.
+ */
+export function mayAsk(nav = globalThis.navigator, hash = globalThis.location?.hash ?? '') {
+  if (/^#\/(share|spur-link)\//.test(hash)) return false;
+  if (!nav?.webdriver) return true;
+  try {
+    return localStorage.getItem('firstStart.ask') === '1';
+  } catch {
+    return false;
+  }
+}

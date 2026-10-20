@@ -1,0 +1,129 @@
+<script>
+  /**
+   * «Erster Start» (Noah 14.10.2026 decision 5 «passt», 20.10.2026 «2a sofort und wir machen b auch»): a
+   * new, empty app asks once «Start with examples» or «Start empty» (firststart.js). «Decide later», ×,
+   * Escape or back close it; then it asks again on the next start. Mounted by main.js after the start-up
+   * tidy-up, so it only ever sees a finished database.
+   */
+  import { onMount } from 'svelte';
+  import { Sparkles, Square } from '@lucide/svelte';
+  import { db } from '../db.js';
+  import { t } from '../i18n.svelte.js';
+  import { localDay } from '../localday.js';
+  import { settling } from '../settled.js';
+  import { tidyData } from '../tidy.js';
+  import { backClose } from '../ui/backclose.js';
+  import { offerDone } from '../ui/rename.svelte.js';
+  import { isFresh, chooseStart } from '../firststart.js';
+  import '../bikes/velo-dlg.css';
+
+  let show = $state(false);
+  let dialog = $state();
+  let busy = $state(false);
+
+  onMount(async () => {
+    show = await isFresh(db);
+  });
+  $effect(() => {
+    if (show && dialog && !dialog.open) dialog.showModal();
+  });
+
+  async function choose(choice) {
+    busy = true;
+    try {
+      await settling(async () => {
+        await chooseStart(db, choice, localDay());
+        if (choice === 'examples') await tidyData(db);
+      });
+      dialog?.close();
+      offerDone(choice === 'examples' ? t('The examples are in: a trip, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.') : t('Empty start: everything you add is your own.'), null, 8000);
+    } catch (err) {
+      console.error(err);
+      busy = false;
+      offerDone(t("That didn't work. Nothing was changed. Try again."));
+    }
+  }
+</script>
+
+{#if show}
+  <dialog class="sheet vdlg firststart" bind:this={dialog} use:backClose onclose={() => (show = false)} aria-labelledby="fs-h" data-testid="first-start">
+    <div class="vd-head">
+      <div class="vd-t">
+        <h2 id="fs-h">{t('Welcome to the Pack Generator')}</h2>
+        <p class="vd-sub">{t('How do you want to start?')}</p>
+      </div>
+    </div>
+    <p class="lead">{t('The app plans, packs and debriefs your bike trips and keeps your gear and bikes in order. Your data stays on this device.')}</p>
+    <div class="opts">
+      <button type="button" class="opt" disabled={busy} onclick={() => choose('examples')} data-choice="examples">
+        <span class="ic" aria-hidden="true"><Sparkles size={20} /></span>
+        <span class="tx">
+          <b>{t('Start with examples')}</b>
+          <small>{t('A made-up trip, a bike, bags, gear and twelve activities: every page shows something right away. You can change or delete all of it.')}</small>
+        </span>
+      </button>
+      <button type="button" class="opt" disabled={busy} onclick={() => choose('empty')} data-choice="empty">
+        <span class="ic" aria-hidden="true"><Square size={20} /></span>
+        <span class="tx">
+          <b>{t('Start empty|first')}</b>
+          <small>{t('Empty lists, you add your own. Best if you bring a backup or connect a second device.')}</small>
+        </span>
+      </button>
+    </div>
+    <p class="hint">{t('Just looking? Me › Try it out › Playground shows an example trip any time, without changing your data.')}</p>
+    <div class="vd-foot">
+      <button type="button" class="btn" disabled={busy} onclick={() => dialog?.close()} data-choice="later">{t('Decide later')}</button>
+    </div>
+  </dialog>
+{/if}
+
+<style>
+  .lead {
+    margin: 0 0 12px;
+    color: var(--ink-2);
+  }
+  .opts {
+    display: grid;
+    gap: 10px;
+  }
+  .opt {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .opt:hover,
+  .opt:focus-visible {
+    border-color: var(--hi);
+  }
+  .ic {
+    flex: none;
+    color: var(--hi);
+    padding-top: 2px;
+  }
+  .tx {
+    display: grid;
+    gap: 2px;
+  }
+  .opt small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .hint {
+    margin: 12px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .vd-foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+  }
+</style>

@@ -1110,4 +1110,9 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Erster Start» (Noah 20.10.2026)
+  'Only on a new, empty app: it asks once when it opens for the first time.': 'Nur bei einer neuen, leeren App: Sie fragt einmal beim ersten Öffnen.',
+  'Choose «Start with examples» or «Start empty».': 'Wähle «Mit Beispielen starten» oder «Leer starten».',
+  'To take the examples away: Me › Data and backup › «Remove the examples»; «Undo» brings them back.': 'Beispiele wegnehmen: Ich › Daten und Backup › «Beispiele entfernen»; «Rückgängig» holt sie zurück.',
+  'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.': 'Beispiel: Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.',
 };

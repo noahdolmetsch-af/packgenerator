@@ -12,7 +12,7 @@
   import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
-  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks } from '@lucide/svelte';
+  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
@@ -22,6 +22,8 @@
   import { take } from './nav.js';
   import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples } from './firststart.js';
+  import { askDelete, deleteWithUndo } from './ui/ask.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
   import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs } from './bikespecs.js';
@@ -245,6 +247,17 @@
   }
 
   const demoQ = liveQuery(() => demoState(db));
+  // «Erster Start»: the examples from «Start with examples», taken away again in one go (with Undo)
+  const examplesQ = liveQuery(() => examplesLeft(db));
+  const exampleN = $derived(exampleCount($examplesQ ?? {}));
+  async function dropExamples() {
+    const left = $examplesQ ?? {};
+    const lines = [...(left.trips ?? []).map((r) => r.title), ...(left.bikes ?? []).map((r) => r.name), ...(left.items ?? []).map((r) => r.name)];
+    if (left.flowActs?.length) lines.push(tn(left.flowActs.length, '{n} starter activity of Active', '{n} starter activities of Active'));
+    const answer = await askDelete({ title: t('Remove the examples?'), text: t('Only the made-up things from the first start go; whatever you added yourself stays. Activities you already ticked stay too.'), lines, label: t('Remove') });
+    if (answer !== 'delete') return;
+    await deleteWithUndo({ run: () => removeExamples(db), undo: (saved) => undoExamples(db, saved), text: t('Examples removed.'), name: t('Examples') });
+  }
   async function beginDemo() {
     try {
       await settling(async () => {
@@ -579,6 +592,7 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trip, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
