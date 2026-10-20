@@ -68,11 +68,10 @@ export default {
   'Your activities to tick off in one tap; meditation opens its start.': 'Deine Aktivitäten zum Abhaken mit einem Tipp; Meditation öffnet ihren Start.',
   // whatsnew 0.168.0
   'Today, rebuilt': 'Heute neu aufgebaut',
-  'On top your body of today and the check, right under it your activities to tick off.': 'Oben dein Körper heute und der Check, gleich darunter deine Aktivitäten zum Abhaken.',
-  '«Your body today»: resting pulse, sleep, sleep score and active zone minutes next to yesterday': '«Dein Körper heute»: Ruhepuls, Schlaf, Schlaf-Score und Aktivzonen-Minuten neben gestern',
-  'The morning check sits in the same card; from the evening the evening check takes its place': 'Der Morgen-Check steht in derselben Karte; ab dem Abend der Abend-Check',
-  '«Active today»: tick off your activities in one tap; meditation opens its start': '«Aktiv heute»: Aktivitäten mit einem Tipp abhaken; Meditation öffnet ihren Start',
-  'Then the week, the balance ring, the trip, «Up now» (only when something is up), the bikes and the 8 shortcuts': 'Danach Woche, Balance-Ring, Tour, «Jetzt dran» (nur wenn etwas dran ist), Velos und die 8 Abkürzungen',
+  'Your body and the check on top, your activities right under it.': 'Oben dein Körper und der Check, darunter deine Aktivitäten.',
+  '«Your body today»: pulse, sleep and active minutes next to yesterday': '«Dein Körper heute»: Puls, Schlaf, Aktivminuten neben gestern',
+  '«Active today»: tick off in one tap': '«Aktiv heute»: mit einem Tipp abhaken',
+  'Then week, ring, trip, bikes': 'Danach Woche, Ring, Tour, Velos',
   'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.': 'Öffne Heute: «Dein Körper heute» steht oben mit vier Werten und einem Pfeil zu gestern.',
   'Tap an activity under «Active today»: it is ticked; tap again to take it back.': 'Tippe eine Aktivität unter «Aktiv heute» an: Sie ist abgehakt; nochmals tippen nimmt es zurück.',
 };

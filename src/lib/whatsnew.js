@@ -20,13 +20,12 @@ export const WHATS_NEW = [
     version: '0.168.0',
     date: '2026-10-20',
     title: 'Today, rebuilt',
-    lead: 'On top your body of today and the check, right under it your activities to tick off.',
+    lead: 'Your body and the check on top, your activities right under it.',
     points: [
-      { text: '«Your body today»: resting pulse, sleep, sleep score and active zone minutes next to yesterday', href: '#/me/insights' },
-      { text: 'The morning check sits in the same card; from the evening the evening check takes its place', href: '#/me/abfragen' },
-      { text: '«Active today»: tick off your activities in one tap; meditation opens its start', href: '#/flow' },
+      { text: '«Your body today»: pulse, sleep and active minutes next to yesterday', href: '#/me/insights' },
+      { text: '«Active today»: tick off in one tap', href: '#/flow' },
     ],
-    small: [{ box: 'nicer', text: 'Then the week, the balance ring, the trip, «Up now» (only when something is up), the bikes and the 8 shortcuts' }],
+    small: [{ box: 'nicer', text: 'Then week, ring, trip, bikes' }],
     test: [
       'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.',
       'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
