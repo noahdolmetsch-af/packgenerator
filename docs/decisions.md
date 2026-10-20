@@ -1815,3 +1815,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 20.10.2026: 0.169.0 UI-Ziele in Heute (Noah 17:05 «freigabe für alles»): #12 Check in 5 Stufen (gespeichert als 2/4/6/8/10 der 1–10-Skala, alte Werte bleiben), #15 Gruss kurz und selbst Knopf, #16 «Bereit für morgen?» im bestehenden Vorabend-Fenster (höchstens 3 Zeilen aus morgen.js), #17 Ziel-Chips (Einstellung homeGoals, im Backup), «Tagebuch schreiben» als Chip aus und Kachel nur im Katalog. #4 Fällig-Fenster folgt, sobald der Thread «UI-Ziele» sein Bauteil hat. Englische Namen sammeln (Teil von #15) noch offen.
 - 20.10.2026: 0.169.0 **UI-Grundlagen** (UI-Ziele, Noah 17:05 «freigabe für alles»): wärmere Farben (Salbei statt Farbe pro Ort), eine Schrift, runde Knöpfe, ruhigere Karten. Selbst entschieden (Bündler): N1, N2 und UI-Grundlagen in einem PR 0.169.0, damit nur ein CI-Lauf nötig ist.
 - 20.10.2026: 0.169.0 **N1 Nachtrag** (Brainstorming #6, #7): Ich nur noch Daten, Einstellungen, Hilfe; die übrigen Zeilen werden Reiter unter Planen oder Auswerten; Handy-Listen zeigen zuerst 5 Zeilen; Längenbudget-Test `src/lib/laenge.js` (Sperrklinke).
+
+## 20.10.2026 · Auswertung wie Training (Noah 21:22–21:25 UTC)
+
+- **Entscheid:** Die Fahrt-Seite Aktiv › Training › Fahrt ist der Standard für jede Auswertung: Kopf mit grauer Zeile, Kennzahlen-Kacheln, «Analysen» mit `AnaHead`/`AnaCard` (⋯, ausblendbar, verschiebbar, «Analysen anpassen»). «ich glaube überall», «vor allem auch für andere bereiche … zb zum auswerten von meinen täglich abgehakten aktivitäten», «genau».
+- **Umgesetzt:** neue Seite Aktiv › Ziele › Auswerten (`#/flow/auswertung`): Haken (Gruppe `ticks`, 8 Karten) und Antworten der Check-Fragen mit Zahl (Gruppe `answers`, 4 Karten). Regeln `src/lib/flow/auswertung.js`, Karten `src/lib/flow/auswertung/`.
+- **Selbst entschieden:** Ring-Farben im Wochen-Balken aus der Diagramm-Palette (grün, blaugrau, gelb), damit Bewegen und Achtsam unterscheidbar sind; Standard-Zeitraum 90 Tage; Tageszeit in 3-Stunden-Fenstern nach der Uhr des Geräts.
+- **Später:** Tour-Seite «Analyse» und Rückblick «Puls und Leistung» auf dieselben Karten, sobald 0.170 auf main ist.

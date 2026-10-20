@@ -1292,7 +1292,12 @@ export const HANDBOOK = {
     on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
     steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
     example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
-  },  'f.eveningtour': {
+  },  'f.tickreview': {
+    on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
+    steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
+    example: 'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.',
+  },
+  'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
     steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
     example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
