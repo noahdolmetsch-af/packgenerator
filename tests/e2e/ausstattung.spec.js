@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { v048File, P, SPARK, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
+import { TABS } from './placetab.js';
 
 const SHOTS = process.env.AUSSTATTUNG_SHOTS;
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -44,10 +45,10 @@ test('Ausstattung: groups with name, weight and price; a part gets its price in 
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${SPARK}`);
   // Impeccable Runde 2 (Ausstattung 2): the short title «Ausstattung», the bike's name first in the line below.
-  await expect(page.getByRole('heading', { level: 1, name: 'Ausstattung', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Teile', exact: true })).toBeVisible();
   await expect(page.locator('header.vhead .vsub')).toContainText(`${P} Scott Spark 960 · `);
   // The place tab is called «Ausstattung» (A1a).
-  await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Ausstattung' })).toHaveAttribute('aria-current', /page|true/);
+  await expect(page.locator(TABS).getByRole('link', { name: 'Teile', exact: true })).toHaveAttribute('aria-current', /page|true/);
   // Noah's four measurements on top, the rest behind «+ n weitere Masse».
   // Impeccable Runde 2 (Ausstattung 1): no measure yet is one sentence and «Masse eintragen», which opens the first one
   await expect(page.getByText('Noch keine Masse.', { exact: false })).toBeVisible();
@@ -86,7 +87,7 @@ test('Ausstattung: groups with name, weight and price; a part gets its price in 
 test('Ausstattung: another bike, a bike without parts, the area filter', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${GOAT}`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Ausstattung', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Teile', exact: true })).toBeVisible();
   await expect(page.locator('header.vhead .vsub')).toContainText(`${P} Bergziege 29`);
   await expect(page.getByText('0 Teile erfasst')).toBeVisible();
   // Impeccable Runde 2 (Ausstattung 1): no part weight yet is one sentence, not six «–» bars
@@ -123,7 +124,7 @@ test('Velos vergleichen: only rows with a value, show all brings the rest (A5a)'
     await expect(heads).toHaveCount(3);
   }
   // Back goes to the Ausstattung.
-  await page.getByRole('link', { name: 'Ausstattung' }).first().click();
+  await page.getByRole('link', { name: 'Teile', exact: true }).first().click();
   await expect(page).toHaveURL(/tab=compare(?!&view)/);
   await noSideways(page);
   if (SHOTS) {

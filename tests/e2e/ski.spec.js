@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { SKI_GROUPS, START_CHECKS, CARE_TASKS } from '../../src/lib/ski.js';
 import { importAndSettle } from './settle.js';
+import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -93,7 +94,7 @@ test('Skitouren page: the tab, the next tour with its check, three rows, more', 
   page.on('pageerror', (e) => errors.push(e.message));
   await open(page, context, info);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Ski tours'));
-  await expect(page.locator('.ptabs a[aria-current="page"]')).toHaveText(T('Ski tours'));
+  await expect(page.locator(TABS).locator('a[aria-current="page"]')).toHaveText(T('Ski tours'));
   const card = page.getByRole('region', { name: T('Next ski tour') });
   await expect(card).toContainText('test_data_gtp_ Piz Beispiel');
   await expect(card.locator('.chk')).toContainText(T('{n} of {m}', { n: 3, m: 7 }));

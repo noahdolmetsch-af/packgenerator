@@ -22,6 +22,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { SEED_TEMPLATES, MED_DURATIONS, CLOCK_VIEWS } from '../../src/lib/flowmed.js';
 import { SOUNDS } from '../../src/lib/flowsounds.js';
 import { ready } from './settle.js';
+import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -145,7 +146,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
 
   // B: «Wie letztes Mal · 1 Min», the other templates, the rows
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the tab Meditation in Aktiv
+  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the tab Meditation in Aktiv
   await expect(main.locator('[data-start="last"]')).toContainText(T('Like last time · {n} min', { n: 1 }));
   await expect(main.locator('[data-tpl]')).toHaveCount(SEED_TEMPLATES.length - 1);
   await expect(main.locator('[data-row="week"]')).toContainText(T('{n} of 7 days', { n: 1 }));
@@ -155,7 +156,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   // C: «Mehr»: every section folded; the sound opens with «anhören»; the milestone counts up
   await main.locator('[data-to="more"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/mehr$/);
-  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the tab Meditation in Aktiv
+  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page'); // ME2: the tab Meditation in Aktiv
   await expect(main.locator('details[data-fold]')).toHaveCount(7);
   await expect(main.locator('details[data-fold][open]')).toHaveCount(0);
   await main.locator('[data-fold="sound"] summary').click();

@@ -69,7 +69,8 @@ test('SN3 Vorlagen: path, one main button, rows with «…», «From your trips�
   const errors = await load(page, context, TPL);
   await page.goto('./#/pack/templates');
   await expect(page.getByRole('heading', { level: 1, name: T('Templates') })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: T('Path') }).getByRole('link', { name: T('Trips') })).toHaveAttribute('href', '#/trips');
+  // Impeccable P1 (20.10.2026, changed on purpose): a tab page has no path on top
+  await expect(page.getByRole('navigation', { name: T('Path') })).toHaveCount(0);
   await expect(page.locator('main .btn.hi:visible')).toHaveCount(1);
   const rows = page.locator('li.row[data-tpl]:not(.arch)');
   await expect(rows).toHaveCount(4);
@@ -239,7 +240,10 @@ test('SN7 Teil: the due point on top and chosen, what did you do, enter', async 
   await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === SPARK).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), action: 'check', result: 'ok' });
 
   // A part with nothing due: nothing is chosen, «Eintragen» waits for a choice.
-  await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) }).click();
+  const padsRow = care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) });
+  // on a phone the parts with nothing due may wait behind «Mehr …» (Handy kürzer)
+  if (!(await padsRow.count())) await care.getByRole('button', { name: /^Mehr .*…$/ }).first().click();
+  await padsRow.click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.locator('.dids button[aria-pressed="true"]')).toHaveCount(0);
   await expect(pads.getByRole('button', { name: T('Enter|part'), exact: true })).toBeDisabled();

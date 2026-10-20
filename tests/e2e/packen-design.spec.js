@@ -59,7 +59,8 @@ test('Packen (T6): «Taschen» as one list with the count, the open bag below, �
   const item = open.locator('ul.items button[aria-pressed="false"]').first();
   const label = (await item.textContent()).trim();
   await item.click();
-  await expect(open.locator('ul.items button').filter({ hasText: label }).first()).toHaveAttribute('aria-pressed', 'true');
+  // UI-Grundlagen (0.169): a packed item says «drin» before its weight, so match the name without the weight
+  await expect(open.locator('ul.items button').filter({ hasText: label.replace(/\s*[\d'’]+ g$/, '') }).first()).toHaveAttribute('aria-pressed', 'true');
   await expect(bags.locator('.packed-count')).toContainText(String(before + 1));
   // another bag opens from the list
   const other = bags.locator('li.brow.pbag button.bagh').first();
