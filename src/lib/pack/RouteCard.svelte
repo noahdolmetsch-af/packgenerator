@@ -6,12 +6,13 @@
    * without a route, «GPX-Strecke hinzufügen» reads a file on the device (route.js), as in the trip
    * conditions; nothing is sent anywhere. onchange(fn): the trip change of Pack (with Undo).
    * Under the map: «Brunnen und Velo-Werkstätten an der Strecke» (route/RoutePois.svelte), only on a tap.
+   * «Tour planen mit GPX» (20.10.2026): the simple profile became the fine, zoomable one with every climb
+   * (route/RouteClimbs.svelte).
    */
   import { readRouteFile, routeFromGpx } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { stagePlan, hasStages } from '../stages.js';
   import StaticMap from '../ui/StaticMap.svelte';
-  import Profile from '../ui/Profile.svelte';
   import RoutePois from '../route/RoutePois.svelte';
   import { t, tn, num } from '../i18n.svelte.js';
   import { ChevronRight, Upload } from '@lucide/svelte';
@@ -52,6 +53,14 @@
   const fromLink = (text, file) => ((msg = ''), useRoute(routeFromGpx(text, file)));
 </script>
 
+<!-- «Tour planen mit GPX» (Noah 20.10.2026 «3a und b»): the fine profile coloured by gradient and every
+     climb, loaded on first use (the race code: map/ProfileStrip.svelte, race/climbs-lib.js) -->
+{#snippet climbs()}
+  {#if route.profile?.length > 1 || route.profileFine}
+    {#await import('../route/RouteClimbs.svelte') then m}<m.default {trip} />{:catch}<p class="foot">{t('The profile could not be loaded. Online again, open the trip once more.')}</p>{/await}
+  {/if}
+{/snippet}
+
 <section class="rc" aria-labelledby="rc-h">
   <div class="hd">
     <div>
@@ -63,14 +72,14 @@
   <div class="card body">
     {#if route?.line?.length > 1}
       <StaticMap line={route.line} {marks} label={t('Map of {name}', { name: route.name || trip.title })} />
-      {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       {#if foot}<p class="foot">{foot}</p>{/if}
+      {@render climbs()}
       <RoutePois {trip} />
       <!-- Verpflegung (Noah 19.10.2026 «1a»): the food and water plan of this trip -->
       <a class="fuel-lk" href={`#/trips/fuel?trip=${encodeURIComponent(trip.id)}`} data-fuel-link>{t('Food and water plan')}<ChevronRight size={16} aria-hidden="true" /></a>
     {:else if route}
-      {#if route.profile?.length > 1}<div class="pf"><Profile points={route.profile} /></div>{/if}
       <p class="foot">{foot}</p>
+      {@render climbs()}
     {:else}
       <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
     {/if}
@@ -125,9 +134,6 @@
   .body {
     display: grid;
     gap: 10px;
-  }
-  .pf {
-    max-width: 440px;
   }
   .foot {
     margin: 0;
