@@ -227,8 +227,157 @@ export function nextSlot(every, slot) {
 
 /* ---------------------------------------------------------------- the settings */
 
-/** Every question there is: the 50 of the list and the own ones. */
-export const allQuestions = (cfg) => [...QUESTIONS, ...(cfg?.own ?? [])];
+/**
+ * Every question there is, as the person has it (Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe,
+ * Gruppen editieren, hinzufügen, löschen»): the list without the deleted ones, a changed text (`edited`, then
+ * shown as typed), a question moved to another group, the own ones; in the order of the groups, then the
+ * person's order inside a group. A question whose group is gone sits under «Eigene» (OWN_AREA).
+ */
+export function allQuestions(cfg) {
+  const c = configOf(cfg);
+  const keys = new Set(areasOf(c).map((a) => a.key));
+  const fix = (x) => (keys.has(x.area) ? x : { ...x, area: OWN_AREA });
+  const std = QUESTIONS.filter((x) => !c.gone.includes(x.id)).map((x) => fix({ ...x, ...(c.names[x.id] ? { text: c.names[x.id], edited: true } : {}), ...(c.moved[x.id] ? { area: c.moved[x.id] } : {}) }));
+  const list = [...std, ...c.own.map(fix)];
+  const rankArea = Object.fromEntries([...areasOf(c).map((a, i) => [a.key, i]), [OWN_AREA, 9999]]);
+  const base = new Map(list.map((x, i) => [x.id, i]));
+  const rank = (x) => {
+    const i = (c.order[x.area] ?? []).indexOf(x.id);
+    return i < 0 ? 100000 + base.get(x.id) : i;
+  };
+  return list.sort((a, b) => (rankArea[a.area] ?? 9998) - (rankArea[b.area] ?? 9998) || rank(a) - rank(b));
+}
+/** The questions of one group, in order. */
+export const questionsIn = (cfg, area) => allQuestions(cfg).filter((x) => x.area === area);
+/** A question by its id as the person has it (also a deleted one of the list, for the history), else null. */
+export const questionOf = (cfg, id) => allQuestions(cfg).find((x) => x.id === id) ?? QUESTION[id] ?? null;
+
+/* ---------------------------------------------------------------- the groups */
+
+/**
+ * The groups (areas) as the person has them, in order: [{ key, name (the person's or null), std (the
+ * list name for t()), icon, own }]. «Eigene» (OWN_AREA) is not in it: it is the place without a group and
+ * always comes last (it can be renamed, not deleted).
+ */
+export function areasOf(cfg) {
+  const c = cfg && Array.isArray(cfg.areasGone) && cfg.areaNames ? cfg : configOf(cfg);
+  const all = [
+    ...AREAS.filter((a) => !c.areasGone.includes(a.key)).map((a) => ({ key: a.key, name: c.areaNames[a.key] ?? null, std: a.name, icon: a.icon, own: false })),
+    ...c.ownAreas.map((a) => ({ key: a.key, name: a.name, std: null, icon: null, own: true })),
+  ];
+  const rank = (k) => {
+    const i = c.areaOrder.indexOf(k);
+    return i < 0 ? 1000 + all.findIndex((a) => a.key === k) : i;
+  };
+  return all.sort((a, b) => rank(a.key) - rank(b.key));
+}
+/** A group's name as it shows: the person's name, else the list name (through tr), «Eigene» for OWN_AREA. */
+export function areaLabel(cfg, key, tr = (s) => s) {
+  const c = configOf(cfg);
+  if (c.areaNames[key]) return c.areaNames[key];
+  if (key === OWN_AREA) return tr('Own|questions');
+  const own = c.ownAreas.find((a) => a.key === key);
+  if (own) return own.name;
+  return AREA[key] ? tr(AREA[key].name) : '';
+}
+
+let seq = 0;
+const newKey = (prefix, now) => `${prefix}-${now.toString(36)}-${(seq++).toString(36)}`;
+
+/** Change a question's text (an own one: its name; one of the list: empty or the same brings back the original). */
+export function renameQuestion(cfg, id, text) {
+  const c = configOf(cfg);
+  const v = String(text ?? '').trim().slice(0, 120);
+  if (c.own.some((x) => x.id === id)) return v ? { ...c, own: c.own.map((x) => (x.id === id ? { ...x, text: v } : x)) } : c;
+  const names = { ...c.names };
+  if (v && v !== QUESTION[id]?.text) names[id] = v;
+  else delete names[id];
+  return { ...c, names };
+}
+/** Put a question into another group (OWN_AREA = «Eigene»). */
+export function moveToArea(cfg, id, area) {
+  const c = configOf(cfg);
+  if (c.own.some((x) => x.id === id)) return { ...c, own: c.own.map((x) => (x.id === id ? { ...x, area } : x)) };
+  const moved = { ...c.moved };
+  if (QUESTION[id]?.area === area) delete moved[id];
+  else moved[id] = area;
+  return { ...c, moved };
+}
+/** Delete a question: an own one goes, one of the list is hidden («Gelöschte Fragen» brings it back). Answers stay. */
+export function deleteQuestion(cfg, id) {
+  const c = configOf(cfg);
+  if (c.own.some((x) => x.id === id)) return dropOwn(c, id);
+  return QUESTION[id] && !c.gone.includes(id) ? { ...c, gone: [...c.gone, id] } : c;
+}
+/** Bring a deleted question of the list back. */
+export const restoreQuestion = (cfg, id) => {
+  const c = configOf(cfg);
+  return { ...c, gone: c.gone.filter((x) => x !== id) };
+};
+/** The deleted questions of the list (for «Gelöschte Fragen»). */
+export const goneQuestions = (cfg) => configOf(cfg).gone.map((id) => QUESTION[id]).filter(Boolean);
+/** Move a question inside its group (arrows and drag): from/to are indexes in questionsIn(area). */
+export function moveQuestion(cfg, area, from, to) {
+  const c = configOf(cfg);
+  const ids = questionsIn(c, area).map((x) => x.id);
+  if (from < 0 || from >= ids.length || to < 0 || to >= ids.length || from === to) return c;
+  const [x] = ids.splice(from, 1);
+  ids.splice(to, 0, x);
+  return { ...c, order: { ...c.order, [area]: ids } };
+}
+/** Rename a group (empty: a list group goes back to its own name). */
+export function renameArea(cfg, key, name) {
+  const c = configOf(cfg);
+  const v = String(name ?? '').trim().slice(0, 40);
+  if (c.ownAreas.some((a) => a.key === key)) return v ? { ...c, ownAreas: c.ownAreas.map((a) => (a.key === key ? { ...a, name: v } : a)) } : c;
+  const areaNames = { ...c.areaNames };
+  if (v) areaNames[key] = v;
+  else delete areaNames[key];
+  return { ...c, areaNames };
+}
+/** Add an own group. → { cfg, key } (key null without a name). */
+export function addArea(cfg, name, now = Date.now()) {
+  const c = configOf(cfg);
+  const v = String(name ?? '').trim().slice(0, 40);
+  if (!v) return { cfg: c, key: null };
+  const key = newKey('area', now);
+  return { cfg: { ...c, ownAreas: [...c.ownAreas, { key, name: v }] }, key };
+}
+/**
+ * Delete a group; its questions go to `to` (another group) or to «Eigene» (to null). The questions are
+ * never deleted with it. «Eigene» itself cannot be deleted.
+ */
+export function deleteArea(cfg, key, to = null) {
+  let c = configOf(cfg);
+  if (key === OWN_AREA) return c;
+  const dest = to && to !== key ? to : OWN_AREA;
+  for (const x of questionsIn(c, key)) c = moveToArea(c, x.id, dest);
+  if (c.ownAreas.some((a) => a.key === key)) c = { ...c, ownAreas: c.ownAreas.filter((a) => a.key !== key) };
+  else if (AREA[key] && !c.areasGone.includes(key)) c = { ...c, areasGone: [...c.areasGone, key] };
+  const areaNames = { ...c.areaNames };
+  delete areaNames[key];
+  return { ...c, areaNames, areaOrder: c.areaOrder.filter((x) => x !== key) };
+}
+/** Move a group (arrows and drag). */
+export function moveArea(cfg, from, to) {
+  const c = configOf(cfg);
+  const keys = areasOf(c).map((a) => a.key);
+  if (from < 0 || from >= keys.length || to < 0 || to >= keys.length || from === to) return c;
+  const [x] = keys.splice(from, 1);
+  keys.splice(to, 0, x);
+  return { ...c, areaOrder: keys };
+}
+/** Has the person changed the questions or groups (then «Zurück zum Standard» shows)? */
+export function listChanged(cfg) {
+  const c = configOf(cfg);
+  return !!(Object.keys(c.names).length || c.gone.length || Object.keys(c.moved).length || Object.keys(c.order).length || Object.keys(c.areaNames).length || c.ownAreas.length || c.areasGone.length || c.areaOrder.length);
+}
+/** «Zurück zum Standard»: the list's texts, groups and order back; own questions and the switches stay (own ones in a gone group: «Eigene»). */
+export function resetList(cfg) {
+  const c = configOf(cfg);
+  const keys = new Set(AREAS.map((a) => a.key));
+  return { ...c, names: {}, gone: [], moved: {}, order: {}, areaNames: {}, ownAreas: [], areasGone: [], areaOrder: [], own: c.own.map((x) => (keys.has(x.area) ? x : { ...x, area: OWN_AREA })) };
+}
 
 /** An own question made safe (AB2), null without a name. */
 export function ownOf(x) {
@@ -236,7 +385,8 @@ export function ownOf(x) {
   if (!name || typeof x?.id !== 'string') return null;
   const kind = OWN_KINDS.includes(x?.form?.kind) ? x.form.kind : 'scale';
   const form = kind === 'number' ? { kind, unit: String(x.form?.unit ?? '').trim().slice(0, 20) } : kind === 'yesno' ? { kind, options: [{ key: 'yes', label: 'yes', v: 1 }, { key: 'no', label: 'no', v: 0 }] } : { kind };
-  const area = AREA[x?.area] ? x.area : OWN_AREA;
+  // a group of the list or an own group (its key starts with «area-»); anything else: «Eigene»
+  const area = AREA[x?.area] || /^area-/.test(String(x?.area ?? '')) ? x.area : OWN_AREA;
   return { id: x.id, area, text: name, form, every: everyOf(x.every), src: ['only'], own: true, show: x.show !== false };
 }
 /** A new own question with a fresh id (the time it was made). */
@@ -247,7 +397,24 @@ export function configOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const own = (Array.isArray(v.own) ? v.own : []).map(ownOf).filter(Boolean);
   const qs = v.q && typeof v.q === 'object' ? v.q : {};
-  return { since: typeof v.since === 'string' ? v.since : null, q: qs, own, rounds: roundsOf(v.rounds) };
+  const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+  const strs = (x) => (Array.isArray(x) ? x.filter((y) => typeof y === 'string') : []);
+  const texts = (x) => Object.fromEntries(Object.entries(obj(x)).filter(([, y]) => typeof y === 'string' && y.trim()));
+  return {
+    since: typeof v.since === 'string' ? v.since : null,
+    q: qs,
+    own,
+    rounds: roundsOf(v.rounds),
+    // Noah 20.10.2026: the person's changes to the list and its groups (a difference, so new questions of the app still come)
+    names: texts(v.names),
+    gone: strs(v.gone),
+    moved: texts(v.moved),
+    order: Object.fromEntries(Object.entries(obj(v.order)).map(([k, y]) => [k, strs(y)])),
+    areaNames: texts(v.areaNames),
+    ownAreas: (Array.isArray(v.ownAreas) ? v.ownAreas : []).filter((a) => a && typeof a.key === 'string' && typeof a.name === 'string' && a.name.trim()).map((a) => ({ key: a.key, name: a.name.trim() })),
+    areasGone: strs(v.areasGone),
+    areaOrder: strs(v.areaOrder),
+  };
 }
 
 /* ---------------------------------------------------------------- WG: the two fixed rounds */
@@ -348,7 +515,7 @@ export function counts(cfg) {
   let on = 0;
   const list = allQuestions(configOf(cfg));
   for (const x of list) {
-    const a = x.own ? OWN_AREA : x.area;
+    const a = x.area;
     per[a] ??= { all: 0, on: 0 };
     per[a].all++;
     if (settingOf(cfg, x).on) (per[a].on++, on++);

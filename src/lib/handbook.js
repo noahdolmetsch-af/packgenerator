@@ -599,7 +599,7 @@ export const HANDBOOK = {
   // v0.133.0
   'f.abfragen': {
     on: null,
-    steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
+    steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'Tap «Edit questions and groups»: change, delete, sort and add questions and areas.', 'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one away. Me › Data › History shows all answers.'],
     example: 'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.',
   },
   // v0.135.0

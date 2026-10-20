@@ -1110,4 +1110,7 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // Noah 20.10.2026 «Check-Fragen selbst bearbeiten»
+  'Tap «Edit questions and groups»: change, delete, sort and add questions and areas.': 'Tippe «Fragen und Bereiche bearbeiten»: Fragen und Bereiche ändern, löschen, sortieren und hinzufügen.',
+  'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one away. Me › Data › History shows all answers.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine weg. Ich › Daten › Verlauf zeigt alle Antworten.',
 };

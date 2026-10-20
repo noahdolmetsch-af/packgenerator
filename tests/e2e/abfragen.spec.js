@@ -130,6 +130,8 @@ test.describe('AB Deine Abfragen', () => {
     // and away again
     await mine.getByRole('button', { name: /Kaffee/ }).click();
     await page.getByRole('dialog').locator('[data-own-delete]').click();
+    // Noah 20.10.2026 (changed on purpose): deleting asks first in the app's own window, then offers Undo
+    await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
     await page.reload();
     await expect(page.getByText('10 Bereiche · 54 Fragen · 36 an')).toBeVisible();

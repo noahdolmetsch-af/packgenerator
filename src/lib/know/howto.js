@@ -168,7 +168,7 @@ export const HOWTO = {
   // v0.133.0
   'f.offers': ['Open Me › Offers and start an offer.', 'Tap + on a day to open a free time.', 'Send the link; new bookings show on Today.'],
   'f.webshop': ['Open Me › Payments › Shop and add a product.', 'Copy the shop link and send it.', 'Open «Orders» to mark paid and shipped.'],
-  'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off and change their rhythm.', 'From 07:00 and 20:30 the card on Today asks them.'],
+  'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off; «Edit questions and groups» changes and sorts them.', 'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one question away.'],
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
   // v0.134.0 «Listen und Typen»
