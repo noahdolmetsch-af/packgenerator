@@ -1073,7 +1073,7 @@
     border-collapse: collapse;
     font-size: var(--fs-small);
     /* Impeccable 20.10.2026 P4: a long name without spaces breaks, so the table stays in its column */
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .st thead th {
     padding: 4px 10px 8px 0;

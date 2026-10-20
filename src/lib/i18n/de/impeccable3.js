@@ -10,37 +10,10 @@ export default {
   "Back to the app's order": 'Zurück zur Reihenfolge der App',
 
   // P2 «ein Wort pro Sache»: the parts of a bike are «Teile» (Material = all you pack, Ausrüstung = sport equipment)
-  'Equipment|tab': 'Teile',
-  Equipment: 'Teile',
-  'Equipment|intro': 'Teile',
-  'Care and equipment': 'Pflege und Teile',
-  'Equipment {bike}': 'Teile {bike}',
-  'Open Bikes › Equipment.': 'Öffne Velos › Teile.',
-  'Open Bikes › Equipment › all bikes.': 'Öffne Velos › Teile › alle Velos.',
-  '{shown} shown · {hidden} hidden. For all bikes and only here when entering. Bike pass, Pick-up check and Equipment still show everything. The values stay saved.':
-    '{shown} gezeigt · {hidden} ausgeblendet. Gilt für alle Velos und nur hier beim Erfassen. Velo-Pass, Abhol-Check und Teile zeigen weiter alles. Die Werte bleiben gespeichert.',
   // a backup is saved, everywhere the same words
-  'Make a backup': 'Backup speichern',
-  'Download backup': 'Backup speichern',
-  'Tap «Download backup»; keep the file safe or open it on another device.': 'Tippe «Backup speichern»; Datei sicher aufbewahren oder auf einem anderen Gerät öffnen.',
-  'Tap «Download backup».': 'Tippe auf «Backup speichern».',
-  'Add your first item, or bring your list along with a backup.': 'Lege dein erstes Teil an oder bring deine Liste mit einem Backup mit.',
-  'Add your bike, or bring your data along with a backup.': 'Lege dein Velo an oder bring deine Daten mit einem Backup mit.',
-  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Ist das Handy neuer? Speichere dort ein Backup und lade es hier unter Ich › Daten.',
   // the review of a trip is «Rückblick»
-  'Rate|debrief': 'Rückblick',
-  'Rate|tip': 'Rückblick',
-  'Rate|intro': 'Rückblick',
-  'Rate briefly': 'Kurzer Rückblick',
   // Auswerten: the tab of the goals is «Ziele» (next to «Aktivität»)
-  'Activities|tab': 'Ziele',
   // Kleider: an outfit is saved as a building block
-  'As kit …': 'Als Baustein …',
-  'Save as kit …': 'Als Baustein speichern …',
-  'Save as kit': 'Als Baustein speichern',
-  'Save kit': 'Baustein speichern',
-  'Your kits': 'Deine Kleider-Bausteine',
-  'Give the kit a name.': 'Gib dem Baustein einen Namen.',
   // small leftovers
   'From a quick note of {date}': 'Aus einer Notiz vom {date}',
   'Everything you own.': 'Alles, was du besitzt.',
@@ -49,37 +22,6 @@ export default {
   '{n} use|in': '{n} Einsatz',
   '{n} uses|in': '{n} Einsätzen',
   // the kind of trip is «Tourart» everywhere (it was «Reiseart» in Material, Vorlagen and the checks)
-  "All areas": "Alle Tourarten",
-  "Areas": "Tourarten",
-  "Areas (new trips of an area suggest its items)": "Tourarten (neue Touren dieser Art schlagen ihre Teile vor)",
-  "{n} area": "{n} Tourart",
-  "{n} areas": "{n} Tourarten",
-  "brand, quantity, bag, role, areas, overnight sets, layers, note": "Marke, Anzahl, Tasche, Rolle, Tourarten, Übernachtungssets, Schichten, Notiz",
-  "Area": "Tourart",
-  "No items for {area} yet. Search above to add any item you own, or in Gear open an item and tick {area} under Areas.": "Noch keine Teile für {area}. Suche oben, um ein beliebiges eigenes Teil hinzuzufügen, oder öffne in Material ein Teil und hake {area} unter Tourarten an.",
-  "Items of this area": "Teile dieser Tourart",
-  "No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.": "Noch keine Teile für {area}, die Liste startet leer. Füge Teile in Packen hinzu (die Suche findet dein ganzes Material) oder in Material: Teil öffnen und {area} unter Tourarten anhaken.",
-  "Your item stays as it is. Only empty fields are filled; notes and areas are added.": "Dein Teil bleibt, wie es ist. Nur leere Felder werden ergänzt; Notizen und Tourarten kommen dazu.",
-  "New areas for your items: Cycling, Hiking and Everyday.": "Neue Tourarten für deine Teile: Velo, Wandern und Alltag.",
-  "Area …": "Tourart …",
-  "Also this area": "Auch diese Tourart",
-  "Only this area": "Nur diese Tourart",
-  "The items keep their areas and get this one too.": "Die Teile behalten ihre Tourarten und bekommen diese dazu.",
-  "The items belong only to this area; their other areas go.": "Die Teile gehören nur noch zu dieser Tourart; die anderen fallen weg.",
-  "Kinds of travel anew": "Tourarten neu",
-  "All trips of this type": "Alle Touren dieser Tourart",
-  "Other trip types keep their own list.": "Andere Tourarten behalten ihre eigene Liste.",
-  "Checks per trip type": "Checks pro Tourart",
-  "Every trip type has its own evening-before and after-trip check. New trips start with it. Adjust it here or right in the trip.": "Jede Tourart hat ihren eigenen Vorabend- und Schluss-Check. Neue Touren starten damit. Anpassen geht hier oder direkt in der Tour.",
-  "Trip type": "Tourart",
-  "The other trip types": "Die anderen Tourarten",
-  "The evening before and after the trip: a list per trip type, tick, sort, add, for one trip or all.": "Am Vorabend und nach der Tour: eine Liste pro Tourart, abhaken, sortieren, ergänzen, für eine Tour oder alle.",
-  "Open Me › Checks per trip type.": "Öffne Ich › Checks pro Tourart.",
-  "{w}: {p} % of the heaviest kind": "{w}: {p} % der schwersten Tourart",
-  "+ Trip kind {name}": "+ Tourart {name}",
-  "Choose the type|guide": "Tourart wählen",
-  "Checks per trip type|guide": "Checks pro Tourart",
-  "The evening before and after the trip, per type": "Der Vorabend und nach der Tour, pro Tourart",
 
   // P3 Impulse: the silly ideas have their own word
   "Another silly idea": "Anderer Unsinn",
@@ -103,7 +45,6 @@ export default {
   "Try again|load": "Nochmals",
 
   // P2 Touren: the short review
-  "«Rate briefly» opens the short debrief; the whole one stays in the trip.": "«Kurzer Rückblick» öffnet den kurzen Rückblick, der ganze bleibt in der Tour.",
 
   // P5 Velos: what is up now, under the bike name
   "Up now: {n} job · See": "Jetzt dran: {n} Arbeit · Ansehen",

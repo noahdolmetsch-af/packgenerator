@@ -410,7 +410,7 @@
   }
   .fzi-rm b {
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .fzi-rm small {
     color: var(--ink-2);

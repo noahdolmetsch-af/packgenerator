@@ -224,7 +224,7 @@
   .wfold > summary {
     cursor: pointer;
     color: var(--muted);
-    font-size: 0.92rem;
+    font-size: var(--fs-small);
     min-height: 44px;
     display: inline-flex;
     align-items: center;

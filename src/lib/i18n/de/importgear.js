@@ -21,7 +21,7 @@ export default {
   '{n} unsure items stay here until you decide.': '{n} unsichere Teile bleiben hier, bis du entscheidest.',
   'Already there': 'Schon da',
   'Your item stays as it is. Only empty fields are filled; notes and areas are added.':
-    'Dein Teil bleibt, wie es ist. Nur leere Felder werden ergänzt; Notizen und Reisearten kommen dazu.',
+    "Dein Teil bleibt, wie es ist. Nur leere Felder werden ergänzt; Notizen und Tourarten kommen dazu.",
   '{n} item without anything new': '{n} Teil ohne Neues',
   '{n} items without anything new': '{n} Teile ohne Neues',
   'Learnings: {add} new, {upd} completed. They keep their original date.': 'Erkenntnisse: {add} neu, {upd} ergänzt. Sie behalten ihr ursprüngliches Datum.',
@@ -89,5 +89,5 @@ export default {
     'Ein Knopf übernimmt die sicheren Teile; unsichere entscheidest du mit einem Tipp. Vorher wird gesichert, «Rückgängig» stellt alles wieder her.',
   'Items the list does not name can be archived: they move to Gone, past trips stay complete.':
     'Teile, die nicht in der Liste stehen, kannst du archivieren: Sie kommen zu «Weg», vergangene Touren bleiben vollständig.',
-  'New areas for your items: Cycling, Hiking and Everyday.': 'Neue Reisearten für deine Teile: Velo, Wandern und Alltag.',
+  'New areas for your items: Cycling, Hiking and Everyday.': "Neue Tourarten für deine Teile: Velo, Wandern und Alltag.",
 };

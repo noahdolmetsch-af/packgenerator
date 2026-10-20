@@ -549,7 +549,7 @@
     border-radius: 12px;
     max-width: 100%;
     min-width: 0;
-    overflow-wrap: anywhere; /* Impeccable bug: a long tour name wraps instead of running out */
+    overflow-wrap: break-word; /* Impeccable bug: a long tour name wraps instead of running out */
     background: var(--st-plan-soft);
     color: var(--st-plan);
     font-size: var(--fs-tiny);
