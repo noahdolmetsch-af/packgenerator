@@ -353,6 +353,7 @@
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
     Push: () => import('./pages/Push.svelte'),
+    Wetter: () => import('./pages/Wetter.svelte'),
     Abfragen: () => import('./pages/Abfragen.svelte'),
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
@@ -594,6 +595,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <LazyPage load={PAGES.Phone} />
+  {:else if page === 'wetter'}
+    <!-- Paket Y «Wetter-Kern» (Noah 20.10.2026): the weather for riding, best window, radar, webcams -->
+    <LazyPage load={PAGES.Wetter} />
   {:else if page === 'push'}
     <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
     <LazyPage load={PAGES.Push} />
