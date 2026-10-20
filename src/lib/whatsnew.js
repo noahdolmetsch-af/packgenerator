@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
+    version: '0.166.0',
+    date: '2026-10-20',
+    title: 'Always the newest version',
+    lead: 'When a page fails, one button loads the app fresh from the internet; your data stays on this device.',
+    points: [
+      { text: 'Error page: «Reload the newest version» loads the app anew from the internet; trips, lists and notes stay' },
+    ],
+    small: [
+      { box: 'fixed', text: 'An error page first looks for a newer version by itself; without internet it simply reloads' },
+    ],
+    test: [
+      'If a page ever shows «Something went wrong here»: tap «Reload the newest version».',
+      'After the reload, open Me › What is new: the newest version is on top, your data is still there.',
+    ],
+  },
+  {
     // v0.165.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
     version: '0.165.0',
     date: '2026-10-20',
