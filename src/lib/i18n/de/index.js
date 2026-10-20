@@ -521,7 +521,6 @@ import erststart from './erststart.js';
 // «Form und Erholung» und Garmin-Übersicht (Noah 20.10.2026)
 import formgarmin from './formgarmin.js';
 // «Datenseiten wie am Garmin» (Noah 20.10.2026): data pages on the live map
-import datenseiten from './datenseiten.js';
 // Paket X «Umweg neu planen» (Noah 20.10.2026)
 import umweg from './umweg.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
