@@ -57,7 +57,7 @@ function kmAtStops(fixes, stops) {
  */
 export function rideSummary(ride, trip = null) {
   const fixes = fixesOf(ride);
-  const p = pauses(fixes);
+  const p = pauses(fixes, { breaks: ride?.breaks ?? [] });
   const at = kmAtStops(fixes, p.stops);
   const totalS = fixes.length > 1 ? Math.round((fixes.at(-1).at - fixes[0].at) / 1000) : 0;
   return { km: r1(Number(ride?.km) || 0), hm: hmOf(ride, trip), movingS: p.movingS, stoppedS: p.stoppedS, totalS, stops: p.stops.map((x, i) => ({ ...x, km: r1(at[i]) })) };
@@ -175,7 +175,7 @@ export function daySum(tracks = [], day) {
   let stoppedS = 0;
   let n = 0;
   for (const r of recs) {
-    const p = pauses(fixesOf(r));
+    const p = pauses(fixesOf(r), { breaks: r.breaks ?? [] });
     km += Number(r.km) || 0;
     movingS += p.movingS;
     stoppedS += p.stoppedS;

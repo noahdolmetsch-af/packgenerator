@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers } from '@lucide/svelte';
+  import { Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
@@ -40,7 +40,7 @@
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
@@ -48,7 +48,12 @@
   import Essen from '../lib/unterwegs/Essen.svelte';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor } from '../lib/spur/recorder.svelte.js';
+  import PauseBar from '../lib/live/PauseBar.svelte';
+  import SensorBox from '../lib/live/SensorBox.svelte';
+  import { fresh, onValue } from '../lib/live/sensors.svelte.js';
+  import { limitStep } from '../lib/live/ble.js';
+  import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
   import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
@@ -116,7 +121,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -179,7 +184,12 @@
   /* ---------- what follows from where you are ---------- */
   const at = $derived(me && hasRoute ? onRoute(pts, me) : null);
   const km = $derived(at?.km ?? null);
-  const pz = $derived(pauses(fixesOf(row)));
+  const pz = $derived(pauses(fixesOf(row), { breaks: rec.on ? rec.breaks : (row?.breaks ?? []) }));
+  // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
+  const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
+  const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
   const pace = $derived({ kmh, climbMh: isRace ? Number(as?.climbMh?.value) || 600 : 600 });
@@ -298,10 +308,83 @@
   let batteryApi = null;
   const lang = () => (locale() === 'de-CH' ? 'de-CH' : 'en-GB');
 
+  /* ---------- Pausieren, Auto-Pause, Sensoren (Noah 20.10.2026) ---------- */
+  let fixNow = null;
+  let fixPrev = null;
+  let autoSt = {};
+  let standSince = null;
+  let standing = $state(false);
+  let gainSt = $state({ base: null, gain: 0 });
+  let maxKmh = $state(0);
+  let hrSt = {};
+  let powerSt = {};
+  let limitMsg = $state('');
+  const autoKmh = $derived(autoKmhOf(cfg.autoKmh));
+  async function pauseNow(auto = false) {
+    standing = false;
+    standSince = null;
+    await pauseRecording({ auto });
+  }
+  async function goOn() {
+    autoSt = {};
+    await resumeRecording();
+  }
+  function rideStep() {
+    const h = rec.here;
+    if (h && h.at !== fixNow?.at) {
+      fixPrev = fixNow;
+      fixNow = h;
+      if (!rec.paused) {
+        gainSt = gainStep(gainSt, h.alt);
+        const v = speedKmh(fixNow, fixPrev);
+        if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
+      }
+    }
+    // the speed now; no new fix for 15 s counts as standing
+    let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
+    if (fixNow && now - fixNow.at > 15_000) kmhNow = 0;
+    if (cfg.autoPause && rec.on) {
+      const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
+      autoSt = r.st;
+      if (r.act === 'pause') pauseNow(true);
+      if (r.act === 'resume') goOn();
+    }
+    // the hint: standing a minute without a pause
+    if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
+      standSince ??= now;
+      standing = now - standSince >= HINT_S * 1000;
+    } else {
+      standSince = null;
+      standing = false;
+    }
+    // your own limits for the pulse and the power (a tone, no judgement)
+    const hr = limitStep(hrSt, { value: fresh('hr', now), limit: Number(cfg.hrMax) || 0, now });
+    hrSt = hr.st;
+    const pw = limitStep(powerSt, { value: fresh('power', now), limit: Number(cfg.powerMax) || 0, now });
+    powerSt = pw.st;
+    if (hr.ring || pw.ring) {
+      beep();
+      buzz([300, 120, 300]);
+      limitMsg = hr.ring ? t('Heart rate above {n} bpm for a minute.', { n: cfg.hrMax }) : t('Power above {n} W for a minute.', { n: cfg.powerMax });
+    }
+    if (hrSt.since == null && powerSt.since == null) limitMsg = '';
+  }
+  // the sensor values go with the recording (every 5 s)
+  $effect(() => onValue((kind, v, at) => addSensor(kind, v, at)));
+  $effect(() => {
+    if (!rec.on) untrack(() => {
+      gainSt = { base: null, gain: 0 };
+      maxKmh = 0;
+      autoSt = {};
+      standing = false;
+    });
+  });
+
   function step() {
     now = Date.now();
     const h = rec.here;
     if (h && (!me || h.at !== me.at)) me = { ...h };
+    if (rec.on) rideStep();
     if (!rec.on || !me) return;
     if (follow && viewSet) mapView?.keep?.(me.lat, me.lon, sheetPx);
     // voice
@@ -464,7 +547,14 @@
       ridden: rec.km,
       left: arr?.kmLeft,
       eta: arr?.eta,
-      movingS: pz.movingS,
+      movingS: movingLive,
+      totalS,
+      hr: fresh('hr', now),
+      power: fresh('power', now),
+      cadence: fresh('cadence', now),
+      gain: gainSt.gain,
+      maxKmh,
+      stops: pz.stops.length,
       kmh,
       speed: me?.speed ?? null,
       height: f && km != null ? heightAt(f, km) : null,
@@ -531,7 +621,14 @@
   const showRouteBox = $derived(!isRace && !(trip?.route?.line?.length > 1));
   const groundToggles = $derived(toggles);
   const flip = (key) => (shown = { ...shown, [key]: !shown[key] });
+  // offline (like komoot's «OFFLINE»): a line over the map
+  let offline = $state(typeof navigator !== 'undefined' && navigator.onLine === false);
+  // «Save the screen»: darker after 2 min without a touch; a touch or a warning brightens it
+  let touchedAt = $state(Date.now());
+  const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
+  const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
   function keydown(e) {
+    touchedAt = Date.now();
     if (e.key === 'Escape' && menu) {
       menu = false;
       e.stopPropagation();
@@ -539,7 +636,7 @@
   }
 </script>
 
-<svelte:window onkeydown={keydown} />
+<svelte:window onkeydown={keydown} ononline={() => (offline = false)} onoffline={() => (offline = true)} />
 
 <div class="lv" data-page="live">
   <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Live map')} />
@@ -601,7 +698,8 @@
 
 {#if rec.on}
   <!-- the full view while riding -->
-  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} data-live-full>
+  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
+    {#if dimmed}<div class="lvf-dim" aria-hidden="true" data-live-dim></div>{/if}
     <!-- the big numbers -->
     <div class="lvf-band" data-live-panel>
       <ul class="lvf-tiles n{tiles.length}">
@@ -645,7 +743,12 @@
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
+        {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
+        {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
+
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full'} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- the «⋯» menu -->
       <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
@@ -825,11 +928,14 @@
 
             <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} />
 
+            <div class="lvf-part"><SensorBox {now} /></div>
+
             {#if row?.pts?.length > 1}
               <div class="lvf-part" data-live-pauses>
                 <h2 class="lvf-h">{t('Moving and stopped')}</h2>
                 <div class="rc-stat">
-                  <div><b>{minText(Math.round(pz.movingS / 60)) || '0 min'}</b><small>{t('moving')}</small></div>
+                  <div><b>{minText(Math.round(movingLive / 60)) || '0 min'}</b><small>{t('moving')}</small></div>
+                  {#if pausedLive >= 60}<div><b>{minText(Math.round(pausedLive / 60))}</b><small>{t('paused')}</small></div>{/if}
                   <div><b>{minText(Math.round(pz.stoppedS / 60)) || '0 min'}</b><small>{tn(pz.stops.length, '{n} stop', '{n} stops')}</small></div>
                 </div>
                 <p class="rc-note">{t('A stop is 2 minutes or more within 40 m.')}</p>
@@ -880,6 +986,22 @@
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.battery} onchange={(e) => setOpt('battery', e.currentTarget.checked)} data-live-opt="battery" /><span><b>{t('Battery saver')}</b><small>{t('A simple light map, the map moves every 10 s instead of every 2 s, and less exact GPS (from the next start).')}{#if hasBattery}{' '}{t('Shows whether the battery lasts to the finish.')}{/if}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.autoPause} onchange={(e) => setOpt('autoPause', e.currentTarget.checked)} data-live-opt="autoPause" /><span><b>{t('Auto-pause')}</b><small>{t('Slower than your limit for 10 s: the riding time stands; it goes on by itself when you ride on.')}</small></span></label>
+        {#if cfg.autoPause}
+          <label class="lv-num">{t('Pause below')} <input class="inp" type="number" inputmode="decimal" min={AUTO_MIN_KMH} max={AUTO_MAX_KMH} step="0.5" value={autoKmh} onchange={(e) => setOpt('autoKmh', autoKmhOf(e.currentTarget.value))} data-live-opt="autoKmh" /> km/h</label>
+        {/if}
+      </li>
+      <li class="rc-row">
+        <span class="lv-opt lv-opt-col"><span><b>{t('Limits for the sensors')}</b><small>{t('A tone when the pulse or the power stays above your own limit for a minute. Empty: no tone.')}</small></span></span>
+        <span class="lv-nums">
+          <label class="lv-num">{t('Heart rate|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="250" step="1" value={cfg.hrMax || ''} onchange={(e) => setOpt('hrMax', Math.max(0, Math.min(250, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="hrMax" /> bpm</label>
+          <label class="lv-num">{t('Power|sensor')} <input class="inp" type="number" inputmode="numeric" min="0" max="2500" step="5" value={cfg.powerMax || ''} onchange={(e) => setOpt('powerMax', Math.max(0, Math.min(2500, Math.round(Number(e.currentTarget.value) || 0))))} data-live-opt="powerMax" /> W</label>
+        </span>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>
@@ -996,6 +1118,44 @@
     gap: 10px;
     min-height: 44px;
     width: 100%;
+  }
+  .lv-opt-col {
+    flex: 1 1 auto;
+  }
+  .lv-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding-left: 32px;
+  }
+  .lv-num {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 32px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-nums .lv-num {
+    padding-left: 0;
+  }
+  .lv-num .inp {
+    width: 5.5em;
+    min-height: 44px;
+  }
+  .lvf-photo {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: var(--scrim);
+    pointer-events: none;
   }
   .lv-opt input {
     width: 22px;

@@ -109,11 +109,23 @@ export function lightLeft(lat, lon, now = Date.now()) {
 /** Arrival after sunset? → minutes in the dark (0 when you arrive in daylight). */
 export const darkMinutes = (eta, light) => (light && eta > light.set ? Math.round((eta - light.set) / 6e4) : 0);
 
+/** Seconds of [a, b] (ms) inside the pauses [[from, to]] (to null: still paused, up to b). */
+export function pausedS(a, b, breaks = []) {
+  let ms = 0;
+  for (const [f, t] of breaks ?? []) {
+    const lo = Math.max(a, Number(f) || 0);
+    const hi = Math.min(b, t == null ? b : Number(t));
+    if (hi > lo) ms += hi - lo;
+  }
+  return ms / 1000;
+}
+
 /**
  * Pauses from fixes [{ lat, lon, at (ms) }]: a stop is at least minS seconds within moveM metres.
+ * breaks: the pauses of the recording [[fromMs, toMs]] (not riding time).
  * → { movingS, stoppedS, stops: [{ at, s, lat, lon }] }.
  */
-export function pauses(fixes = [], { minS = 120, moveM = 40 } = {}) {
+export function pauses(fixes = [], { minS = 120, moveM = 40, breaks = [] } = {}) {
   const stops = [];
   let movingS = 0;
   let stoppedS = 0;
@@ -127,7 +139,8 @@ export function pauses(fixes = [], { minS = 120, moveM = 40 } = {}) {
       stoppedS += s;
       i = j;
     } else {
-      movingS += (fixes[i + 1].at - fixes[i].at) / 1000;
+      // a pause (the «Pause» button or the auto-pause) is no riding time
+      movingS += Math.max(0, (fixes[i + 1].at - fixes[i].at) / 1000 - pausedS(fixes[i].at, fixes[i + 1].at, breaks));
       i++;
     }
   }
