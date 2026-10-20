@@ -1389,11 +1389,13 @@ export default {
   // N1 «Neue Leiste»
   'Five places for your day': 'Fünf Orte für deinen Tag',
   'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.': 'Die Leiste heisst jetzt Heute, Planen, Touren, Auswerten und Velos; jede Seite hat ihre alte Adresse.',
-  'Plan: your week, appointments and notes in one place': 'Planen: Woche, Termine und Notizen an einem Ort',
-  'Analysis: activity, training, Strava rides and insights together': 'Auswerten: Aktivität, Training, Strava-Fahrten und Erkenntnisse zusammen',
-  'Bikes: equipment and gear are one tap away on top': 'Velos: Ausrüstung und Material sind oben einen Tipp entfernt',
+  'Plan: week, appointments, notes, Inbox, mail, compass, everyday life': 'Planen: Woche, Termine, Notizen, Eingang, Mail, Kompass, Alltag',
+  'Analysis: activity, training, rides, insights, «Wi gaht\'s?», weight': 'Auswerten: Aktivität, Training, Fahrten, Erkenntnisse, «Wi gaht\'s?», Gewicht',
+  'Me keeps only data, settings and help': 'Ich hat nur noch Daten, Einstellungen und Hilfe',
+  'Shorter on the phone: week, bike care and workshop show five rows first': 'Kürzer am Handy: Woche, Velopflege und Werkstatt zeigen zuerst fünf Zeilen',
+  'A test keeps every page at most three phone screens, or makes it shorter step by step': 'Ein Test hält jede Seite bei höchstens drei Handy-Bildschirmen oder macht sie Schritt für Schritt kürzer',
   'Old links and bookmarks keep working': 'Alte Links und Lesezeichen gehen weiter',
-  'Tap Plan in the bar: the tabs show Week, Appointments and Notes.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine und Notizen.',
+  'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
   // v0.166.0 «Neueste Version laden»
   'No more old versions': 'Keine alten Versionen mehr',

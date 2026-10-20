@@ -22,13 +22,17 @@ export const WHATS_NEW = [
     title: 'Five places for your day',
     lead: 'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.',
     points: [
-      { text: 'Plan: your week, appointments and notes in one place', href: '#/week' },
-      { text: 'Analysis: activity, training, Strava rides and insights together', href: '#/flow' },
-      { text: 'Bikes: equipment and gear are one tap away on top', href: '#/bikes' },
+      { text: 'Plan: week, appointments, notes, Inbox, mail, compass, everyday life', href: '#/week' },
+      { text: 'Analysis: activity, training, rides, insights, «Wi gaht\'s?», weight', href: '#/flow' },
+      { text: 'Me keeps only data, settings and help', href: '#/me' },
     ],
-    small: [{ box: 'nicer', text: 'Old links and bookmarks keep working' }],
+    small: [
+      { box: 'nicer', text: 'Shorter on the phone: week, bike care and workshop show five rows first' },
+      { box: 'nicer', text: 'Old links and bookmarks keep working' },
+      { box: 'new', text: 'A test keeps every page at most three phone screens, or makes it shorter step by step' },
+    ],
     test: [
-      'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
+      'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.',
       'Tap Analysis, then the tab Rides: your Strava rides are there.',
     ],
   },

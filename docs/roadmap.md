@@ -105,7 +105,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
-**20.10.2026, v0.168.0 «N1 Neue Leiste»:** Heute · Planen · Touren · Auswerten · Velos; gleiche Adressen.
+**20.10.2026, v0.168.0 «N1 Neue Leiste»:** Heute · Planen · Touren · Auswerten · Velos; gleiche Adressen; Ich nur Daten, Einstellungen, Hilfe; Handy kürzer; Längenbudget.
 **20.10.2026, v0.167.0 «Balken Jetzt laden»:** hängt ein Gerät an einer alten Version, bietet ein Balken oben «Jetzt laden».
 **20.10.2026, v0.166.1 «Heute am Handy»:** «Jetzt dran» nicht mehr unter der Tourkarte.
 **20.10.2026, v0.166.0 «Neueste Version laden»:** Fehlerseite holt die App frisch aus dem Internet, Daten bleiben.
