@@ -261,7 +261,9 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));
   // v0.38.0: "Try it" of the newest point is Today itself; open Today afresh from another page.
   await page.goto('./#/features');
-  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner shows under Ich, not on Today
+  // «Heute neu» A 5b (0.165.0, changed on purpose): Today still notes the update, the banner shows under Ich
+  await page.goto('./#/');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
   await page.goto('./#/me');
   // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points.
   // v0.110.0 Design-Refresh P10 (I11b, changed on purpose): «New in 0.110: name», «Try it ›», «Later» and
