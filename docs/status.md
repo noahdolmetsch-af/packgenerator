@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.162.0 «Gesamttest-Korrekturen» (20.10.2026):** zehn kleine Korrekturen aus dem Rundgang: fehlende Leerzeichen in der ganzen App (88 Stellen, Wächter-Test `tests/block-spaces.test.js`), Unterwegs ohne laufende Tour führt zu den Touren, laufende Tour auf Heute ohne «Geplant», Tageskarte nachts nur «Morgen: …» für eine Tour, die morgen beginnt, Strava «Zum Prüfen» 20 Fahrten auf einmal, Rennen-Daten und Tour-Gepäck auf Deutsch, «noch 1 Woche», kein Jahr «0000» im Logbuch.
+
 **0.161.0 «Paket 9» Tour-Seite:** jede abgeschlossene Tour (Strava, verbunden, Packmodus) öffnet eine eigene Seite mit Karte, Profil, Werten, Gepäck, Tagebuch und Fotos; Strava-Werte korrigierbar («geändert · Strava: …»), umbenennen, ausblenden, löschen mit Rückgängig; Liste als Zeilen, Kacheln, Karte oder Kalender; mehrere Fahrten zu einer Tour verbinden.
 
 **0.160.0 «Verpflegung» (Paket 8):** Dazu: Trainingsplan an ein Rennen koppeln (zieht mit, wenn sich der Renntag ändert) und die Kachel «Das tut mir gut» mit Kreis, sieben Wochenpunkten und «Hat gut getan?». Touren › Verpflegung rechnet pro Abschnitt zwischen Läden Kohlenhydrate (eigene g pro Stunde) und Wasser (1–2 l pro Stunde nach Temperatur und Steigung), warnt bei zu kleinen Flaschen, langen Lücken und geschlossenen Läden und zeigt auf Wunsch eigene Produkte. Link auch auf der Strecken-Karte in Packen.

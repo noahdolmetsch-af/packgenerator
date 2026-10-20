@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.162.0 «Gesamttest 20.10.2026»: ten small fixes from the click-through of the whole app.
+    version: '0.162.0',
+    date: '2026-10-20',
+    title: 'Small things, set right',
+    lead: 'Ten small fixes from a walk through the whole app.',
+    points: [
+      { text: 'Missing spaces added all over the app', href: '#/trips' },
+      { text: 'On the way without a running trip leads to your trips; a trip under way shows no «Planned» on Today', href: '#/ride' },
+      { text: 'Strava «To check» shows 20 rides at a time', href: '#/bikes?tab=care&view=strava-check' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Race dates and the packed items of a tour in your language', href: '#/race' },
+      { box: 'fixed', text: '«1 week to go» in training, no year «0000» in the logbook', href: '#/flow/plans' },
+      { box: 'nicer', text: 'The offline box puts its button below the sentence on a phone' },
+    ],
+    test: [
+      'Open On the way on a day without a trip: it leads to your trips.',
+      'Open Bikes › Care › Strava «To check»: 20 rides, then «Show 20 more».',
+    ],
+  },
+  {
     // v0.161.0 Paket 9 «Tour-Seite» (Noah 19.10.2026 «1a 2 beides 3b 4 beides 5a»): a page for every finished tour.
     version: '0.161.0',
     date: '2026-10-19',
