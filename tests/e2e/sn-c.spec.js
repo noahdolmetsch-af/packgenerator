@@ -239,6 +239,9 @@ test('SN7 Teil: the due point on top and chosen, what did you do, enter', async 
   await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === SPARK).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), action: 'check', result: 'ok' });
 
   // A part with nothing due: nothing is chosen, «Eintragen» waits for a choice.
+  // Gesamttest C11 (20.10.2026, changed on purpose): a phone shows a short parts list first, «Show more» opens the rest
+  const more = care.locator('[data-parts-more]');
+  if (await more.count()) await more.click();
   await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) }).click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.locator('.dids button[aria-pressed="true"]')).toHaveCount(0);
