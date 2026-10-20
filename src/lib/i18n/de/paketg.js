@@ -82,7 +82,7 @@ export default {
   'Strava, Fitbit, Google, lake: state and switches': 'Strava, Fitbit, Google, See: Stand und Schalter',
   // Handbuch, So geht's, Was die App kann
   "A hike, a run or a ski tour on Strava ticks the matching activity by itself; or it asks first. Indoor rides can count for a bike.": "Eine Wanderung, ein Lauf oder eine Skitour auf Strava hakt die passende Aktivität von selbst ab, oder die App fragt zuerst. Indoor-Fahrten können für ein Velo zählen.",
-  "The water temperature of Lake Zurich at Mythenquai, the last 30 days and a preview of the next days from Eawag.": "Die Wassertemperatur des Zürichsees beim Mythenquai, die letzten 30 Tage und eine Vorschau der nächsten Tage von der Eawag.",
+  "The water temperature of Lake Zurich at Mythenquai with a cold-water scale, «Sauna and lake today?», your swims with their water temperature, the last 30 days and a preview from Eawag.": "Die Wassertemperatur im Zürisee beim Mythenquai mit einer Skala zum Kaltbaden, «Sauna und See heute?», deine Bäder mit ihrer Wassertemperatur, die letzten 30 Tage und eine Vorschau der Eawag.",
   "Stars from your data": "Sterne aus deinen Daten",
   "Bike km from Strava, Fitbit values as observation, the daily check, nothing forgotten and care on time bring stars on Aktiv and Milestones.": "Velo-km aus Strava, Fitbit-Werte als Beobachtung, der Tages-Check, nichts vergessen und Pflege rechtzeitig bringen Sterne auf Aktiv und Meilensteine.",
   "Strava, Fitbit, Google and the lake in one place: their state, the last data and every switch.": "Strava, Fitbit, Google und der See an einem Ort: ihr Stand, die letzten Daten und jeder Schalter.",
