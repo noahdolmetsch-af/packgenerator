@@ -27,6 +27,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 17 | Balken «Jetzt laden» | 0.167.0 | Jeder Build schreibt version.json; hängt ein Gerät 15 Minuten hinter der Online-Version, zeigt die App oben «Jetzt laden» und «Später» | live (PR #217) |
 | 18 | Tour-Seite Gepäck und Gestaltung | 0.168.0 | Gepäck nachträglich zu einer Fahrt (wird Packmodus-Tour), Markierung pro Stück mit Notiz (wird Erfahrung), Essen und Trinken, Wetter des Tages, Gewicht; Landschaft oben, persönlicher Satz, gleiche Strecke als Balken, 4 grosse Werte, zwei Spalten, HF-Zonen mit Satz, Tagebuch «Was von dieser Tour bleibt»; Packen zeigt Kleidung bei ähnlichem Wetter | dieser PR |
 | 19 | Aktiv «Sport-Kacheln» | 0.168.0 | Kacheln unter «Heute abhaken»: Bearbeiten ›, Löschen im App-Fenster mit «Verlauf behalten» und Rückgängig, «Kachel ausblenden»; Reiter «Ziele» heisst «Aktivitäten»; «Wie geht's? Starten» öffnet den Morgen-Check | dieser PR |
+| 20 | Tour planen mit GPX | 0.168.0 | Planen › Strecke: feines, zoombares Profil nach Steigung gefärbt, Liste «Anstiege» mit Mindesthöhe, Steigung pro 100 m und Notiz pro Anstieg | dieser PR |
+| 21 | KI-Schlüssel-Hinweis | 0.168.0 | Kein falscher Hinweis «KI-Helfer-Schlüssel läuft ab» mehr auf Heute und in «Wartet auf dich»; Schlüssel-Hinweise nur unter Ich › App-Wartung | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

@@ -16,23 +16,23 @@
 
 export const WHATS_NEW = [
   {
-    // v0.168.0 «Tour-Seite und Aktiv»: tour page gear + design (Noah 20.10.2026 «1a 2b … 5a», «1a 2a 3a 4a 5a»), Aktiv tiles (Noah «1a 2a 3a 4a 5a»).
+    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles, GPX climbs when planning, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',
     title: 'Your tours, your activities',
-    lead: 'Add the gear to a past ride, see a tour page with big values and the day\'s weather, and change your activity tiles yourself.',
+    lead: 'Add the gear to a past ride, plan with every climb, and change your activity tiles yourself.',
     points: [
       { text: 'Add the gear to a ride afterwards, with a note per item', href: '#/trips/rides' },
       { text: 'Tour page new: big values, a landscape on top, the weather of the day', href: '#/trips' },
-      { text: 'Aktiv: edit, hide or delete an activity tile; delete keeps the history if you want, with Undo', href: '#/flow' },
+      { text: 'Plan a tour: the GPX route shows a fine profile coloured by gradient and every climb in a list', href: '#/trips' },
     ],
     small: [
-      { box: 'new', text: 'Packing shows what you wore in similar weather' },
-      { box: 'nicer', text: 'The tab «Goals» on Aktiv is now called «Activities»; «Start» opens the morning questions' },
+      { box: 'nicer', text: 'Aktiv: edit, hide or delete an activity tile, with Undo' },
+      { box: 'fixed', text: 'No more wrong hint that the AI helper key runs out' },
     ],
     test: [
       'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
-      'On Aktiv, tap a tile under «Tick off today» › Edit, then delete it and tap Undo.',
+      'Plan a tour with a GPX route and tap a climb under «Climbs».',
     ],
   },
   {
