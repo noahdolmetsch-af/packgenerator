@@ -114,7 +114,7 @@
     align-items: center;
     min-height: 44px;
     margin: 0 0 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     cursor: pointer;
   }
   .ev input {
@@ -149,14 +149,14 @@
     transform: rotate(90deg);
   }
   .title {
-    font-size: 16px;
+    font-size: var(--fs-body);
     font-weight: 600;
     margin: 0;
     min-width: 0;
   }
   .title small {
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .r {
     margin-left: auto;
@@ -167,7 +167,7 @@
     flex: none;
   }
   .badge {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 999px;
@@ -192,7 +192,7 @@
   }
   .shop .nd {
     margin: 4px 0 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .shop ul {
@@ -239,7 +239,7 @@
     padding: 6px 10px;
     background: var(--paper-2);
     border-radius: 4px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .rule .lbl {
     margin: 0 0 2px;
@@ -304,7 +304,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
@@ -315,11 +315,11 @@
   .title {
     display: flex;
     flex-direction: column;
-    font: 500 17px/1.3 var(--font-body);
+    font: 500 var(--fs-sub)/1.3 var(--font-body);
   }
   .title small {
     color: var(--ink-3);
-    font: 400 14px/1.35 var(--font-body);
+    font: 400 var(--fs-small)/1.35 var(--font-body);
   }
   .badge {
     padding: 1px 9px;
@@ -327,7 +327,7 @@
     border-radius: 999px;
     background: var(--warn-soft);
     color: var(--warn);
-    font: 500 12.5px/1.6 var(--font-body);
+    font: 500 var(--fs-tiny)/1.6 var(--font-body);
   }
   .pt,
   .rows li.late .when,

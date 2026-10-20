@@ -43,7 +43,7 @@
     border-radius: 9px;
     background: transparent;
     color: var(--ink-2);
-    font: 500 15px/1.2 var(--font-body);
+    font: 500 var(--fs-body)/1.2 var(--font-body);
     overflow-wrap: break-word;
     cursor: pointer;
   }
@@ -74,7 +74,7 @@
   }
   .small button {
     padding: 4px 6px;
-    font-size: 13.5px;
+    font-size: var(--fs-small);
   }
   /* Not full width: each button as wide as its word (v0.42.0). */
   /* v0.78.0: never narrower than its word, and a short word («Alle») still gets a 44 px wide tap area */

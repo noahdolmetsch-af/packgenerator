@@ -47,14 +47,14 @@
     border: 0;
     background: none;
     color: var(--ink-3);
-    font: 400 20px/1 var(--font-body);
+    font: 400 var(--fs-section)/1 var(--font-body);
     cursor: pointer;
     border-radius: 6px;
   }
   .fav.sm {
     width: 32px;
     min-height: 32px;
-    font-size: 18px;
+    font-size: var(--fs-sub);
   }
   .fav.on {
     color: var(--hi);

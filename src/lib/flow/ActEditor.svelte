@@ -153,7 +153,7 @@
 
 {#if a}
   <div class="ed">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Activities|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Activities|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
     <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 

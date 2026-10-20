@@ -125,7 +125,7 @@
     justify-content: space-between;
     gap: 4px 10px;
     margin-top: 2px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .pb {
@@ -133,7 +133,7 @@
     align-items: center;
     gap: 4px;
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     padding: 2px 9px;
     border-radius: 99px;
@@ -220,7 +220,7 @@
   }
   .ask p {
     margin: 0 0 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   .ask-b {

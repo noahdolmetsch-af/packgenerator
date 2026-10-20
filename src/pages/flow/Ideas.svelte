@@ -96,7 +96,7 @@
 
 <div class="ideas">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Ideas')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Ideas')} />
     <MoreAktiv items={morePages({ ideas: open.length })} on="ideas" />
     <PageHead title={t('Ideas')} text={t('Tips for your balance and your own ideas. Also in Calendar › Remember.')} />
   </header>

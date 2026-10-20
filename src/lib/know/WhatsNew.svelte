@@ -99,7 +99,7 @@
   }
   h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .in {
     padding: 0 12px 8px;
@@ -130,7 +130,7 @@
     border-radius: 99px;
     background: var(--paper-2);
     color: var(--ink-2);
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     white-space: nowrap;
   }
@@ -155,7 +155,7 @@
   }
   .pt {
     min-width: 0;
-    font-size: 15px;
+    font-size: var(--fs-body);
     color: var(--ink-2);
     overflow-wrap: anywhere;
   }
@@ -220,7 +220,7 @@
   }
   .range > summary {
     padding-left: 12px;
-    font-size: 15px;
+    font-size: var(--fs-body);
     font-weight: 500;
     color: var(--ink-2);
   }

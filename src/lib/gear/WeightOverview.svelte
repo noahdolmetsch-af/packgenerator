@@ -157,7 +157,7 @@
     }
     .fold > summary .h {
       display: inline;
-      font-size: 18px;
+      font-size: var(--fs-sub);
     }
   }
   @media (min-width: 720px) {

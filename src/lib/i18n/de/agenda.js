@@ -3,7 +3,7 @@ export default {
   // «Was die App alles kann», «So geht's»
   'Google calendar and tasks': 'Google Kalender und Aufgaben',
   'Your Google calendar and Google Tasks in the app: see the next 14 days, enter appointments, tick and add tasks.': 'Dein Google Kalender und Google Aufgaben in der App: die nächsten 14 Tage sehen, Termine eintragen, Aufgaben abhaken und neu eintragen.',
-  'Open Me › Appointments and tasks.': 'Öffne Ich › Termine und Aufgaben.',
+  'Open Me › Appointments and tasks.': 'Öffne Planen › Termine.',
   'Tick calendar and tasks and tap «Connect with Google».': 'Hake Kalender und Aufgaben an und tippe «Mit Google verbinden».',
   'Tick or add tasks; «New appointment» goes into your Google calendar.': 'Hake Aufgaben ab oder trag neue ein; «Termin eintragen» landet in deinem Google Kalender.',
   'Appointments and tasks': 'Termine und Aufgaben',

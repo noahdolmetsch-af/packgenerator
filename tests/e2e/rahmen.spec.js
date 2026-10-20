@@ -129,7 +129,9 @@ test('Rahmenbedingungen: Sportart, no past trip, templates as buttons, weather b
   await expect(list.getByRole('heading', { name: new RegExp(`^${T(GROUPS[0])}`) })).toBeVisible();
   await expect(list.getByText('test_data_gtp_ Ultraleichte Daunenjacke mit Kapuze Grösse M')).toBeVisible();
   const submit = dlg.getByRole('button', { name: new RegExp(`^${T('Create trip')}`) });
-  const n = Number((await submit.textContent()).match(/(\d+)/)[1]);
+  // UI-Grundlagen (Noah 20.10.2026, idea 3, changed on purpose): the live count stands as a quiet line above the button
+  await expect(submit).toBeVisible();
+  const n = Number((await dlg.locator('[data-count-split]').textContent()).match(/(\d+)/)[1]);
   const shown = await list.locator('.grp li').count();
   expect(n).toBe(shown);
 

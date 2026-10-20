@@ -25,6 +25,9 @@
   import { shopOrders } from '../care/orders.js';
   import { chfText } from '../money.js';
   import { localDay } from '../localday.js';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS } from '../touren/kurz.js';
+  import { ChevronDown } from '@lucide/svelte';
   import '../ui/daumen.css'; // FE1
 
   let { bikeId = null, visitId = null, onbike } = $props();
@@ -43,9 +46,12 @@
   const orders = $derived(allOrders.filter((c) => !pick || c.bike.id === pick));
   let orderOpen = $state(null); // bike id
   const shownOrder = $derived(allOrders.find((c) => c.bike.id === orderOpen) ?? null);
+  // «Handy kürzer» (Noah 20.10.2026 «4b»): on a phone the newest PHONE_ROWS visits, then «Show n more»
+  let visitsAll = $state(false);
+  const visitsShown = $derived(phone.matches && !visitsAll ? visits.slice(0, PHONE_ROWS) : visits);
   const months = $derived.by(() => {
     const by = new Map();
-    for (const v of visits) {
+    for (const v of visitsShown) {
       const k = (v.date ?? '').slice(0, 7);
       if (!by.has(k)) by.set(k, []);
       by.get(k).push(v);
@@ -138,6 +144,9 @@
               {/each}
             {/each}
           </ul>
+          {#if visitsShown.length < visits.length}
+            <button type="button" class="phone-more" onclick={() => (visitsAll = true)} data-visits-more><ChevronDown size={16} aria-hidden="true" />{tn(visits.length - visitsShown.length, 'Show {n} more visit', 'Show {n} more visits')}</button>
+          {/if}
         {/if}
       </section>
     </div>
@@ -268,5 +277,22 @@
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid var(--line);
+  }
+  /* «Handy kürzer» (Noah 20.10.2026 «4b»): the older visits after one tap */
+  .phone-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    margin: var(--sp-2) 0 0;
+    padding: 10px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    text-align: left;
+    cursor: pointer;
   }
 </style>

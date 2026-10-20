@@ -13,6 +13,9 @@
   import { WINDOWS_KEY, windowNow, later, notToday, done, dayOfStamp } from './windows.js';
   import SurpriseLines from '../wohl/SurpriseLines.svelte'; // Paket P #256: surprises of the week
   import { flightUrl } from '../alltag.js';
+  import { eveningHints } from '../unterwegs/morgen.js';
+  import { serviceDue, checkState } from '../care.js';
+  import { CloudSun, Package, Wrench, BatteryCharging } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
   // blocked (Paket C): the Tages-Check window is open or loading; this one waits and comes after it
@@ -20,6 +23,17 @@
   const recQ = liveQuery(async () => (await db.settings.get(WINDOWS_KEY))?.value ?? {});
   const rec = $derived($recQ);
   const win = $derived(rec && !blocked ? windowNow({ rec, now, trips, itemsById, name }) : null);
+  // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers weather, packing, the bike and the
+  // charging of tomorrow's trip in this window, each line with its step (morgen.js, the same rules as in Packen)
+  const bikeQ = $derived(liveQuery(() => (win?.id === 'eve' && win.trip?.bikeId ? db.bikes.get(win.trip.bikeId) : undefined)));
+  const due = $derived.by(() => {
+    const b = $bikeQ;
+    if (!b) return [];
+    return [...serviceDue(b).map((x) => x.name), ...checkState(b).rows.filter((r) => r.due).map((r) => r.name)];
+  });
+  const hints = $derived(win?.id === 'eve' ? eveningHints({ wx: win.trip?.wx ?? null, open: win.packed?.left ?? [], due }).filter((h) => h.key !== 'pack').slice(0, 3) : []);
+  const HINT_ICON = { weather: CloudSun, pack: Package, bike: Wrench, rest: BatteryCharging };
+  const hintGo = (h) => (h.kind === 'bike' ? { href: `#/bikes?tab=care&bike=${encodeURIComponent(win.trip.bikeId)}`, label: t('Bike care') } : h.key === 'charge' ? { href: '#/pack?charge', label: t('Charge list') } : { href: '#/pack', label: t('Packing list') });
   const put = (value) => db.settings.put({ key: WINDOWS_KEY, value: JSON.parse(JSON.stringify(value)) });
 
   let dialog = $state();
@@ -49,8 +63,8 @@
       <span class="ib" aria-hidden="true">{#if win.id === 'eve'}<Backpack size={18} />{:else if win.id === 'flight'}<Plane size={18} />{:else}<CalendarCheck size={18} />{/if}</span>
       <div class="vd-t">
         {#if win.id === 'eve'}
-          <h2 id="hw-h">{t('Tomorrow: {title}', { title: win.trip.title })}</h2>
-          <p class="vd-sub">{t('Pack tonight, so the morning stays calm.')}</p>
+          <h2 id="hw-h">{t('Ready for tomorrow?')}</h2>
+          <p class="vd-sub">{t('Tomorrow: {title}', { title: win.trip.title })} · {t('Pack tonight, so the morning stays calm.')}</p>
         {:else if win.id === 'flight'}
           <h2 id="hw-h">{t('Tomorrow you fly: {no}', { no: win.flight })}</h2>
           <p class="vd-sub">{t('{title}. Check in online tonight, have your ID ready and plan the way to the airport.', { title: win.trip.title })}</p>
@@ -67,6 +81,15 @@
         <p class="ln" data-window-packed><b>{t('{n} of {m} packed', { n: win.packed.packed, m: win.packed.of })}</b>{#if win.packed.left.length}{' '}· {t('Still: {list}', { list: win.packed.left.join(', ') })}{/if}</p>
       {:else}
         <p class="ln" data-window-packed>{t('No packing list yet.')}</p>
+      {/if}
+      {#if hints.length}
+        <ul class="hints" data-ready-hints>
+          {#each hints as h (h.key)}
+            {@const I = HINT_ICON[h.kind] ?? Package}
+            {@const g = hintGo(h)}
+            <li data-hint={h.key}><I size={16} aria-hidden="true" /><span>{t(h.text, h.vars)}</span><a class="lk" href={g.href} onclick={() => openTrip(win.trip.id)}>{g.label}</a></li>
+          {/each}
+        </ul>
       {/if}
       {#if win.flight}<p class="ln" data-window-flight><Plane size={14} aria-hidden="true" /> {t('Flight {no}: check in online and have your ID ready.', { no: win.flight })} <a href={flightUrl(win.flight)} target="_blank" rel="noopener">{t('Follow the flight')}</a></p>{/if}
     {:else}
@@ -117,6 +140,30 @@
   }
   .ln b {
     color: var(--ink);
+    font-weight: 600;
+  }
+  .hints {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hints li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .hints span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .hints .lk {
+    flex: none;
+    color: var(--hi);
     font-weight: 600;
   }
   .ft {

@@ -27,7 +27,9 @@ test('the evening before a trip: a window with Pack now, Later for one hour, Not
   await at(page, `${D0}T18:00`);
   await expect(win).toHaveJSProperty('open', true);
   await expect(win).toHaveAttribute('data-window', 'eve');
-  await expect(win.getByRole('heading', { name: /Herbstrunde/ })).toBeVisible();
+  // UI-Ziele I1 / #16 (changed on purpose): the heading asks «Bereit für morgen?», the trip stands right under it
+  await expect(win.getByRole('heading', { name: T('Ready for tomorrow?') })).toBeVisible();
+  await expect(win.locator('.vd-sub')).toContainText('Herbstrunde');
   await expect(win.locator('[data-window-packed]')).toBeVisible();
   await shot(page, info, 'fenster-vorabend');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
@@ -52,10 +54,14 @@ test('the evening before a trip: a window with Pack now, Later for one hour, Not
   expect(errors).toEqual([]);
 });
 
-test('the evening before a trip: Pack now opens the packing of that trip', async ({ page, context }, info) => {
-  await openHome(page, context, info, { hour: 18 });
+test('the evening before a trip: Ready for tomorrow, Pack now opens the packing of that trip', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 18 });
   const win = page.locator('dialog[data-window="eve"]');
   await expect(win).toHaveJSProperty('open', true);
+  // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers the steps of tomorrow, each with its way
+  await expect(win.getByRole('heading', { name: T('Ready for tomorrow?') })).toBeVisible();
+  await expect(win.locator('[data-hint="charge"] a')).toHaveAttribute('href', '#/pack?charge');
+  expect(await win.locator('[data-hint]').count()).toBeLessThanOrEqual(3);
   await win.locator('[data-window-go]').click();
   await expect(page).toHaveURL(/#\/pack$/);
   await expect(page.getByText(/Herbstrunde/).first()).toBeVisible();

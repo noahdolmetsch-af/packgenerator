@@ -105,9 +105,13 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**20.10.2026, v0.169.0 «Neue Leiste und Heute neu»:** Leiste Heute · Planen · Touren · Auswerten · Velos (gleiche Adressen; Ich nur Daten, Einstellungen, Hilfe; Handy kürzer), Heute neu mit «Dein Körper heute» und «Aktiv heute», wärmere Farben und runde Knöpfe.
 **20.10.2026, v0.168.0 «Tour-Seite und Aktiv»:** Gepäck zu einer Fahrt nachtragen, Tour-Seite persönlicher, Aktiv-Kacheln selbst ändern, beim Planen jeder Anstieg der GPX-Strecke, Kartengrund auf allen Karten, kein falscher KI-Schlüssel-Hinweis.
 **20.10.2026, v0.167.0 «Balken Jetzt laden»:** hängt ein Gerät an einer alten Version, bietet ein Balken oben «Jetzt laden».
 **20.10.2026, v0.166.1 «Heute am Handy»:** «Jetzt dran» nicht mehr unter der Tourkarte.
+
+**20.10.2026, v0.168.0 «Heute neu N2»:** Heute nach Noahs Brainstorming-Entscheid 5a: Körper und Check oben, Aktiv-Kacheln, Woche, Ring, Velos, 8 Kacheln. Nächste Pakete: Inhalte A Tour-Auswertung und B GPX-Höhenprofil.
+
 **20.10.2026, v0.166.0 «Neueste Version laden»:** Fehlerseite holt die App frisch aus dem Internet, Daten bleiben.
 **20.10.2026, v0.165.0 «Heute neu A»:** Heute auf einen Blick (ein Satz, Jetzt dran, Tour, Du heute, Woche, Velos, 8 Abkürzungen), Morgen-Check mit 3 Fragen.
 **20.10.2026, v0.164.0 «Tests automatisieren»:** die App prüft sich selbst: jede Nacht alle Seiten, nach jedem Deploy die echte App, Zeitkapsel-Test für alle Datenversionen.
