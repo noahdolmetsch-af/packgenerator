@@ -4,7 +4,8 @@
  * opens the link sees full pages right away.
  *
  * - With examples: a made-up bike, bags, some gear and a 2-day trip in ten days (all fictional, ids «ex-»),
- *   plus the twelve starter activities of Active that every new app gets (flowdb.js ensureSeed).
+ *   a finished day ride three weeks ago with its debrief (so «Rückblick» shows something), plus the
+ *   twelve starter activities of Active that every new app gets (flowdb.js ensureSeed).
  * - Empty: the twelve starter activities go too (they belong to the examples); nothing else changes.
  * The answer and the ids of the examples are one setting (FIRST_KEY, in the backup), so the question never
  * comes back and Me › Data and backup can take the examples away again (removeExamples, with Undo).
@@ -24,9 +25,12 @@ export const FIRST_KEY = 'firstStart';
 /** Tables the app fills by itself on a new start (settings, its own notes, the starter activities). */
 const SEEDED = new Set(['settings', 'meta', 'flowActs']);
 /** The tables that hold the examples, in the order they are put back. */
-export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'flowActs'];
+export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'debriefs', 'flowActs'];
+/** The key of a row (debriefs are keyed by their trip). */
+const keyOf = (name, row) => (name === 'debriefs' ? row.tripId : row.id);
 
 // [id, name (English key for t()), category, carry, weight g, slot on the trip or null]
+const DAY_GEAR = new Set(['ex-frame', 'ex-jacket', 'ex-tool', 'ex-tube', 'ex-bottle', 'ex-jersey']);
 const GEAR = [
   ['ex-seat', 'Seat pack 12 L', 'bags', 'luggage', 390, null],
   ['ex-frame', 'Frame bag', 'bags', 'luggage', 220, null],
@@ -72,8 +76,46 @@ export function examplesFile(today) {
       createdAt: now,
       updatedAt: now,
     },
+    {
+      id: 'ex-past',
+      title: t('Lake ride (example)'),
+      domain: 'bikepacking',
+      startDate: addDays(today, -21),
+      days: 1,
+      status: 'done',
+      finished: true,
+      bikeId: 'ex-bike',
+      bike,
+      setup,
+      overnight: null,
+      cook: false,
+      sets: {},
+      purpose: {},
+      ready: [],
+      entries: GEAR.filter((g) => DAY_GEAR.has(g[0])).map(([itemId, , , , , slot]) => ({ itemId, slot: slot ?? 'frame', qty: 1, packed: true })),
+      createdAt: now,
+      updatedAt: now,
+    },
   ];
-  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips } };
+  const debriefs = [
+    {
+      tripId: 'ex-past',
+      status: 'done',
+      weather: 'warmer',
+      amount: 'much',
+      bags: 'fine',
+      note: t('Warm and dry: the rain jacket stayed in the bag. Next time one bottle more.'),
+      items: { 'ex-jacket': 'unused' },
+      missing: [],
+      applied: [],
+      km: 64,
+      kmApplied: 0,
+      doneAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips, debriefs } };
 }
 
 const seedIds = () => new Set(seedActs().map((a) => a.id));
@@ -113,21 +155,31 @@ async function unusedSeedActs(db, ids = null) {
  */
 export async function chooseStart(db, choice, today) {
   const at = new Date().toISOString();
-  if (choice === 'examples') {
-    const file = examplesFile(today);
-    const acts = (await db.flowActs.toArray()).filter((a) => seedIds().has(a.id));
-    const ids = Object.fromEntries(Object.entries(file.tables).map(([k, rows]) => [k, rows.map((r) => r.id)]));
-    ids.flowActs = acts.map((a) => a.id);
-    const value = { choice, at, ids };
-    await db.settings.put({ key: FIRST_KEY, value });
-    await restoreBackup(db, file, 'merge');
-    await blocksAfterImport(db, file, 'merge');
-    return value;
-  }
+  if (choice === 'examples') return addExamples(db, today, { at, first: true });
   const value = { choice: 'empty', at, ids: {} };
   await db.settings.put({ key: FIRST_KEY, value });
   const acts = await unusedSeedActs(db);
   if (acts.length) await db.flowActs.bulkDelete(acts.map((a) => a.id));
+  return value;
+}
+
+/**
+ * Put the examples in (first start, or Me › Data and backup › «Get the examples» later). Only rows with
+ * the «ex-» ids are written; a starter activity that is missing comes back. Never touches own data
+ * (first: the first start, where every starter activity is still the app's own).
+ */
+export async function addExamples(db, today, { at = new Date().toISOString(), first = false } = {}) {
+  const file = examplesFile(today);
+  const present = new Set((await db.flowActs.toArray()).map((a) => a.id));
+  const missing = seedActs().filter((a) => !present.has(a.id));
+  const ids = Object.fromEntries(Object.entries(file.tables).map(([k, rows]) => [k, rows.map((r) => keyOf(k, r))]));
+  // on the first start every starter activity counts as an example; later only the ones it brings back
+  ids.flowActs = first ? [...seedIds()] : missing.map((a) => a.id);
+  const value = { choice: 'examples', at, ids };
+  await db.settings.put({ key: FIRST_KEY, value });
+  await restoreBackup(db, file, 'merge');
+  await blocksAfterImport(db, file, 'merge');
+  if (missing.length) await db.flowActs.bulkPut(missing);
   return value;
 }
 
@@ -153,7 +205,7 @@ export async function removeExamples(db) {
   const names = Object.keys(left);
   if (!names.length) return left;
   await db.transaction('rw', names.map((n) => db.table(n)), async () => {
-    for (const n of names) await db.table(n).bulkDelete(left[n].map((r) => r.id));
+    for (const n of names) await db.table(n).bulkDelete(left[n].map((r) => keyOf(n, r)));
   });
   return left;
 }

@@ -1154,7 +1154,7 @@ export const HANDBOOK = {
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose «Start with examples» or «Start empty».', 'To take the examples away: Me › Data and backup › «Remove the examples»; «Undo» brings them back.'],
+    steps: ['Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {

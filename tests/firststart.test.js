@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { ensureSeed } from '../src/lib/flowdb.js';
 import { seedActs } from '../src/lib/flow.js';
-import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, mayAsk } from '../src/lib/firststart.js';
+import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, mayAsk } from '../src/lib/firststart.js';
 import { isTestName } from '../src/lib/testname.js';
 
 const TODAY = '2026-10-20';
@@ -40,8 +40,8 @@ describe('first start: with examples or empty', () => {
     const db = await fresh('fs-5');
     await chooseStart(db, 'examples', TODAY);
     expect(await isFresh(db)).toBe(false);
-    const trips = await db.trips.toArray();
-    expect(trips).toHaveLength(1);
+    const trips = (await db.trips.toArray()).filter((x) => x.id === 'ex-trip');
+    expect(await db.trips.count()).toBe(2);
     expect(trips[0]).toMatchObject({ id: 'ex-trip', bikeId: 'ex-bike', startDate: '2026-10-30', days: 2, status: 'planned' });
     expect(isTestName(trips[0].title)).toBe(false);
     expect(await db.bikes.count()).toBe(1);
@@ -51,6 +51,9 @@ describe('first start: with examples or empty', () => {
     // every packed entry points to an example item
     const ids = new Set(items.map((i) => i.id));
     expect(trips[0].entries.every((e) => ids.has(e.itemId))).toBe(true);
+    // the finished day ride three weeks ago, with its debrief
+    expect(await db.trips.get('ex-past')).toMatchObject({ startDate: '2026-09-29', status: 'done', finished: true });
+    expect(await db.debriefs.get('ex-past')).toMatchObject({ status: 'done' });
     expect(await db.flowActs.count()).toBe(SEEDS);
     const rec = (await db.settings.get(FIRST_KEY)).value;
     expect(rec.choice).toBe('examples');
@@ -79,19 +82,44 @@ describe('first start: with examples or empty', () => {
     const saved = await removeExamples(db);
     expect((await db.items.toArray()).map((i) => i.id)).toEqual(['mine']);
     expect(await db.trips.count()).toBe(0);
+    expect(await db.debriefs.count()).toBe(0);
     expect(await db.bikes.count()).toBe(0);
     expect((await db.flowActs.toArray()).map((a) => a.id)).toEqual(['meditation']);
     expect(exampleCount(await examplesLeft(db))).toBe(0);
 
     await undoExamples(db, saved);
-    expect(await db.trips.count()).toBe(1);
+    expect(await db.trips.count()).toBe(2);
+    expect(await db.debriefs.count()).toBe(1);
     expect(await db.flowActs.count()).toBe(SEEDS);
+  });
+
+  it('«Get the examples» later: brings them back after an empty start, own data untouched', async () => {
+    const db = await fresh('fs-8');
+    await chooseStart(db, 'empty', TODAY);
+    await db.items.put({ id: 'mine', name: 'My own lamp' });
+    await db.flowActs.put({ id: 'own-act', name: 'Climbing wall' });
+    await addExamples(db, TODAY);
+    expect(await db.trips.count()).toBe(2);
+    expect(await db.items.get('mine')).toMatchObject({ name: 'My own lamp' });
+    expect(await db.flowActs.count()).toBe(SEEDS + 1);
+    await removeExamples(db);
+    expect((await db.items.toArray()).map((i) => i.id)).toEqual(['mine']);
+    expect((await db.flowActs.toArray()).map((a) => a.id)).toEqual(['own-act']);
+  });
+
+  it('«Get the examples» on a used app: its own unused starter activities stay when the examples go', async () => {
+    const db = await fresh('fs-9');
+    await db.trips.put({ id: 'own', title: 'My trip' });
+    await addExamples(db, TODAY);
+    await removeExamples(db);
+    expect(await db.flowActs.count()).toBe(SEEDS);
+    expect((await db.trips.toArray()).map((x) => x.id)).toEqual(['own']);
   });
 
   it('the examples file is fictional and well-formed', () => {
     const f = examplesFile(TODAY);
     const all = Object.values(f.tables).flat();
-    expect(all.every((r) => /^(ex-|bag-ex-)/.test(r.id))).toBe(true);
+    expect(all.every((r) => /^(ex-|bag-ex-)/.test(r.id ?? r.tripId))).toBe(true);
     expect(f.tables.trips[0].entries.every((e) => ['seat', 'frame', 'body'].includes(e.slot))).toBe(true);
   });
 

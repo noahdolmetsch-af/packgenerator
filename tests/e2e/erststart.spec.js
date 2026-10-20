@@ -28,10 +28,17 @@ test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
   await win(page).locator('[data-choice="examples"]').click();
+  // second step: the short tour is offered, never started by itself
+  await expect(win(page).locator('[data-choice="tour"]')).toBeVisible();
+  await win(page).locator('[data-choice="notour"]').click();
   await expect(win(page)).toBeHidden();
+  await expect(page.locator('.tour')).toHaveCount(0);
 
   await page.goto('./#/trips');
   await expect(page.locator('main').getByText(T('Jura loop (example)')).first()).toBeVisible();
+  // the ridden example trip is there too (for Rückblick)
+  await page.goto('./#/review');
+  await expect(page.locator('main').getByText(T('Lake ride (example)')).first()).toBeVisible();
 
   // asked once: a reload does not ask again
   await page.reload();
@@ -47,6 +54,9 @@ test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away
   await ask.getByRole('button', { name: T('Remove') }).click();
   await expect(page.getByText(T('Examples removed.'))).toBeVisible();
   await expect(row).toHaveCount(0);
+  // and back again with «Beispiele holen»
+  await page.locator('[data-row="get-examples"]').click();
+  await expect(row).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -58,12 +68,28 @@ test('start empty: no examples, the window never comes back; «Später» asks ag
   await page.reload();
   await expect(win(page)).toBeVisible();
   await win(page).locator('[data-choice="empty"]').click();
+  await win(page).locator('[data-choice="notour"]').click();
   await expect(win(page)).toBeHidden();
   await page.reload();
   await expect(page.locator('html[data-ready="1"]')).toBeAttached();
   await expect(win(page)).toHaveCount(0);
   await page.goto('./#/trips');
   await expect(page.locator('main').getByText(T('Jura loop (example)'))).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('the language is chosen in the window, the examples come in it, and the tour starts', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await expect(win(page)).toBeVisible();
+  await win(page).locator('[data-lang="en"]').click();
+  await expect(win(page).getByRole('heading', { name: 'Welcome to the Pack Generator' })).toBeVisible();
+  await win(page).locator('[data-choice="examples"]').click();
+  await win(page).locator('[data-choice="tour"]').click();
+  await expect(win(page)).toBeHidden();
+  await expect(page.locator('.tour[data-tour="app"]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.goto('./#/trips');
+  await expect(page.locator('main').getByText('Jura loop (example)').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 

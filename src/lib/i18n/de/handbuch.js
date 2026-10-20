@@ -1113,6 +1113,7 @@ export default {
   // «Erster Start» (Noah 20.10.2026)
   'Only on a new, empty app: it asks once when it opens for the first time.': 'Nur bei einer neuen, leeren App: Sie fragt einmal beim ersten Öffnen.',
   'Choose «Start with examples» or «Start empty».': 'Wähle «Mit Beispielen starten» oder «Leer starten».',
-  'To take the examples away: Me › Data and backup › «Remove the examples»; «Undo» brings them back.': 'Beispiele wegnehmen: Ich › Daten und Backup › «Beispiele entfernen»; «Rückgängig» holt sie zurück.',
+  'Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.': 'Wähle die Sprache und «Mit Beispielen starten» oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
+  'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.',
   'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.': 'Beispiel: Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.',
 };

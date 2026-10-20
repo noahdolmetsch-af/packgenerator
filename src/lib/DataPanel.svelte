@@ -22,7 +22,9 @@
   import { take } from './nav.js';
   import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
-  import { examplesLeft, exampleCount, removeExamples, undoExamples } from './firststart.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples } from './firststart.js';
+  import { offerDone } from './ui/rename.svelte.js';
+  import { localDay } from './localday.js';
   import { askDelete, deleteWithUndo } from './ui/ask.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
@@ -257,6 +259,23 @@
     const answer = await askDelete({ title: t('Remove the examples?'), text: t('Only the made-up things from the first start go; whatever you added yourself stays. Activities you already ticked stay too.'), lines, label: t('Remove') });
     if (answer !== 'delete') return;
     await deleteWithUndo({ run: () => removeExamples(db), undo: (saved) => undoExamples(db, saved), text: t('Examples removed.'), name: t('Examples') });
+  }
+  // Noah 20.10.2026 «1-4 alle»: after an empty start (or once removed) the examples can come back
+  let getting = $state(false);
+  async function getExamples() {
+    getting = true;
+    try {
+      await settling(async () => {
+        await addExamples(db, localDay());
+        await tidyData(db);
+      });
+      offerDone(t('The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.'), null, 8000);
+    } catch (err) {
+      console.error(err);
+      offerDone(t("That didn't work. Nothing was changed. Try again."));
+    } finally {
+      getting = false;
+    }
   }
   async function beginDemo() {
     try {
@@ -592,7 +611,8 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trip, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
