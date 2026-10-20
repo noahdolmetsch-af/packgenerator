@@ -47,6 +47,7 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
   import TodoButton from '../lib/lernen/TodoButton.svelte';
   import TodoPlace from '../lib/lernen/TodoPlace.svelte';
@@ -511,6 +512,8 @@
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
       <TipLine page="debrief" name={t('Debrief')} />
       <SpurRow {trip} />
+      <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard -->
+      <LearnCard {trip} {bike} />
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->

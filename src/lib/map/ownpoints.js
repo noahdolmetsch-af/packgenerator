@@ -21,13 +21,15 @@ export const OWN_KINDS = [
 ];
 export const OWN_KIND_KEYS = OWN_KINDS.map((k) => k.key);
 
+/** Paket Z 1122 «Schlafplätze»: a sleep spot keeps its stars (1–5) and the trip it came from. */
+const starsOf = (p) => ({ ...(Number.isInteger(p.stars) && p.stars >= 1 && p.stars <= 5 ? { stars: p.stars } : {}), ...(p.tripId ? { tripId: String(p.tripId) } : {}) });
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 /** The stored value → a clean list (broken rows dropped, a missing kind becomes 'note'). */
 export function listOf(value) {
   const raw = Array.isArray(value?.points) ? value.points : [];
   return raw
     .filter((p) => p && typeof p === 'object' && num(p.lat) != null && num(p.lon) != null && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180)
-    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: OWN_KIND_KEYS.includes(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '' }))
+    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: OWN_KIND_KEYS.includes(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '', ...starsOf(p) }))
     .filter((p) => p.id);
 }
 

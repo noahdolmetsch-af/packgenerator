@@ -62,6 +62,7 @@
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
   import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike } from '@lucide/svelte';
+  import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
   import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
@@ -561,6 +562,8 @@
       {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{:catch}{/await}{/if}
       <!-- Paket W (Noah 20.10.2026 «2a 3a»): plan B when heavy rain or a storm comes, tonight's check-in -->
       {#if !trip.finished && st}<RideDoor {trip} {st} {nextSt} onhome={() => (homeOpen = true)} />{/if}
+      <!-- Paket SP 1126: on the start morning, what goes in only now -->
+      <MorningList {trip} {itemsById} />
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}
