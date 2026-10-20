@@ -6,9 +6,11 @@
 // - when the app comes back to the screen, and every hour while it is open, it asks for a new version;
 // - when a new version has taken over, the page loads anew, but never while the person types: then it
 //   waits until the app goes to the background or the field is left.
+// - never while a ride is recorded (holdreload.js): then after the ride, when the app goes to the background.
 // - when the new version still has not arrived 15 minutes after it went online, a bar says so (behind.js).
 
 import { warnIfBehind } from './behind.js';
+import { held as heldNow } from './holdreload.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -22,7 +24,7 @@ const typing = (d) => {
  * Starts the watcher. `w` is the window (tests pass a fake one).
  * Returns { check, reloadPending } for the tests.
  */
-export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind } = {}) {
+export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow } = {}) {
   const sw = w.navigator?.serviceWorker;
   if (!sw) return null;
   const d = w.document;
@@ -49,6 +51,8 @@ export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehi
     w.location.reload();
   };
   const reloadWhenSafe = () => {
+    // a ride is being recorded (holdreload.js): the new version waits until it has stopped
+    if (held()) return void (pending = true);
     if (d.visibilityState === 'hidden' || !typing(d)) return reloadNow();
     pending = true;
   };
@@ -60,13 +64,13 @@ export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehi
   });
   d.addEventListener('visibilitychange', () => {
     if (d.visibilityState === 'hidden') {
-      if (pending) reloadNow();
+      if (pending && !held()) reloadNow();
       return;
     }
     if (Date.now() - last > 60_000) check();
   });
   d.addEventListener('focusout', () => {
-    if (pending) w.setTimeout(() => pending && !typing(d) && reloadNow(), 0);
+    if (pending) w.setTimeout(() => pending && !typing(d) && !held() && reloadNow(), 0);
   });
   w.setInterval(() => d.visibilityState === 'visible' && check(), every);
   // on start too (the browser itself looks for a new worker on a start; this only asks for the version)

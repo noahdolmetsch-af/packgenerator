@@ -49,6 +49,7 @@
   import SosSheet from '../lib/live/SosSheet.svelte';
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording } from '../lib/spur/recorder.svelte.js';
+  import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
   import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
@@ -141,6 +142,16 @@
     eatFromKm = null;
     batFirst = null;
   }
+  // after the app loaded anew in the middle of a ride: go on by itself, once (resume.js)
+  let resumed = $state(false);
+  let resumeTried = false;
+  $effect(() => {
+    const o = $openQ;
+    if (resumeTried || rec.on || o === undefined) return;
+    resumeTried = true;
+    const r = resumeOf(o, tid);
+    if (r) untrack(() => start(r).then(() => (resumed = rec.on)));
+  });
   async function stop() {
     const ride = await stopRecording();
     after = { ride };
@@ -551,6 +562,7 @@
         {#if left}<button type="button" class="btn" onclick={() => start(left)} data-live-continue>{t('Continue the ride from {time}', { time: zurichTime(left.startAt) })}</button>{/if}
       </div>
     {/if}
+    {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
   </section>
@@ -628,6 +640,7 @@
       <!-- warnings over the map -->
       <div class="lvf-alerts">
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
+        {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}

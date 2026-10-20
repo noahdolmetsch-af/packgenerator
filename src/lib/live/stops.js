@@ -7,6 +7,7 @@
  * not fit any more. The fetcher is passed in for tests.
  */
 import { OVERPASS, POI_CACHE, fetchPois, poisFrom } from '../race/outside.js';
+import { queued } from '../route/overpassqueue.js';
 import { cacheGet, cacheSet } from '../race/store.js';
 import { aroundQuery, aroundFresh } from './live-lib.js';
 
@@ -19,7 +20,7 @@ export const aroundFrom = (json) => poisFrom(json, []).map(({ km, offKm, ...p })
 export async function loadAround(here, { fetcher = fetch, force = false, now = Date.now() } = {}) {
   const kept = await cacheGet(AROUND_CACHE);
   if (!force && aroundFresh(kept?.data ? { ...kept.data, at: kept.at } : null, here, now)) return kept.data.list;
-  const res = await fetcher(OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(aroundQuery(here))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+  const res = await queued(() => fetcher(OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(aroundQuery(here))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
   const list = aroundFrom(await res.json());
   await cacheSet(AROUND_CACHE, { center: { lat: here.lat, lon: here.lon }, list });

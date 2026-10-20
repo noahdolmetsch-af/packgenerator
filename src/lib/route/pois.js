@@ -12,6 +12,8 @@
  */
 import { distKm } from '../route.js';
 
+import { queued } from './overpassqueue.js';
+
 export const OVERPASS_URLS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
 export const AROUND_M = 250;
 export const MAX_PTS = 150;
@@ -138,7 +140,10 @@ export function lineHash(line, km = 0) {
 }
 
 /** Asks Overpass (main server, then the mirror). → the JSON answer; throws when both fail. */
-export async function fetchOverpass(query, { fetcher = (...a) => fetch(...a), urls = OVERPASS_URLS, timeout = TIMEOUT_MS } = {}) {
+export function fetchOverpass(query, opts = {}) {
+  return queued(() => askOverpass(query, opts));
+}
+async function askOverpass(query, { fetcher = (...a) => fetch(...a), urls = OVERPASS_URLS, timeout = TIMEOUT_MS } = {}) {
   let last = null;
   for (const url of urls) {
     const ctl = typeof AbortController === 'undefined' ? null : new AbortController();
