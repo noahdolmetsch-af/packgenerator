@@ -82,7 +82,7 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'hCurve'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'hCurve'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
@@ -316,6 +316,11 @@ export function weekNumbers(acts, sessions, monday, bounds) {
 export function activitiesForTrip(trip, acts = [], kmBook = []) {
   if (!trip?.startDate) return [];
   const end = shiftDay(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
+  // Gepäck nachtragen (Noah 20.10.2026 «1a»): a trip made from rides has exactly those
+  if (Array.isArray(trip.fromActs) && trip.fromActs.length) {
+    const own = new Set(trip.fromActs.map(String));
+    return acts.filter((a) => own.has(String(a.id))).sort((a, b) => `${a.day} ${a.time}`.localeCompare(`${b.day} ${b.time}`));
+  }
   const ids = new Set(kmBook.filter((e) => e.tripId === trip.id && e.stravaId).map((e) => String(e.stravaId)));
   return acts.filter((a) => ids.has(a.id) || (a.kind === 'bike' && a.day >= trip.startDate && a.day <= end)).sort((a, b) => `${a.day} ${a.time}`.localeCompare(`${b.day} ${b.time}`));
 }
