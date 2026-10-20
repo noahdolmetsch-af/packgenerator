@@ -87,4 +87,17 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await tap(page.getByTestId('ask-delete').locator('.btn.del'), info);
   await expect(page.locator('[data-webcam]')).toHaveCount(0);
   await expect(page.locator('[data-webcam-empty]')).toBeVisible();
+
+  // «Wie war es draussen?» (2a): a note with feel, where and what you wore → listed; delete asks first
+  const feel = page.locator('[data-wx-feel]');
+  await tap(feel.locator('[data-feel="cold"]'), info);
+  await tap(feel.locator('[data-feel-part="hands"]'), info);
+  await feel.locator('[data-feel-wore]').fill('test_data_gtp_ dünne Handschuhe');
+  await tap(feel.locator('[data-feel-save]'), info);
+  await expect(feel.locator('[data-feel-list] li')).toHaveCount(1);
+  await expect(feel.locator('[data-feel-list]')).toContainText('test_data_gtp_ dünne Handschuhe');
+  await tap(feel.locator('[data-feel-list] button'), info);
+  await tap(page.getByTestId('ask-delete').locator('.btn.del'), info);
+  await expect(feel.locator('[data-feel-list]')).toHaveCount(0);
+  await noSideways(page, 'weather page with the feel card');
 });

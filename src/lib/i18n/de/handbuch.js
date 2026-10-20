@@ -1115,4 +1115,11 @@ export default {
   'On the live map tap «⋯» › «Plan a new way to …», or press long on the map.': 'Tippe auf der Live-Karte «⋯» › «Neu planen zu …» oder drücke lange auf die Karte.',
   'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.': 'Wähle einen Laden, ein Bett, einen Bahnhof oder deinen Punkt, oder suche einen Ort; tippe «Planen». «GPX für Garmin» speichert ihn.',
   'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.': 'Beispiel: Bei km 52 zur Bäckerei 1,2 km neben der Strecke → 2,6 km Umweg, zurück auf der Strecke bei km 54.',
+  // Paket Y Wetter-Kern
+  'Open Me › Weather, or tap the weather line on Today or a trip.': 'Öffne Ich › Wetter oder tippe die Wetterzeile auf Heute oder bei einer Tour.',
+  'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.': 'Wähle, wie lange du fährst: Die App zeigt den besten Start; «Landi-Regenradar» zeigt den Regen.',
+  'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.': 'Beispiel: 4 h Fahrt, Gewitter ab 15:00 → bester Start 08:00, zurück etwa 12:00.',
+  'Open Me › Weather › «My webcams».': 'Öffne Ich › Wetter › «Meine Webcams».',
+  'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.': 'Füge die Adresse des Bildes ein und tippe «Webcam hinzufügen»; «Als Heim-Webcam» zeigt sie klein auf Heute.',
+  'Example: the webcam of a pass → one tap shows if the road is white.': 'Beispiel: die Webcam eines Passes → ein Tipp zeigt, ob die Strasse weiss ist.',
 };

@@ -675,6 +675,16 @@ export const HANDBOOK = {
     steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
     example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
   },
+  'f.weather': {
+    on: null,
+    steps: ['Open Me › Weather, or tap the weather line on Today or a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
+    example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
+  },
+  'f.webcams': {
+    on: null,
+    steps: ['Open Me › Weather › «My webcams».', 'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.'],
+    example: 'Example: the webcam of a pass → one tap shows if the road is white.',
+  },
   'f.reroute': {
     on: null,
     steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],

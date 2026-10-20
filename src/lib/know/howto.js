@@ -199,6 +199,8 @@ export const HOWTO = {
   'f.racemap': ['Open Trips › Races and a race.', 'Tap «Map».', 'Switch the layers and tap the profile.'],
   'f.climbs': ['Open Trips › Races and a race.', 'Tap «Climbs».', 'Tap a climb for its gradient per 100 m.'],
   'f.mapoffline': ['Open a race › «Map».', 'Scroll to «Map offline».', 'Tap «Keep for offline».'],
+  'f.weather': ['Open the weather page (Me › Weather or the weather line).', 'Choose how long you ride.', 'Read the best start and the warnings; «Landi rain radar» shows the rain.'],
+  'f.webcams': ['Open the weather page › «My webcams».', 'Paste the address and tap «Add webcam».', 'Tap «Make home cam» to show it on Today.'],
   'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
   'f.live': ['Tap «Start a ride» on Active.', 'Allow the location.', 'Keep the page open while you ride.'],
   'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],

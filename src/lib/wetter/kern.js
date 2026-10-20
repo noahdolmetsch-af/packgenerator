@@ -311,3 +311,32 @@ export function outdoorOk(core, now = Date.now()) {
 
 /** The first hour of rain from now within `aheadH` hours (for «Radar» on Heute): ms or null. */
 export const rainWithin = (core, now = Date.now(), aheadH = 3) => hoursBetween(core, now - 36e5 + 1, now + aheadH * 36e5).find((h) => h.ms + 36e5 > now && wet(h))?.ms ?? null;
+
+/**
+ * Schnee und Lawinen (4a): where the route goes high. snow line ≈ freezing level − 300 m (lowest in the
+ * hours); routeTopM: the highest point of the route. → { line, top, above: bool, newCm, depthCm } or null
+ * when the route stays well below (more than 500 m under the snow line) and no snow lies.
+ */
+export function snowOnRoute(hours = [], routeTopM = null) {
+  const frz = hours.map((h) => h.frz).filter(fin);
+  const depth = Math.max(0, ...hours.map((h) => h.depth).filter(fin));
+  const newCm = r1(hours.map((h) => h.snowCm).filter(fin).reduce((s, x) => s + x, 0));
+  if (!frz.length) return null;
+  const line = Math.max(0, Math.round((Math.min(...frz) - 300) / 100) * 100);
+  const top = fin(routeTopM) ? Math.round(routeTopM) : null;
+  const above = top != null && top >= line;
+  if (!above && (top == null || top < line - 500) && !(depth > 0) && !(newCm > 0)) return null;
+  return { line, top, above, newCm, depthCm: Math.round(depth * 100) };
+}
+
+/** The highest point of a profile [[km, m], …] (m) or null. */
+export const routeTop = (profile = []) => {
+  const m = (profile ?? []).map((p) => (Array.isArray(p) ? p[1] : p?.m)).filter(fin);
+  return m.length ? Math.max(...m) : null;
+};
+
+/** Dark before the end of the ride: minutes after sunset (0 when back before). */
+export const darkAfter = (core, end) => {
+  const set = core?.days?.find((d) => d.date === localDate(end, core.offset ?? 0))?.set;
+  return set && end > set ? Math.round((end - set) / 6e4) : 0;
+};

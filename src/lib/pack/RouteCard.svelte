@@ -80,6 +80,7 @@
       <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
     {/if}
     {#if msg}<p class="warn" role="alert">{msg}</p>{/if}
+    {#await import('../wetter/TourWetter.svelte') then m}<m.default {trip} />{:catch}{/await}
   </div>
 </section>
 

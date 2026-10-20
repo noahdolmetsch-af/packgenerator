@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
@@ -51,6 +51,8 @@
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
   import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
+  import { LANDI_RADAR } from '../lib/wetter/kern.js';
+  import LiveWetter from '../lib/live/LiveWetter.svelte';
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
@@ -859,6 +861,7 @@
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
+        <LiveWetter {me} />
         {#if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour>
             <Route size={18} aria-hidden="true" />
@@ -887,6 +890,7 @@
             <button type="button" class="lvf-ic" onclick={() => (menu = false)} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
+          <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>

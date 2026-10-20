@@ -128,3 +128,19 @@ describe('packing, Föhn and Bise, train, outdoor', () => {
     expect(LIMITS.storm).toBe(60);
   });
 });
+
+import { snowOnRoute, routeTop, darkAfter } from '../src/lib/wetter/kern.js';
+describe('snow where the route goes high, and the dark', () => {
+  it('snow line from the freezing level against the top of the route', () => {
+    const hs = [{ frz: 2200, snowCm: 0, depth: 0 }, { frz: 2100, snowCm: 0.4, depth: 0.1 }];
+    expect(snowOnRoute(hs, 2400)).toEqual({ line: 1800, top: 2400, above: true, newCm: 0.4, depthCm: 10 });
+    expect(snowOnRoute([{ frz: 3500, snowCm: 0, depth: 0 }], 600)).toBeNull();
+    expect(routeTop([[0, 400], [10, 2100], [20, 800]])).toBe(2100);
+    expect(routeTop([])).toBeNull();
+  });
+  it('minutes after sunset', () => {
+    const c = parseCore(answer());
+    expect(darkAfter(c, at(0, 22))).toBe(60);
+    expect(darkAfter(c, at(0, 20))).toBe(0);
+  });
+});

@@ -22,6 +22,7 @@
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
+  import FeelCard from '../lib/wetter/FeelCard.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -262,6 +263,14 @@
           <li><b>{wd(h.date)}</b><span>{t('said {a} °C, came {b} °C', { a: num(h.said.tmax), b: num(h.had.tmax) })}</span><span class="wx-word" class:w-good={h.rainHit} class:w-poor={!h.rainHit}>{h.rainHit ? t('rain right') : t('rain wrong')}</span></li>
         {/each}
       </ul>
+    </section>
+  {/if}
+
+  {#if core}
+    <!-- Lernen (2a): how it felt, for next time -->
+    <section class="card wx-sec" aria-labelledby="wx-feel" data-wx-feel>
+      <h2 id="wx-feel" class="wx-h">{t('How was it outside?')}</h2>
+      <FeelCard {core} />
     </section>
   {/if}
 
