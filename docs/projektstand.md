@@ -37,6 +37,15 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 27 | UI-Grundlagen | 0.169.0 | Wärmere Farben (Salbei statt Farbe pro Ort), eine Schrift, runde Knöpfe, ruhigere Karten; Packtag mit «Schon gepackt», Velopflege Offenes zuerst; Tipp des Tages unter dem Inhalt (9 Seiten), Velopflege am Handy 5 Teile dann «Noch n zeigen», Touren-Kopf ein Knopf und «Rennen ›», Material-Kopf ein Satz mit Kacheln | dieser PR |
 | 28 | Live-Karte ohne Absturz | 0.168.0 | Kein automatisches Neuladen während einer Aufzeichnung; nach einem Neuladen läuft die Fahrt weiter (höchstens 20 Min.); OpenStreetMap-Abfragen nacheinander | PR #218 |
 | 29 | Tour-Auswertung mit Garmin-Werten | 0.170.0 | Tour-Seite › Werte: Stopps, NP, Bestwerte 1/2/5/10/20 Min für Leistung und Puls, Ruhepuls (Fitbit) am Tour-Tag mit «deinem Normal», Punktbild Ruhepuls gegen NP; feinere Kartenlinie; Profile wie komoot; Teil «Analyse» wie Strava und Garmin Connect | gebaut, beim Bündler |
+| 30 | Check-Fragen selbst bearbeiten | 0.170.0 | Fragen und Bereiche ändern, löschen, sortieren, hinzufügen; 50 Musterfragen (aus, Tag «Muster»); «Was mir gut tut», «Wi gaht's? · 15 Fragen» | dieser PR |
+| 31 | Tagebuch | 0.170.0 | #/tagebuch wie Day One: Einträge mit Fotos, Diktat, Frage des Tages, Tags als Gruppen, Code-Sperre, Erinnerung | dieser PR |
+| 32 | Erster Start mit Beispielen | 0.170.0 | Neue leere App fragt einmal «Mit Beispielen» oder «Leer»; Beispiele entfernen/holen unter Ich › Daten; Rundgang; Noahs Daten bleiben unberührt | dieser PR |
+| 33 | Heatmap | 0.170.0 | Touren › Rückblick › Heatmap: alle Fahrten auf einer Karte, Wolken oder Linien, Filter nach Jahr, Sportart, Velo, Tour/Alltag | dieser PR |
+| 34 | Zürisee und Sauna | 0.170.0 | Kaltbade-Skala mit änderbaren Grenzen, «Sauna und See heute?», Tagesmittel, Server-Fix Zürisee-Daten | dieser PR |
+| 35 | Form und Erholung | 0.170.0 | Bereitschaft 0–100 oben auf Aktiv, Seite «Form und Erholung» (12 Wochen, Tour-Bereitschaft), Übersicht wie Garmin, Seiten pro Sportart und Puls | dieser PR |
+| 36 | Live-Karte Teile 1–3 | 0.170.0 | Pause und Auto-Pause, Bluetooth-Sensoren, Datenseiten, Abbiegehinweise, Runden, «Gegen deine letzte Fahrt», mehr Orte, ÖV, Ride with GPS, SchweizMobil, Teilen-Bild, Abgleich ohne Strava-Fragen | dieser PR |
+| 37 | Umweg neu planen | 0.170.0 | Live-Karte «Neu planen zu …» und langes Drücken: Umweg und Rückweg über BRouter, GPX für Garmin | dieser PR |
+| 38 | Von der Haustür bis zurück | 0.170.0 | Gut angekommen, Plan B, Check-in, Velo geparkt; Unterwegs mit 2 Knöpfen mehr | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
