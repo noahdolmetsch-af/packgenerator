@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.168.0 «Tour-Seite und Aktiv»: tour page gear + design (Noah 20.10.2026 «1a 2b … 5a», «1a 2a 3a 4a 5a»), Aktiv tiles (Noah «1a 2a 3a 4a 5a»).
+    version: '0.168.0',
+    date: '2026-10-20',
+    title: 'Your tours, your activities',
+    lead: 'Add the gear to a past ride, see a tour page with big values and the day\'s weather, and change your activity tiles yourself.',
+    points: [
+      { text: 'Add the gear to a ride afterwards, with a note per item', href: '#/trips/rides' },
+      { text: 'Tour page new: big values, a landscape on top, the weather of the day', href: '#/trips' },
+      { text: 'Aktiv: edit, hide or delete an activity tile; delete keeps the history if you want, with Undo', href: '#/flow' },
+    ],
+    small: [
+      { box: 'new', text: 'Packing shows what you wore in similar weather' },
+      { box: 'nicer', text: 'The tab «Goals» on Aktiv is now called «Activities»; «Start» opens the morning questions' },
+    ],
+    test: [
+      'Open Tours › Rides, pick a ride without a packing list and tap «Enter the gear».',
+      'On Aktiv, tap a tile under «Tick off today» › Edit, then delete it and tap Undo.',
+    ],
+  },
+  {
     // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
     version: '0.167.0',
     date: '2026-10-20',
