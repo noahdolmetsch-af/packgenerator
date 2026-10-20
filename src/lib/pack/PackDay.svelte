@@ -226,6 +226,7 @@
     };
     return [...s.entries].sort((a, b) => at(a) - at(b));
   };
+  const openOf = (s) => s.entries.filter((e) => !e.packed).length;
   const names = (s) => s.entries.filter((e) => !e.packed).map((e) => (itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId) + ((e.qty || 1) > 1 ? ` × ${e.qty}` : '')).join(' · ');
   const iconOf = (key) => (key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase);
   const shownTips = $derived(new Set(Object.values(badges).flat().filter((b) => b.key === 'tip').map((b) => b.text)));
@@ -330,9 +331,9 @@
 <!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Fertig gepackt · zurück zu Touren» (Gesamttest 20.10.2026 B5), under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
-{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next>{t('Pack {bag}|next', { bag: nextBag.title })}<span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
-{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
-{:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next><span class="golbl">{t('Pack {bag}|next', { bag: nextBag.title })}</span><span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- Paket H «4a und b»: «Read aloud» next to the ring, at the thumb on a phone; the window explains the rest -->
 {#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={22} aria-hidden="true" /></button>{/if}{/snippet}
@@ -359,7 +360,6 @@
   <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? missingText : t('Everything is in.')} note />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
   <HintCard page="pack" />
-  <TipLine page="pack" name={t('Pack')} />
   {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
   {#if total === 0 && fixed}<Empty icon={ListChecks} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: () => askReopen(trip) }} />
@@ -420,13 +420,15 @@
             </div>
             <div class="card ibox">
               <ul class="items">
-                {#each ordered(s) as e (e.itemId)}
+                {#each ordered(s) as e, i (e.itemId)}
                   {@const it = itemsById[e.itemId]}
                   {@const hint = hintOf(e.itemId)}
                   <li class:in={e.packed} animate:flip={{ duration: still() ? 0 : 250, easing: cubicOut }}>
+                    <!-- UI-Grundlagen (Gestaltungsregeln B §5.3): a quiet line over the packed rows once they have slid down -->
+                    {#if e.packed && i > 0 && i === openOf(s) && ordered(s).slice(i).every((x) => x.packed)}<p class="donehead">{t('Already packed · {n}', { n: s.entries.length - i })}</p>{/if}
                     <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
                       <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
-                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
+                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{:else if e.packed}<small class="drin">{t('in|packed')}</small>{/if}</span>
                       <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
                     </button>
                   </li>
@@ -492,6 +494,8 @@
     </div>
   </div>
   {/if}
+  <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day follows the bags, not the help box -->
+  <TipLine page="pack" name={t('Pack')} />
 </div>
 
 <dialog use:backClose class="sheet ask" bind:this={askEl} aria-labelledby="ask-h">
@@ -575,8 +579,10 @@
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
   .in .box { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
-  .in .nm { color: var(--ink-3); text-decoration: line-through; text-decoration-thickness: 1px; }
-  .in .nm small { text-decoration: none; }
+  /* UI-Grundlagen (Gestaltungsregeln B §5.3): packed rows are quieter, never struck through; the word «drin» says it */
+  .in .nm { color: var(--ink-3); font-weight: 400; }
+  .drin { color: var(--hi); }
+  .donehead { margin: 0; padding: 10px 0 6px; border-top: 1px solid var(--line); font-size: var(--fs-small); color: var(--ink-3); }
   li:has(> .chg) { display: flex; align-items: center; }
   .chg { flex: none; padding: 0 0 0 12px; font-size: var(--fs-small); white-space: nowrap; }
   .bagfoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0 12px; border-top: 1px solid var(--line); }
@@ -586,4 +592,11 @@
   .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   /* a phone held sideways keeps the trip band compact: the count is in the steps already */
   @media (max-height: 500px) { .gocnt { display: none; } }
+  /* UI-Grundlagen (Noah 20.10.2026, idea 3): on a phone the ring beside the button shows the count, so the main
+     button keeps one line («Werkzeugtasche packen»); a long bag name ends with «…» instead of wrapping. */
+  @media (max-width: 600px) {
+    .gocnt { display: none; }
+    .go { min-width: 0; }
+    .golbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
 </style>

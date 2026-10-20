@@ -36,14 +36,14 @@
     min-width: 0;
   }
   .kn {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-2);
   }
   /* Grey, not orange (design answer 8b), but always in sight. */
   .miss {
     margin-left: 2px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-3);
     min-width: 0;

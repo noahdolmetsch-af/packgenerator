@@ -138,6 +138,9 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${shown(day(0))} · 3’200 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(sealantDue(care)).toHaveCount(0);
   // v0.48.0: the part table shows every part by area.
+  // Gesamttest 20.10.2026 C11 (changed on purpose): on a phone the part table shows five rows, then «Noch n zeigen»
+  await care.locator('.ptable').waitFor();
+  if (await care.locator('[data-parts-more]').count()) await care.locator('[data-parts-more]').click();
   const row = care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Reifen + Dichtmilch', { exact: true }) });
   await expect(row).toContainText(shown(day(90)));
   await expect(row).toContainText(`erledigt ${shown(day(0))}`);

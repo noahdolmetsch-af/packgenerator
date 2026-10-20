@@ -195,6 +195,9 @@ test('Bike care: one list, due first, "n ok" folded with the names, tyres inside
   // v0.48.0 «Teile pro Velo»: the rest is the part table by area (no «n ok» fold any more).
   const prow = (name) => spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(name, { exact: true }) });
   await expect(spark.locator('.okfold')).toHaveCount(0);
+  // Gesamttest 20.10.2026 C11 (changed on purpose): on a phone the part table shows five rows, then «Noch n zeigen»
+  await spark.locator('.ptable').waitFor();
+  if (await spark.locator('[data-parts-more]').count()) await spark.locator('[data-parts-more]').click();
   await expect(prow('Kette')).toHaveCount(1);
   // Tubeless or tube sits inside the tyre part (its dialog).
   await prow('Reifen + Dichtmilch').click();
