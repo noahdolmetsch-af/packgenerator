@@ -9,4 +9,6 @@ export default {
   'Me › Data and backup': 'Ich › Daten und Backup',
   'in about {n} day': 'in etwa {n} Tag',
   'in about {n} days': 'in etwa {n} Tagen',
+  // Gesamttest 20.10.2026 Design 1: the head of Material is one line of words
+  'Everything you own: weigh it, sort it, learn from your trips.': 'Alles, was du hast: wiegen, ordnen, aus Touren lernen.',
 };

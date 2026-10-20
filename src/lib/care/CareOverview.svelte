@@ -30,7 +30,7 @@
   import SkToast from '../sk/SkToast.svelte';
   import { ExternalLink, CalendarCheck, EyeOff } from '@lucide/svelte';
 
-  let { checks = [], problems = [], tasks = [], visits = [], today, bikeIdOf, onopen, ondone, onflow, onorder, onrepair, onwork } = $props();
+  let { checks = [], problems = [], tasks = [], visits = [], today, bikeIdOf, onopen, ondone, onflow, onorder, onrepair, onwork, afterDue = null } = $props();
   let messen = $state(null); // «Werte messen»: 'chain' | 'pressure'
 
   const bikes = $derived(checks.map((c) => c.bike));
@@ -152,6 +152,8 @@
           <p class="card quiet">{t('Nothing due now on any bike.')}</p>
         {/if}
       </section>
+      <!-- Gesamttest 20.10.2026: the tip of the day right under «Due now» -->
+      {@render afterDue?.()}
 
       <section class="vsec" aria-labelledby="bikes-h">
         <div class="vh"><div class="vh-t"><h2 id="bikes-h">{t('Bikes')}</h2><p class="vh-s">{t('Bar = how much of the check interval is used')}</p></div></div>

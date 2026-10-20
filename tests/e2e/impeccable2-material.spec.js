@@ -50,9 +50,10 @@ test('Material 2: the right column waits for a tap; a wish shows price, why and 
 
 test('Material 3: the numbers once, the controls in one line, Display in the sheet on a phone', async ({ page, context }, info) => {
   await openGear(page, context, info);
-  // «Alle»: the head line has the numbers; no tiles under the view's sentence
-  await expect(page.locator('.page-sub')).toContainText('Teile');
-  await expect(page.locator('.vstats')).toHaveCount(0);
+  // Gesamttest 20.10.2026 Design 1 (changed on purpose): the head is one line of words, the numbers stand once in the tiles
+  await expect(page.locator('[data-gear-sub]')).toHaveText('Alles, was du hast: wiegen, ordnen, aus Touren lernen.');
+  await expect(page.locator('.vstats')).toHaveCount(1);
+  await expect(page.locator('.vstats')).toContainText('Teile');
   // a filtered view keeps its own numbers (on a computer)
   await page.getByRole('group', { name: 'Ansichten' }).getByRole('button', { name: /^Favoriten/ }).click();
   if (desktop(info)) await expect(page.locator('.vstats')).toBeVisible();

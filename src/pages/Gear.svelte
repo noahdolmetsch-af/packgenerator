@@ -640,9 +640,8 @@
       {#if view === 'wish' && !mode}
       <p class="page-sub num">{shopLine}</p>
       {:else}
-      <p class="page-sub num">
-        {[tn(stats.inventory.length, '{n} item', '{n} items'), t('{w} weighed', { w: formatWeight(stats.total + stats.consumablesG) }), stats.unweighed ? t('{n} still without weight', { n: stats.unweighed }) : '', debriefN ? tn(debriefN, 'learnt from {n} debrief', 'learnt from {n} debriefs') : ''].filter(Boolean).join(' · ')}
-      </p>
+      <!-- Gesamttest 20.10.2026 Design 1: one line «what you can do here»; the numbers stand in the tiles of the view -->
+      <p class="page-sub" data-gear-sub>{t('Everything you own: weigh it, sort it, learn from your trips.')}</p>
       {/if}
     </div>
   </header>
@@ -652,7 +651,6 @@
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
   {#if items.length}{#key view === 'wish'}<HintCard page="gear" intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
-  {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
 
   {#if !items.length && $itemsQuery}
     <!-- v0.127.0 A-U2: the one empty building block -->
@@ -738,16 +736,13 @@
             <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
             <p class="vs">{VIEW_TEXT[view]}</p>
           </div>
-          <!-- Impeccable runde 2 (Material 3): under «All» the head line has these numbers already; the tiles show
-               only in a filtered view, where they count something else -->
-          {#if view !== 'all'}
+          <!-- Gesamttest 20.10.2026 Design 1: the head is one line of words, so the tiles show under «All» too -->
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
             <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.g)}</dd></div>
             {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
-          {/if}
         </section>
         {/if}
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
@@ -929,6 +924,8 @@
       </div>
     </div>
     <TopButton />
+    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
+    {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
     {#if !selecting}<PageMore page="gear" name={t('Gear|page')} />{/if}
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PinnedLists place="gear" />{/if}

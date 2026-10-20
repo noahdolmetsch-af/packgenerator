@@ -439,9 +439,12 @@
       onorder={(id) => (orderOpen = id)}
       onrepair={repairResult}
       onwork={() => ((workBike = openId ?? bikes[0]?.id ?? null), (workOpen = true))}
-    />
-    <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
-    {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
+    >
+      {#snippet afterDue()}
+        <!-- Gesamttest 20.10.2026 Design 2: the tip of the day right under «Due now», not above the page -->
+        {#if bikes.length}<TipLine page="care" name={t('Bike care')} />{/if}
+      {/snippet}
+    </CareOverview>
     {/if}
 
     {#snippet trip(x, soon = null)}

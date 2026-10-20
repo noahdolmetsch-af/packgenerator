@@ -104,6 +104,9 @@ test('accordion: one bike open, the others one row; last work per part with me /
   // any more): the last work with its date, km since, the wear bar and what comes next.
   const prow = (name) => spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(name, { exact: true }) });
   await expect(spark.locator('.ptable')).toBeVisible();
+  // Gesamttest 20.10.2026 C11 (changed on purpose): on a phone the part table shows five rows, then «Noch n zeigen»
+  await spark.locator('.ptable').waitFor();
+  if (await spark.locator('[data-parts-more]').count()) await spark.locator('[data-parts-more]').click();
   await expect(prow('Kassette')).toContainText(`ersetzt ${shown(day(-200))}`);
   await expect(prow('Kassette')).toContainText('1’100 km');
   await expect(prow('Bremsbeläge vorne').locator('.pill')).toHaveText('bald');
@@ -155,6 +158,9 @@ test('filter: all parts, only due, by me, by the bike shop; remembered', async (
     if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
   };
   await expect(chips.getByRole('button', { name: 'Alle', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // Gesamttest 20.10.2026 C11 (changed on purpose): on a phone the part table shows five rows, then «Noch n zeigen»
+  await spark.locator('.ptable').waitFor();
+  if (await spark.locator('[data-parts-more]').count()) await spark.locator('[data-parts-more]').click();
   expect(await spark.locator('button.prow').count()).toBeGreaterThanOrEqual(8);
 
   await chips.getByRole('button', { name: 'Velomech', exact: true }).click();
