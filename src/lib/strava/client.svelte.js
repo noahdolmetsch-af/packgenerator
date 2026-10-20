@@ -399,13 +399,14 @@ let matching = null;
  * marked noAuto and stays for you. A second call while one runs waits for it (and finds nothing).
  */
 export function autoAssign(db = appDb) {
-  if (matching) return matching.then(() => ({ n: 0, put: [], bikes: [] }));
+  if (matching) return matching.then(() => ({ n: 0, counted: 0, already: 0, put: [], bikes: [] }));
   matching = (async () => {
     const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
     const skipGear = prefs.gear.filter((g) => prefs.ignore.includes(String(g.id))).map((g) => g.name).filter(Boolean);
     const rules = await loadRules(db);
     let put = [];
     let before = [];
+    let counted = 0;
     await db.transaction('rw', db.kmBook, db.bikes, async () => {
       const entries = await db.kmBook.toArray();
       const bikes = await db.bikes.toArray();
@@ -414,12 +415,23 @@ export function autoAssign(db = appDb) {
       const ids = new Set(hits.map((h) => h.bikeId));
       before = bikes.filter((b) => ids.has(b.id)).map((b) => ({ id: b.id, km: b.km ?? null, kmDate: b.kmDate ?? null }));
       put = hits.map((h) => JSON.parse(JSON.stringify(h.entry)));
-      await db.kmBook.bulkPut(hits.map((h) => ({ ...JSON.parse(JSON.stringify(h.entry)), bikeId: h.bikeId, state: 'counted', by: 'gear', sure: 'likely', reason: null })));
+      // a ride already in the start value or counted by its twin: on the bike, left out, with the reason
+      const row = (h) => (h.as === 'count' ? { state: 'counted', reason: null } : { state: 'removed', reason: { code: h.as, bike: h.bikeId } });
+      await db.kmBook.bulkPut(hits.map((h) => ({ ...JSON.parse(JSON.stringify(h.entry)), bikeId: h.bikeId, by: 'gear', sure: 'likely', ...row(h) })));
+      counted = hits.filter((h) => h.as === 'count').length;
       await syncBikes(db, [...ids]);
     });
-    return { n: put.length, put, bikes: before };
+    return { n: put.length, counted, already: put.length - counted, put, bikes: before };
   })().finally(() => (matching = null));
   return matching;
+}
+
+/** The line after autoAssign: how many count now, how many were already in (start value or twin). */
+export function autoText(r) {
+  const parts = [];
+  if (r?.counted) parts.push(tn(r.counted, '{n} ride assigned automatically: the Strava bike has the same name.', '{n} rides assigned automatically: the Strava bike has the same name.'));
+  if (r?.already) parts.push(tn(r.already, '{n} older ride is already in the bike\'s start value or counted: it is put on the bike, but does not count twice.', '{n} older rides are already in the bike\'s start value or counted: they are put on the bike, but do not count twice.'));
+  return parts.join(' ');
 }
 
 /**
