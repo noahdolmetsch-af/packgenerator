@@ -11,7 +11,9 @@ import { MAX_SCREENS } from './touren/kurz.js';
 export { MAX_SCREENS };
 
 export const TOO_LONG = {
-  '#/': 4.5,
+  // Heute: N2 «Heute neu» (Noah 20.10.2026 15:49 «5a», approved layout; changes need his OK) ships with this budget in 0.169.0,
+  // measured 5.03 on the phone; the old Heute had 4.5. Lower it when Heute gets shorter.
+  '#/': 5.25,
   '#/flow': 5.5,
   '#/bikes': 5.5,
   '#/gear': 4.5,
