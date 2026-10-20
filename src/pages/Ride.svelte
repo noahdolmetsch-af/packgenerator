@@ -482,7 +482,7 @@
       const s = stage(trip, n, pace, { today });
       const wx = s?.date ? trip.rideWx?.[s.date]?.places?.[0]?.hours ?? [] : [];
       const temps = wx.map((x) => x.temp).filter(Number.isFinite);
-      return { label: dayLabel(n), hours: s?.hours ?? 0, temp: temps.length ? Math.max(...temps) : null, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
+      return { label: dayLabel(n), date: s?.date ?? null, hours: s?.hours ?? 0, temp: temps.length ? Math.max(...temps) : null, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
     });
   });
   const bottlesL = $derived(onTrip.reduce((sum, x) => sum + (x.item.waterL || 0) * (x.qty || 1), 0));

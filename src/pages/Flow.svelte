@@ -348,6 +348,7 @@
       {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
       <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a» «Aktiv „Ausfahrt starten"»): one small line to the live map -->
       <LiveStart />
+      {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
     {#if data && !states.length}

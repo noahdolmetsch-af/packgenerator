@@ -32,4 +32,6 @@ export default {
   'Open a trip with a route and search the places along it.': 'Öffne eine Tour mit Route und suche die Orte entlang der Strecke.',
   'Choose the kinds of stops.': 'Wähle die Arten von Stopps.',
   'Tap «GPX with … stops» and copy it to the bike computer.': 'Tippe «GPX mit … Stopps» und kopiere es auf den Velocomputer.',
+  'entered: {l} L': 'eingetragen: {l} L',
+  'The app reckons about {a} L for the ride; you entered {b} L for the whole day (Body values).': 'Die App rechnet für die Fahrt etwa {a} L; eingetragen hast du {b} L für den ganzen Tag (Körperwerte).',
 };

@@ -66,6 +66,7 @@ test('Race map: map or fallback, profile, weather, own point add rename delete u
   await expect(shop).toHaveAttribute('aria-pressed', 'true');
   await shop.click();
   await expect(shop).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-race-map] [data-landi]')).toHaveAttribute('href', 'https://www.landi.ch/wetter/niederschlagsradar');
   // Paket X: the shown stops as one GPX for the Garmin; a hidden kind stays out
   const dl = page.waitForEvent('download');
   await page.locator('[data-race-map] [data-gpx-stops-save]').click();

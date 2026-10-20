@@ -10,7 +10,7 @@
   import { t, num } from '../i18n.svelte.js';
   import { waterFood } from './wasser.js';
   import { FUEL_KEY, valuesOf } from '../fuel.js';
-  import { eatKcalH } from '../energie.js';
+  import { eatKcalH, WATER_KEY, drunkOn } from '../energie.js';
   import './unterwegs.css';
 
   let { days = [], bottles = 0, food = [] } = $props();
@@ -19,6 +19,9 @@
   const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY));
   const fuel = $derived($fuelQ?.value ?? null);
   const v = $derived(valuesOf(fuel));
+  // Soll gegen Ist (0.171): what you entered under Körperwerte for a day, read only
+  const drunkQ = liveQuery(() => db.settings.get(WATER_KEY));
+  const drunk = (date) => (date ? drunkOn($drunkQ?.value, date) : null);
   const res = $derived(waterFood({ days: days.map((d) => ({ ...d, hot: hot ?? d.hot })), bottles, food, fuel }));
 </script>
 
@@ -32,10 +35,11 @@
   {#if res.days.length > 1}
     <ul class="dl">
       {#each res.days as d, i (i)}
-        <li><span>{days[i].label}</span><span class="num">{num(d.hours)} h · {num(d.waterL)} L{d.refills != null ? ` · ${t('{n}× refill', { n: d.refills })}` : ''} · {num(d.kcal)} kcal</span></li>
+        <li><span>{days[i].label}</span><span class="num">{num(d.hours)} h · {num(d.waterL)} L{d.refills != null ? ` · ${t('{n}× refill', { n: d.refills })}` : ''} · {num(d.kcal)} kcal{drunk(days[i].date) != null ? ` · ${t('entered: {l} L', { l: num(drunk(days[i].date)) })}` : ''}</span></li>
       {/each}
     </ul>
   {/if}
+  {#if days.length === 1 && drunk(days[0].date) != null}<p class="tp-small" data-water-drunk>{t('The app reckons about {a} L for the ride; you entered {b} L for the whole day (Body values).', { a: num(res.days[0].waterL), b: num(drunk(days[0].date)) })}</p>{/if}
   {#if res.food.length}
     <h3 class="uw-h3">{t('Food in the packing list')}</h3>
     <ul class="dl">

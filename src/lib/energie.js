@@ -88,3 +88,13 @@ export function energyFor({ hours, km = null, gainM = 0, tempC = null, kg = null
 
 /** Rounded for a big number (a race): to the hundred under 10 000, else to the thousand. */
 export const roundBig = (kcal) => (kcal >= 10000 ? Math.round(kcal / 1000) * 1000 : Math.round(kcal / 100) * 100);
+
+/**
+ * Soll gegen Ist (Paket X, 0.171): what you entered as drunk on a day (Körperwerte, setting 'me.water'
+ * { entries: [{ day, l }] }, only on this device), read here without changing it. → litres or null.
+ */
+export const WATER_KEY = 'me.water';
+export function drunkOn(value, day) {
+  const e = (Array.isArray(value?.entries) ? value.entries : []).filter((x) => x?.day === day && Number.isFinite(Number(x.l)) && Number(x.l) > 0);
+  return e.length ? Math.round(Number(e.at(-1).l) * 10) / 10 : null;
+}

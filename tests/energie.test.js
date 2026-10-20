@@ -1,6 +1,6 @@
 // Paket X «Energie»: the one rule for used kcal, kcal to eat and water (energie.js).
 import { describe, it, expect } from 'vitest';
-import { metAt, burnKcalH, eatKcalH, energyFor, riderKg, roundBig, KG_STD } from '../src/lib/energie.js';
+import { metAt, burnKcalH, eatKcalH, energyFor, riderKg, roundBig, KG_STD, drunkOn } from '../src/lib/energie.js';
 
 describe('energie.js', () => {
   it('MET grows with the speed, between the points', () => {
@@ -39,5 +39,14 @@ describe('energie.js', () => {
     expect(KG_STD).toBe(75);
     expect(roundBig(2649)).toBe(2600);
     expect(roundBig(23456)).toBe(23000);
+  });
+});
+
+describe('Soll gegen Ist', () => {
+  it('reads what was entered as drunk on a day, else null', () => {
+    const v = { entries: [{ day: '2026-07-04', l: 2.25 }, { day: '2026-07-05', l: 'x' }] };
+    expect(drunkOn(v, '2026-07-04')).toBe(2.3);
+    expect(drunkOn(v, '2026-07-05')).toBeNull();
+    expect(drunkOn(null, '2026-07-04')).toBeNull();
   });
 });
