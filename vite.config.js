@@ -47,6 +47,14 @@ export default defineConfig({
     svelte(),
     // Wächter: no JavaScript file over 3 MB (the offline store keeps up to 6 MiB per file)
     sizeGuard(),
+    // 20.10.2026 (src/lib/behind.js): version.json tells an app stuck on an old offline copy that a newer one is
+    // online. It is not in the offline copy (globPatterns has no json), so it always comes from the internet.
+    {
+      name: 'version-json',
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: process.env.APP_VERSION_OVERRIDE || pkg.version }) });
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate', // a new version replaces the old one on the next start
       includeAssets: ['icons/*.svg', 'icons/*.png'],

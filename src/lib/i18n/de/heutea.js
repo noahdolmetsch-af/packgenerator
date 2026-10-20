@@ -38,4 +38,11 @@ export default {
   'Tip of the week and the hints now live under Me › What is new': 'Tipp der Woche und die Hinweise sind jetzt unter Ich › Was ist neu',
   'Open Today: one sentence on top, then «Up now» beside your trip.': 'Öffne Heute: oben ein Satz, dann «Jetzt dran» neben deiner Tour.',
   'Start the morning check: 3 questions, then «Show more questions».': 'Starte den Morgen-Check: 3 Fragen, dann «Fragen einblenden».',
+  // whatsnew 0.166.1
+  'Nothing cut off': 'Nichts mehr abgeschnitten',
+  'On a phone the card «Up now» no longer slides under your trip.': 'Am Handy rutscht die Karte «Jetzt dran» nicht mehr unter deine Tour.',
+  'Congratulations show as one quiet line; the full list stays in the milestones': 'Glückwünsche stehen als eine ruhige Zeile; alle stehen weiter bei den Meilensteinen',
+  'On a phone «Up now» ends where its last line ends; the next card starts below it': 'Am Handy endet «Jetzt dran» nach seiner letzten Zeile; die nächste Karte beginnt darunter',
+  'Only one congratulation line stands above «Up now».': 'Über «Jetzt dran» steht nur eine Glückwunsch-Zeile.',
+  'Open Today on a phone after reaching a milestone: «Up now» and the trip card do not overlap.': 'Öffne Heute am Handy nach einem Meilenstein: «Jetzt dran» und die Tourkarte überlappen nicht.',
 };

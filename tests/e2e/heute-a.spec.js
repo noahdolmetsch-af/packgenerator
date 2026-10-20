@@ -70,4 +70,36 @@ test.describe('HA Heute neu A', () => {
     await expect(more).toHaveCount(0);
     expect(T('Show {n} more questions', { n: 2 })).toMatch(/Fragen/);
   });
+  // 0.165.0 on a phone (Noah 20.10.2026 «Problem ist abgeschnitten»): with «Well done» above it the card of «Up now»
+  // was as tall as the whole tile, so its bottom (the impulse) slid under the trip card. Every tile holds its content.
+  test('HA3: no tile overlaps the next one; one quiet Well done line', async ({ page, context }, info) => {
+    const d = homeFixture();
+    // three congratulations at once, as on the phone of 20.10.2026: three challenges reached today (fictional)
+    const ch = (id, what) => ({ id: `test_data_gtp_${id}`, area: 'today', what, times: 3, from: day(-10), until: day(10), doneOn: day(0), stopped: false });
+    d.tables.settings.push({ key: 'challenges', value: [ch('c1', 'Swim'), ch('c2', 'Sauna'), ch('c3', 'Walk by the lake')] });
+    await openHome(page, context, info, { data: d });
+    const ab = page.locator('[data-section="abfragen"]');
+    if (await ab.isVisible().catch(() => false)) await ab.locator('[data-ab-later]').click();
+    await expect(page.locator('[data-section="today"] .imp')).toBeVisible();
+    await expect(page.locator('[data-section="du"]')).toBeVisible();
+    await expect(page.locator('[data-cheers] li')).toHaveCount(1);
+    const over = await page.locator('.wall > [data-tile]').evaluateAll((tiles) => {
+      const out = [];
+      const boxes = tiles.map((t) => t.getBoundingClientRect());
+      tiles.forEach((t, i) => {
+        const b = boxes[i];
+        // nothing inside a tile reaches below the tile
+        for (const el of t.querySelectorAll('.body *')) {
+          const r = el.getBoundingClientRect();
+          if (r.height && r.bottom > b.bottom + 1) out.push(`${t.dataset.tile}: ${el.className || el.tagName} ${Math.round(r.bottom - b.bottom)} px below`);
+        }
+        // and no two tiles cover each other
+        boxes.forEach((o, j) => {
+          if (j > i && o.top < b.bottom - 1 && o.bottom > b.top + 1 && o.left < b.right - 1 && o.right > b.left + 1) out.push(`${t.dataset.tile} covers ${tiles[j].dataset.tile}`);
+        });
+      });
+      return [...new Set(out)];
+    });
+    expect(over).toEqual([]);
+  });
 });
