@@ -241,20 +241,82 @@ export async function fetchMeasurements(doFetch, { from, to, pages = MAX_PAGES, 
   throw lastErr ?? new Error('no source');
 }
 
-/** The model points from midnight today (Zurich) for `ahead` days; [] on any failure. */
-export async function fetchForecast(doFetch, { now = new Date(), ahead = AHEAD_DAYS, timeout = TIMEOUT_MS } = {}) {
+/**
+ * Fix 20.10.2026 (thread «Seetemperatur und Sauna»): the preview stayed empty. Alplakes answers an
+ * unknown lake with 400 and «… please select from: [a, b, …]»; from that list the key of Lake Zurich
+ * is taken (the lower lake, not «upper…»). null when there is none.
+ */
+export function lakeKeyFrom(detail) {
+  const m = String(detail ?? '').match(/\[([^\]]*)\]/);
+  if (!m) return null;
+  const keys = m[1].split(',').map((k) => k.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+  return keys.find((k) => /^(lower_?)?zurich$/i.test(k)) ?? keys.find((k) => /zuri/i.test(k) && !/upper|ober/i.test(k)) ?? null;
+}
+
+/** One request that keeps the error text: → { ok, status, body }; throws only on network or timeout. */
+async function getRaw(doFetch, url, timeout) {
+  const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctl ? setTimeout(() => ctl.abort(), timeout) : null;
+  try {
+    const res = await doFetch(url, { headers: { Accept: 'application/json' }, ...(ctl ? { signal: ctl.signal } : {}) });
+    let body = null;
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
+    }
+    return { ok: !!res.ok, status: res.status, body };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// the lake key that worked last (stays while the server instance lives)
+let knownKey = null;
+
+/**
+ * The model points from midnight today (Zurich) for `ahead` days. → { points, note }: note says in a few
+ * words why the preview is empty (shown nowhere in the app, only in the server answer for checking).
+ */
+export async function fetchForecastWithNote(doFetch, { now = new Date(), ahead = AHEAD_DAYS, timeout = TIMEOUT_MS } = {}) {
   const today = zurichDay(now);
   const start = new Date(`${today}T00:00:00Z`);
+  let lake = knownKey ?? LAKE_ID;
+  let note = '';
   for (const days of [ahead + 1, 3]) {
-    try {
-      const end = new Date(`${addDays(today, days)}T00:00:00Z`);
-      const pts = parseAlplakes(await getJson(doFetch, alplakesUrl({ start, end }), timeout));
-      if (pts.length) return pts;
-    } catch {
-      // the model may not reach that far yet: try fewer days, then give up quietly
+    const end = new Date(`${addDays(today, days)}T00:00:00Z`);
+    for (let tries = 0; tries < 2; tries++) {
+      try {
+        const r = await getRaw(doFetch, alplakesUrl({ start, end, lake }), timeout);
+        if (r.ok) {
+          const pts = parseAlplakes(r.body);
+          if (pts.length) {
+            knownKey = lake;
+            return { points: pts, note: '' };
+          }
+          note = 'no points';
+          break;
+        }
+        const detail = typeof r.body?.detail === 'string' ? r.body.detail : '';
+        note = `status ${r.status}${detail ? `: ${detail.slice(0, 140)}` : ''}`;
+        const other = r.status === 400 ? lakeKeyFrom(detail) : null;
+        if (other && other !== lake) {
+          lake = other; // the right key: ask again at once
+          continue;
+        }
+        break;
+      } catch (err) {
+        note = err?.name === 'AbortError' ? 'timeout' : 'network';
+        break;
+      }
     }
   }
-  return [];
+  return { points: [], note };
+}
+
+/** The model points only; [] on any failure. */
+export async function fetchForecast(doFetch, opts = {}) {
+  return (await fetchForecastWithNote(doFetch, opts)).points;
 }
 
 /**
@@ -267,17 +329,18 @@ export async function lakeNow({ doFetch = (...a) => fetch(...a), now = new Date(
   const today = zurichDay(now);
   const from = addDays(today, -(PAST_DAYS - 1));
   const [rows, points] = await Promise.all([
-    fetchMeasurements(doFetch, { from, to: today, pages, timeout }).catch(() => null),
-    fetchForecast(doFetch, { now, timeout }),
+    // the city's endDate is «before which» (exclusive): ask up to tomorrow, or today's values are missing
+    fetchMeasurements(doFetch, { from, to: addDays(today, 1), pages, timeout }).catch(() => null),
+    fetchForecastWithNote(doFetch, { now, timeout }),
   ]);
-  const forecast = forecastDays(points, today);
+  const forecast = forecastDays(points.points, today);
   if (!rows?.length && !forecast.length) throw new Error('no lake data');
   return {
     at: now.toISOString(),
     now: rows ? latest(rows) : null,
     days: rows ? dailyStats(rows, { from, to: today }) : [],
     forecast,
-    sources: { measurement: !!rows?.length, forecast: forecast.length > 0 },
+    sources: { measurement: !!rows?.length, forecast: forecast.length > 0, ...(forecast.length ? {} : { forecastNote: points.note || 'empty' }) },
   };
 }
 

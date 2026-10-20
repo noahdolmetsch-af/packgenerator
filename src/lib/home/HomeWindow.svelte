@@ -109,6 +109,8 @@
     <small class="hint">{t('«Later» brings this window back in one hour. «Not today» puts it away until tomorrow.')}</small>
   </dialog>
 {/if}
+<!-- Paket W 1117: «Plan B for tomorrow» in the evening, when no other window shows (loaded only for a trip with a plan B) -->
+{#if !win && !blocked && String(now).slice(11, 16) >= '17:00' && trips.some((x) => x?.planB && !x.finished)}{#await import('../haustuer/PlanBWindow.svelte') then m}<m.default {now} {trips} />{:catch}{/await}{/if}
 
 <style>
   .ib {

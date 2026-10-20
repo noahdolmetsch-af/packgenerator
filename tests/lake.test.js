@@ -7,14 +7,18 @@ import { readFileSync, readdirSync } from 'node:fs';
 import {
   parseTime, zurichDay, addDays, tecdottirUrl, parseTecdottir, latest, dailyStats,
   alplakesStamp, alplakesUrl, parseAlplakes, forecastDays, lakeNow, isLakeAnswer, PAST_DAYS, PAGE,
+  lakeKeyFrom, fetchForecastWithNote,
 } from '../api/_lib/lake.js';
 import { makeHandler, CACHE } from '../api/lake.js';
 import { createDb } from '../src/lib/db.js';
 import {
   LAKE_URL, LAKE_CACHE_KEY, LAKE_SET_KEY, lakeSetOf, readLakeSet, saveLakeSet, fetchLake, loadLake,
   isFresh, swimTone, isStale, trend, sparkline, WARM_DEFAULT, REFRESH_MS,
+  COLD_DEFAULT, ICY_DEFAULT, LAKE_DAYS_KEY, MAX_LAKE_DAYS, SCALE_WORDS, waterScale, mergeLakeDays, keepLakeDays,
+  isSwimAct, isSaunaAct, seasonStart, swimStats, briefOf, lakeBrief,
 } from '../src/lib/lake.js';
 import de from '../src/lib/i18n/de/seetemperatur.js';
+import allDe from '../src/lib/i18n/de/index.js';
 
 // a Tecdottir row: at is UTC ISO, cet the wall clock as the city writes it
 const row = (at, water, air = 12.3, status = 'ok') => ({
@@ -157,6 +161,35 @@ function fakeNet({ city = 'ok', model = 'ok', today = '2026-10-19', calls = [] }
 }
 const NOW = new Date('2026-10-19T13:00:00Z');
 
+describe('Alplakes: the key of Lake Zurich (fix 20.10.2026)', () => {
+  it('takes the lower lake out of the 400 list', () => {
+    expect(lakeKeyFrom('simstrat simulation results are not available for zurich please select from: [aegeri, biel, lowerzurich, upperzurich]')).toBe('lowerzurich');
+    expect(lakeKeyFrom("not available for x please select from: ['upperzurich', 'zurich']")).toBe('zurich');
+    expect(lakeKeyFrom('please select from: [aegeri, biel]')).toBeNull();
+    expect(lakeKeyFrom('Apologies data is not available for requested period')).toBeNull();
+    expect(lakeKeyFrom(undefined)).toBeNull();
+  });
+  it('asks again with the right key and keeps it', async () => {
+    const calls = [];
+    const doFetch = async (url) => {
+      calls.push(url);
+      if (url.includes('/simstrat/zurich/')) return { ok: false, status: 400, json: async () => ({ detail: 'simstrat simulation results are not available for zurich please select from: [aegeri, lowerzurich, upperzurich]' }) };
+      if (url.includes('/simstrat/lowerzurich/')) return ok({ time: ['2026-10-20T10:00:00Z'], variables: { T: { data: [15.4], unit: 'degC' } } });
+      return fail();
+    };
+    const r = await fetchForecastWithNote(doFetch, { now: NOW });
+    expect(r.points).toEqual([{ at: '2026-10-20T10:00:00.000Z', water: 15.4 }]);
+    expect(calls.filter((u) => u.includes('alplakes'))).toHaveLength(2);
+    const again = await fetchForecastWithNote(doFetch, { now: NOW });
+    expect(again.points).toHaveLength(1);
+    expect(calls.filter((u) => u.includes('alplakes'))).toHaveLength(3); // the known key at once
+  });
+  it('a timeout or a network error gives an empty preview with a note', async () => {
+    const r = await fetchForecastWithNote(async () => { throw new Error('down'); }, { now: NOW });
+    expect(r).toEqual({ points: [], note: 'network' });
+  });
+});
+
 describe('lakeNow: the whole answer', () => {
   it('measurement now, the past days and the preview', async () => {
     const r = await lakeNow({ doFetch: fakeNet(), now: NOW });
@@ -167,12 +200,19 @@ describe('lakeNow: the whole answer', () => {
     expect(r.sources).toEqual({ measurement: true, forecast: true });
     expect(isLakeAnswer(r)).toBe(true);
   });
-  it('asks the city for the last 30 days', async () => {
+  it('asks the city for the last 30 days, up to tomorrow (its endDate is «before which»)', async () => {
     const calls = [];
     await lakeNow({ doFetch: fakeNet({ calls }), now: NOW });
     const city = calls.find((u) => u.includes('tecdottir'));
     expect(city).toContain(`startDate=${addDays('2026-10-19', -(PAST_DAYS - 1))}`);
-    expect(city).toContain('endDate=2026-10-19');
+    expect(city).toContain('endDate=2026-10-20'); // fix 20.10.: with endDate=today, today's values were missing
+  });
+  it('an empty preview says why in the answer', async () => {
+    const a = await lakeNow({ doFetch: fakeNet({ model: 'down' }), now: NOW });
+    expect(a.sources.forecast).toBe(false);
+    expect(a.sources.forecastNote).toMatch(/^status 400/);
+    const b = await lakeNow({ doFetch: fakeNet(), now: NOW });
+    expect(b.sources.forecastNote).toBeUndefined();
   });
   it('the older host when the first does not answer', async () => {
     const calls = [];
@@ -287,13 +327,88 @@ describe('the app: cache, fallback, settings', () => {
     const r = await loadLake(db, { fetcher: async () => { throw new Error('offline'); }, now: NOW });
     expect(r).toEqual({ error: true, data: null });
   });
-  it('the swim threshold: default 20, kept between 10 and 30, half degrees', async () => {
-    expect(lakeSetOf(undefined)).toEqual({ warm: WARM_DEFAULT });
+  it('the scale limits: defaults 20 / 15 / 10, half degrees, always icy < cold < warm', async () => {
+    expect(lakeSetOf(undefined)).toEqual({ warm: WARM_DEFAULT, cold: COLD_DEFAULT, icy: ICY_DEFAULT, saunaSee: true });
     expect(lakeSetOf({ warm: 45 }).warm).toBe(30);
     expect(lakeSetOf({ warm: 18.3 }).warm).toBe(18.5);
+    expect(lakeSetOf({ warm: 12 })).toMatchObject({ warm: 12, cold: 11.5, icy: 10 });
+    expect(lakeSetOf({ warm: 20, cold: 25, icy: 30 })).toMatchObject({ cold: 19.5, icy: 19 });
+    expect(lakeSetOf({ saunaSee: false }).saunaSee).toBe(false);
     await saveLakeSet(db, { warm: 22 });
-    expect(await readLakeSet(db)).toEqual({ warm: 22 });
-    expect((await db.settings.get(LAKE_SET_KEY)).value.warm).toBe(22);
+    expect(await readLakeSet(db)).toMatchObject({ warm: 22, cold: 15, icy: 10 });
+    await saveLakeSet(db, { icy: 8 });
+    expect((await db.settings.get(LAKE_SET_KEY)).value).toMatchObject({ warm: 22, icy: 8 });
+  });
+  it('the cold-water scale (Noah 2a): pleasant, fresh, cold, icy', () => {
+    const set = lakeSetOf();
+    expect(waterScale(21, set)).toBe('warm');
+    expect(waterScale(20, set)).toBe('warm');
+    expect(waterScale(17.8, set)).toBe('fresh');
+    expect(waterScale(15, set)).toBe('fresh');
+    expect(waterScale(14.9, set)).toBe('cold');
+    expect(waterScale(9.9, set)).toBe('icy');
+    expect(waterScale(null, set)).toBeNull();
+    expect(Object.keys(SCALE_WORDS)).toEqual(['warm', 'fresh', 'cold', 'icy']);
+  });
+  it('keeps the daily means it has seen, in the settings (backup), only writing when they change', async () => {
+    const data = { days: [{ day: '2026-10-18', mean: 18.4 }, { day: '2026-10-19', mean: 18 }] };
+    expect(mergeLakeDays({ '2026-10-01': 22.2 }, data)).toEqual({ '2026-10-01': 22.2, '2026-10-18': 18.4, '2026-10-19': 18 });
+    const many = {};
+    for (let k = 0; k < MAX_LAKE_DAYS + 5; k++) many[addDays('2024-01-01', k)] = 10;
+    const cut = mergeLakeDays(many, data);
+    expect(Object.keys(cut)).toHaveLength(MAX_LAKE_DAYS);
+    expect(cut['2024-01-01']).toBeUndefined();
+    await keepLakeDays(db, data);
+    expect((await db.settings.get(LAKE_DAYS_KEY)).value).toEqual({ '2026-10-18': 18.4, '2026-10-19': 18 });
+    await loadLake(db, { fetcher: fakeNet(), now: NOW });
+    expect((await db.settings.get(LAKE_DAYS_KEY)).value['2026-10-17']).toBe(14.5);
+  });
+  it('knows swims and the sauna by id, icon or name', () => {
+    expect(isSwimAct({ id: 'swim' })).toBe(true);
+    expect(isSwimAct({ id: 'x', icon: 'swim' })).toBe(true);
+    expect(isSwimAct({ id: 'x', name: 'Lake dip', nameDe: 'In den See' })).toBe(true);
+    expect(isSwimAct({ id: 'x', name: 'Seeuferweg' })).toBe(false);
+    expect(isSwimAct({ id: 'cold', name: 'Cold shower' })).toBe(false);
+    expect(isSaunaAct({ id: 'sauna' })).toBe(true);
+    expect(isSaunaAct({ id: 'x', name: 'Gym + Sauna' })).toBe(true);
+  });
+  it('the season starts on 1 September', () => {
+    expect(seasonStart('2026-10-20')).toBe('2026-09-01');
+    expect(seasonStart('2026-09-01')).toBe('2026-09-01');
+    expect(seasonStart('2027-02-14')).toBe('2026-09-01');
+    expect(seasonStart('2026-08-31')).toBe('2025-09-01');
+  });
+  it('swims with their water temperature (Noah 4a): this season, the coldest, today with the measurement', () => {
+    const today = '2026-10-20';
+    const acts = [{ id: 'swim', icon: 'swim' }, { id: 'sauna', icon: 'sauna' }];
+    const log = [
+      { actId: 'swim', day: '2026-08-20' },
+      { actId: 'swim', day: '2026-10-12' },
+      { actId: 'swim', day: '2026-10-12' },
+      { actId: 'swim', day: '2026-10-18' },
+      { actId: 'sauna', day: '2026-10-18' },
+      { actId: 'swim', day: today },
+      { actId: 'swim', day: '2026-10-21' }, // a future day does not count
+    ];
+    const lakeDays = { '2026-08-20': 23.1, '2026-10-12': 19.5, '2026-10-18': 18.4, [today]: 18.1 };
+    const s = swimStats({ acts, log, lakeDays, today, nowWater: 17.8 });
+    expect(s.season).toBe(3);
+    expect(s.since).toBe('2026-09-01');
+    expect(s.coldest).toEqual({ day: today, water: 17.8 });
+    expect(s.last).toEqual({ day: today, water: 17.8 });
+    expect(s.list.map((x) => x.day)).toEqual(['2026-08-20', '2026-10-12', '2026-10-18', today]);
+    const none = swimStats({ acts, log: [], lakeDays, today });
+    expect(none).toMatchObject({ season: 0, coldest: null, last: null });
+    const unknown = swimStats({ acts, log: [{ actId: 'swim', day: '2026-10-01' }], lakeDays: {}, today });
+    expect(unknown).toMatchObject({ season: 1, coldest: null });
+  });
+  it('the short form for Heute (1a) reads only what is stored', async () => {
+    expect(briefOf(null, lakeSetOf())).toBeNull();
+    const cache = { data: { now: { at: '2026-10-19T12:00:00.000Z', water: 17.8, air: 12.9 } } };
+    expect(briefOf(cache, lakeSetOf(), NOW)).toEqual({ name: 'Lake Zurich', water: 17.8, air: 12.9, at: '2026-10-19T12:00:00.000Z', stale: false, scale: 'fresh' });
+    expect(await lakeBrief(db, NOW)).toBeNull();
+    await loadLake(db, { fetcher: fakeNet(), now: NOW });
+    expect(await lakeBrief(db, NOW)).toMatchObject({ water: 17, scale: 'fresh' });
   });
   it('swim tone, stale, trend', () => {
     expect(swimTone(20, 20)).toBe('warm');
@@ -319,11 +434,17 @@ describe('the app: cache, fallback, settings', () => {
 });
 
 describe('German texts', () => {
-  it('every text of the card has German, without ß', () => {
-    const src = readFileSync(new URL('../src/lib/lake/LakeCard.svelte', import.meta.url), 'utf8');
-    const keys = [...src.matchAll(/\bt\('((?:[^'\\]|\\.)+)'/g)].map((m) => m[1]);
-    expect(keys.length).toBeGreaterThan(10);
-    for (const k of keys) expect(de[k], k).toBeTruthy();
+  it('every text of the card, «Sauna und See» and the Heute line has German, without ß', () => {
+    for (const f of ['LakeCard', 'SaunaSee', 'LakeChip']) {
+      const src = readFileSync(new URL(`../src/lib/lake/${f}.svelte`, import.meta.url), 'utf8');
+      const keys = [...src.matchAll(/\bt[n]?\((?:[^,'()]+, )?'((?:[^'\\]|\\.)+)'/g)].map((m) => m[1]);
+      expect(keys.length, f).toBeGreaterThan(f === 'LakeChip' ? 0 : 5);
+      for (const k of keys) expect(de[k] ?? allDe[k], `${f}: ${k}`).toBeTruthy();
+    }
     for (const v of Object.values(de)) expect(v).not.toContain('ß');
+  });
+  it('the scale words and lines have German; the card says «Zürisee» (Noah 5a)', async () => {
+    for (const w of Object.values(SCALE_WORDS)) expect(de[w], w).toBeTruthy();
+    expect(de['Lake Zurich']).toBe('Zürisee');
   });
 });

@@ -254,8 +254,10 @@ describe('loadPlaces', () => {
 
 describe('prefs and stars', () => {
   it('cleans the record', () => {
-    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [] });
-    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 7 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [] });
+    // «Weitere Quellen» 20.10.2026: the record also has the chip row, your names and your own kinds; any radius of 1–50 km
+    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
+    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 70 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
+    expect(prefsOf({ radiusKm: 7 }).radiusKm).toBe(7);
   });
   it('stars and unstars a place', () => {
     const p = { id: 'node/1', kind: 'water', name: 'test_data_gtp_ Brunnen', lat: 46.95, lon: 7.45, hours: '', sub: 'drinking_water' };
@@ -338,5 +340,163 @@ describe('5a · share', () => {
     expect(copied).toEqual(['y']);
     expect(await shareOrCopy({ text: 'z' }, { share: async () => { throw Object.assign(new Error('no'), { name: 'AbortError' }); } })).toBe('cancelled');
     expect(await shareOrCopy({ text: 'z' }, {})).toBe('failed');
+  });
+});
+
+describe('«Weitere Quellen» · own radius', () => {
+  it('1 to 50 km, whole or half, also typed with a comma', () => {
+    expect(S.radiusOf(7)).toBe(7);
+    expect(S.radiusOf('7,5')).toBe(7.5);
+    expect(S.radiusOf(' 12.3 ')).toBe(12.5);
+    expect(S.radiusOf(1)).toBe(1);
+    expect(S.radiusOf(50)).toBe(50);
+    for (const bad of [0, 0.5, 51, -3, 'x', '', null, undefined, NaN]) expect(S.radiusOf(bad), String(bad)).toBe(null);
+    expect(prefsOf({ radiusKm: 33.5 }).radiusKm).toBe(33.5);
+    expect(prefsOf({ radiusKm: 0.2 }).radiusKm).toBe(10);
+  });
+  it('an own radius: the query in metres, a kept bigger answer is reused', async () => {
+    expect(aroundQuery(['water'], HERE, 7.5)).toContain('(around:7500,46.95,7.45)');
+    const now = 1_800_000_000_000;
+    const store = memStore();
+    const calls = [];
+    const answer = json([el(1, 46.951, 7.451, { amenity: 'drinking_water' }), el(2, 46.95, 7.55, { amenity: 'drinking_water' })]);
+    const q = { mode: 'around', keys: ['water'], center: HERE, radiusKm: 15 };
+    const a = await loadPlaces(q, { store, fetcher: okFetch(answer, calls), now });
+    expect(a.list).toHaveLength(2);
+    const b = await loadPlaces({ ...q, radiusKm: 3.5 }, { store, fetcher: okFetch(answer, calls), now: now + 1000 });
+    expect(b.cached).toBe(true);
+    expect(b.list.map((p) => p.id)).toEqual(['node/1']);
+    expect(calls).toHaveLength(1);
+    await loadPlaces({ ...q, radiusKm: 22.5 }, { store, fetcher: okFetch(answer, calls), now: now + 2000 });
+    expect(calls).toHaveLength(2);
+  });
+});
+
+describe('«Weitere Quellen» · more kinds', () => {
+  it('each more kind has name, icon, selectors, a German name, an icon component and a map symbol', async () => {
+    const de = (await import('../src/lib/i18n/de/index.js')).default;
+    const icons = readFileSync(new URL('../src/lib/map/poiicons.js', import.meta.url), 'utf8');
+    const { KIND_ICON, SEARCH_KINDS } = await import('../src/lib/map/symbols.js');
+    expect(S.MORE.length).toBeGreaterThanOrEqual(15);
+    for (const c of S.MORE) {
+      expect(KEYS).not.toContain(c.key);
+      expect(de[c.name], c.name).toBeTruthy();
+      expect(icons, c.key).toMatch(new RegExp(`\\b${c.key}: [A-Z]`));
+      expect(KIND_ICON[c.key], c.key).toBe(c.icon);
+      expect(SEARCH_KINDS).toContain(c.key);
+      for (const sel of c.tags) expect(S.checkSelector(sel).sel, sel).toBe(sel);
+    }
+    expect(new Set(S.ALL_KEYS).size).toBe(S.ALL_KEYS.length);
+  });
+  it('the more specific kind wins, and a kept answer still gives the general kind', () => {
+    expect(kindOf({ shop: 'bakery' }, ['shop', 'bakery'])).toBe('bakery');
+    expect(kindOf({ amenity: 'bench' }, S.ALL_KEYS)).toBe('bench');
+    expect(kindOf({ amenity: 'charging_station', bicycle: 'yes' }, ['charge'])).toBe('charge');
+    expect(kindOf({ amenity: 'charging_station' }, ['charge'])).toBe(null);
+    const { list } = parsePlaces(json([el(1, 46.95, 7.45, { shop: 'bakery' })]), ['shop', 'bakery']);
+    expect(list[0]).toMatchObject({ kind: 'bakery', also: ['shop'] });
+    const rec = { at: 1, keys: ['shop', 'bakery'], list, center: HERE, radiusKm: 10 };
+    expect(fitting(rec, { mode: 'around', keys: ['shop'], center: HERE, radiusKm: 10 })[0].kind).toBe('shop');
+  });
+});
+
+describe('«Weitere Quellen» · OpenStreetMap tags typed by you', () => {
+  it('takes the four allowed forms (and plain key=value)', () => {
+    expect(S.checkSelector('["amenity"="bench"]')).toEqual({ sel: '["amenity"="bench"]' });
+    expect(S.checkSelector(' [ "cuisine" ~ "pizza|pasta" ] ')).toEqual({ sel: '["cuisine"~"pizza|pasta"]' });
+    expect(S.checkSelector('["amenity"="bench"]["backrest"!="no"]')).toEqual({ sel: '["amenity"="bench"]["backrest"!="no"]' });
+    expect(S.checkSelector('["wheelchair"]')).toEqual({ sel: '["wheelchair"]' });
+    expect(S.checkSelector('amenity=bench')).toEqual({ sel: '["amenity"="bench"]' });
+    expect(S.checkSelector('service:bicycle:pump = yes')).toEqual({ sel: '["service:bicycle:pump"="yes"]' });
+    expect(S.checkSelector('amenity')).toEqual({ sel: '["amenity"]' });
+  });
+  it('refuses anything else, so nothing else reaches Overpass', () => {
+    const bad = {
+      '': 'empty',
+      '["amenity"="bench"](around:99999,0,0);out;': 'form',
+      '["amenity"="bench"];node(1)': 'form',
+      '["amenity"="be"nch"]': 'form',
+      '["amenity"="be\\"nch"]': 'form',
+      '["am enity"="bench"]': 'key',
+      '["amenity"=""]': 'value',
+      '["name"~"("]': 'regex',
+      '["fee"!="yes"]': 'positive',
+      'amenity="bench"]': 'value',
+      '["a"="1"]["b"="2"]["c"="3"]["d"="4"]["e"="5"]': 'long',
+      '[out:json];': 'form',
+      'nwr["amenity"="bench"]': 'form',
+      'amenity=bench\\': 'value',
+    };
+    for (const [line, error] of Object.entries(bad)) expect(S.checkSelector(line), line).toEqual({ error });
+  });
+  it('several lines: errors with their line, at most MAX_SELECTORS', () => {
+    expect(S.checkSelectors('["amenity"="bench"]\n\nleisure=picnic_table\n["x"=]')).toEqual({ tags: ['["amenity"="bench"]', '["leisure"="picnic_table"]'], errors: [{ line: 4, error: 'form' }] });
+    expect(S.checkSelectors('  ').errors).toEqual([{ line: 0, error: 'none' }]);
+    const many = Array.from({ length: S.MAX_SELECTORS + 1 }, (_, i) => `["k${i}"="v"]`).join('\n');
+    expect(S.checkSelectors(many).errors).toEqual([{ line: 0, error: 'many' }]);
+  });
+  it('an own kind: name, icon, tags; queried, matched and kept with its tags', async () => {
+    expect(S.newOwnCat({ name: '', text: 'amenity=bench' }).errors).toEqual([{ line: 0, error: 'name' }]);
+    const { cat } = S.newOwnCat({ name: 'test_data_gtp_ Bänke', icon: 'bench', text: '["amenity"="bench"]\n["leisure"="picnic_table"]' }, () => 0.123456);
+    expect(cat).toMatchObject({ name: 'test_data_gtp_ Bänke', icon: 'bench', tags: ['["amenity"="bench"]', '["leisure"="picnic_table"]'], own: true });
+    expect(cat.key).toMatch(/^my-[a-z0-9]{2,16}$/);
+    expect(S.ownCatOf({ ...cat, icon: 'nope' }).icon).toBe(S.OWN_ICONS[0]);
+    expect(S.ownCatOf({ ...cat, tags: ['out;'] })).toBe(null);
+    expect(S.ownCatOf({ ...cat, key: 'water' })).toBe(null);
+    const own = [cat];
+    const q = aroundQuery([cat.key, 'water'], HERE, 5, own);
+    expect(q).toContain('nwr["amenity"="bench"](around:5000,46.95,7.45);');
+    expect(q).toContain('nwr["leisure"="picnic_table"](around:5000,46.95,7.45);');
+    expect(q).toContain('"drinking_water"');
+    expect(kindOf({ amenity: 'bench' }, [cat.key], own)).toBe(cat.key);
+    // kept: a change of its tags asks again
+    const store = memStore();
+    const calls = [];
+    const answer = json([el(5, 46.951, 7.451, { amenity: 'bench' })]);
+    const base = { mode: 'around', keys: [cat.key], own, center: HERE, radiusKm: 5 };
+    const a = await loadPlaces(base, { store, fetcher: okFetch(answer, calls), now: 10 });
+    expect(a.list.map((p) => [p.id, p.kind])).toEqual([['node/5', cat.key]]);
+    await loadPlaces(base, { store, fetcher: okFetch(answer, calls), now: 20 });
+    expect(calls).toHaveLength(1);
+    const changed = [{ ...cat, tags: ['["amenity"="bench"]["backrest"="yes"]'] }];
+    await loadPlaces({ ...base, own: changed }, { store, fetcher: okFetch(answer, calls), now: 30 });
+    expect(calls).toHaveLength(2);
+    expect(calls[1].body).toContain('["backrest"="yes"]');
+  });
+  it('the chip row: sort, rename, take out, put back, own kinds in and out', () => {
+    let p = prefsOf({ on: ['water', 'shop'] });
+    p = S.moveChip(p, 0, 2);
+    expect(p.row.slice(0, 3)).toEqual(['shop', 'food', 'water']);
+    expect(S.moveChip(p, 0, 99)).toEqual(p);
+    p = S.renameChip(p, 'water', 'test_data_gtp_ Brünneli', 'Wasser');
+    expect(p.names).toEqual({ water: 'test_data_gtp_ Brünneli' });
+    expect(S.renameChip(p, 'water', 'Wasser', 'Wasser').names).toEqual({});
+    p = S.hideChip(p, 'water');
+    expect(p.row).not.toContain('water');
+    expect(p.on).toEqual(['shop']);
+    expect(prefsOf({ ...p, on: ['water', 'shop'] }).on).toEqual(['shop']); // only kinds in the row are on
+    p = S.showChip(p, 'bench');
+    expect(p.row.at(-1)).toBe('bench');
+    expect(S.showChip(p, 'nope')).toEqual(prefsOf(p));
+    const { cat } = S.newOwnCat({ name: 'test_data_gtp_ Glace', icon: 'food', text: 'amenity=ice_cream' });
+    p = S.putOwnCat(p, cat);
+    expect(p.own.map((c) => c.key)).toEqual([cat.key]);
+    expect(p.row.at(-1)).toBe(cat.key);
+    expect(p.on).toContain(cat.key);
+    p = S.renameChip(p, cat.key, 'test_data_gtp_ Gelati');
+    expect(p.own[0].name).toBe('test_data_gtp_ Gelati');
+    expect(p.names[cat.key]).toBeUndefined();
+    p = S.putOwnCat(p, { ...p.own[0], tags: ['["shop"="ice_cream"]'] });
+    expect(p.own[0].tags).toEqual(['["shop"="ice_cream"]']);
+    p = S.removeOwnCat(p, cat.key);
+    expect(p.own).toEqual([]);
+    expect(p.row).not.toContain(cat.key);
+    expect(p.on).not.toContain(cat.key);
+    // the record survives a round trip
+    expect(prefsOf(JSON.parse(JSON.stringify(p)))).toEqual(p);
+  });
+  it('a starred place of an own kind keeps the name of the kind', () => {
+    const s = S.starOf({ id: 'node/5', kind: 'bench', name: '', lat: 46.95, lon: 7.45, sub: 'bench', catName: 'test_data_gtp_ Bänke' });
+    expect(s).toEqual({ id: 'node/5', kind: 'bench', name: '', lat: 46.95, lon: 7.45, sub: 'bench', catName: 'test_data_gtp_ Bänke' });
   });
 });

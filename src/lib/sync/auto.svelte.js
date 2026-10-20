@@ -6,7 +6,7 @@
  * sync.state is what the panel and the question window show.
  */
 import { liveQuery } from 'dexie';
-import { syncNow, readCfg, ASK } from './engine.js';
+import { syncNow, readCfg, ASK, settleAsks } from './engine.js';
 
 export const AFTER_CHANGE_MS = 20_000;
 export const EVERY_MS = 5 * 60_000;
@@ -66,6 +66,9 @@ let changeTimer = null;
 export function watchSync(db, win = globalThis) {
   if (dbRef) return;
   dbRef = db;
+  // questions a rule answers (Strava activities fetched on both devices): gone at once, before any round
+  // and even without the internet, so the window does not open for them (Noah 20.10.2026 «Schon wieder»)
+  settleAsks(db).catch(() => {});
   liveQuery(async () => ({ cfg: await readCfg(db), asks: await db.meta.where('key').startsWith(ASK).count(), prefs: (await db.settings.get(ASK_PREFS))?.value ?? {} })).subscribe({
     next: ({ cfg, asks, prefs }) => {
       sync.autoOpen = prefs.auto !== false; // Noah 18.10.2026 20:07 «1a»: by itself unless switched off

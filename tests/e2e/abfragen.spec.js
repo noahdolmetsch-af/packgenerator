@@ -85,21 +85,21 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
     await expect(page.locator('.vhead .vsub')).toHaveText(/^35 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
-    await expect(page.getByText('10 Bereiche · 54 Fragen · 35 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 104 Fragen · 35 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
-    await expect(erholung.locator('[data-q]')).toHaveCount(6);
+    await expect(erholung.locator('[data-q]')).toHaveCount(11);
     // Impeccable Runde 2 (on purpose): «bisher: …» only in the interval sheet of the question
     await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toHaveCount(0);
-    await expect(page.locator('[data-area="spass"]').getByText('5 Fragen · 4 an')).toBeVisible();
+    await expect(page.locator('[data-area="spass"]').getByText('10 Fragen · 4 an')).toBeVisible();
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /3× täglich · 8:00, 13:00, 20:00/ })).toBeVisible();
     await shot(page, info, 'AB5-fragen-bereiche');
     await noSideways(page);
     // a switch: «Sofa oder Sattel» on → 36 on
     const sofa = erholung.locator('[data-q="erholung.sofa"]');
     await sofa.getByRole('switch').check();
-    await expect(page.getByText('10 Bereiche · 54 Fragen · 36 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 104 Fragen · 36 an')).toBeVisible();
     // the interval of «Akku»: twice a day
     await erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /täglich/ }).click();
     const sheet = page.getByRole('dialog', { name: T('How often to ask?') });
@@ -110,7 +110,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /2× täglich · 8:00, 20:00/ })).toBeVisible();
     // «Alle aufklappen»
     await page.getByRole('button', { name: T('Expand all') }).click();
-    await expect(page.locator('[data-q]')).toHaveCount(54);
+    await expect(page.locator('[data-q]')).toHaveCount(104);
 
     // AB2: an own question
     await page.locator('[data-own-add]').click();
@@ -127,13 +127,15 @@ test.describe('AB Deine Abfragen', () => {
     const mine = page.locator('[data-area="eigene"]');
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await expect(mine.getByText('Tassen')).toBeVisible();
-    await expect(page.getByText('10 Bereiche · 55 Fragen · 37 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 105 Fragen · 37 an')).toBeVisible();
     // and away again
     await mine.getByRole('button', { name: /Kaffee/ }).click();
     await page.getByRole('dialog').locator('[data-own-delete]').click();
+    // Noah 20.10.2026 (changed on purpose): deleting asks first in the app's own window, then offers Undo
+    await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
     await page.reload();
-    await expect(page.getByText('10 Bereiche · 54 Fragen · 36 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 104 Fragen · 36 an')).toBeVisible();
   });
 
   test('AB4: the history with an old daily check, filters, change an answer', async ({ page, context }, info) => {

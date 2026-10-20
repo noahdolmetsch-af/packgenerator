@@ -4,7 +4,9 @@
  * Helfer-Code as the AI helper (Ich › KI-Helfer), but no money: the free tier, with a daily limit.
  * Only the question goes along, plus the gear and learnings that fit when the tick is set.
  *
- * askGemini(question, { context, lang }) → { ok: true, text } | { ok: false, error }
+ * «Tagebuch» (20.10.2026): `mode` (title, tidy, summary, ask) asks for a diary job with more context (api/helper.js).
+ *
+ * askGemini(question, { context, lang, mode }) → { ok: true, text } | { ok: false, error }
  * error: 'off' (no Helfer-Code) | 'offline' | 'auth' | 'server' (no key on the server) | 'limit' | 'busy' | 'error'
  */
 import { db } from '../db.js';
@@ -13,7 +15,7 @@ import { t } from '../i18n.svelte.js';
 
 const TIMEOUT = 45_000;
 
-export async function askGemini(question, { context = '', lang = 'de', fetchFn = (...a) => fetch(...a) } = {}) {
+export async function askGemini(question, { context = '', lang = 'de', mode = '', fetchFn = (...a) => fetch(...a) } = {}) {
   const s = settingsOf((await db.settings.get(HELPER_KEY).catch(() => null))?.value);
   if (!s.code) return { ok: false, error: 'off' };
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return { ok: false, error: 'offline' };
@@ -24,7 +26,7 @@ export async function askGemini(question, { context = '', lang = 'de', fetchFn =
     res = await fetchFn(HELPER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${s.code}` },
-      body: JSON.stringify({ task: 'gemini', input: { question: String(question).slice(0, 600), context: String(context).slice(0, 2000), lang } }),
+      body: JSON.stringify({ task: 'gemini', input: { question: String(question).slice(0, 600), context: String(context).slice(0, mode ? 12000 : 2000), lang, ...(mode ? { mode } : {}) } }),
       signal: ctl.signal,
     });
   } catch {

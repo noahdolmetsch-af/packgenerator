@@ -3,19 +3,21 @@
  * source and an answer as text). The texts of the list go through t(); an own question keeps its own words.
  */
 import { t, tn, locale, lang } from '../i18n.svelte.js';
-import { AREA, OWN_AREA, QUESTION, everyOf, timesOf, dayOf } from '../abfragen.js';
+import { AREA, OWN_AREA, QUESTION, everyOf, timesOf, dayOf, areaLabel } from '../abfragen.js';
 
-/** The text of a question (an own one as written). */
-export const qText = (q) => (q?.own ? q.text : q ? t(q.text) : '');
+/** The text of a question (an own one and a changed one as written). */
+export const qText = (q) => (q?.own || q?.edited ? q.text : q ? t(q.text) : '');
 /** A history row's question text: the question, the old pool question of the daily check, or its key. */
 export function rowText(row, own = []) {
   if (row.kind === 'ride') return row.ride?.name || t('Ride from Strava');
-  const q = QUESTION[row.qid] ?? own.find((x) => x.id === row.qid);
+  // own: the questions as the person has them (allQuestions: changed texts, own ones), else the list
+  const q = own.find((x) => x.id === row.qid) ?? QUESTION[row.qid];
   if (q) return qText(q);
   if (row.label) return lang.v === 'de' && row.label.textDe ? row.label.textDe : row.label.text;
   return row.qid;
 }
-export const areaName = (key) => (key === OWN_AREA ? t('Own|questions') : AREA[key] ? t(AREA[key].name) : '');
+/** A group's name; with the settings (cfg) also a renamed or own group. */
+export const areaName = (key, cfg = null) => (cfg ? areaLabel(cfg, key, t) : key === OWN_AREA ? t('Own|questions') : AREA[key] ? t(AREA[key].name) : '');
 
 /** '08:00' → '8:00'. */
 export const hm = (s) => String(s ?? '').replace(/^0(\d):/, '$1:');
