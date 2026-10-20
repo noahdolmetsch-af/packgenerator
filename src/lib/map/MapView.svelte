@@ -13,7 +13,8 @@
    * - cursor: { lat, lon } the marker of the profile; me: { lat, lon, acc } your position (live map).
    * - arrows: [{ lat, lon, deg, label }] wind arrows; overlays: [{ id, url, maxzoom, opacity, attribution }].
    * - toggles: [{ key, label }] layer switches shown under the map, shown (bindable) { key: bool }.
-   * - prefsKey: keeps ground and switches on this device (localStorage); adding: «Add point» mode.
+   * - prefsKey: keeps the switches on this device (localStorage); the ground is one choice for all maps
+   *   (groundpref.svelte.js); adding: «Add point» mode.
    * - onpick(point) a tap on a point; onmapclick({ lat, lon, zoom }) a tap elsewhere;
    *   onlongpress({ lat, lon }) a long press or right click.
    * - highlight: [[lat, lon]] a stretch drawn wide under the route (the zoomed part of the profile).
@@ -29,6 +30,7 @@
   import { onMount, untrack } from 'svelte';
   import { Maximize2, Layers } from '@lucide/svelte';
   import { GROUNDS, groundOf, pickGround } from './sources.js';
+  import { mapGround, chooseGround } from './groundpref.svelte.js';
   import { SYMBOL_KINDS, symbolId, symbolSvg } from './symbols.js';
   import { styleOf, tokenColours, sectorColour, kindColour, kindColourExpr, segmentsGeo, lineFeature, pointsGeo, pointFeature, zoomSteps, boundsOf, middleOf, loadPrefs, savePrefs, hasWebGL, FONT, LABEL_ZOOM, SECTOR_TOKENS } from './maplib.js';
   import { t } from '../i18n.svelte.js';
@@ -75,11 +77,17 @@
   let fitted = false;
 
   // the choices of this place on this device
+  // Kartenlayer 20.10.2026: the ground is one choice for all maps (groundpref); a map's older own choice counts until then
   if (untrack(() => prefsKey)) {
     const p = untrack(() => loadPrefs(prefsKey, { ground, shown }));
-    ground = groundOf(p.ground).key;
+    ground = groundOf(mapGround.set ? mapGround.key : p.ground).key;
     shown = p.shown;
-  }
+  } else if (mapGround.set) ground = mapGround.key;
+  // chosen on another map meanwhile: follow
+  $effect(() => {
+    const k = mapGround.key;
+    if (mapGround.set) untrack(() => ground !== k && (ground = k));
+  });
   $effect(() => {
     const v = { ground, shown: { ...shown } };
     if (prefsKey) savePrefs(prefsKey, v);
@@ -508,7 +516,7 @@
   <div class="mv-bar">
     <label class="mv-ground">
       <span class="mv-lab"><Layers size={16} aria-hidden="true" />{t('Map ground')}</span>
-      <select class="inp" bind:value={ground} data-map-ground>
+      <select class="inp" bind:value={ground} onchange={() => chooseGround(ground)} data-map-ground>
         {#each GROUNDS as x (x.key)}<option value={x.key}>{t(x.name)}</option>{/each}
       </select>
     </label>

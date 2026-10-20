@@ -19,9 +19,10 @@ export function project({ lat, lon }, z) {
 /**
  * Everything to draw the map: the zoom that fits the points into w × h (with a margin), the tiles
  * [{ x, y, z, left, top, url }], and a function px(point) → { x, y } in the w × h box.
+ * url: the tile address with {z}/{x}/{y} (the app's map ground, Kartenlayer 20.10.2026; OpenStreetMap by default).
  * Returns null without points.
  */
-export function mapView(points, w, h, { pad = 28, maxZoom = 15, minZoom = 3 } = {}) {
+export function mapView(points, w, h, { pad = 28, maxZoom = 15, minZoom = 3, url = TILE_URL } = {}) {
   const pts = (points ?? []).filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lon));
   if (!pts.length) return null;
   let z = maxZoom;
@@ -42,7 +43,7 @@ export function mapView(points, w, h, { pad = 28, maxZoom = 15, minZoom = 3 } = 
     if (ty < 0 || ty >= n) continue;
     for (let tx = Math.floor(ox / TILE); tx <= Math.floor((ox + w) / TILE); tx++) {
       const wx = ((tx % n) + n) % n;
-      tiles.push({ x: wx, y: ty, z, left: tx * TILE - ox, top: ty * TILE - oy, url: TILE_URL.replace('{z}', z).replace('{x}', wx).replace('{y}', ty) });
+      tiles.push({ x: wx, y: ty, z, left: tx * TILE - ox, top: ty * TILE - oy, url: url.replace('{z}', z).replace('{x}', wx).replace('{y}', ty) });
     }
   }
   const px = (p) => {
