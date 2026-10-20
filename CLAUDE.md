@@ -18,7 +18,7 @@ These replace «Principle No. 1» of 10.10.2026 (mockups first, ★, Trello, «N
 8. **Free and private:** zero costs (free services only); private data only outside the repo, no real names.
 9. **Quiet:** speak only with a result, a blocker or a question, in short German.
 10. **Ideas:** every release proposes at most 3 new ideas for the idea collection.
-11. **Heute** follows the approved layout HN4; any other change to Heute needs Noah's explicit OK.
+11. **Heute** follows the approved layout A «Ein Blick» (0.164.0; Noah 20.10.2026 «1A … 3a 4a 5b», replaced HN4); any other change to Heute needs Noah's explicit OK.
 12. **Reorder** everywhere with arrows and drag. Add explanatory text wherever users could get lost.
 13. **After every step:** document the progress (docs, memory). Small things: check and improve them yourself.
 

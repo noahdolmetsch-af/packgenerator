@@ -4,6 +4,7 @@
    * frei»): until Strava is connected on this device, one card on top of the wall with «Connect» (the
    * Strava page) and «Later». «Later» hides it for good (settings STRAVA_CARD_KEY, in backups); the
    * tile «Strava» (Customise › add) and Bike › Care › Strava still lead to the connection.
+   * «Heute neu» A 5b (Noah 20.10.2026): the card moved from Today to the top of Ich.
    */
   import { liveQuery } from 'dexie';
   import { Bike, Link2, Lock } from '@lucide/svelte';
@@ -30,7 +31,7 @@
       <p>{t('Then every ride lands on the right bike by itself and counts in «This week».')} <span class="lk"><Lock size={12} aria-hidden="true" />{t('Read only, disconnect at any time. Goes away once you are connected.')}</span></p>
     </div>
     <div class="acts">
-      <a class="btn hi sm" href={STRAVA_HASH}><Link2 size={16} aria-hidden="true" />{t('Connect')}</a>
+      <a class="btn sm" href={STRAVA_HASH}><Link2 size={16} aria-hidden="true" />{t('Connect')}</a>
       <button type="button" class="btn btn-link sm" onclick={hide}>{t('Later')}</button>
     </div>
   </section>

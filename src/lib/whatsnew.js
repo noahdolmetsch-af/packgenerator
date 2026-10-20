@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.164.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
+    version: '0.164.0',
+    date: '2026-10-20',
+    title: 'Today at one look',
+    lead: 'Today is new: one sentence, what is up now, your trip, a calm card «You today» and eight shortcuts.',
+    points: [
+      { text: 'The morning check asks 3 questions; «Show more questions» brings the others', href: '#/check/morning' },
+      { text: '«Up now» gathers the morning check, meditation, the ride idea and what is due, at most four rows', href: '#/' },
+      { text: '«You today» shows your balance of 7 days, sleep, resting pulse and km in one card, only to look at', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Everything else is one tap away under «All areas»; your own tiles stay addable', href: '#/features' },
+      { box: 'nicer', text: 'Tip of the week and the hints now live under Me › What is new', href: '#/me/news' },
+    ],
+    test: [
+      'Open Today: one sentence on top, then «Up now» beside your trip.',
+      'Start the morning check: 3 questions, then «Show more questions».',
+    ],
+  },
+  {
     // v0.163.0 «Gesamttest 20.10.2026, round 2» (Noah «1a 2a 3a 4a 5a», «alle B, C und Design umsetzen»).
     version: '0.163.0',
     date: '2026-10-20',
@@ -1325,7 +1345,7 @@ export const WHATS_NEW = [
     ],
     small: [
       { box: 'nicer', text: 'Debrief starts with what is open; Gear has «Shopping»', href: '#/debrief' },
-      { box: 'new', text: 'After an update a calm sheet says what is new', href: '#/features?news' },
+      { box: 'new', text: 'After an update a calm sheet says what is new', href: '#/me/news' },
     ],
   },
   {

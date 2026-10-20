@@ -6,11 +6,13 @@ import { test, expect } from '@playwright/test';
 import { D0, openHome, homeFixture } from './home0460-fixture.js';
 import { ROUTINE_KEY, seedItems, addDays } from '../../src/lib/routine.js';
 import { READY, HEAD_0155 } from '../../src/lib/home/tiles.js';
+import { HN4, withWall } from './wall-fixture.js';
 
 const back = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => addDays(D0, -(from + i)));
 /** The examples, «A walk» ticked the 11 days before today, the banana today and yesterday, a meditation today in Im Flow. */
+// «Heute neu» A (0.164.0): the tile left the ready wall (it stays in the catalog); the device has the HN4 wall with it
 function data() {
-  const d = homeFixture();
+  const d = withWall(homeFixture());
   const items = [...seedItems(), { id: 'test_data_gtp_swim', name: 'test_data_gtp_ Schwimmen', days: [4], link: null, time: null }];
   d.tables.settings.push({ key: ROUTINE_KEY, value: { items, ticks: { walk: back(1, 11), banana: back(0, 1) } } });
   d.tables.flowActs = [{ id: 'meditation', name: 'Meditation', icon: 'lotus', ring: 'mind', order: 0, perTap: 1, minMin: 10, paused: false, goals: [{ id: 'g', count: 1, days: 1 }], season: null, counts: [] }];
@@ -29,8 +31,9 @@ test('Heute: the routine on top, tick and take back, streak, weekday items, mile
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { data: data() });
-  // HN4: right under the tiles on top (meditation, day card, Important today); the fixture has no stored wall
-  expect(READY.map((x) => x.id).slice(0, HEAD_0155.length + 1)).toEqual([...HEAD_0155, 'routine']);
+  // HN4: right under the tiles on top (meditation, day card, Important today); since 0.164.0 not on the ready wall
+  expect(HN4().map((x) => x.id).slice(0, HEAD_0155.length + 1)).toEqual([...HEAD_0155, 'routine']);
+  expect(READY.map((x) => x.id)).not.toContain('routine');
   const tile = page.locator('.wall [data-tile="routine"]');
   await expect(tile).toBeVisible();
   const shown = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
@@ -79,7 +82,7 @@ test('Heute: the routine on top, tick and take back, streak, weekday items, mile
 test('Change list: weekday chips, add, rename, delete with Undo, back on Heute', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const T = await openHome(page, context, info);
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   const tile = page.locator('.wall [data-tile="routine"]');
   // without a record: the seven examples, six of them on a Friday, nothing done yet
   await expect(tile.locator('[data-routine-count]')).toHaveText(`${T('{n} of {m}', { n: 0, m: 6 })} · ${T('Fri|short')}`);
@@ -142,7 +145,7 @@ test('Change list: weekday chips, add, rename, delete with Undo, back on Heute',
 });
 
 test('everything is a suggestion: the tile can leave the wall', async ({ page, context }, info) => {
-  const T = await openHome(page, context, info);
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await expect(page.locator('.wall [data-tile="routine"]')).toBeVisible();
   await page.getByRole('button', { name: T('Customise the start page') }).first().click();
   await page.getByRole('button', { name: T('Take {name} off the start page', { name: T('What does me good') }) }).click();
@@ -152,7 +155,7 @@ test('everything is a suggestion: the tile can leave the wall', async ({ page, c
 // Noah 18.10.2026 «1a» (question 5): the tile starts under the HN4 head and can go to the very top, above the
 // meditation card, by the normal customising (‹ › and the handle to drag, Wall.svelte); it stays there.
 test('the tile moves to the very top with the arrows and stays first after a reload', async ({ page, context }, info) => {
-  const T = await openHome(page, context, info);
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   const ids = () => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
   await expect(page.locator('.wall [data-tile="routine"]')).toBeVisible();
   await page.getByRole('button', { name: T('Customise the start page') }).first().click();

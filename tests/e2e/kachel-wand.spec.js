@@ -6,7 +6,8 @@
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo
 // mocked; SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
-import { D0, openHome, atHour } from './home0460-fixture.js';
+import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
+import { HN4, withWall } from './wall-fixture.js';
 import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
@@ -50,7 +51,8 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
   // the columns: a small tile is an eighth (computer) or a quarter (phone) of the wall
   const wall = await page.locator('.wall').boundingBox();
-  const small = await page.locator('.wall [data-tile="fn:weigh"]').boundingBox();
+  // «Heute neu» A (0.164.0): «Weigh» left the ready wall; «Note» is one of its 8 shortcuts
+  const small = await page.locator('.wall [data-tile="fn:note"]').boundingBox();
   const cols = phone ? 4 : 8;
   expect(Math.abs(small.width - (wall.width - (cols - 1) * (phone ? 8 : 12)) / cols)).toBeLessThan(2);
   // the last field is «+»
@@ -68,7 +70,8 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
 test('customise: take away, resize, move, kept after a reload; Reset brings the ready wall back', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const T = await openHome(page, context, info);
+  // «Heute neu» A (0.164.0): a device with the longer HN4 wall (12 months, New in the app); Reset brings the new ready wall
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   await expect(page.getByRole('region', { name: T('Customise the start page') })).toBeVisible();
   // the tiles' own buttons rest meanwhile
@@ -109,7 +112,8 @@ test('customise: take away, resize, move, kept after a reload; Reset brings the 
 
 test('drag a tile by its handle onto another place', async ({ page, context }, info) => {
   test.skip(info.project.name === 'phone', 'the handle is dragged with the mouse here; the phone uses the same pointer events');
-  const T = await openHome(page, context, info);
+  // «Heute neu» A (0.164.0): series and milestones left the ready wall; a device with the HN4 wall
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   // v0.155.0: meditation stands first now (HN4); «Milestones», two places after the series, is dragged up instead
   const grip = page.getByRole('button', { name: T('Drag {name}', { name: T(TILE.milestones.label) }), exact: true });
@@ -123,22 +127,22 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
   await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 8 });
   await page.mouse.up();
   // while customising the wall shows the stored order (the trip card moves up only outside of it, 4b)
-  await expect.poll(async () => (await ids(page)).indexOf('milestones')).toBeLessThan(READY.findIndex((x) => x.id === 'series') + 1);
+  await expect.poll(async () => (await ids(page)).indexOf('milestones')).toBeLessThan(HN4().findIndex((x) => x.id === 'series') + 1);
   await expect.poll(async () => (await wallStored(page))?.tiles.findIndex((x) => x.id === 'milestones')).toBe((await ids(page)).indexOf('milestones'));
 });
 
 test('a long press on a tile opens customising on a phone', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a long press is a finger thing');
   const T = await openHome(page, context, info);
-  // v0.155.0: «Wardrobe» left the ready wall (HN4 3a); «Weigh» is still a small tile
-  const tile = page.locator('.wall [data-tile="fn:weigh"] .st');
+  // «Heute neu» A (0.164.0): «Note» is one of the 8 shortcuts of the ready wall
+  const tile = page.locator('.wall [data-tile="fn:note"] .st');
   await tile.scrollIntoViewIfNeeded();
   const b = await tile.boundingBox();
   await tile.dispatchEvent('pointerdown', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });
   await page.waitForTimeout(800);
   await tile.dispatchEvent('pointerup', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });
   await expect(page.getByRole('region', { name: T('Customise the start page') })).toBeVisible();
-  expect(new URL(page.url()).hash).not.toBe('#/gear?tab=weigh');
+  expect(new URL(page.url()).hash).toMatch(/^(#\/?)?$/); // the long press did not open the note
 });
 
 test('plus adds any tile from the catalog by area, with a search; the tick takes it away again', async ({ page, context }, info) => {
@@ -175,7 +179,8 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
 test('one series over everything with the next milestone, a rest week, all milestones on one page', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const T = await openHome(page, context, info);
+  // «Heute neu» A (0.164.0): the series left the ready wall (it stays in the catalog); a device with the HN4 wall
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   // the fixture: trips done 3, 9 and 16 days ago (three weeks in a row, this week nothing yet)
   const tile = page.locator('.wall [data-tile="series"] section');
   await expect(tile).toHaveAttribute('data-series', '3');
@@ -200,7 +205,8 @@ test('one series over everything with the next milestone, a rest week, all miles
 });
 
 test('Data and backup lives under Me; the playground tile opens the playground there', async ({ page, context }, info) => {
-  const T = await openHome(page, context, info);
+  // «Heute neu» A (0.164.0): the playground tile left the ready wall; a device with the HN4 wall
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   await page.locator('.wall [data-tile="play"] button').click();
   await expect(page).toHaveURL(/#\/me$/);
   await expect(page.getByRole('dialog')).toBeVisible();

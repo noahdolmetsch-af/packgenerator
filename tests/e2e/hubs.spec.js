@@ -58,7 +58,7 @@ test('Today: the waiting debrief in Important today, the bike jobs under the bik
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await load(page, context, info);
-  await expect(page.getByRole('region', { name: T('Important today') })).toContainText('test_data_gtp_ Jura');
+  await expect(page.getByRole('region', { name: T('Up now') })).toContainText('test_data_gtp_ Jura');
   const jobs = bikeRow(page).locator('.jobs');
   await expect(jobs.locator('.lk').first()).toHaveText(T('Log a problem'));
   await expect(jobs.getByRole('button', { name: T('Idea') })).toBeVisible();

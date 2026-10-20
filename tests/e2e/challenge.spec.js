@@ -3,12 +3,14 @@
 // and set as a challenge (how often, until when). It counts by itself and, once reached, is celebrated
 // on the tile and under «Heute wichtig». Fictional data only (test_data_gtp_), clock from openHome.
 import { test, expect } from '@playwright/test';
-import { openHome } from './home0460-fixture.js';
+import { openHome, homeFixture } from './home0460-fixture.js';
+import { withWall } from './wall-fixture.js';
 
 test('a suggestion with alternatives becomes a challenge that counts by itself', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const T = await openHome(page, context, info);
+  // «Heute neu» A (0.164.0): the suggestion tile left the ready wall (it stays in the catalog); a wall with it
+  const T = await openHome(page, context, info, { data: withWall(homeFixture()) });
   const tile = page.getByRole('region', { name: T('Swim or sauna today?') });
   await tile.scrollIntoViewIfNeeded();
   await expect(tile.getByRole('button', { name: T('Swim'), exact: true })).toHaveAttribute('aria-pressed', 'true');

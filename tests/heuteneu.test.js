@@ -2,7 +2,8 @@
 // the new order of Heute, the migration of a stored wall, the trip card moving up (4b) and the small rules
 // of the day card, Aktiv and the compact balance. Lists come from the app source. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { READY, TILE, REMOVED_0155, ADDED_0155, HEAD_0155, wallOf, wallRecord, toHN4, tripUp, catalog } from '../src/lib/home/tiles.js';
+// «Heute neu» A (20.10.2026) replaced HN4's ready wall; these tests keep HN4's wall (READY_0155) and its reading (wallOf8)
+import { READY_0155 as READY, TILE, REMOVED_0155, ADDED_0155, HEAD_0155, wallOf8 as wallOf, wallRecord, toHN4, tripUp, catalog } from '../src/lib/home/tiles.js';
 import { pinNews, unpinNews } from '../src/lib/know/wasneu.js';
 import { tourNear, addDay, dayCardPart, lastActivity, nextFixed, challengeNow, bodyNow, feltSleep } from '../src/lib/home/heuteneu.js';
 import { DAY_CLOCK } from '../src/lib/dayclock.js';
@@ -81,7 +82,7 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
     const w = wallOf(v4);
     expect(ids(w)).not.toContain('balance'); // the old wall had no balance (taken away)
     const v5 = wallRecord(w.filter((x) => x.id !== 'aktiv'));
-    expect(v5.v).toBe(8); // v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
+    expect(v5.v).toBe(9); // «Heute neu» A: v 9; v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
     expect(ids(wallOf(v5))).toEqual(ids(w).filter((id) => id !== 'aktiv'));
     // moved by hand after that: stays moved
     const moved = wallRecord([w[4], ...w.filter((_, i) => i !== 4)]); // Im Flow (place 4 since the routine)

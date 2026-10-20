@@ -79,7 +79,7 @@ async function start(page, context, info, lang, data) {
  * "Show all {n}") beside "Tried it yet?" (one function never used, with one button).
  */
 async function know(page, T) {
-  const sec = page.getByRole('region', { name: T('Important today') });
+  const sec = page.getByRole('region', { name: T('Up now') });
   await expect(sec.locator('li').first()).toBeVisible();
   const more = sec.locator('button.more');
   if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();

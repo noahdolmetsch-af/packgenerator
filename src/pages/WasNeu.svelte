@@ -44,6 +44,7 @@
   import ListGroup from '../lib/list/ListGroup.svelte';
   import ListNav from '../lib/list/ListNav.svelte';
   import TopButton from '../lib/list/TopButton.svelte';
+  import TipWeek from '../lib/clear/TipWeek.svelte';
   import { byDay } from '../lib/list/listen.js';
   import '../lib/bikes/velo-dlg.css';
   import '../lib/ich/ich.css';
@@ -316,6 +317,8 @@
     </div>
 
     <div class="ich-side">
+      <!-- «Heute neu» A (Noah 20.10.2026 «5b»): the tip of the week lives here now, no longer on Heute -->
+      <section class="ich-sec" data-tipweek-me><TipWeek /></section>
       {#if all}
         {#if by === 'best'}
           <!-- I11d: the two rankings -->

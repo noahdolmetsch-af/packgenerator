@@ -36,8 +36,12 @@ const FN_AREA = { dayride: 'trips', trip: 'trips', wear: 'today', weigh: 'gear',
  * that brought it (idea 1: a «New» dot for two weeks); fn: one of the 16 functions (a small button).
  */
 export const TILES = [
-  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['long'], size: 'long', pitch: 'Your next trip with its step and the countdown.' },
-  { id: 'important', area: 'today', label: 'Important today', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is due today: a bike job, the backup, a debrief.' },
+  // «Heute neu» A (Noah 20.10.2026 «1A»): the trip card can stand beside «Up now» (large = half a row on a computer)
+  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['l', 'long'], size: 'l', pitch: 'Your next trip with its step and the countdown.' },
+  // «Heute neu» A: «Important today» becomes «Up now»: the round, meditation, the idea for today and what is due
+  { id: 'important', area: 'today', label: 'Up now', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is up now: the morning check, meditation, an idea for today, a bike job, the backup.' },
+  // «Heute neu» A (Noah «3a»): one calm card in place of Im Flow + Balance, the body, Aktiv and «Your values»
+  { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.164.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
   // v0.110.0 Design-Refresh P10 (I11e): also a whole row, as it sits on top for 14 days after an update
@@ -102,13 +106,34 @@ export const ADDED_TC = ['questions'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /**
+ * «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b»): the ready wall, top to bottom: «Up now»
+ * beside the next trip, «You today» beside «This week», the bikes, then 8 shortcuts (4a: you choose them, «+»
+ * and «Customise» change them). Everything else of HN4 (READY_0155) is still in the catalog («Add a tile»)
+ * and one tap away under «All areas». A wall stored before (v < 9) becomes this wall once.
+ */
+export const READY = [
+  ['important', 'l'],
+  ['trip', 'l'],
+  ['du', 'l'],
+  ['week', 'l'],
+  ['bikes', 'long'],
+  ['fn:trip', 's'],
+  ['fn:note', 's'],
+  ['fn:km', 's'],
+  ['fn:care', 's'],
+  ['fn:gear', 's'],
+  ['fn:wear', 's'],
+  ['fn:templates', 's'],
+  ['fn:favorites', 's'],
+].map(([id, size]) => ({ id, size }));
+/**
  * 0.155.0 «Heute neu geordnet» (HN4, Noah 14.10.2026 21:51 «1a 2a 3a 4b HN4 freigegeben», HN4b 22:13): the
  * ready wall, top to bottom: the small meditation card, the day card, «Important today» as one line, Im Flow
  * with the compact balance beside it, This week beside «Swim or sauna?», the bike month, the series, a year
  * ago and the milestones, the trip card, Aktiv over the whole row, the small tiles, the bikes and the 12 months.
  * These tiles left it (they are still in the catalog, «+» brings any of them back): REMOVED_0155.
  */
-export const READY = [
+export const READY_0155 = [
   ['meditation', 'long'],
   ['daycard', 'long'],
   ['important', 'long'],
@@ -167,6 +192,17 @@ export const sizeFor = (id, size) => (TILE[id]?.sizes.includes(size) ? size : TI
  */
 export function wallOf(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
+    // «Heute neu» A (Noah 20.10.2026 «1A»): a wall of before (v < 9) becomes the new ready wall once
+    if ((value.v ?? 1) < 9) return READY.map((x) => ({ ...x }));
+    return wallBefore5(value);
+  }
+  const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
+  return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
+}
+
+/** The wall as HN4 read it (v 1–8, 0.155.0–0.163.0), kept for the record and its tests. → [{ id, size }] */
+export function wallOf8(value, legacy = null) {
+  if (value && Array.isArray(value.tiles)) {
     const out = wallBefore5(value);
     const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
     const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
@@ -174,7 +210,7 @@ export function wallOf(value, legacy = null) {
     return (value.v ?? 1) < 8 ? withValues(withTip(r)) : r;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
-  return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
+  return READY_0155.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
 
 /**
@@ -185,8 +221,8 @@ export function wallOf(value, legacy = null) {
  */
 export function toHN4(tiles = []) {
   const had = new Set(tiles.map((x) => x.id));
-  const known = new Set(READY.map((x) => x.id));
-  const main = READY.filter((x) => had.has(x.id) || ADDED_0155.includes(x.id)).map((x) => ({ ...x }));
+  const known = new Set(READY_0155.map((x) => x.id));
+  const main = READY_0155.filter((x) => had.has(x.id) || ADDED_0155.includes(x.id)).map((x) => ({ ...x }));
   const extra = tiles.filter((x) => !known.has(x.id) && !REMOVED_0155.includes(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
   const at = main.findIndex((x) => x.id === 'bikes' || x.id === 'year');
   main.splice(at < 0 ? main.length : at, 0, ...extra);
@@ -283,8 +319,8 @@ export function withTip(tiles = []) {
   out.splice(a >= 0 ? a + 1 : b >= 0 ? b : out.length, 0, { id: 'tipweek', size: TILE.tipweek.size });
   return out;
 }
-/** The record to store (v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 8, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/** The record to store (v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 9, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
