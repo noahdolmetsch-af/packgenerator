@@ -83,30 +83,57 @@ const withoutPicture = ({ picture, ...rest }) => rest;
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
+/**
+ * «Tagebuch» (Noah 20.10.2026 «1a»: Gemini in the diary, only with a tick each time): input.mode picks a
+ * diary job with its own instruction and more room (the diary text goes in `context`):
+ * title (a title for one entry), tidy (punctuation of a dictated text, words kept), summary (a month in
+ * a few warm sentences), ask (a question answered only from the given entries, with their dates).
+ */
+export const DIARY_MODES = ['title', 'tidy', 'summary', 'ask'];
+export const DIARY_CONTEXT = 12000;
+const DIARY_SYSTEM = {
+  de: {
+    title: 'Du schlägst einen Titel für einen Tagebucheintrag vor. Antworte nur mit dem Titel: höchstens 6 Wörter, Schweizer Hochdeutsch («ss», nie «ß»), ohne Anführungszeichen, ohne Punkt am Ende.',
+    tidy: 'Du räumst einen diktierten Tagebuchtext auf: Satzzeichen, Gross- und Kleinschreibung, Absätze, offensichtliche Hörfehler. Behalte die Wörter, den Ton und die Ich-Form. Erfinde nichts dazu, kürze nichts. Schweizer Hochdeutsch («ss», nie «ß»). Antworte nur mit dem aufgeräumten Text, ohne Einleitung.',
+    summary: 'Du fasst Tagebucheinträge eines Zeitraums für die schreibende Person zusammen, in der Du-Form, warm und ruhig, 4 bis 8 Sätze, ohne Markdown-Überschriften. Nenne, was oft vorkam, schöne Momente und was sich verändert hat. Nur Beobachtung, keine Ratschläge, keine Diagnosen. Schweizer Hochdeutsch («ss», nie «ß»).',
+    ask: 'Du beantwortest eine Frage zum eigenen Tagebuch der Person, nur aus den mitgegebenen Einträgen. Nenne das Datum der passenden Einträge. Wenn die Einträge die Antwort nicht enthalten, sag das ehrlich. Kurz, höchstens 6 Sätze, Du-Form, Schweizer Hochdeutsch («ss», nie «ß»), ohne Markdown-Überschriften.',
+  },
+  en: {
+    title: 'Suggest a title for a diary entry. Answer only with the title: at most 6 words, no quotes, no full stop.',
+    tidy: 'Tidy up a dictated diary text: punctuation, capitals, paragraphs, obvious mishearings. Keep the words, the tone and the first person. Add nothing, cut nothing. Answer only with the tidied text, no introduction.',
+    summary: 'Summarise the diary entries of a period for the writer, addressing them as you, warm and calm, 4 to 8 sentences, no Markdown headings. Name what came up often, good moments and what changed. Observation only, no advice, no diagnosis.',
+    ask: "Answer a question about the person's own diary, only from the given entries. Name the dates of the entries that fit. If the entries do not hold the answer, say so honestly. Short, at most 6 sentences, no Markdown headings.",
+  },
+};
+
 /** The Gemini request: a short system line, the question and (when ticked) the person's own context. */
-export function geminiRequest({ question = '', context = '', lang = 'de' } = {}) {
+export function geminiRequest({ question = '', context = '', lang = 'de', mode = '' } = {}) {
   const de = lang !== 'en';
-  const system = de
-    ? 'Du hilfst in der App «Pack Generator» (Bikepacking, Reisen, Velo-Pflege). Antworte auf Schweizer Hochdeutsch («ss», nie «ß»), kurz und konkret, höchstens 6 Sätze, ohne Markdown-Überschriften. Nutze die eigene Ausrüstung und Erkenntnisse der Person, wenn sie mitgegeben sind. Alles ist ein Vorschlag.'
-    : 'You help inside the app "Pack Generator" (bikepacking, travel, bike care). Answer in English, short and concrete, at most 6 sentences, no Markdown headings. Use the person\'s own gear and learnings when given. Everything is a suggestion.';
+  const diary = DIARY_MODES.includes(mode);
+  const system = diary
+    ? DIARY_SYSTEM[de ? 'de' : 'en'][mode]
+    : de
+      ? 'Du hilfst in der App «Pack Generator» (Bikepacking, Reisen, Velo-Pflege). Antworte auf Schweizer Hochdeutsch («ss», nie «ß»), kurz und konkret, höchstens 6 Sätze, ohne Markdown-Überschriften. Nutze die eigene Ausrüstung und Erkenntnisse der Person, wenn sie mitgegeben sind. Alles ist ein Vorschlag.'
+      : 'You help inside the app "Pack Generator" (bikepacking, travel, bike care). Answer in English, short and concrete, at most 6 sentences, no Markdown headings. Use the person\'s own gear and learnings when given. Everything is a suggestion.';
   const text = context ? `${question}\n\n${context}` : question;
-  return { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { maxOutputTokens: 1024, temperature: 0.4 } };
+  return { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { maxOutputTokens: diary ? 4096 : 1024, temperature: mode === 'tidy' ? 0.1 : 0.4 } };
 }
 /** The answer text of a Gemini response, tidied and bounded, or ''. */
-export function geminiText(msg) {
+export function geminiText(msg, max = 3000) {
   const parts = msg?.candidates?.[0]?.content?.parts ?? [];
   return parts
     .map((p) => (typeof p?.text === 'string' ? p.text : ''))
     .join('')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
-    .slice(0, 3000);
+    .slice(0, max);
 }
 
 /** The handler, with fetch and the environment injectable for the tests. */
 export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch(...a), now = () => new Date() } = {}) {
   async function gemini(request, cfg, input) {
     const question = typeof input?.question === 'string' ? input.question.trim().slice(0, 600) : '';
+    const diary = DIARY_MODES.includes(input?.mode);
     if (question.length < 3) throw new ApiError(400, 'bad_request', 'gemini needs a question.');
     if (!cfg.geminiKey) throw new ApiError(503, 'not_set_up', 'Gemini is not set up on the server (GEMINI_API_KEY is missing).');
     const store = needStore(cfg, doFetch);
@@ -118,7 +145,7 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
       res = await doFetch(GEMINI_URL(cfg.geminiModel), {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': cfg.geminiKey },
-        body: JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, 2000) : '', lang: input.lang === 'en' ? 'en' : 'de' })),
+        body: JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, diary ? DIARY_CONTEXT : 2000) : '', lang: input.lang === 'en' ? 'en' : 'de', mode: diary ? input.mode : '' })),
       });
     } catch {
       throw new ApiError(502, 'upstream_unreachable', 'Gemini could not be reached.');
@@ -129,7 +156,7 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
     if (res.status === 429) throw new ApiError(429, 'daily_limit', 'The free Gemini limit is reached for now.');
     if (res.status === 503) throw new ApiError(503, 'busy', 'Gemini is busy right now. Try again in a minute.');
     if (!res.ok || !msg) throw new ApiError(502, 'upstream_error', 'Gemini answered with an error.');
-    const text = geminiText(msg);
+    const text = geminiText(msg, diary ? DIARY_CONTEXT : 3000);
     if (!text) throw new ApiError(502, 'no_answer', 'Gemini gave no usable answer.');
     return json(request, 200, { ok: true, task: 'gemini', result: { text } });
   }

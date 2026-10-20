@@ -4,6 +4,7 @@
 // outside the preview server is blocked. Fictional activities only.
 import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
+import { DETAIL_V } from '../../src/lib/training.js';
 
 const P = 'test_data_gtp_';
 const shot = async (page, info, name) => {
@@ -40,7 +41,7 @@ async function start(page, context, server) {
     if (step === 'gear') return body({ bikes: gear });
     if (step === 'activities') return body({ page: 1, more: false, activities: ACTS });
     if (step === 'zones') return body({ hr: ZONES, custom: false });
-    if (step === 'detail') return body({ id: url.searchParams.get('id'), kcal: 890, hist: HIST, curve: [[0, 110], [20, 128], [40, 141], [60, 150], [80, 166], [102, 131]], w20: 231 });
+    if (step === 'detail') return body({ id: url.searchParams.get('id'), kcal: 890, hist: HIST, curve: [[0, 110], [20, 128], [40, 141], [60, 150], [80, 166], [102, 131]], w20: 231, dv: DETAIL_V });
     return route.fulfill({ status: 400, headers: cors, body: '{}' });
   });
   await context.route(/www\.strava\.com\/oauth\/authorize/, (route) =>

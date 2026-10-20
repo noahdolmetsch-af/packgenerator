@@ -105,6 +105,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**20.10.2026, v0.170.0 «Live-Karte, Tagebuch, Form»:** Live-Karte mit Pause, Sensoren, Abbiegehinweisen und Umweg; Tagebuch; Form und Erholung; Heatmap; Tour-Werte wie Garmin; Check-Fragen; Zürisee; Erster Start; Haustür bis zurück.
 **20.10.2026, v0.169.0 «Neue Leiste und Heute neu»:** Leiste Heute · Planen · Touren · Auswerten · Velos (gleiche Adressen; Ich nur Daten, Einstellungen, Hilfe; Handy kürzer), Heute neu mit «Dein Körper heute» und «Aktiv heute», wärmere Farben und runde Knöpfe.
 **20.10.2026, v0.168.0 «Tour-Seite und Aktiv»:** Gepäck zu einer Fahrt nachtragen, Tour-Seite persönlicher, Aktiv-Kacheln selbst ändern, beim Planen jeder Anstieg der GPX-Strecke, Kartengrund auf allen Karten, kein falscher KI-Schlüssel-Hinweis.
 **20.10.2026, v0.167.0 «Balken Jetzt laden»:** hängt ein Gerät an einer alten Version, bietet ein Balken oben «Jetzt laden».

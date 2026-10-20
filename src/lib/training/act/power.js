@@ -12,7 +12,9 @@ export const POWER_ZONE_NAMES = ['Active recovery|pz', 'Endurance|pz', 'Tempo|pz
 export const CURVE_SPANS = [
   [5, 5, 's'],
   [60, 1, 'min'],
+  [120, 2, 'min'],
   [300, 5, 'min'],
+  [600, 10, 'min'],
   [1200, 20, 'min'],
   [3600, 60, 'min'],
 ];

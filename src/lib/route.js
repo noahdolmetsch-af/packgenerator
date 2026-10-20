@@ -11,7 +11,9 @@ import { buildFine } from './map/fineprofile.js';
 /** Read the points of a GPX file (track points, else route points). Works without a browser. */
 export function parseGpx(text) {
   if (!/<gpx[\s>]/i.test(text)) throw new Error(t('This is not a GPX file.'));
-  const name = text.match(/<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() || '';
+  // «Neue Quellen» 20.10.2026: Ride with GPS writes its POIs (<wpt>) before the track; their names are not the route's
+  const named = text.replace(/<wpt\b[\s\S]*?<\/wpt>/gi, '');
+  const name = named.match(/<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() || '';
   const grab = (tag) => {
     const out = [];
     const re = new RegExp(`<${tag}\\b([^>]*?)(?:/>|>([\\s\\S]*?)</${tag}>)`, 'gi');
