@@ -151,4 +151,6 @@ export default {
   'The picture could not be made.': 'Das Bild konnte nicht gemacht werden.',
   'Saved as a picture in your downloads.': 'Als Bild in deinen Downloads gespeichert.',
   'Shared.': 'Geteilt.',
+  // SchweizMobil layer on the live map (map/sources.js SWISS_OVERLAYS)
+  SchweizMobil: 'SchweizMobil',
 };

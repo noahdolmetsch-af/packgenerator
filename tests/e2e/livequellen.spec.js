@@ -82,6 +82,18 @@ test('Public transport near you: stops nearest first, then the next departures',
   await expect(ov.locator('[data-ov-dep]').first()).toContainText('S1');
   await expect(ov.locator('[data-ov-dep]').nth(1)).toContainText('+2');
   await noSideways(page, 'public transport');
+
+  // SchweizMobil: the cycling routes as a layer on the map, switched on in the «…» menu
+  const velo = [];
+  page.on('request', (r) => r.url().includes('ch.astra.veloland') && velo.push(r.url()));
+  await tap(page.locator('[data-live-menu]'), info);
+  const chip = page.locator('[data-live-menu-panel] [data-map-layer="veloland"]');
+  await chip.scrollIntoViewIfNeeded();
+  await expect(chip).toHaveAttribute('aria-pressed', 'false');
+  await tap(chip, info);
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => velo.length, { timeout: 15_000 }).toBeGreaterThan(0);
+  expect(velo[0]).toMatch(/wmts\.geo\.admin\.ch\/1\.0\.0\/ch\.astra\.veloland\/default\/current\/3857\/\d+\/\d+\/\d+\.png/);
 });
 
 test('An own place by a tap on the live map, then the picture to share after the ride', async ({ page, context }, info) => {

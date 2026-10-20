@@ -38,7 +38,7 @@
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { GROUNDS } from '../lib/map/sources.js';
+  import { GROUNDS, SWISS_OVERLAYS } from '../lib/map/sources.js';
   import { chooseGround } from '../lib/map/groundpref.svelte.js';
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
@@ -241,6 +241,7 @@
     { key: 'stops', label: t('Stops') },
     { key: 'own', label: t('My points') },
     { key: 'radar', label: t('Rain radar') },
+    { key: 'veloland', label: t('SchweizMobil') },
   ]);
   let radar = $state(null);
   cacheGet('map-radar').then((c) => {
@@ -255,7 +256,11 @@
       })
       .catch(() => (msg = t('The rain radar could not load. Try again later.')));
   });
-  const overlays = $derived(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []);
+  const overlays = $derived([
+    // SchweizMobil (map/sources.js SWISS_OVERLAYS): the signposted cycling routes, under the rain
+    ...(shown.veloland ? SWISS_OVERLAYS.filter((o) => o.id === 'veloland') : []),
+    ...(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []),
+  ]);
   // the battery saver: the simple light free map (never dark), back to your ground afterwards
   let groundBefore = null;
   $effect(() => {

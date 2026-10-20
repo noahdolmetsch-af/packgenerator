@@ -680,6 +680,51 @@ export const HANDBOOK = {
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],
     example: 'Example: km 412 → the next shop in 2 km, open until 19:00.',
   },
+  'f.livepause': {
+    on: null,
+    steps: ['Start a ride on the live map and tap the pause button bottom left.', 'For the auto-pause: open the sheet › «Settings», switch on «Auto-pause» and type your speed.'],
+    example: 'Example: limit 4 km/h → at a red light the clock stops after 10 s and runs again when you ride on.',
+  },
+  'f.sensors': {
+    on: 'Needs a browser with Bluetooth, e.g. Chrome on Android or on the computer.',
+    steps: ['Open the sheet of the live map › «Sensors» and tap «Connect» for heart rate, power or cadence.', 'Pick your sensor; its values show live and after the ride as a curve.'],
+    example: 'Example: chest strap connected → 142 bpm live, after the ride Ø 138 bpm with the curve.',
+  },
+  'f.datapages': {
+    on: null,
+    steps: ['On the live map, swipe left on the strip at the right edge, or tap the arrows on top.', 'Open the sheet › «Data pages» to add, rename, sort or delete pages and their fields.'],
+    example: 'Example: page «Climb» → metres up to the summit, gradient and the profile ahead.',
+  },
+  'f.turns': {
+    on: 'Needs a trip or race with a route (GPX).',
+    steps: ['Start a ride on a trip with a route: the arrow comes from 1 km before a turn.', 'Switch the arrow or the voice off in the sheet › «Settings».'],
+    example: 'Example: «In 200 m turn left», then «Turn left now».',
+  },
+  'f.laps': {
+    on: null,
+    steps: ['Tap the flag button on the live map for a new lap; the laps are in the sheet.', 'Ride a route of a trip a second time: «Against your last ride» shows in the sheet.'],
+    example: 'Example: «−0:42» → 42 s faster than last time at the same km.',
+  },
+  'f.moreplaces': {
+    on: null,
+    steps: ['Open the place search on the live map or a race map and type your radius.', 'Under «My own places» add a place here, by a tap on the map or from a file.'],
+    example: 'Example: a CSV of the race checkpoints → all as your own places on the map.',
+  },
+  'f.rwgps': {
+    on: null,
+    steps: ['Open a trip › «Route», tap «Link from Ride with GPS» and paste the link.', 'Tap «Load»: the route and its waypoints come in.'],
+    example: 'Example: a public route link → 86 km, 1200 m up and 5 waypoints on the map.',
+  },
+  'f.ovnear': {
+    on: null,
+    steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
+    example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
+  },
+  'f.sharepic': {
+    on: null,
+    steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
+    example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
