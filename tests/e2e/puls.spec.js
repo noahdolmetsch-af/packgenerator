@@ -82,8 +82,9 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   await shot(page, info, 'P2-rueckblick');
 
   // P3 Touren: the heart rate of each ride (AT1, 14.10.2026: «Ø HF» and «max. HF» in the values of every
-  // Strava activity of «Abgeschlossene Touren»; before, SN4g showed them in the rows of the app trips)
-  await page.goto('./#/trips');
+  // Strava activity of «Abgeschlossene Touren»; before, SN4g showed them in the rows of the app trips;
+  // Gesamttest 20.10.2026 B3: the activities have their own tab Touren › Fahrten)
+  await page.goto('./#/trips/rides');
   await openShort(page);
   // 0.163.0 «Handy kurz» (2b): on a phone the values of an activity are one grey line
   const hr = info.project.name === 'phone' ? page.locator('[data-activities] [data-act-line]') : page.locator('[data-activities] [data-act-values] [data-field="hf"]');

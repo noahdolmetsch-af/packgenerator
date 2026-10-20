@@ -15,6 +15,8 @@ export const PAGE_GROUPS = [
     key: 'trips',
     name: 'Trips|place',
     rows: [
+      // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren › Fahrten, every Strava activity
+      { id: 'rides', title: 'Rides from Strava', href: '#/trips/rides', icon: 'route', words: 'rides fahrten strava activities aktivitäten aktivität activity abgeschlossene touren completed rides runs läufe wanderungen hikes commute arbeitsweg' },
       { id: 'templates', title: 'Templates', href: '#/pack/templates', icon: 'file', words: 'templates template vorlagen vorlage kits kit packing lists packlisten packliste' },
       // v0.49.0 R1 (Noah 4a): one page «Rückblick» (the last ride, the 12 months, trips compared);
       // «Letzte 12 Monate» and «Touren vergleichen» are parts of it, their words find it.

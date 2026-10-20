@@ -872,8 +872,8 @@ export const HANDBOOK = {
     example: 'Example: after testing with sample data → start fresh with your own gear.',
   },
   'f.tourpage': {
-    on: 'Works for Strava rides, joined tours and tours from the packing mode.',
-    steps: ['Open Trips and tap a finished tour.', 'Tap a value to correct it; the Strava value stays next to it.', 'Under «Choose several», pick rides and join them into one tour.'],
+    on: 'Works for Strava rides, joined tours and tours with a packing list.',
+    steps: ['Open Trips › Rides and tap a finished tour.', 'Tap a value to correct it; the Strava value stays next to it.', 'Under «Choose several», pick rides and join them into one tour.'],
     example: 'Example: two Strava rides of one weekend → join them, rename the tour, add photos.',
   },
   'f.fuel': {

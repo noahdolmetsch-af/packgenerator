@@ -88,7 +88,6 @@ export default {
   '{n} tours with a line. A tap on a number opens it.': '{n} Touren mit Linie. Ein Tipp auf eine Zahl öffnet sie.',
   'Leave out hidden': 'Ausgeblendete weglassen',
   'Choose several': 'Mehrere wählen',
-  'Tap the activities that belong together, then «Join into one tour». Trips of the Packmodus are a tour already.': 'Tippe die Aktivitäten an, die zusammengehören, dann «Zu einer Tour verbinden». Touren aus dem Packmodus sind schon eine Tour.',
   joined: 'verbunden',
   Chosen: 'Gewählt',
   'Join into one tour': 'Zu einer Tour verbinden',
@@ -105,7 +104,6 @@ export default {
   'Open Trips and tap a finished tour.': 'Öffne Touren und tippe auf eine abgeschlossene Tour.',
   'Scroll or use the tabs: map, profile, values, diary.': 'Scrolle oder nutze die Reiter: Karte, Profil, Werte, Tagebuch.',
   'Tap ••• to rename, hide or delete it.': 'Tippe auf •••, um sie umzubenennen, auszublenden oder zu löschen.',
-  'Works for Strava rides, joined tours and tours from the packing mode.': 'Gilt für Strava-Fahrten, verbundene Touren und Touren aus dem Packmodus.',
   'Tap a value to correct it; the Strava value stays next to it.': 'Tippe auf einen Wert, um ihn zu korrigieren; der Strava-Wert bleibt daneben stehen.',
   'Under «Choose several», pick rides and join them into one tour.': 'Unter «Mehrere wählen» Fahrten auswählen und zu einer Tour verbinden.',
   // 0.161.0 whatsnew

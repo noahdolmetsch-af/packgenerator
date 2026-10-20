@@ -34,7 +34,7 @@ export const HINTS = {
       ['bag', 'Before you leave', 'the card says how much is packed'],
       ['book', 'After the ride', 'a debrief keeps what you learned'],
     ],
-    jumps: [['Planned|group', 'trips-plan'], ['Completed trips', 'trips-done']],
+    jumps: [['Planned|group', 'trips-plan'], ['With packing list|section', 'trips-done']], // Gesamttest 20.10.2026 B3
   },
   pack: {
     lead: ['Here the packing list of one trip comes together.', 'The app suggests what fits the trip and the weather; you decide.'],

@@ -36,17 +36,17 @@
     <a class="btn hi go" {href} onclick={open} data-ride-open><Bike size={17} aria-hidden="true" /><span class="kl">{t('Open On the way')}</span><ChevronRight size={17} aria-hidden="true" /></a>
   {:else if band.state === 'draft'}
     <div class="bt">
-      <p class="k" id="pm-h">{t('Pack mode')} · {t('pack draft exists')}</p>
+      <p class="k" id="pm-h">{t('Packing|band')} · {t('pack draft exists')}</p>
       <a class="whole" href={PACK_HREF} onclick={open}><b>{band.title}</b></a>
     </div>
     <div class="bp">
       <TripState state="plan" {extra} />
       <span class="pr"><span class="bar" aria-hidden="true"><i style:width="{pct}%"></i></span><span class="num">{tn(band.total, '{done} of {n} packed', '{done} of {n} packed', { done: band.done })}</span></span>
     </div>
-    <a class="btn hi go" href={PACK_HREF} onclick={open} data-pack-open><Backpack size={17} aria-hidden="true" /><span class="kl">{t('Open pack mode')}</span><ChevronRight size={17} aria-hidden="true" /></a>
+    <a class="btn hi go" href={PACK_HREF} onclick={open} data-pack-open><Backpack size={17} aria-hidden="true" /><span class="kl">{t('Open packing')}</span><ChevronRight size={17} aria-hidden="true" /></a>
   {:else}
     <div class="bt">
-      <p class="k" id="pm-h">{t('Pack mode')} · {t('nothing open')}</p>
+      <p class="k" id="pm-h">{t('Packing|band')} · {t('nothing open')}</p>
       <b>{t('No trip is being packed right now')}</b>
     </div>
     <div class="acts">
@@ -54,7 +54,7 @@
       <a class="btn k" href="#/pack/templates" data-band-tpl><LayoutTemplate size={17} aria-hidden="true" /><span class="kl">{t('From a template|band')}</span></a>
     </div>
   {/if}
-  {#if onhide}<button type="button" class="hide" aria-label={t('Hide the pack mode band')} onclick={onhide} data-band-hide><X size={16} aria-hidden="true" /></button>{/if}
+  {#if onhide}<button type="button" class="hide" aria-label={t('Hide the packing band')} onclick={onhide} data-band-hide><X size={16} aria-hidden="true" /></button>{/if}
 </section>
 
 <style>

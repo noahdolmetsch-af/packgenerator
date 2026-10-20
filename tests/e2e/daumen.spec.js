@@ -130,8 +130,8 @@ test('FE14 help in place: a tap shows the sentence, again hides it', async ({ pa
   await expect(grams).not.toHaveAttribute('aria-describedby', new RegExp(id));
   await page.keyboard.press('Escape');
 
-  // Touren: «Dauer» and «Verstrichen» explain themselves in the values of an activity (AT1)
-  await page.goto('./#/trips');
+  // Touren › Fahrten (Gesamttest 20.10.2026 B3): «Dauer» and «Verstrichen» explain themselves in the values of an activity (AT1)
+  await page.goto('./#/trips/rides');
   await openShort(page);
   // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line, the «?» comes with the activity itself
   if (phoneOf(info)) {

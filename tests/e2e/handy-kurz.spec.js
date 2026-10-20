@@ -1,8 +1,9 @@
 // 0.163.0 «Handy kurz» (Durchklick 2, Noah 15.10.2026 «freigabe», answers 1 «wo sinnvoll» and 2b), fictional data
 // (the Gesamttest set plus 47 fictional Strava activities):
 // a) the guard: on a phone Trips, Favourites and What is new are at most MAX_SCREENS screens high;
-// b) Trips: five activities with a grey value line (2b), «Show n more», the Packmodus and «In Zahlen · Weiter»
-//    behind one line each; the computer keeps the full rows;
+// b) Trips: the trips with a packing list (was «Packmodus») and «In Zahlen · Weiter» behind one line each, one row to
+//    «Fahrten»; Touren › Fahrten (Gesamttest 20.10.2026 B3): five activities with a grey value line (2b), «Show n more»;
+//    the computer keeps the full rows;
 // c) Favourites: every kind is one closed line, open it shows five items, then «Show n more»;
 // d) What is new: the side parts are closed lines; «How to test it» opens its line.
 import { test, expect } from '@playwright/test';
@@ -11,7 +12,7 @@ import { at1Acts } from './at1-acts.js';
 import { PHONE_ROWS, MAX_SCREENS } from '../../src/lib/touren/kurz.js';
 
 const T = tr('de');
-const PAGES = ['#/trips', '#/favorites', '#/me/news'];
+const PAGES = ['#/trips', '#/trips/rides', '#/favorites', '#/me/news'];
 
 /** The Gesamttest data plus 47 activities (seven of AT1, forty rides every three days). */
 function data() {
@@ -48,17 +49,10 @@ test.describe('Handy kurz', () => {
     // Gesamttest 20.10.2026 «2a» (changed on purpose): the quiet line reads «So geht's»
     await expect(page.locator('main header [data-hint-line="trips"]')).toHaveText(T('How it works|help'));
     await expect(page.locator('main [data-hint="trips"]')).toHaveCount(0);
-    const acts = page.locator('section[data-activities]');
-    await expect(acts.locator('[data-act-row]')).toHaveCount(PHONE_ROWS);
-    await expect(acts.locator('[data-act-values], [data-act-zones]')).toHaveCount(0);
-    const line = acts.locator('[data-act-row]').first().locator('[data-act-line]');
-    await expect(line).toContainText(T('Duration|act'));
-    await expect(line).not.toContainText('–');
-    // «Show n more» opens the page of twenty
-    const total = await acts.locator('[data-kind="all"] .num').innerText();
-    await acts.locator('[data-act-phone-more]').click();
-    await expect(acts.locator('[data-act-row]')).toHaveCount(Math.min(20, Number(total)));
-    // the Packmodus behind one line, its rows with the grey line
+    // Gesamttest 20.10.2026 B3: no Strava list here, one row leads to «Fahrten»
+    await expect(page.locator('section[data-activities]')).toHaveCount(0);
+    await expect(page.locator('a[data-to-rides]')).toHaveAttribute('href', '#/trips/rides');
+    // the trips with a packing list behind one line, their rows with the grey line
     await expect(page.locator('[data-packmode]')).toHaveCount(0);
     await page.locator('[data-packmode-open]').click();
     const pm = page.locator('[data-packmode]');
@@ -74,16 +68,30 @@ test.describe('Handy kurz', () => {
     await expect(page.locator('[data-in-numbers]')).toBeVisible();
     await expect(page.locator('main [data-tip]')).toHaveCount(1);
     await expect(page.locator('[data-tour-tiles=""]')).toBeVisible();
+    // Touren › Fahrten: five activities with the grey line, then «Show n more»
+    await open(page, '#/trips/rides');
+    const acts = page.locator('section[data-activities]');
+    await expect(acts.locator('[data-act-row]')).toHaveCount(PHONE_ROWS);
+    await expect(acts.locator('[data-act-values], [data-act-zones]')).toHaveCount(0);
+    const line = acts.locator('[data-act-row]').first().locator('[data-act-line]');
+    await expect(line).toContainText(T('Duration|act'));
+    await expect(line).not.toContainText('–');
+    // «Show n more» opens the page of twenty
+    const total = await acts.locator('[data-kind="all"] .num').innerText();
+    await acts.locator('[data-act-phone-more]').click();
+    await expect(acts.locator('[data-act-row]')).toHaveCount(Math.min(20, Number(total)));
   });
 
   test('computer: Trips keeps the full rows', async ({ page, context }, info) => {
     test.skip(info.project.name !== 'desktop', 'the computer view');
     await start(page, context, info, { data: data() });
     await open(page, '#/trips');
-    await expect(page.locator('section[data-activities] [data-act-values]').first()).toBeVisible();
     await expect(page.locator('[data-act-line], [data-pack-line], [data-trips-extras], [data-packmode-open]')).toHaveCount(0);
     await expect(page.locator('[data-packmode] [data-values]').first()).toBeVisible();
     await expect(page.locator('[data-in-numbers]')).toBeVisible();
+    await open(page, '#/trips/rides');
+    await expect(page.locator('section[data-activities] [data-act-values]').first()).toBeVisible();
+    await expect(page.locator('[data-act-line]')).toHaveCount(0);
   });
 
   test('phone: Favourites as closed lines, five items when open', async ({ page, context }, info) => {

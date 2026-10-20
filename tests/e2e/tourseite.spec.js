@@ -57,7 +57,7 @@ async function start(page, context, info) {
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
   await importAndSettle(page, file);
-  await page.goto('./#/trips');
+  await page.goto('./#/trips/rides'); // Gesamttest 20.10.2026 B3: the activities are on Touren › Fahrten
   await openShort(page);
   await expect(page.locator('[data-act-list] [data-act-row]').first()).toBeVisible();
   return errors;
@@ -119,7 +119,7 @@ test('b) rename and correct values: «geändert» with the Strava value; rating 
   await tour(page).locator('[data-tour-diary]').fill('Viel Schotter, ein Platten am Pass.');
   await shot(page, info, 'T3-tour-geaendert');
   // the list follows: the own name, «geändert», the corrected km
-  await page.goto('./#/trips');
+  await page.goto('./#/trips/rides');
   await openShort(page);
   const row = acts(page).locator(`[data-act-row="a:${A}6"]`);
   await expect(row).toContainText('Gravel durchs Hochland');
@@ -178,7 +178,7 @@ test('c) tiles, map, calendar; «Mehrere wählen» joins two rides into one tour
   await tour(page).getByRole('button', { name: T('More for {what}', { what: 'Zwei Runden' }) }).click();
   await page.getByRole('menuitem', { name: new RegExp(`^${T('Take apart')}`) }).click();
   await page.locator('dialog[open]').getByRole('button', { name: T('Take apart') }).click();
-  await expect(page).toHaveURL(/#\/trips$/);
+  await expect(page).toHaveURL(/#\/trips\/rides$/); // Gesamttest 20.10.2026 B3: back to Touren › Fahrten
   await openShort(page);
   await expect(acts(page).locator(`[data-act-row="a:${A}1"]`)).toHaveCount(1);
   await expect(acts(page).locator('[data-act-row^="g:"]')).toHaveCount(0);
@@ -193,7 +193,7 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await tour(page).getByRole('button', { name: T('More for {what}', { what: `${A} Lauf am See` }) }).click();
   await page.getByRole('menuitem', { name: new RegExp(`^${T('Hide')}`) }).click();
   await expect(tour(page).locator('[data-hidden]')).toBeVisible();
-  await page.goto('./#/trips');
+  await page.goto('./#/trips/rides');
   await openShort(page);
   await expect(acts(page).locator(`[data-act-row="a:${A}3"]`)).toHaveCount(0);
   await acts(page).locator('[data-show-hidden]').click();
@@ -203,7 +203,7 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await tour(page).getByRole('button', { name: T('More for {what}', { what: `${A} Yoga` }) }).click();
   await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
   await page.locator('dialog[open]').getByRole('button', { name: T('Delete') }).click();
-  await expect(page).toHaveURL(/#\/trips$/);
+  await expect(page).toHaveURL(/#\/trips\/rides$/); // back to Touren › Fahrten, where it came from
   await openShort(page);
   await expect(acts(page).locator(`[data-act-row="a:${A}5"]`)).toHaveCount(0);
   // 1a: a trip of the Packmodus opens the page «Tour»; Gepäck and Rückblick are parts of it
@@ -211,7 +211,14 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(tour(page).locator('h1')).toHaveText('Herbsttour Hochland');
   await expect(tour(page).locator('[data-tour-gear]')).toBeVisible();
   await expect(tour(page).locator('[data-open-review]')).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
+  // Gesamttest 20.10.2026: one row «Rückblick ›» right under the head, and the Rückblick leads back with «Tour-Seite ansehen ›»
+  await expect(tour(page).locator('a[data-to-review]')).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
+  await expect(tour(page).locator('a[data-to-review]')).toContainText(T('Look back|tour'));
   await shot(page, info, 'T9-packmodus-tour');
   await noSideways(page);
+  await tour(page).locator('a[data-to-review]').click();
+  await expect(page).toHaveURL(new RegExp(`#/debrief/${encodeURIComponent(`${P}herbst`)}$`));
+  await expect(page.locator('main a[data-to-tour-page]')).toHaveAttribute('href', key(`t:${P}herbst`));
+  await expect(page.locator('main a[data-to-tour-page]')).toContainText(T('See the tour page'));
   expect(errors).toEqual([]);
 });

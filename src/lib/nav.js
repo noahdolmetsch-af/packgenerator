@@ -301,6 +301,12 @@ export const barPlace = (place) => (place === EQUIPMENT.key ? EQUIPMENT.shares :
  */
 export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear');
 
+/** Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities (the page Trips.svelte shows them on their own). */
+export const RIDES_HREF = '#/trips/rides';
+export function isRidesHash(h = '') {
+  return /^#\/trips\/rides(\/|\?|$)/.test(h || '');
+}
+
 /**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
@@ -315,7 +321,9 @@ export const PLACE_TABS = {
     { key: 'away', label: 'Holidays|tab', href: '#/week/away', match: (h) => h.startsWith('#/week/away') },
   ],
   trips: [
-    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') },
+    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !isRidesHash(h) },
+    // Gesamttest 20.10.2026 B3 (Noah «3a»): the Strava activities have their own tab «Fahrten»; Übersicht keeps the trips with a packing list
+    { key: 'rides', label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') },
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours

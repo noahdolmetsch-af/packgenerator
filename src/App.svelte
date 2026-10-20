@@ -41,7 +41,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS, isRidesHash } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -464,8 +464,8 @@
     {@const b = parseBetween(hash)}
     {#key hash}<LazyPage load={PAGES.Between} id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
   {:else if page === 'trips'}
-    <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
-    <LazyPage load={PAGES.Trips} />
+    <!-- v0.46.1 (Noah): «Touren», the overview of all trips; Gesamttest 20.10.2026 B3: #/trips/rides, the tab «Fahrten» (Strava activities) -->
+    <LazyPage load={PAGES.Trips} sub={isRidesHash(hash) ? 'rides' : ''} />
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}

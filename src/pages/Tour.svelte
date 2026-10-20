@@ -45,7 +45,7 @@
   import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP } from '../lib/lernen/fotos.js';
   import { shrinkImage } from '../lib/photo.js';
   import { saveTripAsTemplate } from '../lib/templates.js';
-  import { newTrip, openNew } from '../lib/nav.js';
+  import { newTrip, openNew, RIDES_HREF } from '../lib/nav.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
@@ -218,7 +218,7 @@
     if ((await askDelete(ask)) !== 'delete') return;
     const target = { kind: d.kind, id: d.id };
     const ok = await deleteWithUndo({ run: () => deleteTour(db, target), undo: (s) => undoDelete(db, s), text: d.kind === 'g' ? t('"{name}" taken apart.', { name }) : t('"{name}" deleted.', { name }), name });
-    if (ok) location.hash = '#/trips';
+    if (ok) location.hash = d.kind === 't' ? '#/trips' : RIDES_HREF; // Gesamttest 20.10.2026 B3: back to the list it came from
   }
 
   /* ---- «Daraus machen» ---- */
@@ -257,7 +257,8 @@
   <Empty icon={Route} title={t('Tour not found')} text={t('It may have been deleted or taken apart.')} action={{ label: t('To the trips'), onclick: () => (location.hash = '#/trips') }} />
 {:else}
   <div class="tour" data-tour-page={d.kind}>
-    <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} here={name} title={name} {sub}>
+    <!-- Gesamttest 20.10.2026 B3: a Strava tour sits under Touren › Fahrten, a trip with a packing list under Touren -->
+    <PathHead crumbs={d.kind === 't' ? [{ label: t('Trips|place'), href: '#/trips' }] : [{ label: t('Trips|place'), href: '#/trips' }, { label: t('Rides|tab'), href: RIDES_HREF }]} here={name} title={name} {sub}>
       {#snippet extra()}
         <p class="pills">
           <TripState state={d.state} />
@@ -268,6 +269,12 @@
       {/snippet}
       <MoreActions title={name} label={t('More for {what}', { what: name })} {actions} />
     </PathHead>
+    {#if d.kind === 't'}
+      <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
+      <ul class="rowlist" aria-label={t('Look back|tour')}>
+        <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={18} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+      </ul>
+    {/if}
 
     <!-- 2 «beides»: the parts as a jump bar (one page) or as tabs (one at a time) -->
     <nav class="bar" aria-label={t('Parts of the tour')} data-tour-bar={opts.mode}>

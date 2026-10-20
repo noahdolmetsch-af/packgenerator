@@ -44,9 +44,11 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   await expect(page.locator('h1').first()).toHaveCount(1);
   // v0.126.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
   await expect(page.getByText(new RegExp(esc(T('{n} planned', { n: 'X' })).replace('X', '\\d+'))).first()).toBeVisible();
-  // SN4g «Touren-Seite, Runde 2»: the band «Packmodus» names the trip being packed and goes on with one main button
+  // SN4g «Touren-Seite, Runde 2»: the band names the trip being packed; Gesamttest 20.10.2026 B4: a trip that stands in
+  // «Geplant» is not said twice: the band goes, its card there leads into Packen
   const band = page.locator('[data-pack-band]');
-  await expect(band.getByRole('link', { name: new RegExp(esc(T('Open pack mode'))) })).toBeVisible();
+  await expect(band).toHaveCount(0);
+  await expect(page.locator('section[data-planned] a[data-in-pack-mode]')).toContainText(T('Open packing'));
   // «Geplant» as cards with «Neue Tour»; Bestwerte now in «In Zahlen», the weather in the tile «Gute Tage für eine Tour»
   const planning = page.locator('section[data-planned]').filter({ has: page.locator('#trips-plan') });
   await expect(planning.locator('li.pc').first()).toBeVisible();
