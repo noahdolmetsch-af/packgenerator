@@ -1224,6 +1224,8 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
+  <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
+  {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
 
@@ -2083,6 +2085,9 @@
     }
   }
 
+  .kmrow {
+    margin-top: var(--sp-3);
+  }
   .custom {
     display: flex;
     flex-direction: column;

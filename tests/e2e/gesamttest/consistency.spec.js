@@ -9,6 +9,7 @@
 //   (v0.46.0 has no Trips tile with "Past trips (n)" any more).
 import { test, expect } from '@playwright/test';
 import { start, table, fixture, tr, esc, openData } from './lib.js';
+import { flowSeeded, putWall } from '../wall-fixture.js';
 
 const T = tr('de');
 const num = (s) => {
@@ -108,6 +109,10 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const open = notes.filter((n) => n.status === 'open').length;
   await page.goto('./#/');
   await page.reload();
+  // «Heute neu» A (0.165.0, changed on purpose): «Weigh» and the 12 months left the ready wall (they stay in the
+  // catalog); a wall with them
+  await flowSeeded(page);
+  await putWall(page);
   // "Me, Inbox: n to sort" (v0.76.0: «Ich» took the place of «More»)
   await expect(page.locator('a.me')).toHaveAttribute('aria-label', T('Me, Inbox: {n} to sort', { n: open }));
   // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")

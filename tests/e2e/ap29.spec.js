@@ -261,7 +261,8 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));
   // v0.38.0: "Try it" of the newest point is Today itself; open Today afresh from another page.
   await page.goto('./#/features');
-  await page.goto('./#/');
+  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner shows under Ich, not on Today
+  await page.goto('./#/me');
   // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points.
   // v0.110.0 Design-Refresh P10 (I11b, changed on purpose): «New in 0.110: name», «Try it ›», «Later» and
   // «All news» to Ich › Was ist neu; «Later» closes it for this start (the quiet row stays for a first visit).
@@ -277,7 +278,7 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await banner.getByRole('button', { name: T('Close the hint') }).click();
   await expect(banner).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('.home')).toBeVisible();
+  await expect(page.locator('main h1').first()).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await expect(page.locator('[data-row=news]')).toHaveCount(0);
 });

@@ -15,6 +15,7 @@ import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
 const OLD_SETS_SRC = Function(`return ${readFileSync(new URL('../../../src/lib/gear.js', import.meta.url), 'utf8').match(/export const OLD_SETS = (\{[^}]*\})/)[1]}`)();
 import { newButton } from '../newbutton.js';
 import { openRow } from '../debrief-rows.js';
+import { flowSeeded, putWall } from '../wall-fixture.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -80,6 +81,9 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   // v0.46.0: "Day ride" is the first button of "What do you want to do?"; v0.94.0: a small tile on the wall
   // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip and Today stays, with a green card
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Quick start» is in the day card (part «Tag»)
+  // «Heute neu» A (0.165.0, changed on purpose): the day card left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   await page.locator('[data-daycard] [data-clock="day"]').click();
   await page.locator('[data-daycard] [data-daycard-quick]').click();
   await expect(page.locator('[data-quick-made]')).toBeVisible();

@@ -9,6 +9,7 @@ import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { P, SPARK, GRAVEL, v038Data, day } from './v038-fixture.js';
 import { openData, settle } from './settle.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const SHOTS = process.env.V044_SHOTS;
 const shot = async (page, info, name, fullPage = false) => {
@@ -68,6 +69,9 @@ async function start(page, context, info, fix = data()) {
 test('Today: the row of the last 12 months opens the review', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
+  // «Heute neu» A (0.165.0, changed on purpose): the 12 months left the ready wall (it stays in the catalog); a wall with it
+  await flowSeeded(page);
+  await putWall(page);
   const row = page.locator('[data-year-row]');
   await expect(row).toBeVisible();
   await expect(row.getByRole('heading', { name: 'Letzte 12 Monate' })).toBeAttached();
