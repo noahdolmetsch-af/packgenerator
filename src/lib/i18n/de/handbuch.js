@@ -1111,4 +1111,9 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Bilder in der App» (Noah 20.10.2026)
+  'Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.': 'Velos › Pflege › ein Velo: «Setup-Fotos» oben rechts öffnet den Zeitstrahl; «+ Foto» legt ein Setup von heute an.',
+  '«…» at a photo: change the day, rename, show it behind the bike, remove.': '«…» bei einem Foto: Datum ändern, umbenennen, hinter dem Velo zeigen, entfernen.',
+  'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.': 'Melde ein Problem mit mehreren Fotos; schneide die Ränder zu oder lege alle als ein PDF unter Ich › Dokumente ab.',
+  'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.': 'Beispiel: Foto vom neuen Taschen-Setup → es steht blass oben in der Velopflege und reiht sich unter diesem Monat ein.',
 };

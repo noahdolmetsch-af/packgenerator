@@ -40,6 +40,8 @@ export const SINCE = {
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
   // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
   'f.velofaq': '0.157.0', // bundler: 0.157.0 with Paket 6
+  // «Bilder in der App» (Noah 20.10.2026): PROVISIONAL, the bundler sets the release version
+  'f.setupphotos': '0.168.0',
   // Paket 4 zu K: Haus-Check, Wohnungs-Hüter, «Bereit für morgen?» (v0.155.0)
   'f.housecheck': '0.155.0', 'f.flatsitter': '0.155.0', 'f.readytomorrow': '0.155.0',
   // «Grösse» (Noah 19.10.2026 «1b 2b»): the whole app smaller or larger, plus «Kompakt»
