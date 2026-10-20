@@ -121,6 +121,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    min-height: 44px; /* a tap target on the phone */
   }
   .lk-ans {
     flex: 1 1 100%;
