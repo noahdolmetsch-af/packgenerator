@@ -168,7 +168,7 @@
   <!-- the numbers of the whole ride or the stretch (the Sauce row) -->
   <dl class="sauce" data-ana-sauce>
     <div><dt>{t('Active')}</dt><dd>{clock(part.moving)}</dd><small>{t('Speed')}: {num(part.kmh, 1)} km/h</small></div>
-    {#if part.w != null}<div><dt>{t('Power')}</dt><dd>{num(part.w)} W</dd><small>{#if wkg(part.w) != null}{t('W/kg')}: {num(wkg(part.w), 1)} · {/if}{t('NP')}: {num(part.np)} W</small></div>{/if}
+    {#if part.w != null}<div><dt>{t('Power')}</dt><dd>{num(part.w)} W</dd><small>{#if wkg(part.w) != null}{t('W/kg')}: {num(wkg(part.w), 1)}{' · '}{/if}{t('NP')}: {num(part.np)} W</small></div>{/if}
     {#if part.kj != null}<div><dt>{t('Energy')}</dt><dd>{num(part.kj)} kJ</dd></div>{/if}
     <div><dt>{t('Elevation')}</dt><dd>{num(part.up)} m</dd><small>{t('VAM')}: {num(part.vam)} m/h</small></div>
   </dl>

@@ -209,3 +209,42 @@ test('d) like Strava: head, Peak Power and the views of the analysis', async ({ 
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+test('e) like Garmin Connect: Statistiken in groups, Diagramme with Ø and Max, laps with a total', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto(`./${key(`a:${A}1`)}`);
+  const sa = page.locator('[data-tour-part="analysis"] [data-strava-analysis]');
+  await sa.scrollIntoViewIfNeeded();
+  const show = sa.locator('[data-ana-show]');
+  const w = info.project.name === 'phone' ? 390 : 1440;
+  mkdirSync(SHOTS, { recursive: true });
+  // Statistiken: the groups of Garmin, empty values left out
+  await sa.locator('[data-ana-view="stats"]').click();
+  const stats = show.locator('[data-garmin-stats]');
+  await expect(stats.locator('[data-gs="speed"] h4')).toHaveText(T('Speed|gc'));
+  await expect(stats.locator('[data-gs-row="np"] dd')).toContainText('205');
+  await expect(stats.locator('[data-gs-row="down"]')).toBeVisible();
+  await expect(stats.locator('[data-gs-row="turns"]')).toBeVisible();
+  await expect(stats.locator('dd', { hasText: /^–$/ })).toHaveCount(0);
+  await show.screenshot({ path: `${SHOTS}/E1-statistiken-${w}.png` });
+  // Diagramme: one chart per sensor, then height with the heart rate zones; tap shows the value
+  await sa.locator('[data-ana-view="charts"]').click();
+  const charts = show.locator('[data-garmin-charts]');
+  await expect(charts.locator('[data-garmin-chart]')).toHaveCount(7);
+  await expect(charts.locator('[data-garmin-chart="alt"] .gc-head dt')).toHaveText([T('Minimum'), T('Maximum')]);
+  const box = charts.locator('[data-garmin-chart="spd"] .gc-box');
+  await box.scrollIntoViewIfNeeded();
+  const b = await box.boundingBox();
+  await page.mouse.click(b.x + b.width * 0.4, b.y + b.height / 2);
+  await expect(charts.locator('[data-garmin-chart="spd"] [data-garmin-tip]')).toContainText('km/h');
+  await charts.locator('.seg button[data-key="time"]').click();
+  await expect(charts.locator('.gc-unit').first()).toHaveText(T('Time (h:mm)'));
+  await show.screenshot({ path: `${SHOTS}/E2-diagramme-${w}.png` });
+  await charts.locator('[data-garmin-chart="althr"]').screenshot({ path: `${SHOTS}/E3-hoehe-puls-${w}.png` });
+  // Runden with the row «Gesamt»
+  await sa.locator('[data-ana-view="laps"]').click();
+  await expect(show.locator('[data-ana-laps-total] th')).toHaveText(T('Total|laps'));
+  await expect(show.locator('[data-ana-laps-total] td').first()).toContainText('62.30');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});

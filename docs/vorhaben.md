@@ -52,7 +52,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren, 0.165.0 Heute neu A «Ein Blick», 0.166.0 Neueste Version laden (Ziel «Eine App, die mich im Alltag unterstützt»).
 
-**Nachtrag 20.10.2026 abends (Brainstorming «1a 2a 3a und b 4b 5a»):** Inhaltspaket A «Tour-Auswertung» gebaut (Ziel «Aus Touren lernen»): Garmin-Werte, Bestwerte 1–20 Minuten, Ruhepuls von Fitbit pro Tour, Punktbild für den Zusammenhang; dazu Profile wie komoot und die Analyse wie Strava (Noah «1:1»). Paket B «GPX-Höhenprofil» läuft parallel.
+**Nachtrag 20.10.2026 abends (Brainstorming «1a 2a 3a und b 4b 5a»):** Inhaltspaket A «Tour-Auswertung» gebaut (Ziel «Aus Touren lernen»): Garmin-Werte, Bestwerte 1–20 Minuten, Ruhepuls von Fitbit pro Tour, Punktbild für den Zusammenhang; dazu Profile wie komoot und die Analyse wie Strava und Garmin Connect (Noah «1:1»). Paket B «GPX-Höhenprofil» läuft parallel.
 
 **Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, Paket 8 (0.160.0), nutzt dessen Ortssuche.
 **Nachtrag 19.10.2026 24 Uhr:** 0.159.0 «Paket 7» bringt U «Rennen» und die Live-Karte für jede Fahrt (Ziel Touren planen und fahren). Ideenliste U geschlossen; Weiteres in die Ideen-Sammlung.

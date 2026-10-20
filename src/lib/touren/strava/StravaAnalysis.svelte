@@ -17,6 +17,9 @@
   import { powerLoad } from '../../training.js';
   import { PEAK_SPANS, peakOf, hrZoneRows, powerZoneRows, dist25, curveOf, serOf, effortOf } from '../stravaana.js';
   import AnaStacked from './AnaStacked.svelte';
+  import GarminStats from './GarminStats.svelte';
+  import GarminCharts from './GarminCharts.svelte';
+  import { statsOf } from '../garmin.js';
   import { clock } from './fmt.js';
 
   let { a, acts = [], bounds = null, ftp = null, kg = null, bike = '', onkm = null } = $props();
@@ -33,6 +36,8 @@
 
   const VIEWS = [
     { key: 'analysis', name: 'Analysis|ana' },
+    { key: 'stats', name: 'Statistics|gc' },
+    { key: 'charts', name: 'Charts|gc' },
     { key: 'effort', name: 'Relative Effort|ana' },
     { key: 'hr', name: 'Heart rate|ana' },
     { key: 'curve', name: 'Power curve|ana' },
@@ -40,7 +45,8 @@
     { key: 'dist', name: '25 W power distribution' },
     { key: 'laps', name: 'Laps|ana' },
   ];
-  const has = $derived({ analysis: !!ser, effort: a.effort > 0, hr: !!hrZoneRows(a, bounds), curve: !!curveOf(a, acts), zones: !!powerZoneRows(a, ftp), dist: !!dist25(a), laps: (a.laps ?? []).length > 1 });
+  const stats = $derived(statsOf(a, { ser, ftp, kg, bounds }));
+  const has = $derived({ analysis: !!ser, stats: stats.length > 0, charts: !!ser, effort: a.effort > 0, hr: !!hrZoneRows(a, bounds), curve: !!curveOf(a, acts), zones: !!powerZoneRows(a, ftp), dist: !!dist25(a), laps: (a.laps ?? []).length > 1 });
   const views = $derived(VIEWS.filter((v) => has[v.key]));
   let view = $state('analysis');
   const shown = $derived(views.some((v) => v.key === view) ? view : (views[0]?.key ?? null));
@@ -129,6 +135,17 @@
     return { key, bars, top };
   });
   const lapTop = $derived(Math.max(1, ...laps.map((l) => l.w ?? 0)));
+  // the row «Gesamt» under the laps, as on Garmin: sums, the means weighted by the moving time
+  const lapSum = $derived.by(() => {
+    const s = laps.reduce((m, l) => m + (l.s || 0), 0) || 1;
+    const by = (k) => {
+      const w = laps.filter((l) => l[k] > 0);
+      const ws = w.reduce((m, l) => m + (l.s || 0), 0);
+      return ws ? Math.round(w.reduce((m, l) => m + l[k] * (l.s || 0), 0) / ws) : null;
+    };
+    const km = laps.reduce((m, l) => m + (l.km || 0), 0);
+    return { km, hm: laps.reduce((m, l) => m + (l.hm || 0), 0), el: laps.reduce((m, l) => m + (l.el || l.s || 0), 0), kmh: km / (s / 3600), w: by('w'), hr: by('hr') };
+  });
 </script>
 
 <div class="sa" data-strava-analysis>
@@ -186,6 +203,10 @@
       <section class="view sa-card" aria-label={t(VIEWS.find((v) => v.key === shown)?.name ?? '')} data-ana-show={shown}>
         {#if shown === 'analysis'}
           <AnaStacked {ser} {kg} {onkm} />
+        {:else if shown === 'stats'}
+          <GarminStats groups={stats} />
+        {:else if shown === 'charts'}
+          <GarminCharts {ser} {bounds} />
         {:else if shown === 'effort'}
           <div class="effv">
             <div>
@@ -251,6 +272,7 @@
             <tbody>
               {#each laps as l (l.n)}<tr><td>{l.n}</td><td>{num(l.km, 2)} <small>km</small></td><td>{num(l.hm)} <small>m</small></td><td>{clock(l.el || l.s)}</td><td>{num(l.kmh, 1)} <small>km/h</small></td><td>{#if l.w}{num(l.w)} <small>W</small> <i class="lw" style:width="{(l.w / lapTop) * 60}px"></i>{:else}–{/if}</td><td>{l.hr ? `${num(l.hr)}` : '–'} {#if l.hr}<small>{t('bpm')}</small>{/if}</td></tr>{/each}
             </tbody>
+            <tfoot><tr data-ana-laps-total><th scope="row">{t('Total|laps')}</th><td>{num(lapSum.km, 2)} <small>km</small></td><td>{num(lapSum.hm)} <small>m</small></td><td>{clock(lapSum.el)}</td><td>{num(lapSum.kmh, 1)} <small>km/h</small></td><td>{lapSum.w ? `${num(lapSum.w)} W` : '–'}</td><td>{lapSum.hr ? `${num(lapSum.hr)} ${t('bpm')}` : '–'}</td></tr></tfoot>
           </table>
         {/if}
       </section>
@@ -624,6 +646,11 @@
     border-bottom: 1px solid var(--line);
     text-align: left;
     white-space: nowrap;
+  }
+  .laps tfoot th,
+  .laps tfoot td {
+    border-bottom: 0;
+    font-weight: 600;
   }
   .laps small {
     color: var(--ink-2);
