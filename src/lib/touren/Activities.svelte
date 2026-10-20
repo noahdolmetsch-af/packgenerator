@@ -220,7 +220,7 @@
     {#if short && list.length > PHONE_ROWS}
       <div class="pmrow">
         <button type="button" class="phone-more" onclick={() => (phoneAll = true)} data-act-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(list.length - PHONE_ROWS, 'Show {n} more activity', 'Show {n} more activities')}</button>
-        <button type="button" class="phone-more pmv" onclick={() => (phoneAll = true)} data-act-views-open><LayoutGrid size={16} aria-hidden="true" />{t('Views|act')}</button>
+        <button type="button" class="phone-more pmv" onclick={() => (phoneAll = true)} aria-label={t('Views|act')} title={t('Views|act')} data-act-views-open><LayoutGrid size={16} aria-hidden="true" /><span class="pmvt">{t('Views|act')}</span></button>
       </div>
     {:else if !short && list.length > shown}
       <button type="button" class="btn k loadmore" onclick={() => (shown += PAGE)} data-load-more>{t('Load more')}<span class="num">{t('{n} of {all}', { n: num(shown), all: num(list.length) })}</span></button>
@@ -726,6 +726,12 @@
   .pmrow .pmv {
     flex: none;
     width: auto;
+  }
+  /* a narrow phone: «Ansichten» as its icon, so «Noch n Aktivitäten zeigen» stays on one line (Handy kurz) */
+  @media (max-width: 420px) {
+    .pmrow .pmvt {
+      display: none;
+    }
   }
   .phone-more {
     display: flex;
