@@ -79,8 +79,7 @@
      «+ Log a workshop visit» and the receipts. -->
 <section class="shop">
   <VeloHead
-    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: pick }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care', bike: pick, open: !!pick }) }]}
-    title={t('Workshop & receipts')}
+    title={t('Workshop|tab')}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of

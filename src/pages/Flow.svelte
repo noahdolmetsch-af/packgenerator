@@ -355,8 +355,7 @@
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
-      <HintCard page="aktiv" intro="aktiv" />
-      <MoreAktiv items={pages} />
+      <!-- Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): «Heute abhaken» first; the explanation card and the page tiles follow it -->
       <div class="lay">
         <div class="col">
           <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
@@ -365,6 +364,8 @@
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
+          <HintCard page="aktiv" intro="aktiv" />
+          <MoreAktiv items={pages} />
           <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
           <TipLine page="aktiv" name={t('Analysis|place')} />
           <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->

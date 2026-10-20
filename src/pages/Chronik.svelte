@@ -8,7 +8,7 @@
    */
   import { liveQuery } from 'dexie';
   import { Bike, Route, Activity, Wrench, Flower2, StickyNote, ChevronLeft, ChevronRight, History } from '@lucide/svelte';
-  import PageHead from '../lib/ui/PageHead.svelte';
+  import PathHead from '../lib/ui/PathHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte';
   import { db } from '../lib/db.js';
@@ -82,7 +82,8 @@
 </script>
 
 <div class="rv-page chronik">
-  <PageHead title={t('Chronicle')} text={t('Everything on one time line: trips, rides, bike care, meditation and notes, one page per month.')} />
+  <!-- Impeccable 20.10.2026 P1: a sub-page of Rückblick, so it has the path back -->
+  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('Chronicle')} sub={t('Everything on one time line: trips, rides, bike care, meditation and notes, one page per month.')} />
   <AreaIntro place="chronik" />
 
   {#if data}

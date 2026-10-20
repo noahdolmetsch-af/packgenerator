@@ -393,7 +393,8 @@
   const activeN = $derived([filter.category, filter.bag, filter.domain, filter.role].filter(Boolean).length);
   const SORT_NAME = { taken: 'Most along', weight: 'Weight', last: 'Last along', name: 'Name' };
   const VIEW_TEXT = $derived({
-    all: t('Everything you own. One dot per trip of the last 12 months.'),
+    // Impeccable 20.10.2026: the dots are only on the cards; the list says what it is
+    all: shownAs === 'cards' ? t('Everything you own. One dot per trip of the last 12 months.') : t('Everything you own.'),
     most: tn(mstats.n, 'Used on at least half of your {n} debriefed trip.', 'Used on at least half of your {n} debriefed trips.'),
     proven: t('Taken {n} times or more and used at least 4 times in 5.', { n: PROVEN_AFTER }),
     fav: t('Marked with a star: tested, your best items.'),

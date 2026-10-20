@@ -99,6 +99,9 @@
   const firstNew = $derived([...nightCards, ...sitCards, ...bathCards].find((s) => isNewBlock(s.key))?.key ?? null);
   // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
   const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
+  // Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): the empty blocks wait in one folded row, the filled ones stay in view
+  const sitFull = $derived(sitCards.filter((s) => s.inventory.length));
+  const sitEmptyCards = $derived(sitCards.filter((s) => !s.inventory.length));
   const rules = $derived(rulesOf($setsQ?.value));
   const ownRain = $derived(addCards.filter((c) => !c.builtIn && RAIN_WORDS.test(c.name)));
   const sample = $derived(sitCards.find((c) => c.key === 'cold') ?? null);
@@ -129,12 +132,13 @@
     return { items: its, g, missing };
   });
   // 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): where the weight of the blocks sits, one bar under the head.
+  // Impeccable 20.10.2026: the bar uses the names of the groups below (one word per thing)
   const gOf = (kind) => cards.filter((c) => c.kind === kind).reduce((s, c) => s + (c.g || 0), 0);
   const weightParts = $derived([
-    { key: 'always', label: t('Always with you'), g: standard.g || 0, color: 'var(--accent)' },
+    { key: 'always', label: t('Standard|block'), g: standard.g || 0, color: 'var(--accent)' },
     { key: 'situation', label: t('Depending on the situation'), g: gOf('situation'), color: 'var(--l2)' },
-    { key: 'ride', label: t('On the ride'), g: gOf('ride'), color: 'var(--l3)' },
-    { key: 'night', label: t('With the night'), g: gOf('night'), color: 'var(--l4)' },
+    { key: 'ride', label: t('On every ride'), g: gOf('ride'), color: 'var(--l3)' },
+    { key: 'night', label: t('Overnight|group'), g: gOf('night'), color: 'var(--l4)' },
     { key: 'add', label: t('To add'), g: gOf('add'), color: 'var(--ink-3)' },
   ]);
   const NAMES_SHOWN = 5;
@@ -384,10 +388,11 @@
 {/snippet}
 
 <div class="blocks">
-  <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Building blocks')} extra={headSub}>
+  <PathHead title={t('Building blocks')} extra={headSub}>
     <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere; SN3: a normal button -->
     <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
-    <Btn icon={ListChecks} label={t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
+    <!-- Impeccable 20.10.2026: one way to the check; the button carries how many wait (the chip under the title is gone) -->
+    <Btn icon={ListChecks} label={toCheck ? t('Check building blocks · {n}', { n: checkN }) : t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
   <AreaIntro place="blocks" />
@@ -441,10 +446,19 @@
       </Section>
 
       <Section title={t('Depending on the situation')} sub={`${t('come as a suggestion when the trip fits')} · ${tn(sitCards.length, '{n} building block', '{n} building blocks')}`} id="g-situation">
-        {#if sitEmpty}<p class="shint emptyhint"><Info size={15} aria-hidden="true" /><span>{tn(sitEmpty, '{n} building block is still empty. Put in the items that should come along, for example in cold, heat or rain.', '{n} building blocks are still empty. Put in the items that should come along, for example in cold, heat or rain.')}</span></p>{/if}
-        <ul class="card slist">
-          {#each sitCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
-        </ul>
+        {#if sitFull.length}
+          <ul class="card slist">
+            {#each sitFull as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
+          </ul>
+        {/if}
+        {#if sitEmpty}
+          <details class="emptyfold" data-empty-blocks>
+            <summary class="srow"><span class="sm"><b>{tn(sitEmpty, '{n} empty building block', '{n} empty building blocks')}</b><small>{t('Put in the items that should come along, for example in cold, heat or rain.')}</small></span><ChevronRight class="schev chev" size={18} aria-hidden="true" /></summary>
+            <ul class="card slist">
+              {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
+            </ul>
+          </details>
+        {/if}
         {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
         <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Tap a block to change its rule, limit and items, or to switch the suggestion off. Never a must: in Pack it is dashed and can be left out.')}</span></p>
       </Section>
@@ -506,10 +520,9 @@
   <!-- v0.40.0 (design check, Noah 7a): one line instead of four, the rest behind "?" -->
   <p class="bsub">{tn(cards.filter((c) => c.kind !== 'stage').length + 1, '{n} building block', '{n} building blocks')} · {t('groups of items that come along together')}
     <Help label={t('Building blocks')}>
-      <p>{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
+      <p>{t('A building block is a group of items that comes along together. There are five groups: overnight, on every ride, depending on the situation, bathing and to add. Changing a block does not change trips you already made.')}</p>
       <p>{t('Tools are never called "not needed" in the debrief.')}</p>
     </Help>
-    {#if toCheck}<a class="nbadge chk tap" href="#/blocks/check">{tn(checkN, '{n} building block to check', '{n} building blocks to check')} ›</a>{/if}
   </p>
   <div class="bshare"><ShareBar label={t('Weight by group')} parts={weightParts} /></div>
 {/snippet}
@@ -1048,4 +1061,23 @@
   }
   /* Paket H #260: the rule line of an own block */
   .ownrule { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+  .emptyfold {
+    margin-top: var(--sp-2);
+  }
+  .emptyfold > summary {
+    list-style: none;
+    cursor: pointer;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .emptyfold > summary::-webkit-details-marker {
+    display: none;
+  }
+  .emptyfold[open] > summary :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .emptyfold > ul {
+    margin-top: var(--sp-2);
+  }
 </style>

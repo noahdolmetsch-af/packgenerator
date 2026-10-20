@@ -124,7 +124,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
     await expect(box, place).toContainText(T(title));
-    await expect(box.locator('.kick'), place).toHaveText(new RegExp(`^${T('This is {place}', { place: '' })}`));
+    await expect(box.locator('.kick'), place).toHaveCount(0); // Impeccable 20.10.2026: no label above the title
     await expect(box.locator('[data-offer]'), place).toHaveCount(0);
     await expect(box.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
   }

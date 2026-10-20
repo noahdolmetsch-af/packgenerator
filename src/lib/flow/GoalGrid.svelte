@@ -186,7 +186,7 @@
     background: var(--hi);
   }
   .done.mind .dot {
-    background: var(--accent);
+    background: var(--l4);
   }
   .done.rest .dot {
     background: var(--l3);

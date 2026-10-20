@@ -409,9 +409,7 @@
     />
   {:else}
     <VeloHead
-      crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }]}
-      here={t('Care|tab')}
-      title={t('Bike care')}
+      title={t('Care|tab')}
       sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : t('nothing due')].join(' · ')}
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->

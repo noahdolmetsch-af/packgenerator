@@ -102,7 +102,7 @@
       <div class="main">
         <div class="head">
           <div>
-            <p class="kick">{intro.page ? t('This is {place}', { place: name }) : t('Your area {place}', { place: name })}</p>
+            <!-- Impeccable 20.10.2026: no label above the title («DAS IST …»); the title speaks for itself -->
             <h2 id="ai-{place}">{t(intro.title)}</h2>
           </div>
           {#if phone.matches}<button type="button" class="x" aria-label={t('Hide the introduction')} onclick={() => save((v) => hide(v, place))}><X size={20} aria-hidden="true" /></button>{/if}

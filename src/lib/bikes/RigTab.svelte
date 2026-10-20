@@ -151,8 +151,6 @@
   <SetupTable {bike} {trips} {items} {containers} />
 {:else if bike}
   <VeloHead
-    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
-    here={t('My setup|tab')}
     title={t('My setup|tab')}
     sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
   />
