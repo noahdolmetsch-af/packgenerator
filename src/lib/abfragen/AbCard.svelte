@@ -76,6 +76,13 @@
       saving = false;
     }
   }
+  // Noah 20.10.2026 «eine frage überspringen button, sehr klein und dezent»: this one question is put away
+  // until its next time (like «Heute nicht», for one); the next waiting question moves up
+  function skip(d) {
+    delete draft[d.q.id];
+    delete notes[d.q.id];
+    saveSnooze({ ...(data?.snooze ?? {}), [d.q.id]: d.last ?? d.slot });
+  }
   // «Heute nicht»: every shown question put away until its next time (was «Jetzt nicht»)
   const notToday = () => saveSnooze(snoozeAll(data?.snooze, shown));
   // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
@@ -142,8 +149,9 @@
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
+            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
             {#each (d.q.src ?? []).filter((s) => s !== 'hand') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
+            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
@@ -210,6 +218,26 @@
     gap: 6px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* «Überspringen»: small and quiet, still 44 px to tap (the hit area is bigger than the word) */
+  .skip {
+    position: relative;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: 400 var(--fs-tiny) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .skip::after {
+    content: '';
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .skip:hover {
+    color: var(--ink-2);
   }
   .last {
     display: block;

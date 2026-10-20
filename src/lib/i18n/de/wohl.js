@@ -284,7 +284,7 @@ export default {
   'Battery at {n}: a small suggestion': 'Akku bei {n}: ein kleiner Vorschlag',
   'From your jar:': 'Aus deinem Glas:',
   // Noah 19.10.2026 «5a»: «Das tut mir gut» and your good days
-  'Your list «What does me good»': 'Deine Liste «Das tut mir gut»',
+  'Your list «What does me good»': 'Deine Liste «Was mir gut tut»',
   'Day score on the days you ticked an item, against the other days': 'Tagesbewertung an Tagen mit abgehaktem Eintrag, verglichen mit den anderen Tagen',
   'carries your good days: {a} instead of {b}': 'trägt deine guten Tage: {a} statt {b}',
   'day score {a} with it, {b} without': 'Tagesbewertung {a} damit, {b} ohne',

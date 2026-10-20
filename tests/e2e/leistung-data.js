@@ -59,6 +59,7 @@ export function detail(id) {
   return {
     id, kcal: 890, hist: HIST, curve: pts.map((p) => [p[0], p[2]]), w20,
     pHist, pCurve, pauses: { n: 2, secs: 360 },
+    dv: DETAIL_V, // the server says which kind of detail it sent (Tour-Auswertung 20.10.2026)
     segs: [], best: [], desc: '',
     cHist: { 50: 115, 60: 230, 70: 520, 80: 1270, 90: 1730, 100: 1040, 110: 520, 120: 230, 130: 115 },
     secs5: [[0, 5, 661, 40, 131, 182], [5, 10, 641, 25, 134, 190], [10, 15, 948, 210, 152, 238], [15, 20, 895, 180, 149, 231], [20, 25, 552, 15, 128, 160], [25, 30, 620, 60, 137, 196], [30, 35, 718, 120, 143, 214], [35, 40, 605, 25, 136, 188], [40, 42.3, 279, 5, 129, 170]].map(([from, to, s, hm, hr, w]) => ({ from, to, s, hm, hr, w })),

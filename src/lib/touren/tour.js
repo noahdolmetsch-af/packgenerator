@@ -30,6 +30,7 @@ export const PARTS = [
   { key: 'pack', name: 'Gear|tour' },
   { key: 'diary', name: 'Diary|tour' },
   { key: 'review', name: 'Look back|tour' },
+  { key: 'analysis', name: 'Analysis|ana' },
 ];
 export const MODES = ['all', 'tabs'];
 

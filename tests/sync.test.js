@@ -442,6 +442,9 @@ describe('Strava activities fetched on both devices make no question (Noah 20.10
     expect(autoPick('activities', 'test_data_gtp_a1', act('2026-10-20T18:10:00Z', { dv: 2 }), act('2026-10-20T18:09:00Z', { dv: 3 }))).toBe('theirs');
     // an empty note is no note
     expect(autoPick('activities', 'test_data_gtp_a1', act('a', { note: '' }), act('b'))).toBe('theirs');
+    // an empty own value or an own value with nothing in it is no own value either
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a', { own: {}, hidden: false }), act('b', { own: { bikeId: null } }))).toBe('theirs');
+    expect(autoPick('activities', 'test_data_gtp_a1', act('a', { own: { bikeId: 'test_data_gtp_bike' } }), act('b'))).toBe(null);
     expect(autoPick('activities', 'test_data_gtp_a1', act('a', { note: 'test_data_gtp_ mine' }), act('b'))).toBe(null);
     expect(autoPick('activities', 'test_data_gtp_a1', act('a', { feel: 3 }), act('b', { feel: 4 }))).toBe(null);
     expect(autoPick('activities', 'test_data_gtp_a1', act('a'), null)).toBe(null);

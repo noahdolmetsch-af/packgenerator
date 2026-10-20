@@ -408,6 +408,27 @@ export const HANDBOOK = {
     steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
     example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
   },
+  // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026)
+  'f.arrived': {
+    on: 'Choose your emergency contacts once in Before you leave.',
+    steps: ['Open On the way, tap «Arrived safely», then «Share».'],
+    example: 'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»',
+  },
+  'f.planb': {
+    on: null,
+    steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],
+    example: 'Example: 14 mm of rain on Saturday → the 60 km variant instead of 110 km.',
+  },
+  'f.checkin': {
+    on: null,
+    steps: ['In Planen set until when you can check in each night.', 'Read the warning; call ahead with the number of the accommodation.'],
+    example: 'Example: check-in until 20:00, arrival 20:40 → you would need 24 km/h instead of 19.',
+  },
+  'f.parked': {
+    on: null,
+    steps: ['On On the way tap «Bike parked»: photo, lock, save.', 'Later tap it again: the photo, the lock and «Way to the bike».'],
+    example: 'Example: at the station in a big town → back after the museum with the map link.',
+  },
   'f.departsheet': {
     on: null,
     steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
@@ -599,7 +620,7 @@ export const HANDBOOK = {
   // v0.133.0
   'f.abfragen': {
     on: null,
-    steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'From 07:00 and 20:30 the card on Today asks them; Me › Data › History shows all answers.'],
+    steps: ['Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.', 'Tap «Edit questions and groups»: change, delete, sort and add questions and areas.', 'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one away. Me › Data › History shows all answers.'],
     example: 'Example: «How full is your battery?» three times a day → the tile «Morning round» shows sleep, energy and mood.',
   },
   // v0.135.0
@@ -675,10 +696,60 @@ export const HANDBOOK = {
     steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
     example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
   },
+  'f.reroute': {
+    on: null,
+    steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
+    example: 'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.',
+  },
   'f.live': {
     on: null,
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],
     example: 'Example: km 412 → the next shop in 2 km, open until 19:00.',
+  },
+  'f.livepause': {
+    on: null,
+    steps: ['Start a ride on the live map and tap the pause button bottom left.', 'For the auto-pause: open the sheet › «Settings», switch on «Auto-pause» and type your speed.'],
+    example: 'Example: limit 4 km/h → at a red light the clock stops after 10 s and runs again when you ride on.',
+  },
+  'f.sensors': {
+    on: 'Needs a browser with Bluetooth, e.g. Chrome on Android or on the computer.',
+    steps: ['Open the sheet of the live map › «Sensors» and tap «Connect» for heart rate, power or cadence.', 'Pick your sensor; its values show live and after the ride as a curve.'],
+    example: 'Example: chest strap connected → 142 bpm live, after the ride Ø 138 bpm with the curve.',
+  },
+  'f.datapages': {
+    on: null,
+    steps: ['On the live map, swipe left on the strip at the right edge, or tap the arrows on top.', 'Open the sheet › «Data pages» to add, rename, sort or delete pages and their fields.'],
+    example: 'Example: page «Climb» → metres up to the summit, gradient and the profile ahead.',
+  },
+  'f.turns': {
+    on: 'Needs a trip or race with a route (GPX).',
+    steps: ['Start a ride on a trip with a route: the arrow comes from 1 km before a turn.', 'Switch the arrow or the voice off in the sheet › «Settings».'],
+    example: 'Example: «In 200 m turn left», then «Turn left now».',
+  },
+  'f.laps': {
+    on: null,
+    steps: ['Tap the flag button on the live map for a new lap; the laps are in the sheet.', 'Ride a route of a trip a second time: «Against your last ride» shows in the sheet.'],
+    example: 'Example: «−0:42» → 42 s faster than last time at the same km.',
+  },
+  'f.moreplaces': {
+    on: null,
+    steps: ['Open the place search on the live map or a race map and type your radius.', 'Under «My own places» add a place here, by a tap on the map or from a file.'],
+    example: 'Example: a CSV of the race checkpoints → all as your own places on the map.',
+  },
+  'f.rwgps': {
+    on: null,
+    steps: ['Open a trip › «Route», tap «Link from Ride with GPS» and paste the link.', 'Tap «Load»: the route and its waypoints come in.'],
+    example: 'Example: a public route link → 86 km, 1200 m up and 5 waypoints on the map.',
+  },
+  'f.ovnear': {
+    on: null,
+    steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
+    example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
+  },
+  'f.sharepic': {
+    on: null,
+    steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
+    example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
   'f.racesample': {
     on: null,
@@ -729,6 +800,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Free time and choose one of the eight pages.', 'Everything is a suggestion: change, sort, hide or delete it, and add your own.'],
     example: 'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.',
+  },
+  'f.journal': {
+    on: null,
+    steps: ['Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
+    example: 'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.',
   },
   'f.impulse': {
     on: null,
@@ -883,7 +959,7 @@ export const HANDBOOK = {
   },
   'f.tourpage': {
     on: 'Works for Strava rides, joined tours and tours with a packing list.',
-    steps: ['Open Trips › Rides and tap a finished tour.', 'Tap a value to correct it; the Strava value stays next to it.', 'Under «Choose several», pick rides and join them into one tour.'],
+    steps: ['Open Trips › Rides and tap a finished tour.', 'Under «Values», «Like on the Garmin» shows NP, the best minutes and your resting heart rate that day.', 'Under «Choose several», pick rides and join them into one tour.'],
     example: 'Example: two Strava rides of one weekend → join them, rename the tour, add photos.',
   },
   'f.fuel': {
@@ -1109,7 +1185,7 @@ export const HANDBOOK = {
   },
   'f.lake': {
     on: 'Nothing to switch on; the card on Aktiv fetches the value.',
-    steps: ['Open Aktiv.', 'The card «Lake Zurich» shows the water now, the last 30 days and the Eawag preview.', 'Under «Swim hint» set from how many degrees it is warm enough for you.'],
+    steps: ['Open Aktiv: the card «Lake Zurich» shows the water with the scale pleasant, fresh, cold, icy.', '«Sauna and lake today?»: one tap ticks the sauna or the swim; each swim keeps its water temperature, with your coldest one.', 'Under «Cold-water scale» set the limits that fit you.'],
     example: 'Example: 21.4 °C at Mythenquai, preview 22 °C on Saturday → a swim after the ride.',
   },
   'f.datastars': {
@@ -1161,6 +1237,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
     example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
+  },
+  'f.firststart': {
+    on: 'Only on a new, empty app: it asks once when it opens for the first time.',
+    steps: ['Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {
     on: null,
@@ -1302,6 +1383,11 @@ export const HANDBOOK = {
     on: 'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.',
     steps: ['Open Trips › Look back › New ground.', 'Choose a collection: cantons, passes, huts, peaks, lakes, municipalities, countries or your own.', 'The app colours in what your routes reached; tap an entry for its day and trip, or tick it by hand.'],
     example: 'Example: a day trip over the Klausenpass → Uri and Glarus new, the Klausenpass ticked, two lines on the bingo card closer.',
+  },
+  'f.heatmap': {
+    on: 'Works with Strava rides, uploaded GPX rides and routes recorded in the app.',
+    steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
+    example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
   },  'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
     steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],

@@ -2,12 +2,14 @@
   /**
    * «Orte auf der Karte» 1a (Noah 19.10.2026 20:26): when a map strip is kept for offline, the places of
    * every kind along the route are kept too (Overpass in chunks with a pause, poisearch.js keepAlong),
-   * so «Along the route» works offline. One line in «Map offline»: how many are kept.
+   * so «Along the route» works offline. One line in «Map offline»: how many are kept. Also the kinds you
+   * put into the chip row yourself (more kinds and own kinds, settings 'poi-search').
    *
    * Props: line ([[lat, lon]]), tripId, run (a number: each new value starts a keep, 0 = only show).
    */
   import { t, tn, num } from '../i18n.svelte.js';
-  import { keepAlong, keptAlong } from './poisearch.js';
+  import { db } from '../db.js';
+  import { keepAlong, keptAlong, KEYS, SETTINGS_KEY, prefsOf } from './poisearch.js';
   import { placeStore } from './poiprefs.js';
 
   let { line = [], tripId = null, run = 0, fetcher = undefined } = $props();
@@ -35,7 +37,14 @@
     if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
     state = 'loading';
     prog = null;
-    const r = await keepAlong($state.snapshot(line), tripId, { store: placeStore, onProgress: (p) => (prog = p), ...(fetcher ? { fetcher } : {}) });
+    let p = prefsOf(null);
+    try {
+      p = prefsOf((await db.settings.get(SETTINGS_KEY))?.value);
+    } catch {
+      /* the defaults */
+    }
+    const keys = [...new Set([...KEYS, ...p.row])];
+    const r = await keepAlong($state.snapshot(line), tripId, { store: placeStore, keys, own: p.own, onProgress: (p) => (prog = p), ...(fetcher ? { fetcher } : {}) });
     if (r.count || (r.chunks && r.failed < r.chunks)) {
       count = r.count;
       state = r.failed ? 'failed' : 'done';
